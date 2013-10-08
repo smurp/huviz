@@ -1,0 +1,150 @@
+hasSex|<BIOGRAPHY SEX="([A-Z]+)"
+standardName|<STANDARD>(.+?)</STANDARD>
+givenName|<GIVEN>([\w ]+)</GIVEN>
+surname|<SURNAME>([\w ]+)</SURNAME>
+nickname|<NICKNAME.+?REG="(\w ,)"
+dateOfBirth|<BIRTH>.+?<DATE VALUE="([\d-]+?)"
+bornInRegion|<BIRTH>.+?</BIRTH>|<REGION REG="([\w ]+?)"
+bornInRegion|<BIRTH>.+?</BIRTH>|<REGION>([\w ]+?)</REGION>
+bornInSettlement|<BIRTH>.+?</BIRTH>|<SETTLEMENT REG="([\d-]+?)"
+bornInSettlement|<BIRTH>.+?</BIRTH>|<SETTLEMENT>([\w ]+?)</SETTLEMENT>
+bornInGeog|<BIRTH>.+?</BIRTH>|<GEOG REG="([\d-]+?)"|
+bornInGeog|<BIRTH>.+?</BIRTH>|<GEOG>([\w ]+?)</GEOG>
+birthPosition|<BIRTH>.+?</BIRTH>|<BIRTHPOSITION POSITION="(.+?)"
+religiousInfluence|<CULTURALFORMATION>.+?</CULTURALFORMATION>|<DENOMINATION><ORGNAME REG="([\w ]+)"
+culturalInfluence|<CULTURALFORMATION>.+?</CULTURALFORMATION>|<RACECOLOUR>([\w ]+)</RACECOLOUR>
+politicalInfluence|<CULTURALFORMATION>.+?</CULTURALFORMATION>|<CLASS SOCIALRANK="([\w, ]+)"
+politicalInfluence|<CULTURALFORMATION>.+?</CULTURALFORMATION>|<CLASS.*?>([\w, ]+)</CLASS>
+ofNationality|<CULTURALFORMATION>.+?</CULTURALFORMATION>|<NATIONALITY>([\w, ]+)</NATIONALITY>
+childOf|<NAME STANDARD="([\w, ]+?)">father</NAME>
+childOf|<NAME STANDARD="([\w, ]+?)">mother</NAME>
+marriedTo|<NAME STANDARD="([\w, ]+?)">husband</NAME>
+siblingOf|<NAME STANDARD="([\w, ]+?)">sister</NAME>
+siblingOf|<NAME STANDARD="([\w, ]+?)">brother</NAME>
+numberOfChildren|<CHILDREN NUMBER="([\d]+?)"
+parentOf|<NAME STANDARD="([\w, ]+?)">son</NAME>
+parentOf|<NAME STANDARD="([\w, ]+?)">daughter</NAME>
+grandchildOf|<NAME STANDARD="([\w, ]+?)">grandfather</NAME>
+grandchildOf|<NAME STANDARD="([\w, ]+?)">grandmother</NAME>
+grandparentOf|<NAME STANDARD="([\w, ]+?)">grandson</NAME>
+grandparentOf|<NAME STANDARD="([\w, ]+?)">grandaughter</NAME>
+juniorCollateralRelationshipTo|<NAME STANDARD="([\w, ]+?)">uncle</NAME>
+juniorCollateralRelationshipTo|<NAME STANDARD="([\w, ]+?)">aunt</NAME>
+seniorCollateralRelationshipTo|<NAME STANDARD="([\w, ]+?)">nephew</NAME>
+seniorCollateralRelationshipTo|<NAME STANDARD="([\w, ]+?)">niece</NAME>
+cousinOf|<NAME STANDARD="([\w, ]+?)">cousin</NAME>
+friendOf|<NAME STANDARD="([\w, ]+?)">friend</NAME>
+friendOrAssociateOf|<FRIENDSASSOCIATES>.+?</FRIENDSASSOCIATES>|<NAME STANDARD="([\w, ]+?)">
+educationMode|<EDUCATION MODE="([\w ]+?)"
+educationLevel|<SCHOOL INSTITUTION="[A-Z]+" STUDENTBODY="[A-Z]+" INSTITUTIONLEVEL="([A-Z]+)">
+educationGender|<SCHOOL INSTITUTION="[A-Z]+" STUDENTBODY="([A-Z]+)" INSTITUTIONLEVEL="[A-Z]+">
+educationInstitutionType|<SCHOOL INSTITUTION="([A-Z]+)" STUDENTBODY="[A-Z]+" INSTITUTIONLEVEL="[A-Z]+">
+educatedBy|<INSTRUCTOR><NAME STANDARD="([\w, ]+?)">
+studied|<EDUCATION.+?</EDUCATION>|<SUBJECT>([\w, ]+?)</SUBJECT>
+occupation|<OCCUPATION>.+?</OCCUPATION>|<JOB REG="([\w ',]+?)"
+occupation|<OCCUPATION>.+?</OCCUPATION>|<SIGNIFICANTACTIVITY.*?>([\w ',]+?)</SIGNIFICANTACTIVITY>
+occupation|<OCCUPATION>.+?</OCCUPATION>|<SIGNIFICANTACTIVITY.*?REG="([\w ',]+?)"
+livedInSettlement|<LOCATION RELATIONTO="LIVED">[<\w ="->:_]+?<SETTLEMENT[<\w ="-:_]+>([\w ,']+)</SETTLEMENT>
+livedInSettlement|<LOCATION RELATIONTO="LIVED">[<\w ="->:_]+?<SETTLEMENT CURRENT="([\w ,']+?)"
+livedInRegion|<LOCATION RELATIONTO="LIVED">[<\w ="->:_]+?<REGION[<\w ="-:_]+>([\w ,']+)</REGION>
+livedInRegion|<LOCATION RELATIONTO="LIVED">[<\w ="->:_]+?<REGION REG="([\w ,']+)"
+livedInGeog|<LOCATION RELATIONTO="LIVED">[<\w ="->:_]+?<GEOG [<\w ="-:_]+>([\w ,']+)</GEOG>
+livedInGeog|<LOCATION RELATIONTO="LIVED">[<\w ="->:_]+?<GEOG REG="([\w ,]+)"
+dateOfdeath|<DEATH>.+?</DEATH>|<DATE VALUE="([\d-]+?)"
+diedInSettlement|<DEATH>.+?</DEATH>|<SETTLEMENT.+?>([\w ,']+)</SETTLEMENT>
+diedInSettlement|<DEATH>.+?</DEATH>|<SETTLEMENT CURRENT="([\w ]+?)"
+diedInRegion|<DEATH>.+?</DEATH>|<REGION.+?>([\w ,']+?)</REGION>
+diedInRegion|<DEATH>.+?</DEATH>|<REGION REG="([\w ,']+?)"
+diedInGeog|<DEATH>.+?</DEATH>|<GEOG.+?>([\w ]+?)</GEOG>
+diedInGeog|<DEATH>.+?</DEATH>|<GEOG REG="([\w ,]+?)"
+contributionToDeath|<DEATH>.+?</DEATH>|<CAUSE>([\w ,']+?)</CAUSE>
+wroteInGenre|<TGENRE GENRENAME="([\w ]+?)"
+wrote|<TEXTSCOPE.+?>|PLACEHOLDER=".+?,([\w ,-\.']+?),
+wroteOnTopic|<TTHEMETOPIC>(.+?)</TTHEMETOPIC>
+workedAs|<OCCUPATION>.+?</OCCUPATION>|<JOB>([\w ]+?)</JOB>
+workedAs|<OCCUPATION>.+?</OCCUPATION>|<JOB REG="([\w ]+?)"
+connectionToOrganization|<ORGNAME.+?STANDARD="([\w ]+?)"
+connectionToPerson|<NAME.+?STANDARD="([\w, ]+?)"
+connectionWithJob|<JOB.+?REG="([\w, ]+?)"
+connectionWithPlace|<PLACENAME>([\w,' ]+?)<
+connectionWithAddress|<ADDRESS>(.+?)</ADDRESS>
+connectionWithSettlement|<SETTLEMENT>(.+?)</SETTLEMENT>
+connectionWithSettlement|<SETTLEMENT REG="(.+?)"
+connectionWithSettlement|<SETTLEMENT CURRENT="(.+?)"
+connectionWithSettlement|<SETTLEMENT.*?>(.+?)</SETTLEMENT>
+connectionWithRegion|<REGION>(.+?)</REGION>
+connectionWithRegion|<REGION CURRENT="(.+?)"
+connectionWithRegion|<REGION REG="(.+?)"
+connectionWithRegion|<REGION.*?>(.+?)</REGION>
+connectionWithWork|<TITLE.+?>(.+?)</TITLE>
+hadHealthIssue|<HEALTH ISSUE="(.+?)"
+connectionToOrganization|<ORGNAME.+?STANDARD="([\w ]+?)"
+politicalConnectionToOrganization|<POLITICS>.+?</POLITICS>|<ORGNAME REG="([\w ]+)"
+healthConnectionToOrganization|<HEALTH>.+?</HEALTH>|<ORGNAME REG="([\w ]+)"
+locationConnectionToOrganization|<LOCATION>.+?</LOCATION>|<ORGNAME REG="([\w ]+)"
+violenceConnectionToOrganization|<VIOLENCE>.+?</VIOLENCE>|<ORGNAME REG="([\w ]+)"
+occupationConnectionToOrganization|<OCCUPATION>.+?</OCCUPATION>|<ORGNAME REG="([\w ]+)"
+otherlifeeventConnectionToOrganization|<OTHERLIFEEVENT>.+?</OTHERLIFEEVENT>|<ORGNAME REG="([\w ]+)"
+wealthConnectionToOrganization|<WEALTH>.+?</WEALTH>|<ORGNAME REG="([\w ]+)"
+intimaterelationshipsConnectionToOrganization|<INTIMATERELATIONSHIPS>.+?</INTIMATERELATIONSHIPS>|<ORGNAME REG="([\w ]+)"
+leisureandsocietyConnectionToOrganization|<LEISUREANDSOCIETY>.+?</LEISUREANDSOCIETY>|<ORGNAME REG="([\w ]+)"
+friendsandassociatesConnectionToOrganization|<FRIENDSASSOCIATES>.+?</FRIENDSASSOCIATES>|<ORGNAME REG="([\w ]+)"
+serializationConnectionToOrganization|<PRODUCTION>.+?</PRODUCTION>|<PSERIALIZATION>.+?</PSERIALIZATION>|<ORGNAME.+?STANDARD="([\w ]+?)"
+modeofPublicationConnectionToOrganization|<PRODUCTION>.+?</PRODUCTION>|<PMODEOFPUBLICATION>.+?</PMODEOFPUBLICATION>|<ORGNAME.+?STANDARD="([\w ]+?)"
+dedicationConnectionToOrganization|<PRODUCTION>.+?</PRODUCTION>|<PDEDICATION>.+?</PDEDICATION>|<ORGNAME.+?STANDARD="([\w ]+?)"
+pressrunConnectionToOrganization|<PRODUCTION>.+?</PRODUCTION>|<PPRESSRUN>.+?</PPRESSRUN>|<ORGNAME.+?STANDARD="([\w ]+?)"
+contractConnectionToOrganization|<PRODUCTION>.+?</PRODUCTION>|<PCONTRACT>.+?</PCONTRACT>|<ORGNAME.+?STANDARD="([\w ]+?)"
+archivallocationConnectionToOrganization|<PRODUCTION>.+?</PRODUCTION>|<PARCHIVALLOCATION>.+?</PARCHIVALLOCATION>|<ORGNAME.+?STANDARD="([\w ]+?)"
+submissionsRejectionsConnectionToOrganization|<PRODUCTION>.+?</PRODUCTION>|<PSUBMISSIONSREJECTIONS>.+?</PSUBMISSIONSREJECTIONS>|<ORGNAME.+?STANDARD="([\w ]+?)"
+performanceConnectionToOrganization|<PRODUCTION>.+?</PRODUCTION>|<PPERFORMANCE>.+?</PPERFORMANCE>|<ORGNAME.+?STANDARD="([\w ]+?)"
+performanceConnectionToOrganization|<PRODUCTION>.+?</PRODUCTION>|<PPERFORMANCE>.+?</PPERFORMANCE>|<ORGNAME.+?STANDARD="([\w ]+?)"
+copyrightConnectionToOrganization|<PRODUCTION>.+?</PRODUCTION>|<PCOPYRIGHT>.+?</PCOPYRIGHT>|<ORGNAME.+?STANDARD="([\w ]+?)"
+anthologizationConnectionToOrganization|<PRODUCTION>.+?</PRODUCTION>|<PCOPYRIGHT>.+?</PCOPYRIGHT>|<ORGNAME.+?STANDARD="([\w ]+?)"
+periodicalpublicationConnectiontoOrganization|<PRODUCTION>.+?</PRODUCTION>|<PPERIODICALPUBLICATION>.+?</PPERIODICALPUBLICATION>|<ORGNAME.+?STANDARD="([\w ]+?)"
+materialConditionsConnectiontoOrganization|<PRODUCTION>.+?</PRODUCTION>|<PMATERIALCONDITIONS>.+?</PMATERIALCONDITIONS>|<ORGNAME.+?STANDARD="([\w ]+?)"
+editionsConnectionToOrganization<PRODUCTION>.+?</PRODUCTION>|<PEDITIONS>.+?</PEDITIONS>|<ORGNAME.+?STANDARD="([\w ]+?)"
+relationswithpublisherConnectionToOrganization|<PRODUCTION>.+?</PRODUCTION>|<PRELATIONSWITHPUBLISHER>.+?</PRELATIONSWITHPUBLISHER>|<ORGNAME.+?STANDARD="([\w ]+?)"
+plotConnectionToOrganization<TEXTUALFEATURES>.+?</TEXTUALFEATURES>|<TPLOT>.+?</TPLOT>|<ORGNAME.+?STANDARD="([\w ]+?)"
+themetopicConnectionToOrganization<TEXTUALFEATURES>.+?</TEXTUALFEATURES>|<TTHEMETOPIC>.+?</TTHEMETOPIC>|<ORGNAME.+?STANDARD="([\w ]+?)"
+recognitionsConnectionToOrganization|<RECEPTION>.+?</RECEPTION>|<RRECOGNITIONS>.+?</RRECOGNITIONS>|<ORGNAME.+?STANDARD="([\w ]+?)"
+penaltiesConnectionToOrganization|<RECEPTION>.+?</RECEPTION>|<RPENALTIES>.+?</RPENALTIES>|<ORGNAME.+?STANDARD="([\w ]+?)"
+destructionOfWorkConnectionToOrganization|<RECEPTION>.+?</RECEPTION>|<RDESTRUCTIONOFWORK>.+?</RDESTRUCTIONOFWORK>|<ORGNAME.+?STANDARD="([\w ]+?)"
+connectionToPerson|<NAME.+?STANDARD="([\w, ]+?)"
+politicalConnectionToPerson|<POLITICS>.+?</POLITICS>|<NAME.+?STANDARD="([\w, ]+?)"
+textualfeaturestoText|<TEXTUALFEATURES>.+?</TEXTUALFEATURES>|<TITLE.+?</TITLE>
+intertextualityConnectionToText|<TEXTUALFEATURES>.+?</TEXTUALFEATURES>|<TINTERTEXTUALITY>.+?</TINTERTEXTUALITY>|<TITLE.+?</TITLE>
+intertextualityConnectionToTextGenre|<TEXTUALFEATURES>.+?</TEXTUALFEATURES>|<TINTERTEXTUALITY>.+?</TINTERTEXTUALITY>|<TITLE.+?</TITLE>|<TGENRE GENRENAME="([\w ]+?)"
+themeTopicConnectionToText|<TEXTUALFEATURES>.+?</TEXTUALFEATURES>|<TTHEMETOPIC>.+?</TTHEMETOPIC>|<TITLE.+?</TITLE>
+themeTopicConnectionToTextGenre|<TEXTUALFEATURES>.+?</TEXTUALFEATURES>|<TTHEMETOPIC>.+?</TTHEMETOPIC>|<TITLE.+?</TITLE>|<TGENRE GENRENAME="([\w ]+?)"
+toneStyleConnectionToText|<TEXTUALFEATURES>.+?</TEXTUALFEATURES>|<TTONESTYLE>.+?</TTONESTYLE>|<TITLE.+?</TITLE>
+toneStyleConnectionToTextGenre|<TEXTUALFEATURES>.+?</TEXTUALFEATURES>|<TTONESTYLE >.+?</TTONESTYLE>|<TITLE.+?</TITLE><TGENRE GENRENAME="([\w ]+?)"
+genreIssueConnectionToText|<TEXTUALFEATURES>.+?</TEXTUALFEATURES>|<TGENREISSUE>.+?</TGENREISSUE>|<TITLE.+?</TITLE>
+techniqueIssueConnectionToText|<TEXTUALFEATURES>.+?</TEXTUALFEATURES>|<TTECHNIQUE>.+?</TTECHNIQUE>|<TITLE.+?</TITLE>
+textConnectionToGenre |<TEXTUALFEATURES>.+?</TEXTUALFEATURES>|<TITLE>.?+</TITLE>|<TGENRE GENRENAME="([\w ]+?)"
+textualfeaturesConnectionToPerson|<TEXTUALFEATURES>.+?</TEXTUALFEATURES>|<NAME.+?STANDARD="([\w, ]+?)"
+intertextualityConnectionToPerson|<TEXTUALFEATURES>.+?</TEXTUALFEATURES>|<TINTERTEXTUALITY>.+?</TINTERTEXTUALITY>|<NAME.+?STANDARD="([\w, ]+?)"
+relationsWithPublisherConnectionToPerson|<PRODUCTION>.+?</PRODUCTION>|<PRELATIONSWITHPUBLISHER>.+?</PRELATIONSWITHPUBLISHER>|<NAME.+?STANDARD="([\w, ]+?)"
+performanceConnectionToPerson|<PRODUCTION>.+?</PRODUCTION>|<PPERFORMANCE>.+?</PPERFORMANCE>|<NAME.+?STANDARD="([\w, ]+?)"
+influencesHerConnectionToPerson|<PRODUCTION>.+?</PRODUCTION>|<PINFLUENCESHER>.+?</PINFLUENCESHER>|<NAME.+?STANDARD="([\w, ]+?)"
+attitudesConnectionToPerson|<PRODUCTION>.+?</PRODUCTION>|<PATTITUDES>.+?</PATTITUDES>|<NAME.+?STANDARD="([\w, ]+?)"
+authorshipConnectionToPerson|<PRODUCTION>.+?</PRODUCTION>|<PAUTHORSHIP>.+?</PAUTHORSHIP>|<NAME.+?STANDARD="([\w, ]+?)"
+motivesConnectionToPerson|<PRODUCTION>.+?</PRODUCTION>|<PMOTIVES>.+?</PMOTIVES>|<NAME.+?STANDARD="([\w, ]+?)"
+dedicationConnectionToPerson|<PRODUCTION>.+?</PRODUCTION>|<PDEDICATION>.+?</PDEDICATION>|<NAME.+?STANDARD="([\w, ]+?)"
+modeOfPublicationConnectionToPerson|<PRODUCTION>.+?</PRODUCTION>|<PMODEOFPUBLICATION>.+?</PMODEOFPUBLICATION>|<NAME.+?STANDARD="([\w, ]+?)"
+periodicalPublicationConnectionToPerson|<PRODUCTION>.+?</PRODUCTION>|<PPERIODICALPUBLICATION>.+?</PPERIODICALPUBLICATION>|<NAME.+?STANDARD="([\w, ]+?)"
+anthologizationConnectionToPerson|<PRODUCTION>.+?</PRODUCTION>|<PANTHOLOGIZATION>.+?</PANTHOLGIZATION>|<NAME.+?STANDARD="([\w, ]+?)"
+nonbookmediaConnectionToPerson|<PRODUCTION>.+?</PRODUCTION>|<PNONBOOKMEDIA>.+?</PNONBOOKMEDIA>|<NAME.+?STANDARD="([\w, ]+?)"
+submissionsConnectionToPerson|<PRODUCTION>.+?</PRODUCTION>|<PSUBMISSIONSREJECTIONS>.+?</PSUBMISSIONSREJECTIONS>|<NAME.+?STANDARD="([\w, ]+?)"
+raritiesFeaturesDecorationsConnectionToPerson|<PRODUCTION>.+?</PRODUCTION>|<PRARITIESFEATURESDECORATIONS>.+?</PRARITIESFEATURESDECORATIONS>|<NAME.+?STANDARD="([\w, ]+?)"
+advertisingConnectionToPerson|<PRODUCTION>.+?</PRODUCTION>|<PADVERTISEMENT>.+?</PADVERTISEMENT>|<NAME.+?STANDARD="([\w, ]+?)"
+circulationConnectionToPerson|<PRODUCTION>.+?</PRODUCTION>|<PCIRCULATION>.+?</PCIRCULATION>|<NAME.+?STANDARD="([\w, ]+?)"
+editionsConnectionToPerson|<PRODUCTION>.+?</PRODUCTION>|<PEDITIONS>.+?</PEDITIONS>|<NAME.+?STANDARD="([\w, ]+?)"
+manuscriptHistoryConnectionToPerson|<PRODUCTION>.+?</PRODUCTION>|<PMANUSCRIPTHISTORY>.+?</PMANUSCRIPTHISTORY>|<NAME.+?STANDARD="([\w, ]+?)"
+characterizationConnectionToName|<TEXTUALFEATURES>.+?</TEXTUALFEATURES>|<TCHARACTERIZATION>.+?</TCHARACTERIZATION><NAME.+?STANDARD="([\w, ]+?)"
+themeTopicConnectionToName|<TEXTUALFEATURES>.+?</TEXTUALFEATURES>|<TTHEMETOPIC>.+?</TTHEMETOPIC><NAME.+?STANDARD="([\w, ]+?)"
+plotConnectionToName|<TEXTUALFEATURES>.+?</TEXTUALFEATURES>|<TPLOT>.+?</TPLOT><NAME.+?STANDARD="([\w, ]+?)"
+fictionalizationConnectionToName|<RECEPTION>.+?</RECEPTION>|<RFICTIONALIZATION>.+?</RFICTIONALIZATION><NAME.+?STANDARD="([\w, ]+?)"
+sheInfluencedConnectionToName|<RECEPTION>.+?</RECEPTION>|<RSHEINFLUENCED>.+?</RSHEINFLUENCED><NAME.+?STANDARD="([\w, ]+?)"
+penaltiesConnectionToName|<RECEPTION>.+?</RECEPTION>|<RPENALTIES>.+?</RPENALTIES><NAME.+?STANDARD="([\w, ]+?)"
+recognitionsConnectionToName|<RECEPTION>.+?</RECEPTION>|<RRECOGNITIONS>.+?</RRECOGNITIONS><NAME.+?STANDARD="([\w, ]+?)"
+responsesConnectionToName|<RECEPTION>.+?</RECEPTION>|<RRESPONSES>.+?</RRESPONSES><NAME.+?STANDARD="([\w, ]+?)"

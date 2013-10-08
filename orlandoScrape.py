@@ -1,0 +1,216 @@
+#!/usr/bin/env python
+__version__='1.0.1'
+__doc__ = """
+# Script to convert XML information from the Orlanda project mark-up to RDF format 
+# This version was modified for the TM&V hackfest to spit out data in JSON
+# Script by John Simpson, Postdoctoral Fellow with:
+# 1. Text Mining & Visualization for Literary History
+# 2. INKE, Modeling & Prototyping
+# john.simpson@ualberta.ca / @symulation
+#
+# Copyright CC BY-SA 3.0  See: http://creativecommons.org/licenses/by-sa/3.0/
+#
+
+#
+2013.10.08 Shawn Murphy incorporated https://github.com/smurp/pycli for command line support
+"""
+
+
+import sys
+import re
+import codecs
+import itertools, collections
+
+
+
+def regexTestLoad(regexTests):
+    arrayCounter=0
+    regexArray = {}
+    for line in regexTests:
+        line = line.replace('\n','')
+        regexArray[arrayCounter]=line.split('|')
+        arrayCounter+=1
+    return regexArray
+
+
+def consume(iterator, n):
+    collections.deque(itertools.islice(iterator, n))
+    
+    
+def prepOutfile(orlandoOutfile):
+    orlandoOutfile.write('[\n')
+
+
+def concludeOutfile(orlandoOutfile):
+    orlandoOutfile.write(']')
+
+
+def stripExtraXML(match):
+    cleanLine=[]
+    keep=True
+    for character in match:
+        if character=="<":
+            keep=False
+        if keep==True:
+            cleanLine.append(character)
+        if character==">":
+            keep=True
+    return(''.join(cleanLine))
+ 
+
+def fillDict(entryDict, regexArray, tripleCheck, mainSubject, stripMatch):
+    if regexArray[tripleCheck][0] not in entryDict:
+        entryDict[regexArray[tripleCheck][0]]=[stripMatch]
+    else:
+        if stripMatch not in entryDict[regexArray[tripleCheck][0]]:
+            entryDict[regexArray[tripleCheck][0]].append(stripMatch)
+
+
+def regexRecursion(searchText,regexArray,tripleCheck,recursionDepthPlusOne,mainSubject,entryDict):
+    #print "tripleCheck", regexArray[tripleCheck][recursionDepthPlusOne]
+    tripleTest = re.compile(regexArray[tripleCheck][recursionDepthPlusOne],re.I)
+    resultTripleTest = tripleTest.findall(searchText)
+    if resultTripleTest:
+        if (recursionDepthPlusOne) >= len(regexArray[tripleCheck])-1:
+            for match in resultTripleTest:
+                stripMatch=stripExtraXML(match)
+                fillDict(entryDict, regexArray, tripleCheck, mainSubject, stripMatch)
+        else:
+            for match in resultTripleTest:
+                regexRecursion(match,regexArray,tripleCheck,recursionDepthPlusOne+1,mainSubject,entryDict)
+
+
+def write2outfile(entryDict,commacheck3):
+    commacheck1=False #controls the insertion of commas at the end of the objects within the primary array
+    if commacheck3 is True:
+        orlandoOutfile.write(',\n')
+    orlandoOutfile.write('{\n')
+    for item in entryDict:
+        commacheck2=False #controls the insertion of commas at the end of the items within the secondary array
+        if commacheck1 is True:
+            orlandoOutfile.write(',\n')
+        orlandoOutfile.write('"')
+        orlandoOutfile.write(item)
+        orlandoOutfile.write('": [\n')
+        for listItem in entryDict[item]:
+            if commacheck2 is True:
+                orlandoOutfile.write(',\n')
+            orlandoOutfile.write('"')
+            orlandoOutfile.write(listItem)
+            orlandoOutfile.write('"')
+            commacheck2=True
+        orlandoOutfile.write('\n]')
+        commacheck1=True
+    orlandoOutfile.write('\n}')
+
+
+def extractionCycle(orlandoRAW, regexArray, NameTest, mainSubject):
+    entryDict=dict()
+    commacheck3=False #controls the insertion of commas at the end of the objects
+    for line in orlandoRAW:
+        LineTest = NameTest.search(line)
+        #print LineTest
+        if LineTest:
+            mainSubject=LineTest.group(1)
+            entryDict['ID']=[mainSubject]
+            for tripleCheck in regexArray:
+                print mainSubject
+                regexRecursion(line,regexArray,tripleCheck,1,mainSubject,entryDict)
+            write2outfile(entryDict,commacheck3)
+            commacheck3=True
+        entryDict.clear()
+
+orlandoOutfile = None
+def makeJSON(options):
+    global orlandoOutfile
+    #Open two input files and two output files (one for matches and one for non-matches)
+    regexTests = codecs.open(options.regexes, encoding='utf-8', mode='r')
+    # orlandoRAW = codecs.open('orlando_term_poetess_2013-01-04.xml', encoding='utf-8', mode='r')
+
+    orlandoOutfile = codecs.open(options.outfile, encoding='utf-8', mode='w')
+
+    # 'orlando_entries_all_pub_c_2013-05-01.xml'
+    print "begin"
+    prepOutfile(orlandoOutfile)
+    regexArray = regexTestLoad(regexTests)
+    NameTest = re.compile('<ENTRY.+?ID="([\w, ]+)".*>',re.I)
+    print "extraction starts"
+    with codecs.open(options.infile, encoding='utf-8', mode='r') as orlandoRAW:  #The WITH (apparently) allows the line iterator to be incremented inside a loop and forces proper closing of files regardless
+        mainSubject=None
+        extractionCycle(orlandoRAW, regexArray, NameTest, mainSubject)
+    print "extraction ends"
+    concludeOutfile(orlandoOutfile)
+    orlandoOutfile.close()
+    print "end"
+    
+
+def dummy_meth(a):
+    """
+    >>> dummy_meth('a')
+    'a'
+    
+    """
+    return a
+
+if __name__ == "__main__":
+    defaults = dict(regexes = 'orlando2RDFregex3.txt',
+                    infile = 'orlando_entries_all_pub_c_2013-05-01.xml',
+                    outfile = 'orlando.json')
+                
+    from optparse import OptionParser
+    parser = OptionParser()
+    parser.add_option("--outfile",
+                      default = defaults['outfile'],
+                      help = "output filename, default:"+\
+                          defaults['outfile'])
+    parser.add_option("--regexes",
+                      default = defaults['regexes'],
+                      help = "regex tests filename, default: "+\
+                          defaults['regexes'])
+    parser.add_option("--infile",
+                      default = defaults['infile'],
+                      help = "input filename, default:"+\
+                          defaults['infile'])
+    parser.add_option("--doctest",
+                      action = 'store_true',
+                      help = "perform doc tests")
+    parser.add_option("--man",
+                      action = 'store_true',
+                      help = "show the manual for this program")
+    parser.add_option("-v","--verbose",
+                      action = 'store_true',
+                      help = "be verbose in all things, go with god")
+    parser.add_option("-V","--version",
+                      action = 'store_true',
+                      help = "show version")
+    parser.add_option("--int",
+                      type="int",
+                      help = "accept an integer")
+    parser.add_option("--str",
+                      help = "accept a string")
+    parser.version = __version__
+    parser.usage =  """
+    e.g.
+       %prog --doctest
+          Perform unit tests on the %prog
+    """
+    (options,args) = parser.parse_args()
+    show_usage = True
+    if options.doctest:
+        show_usage = False
+        import doctest
+        doctest.testmod(verbose=options.verbose)
+    if options.version:
+        show_usage = False
+        if options.verbose:
+            print __cvs_id__
+        else:
+            print parser.version
+    if options.man:
+        show_usage = False
+        import pydoc
+        pydoc.help(__import__(__name__))
+    if show_usage:
+        parser.print_help()
+    if options.outfile.endswith('.json'):
+        makeJSON(options)

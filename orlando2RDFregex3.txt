@@ -1,0 +1,80 @@
+hasSex|<BIOGRAPHY SEX="([A-Z]+)"
+standardName|<STANDARD>(.+?)</STANDARD>
+givenName|<GIVEN>([\w ]+)</GIVEN>
+surname|<SURNAME>([\w ]+)</SURNAME>
+nickname|<NICKNAME.+?REG="(\w ,)"
+dateOfBirth|<BIRTH>.+?<DATE VALUE="([\d-]+?)"
+bornInRegion|<BIRTH>.+?</BIRTH>|<REGION REG="([\w ]+?)"
+bornInRegion|<BIRTH>.+?</BIRTH>|<REGION>([\w ]+?)</REGION>
+bornInSettlement|<BIRTH>.+?</BIRTH>|<SETTLEMENT REG="([\d-]+?)"
+bornInSettlement|<BIRTH>.+?</BIRTH>|<SETTLEMENT>([\w ]+?)</SETTLEMENT>
+bornInGeog|<BIRTH>.+?</BIRTH>|<GEOG REG="([\d-]+?)"|
+bornInGeog|<BIRTH>.+?</BIRTH>|<GEOG>([\w ]+?)</GEOG>
+birthPosition|<BIRTH>.+?</BIRTH>|<BIRTHPOSITION POSITION="(.+?)"
+religiousInfluence|<CULTURALFORMATION>.+?</CULTURALFORMATION>|<DENOMINATION><ORGNAME REG="([\w ]+)"
+culturalInfluence|<CULTURALFORMATION>.+?</CULTURALFORMATION>|<RACECOLOUR>([\w ]+)</RACECOLOUR>
+politicalInfluence|<CULTURALFORMATION>.+?</CULTURALFORMATION>|<CLASS SOCIALRANK="([\w, ]+)"
+politicalInfluence|<CULTURALFORMATION>.+?</CULTURALFORMATION>|<CLASS.*?>([\w, ]+)</CLASS>
+ofNationality|<CULTURALFORMATION>.+?</CULTURALFORMATION>|<NATIONALITY>([\w, ]+)</NATIONALITY>
+childOf|<NAME STANDARD="([\w, ]+?)">father</NAME>
+childOf|<NAME STANDARD="([\w, ]+?)">mother</NAME>
+marriedTo|<NAME STANDARD="([\w, ]+?)">husband</NAME>
+siblingOf|<NAME STANDARD="([\w, ]+?)">sister</NAME>
+siblingOf|<NAME STANDARD="([\w, ]+?)">brother</NAME>
+numberOfChildren|<CHILDREN NUMBER="([\d]+?)"
+parentOf|<NAME STANDARD="([\w, ]+?)">son</NAME>
+parentOf|<NAME STANDARD="([\w, ]+?)">daughter</NAME>
+grandchildOf|<NAME STANDARD="([\w, ]+?)">grandfather</NAME>
+grandchildOf|<NAME STANDARD="([\w, ]+?)">grandmother</NAME>
+grandparentOf|<NAME STANDARD="([\w, ]+?)">grandson</NAME>
+grandparentOf|<NAME STANDARD="([\w, ]+?)">grandaughter</NAME>
+juniorCollateralRelationshipTo|<NAME STANDARD="([\w, ]+?)">uncle</NAME>
+juniorCollateralRelationshipTo|<NAME STANDARD="([\w, ]+?)">aunt</NAME>
+seniorCollateralRelationshipTo|<NAME STANDARD="([\w, ]+?)">nephew</NAME>
+seniorCollateralRelationshipTo|<NAME STANDARD="([\w, ]+?)">niece</NAME>
+cousinOf|<NAME STANDARD="([\w, ]+?)">cousin</NAME>
+friendOf|<NAME STANDARD="([\w, ]+?)">friend</NAME>
+friendOrAssociateOf|<FRIENDSASSOCIATES>.+?</FRIENDSASSOCIATES>|<NAME STANDARD="([\w, ]+?)">
+educationMode|<EDUCATION MODE="([\w ]+?)"
+educationLevel|<SCHOOL INSTITUTION="[A-Z]+" STUDENTBODY="[A-Z]+" INSTITUTIONLEVEL="([A-Z]+)">
+educationGender|<SCHOOL INSTITUTION="[A-Z]+" STUDENTBODY="([A-Z]+)" INSTITUTIONLEVEL="[A-Z]+">
+educationInstitutionType|<SCHOOL INSTITUTION="([A-Z]+)" STUDENTBODY="[A-Z]+" INSTITUTIONLEVEL="[A-Z]+">
+educatedBy|<INSTRUCTOR><NAME STANDARD="([\w, ]+?)">
+studied|<EDUCATION.+?</EDUCATION>|<SUBJECT>([\w, ]+?)</SUBJECT>
+occupation|<OCCUPATION>.+?</OCCUPATION>|<JOB REG="([\w ',]+?)"
+occupation|<OCCUPATION>.+?</OCCUPATION>|<SIGNIFICANTACTIVITY.*?>([\w ',]+?)</SIGNIFICANTACTIVITY>
+occupation|<OCCUPATION>.+?</OCCUPATION>|<SIGNIFICANTACTIVITY.*?REG="([\w ',]+?)"
+livedInSettlement|<LOCATION RELATIONTO="LIVED">[<\w ="->:_]+?<SETTLEMENT[<\w ="-:_]+>([\w ,']+)</SETTLEMENT>
+livedInSettlement|<LOCATION RELATIONTO="LIVED">[<\w ="->:_]+?<SETTLEMENT CURRENT="([\w ,']+?)"
+livedInRegion|<LOCATION RELATIONTO="LIVED">[<\w ="->:_]+?<REGION[<\w ="-:_]+>([\w ,']+)</REGION>
+livedInRegion|<LOCATION RELATIONTO="LIVED">[<\w ="->:_]+?<REGION REG="([\w ,']+)"
+livedInGeog|<LOCATION RELATIONTO="LIVED">[<\w ="->:_]+?<GEOG [<\w ="-:_]+>([\w ,']+)</GEOG>
+livedInGeog|<LOCATION RELATIONTO="LIVED">[<\w ="->:_]+?<GEOG REG="([\w ,]+)"
+dateOfdeath|<DEATH>.+?</DEATH>|<DATE VALUE="([\d-]+?)"
+diedInSettlement|<DEATH>.+?</DEATH>|<SETTLEMENT.+?>([\w ,']+)</SETTLEMENT>
+diedInSettlement|<DEATH>.+?</DEATH>|<SETTLEMENT CURRENT="([\w ]+?)"
+diedInRegion|<DEATH>.+?</DEATH>|<REGION.+?>([\w ,']+?)</REGION>
+diedInRegion|<DEATH>.+?</DEATH>|<REGION REG="([\w ,']+?)"
+diedInGeog|<DEATH>.+?</DEATH>|<GEOG.+?>([\w ]+?)</GEOG>
+diedInGeog|<DEATH>.+?</DEATH>|<GEOG REG="([\w ,]+?)"
+contributionToDeath|<DEATH>.+?</DEATH>|<CAUSE>([\w ,']+?)</CAUSE>
+wroteInGenre|<TGENRE GENRENAME="([\w ]+?)"
+wrote|<TEXTSCOPE.+?>|PLACEHOLDER=".+?,([\w ,-\.']+?),
+wroteOnTopic|<TTHEMETOPIC>(.+?)</TTHEMETOPIC>
+workedAs|<OCCUPATION>.+?</OCCUPATION>|<JOB>([\w ]+?)</JOB>
+workedAs|<OCCUPATION>.+?</OCCUPATION>|<JOB REG="([\w ]+?)"
+connectionToOrganization|<ORGNAME.+?STANDARD="([\w ]+?)"
+connectionToPerson|<NAME.+?STANDARD="([\w, ]+?)"
+connectionWithJob|<JOB.+?REG="([\w, ]+?)"
+connectionWithPlace|<PLACENAME>([\w,' ]+?)<
+connectionWithAddress|<ADDRESS>(.+?)</ADDRESS>
+connectionWithSettlement|<SETTLEMENT>(.+?)</SETTLEMENT>
+connectionWithSettlement|<SETTLEMENT REG="(.+?)"
+connectionWithSettlement|<SETTLEMENT CURRENT="(.+?)"
+connectionWithSettlement|<SETTLEMENT.*?>(.+?)</SETTLEMENT>
+connectionWithRegion|<REGION>(.+?)</REGION>
+connectionWithRegion|<REGION CURRENT="(.+?)"
+connectionWithRegion|<REGION REG="(.+?)"
+connectionWithRegion|<REGION.*?>(.+?)</REGION>
+connectionWithWork|<TITLE.+?>(.+?)</TITLE>
+hadHealthIssue|<HEALTH ISSUE="(.+?)"
