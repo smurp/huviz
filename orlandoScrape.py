@@ -214,11 +214,6 @@ if __name__ == "__main__":
 
 
     """
-    more_cli = """
-         544  ./orlandoScrape.py --infile orlando_all_entries_2013-03-04.xml --outfile orlando_all_entries_2013-03-04.json  --regexes orlando2RDFregex4.txt 
-  547  ./orlandoScrape.py --infile orlando_term_poetess_2013-01-04.xml --outfile orlando_term_poetess_2013-01-04.json  --regexes orlando2RDFregex4.txt 
-  566  ./orlandoScrape.py --infile orlando_poetesses_2013-02-12.xml --outfile orlando_poetesses_2013-02-12.json  --regexes orlando2RDFregex4.txt 
-    """
     (options,args) = parser.parse_args()
     show_usage = True
     if options.doctest:

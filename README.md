@@ -3,29 +3,11 @@ huviz
 
 Usage:
 
-    ./orlandoScrape.py --regexes orlando2RDFregex4.txt --infile orlando_short.xml --regexes orlando2RDFregex4.txt 
+  How to produce the full JSON output as `orlando_all_entries_2013-03-04.json` (the default behaviour):
 
-orlando_short.xml is just the first 10 lines from orlando_entries_all_pub_c_2013-05-01.xml
+    ./orlandoScrape.py --infile orlando_all_entries_2013-03-04.xml --outfile orlando_all_entries_2013-03-04.json  --regexes orlando2RDFregex4.txt 
 
-So far just getting:
 
-    [
-    {
-    "ID": [
-    "abdyma"
-    ]
-    },
-    {
-    "ID": [
-    "aberfr"
-    ]
-    },
-    {
-    "ID": [
-    "acklva"
-    ]
-    }]
-    
-in the orlando.json default output file.
-
+  How to produce the poetess JSON output as `orlando_poetesses_2013-02-12.json`:
+    ./orlandoScrape.py --infile orlando_poetesses_2013-02-12.xml --outfile orlando_poetesses_2013-02-12.json  --regexes orlando2RDFregex4.txt 
 
