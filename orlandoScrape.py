@@ -1,8 +1,13 @@
 #!/usr/bin/env python
 __version__='1.0.1'
 __doc__ = """
-# Script to convert XML information from the Orlanda project mark-up to RDF format 
-# This version was modified for the TM&V hackfest to spit out data in JSON
+Script to convert XML information from the Orlanda project mark-up to
+various output formats.  Ideally, RDF, JSON and space optimized JSON.
+
+This file is now in GitHub at:
+  https://github.com/smurp/huviz
+
+On 2013-10-10 it was forked from orlandoScrape5-1.py which bore the comment:
 # Script by John Simpson, Postdoctoral Fellow with:
 # 1. Text Mining & Visualization for Literary History
 # 2. INKE, Modeling & Prototyping
@@ -10,9 +15,9 @@ __doc__ = """
 #
 # Copyright CC BY-SA 3.0  See: http://creativecommons.org/licenses/by-sa/3.0/
 #
+# This version was modified for the TM&V hackfest to spit out data in JSON
+# An additional modification so that the regex is only compiled once and then read out an array
 
-#
-2013.10.08 Shawn Murphy incorporated https://github.com/smurp/pycli for command line support
 """
 
 
@@ -29,6 +34,11 @@ def regexTestLoad(regexTests):
     for line in regexTests:
         line = line.replace('\n','')
         regexArray[arrayCounter]=line.split('|')
+        n=1
+        arrayDepth = len(regexArray[arrayCounter])
+        while n < arrayDepth:
+           regexArray[arrayCounter][n] = re.compile(regexArray[arrayCounter][n])
+           n+=1
         arrayCounter+=1
     return regexArray
 
@@ -67,8 +77,9 @@ def fillDict(entryDict, regexArray, tripleCheck, mainSubject, stripMatch):
 
 
 def regexRecursion(searchText,regexArray,tripleCheck,recursionDepthPlusOne,mainSubject,entryDict):
+    #print "predicate", regexArray[tripleCheck][0]
     #print "tripleCheck", regexArray[tripleCheck][recursionDepthPlusOne]
-    tripleTest = re.compile(regexArray[tripleCheck][recursionDepthPlusOne],re.I)
+    tripleTest = regexArray[tripleCheck][recursionDepthPlusOne]
     resultTripleTest = tripleTest.findall(searchText)
     if resultTripleTest:
         if (recursionDepthPlusOne) >= len(regexArray[tripleCheck])-1:
@@ -153,9 +164,9 @@ def dummy_meth(a):
     return a
 
 if __name__ == "__main__":
-    defaults = dict(regexes = 'orlando2RDFregex3.txt',
-                    infile = 'orlando_entries_all_pub_c_2013-05-01.xml',
-                    outfile = 'orlando.json')
+    defaults = dict(regexes = 'orlando2RDFregex4.txt',
+                    infile = 'orlando_all_entries_2013-03-04.xml',
+                    outfile = 'orlando_all_entries_2013-03-04.json')
                 
     from optparse import OptionParser
     parser = OptionParser()
@@ -193,6 +204,20 @@ if __name__ == "__main__":
     e.g.
        %prog --doctest
           Perform unit tests on the %prog
+       
+       %prog 
+          The default operation is equivalent to:
+              ./orlandoScrape.py \
+                      --infile orlando_all_entries_2013-03-04.xml \
+                      --outfile orlando_all_entries_2013-03-04.json \
+                      --regexes orlando2RDFregex4.txt 
+
+
+    """
+    more_cli = """
+         544  ./orlandoScrape.py --infile orlando_all_entries_2013-03-04.xml --outfile orlando_all_entries_2013-03-04.json  --regexes orlando2RDFregex4.txt 
+  547  ./orlandoScrape.py --infile orlando_term_poetess_2013-01-04.xml --outfile orlando_term_poetess_2013-01-04.json  --regexes orlando2RDFregex4.txt 
+  566  ./orlandoScrape.py --infile orlando_poetesses_2013-02-12.xml --outfile orlando_poetesses_2013-02-12.json  --regexes orlando2RDFregex4.txt 
     """
     (options,args) = parser.parse_args()
     show_usage = True
