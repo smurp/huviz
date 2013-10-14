@@ -26,9 +26,11 @@ import re
 import codecs
 import itertools, collections
 
+import json
 
+entries = []
 
-def regexTestLoad(regexTests):
+def regexTestLoad(regexTests,options):
     arrayCounter=0
     regexArray = {}
     for line in regexTests:
@@ -47,11 +49,17 @@ def consume(iterator, n):
     collections.deque(itertools.islice(iterator, n))
     
     
-def prepOutfile(orlandoOutfile):
+def prepOutfile(orlandoOutfile,options):
+    if options.chunked:
+        return
     orlandoOutfile.write('[\n')
 
 
-def concludeOutfile(orlandoOutfile):
+def concludeOutfile(orlandoOutfile,options):
+    if options.chunked:
+        #orlandoOutfile.write(json.dumps(entries))
+        orlandoOutfile.write(json.dumps(entries,sort_keys=True,indent=4))
+        return
     orlandoOutfile.write(']')
 
 
@@ -91,7 +99,12 @@ def regexRecursion(searchText,regexArray,tripleCheck,recursionDepthPlusOne,mainS
                 regexRecursion(match,regexArray,tripleCheck,recursionDepthPlusOne+1,mainSubject,entryDict)
 
 
-def write2outfile(entryDict,commacheck3):
+def stash(entryDict,commacheck3,options):
+    global entries
+    if options.chunked:
+        # print entryDict
+        entries.append(entryDict)
+        return
     commacheck1=False #controls the insertion of commas at the end of the objects within the primary array
     if commacheck3 is True:
         orlandoOutfile.write(',\n')
@@ -115,7 +128,7 @@ def write2outfile(entryDict,commacheck3):
     orlandoOutfile.write('\n}')
 
 
-def extractionCycle(orlandoRAW, regexArray, NameTest, mainSubject):
+def extractionCycle(orlandoRAW, regexArray, NameTest, mainSubject, options):
     entryDict=dict()
     commacheck3=False #controls the insertion of commas at the end of the objects
     for line in orlandoRAW:
@@ -123,13 +136,14 @@ def extractionCycle(orlandoRAW, regexArray, NameTest, mainSubject):
         #print LineTest
         if LineTest:
             mainSubject=LineTest.group(1)
-            entryDict['ID']=[mainSubject]
+            entryDict['ID']=mainSubject
             for tripleCheck in regexArray:
-                print mainSubject
+                if options.verbose:
+                    print mainSubject
                 regexRecursion(line,regexArray,tripleCheck,1,mainSubject,entryDict)
-            write2outfile(entryDict,commacheck3)
+            stash(entryDict,commacheck3,options)
             commacheck3=True
-        entryDict.clear()
+        entryDict = dict()
 
 orlandoOutfile = None
 def makeJSON(options):
@@ -142,20 +156,21 @@ def makeJSON(options):
 
     # 'orlando_entries_all_pub_c_2013-05-01.xml'
     print "begin"
-    prepOutfile(orlandoOutfile)
-    regexArray = regexTestLoad(regexTests)
+    prepOutfile(orlandoOutfile,options)
+    regexArray = regexTestLoad(regexTests,options)
     NameTest = re.compile('<ENTRY.+?ID="([\w, ]+)".*>',re.I)
     print "extraction starts"
     with codecs.open(options.infile, encoding='utf-8', mode='r') as orlandoRAW:  #The WITH (apparently) allows the line iterator to be incremented inside a loop and forces proper closing of files regardless
         mainSubject=None
-        extractionCycle(orlandoRAW, regexArray, NameTest, mainSubject)
+        extractionCycle(orlandoRAW, regexArray, NameTest, mainSubject, options)
     print "extraction ends"
-    concludeOutfile(orlandoOutfile)
+    concludeOutfile(orlandoOutfile,options)
     orlandoOutfile.close()
     print "end"
     
 
 def dummy_meth(a):
+    # an example test
     """
     >>> dummy_meth('a')
     'a'
@@ -185,20 +200,27 @@ if __name__ == "__main__":
     parser.add_option("--doctest",
                       action = 'store_true',
                       help = "perform doc tests")
-    parser.add_option("--man",
-                      action = 'store_true',
-                      help = "show the manual for this program")
     parser.add_option("-v","--verbose",
+                      default = False,
                       action = 'store_true',
-                      help = "be verbose in all things, go with god")
+                      help = "be verbose")
     parser.add_option("-V","--version",
                       action = 'store_true',
                       help = "show version")
+    parser.add_option("--man",
+                      action = 'store_true',
+                      help = "show the manual for this program")
+    parser.add_option("--chunked",
+                      #default = True,
+                      action = 'store_true',
+                      help = "output chunked style")
+    """
     parser.add_option("--int",
                       type="int",
                       help = "accept an integer")
     parser.add_option("--str",
                       help = "accept a string")
+    """
     parser.version = __version__
     parser.usage =  """
     e.g.
@@ -207,10 +229,10 @@ if __name__ == "__main__":
        
        %prog 
           The default operation is equivalent to:
-              ./orlandoScrape.py \
-                      --infile orlando_all_entries_2013-03-04.xml \
-                      --outfile orlando_all_entries_2013-03-04.json \
-                      --regexes orlando2RDFregex4.txt 
+              ./orlandoScrape.py \\
+                 --infile orlando_all_entries_2013-03-04.xml \\
+                 --outfile orlando_all_entries_2013-03-04.json \\
+                 --regexes orlando2RDFregex4.txt 
 
 
     """
