@@ -57,7 +57,10 @@ def prepOutfile(orlandoOutfile,options):
 
 def concludeOutfile(orlandoOutfile,options):
     if options.chunked:
-        orlandoOutfile.write(json.dumps(entries,sort_keys=True,indent=4))
+        kwargs = dict(sort_keys=True)
+        if options.pretty:
+            kwargs['indent'] = 4
+        orlandoOutfile.write(json.dumps(entries,**kwargs))
         return
     orlandoOutfile.write(']')
 
@@ -214,6 +217,9 @@ if __name__ == "__main__":
                       default = defaults['infile'],
                       help = "input filename, default:"+\
                           defaults['infile'])
+    parser.add_option("--pretty",
+                      action = 'store_true',
+                      help = "make json or xml output more human readable")
     parser.add_option("--doctest",
                       action = 'store_true',
                       help = "perform doc tests")
