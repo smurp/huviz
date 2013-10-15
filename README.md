@@ -22,4 +22,4 @@ huviz
   
     git clone https://github.com/smurp/huviz
     python -m SimpleHTTPServer
-    open open http://localhost:8000/timeline.html
+    open http://localhost:8000/timeline.html
