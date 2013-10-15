@@ -94,9 +94,11 @@ var dtPrs = function(orlDt) {
 var addTimelineEventFromOrlandoEntity = function(orlEnt,evtSrc){
     // Timeline Event attributes:
     //    http://simile-widgets.org/wiki/Timeline_EventSources
+    // see EventSource.loadJSON() for details
     var args = {
 	id:    orlEnt.ID,
-	title: 'test string', //orlEnt.standardName[0],
+	text: orlEnt.standardName[0],
+	link: "http://orlando.cambridge.org/public/svPeople?person_id="+orlEnt.ID,
 	durationEvent: false,
 	caption: orlEnt.standardName[0],
 	description: orlEnt.standardName[0]+" ("+orlEnt.ID+")"
