@@ -262,8 +262,7 @@ if __name__ == "__main__":
         show_usage = False
         import pydoc
         pydoc.help(__import__(__name__))
-    elif show_usage:
+    if show_usage:
         parser.print_help()
-    else:
-        #if options.outfile.endswith('.json'):
+    if options.outfile.endswith('.json'):
         makeJSON(options)
