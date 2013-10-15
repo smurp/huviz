@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-__version__='1.0.1'
+__version__='1.1.0'
 __doc__ = """
 Script to convert XML information from the Orlanda project mark-up to
 various output formats.  Ideally, RDF, JSON and space optimized JSON.
@@ -57,7 +57,6 @@ def prepOutfile(orlandoOutfile,options):
 
 def concludeOutfile(orlandoOutfile,options):
     if options.chunked:
-        #orlandoOutfile.write(json.dumps(entries))
         orlandoOutfile.write(json.dumps(entries,sort_keys=True,indent=4))
         return
     orlandoOutfile.write(']')
@@ -98,13 +97,28 @@ def regexRecursion(searchText,regexArray,tripleCheck,recursionDepthPlusOne,mainS
             for match in resultTripleTest:
                 regexRecursion(match,regexArray,tripleCheck,recursionDepthPlusOne+1,mainSubject,entryDict)
 
+def arity_gt_n(entryDict,predicate,n):
+    # check to see if the number of values on a slot are greater than N
+    """
+    >>> arity_gt_n({'a':[1,2],'b',1}
+    False
+    >>> arity_gt_n({'a':[1,2],'a',1}
+    True
+    >>> arity_gt_n({'a':[1,2],'a',2}
+    False
+
+    """
+    return entryDict.has_key(predicate) and len(entryDict[predicate]) > n
+def arity_gt_1(entryDict,predicate):
+    return arity_gt_n(entryDict,predicate,1)
 
 def stash(entryDict,commacheck3,options):
     global entries
-    if options.chunked:
-        # print entryDict
-        entries.append(entryDict)
-        return
+    #if options.sanity:
+    #    if arity_gt_1(entryDict,'standardName'):
+    entries.append(entryDict)
+
+def DEPRECATED_write2outfile(entryDict,commacheck3,options):
     commacheck1=False #controls the insertion of commas at the end of the objects within the primary array
     if commacheck3 is True:
         orlandoOutfile.write(',\n')
@@ -141,7 +155,10 @@ def extractionCycle(orlandoRAW, regexArray, NameTest, mainSubject, options):
                 if options.verbose:
                     print mainSubject
                 regexRecursion(line,regexArray,tripleCheck,1,mainSubject,entryDict)
-            stash(entryDict,commacheck3,options)
+            if options.chunked:
+                stash(entryDict,commacheck3,options)
+            else:
+                DEPRECATED_write2outfile(entryDict,commacheck3,options)
             commacheck3=True
         entryDict = dict()
 
@@ -210,17 +227,10 @@ if __name__ == "__main__":
     parser.add_option("--man",
                       action = 'store_true',
                       help = "show the manual for this program")
-    parser.add_option("--chunked",
-                      #default = True,
+    parser.add_option("--chunked",  # ie: write out python structure via json module
+                      default = True,
                       action = 'store_true',
                       help = "output chunked style")
-    """
-    parser.add_option("--int",
-                      type="int",
-                      help = "accept an integer")
-    parser.add_option("--str",
-                      help = "accept a string")
-    """
     parser.version = __version__
     parser.usage =  """
     e.g.
@@ -252,7 +262,8 @@ if __name__ == "__main__":
         show_usage = False
         import pydoc
         pydoc.help(__import__(__name__))
-    if show_usage:
+    elif show_usage:
         parser.print_help()
-    if options.outfile.endswith('.json'):
+    else:
+        #if options.outfile.endswith('.json'):
         makeJSON(options)
