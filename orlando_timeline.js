@@ -1,4 +1,4 @@
-var mock_data = [
+var example_data = [
     {
         "ID": "yongch", 
         "dateOfBirth": [
@@ -28,7 +28,7 @@ var mock_data = [
 
 var eventSource = new Timeline.DefaultEventSource();
 var onLoad = function() {
-    console.log(Timeline);
+    //console.log(Timeline);
 
     var start_date = "Jun 28 1900 00:00:00 GMT";
     var bandInfos = [
@@ -42,6 +42,7 @@ var onLoad = function() {
 	    */
 	Timeline.createBandInfo({
 	    eventSource: eventSource,
+	    showText: true,
 	    date: start_date,
 	    width: '70%',
 	    intervalUnit: Timeline.DateTime.DECADE,
@@ -70,21 +71,14 @@ var onLoad = function() {
     //bandInfos[2].syncWith = 1;
     //bandInfos[1].highlight = true;
 
-    var theline = document.getElementById('thetimeline');
-    tl = Timeline.create(theline, bandInfos);
-    var json_fname = "orlando_dateOf_chunked.json";
-    //var data = mock_data;
-    var data = $.getJSON(json_fname,function(data){
-	//console.log("data",data);
+    var tl = Timeline.create(document.getElementById('thetimeline'), bandInfos);
+    var fillTimelineFromOrlandoJSON = function(data){
 	for (var i = 0; i < data.length; i++){
-	    console.log(i);
 	    addTimelineEventFromOrlandoEntity(data[i],eventSource);
 	}
 	eventSource._fire("onAddMany",[]);
-    });
-    //Timeline.loadJSON(json_fname,function(jsn, url){ eventSource.loadJSON(jsn,url)});
-    //var data = mock_data;
-
+    };
+    $.getJSON(json_fname,fillTimelineFromOrlandoJSON);
 }
 
 var dtPrs = function(orlDt) {
@@ -111,7 +105,7 @@ var addTimelineEventFromOrlandoEntity = function(orlEnt,evtSrc){
     if (orlEnt.dateOfBirth) args.start = dtPrs(orlEnt.dateOfBirth[0]);
     if (orlEnt.dateOfdeath) args.end = dtPrs(orlEnt.dateOfdeath[0]);
     simEvt = new Timeline.DefaultEventSource.Event(args);
-    console.log(args);
+    //console.log(args);
     evtSrc.add(simEvt);
     return args;
 }
