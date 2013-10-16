@@ -20,12 +20,10 @@ defaults = dict(
 
 
 __version__='1.0.0'
-__doc__ = """
 
-"""
-
-import urllib2
+import sys
 import json
+import urllib2
 
 class Node(object):
     """
@@ -93,9 +91,13 @@ class Node(object):
 
 def get_raw_TagInfo(options):
     if options.infile:
+        if options.verbose:
+            print >> sys.stderr, "opening",options.infile
         with open(options.infile,'r') as f:
             out = f.read()
     elif options.src_url:
+        if options.verbose:
+            print >> sys.stderr, "retrieving",options.src_url
         response = urllib2.urlopen(options.src_url)
         out = response.read()
     return out
@@ -122,10 +124,11 @@ def grovel(raw,options):
             count += 1
             them = extract_triple(line)
             if len(them) <> 3:
-                print line,them
+                if options.verbose:
+                    print >> sys.stderr, line,them
                 continue
             if options.verbose:
-                print them[2]
+                print >> sys.stderr, them[2]
             tree.add(*them)
             if options.limit and options.limit <= count:
                 break
@@ -153,7 +156,7 @@ if __name__ == "__main__":
                       default = defaults['src_url'],
                       help = "the url to the ovOrlandoTagInfo.cpp file (or equivalent)")    
     parser.add_option("--infile",
-                      default = "../OVis/source/ovOrlandoTagInfo.cpp",
+                      #default = "../OVis/source/ovOrlandoTagInfo.cpp",
                       help = "the path to the ovOrlandoTagInfo.cpp file (or equivalent)")
     parser.add_option("--outfile",
                       help = "the path to file to fill with output")
