@@ -23,3 +23,8 @@ huviz
     git clone https://github.com/smurp/huviz
     python -m SimpleHTTPServer
     open http://localhost:8000/timeline.html
+
+# Generating tag_tree.json
+
+    ./extractOrlandoTagInfo.py --compact --outfile orlando_tag_tree.json
+
