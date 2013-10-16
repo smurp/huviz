@@ -117,12 +117,15 @@ def grovel(raw,options):
             add_next_line = True
             continue
         if add_next_line:
+            add_next_line = False
             #parent,tag,label = line.split(',',3)
             count += 1
             them = extract_triple(line)
-            #them = line.split(',',3)[:3]
-            #them = []
-            print them
+            if len(them) <> 3:
+                print line,them
+                continue
+            if options.verbose:
+                print them[2]
             tree.add(*them)
             if options.limit and options.limit <= count:
                 break
@@ -178,11 +181,16 @@ if __name__ == "__main__":
     parser.version = __version__
     parser.usage =  __doc__ + """
     e.g.
-       %prog --infile  "../OVis/source/ovOrlandoTagInfo.cpp"
+       %prog [--pretty|--compact]
+
+       %prog --pretty --infile  "../OVis/source/ovOrlandoTagInfo.cpp"
           Grovel data out of a local copy of the file
 
        %prog 
           Grovel data of the the latest version of the file on github
+
+       %prog --pretty
+          Generate a human readable version
     """
     (options,args) = parser.parse_args()
     show_usage = True
@@ -201,14 +209,19 @@ if __name__ == "__main__":
         show_usage = False
         import pydoc
         pydoc.help(__import__(__name__))
-    if options.outfile:
+    if options.pretty or options.compact:
         tree = grovel(get_raw_TagInfo(options),options)
         args = {}
         if options.pretty:
             args['pretty'] = True
         if options.compact:
             args['compact'] = True
-        tree.as_json(**args)
+        output = tree.as_json(**args)
+        if options.outfile:
+            with open(options.outfile,"w") as outfile:
+                outfile.write(output)
+        else:
+            print output
     elif show_usage:
         parser.print_help()
         
