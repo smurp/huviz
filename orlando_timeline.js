@@ -4,7 +4,7 @@ var example_data = [
         "dateOfBirth": [
             "1823-08-11"
         ], 
-        "dateOfdeath": [
+        "dateOfDeath": [
             "1901-03-24"
         ], 
         "standardName": [
@@ -16,7 +16,7 @@ var example_data = [
         "dateOfBirth": [
             "1880-03-21"
         ], 
-        "dateOfdeath": [
+        "dateOfDeath": [
             "1949-08-08"
         ], 
         "standardName": [
@@ -84,7 +84,7 @@ var onLoad = function() {
 var dtPrs = function(orlDt) {
     var parts = orlDt.split('-');
     var d = new Date(parts[0],
-		     parts[1]?parts[1]:0,
+		     parts[1]?parseInt(parts[1])-1:-1,
 		     parts[2]?parts[2]:0,
 		     0,0,0,0);
     //console.log(d,"<==",orlDt);
@@ -103,9 +103,9 @@ var addTimelineEventFromOrlandoEntity = function(orlEnt,evtSrc){
 	caption: orlEnt.standardName[0],
 	description: orlEnt.standardName[0]+" ("+orlEnt.ID+")"
     };
-    if (orlEnt.dateOfBirth && orlEnt.dateOfdeath) args.durationEvent = true;
+    if (orlEnt.dateOfBirth && orlEnt.dateOfDeath) args.durationEvent = true;
     if (orlEnt.dateOfBirth) args.start = dtPrs(orlEnt.dateOfBirth[0]);
-    if (orlEnt.dateOfdeath) args.end = dtPrs(orlEnt.dateOfdeath[0]);
+    if (orlEnt.dateOfDeath) args.end = dtPrs(orlEnt.dateOfDeath[0]);
     simEvt = new Timeline.DefaultEventSource.Event(args);
     //console.log(args);
     evtSrc.add(simEvt);
