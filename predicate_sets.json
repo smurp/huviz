@@ -7,5 +7,6 @@
  'kith': ['friendOf', 'friendOrAssociateOf'],
  'educatedBy': ['educatedBy'],
  'descendants': ['grandparentOf','progeny'],
- 'kith_and_kin': ['kith','kin']
+ 'kith_and_kin': ['kith','kin'],
+ 'standardName': ['standardName']
 }
