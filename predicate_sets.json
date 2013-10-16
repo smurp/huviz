@@ -1,0 +1,11 @@
+{'lifespan': ['dateOfBirth','dateOfDeath'],
+ 'parentage': ['childOf'],
+ 'ancestors': ['grandchildOf','parentage'],
+ 'marriage': ['marriedTo'],
+ 'progeny': ['parentOf'],
+ 'kin': ['siblingOf','juniorCollateralRelationshipTo','cousinOf','marriage','ancestors'],
+ 'kith': ['friendOf', 'friendOrAssociateOf'],
+ 'educatedBy': ['educatedBy'],
+ 'descendants': ['grandparentOf','progeny'],
+ 'kith_and_kin': ['kith','kin']
+}
