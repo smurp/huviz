@@ -1,0 +1,402 @@
+{
+    "BIOGRAPHY": [
+        "Biography", 
+        {
+            "BIRTH": [
+                "Birth", 
+                {
+                    "BIRTHPOSITION": [
+                        "Birth Position"
+                    ]
+                }
+            ], 
+            "COMPANION": [
+                "Companion (at school)"
+            ], 
+            "CULTURALFORMATION": [
+                "Cultural Formation", 
+                {
+                    "CLASS": [
+                        "Class"
+                    ], 
+                    "CLASSISSUE": [
+                        "Class Issue"
+                    ], 
+                    "DENOMINATION": [
+                        "Denomination"
+                    ], 
+                    "ETHNICITY": [
+                        "Ethnicity"
+                    ], 
+                    "GEOGHERITAGE": [
+                        "Geographic Heritage"
+                    ], 
+                    "LANGUAGE": [
+                        "Language"
+                    ], 
+                    "NATIONALHERITAGE": [
+                        "National Heritage"
+                    ], 
+                    "NATIONALITY": [
+                        "Nationality"
+                    ], 
+                    "NATIONALITYISSUE": [
+                        "Nationality Issue"
+                    ], 
+                    "RACEANDETHNICITY": [
+                        "Race and Ethnicity"
+                    ], 
+                    "RACECOLOUR": [
+                        "Race Colour"
+                    ], 
+                    "RELIGION": [
+                        "Religion"
+                    ], 
+                    "SEXUALIDENTITY": [
+                        "Sexual Identity"
+                    ], 
+                    "SEXUALITY": [
+                        "Sexuality"
+                    ]
+                }
+            ], 
+            "DEATH": [
+                "Death"
+            ], 
+            "EDUCATION": [
+                "Education", 
+                {
+                    "AWARD": [
+                        "Award"
+                    ], 
+                    "CONTESTEDBEHAVIOUR": [
+                        "Contested Behaviour"
+                    ], 
+                    "DEGREE": [
+                        "Degree"
+                    ], 
+                    "INSTRUCTOR": [
+                        "Instructor"
+                    ], 
+                    "SCHOOL": [
+                        "School"
+                    ], 
+                    "SUBJECT": [
+                        "Subject"
+                    ]
+                }
+            ], 
+            "FAMILY": [
+                "Family", 
+                {
+                    "CHILDLESSNESS": [
+                        "Childlessness"
+                    ], 
+                    "CHILDREN": [
+                        "Children"
+                    ], 
+                    "DIVORCE": [
+                        "Divorce"
+                    ], 
+                    "MARRIAGE": [
+                        "Marriage"
+                    ], 
+                    "MEMBER": [
+                        "Member"
+                    ], 
+                    "SEPARATION": [
+                        "Separation"
+                    ]
+                }
+            ], 
+            "FRIENDSASSOCIATES": [
+                "Friends or Associates"
+            ], 
+            "HEALTH": [
+                "Health"
+            ], 
+            "INTIMATERELATIONSHIPS": [
+                "Intimate Relationships"
+            ], 
+            "LEISUREANDSOCIETY": [
+                "Leisure and Society"
+            ], 
+            "LIVESWITH": [
+                "Lives with (intimately)"
+            ], 
+            "LOCATION": [
+                "Location"
+            ], 
+            "OCCUPATION": [
+                "Occupation", 
+                {
+                    "EMPLOYER": [
+                        "Employer"
+                    ], 
+                    "JOB": [
+                        "Job"
+                    ], 
+                    "REMUNERATION": [
+                        "Remuneration"
+                    ]
+                }
+            ], 
+            "OTHERLIFEEVENT": [
+                "Other Life Event"
+            ], 
+            "PERSONNAME": [
+                "Person Name", 
+                {
+                    "PSEUDONYM": [
+                        "Pseudonym"
+                    ]
+                }
+            ], 
+            "POLITICS": [
+                "Politics", 
+                {
+                    "POLITICALAFFILIATION": [
+                        "Political Affiliation"
+                    ]
+                }
+            ], 
+            "SIGNIFICANTACTIVITY": [
+                "Significant Activity (see also occupation)"
+            ], 
+            "VIOLENCE": [
+                "Violence"
+            ], 
+            "WEALTH": [
+                "Wealth"
+            ]
+        }
+    ], 
+    "General": [
+        "General", 
+        {
+            "DATE": [
+                "Date"
+            ], 
+            "GEOG": [
+                "Geography"
+            ], 
+            "NAME": [
+                "Name"
+            ], 
+            "ORGNAME": [
+                "Organization Name"
+            ], 
+            "QUOTE": [
+                "Quote"
+            ], 
+            "SCHOLARNOTE": [
+                "Scholar Note"
+            ], 
+            "TITLE": [
+                "Title"
+            ]
+        }
+    ], 
+    "WRITING": [
+        "Writing", 
+        {
+            "AUTHORSUMMARY": [
+                "Author Summary", 
+                {
+                    "EXTENTOFOEUVRE": [
+                        "Extent of Oeuvre"
+                    ], 
+                    "GENERICRANGE": [
+                        "Generic Range"
+                    ]
+                }
+            ], 
+            "PRODUCTION": [
+                "Production", 
+                {
+                    "PADVERTISING": [
+                        "Advertising"
+                    ], 
+                    "PANTHOLOGIZATION": [
+                        "Anthologization"
+                    ], 
+                    "PARCHIVALLOCATION": [
+                        "Archival Location"
+                    ], 
+                    "PATTITUDES": [
+                        "Attitudes"
+                    ], 
+                    "PAUTHORSHIP": [
+                        "Authorship"
+                    ], 
+                    "PCIRCULATION": [
+                        "Circulation"
+                    ], 
+                    "PCONTRACT": [
+                        "Contract"
+                    ], 
+                    "PCOPYRIGHT": [
+                        "Copyright"
+                    ], 
+                    "PDEDICATION": [
+                        "Dedication"
+                    ], 
+                    "PEARNINGS": [
+                        "Earnings"
+                    ], 
+                    "PEDITIONS": [
+                        "Editions"
+                    ], 
+                    "PFIRSTLITERARYACTIVITY": [
+                        "First Literary Activity"
+                    ], 
+                    "PINFLUENCESHER": [
+                        "Influences Her"
+                    ], 
+                    "PLACE": [
+                        "Place"
+                    ], 
+                    "PLASTLITERARYACTIVITY": [
+                        "Last Literary Activity"
+                    ], 
+                    "PLITERARYSCHOOLS": [
+                        "Literary Schools"
+                    ], 
+                    "PMANUSCRIPTHISTORY": [
+                        "Manuscript History"
+                    ], 
+                    "PMATERIALCONDITIONS": [
+                        "Material Conditions"
+                    ], 
+                    "PMODEOFPUBLICATION": [
+                        "Mode of Publication"
+                    ], 
+                    "PMOTIVES": [
+                        "Motives"
+                    ], 
+                    "PNONBOOKMEDIA": [
+                        "Non-book Media"
+                    ], 
+                    "PNONSURVIVAL": [
+                        "Non-Survival"
+                    ], 
+                    "PPERFORMANCE": [
+                        "Performance"
+                    ], 
+                    "PPERIODICALPUBLICATION": [
+                        "Periodical Publication"
+                    ], 
+                    "PPLACEOFPUBLICATION": [
+                        "Place of Publication"
+                    ], 
+                    "PPRESSRUN": [
+                        "Press Run"
+                    ], 
+                    "PPRICE": [
+                        "Price"
+                    ], 
+                    "PRARITIESFEATURESDECORATIONS": [
+                        "Rarities, Features orDecorations"
+                    ], 
+                    "PRELATIONSWITHPUBLISHER": [
+                        "Relations with Publisher"
+                    ], 
+                    "PSERIALIZATION": [
+                        "Serialization"
+                    ], 
+                    "PSUBMISSIONSREJECTIONS": [
+                        "Submissions or Rejections"
+                    ], 
+                    "PTYPEOFPRESS": [
+                        "Type of Press"
+                    ]
+                }
+            ], 
+            "RECEPTION": [
+                "Reception", 
+                {
+                    "RBESTKNOWNWORK": [
+                        "Best Known Work"
+                    ], 
+                    "RDESTRUCTIONOFWORK": [
+                        "Destruction of Work"
+                    ], 
+                    "RFICTIONALIZATION": [
+                        "Fictionalization"
+                    ], 
+                    "RLANDMARKTEXT": [
+                        "Landmark Text"
+                    ], 
+                    "RPENALTIES": [
+                        "Penalties"
+                    ], 
+                    "RRECOGNITIONS": [
+                        "Recognitions"
+                    ], 
+                    "RRECOGNITIONVALUE": [
+                        "Recognition Value"
+                    ], 
+                    "RRESPONSES": [
+                        "Responses"
+                    ], 
+                    "RSELFDESCRIPTION": [
+                        "Self Description"
+                    ], 
+                    "RSHEINFLUENCED": [
+                        "She Influenced"
+                    ]
+                }
+            ], 
+            "TEXTUALFEATURES": [
+                "Textual Features", 
+                {
+                    "TCHARACTERIZATION": [
+                        "Characterization"
+                    ], 
+                    "TCHARACTERNAME": [
+                        "Character Name"
+                    ], 
+                    "TCHARACTERTYPEROLE": [
+                        "Character, Type or Role"
+                    ], 
+                    "TEXT": [
+                        "Text"
+                    ], 
+                    "TGENRE": [
+                        "Genre"
+                    ], 
+                    "TGENREISSUE": [
+                        "Genre Issue"
+                    ], 
+                    "TINTERTEXTUALITY": [
+                        "Intertextuality"
+                    ], 
+                    "TMOTIF": [
+                        "Motif"
+                    ], 
+                    "TPLOT": [
+                        "Plot"
+                    ], 
+                    "TSETTINGDATE": [
+                        "Setting Date"
+                    ], 
+                    "TSETTINGPLACE": [
+                        "Setting Place"
+                    ], 
+                    "TTECHNIQUES": [
+                        "Techniques"
+                    ], 
+                    "TTHEMETOPIC": [
+                        "Theme or Topic"
+                    ], 
+                    "TTONESTYLE": [
+                        "Tone or Style"
+                    ], 
+                    "TVOICENARRATION": [
+                        "Voice Narration"
+                    ]
+                }
+            ]
+        }
+    ]
+}
