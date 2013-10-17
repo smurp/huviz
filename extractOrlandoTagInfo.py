@@ -134,6 +134,7 @@ def grovel(raw,options):
                 break
     return tree
 
+# http://www.pythonregex.com/
 import re
 regex = '"([^\"]*)"'
 pat = re.compile(regex)
