@@ -3,7 +3,7 @@ standardName|<STANDARD>(.+?)</STANDARD>
 givenName|<GIVEN>([\w ]+)</GIVEN>
 surname|<SURNAME>([\w ]+)</SURNAME>
 nickname|<NICKNAME.+?REG="(\w ,)"
-dateOfBirth|<BIRTH>.+?<DATE .+?VALUE="([\d-]+?)"
+dateOfBirth|<BIRTH>.+?<DATE .*?VALUE="([\d-]+?)"
 bornInRegion|<BIRTH>.+?</BIRTH>|<REGION REG="([\w ]+?)"
 bornInRegion|<BIRTH>.+?</BIRTH>|<REGION>([\w ]+?)</REGION>
 bornInSettlement|<BIRTH>.+?</BIRTH>|<SETTLEMENT REG="([\d-]+?)"
@@ -50,7 +50,7 @@ livedInRegion|<LOCATION RELATIONTO="LIVED">[<\w ="->:_]+?<REGION[<\w ="-:_]+>([\
 livedInRegion|<LOCATION RELATIONTO="LIVED">[<\w ="->:_]+?<REGION REG="([\w ,']+)"
 livedInGeog|<LOCATION RELATIONTO="LIVED">[<\w ="->:_]+?<GEOG [<\w ="-:_]+>([\w ,']+)</GEOG>
 livedInGeog|<LOCATION RELATIONTO="LIVED">[<\w ="->:_]+?<GEOG REG="([\w ,]+)"
-dateOfDeath|<DEATH>.+?</DEATH>|<DATE .+?VALUE="([\d-]+?)"
+dateOfDeath|<DEATH>.+?</DEATH>|<DATE .*?VALUE="([\d-]+?)"
 diedInSettlement|<DEATH>.+?</DEATH>|<SETTLEMENT.+?>([\w ,']+)</SETTLEMENT>
 diedInSettlement|<DEATH>.+?</DEATH>|<SETTLEMENT CURRENT="([\w ]+?)"
 diedInRegion|<DEATH>.+?</DEATH>|<REGION.+?>([\w ,']+?)</REGION>

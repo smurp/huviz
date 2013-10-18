@@ -15,7 +15,7 @@ huviz
   How to produce orlando_timeline.json 
 
     egrep 'dateOf|standardName' orlando2RDFregex4.txt > orlando_timeline.regex
-    ./orlandoScrape.py --infile orlando_all_entries_2013-03-04.xml --outfile orlando_timeline2.json --regex orlando_timeline.regex -v
+    ./orlandoScrape.py --infile orlando_all_entries_2013-03-04.xml --outfile orlando_timeline.json --regex orlando_timeline.regex -v
 
 
 # Running the Orlando timeline locally
