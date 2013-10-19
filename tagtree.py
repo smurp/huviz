@@ -41,9 +41,15 @@ class Node(object):
         if not tag:
             # we are the root node
             self.tag_to_node = {"":self}
-    def get_tags(self):
+    def get_tags(self,trans = lambda a: a):
+        """
+        >>> tt = {"BIOGRAPHY":["Biography",{"BIRTH":["Birth"]}]}
+        >>> tag_tree = reconstitute_TagTree(tt)
+        >>> tag_tree.get_tags(trans= lambda a:a.lower())
+        ['biography', 'birth']
+        """
         try:
-            return self.tag_to_node.keys()
+            return sorted([trans(a) for a in self.tag_to_node.keys() if a <> ""])
         except:
             raise Error("get_tags() can only be called on the root node")
     def add(self,parent_tag,tag,label):
