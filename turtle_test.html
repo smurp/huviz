@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Test Your Turtle</title>
+    <script src="lib/RDFaProcessor.1.2.0.js" charset="utf-8"></script>
+    <script >
+      var my_graph = {};
+      var snarf = function(){
+        var src_str = document.getElementById('src').value;
+        console.log('about to parse');
+        console.log(src_str);
+        my_graph = GreenTurtle.implementation.parse(src_str,'text/turtle');
+        console.log(my_graph);
+        document.getElementById('out').value = my_graph.toString();
+      }
+    </script>
+  </head>
+  <body>
+    <P>
+      <p>Enter some TTL (Turtle) and then press 
+        <span style="background-color:lightgreen" 
+              onchange="snarf()"
+              onclick="snarf()">GO</span></p>
+      <table>
+      <tr><td>
+      <textarea id="src" cols="50" rows="20">
+@prefix wp: <http://wikipedia.org/wiki/>.
+
+wp:Mark_Twain wp:Huckleberry_Finn wp:Author.
+      </textarea>
+      </td><td>
+      <textarea id="out" cols="50" rows="20">
+      </textarea>
+      </td></tr></table>
+    </P>
+    By <a href="http://smurp.com/">Shawn Murphy</a><br>
+    Powered by the Green-Turtle <a href="https://code.google.com/p/green-turtle/wiki/API"></a>
+  </body>
+</html>
