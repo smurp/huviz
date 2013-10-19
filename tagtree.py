@@ -1,5 +1,6 @@
 import json
 
+
 class Node(object):
     """
     A tree is a set of children of an unlabelled root node.
@@ -63,6 +64,44 @@ class Node(object):
         if compact:
             kwargs = dict(separators=(',', ':'))
         return json.dumps(self.as_tree(),**kwargs)
+
+def reconstitute_TagTree(struct,root=None,label="",parent_tag=""):
+    """
+    >>> tt_str = '{"BIOGRAPHY":["Biography",{"BIRTH":["Birth"]}]}'
+    >>> tt = json.loads(tt_str)
+    >>> tag_tree = reconstitute_TagTree(tt)
+    >>> sorted(tag_tree.tag_to_node.keys())
+    ['', 'BIOGRAPHY', 'BIRTH']    
+
+    """
+    if not root:
+        root = Node()
+    for label_n_kids in struct.items():
+        label = label_n_kids[0]
+        children = label_n_kids[-1]
+        if type(children) != dict:
+            children = {}
+        for tag,node in children.items():
+            root.add(parent_tag,tag,label)
+            reconstitute_TagTree(node,root,label,tag)
+    return root
+
+def load_TagTree(fname):
+    """
+    >>> ottP_fname = 'orlando_tag_tree_PRETTY.json'
+    >>> ottP = load_TagTree(ottP_fname)
+    >>> ottP_str = ottP.as_json()
+    >>> ottP_str_orig = open(ottP_fname).read()
+    >>> ottP_str_orig == ottP_str
+    True
+    >>> ottP_str
+
+
+    """
+    with open(fname, 'r') as tt:
+        tag_tree = json.loads(tt.read())
+    return reconstitute_TagTree(tag_tree)
+
 
 if __name__ == '__main__':
     import doctest
