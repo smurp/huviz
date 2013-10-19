@@ -41,6 +41,11 @@ class Node(object):
         if not tag:
             # we are the root node
             self.tag_to_node = {"":self}
+    def get_tags(self):
+        try:
+            return self.tag_to_node.keys()
+        except:
+            raise Error("get_tags() can only be called on the root node")
     def add(self,parent_tag,tag,label):
         tag = str(tag)
         parent_node = self.tag_to_node[str(parent_tag)]
