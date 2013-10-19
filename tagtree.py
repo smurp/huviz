@@ -42,7 +42,8 @@ class Node(object):
             # we are the root node
             self.tag_to_node = {"":self}
     def add(self,parent_tag,tag,label):
-        parent_node = self.tag_to_node[parent_tag]
+        tag = str(tag)
+        parent_node = self.tag_to_node[str(parent_tag)]
         node = Node(tag,label)
         parent_node.children[tag] = node
         self.tag_to_node[tag] = node
@@ -58,44 +59,51 @@ class Node(object):
                 val.append(node.as_tree())
         return out
     def as_json(self,pretty=False,compact=False):
-        kwargs = {}
+        kwargs = dict(sort_keys=True)
         if pretty:
-            kwargs = dict(sort_keys=True,indent=4)
+            kwargs['indent'] = 4
         if compact:
-            kwargs = dict(separators=(',', ':'))
+            kwargs['separators'] = (',', ':')
         return json.dumps(self.as_tree(),**kwargs)
 
 def reconstitute_TagTree(struct,root=None,label="",parent_tag=""):
     """
-    >>> tt_str = '{"BIOGRAPHY":["Biography",{"BIRTH":["Birth"]}]}'
+    >>> tt_str = u'{"BIOGRAPHY":["Biography",{"BIRTH":["Birth"]}]}'
     >>> tt = json.loads(tt_str)
     >>> tag_tree = reconstitute_TagTree(tt)
     >>> sorted(tag_tree.tag_to_node.keys())
-    ['', 'BIOGRAPHY', 'BIRTH']    
+    ['', 'BIOGRAPHY', 'BIRTH']
 
     """
     if not root:
         root = Node()
-    for label_n_kids in struct.items():
-        label = label_n_kids[0]
-        children = label_n_kids[-1]
-        if type(children) != dict:
-            children = {}
-        for tag,node in children.items():
-            root.add(parent_tag,tag,label)
-            reconstitute_TagTree(node,root,label,tag)
+    for tag_n_kids in struct.items():
+        tag = tag_n_kids[0]
+        children = tag_n_kids[-1]
+        label = children[0]
+        parent_node = root.add(parent_tag,tag,label)
+        if len(children) > 1:
+            reconstitute_TagTree(children[1],root=root,label=label,parent_tag=tag)
     return root
+
+"""
+root = Node()
+tag_n_kids = [BIOGRAPHY, ["Biography",{"BIRTH":["Birth"]}] ]
+tag = BIOGRAPHY
+children = ["Biography",{"BIRTH":["Birth"]}]
+label = 'Biography'
+
+
+"""
 
 def load_TagTree(fname):
     """
-    >>> ottP_fname = 'orlando_tag_tree_PRETTY.json'
+    >>> ottP_fname = 'orlando_tag_tree.json'
     >>> ottP = load_TagTree(ottP_fname)
-    >>> ottP_str = ottP.as_json()
+    >>> ottP_str = ottP.as_json(compact=True)
     >>> ottP_str_orig = open(ottP_fname).read()
-    >>> ottP_str_orig == ottP_str
+    >>> ottP_str_orig == ottP_str # must have sorted_keys=True !!!
     True
-    >>> ottP_str
-
 
     """
     with open(fname, 'r') as tt:
