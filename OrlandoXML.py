@@ -35,13 +35,64 @@ def prettify(options,soup):
         f.write(soup.prettify())
 
 def export_json(options,soup):
+    semtags = get_SemanticTagSet(options)
+    structags = get_StructuralTagSet(options)
+    if True:
+        for tag in options.struct2sem.split(','):
+            semtags.add(tag)
+            structags.remove(tag)
+    #if 'standard' in structags:
+    #    print "WHY IS standard IN structags?"
+    entry_no = 0
     with open(options.outfile,'w') as f:
-        for entry in soup('entry'):
-            for s in entry('standard'):
-                print s.strings.next()
+        if options.limit:
+            search_kwargs = dict(limit=options.limit)
+        for entry in soup.find_all('entry',limit=2):
+            for child in entry.descendants:
+                #if child.name in structags:
+                #    continue
+                if child.name == None:
+                    continue
+                #print dir(child)
+                # When child.name == None then that means child is a TEXT node
+                # eg in "<I>boo</I>" when the child is 'boo' then .name == None
+                if child.name in semtags:
+                    print "  " * len(list(child.parents)),child.name
+                #print child.name, "=" * 100
+                #print child
+
+                #for s in entry('standard'):
+                #print s.strings.next()
             #f.write(entry('standard'))
+            entry_no += 1
+            if options.limit and options.limit == entry_no:
+                print "stopping at limit",entry_no
+                break 
+        print entry
 
+def get_RelationalContextTagSet(options):
+    load_TagTree(options.tagtree)
 
+def get_SemanticTagSet(options,**kwargs):
+    return get_TagSet_by(options,'1',**kwargs)
+
+def get_StructuralTagSet(options,**kwargs):
+    return get_TagSet_by(options,'0',**kwargs)
+
+import csv
+def get_TagSet_by(options,sem_or_struct,upper=True):
+    # sem_or_struct is 1 or 0 respectively
+    # tag,doc_code,subtype_code,use_code,description,attribute,description_attr
+    out = set([])
+    with open('orlando_tag_admin.csv','r') as tag_meta:
+        csv_reader = csv.DictReader(tag_meta)
+        for row in csv_reader:
+            if row['use_code'] == sem_or_struct:
+                out.add(row['tag'].strip().lower())
+    if options.verbose:
+        print out
+    return out
+        
 
 if __name__ == "__main__":
     defaults = dict(regexes = 'orlando2RDFregex3.txt',
@@ -64,6 +115,18 @@ if __name__ == "__main__":
                       default = defaults['infile'],
                       help = "input filename, default:"+\
                           defaults['infile'])
+    parser.add_option("--limit",
+                       default = 0,
+                       type = "int",
+                       help = "the max number of writers to process")
+    parser.add_option("--struct2sem",
+                      default = "standard",
+                      type = "str",
+                      help = "tags to switch from structural to semantic, comma-delim")
+    parser.add_option("--tagtree",
+                      default = "orlando_tag_tree.json",
+                      type = "str",
+                      help = "file containing tag tree, default: orlando_tag_tree.json")
     parser.add_option("--doctest",
                       action = 'store_true',
                       help = "perform doc tests")
@@ -121,4 +184,6 @@ if __name__ == "__main__":
         parser.print_help()
     
     if options.outfile.endswith('.json'):
+        print "EXPORTING",options.outfile
         export_json(options,soup)
+    
