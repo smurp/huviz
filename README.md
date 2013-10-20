@@ -1,6 +1,18 @@
 huviz
 =====
 
+# General Paramaters for orlandoScrape.py
+
+    --limit 2 
+        limit the number of writers processed
+
+
+# Converting XML to TTL
+
+    ./orlandoScrape.py --outfile test.ttl 
+
+
+
 # Converting XML to JSON
 
   How to produce the full JSON output as `orlando_all_entries_2013-03-04.json` (the default behaviour):
