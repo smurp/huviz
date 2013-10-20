@@ -24,9 +24,18 @@
       <table>
       <tr><td>
       <textarea id="src" cols="50" rows="20">
-@prefix wp: <http://wikipedia.org/wiki/>.
 
-wp:Mark_Twain wp:Huckleberry_Finn wp:Author.
+@prefix r: <http://orl.ca/rel/> .
+@prefix o: <http://orl.ca/writer/> .
+@prefix p: <http://orl.ca/people/> .
+@prefix g: <http://orl.ca/geog/> .
+@prefix i: <http://orl.ca/institution/> .
+@prefix w: <http://orl.ca/work/> .
+@prefix f: <http://xmlns.com/foaf/0.1/> .
+
+# a 'blank node' for person without an entry
+_:a f:name "Smith, Mary" .
+o:abdyma f:hasMom _:a  .
       </textarea>
       </td><td>
       <textarea id="out" cols="50" rows="20">
@@ -35,5 +44,31 @@ wp:Mark_Twain wp:Huckleberry_Finn wp:Author.
     </P>
     By <a href="http://smurp.com/">Shawn Murphy</a><br>
     Powered by the Green-Turtle <a href="https://code.google.com/p/green-turtle/wiki/API"></a>
+
+    <textarea id="src" cols="50" rows="20" style="display:none">
+_:c14n0 <http://xmlns.com/foaf/0.1/homepage> <http://manu.sporny.org/> .
+_:c14n0 <http://xmlns.com/foaf/0.1/name> "Manu Sporny" .
+    </textarea>
+
+
+    <textarea id="dave" cols="50" rows="20" style="display:none">
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix ex: <http://example.org/stuff/1.0/> .
+
+<http://www.w3.org/TR/rdf-syntax-grammar>
+  dc:title "RDF/XML Syntax Specification (Revised)" ;
+  ex:editor [
+    ex:fullname "Dave Beckett";
+    ex:homePage <http://purl.org/net/dajobe/>
+  ] .
+    </textarea>
+
+      <textarea id="twain" cols="50" rows="20" style="display:none">
+@prefix wp: <http://wikipedia.org/wiki/>.
+
+wp:Mark_Twain wp:Huckleberry_Finn wp:Author.
+      </textarea>
+
   </body>
 </html>
