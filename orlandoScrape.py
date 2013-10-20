@@ -2,7 +2,7 @@
 __version__='1.1.0'
 __doc__ = """
 Script to convert XML information from the Orlanda project mark-up to
-various output formats.  Ideally, RDF, JSON and space optimized JSON.
+various output formats.  It produces JSON and starting to produce Turtle (TTL).
 
 This file is now in GitHub at:
   https://github.com/smurp/huviz
@@ -24,8 +24,6 @@ On 2013-10-10 it was forked from orlandoScrape5-1.py which bore the comment:
 import sys
 import re
 import codecs
-import itertools, collections
-
 import json
 
 
@@ -42,12 +40,6 @@ def regexTestLoad(regexTests,options):
            n+=1
         arrayCounter+=1
     return regexArray
-
-
-def consume(iterator, n):
-    collections.deque(itertools.islice(iterator, n))
-    
-
 
 
 def stripExtraXML(match):
@@ -115,9 +107,9 @@ def extractionCycle(orlandoRAW, regexArray, NameTest, mainSubject, options):
             mainSubject=LineTest.group(1)
             entryDict['ID']=mainSubject
             count += 1
+            if options.verbose:
+                print mainSubject
             for tripleCheck in regexArray:
-                if options.verbose:
-                    print mainSubject
                 regexRecursion(line,regexArray,tripleCheck,1,mainSubject,entryDict)
             options.emitter.stash(entryDict,commacheck3,options)
             commacheck3=True
@@ -190,27 +182,64 @@ class RDFEmitter(FormatEmitter):
         self.store.bind('d',DC)
 
         self.store.bind('w',BRW)
+        self.store.bind('x',XFN)
         self.people = {}
+
+    def get_person(self,standard_name,node=None,ID=None):
+        if not self.people.has_key(standard_name):
+            self.people[standard_name] = self.make_person(standard_name,node=node,ID=ID)
+        return self.people[standard_name]
+
+    def make_person(self,standardName,ID=None,node=None):
+        if node == None:
+            if ID == None:
+                ID = self.next_id()
+            node = BNode(ID)
+        self.store.add((node,FOAF.name,Literal(standardName)))
+        if options.state_the_obvious:
+            self.store.add((node,RDF.type,FOAF.Person))
+        return node
+
     def generate_graph(self):
+        bogus_relations = {
+            ('aberfr','siblingOf'): 'Abdy, Maria',
+            ('aberfr','childOf'): 'Smith, Richard',
+            }
+        if not options.bogus_relations:
+            bogus_relations = {}
+
         for entry in self.entries:
+            standardNames = entry.get('standardName',[])
+            standardName = standardNames and standardNames[0] or None
+            if standardName == None:
+                print "skipping entry without a standardName"
+                continue
+            writer = self.get_person(standardName,BRW[entry['ID']])
+
+            #if entry.has_key('ID'):
+            #    self.store.add((writer,RDF.about,BRW[entry['ID']]))
+
             for predicate,values in entry.items():
+                if predicate in ['ID','standardName']:
+                    continue
                 if predicate in self.people_predicates.keys():
+                    pred = self.people_predicates[predicate]
+
+                    if bogus_relations:
+                        k = (entry['ID'],predicate)
+                        if bogus_relations.has_key(k):
+                            values.append(bogus_relations[k])
+                        
                     for standard_name in values:
                         person = self.get_person(standard_name)
+                        if person == writer:
+                            #print >> sys.stderr, "%(standardName)s can not be %(predicate)s of %(standard_name)s " % locals()
+                            continue 
+                        self.store.add((writer,pred,person))
                         # WORKING on linking people
 
-            if not entry.has_key('ID'):
-                continue
-            writer = BRW[entry['ID']]
-            self.store.add((writer,RDF.type,FOAF.Person))
-            if entry.has_key('standardName'):
-                self.store.add((writer,FOAF.name,Literal(entry['standardName'])))
 
 class TurtleEmitter(RDFEmitter):
-    def get_person(self,standard_name):
-        if not self.people.has_key(standard_name):
-            self.people[standard_name] = dict(ID=self.next_id())
-        return self.people[standard_name]
     def concludeOutfile(self):
         self.generate_graph()
         self.outfile.write(self.store.serialize(format='turtle'))
@@ -243,6 +272,14 @@ if __name__ == "__main__":
     parser.add_option("--only_predicates",
                       default = "standardName,childOf,dateOfBirth,dateOfDeath,parentOf",
                       help = "the predicates to keep")    
+    parser.add_option("--state_the_obvious",
+                      default = False,
+                      action = 'store_true',
+                      help = "assert that writers and others are FOAF.Person")
+    parser.add_option("--bogus_relations",
+                      default = False,
+                      action = 'store_true',
+                      help = "assert (aberfr,siblingOf,abdyma) for test purposes")
     parser.add_option("--doctest",
                       action = 'store_true',
                       help = "perform doc tests")
