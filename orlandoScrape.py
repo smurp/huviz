@@ -28,7 +28,6 @@ import itertools, collections
 
 import json
 
-entries = []
 
 def regexTestLoad(regexTests,options):
     arrayCounter=0
@@ -48,21 +47,7 @@ def regexTestLoad(regexTests,options):
 def consume(iterator, n):
     collections.deque(itertools.islice(iterator, n))
     
-    
-def prepOutfile(orlandoOutfile,options):
-    if options.chunked:
-        return
-    orlandoOutfile.write('[\n')
 
-
-def concludeOutfile(orlandoOutfile,options):
-    if options.chunked:
-        kwargs = dict(sort_keys=True)
-        if options.pretty:
-            kwargs['indent'] = 4
-        orlandoOutfile.write(json.dumps(entries,**kwargs))
-        return
-    orlandoOutfile.write(']')
 
 
 def stripExtraXML(match):
@@ -115,88 +100,66 @@ def arity_gt_n(entryDict,predicate,n):
 def arity_gt_1(entryDict,predicate):
     return arity_gt_n(entryDict,predicate,1)
 
-def stash(entryDict,commacheck3,options):
-    global entries
-    #if options.sanity:
-    #    if arity_gt_1(entryDict,'standardName'):
-    entries.append(entryDict)
-
-def DEPRECATED_write2outfile(entryDict,commacheck3,options):
-    commacheck1=False #controls the insertion of commas at the end of the objects within the primary array
-    if commacheck3 is True:
-        orlandoOutfile.write(',\n')
-    orlandoOutfile.write('{\n')
-    for item in entryDict:
-        commacheck2=False #controls the insertion of commas at the end of the items within the secondary array
-        if commacheck1 is True:
-            orlandoOutfile.write(',\n')
-        orlandoOutfile.write('"')
-        orlandoOutfile.write(item)
-        orlandoOutfile.write('": [\n')
-        for listItem in entryDict[item]:
-            if commacheck2 is True:
-                orlandoOutfile.write(',\n')
-            orlandoOutfile.write('"')
-            orlandoOutfile.write(listItem)
-            orlandoOutfile.write('"')
-            commacheck2=True
-        orlandoOutfile.write('\n]')
-        commacheck1=True
-    orlandoOutfile.write('\n}')
-
-
 def extractionCycle(orlandoRAW, regexArray, NameTest, mainSubject, options):
     entryDict=dict()
     commacheck3=False #controls the insertion of commas at the end of the objects
+    count = 0
     for line in orlandoRAW:
         LineTest = NameTest.search(line)
         #print LineTest
         if LineTest:
             mainSubject=LineTest.group(1)
             entryDict['ID']=mainSubject
+            count += 1
             for tripleCheck in regexArray:
                 if options.verbose:
                     print mainSubject
                 regexRecursion(line,regexArray,tripleCheck,1,mainSubject,entryDict)
-            if options.chunked:
-                stash(entryDict,commacheck3,options)
-            else:
-                DEPRECATED_write2outfile(entryDict,commacheck3,options)
+            options.emitter.stash(entryDict,commacheck3,options)
             commacheck3=True
         entryDict = dict()
+        if options.limit and count >= options.limit:
+            break
+
+class FormatEmitter(object):
+    def __init__(self,options):
+        self.options = options
+        self.outfile = codecs.open(options.outfile, encoding='utf-8', mode='w')
+        self.entries = []
+    def stash(self,entryDict,commacheck3,options):
+        self.entries.append(entryDict)
+    def go(self):
+        options = self.options
+        regexTests = codecs.open(options.regexes, encoding='utf-8', mode='r')
+        print "begin"
+        self.prepOutfile()
+        regexArray = regexTestLoad(regexTests,options)
+        NameTest = re.compile('<ENTRY.+?ID="([\w, ]+)".*>',re.I)
+        print "extraction starts"
+        with codecs.open(options.infile, encoding='utf-8', mode='r') as orlandoRAW: 
+            mainSubject=None
+            extractionCycle(orlandoRAW, regexArray, NameTest, mainSubject, options)
+        print "extraction ends"
+        self.concludeOutfile()
+        print "end"
+
+    def prepOutfile(self):
+        pass
+
+class JSONEmitter(FormatEmitter):
+    def concludeOutfile(self):
+        kwargs = dict(sort_keys=True)
+        if self.options.pretty:
+            kwargs['indent'] = 4
+        self.outfile.write(json.dumps(self.entries,**kwargs))
+        self.outfile.close()
+
+class TurtleEmitter(FormatEmitter):
+    def concludeOutfile(self):
+        for entry in self.entries:
+            print entry
 
 orlandoOutfile = None
-def makeJSON(options):
-    global orlandoOutfile
-    #Open two input files and two output files (one for matches and one for non-matches)
-    regexTests = codecs.open(options.regexes, encoding='utf-8', mode='r')
-    # orlandoRAW = codecs.open('orlando_term_poetess_2013-01-04.xml', encoding='utf-8', mode='r')
-
-    orlandoOutfile = codecs.open(options.outfile, encoding='utf-8', mode='w')
-
-    # 'orlando_entries_all_pub_c_2013-05-01.xml'
-    print "begin"
-    prepOutfile(orlandoOutfile,options)
-    regexArray = regexTestLoad(regexTests,options)
-    NameTest = re.compile('<ENTRY.+?ID="([\w, ]+)".*>',re.I)
-    print "extraction starts"
-    with codecs.open(options.infile, encoding='utf-8', mode='r') as orlandoRAW:  #The WITH (apparently) allows the line iterator to be incremented inside a loop and forces proper closing of files regardless
-        mainSubject=None
-        extractionCycle(orlandoRAW, regexArray, NameTest, mainSubject, options)
-    print "extraction ends"
-    concludeOutfile(orlandoOutfile,options)
-    orlandoOutfile.close()
-    print "end"
-    
-
-def dummy_meth(a):
-    # an example test
-    """
-    >>> dummy_meth('a')
-    'a'
-    
-    """
-    return a
 
 if __name__ == "__main__":
     defaults = dict(regexes = 'orlando2RDFregex4.txt',
@@ -217,6 +180,9 @@ if __name__ == "__main__":
                       default = defaults['infile'],
                       help = "input filename, default:"+\
                           defaults['infile'])
+    parser.add_option("--limit",
+                      type = "int",
+                      help = "limit the number of entries processed")    
     parser.add_option("--pretty",
                       action = 'store_true',
                       help = "make json or xml output more human readable")
@@ -233,10 +199,6 @@ if __name__ == "__main__":
     parser.add_option("--man",
                       action = 'store_true',
                       help = "show the manual for this program")
-    parser.add_option("--chunked",  # ie: write out python structure via json module
-                      default = True,
-                      action = 'store_true',
-                      help = "output chunked style")
     parser.version = __version__
     parser.usage =  """
     e.g.
@@ -268,7 +230,11 @@ if __name__ == "__main__":
         show_usage = False
         import pydoc
         pydoc.help(__import__(__name__))
-    if show_usage:
-        parser.print_help()
     if options.outfile.endswith('.json'):
-        makeJSON(options)
+        options.emitter = JSONEmitter(options)
+    if options.outfile.endswith('.ttl'):
+        options.emitter = TurtleEmitter(options)
+    if hasattr(options,'emitter'):
+        options.emitter.go()
+    elif show_usage:
+        parser.print_help()
