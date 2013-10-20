@@ -64,11 +64,15 @@ def stripExtraXML(match):
  
 
 def fillDict(entryDict, regexArray, tripleCheck, mainSubject, stripMatch):
-    if regexArray[tripleCheck][0] not in entryDict:
-        entryDict[regexArray[tripleCheck][0]]=[stripMatch]
+    predicate = regexArray[tripleCheck][0]
+    if options.only_predicates and not (predicate in options.only_predicates):
+        return
+    if predicate not in entryDict:
+        print "  ",predicate
+        entryDict[predicate]=[stripMatch]
     else:
-        if stripMatch not in entryDict[regexArray[tripleCheck][0]]:
-            entryDict[regexArray[tripleCheck][0]].append(stripMatch)
+        if stripMatch not in entryDict[predicate]:
+            entryDict[predicate].append(stripMatch)
 
 
 def regexRecursion(searchText,regexArray,tripleCheck,recursionDepthPlusOne,mainSubject,entryDict):
@@ -121,11 +125,22 @@ def extractionCycle(orlandoRAW, regexArray, NameTest, mainSubject, options):
         if options.limit and count >= options.limit:
             break
 
+from rdflib import Graph, Literal, BNode, RDF
+from rdflib.namespace import FOAF, DC, Namespace
+
+XFN = Namespace('http://vocab.sindice.com/xfn#')
+BRW = Namespace('http://orlando.cambridge.org/public/svPeople?person_id=')
+
+
 class FormatEmitter(object):
+    people_predicates = {'childOf':XFN['parent'],
+                         'parentOf':XFN['child']}
     def __init__(self,options):
         self.options = options
-        self.outfile = codecs.open(options.outfile, encoding='utf-8', mode='w')
+        if hasattr(options,'outfile'):
+            self.outfile = codecs.open(options.outfile, encoding='utf-8', mode='w')
         self.entries = []
+
     def stash(self,entryDict,commacheck3,options):
         self.entries.append(entryDict)
     def go(self):
@@ -143,6 +158,19 @@ class FormatEmitter(object):
         self.concludeOutfile()
         print "end"
 
+    def next_id(self):
+        """
+        >>> fe = FormatEmitter()
+        >>> fe.next_id()
+        1
+        >>> fe.next_id()
+        2
+        """
+        if not hasattr(self,'current_id'):
+            self.current_id = 0
+        self.current_id += 1
+        return self.current_id
+        
     def prepOutfile(self):
         pass
 
@@ -154,12 +182,38 @@ class JSONEmitter(FormatEmitter):
         self.outfile.write(json.dumps(self.entries,**kwargs))
         self.outfile.close()
 
-class TurtleEmitter(FormatEmitter):
-    def concludeOutfile(self):
-        for entry in self.entries:
-            print entry
+class RDFEmitter(FormatEmitter):
+    def __init__(self,options):
+        super(RDFEmitter, self).__init__(options)
+        self.store = Graph()
+        self.store.bind('f',FOAF)
+        self.store.bind('d',DC)
 
-orlandoOutfile = None
+        self.store.bind('w',BRW)
+        self.people = {}
+    def generate_graph(self):
+        for entry in self.entries:
+            for predicate,values in entry.items():
+                if predicate in self.people_predicates.keys():
+                    for standard_name in values:
+                        person = self.get_person(standard_name)
+                        # WORKING on linking people
+
+            if not entry.has_key('ID'):
+                continue
+            writer = BRW[entry['ID']]
+            self.store.add((writer,RDF.type,FOAF.Person))
+            if entry.has_key('standardName'):
+                self.store.add((writer,FOAF.name,Literal(entry['standardName'])))
+
+class TurtleEmitter(RDFEmitter):
+    def get_person(self,standard_name):
+        if not self.people.has_key(standard_name):
+            self.people[standard_name] = dict(ID=self.next_id())
+        return self.people[standard_name]
+    def concludeOutfile(self):
+        self.generate_graph()
+        self.outfile.write(self.store.serialize(format='turtle'))
 
 if __name__ == "__main__":
     defaults = dict(regexes = 'orlando2RDFregex4.txt',
@@ -186,6 +240,9 @@ if __name__ == "__main__":
     parser.add_option("--pretty",
                       action = 'store_true',
                       help = "make json or xml output more human readable")
+    parser.add_option("--only_predicates",
+                      default = "standardName,childOf,dateOfBirth,dateOfDeath,parentOf",
+                      help = "the predicates to keep")    
     parser.add_option("--doctest",
                       action = 'store_true',
                       help = "perform doc tests")
@@ -210,12 +267,19 @@ if __name__ == "__main__":
               ./orlandoScrape.py \\
                  --infile orlando_all_entries_2013-03-04.xml \\
                  --outfile orlando_all_entries_2013-03-04.json \\
-                 --regexes orlando2RDFregex4.txt 
+                 --regexes orlando2RDFregex4.txt \\
+                 --only_predicates "standardName,childOf,dateOfBirth,dateOfDeath,parentOf"
 
+       %prog --only_predicates ""
+          Run without constraint on the predictes emitted.
+      
+          
 
     """
     (options,args) = parser.parse_args()
     show_usage = True
+    if options.only_predicates:
+        options.only_predicates = options.only_predicates.split(',')
     if options.doctest:
         show_usage = False
         import doctest
