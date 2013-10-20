@@ -68,7 +68,7 @@ def fillDict(entryDict, regexArray, tripleCheck, mainSubject, stripMatch):
     if options.only_predicates and not (predicate in options.only_predicates):
         return
     if predicate not in entryDict:
-        print "  ",predicate
+        #print "  ",predicate
         entryDict[predicate]=[stripMatch]
     else:
         if stripMatch not in entryDict[predicate]:
