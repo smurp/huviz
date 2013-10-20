@@ -16,8 +16,10 @@ culturalInfluence|<CULTURALFORMATION>.+?</CULTURALFORMATION>|<RACECOLOUR>([\w ]+
 politicalInfluence|<CULTURALFORMATION>.+?</CULTURALFORMATION>|<CLASS SOCIALRANK="([\w, ]+)"
 politicalInfluence|<CULTURALFORMATION>.+?</CULTURALFORMATION>|<CLASS.*?>([\w, ]+)</CLASS>
 ofNationality|<CULTURALFORMATION>.+?</CULTURALFORMATION>|<NATIONALITY>([\w, ]+)</NATIONALITY>
-childOf|<NAME STANDARD="([\w, ]+?)">father</NAME>
-childOf|<NAME STANDARD="([\w, ]+?)">mother</NAME>
+childOf|<NAME\s*?STANDARD="([\w\-, ]+?)">father</NAME>
+childOf|<MEMBER RELATION="FATHER">.+?</MEMBER>|<NAME\s*STANDARD="([\w\-, ]+?)"
+childOf|<NAME\s*?STANDARD="([\w\-, ]+?)">mother</NAME>
+childOf|<MEMBER RELATION="MOTHER">.+?</MEMBER>|<NAME\s*STANDARD="([\w\-, ]+?)"
 marriedTo|<NAME STANDARD="([\w, ]+?)">husband</NAME>
 siblingOf|<NAME STANDARD="([\w, ]+?)">sister</NAME>
 siblingOf|<NAME STANDARD="([\w, ]+?)">brother</NAME>
