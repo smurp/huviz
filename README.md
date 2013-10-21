@@ -1,17 +1,22 @@
 huviz
 =====
 
+# Installation
+
+    // install the python requirements
+    pip install -r requirements.txt 
+
 # General Paramaters for orlandoScrape.py
 
     --limit 2 
         limit the number of writers processed
 
 
-# Converting XML to TTL
+# Converting XML to Turtle (TTL)
 
-    ./orlandoScrape.py --outfile test.ttl 
+    ./orlandoScrape.py --outfile data/test_20.ttl  --limit 20 -v
 
-
+    See https://raw.github.com/smurp/huviz/master/data/test_20.ttl
 
 # Converting XML to JSON
 

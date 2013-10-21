@@ -122,11 +122,22 @@ from rdflib.namespace import FOAF, DC, Namespace
 
 XFN = Namespace('http://vocab.sindice.com/xfn#')
 BRW = Namespace('http://orlando.cambridge.org/public/svPeople?person_id=')
+WP  = Namespace('http://en.wikipedia.org/wiki/')
+ORL = Namespace('http://orlan.do/')
 
+predicate_to_type = {'childOf':XFN['parent'],
+                     'parentOf':XFN['child'],
+                     'grandchildOf':XFN['kin'],
+                     'grandparentOf':XFN['kin'],
+                     'cousinOf':XFN['kin'],
+                     'juniorCollateralRelationshipTo':XFN['kin'],
+                     'siblingOf':XFN['sibling'],
+                     'friendOrAssociateOf':XFN['friend'],
+                     'religiousInfluence':WP['Religious_denomination'],
+                     'connectionToOrganization':ORL['connectionToOrganization']
+                     }
 
 class FormatEmitter(object):
-    people_predicates = {'childOf':XFN['parent'],
-                         'parentOf':XFN['child']}
     def __init__(self,options):
         self.options = options
         if hasattr(options,'outfile'):
@@ -183,22 +194,23 @@ class RDFEmitter(FormatEmitter):
 
         self.store.bind('w',BRW)
         self.store.bind('x',XFN)
-        self.people = {}
+        self.entities = {}
 
-    def get_person(self,standard_name,node=None,ID=None):
-        if not self.people.has_key(standard_name):
-            self.people[standard_name] = self.make_person(standard_name,node=node,ID=ID)
-        return self.people[standard_name]
+    def get_entity(self,standard_name,node=None,ID=None,typ=None):
+        if not self.entities.has_key(standard_name):
+            if node == None:
+                if ID == None:
+                    ID = self.next_id()
+                node = BNode(ID)
+            self.store.add((node,FOAF.name,Literal(standard_name)))
+            if options.state_the_obvious:
+                self.store.add((node,RDF.type,typ))
+            self.entities[standard_name] = node
+        return self.entities[standard_name]
 
-    def make_person(self,standardName,ID=None,node=None):
-        if node == None:
-            if ID == None:
-                ID = self.next_id()
-            node = BNode(ID)
-        self.store.add((node,FOAF.name,Literal(standardName)))
-        if options.state_the_obvious:
-            self.store.add((node,RDF.type,FOAF.Person))
-        return node
+    def get_person(self,name,**kwargs):
+        kwargs['typ'] = FOAF.Person
+        return self.get_entity(name,**kwargs)
 
     def generate_graph(self):
         bogus_relations = {
@@ -214,7 +226,7 @@ class RDFEmitter(FormatEmitter):
             if standardName == None:
                 print "skipping entry without a standardName"
                 continue
-            writer = self.get_person(standardName,BRW[entry['ID']])
+            writer = self.get_entity(standardName,BRW[entry['ID']],typ=FOAF.Person)
 
             #if entry.has_key('ID'):
             #    self.store.add((writer,RDF.about,BRW[entry['ID']]))
@@ -222,8 +234,8 @@ class RDFEmitter(FormatEmitter):
             for predicate,values in entry.items():
                 if predicate in ['ID','standardName']:
                     continue
-                if predicate in self.people_predicates.keys():
-                    pred = self.people_predicates[predicate]
+                if predicate in predicate_to_type.keys():
+                    pred = predicate_to_type[predicate]
 
                     if bogus_relations:
                         k = (entry['ID'],predicate)
@@ -245,10 +257,14 @@ class TurtleEmitter(RDFEmitter):
         self.outfile.write(self.store.serialize(format='turtle'))
 
 if __name__ == "__main__":
-    defaults = dict(regexes = 'orlando2RDFregex4.txt',
-                    infile = 'orlando_all_entries_2013-03-04.xml',
-                    outfile = 'orlando_all_entries_2013-03-04.json')
-                
+    only_predicates = 'standardName,dateOfBirth,dateOfDeath'.split(',')
+    only_predicates.extend(predicate_to_type.keys())
+    defaults = dict(
+        regexes = 'orlando2RDFregex4.txt',
+        infile = 'orlando_all_entries_2013-03-04.xml',
+        only_predicates = only_predicates,
+        outfile = 'orlando_all_entries_2013-03-04.json')
+    
     from optparse import OptionParser
     parser = OptionParser()
     parser.add_option("--outfile",
@@ -269,15 +285,16 @@ if __name__ == "__main__":
     parser.add_option("--pretty",
                       action = 'store_true',
                       help = "make json or xml output more human readable")
-    parser.add_option("--only_predicates",
-                      default = "standardName,childOf,dateOfBirth,dateOfDeath,parentOf",
-                      help = "the predicates to keep")    
+    parser.add_option(
+        "--only_predicates",
+        default = ','.join(defaults['only_predicates']),
+        help = "the predicates to keep, default: %(only_predicates)s" % defaults)    
     parser.add_option("--state_the_obvious",
                       default = False,
                       action = 'store_true',
                       help = "assert that writers and others are FOAF.Person")
     parser.add_option("--bogus_relations",
-                      default = False,
+                      default = False ,
                       action = 'store_true',
                       help = "assert (aberfr,siblingOf,abdyma) for test purposes")
     parser.add_option("--doctest",
@@ -310,8 +327,6 @@ if __name__ == "__main__":
        %prog --only_predicates ""
           Run without constraint on the predictes emitted.
       
-          
-
     """
     (options,args) = parser.parse_args()
     show_usage = True
