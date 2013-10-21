@@ -16,7 +16,7 @@ huviz
 
     ./orlandoScrape.py --outfile data/test_20.ttl  --limit 20 -v
 
-See [data/test_20.ttl](../blob/master/data/test_20.ttl)
+See [data/test_20.ttl](../master/data/test_20.ttl)
 
 ## Converting XML to JSON
 
