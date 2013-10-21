@@ -6,19 +6,19 @@ huviz
     // install the python requirements
     pip install -r requirements.txt 
 
-# General Paramaters for orlandoScrape.py
+# Operating orlandoScrape.py
 
     --limit 2 
         limit the number of writers processed
 
 
-# Converting XML to Turtle (TTL)
+## Converting XML to Turtle (TTL)
 
     ./orlandoScrape.py --outfile data/test_20.ttl  --limit 20 -v
 
-    See https://raw.github.com/smurp/huviz/master/data/test_20.ttl
+See [data/test_20.ttl](../huviz/master/data/test_20.ttl)
 
-# Converting XML to JSON
+## Converting XML to JSON
 
   How to produce the full JSON output as `orlando_all_entries_2013-03-04.json` (the default behaviour):
 
