@@ -24,6 +24,7 @@ marriedTo|<NAME STANDARD="([\w, ]+?)">husband</NAME>
 siblingOf|<NAME STANDARD="([\w, ]+?)">sister</NAME>
 siblingOf|<NAME STANDARD="([\w, ]+?)">brother</NAME>
 numberOfChildren|<CHILDREN NUMBER="([\d]+?)"
+parentOf|<CHILDREN.*>.+?</CHILDREN>|<NAME STANDARD="([\w, ]+?)">
 parentOf|<NAME STANDARD="([\w, ]+?)">son</NAME>
 parentOf|<NAME STANDARD="([\w, ]+?)">daughter</NAME>
 grandchildOf|<NAME STANDARD="([\w, ]+?)">grandfather</NAME>
