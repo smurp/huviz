@@ -2,8 +2,6 @@
 <html>
   <head>
     <title>Huvis Graph Visualization</title>
-    <xxscript src="huvis.js"  type="text/javascript"></xxscript>
-    <script id="writers" type="text/turtle" src="/data/test_20.ttl"></script>
 <style>
 
 rect {
@@ -31,15 +29,11 @@ rect {
   <body onload="fetchAndShow()">
     <div onclick="fetchAndShow()">GO!</div>
     <div id="the_vis">loading...</div>
+    <script src="huvis.js"  type="text/javascript"></script>
     <script src="http://d3js.org/d3.v3.min.js"></script>
     <script src="lib/RDFaProcessor.1.2.0.js" charset="utf-8"></script>
     <script src="lib/jquery-1.7.2.min.js"></script>
     <script>
-
-    window.addEventListener('load',function(){
-      //console.log('onload...');
-      //fetchAndShow();
-    });
 
 var parseAndShow = function(data,textStatus){
   //console.log('textStatus',textStatus);
@@ -60,25 +54,6 @@ var fetchAndShow = function(url){
           }})
 };
 
-var G = {};
-
-var showGraph = function(g){
-  console.log('showGraph');
-  for (subj in g.subjects){
-    var subject = g.subjects[subj];
-
-    var details = {x: 300, y: 300, s:subject};
-    var node = nodes.push(details);
-    subject._n = node;
-    //node._s = subject;
-  }
-  for (var i =0 ; i<nodes.length; i++){
-    var subj = console.log(nodes[i].s);
-    for (var p = 0; p < sub.predicates
-  }
-
-  restart();
-};
 
 
 // from http://bl.ocks.org/mbostock/929623
@@ -149,7 +124,6 @@ function mousemove() {
 }
 
 function mousedown() {
-  console.log("this",this);
   var point = d3.mouse(this),
       node = {x: point[0], y: point[1]},
       n = nodes.push(node);
@@ -165,6 +139,61 @@ function mousedown() {
 
   restart();
 }
+
+var G = {};
+
+var id2n = {};
+var showGraph = function(g){
+  console.log('showGraph');
+
+  for (subj in g.subjects){
+    var subject = g.subjects[subj];
+
+    var details = {x: 300, y: 300, s:subject};
+    var node = nodes.push(details);
+    subject._n = node;
+    console.log('id2n['+subject.id+']')
+    id2n[subject.id] = nodes[node];
+    //node._s = subject;
+  }
+  var make_links = function(){
+    // for edge labels				   
+    //   http://bl.ocks.org/jhb/5955887
+    console.log('make_links');
+    for (var i =0 ; i<nodes.length; i++){
+      var subj = nodes[i].s;
+      if (subj){
+        console.log('===================================================');
+        //console.log(subj);
+        for (p in subj.predicates){
+          var predicate = subj.predicates[p]; 
+          for (oi = 0; oi < predicate.objects.length; oi++){
+            var obj = predicate.objects[oi];
+            console.log(subj.id,p,obj.value);
+            console.log(obj);
+            if (id2n[obj.value]){
+              var edge = {source: nodes[i], target: id2n[obj.value]};
+              var edge = {source: nodes[i], target: id2n['_:4']};
+              console.log("====>",edge);
+              links.push(edge);
+            }
+          }
+	  //console.log(p,"==>",predicate);
+        }
+      }
+    }
+    console.log('/make_links');
+  }
+  make_links();
+  restart();
+};
+
+    window.addEventListener('load',function(){
+      //console.log('onload...');
+      //fetchAndShow();
+    });
+
+
 
 
     </script>
