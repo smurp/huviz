@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Test Your Turtle</title>
+    <title>Huvis Graph Visualization</title>
     <xxscript src="huvis.js"  type="text/javascript"></xxscript>
     <script id="writers" type="text/turtle" src="/data/test_20.ttl"></script>
 <style>
@@ -41,8 +41,6 @@ rect {
       //fetchAndShow();
     });
 
-
-
 var parseAndShow = function(data,textStatus){
   //console.log('textStatus',textStatus);
   //console.log('data',data);
@@ -67,13 +65,19 @@ var G = {};
 var showGraph = function(g){
   console.log('showGraph');
   for (subj in g.subjects){
-    console.log(subj,g.subjects[subj]);
- 
-    var node = {x: 300, y: 300},
-        n = nodes.push(node);
+    var subject = g.subjects[subj];
 
-    restart();
+    var details = {x: 300, y: 300, s:subject};
+    var node = nodes.push(details);
+    subject._n = node;
+    //node._s = subject;
   }
+  for (var i =0 ; i<nodes.length; i++){
+    var subj = console.log(nodes[i].s);
+    for (var p = 0; p < sub.predicates
+  }
+
+  restart();
 };
 
 
@@ -86,9 +90,9 @@ var fill = d3.scale.category20();
 
 var force = d3.layout.force()
     .size([width, height])
-    .nodes([{}]) // initialize with a single node
-    .linkDistance(30)
-    .charge(-60)
+    .nodes([]) // initialize with a single node
+    .linkDistance(10)
+    .charge(-20)
     .on("tick", tick);
 
 var svg = d3.select("body").append("svg")
@@ -107,7 +111,7 @@ var nodes = force.nodes(),
     link = svg.selectAll(".link");
 
 var cursor = svg.append("circle")
-    .attr("r", 30)
+    .attr("r", 15)
     .attr("transform", "translate(-100,-100)")
     .attr("class", "cursor");
 
