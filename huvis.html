@@ -2,6 +2,12 @@
 <html>
   <head>
     <title>Huvis Graph Visualization</title>
+<!--
+See for inspiration:
+  Collapsible Force Layout
+    http://bl.ocks.org/mbostock/1093130
+
+-->
 <style>
 
 rect {
@@ -27,10 +33,11 @@ rect {
 
   </head>
   <body onload="fetchAndShow()">
-    <div onclick="fetchAndShow()">GO!</div>
-    <div id="the_vis">loading...</div>
+
     <script src="huvis.js"  type="text/javascript"></script>
-    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <xxscript src="lib/d3.v3.js"></xxscript>
+    <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
+
     <script src="lib/RDFaProcessor.1.2.0.js" charset="utf-8"></script>
     <script src="lib/jquery-1.7.2.min.js"></script>
     <script>
@@ -41,12 +48,10 @@ var parseAndShow = function(data,textStatus){
   G = GreenTurtle.implementation.parse(data,'text/turtle');
   //console.log('G',G);
   
-  //$('#the_vis').html(G.toString());
   showGraph(G);
 };
 
 var fetchAndShow = function(url){
-  url = url || "/data/test_20.ttl";
   $.ajax({url:url, 
           success: parseAndShow, 
           error: function(jqxhr,textStatus,errorThrown){
@@ -54,12 +59,47 @@ var fetchAndShow = function(url){
           }})
 };
 
+var wpad,hpad = 20;
+var width,height = 0;
+/////////////////////////////////////////////////////////////////////////////
+// resize-svg-when-window-is-resized-in-d3-js
+//   http://stackoverflow.com/questions/16265123/
+var get_window_width = function(pad){
+  var pad = pad || hpad;			   
+  width = (window.innerWidth || 
+         document.documentElement.clientWidth || 
+         document.clientWidth) - pad;
+  console.log('width',width);
+};
+var get_window_height = function(pad){
+  var pad = pad || hpad;			   
+  height = ( window.innerHeight || 
+            document.documentElement.clientHeight || 
+            document.clientHeight) - pad;
+  console.log('height',height);
+}
+function updateWindow(){
+    get_window_width();
+    get_window_height();
+    svg.attr("width", width).attr("height", height);
+
+}
+window.onresize = updateWindow;
 
 
-// from http://bl.ocks.org/mbostock/929623
+/////////////////////////////////////////////////////////////////////////////
 
-var width = document.clientWidth || 1200,
-    height = document.clientHeight || 900;
+get_window_height();
+get_window_width();
+
+// 
+//   http://bl.ocks.org/mbostock/929623
+var w = window,
+    d = document,
+    e = d.documentElement,
+    g = d.getElementsByTagName('body')[0],
+    x = w.innerWidth || e.clientWidth || g.clientWidth,
+    y = w.innerHeight|| e.clientHeight|| g.clientHeight;
 
 var fill = d3.scale.category20();
 
@@ -77,8 +117,8 @@ var svg = d3.select("body").append("svg")
     .on("mousedown", mousedown);
 
 svg.append("rect")
-    .attr("width", width)
-    .attr("height", height);
+    .attr("width", get_window_width(wpad))
+    .attr("height", get_window_height(hpad));
 
 var nodes = force.nodes(),
     links = force.links(),
@@ -146,16 +186,22 @@ var id2n = {};
 var showGraph = function(g){
   console.log('showGraph');
 
-  for (subj in g.subjects){
-    var subject = g.subjects[subj];
+  var make_nodes = function(limit){
+    limit = limit || 0;
+    var count = 0;
+    for (subj in g.subjects){
+      var subject = g.subjects[subj];  
 
-    var details = {x: 300, y: 300, s:subject};
-    var node = nodes.push(details);
-    subject._n = node;
-    console.log('id2n['+subject.id+']')
-    id2n[subject.id] = nodes[node];
-    //node._s = subject;
-  }
+      var details = {x: 300, y: 300, s:subject};
+      var node = nodes.push(details);
+      subject._n = node;
+      console.log('id2n['+subject.id+']')
+      id2n[subject.id] = nodes[node];
+      //node._s = subject;
+      count++;
+      if (limit && count >= limit) break;
+    }
+  };
   var make_links = function(){
     // for edge labels				   
     //   http://bl.ocks.org/jhb/5955887
@@ -184,17 +230,26 @@ var showGraph = function(g){
     }
     console.log('/make_links');
   }
-  make_links();
+  make_nodes(1);
+  restart();			   
+  //make_links();
   restart();
 };
 
-    window.addEventListener('load',function(){
-      //console.log('onload...');
-      //fetchAndShow();
-    });
+var load_demo = function(){
+  if (! G.subjects){
+    fetchAndShow("/data/test_20.ttl");
+  }
+};
 
+window.addEventListener('load',function(){
+   load_demo();
+});
 
-
+// This is a terrible hack to cope with the race condition between
+// the loading of this script and the loading of GreenTurtle.  The
+// addEventListener approach should work but...
+window.onkeyup = load_demo;  // press any key to load the data
 
     </script>
   </body>
