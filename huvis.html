@@ -32,10 +32,9 @@ rect {
 </style>
 
   </head>
-  <body onload="fetchAndShow()">
+  <body onload="load_demo">
 
     <script src="huvis.js"  type="text/javascript"></script>
-    <xxscript src="lib/d3.v3.js"></xxscript>
     <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
 
     <script src="lib/RDFaProcessor.1.2.0.js" charset="utf-8"></script>
@@ -44,14 +43,13 @@ rect {
 
 var parseAndShow = function(data,textStatus){
   //console.log('textStatus',textStatus);
-  //console.log('data',data);
+  console.log('data',data);
   G = GreenTurtle.implementation.parse(data,'text/turtle');
-  //console.log('G',G);
-  
   showGraph(G);
 };
 
 var fetchAndShow = function(url){
+  //d3.xhr(url,'text/plain',parseAndShow);
   $.ajax({url:url, 
           success: parseAndShow, 
           error: function(jqxhr,textStatus,errorThrown){
@@ -203,8 +201,11 @@ var id2n = {};
     for (var i =0 ; i<nodes.length; i++){
       var subj = nodes[i].s;
       if (subj){
-        console.log('===================================================');
-        //console.log(subj);
+        if (subj.predicates){
+          console.log('===================================================');
+          console.log(subj.id);
+          console.log(subj.predicates);
+        }
         for (p in subj.predicates){
           var predicate = subj.predicates[p]; 
           for (oi = 0; oi < predicate.objects.length; oi++){
@@ -215,9 +216,10 @@ var id2n = {};
               var edge = {source: nodes[i], target: nodes[id2n[obj.value]]};
 
               if (edge.source.weight != null && edge.target.weight != null){
-                edge.source.weight = 1;
-                edge.target.weight = 1;
-                console.log("====>",edge.source.weight,edge.target.weight,edge);
+                //edge.source.weight = 1;
+                //edge.target.weight = 1;
+                console.log("  ",predicate.id,obj.value);
+                //console.log("====>",edge.source.weight,edge.target.weight,edge);
                 
                 links.push(edge);
 	        if (limit && links.length >= limit){
@@ -256,7 +258,7 @@ var load_demo = function(){
 window.addEventListener('load',function(){
    // This delay is to let GreenTurtle initialize
    // It would be great if there were a hook for this...
-   setInterval(load_demo,500);
+   setTimeout(load_demo,1000);
 });
 
 // This is a terrible hack to cope with the race condition between
