@@ -57,6 +57,31 @@ var fetchAndShow = function(url){
           }})
 };
 
+
+function color_by_type(d){
+  // anon red otherwise blue
+  return d.s.id[0] == '_' ? 'red' : 'blue';
+}
+
+function click_to_toggle_edges(){
+  var point = d3.mouse(this);
+  var dist = 30;
+  // find first node within dist and show edges
+  console.log("dist",dist,"point",point);
+
+  nodes.forEach(function(target) {
+    var x = target.x - point[0],
+        y = target.y - point[1];
+
+    if (Math.sqrt(x * x + y * y) < dist) {
+       console.log(point,x,y,target);
+       show_links_for_node(target);
+    }
+  });
+
+  restart();
+}
+
 var wpad,hpad = 20;
 var width,height = 0;
 /////////////////////////////////////////////////////////////////////////////
@@ -106,7 +131,7 @@ var svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height)
     .on("mousemove", mousemove)
-    .on("mousedown", mousedown);
+    .on("mousedown", click_to_toggle_edges);
 
 svg.append("rect")
     .attr("width", get_window_width(wpad))
@@ -145,6 +170,7 @@ function restart() {
   node.enter().insert("circle", ".cursor")
       .attr("class", "node")
       .attr("r", 5)
+      .style("fill", color_by_type)
       .call(force.drag);
 
   force.start();
@@ -155,7 +181,33 @@ function mousemove() {
   cursor.attr("transform", "translate(" + d3.mouse(this) + ")");
 }
 
-function mousedown() {
+var show_links_for_node = function(n) {
+  var subj = n.s;
+  if (subj){
+        for (p in subj.predicates){
+          var predicate = subj.predicates[p]; 
+          for (oi = 0; oi < predicate.objects.length; oi++){
+            var obj = predicate.objects[oi];
+            //console.log(subj.id,p,obj.value);
+            //console.log(obj);
+            if (id2n[obj.value]){
+              var edge = {source: n, target: nodes[id2n[obj.value]]};
+
+              if (edge.source.weight != null && edge.target.weight != null){
+                console.log("  ",predicate.id,obj.value);
+                links.push(edge);
+              } else {
+                console.log('PROBLEM EDGE',edge);
+              }
+            }
+          }
+	  //console.log(p,"==>",predicate);
+        }    
+  }
+};
+
+
+var click_to_make_nodes_and_edges = function(){
   var point = d3.mouse(this),
       node = {x: point[0], y: point[1]},
       n = nodes.push(node);
@@ -165,12 +217,13 @@ function mousedown() {
     var x = target.x - node.x,
         y = target.y - node.y;
     if (Math.sqrt(x * x + y * y) < 30) {
+      
       links.push({source: node, target: target});
     }
   });
 
   restart();
-}
+};
 
 var G = {};
 
@@ -233,6 +286,7 @@ var id2n = {};
           }
 	  //console.log(p,"==>",predicate);
         }
+
       }
     }
     console.log('/make_links');
