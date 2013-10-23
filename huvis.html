@@ -100,8 +100,8 @@ var fill = d3.scale.category20();
 var force = d3.layout.force()
     .size([width, height])
     .nodes([]) // initialize with a single node
-    .linkDistance(10)
-    .charge(-20)
+    .linkDistance(30)
+    .charge(-40)
     .on("tick", tick);
 
 var svg = d3.select("body").append("svg")
@@ -177,10 +177,8 @@ function mousedown() {
 var G = {};
 
 var id2n = {};
-var showGraph = function(g){
-  console.log('showGraph');
 
-  var make_nodes = function(limit){
+  var make_nodes = function(g,limit){
     limit = limit || 0;
     var count = 0;
     for (subj in g.subjects){
@@ -189,14 +187,16 @@ var showGraph = function(g){
       var details = {x: 300, y: 300, s:subject};
       var node = nodes.push(details);
       subject._n = node;
-      console.log('id2n['+subject.id+']')
-      id2n[subject.id] = nodes[node];
+      id2n[subject.id] = node;
+      console.log('id2n["'+subject.id+'"]',id2n[subject.id])
       //node._s = subject;
       count++;
       if (limit && count >= limit) break;
     }
   };
-  var make_links = function(){
+
+  var make_links = function(g,limit){
+    limit = limit || 0;
     // for edge labels				   
     //   http://bl.ocks.org/jhb/5955887
     console.log('make_links');
@@ -209,13 +209,24 @@ var showGraph = function(g){
           var predicate = subj.predicates[p]; 
           for (oi = 0; oi < predicate.objects.length; oi++){
             var obj = predicate.objects[oi];
-            console.log(subj.id,p,obj.value);
-            console.log(obj);
+            //console.log(subj.id,p,obj.value);
+            //console.log(obj);
             if (id2n[obj.value]){
-              var edge = {source: nodes[i], target: id2n[obj.value]};
-              var edge = {source: nodes[i], target: id2n['_:4']};
-              console.log("====>",edge);
-              links.push(edge);
+              var edge = {source: nodes[i], target: nodes[id2n[obj.value]]};
+
+              if (edge.source.weight != null && edge.target.weight != null){
+                edge.source.weight = 1;
+                edge.target.weight = 1;
+                console.log("====>",edge.source.weight,edge.target.weight,edge);
+                
+                links.push(edge);
+	        if (limit && links.length >= limit){
+                  restart();
+                  return;
+                }
+              } else {
+                console.log('PROBLEM EDGE',edge);
+              }
             }
           }
 	  //console.log(p,"==>",predicate);
@@ -223,10 +234,16 @@ var showGraph = function(g){
       }
     }
     console.log('/make_links');
+    restart();
   }
-  make_nodes(1);
+
+
+var showGraph = function(g){
+  console.log('showGraph');
+  make_nodes(g);
   restart();			   
-  //make_links();
+  
+  make_links(g,100);
   restart();
 };
 
@@ -237,13 +254,15 @@ var load_demo = function(){
 };
 
 window.addEventListener('load',function(){
-   load_demo();
+   // This delay is to let GreenTurtle initialize
+   // It would be great if there were a hook for this...
+   setInterval(load_demo,500);
 });
 
 // This is a terrible hack to cope with the race condition between
 // the loading of this script and the loading of GreenTurtle.  The
 // addEventListener approach should work but...
-window.onkeyup = load_demo;  // press any key to load the data
+//window.onkeyup = load_demo;  // press any key to load the data
 
     </script>
   </body>
