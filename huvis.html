@@ -57,10 +57,24 @@ var fetchAndShow = function(url){
           }})
 };
 
-
+var BLANK_HACK = false;
 function color_by_type(d){
-  // anon red otherwise blue
-  return d.s.id[0] == '_' ? 'red' : 'blue';
+  // anon red otherwise blue                  //  Blank Nodes are like:
+  if ((BLANK_HACK && d.s.id[7] != '/') ||     //  http:///4  
+      (! BLANK_HACK && d.s.id[0] != '_' )){  //  _:4
+
+     return 'blue';  // the 1305 writers
+  } else { 
+    try {
+      if (d.s.predicates['http://xmlns.com/foaf/0.1/Group']){
+         return 'green'; // Groups
+      } else {
+         return 'red'; // other persons
+      }
+    } catch (err) {
+      return 'yellow';
+    }
+  }
 }
 
 function click_to_toggle_edges(){
@@ -305,7 +319,7 @@ var showGraph = function(g){
 
 var load_demo = function(){
   if (! G.subjects){
-    fetchAndShow("/data/test_20.ttl");
+    fetchAndShow("/data/test_40.ttl");
   }
 };
 

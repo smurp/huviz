@@ -22,6 +22,10 @@ On 2013-10-10 it was forked from orlandoScrape5-1.py which bore the comment:
 
 
 import sys
+# solve the "ordinal not in range(128)" problem
+reload(sys) # http://demongin.org/blog/808/
+sys.setdefaultencoding('utf-8')
+
 import re
 import codecs
 import json
@@ -32,7 +36,11 @@ def regexTestLoad(regexTests,options):
     regexArray = {}
     for line in regexTests:
         line = line.replace('\n','')
-        regexArray[arrayCounter]=line.split('|')
+        parts = line.split('|')
+        if options.only_predicates and not parts[0] in options.only_predicates:
+            continue
+        regexArray[arrayCounter]=parts
+        
         n=1
         arrayDepth = len(regexArray[arrayCounter])
         while n < arrayDepth:
@@ -124,7 +132,9 @@ XFN = Namespace('http://vocab.sindice.com/xfn#')
 BRW = Namespace('http://orlando.cambridge.org/public/svPeople?person_id=')
 WP  = Namespace('http://en.wikipedia.org/wiki/')
 ORL = Namespace('http://orlan.do/')
-
+BLANK = Namespace('http:///')
+BLANK_HACK = False
+predicates_to_groups = ['religiousInfluence','connectionToOrganization']
 predicate_to_type = {'childOf':XFN['parent'],
                      'parentOf':XFN['child'],
                      'grandchildOf':XFN['kin'],
@@ -201,7 +211,10 @@ class RDFEmitter(FormatEmitter):
             if node == None:
                 if ID == None:
                     ID = self.next_id()
-                node = BNode(ID)
+                if BLANK_HACK:
+                    node = BLANK[str(ID)]
+                else:
+                    node = BNode(ID)
             self.store.add((node,FOAF.name,Literal(standard_name)))
             if options.state_the_obvious:
                 self.store.add((node,RDF.type,typ))
@@ -211,6 +224,10 @@ class RDFEmitter(FormatEmitter):
     def get_person(self,name,**kwargs):
         kwargs['typ'] = FOAF.Person
         return self.get_entity(name,**kwargs)
+
+    def get_group(self,name,**kwargs):
+        kwargs['typ'] = FOAF.Group
+        return self.get_entity(name,**kwargs)        
 
     def generate_graph(self):
         bogus_relations = {
@@ -241,13 +258,15 @@ class RDFEmitter(FormatEmitter):
                         k = (entry['ID'],predicate)
                         if bogus_relations.has_key(k):
                             values.append(bogus_relations[k])
-                        
+
                     for standard_name in values:
-                        person = self.get_person(standard_name)
-                        if person == writer:
-                            #print >> sys.stderr, "%(standardName)s can not be %(predicate)s of %(standard_name)s " % locals()
-                            continue 
-                        self.store.add((writer,pred,person))
+                        if predicate in predicates_to_groups:
+                            obj = self.get_group(standard_name)
+                        else:
+                            obj = self.get_person(standard_name)
+                            if obj == writer:
+                                continue 
+                        self.store.add((writer,pred,obj))
                         # WORKING on linking people
 
 
