@@ -6,6 +6,10 @@
 See for inspiration:
   Collapsible Force Layout
     http://bl.ocks.org/mbostock/1093130
+  Force-based label placement
+    http://bl.ocks.org/MoritzStefaner/1377729
+  Graph with labeled edges:
+    http://bl.ocks.org/jhb/5955887
 
 -->
 <style>
@@ -15,8 +19,14 @@ rect {
   pointer-events: all;
 }
 
-.node {
+.node circle {
   fill: #000;
+}
+
+.node text {
+  font: 10px sans-serif;
+  pointer-events: none;
+  text-anchor: middle;
 }
 
 .cursor {
@@ -33,10 +43,22 @@ rect {
 
   </head>
   <body>
+    <!-- 
+    <div id="controls" style="position:relative; top:-50; left=-20; z-index:2; float:left">
+      <input type="text" id="prefix"></input>
+    </div>
+    -->
+
     <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
     <script src="lib/RDFa.min.1.2.0.js" charset="utf-8"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script>
+
+var verbose = true;
+
+if (! verbose){
+  console = {'log': function(){}};
+}
 
 var parseAndShow = function(data,textStatus){
   //console.log('textStatus',textStatus);
@@ -135,8 +157,8 @@ var fill = d3.scale.category20();
 var force = d3.layout.force()
     .size([width, height])
     .nodes([]) // initialize with a single node
-    .linkDistance(30)
-    .charge(-40)
+    .linkDistance(90)
+    .charge(-90)
     .on("tick", tick);
 
 var svg = d3.select("body").append("svg")
@@ -167,8 +189,8 @@ function tick() {
       .attr("x2", function(d) { return d.target.x; })
       .attr("y2", function(d) { return d.target.y; });
 
-  node.attr("cx", function(d) { return d.x; })
-      .attr("cy", function(d) { return d.y; });
+  node.attr("transform", function(d) { 
+      return "translate(" + d.x + "," + d.y + ")"; });
 }
 
 function restart() {
@@ -179,15 +201,26 @@ function restart() {
 
   node = node.data(nodes);
 
-  node.enter().insert("circle", ".cursor")
+  var nodeEnter = node.enter().append("g")
       .attr("class", "node")
-      .attr("r", 5)
-      .style("fill", color_by_type)
       .call(force.drag);
+  
+  nodeEnter.append("circle")
+      .attr("r", 3)
+      .style("fill", color_by_type);
+
+  nodeEnter.append("text")
+      .attr("dy", ".35em")
+      .text(function(d) { 
+        var name = ' ';
+        try {
+          name = d.s.predicates['http://xmlns.com/foaf/0.1/name'].objects[0].value;
+        } catch (err) {}
+        return name;
+      });
 
   force.start();
 }
-
 
 function mousemove() {
   cursor.attr("transform", "translate(" + d3.mouse(this) + ")");
@@ -314,11 +347,14 @@ var showGraph = function(g){
   make_nodes(g);
   restart();			   
   
-  make_links(g,Math.floor(nodes.length/3));
+  make_links(g,Math.floor(nodes.length/10));
+  //make_links(g);
   restart();
 };
 
+var orlando_data_uri = "data/test_100.ttl";
 var orlando_data_uri = "data/test_20.ttl";
+//var orlando_data_uri = "data/test_1.ttl";
 
 function load_demo(){
   G = {};
