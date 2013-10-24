@@ -30,6 +30,43 @@ import re
 import codecs
 import json
 
+BASE2 = "01"
+BASE10 = "0123456789"
+BASE26 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+def convert(src,srctable,desttable):
+    """
+    >>> convert('4',BASE10,BASE2)
+    '100'
+    >>> convert('1023',BASE10,BASE2) == '1' * 10
+    True
+    >>> convert('1024',BASE10,BASE2) == '1' + '0'*10
+    True
+    >>> b10 = '12341234424908'
+    >>> convert(convert(b10,BASE10,BASE2),BASE2,BASE10) == b10
+    True
+    """
+    import math
+    srclen = len(srctable)
+    destlen = len(desttable)
+    val = 0
+    numlen = len(src)
+    i = 0
+    while i < numlen:
+        val = val * srclen + srctable.find(src[i])
+        i += 1
+    if val < 0:
+        return 0
+    
+    r = val % destlen
+    res = desttable[r]
+    q = int(math.floor(val / destlen))
+    while q:
+        r = q % destlen
+        #return (r,q,destlen)
+        q = int(math.floor(q / destlen))
+        res = desttable[r] + res
+    return res
 
 def regexTestLoad(regexTests,options):
     arrayCounter=0
@@ -89,20 +126,6 @@ def regexRecursion(searchText,regexArray,tripleCheck,recursionDepthPlusOne,mainS
             for match in resultTripleTest:
                 regexRecursion(match,regexArray,tripleCheck,recursionDepthPlusOne+1,mainSubject,entryDict)
 
-def arity_gt_n(entryDict,predicate,n):
-    # check to see if the number of values on a slot are greater than N
-    """
-    >>> arity_gt_n({'a':[1,2],'b',1}
-    False
-    >>> arity_gt_n({'a':[1,2],'a',1}
-    True
-    >>> arity_gt_n({'a':[1,2],'a',2}
-    False
-
-    """
-    return entryDict.has_key(predicate) and len(entryDict[predicate]) > n
-def arity_gt_1(entryDict,predicate):
-    return arity_gt_n(entryDict,predicate,1)
 
 def extractionCycle(orlandoRAW, regexArray, NameTest, mainSubject, options):
     entryDict=dict()
@@ -173,7 +196,7 @@ class FormatEmitter(object):
 
     def next_id(self):
         """
-        >>> fe = FormatEmitter()
+        >>> fe = FormatEmitter({})
         >>> fe.next_id()
         1
         >>> fe.next_id()
@@ -355,6 +378,7 @@ if __name__ == "__main__":
         show_usage = False
         import doctest
         doctest.testmod(verbose=options.verbose)
+        sys.exit()
     if options.version:
         show_usage = False
         if options.verbose:
