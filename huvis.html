@@ -117,6 +117,7 @@ function updateWindow(){
     get_window_height();
     svg.attr("width", width).attr("height", height);
     force.size([width,height]);
+    restart();
 }
 window.onresize = updateWindow;
 
