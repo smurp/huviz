@@ -34,7 +34,7 @@ rect {
   </head>
   <body>
     <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
-    <script src="lib/RDFaProcessor.1.2.0.js" charset="utf-8"></script>
+    <script src="lib/RDFa.min.1.2.0.js" charset="utf-8"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script>
 
@@ -329,16 +329,26 @@ function load_demo(){
 
 var wait_for_GreenTurtle = function(){
   if (typeof GreenTurtle === 'undefined') {
-    setTimeout(wait_for_GreenTurtle,100);
+    setTimeout(wait_for_GreenTurtle,200);
   } else {
     load_demo();
+  }
+}
+var await_the_GreenTurtle = function(){
+  try {
+    var i = GreenTurtle.implementation;
+    load_demo();
+  } catch (error) {
+    console.log(error);
+    setTimeout(await_the_GreenTurtle,3000);
   }
 }
 
 window.addEventListener('load',function(){
    // This delay is to let GreenTurtle initialize
    // It would be great if there were a hook for this...
-   wait_for_GreenTurtle();
+   load_demo();
+   //await_the_GreenTurtle();
 });
 
     </script>
