@@ -34,16 +34,16 @@ BASE2 = "01"
 BASE10 = "0123456789"
 BASE26 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-def convert(src,srctable,desttable):
+def convert_base(src,srctable,desttable):
     """
-    >>> convert('4',BASE10,BASE2)
+    >>> convert_base('4',BASE10,BASE2)
     '100'
-    >>> convert('1023',BASE10,BASE2) == '1' * 10
+    >>> convert_base('1023',BASE10,BASE2) == '1' * 10
     True
-    >>> convert('1024',BASE10,BASE2) == '1' + '0'*10
+    >>> convert_base('1024',BASE10,BASE2) == '1' + '0'*10
     True
     >>> b10 = '12341234424908'
-    >>> convert(convert(b10,BASE10,BASE2),BASE2,BASE10) == b10
+    >>> convert_base(convert_base(b10,BASE10,BASE2),BASE2,BASE10) == b10
     True
     """
     import math
