@@ -9,40 +9,40 @@
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-w:abdyma ns2:Religious_denomination _:4,
-        _:5 ;
-    ns1:connectionToOrganization _:4,
-        _:5,
-        _:6 ;
+w:abdyma ns2:Religious_denomination _:E,
+        _:F ;
+    ns1:connectionToOrganization _:E,
+        _:F,
+        _:G ;
     x:child [ f:name "Abdy, Albert Channing" ] ;
     x:parent [ f:name "Smith, Richard" ],
         [ f:name "Smith, Maria,, 1773 - 1829" ] ;
     f:name "Abdy, Maria" .
 
 w:aberfr x:child [ f:name "Fane, Mary" ] ;
-    x:parent [ f:name "Walpole, Horace" ],
-        [ f:name "Bergavenny, Joan,,, Lady" ],
-        [ f:name "Rutland, Thomas Manners,,, third Earl of" ],
-        [ f:name "Anne,, second queen of Henry VIII" ] ;
+    x:parent [ f:name "Rutland, Thomas Manners,,, third Earl of" ],
+        [ f:name "Anne,, second queen of Henry VIII" ],
+        [ f:name "Walpole, Horace" ],
+        [ f:name "Bergavenny, Joan,,, Lady" ] ;
     f:name "Abergavenny, Frances Neville,,, Baroness" .
 
-w:acklva ns1:connectionToOrganization [ f:name "Savoy Hotel" ],
-        _:15,
+w:acklva ns1:connectionToOrganization [ f:name "Viking Press" ],
+        _:BB,
+        [ f:name "Welmont Publishing" ],
+        [ f:name "Berg Collection" ],
+        _:BE,
+        [ f:name "Savoy Hotel" ],
+        _:P,
         [ f:name "Society of Friends" ],
         [ f:name "Popular Front" ],
-        _:18,
+        _:S,
         [ f:name "Left Book Club" ],
         [ f:name "Primera Unidad Sanitaria Britanica" ],
         [ f:name "Primera Ambulancia Inglesa en Espana" ],
         [ f:name "International Association of Writers for the Defence of Culture" ],
         [ f:name "Third Congress of American Writers" ],
         [ f:name "Second Vatican Council" ],
-        [ f:name "Horace" ],
-        [ f:name "Viking Press" ],
-        _:27,
-        [ f:name "Welmont Publishing" ],
-        [ f:name "Berg Collection" ],
-        _:30 ;
+        [ f:name "Horace" ] ;
     x:friend [ f:name "Powys, Violet" ],
         [ f:name "Powys, Llewelyn" ],
         [ f:name "Gregory, Alyse" ],
@@ -58,12 +58,12 @@ w:adamab f:name "Adams, Abigail" .
 
 w:adamhe f:name "Adams, Henry Brooks" .
 
-w:adamsa ns2:Religious_denomination _:41 ;
-    ns1:connectionToOrganization _:41,
+w:adamsa ns2:Religious_denomination _:BP ;
+    ns1:connectionToOrganization _:BP,
         [ f:name "Newgate Prison" ],
         [ f:name "Little Richmond Theatre" ],
         [ f:name "Bath Theatre" ] ;
-    x:friend _:39,
+    x:friend _:BN,
         [ f:name "Linton, William James" ],
         [ f:name "Mill, John Stuart" ],
         [ f:name "Browning, Robert" ],
@@ -71,15 +71,13 @@ w:adamsa ns2:Religious_denomination _:41 ;
         [ f:name "Taylor, Harriet" ],
         [ f:name "Novello, Vincent" ],
         [ f:name "Clarke, Mary Cowden" ] ;
-    x:parent _:38,
-        _:39,
+    x:parent _:BM,
+        _:BN,
         [ f:name "Coleridge, Samuel Taylor" ] ;
-    x:sibling _:38 ;
+    x:sibling _:BM ;
     f:name "Adams, Sarah Flower" .
 
-w:adcofl ns1:connectionToOrganization _:18,
-        _:4,
-        [ f:name "University of Otago" ],
+w:adcofl ns1:connectionToOrganization [ f:name "University of Otago" ],
         [ f:name "Alexander Turnbull Library" ],
         [ f:name "Foreign and Commonwealth Office" ],
         [ f:name "Charlotte Mason College" ],
@@ -91,38 +89,40 @@ w:adcofl ns1:connectionToOrganization _:18,
         [ f:name "British Council" ],
         [ f:name "Bloodaxe Books" ],
         [ f:name "Hutchinson" ],
-        _:64,
-        _:65,
-        [ f:name "Tate Britain" ] ;
+        _:CM,
+        _:CN,
+        [ f:name "Tate Britain" ],
+        _:E,
+        _:S ;
     f:name "Adcock, Fleur" .
 
 w:addijo ns1:connectionToOrganization [ f:name "Charterhouse School" ],
-        _:68 ;
+        _:CQ ;
     x:friend [ f:name "Steele, Sir Richard" ],
         [ f:name "Wortley Montagu, Edward,, the elder" ],
         [ f:name "Montagu, Lady Mary Wortley" ] ;
     f:name "Addison, Joseph" .
 
-w:aguigr ns2:Religious_denomination _:15 ;
-    ns1:connectionToOrganization _:15,
-        _:30,
-        _:64,
+w:aguigr ns2:Religious_denomination _:P ;
+    ns1:connectionToOrganization _:BE,
+        _:CM,
         [ f:name "Inquisition" ],
         [ f:name "Jewish Museum" ],
         [ f:name "Spanish Inquisition" ],
         [ f:name "Broadview Press" ],
-        [ f:name "Aguilar Library" ] ;
+        [ f:name "Aguilar Library" ],
+        _:P ;
     x:friend [ f:name "Bowles, Caroline" ],
-        _:80,
+        _:DC,
         [ f:name "Crosland, Camilla" ],
         [ f:name "Hemans, Felicia" ],
         [ f:name "Howitt, Mary" ],
-        _:84 ;
+        _:DG ;
     x:parent [ f:name "Aguilar, Emanuel,, Sr" ],
         [ f:name "Aguilar, Sarah" ] ;
     f:name "Aguilar, Grace" .
 
-w:aikejo ns1:connectionToOrganization _:65,
+w:aikejo ns1:connectionToOrganization _:CN,
         [ f:name "Wychwood School" ],
         [ f:name "United Nations" ],
         [ f:name "Republic of Pemberley" ],
@@ -133,14 +133,17 @@ w:aikejo ns1:connectionToOrganization _:65,
         [ f:name "Aiken, Jessie" ] ;
     f:name "Aiken, Joan" .
 
-w:aikilu ns1:connectionToOrganization _:4,
-        _:64,
+w:aikilu ns1:connectionToOrganization _:CM,
         [ f:name "Dissenting Churches" ],
-        _:96,
+        _:DS,
         [ f:name "Richard Phillips" ],
         [ f:name "Joseph Johnson" ],
-        [ f:name "Pickering and Chatto" ] ;
-    x:friend [ f:name "Cooper, Maria Susanna" ],
+        [ f:name "Pickering and Chatto" ],
+        _:E ;
+    x:friend _:DC,
+        _:DP,
+        _:DQ,
+        [ f:name "Cooper, Maria Susanna" ],
         [ f:name "Aikin, Anna Wakefield" ],
         [ f:name "Taylor, Susannah" ],
         [ f:name "Austin, Sarah" ],
@@ -153,21 +156,18 @@ w:aikilu ns1:connectionToOrganization _:4,
         [ f:name "Porter, Jane" ],
         [ f:name "Montgomery, James" ],
         [ f:name "Robinson, Henry Crabb" ],
-        _:113,
-        _:114,
+        _:EJ,
+        _:EK,
         [ f:name "Piozzi, Hester Lynch" ],
         [ f:name "Marcet, Jane" ],
         [ f:name "Coleridge, Henry Nelson" ],
         [ f:name "Le Breton, Anna Letitia" ],
-        [ f:name "Le Breton, Philip Hemery" ],
-        _:80,
-        _:93,
-        _:94 ;
-    x:kin _:94 ;
-    x:parent _:93 ;
+        [ f:name "Le Breton, Philip Hemery" ] ;
+    x:kin _:DQ ;
+    x:parent _:DP ;
     f:name "Aikin, Lucy" .
 
-w:ainsha x:friend _:113,
+w:ainsha x:friend _:EJ,
         [ f:name "Dickens, Charles" ],
         [ f:name "Thackeray, William Makepeace" ],
         [ f:name "Jerrold, Douglas William" ],
@@ -191,29 +191,29 @@ w:alcolo ns1:connectionToOrganization [ f:name "University of Virginia" ],
         [ f:name "Alcott, Abigail May" ] ;
     f:name "Alcott, Louisa May" .
 
-w:alexce ns1:connectionToOrganization [ f:name "Royal Marines" ],
+w:alexce ns1:connectionToOrganization _:CN,
+        _:CQ,
+        _:E,
+        [ f:name "Royal Marines" ],
         [ f:name "Oxford Movement" ],
         [ f:name "Church Missionary Society" ],
         [ f:name "Derry and Raphoe Diocesan Institution for the Education of the Deaf and Dumb" ],
         [ f:name "Home for Fallen Women" ],
         [ f:name "House of Lords" ],
         [ f:name "Society for Promoting Christian Knowledge" ],
-        _:152,
-        _:4,
-        _:65,
-        _:68 ;
-    x:friend _:113,
-        _:140,
+        _:FW ;
+    x:friend _:DC,
+        _:EJ,
+        _:FK,
         [ f:name "Howard, Lady Harriet" ],
         [ f:name "Gray, Thomas" ],
         [ f:name "Byron, George Gordon,,, sixth Baron" ],
         [ f:name "Butler, William Archer" ],
         [ f:name "Smith, Reverend James" ],
         [ f:name "Humphreys, Anne" ],
-        [ f:name "Hook, Walter Farquar" ],
-        _:80 ;
+        [ f:name "Hook, Walter Farquar" ] ;
     x:parent [ f:name "Humphreys, John" ],
-        _:140,
+        _:FK,
         [ f:name "Abercorn, James Hamilton,,, first Duke of" ],
         [ f:name "Humphreys, Elizabeth Frances" ],
         [ f:name "Reed, Thomas" ],
@@ -221,20 +221,21 @@ w:alexce ns1:connectionToOrganization [ f:name "Royal Marines" ],
     f:name "Alexander, Cecil Frances" .
 
 w:alexmr ns1:connectionToOrganization [ f:name "Tauchnitz" ] ;
-    x:friend [ f:name "Linton, Eliza Lynn" ],
+    x:friend _:DG,
+        [ f:name "Linton, Eliza Lynn" ],
         [ f:name "Wills, William Henry" ],
-        [ f:name "Davidson, Joshua" ],
-        _:84 ;
+        [ f:name "Davidson, Joshua" ] ;
     x:parent [ f:name "French, Robert" ],
         [ f:name "Despard, Charlotte" ],
         [ f:name "French, Anne Malone" ] ;
     f:name "Alexander, Mrs" .
 
-w:alisar x:parent _:114,
+w:alisar x:parent _:EK,
         [ f:name "Alison, Archibald,, 1757 - 1839" ] ;
     f:name "Alison, Archibald,, 1792 - 1867" .
 
-w:allaro ns1:connectionToOrganization _:152,
+w:allaro ns1:connectionToOrganization _:FW,
+        _:G,
         [ f:name "Mills and Boon" ],
         [ f:name "Andrew Melrose" ],
         [ f:name "George Allen and Unwin" ],
@@ -242,8 +243,7 @@ w:allaro ns1:connectionToOrganization _:152,
         [ f:name "Arno Press" ],
         [ f:name "Martin Secker and Warburg Limited" ],
         [ f:name "Nazis" ],
-        [ f:name "Methuen" ],
-        _:6 ;
+        [ f:name "Methuen" ] ;
     x:child [ f:name "Stafford, Vivien" ],
         [ f:name "Scott, Desmond" ] ;
     x:friend [ f:name "Woolf, Virginia" ],
@@ -256,14 +256,16 @@ w:allaro ns1:connectionToOrganization _:152,
     x:parent [ f:name "Allatini, Robert" ] ;
     f:name "Allatini, Rose" .
 
-w:allegr ns1:connectionToOrganization _:68 ;
+w:allegr ns1:connectionToOrganization _:CQ ;
     f:name "Allen, Grant" .
 
-w:alleha ns1:connectionToOrganization [ f:name "Puritans" ],
-        _:96 ;
+w:alleha ns1:connectionToOrganization _:DS,
+        [ f:name "Puritans" ] ;
     f:name "Allen, Hannah" .
 
-w:allima ns1:connectionToOrganization [ f:name "Endsleigh House School" ],
+w:allima ns1:connectionToOrganization _:BB,
+        _:CN,
+        [ f:name "Endsleigh House School" ],
         [ f:name "Perse School" ],
         [ f:name "Regent Street Polytechnic" ],
         [ f:name "Royal Academy of Music" ],
@@ -282,9 +284,7 @@ w:allima ns1:connectionToOrganization [ f:name "Endsleigh House School" ],
         [ f:name "Penguin" ],
         [ f:name "Rank Organization" ],
         [ f:name "Curtis Brown Ltd" ],
-        [ f:name "Morrow" ],
-        _:27,
-        _:65 ;
+        [ f:name "Morrow" ] ;
     x:friend [ f:name "Gregory, Alan Joseph" ],
         [ f:name "Muir, Percy" ],
         [ f:name "Muir, Barbara" ],
@@ -298,47 +298,47 @@ w:allima ns1:connectionToOrganization [ f:name "Endsleigh House School" ],
         [ f:name "Allingham, Emily Jane" ] ;
     f:name "Allingham, Margery" .
 
-_:114 f:name "Hamilton, Elizabeth" .
+_:BB f:name "Chatto and Windus" .
 
-_:140 f:name "Wicklow, William Forward Howard" .
+_:BE f:name "New York Public Library" .
 
-_:152 f:name "Bodleian Library" .
+_:BM f:name "Flower, Eliza" .
 
-_:18 f:name "Communist Party" .
+_:BN f:name "Flower, Benjamin" .
 
-_:27 f:name "Chatto and Windus" .
+_:BP f:name "Unitarian Church" .
 
-_:30 f:name "New York Public Library" .
+_:DG f:name "Hall, Anna Maria" .
 
-_:38 f:name "Flower, Eliza" .
+_:DP f:name "Aikin, John,, the younger" .
 
-_:39 f:name "Flower, Benjamin" .
+_:DQ f:name "Barbauld, Anna Letitia" .
 
-_:41 f:name "Unitarian Church" .
+_:DS f:name "Presbyterian Church" .
 
-_:5 f:name "Dissenters" .
+_:EK f:name "Hamilton, Elizabeth" .
 
-_:6 f:name "British Library" .
+_:F f:name "Dissenters" .
 
-_:84 f:name "Hall, Anna Maria" .
+_:FK f:name "Wicklow, William Forward Howard" .
 
-_:93 f:name "Aikin, John,, the younger" .
+_:FW f:name "Bodleian Library" .
 
-_:94 f:name "Barbauld, Anna Letitia" .
+_:G f:name "British Library" .
 
-_:96 f:name "Presbyterian Church" .
+_:S f:name "Communist Party" .
 
-_:113 f:name "Wordsworth, William" .
+_:CM f:name "Cambridge University Press" .
 
-_:15 f:name "Roman Catholic Church" .
+_:CQ f:name "Oxford University" .
 
-_:64 f:name "Cambridge University Press" .
+_:DC f:name "Scott, Sir Walter" .
 
-_:68 f:name "Oxford University" .
+_:EJ f:name "Wordsworth, William" .
 
-_:80 f:name "Scott, Sir Walter" .
+_:P f:name "Roman Catholic Church" .
 
-_:65 f:name "BBC" .
+_:CN f:name "BBC" .
 
-_:4 f:name "Anglican Church" .
+_:E f:name "Anglican Church" .
 

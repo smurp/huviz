@@ -198,14 +198,14 @@ class FormatEmitter(object):
         """
         >>> fe = FormatEmitter({})
         >>> fe.next_id()
-        1
+        'B'
         >>> fe.next_id()
-        2
+        'C'
         """
         if not hasattr(self,'current_id'):
             self.current_id = 0
         self.current_id += 1
-        return self.current_id
+        return convert_base(str(self.current_id),BASE10,BASE26)
         
     def prepOutfile(self):
         pass
