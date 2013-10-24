@@ -40,7 +40,7 @@ rect {
 
 var parseAndShow = function(data,textStatus){
   //console.log('textStatus',textStatus);
-  console.log('data',data);
+  //console.log('data',data);
   G = GreenTurtle.implementation.parse(data,'text/turtle');
   showGraph(G);
 };
@@ -50,7 +50,7 @@ var fetchAndShow = function(url){
   $.ajax({url:url, 
           success: parseAndShow, 
           error: function(jqxhr,textStatus,errorThrown){
-            alert(errorThrown);
+            alert("'"+url+"': "+errorThrown);
           }})
 };
 
@@ -318,10 +318,12 @@ var showGraph = function(g){
   restart();
 };
 
+var orlando_data_uri = "data/test_20.ttl";
+
 function load_demo(){
   G = {};
   if (! G.subjects){
-    fetchAndShow("/data/test_20.ttl");
+    fetchAndShow(orlando_data_uri);
   }
 }
 
