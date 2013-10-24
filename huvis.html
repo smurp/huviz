@@ -32,11 +32,10 @@ rect {
 </style>
 
   </head>
-  <body onload="load_demo">
+  <body>
     <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
     <script src="lib/RDFaProcessor.1.2.0.js" charset="utf-8"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js">
-    <XXscript src="lib/jquery-1.7.2.min.js"></XXscript>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script>
 
 var parseAndShow = function(data,textStatus){
@@ -203,7 +202,9 @@ var show_links_for_node = function(n) {
             //console.log(subj.id,p,obj.value);
             //console.log(obj);
             if (id2n[obj.value]){
-              var edge = {source: n, target: nodes[id2n[obj.value]]};
+              var t = nodes[id2n[obj.value]];
+              //console.log(obj.value,nodes.length,id2n[obj.value],nodes[236],t);
+              var edge = {source: n, target: t};
 
               if (edge.source.weight != null && edge.target.weight != null){
                 console.log("  ",predicate.id,obj.value);
@@ -229,7 +230,6 @@ var click_to_make_nodes_and_edges = function(){
     var x = target.x - node.x,
         y = target.y - node.y;
     if (Math.sqrt(x * x + y * y) < 30) {
-      
       links.push({source: node, target: target});
     }
   });
@@ -248,11 +248,10 @@ var id2n = {};
       var subject = g.subjects[subj];  
 
       var details = {x: 300, y: 300, s:subject};
-      var node = nodes.push(details);
-      subject._n = node;
-      id2n[subject.id] = node;
+      var n_idx = nodes.push(details) - 1;
+      subject._n = n_idx;
+      id2n[subject.id] = n_idx;
       console.log('id2n["'+subject.id+'"]',id2n[subject.id])
-      //node._s = subject;
       count++;
       if (limit && count >= limit) break;
     }
@@ -265,6 +264,9 @@ var id2n = {};
     console.log('make_links');
     for (var i =0 ; i<nodes.length; i++){
       var subj = nodes[i].s;
+      show_links_for_node(nodes[i]);
+      if ((limit > 0) && (links.length >= limit)) break;
+      continue;
       if (subj){
         if (subj.predicates){
           console.log('===================================================');
@@ -311,26 +313,30 @@ var showGraph = function(g){
   make_nodes(g);
   restart();			   
   
-  make_links(g,100);
+  make_links(g,Math.floor(nodes.length/3));
   restart();
 };
 
-var load_demo = function(){
+function load_demo(){
+  G = {};
   if (! G.subjects){
-    fetchAndShow("/data/test_40.ttl");
+    fetchAndShow("/data/test_20.ttl");
   }
-};
+}
+
+var wait_for_GreenTurtle = function(){
+  if (typeof GreenTurtle === 'undefined') {
+    setTimeout(wait_for_GreenTurtle,100);
+  } else {
+    load_demo();
+  }
+}
 
 window.addEventListener('load',function(){
    // This delay is to let GreenTurtle initialize
    // It would be great if there were a hook for this...
-   setTimeout(load_demo,1000);
+   wait_for_GreenTurtle();
 });
-
-// This is a terrible hack to cope with the race condition between
-// the loading of this script and the loading of GreenTurtle.  The
-// addEventListener approach should work but...
-//window.onkeyup = load_demo;  // press any key to load the data
 
     </script>
   </body>
