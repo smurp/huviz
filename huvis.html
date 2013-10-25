@@ -45,12 +45,24 @@ rect {
   left: 0;
 }
 
+.search_box {
+  height:1.3em; 
+  min-width:7em; 
+  background-color:lightgrey; 
+  position:relative; 
+  top:-50; 
+  left:-20; 
+  z-index:2; 
+  float:left; 
+  border-width:1
+}
+
 </style>
 
   </head>
   <body>
     <div>
-      <div id="search" style="height:1.3em; min-width:7em; background-color:lightgrey; position:relative; top:-50; left:-20; z-index:2; float:left; border-width:1" contenteditable="true"></div>
+      <div id="search" class="search_box" contenteditable="true"></div>
       <div id="vis" class="underneath"></div>
     </div>
     <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
@@ -199,6 +211,17 @@ function dist_lt(mouse,d,thresh){
     return (Math.sqrt(x * x + y * y) < thresh);
 }
 
+var search_regex = new RegExp('^$', "ig");
+
+var update_searchterm = function(){
+   //console.log(this);
+   var text = $(this).text();
+   search_regex = new RegExp( text || '^$', "ig"); // get this once per tick
+   //console.log('"'+text+'" ==>',search_regex);
+   restart();
+}
+
+$(".search_box").on("input",update_searchterm);
 
 function tick() {
   link.attr("x1", function(d) { return d.source.x; })
@@ -209,12 +232,9 @@ function tick() {
   node.attr("transform", function(d,i) { 
       return "translate(" + d.x + "," + d.y + ")"; });
 
-  var regex = new RegExp($('#search').text() || '', "ig"); // get this once per tick
-  console.log(regex);
-
   label.attr("style",function(d){
       var name = $(this).text();
-      if (dist_lt(last_mouse_pos,d,label_show_range) || name.match(regex)){
+      if (dist_lt(last_mouse_pos,d,label_show_range) || name.match(search_regex)){
         return "";
       } else {
         return "display:none";
