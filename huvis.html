@@ -39,13 +39,20 @@ rect {
   stroke: #999;
 }
 
+.underneath {
+  position: absolute; 
+  top: 0; 
+  left: 0;
+}
+
 </style>
 
   </head>
   <body>
-    <!--
-    <div id="controls" style="position:relative; top:-50; left=-20; z-index:2; float:left; border-width=1" contenteditable="true">search term</div>
-    -->
+    <div>
+      <div id="search" style="height:1.3em; min-width:7em; background-color:lightgrey; position:relative; top:-50; left:-20; z-index:2; float:left; border-width:1" contenteditable="true"></div>
+      <div id="vis" class="underneath"></div>
+    </div>
     <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
     <script src="lib/RDFa.min.1.2.0.js" charset="utf-8"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
@@ -114,7 +121,7 @@ function click_to_toggle_edges(){
   restart();
 }
 
-var wpad,hpad = 20;
+var wpad,hpad = 10;
 var width,height = 0;
 /////////////////////////////////////////////////////////////////////////////
 // resize-svg-when-window-is-resized-in-d3-js
@@ -160,11 +167,15 @@ var force = d3.layout.force()
     .charge(-40)
     .on("tick", tick);
 
-var svg = d3.select("body").append("svg")
+var svg = d3.select("#vis").append("svg")
     .attr("width", width)
     .attr("height", height)
+    .attr("position", "absolute")
+    .attr("top", "0")
     .on("mousemove", mousemove)
     .on("mousedown", click_to_toggle_edges);
+
+//svg.style("postion:absolute; top:0; left:0");
 
 svg.append("rect")
     .attr("width", get_window_width(wpad))
@@ -188,6 +199,7 @@ function dist_lt(mouse,d,thresh){
     return (Math.sqrt(x * x + y * y) < thresh);
 }
 
+
 function tick() {
   link.attr("x1", function(d) { return d.source.x; })
       .attr("y1", function(d) { return d.source.y; })
@@ -197,8 +209,12 @@ function tick() {
   node.attr("transform", function(d,i) { 
       return "translate(" + d.x + "," + d.y + ")"; });
 
+  var regex = new RegExp($('#search').text() || '', "ig"); // get this once per tick
+  console.log(regex);
+
   label.attr("style",function(d){
-      if (dist_lt(last_mouse_pos,d,label_show_range)){
+      var name = $(this).text();
+      if (dist_lt(last_mouse_pos,d,label_show_range) || name.match(regex)){
         return "";
       } else {
         return "display:none";
@@ -369,8 +385,8 @@ var showGraph = function(g){
   make_nodes(g);
   restart();			   
   
-  make_links(g,Math.floor(nodes.length/10));
-  //make_links(g);
+  //make_links(g,Math.floor(nodes.length/10));
+  make_links(g);
   restart();
 };
 
