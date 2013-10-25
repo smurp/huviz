@@ -43,23 +43,22 @@ rect {
 
   </head>
   <body>
-    <!-- 
-    <div id="controls" style="position:relative; top:-50; left=-20; z-index:2; float:left">
-      <input type="text" id="prefix"></input>
-    </div>
+    <!--
+    <div id="controls" style="position:relative; top:-50; left=-20; z-index:2; float:left; border-width=1" contenteditable="true">search term</div>
     -->
-
     <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
     <script src="lib/RDFa.min.1.2.0.js" charset="utf-8"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script>
 
 var verbose = true;
+var label_show_range = 100;
 
 if (! verbose){
   console = {'log': function(){}};
 }
 
+var last_mouse_pos = [0,0];
 var parseAndShow = function(data,textStatus){
   //console.log('textStatus',textStatus);
   //console.log('data',data);
@@ -157,8 +156,8 @@ var fill = d3.scale.category20();
 var force = d3.layout.force()
     .size([width, height])
     .nodes([]) // initialize with a single node
-    .linkDistance(90)
-    .charge(-90)
+    .linkDistance(40)
+    .charge(-40)
     .on("tick", tick);
 
 var svg = d3.select("body").append("svg")
@@ -183,14 +182,33 @@ var cursor = svg.append("circle")
 
 restart();
 
+function dist_lt(mouse,d,thresh){
+    var x = mouse[0] - d.x;
+    var y = mouse[1] - d.y;
+    return (Math.sqrt(x * x + y * y) < thresh);
+}
+
 function tick() {
   link.attr("x1", function(d) { return d.source.x; })
       .attr("y1", function(d) { return d.source.y; })
       .attr("x2", function(d) { return d.target.x; })
       .attr("y2", function(d) { return d.target.y; });
 
-  node.attr("transform", function(d) { 
+  node.attr("transform", function(d,i) { 
       return "translate(" + d.x + "," + d.y + ")"; });
+
+  label.attr("style",function(d){
+      if (dist_lt(last_mouse_pos,d,label_show_range)){
+        return "";
+      } else {
+        return "display:none";
+      }
+  });  
+/*
+  label.text(function(d){ 
+    console.log(d.x); return ""+d.x; });
+*/
+
 }
 
 function restart() {
@@ -210,20 +228,24 @@ function restart() {
       .style("fill", color_by_type);
 
   nodeEnter.append("text")
-      .attr("dy", ".35em")
+      .attr("class", "label")
+      .attr("style","")
+      .attr("dy", "1em")
       .text(function(d) { 
         var name = ' ';
         try {
           name = d.s.predicates['http://xmlns.com/foaf/0.1/name'].objects[0].value;
+          name.replace(/, /,'<br>');
         } catch (err) {}
         return name;
       });
-
+  label = svg.selectAll(".label");
   force.start();
 }
 
 function mousemove() {
-  cursor.attr("transform", "translate(" + d3.mouse(this) + ")");
+  last_mouse_pos = d3.mouse(this);
+  cursor.attr("transform", "translate(" + last_mouse_pos + ")");
 }
 
 var show_links_for_node = function(n) {
