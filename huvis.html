@@ -118,8 +118,6 @@ function click_to_toggle_edges(){
   var point = d3.mouse(this);
   var dist = 30;
   // find first node within dist and show edges
-  console.log("dist",dist,"point",point);
-
   nodes.forEach(function(target) {
     var x = target.x - point[0],
         y = target.y - point[1];
@@ -293,6 +291,14 @@ var show_links_for_node = function(n) {
             var obj = predicate.objects[oi];
             //console.log(subj.id,p,obj.value);
             //console.log(obj);
+
+            if (! id2n[obj.value]){
+              console.log ("about to make_node(",obj,")");
+              if (obj.type == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#object'){
+	        make_node(G.subjects[obj.value]);
+              }
+            }
+
             if (id2n[obj.value]){
               var t = nodes[id2n[obj.value]];
               //console.log(obj.value,nodes.length,id2n[obj.value],nodes[236],t);
@@ -331,25 +337,34 @@ var click_to_make_nodes_and_edges = function(){
 
 var G = {};
 
+var ids_to_show = new RegExp("http", "ig");
+var ids_to_show = new RegExp("", "ig");
+
 var id2n = {};
 
-  var make_nodes = function(g,limit){
+var make_node = function(subject){
+  // assumes not already in nodes and id2n
+  var details = {x: 300, y: 300, s:subject};
+  var n_idx = nodes.push(details) - 1;
+  subject._n = n_idx;
+  id2n[subject.id] = n_idx;
+  //console.log('id2n["'+subject.id+'"]',id2n[subject.id])
+}
+
+var make_nodes = function(g,limit){
     limit = limit || 0;
     var count = 0;
     for (subj in g.subjects){
+      if (! subj.match(ids_to_show)) continue;
       var subject = g.subjects[subj];  
-
-      var details = {x: 300, y: 300, s:subject};
-      var n_idx = nodes.push(details) - 1;
-      subject._n = n_idx;
-      id2n[subject.id] = n_idx;
-      console.log('id2n["'+subject.id+'"]',id2n[subject.id])
+      make_node(subject)
       count++;
       if (limit && count >= limit) break;
-    }
-  };
 
-  var make_links = function(g,limit){
+    }
+};
+
+var make_links = function(g,limit){
     limit = limit || 0;
     // for edge labels				   
     //   http://bl.ocks.org/jhb/5955887
