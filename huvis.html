@@ -24,7 +24,7 @@ rect {
 }
 
 .node text {
-  font: 10px sans-serif;
+  font: 7px sans-serif;
   pointer-events: none;
   text-anchor: middle;
 }
@@ -71,6 +71,8 @@ rect {
     <script>
 
 var verbose = true;
+var verbosity = 100;
+var COARSE = 10;
 var label_show_range = 100;
 
 if (! verbose){
@@ -79,11 +81,60 @@ if (! verbose){
 
 var last_mouse_pos = [0,0];
 var parseAndShow = function(data,textStatus){
-  //console.log('textStatus',textStatus);
-  //console.log('data',data);
+  var msg = "data was "+data.length+" bytes";
+  var parse_start_time = new Date();
   G = GreenTurtle.implementation.parse(data,'text/turtle');
+  var parse_end_time = new Date();
+  var parse_time = (parse_end_time - parse_start_time) / 1000;
+  var siz = roughSizeOfObject(G);
+  msg += " resulting in a graph of "+siz+" bytes";
+  msg += " which took " + parse_time + " seconds to parse";
+  if (verbosity >= COARSE) {
+    console.log(msg);
+  }
+  var show_start_time = new Date();
   showGraph(G);
+  var show_end_time = new Date();
+  var show_time = (show_end_time - show_start_time) / 1000;
+  msg += " and " + show_time +" sec to show";
+  if (verbosity >= COARSE) {
+    console.log(msg);
+  }
 };
+
+function roughSizeOfObject( object ) {
+    // http://stackoverflow.com/questions/1248302/javascript-object-size
+    var objectList = [];
+    var stack = [ object ];
+    var bytes = 0;
+
+    while ( stack.length ) {
+        var value = stack.pop();
+
+        if ( typeof value === 'boolean' ) {
+            bytes += 4;
+        }
+        else if ( typeof value === 'string' ) {
+            bytes += value.length * 2;
+        }
+        else if ( typeof value === 'number' ) {
+            bytes += 8;
+        }
+        else if
+        (
+            typeof value === 'object'
+            && objectList.indexOf( value ) === -1
+        )
+        {
+            objectList.push( value );
+
+            for( i in value ) {
+                stack.push( value[ i ] );
+            }
+        }
+    }
+    return bytes;
+}
 
 var fetchAndShow = function(url){
   //d3.xhr(url,'text/plain',parseAndShow);
@@ -92,6 +143,26 @@ var fetchAndShow = function(url){
           error: function(jqxhr,textStatus,errorThrown){
             alert("'"+url+"': "+errorThrown);
           }})
+};
+
+var has_predicate_value = function(subject,predicate,value){
+  var pre = subject.predicates[predicate];
+  if (pre){
+    objs = pre.objects;
+    for (oi = 0; oi <= objs.length; oi++){
+      var obj = objs[oi];
+      if (obj.value == value){
+       return true;
+      }
+    }
+  }
+  return false;
+};
+
+var FOAF_Group = 'http://xmlns.com/foaf/0.1/Group';
+var RDF_Type = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
+var has_type = function(subject,typ){
+  return has_predicate_value(subject,RDF_Type,typ);
 };
 
 var BLANK_HACK = false;
@@ -103,12 +174,14 @@ function color_by_type(d){
      return 'blue';  // the 1305 writers
   } else { 
     try {
-      if (d.s.predicates['http://xmlns.com/foaf/0.1/Group']){
+      //console.log("coloring",d.s.predicates);
+      if (has_type(d.s,FOAF_Group)){
          return 'green'; // Groups
       } else {
          return 'red'; // other persons
       }
     } catch (err) {
+      console.log(err);
       return 'yellow';
     }
   }
@@ -116,14 +189,14 @@ function color_by_type(d){
 
 function click_to_toggle_edges(){
   var point = d3.mouse(this);
-  var dist = 30;
+  var dist = 3;
   // find first node within dist and show edges
   nodes.forEach(function(target) {
     var x = target.x - point[0],
         y = target.y - point[1];
 
     if (Math.sqrt(x * x + y * y) < dist) {
-       console.log(point,x,y,target);
+       //console.log(point,x,y,target);
        show_links_for_node(target);
     }
   });
@@ -133,6 +206,7 @@ function click_to_toggle_edges(){
 
 var wpad,hpad = 10;
 var width,height = 0;
+var graph_radius = 100;
 /////////////////////////////////////////////////////////////////////////////
 // resize-svg-when-window-is-resized-in-d3-js
 //   http://stackoverflow.com/questions/16265123/
@@ -141,18 +215,22 @@ var get_window_width = function(pad){
   width = (window.innerWidth || 
          document.documentElement.clientWidth || 
          document.clientWidth) - pad;
-  console.log('width',width);
+  //console.log('width',width);
 };
 var get_window_height = function(pad){
   var pad = pad || hpad;			   
   height = ( window.innerHeight || 
             document.documentElement.clientHeight || 
             document.clientHeight) - pad;
-  console.log('height',height);
+  //console.log('height',height);
 }
+var update_graph_radius = function(){
+  graph_radius = Math.floor(Math.min(width/2,height/2));
+};
 function updateWindow(){
     get_window_width();
     get_window_height();
+    update_graph_radius();
     svg.attr("width", width).attr("height", height);
     force.size([width,height]);
     restart();
@@ -162,8 +240,11 @@ window.onresize = updateWindow;
 
 /////////////////////////////////////////////////////////////////////////////
 
+
 get_window_height();
 get_window_width();
+update_graph_radius();
+
 
 // 
 //   http://bl.ocks.org/mbostock/929623
@@ -174,7 +255,8 @@ var force = d3.layout.force()
     .size([width, height])
     .nodes([]) // initialize with a single node
     .linkDistance(40)
-    .charge(-40)
+    .charge(-70)
+    .gravity(0.1)
     .on("tick", tick);
 
 var svg = d3.select("#vis").append("svg")
@@ -228,7 +310,9 @@ function tick() {
       .attr("y2", function(d) { return d.target.y; });
 
   node.attr("transform", function(d,i) { 
-      return "translate(" + d.x + "," + d.y + ")"; });
+      var x = d.x;
+      var y = d.y;
+      return "translate(" + x + "," + y + ")"; });
 
   label.attr("style",function(d){
       var name = $(this).text();
@@ -269,8 +353,9 @@ function restart() {
         var name = ' ';
         try {
           name = d.s.predicates['http://xmlns.com/foaf/0.1/name'].objects[0].value;
-          name.replace(/, /,'<br>');
-        } catch (err) {}
+        } catch (err) {
+          console.log(err);
+        }
         return name;
       });
   label = svg.selectAll(".label");
@@ -293,23 +378,16 @@ var show_links_for_node = function(n) {
             //console.log(obj);
 
             if (! id2n[obj.value]){
-              console.log ("about to make_node(",obj,")");
               if (obj.type == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#object'){
+                //console.log("about to make_node(",obj.value,")");
 	        make_node(G.subjects[obj.value]);
               }
             }
 
             if (id2n[obj.value]){
               var t = nodes[id2n[obj.value]];
-              //console.log(obj.value,nodes.length,id2n[obj.value],nodes[236],t);
               var edge = {source: n, target: t};
-
-              if (edge.source.weight != null && edge.target.weight != null){
-                console.log("  ",predicate.id,obj.value);
-                links.push(edge);
-              } else {
-                console.log('PROBLEM EDGE',edge);
-              }
+              links.push(edge);
             }
           }
 	  //console.log(p,"==>",predicate);
@@ -336,18 +414,22 @@ var click_to_make_nodes_and_edges = function(){
 };
 
 var G = {};
-
-var ids_to_show = new RegExp("http", "ig");
-var ids_to_show = new RegExp("", "ig");
+var start_with_http = new RegExp("http", "ig");
+var ids_to_show = start_with_http;
+//var blank_writers = new RegExp("_\:[a-z_]{6}");
+//var ids_to_show = blank_writers;
+//var ids_to_show = new RegExp("", "ig");
 
 var id2n = {};
 
 var make_node = function(subject){
   // assumes not already in nodes and id2n
+  if (! subject) return;
   var details = {x: 300, y: 300, s:subject};
   var n_idx = nodes.push(details) - 1;
   subject._n = n_idx;
   id2n[subject.id] = n_idx;
+  return details;
   //console.log('id2n["'+subject.id+'"]',id2n[subject.id])
 }
 
@@ -355,8 +437,10 @@ var make_nodes = function(g,limit){
     limit = limit || 0;
     var count = 0;
     for (subj in g.subjects){
+      console.log(subj,g.subjects[subj]);
       if (! subj.match(ids_to_show)) continue;
       var subject = g.subjects[subj];  
+      //console.log(subj);
       make_node(subject)
       count++;
       if (limit && count >= limit) break;
@@ -421,13 +505,16 @@ var showGraph = function(g){
   restart();			   
   
   //make_links(g,Math.floor(nodes.length/10));
-  make_links(g);
+  //make_links(g);
   restart();
 };
 
 var orlando_data_uri = "data/test_100.ttl";
+var orlando_data_uri = "data/test_40.ttl";
+//var orlando_data_uri = "data/test_10.ttl";
 var orlando_data_uri = "data/test_20.ttl";
 //var orlando_data_uri = "data/test_1.ttl";
+//var orlando_data_uri = "data/all.ttl";
 
 function load_demo(){
   G = {};
