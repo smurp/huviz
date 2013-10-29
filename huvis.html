@@ -70,6 +70,14 @@ rect {
   cursor: pointer;
 }
 
+#status {
+  background-color:lightgrey;
+  position:absolute;
+  top: .2em;
+  right: .2em;
+  z-index:2;
+}
+
 </style>
 
   </head>
@@ -77,6 +85,7 @@ rect {
     <div>
       <div id="search" class="search_box" contenteditable="true"></div>
       <div id="toggle_links" class="button" onclick="toggle_links(this)">show all links</div>
+      <div id="status" onclick="clear_box()"></div>
       <div id="vis" class="underneath"></div>
     </div>
     <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
@@ -99,6 +108,7 @@ if (! verbose){
 
 var last_mouse_pos = [0,0];
 var parseAndShow = function(data,textStatus){
+  $("#status").text("parsing");
   var msg = "data was "+data.length+" bytes";
   var parse_start_time = new Date();
   G = GreenTurtle.implementation.parse(data,'text/turtle');
@@ -118,6 +128,7 @@ var parseAndShow = function(data,textStatus){
   if (verbosity >= COARSE) {
     console.log(msg);
   }
+  $("#status").text(msg);
 };
 
 function roughSizeOfObject( object ) {
@@ -156,10 +167,11 @@ function roughSizeOfObject( object ) {
 
 var fetchAndShow = function(url){
   //d3.xhr(url,'text/plain',parseAndShow);
+  $('#status').text('fetching '+url);
   $.ajax({url:url, 
           success: parseAndShow, 
           error: function(jqxhr,textStatus,errorThrown){
-            alert("'"+url+"': "+errorThrown);
+            $('#status').text(errorThrown + ' while fetching '+url);
           }})
 };
 
@@ -620,7 +632,7 @@ var orlando_data_uri = "data/test_40.ttl";
 //var orlando_data_uri = "data/test_20.ttl";
 //var orlando_data_uri = "data/test_5.ttl";
 //var orlando_data_uri = "data/test_2.ttl";
-//var orlando_data_uri = "data/all2.ttl";
+//var orlando_data_uri = "data/all.ttl";
 
 function load_demo(){
   G = {};
@@ -661,6 +673,10 @@ var toggle_links = function(){
       restart();
   }
   return force.links().length;
+};
+
+var clear_box = function(){
+  $("#status").text('');
 };
 
     </script>
