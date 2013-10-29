@@ -265,7 +265,7 @@ var fill = d3.scale.category20();
 
 var force = d3.layout.force()
     .size([width, height])
-    .nodes([]) // initialize with a single node
+    .nodes([]) // initialize with no nodes
     .linkDistance(20)
     .charge(-60)
     //.gravity(0.1)
@@ -279,11 +279,9 @@ var svg = d3.select("#vis").append("svg")
     .on("mousemove", mousemove)
     .on("mouseup", click_to_toggle_edges);
 
-//svg.style("postion:absolute; top:0; left:0");
-
 svg.append("rect")
-    .attr("width", get_window_width(wpad))
-    .attr("height", get_window_height(hpad));
+    .attr("width", width)
+    .attr("height", height);
 
 var nodes = force.nodes(),
     links = force.links(),
