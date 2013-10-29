@@ -343,11 +343,28 @@ svg.append("rect")
 
 
 function reset_graph(){
-   force.nodes([]);
-   nodes = force.nodes();
-   links = force.links();
-   node  = svg.selectAll(".node");
-   link  = svg.selectAll(".link");
+  id2n = {};
+  nodes = [];
+  links = [];
+  force.nodes(nodes);
+  $(".link").remove();
+  $(".node").remove();
+
+   //nodes = force.nodes();
+   //links = force.links();
+
+  node  = svg.selectAll(".node");
+  link  = svg.selectAll(".link");
+
+  link = link.data(links);
+  
+  link.exit().remove()
+
+  node = node.data(nodes);
+
+  node.exit().remove();
+
+  force.start();
 }
 reset_graph();
 
