@@ -44,13 +44,19 @@ rect {
   top: 0; 
   left: 0;
 }
-
+#file_picker {
+  position:absolute;
+  top:.2em; 
+  left:.2em; 
+  z-index:2; 
+  float:left;   
+}
 .search_box {
   height:1.3em; 
   min-width:7em; 
   background-color:lightgrey; 
   position:absolute;
-  top:.2em; 
+  top:2em; 
   left:.2em; 
   z-index:2; 
   float:left; 
@@ -64,7 +70,7 @@ rect {
 #toggle_links {
   background-color: lightblue;
   position:absolute;
-  top: 1.7em;
+  top: 3.5em;
   left: .2em;
   z-index:2;
   cursor: pointer;
@@ -83,9 +89,17 @@ rect {
   </head>
   <body>
     <div>
+      <div id="file_picker_box">
+        <select id="file_picker" onchange="load_file(this)" >
+          <option>data/test_20.ttl</option>
+          <option>data/test_40.ttl</option>
+          <option>data/all.ttl</option>
+        </select>
       <div id="search" class="search_box" contenteditable="true"></div>
       <div id="toggle_links" class="button" onclick="toggle_links(this)">show all links</div>
       <div id="status" onclick="clear_box()"></div>
+      </div>
+      
       <div id="vis" class="underneath"></div>
     </div>
     <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
@@ -109,6 +123,7 @@ if (! verbose){
 var last_mouse_pos = [0,0];
 var parseAndShow = function(data,textStatus){
   $("#status").text("parsing");
+  console.log('parsing');
   var msg = "data was "+data.length+" bytes";
   var parse_start_time = new Date();
   G = GreenTurtle.implementation.parse(data,'text/turtle');
@@ -299,8 +314,10 @@ var fisheye = d3.fisheye.circular().radius(fisheye_radius).distortion(2.2);
 
 // 
 //   http://bl.ocks.org/mbostock/929623
+var nodes, links, node, link;
 
 var fill = d3.scale.category20();
+
 
 var force = d3.layout.force()
     .size([width, height])
@@ -321,10 +338,16 @@ svg.append("rect")
     .attr("width", width)
     .attr("height", height);
 
-var nodes = force.nodes(),
-    links = force.links(),
-    node = svg.selectAll(".node"),
-    link = svg.selectAll(".link");
+
+
+function reset_graph(){
+   force.nodes([]);
+   nodes = force.nodes();
+   links = force.links();
+   node  = svg.selectAll(".node");
+   link  = svg.selectAll(".link");
+}
+reset_graph();
 
 var cursor = svg.append("circle")
     .attr("r", 15)
@@ -636,11 +659,16 @@ var orlando_data_uri = "data/test_40.ttl";
 //var orlando_data_uri = "data/test_5.ttl";
 //var orlando_data_uri = "data/test_2.ttl";
 //var orlando_data_uri = "data/all.ttl";
+//var orlando_data_uri = "http://www.w3.org/TeamSubmission/turtle/example2.ttl";
+//var orlando_data_uri = "http://www.w3.org/TeamSubmission/turtle/example1.ttl";
 
-function load_demo(){
+function load_file(){
+  reset_graph();
+  var data_uri = $( "select#file_picker option:selected").val();
+  console.log(data_uri);
   G = {};
   if (! G.subjects){
-    fetchAndShow(orlando_data_uri);
+    fetchAndShow(data_uri);
   }
 }
 
@@ -648,13 +676,13 @@ var wait_for_GreenTurtle = function(){
   if (typeof GreenTurtle === 'undefined') {
     setTimeout(wait_for_GreenTurtle,200);
   } else {
-    load_demo();
+    load_file();
   }
 }
 var await_the_GreenTurtle = function(){
   try {
     var i = GreenTurtle.implementation;
-    load_demo();
+    load_file();
   } catch (error) {
     console.log(error);
     setTimeout(await_the_GreenTurtle,3000);
@@ -664,7 +692,7 @@ var await_the_GreenTurtle = function(){
 window.addEventListener('load',function(){
    // This delay is to let GreenTurtle initialize
    // It would be great if there were a hook for this...
-   load_demo();
+   load_file();
    //await_the_GreenTurtle();
 });
 
