@@ -248,7 +248,10 @@ function click_to_toggle_edges(){
 var wpad,hpad = 10;
 var width,height = 0;
 var cx,cy = 0;
-var label_show_range = 70;
+var link_distance = 30;
+var charge = -36;
+var gravity = 0.36;
+var label_show_range = link_distance * 0.9;
 var graph_radius = 100;
 var fisheye_radius = label_show_range * 2;
 /////////////////////////////////////////////////////////////////////////////
@@ -302,9 +305,9 @@ var fill = d3.scale.category20();
 var force = d3.layout.force()
     .size([width, height])
     .nodes([]) // initialize with no nodes
-    .linkDistance(22)
-    .charge(-50)
-    //.gravity(0.1)
+    .linkDistance(link_distance)
+    .charge(charge)
+    .gravity(gravity)
     .on("tick", tick);
 
 var svg = d3.select("#vis").append("svg")
