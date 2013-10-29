@@ -165,12 +165,19 @@ var has_type = function(subject,typ){
   return has_predicate_value(subject,RDF_Type,typ);
 };
 
+var is_a_main_node = function(d){
+  // This is a hacky Orlando-specific way to 
+  return ((BLANK_HACK && d.s.id[7] != '/') ||     //  http:///4  
+          (! BLANK_HACK && d.s.id[0] != '_' ));   //  _:4
+
+};
+
+var is_node_to_always_show = is_a_main_node;
+
 var BLANK_HACK = false;
 function color_by_type(d){
-  // anon red otherwise blue                  //  Blank Nodes are like:
-  if ((BLANK_HACK && d.s.id[7] != '/') ||     //  http:///4  
-      (! BLANK_HACK && d.s.id[0] != '_' )){  //  _:4
-
+  // anon red otherwise blue 
+  if (is_a_main_node(d)){
      return 'blue';  // the 1305 writers
   } else { 
     try {
@@ -197,7 +204,11 @@ function click_to_toggle_edges(){
 
     if (Math.sqrt(x * x + y * y) < dist) {
        //console.log(point,x,y,target);
-       show_links_for_node(target);
+       if (target.links_from){
+         hide_links_from_node(target);
+       } else {
+         show_links_from_node(target);
+       }
     }
   });
 
@@ -256,7 +267,7 @@ var force = d3.layout.force()
     .nodes([]) // initialize with a single node
     .linkDistance(40)
     .charge(-70)
-    .gravity(0.1)
+    //.gravity(0.1)
     .on("tick", tick);
 
 var svg = d3.select("#vis").append("svg")
@@ -265,7 +276,7 @@ var svg = d3.select("#vis").append("svg")
     .attr("position", "absolute")
     .attr("top", "0")
     .on("mousemove", mousemove)
-    .on("mousedown", click_to_toggle_edges);
+    .on("mouseup", click_to_toggle_edges);
 
 //svg.style("postion:absolute; top:0; left:0");
 
@@ -330,19 +341,30 @@ function tick() {
 }
 
 function restart() {
-  link = link.data(links);
 
+  link = link.data(links);
+  
   link.enter().insert("line", ".node")
       .attr("class", "link");
 
+  link.exit().remove()
+
   node = node.data(nodes);
 
+  node.exit().remove()
+  
   var nodeEnter = node.enter().append("g")
       .attr("class", "node")
       .call(force.drag);
   
   nodeEnter.append("circle")
-      .attr("r", 3)
+      .attr("r", function(d,i){
+         if (d.links_from){
+           return 8;
+         } else {
+           return 3;
+         }
+      })
       .style("fill", color_by_type);
 
   nodeEnter.append("text")
@@ -359,6 +381,7 @@ function restart() {
         return name;
       });
   label = svg.selectAll(".label");
+  //force.nodes(nodes).links(links).start();
   force.start();
 }
 
@@ -367,34 +390,79 @@ function mousemove() {
   cursor.attr("transform", "translate(" + last_mouse_pos + ")");
 }
 
-var show_links_for_node = function(n) {
+var find_links_from_node = function(n) {
+  var a_node;
   var subj = n.s;
   if (subj){
-        for (p in subj.predicates){
+    for (p in subj.predicates){
           var predicate = subj.predicates[p]; 
           for (oi = 0; oi < predicate.objects.length; oi++){
             var obj = predicate.objects[oi];
-            //console.log(subj.id,p,obj.value);
-            //console.log(obj);
-
             if (! id2n[obj.value]){
               if (obj.type == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#object'){
-                //console.log("about to make_node(",obj.value,")");
-	        make_node(G.subjects[obj.value]);
+	         a_node = make_node_if_missing(G.subjects[obj.value]);
               }
             }
 
             if (id2n[obj.value]){
               var t = nodes[id2n[obj.value]];
               var edge = {source: n, target: t};
-              links.push(edge);
+              t.in_count++;
+              n.links_from.push(edge);
             }
           }
 	  //console.log(p,"==>",predicate);
         }    
+    }
+};
+
+var show_links_from_node = function(n) {
+  var subj = n.s;
+  if (n._links_from){
+    n.links_from = n._links_from;
+    delete n._links_from;
+  } else {
+    n.links_from = [];
+    find_links_from_node(n);
+  }
+  for (var i = 0; i < n.links_from.length; i++){
+    links.push(n.links_from[i]);
   }
 };
 
+
+var hide_links_from_node = function(n) {
+  var subj = n.s;
+  if (n.links_from){
+    n._links_from = n.links_from;
+    delete n.links_from;
+  } else {
+    n._links_from = [];
+    
+  }
+  var links_pruned = [];
+  for (var l = 0; l < links.length ; l++){
+    var link = links[l];
+    if ($.inArray(link,n._links_from) == -1){
+      links_pruned.push(link);
+    } else {
+      if (! is_node_to_always_show(link.target) && (link.target.in_count == 0)){
+        remove_node(link.target);
+      }
+    }
+  }
+  console.log("=========hide_links_from_node",n);
+  console.log("links.length",links.length)
+  console.log("links_pruned.length",links_pruned.length)
+  links = links_pruned;
+  restart();
+}
+
+var remove_node = function(d){
+  var node_idx = d.s._n;
+  //delete id2n[subject.id];
+  //nodes.
+}
 
 var click_to_make_nodes_and_edges = function(){
   var point = d3.mouse(this),
@@ -422,15 +490,19 @@ var ids_to_show = start_with_http;
 
 var id2n = {};
 
-var make_node = function(subject){
+var make_node_if_missing = function(subject){
   // assumes not already in nodes and id2n
-  if (! subject) return;
-  var details = {x: 300, y: 300, s:subject};
-  var n_idx = nodes.push(details) - 1;
+  if (! subject) return;  // uhh, no subject
+  if (! (typeof subject._n === 'undefined')){
+       return nodes[subject._n] ; // subject already among nodes
+  }
+  var d = {x: width/2, y: height/2, s:subject, in_count:0};
+  subject.x = width/2;
+  subject.y = height/2;
+  var n_idx = nodes.push(d) - 1;
   subject._n = n_idx;
   id2n[subject.id] = n_idx;
-  return details;
-  //console.log('id2n["'+subject.id+'"]',id2n[subject.id])
+  return d;
 }
 
 var make_nodes = function(g,limit){
@@ -441,7 +513,7 @@ var make_nodes = function(g,limit){
       if (! subj.match(ids_to_show)) continue;
       var subject = g.subjects[subj];  
       //console.log(subj);
-      make_node(subject)
+      make_node_if_missing(subject)
       count++;
       if (limit && count >= limit) break;
 
@@ -455,44 +527,8 @@ var make_links = function(g,limit){
     console.log('make_links');
     for (var i =0 ; i<nodes.length; i++){
       var subj = nodes[i].s;
-      show_links_for_node(nodes[i]);
+      show_links_from_node(nodes[i]);
       if ((limit > 0) && (links.length >= limit)) break;
-      continue;
-      if (subj){
-        if (subj.predicates){
-          console.log('===================================================');
-          console.log(subj.id);
-          console.log(subj.predicates);
-        }
-        for (p in subj.predicates){
-          var predicate = subj.predicates[p]; 
-          for (oi = 0; oi < predicate.objects.length; oi++){
-            var obj = predicate.objects[oi];
-            //console.log(subj.id,p,obj.value);
-            //console.log(obj);
-            if (id2n[obj.value]){
-              var edge = {source: nodes[i], target: nodes[id2n[obj.value]]};
-
-              if (edge.source.weight != null && edge.target.weight != null){
-                //edge.source.weight = 1;
-                //edge.target.weight = 1;
-                console.log("  ",predicate.id,obj.value);
-                //console.log("====>",edge.source.weight,edge.target.weight,edge);
-                
-                links.push(edge);
-	        if (limit && links.length >= limit){
-                  restart();
-                  return;
-                }
-              } else {
-                console.log('PROBLEM EDGE',edge);
-              }
-            }
-          }
-	  //console.log(p,"==>",predicate);
-        }
-
-      }
     }
     console.log('/make_links');
     restart();
@@ -513,7 +549,8 @@ var orlando_data_uri = "data/test_100.ttl";
 var orlando_data_uri = "data/test_40.ttl";
 //var orlando_data_uri = "data/test_10.ttl";
 var orlando_data_uri = "data/test_20.ttl";
-//var orlando_data_uri = "data/test_1.ttl";
+//var orlando_data_uri = "data/test_5.ttl";
+//var orlando_data_uri = "data/test_2.ttl";
 //var orlando_data_uri = "data/all.ttl";
 
 function load_demo(){
