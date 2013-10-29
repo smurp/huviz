@@ -265,8 +265,8 @@ var fill = d3.scale.category20();
 var force = d3.layout.force()
     .size([width, height])
     .nodes([]) // initialize with a single node
-    .linkDistance(40)
-    .charge(-70)
+    .linkDistance(20)
+    .charge(-60)
     //.gravity(0.1)
     .on("tick", tick);
 
@@ -393,6 +393,8 @@ function mousemove() {
 var find_links_from_node = function(n) {
   var a_node;
   var subj = n.s;
+  var x = n.x || width/2,
+      y = n.y || height/2;
   if (subj){
     for (p in subj.predicates){
           var predicate = subj.predicates[p]; 
@@ -400,7 +402,7 @@ var find_links_from_node = function(n) {
             var obj = predicate.objects[oi];
             if (! id2n[obj.value]){
               if (obj.type == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#object'){
-	         a_node = make_node_if_missing(G.subjects[obj.value]);
+	         a_node = make_node_if_missing(G.subjects[obj.value],[x,y]);
               }
             }
 
@@ -490,13 +492,16 @@ var ids_to_show = start_with_http;
 
 var id2n = {};
 
-var make_node_if_missing = function(subject){
+var make_node_if_missing = function(subject,start_point){
   // assumes not already in nodes and id2n
   if (! subject) return;  // uhh, no subject
   if (! (typeof subject._n === 'undefined')){
        return nodes[subject._n] ; // subject already among nodes
   }
-  var d = {x: width/2, y: height/2, s:subject, in_count:0};
+  start_point = start_point || [width/2, height/2];
+  var d = {x: start_point[0], y: start_point[1], 
+           px: start_point[0]*1.01, py: start_point[1]*1.01, 
+           s:subject, in_count:0};
   subject.x = width/2;
   subject.y = height/2;
   var n_idx = nodes.push(d) - 1;
@@ -513,7 +518,7 @@ var make_nodes = function(g,limit){
       if (! subj.match(ids_to_show)) continue;
       var subject = g.subjects[subj];  
       //console.log(subj);
-      make_node_if_missing(subject)
+      make_node_if_missing(subject,[width/2,height/2])
       count++;
       if (limit && count >= limit) break;
 
