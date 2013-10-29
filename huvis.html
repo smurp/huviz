@@ -71,8 +71,9 @@ rect {
     <script>
 
 var verbose = true;
-var verbosity = 100;
+var verbosity = 10;
 var COARSE = 10;
+var MODERATE = 20;
 var label_show_range = 100;
 
 if (! verbose){
@@ -351,6 +352,7 @@ function restart() {
 
   node = node.data(nodes);
 
+  //if (node){ console.log('=================================',node[0]);  }
   node.exit().remove()
   
   var nodeEnter = node.enter().append("g")
@@ -442,25 +444,33 @@ var hide_links_from_node = function(n) {
     n._links_from = [];
     
   }
+  console.log("links.length",links.length);
   var links_pruned = [];
   for (var l = 0; l < links.length ; l++){
     var link = links[l];
     if ($.inArray(link,n._links_from) == -1){
       links_pruned.push(link);
     } else {
-      if (! is_node_to_always_show(link.target) && (link.target.in_count == 0)){
+      console.log('pruning edge',link);
+      link.target.in_count--;
+      if (! is_node_to_always_show(link.target) && (link.target.in_count <= 0)){
         remove_node(link.target);
       }
     }
   }
-  console.log("=========hide_links_from_node",n);
-  console.log("links.length",links.length)
-  console.log("links_pruned.length",links_pruned.length)
+  if (verbosity >= MODERATE){
+    console.log("=========hide_links_from_node",n);
+    console.log("links.length",links.length)
+    console.log("links_pruned.length",links_pruned.length);
+  }
   links = links_pruned;
+  force.links(links);
+  console.log("links.length",links.length)
   restart();
 }
 
 var remove_node = function(d){
+  console.log('remove_node',d);
   var node_idx = d.s._n;
   //delete id2n[subject.id];
   //nodes.
