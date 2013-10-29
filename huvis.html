@@ -143,6 +143,7 @@ var parseAndShow = function(data,textStatus){
   if (verbosity >= COARSE) {
     console.log(msg);
   }
+  $('body').css('cursor', 'default');
   $("#status").text("");
 };
 
@@ -183,6 +184,7 @@ function roughSizeOfObject( object ) {
 var fetchAndShow = function(url){
   //d3.xhr(url,'text/plain',parseAndShow);
   $('#status').text('fetching '+url);
+  $('body').css('cursor', 'wait');
   $.ajax({url:url, 
           success: parseAndShow, 
           error: function(jqxhr,textStatus,errorThrown){
