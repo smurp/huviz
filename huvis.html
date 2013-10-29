@@ -24,7 +24,7 @@ rect {
 }
 
 .node text {
-  font: 7px sans-serif;
+  font: 7.5px sans-serif;
   pointer-events: none;
   text-anchor: middle;
 }
@@ -62,10 +62,11 @@ rect {
   </head>
   <body>
     <div>
-      <div id="search" class="search_box" contenteditable="true"></div>
+      <div id="search" class="search_box" contenteditable="true">.</div>
       <div id="vis" class="underneath"></div>
     </div>
     <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
+    <script src="lib/fisheye.js" charset="utf-8"></script>
     <script src="lib/RDFa.min.1.2.0.js" charset="utf-8"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script>
@@ -74,7 +75,6 @@ var verbose = true;
 var verbosity = 10;
 var COARSE = 10;
 var MODERATE = 20;
-var label_show_range = 100;
 
 if (! verbose){
   console = {'log': function(){}};
@@ -218,7 +218,10 @@ function click_to_toggle_edges(){
 
 var wpad,hpad = 10;
 var width,height = 0;
+var cx,cy = 0;
+var label_show_range = 100;
 var graph_radius = 100;
+var fisheye_radius = label_show_range;
 /////////////////////////////////////////////////////////////////////////////
 // resize-svg-when-window-is-resized-in-d3-js
 //   http://stackoverflow.com/questions/16265123/
@@ -227,6 +230,7 @@ var get_window_width = function(pad){
   width = (window.innerWidth || 
          document.documentElement.clientWidth || 
          document.clientWidth) - pad;
+  cx = width/2;
   //console.log('width',width);
 };
 var get_window_height = function(pad){
@@ -234,6 +238,7 @@ var get_window_height = function(pad){
   height = ( window.innerHeight || 
             document.documentElement.clientHeight || 
             document.clientHeight) - pad;
+  cy = height/2;
   //console.log('height',height);
 }
 var update_graph_radius = function(){
@@ -258,6 +263,8 @@ get_window_width();
 update_graph_radius();
 
 
+var fisheye = d3.fisheye.circular().radius(fisheye_radius).distortion(3);
+
 // 
 //   http://bl.ocks.org/mbostock/929623
 
@@ -266,7 +273,7 @@ var fill = d3.scale.category20();
 var force = d3.layout.force()
     .size([width, height])
     .nodes([]) // initialize with no nodes
-    .linkDistance(20)
+    .linkDistance(22)
     .charge(-60)
     //.gravity(0.1)
     .on("tick", tick);
@@ -290,7 +297,7 @@ var nodes = force.nodes(),
 
 var cursor = svg.append("circle")
     .attr("r", 15)
-    .attr("transform", "translate(-100,-100)")
+    .attr("transform", "translate("+cx+","+cy+")")
     .attr("class", "cursor");
 
 restart();
@@ -303,25 +310,32 @@ function dist_lt(mouse,d,thresh){
 
 var search_regex = new RegExp('^$', "ig");
 
+var set_search_regex = function(text){
+   search_regex = new RegExp( text || '^$', "ig"); // get this once per tick
+};
+
 var update_searchterm = function(){
    //console.log(this);
    var text = $(this).text();
-   search_regex = new RegExp( text || '^$', "ig"); // get this once per tick
+   set_search_regex(text);
    //console.log('"'+text+'" ==>',search_regex);
    restart();
 }
 
+set_search_regex('.');
 $(".search_box").on("input",update_searchterm);
 
 function tick() {
+  fisheye.focus(last_mouse_pos);
   link.attr("x1", function(d) { return d.source.x; })
       .attr("y1", function(d) { return d.source.y; })
       .attr("x2", function(d) { return d.target.x; })
       .attr("y2", function(d) { return d.target.y; });
 
   node.attr("transform", function(d,i) { 
-      var x = d.x;
-      var y = d.y;
+      d.fisheye = fisheye(d);
+      var x = d.fisheye.x;
+      var y = d.fisheye.y;
       return "translate(" + x + "," + y + ")"; });
 
   label.attr("style",function(d){
@@ -331,12 +345,12 @@ function tick() {
       } else {
         return "display:none";
       }
-  });  
-/*
-  label.text(function(d){ 
-    console.log(d.x); return ""+d.x; });
-*/
+   });
 
+  link.attr("x1", function(d) { return d.source.fisheye.x; })
+      .attr("y1", function(d) { return d.source.fisheye.y; })
+      .attr("x2", function(d) { return d.target.fisheye.x; })
+      .attr("y2", function(d) { return d.target.fisheye.y; });
 }
 
 function restart() {
@@ -387,6 +401,17 @@ function restart() {
 
 function mousemove() {
   last_mouse_pos = d3.mouse(this);
+  fisheye.focus(last_mouse_pos);
+  node.each(function(d) { d.fisheye = fisheye(d); })
+      .attr("transform", function(d){
+         return "translate(" + d.fisheye.x + "," + d.fisheye.y + ")";
+      })
+      .attr("r", function(d) { return d.fisheye.z * 4.5; });
+
+  link.attr("x1", function(d) { return d.source.fisheye.x; })
+      .attr("y1", function(d) { return d.source.fisheye.y; })
+      .attr("x2", function(d) { return d.target.fisheye.x; })
+      .attr("y2", function(d) { return d.target.fisheye.y; });
   cursor.attr("transform", "translate(" + last_mouse_pos + ")");
 }
 
