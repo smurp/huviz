@@ -26,7 +26,7 @@ rect {
 .node text {
   font: 7.5px sans-serif;
   pointer-events: none;
-  text-anchor: middle;
+  //text-anchor: middle;
 }
 
 .cursor {
@@ -49,12 +49,25 @@ rect {
   height:1.3em; 
   min-width:7em; 
   background-color:lightgrey; 
-  position:relative; 
-  top:-50; 
-  left:-20; 
+  position:absolute;
+  top:.2em; 
+  left:.2em; 
   z-index:2; 
   float:left; 
   border-width:1
+}
+.search_box:before {
+  content: "Find: ";
+  font-style: italic;
+}
+
+#toggle_links {
+  background-color: lightblue;
+  position:absolute;
+  top: 1.7em;
+  left: .2em;
+  z-index:2;
+  cursor: pointer;
 }
 
 </style>
@@ -62,7 +75,8 @@ rect {
   </head>
   <body>
     <div>
-      <div id="search" class="search_box" contenteditable="true">.</div>
+      <div id="search" class="search_box" contenteditable="true"></div>
+      <div id="toggle_links" class="button" onclick="toggle_links(this)">show all links</div>
       <div id="vis" class="underneath"></div>
     </div>
     <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
@@ -72,13 +86,16 @@ rect {
     <script>
 
 var verbose = true;
-var verbosity = 10;
+var verbosity = 0;
 var COARSE = 10;
 var MODERATE = 20;
+var DEBUG = 40;
 
 if (! verbose){
   console = {'log': function(){}};
 }
+
+
 
 var last_mouse_pos = [0,0];
 var parseAndShow = function(data,textStatus){
@@ -219,9 +236,9 @@ function click_to_toggle_edges(){
 var wpad,hpad = 10;
 var width,height = 0;
 var cx,cy = 0;
-var label_show_range = 100;
+var label_show_range = 70;
 var graph_radius = 100;
-var fisheye_radius = label_show_range;
+var fisheye_radius = label_show_range * 2;
 /////////////////////////////////////////////////////////////////////////////
 // resize-svg-when-window-is-resized-in-d3-js
 //   http://stackoverflow.com/questions/16265123/
@@ -263,7 +280,7 @@ get_window_width();
 update_graph_radius();
 
 
-var fisheye = d3.fisheye.circular().radius(fisheye_radius).distortion(3);
+var fisheye = d3.fisheye.circular().radius(fisheye_radius).distortion(2.2);
 
 // 
 //   http://bl.ocks.org/mbostock/929623
@@ -274,7 +291,7 @@ var force = d3.layout.force()
     .size([width, height])
     .nodes([]) // initialize with no nodes
     .linkDistance(22)
-    .charge(-60)
+    .charge(-50)
     //.gravity(0.1)
     .on("tick", tick);
 
@@ -282,7 +299,6 @@ var svg = d3.select("#vis").append("svg")
     .attr("width", width)
     .attr("height", height)
     .attr("position", "absolute")
-    .attr("top", "0")
     .on("mousemove", mousemove)
     .on("mouseup", click_to_toggle_edges);
 
@@ -299,6 +315,9 @@ var cursor = svg.append("circle")
     .attr("r", 15)
     .attr("transform", "translate("+cx+","+cy+")")
     .attr("class", "cursor");
+
+
+//node.on("doubleclick", function(d){alert(d.s.id);});
 
 restart();
 
@@ -322,8 +341,18 @@ var update_searchterm = function(){
    restart();
 }
 
-set_search_regex('.');
+set_search_regex('');
 $(".search_box").on("input",update_searchterm);
+
+function node_radius_by_links(d) {
+  return 3;
+  return d.links_from ? d.links_from.length : d.in_count || 3;
+  if (d.links_from){
+    return 3;
+  } else {
+    return 5;
+  }
+}
 
 function tick() {
   fisheye.focus(last_mouse_pos);
@@ -336,7 +365,8 @@ function tick() {
       d.fisheye = fisheye(d);
       var x = d.fisheye.x;
       var y = d.fisheye.y;
-      return "translate(" + x + "," + y + ")"; });
+      return "translate(" + x + "," + y + ")"; })
+    .attr("r", node_radius_by_links);
 
   label.attr("style",function(d){
       var name = $(this).text();
@@ -372,19 +402,15 @@ function restart() {
       .call(force.drag);
   
   nodeEnter.append("circle")
-      .attr("r", function(d,i){
-         if (d.links_from){
-           return 8;
-         } else {
-           return 3;
-         }
-      })
+      .attr("r", node_radius_by_links)
       .style("fill", color_by_type);
 
   nodeEnter.append("text")
       .attr("class", "label")
       .attr("style","")
-      .attr("dy", "1em")
+      //.attr("dy", "1em")
+      .attr("dy", ".35em")
+      .attr("dx", ".4em")
       .text(function(d) { 
         var name = ' ';
         try {
@@ -467,14 +493,16 @@ var hide_links_from_node = function(n) {
     n._links_from = [];
     
   }
-  console.log("links.length",links.length);
+  //console.log("links.length",links.length);
   var links_pruned = [];
   for (var l = 0; l < links.length ; l++){
     var link = links[l];
     if ($.inArray(link,n._links_from) == -1){
       links_pruned.push(link);
     } else {
-      console.log('pruning edge',link);
+      if (verbosity >= DEBUG){
+        console.log('pruning edge',link);
+      }
       link.target.in_count--;
       if (! is_node_to_always_show(link.target) && (link.target.in_count <= 0)){
         remove_node(link.target);
@@ -493,7 +521,9 @@ var hide_links_from_node = function(n) {
 }
 
 var remove_node = function(d){
-  console.log('remove_node',d);
+  if (verbosity >= DEBUG){
+    console.log('remove_node',d);
+  }
   var node_idx = d.s._n;
   //delete id2n[subject.id];
   //nodes.
@@ -547,16 +577,17 @@ var make_nodes = function(g,limit){
     limit = limit || 0;
     var count = 0;
     for (subj in g.subjects){
-      console.log(subj,g.subjects[subj]);
+      if (verbosity >= DEBUG){
+        console.log(subj,g.subjects[subj]);
+      }
       if (! subj.match(ids_to_show)) continue;
       var subject = g.subjects[subj];  
-      //console.log(subj);
       make_node_if_missing(subject,[width/2,height/2])
       count++;
       if (limit && count >= limit) break;
-
     }
 };
+
 
 var make_links = function(g,limit){
     limit = limit || 0;
@@ -586,10 +617,10 @@ var showGraph = function(g){
 var orlando_data_uri = "data/test_100.ttl";
 var orlando_data_uri = "data/test_40.ttl";
 //var orlando_data_uri = "data/test_10.ttl";
-var orlando_data_uri = "data/test_20.ttl";
+//var orlando_data_uri = "data/test_20.ttl";
 //var orlando_data_uri = "data/test_5.ttl";
 //var orlando_data_uri = "data/test_2.ttl";
-//var orlando_data_uri = "data/all.ttl";
+//var orlando_data_uri = "data/all2.ttl";
 
 function load_demo(){
   G = {};
@@ -621,6 +652,16 @@ window.addEventListener('load',function(){
    load_demo();
    //await_the_GreenTurtle();
 });
+
+
+var toggle_links = function(){
+  console.log("links",force.links());
+  if (! links.length){
+      make_links(G);
+      restart();
+  }
+  return force.links().length;
+};
 
     </script>
   </body>
