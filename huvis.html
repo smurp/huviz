@@ -241,15 +241,25 @@ function color_by_type(d){
   }
 }
 
+var mousedown_point = [cx,cy];
+function register_mousedown_point(){
+  mousedown_point = d3.mouse(this);
+}
+
+function distance(p1,p2){
+  var x = (p1.x || p1[0]) - (p2.x || p2[0]);
+  var y = (p1.y || p1[1]) - (p2.y || p2[1]);
+  return Math.sqrt(x * x + y * y);
+}
+
 function click_to_toggle_edges(){
   var point = d3.mouse(this);
+  console.log(point,mousedown_point,distance(point,mousedown_point));
+  if (distance(point,mousedown_point) > drag_dist_threshold) return;  // it was a drag, not a click
   var dist = 3;
   // find first node within dist and show edges
   nodes.forEach(function(target) {
-    var x = target.x - point[0],
-        y = target.y - point[1];
-
-    if (Math.sqrt(x * x + y * y) < dist) {
+    if (distance(target,point) < dist) {
        //console.log(point,x,y,target);
        if (target.links_from){
          hide_links_from_node(target);
@@ -270,7 +280,8 @@ var charge = -36;
 var gravity = 0.36;
 var label_show_range = link_distance * 0.9;
 var graph_radius = 100;
-var fisheye_radius = label_show_range * 2;
+var fisheye_radius = label_show_range * 3;
+var drag_dist_threshold = 5;
 /////////////////////////////////////////////////////////////////////////////
 // resize-svg-when-window-is-resized-in-d3-js
 //   http://stackoverflow.com/questions/16265123/
@@ -334,6 +345,7 @@ var svg = d3.select("#vis").append("svg")
     .attr("height", height)
     .attr("position", "absolute")
     .on("mousemove", mousemove)
+    .on("mousedown", register_mousedown_point)
     .on("mouseup", click_to_toggle_edges);
 
 svg.append("rect")
