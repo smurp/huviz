@@ -31,7 +31,7 @@ rect {
 
 .cursor {
   fill: none;
-  stroke: brown;
+  stroke: #eee;
   pointer-events: none;
 }
 
@@ -255,7 +255,10 @@ function distance(p1,p2){
 function click_to_toggle_edges(){
   var point = d3.mouse(this);
   console.log(point,mousedown_point,distance(point,mousedown_point));
-  if (distance(point,mousedown_point) > drag_dist_threshold) return;  // it was a drag, not a click
+  
+  if (distance(point,mousedown_point) > drag_dist_threshold){
+    return;  // it was a drag, not a click
+  }
   var dist = 3;
   // find first node within dist and show edges
   nodes.forEach(function(target) {
@@ -278,7 +281,7 @@ var cx,cy = 0;
 var link_distance = 20;
 var charge = -30;
 var gravity = 0.1;
-var label_show_range = link_distance * 0.9;
+var label_show_range = link_distance * 1.1;
 var graph_radius = 100;
 var fisheye_radius = label_show_range * 5;
 var drag_dist_threshold = 5;
@@ -327,7 +330,7 @@ var fisheye = d3.fisheye.circular().radius(fisheye_radius).distortion(2.8);
 
 // 
 //   http://bl.ocks.org/mbostock/929623
-var nodes, links, node, link;
+var nodes, links, node, link, unlinked_nodez;
 
 var fill = d3.scale.category20();
 
@@ -381,7 +384,7 @@ function reset_graph(){
 reset_graph();
 
 var cursor = svg.append("circle")
-    .attr("r", 15)
+    .attr("r", fisheye_radius)
     .attr("transform", "translate("+cx+","+cy+")")
     .attr("class", "cursor");
 
@@ -510,6 +513,15 @@ function mousemove() {
   cursor.attr("transform", "translate(" + last_mouse_pos + ")");
 }
 
+var get_node_for_linking = function(node_id){
+  /*
+     We find a node either already among the linked nodes
+     or among the unlinked nodes and ensure that it is
+     among the linked nodes.
+   */
+   return nodes[id2n[node_id]];
+};
+
 var find_links_from_node = function(n) {
   var a_node;
   var subj = n.s;
@@ -527,7 +539,7 @@ var find_links_from_node = function(n) {
             }
 
             if (id2n[obj.value]){
-              var t = nodes[id2n[obj.value]];
+              var t = get_node_for_linking(obj.value);
               var edge = {source: n, target: t};
               t.in_count++;
               n.links_from.push(edge);
