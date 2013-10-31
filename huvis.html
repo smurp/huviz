@@ -108,6 +108,8 @@ rect {
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script>
 
+var nodes, links, node, link, unlinked_nodez;
+
 var verbose = true;
 var verbosity = 0;
 var COARSE = 10;
@@ -330,7 +332,6 @@ var fisheye = d3.fisheye.circular().radius(fisheye_radius).distortion(2.8);
 
 // 
 //   http://bl.ocks.org/mbostock/929623
-var nodes, links, node, link, unlinked_nodez;
 
 var fill = d3.scale.category20();
 
@@ -360,6 +361,7 @@ svg.append("rect")
 function reset_graph(){
   id2n = {};
   nodes = [];
+  unlinked_nodez = [];
   links = [];
   force.nodes(nodes);
   $(".link").remove();
@@ -513,13 +515,22 @@ function mousemove() {
   cursor.attr("transform", "translate(" + last_mouse_pos + ")");
 }
 
+var get_linked_or_unlinked_node = function(node_id){
+  return id2u[node_id] || id2n[node_id];
+};
+var node_exists = get_linked_or_unlinked_node;
+
 var get_node_for_linking = function(node_id){
   /*
      We find a node either already among the linked nodes
      or among the unlinked nodes and ensure that it is
      among the linked nodes.
    */
-   return nodes[id2n[node_id]];
+   if (id2u[node_id]){
+     id2n[node_id] = nodes.push(d) - 1;
+     delete id2u[node_id];
+   }
+   if (id2n[node_id]) return nodes[id2n[node_id]];
 };
 
 var find_links_from_node = function(n) {
@@ -605,7 +616,7 @@ var remove_node = function(d){
   if (verbosity >= DEBUG){
     console.log('remove_node',d);
   }
-  var node_idx = d.s._n;
+  // var node_idx = id2n[d.s.id]
   //delete id2n[subject.id];
   //nodes.
 }
@@ -634,23 +645,26 @@ var ids_to_show = start_with_http;
 //var ids_to_show = blank_writers;
 //var ids_to_show = new RegExp("", "ig");
 
-var id2n = {};
+var id2n = {}; // the index of linked nodes (in nodes)
+var id2u = {}; // the index of unlinked nodes (in unlinked_nodez)
 
-var make_node_if_missing = function(subject,start_point){
+var make_node_if_missing = function(subject,start_point,linked){
   // assumes not already in nodes and id2n
   if (! subject) return;  // uhh, no subject
-  if (! (typeof subject._n === 'undefined')){
-       return nodes[subject._n] ; // subject already among nodes
-  }
+  var d = get_linked_or_unlinked_node(subject.id);
+  if (d) return d; // already exist, return it
   start_point = start_point || [width/2, height/2];
-  var d = {x: start_point[0], y: start_point[1], 
-           px: start_point[0]*1.01, py: start_point[1]*1.01, 
-           s:subject, in_count:0};
-  subject.x = width/2;
-  subject.y = height/2;
-  var n_idx = nodes.push(d) - 1;
-  subject._n = n_idx;
-  id2n[subject.id] = n_idx;
+  d = {x: start_point[0], y: start_point[1], 
+       px: start_point[0]*1.01, py: start_point[1]*1.01, 
+       s:subject, in_count:0};
+  linked = true;
+  if (linked){
+    var n_idx = nodes.push(d) - 1;
+    id2n[subject.id] = n_idx;
+  } else {
+    var n_idx = unlinked_nodez.push(d) - 1;
+    id2u[subject.id] = n_idx;    
+  }
   return d;
 }
 
