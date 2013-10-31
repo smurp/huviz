@@ -157,6 +157,7 @@ WP  = Namespace('http://en.wikipedia.org/wiki/')
 ORL = Namespace('http://orlan.do/')
 BLANK = Namespace('http:///')
 BLANK_HACK = False
+BLANK_WRITERS = False # FIXME ideally this would be True so writer ids like _:abdyma
 predicates_to_groups = ['religiousInfluence','connectionToOrganization']
 predicate_to_type = {'childOf':XFN['parent'],
                      'parentOf':XFN['child'],
@@ -240,7 +241,8 @@ class RDFEmitter(FormatEmitter):
                     node = BNode(ID)
             self.store.add((node,FOAF.name,Literal(standard_name)))
             if options.state_the_obvious:
-                self.store.add((node,RDF.type,typ))
+                if typ <> FOAF.Person:
+                    self.store.add((node,RDF.type,typ))
             self.entities[standard_name] = node
         return self.entities[standard_name]
 
@@ -266,7 +268,15 @@ class RDFEmitter(FormatEmitter):
             if standardName == None:
                 print "skipping entry without a standardName"
                 continue
-            writer = self.get_entity(standardName,BRW[entry['ID']],typ=FOAF.Person)
+
+            if BLANK_WRITERS:
+                writer = self.get_entity(
+                    standardName,
+                    BNode(entry['ID']),
+                    typ=FOAF.Person) # BRW normally not BNode
+
+            else:
+                writer = self.get_entity(standardName,BRW[entry['ID']],typ=FOAF.Person)
 
             #if entry.has_key('ID'):
             #    self.store.add((writer,RDF.about,BRW[entry['ID']]))
