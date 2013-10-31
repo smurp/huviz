@@ -1,3 +1,14 @@
+/*
+
+See for inspiration:
+  Collapsible Force Layout
+    http://bl.ocks.org/mbostock/1093130
+  Force-based label placement
+    http://bl.ocks.org/MoritzStefaner/1377729
+  Graph with labeled edges:
+    http://bl.ocks.org/jhb/5955887
+
+ */
 
 var nodes, links, node, link, unlinked_nodez;
 

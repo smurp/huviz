@@ -1,0 +1,70 @@
+
+rect {
+  fill: none;
+  pointer-events: all;
+}
+
+.node circle {
+  fill: #000;
+}
+
+.node text {
+  font: 7.5px sans-serif;
+  pointer-events: none;
+  //text-anchor: middle;
+}
+
+.cursor {
+  fill: none;
+  stroke: #eee;
+  pointer-events: none;
+}
+
+.link {
+  stroke: #CCC;
+}
+
+.underneath {
+  position: absolute; 
+  top: 0; 
+  left: 0;
+}
+#file_picker {
+  position:absolute;
+  top:.2em; 
+  left:.2em; 
+  z-index:2; 
+  float:left;   
+}
+.search_box {
+  height:1.3em; 
+  min-width:7em; 
+  background-color:lightgrey; 
+  position:absolute;
+  top:2em; 
+  left:.2em; 
+  z-index:2; 
+  float:left; 
+  border-width:1
+}
+.search_box:before {
+  content: "Find: ";
+  font-style: italic;
+}
+
+#toggle_links {
+  background-color: lightblue;
+  position:absolute;
+  top: 3.5em;
+  left: .2em;
+  z-index:2;
+  cursor: pointer;
+}
+
+#status {
+  background-color:lightgrey;
+  position:absolute;
+  top: .2em;
+  right: .2em;
+  z-index:2;
+}
