@@ -163,7 +163,7 @@ function distance(p1,p2){
 
 function click_to_toggle_edges(){
   var point = d3.mouse(this);
-  console.log(point,mousedown_point,distance(point,mousedown_point));
+  //console.log(point,mousedown_point,distance(point,mousedown_point));
   
   if (distance(point,mousedown_point) > drag_dist_threshold){
     return;  // it was a drag, not a click
@@ -178,11 +178,19 @@ function click_to_toggle_edges(){
        } else {
          show_links_from_node(target);
        }
+	if (! target.links_to){
+	    show_links_to_node(target);
+	}
     }
   });
 
   restart();
 }
+
+var show_and_hide_links_from_node = function(d){
+    show_links_from_node(d);
+    hide_links_from_node(d);
+};
 
 var wpad,hpad = 10;
 var width,height = 0;
@@ -487,22 +495,39 @@ var build_links_to_nodes_idx = function(){
     //console.log("the Beeb is linked to by",links_to_nodes_idx['_:CN']);
 };
 var find_links_to_node = function(d) {
-    if (! links_to_nodes_idx){
-	build_links_to_nodes_idx();
-    }
+    console.log('find_links_to_node',d);
     var subj = d.s;
     if (subj){
-	return links_to_nodes_idx[subj.id]
+        /*
+	if (! links_to_nodes_idx[subj.id]){
+	    build_links_to_nodes_idx();
+	}
+	*/
+	var parent_point = [d.x,d.y];
+	console.log('parent_point',parent_point);
+	(links_to_nodes_idx[subj.id] || []).forEach(function(sid_pred){
+            console.log('  sid_pred',sid_pred);
+	    var sid = sid_pred[0];
+	    var pred = sid_pred[1];
+	    console.log("  ",sid,pred);
+	    var a_node = make_node_if_missing(G.subjects[sid],parent_point);
+	    var src = get_node_for_linking(sid);
+	    var edge = {source:src, target:d};
+	    d.in_count++; // FIXME d.out_count++ or src.in_incount++ ?
+	    d.links_to.push(edge);
+            links.push(edge);
+	});
     }
 };
 var show_links_to_node = function(n) {
+  console.log('show_links_to_node',n);
   var subj = n.s;
-  if (n._links_from){
-    n.links_from = n._links_from;
-    delete n._links_from;
+  if (n._links_to){
+    n.links_to = n._links_to;
+    delete n._links_to;
   } else {
-    n.links_from = [];
-    find_links_from_node(n);
+    n.links_to = [];
+    find_links_to_node(n);
   }
   for (var i = 0; i < n.links_from.length; i++){
     links.push(n.links_from[i]);
@@ -652,8 +677,9 @@ var make_links = function(g,limit){
 var showGraph = function(g){
   console.log('showGraph');
   make_nodes(g);
+  //show_and_hide_links_from_node(nodes[0]);
   restart();			   
-  
+  build_links_to_nodes_idx();  
   //make_links(g,Math.floor(nodes.length/10));
   //make_links(g);
   restart();
