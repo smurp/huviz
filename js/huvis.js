@@ -302,7 +302,7 @@ function reset_graph(){
 reset_graph();
 
 var cursor = svg.append("circle")
-    .attr("r", fisheye_radius)
+    .attr("r", label_show_range*2)
     .attr("transform", "translate("+cx+","+cy+")")
     .attr("class", "cursor");
 
@@ -429,6 +429,7 @@ function mousemove() {
       .attr("x2", function(d) { return d.target.fisheye.x; })
       .attr("y2", function(d) { return d.target.fisheye.y; });
   cursor.attr("transform", "translate(" + last_mouse_pos + ")");
+  tick();
 }
 
 var get_linked_or_unlinked_node = function(node_id){
