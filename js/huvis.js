@@ -115,6 +115,7 @@ var obj_has_type = function(obj,typ){
 };
 
 var FOAF_Group = 'http://xmlns.com/foaf/0.1/Group';
+var FOAF_name = 'http://xmlns.com/foaf/0.1/name';
 var RDF_Type = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type';
 var RDF_object = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#object';
 var has_type = function(subject,typ){
@@ -184,6 +185,7 @@ function click_to_toggle_edges(){
 	    show_links_to_node(target);
 	}
     }
+    update_linked_flag(target);
   });
 
   restart();
@@ -406,7 +408,7 @@ function restart() {
       .text(function(d) { 
         var name = ' ';
         try {
-          name = d.s.predicates['http://xmlns.com/foaf/0.1/name'].objects[0].value;
+          name = d.s.predicates[FOAF_name].objects[0].value;
         } catch (err) {
           console.log(err);
         }
@@ -452,6 +454,10 @@ var get_node_for_linking = function(node_id){
    if (id2n[node_id]) return nodes[id2n[node_id]];
 };
 
+var update_linked_flag = function(n){
+  n.linked = (n.in_count > 0 || n.out_count > 0);
+};
+
 var find_links_from_node = function(n) {
     var a_node;
     var subj = n.s;
@@ -488,7 +494,7 @@ var build_links_to_nodes_idx = function(){
 		var obj = predicate.objects[oi];
 		if (obj && obj_has_type(obj,RDF_object)){
 		    if (typeof links_to_nodes_idx[obj.value] == 'undefined'){
-			links_to_nodes_idx[obj.value] = [];			
+			links_to_nodes_idx[obj.value] = [];
 		    }
 		    links_to_nodes_idx[obj.value].push([d.s.id,p]);
 		}
@@ -671,7 +677,7 @@ var make_node_if_missing = function(subject,start_point,linked){
   start_point = start_point || [width/2, height/2];
   d = {x: start_point[0], y: start_point[1], 
        px: start_point[0]*1.01, py: start_point[1]*1.01, 
-       s:subject, in_count:0, out_count:0};
+       s:subject, in_count:0, out_count:0, linked:false};
   linked = true;
   if (linked){
     var n_idx = nodes.push(d) - 1;
@@ -769,7 +775,47 @@ window.addEventListener('load',function(){
    //await_the_GreenTurtle();
 });
 
+var hide_node_links = function(node){
+    hide_links_from_node(node);
+    hide_links_to_node(node);
+};
+var hide_found_links = function(){
+  for(var sub_id in G.subjects){
+    var subj = G.subjects[sub_id];
+    subj.getValues('f:name').forEach(function(name){
+      if (name.match(search_regex)){
+          var n_idx = id2n[sub_id];
+          var node  = nodes[n_idx];
+          if (node){
+          //console.log(sub_id,name,id2n[sub_id]);
+            console.log(node);
+            hide_node_links(node);
+          }
+      }
+    });
+  }
+};
 
+var show_node_links = function(node){
+    show_links_from_node(node);
+    show_links_to_node(node);
+};
+var show_found_links = function(){
+  for(var sub_id in G.subjects){
+    var subj = G.subjects[sub_id];
+    subj.getValues('f:name').forEach(function(name){
+      if (name.match(search_regex)){
+          var n_idx = id2n[sub_id];
+          var node  = nodes[n_idx];
+          if (node){
+          //console.log(sub_id,name,id2n[sub_id]);
+            console.log(node);
+            show_node_links(node);
+          }
+      }
+    });
+  }
+};
 var toggle_links = function(){
   console.log("links",force.links());
   if (! links.length){
