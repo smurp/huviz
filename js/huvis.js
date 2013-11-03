@@ -10,7 +10,7 @@ See for inspiration:
 
  */
 
-var nodes, links, node, link, unlinked_nodez, links_to_nodes_idx;
+var nodes, links, node, link, unlinked_nodez;
 
 var verbose = true;
 var verbosity = 0;
@@ -30,7 +30,7 @@ var parseAndShow = function(data,textStatus){
   console.log('parsing');
   var msg = "data was "+data.length+" bytes";
   var parse_start_time = new Date();
-  G = GreenTurtle.implementation.parse(data,'text/turtle');
+  G = GreenerTurtle(GreenTurtle).parse(data,'text/turtle');
   var parse_end_time = new Date();
   var parse_time = (parse_end_time - parse_start_time) / 1000;
   var siz = roughSizeOfObject(G);
@@ -281,7 +281,6 @@ function reset_graph(){
   id2n = {};
   nodes = [];
   unlinked_nodez = [];
-  links_to_nodes_idx = {};
   links = [];
   force.nodes(nodes);
   $(".link").remove();
@@ -358,7 +357,7 @@ function tick() {
   var n_nodes = nodes.length;
   node.attr("transform", function(d,i) { 
       if (! d.linked){
-          var rad = 6.2832 * i / n_nodes;
+          var rad = 6.2832 * i / n_nodes + 3.14159;
 	  d.x = cx + Math.sin(rad) * graph_radius;
 	  d.y = cy + Math.cos(rad) * graph_radius;
 	  //d.fixed = true;
@@ -462,8 +461,41 @@ var get_node_for_linking = function(node_id){
 };
 
 var update_linked_flag = function(n){
-  n.linked = (n.in_count > 0 || n.out_count > 0);
+  n.linked = (
+      //n.in_count > 0 || 
+      //n.out_count > 0 || 
+      (n.links_from && n.links_from.length) ||
+      (n.links_to && n.links_to.length)
+             );
   n.fixed = ! n.linked;
+  var name = n.s.predicates[FOAF_name].objects[0].value;
+  name = "in:" +n.in_count + " out:" +n.out_count + "  " + name;
+  console.log(name);
+};
+var add_link = function(e){
+  links.push(e);
+  if (! e.source.links_from) e.source.links_from = [];
+  if (! e.target.links_to) e.target.links_to = [];
+  e.source.out_count = e.source.links_from.push(e);
+  e.target.in_count = e.target.links_to.push(e);
+  update_linked_flag(e.source);
+  update_linked_flag(e.target);
+  restart();
+};
+var remove_from = function(doomed,array){
+    var idx = array.find(doomed);
+    if (idx > -1){
+	array.splice(idx,1);
+    }
+};
+var remove_link = function(e){
+  if (! e.source.links_from) e.source.links_from = [];
+  if (! e.target.links_to) e.target.links_to = [];
+  remove_from(e,e.target.links_to);
+  remove_from(e,e.source.links_from);
+  remove_from(e,links);
+  update_linked_flag(e.source);
+  update_linked_flag(e.target);
 };
 
 var find_links_from_node = function(n) {
@@ -485,8 +517,12 @@ var find_links_from_node = function(n) {
 		if (id2n[obj.value]){
 		    var t = get_node_for_linking(obj.value);
 		    var edge = {source: n, target: t};
-		    t.in_count++;
-		    n.links_from.push(edge);
+		    //t.in_count++;
+		    //n.out_count++;
+		    //n.links_from.push(edge);
+		    add_link(edge);
+		    //update_linked_flag(t);
+                    //update_linked_flag(n);
 		}
             }
 	    //console.log(p,"==>",predicate);
@@ -494,37 +530,15 @@ var find_links_from_node = function(n) {
     }
 };
 
-var build_links_to_nodes_idx = function(){
-    nodes.forEach(function(d){
-	for (p in d.s.predicates){
-	    var predicate = d.s.predicates[p]; 
-	    for (oi = 0; oi < predicate.objects.length; oi++){
-		var obj = predicate.objects[oi];
-		if (obj && obj_has_type(obj,RDF_object)){
-		    if (typeof links_to_nodes_idx[obj.value] == 'undefined'){
-			links_to_nodes_idx[obj.value] = [];
-		    }
-		    links_to_nodes_idx[obj.value].push([d.s.id,p]);
-		}
-            }    
-	}
-    })
-    //console.log("the Beeb is linked to by",links_to_nodes_idx['_:CN']);
-};
 var find_links_to_node = function(d) {
   if (verbosity >= DEBUG){   
     console.log('find_links_to_node',d);
   }
     var subj = d.s;
     if (subj){
-        /*
-	if (! links_to_nodes_idx[subj.id]){
-	    build_links_to_nodes_idx();
-	}
-	*/
 	var parent_point = [d.x,d.y];
 	//console.log('parent_point',parent_point);
-	(links_to_nodes_idx[subj.id] || []).forEach(function(sid_pred){
+	G.get_incoming_predicates().forEach(function(sid_pred){
             //console.log('  sid_pred',sid_pred);
 	    var sid = sid_pred[0];
 	    var pred = sid_pred[1];
@@ -532,9 +546,12 @@ var find_links_to_node = function(d) {
 	    var a_node = make_node_if_missing(G.subjects[sid],parent_point);
 	    var src = get_node_for_linking(sid);
 	    var edge = {source:src, target:d};
-	    d.in_count++; // FIXME d.out_count++ or src.in_incount++ ?
-	    d.links_to.push(edge);
-            links.push(edge);
+	    //d.in_count++; // FIXME d.out_count++ or src.in_incount++ ?
+	    //d.links_to.push(edge);
+            add_link(edge);
+            //links.push(edge);
+	    //update_linked_flag(d);
+	    //update_linked_flag(src);
 	});
     }
 };
@@ -581,8 +598,9 @@ var hide_links_to_node = function(n) {
       if (verbosity >= DEBUG){
         //console.log('pruning edge',link);
       }
-      link.target.out_count--;
-      links.splice(l,1);
+      remove_link(link);
+      //link.target.out_count--;
+      //links.splice(l,1);
       if (! is_node_to_always_show(link.target) && (link.target.out_count <= 0)){
         remove_node(link.target);
       }
@@ -735,7 +753,6 @@ var showGraph = function(g){
   make_nodes(g);
   //show_and_hide_links_from_node(nodes[0]);
   restart();			   
-  build_links_to_nodes_idx();  
   //make_links(g,Math.floor(nodes.length/10));
   //make_links(g);
   restart();
