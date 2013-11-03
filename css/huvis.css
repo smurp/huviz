@@ -52,10 +52,18 @@ rect {
   font-style: italic;
 }
 
-#toggle_links {
+#show_links {
   background-color: lightblue;
   position:absolute;
   top: 3.5em;
+  left: .2em;
+  z-index:2;
+  cursor: pointer;
+}
+#hide_links {
+  background-color: lightblue;
+  position:absolute;
+  top: 5em;
   left: .2em;
   z-index:2;
   cursor: pointer;

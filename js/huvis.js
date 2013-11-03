@@ -788,8 +788,9 @@ var hide_found_links = function(){
           var node  = nodes[n_idx];
           if (node){
           //console.log(sub_id,name,id2n[sub_id]);
-            console.log(node);
+          //console.log(node);
             hide_node_links(node);
+            restart();
           }
       }
     });
@@ -809,8 +810,9 @@ var show_found_links = function(){
           var node  = nodes[n_idx];
           if (node){
           //console.log(sub_id,name,id2n[sub_id]);
-            console.log(node);
+          //console.log(node);
             show_node_links(node);
+            restart();
           }
       }
     });
