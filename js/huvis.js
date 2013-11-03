@@ -13,7 +13,7 @@ See for inspiration:
 var nodes, links, node, link, unlinked_nodez, links_to_nodes_idx;
 
 var verbose = true;
-var verbosity = 0;
+var verbosity = 60;
 var COARSE = 10;
 var MODERATE = 20;
 var DEBUG = 40;
@@ -178,7 +178,9 @@ function click_to_toggle_edges(){
        } else {
          show_links_from_node(target);
        }
-	if (! target.links_to){
+	if (target.links_to){
+	   // hide_links_to_node(target);
+	} else {
 	    show_links_to_node(target);
 	}
     }
@@ -535,6 +537,56 @@ var show_links_to_node = function(n) {
   }
   restart();  
 };
+var hide_links_to_node = function(n) {
+  var subj = n.s;
+  if (n.links_to){
+    n._links_to = n.links_to;
+    delete n.links_to;
+  } else {
+    n._links_to = [];
+  }
+  //console.log("links.length",links.length);
+  for (var l = links.length - 1; l > 0 ; l--){
+    var link = links[l];
+    if ($.inArray(link,n._links_to) == -1){
+      //link.source.out_count--;
+      links.unshift(l);
+    } else {
+      if (verbosity >= DEBUG){
+        console.log('pruning edge',link);
+      }
+
+      if (! is_node_to_always_show(link.target) && (link.target.in_count <= 0)){
+        remove_node(link.target);
+      }
+    }
+  }
+  if (verbosity >= MODERATE){
+    console.log("=========hide_links_to_node",n);
+    console.log("links.length",links.length)
+    console.log("links_pruned.length",links_pruned.length);
+  }
+  links = links_pruned;
+  force.links(links);
+  console.log("links.length",links.length)
+  restart();
+
+
+
+  console.log('hide_links_to_node',n);
+  var subj = n.s;
+  if (n._links_to){
+    n.links_to = n._links_to;
+    delete n._links_to;
+  } else {
+    n.links_to = [];
+    find_links_to_node(n);
+  }
+  for (var i = 0; i < n.links_from.length; i++){
+    links.push(n.links_from[i]);
+  }
+  restart();  
+};
 
 
 var show_links_from_node = function(n) {
@@ -559,19 +611,16 @@ var hide_links_from_node = function(n) {
     delete n.links_from;
   } else {
     n._links_from = [];
-    
   }
-  //console.log("links.length",links.length);
-  var links_pruned = [];
-  for (var l = 0; l < links.length ; l++){
+  console.log("links.length",links.length);
+  for (var l = links.length - 1; l >= 0 ; l--){
     var link = links[l];
-    if ($.inArray(link,n._links_from) == -1){
-      links_pruned.push(link);
-    } else {
+    if ($.inArray(link,n._links_from) > -1){ // if link in n._links_from
       if (verbosity >= DEBUG){
         console.log('pruning edge',link);
       }
       link.target.in_count--;
+      links.splice(l,1);
       if (! is_node_to_always_show(link.target) && (link.target.in_count <= 0)){
         remove_node(link.target);
       }
@@ -580,11 +629,9 @@ var hide_links_from_node = function(n) {
   if (verbosity >= MODERATE){
     console.log("=========hide_links_from_node",n);
     console.log("links.length",links.length)
-    console.log("links_pruned.length",links_pruned.length);
+    //console.log("links_pruned.length",links_pruned.length);
   }
-  links = links_pruned;
   force.links(links);
-  console.log("links.length",links.length)
   restart();
 }
 
