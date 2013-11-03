@@ -185,7 +185,7 @@ function click_to_toggle_edges(){
 	    show_links_to_node(target);
 	}
     }
-    update_linked_flag(target);
+    console.log(update_linked_flag(target));
   });
 
   restart();
@@ -462,17 +462,21 @@ var get_node_for_linking = function(node_id){
 
 var update_linked_flag = function(n){
   n.linked = (
-      //n.in_count > 0 || 
-      //n.out_count > 0 || 
+      n.in_count > 0 || 
+      n.out_count > 0 || 
       (n.links_from && n.links_from.length) ||
       (n.links_to && n.links_to.length)
              );
+
   n.fixed = ! n.linked;
   var name = n.s.predicates[FOAF_name].objects[0].value;
   name = "in:" +n.in_count + " out:" +n.out_count + "  " + name;
-  console.log(name);
+  //console.log(n);
+  if (n.in_count < 0 || n.out_count < 0) {throw name};
+  return name;
 };
 var add_link = function(e){
+  if (links.indexOf(e) > -1) return;  // already present
   links.push(e);
   if (! e.source.links_from) e.source.links_from = [];
   if (! e.target.links_to) e.target.links_to = [];
@@ -483,12 +487,13 @@ var add_link = function(e){
   restart();
 };
 var remove_from = function(doomed,array){
-    var idx = array.find(doomed);
+    var idx = array.indexOf(doomed);
     if (idx > -1){
 	array.splice(idx,1);
     }
 };
 var remove_link = function(e){
+  if (links.indexOf(e) == -1) return; // not present
   if (! e.source.links_from) e.source.links_from = [];
   if (! e.target.links_to) e.target.links_to = [];
   remove_from(e,e.target.links_to);
@@ -705,7 +710,7 @@ var make_node_if_missing = function(subject,start_point,linked){
   linked = typeof linked === 'undefined' || false;
   d = {x: start_point[0], y: start_point[1], 
        px: start_point[0]*1.01, py: start_point[1]*1.01, 
-       s:subject, in_count:0, out_count:0, linked:linked};
+       s:subject, in_count:0, out_count:0, linked:false};
   if (true){ 
     var n_idx = nodes.push(d) - 1;
     id2n[subject.id] = n_idx;
