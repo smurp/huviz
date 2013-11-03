@@ -226,7 +226,7 @@ var get_window_height = function(pad){
   //console.log('height',height);
 }
 var update_graph_radius = function(){
-  graph_radius = Math.floor(Math.min(width/2,height/2));
+    graph_radius = Math.floor(Math.min(width/2,height/2)) * .9;
 };
 function updateWindow(){
     get_window_width();
@@ -355,7 +355,14 @@ function tick() {
       .attr("x2", function(d) { return d.target.x; })
       .attr("y2", function(d) { return d.target.y; });
 
+  var n_nodes = nodes.length;
   node.attr("transform", function(d,i) { 
+      if (! d.linked){
+          var rad = 6.2832 * i / n_nodes;
+	  d.x = cx + Math.sin(rad) * graph_radius;
+	  d.y = cy + Math.cos(rad) * graph_radius;
+	  //d.fixed = true;
+      }
       d.fisheye = fisheye(d);
       var x = d.fisheye.x;
       var y = d.fisheye.y;
@@ -456,6 +463,7 @@ var get_node_for_linking = function(node_id){
 
 var update_linked_flag = function(n){
   n.linked = (n.in_count > 0 || n.out_count > 0);
+  n.fixed = ! n.linked;
 };
 
 var find_links_from_node = function(n) {
@@ -580,6 +588,7 @@ var hide_links_to_node = function(n) {
       }
     }
   }
+  update_linked_flag(n);
   force.links(links);
   //console.log("  links.length",links.length)
   restart();
@@ -675,17 +684,18 @@ var make_node_if_missing = function(subject,start_point,linked){
   var d = get_linked_or_unlinked_node(subject.id);
   if (d) return d; // already exist, return it
   start_point = start_point || [width/2, height/2];
+  linked = typeof linked === 'undefined' || false;
   d = {x: start_point[0], y: start_point[1], 
        px: start_point[0]*1.01, py: start_point[1]*1.01, 
-       s:subject, in_count:0, out_count:0, linked:false};
-  linked = true;
-  if (linked){
+       s:subject, in_count:0, out_count:0, linked:linked};
+  if (true){ 
     var n_idx = nodes.push(d) - 1;
     id2n[subject.id] = n_idx;
   } else {
     var n_idx = unlinked_nodez.push(d) - 1;
     id2u[subject.id] = n_idx;    
   }
+  update_linked_flag(d);
   return d;
 }
 
@@ -778,6 +788,8 @@ window.addEventListener('load',function(){
 var hide_node_links = function(node){
     hide_links_from_node(node);
     hide_links_to_node(node);
+    //node.linked = false;
+
 };
 var hide_found_links = function(){
   for(var sub_id in G.subjects){
