@@ -11,7 +11,7 @@ See for inspiration:
  */
 
 var nodes, links, node, link, unlinked_nodez;
-
+var nearest_node;
 var verbose = true;
 var verbosity = 9;
 var TEMP = 5;
@@ -170,28 +170,25 @@ function click_to_toggle_edges(){
   if (distance(point,mousedown_point) > drag_dist_threshold){
     return;  // it was a drag, not a click
   }
-  var dist = 3;
-  // find first node within dist and show edges
-  nodes.forEach(function(target) {
-    if (distance(target,point) < dist) {
-       //console.log(point,x,y,target);
-       if (target.links_from && target.links_from.length){
-         hide_links_from_node(target);
-	 //  return;
-       } else {
-         show_links_from_node(target);
-         //  return;
-       }
-	if (target.links_to && target.links_to.length){
-	    hide_links_to_node(target);
-	} else {
-	    show_links_to_node(target);
-	}
-    }
-    update_linked_flag(target);
-    //console.log();
-  });
 
+  if (nearest_node){
+      var target = nearest_node;
+      if (target.links_from && target.links_from.length){
+          hide_links_from_node(target);
+	  //  return;
+      } else {
+          show_links_from_node(target);
+          //  return;
+      }
+      if (target.links_to && target.links_to.length){
+	  hide_links_to_node(target);
+      } else {
+	  show_links_to_node(target);
+      }
+      update_linked_flag(target);
+  }
+
+    //console.log();
   restart();
 }
 
@@ -205,10 +202,11 @@ var width,height = 0;
 var cx,cy = 0;
 var link_distance = 20;
 var charge = -30;
-var gravity = 0.1;
+var gravity = 0.3;
 var label_show_range = link_distance * 1.1;
 var graph_radius = 100;
 var fisheye_radius = label_show_range * 5;
+var focus_radius = label_show_range;
 var drag_dist_threshold = 5;
 /////////////////////////////////////////////////////////////////////////////
 // resize-svg-when-window-is-resized-in-d3-js
@@ -362,6 +360,34 @@ function tick() {
         l.geometry.vertices[1].y = d.target.y * ymult + cy;
     });
   }
+
+  var new_nearest_node;
+  var new_nearest_idx;
+  var focus_threshold = focus_radius * 1;
+  var close_nodes = [];
+  node.each(function(d,i) {
+      var dist = distance(d,last_mouse_pos);
+      if (dist <= focus_threshold){
+          new_nearest_node = d;
+          focus_threshold = dist;
+          new_nearest_idx = i;
+      }
+  });
+  if (nearest_node != new_nearest_node){
+      if (nearest_node){
+        d3.select('.nearest_node').classed('nearest_node',false);
+      }
+    
+      if (new_nearest_node){ 
+          d3.select(node[0][new_nearest_idx]).classed('nearest_node',true);
+	  
+          if (verbosity >= DEBUG) {
+            console.log("new nearest_node:",new_nearest_node.s.id);
+          }
+      }
+  }
+  nearest_node = new_nearest_node;  // possibly null
+
   link.attr("x1", function(d) { return d.source.x; })
       .attr("y1", function(d) { return d.source.y; })
       .attr("x2", function(d) { return d.target.x; })
@@ -579,7 +605,7 @@ var find_links_to_node = function(d) {
     }
 };
 var show_links_to_node = function(n) {
-  if (verbosity >= TEMP){
+  if (verbosity >= DEBUG){
     console.log("========= show_links_to_node",{
 	  n:n,
           _links_to:n._links_to,
@@ -601,7 +627,7 @@ var show_links_to_node = function(n) {
   restart();  
 };
 var hide_links_to_node = function(n) {
-  if (verbosity >= TEMP){
+  if (verbosity >= DEBUG){
     console.log("========= hide_links_to_node",{
 	n:n,
 	_links_to:n._links_to,
@@ -692,22 +718,6 @@ var remove_node = function(d){
   //nodes.
 }
 
-var click_to_make_nodes_and_edges = function(){
-  var point = d3.mouse(this),
-      node = {x: point[0], y: point[1]},
-      n = nodes.push(node);
-
-  // add links to any nearby nodes
-  nodes.forEach(function(target) {
-    var x = target.x - node.x,
-        y = target.y - node.y;
-    if (Math.sqrt(x * x + y * y) < 30) {
-      links.push({source: node, target: target});
-    }
-  });
-
-  restart();
-};
 
 var G = {};
 var start_with_http = new RegExp("http", "ig");

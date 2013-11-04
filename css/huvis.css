@@ -14,6 +14,11 @@ rect {
   //text-anchor: middle;
 }
 
+.nearest_node text {
+  font: 9px sans-serif;
+  fill: #f00
+}
+
 .cursor {
   fill: none;
   stroke: #eee;
