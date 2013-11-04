@@ -2,20 +2,29 @@
 <html>
   <head>
     <title>Test Your Turtle</title>
-    <script src="lib/RDFaProcessor.1.2.0.js" charset="utf-8"></script>
+    <link href="/css/huvis.css" rel="stylesheet" type="text/css">
+    <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
+    <script src="lib/fisheye.js" charset="utf-8"></script>
+    <script src="lib/RDFa.min.1.2.0.js" charset="utf-8"></script>
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script src="js/greener_turtle.js" charset="utf-8"> </script>
+    <script src="js/huvis.js" charset="utf-8"> </script>
     <script >
-      var my_graph = {};
+      var verbosity = 100;
+      var G = {};
       var snarf = function(){
         var src_str = document.getElementById('src').value;
         console.log('about to parse');
-        console.log(src_str);
-        my_graph = GreenTurtle.implementation.parse(src_str,'text/turtle');
-        console.log(my_graph);
-        document.getElementById('out').value = my_graph.toString();
+        //console.log(src_str);
+        G = GreenTurtle.implementation.parse(src_str,'text/turtle');
+        showGraph(G);
+        //console.log(G);
+        document.getElementById('out').value = G.toString();
       }
     </script>
   </head>
   <body>
+    <div id="vis" class="underneath"></div>
     <P>
       <p>Enter some TTL (Turtle) and then press 
         <span style="background-color:lightgreen" 
@@ -43,7 +52,7 @@ o:abdyma f:hasMom _:a  .
       </td></tr></table>
     </P>
     By <a href="http://smurp.com/">Shawn Murphy</a><br>
-    Powered by the Green-Turtle <a href="https://code.google.com/p/green-turtle/wiki/API"></a>
+    Powered by <a href="https://code.google.com/p/green-turtle/wiki/API">Green Turtle</a> and <a href="http://d3js.org/">D3</a>.
 
     <textarea id="src" cols="50" rows="20" style="display:none">
 _:c14n0 <http://xmlns.com/foaf/0.1/homepage> <http://manu.sporny.org/> .

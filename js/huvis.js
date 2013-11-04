@@ -185,7 +185,8 @@ function click_to_toggle_edges(){
 	    show_links_to_node(target);
 	}
     }
-    console.log(update_linked_flag(target));
+    update_linked_flag(target);
+    //console.log();
   });
 
   restart();
@@ -349,6 +350,15 @@ function node_radius_by_links(d) {
 
 function tick() {
   fisheye.focus(last_mouse_pos);
+  if (typeof xmult != 'undefined'){ // if huvisgl is commented out then we do not update WebGL
+    links.forEach(function(d){
+        var l = d.line;
+        l.geometry.vertices[0].x = d.source.x * xmult - cx;
+        l.geometry.vertices[1].x = d.target.x * xmult - cx;
+        l.geometry.vertices[0].y = d.source.y * ymult + cy;
+        l.geometry.vertices[1].y = d.target.y * ymult + cy;
+    });
+  }
   link.attr("x1", function(d) { return d.source.x; })
       .attr("y1", function(d) { return d.source.y; })
       .attr("x2", function(d) { return d.target.x; })
@@ -388,7 +398,18 @@ function restart() {
   link = link.data(links);
   
   link.enter().insert("line", ".node")
-      .attr("class", "link");
+	.attr("class", function(d){
+            if (typeof xmult != 'undefined'){ // if huvisgl is commented out then we do not update WebGL
+               var l = add_line(scene,
+		                d.source.x,d.source.y,
+                                d.target.x,d.target.y,
+                                d.source.s.id + " - " + d.target.s.id
+		    );
+               d.line = line;
+            }
+            //console.log(l.geometry.vertices[0].x,l.geometry.vertices[1].x);
+	    return "link";
+	});
 
   link.exit().remove()
 
@@ -469,7 +490,12 @@ var update_linked_flag = function(n){
              );
 
   n.fixed = ! n.linked;
-  var name = n.s.predicates[FOAF_name].objects[0].value;
+  var name;
+  try {
+     name = n.s.predicates[FOAF_name].objects[0].value;
+  } catch(e){
+      name = "";
+  }
   name = "in:" +n.in_count + " out:" +n.out_count + "  " + name;
   //console.log(n);
   if (n.in_count < 0 || n.out_count < 0) {throw name};
@@ -763,15 +789,6 @@ var showGraph = function(g){
   restart();
 };
 
-var orlando_data_uri = "data/test_100.ttl";
-var orlando_data_uri = "data/test_40.ttl";
-//var orlando_data_uri = "data/test_10.ttl";
-//var orlando_data_uri = "data/test_20.ttl";
-//var orlando_data_uri = "data/test_5.ttl";
-//var orlando_data_uri = "data/test_2.ttl";
-//var orlando_data_uri = "data/all.ttl";
-//var orlando_data_uri = "http://www.w3.org/TeamSubmission/turtle/example2.ttl";
-//var orlando_data_uri = "http://www.w3.org/TeamSubmission/turtle/example1.ttl";
 
 function load_file(){
   reset_graph();
@@ -853,7 +870,7 @@ var show_found_links = function(){
   }
 };
 var toggle_links = function(){
-  console.log("links",force.links());
+  //console.log("links",force.links());
   if (! links.length){
       make_links(G);
       restart();
