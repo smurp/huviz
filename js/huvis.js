@@ -13,7 +13,8 @@ See for inspiration:
 var nodes, links, node, link, unlinked_nodez;
 
 var verbose = true;
-var verbosity = 0;
+var verbosity = 9;
+var TEMP = 5;
 var COARSE = 10;
 var MODERATE = 20;
 var DEBUG = 40;
@@ -174,12 +175,14 @@ function click_to_toggle_edges(){
   nodes.forEach(function(target) {
     if (distance(target,point) < dist) {
        //console.log(point,x,y,target);
-       if (target.links_from){
+       if (target.links_from && target.links_from.length){
          hide_links_from_node(target);
+	 //  return;
        } else {
          show_links_from_node(target);
+         //  return;
        }
-	if (target.links_to){
+	if (target.links_to && target.links_to.length){
 	    hide_links_to_node(target);
 	} else {
 	    show_links_to_node(target);
@@ -587,7 +590,7 @@ var find_links_to_node = function(d) {
     }
 };
 var show_links_to_node = function(n) {
-  if (verbosity >= DEBUG){
+  if (verbosity >= TEMP){
     console.log("========= show_links_to_node",{
 	  n:n,
           _links_to:n._links_to,
@@ -609,7 +612,7 @@ var show_links_to_node = function(n) {
   restart();  
 };
 var hide_links_to_node = function(n) {
-  if (verbosity >= DEBUG){
+  if (verbosity >= TEMP){
     console.log("========= hide_links_to_node",{
 	n:n,
 	_links_to:n._links_to,
