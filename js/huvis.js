@@ -8,12 +8,16 @@ See for inspiration:
   Graph with labeled edges:
     http://bl.ocks.org/jhb/5955887
 
+Lariat -- around the graph, the rope of nodes which serves as reorderable menu
+Hoosegow -- a jail to contain nodes one does not want to be bothered by
+
  */
 
 var nodes, links, node, link, unlinked_nodez;
 var nearest_node;
+var label_all_graphed_nodes = false; // keep synced with html
 var verbose = true;
-var verbosity = 9;
+var verbosity = 0;
 var TEMP = 5;
 var COARSE = 10;
 var MODERATE = 20;
@@ -409,7 +413,9 @@ function tick() {
 
   label.attr("style",function(d){
       var name = $(this).text();
-      if (dist_lt(last_mouse_pos,d,label_show_range) || name.match(search_regex)){
+      if (dist_lt(last_mouse_pos,d,label_show_range) 
+          || name.match(search_regex) 
+          || label_all_graphed_nodes && d.linked){
         return "";
       } else {
         return "display:none";
@@ -500,13 +506,12 @@ var get_node_for_linking = function(node_id){
 };
 
 var update_linked_flag = function(n){
-  n.linked = (
+  n.linked = 
       n.in_count > 0 || 
       n.out_count > 0 || 
       (n.links_from && n.links_from.length) ||
-      (n.links_to && n.links_to.length)
-             );
-
+      (n.links_to && n.links_to.length) ||
+      false;
   n.fixed = ! n.linked;
   var name;
   try {
@@ -514,6 +519,7 @@ var update_linked_flag = function(n){
   } catch(e){
       name = "";
   }
+  console.log("linked:",n.linked,name);
   name = "in:" +n.in_count + " out:" +n.out_count + "  " + name;
   //console.log(n);
   if (n.in_count < 0 || n.out_count < 0) {throw name};
@@ -738,7 +744,8 @@ var make_node_if_missing = function(subject,start_point,linked){
   linked = typeof linked === 'undefined' || false;
   d = {x: start_point[0], y: start_point[1], 
        px: start_point[0]*1.01, py: start_point[1]*1.01, 
-       s:subject, in_count:0, out_count:0, linked:false};
+       linked:false, // in the graph as opposed to the lariat or hoosegow
+       s:subject, in_count:0, out_count:0};
   if (true){ 
     var n_idx = nodes.push(d) - 1;
     id2n[subject.id] = n_idx;
@@ -879,7 +886,10 @@ var toggle_links = function(){
   }
   return force.links().length;
 };
-
+var toggle_label_display = function(){
+  label_all_graphed_nodes = ! label_all_graphed_nodes;
+  tick();
+};
 var clear_box = function(){
   $("#status").text('');
 };
