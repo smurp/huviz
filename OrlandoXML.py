@@ -3,22 +3,19 @@ __version__='0.0.1'
 __doc__ = """
 OrlandoXML.py is a tool for manipulating the XML files for the Orlando project.
 
-
-pycli.py is python boilerplate code written by
-Shawn Murphy<smurp@smurp.com> to act as a starting point for his
-command-line programs.  It offers basic features such as:
-  - doctest testing
-  - automatic manual creation
-  - version inspection
 """
 
 import sys
-
 # solve the "ordinal not in range(128)" problem
 reload(sys) # http://demongin.org/blog/808/
 sys.setdefaultencoding('utf-8')
 
+from rdflib import Graph, Literal, BNode, RDF
+from rdflib.namespace import FOAF, DC
+store = Graph()
+
 from bs4 import BeautifulSoup
+from tagtree import load_TagTree
 
 def read_xml(options):
     return BeautifulSoup(open(options.infile))
@@ -34,7 +31,22 @@ def prettify(options,soup):
     with open(options.outfile,'w') as f:
         f.write(soup.prettify())
 
-def export_json(options,soup):
+tag_to_class = dict(name="Person",
+                    orgname="Organization",
+                    )
+
+def preamble(options):
+    orl_root = 'http://orlan.do/'
+    store.bind('r',orl_root+'rel/')
+    store.bind('w',orl_root+'writer/')
+    store.bind('p',orl_root+'people/')
+    store.bind('g',orl_root+'geog/')
+    store.bind('i',orl_root+'inst/')
+    store.bind('w',orl_root+'work/')
+    store.bind('f',orl_root+'f/')
+    
+def export_ttl(options,soup):
+    reltags = get_RelationalTagSet(options)
     semtags = get_SemanticTagSet(options)
     structags = get_StructuralTagSet(options)
     if True:
@@ -56,7 +68,7 @@ def export_json(options,soup):
                 #print dir(child)
                 # When child.name == None then that means child is a TEXT node
                 # eg in "<I>boo</I>" when the child is 'boo' then .name == None
-                if child.name in semtags:
+                if child.name in reltags:
                     print "  " * len(list(child.parents)),child.name
                 #print child.name, "=" * 100
                 #print child
@@ -70,8 +82,9 @@ def export_json(options,soup):
                 break 
         print entry
 
-def get_RelationalContextTagSet(options):
-    load_TagTree(options.tagtree)
+def get_RelationalTagSet(options,
+                         kwargs=dict(trans = lambda a: a.lower())):
+    return set(load_TagTree(options.tagtree).get_tags(**kwargs))
 
 def get_SemanticTagSet(options,**kwargs):
     return get_TagSet_by(options,'1',**kwargs)
@@ -185,5 +198,5 @@ if __name__ == "__main__":
     
     if options.outfile.endswith('.json'):
         print "EXPORTING",options.outfile
-        export_json(options,soup)
+        export_ttl(options,soup)
     
