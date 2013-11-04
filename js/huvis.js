@@ -457,12 +457,13 @@ function mousemove() {
          return "translate(" + d.fisheye.x + "," + d.fisheye.y + ")";
       })
       .attr("r", function(d) { return d.fisheye.z * 4.5; });
-
+  cursor.attr("transform", "translate(" + last_mouse_pos + ")");
+  /*
   link.attr("x1", function(d) { return d.source.fisheye.x; })
       .attr("y1", function(d) { return d.source.fisheye.y; })
       .attr("x2", function(d) { return d.target.fisheye.x; })
       .attr("y2", function(d) { return d.target.fisheye.y; });
-  cursor.attr("transform", "translate(" + last_mouse_pos + ")");
+  */
   tick();
 }
 
