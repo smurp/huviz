@@ -353,6 +353,14 @@ function node_radius_by_links(d) {
   }
 }
 
+function dump_details(d){
+    console.log("\\dump_details ======================");
+    console.log("  ",d.name);
+    console.log("  ",d.in_count, d.links_to && d.links_to.length || d.links_to);
+    console.log("  ",d.out_count, d.links_from && d.links_from.length || d.links_from);
+    console.log("/dump_details ======================");
+}
+
 function tick() {
   fisheye.focus(last_mouse_pos);
   if (typeof xmult != 'undefined'){ // if huvisgl is commented out then we do not update WebGL
@@ -381,17 +389,16 @@ function tick() {
       if (nearest_node){
         d3.select('.nearest_node').classed('nearest_node',false);
       }
-    
       if (new_nearest_node){ 
           d3.select(node[0][new_nearest_idx]).classed('nearest_node',true);
-	  
+	  dump_details(new_nearest_node)
           if (verbosity >= DEBUG) {
             console.log("new nearest_node:",new_nearest_node.s.id);
           }
       }
   }
   nearest_node = new_nearest_node;  // possibly null
-
+  
   link.attr("x1", function(d) { return d.source.x; })
       .attr("y1", function(d) { return d.source.y; })
       .attr("x2", function(d) { return d.target.x; })
@@ -505,6 +512,43 @@ var get_node_for_linking = function(node_id){
    if (id2n[node_id]) return nodes[id2n[node_id]];
 };
 
+var sort_nodes_by_name = function(a,b){
+    if (! a.name){
+	try {a.name = a.s.predicates[FOAF_name].objects[0].value;}
+	catch(e) {a.name = a.s.id;}
+    }
+    if (! b.name){
+	try {b.name = b.s.predicates[FOAF_name].objects[0].value;}
+    catch(e) {b.name = b.s.id;}
+    }
+    if (a.name == b.name){
+	return 0;
+    } else if (a.name > b.name){
+	return 1;
+    } else {
+	return -1
+    }
+}
+
+var sort_by_current_sort_order = function(arr){
+    return arr.sort(sort_nodes_by_name);
+};
+
+var INCOMPLETE_insert_into_sorted_and_indexed = function(itm,array,cmp,idx){
+    if (! array.length){
+	itm.srt_idx = array.push(itm) -1;
+	return itm.srt_idx;
+    }
+    idx = idx || int(array.length/2);
+    var mid = array[mid_idx];
+    var c = cmp(itm,mid);
+    if (c == 0){
+	array.splice(mid_idx,0,itm);
+    } 
+};
+
+
+
 var update_linked_flag = function(n){
   n.linked = 
       n.in_count > 0 || 
@@ -519,10 +563,21 @@ var update_linked_flag = function(n){
   } catch(e){
       name = "";
   }
+
+  if (n.linked){
+      //d3.select(node[0][new_nearest_idx]).classed('nearest_node',true);
+      remove_from(n,unlinked_nodez);
+  } else {
+      if (unlinked_nodez.indexOf(n) == -1){
+	  unlinked_nodez.push(n);
+	  sort_by_current_sort_order(unlinked_nodez);
+      }
+  }
+
   console.log("linked:",n.linked,name);
   name = "in:" +n.in_count + " out:" +n.out_count + "  " + name;
   //console.log(n);
-  if (n.in_count < 0 || n.out_count < 0) {throw name};
+  if (n.in_count < 0 || n.out_count < 0) {console.log(name)};
   return name;
 };
 var add_link = function(e){
@@ -542,6 +597,7 @@ var remove_from = function(doomed,array){
 	array.splice(idx,1);
     }
 };
+var UNDEFINED;
 var remove_link = function(e){
   if (links.indexOf(e) == -1) return; // not present
   if (! e.source.links_from) e.source.links_from = [];
@@ -698,6 +754,7 @@ var hide_links_from_node = function(n) {
         //console.log('pruning edge',link);
       }
       link.target.in_count--;
+      if (link.target.in_count < 0) link.target.in_count = 0;
       links.splice(l,1);
       if (! is_node_to_always_show(link.target) && (link.target.in_count <= 0)){
         remove_node(link.target);
@@ -745,6 +802,7 @@ var make_node_if_missing = function(subject,start_point,linked){
   d = {x: start_point[0], y: start_point[1], 
        px: start_point[0]*1.01, py: start_point[1]*1.01, 
        linked:false, // in the graph as opposed to the lariat or hoosegow
+       //links_shown: [],
        s:subject, in_count:0, out_count:0};
   if (true){ 
     var n_idx = nodes.push(d) - 1;
