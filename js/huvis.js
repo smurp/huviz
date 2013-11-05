@@ -15,7 +15,7 @@ Hoosegow -- a jail to contain nodes one does not want to be bothered by
 
  */
 
-var add =  function(array,itm){
+var add_to =  function(itm,array){
     // Perform the set operation of adding itm to the Array if not already present
     //console.log("adding....",itm,'to',this);
     var idx = array.indexOf(itm);
@@ -191,20 +191,13 @@ function click_to_toggle_edges(){
   }
 
   if (nearest_node){
-      var target = nearest_node;
-      if (target.links_from && target.links_from.length){
-          hide_links_from_node(target);
-	  //  return;
+      var clickee = nearest_node;
+      if (clickee.links_shown.length == 0){
+          show_links_from_node(clickee);
       } else {
-          show_links_from_node(target);
-          //  return;
+          hide_links_from_node(clickee);
       }
-      if (target.links_to && target.links_to.length){
-	  hide_links_to_node(target);
-      } else {
-	  show_links_to_node(target);
-      }
-      update_linked_flag(target);
+      update_linked_flag(clickee);
   }
 
     //console.log();
@@ -599,13 +592,13 @@ var add_link = function(e){
     console.log(links.add)
     console.log(e)
   */
-  add(links,e);
+  add_to(e,links);
   //if (! e.source.links_from) e.source.links_from = [];
   //if (! e.target.links_to) e.target.links_to = [];
-  add(e.source.links_from,e);
-  add(e.source.links_shown,e);
-  add(e.target.links_to,e);
-  add(e.target.links_shown,e);
+  add_to(e,e.source.links_from);
+  add_to(e,e.source.links_shown);
+  add_to(e,e.target.links_to);
+  add_to(e,e.target.links_shown);
   update_linked_flag(e.source);
   update_linked_flag(e.target);
   restart();
@@ -750,15 +743,17 @@ var show_links_from_node = function(n) {
   if (typeof n.links_from === 'undefined'){
     n.links_from = [];
     find_links_from_node(n);
+  } else {
+    console.log('about to forEach');
+    n.links_from.forEach(
+      function(e,i){
+        add_to(e,n.links_shown);
+        add_to(e,links);
+	add_to(e,e.target.links_shown);
+        update_linked_flag(e.target);
+      }
+    );
   }
-  /*
-  for (var i = 0; i < n.links_from.length; i++){
-    var edge = n.links_from[i];
-    
-    n.links_shown.push(edge)
-    links.push(n.links_from[i]);
-  }
-  */
   restart();
 };
 
@@ -772,6 +767,8 @@ var hide_links_from_node = function(n) {
     function(e,i){
       remove_from(e,n.links_shown);
       remove_from(e,links);
+      remove_from(e,e.target.links_shown);
+      update_linked_flag(e.target);
     }
   );
   force.links(links);
