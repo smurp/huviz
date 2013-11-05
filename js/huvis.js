@@ -192,14 +192,18 @@ function click_to_toggle_edges(){
 
   if (nearest_node){
       var clickee = nearest_node;
-      if (clickee.links_shown.length == 0){
-          show_links_from_node(clickee);
-      } else {
+      if (clickee.showing_links == 'all'){
           hide_links_from_node(clickee);
+          hide_links_to_node(clickee);
+	  clickee.showing_links = 'none';
+      } else {
+          show_links_from_node(clickee);
+          show_links_to_node(clickee);
+          clickee.showing_links = 'all';
       }
       update_linked_flag(clickee);
   }
-
+  force.links(links);
     //console.log();
   restart();
 }
@@ -371,6 +375,7 @@ function dump_details(d,s){
     console.log("  out:",d.out_count, d.links_from && d.links_from.length || d.links_from);
     console.log("  shown:", d.links_shown.length);
     console.log("  class:", s.getAttribute('class'));
+    console.log("  showing_links:", d.showing_links);
     console.log("/dump_details ======================");
 }
 
@@ -560,6 +565,19 @@ var update_linked_flag = function(n){
       false;
    */
   n.fixed = ! n.linked;
+  if (n.linked){
+      if (typeof n.links_from == 'undefined' || ! n.links_to_found){
+	  n.showing_links = 'some'; // we do not know, so a click is worth a try
+      } else {
+	  if (n.links_from.length + n.links_to.length > n.links_shown.length){
+	      n.showing_links = 'some';
+	  } else {
+	      n.showing_links = 'all';
+	  }
+      }
+  } else {
+      n.showing_links = 'none';
+  }
   var name = n.name;
 
   if (n.linked){
@@ -681,60 +699,33 @@ var find_links_to_node = function(d) {
     }
 };
 var show_links_to_node = function(n) {
-  if (verbosity >= DEBUG){
-    console.log("========= show_links_to_node",{
-	  n:n,
-          _links_to:n._links_to,
-	  links_to:n.links_to});
-  }
-  var subj = n.s;
-  if (n._links_to){
-    n.links_to = n._links_to;
-    delete n._links_to;
-  } else {
-    n.links_to = [];
+  if (! n.links_to_found){
     find_links_to_node(n);
-  }
-  for (var i = 0; i < n.links_to.length; i++){
-    links.push(n.links_to[i]);
+    n.links_to_found = true;
+  } else {
+    n.links_from.forEach(
+      function(e,i){
+        add_to(e,n.links_shown);
+	add_to(e,e.source.links_shown);
+        add_to(e,links);
+        update_linked_flag(e.source);
+      }
+    )
   }
   force.links(links)
-  //console.log("  links.length",links.length)
   restart();  
 };
 var hide_links_to_node = function(n) {
-  if (verbosity >= DEBUG){
-    console.log("========= hide_links_to_node",{
-	n:n,
-	_links_to:n._links_to,
-	links_to:n.links_to});
-  }
-  var subj = n.s;
-  if (n.links_to){
-    n._links_to = n.links_to;
-    delete n.links_to;
-  } else {
-    n._links_to = [];
-  }
-  //console.log("links.length",links.length);
-  for (var l = links.length - 1; l >= 0 ; l--){
-    var link = links[l];
-    if ($.inArray(link,n._links_to) > -1){ // if link in n._links_to
-      if (verbosity >= DEBUG){
-        //console.log('pruning edge',link);
-      }
-      remove_link(link);
-      //link.target.out_count--;
-      //links.splice(l,1);
-      if (! is_node_to_always_show(link.target) && (link.target.out_count <= 0)){
-        remove_node(link.target);
-      }
+  n.links_to.forEach(
+    function(e,i){
+      remove_from(e,n.links_shown);
+      remove_from(e,e.source.links_shown);
+      remove_from(e,links);
+      update_linked_flag(e.source);
     }
-  }
-  update_linked_flag(n);
+  );
   force.links(links);
-  //console.log("  links.length",links.length)
-  restart();
+  restart();  
 };
 
 
@@ -744,7 +735,6 @@ var show_links_from_node = function(n) {
     n.links_from = [];
     find_links_from_node(n);
   } else {
-    console.log('about to forEach');
     n.links_from.forEach(
       function(e,i){
         add_to(e,n.links_shown);
@@ -754,6 +744,7 @@ var show_links_from_node = function(n) {
       }
     );
   }
+  force.links(links);
   restart();
 };
 
@@ -807,8 +798,10 @@ var make_node_if_missing = function(subject,start_point,linked){
        px: start_point[0]*1.01, py: start_point[1]*1.01, 
        linked:false, // in the graph as opposed to the lariat or hoosegow
        links_shown: [],
-       //links_from: [],
+       //links_from: [],  // it being missing triggers it being filled
        links_to: [],
+       links_to_found: false,
+       showing_links: 'none', // none|all|some
        name: name,
        s:subject, 
        //in_count:0, out_count:0
