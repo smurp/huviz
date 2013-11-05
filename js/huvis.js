@@ -15,6 +15,18 @@ Hoosegow -- a jail to contain nodes one does not want to be bothered by
 
  */
 
+var add =  function(array,itm){
+    // Perform the set operation of adding itm to the Array if not already present
+    //console.log("adding....",itm,'to',this);
+    var idx = array.indexOf(itm);
+    if (idx == -1){
+      idx = array.push(itm) - 1;
+    }
+    return idx;
+  };
+
+//if (Array.__proto__.add == null) Array.prototype.add = add;
+
 var nodes, links, node, link, unlinked_nodez;
 var nearest_node;
 var lariat;
@@ -359,11 +371,13 @@ function node_radius_by_links(d) {
 }
 
 function dump_details(d,s){
+    //return;
     console.log("\\dump_details ======================");
     console.log("  ",d.name);
-    console.log("  ",d.in_count, d.links_to && d.links_to.length || d.links_to);
-    console.log("  ",d.out_count, d.links_from && d.links_from.length || d.links_from);
-    console.log("  ", s.getAttribute('class'));
+    console.log("  in:",d.in_count, d.links_to && d.links_to.length || d.links_to);
+    console.log("  out:",d.out_count, d.links_from && d.links_from.length || d.links_from);
+    console.log("  shown:", d.links_shown.length);
+    console.log("  class:", s.getAttribute('class'));
     console.log("/dump_details ======================");
 }
 
@@ -544,7 +558,7 @@ var INCOMPLETE_insert_into_sorted_and_indexed = function(itm,array,cmp,idx){
 
 
 var update_linked_flag = function(n){
-  n.linked = n.links_shown.length;
+  n.linked = n.links_shown.length > 0;
   /*
       n.in_count > 0 || 
       n.out_count > 0 || 
@@ -570,18 +584,28 @@ var update_linked_flag = function(n){
   }
 
   console.log("linked:",n.linked,name);
-  name = "in:" +n.in_count + " out:" +n.out_count + "  " + name;
+  //console.log(n.links_shown);
+  //name = "in:" +n.in_count + " out:" +n.out_count + "  " + name;
   //console.log(n);
-  if (n.in_count < 0 || n.out_count < 0) {console.log(name)};
+  //if (n.in_count < 0 || n.out_count < 0) {console.log(name)};
   return name;
 };
 var add_link = function(e){
-  if (links.indexOf(e) > -1) return;  // already present
-  links.push(e);
-  if (! e.source.links_from) e.source.links_from = [];
-  if (! e.target.links_to) e.target.links_to = [];
-  e.source.out_count = e.source.links_from.push(e);
-  e.target.in_count = e.target.links_to.push(e);
+  //if (links.indexOf(e) > -1) return;  // already present
+  //console.log(typeof links,links.prototype.add);
+  /*
+    console.log('linkes,links.add,e');
+    console.log(links)
+    console.log(links.add)
+    console.log(e)
+  */
+  add(links,e);
+  //if (! e.source.links_from) e.source.links_from = [];
+  //if (! e.target.links_to) e.target.links_to = [];
+  add(e.source.links_from,e);
+  add(e.source.links_shown,e);
+  add(e.target.links_to,e);
+  add(e.target.links_shown,e);
   update_linked_flag(e.source);
   update_linked_flag(e.target);
   restart();
@@ -595,11 +619,13 @@ var remove_from = function(doomed,array){
 var UNDEFINED;
 var remove_link = function(e){
   if (links.indexOf(e) == -1) return; // not present
-  if (! e.source.links_from) e.source.links_from = [];
-  if (! e.target.links_to) e.target.links_to = [];
-  remove_from(e,e.target.links_to);
-  remove_from(e,e.source.links_from);
+  //if (! e.source.links_from) e.source.links_from = [];
+  //if (! e.target.links_to) e.target.links_to = [];
+  //remove_from(e,e.target.links_to);
+  //remove_from(e,e.source.links_from);
   remove_from(e,links);
+  remove_from(e,e.source.links_shown);
+  remove_from(e,e.target.links_shown);
   update_linked_flag(e.source);
   update_linked_flag(e.target);
 };
@@ -721,48 +747,33 @@ var hide_links_to_node = function(n) {
 
 var show_links_from_node = function(n) {
   var subj = n.s;
-  if (n._links_from){
-    n.links_from = n._links_from;
-    delete n._links_from;
-  } else {
+  if (typeof n.links_from === 'undefined'){
     n.links_from = [];
     find_links_from_node(n);
   }
+  /*
   for (var i = 0; i < n.links_from.length; i++){
+    var edge = n.links_from[i];
+    
+    n.links_shown.push(edge)
     links.push(n.links_from[i]);
   }
+  */
   restart();
 };
 
 var hide_links_from_node = function(n) {
+  // remove every link from .links_shown which is in .links_from
   var subj = n.s;
-  if (n.links_from){
-    n._links_from = n.links_from;
-    delete n.links_from;
-  } else {
-    n._links_from = [];
+  if (! n.links_from){
+    n.links_from = [];
   }
-  for (var l = links.length - 1; l >= 0 ; l--){
-    var link = links[l];
-    if ($.inArray(link,n._links_from) > -1){ // if link in n._links_from
-      if (verbosity >= DEBUG){
-        //console.log('pruning edge',link);
-      }
-      link.target.in_count--;
-      if (link.target.in_count < 0) link.target.in_count = 0;
-      links.splice(l,1);
-      if (! is_node_to_always_show(link.target) && (link.target.in_count <= 0)){
-        remove_node(link.target);
-      }
+  n.links_from.forEach(
+    function(e,i){
+      remove_from(e,n.links_shown);
+      remove_from(e,links);
     }
-  }
-  /*
-  if (verbosity >= MODERATE){
-    console.log("=========hide_links_from_node",n);
-    console.log("links.length",links.length)
-    //console.log("links_pruned.length",links_pruned.length);
-  }
-  */
+  );
   force.links(links);
   restart();
 }
@@ -799,8 +810,12 @@ var make_node_if_missing = function(subject,start_point,linked){
        px: start_point[0]*1.01, py: start_point[1]*1.01, 
        linked:false, // in the graph as opposed to the lariat or hoosegow
        links_shown: [],
+       //links_from: [],
+       links_to: [],
        name: name,
-       s:subject, in_count:0, out_count:0};
+       s:subject, 
+       //in_count:0, out_count:0
+      };
   if (true){ 
     var n_idx = nodes.push(d) - 1;
     id2n[subject.id] = n_idx;
