@@ -7,6 +7,8 @@ See for inspiration:
     http://bl.ocks.org/MoritzStefaner/1377729
   Graph with labeled edges:
     http://bl.ocks.org/jhb/5955887
+  Multi-Focus Layout:
+    http://bl.ocks.org/mbostock/1021953
 
 Lariat -- around the graph, the rope of nodes which serves as reorderable menu
 Hoosegow -- a jail to contain nodes one does not want to be bothered by
@@ -15,6 +17,7 @@ Hoosegow -- a jail to contain nodes one does not want to be bothered by
 
 var nodes, links, node, link, unlinked_nodez;
 var nearest_node;
+var lariat;
 var label_all_graphed_nodes = false; // keep synced with html
 var verbose = true;
 var verbosity = 0;
@@ -289,18 +292,20 @@ function reset_graph(){
   unlinked_nodez = [];
   links = [];
   force.nodes(nodes);
-  $(".link").remove();
-  $(".node").remove();
+  d3.select(".link").remove();
+  d3.select(".node").remove();
+  d3.select(".lariat").remove();
 
    //nodes = force.nodes();
    //links = force.links();
 
   node  = svg.selectAll(".node");
   link  = svg.selectAll(".link");
+  lariat = svg.selectAll(".lariat");
 
   link = link.data(links);
   
-  link.exit().remove()
+  link.exit().remove();
 
   node = node.data(nodes);
 
@@ -363,7 +368,8 @@ function dump_details(d){
 
 function tick() {
   fisheye.focus(last_mouse_pos);
-  if (typeof xmult != 'undefined'){ // if huvisgl is commented out then we do not update WebGL
+  // if huvisgl is commented out then we do not update WebGL
+  if (typeof xmult != 'undefined'){ 
     links.forEach(function(d){
         var l = d.line;
         l.geometry.vertices[0].x = d.source.x * xmult - cx;
@@ -462,6 +468,7 @@ function restart() {
   
   var nodeEnter = node.enter().append("g")
       .attr("class", "node")
+      .attr("class", "lariat")
       .call(force.drag);
   
   nodeEnter.append("circle")
@@ -474,15 +481,7 @@ function restart() {
       //.attr("dy", "1em")
       .attr("dy", ".35em")
       .attr("dx", ".4em")
-      .text(function(d) { 
-        var name = ' ';
-        try {
-          name = d.s.predicates[FOAF_name].objects[0].value;
-        } catch (err) {
-          console.log(err);
-        }
-        return name;
-      });
+      .text(function(d) { return d.name});
   label = svg.selectAll(".label");
   //force.nodes(nodes).links(links).start();
   force.start();
@@ -513,14 +512,6 @@ var get_node_for_linking = function(node_id){
 };
 
 var sort_nodes_by_name = function(a,b){
-    if (! a.name){
-	try {a.name = a.s.predicates[FOAF_name].objects[0].value;}
-	catch(e) {a.name = a.s.id;}
-    }
-    if (! b.name){
-	try {b.name = b.s.predicates[FOAF_name].objects[0].value;}
-    catch(e) {b.name = b.s.id;}
-    }
     if (a.name == b.name){
 	return 0;
     } else if (a.name > b.name){
@@ -557,12 +548,7 @@ var update_linked_flag = function(n){
       (n.links_to && n.links_to.length) ||
       false;
   n.fixed = ! n.linked;
-  var name;
-  try {
-     name = n.s.predicates[FOAF_name].objects[0].value;
-  } catch(e){
-      name = "";
-  }
+  var name = n.name;
 
   if (n.linked){
       //d3.select(node[0][new_nearest_idx]).classed('nearest_node',true);
@@ -799,10 +785,12 @@ var make_node_if_missing = function(subject,start_point,linked){
   if (d) return d; // already exist, return it
   start_point = start_point || [width/2, height/2];
   linked = typeof linked === 'undefined' || false;
+  var name = subject.predicates[FOAF_name].objects[0].value;
   d = {x: start_point[0], y: start_point[1], 
        px: start_point[0]*1.01, py: start_point[1]*1.01, 
        linked:false, // in the graph as opposed to the lariat or hoosegow
        //links_shown: [],
+       name: name,
        s:subject, in_count:0, out_count:0};
   if (true){ 
     var n_idx = nodes.push(d) - 1;
