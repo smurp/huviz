@@ -6,6 +6,9 @@ rect {
 
 .node circle {
   fill: #000;
+/*  stroke: red;
+  stroke-width: 1px;
+*/
 }
 
 .node text {

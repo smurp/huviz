@@ -358,11 +358,12 @@ function node_radius_by_links(d) {
   }
 }
 
-function dump_details(d){
+function dump_details(d,s){
     console.log("\\dump_details ======================");
     console.log("  ",d.name);
     console.log("  ",d.in_count, d.links_to && d.links_to.length || d.links_to);
     console.log("  ",d.out_count, d.links_from && d.links_from.length || d.links_from);
+    console.log("  ", s.getAttribute('class'));
     console.log("/dump_details ======================");
 }
 
@@ -396,8 +397,9 @@ function tick() {
         d3.select('.nearest_node').classed('nearest_node',false);
       }
       if (new_nearest_node){ 
-          d3.select(node[0][new_nearest_idx]).classed('nearest_node',true);
-	  dump_details(new_nearest_node)
+          var svg_node = node[0][new_nearest_idx];
+          d3.select(svg_node).classed('nearest_node',true);
+	  dump_details(new_nearest_node,svg_node)
           if (verbosity >= DEBUG) {
             console.log("new nearest_node:",new_nearest_node.s.id);
           }
@@ -467,8 +469,9 @@ function restart() {
   node.exit().remove()
   
   var nodeEnter = node.enter().append("g")
-      .attr("class", "node")
-      .attr("class", "lariat")
+      //.attr("class", "node")
+      //.attr("class", "lariat")
+      .attr("class", "lariat node")
       .call(force.drag);
   
   nodeEnter.append("circle")
@@ -541,21 +544,27 @@ var INCOMPLETE_insert_into_sorted_and_indexed = function(itm,array,cmp,idx){
 
 
 var update_linked_flag = function(n){
-  n.linked = 
+  n.linked = n.links_shown.length;
+  /*
       n.in_count > 0 || 
       n.out_count > 0 || 
       (n.links_from && n.links_from.length) ||
       (n.links_to && n.links_to.length) ||
       false;
+   */
   n.fixed = ! n.linked;
   var name = n.name;
 
   if (n.linked){
       //d3.select(node[0][new_nearest_idx]).classed('nearest_node',true);
       remove_from(n,unlinked_nodez);
+      var svg_node = node[0][nodes.indexOf(n)];
+      d3.select(svg_node).classed('lariat',false).classed('node',true);
+      // node[0][new_nearest_idx]
   } else {
       if (unlinked_nodez.indexOf(n) == -1){
 	  unlinked_nodez.push(n);
+	  d3.select(svg_node).classed('lariat',true).classed('node',false);
 	  sort_by_current_sort_order(unlinked_nodez);
       }
   }
@@ -789,7 +798,7 @@ var make_node_if_missing = function(subject,start_point,linked){
   d = {x: start_point[0], y: start_point[1], 
        px: start_point[0]*1.01, py: start_point[1]*1.01, 
        linked:false, // in the graph as opposed to the lariat or hoosegow
-       //links_shown: [],
+       links_shown: [],
        name: name,
        s:subject, in_count:0, out_count:0};
   if (true){ 
