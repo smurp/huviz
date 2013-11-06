@@ -192,6 +192,7 @@ function click_to_toggle_edges(){
 
   if (nearest_node){
       var clickee = nearest_node;
+      console.log("clickee",clickee.showing_links,clickee.name);
       if (clickee.showing_links == 'all'){
           hide_links_from_node(clickee);
           hide_links_to_node(clickee);
@@ -297,6 +298,7 @@ svg.append("rect")
 
 function reset_graph(){
   id2n = {};
+  sid2node = {};
   nodes = [];
   unlinked_nodez = [];
   links = [];
@@ -367,13 +369,27 @@ function node_radius_by_links(d) {
   }
 }
 
+function names_in_edges(array){
+  out = [];
+  array.forEach(
+    function(itm){
+      out.push(itm.source.name+" ---> " + itm.target.name);
+    }
+  );
+  return out;
+}
+
 function dump_details(d,s){
-    //return;
+    return;
+    if (d.s.id != '_:E') return;
     console.log("\\dump_details ======================");
     console.log("  ",d.name);
-    console.log("  in:",d.in_count, d.links_to && d.links_to.length || d.links_to);
-    console.log("  out:",d.out_count, d.links_from && d.links_from.length || d.links_from);
-    console.log("  shown:", d.links_shown.length);
+    console.log("  in:",d.links_to && d.links_to.length || 
+		        d.links_to,
+                        names_in_edges(d.links_to));
+    console.log("  out:", d.links_from && d.links_from.length || d.links_from,
+	                names_in_edges(d.links_from || []));
+    console.log("  shown:", d.links_shown.length,names_in_edges(d.links_shown));
     console.log("  class:", s.getAttribute('class'));
     console.log("  showing_links:", d.showing_links);
     console.log("/dump_details ======================");
@@ -508,7 +524,8 @@ function mousemove() {
   tick();
 }
 
-var get_linked_or_unlinked_node = function(node_id){
+var get_linked_or_unlinked_node = function(subj_id){
+  return sid2node[subj_id];
   return id2u[node_id] || id2n[node_id];
 };
 var node_exists = get_linked_or_unlinked_node;
@@ -594,7 +611,7 @@ var update_linked_flag = function(n){
       }
   }
 
-  console.log("linked:",n.linked,name);
+  //console.log("linked:",n.linked,name);
   //console.log(n.links_shown);
   //name = "in:" +n.in_count + " out:" +n.out_count + "  " + name;
   //console.log(n);
@@ -611,7 +628,7 @@ var add_link = function(e){
     console.log(e)
   */
   add_to(e,links);
-  //if (! e.source.links_from) e.source.links_from = [];
+  if (! e.source.links_from) e.source.links_from = [];  // FIXME should use links_from_found
   //if (! e.target.links_to) e.target.links_to = [];
   add_to(e,e.source.links_from);
   add_to(e,e.source.links_shown);
@@ -680,18 +697,18 @@ var find_links_to_node = function(d) {
     var subj = d.s;
     if (subj){
 	var parent_point = [d.x,d.y];
-	//console.log('parent_point',parent_point);
-	G.get_incoming_predicates().forEach(function(sid_pred){
-            //console.log('  sid_pred',sid_pred);
+	G.get_incoming_predicates(subj).forEach(function(sid_pred){
+            //console.log('  sid_pred:',sid_pred);
 	    var sid = sid_pred[0];
 	    var pred = sid_pred[1];
-	    //console.log("  ",sid,pred);
-	    var a_node = make_node_if_missing(G.subjects[sid],parent_point);
-	    var src = get_node_for_linking(sid);
+	    var src = make_node_if_missing(G.subjects[sid],parent_point);
+	    //var src = get_node_for_linking(sid);
 	    var edge = {source:src, target:d};
-	    //d.in_count++; // FIXME d.out_count++ or src.in_incount++ ?
-	    //d.links_to.push(edge);
+	    // console.log("  edge:",edge);
             add_link(edge);
+
+
+	    //d.links_to.push(edge);
             //links.push(edge);
 	    //update_linked_flag(d);
 	    //update_linked_flag(src);
@@ -699,19 +716,20 @@ var find_links_to_node = function(d) {
     }
 };
 var show_links_to_node = function(n) {
-  if (! n.links_to_found){
+  //if (! n.links_to_found){
     find_links_to_node(n);
     n.links_to_found = true;
-  } else {
-    n.links_from.forEach(
+  //}
+    n.links_to.forEach(
       function(e,i){
+        console.log('adding link from',e.source.name);
         add_to(e,n.links_shown);
 	add_to(e,e.source.links_shown);
         add_to(e,links);
         update_linked_flag(e.source);
       }
     )
-  }
+ 
   force.links(links)
   restart();  
 };
@@ -784,6 +802,7 @@ var ids_to_show = start_with_http;
 //var ids_to_show = new RegExp("", "ig");
 
 var id2n = {}; // the index of linked nodes (in nodes)
+var sid2node = {}; // index of subj.id to node (eg. {name:"Anglican Church",x:,y:,s:,}
 var id2u = {}; // the index of unlinked nodes (in unlinked_nodez)
 
 var make_node_if_missing = function(subject,start_point,linked){
@@ -791,6 +810,7 @@ var make_node_if_missing = function(subject,start_point,linked){
   if (! subject) return;  // uhh, no subject
   var d = get_linked_or_unlinked_node(subject.id);
   if (d) return d; // already exist, return it
+  //console.log("make_node_if_missing(",subject.id,") MISSING!");
   start_point = start_point || [width/2, height/2];
   linked = typeof linked === 'undefined' || false;
   var name = subject.predicates[FOAF_name].objects[0].value;
@@ -809,6 +829,7 @@ var make_node_if_missing = function(subject,start_point,linked){
   if (true){ 
     var n_idx = nodes.push(d) - 1;
     id2n[subject.id] = n_idx;
+    sid2node[subject.id] = d;
   } else {
     var n_idx = unlinked_nodez.push(d) - 1;
     id2u[subject.id] = n_idx;    
