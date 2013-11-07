@@ -148,8 +148,9 @@ def extractionCycle(orlandoRAW, regexArray, NameTest, mainSubject, options):
         if options.limit and count >= options.limit:
             break
 
-from rdflib import Graph, Literal, BNode, RDF
+from rdflib import Graph, Literal, BNode, RDF, ConjunctiveGraph, URIRef
 from rdflib.namespace import FOAF, DC, Namespace
+a_context = URIRef("http://bibliographica.org/entity/E10009")
 
 XFN = Namespace('http://vocab.sindice.com/xfn#')
 BRW = Namespace('http://orlando.cambridge.org/public/svPeople?person_id=')
@@ -222,7 +223,8 @@ class JSONEmitter(FormatEmitter):
 class RDFEmitter(FormatEmitter):
     def __init__(self,options):
         super(RDFEmitter, self).__init__(options)
-        self.store = Graph()
+        self.store = ConjunctiveGraph()
+        print "conext_aware:",self.store.context_aware
         self.store.bind('f',FOAF)
         self.store.bind('d',DC)
 
@@ -239,7 +241,8 @@ class RDFEmitter(FormatEmitter):
                     node = BLANK[str(ID)]
                 else:
                     node = BNode(ID)
-            self.store.add((node,FOAF.name,Literal(standard_name)))
+            #self.store.add((node,FOAF.name,Literal(standard_name)))
+            self.store.addN([(node,FOAF.name,Literal(standard_name),a_context)])
             if options.state_the_obvious:
                 if typ <> FOAF.Person:
                     self.store.add((node,RDF.type,typ))
@@ -308,6 +311,11 @@ class TurtleEmitter(RDFEmitter):
         self.generate_graph()
         self.outfile.write(self.store.serialize(format='turtle'))
 
+class NQuadsEmitter(RDFEmitter):
+    def concludeOutfile(self):
+        self.generate_graph()
+        self.outfile.write(self.store.serialize(format='nquads'))
+    
 if __name__ == "__main__":
     only_predicates = 'standardName,dateOfBirth,dateOfDeath'.split(',')
     only_predicates.extend(predicate_to_type.keys())
@@ -376,6 +384,10 @@ if __name__ == "__main__":
                  --regexes orlando2RDFregex4.txt \\
                  --only_predicates "standardName,childOf,dateOfBirth,dateOfDeath,parentOf"
 
+       %pro
+          During testing this is nice
+             ./orlandoScrape.py --outfile data/test_1.ttl --limit 1 --infile orlando_all_entries_2013-03-04.xml  -v
+
        %prog --only_predicates ""
           Run without constraint on the predictes emitted.
       
@@ -403,6 +415,8 @@ if __name__ == "__main__":
         options.emitter = JSONEmitter(options)
     if options.outfile.endswith('.ttl'):
         options.emitter = TurtleEmitter(options)
+    if options.outfile.endswith('.nq'):
+        options.emitter = NQuadsEmitter(options)
     if hasattr(options,'emitter'):
         options.emitter.go()
     elif show_usage:
