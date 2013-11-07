@@ -37,12 +37,11 @@ var TEMP = 5;
 var COARSE = 10;
 var MODERATE = 20;
 var DEBUG = 40;
+var DUMP = false;
 
 if (! verbose){
   console = {'log': function(){}};
 }
-
-
 
 var last_mouse_pos = [0,0];
 var parseAndShow = function(data,textStatus){
@@ -379,7 +378,6 @@ function names_in_edges(array){
   return out;
 }
 
-var DUMP = true;
 function dump_details(d,s){
     if (! DUMP){
       if (d.s.id != '_:E') return;
