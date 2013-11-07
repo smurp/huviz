@@ -379,9 +379,11 @@ function names_in_edges(array){
   return out;
 }
 
+var DUMP = true;
 function dump_details(d,s){
-    return;
-    if (d.s.id != '_:E') return;
+    if (! DUMP){
+      if (d.s.id != '_:E') return;
+    }
     console.log("\\dump_details ======================");
     console.log("  ",d.name);
     console.log("  in:",d.links_to && d.links_to.length || 
@@ -574,16 +576,9 @@ var INCOMPLETE_insert_into_sorted_and_indexed = function(itm,array,cmp,idx){
 
 var update_linked_flag = function(n){
   n.linked = n.links_shown.length > 0;
-  /*
-      n.in_count > 0 || 
-      n.out_count > 0 || 
-      (n.links_from && n.links_from.length) ||
-      (n.links_to && n.links_to.length) ||
-      false;
-   */
   n.fixed = ! n.linked;
   if (n.linked){
-      if (typeof n.links_from == 'undefined' || ! n.links_to_found){
+      if (! n.links_from_found || ! n.links_to_found){
 	  n.showing_links = 'some'; // we do not know, so a click is worth a try
       } else {
 	  if (n.links_from.length + n.links_to.length > n.links_shown.length){
@@ -628,7 +623,7 @@ var add_link = function(e){
     console.log(e)
   */
   add_to(e,links);
-  if (! e.source.links_from) e.source.links_from = [];  // FIXME should use links_from_found
+  //if (! e.source.links_from) e.source.links_from = [];  // FIXME should use links_from_found
   //if (! e.target.links_to) e.target.links_to = [];
   add_to(e,e.source.links_from);
   add_to(e,e.source.links_shown);
@@ -749,9 +744,9 @@ var hide_links_to_node = function(n) {
 
 var show_links_from_node = function(n) {
   var subj = n.s;
-  if (typeof n.links_from === 'undefined'){
-    n.links_from = [];
+  if (! n.links_from_found){
     find_links_from_node(n);
+    n.links_from_found = true;
   } else {
     n.links_from.forEach(
       function(e,i){
@@ -768,10 +763,6 @@ var show_links_from_node = function(n) {
 
 var hide_links_from_node = function(n) {
   // remove every link from .links_shown which is in .links_from
-  var subj = n.s;
-  if (! n.links_from){
-    n.links_from = [];
-  }
   n.links_from.forEach(
     function(e,i){
       remove_from(e,n.links_shown);
@@ -818,7 +809,8 @@ var make_node_if_missing = function(subject,start_point,linked){
        px: start_point[0]*1.01, py: start_point[1]*1.01, 
        linked:false, // in the graph as opposed to the lariat or hoosegow
        links_shown: [],
-       //links_from: [],  // it being missing triggers it being filled
+       links_from: [],  // it being missing triggers it being filled
+       links_from_found: false,
        links_to: [],
        links_to_found: false,
        showing_links: 'none', // none|all|some
