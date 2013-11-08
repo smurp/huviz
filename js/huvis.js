@@ -295,18 +295,22 @@ svg.append("rect")
     .attr("width", width)
     .attr("height", height);
 
-var canvas = d3.select("#viscanvas").append("canvas")
+//var canvas = document.getElementById('#viscanvas')
+
+var viscanvas = d3.select("#viscanvas").append("canvas")
     .attr("width",width)
     .attr("height", height);
+var canvas = viscanvas[0][0];
 
-var mouse_receiver = canvas;
+var mouse_receiver = viscanvas;
 mouse_receiver
     .on("mousemove", mousemove)
     .on("mousedown", register_mousedown_point)
     .on("mouseup", click_to_toggle_edges);
 
 console.log("================== canvas =",canvas);
-var ctx = canvas[0][0].getContext('2d');
+var ctx = canvas.getContext('2d');
+
 var use_canvas = true;
 var use_svg = true;
 use_svg = false;
@@ -529,7 +533,7 @@ function should_show_label(nodey){
 }
 
 function draw_labels(){
-  if (use_svg || true){
+  if (use_svg){
     label.attr("style",function(d){
       if (should_show_label(d)){
         return "";
@@ -551,7 +555,7 @@ function draw_labels(){
 	      ctx.font = "8px sans-serif";
 	  }
 	  ctx.fillText(node.name,node.fisheye.x,node.fisheye.y)
-	  console.log('fillText(',node.name,")");
+	  //console.log('fillText(',node.name,")");
       });
   }
 }
@@ -559,7 +563,7 @@ function draw_labels(){
 function tick() {
     fisheye.focus(last_mouse_pos);
     if (use_canvas){
-	ctx.clearRect(0, 0, width, height);
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
     find_nearest_node();
     draw_nodes();    
