@@ -430,24 +430,7 @@ function dump_details(d,s){
     console.log("/dump_details ======================");
 }
 
-
-function tick() {
-  fisheye.focus(last_mouse_pos);
-
-  // if huvisgl is commented out then we do not update WebGL
-  if (use_canvas){
-    ctx.clearRect(0, 0, width, height);
-  }
-  if (use_webgl){
-    links.forEach(function(d){
-        var l = d.line;
-        l.geometry.vertices[0].x = d.source.x * xmult - cx;
-        l.geometry.vertices[1].x = d.target.x * xmult - cx;
-        l.geometry.vertices[0].y = d.source.y * ymult + cy;
-        l.geometry.vertices[1].y = d.target.y * ymult + cy;
-    });
-  }
-
+function find_nearest_node(){
   var new_nearest_node;
   var new_nearest_idx;
   var focus_threshold = focus_radius * 1;
@@ -477,7 +460,38 @@ function tick() {
       }
   }
   nearest_node = new_nearest_node;  // possibly null
+}
+
+function draw_edges(){
+  if (use_webgl){
+    links.forEach(function(d){
+        var l = d.line;
+        l.geometry.vertices[0].x = d.source.x * xmult - cx;
+        l.geometry.vertices[1].x = d.target.x * xmult - cx;
+        l.geometry.vertices[0].y = d.source.y * ymult + cy;
+        l.geometry.vertices[1].y = d.target.y * ymult + cy;
+    });
+  }
+  if (use_svg){
+    link.attr("x1", function(d) { return d.source.fisheye.x; })
+        .attr("y1", function(d) { return d.source.fisheye.y; })
+        .attr("x2", function(d) { return d.target.fisheye.x; })
+        .attr("y2", function(d) { return d.target.fisheye.y; });
+  }
+
+  if (use_canvas){
+    links.forEach(function(e,i){
+	draw_line(
+	    e.source.fisheye.x,e.source.fisheye.y,
+	    e.target.fisheye.x,e.target.fisheye.y,
+	    e.color);
+    });
+  }
+}
+
+function draw_nodes(){
   var n_nodes = nodes.length;
+
   if (use_svg){
     node.attr("transform", function(d,i) { 
       if (! d.linked){
@@ -501,42 +515,59 @@ function tick() {
 	  //d.fixed = true;
         }
         d.fisheye = fisheye(d);
-        var x = d.fisheye.x;
-        var y = d.fisheye.y;
-        draw_circle(x,y,6,d.color || 'yellow');
-    });
-  }
-
-  label.attr("style",function(d){
-      var name = $(this).text();
-      if (dist_lt(last_mouse_pos,d,label_show_range) 
-          || name.match(search_regex) 
-          || label_all_graphed_nodes && d.linked){
-        return "";
-      } else {
-        return "display:none";
-      }
-   });
-  
-  if (use_svg){
-    link.attr("x1", function(d) { return d.source.fisheye.x; })
-        .attr("y1", function(d) { return d.source.fisheye.y; })
-        .attr("x2", function(d) { return d.target.fisheye.x; })
-        .attr("y2", function(d) { return d.target.fisheye.y; });
-  }
-
-  if (use_canvas){
-    links.forEach(function(e,i){
-	draw_line(
-	    e.source.fisheye.x,e.source.fisheye.y,
-	    e.target.fisheye.x,e.target.fisheye.y,
-	    e.color);
+        draw_circle(d.fisheye.x,
+		    d.fisheye.y,
+		    2,d.color || 'yellow');
     });
   }
 }
 
-function restart() {
+function should_show_label(nodey){
+    return dist_lt(last_mouse_pos,nodey,label_show_range) 
+        || nodey.name.match(search_regex) 
+        || label_all_graphed_nodes && nodey.linked;
+}
 
+function draw_labels(){
+  if (use_svg || true){
+    label.attr("style",function(d){
+      if (should_show_label(d)){
+        return "";
+      } else {
+        return "display:none";
+      }
+    });
+  }
+  if (use_canvas){
+      // http://diveintohtml5.info/canvas.html#text
+      // http://stackoverflow.com/a/10337796/1234699
+      nodes.forEach(function(node){
+	  if (! should_show_label(node)) return;
+	  if (node.nearest_node){
+	      ctx.fillStyle = 'red';
+	      ctx.font = "10px sans-serif";
+	  } else {
+	      ctx.fillStyle = 'black';
+	      ctx.font = "8px sans-serif";
+	  }
+	  ctx.fillText(node.name,node.fisheye.x,node.fisheye.y)
+	  console.log('fillText(',node.name,")");
+      });
+  }
+}
+
+function tick() {
+    fisheye.focus(last_mouse_pos);
+    if (use_canvas){
+	ctx.clearRect(0, 0, width, height);
+    }
+    find_nearest_node();
+    draw_nodes();    
+    draw_edges();
+    draw_labels();
+}
+
+function restart() {
   link = link.data(links);
   
   link.enter().insert("line", ".node")
@@ -769,7 +800,6 @@ var find_links_to_node = function(d) {
 	    var edge = make_edge(src, d);
 	    // console.log("  edge:",edge);
             add_link(edge);
-
 
 	    //d.links_to.push(edge);
             //links.push(edge);
