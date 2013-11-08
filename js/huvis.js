@@ -173,6 +173,7 @@ function color_by_type(d){
 var mousedown_point = [cx,cy];
 function register_mousedown_point(){
   mousedown_point = d3.mouse(this);
+  console.log(mousedown_point,'down');
 }
 
 function distance(p1,p2){
@@ -251,6 +252,10 @@ function updateWindow(){
     get_window_height();
     update_graph_radius();
     svg.attr("width", width).attr("height", height);
+    if (canvas){
+      canvas.width = width;
+      cavass.height = height;
+    }
     force.size([width,height]);
     restart();
 }
@@ -284,18 +289,41 @@ var force = d3.layout.force()
 var svg = d3.select("#vis").append("svg")
     .attr("width", width)
     .attr("height", height)
-    .attr("position", "absolute")
-    .on("mousemove", mousemove)
-    .on("mousedown", register_mousedown_point)
-    .on("mouseup", click_to_toggle_edges);
+    .attr("position", "absolute");
 
 svg.append("rect")
     .attr("width", width)
     .attr("height", height);
 
+var canvas = d3.select("#viscanvas").append("canvas")
+    .attr("width",width)
+    .attr("height", height);
+
+var mouse_receiver = canvas;
+mouse_receiver
+    .on("mousemove", mousemove)
+    .on("mousedown", register_mousedown_point)
+    .on("mouseup", click_to_toggle_edges);
+
+console.log("================== canvas =",canvas);
+var ctx = canvas[0][0].getContext('2d');
+var use_canvas = true;
+var use_svg = true;
+use_svg = false;
+var use_webgl = (typeof xmult != 'undefined');
+//use_canvas = false;
+function draw_circle(cx,cy,radius){
+   ctx.stroketyle = "rgb(10,100,250)";
+   ctx.beginPath();
+   ctx.arc(cx,cy,radius, 0, Math.PI*2, true);
+   ctx.closePath();
+   ctx.stroke();
+   //ctx.fill();
+}
 
 
 function reset_graph(){
+  draw_circle(cx,cy,0.5 * Math.min(cx,cy))
   id2n = {};
   sid2node = {};
   nodes = [];
@@ -395,10 +423,15 @@ function dump_details(d,s){
     console.log("/dump_details ======================");
 }
 
+
 function tick() {
   fisheye.focus(last_mouse_pos);
+
   // if huvisgl is commented out then we do not update WebGL
-  if (typeof xmult != 'undefined'){ 
+  if (use_canvas){
+    ctx.clearRect(0, 0, width, height);
+  }
+  if (use_webgl){
     links.forEach(function(d){
         var l = d.line;
         l.geometry.vertices[0].x = d.source.x * xmult - cx;
@@ -412,7 +445,8 @@ function tick() {
   var new_nearest_idx;
   var focus_threshold = focus_radius * 1;
   var close_nodes = [];
-  node.each(function(d,i) {
+  //node.each(function(d,i) {
+  nodes.forEach(function(d,i) {
       var dist = distance(d,last_mouse_pos);
       if (dist <= focus_threshold){
           new_nearest_node = d;
@@ -434,25 +468,35 @@ function tick() {
       }
   }
   nearest_node = new_nearest_node;  // possibly null
-  
-  link.attr("x1", function(d) { return d.source.x; })
-      .attr("y1", function(d) { return d.source.y; })
-      .attr("x2", function(d) { return d.target.x; })
-      .attr("y2", function(d) { return d.target.y; });
-
   var n_nodes = nodes.length;
-  node.attr("transform", function(d,i) { 
+  if (use_svg){
+    node.attr("transform", function(d,i) { 
       if (! d.linked){
           var rad = 6.2832 * i / n_nodes + 3.14159;
 	  d.x = cx + Math.sin(rad) * graph_radius;
 	  d.y = cy + Math.cos(rad) * graph_radius;
 	  //d.fixed = true;
-      }
-      d.fisheye = fisheye(d);
-      var x = d.fisheye.x;
-      var y = d.fisheye.y;
-      return "translate(" + x + "," + y + ")"; })
-    .attr("r", node_radius_by_links);
+        }
+        d.fisheye = fisheye(d);
+        var x = d.fisheye.x;
+        var y = d.fisheye.y;
+        return "translate(" + x + "," + y + ")"; })
+      .attr("r", node_radius_by_links);
+  }
+  if (use_canvas){
+    nodes.forEach(function(d,i){
+      if (! d.linked){
+          var rad = 6.2832 * i / n_nodes + 3.14159;
+	  d.x = cx + Math.sin(rad) * graph_radius;
+	  d.y = cy + Math.cos(rad) * graph_radius;
+	  //d.fixed = true;
+        }
+        d.fisheye = fisheye(d);
+        var x = d.fisheye.x;
+        var y = d.fisheye.y;
+        draw_circle(x,y,10);
+    });
+  }
 
   label.attr("style",function(d){
       var name = $(this).text();
@@ -464,11 +508,26 @@ function tick() {
         return "display:none";
       }
    });
+  
+  if (use_svg){
+    link.attr("x1", function(d) { return d.source.fisheye.x; })
+        .attr("y1", function(d) { return d.source.fisheye.y; })
+        .attr("x2", function(d) { return d.target.fisheye.x; })
+        .attr("y2", function(d) { return d.target.fisheye.y; });
+  }
 
-  link.attr("x1", function(d) { return d.source.fisheye.x; })
-      .attr("y1", function(d) { return d.source.fisheye.y; })
-      .attr("x2", function(d) { return d.target.fisheye.x; })
-      .attr("y2", function(d) { return d.target.fisheye.y; });
+  if (use_canvas){
+    links.forEach(function(e,i){
+        ctx.strokeStyle = "red";
+        ctx.beginPath();
+        ctx.moveTo(e.source.fisheye.x,e.source.fisheye.y);
+        ctx.lineTo(e.target.fisheye.x,e.target.fisheye.y);
+        ctx.closePath();
+        ctx.stroke();
+    });
+  }
+
+
 }
 
 function restart() {
@@ -477,7 +536,7 @@ function restart() {
   
   link.enter().insert("line", ".node")
 	.attr("class", function(d){
-            if (typeof xmult != 'undefined'){ // if huvisgl is commented out then we do not update WebGL
+            if (use_webgl){
                var l = add_line(scene,
 		                d.source.x,d.source.y,
                                 d.target.x,d.target.y,
@@ -521,6 +580,7 @@ function restart() {
 function mousemove() {
   last_mouse_pos = d3.mouse(this);
   cursor.attr("transform", "translate(" + last_mouse_pos + ")");
+  console.log(last_mouse_pos,'move');
   tick();
 }
 
@@ -577,7 +637,8 @@ var update_linked_flag = function(n){
   n.fixed = ! n.linked;
   if (n.linked){
       if (! n.links_from_found || ! n.links_to_found){
-	  n.showing_links = 'some'; // we do not know, so a click is worth a try
+	  // we do not know, so a click is worth a try
+	  n.showing_links = 'some'; 
       } else {
 	  if (n.links_from.length + n.links_to.length > n.links_shown.length){
 	      n.showing_links = 'some';
