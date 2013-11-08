@@ -312,18 +312,25 @@ var use_svg = true;
 use_svg = false;
 var use_webgl = (typeof xmult != 'undefined');
 //use_canvas = false;
-function draw_circle(cx,cy,radius){
-   ctx.stroketyle = "rgb(10,100,250)";
+function draw_circle(cx,cy,radius,clr){
+   ctx.strokeStyle = clr || "blue";
    ctx.beginPath();
    ctx.arc(cx,cy,radius, 0, Math.PI*2, true);
    ctx.closePath();
    ctx.stroke();
    //ctx.fill();
 }
-
+function draw_line(x1,y1,x2,y2,clr){
+    ctx.strokeStyle = clr || red;
+    ctx.beginPath();
+    ctx.moveTo(x1,y1);
+    ctx.lineTo(x2,y2);
+    ctx.closePath();
+    ctx.stroke();
+}
 
 function reset_graph(){
-  draw_circle(cx,cy,0.5 * Math.min(cx,cy))
+  draw_circle(cx,cy,0.5 * Math.min(cx,cy),'black')
   id2n = {};
   sid2node = {};
   nodes = [];
@@ -457,8 +464,10 @@ function tick() {
   if (nearest_node != new_nearest_node){
       if (nearest_node){
         d3.select('.nearest_node').classed('nearest_node',false);
+        nearest_node.nearest_node = false;
       }
       if (new_nearest_node){ 
+          new_nearest_node.nearest_node = true;
           var svg_node = node[0][new_nearest_idx];
           d3.select(svg_node).classed('nearest_node',true);
 	  dump_details(new_nearest_node,svg_node)
@@ -494,7 +503,7 @@ function tick() {
         d.fisheye = fisheye(d);
         var x = d.fisheye.x;
         var y = d.fisheye.y;
-        draw_circle(x,y,10);
+        draw_circle(x,y,6,d.color || 'yellow');
     });
   }
 
@@ -518,16 +527,12 @@ function tick() {
 
   if (use_canvas){
     links.forEach(function(e,i){
-        ctx.strokeStyle = "red";
-        ctx.beginPath();
-        ctx.moveTo(e.source.fisheye.x,e.source.fisheye.y);
-        ctx.lineTo(e.target.fisheye.x,e.target.fisheye.y);
-        ctx.closePath();
-        ctx.stroke();
+	draw_line(
+	    e.source.fisheye.x,e.source.fisheye.y,
+	    e.target.fisheye.x,e.target.fisheye.y,
+	    e.color);
     });
   }
-
-
 }
 
 function restart() {
@@ -563,7 +568,7 @@ function restart() {
   
   nodeEnter.append("circle")
       .attr("r", node_radius_by_links)
-      .style("fill", color_by_type);
+      .style("fill", function(d){d.color;});
 
   nodeEnter.append("text")
       .attr("class", "label")
@@ -712,6 +717,10 @@ var remove_link = function(e){
   update_linked_flag(e.target);
 };
 
+function make_edge(s,t,c){
+    return {source:s, target:t, color:c||'lightgrey'};
+}
+
 var find_links_from_node = function(n) {
     var a_node;
     var subj = n.s;
@@ -730,7 +739,7 @@ var find_links_from_node = function(n) {
 		
 		if (id2n[obj.value]){
 		    var t = get_node_for_linking(obj.value);
-		    var edge = {source: n, target: t};
+		    var edge = make_edge(n,t);
 		    //t.in_count++;
 		    //n.out_count++;
 		    //n.links_from.push(edge);
@@ -757,7 +766,7 @@ var find_links_to_node = function(d) {
 	    var pred = sid_pred[1];
 	    var src = make_node_if_missing(G.subjects[sid],parent_point);
 	    //var src = get_node_for_linking(sid);
-	    var edge = {source:src, target:d};
+	    var edge = make_edge(src, d);
 	    // console.log("  edge:",edge);
             add_link(edge);
 
@@ -877,6 +886,7 @@ var make_node_if_missing = function(subject,start_point,linked){
        s:subject, 
        //in_count:0, out_count:0
       };
+  d.color = color_by_type(d);
   if (true){ 
     var n_idx = nodes.push(d) - 1;
     id2n[subject.id] = n_idx;
