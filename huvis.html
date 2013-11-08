@@ -25,6 +25,24 @@
          <input type="checkbox" id="show_labels_input" 
                 onchange="toggle_label_display(this)"/>
       </div>
+      <div id="display_tech">
+        <div id="use_canvas">
+           <label for="use_canvas_input">use_canvas</label>
+           <input type="checkbox" id="use_canvas_input" 
+		  checked
+                  onchange="toggle_display_tech(this,use_canvas)"/>
+        </div>
+        <div id="use_svg">
+           <label for="use_webgl_input">use_svg</label>
+           <input type="checkbox" id="use_svg_input" 
+                  onchange="toggle_display_tech(this,use_svg)"/>
+        </div>
+        <div id="use_webgl">
+           <label for="use_webgl_input">use_webgl</label>
+           <input type="checkbox" id="use_webgl_input" 
+                  onchange="toggle_display_tech(this,use_webgl)"/>
+        </div>
+      </div>
 
       <div id="status" onclick="clear_box()"></div>
       </div>

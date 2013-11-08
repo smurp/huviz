@@ -277,12 +277,16 @@ var fisheye = d3.fisheye.circular().radius(fisheye_radius).distortion(2.8);
 
 var fill = d3.scale.category20();
 
+function get_charge(d){
+    if (d.fixed) return 0;
+    return charge;
+};
 
 var force = d3.layout.force()
     .size([width, height])
     .nodes([]) // initialize with no nodes
     .linkDistance(link_distance)
-    .charge(charge)
+    .charge(get_charge)
     .gravity(gravity)
     .on("tick", tick);
 
@@ -316,13 +320,14 @@ var use_svg = true;
 use_svg = false;
 var use_webgl = (typeof xmult != 'undefined');
 //use_canvas = false;
-function draw_circle(cx,cy,radius,clr){
-   ctx.strokeStyle = clr || "blue";
-   ctx.beginPath();
-   ctx.arc(cx,cy,radius, 0, Math.PI*2, true);
-   ctx.closePath();
-   ctx.stroke();
-   //ctx.fill();
+function draw_circle(cx,cy,radius,strclr,filclr){
+    if (strclr) ctx.strokeStyle = strclr || "blue";
+    if (filclr) ctx.fillStyle = filclr || "blue";
+    ctx.beginPath();
+    ctx.arc(cx,cy,radius, 0, Math.PI*2, true);
+    ctx.closePath();
+    if (strclr) ctx.stroke();
+    if (filclr) ctx.fill();
 }
 function draw_line(x1,y1,x2,y2,clr){
     ctx.strokeStyle = clr || red;
@@ -399,7 +404,7 @@ $(".search_box").on("input",update_searchterm);
 
 function node_radius_by_links(d) {
   return 3;
-  return d.links_from ? d.links_from.length : d.in_count || 3;
+  return d.links_from_found ? d.links_from.length : d.in_count || 3;
   if (d.links_from){
     return 3;
   } else {
@@ -493,36 +498,38 @@ function draw_edges(){
   }
 }
 
-function draw_nodes(){
-  var n_nodes = nodes.length;
-
-  if (use_svg){
-    node.attr("transform", function(d,i) { 
-      if (! d.linked){
-          var rad = 6.2832 * i / n_nodes + 3.14159;
-	  d.x = cx + Math.sin(rad) * graph_radius;
-	  d.y = cy + Math.cos(rad) * graph_radius;
-	  //d.fixed = true;
+function position_nodes(){
+    var n_nodes = nodes.length;
+    nodes.forEach(function(d,i){
+	if (! d.linked){
+            var rad = 6.2832 * i / n_nodes + 3.14159;
+	    d.x = cx + Math.sin(rad) * graph_radius;
+	    d.y = cy + Math.cos(rad) * graph_radius;
+	    //d.fixed = true;
         }
         d.fisheye = fisheye(d);
-        var x = d.fisheye.x;
-        var y = d.fisheye.y;
-        return "translate(" + x + "," + y + ")"; })
-      .attr("r", node_radius_by_links);
+    });
+}
+
+function draw_nodes(){
+  if (use_svg){
+      node.attr(
+	  "transform", 
+	  function(d,i) { 
+              return "translate(" + d.fisheye.x + "," + d.fisheye.y + ")"; 
+	  }
+      )
+	  .attr("r", node_radius_by_links);
   }
   if (use_canvas){
-    nodes.forEach(function(d,i){
-      if (! d.linked){
-          var rad = 6.2832 * i / n_nodes + 3.14159;
-	  d.x = cx + Math.sin(rad) * graph_radius;
-	  d.y = cy + Math.cos(rad) * graph_radius;
-	  //d.fixed = true;
-        }
-        d.fisheye = fisheye(d);
-        draw_circle(d.fisheye.x,
-		    d.fisheye.y,
-		    2,d.color || 'yellow');
-    });
+      nodes.forEach(function(d,i){
+          draw_circle(d.fisheye.x,
+		      d.fisheye.y,
+		      4,
+		      d.color || 'yellow',
+		      d.color || 'black'
+		     );
+      });
   }
 }
 
@@ -549,10 +556,10 @@ function draw_labels(){
 	  if (! should_show_label(node)) return;
 	  if (node.nearest_node){
 	      ctx.fillStyle = 'red';
-	      ctx.font = "10px sans-serif";
+	      ctx.font = "9px sans-serif";
 	  } else {
 	      ctx.fillStyle = 'black';
-	      ctx.font = "8px sans-serif";
+	      ctx.font = "7px sans-serif";
 	  }
 	  ctx.fillText(node.name,node.fisheye.x,node.fisheye.y)
 	  //console.log('fillText(',node.name,")");
@@ -560,14 +567,24 @@ function draw_labels(){
   }
 }
 
-function tick() {
-    fisheye.focus(last_mouse_pos);
+function clear_canvas(){
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function blank_screen(){
     if (use_canvas){
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	clear_canvas();
     }
+}
+
+function tick() {
+    //if (nearest_node){	return;    }
+    fisheye.focus(last_mouse_pos);
+    blank_screen();
     find_nearest_node();
-    draw_nodes();    
+    position_nodes();
     draw_edges();
+    draw_nodes();
     draw_labels();
 }
 
@@ -1069,3 +1086,26 @@ var toggle_label_display = function(){
 var clear_box = function(){
   $("#status").text('');
 };
+var toggle_display_tech = function(ctrl,tech){
+    var val;
+
+    var tech = ctrl.parentNode.id;
+    if (tech == 'use_canvas'){
+	use_canvas = ! use_canvas;
+	if (! use_canvas){
+	    clear_canvas();
+	}
+	val = use_canvas;
+    } 
+    if (tech == 'use_svg'){
+	use_svg = ! use_svg;
+	val = use_svg;
+    } 
+    if (tech == 'use_webgl'){
+	use_webgl = ! use_webgl;
+	val = use_webgl;
+    } 
+    ctrl.checked = val;
+    tick();
+    return true;
+}

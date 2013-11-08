@@ -46,6 +46,14 @@
   z-index:2;
   cursor: pointer;
 }
+#display_tech {
+  background-color: lightblue;
+  position:absolute;
+  top: 9em;
+  left: 1em;
+  z-index:2;
+  cursor: pointer;
+}
 #status {
   background-color:lightgrey;
   position:absolute;
