@@ -7,7 +7,7 @@
     <link href="/css/lariat.css" rel="stylesheet" type="text/css">
   </head>
   <body>
-    <div>
+    <div id="huvis_controls">
       <div id="file_picker_box">
         <select id="file_picker" onchange="load_file(this)" >
           <option>data/test_40.ttl</option>
@@ -16,6 +16,7 @@
 
           <option>data/all.ttl</option>
         </select>
+      </div>
       <div id="search" class="search_box" contenteditable="true"></div>
       <div id="show_links" class="button" onclick="show_found_links(this)">show links</div>
       <div id="hide_links" class="button" onclick="hide_found_links(this)">hide links</div>
@@ -44,12 +45,17 @@
         </div>
       </div>
 
-      <div id="status" onclick="clear_box()"></div>
+      <div id="node_radius_policy_box">
+        <select id="node_radius_policy" onload="init_node_radius_policy(this)" >
+        </select>
       </div>
-      
-      <div id="vis" class="underneath" style="z-index:-3"></div>
-      <div id="viscanvas" class="underneath"></div>
+
+
+      </div>
     </div>
+    <div id="vis" class="underneath" style="z-index:-3"></div>
+    <div id="viscanvas" class="underneath"></div>
+    <div id="status" onoclick="clear_box()"></div>
     <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
     <script src="lib/fisheye.js" charset="utf-8"></script>
     <script src="lib/RDFa.min.1.2.0.js" charset="utf-8"></script>

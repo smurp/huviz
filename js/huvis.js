@@ -38,6 +38,8 @@ var COARSE = 10;
 var MODERATE = 20;
 var DEBUG = 40;
 var DUMP = false;
+var node_radius_policy;
+var draw_circle_around_nearest = false;
 
 if (! verbose){
   console = {'log': function(){}};
@@ -172,8 +174,8 @@ function color_by_type(d){
 
 var mousedown_point = [cx,cy];
 function register_mousedown_point(){
-  mousedown_point = d3.mouse(this);
-  console.log(mousedown_point,'down');
+    mousedown_point = d3.mouse(this);
+    //console.log(mousedown_point,'down');
 }
 
 function distance(p1,p2){
@@ -312,6 +314,8 @@ mouse_receiver
     .on("mousedown", register_mousedown_point)
     .on("mouseup", click_to_toggle_edges);
 
+mouse_receiver.call(force.drag);
+
 console.log("================== canvas =",canvas);
 var ctx = canvas.getContext('2d');
 
@@ -370,7 +374,7 @@ function reset_graph(){
 reset_graph();
 
 var cursor = svg.append("circle")
-    .attr("r", label_show_range*2)
+    .attr("r", label_show_range)
     .attr("transform", "translate("+cx+","+cy+")")
     .attr("class", "cursor");
 
@@ -402,14 +406,41 @@ var update_searchterm = function(){
 set_search_regex('');
 $(".search_box").on("input",update_searchterm);
 
-function node_radius_by_links(d) {
-  return 3;
-  return d.links_from_found ? d.links_from.length : d.in_count || 3;
-  if (d.links_from){
-    return 3;
-  } else {
-    return 5;
-  }
+var little_dot = .5;
+var node_radius_policies = {
+    'node radius by links': function(d) {
+	//if (d.radius) return d.radius;
+	d.radius = Math.max(little_dot,Math.log(d.links_shown.length));
+	return d.radius;
+	if (d.showing_links == 'none'){
+	    d.radius = little_dot;	
+	} else if (d.showing_links == 'all'){
+	    d.radius = Math.max(little_dot,2 + Math.log(d.links_shown.length));
+	}
+	return d.radius;
+    },
+    'equal dots': function(d){
+	return little_dot;
+    }
+};
+var default_node_radius_policy = 'equal dots';
+var default_node_radius_policy = 'node radius by links';
+set_node_radius_policy('',node_radius_policies[default_node_radius_policy]);
+
+function init_node_radius_policy(evt){
+    var policy_picker = d3.select(evt.target);
+    for (var policy_name in node_radius_policies){
+	policy_picker.append('option').text(policy_name);
+	console.log(policy_name);
+    }
+}
+
+function set_node_radius_policy(evt,func){
+    node_radius_policy = func;
+}
+
+function calc_node_radius(d){
+    return node_radius_policy(d);
 }
 
 function names_in_edges(array){
@@ -442,17 +473,31 @@ function dump_details(d,s){
 function find_nearest_node(){
   var new_nearest_node;
   var new_nearest_idx;
-  var focus_threshold = focus_radius * 1;
+  var focus_threshold = focus_radius * 3;
   var close_nodes = [];
+  var closest = width;;
+  var closest_point;
   //node.each(function(d,i) {
   nodes.forEach(function(d,i) {
-      var dist = distance(d,last_mouse_pos);
+      var dist = distance(d.fisheye || d,last_mouse_pos);
+      if (dist < closest){
+	  closest = dist;
+	  closest_point = d.fisheye || d;
+      }
       if (dist <= focus_threshold){
           new_nearest_node = d;
           focus_threshold = dist;
           new_nearest_idx = i;
+          //console.log("dist",focus_threshold,dist,new_nearest_node.name);
       }
   });
+  if (draw_circle_around_nearest){
+      draw_circle(closest_point.x,closest_point.y,focus_radius,'red');
+  }
+  var msg = focus_threshold+" <> " + closest;
+  var status = $("#status");
+  status.text(msg);
+  //console.log('new_nearest_node',focus_threshold,new_nearest_node);
   if (nearest_node != new_nearest_node){
       if (nearest_node){
         d3.select('.nearest_node').classed('nearest_node',false);
@@ -519,13 +564,13 @@ function draw_nodes(){
               return "translate(" + d.fisheye.x + "," + d.fisheye.y + ")"; 
 	  }
       )
-	  .attr("r", node_radius_by_links);
+	  .attr("r", calc_node_radius);
   }
   if (use_canvas){
       nodes.forEach(function(d,i){
           draw_circle(d.fisheye.x,
 		      d.fisheye.y,
-		      4,
+		      calc_node_radius(d),
 		      d.color || 'yellow',
 		      d.color || 'black'
 		     );
@@ -550,6 +595,9 @@ function draw_labels(){
     });
   }
   if (use_canvas){
+      //http://stackoverflow.com/questions/3167928/drawing-rotated-text-on-a-html5-canvas
+      //ctx.rotate(Math.PI*2/(i*6));
+
       // http://diveintohtml5.info/canvas.html#text
       // http://stackoverflow.com/a/10337796/1234699
       nodes.forEach(function(node){
@@ -579,9 +627,11 @@ function blank_screen(){
 
 function tick() {
     //if (nearest_node){	return;    }
-    fisheye.focus(last_mouse_pos);
     blank_screen();
     find_nearest_node();
+    fisheye.focus(last_mouse_pos);
+    //show_last_mouse_pos();
+    //find_nearest_node();
     position_nodes();
     draw_edges();
     draw_nodes();
@@ -619,7 +669,7 @@ function restart() {
       .call(force.drag);
   
   nodeEnter.append("circle")
-      .attr("r", node_radius_by_links)
+      .attr("r", calc_node_radius)
       .style("fill", function(d){d.color;});
 
   nodeEnter.append("text")
@@ -634,10 +684,13 @@ function restart() {
   force.start();
 }
 
+function show_last_mouse_pos(){
+  draw_circle(last_mouse_pos[0],last_mouse_pos[1],focus_radius,'yellow')
+  //console.log(last_mouse_pos,'move');
+}
 function mousemove() {
   last_mouse_pos = d3.mouse(this);
   cursor.attr("transform", "translate(" + last_mouse_pos + ")");
-  console.log(last_mouse_pos,'move');
   tick();
 }
 
