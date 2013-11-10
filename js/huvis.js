@@ -565,20 +565,32 @@ function draw_edges(){
 function position_nodes(){
     var n_nodes = nodes.length;
     nodes.forEach(function(d,i){
-	if (! d.linked){
-            var rad = 6.2832 * i / n_nodes;
-	    d.rad = rad;
-	    d.x = cx + Math.sin(rad) * graph_radius;
-	    d.y = cy + Math.cos(rad) * graph_radius;
-	    //d.fixed = true;
-        }
+	if (! d.linked) return;
         d.fisheye = fisheye(d);
+    });
+}
+
+function draw_lariat(){
+    var n_nodes = unlinked_nodez.length;
+    unlinked_nodez.forEach(function(d,i){
+    //nodes.forEach(function(d,i){
+	var rad = 2 * Math.PI * i / n_nodes;
+	d.rad = rad;
+	d.x = cx + Math.sin(rad) * graph_radius;
+	d.y = cy + Math.cos(rad) * graph_radius;
+	d.fisheye = fisheye(d);
+	draw_circle(d.fisheye.x,
+		    d.fisheye.y,
+		    calc_node_radius(d),
+		    d.color || 'yellow',
+		    d.color || 'black'
+		   );
     });
 }
 
 function draw_nodes(){
   if (use_svg){
-      node.attr(
+     node.attr(
 	  "transform", 
 	  function(d,i) { 
               return "translate(" + d.fisheye.x + "," + d.fisheye.y + ")"; 
@@ -588,6 +600,7 @@ function draw_nodes(){
   }
   if (use_canvas){
       nodes.forEach(function(d,i){
+	  if (! d.linked) return;
           draw_circle(d.fisheye.x,
 		      d.fisheye.y,
 		      calc_node_radius(d),
@@ -665,7 +678,9 @@ function tick() {
     position_nodes();
     draw_edges();
     draw_nodes();
+    draw_lariat();
     draw_labels();
+    $("#status").text("nodes:"+nodes.length+" unlinked:"+unlinked_nodez.length);
 }
 
 function svg_restart() {
@@ -777,6 +792,7 @@ var INCOMPLETE_insert_into_sorted_and_indexed = function(itm,array,cmp,idx){
 
 
 var update_linked_flag = function(n){
+  var old_linked_status = n.linked;
   n.linked = n.links_shown.length > 0;
   n.fixed = ! n.linked;
   if (n.linked){
@@ -794,7 +810,8 @@ var update_linked_flag = function(n){
       n.showing_links = 'none';
   }
   var name = n.name;
-
+  var changed = old_linked_status != n.linked;
+  if (! changed) return name;  // do nothing because no change
   if (n.linked){
       //d3.select(node[0][new_nearest_idx]).classed('nearest_node',true);
       remove_from(n,unlinked_nodez);
@@ -804,7 +821,9 @@ var update_linked_flag = function(n){
   } else {
       if (unlinked_nodez.indexOf(n) == -1){
 	  unlinked_nodez.push(n);
-	  d3.select(svg_node).classed('lariat',true).classed('node',false);
+	  if (use_svg){
+	      d3.select(svg_node).classed('lariat',true).classed('node',false);
+	  }
 	  sort_by_current_sort_order(unlinked_nodez);
       }
   }
@@ -1009,7 +1028,8 @@ var make_node_if_missing = function(subject,start_point,linked){
   if (d) return d; // already exist, return it
   //console.log("make_node_if_missing(",subject.id,") MISSING!");
   start_point = start_point || [width/2, height/2];
-  linked = typeof linked === 'undefined' || false;
+  //linked = typeof linked === 'undefined' || false;  // WFT!!!!
+  linked =  typeof linked === 'undefined' || linked || false;
   var name = subject.predicates[FOAF_name].objects[0].value;
   d = {x: start_point[0], y: start_point[1], 
        px: start_point[0]*1.01, py: start_point[1]*1.01, 
@@ -1025,11 +1045,11 @@ var make_node_if_missing = function(subject,start_point,linked){
        //in_count:0, out_count:0
       };
   d.color = color_by_type(d);
-  if (true){ 
-    var n_idx = nodes.push(d) - 1;
-    id2n[subject.id] = n_idx;
-    sid2node[subject.id] = d;
-  } else {
+  //if (linked){ 
+  var n_idx = nodes.push(d) - 1;
+  id2n[subject.id] = n_idx;
+  sid2node[subject.id] = d;
+  if (! linked){
     var n_idx = unlinked_nodez.push(d) - 1;
     id2u[subject.id] = n_idx;    
   }
@@ -1046,7 +1066,7 @@ var make_nodes = function(g,limit){
       }
       if (! subj.match(ids_to_show)) continue;
       var subject = g.subjects[subj];  
-      make_node_if_missing(subject,[width/2,height/2])
+	make_node_if_missing(subject,[width/2,height/2],false)
       count++;
       if (limit && count >= limit) break;
     }
@@ -1075,7 +1095,7 @@ var showGraph = function(g){
   restart();			   
   //make_links(g,Math.floor(nodes.length/10));
   //make_links(g);
-  restart();
+  //restart();
 };
 
 
