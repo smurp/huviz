@@ -327,10 +327,9 @@ console.log("================== canvas =",canvas);
 var ctx = canvas.getContext('2d');
 
 var use_canvas = true;
-var use_svg = true;
-use_svg = false;
+var use_svg = false;
 var use_webgl = (typeof xmult != 'undefined');
-//use_canvas = false;
+
 function draw_circle(cx,cy,radius,strclr,filclr){
     if (strclr) ctx.strokeStyle = strclr || "blue";
     if (filclr) ctx.fillStyle = filclr || "blue";
@@ -485,7 +484,7 @@ function dump_details(d,s){
     console.log("  out:", d.links_from && d.links_from.length || d.links_from,
 	                names_in_edges(d.links_from || []));
     console.log("  shown:", d.links_shown.length,names_in_edges(d.links_shown));
-    console.log("  class:", s.getAttribute('class'));
+    //console.log("  class:", s.getAttribute('class'));
     console.log("  showing_links:", d.showing_links);
     console.log("/dump_details ======================");
 }
@@ -669,7 +668,7 @@ function tick() {
     draw_labels();
 }
 
-function restart() {
+function svg_restart() {
   link = link.data(links);
   
   link.enter().insert("line", ".node")
@@ -712,7 +711,11 @@ function restart() {
       .text(function(d) { return d.name});
   label = svg.selectAll(".label");
   //force.nodes(nodes).links(links).start();
-  force.start();
+}
+
+function restart(){
+    if (use_svg) svg_restart();
+    force.start();
 }
 
 function show_last_mouse_pos(){
