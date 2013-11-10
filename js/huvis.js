@@ -40,6 +40,7 @@ var DEBUG = 40;
 var DUMP = false;
 var node_radius_policy;
 var draw_circle_around_nearest = false;
+var draw_lariat_labels_rotated = true;
 
 if (! verbose){
   console = {'log': function(){}};
@@ -314,7 +315,9 @@ mouse_receiver
     .on("mousedown", register_mousedown_point)
     .on("mouseup", click_to_toggle_edges);
 
-mouse_receiver.call(force.drag);
+// lines: 5845 5848 5852 of d3.v3.js object to
+//    mouse_receiver.call(force.drag);
+// when mouse_receiver == viscanvas
 
 console.log("================== canvas =",canvas);
 var ctx = canvas.getContext('2d');
@@ -425,19 +428,32 @@ var node_radius_policies = {
 };
 var default_node_radius_policy = 'equal dots';
 var default_node_radius_policy = 'node radius by links';
-set_node_radius_policy('',node_radius_policies[default_node_radius_policy]);
+//set_node_radius_policy(node_radius_policies[default_node_radius_policy]);
+node_radius_policy = node_radius_policies[default_node_radius_policy];
 
-function init_node_radius_policy(evt){
-    var policy_picker = d3.select(evt.target);
-    for (var policy_name in node_radius_policies){
-	policy_picker.append('option').text(policy_name);
-	console.log(policy_name);
+function set_node_radius_policy(evt){
+    f = $( "select#node_radius_policy option:selected").val();
+    if (! f) return;
+    if (typeof f === typeof 'str'){
+	node_radius_policy = node_radius_policies[f];
+    } else if (typeof f === typeof set_node_radius_policy){
+	node_radius_policy = f;
+    } else {
+	console.log("f =",f);
     }
 }
 
-function set_node_radius_policy(evt,func){
-    node_radius_policy = func;
+function init_node_radius_policy(){
+    var policy_box = d3.select('#huvis_controls')
+	.append('div','node_radius_policy_box');
+    var policy_picker = policy_box.append('select','node_radius_policy');
+    policy_picker.on('change',set_node_radius_policy);
+    for (var policy_name in node_radius_policies){
+	policy_picker.append('option').attr('value',policy_name).text(policy_name);
+	//console.log(policy_name);
+    }
 }
+
 
 function calc_node_radius(d){
     return node_radius_policy(d);
@@ -496,7 +512,7 @@ function find_nearest_node(){
   }
   var msg = focus_threshold+" <> " + closest;
   var status = $("#status");
-  status.text(msg);
+  //status.text(msg);
   //console.log('new_nearest_node',focus_threshold,new_nearest_node);
   if (nearest_node != new_nearest_node){
       if (nearest_node){
@@ -547,7 +563,8 @@ function position_nodes(){
     var n_nodes = nodes.length;
     nodes.forEach(function(d,i){
 	if (! d.linked){
-            var rad = 6.2832 * i / n_nodes + 3.14159;
+            var rad = 6.2832 * i / n_nodes;
+	    d.rad = rad;
 	    d.x = cx + Math.sin(rad) * graph_radius;
 	    d.y = cy + Math.cos(rad) * graph_radius;
 	    //d.fixed = true;
@@ -609,8 +626,18 @@ function draw_labels(){
 	      ctx.fillStyle = 'black';
 	      ctx.font = "7px sans-serif";
 	  }
-	  ctx.fillText(node.name,node.fisheye.x,node.fisheye.y)
-	  //console.log('fillText(',node.name,")");
+	  if (! node.linked && draw_lariat_labels_rotated){
+	      // Flip label rather than write upside down
+	      //   var flip = (node.rad > Math.PI) ? -1 : 1;
+	      //   view-source:http://www.jasondavies.com/d3-dependencies/
+	      ctx.save();
+	      ctx.translate(node.fisheye.x,node.fisheye.y);
+	      ctx.rotate(-1 * node.rad + Math.PI/2);
+	      ctx.fillText(node.name,0,0);
+	      ctx.restore();
+	  } else {
+	      ctx.fillText(node.name,node.fisheye.x,node.fisheye.y);
+	  }
       });
   }
 }
@@ -1073,10 +1100,11 @@ var await_the_GreenTurtle = function(){
 }
 
 window.addEventListener('load',function(){
-   // This delay is to let GreenTurtle initialize
-   // It would be great if there were a hook for this...
-   load_file();
-   //await_the_GreenTurtle();
+    // This delay is to let GreenTurtle initialize
+    // It would be great if there were a hook for this...
+    //init_node_radius_policy()
+    load_file();
+    //await_the_GreenTurtle();
 });
 
 var hide_node_links = function(node){

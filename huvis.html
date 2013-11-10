@@ -26,7 +26,7 @@
          <input type="checkbox" id="show_labels_input" 
                 onchange="toggle_label_display(this)"/>
       </div>
-      <div id="display_tech">
+      <div id="display_tech" style="display:none">
         <div id="use_canvas">
            <label for="use_canvas_input">use_canvas</label>
            <input type="checkbox" id="use_canvas_input" 
@@ -45,13 +45,6 @@
         </div>
       </div>
 
-      <div id="node_radius_policy_box">
-        <select id="node_radius_policy" onload="init_node_radius_policy(this)" >
-        </select>
-      </div>
-
-
-      </div>
     </div>
     <div id="vis" class="underneath" style="z-index:-3"></div>
     <div id="viscanvas" class="underneath"></div>
