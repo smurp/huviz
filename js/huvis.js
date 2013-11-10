@@ -254,10 +254,14 @@ function updateWindow(){
     get_window_width();
     get_window_height();
     update_graph_radius();
-    svg.attr("width", width).attr("height", height);
+    if (svg){
+	svg
+	    .attr("width", width)
+	    .attr("height", height);
+    }
     if (canvas){
-      canvas.width = width;
-      cavass.height = height;
+	canvas.width = width;
+	canvas.height = height;
     }
     force.size([width,height]);
     restart();
