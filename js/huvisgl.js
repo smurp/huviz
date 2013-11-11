@@ -8,41 +8,49 @@ geometry, material, mesh;
 var xmult = 1;
 var ymult = 1;
  
-function add_line(scene,x,y,x2,y2,name){
+function add_line(scene,x0,y0,x1,y1,name,clr){
    // view-source:http://stemkoski.github.io/Three.js/Dashed-Lines.html
    // https://github.com/mrdoob/three.js/wiki/Drawing-lines
-    draw_line(x,y,x2,y2,'green');
+   //    draw_line(x0,y0,x1,y1,'green');
+    clr = clr || 0xcc0000;
     var scale = 1;
     var xscale = scale * xmult;
     var yscale = scale * ymult;
     var lineGeometry = new THREE.Geometry();
     var vertArray = lineGeometry.vertices;
-    /*
-      vertArray.push( new THREE.Vector3(-150, -100, 0),
-                      new THREE.Vector3(-150, 100, 0) );
-    */
     var z = 999;
-    /*
-      vertArray.push( new THREE.Vector3(xmult * x, ymult * y, z),
-      new THREE.Vector3(xmult * x2, ymult * y2, z) );
-    */
-    vertArray.push( new THREE.Vector3(xscale * x - cx,  yscale * y - cy, z),
-                    new THREE.Vector3(xscale * x2 - cx, yscale * y2 - cy, z) );
+    var dx = x1-x0, 
+    dy = y0 - y1;
+    vertArray.push( new THREE.Vector3(0,  0, z),
+                    new THREE.Vector3(dx, dy, z) );
     lineGeometry.computeLineDistances();
-    var lineMaterial = new THREE.LineBasicMaterial( { color: 0xcc0000 } );
+    var lineMaterial = new THREE.LineBasicMaterial( { color: clr } );
     var line = new THREE.Line( lineGeometry, lineMaterial );
+    line.position.x = x0 - cx;
+    line.position.y = (y0 - cy) * -1;
     scene.add(line);
     line.name = name;
     return line;
 }
 
 function mv_line(line,x0,y0,x1,y1){
+    line.position.x = x0 - cx;
+    line.position.y = y0 - cy;
+
+    var dx = x1-x0, 
+        dy = y1-y0;
+    
     v0 = line.geometry.vertices[0];
     v1 = line.geometry.vertices[1];
+    
+    v1.x = dx;
+    v1.y = dy;
+    /*
     v0.x = x0 - cx;
-    v0.y = y0 - cy;
+    v0.y = (y0 - cy) * -1;
     v1.x = x1 - cx;
-    v1.y = y1 - cy;
+    v1.y = (y1 - cy) * -1;
+    */
 };
 
 var glnodes = [];
@@ -67,9 +75,9 @@ function mv_node(node,x,y){
 function add_frame(){
     console.log('scene',scene);
     var scale = 1;
-    var inset = 50;
-    var dx = cx - width;
-    var dy = cy - height;
+    var inset = 100;
+    var dx = 0; //width;
+    var dy = 0; //height;
     dx = 0;
     dy = 0;
     var l = dx + inset;
@@ -80,12 +88,12 @@ function add_frame(){
     t = t * scale;
     l = l * scale;
     r = r * scale;
-    var l2 = l * 1.1;
-    var t2 = t * 1.1;
-    var top = add_line(scene,l2,t2,r,t,'top');
-    var bottom = add_line(scene,l,b,r,b,'bottom');
-    var left = add_line(scene,l2,t2,l,b,'left');
-    var right = add_line(scene,r,t,r,b,'right');
+    var l2 = l // * 1.1;
+    var t2 = t // * 1.1;
+    var top = add_line(scene,l2,t2,r,t,'top','black');
+    var bottom = add_line(scene,l,b,r,b,'bottom','yellow');
+    var left = add_line(scene,l2,t2,l,b,'left','red');
+    var right = add_line(scene,r,t,r,b,'right','green');
     console.log("FRAME",t,b,l,r);
     dump_line(right,'RIGHT');
 }

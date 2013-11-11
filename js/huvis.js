@@ -328,7 +328,9 @@ var ctx = canvas.getContext('2d');
 
 var use_canvas = true;
 var use_svg = false;
-var use_webgl = true; //(typeof xmult != 'undefined');
+var use_webgl = true;
+
+//use_webgl = false;
 
 function init_webgl(){
     init();
@@ -601,7 +603,6 @@ function position_nodes(){
 function draw_lariat(){
     var n_nodes = unlinked_nodez.length;
     unlinked_nodez.forEach(function(d,i){
-    //nodes.forEach(function(d,i){
 	var rad = 2 * Math.PI * i / n_nodes;
 	d.rad = rad;
 	d.x = cx + Math.sin(rad) * graph_radius;
@@ -618,7 +619,6 @@ function draw_lariat(){
 	if (use_webgl){
 	    mv_node(d.gl,d.fisheye.x,d.fisheye.y);
 	}
-	
     });
 }
 
@@ -765,7 +765,7 @@ function add_webgl_line(d){
                       d.target.x,d.target.y,
                       d.source.s.id + " - " + d.target.s.id
 		     );
-    dump_line(d.line);
+    //dump_line(d.line);
 }
 
 function webgl_restart(){
@@ -900,7 +900,7 @@ var add_link = function(e){
   update_linked_flag(e.source);
   update_linked_flag(e.target);
     if (use_webgl){
-	add_webgl_line(e);
+	    add_webgl_line(e);
     }
   restart();
 };
