@@ -328,7 +328,14 @@ var ctx = canvas.getContext('2d');
 
 var use_canvas = true;
 var use_svg = false;
-var use_webgl = (typeof xmult != 'undefined');
+var use_webgl = true; //(typeof xmult != 'undefined');
+
+function init_webgl(){
+    init();
+    animate();
+    add_frame();
+    dump_line(add_line(scene,cx,cy,width,height,'ray'))
+}
 
 function draw_circle(cx,cy,radius,strclr,filclr){
     if (strclr) ctx.strokeStyle = strclr || "blue";
@@ -537,12 +544,23 @@ function find_nearest_node(){
 
 function draw_edges(){
   if (use_webgl){
+      var dx = width * xmult,
+          dy = height * ymult;
+      dx = -1 * cx;
+      dy = -1 * cy;
     links.forEach(function(d){
         var l = d.line;
-        l.geometry.vertices[0].x = d.source.x * xmult - cx;
-        l.geometry.vertices[1].x = d.target.x * xmult - cx;
-        l.geometry.vertices[0].y = d.source.y * ymult + cy;
-        l.geometry.vertices[1].y = d.target.y * ymult + cy;
+	//mv_line(l)
+        l.geometry.vertices[0].x = d.source.fisheye.x - cx;
+        l.geometry.vertices[1].x = d.target.fisheye.x - cx;
+
+        l.geometry.vertices[0].y = d.source.fisheye.y - cy
+        l.geometry.vertices[1].y = d.target.fisheye.y - cy;
+
+        //l.geometry.vertices[0].x = 0;
+        //l.geometry.vertices[0].y = 0;
+        //l.geometry.vertices[0].z = 200;
+	dump_line(l);
     });
   }
   if (use_svg){
@@ -558,6 +576,16 @@ function draw_edges(){
 	    e.source.fisheye.x,e.source.fisheye.y,
 	    e.target.fisheye.x,e.target.fisheye.y,
 	    e.color);
+    });
+  }
+  if (use_webgl){
+    links.forEach(function(e,i){
+	if (! e.line) return;
+	var v = e.line.geometry.vertices;
+	v[0].x = e.source.fisheye.x;
+	v[0].y = e.source.fisheye.y;
+	v[1].x = e.target.fisheye.x;
+	v[1].y = e.target.fisheye.y;
     });
   }
 }
@@ -579,12 +607,18 @@ function draw_lariat(){
 	d.x = cx + Math.sin(rad) * graph_radius;
 	d.y = cy + Math.cos(rad) * graph_radius;
 	d.fisheye = fisheye(d);
-	draw_circle(d.fisheye.x,
-		    d.fisheye.y,
-		    calc_node_radius(d),
-		    d.color || 'yellow',
-		    d.color || 'black'
-		   );
+	if (use_canvas){
+	    draw_circle(d.fisheye.x,
+			d.fisheye.y,
+			calc_node_radius(d),
+			d.color || 'yellow',
+			d.color || 'black'
+		       );
+	}
+	if (use_webgl){
+	    
+	}
+	
     });
 }
 
@@ -688,14 +722,6 @@ function svg_restart() {
   
   link.enter().insert("line", ".node")
 	.attr("class", function(d){
-            if (use_webgl){
-               var l = add_line(scene,
-		                d.source.x,d.source.y,
-                                d.target.x,d.target.y,
-                                d.source.s.id + " - " + d.target.s.id
-		    );
-               d.line = line;
-            }
             //console.log(l.geometry.vertices[0].x,l.geometry.vertices[1].x);
 	    return "link";
 	});
@@ -726,6 +752,21 @@ function svg_restart() {
       .text(function(d) { return d.name});
   label = svg.selectAll(".label");
   //force.nodes(nodes).links(links).start();
+}
+
+function add_webgl_line(d){
+    d.line = add_line(scene,
+		      d.source.x,d.source.y,
+                      d.target.x,d.target.y,
+                      d.source.s.id + " - " + d.target.s.id
+		     );
+    dump_line(d.line);
+}
+
+function webgl_restart(){
+    links.forEach(function(d){
+	add_webgl_line(d);
+    });
 }
 
 function restart(){
@@ -853,6 +894,9 @@ var add_link = function(e){
   add_to(e,e.target.links_shown);
   update_linked_flag(e.source);
   update_linked_flag(e.target);
+    if (use_webgl){
+	add_webgl_line(e);
+    }
   restart();
 };
 var remove_from = function(doomed,array){
@@ -1100,13 +1144,16 @@ var showGraph = function(g){
 
 
 function load_file(){
-  reset_graph();
-  var data_uri = $( "select#file_picker option:selected").val();
-  console.log(data_uri);
-  G = {};
-  if (! G.subjects){
-    fetchAndShow(data_uri);
-  }
+    reset_graph();
+    var data_uri = $( "select#file_picker option:selected").val();
+    console.log(data_uri);
+    G = {};
+    if (! G.subjects){
+	fetchAndShow(data_uri);
+    }
+    if (use_webgl){
+	init_webgl();
+    }
 }
 
 var wait_for_GreenTurtle = function(){
