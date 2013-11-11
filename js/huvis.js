@@ -334,7 +334,7 @@ function init_webgl(){
     init();
     animate();
     add_frame();
-    dump_line(add_line(scene,cx,cy,width,height,'ray'))
+    //dump_line(add_line(scene,cx,cy,width,height,'ray'))
 }
 
 function draw_circle(cx,cy,radius,strclr,filclr){
@@ -616,7 +616,7 @@ function draw_lariat(){
 		       );
 	}
 	if (use_webgl){
-	    
+	    mv_node(d.gl,d.fisheye.x,d.fisheye.y);
 	}
 	
     });
@@ -632,15 +632,20 @@ function draw_nodes(){
       )
 	  .attr("r", calc_node_radius);
   }
-  if (use_canvas){
+  if (use_canvas || use_webgl){
       nodes.forEach(function(d,i){
 	  if (! d.linked) return;
-          draw_circle(d.fisheye.x,
-		      d.fisheye.y,
-		      calc_node_radius(d),
-		      d.color || 'yellow',
-		      d.color || 'black'
-		     );
+	  if (use_canvas){
+              draw_circle(d.fisheye.x,
+			  d.fisheye.y,
+			  calc_node_radius(d),
+			  d.color || 'yellow',
+			  d.color || 'black'
+			 );
+	  }
+	  if (use_webgl){
+	      mv_node(d.gl,d.fisheye.x,d.fisheye.y)
+	  }
       });
   }
 }
@@ -1089,6 +1094,9 @@ var make_node_if_missing = function(subject,start_point,linked){
        //in_count:0, out_count:0
       };
   d.color = color_by_type(d);
+    if (use_webgl){
+	d.gl = add_node(scene,d.x,d.y,3,d.color)
+    }
   //if (linked){ 
   var n_idx = nodes.push(d) - 1;
   id2n[subject.id] = n_idx;

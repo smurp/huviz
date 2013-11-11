@@ -39,12 +39,30 @@ function add_line(scene,x,y,x2,y2,name){
 function mv_line(line,x0,y0,x1,y1){
     v0 = line.geometry.vertices[0];
     v1 = line.geometry.vertices[1];
-    v0.x = x0 - cx
-    v0.y = y0 - cy
-    v1.x = x1 - cx
-    v1.y = y1 - cy
-    
+    v0.x = x0 - cx;
+    v0.y = y0 - cy;
+    v1.x = x1 - cx;
+    v1.y = y1 - cy;
 };
+
+var glnodes = [];
+function add_node(scene,x,y,r,clr){
+    var mesh,geometry,material;
+    clr = clr || 0x0000dd;
+    var rmult = 3;
+    geometry = new THREE.CubeGeometry( r*rmult,r*rmult,r*rmult );
+    material = new THREE.MeshBasicMaterial( { color: clr, wireframe: true } );
+    mesh = new THREE.Mesh( geometry, material );
+    glnodes.push(mesh);
+    scene.add( mesh );
+    return mesh;
+}
+
+function mv_node(node,x,y){
+    //console.log(node);
+    node.position.x = x - cx;
+    node.position.y = (y - cy) * -1;
+}
 
 function add_frame(){
     console.log('scene',scene);
@@ -79,15 +97,10 @@ function dump_line(line,msg){
     console.log(msg,line.name,v[0].x,v[0].y,"->",v[1].x,v[1].y)
 }
 
-var glnodes = [];
-function add_node(scene,x,y,r,clr){
-    var mesh,geometry,material;
-    clr = clr || 0x0000dd;
-    var rmult = 10;
-    geometry = new THREE.CubeGeometry( r*rmult,r*rmult,r*rmult );
-    material = new THREE.MeshBasicMaterial( { color: clr, wireframe: true } );
+function add_mesh(){
+    geometry = new THREE.CubeGeometry( 200, 200, 200 );
+    material = new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe: true } );
     mesh = new THREE.Mesh( geometry, material );
-    glnodes.push(mesh);
     scene.add( mesh );
 }
 
@@ -102,14 +115,11 @@ function init() {
       camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
     }
     camera.position.z = 1000;
+    
+    //add_mesh()
 
-    geometry = new THREE.CubeGeometry( 200, 200, 200 );
-    material = new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe: true } );
-    mesh = new THREE.Mesh( geometry, material );
-    scene.add( mesh );
-
-    add_line(scene,cx-100,cy-100,cx+100,cy+100,'demo-line'); 
-    add_node(scene,cx,cy,10);
+    //add_line(scene,cx-100,cy-100,cx+100,cy+100,'demo-line'); 
+    //add_node(scene,cx,cy,10);
 
     if (false){
       renderer = new THREE.CanvasRenderer();
@@ -137,16 +147,11 @@ function render() {
     if (glnodes){
 	glnodes.forEach(function(obj){rot_obj(obj)});
     }
-    if (mesh){
-	rot_obj(mesh);
-    }
-//    line.rotation.x += 0.01;
-//    line.rotation.y += 0.02; 
-//    line.rotation.x += 0.02; 
+    /*
+      if (mesh){
+      rot_obj(mesh);
+      }
+    */
 
     renderer.render( scene, camera );
 }
- /*
-
-
-   */
