@@ -49,8 +49,6 @@ function binary_search_on(sorted_array,sought,cmp,ret_ins_idx){
         top = sorted_array.length;
     while (seeking){
 	mid = bot + Math.floor((top - bot)/2);
-	//console.log(bot,mid,top,sought);
-	//alert(""+bot+" "+mid+" "+top+" id:"+sought.id);
 	var c = cmp(sorted_array[mid],sought);
 	//console.log(" c =",c);
 	if (c == 0) return mid;
@@ -73,10 +71,10 @@ var add_to_array = function(itm,array,cmp){
     cmp = cmp || array.__current_sort_order || cmp_on_id;
     var c = binary_search_on(array,itm,cmp,true)
     if (typeof c == typeof 3){ // an integer was returned, ie it was found
-	return array;
+	return c;
     }
     array.splice(c.idx,0,itm);
-    return array;
+    return c.idx;
 }
 var remove_from_array = function(itm,array,cmp){
     // Objective:
@@ -141,11 +139,11 @@ function do_tests(verbose){
     expect("binary_search_on(a_d,c,cmp_on_id)",-1);
     expect("binary_search_on(a_d,c,cmp_on_id,true).idx",0);
     expect("binary_search_on(a_d,b,cmp_on_id,true).idx",1);
-    expect("add_to_array(b,a_d)",a_d);
+    expect("add_to_array(b,a_d)",1);
     expect("binary_search_on(a_d,a,cmp_on_id)",0);
     expect("binary_search_on(a_d,b,cmp_on_id)",1);
     expect("binary_search_on(a_d,d,cmp_on_id)",2);
-    expect("add_to_array(c,a_d)[0]",c);
+    expect("add_to_array(c,a_d)",0);
 }
 do_tests(false);
 
@@ -993,23 +991,18 @@ function mousemove() {
   tick();
 }
 
-var get_linked_or_unlinked_node = function(subj_id){
-  return sid2node[subj_id];
-  return id2u[node_id] || id2n[node_id];
-};
-var node_exists = get_linked_or_unlinked_node;
-
-var get_node_for_linking = function(node_id){
-  /*
-     We find a node either already among the linked nodes
-     or among the unlinked nodes and ensure that it is
-     among the linked nodes.
-   */
-   if (id2u[node_id]){
-     id2n[node_id] = nodes.push(d) - 1;
-     delete id2u[node_id];
-   }
-   if (id2n[node_id]) return nodes[id2n[node_id]];
+var get_node_by_id = function(node_id,throw_on_fail){
+    throw_on_fail = throw_on_fail || false;
+    var idx = binary_search_on(nodes,{id:node_id}); // nodes is sorted by id
+    if (idx > -1){
+	return nodes[idx];
+    } else {
+	if (throw_on_fail){
+	    throw "node with id <"+node_id+"> not found";
+	} else {
+	    return;
+	}
+    }
 };
 
 var update_linked_flag = function(n){
@@ -1085,11 +1078,16 @@ var remove_link = function(e){
   update_linked_flag(e.target);
 };
 
-function remove_shadows(e){
+function remove_ghosts(e){
     if (use_webgl){
 	if (e.gl) remove_gl_obj(e.gl);
 	delete e.gl;
     }
+}
+function add_node_ghosts(d){
+  if (use_webgl){
+    d.gl = add_node(scene,d.x,d.y,3,d.color)
+  }
 }
 
 function make_edge(s,t,c){
@@ -1113,7 +1111,7 @@ var find_links_from_node = function(n) {
 		}
 		
 		if (id2n[obj.value]){
-		    var t = get_node_for_linking(obj.value);
+		    var t = get_node_by_id(obj.value);
 		    var edge = make_edge(n,t);
 		    add_link(edge);
 		}
@@ -1135,7 +1133,6 @@ var find_links_to_node = function(d) {
 	    var sid = sid_pred[0];
 	    var pred = sid_pred[1];
 	    var src = make_node_if_missing(G.subjects[sid],parent_point);
-	    //var src = get_node_for_linking(sid);
 	    var edge = make_edge(src, d);
 	    // console.log("  edge:",edge);
             add_link(edge);
@@ -1162,7 +1159,7 @@ var hide_links_to_node = function(n) {
 	remove_from(e,n.links_shown);
 	remove_from(e,e.source.links_shown);
 	remove_from(e,links);
-	remove_shadows(e);
+	remove_ghosts(e);
 	update_linked_flag(e.source);
     });
     force.links(links);
@@ -1193,22 +1190,12 @@ var hide_links_from_node = function(n) {
 	remove_from(e,n.links_shown);
 	remove_from(e,e.target.links_shown);
 	remove_from(e,links);
-	remove_shadows(e);
+	remove_ghosts(e);
 	update_linked_flag(e.target);
     });
     force.links(links);
     restart();
 }
-
-var remove_node = function(d){
-  if (verbosity >= DEBUG){
-    //console.log('remove_node',d);
-  }
-  // var node_idx = id2n[d.s.id]
-  //delete id2n[subject.id];
-  //nodes.
-}
-
 
 var G = {};
 var start_with_http = new RegExp("http", "ig");
@@ -1223,44 +1210,41 @@ var id2u = {}; // the index of unlinked nodes (in unlinked_nodez)
 
 var make_node_if_missing = function(subject,start_point,linked){
   // assumes not already in nodes and id2n
-  if (! subject) return;  // uhh, no subject
-  var d = get_linked_or_unlinked_node(subject.id);
-  if (d) return d; // already exist, return it
-  //console.log("make_node_if_missing(",subject.id,") MISSING!");
-  start_point = start_point || [width/2, height/2];
-  //linked = typeof linked === 'undefined' || false;  // WFT!!!!
-  linked =  typeof linked === 'undefined' || linked || false;
-  var name = subject.predicates[FOAF_name].objects[0].value;
-  d = {x: start_point[0], y: start_point[1], 
-       px: start_point[0]*1.01, py: start_point[1]*1.01, 
-       linked:false, // in the graph as opposed to the lariat or hoosegow
-       links_shown: [],
-       links_from: [],  // it being missing triggers it being filled
-       links_from_found: false,
-       links_to: [],
-       links_to_found: false,
-       showing_links: 'none', // none|all|some
-       name: name,
-       s:subject, 
-       //in_count:0, out_count:0
-      };
-  d.color = color_by_type(d);
-  d.id = d.s.id;
-  if (use_webgl){
-    d.gl = add_node(scene,d.x,d.y,3,d.color)
-  }
-
-  //if (linked){ 
-  var n_idx = nodes.push(d) - 1;
-  id2n[subject.id] = n_idx;
-  sid2node[subject.id] = d;
-  if (! linked){
-      add_to_array(d,unlinked_nodez);
-    var n_idx = unlinked_nodez.push(d) - 1;
-    id2u[subject.id] = n_idx;    
-  }
-  update_linked_flag(d);
-  return d;
+    if (! subject) return;  // uhh, no subject
+    var d = get_node_by_id(subject.id);
+    if (d) return d; // already exist, return it
+    //console.log("make_node_if_missing(",subject.id,") MISSING!");
+    start_point = start_point || [width/2, height/2];
+    //linked = typeof linked === 'undefined' || false;  // WFT!!!!
+    linked =  typeof linked === 'undefined' || linked || false;
+    var name = subject.predicates[FOAF_name].objects[0].value;
+    d = {x: start_point[0], y: start_point[1], 
+	 px: start_point[0]*1.01, py: start_point[1]*1.01, 
+	 linked:false, // in the graph as opposed to the lariat or hoosegow
+	 links_shown: [],
+	 links_from: [],  // it being missing triggers it being filled
+	 links_from_found: false,
+	 links_to: [],
+	 links_to_found: false,
+	 showing_links: 'none', // none|all|some
+	 name: name,
+	 s:subject, 
+	 //in_count:0, out_count:0
+	};
+    d.color = color_by_type(d);
+    d.id = d.s.id;
+    add_node_ghosts(d);
+    //if (linked){ 
+    var n_idx =  add_to_array(d,nodes);  
+    //var n_idx = nodes.push(d) - 1;
+    id2n[subject.id] = n_idx;
+    sid2node[subject.id] = d;
+    if (! linked){
+	var n_idx = add_to_array(d,unlinked_nodez);
+	id2u[subject.id] = n_idx;    
+    }
+    update_linked_flag(d);
+    return d;
 }
 
 var make_nodes = function(g,limit){
