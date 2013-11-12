@@ -70,7 +70,7 @@ var add_to_array = function(itm,array,cmp){
     //   Maintain a sorted array which acts like a set.
     //   It is sorted so insertions and tests can be fast.
     // cmp: a comparison function returning -1,0,1
-    cmp = cmp || cmp_on_id;
+    cmp = cmp || array.__current_sort_order || cmp_on_id;
     var c = binary_search_on(array,itm,cmp,true)
     if (typeof c == typeof 3){ // an integer was returned, ie it was found
 	return array;
@@ -82,7 +82,7 @@ var remove_from_array = function(itm,array,cmp){
     // Objective:
     //   Remove item from an array acting like a set.
     //   It is sorted by cmp, so we can use binary_search for removal
-    cmp = cmp || cmp_on_id;
+    cmp = cmp || array.__current_sort_order || cmp_on_id;
     var c = binary_search_on(array,itm,cmp);
     if (c > -1){
 	array.splice(c,1);
