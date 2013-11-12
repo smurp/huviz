@@ -15,15 +15,136 @@ Hoosegow -- a jail to contain nodes one does not want to be bothered by
 
  */
 
-var add_to =  function(itm,array){
-    // Perform the set operation of adding itm to the Array if not already present
-    //console.log("adding....",itm,'to',this);
-    var idx = array.indexOf(itm);
-    if (idx == -1){
-      idx = array.push(itm) - 1;
+
+function isArray(thing){
+    return Object.prototype.toString.call(thing) === '[object Array]';
+}
+function cmp_on_id(a,b){
+    if (a.id == b.id) return 0;
+    if (a.id < b.id) return -1;
+    return 1;
+}
+function binary_search_on(sorted_array,sought,cmp,ret_ins_idx){
+    // return -1 or the idx of sought in sorted_array
+    // if ret_ins_idx instead of -1 return [n] where n is where it ought to be
+    // AKA "RETurn the INSertion INdeX"
+    cmp = cmp || cmp_on_id;
+    ret_ins_idx = ret_ins_idx || false;
+    var seeking = true;
+    if (sorted_array.length < 1) {
+	if (ret_ins_idx) return {idx:0};
+	return -1;
     }
-    return idx;
+    var mid;
+    var bot = 0,
+        top = sorted_array.length;
+    while (seeking){
+	mid = bot + Math.floor((top - bot)/2);
+	//console.log(bot,mid,top,sought);
+	//alert(""+bot+" "+mid+" "+top+" id:"+sought.id);
+	var c = cmp(sorted_array[mid],sought);
+	//console.log(" c =",c);
+	if (c == 0) return mid;
+	if (c < 0){ // ie sorted_array[mid] < sought
+	    bot = mid + 1;
+	} else {
+	    top = mid;
+	}
+	if (bot == top){ 
+	    if (ret_ins_idx) return {idx:bot};
+	    return -1;
+	};
+    }
+}
+var add_to_array = function(itm,array,cmp){
+    // Perform the set operation of adding itm to the Array if not already present
+    //   array is assumed to be sorted by the .id property on items
+    cmp = cmp || cmp_on_id;
+    var c = binary_search_on(array,itm,cmp,true)
+    if (typeof c == typeof 3){ // an integer was returned, ie it was found
+	return array;
+    }
+    array.splice(c.idx,0,itm);
+    return array;
+}
+function assert(be_good,or_throw){
+    if (! be_good) throw or_throw;
+}
+
+function do_tests(verbose){
+    verbose = verbose || false;
+    var n = function(a,b){
+	if (a == b) return 0;
+	if (a < b) return -1;
+	return 1;
+    }
+    var 
+      a = {id:1},
+      b = {id:2},
+      c = {id:0},
+      d = {id:3},
+      stuff = [a,b],
+      a_d = [a,d],
+      ints = [0,1,2,3,4,5,6,7,8,10],
+      even = [0,2,4,6,8,10];
+
+    function expect(stmt,want){
+	var got = eval(stmt);
+	if (verbose) console.log(stmt,"==>",got);
+	if (got != want){
+	    throw stmt + " returned "+got+" expected "+want;
+	}
+    }
+
+    expect("cmp_on_id(a,a)",0);
+    expect("cmp_on_id(a,b)",-1);
+    expect("cmp_on_id(b,a)",1);
+    expect("binary_search_on(ints,0,n)",0);
+    expect("binary_search_on(ints,4,n)",4);
+    expect("binary_search_on(ints,8,n)",8);
+    expect("binary_search_on(ints,9,n)",-1);
+    expect("binary_search_on(ints,9,n,true).idx",9);
+    expect("binary_search_on(ints,-3,n)",-1);
+    expect("binary_search_on(even,1,n,true).idx",1);
+    expect("binary_search_on(even,3,n,true).idx",2);
+    expect("binary_search_on(even,5,n,true).idx",3);
+    expect("binary_search_on(even,7,n,true).idx",4);
+    expect("binary_search_on(even,9,n,true).idx",5);
+    expect("binary_search_on(even,9,n)",-1);
+    expect("binary_search_on(even,11,n,true).idx",6);
+    expect("binary_search_on(stuff,a)",0);
+    expect("binary_search_on(stuff,b)",1);
+    expect("binary_search_on(stuff,c)",-1);
+    expect("binary_search_on(stuff,d)",-1);
+    expect("binary_search_on(a_d,c,cmp_on_id)",-1);
+    expect("binary_search_on(a_d,c,cmp_on_id,true).idx",0);
+    expect("binary_search_on(a_d,b,cmp_on_id,true).idx",1);
+    expect("add_to_array(b,a_d)",a_d);
+    expect("binary_search_on(a_d,b,cmp_on_id)",1);
+}
+do_tests(false);
+
+var add_to =  function(itm,set){
+    // Perform the set .add operation, adding itm only if not already present
+    if (isArray(set)){
+	return add_to_array(itm,set);
+    }
+    if (typeof itm.id === 'undefined') 
+	throw "add_to() requires itm to have an .id";
+    var found = set[itm.id];
+    if (! found){
+	set[itm.id] = itm;
+    }
+    return set[itm.id];
   };
+var remove_from = function(doomed,set){
+    if (typeof doomed.id === 'undefined') 
+	throw "remove_from() requires doomed to have an .id";
+    if (set[doomed.id]){
+	delete set[doomed.id];
+    }
+};
+
 
 //if (Array.__proto__.add == null) Array.prototype.add = add;
 
@@ -358,33 +479,33 @@ function draw_line(x1,y1,x2,y2,clr){
 }
 
 function reset_graph(){
-  draw_circle(cx,cy,0.5 * Math.min(cx,cy),'black')
-  id2n = {};
-  sid2node = {};
-  nodes = [];
-  unlinked_nodez = [];
-  links = [];
-  force.nodes(nodes);
-  d3.select(".link").remove();
-  d3.select(".node").remove();
-  d3.select(".lariat").remove();
-
-   //nodes = force.nodes();
-   //links = force.links();
-
-  node  = svg.selectAll(".node");
-  link  = svg.selectAll(".link");
-  lariat = svg.selectAll(".lariat");
-
-  link = link.data(links);
-  
-  link.exit().remove();
-
-  node = node.data(nodes);
-
-  node.exit().remove();
-
-  force.start();
+    draw_circle(cx,cy,0.5 * Math.min(cx,cy),'black')
+    id2n = {};
+    sid2node = {};
+    nodes = [];
+    unlinked_nodez = [];
+    links = [];
+    force.nodes(nodes);
+    d3.select(".link").remove();
+    d3.select(".node").remove();
+    d3.select(".lariat").remove();
+    
+    //nodes = force.nodes();
+    //links = force.links();
+    
+    node  = svg.selectAll(".node");
+    link  = svg.selectAll(".link");
+    lariat = svg.selectAll(".lariat");
+    
+    link = link.data(links);
+    
+    link.exit().remove();
+    
+    node = node.data(nodes);
+    
+    node.exit().remove();
+    
+    force.start();
 }
 reset_graph();
 
@@ -471,14 +592,13 @@ function calc_node_radius(d){
     return node_radius_policy(d);
 }
 
-function names_in_edges(array){
-  out = [];
-  array.forEach(
-    function(itm){
-      out.push(itm.source.name+" ---> " + itm.target.name);
+function names_in_edges(set){
+    out = [];
+    for (var n in set){
+	var itm = set[n];
+	out.push(itm.source.name+" ---> " + itm.target.name);
     }
-  );
-  return out;
+    return out;
 }
 
 function dump_details(d,s){
@@ -931,12 +1051,6 @@ var add_link = function(e){
   update_linked_flag(e.target);
   restart();
 };
-var remove_from = function(doomed,array){
-    var idx = array.indexOf(doomed);
-    if (idx > -1){
-	array.splice(idx,1);
-    }
-};
 var UNDEFINED;
 var remove_link = function(e){
   if (links.indexOf(e) == -1) return; // not present
@@ -1023,66 +1137,61 @@ var show_links_to_node = function(n) {
     find_links_to_node(n);
     n.links_to_found = true;
   //}
-    n.links_to.forEach(
-      function(e,i){
+    for (var k in n.links_to){
+	var e = n.links_to[k];
         console.log('adding link from',e.source.name);
         add_to(e,n.links_shown);
 	add_to(e,e.source.links_shown);
         add_to(e,links);
         update_linked_flag(e.source);
-      }
-    )
- 
-  force.links(links)
-  restart();  
+    }
+    force.links(links)
+    restart();  
 };
 var hide_links_to_node = function(n) {
-  n.links_to.forEach(
-    function(e,i){
-      remove_from(e,n.links_shown);
-      remove_from(e,e.source.links_shown);
-      remove_from(e,links);
-      remove_shadows(e);
-      update_linked_flag(e.source);
+    for (var k in n.links_to){
+	var e = n.links_to[k];
+	remove_from(e,n.links_shown);
+	remove_from(e,e.source.links_shown);
+	remove_from(e,links);
+	remove_shadows(e);
+	update_linked_flag(e.source);
     }
-  );
-  force.links(links);
-  restart();  
+    force.links(links);
+    restart();  
 };
 
 
 var show_links_from_node = function(n) {
-  var subj = n.s;
-  if (! n.links_from_found){
-    find_links_from_node(n);
-    n.links_from_found = true;
-  } else {
-    n.links_from.forEach(
-      function(e,i){
-        add_to(e,n.links_shown);
-        add_to(e,links);
-	add_to(e,e.target.links_shown);
-        update_linked_flag(e.target);
-      }
-    );
-  }
-  force.links(links);
-  restart();
+    var subj = n.s;
+    if (! n.links_from_found){
+	find_links_from_node(n);
+	n.links_from_found = true;
+    } else {
+	for (var k in n.links_from){
+	    var e = n.links_from[k];
+            add_to(e,n.links_shown);
+            add_to(e,links);
+	    add_to(e,e.target.links_shown);
+            update_linked_flag(e.target);
+	}
+    }
+    force.links(links);
+    restart();
 };
 
 var hide_links_from_node = function(n) {
-  // remove every link from .links_shown which is in .links_from
-  n.links_from.forEach(
-    function(e,i){
-      remove_from(e,n.links_shown);
-      remove_from(e,e.target.links_shown);
-      remove_from(e,links);
-      remove_shadows(e);
-      update_linked_flag(e.target);
+    // remove every link from .links_shown which is in .links_from
+    for (k in n.links_from){
+	var e = n.links_from[k];
+	remove_from(e,n.links_shown);
+	remove_from(e,e.target.links_shown);
+	remove_from(e,links);
+	remove_shadows(e);
+	update_linked_flag(e.target);
     }
-  );
-  force.links(links);
-  restart();
+    force.links(links);
+    restart();
 }
 
 var remove_node = function(d){
@@ -1119,10 +1228,10 @@ var make_node_if_missing = function(subject,start_point,linked){
   d = {x: start_point[0], y: start_point[1], 
        px: start_point[0]*1.01, py: start_point[1]*1.01, 
        linked:false, // in the graph as opposed to the lariat or hoosegow
-       links_shown: [],
-       links_from: [],  // it being missing triggers it being filled
+       links_shown: {},
+       links_from: {},  // it being missing triggers it being filled
        links_from_found: false,
-       links_to: [],
+       links_to: {},
        links_to_found: false,
        showing_links: 'none', // none|all|some
        name: name,
