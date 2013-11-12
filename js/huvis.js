@@ -725,6 +725,7 @@ function draw_edges(){
 function position_nodes(){
     var n_nodes = nodes.length;
     nodes.forEach(function(d,i){
+	//console.log("position_node",d.name);
 	if (! d.linked) return;
         d.fisheye = fisheye(d);
     });
@@ -1146,26 +1147,28 @@ var show_links_to_node = function(n) {
     find_links_to_node(n);
     n.links_to_found = true;
   //}
-    for (var k in n.links_to){
-	var e = n.links_to[k];
+    //for (var k in n.links_to){
+    n.links_to.forEach(function(e,i){
+	//var e = n.links_to[k];
         console.log('adding link from',e.source.name);
         add_to(e,n.links_shown);
 	add_to(e,e.source.links_shown);
         add_to(e,links);
         update_linked_flag(e.source);
-    }
+    });
     force.links(links)
     restart();  
 };
 var hide_links_to_node = function(n) {
-    for (var k in n.links_to){
-	var e = n.links_to[k];
+    //for (var k in n.links_to){
+    n.links_to.forEach(function(e,i){
+	//var e = n.links_to[k];
 	remove_from(e,n.links_shown);
 	remove_from(e,e.source.links_shown);
 	remove_from(e,links);
 	remove_shadows(e);
 	update_linked_flag(e.source);
-    }
+    });
     force.links(links);
     restart();  
 };
@@ -1177,13 +1180,14 @@ var show_links_from_node = function(n) {
 	find_links_from_node(n);
 	n.links_from_found = true;
     } else {
-	for (var k in n.links_from){
-	    var e = n.links_from[k];
+	//for (var k in n.links_from){
+	n.links_from.forEach(function(e,i){
+	    //var e = n.links_from[k];
             add_to(e,n.links_shown);
             add_to(e,links);
 	    add_to(e,e.target.links_shown);
             update_linked_flag(e.target);
-	}
+	});
     }
     force.links(links);
     restart();
@@ -1191,14 +1195,15 @@ var show_links_from_node = function(n) {
 
 var hide_links_from_node = function(n) {
     // remove every link from .links_shown which is in .links_from
-    for (k in n.links_from){
-	var e = n.links_from[k];
+    //for (k in n.links_from){
+    n.links_to.forEach(function(e,i){
+	//var e = n.links_from[k];
 	remove_from(e,n.links_shown);
 	remove_from(e,e.target.links_shown);
 	remove_from(e,links);
 	remove_shadows(e);
 	update_linked_flag(e.target);
-    }
+    });
     force.links(links);
     restart();
 }
@@ -1237,10 +1242,10 @@ var make_node_if_missing = function(subject,start_point,linked){
   d = {x: start_point[0], y: start_point[1], 
        px: start_point[0]*1.01, py: start_point[1]*1.01, 
        linked:false, // in the graph as opposed to the lariat or hoosegow
-       links_shown: {},
-       links_from: {},  // it being missing triggers it being filled
+       links_shown: [],
+       links_from: [],  // it being missing triggers it being filled
        links_from_found: false,
-       links_to: {},
+       links_to: [],
        links_to_found: false,
        showing_links: 'none', // none|all|some
        name: name,
@@ -1286,15 +1291,15 @@ var make_links = function(g,limit){
     // for edge labels				   
     //   http://bl.ocks.org/jhb/5955887
     console.log('make_links');
-    for (var i =0 ; i<nodes.length; i++){
-      var subj = nodes[i].s;
-      show_links_from_node(nodes[i]);
-      if ((limit > 0) && (links.length >= limit)) break;
-    }
+    //for (var i =0 ; i<nodes.length; i++){
+    nodes.some(function(node,i){
+	var subj = node.s;
+	show_links_from_node(nodes[i]);
+	if ((limit > 0) && (links.length >= limit)) return true; // like break
+    });
     console.log('/make_links');
     restart();
-  }
-
+}
 
 var showGraph = function(g){
   console.log('showGraph');
@@ -1427,4 +1432,17 @@ var toggle_display_tech = function(ctrl,tech){
     ctrl.checked = val;
     tick();
     return true;
+}
+
+function dump_locations(){
+    nodes.forEach(
+	function(node,i){
+	    console.log("=================================================");
+	    console.log(node.name);
+	    console.log("  xy:",node.x,node.y);
+	    console.log("  fisheye:",node.fisheye);
+	    console.log("  fixed:",node.fixed);
+	    console.log("  links_shown:",node.links_shown.length);
+	}
+    );
 }

@@ -43,12 +43,13 @@ function remove_gl_obj(obj){
 }
 
 function mv_line(line,x0,y0,x1,y1){
-    x0 -= 100;
-    y0 -= 100;
-
-    x1 += 100;
-    y1 += 100;
-
+    if (false){
+	x0 -= 100;
+	y0 -= 100;
+	
+	x1 += 100;
+	y1 += 100;
+    }
 
     var dx = x1-x0, 
         dy = y0-y1;
