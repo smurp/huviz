@@ -545,26 +545,6 @@ function find_nearest_node(){
 }
 
 function draw_edges(){
-  if (use_webgl){
-      var dx = width * xmult,
-          dy = height * ymult;
-      dx = -1 * cx;
-      dy = -1 * cy;
-    links.forEach(function(d){
-        var l = d.line;
-	//mv_line(l)
-        l.geometry.vertices[0].x = d.source.fisheye.x - cx;
-        l.geometry.vertices[1].x = d.target.fisheye.x - cx;
-
-        l.geometry.vertices[0].y = d.source.fisheye.y - cy
-        l.geometry.vertices[1].y = d.target.fisheye.y - cy;
-
-        //l.geometry.vertices[0].x = 0;
-        //l.geometry.vertices[0].y = 0;
-        //l.geometry.vertices[0].z = 200;
-	dump_line(l);
-    });
-  }
   if (use_svg){
     link.attr("x1", function(d) { return d.source.fisheye.x; })
         .attr("y1", function(d) { return d.source.fisheye.y; })
@@ -580,7 +560,25 @@ function draw_edges(){
 	    e.color);
     });
   }
+
   if (use_webgl){
+      //console.clear();
+      var dx = width * xmult,
+      dy = height * ymult;
+      dx = -1 * cx;
+      dy = -1 * cy;
+      links.forEach(function(e){
+          var l = e.line;
+	  mv_line(l,
+		  e.source.fisheye.x,
+		  e.source.fisheye.y,
+		  e.target.fisheye.x,
+		  e.target.fisheye.y);
+	  dump_line(l);
+      });
+  }
+
+  if (use_webgl && false){
     links.forEach(function(e,i){
 	if (! e.line) return;
 	var v = e.line.geometry.vertices;
@@ -719,7 +717,13 @@ function tick() {
     draw_nodes();
     draw_lariat();
     draw_labels();
-    $("#status").text("nodes:"+nodes.length+" unlinked:"+unlinked_nodez.length);
+    update_status();
+}
+
+function update_status(){
+    $("#status").text("nodes:"+nodes.length +
+		      " unlinked:"+unlinked_nodez.length +
+		      " links:"+links.length);
 }
 
 function svg_restart() {
@@ -759,11 +763,34 @@ function svg_restart() {
   //force.nodes(nodes).links(links).start();
 }
 
+function canvas_show_text(txt,x,y){
+    console.log("canvas_show_text("+txt+")");
+    ctx.fillStyle = 'black';
+    ctx.font = "12px Courier"
+    ctx.fillText(txt,x,y)
+}
+function pnt2str(x,y){
+    return "["+Math.floor(x)+", "+Math.floor(y)+"]";
+}
+function show_pos(x,y,dx,dy){
+    dx = dx || 0;
+    dy = dy || 0;
+    canvas_show_text(pnt2str(x,y),x+dx,y+dy);
+}
+function show_line(x0,y0,x1,y1,dx,dy,label){
+    dx = dx || 0;
+    dy = dy || 0;
+    label = typeof label === 'undefined' && '' || label;
+    canvas_show_text(pnt2str(x0,y0)+"-->"+pnt2str(x0,y0)+" "+label,
+		     x1+dx,y1+dy)
+}
+
 function add_webgl_line(d){
     d.line = add_line(scene,
 		      d.source.x,d.source.y,
                       d.target.x,d.target.y,
-                      d.source.s.id + " - " + d.target.s.id
+                      d.source.s.id + " - " + d.target.s.id,
+		      'green'
 		     );
     //dump_line(d.line);
 }

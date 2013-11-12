@@ -12,6 +12,9 @@ function add_line(scene,x0,y0,x1,y1,name,clr){
    // view-source:http://stemkoski.github.io/Three.js/Dashed-Lines.html
    // https://github.com/mrdoob/three.js/wiki/Drawing-lines
    //    draw_line(x0,y0,x1,y1,'green');
+    //console.log("=================================");
+    //show_pos(x0,y0);
+    //show_pos(x1,y1);
     clr = clr || 0xcc0000;
     var scale = 1;
     var xscale = scale * xmult;
@@ -19,8 +22,8 @@ function add_line(scene,x0,y0,x1,y1,name,clr){
     var lineGeometry = new THREE.Geometry();
     var vertArray = lineGeometry.vertices;
     var z = 999;
-    var dx = x1-x0, 
-    dy = y0 - y1;
+    var dx = x1 - x0, 
+        dy = y0 - y1;
     vertArray.push( new THREE.Vector3(0,  0, z),
                     new THREE.Vector3(dx, dy, z) );
     lineGeometry.computeLineDistances();
@@ -30,21 +33,33 @@ function add_line(scene,x0,y0,x1,y1,name,clr){
     line.position.y = (y0 - cy) * -1;
     scene.add(line);
     line.name = name;
+    //console.log('add',dx,dy,line.name);
     return line;
 }
 
+
 function mv_line(line,x0,y0,x1,y1){
-    line.position.x = x0 - cx;
-    line.position.y = y0 - cy;
+    x0 -= 100;
+    y0 -= 100;
+
+    x1 += 100;
+    y1 += 100;
+
 
     var dx = x1-x0, 
-        dy = y1-y0;
+        dy = y0-y1;
     
     v0 = line.geometry.vertices[0];
     v1 = line.geometry.vertices[1];
     
     v1.x = dx;
     v1.y = dy;
+
+    //show_pos(dx,dy,200,200);
+    //show_line(v0.x,v0.y,v1.x,v1.y,200,200,line.name)
+    //console.log('mov',dx,dy,line.name);
+    //mv_node(line,x0 + cx,y0 + cy);
+    mv_node(line,x0,y0);
     /*
     v0.x = x0 - cx;
     v0.y = (y0 - cy) * -1;
