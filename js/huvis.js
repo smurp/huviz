@@ -959,7 +959,7 @@ function remove_shadows(e){
 }
 
 function make_edge(s,t,c){
-    return {source:s, target:t, color:c||'lightgrey'};
+    return {source:s, target:t, color:c||'lightgrey',id:s.id+" "+t.id};
 }
 
 var find_links_from_node = function(n) {
@@ -1130,6 +1130,7 @@ var make_node_if_missing = function(subject,start_point,linked){
        //in_count:0, out_count:0
       };
   d.color = color_by_type(d);
+  d.id = d.s.id;
   if (use_webgl){
     d.gl = add_node(scene,d.x,d.y,3,d.color)
   }
