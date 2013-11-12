@@ -568,7 +568,10 @@ function draw_edges(){
       dx = -1 * cx;
       dy = -1 * cy;
       links.forEach(function(e){
-          var l = e.line;
+	  if (! e.gl){
+	      add_webgl_line(e);
+	  }
+          var l = e.gl;
 	  mv_line(l,
 		  e.source.fisheye.x,
 		  e.source.fisheye.y,
@@ -580,8 +583,8 @@ function draw_edges(){
 
   if (use_webgl && false){
     links.forEach(function(e,i){
-	if (! e.line) return;
-	var v = e.line.geometry.vertices;
+	if (! e.gl) return;
+	var v = e.gl.geometry.vertices;
 	v[0].x = e.source.fisheye.x;
 	v[0].y = e.source.fisheye.y;
 	v[1].x = e.target.fisheye.x;
@@ -785,14 +788,14 @@ function show_line(x0,y0,x1,y1,dx,dy,label){
 		     x1+dx,y1+dy)
 }
 
-function add_webgl_line(d){
-    d.line = add_line(scene,
-		      d.source.x,d.source.y,
-                      d.target.x,d.target.y,
-                      d.source.s.id + " - " + d.target.s.id,
+function add_webgl_line(e){
+    e.gl = add_line(scene,
+		      e.source.x,e.source.y,
+                      e.target.x,e.target.y,
+                      e.source.s.id + " - " + e.target.s.id,
 		      'green'
 		     );
-    //dump_line(d.line);
+    //dump_line(e.gl);
 }
 
 function webgl_restart(){
@@ -926,9 +929,6 @@ var add_link = function(e){
   add_to(e,e.target.links_shown);
   update_linked_flag(e.source);
   update_linked_flag(e.target);
-    if (use_webgl){
-	    add_webgl_line(e);
-    }
   restart();
 };
 var remove_from = function(doomed,array){
@@ -944,12 +944,19 @@ var remove_link = function(e){
   //if (! e.target.links_to) e.target.links_to = [];
   //remove_from(e,e.target.links_to);
   //remove_from(e,e.source.links_from);
-  remove_from(e,links);
   remove_from(e,e.source.links_shown);
   remove_from(e,e.target.links_shown);
+  remove_from(e,links);
   update_linked_flag(e.source);
   update_linked_flag(e.target);
 };
+
+function remove_shadows(e){
+    if (use_webgl){
+	remove_gl_obj(e.gl);
+	delete e.gl;
+    }
+}
 
 function make_edge(s,t,c){
     return {source:s, target:t, color:c||'lightgrey'};
@@ -1035,6 +1042,7 @@ var hide_links_to_node = function(n) {
       remove_from(e,n.links_shown);
       remove_from(e,e.source.links_shown);
       remove_from(e,links);
+      remove_shadows(e);
       update_linked_flag(e.source);
     }
   );
@@ -1067,8 +1075,9 @@ var hide_links_from_node = function(n) {
   n.links_from.forEach(
     function(e,i){
       remove_from(e,n.links_shown);
-      remove_from(e,links);
       remove_from(e,e.target.links_shown);
+      remove_from(e,links);
+      remove_shadows(e);
       update_linked_flag(e.target);
     }
   );
@@ -1121,9 +1130,10 @@ var make_node_if_missing = function(subject,start_point,linked){
        //in_count:0, out_count:0
       };
   d.color = color_by_type(d);
-    if (use_webgl){
-	d.gl = add_node(scene,d.x,d.y,3,d.color)
-    }
+  if (use_webgl){
+    d.gl = add_node(scene,d.x,d.y,3,d.color)
+  }
+
   //if (linked){ 
   var n_idx = nodes.push(d) - 1;
   id2n[subject.id] = n_idx;

@@ -37,6 +37,10 @@ function add_line(scene,x0,y0,x1,y1,name,clr){
     return line;
 }
 
+function remove_gl_obj(obj){
+    console.log("remove_gl_obj(",obj.name,")");
+    scene.remove(obj);
+}
 
 function mv_line(line,x0,y0,x1,y1){
     x0 -= 100;
