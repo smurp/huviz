@@ -57,8 +57,10 @@ function binary_search_on(sorted_array,sought,cmp,ret_ins_idx){
     }
 }
 var add_to_array = function(itm,array,cmp){
-    // Perform the set operation of adding itm to the Array if not already present
-    //   array is assumed to be sorted by the .id property on items
+    // Objective:
+    //   Maintain a sorted array which acts like a set.
+    //   It is sorted so insertions and tests can be fast.
+    // cmp: a comparison function returning -1,0,1
     cmp = cmp || cmp_on_id;
     var c = binary_search_on(array,itm,cmp,true)
     if (typeof c == typeof 3){ // an integer was returned, ie it was found
@@ -120,14 +122,17 @@ function do_tests(verbose){
     expect("binary_search_on(a_d,c,cmp_on_id,true).idx",0);
     expect("binary_search_on(a_d,b,cmp_on_id,true).idx",1);
     expect("add_to_array(b,a_d)",a_d);
+    expect("binary_search_on(a_d,a,cmp_on_id)",0);
     expect("binary_search_on(a_d,b,cmp_on_id)",1);
+    expect("binary_search_on(a_d,d,cmp_on_id)",2);
+    expect("add_to_array(c,a_d)[0]",c);
 }
 do_tests(false);
 
 var add_to =  function(itm,set){
     // Perform the set .add operation, adding itm only if not already present
     if (isArray(set)){
-	return add_to_array(itm,set);
+	return add_to_array(itm,set,cmp_on_id);
     }
     if (typeof itm.id === 'undefined') 
 	throw "add_to() requires itm to have an .id";
