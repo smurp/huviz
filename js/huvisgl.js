@@ -38,8 +38,18 @@ function add_line(scene,x0,y0,x1,y1,name,clr){
 }
 
 function remove_gl_obj(obj){
-    console.log("remove_gl_obj(",obj.name,")");
+    var old_len = scene.children.length;
     scene.remove(obj);
+    var new_len = scene.children.length;
+    if (new_len == old_len){
+	alert("remove_gl_obj failed for:"+obj.name);
+    }
+    // http://mrdoob.github.io/three.js/examples/webgl_test_memory.html
+    obj.geometry.dispose()
+    obj.material.dispose()
+    //obj.texture.dispose()
+    delete obj;
+    //console.log("old:",old_len,"new:",new_len);
 }
 
 function mv_line(line,x0,y0,x1,y1){

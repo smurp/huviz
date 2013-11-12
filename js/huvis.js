@@ -599,28 +599,46 @@ function calc_node_radius(d){
 
 function names_in_edges(set){
     out = [];
-    for (var n in set){
-	var itm = set[n];
+    set.forEach(function(itm,i){
 	out.push(itm.source.name+" ---> " + itm.target.name);
-    }
+    });
     return out;
 }
-
-function dump_details(d,s){
+function dump_details(node,s){
+    /*
     if (! DUMP){
-      if (d.s.id != '_:E') return;
+      if (node.s.id != '_:E') return;
     }
-    console.log("\\dump_details ======================");
-    console.log("  ",d.name);
-    console.log("  in:",d.links_to && d.links_to.length || 
-		        d.links_to,
-                        names_in_edges(d.links_to));
-    console.log("  out:", d.links_from && d.links_from.length || d.links_from,
-	                names_in_edges(d.links_from || []));
-    console.log("  shown:", d.links_shown.length,names_in_edges(d.links_shown));
-    //console.log("  class:", s.getAttribute('class'));
-    console.log("  showing_links:", d.showing_links);
-    console.log("/dump_details ======================");
+    */
+    console.log("=================================================");
+    console.log(node.name);
+    console.log("  xy:",node.x,node.y);
+    console.log("  fisheye:",node.fisheye);
+    console.log("  fixed:",node.fixed);
+    console.log("  links_shown:",
+		node.links_shown.length, 
+		names_in_edges(node.links_shown));
+    console.log("  links_to:",
+		node.links_to.length, 
+		names_in_edges(node.links_to));
+    console.log("  links_from:",
+		node.links_from.length, 
+		names_in_edges(node.links_from));
+    console.log("  showing_links:", node.showing_links);
+}
+
+var dump_locations = function(srch,verbose){
+    verbose = verbose || false;
+    var pattern = new RegExp(srch, "ig");   
+    nodes.forEach(
+	function(node,i){
+	    if (! node.name.match(pattern)){
+		if (verbose) console.log(pattern,"does not match",node.name);
+		return;
+	    }
+	    dump_details(node);
+	}
+    );
 }
 
 function find_nearest_node(){
@@ -1143,13 +1161,11 @@ var find_links_to_node = function(d) {
     }
 };
 var show_links_to_node = function(n) {
-  //if (! n.links_to_found){
-    find_links_to_node(n);
-    n.links_to_found = true;
-  //}
-    //for (var k in n.links_to){
+    if (! n.links_to_found){
+	find_links_to_node(n);
+	n.links_to_found = true;
+    }
     n.links_to.forEach(function(e,i){
-	//var e = n.links_to[k];
         console.log('adding link from',e.source.name);
         add_to(e,n.links_shown);
 	add_to(e,e.source.links_shown);
@@ -1160,9 +1176,7 @@ var show_links_to_node = function(n) {
     restart();  
 };
 var hide_links_to_node = function(n) {
-    //for (var k in n.links_to){
     n.links_to.forEach(function(e,i){
-	//var e = n.links_to[k];
 	remove_from(e,n.links_shown);
 	remove_from(e,e.source.links_shown);
 	remove_from(e,links);
@@ -1180,9 +1194,7 @@ var show_links_from_node = function(n) {
 	find_links_from_node(n);
 	n.links_from_found = true;
     } else {
-	//for (var k in n.links_from){
 	n.links_from.forEach(function(e,i){
-	    //var e = n.links_from[k];
             add_to(e,n.links_shown);
             add_to(e,links);
 	    add_to(e,e.target.links_shown);
@@ -1195,9 +1207,7 @@ var show_links_from_node = function(n) {
 
 var hide_links_from_node = function(n) {
     // remove every link from .links_shown which is in .links_from
-    //for (k in n.links_from){
-    n.links_to.forEach(function(e,i){
-	//var e = n.links_from[k];
+    n.links_from.forEach(function(e,i){
 	remove_from(e,n.links_shown);
 	remove_from(e,e.target.links_shown);
 	remove_from(e,links);
@@ -1432,17 +1442,4 @@ var toggle_display_tech = function(ctrl,tech){
     ctrl.checked = val;
     tick();
     return true;
-}
-
-function dump_locations(){
-    nodes.forEach(
-	function(node,i){
-	    console.log("=================================================");
-	    console.log(node.name);
-	    console.log("  xy:",node.x,node.y);
-	    console.log("  fisheye:",node.fisheye);
-	    console.log("  fixed:",node.fixed);
-	    console.log("  links_shown:",node.links_shown.length);
-	}
-    );
 }
