@@ -39,10 +39,11 @@ function add_line(scene,x0,y0,x1,y1,name,clr){
 
 function remove_gl_obj(obj){
     var old_len = scene.children.length;
+    var nom = obj.name;
     scene.remove(obj);
     var new_len = scene.children.length;
     if (new_len == old_len){
-	alert("remove_gl_obj failed for:"+obj.name);
+	alert("remove_gl_obj failed for:"+nom);
     }
     // http://mrdoob.github.io/three.js/examples/webgl_test_memory.html
     obj.geometry.dispose()

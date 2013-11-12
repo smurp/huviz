@@ -15,9 +15,18 @@ Hoosegow -- a jail to contain nodes one does not want to be bothered by
 
  */
 
+function change_sort_order(array,cmp){
+    array.__current_sort_order = cmp;
+    array.sort(array.__current_sort_order);
+}
 
 function isArray(thing){
     return Object.prototype.toString.call(thing) === '[object Array]';
+}
+function cmp_on_name(a,b){
+    if (a.name == b.name) return 0;
+    if (a.name < b.name)  return -1;
+    return 1;
 }
 function cmp_on_id(a,b){
     if (a.id == b.id) return 0;
@@ -28,7 +37,7 @@ function binary_search_on(sorted_array,sought,cmp,ret_ins_idx){
     // return -1 or the idx of sought in sorted_array
     // if ret_ins_idx instead of -1 return [n] where n is where it ought to be
     // AKA "RETurn the INSertion INdeX"
-    cmp = cmp || cmp_on_id;
+    cmp = cmp || sorted_array.__current_sort_order || cmp_on_id;
     ret_ins_idx = ret_ins_idx || false;
     var seeking = true;
     if (sorted_array.length < 1) {
@@ -67,6 +76,17 @@ var add_to_array = function(itm,array,cmp){
 	return array;
     }
     array.splice(c.idx,0,itm);
+    return array;
+}
+var remove_from_array = function(itm,array,cmp){
+    // Objective:
+    //   Remove item from an array acting like a set.
+    //   It is sorted by cmp, so we can use binary_search for removal
+    cmp = cmp || cmp_on_id;
+    var c = binary_search_on(array,itm,cmp);
+    if (c > -1){
+	array.splice(c,1);
+    }
     return array;
 }
 function assert(be_good,or_throw){
@@ -145,9 +165,13 @@ var add_to =  function(itm,set){
 var remove_from = function(doomed,set){
     if (typeof doomed.id === 'undefined') 
 	throw "remove_from() requires doomed to have an .id";
+    if (isArray(set)){
+	return remove_from_array(doomed,set);
+    }
     if (set[doomed.id]){
 	delete set[doomed.id];
     }
+    return set;
 };
 
 
@@ -488,7 +512,9 @@ function reset_graph(){
     id2n = {};
     sid2node = {};
     nodes = [];
+    change_sort_order(nodes,cmp_on_id);
     unlinked_nodez = [];
+    change_sort_order(unlinked_nodez,cmp_on_name);
     links = [];
     force.nodes(nodes);
     d3.select(".link").remove();
@@ -986,35 +1012,6 @@ var get_node_for_linking = function(node_id){
    if (id2n[node_id]) return nodes[id2n[node_id]];
 };
 
-var sort_nodes_by_name = function(a,b){
-    if (a.name == b.name){
-	return 0;
-    } else if (a.name > b.name){
-	return 1;
-    } else {
-	return -1
-    }
-}
-
-var sort_by_current_sort_order = function(arr){
-    return arr.sort(sort_nodes_by_name);
-};
-
-var INCOMPLETE_insert_into_sorted_and_indexed = function(itm,array,cmp,idx){
-    if (! array.length){
-	itm.srt_idx = array.push(itm) -1;
-	return itm.srt_idx;
-    }
-    idx = idx || int(array.length/2);
-    var mid = array[mid_idx];
-    var c = cmp(itm,mid);
-    if (c == 0){
-	array.splice(mid_idx,0,itm);
-    } 
-};
-
-
-
 var update_linked_flag = function(n){
   var old_linked_status = n.linked;
   n.linked = n.links_shown.length > 0;
@@ -1035,28 +1032,23 @@ var update_linked_flag = function(n){
   }
   var name = n.name;
   var changed = old_linked_status != n.linked;
-  if (! changed) return name;  // do nothing because no change
+  //if (! changed) return name;  // do nothing because no change
   if (n.linked){
       //d3.select(node[0][new_nearest_idx]).classed('nearest_node',true);
       remove_from(n,unlinked_nodez);
-      var svg_node = node[0][nodes.indexOf(n)];
-      d3.select(svg_node).classed('lariat',false).classed('node',true);
+      if (use_svg){
+	  var svg_node = node[0][nodes.indexOf(n)];
+	  d3.select(svg_node).classed('lariat',false).classed('node',true);
+      }
       // node[0][new_nearest_idx]
   } else {
       if (unlinked_nodez.indexOf(n) == -1){
-	  unlinked_nodez.push(n);
+	  add_to_array(n,unlinked_nodez)
 	  if (use_svg){
 	      d3.select(svg_node).classed('lariat',true).classed('node',false);
 	  }
-	  sort_by_current_sort_order(unlinked_nodez);
       }
   }
-
-  //console.log("linked:",n.linked,name);
-  //console.log(n.links_shown);
-  //name = "in:" +n.in_count + " out:" +n.out_count + "  " + name;
-  //console.log(n);
-  //if (n.in_count < 0 || n.out_count < 0) {console.log(name)};
   return name;
 };
 var add_link = function(e){
@@ -1095,7 +1087,7 @@ var remove_link = function(e){
 
 function remove_shadows(e){
     if (use_webgl){
-	remove_gl_obj(e.gl);
+	if (e.gl) remove_gl_obj(e.gl);
 	delete e.gl;
     }
 }
@@ -1123,12 +1115,7 @@ var find_links_from_node = function(n) {
 		if (id2n[obj.value]){
 		    var t = get_node_for_linking(obj.value);
 		    var edge = make_edge(n,t);
-		    //t.in_count++;
-		    //n.out_count++;
-		    //n.links_from.push(edge);
 		    add_link(edge);
-		    //update_linked_flag(t);
-                    //update_linked_flag(n);
 		}
             }
 	    //console.log(p,"==>",predicate);
@@ -1152,11 +1139,6 @@ var find_links_to_node = function(d) {
 	    var edge = make_edge(src, d);
 	    // console.log("  edge:",edge);
             add_link(edge);
-
-	    //d.links_to.push(edge);
-            //links.push(edge);
-	    //update_linked_flag(d);
-	    //update_linked_flag(src);
 	});
     }
 };
@@ -1273,6 +1255,7 @@ var make_node_if_missing = function(subject,start_point,linked){
   id2n[subject.id] = n_idx;
   sid2node[subject.id] = d;
   if (! linked){
+      add_to_array(d,unlinked_nodez);
     var n_idx = unlinked_nodez.push(d) - 1;
     id2u[subject.id] = n_idx;    
   }
