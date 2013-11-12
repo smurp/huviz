@@ -679,6 +679,8 @@ function draw_edges(){
 
   if (use_canvas){
     links.forEach(function(e,i){
+	if (! e.target.fisheye) 
+	    e.target.fisheye = fisheye(e.target);
 	draw_line(
 	    e.source.fisheye.x,e.source.fisheye.y,
 	    e.target.fisheye.x,e.target.fisheye.y,
@@ -693,6 +695,8 @@ function draw_edges(){
       dx = -1 * cx;
       dy = -1 * cy;
       links.forEach(function(e){
+	  if (! e.target.fisheye) 
+	      e.target.fisheye = fisheye(e.target);
 	  if (! e.gl){
 	      add_webgl_line(e);
 	  }
