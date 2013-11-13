@@ -196,8 +196,7 @@ if (! verbose){
 
 var last_mouse_pos = [0,0];
 var parseAndShow = function(data,textStatus){
-  $("#status").text("parsing");
-  console.log('parsing');
+  set_status("parsing");
   var msg = "data was "+data.length+" bytes";
   var parse_start_time = new Date();
   G = GreenerTurtle(GreenTurtle).parse(data,'text/turtle');
@@ -343,7 +342,7 @@ function click_to_toggle_edges(){
 
   if (nearest_node){
       var clickee = nearest_node;
-      console.log("clickee",clickee.showing_links,clickee.name);
+      //console.log("clickee",clickee.showing_links,clickee.name);
       if (clickee.showing_links == 'all'){
           hide_links_from_node(clickee);
           hide_links_to_node(clickee);
@@ -478,12 +477,12 @@ var use_canvas = true;
 var use_svg = false;
 var use_webgl = true;
 
-//use_webgl = false;
+use_webgl = false;
 
 function init_webgl(){
     init();
     animate();
-    add_frame();
+    //add_frame();
     //dump_line(add_line(scene,cx,cy,width,height,'ray'))
 }
 
@@ -506,7 +505,7 @@ function draw_line(x1,y1,x2,y2,clr){
 }
 
 function reset_graph(){
-    draw_circle(cx,cy,0.5 * Math.min(cx,cy),'black')
+    //draw_circle(cx,cy,0.5 * Math.min(cx,cy),'black')
     id2n = {};
     sid2node = {};
     nodes = [];
@@ -542,9 +541,6 @@ var cursor = svg.append("circle")
     .attr("r", label_show_range)
     .attr("transform", "translate("+cx+","+cy+")")
     .attr("class", "cursor");
-
-
-//node.on("doubleclick", function(d){alert(d.s.id);});
 
 restart();
 
@@ -629,11 +625,11 @@ function names_in_edges(set){
     return out;
 }
 function dump_details(node,s){
-    /*
+
     if (! DUMP){
       if (node.s.id != '_:E') return;
     }
-    */
+
     console.log("=================================================");
     console.log(node.name);
     console.log("  xy:",node.x,node.y);
@@ -718,18 +714,18 @@ function draw_edges(){
         .attr("x2", function(d) { return d.target.fisheye.x; })
         .attr("y2", function(d) { return d.target.fisheye.y; });
   }
-
   if (use_canvas){
     links.forEach(function(e,i){
+	/*
 	if (! e.target.fisheye) 
 	    e.target.fisheye = fisheye(e.target);
+	    */
 	draw_line(
 	    e.source.fisheye.x,e.source.fisheye.y,
 	    e.target.fisheye.x,e.target.fisheye.y,
 	    e.color);
     });
   }
-
   if (use_webgl){
       //console.clear();
       var dx = width * xmult,
@@ -743,6 +739,12 @@ function draw_edges(){
 	      add_webgl_line(e);
 	  }
           var l = e.gl;
+	  /*
+	  if (e.source.fisheye.x != e.target.fisheye.x &&
+	      e.source.fisheye.y != e.target.fisheye.y){
+	      alert(e.id + " edge has a length");
+	  }
+	  */
 	  mv_line(l,
 		  e.source.fisheye.x,
 		  e.source.fisheye.y,
@@ -751,7 +753,6 @@ function draw_edges(){
 	  dump_line(l);
       });
   }
-
   if (use_webgl && false){
     links.forEach(function(e,i){
 	if (! e.gl) return;
@@ -808,6 +809,7 @@ function draw_nodes(){
   if (use_canvas || use_webgl){
       nodes.forEach(function(d,i){
 	  if (! d.linked) return;
+	  d.fisheye = fisheye(d);
 	  if (use_canvas){
               draw_circle(d.fisheye.x,
 			  d.fisheye.y,
@@ -839,7 +841,7 @@ function draw_labels(){
       }
     });
   }
-  if (use_canvas){
+  if (use_canvas || use_webgl){
       //http://stackoverflow.com/questions/3167928/drawing-rotated-text-on-a-html5-canvas
       //ctx.rotate(Math.PI*2/(i*6));
 
@@ -848,7 +850,7 @@ function draw_labels(){
       nodes.forEach(function(node){
 	  if (! should_show_label(node)) return;
 	  if (node.nearest_node){
-	      ctx.fillStyle = 'red';
+	      ctx.fillStyle = node.color;
 	      ctx.font = "9px sans-serif";
 	  } else {
 	      ctx.fillStyle = 'black';
@@ -875,7 +877,7 @@ function clear_canvas(){
 }
 
 function blank_screen(){
-    if (use_canvas){
+    if (use_canvas || use_webgl){
 	clear_canvas();
     }
 }
@@ -896,9 +898,10 @@ function tick() {
 }
 
 function update_status(){
-    $("#status").text("nodes:"+nodes.length +
-		      " unlinked:"+unlinked_nodez.length +
-		      " links:"+links.length);
+    set_status("nodes:"+nodes.length +
+	       " unlinked:"+unlinked_nodez.length +
+	       " links:"+links.length +
+	       " subj:"+G.num_subj);
 }
 
 function svg_restart() {
@@ -1145,7 +1148,7 @@ var show_links_to_node = function(n) {
 	n.links_to_found = true;
     }
     n.links_to.forEach(function(e,i){
-        console.log('adding link from',e.source.name);
+        //console.log('adding link from',e.source.name);
         add_to(e,n.links_shown);
 	add_to(e,e.source.links_shown);
         add_to(e,links);
@@ -1292,7 +1295,7 @@ var showGraph = function(g){
 function load_file(){
     reset_graph();
     var data_uri = $( "select#file_picker option:selected").val();
-    console.log(data_uri);
+    set_status(data_uri);
     G = {};
     if (! G.subjects){
 	fetchAndShow(data_uri);
@@ -1384,8 +1387,14 @@ var toggle_label_display = function(){
   label_all_graphed_nodes = ! label_all_graphed_nodes;
   tick();
 };
-var clear_box = function(){
-  $("#status").text('');
+var last_status;
+var set_status = function(txt){
+    txt = txt || ''
+    if (last_status != txt){
+	console.log(txt);
+	$("#status").text(txt);
+    }
+    last_status = txt;
 };
 var toggle_display_tech = function(ctrl,tech){
     var val;

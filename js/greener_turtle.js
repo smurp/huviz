@@ -2,7 +2,6 @@ window.GreenerTurtle = function(GreenTurtle){
   var RDF_object = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#object';
   var build_indices = function(graph){
     console.log('BUILD INDICES');
-    if (! graph.oid_2_id_p) graph.oid_2_id_p = {};
     //console.log("SUBJ",graph.subjects);
     for (var subj_id in graph.subjects){
         var subj = graph.subjects[subj_id];
@@ -17,7 +16,7 @@ window.GreenerTurtle = function(GreenTurtle){
 		    if (typeof graph.oid_2_id_p[obj.value] == 'undefined'){
 			graph.oid_2_id_p[obj.value] = [];
 		    }
-		    if (obj.value == '_:E'){
+		    if (obj.value == '_:E' && verbosity){
                       console.log(obj.value,'----> [',subj.id,p,']');
 		    }
 		    graph.oid_2_id_p[obj.value].push([subj.id,p]);
@@ -31,12 +30,20 @@ window.GreenerTurtle = function(GreenTurtle){
     //console.log("get_incoming_predicates(",subj.id,")  ===>",resp);
     return resp;
   };
+  var count_subjects = function(graph){
+      graph.num_subj = 0;
+      for (var s in graph.subjects){
+	  graph.num_subj++;
+      }
+  };
 
 
 return {
     parse: function(data,type){
 	G = GreenTurtle.implementation.parse(data,type);
+	if (! G.oid_2_id_p) G.oid_2_id_p = {};
         build_indices(G);
+	count_subjects(G);
         G.get_incoming_predicates = get_incoming_predicates;
         return G;
   }

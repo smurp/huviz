@@ -1,4 +1,7 @@
 
+// A contrived example of VivaGraphJS with 1300 nodes and 5000 edges:
+//   http://www.yasiv.com/graphs#HB/jagmesh6
+
 // sample code from http://en.wikipedia.org/wiki/Threejs
 var camera, scene, renderer,
 geometry, material, mesh;
@@ -53,37 +56,22 @@ function remove_gl_obj(obj){
     //console.log("old:",old_len,"new:",new_len);
 }
 
-function mv_line(line,x0,y0,x1,y1){
-    if (false){
-	x0 -= 100;
-	y0 -= 100;
-	
-	x1 += 100;
-	y1 += 100;
-    }
 
+function mv_node(node,x,y){
+    node.position.x = x - cx;
+    node.position.y = (y - cy) * -1;
+}
+function mv_line(line,x0,y0,x1,y1){
     var dx = x1-x0, 
         dy = y0-y1;
-    
-    v0 = line.geometry.vertices[0];
-    v1 = line.geometry.vertices[1];
-    
+    v1 = line.geometry.vertices[1];    
     v1.x = dx;
     v1.y = dy;
-
-    //show_pos(dx,dy,200,200);
-    //show_line(v0.x,v0.y,v1.x,v1.y,200,200,line.name)
-    //console.log('mov',dx,dy,line.name);
-    //mv_node(line,x0 + cx,y0 + cy);
     mv_node(line,x0,y0);
-    /*
-    v0.x = x0 - cx;
-    v0.y = (y0 - cy) * -1;
-    v1.x = x1 - cx;
-    v1.y = (y1 - cy) * -1;
-    */
+    line.position.x = x0 - cx;
+    line.position.y = (y0 - cy) * -1;
+    line.geometry.verticesNeedUpdate = true;
 };
-
 var glnodes = [];
 function add_node(scene,x,y,r,clr){
     var mesh,geometry,material;
@@ -95,12 +83,6 @@ function add_node(scene,x,y,r,clr){
     glnodes.push(mesh);
     scene.add( mesh );
     return mesh;
-}
-
-function mv_node(node,x,y){
-    //console.log(node);
-    node.position.x = x - cx;
-    node.position.y = (y - cy) * -1;
 }
 
 function add_frame(){
@@ -135,17 +117,8 @@ function dump_line(line,msg){
     msg = msg || '    ';
     console.log(msg,line.name,v[0].x,v[0].y,"->",v[1].x,v[1].y)
 }
-
-function add_mesh(){
-    geometry = new THREE.CubeGeometry( 200, 200, 200 );
-    material = new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe: true } );
-    mesh = new THREE.Mesh( geometry, material );
-    scene.add( mesh );
-}
-
 function init() {
     scene = new THREE.Scene();
-
     if (true){
       // http://stackoverflow.com/questions/17558085/three-js-orthographic-camera
       camera = new THREE.OrthographicCamera(
@@ -155,11 +128,6 @@ function init() {
     }
     camera.position.z = 1000;
     
-    //add_mesh()
-
-    //add_line(scene,cx-100,cy-100,cx+100,cy+100,'demo-line'); 
-    //add_node(scene,cx,cy,10);
-
     if (false){
       renderer = new THREE.CanvasRenderer();
     } else {
@@ -172,7 +140,7 @@ function init() {
 }
  
 function animate() {
-        // note: three.js includes requestAnimationFrame shim
+    // note: three.js includes requestAnimationFrame shim
     requestAnimationFrame( animate );
     render();
 }
@@ -183,14 +151,10 @@ function rot_obj(obj){
 }
 
 function render() {
+    /*
     if (glnodes){
 	glnodes.forEach(function(obj){rot_obj(obj)});
     }
-    /*
-      if (mesh){
-      rot_obj(mesh);
-      }
     */
-
     renderer.render( scene, camera );
 }
