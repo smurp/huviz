@@ -465,9 +465,14 @@ var ctx = canvas.getContext('2d');
 
 var use_canvas = true;
 var use_svg = false;
-var use_webgl = true;
+var use_webgl = false;
 
-use_webgl = false;
+if (location.hash.match(/webgl/)){
+    use_webgl = true;
+}
+if (location.hash.match(/nocanvas/)){
+    use_canvas = false;
+}
 
 function init_webgl(){
     init();
