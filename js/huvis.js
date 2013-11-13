@@ -303,21 +303,13 @@ var is_node_to_always_show = is_a_main_node;
 var BLANK_HACK = false;
 function color_by_type(d){
   // anon red otherwise blue 
-  if (is_a_main_node(d)){
-     return 'blue';  // the 1305 writers
-  } else { 
-    try {
-      //console.log("coloring",d.s.predicates);
-      if (has_type(d.s,FOAF_Group)){
-         return 'green'; // Groups
-      } else {
-         return 'red'; // other persons
-      }
-    } catch (err) {
-      console.log(err);
-      return 'yellow';
+    if (has_type(d.s,FOAF_Group)){
+        return 'green'; // Groups
+    } else if (d.s.id[0] == '_'){
+	return 'red'; // Other people
+    } else {
+	return 'blue'; // the writers
     }
-  }
 }
 
 var mousedown_point = [cx,cy];
@@ -344,9 +336,7 @@ function click_to_toggle_edges(){
       var clickee = nearest_node;
       //console.log("clickee",clickee.showing_links,clickee.name);
       if (clickee.showing_links == 'all'){
-          hide_links_from_node(clickee);
-          hide_links_to_node(clickee);
-	  clickee.showing_links = 'none';
+	  hide_node_links(clickee);
       } else {
           show_links_from_node(clickee);
           show_links_to_node(clickee);
@@ -623,12 +613,12 @@ function names_in_edges(set){
     });
     return out;
 }
-function dump_details(node,s){
-
+function dump_details(node){
+    /*
     if (! DUMP){
       if (node.s.id != '_:E') return;
     }
-
+    */
     console.log("=================================================");
     console.log(node.name);
     console.log("  xy:",node.x,node.y);
@@ -690,17 +680,18 @@ function find_nearest_node(){
   //console.log('new_nearest_node',focus_threshold,new_nearest_node);
   if (nearest_node != new_nearest_node){
       if (nearest_node){
-        d3.select('.nearest_node').classed('nearest_node',false);
-        nearest_node.nearest_node = false;
+	  if (use_svg){
+              d3.select('.nearest_node').classed('nearest_node',false);
+	  }
+          nearest_node.nearest_node = false;
       }
       if (new_nearest_node){ 
           new_nearest_node.nearest_node = true;
-          var svg_node = node[0][new_nearest_idx];
-          d3.select(svg_node).classed('nearest_node',true);
-	  dump_details(new_nearest_node,svg_node)
-          if (verbosity >= DEBUG) {
-            console.log("new nearest_node:",new_nearest_node.s.id);
-          }
+	  if (use_svg){
+              var svg_node = node[0][new_nearest_idx];
+              d3.select(svg_node).classed('nearest_node',true);
+	  }
+	  dump_details(new_nearest_node);
       }
   }
   nearest_node = new_nearest_node;  // possibly null
@@ -1112,27 +1103,20 @@ var find_links_from_node = function(node) {
 		if (! target) continue;
 		var edge = make_edge(node,target);
 		add_link(edge);
-		continue;
-
-		var idx = binary_search_on(nodes,{id:obj.value});
+		/*
+                var idx = binary_search_on(nodes,{id:obj.value});
 		if (idx < 0){
 		    if (obj.type == RDF_object){
 			target = make_node_if_missing(G.subjects[obj.value],[x,y]);
 		    }
 		}
-		/*
-		if (! id2n[obj.value]){
-		    if (obj.type == RDF_object){
-			a_node = make_node_if_missing(G.subjects[obj.value],[x,y]);
-		    }
-		}
-		*/
 		
 		if (id2n[obj.value]){
 		    var t = get_node_by_id(obj.value);
 		    var edge = make_edge(n,t);
 		    add_link(edge);
 		}
+		    */
             }
 	    //console.log(p,"==>",predicate);
         }    
@@ -1209,7 +1193,7 @@ var hide_links_from_node = function(n) {
 	remove_from(e,e.target.links_shown);
 	remove_from(e,links);
 	remove_ghosts(e);
-	update_linked_flag(e.target);
+	update_linked_flag(e.source);
     });
     force.links(links);
     restart();
@@ -1278,7 +1262,6 @@ var make_nodes = function(g,limit){
     }
 };
 
-
 var make_links = function(g,limit){
     limit = limit || 0;
     // for edge labels				   
@@ -1344,49 +1327,43 @@ window.addEventListener('load',function(){
 });
 
 var hide_node_links = function(node){
-    hide_links_from_node(node);
-    hide_links_to_node(node);
-    //node.linked = false;
-
+    node.links_shown.forEach(function(e,i){
+	remove_from(e,e.source.links_shown);
+	remove_from(e,e.target.links_shown);
+	remove_from(e,links);
+	update_linked_flag(e.source);
+	update_linked_flag(e.target);
+	remove_ghosts(e);
+    });
+    restart();
 };
 var hide_found_links = function(){
-  for(var sub_id in G.subjects){
-    var subj = G.subjects[sub_id];
-    subj.getValues('f:name').forEach(function(name){
-      if (name.match(search_regex)){
-          var n_idx = id2n[sub_id];
-          var node  = nodes[n_idx];
-          if (node){
-          //console.log(sub_id,name,id2n[sub_id]);
-          //console.log(node);
-            hide_node_links(node);
-            restart();
-          }
-      }
+    nodes.forEach(function(node,i){
+	if (node.name.match(search_regex)){
+	    hide_node_links(node);
+	}
     });
-  }
+    restart();
 };
 
 var show_node_links = function(node){
     show_links_from_node(node);
     show_links_to_node(node);
 };
+
 var show_found_links = function(){
-  for(var sub_id in G.subjects){
-    var subj = G.subjects[sub_id];
-    subj.getValues('f:name').forEach(function(name){
-      if (name.match(search_regex)){
-          var n_idx = id2n[sub_id];
-          var node  = nodes[n_idx];
-          if (node){
-          //console.log(sub_id,name,id2n[sub_id]);
-          //console.log(node);
-            show_node_links(node);
-            restart();
-          }
-      }
-    });
-  }
+    for(var sub_id in G.subjects){
+	var subj = G.subjects[sub_id];
+	subj.getValues('f:name').forEach(function(name){
+	    if (name.match(search_regex)){
+		var node = make_node_if_missing(subj,[cx,cy]);
+		if (node){
+		    show_node_links(node);
+		}
+	    }
+	});
+    }
+    restart();
 };
 var toggle_links = function(){
   //console.log("links",force.links());
