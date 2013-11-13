@@ -334,7 +334,7 @@ function click_to_toggle_edges(){
 
   if (nearest_node){
       var clickee = nearest_node;
-      //console.log("clickee",clickee.showing_links,clickee.name);
+      console.log("clickee",clickee.showing_links,clickee.name);
       if (clickee.showing_links == 'all'){
 	  hide_node_links(clickee);
       } else {
@@ -1329,10 +1329,14 @@ window.addEventListener('load',function(){
 });
 
 var hide_node_links = function(node){
-    console.log("hide_node_links()");
+    console.log("hide_node_links("+node.id+")");
     node.links_shown.forEach(function(e,i){
 	console.log("  ",e.id);
-	remove_from(e,e.target.links_shown);
+	if (e.target == node){
+	    remove_from(e,e.source.links_shown);
+	} else {
+	    remove_from(e,e.target.links_shown);	    
+	}
 	remove_from(e,links);
 	update_linked_flag(e.target);
 	update_linked_flag(e.source);
