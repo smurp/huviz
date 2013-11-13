@@ -507,7 +507,6 @@ function draw_line(x1,y1,x2,y2,clr){
 function reset_graph(){
     //draw_circle(cx,cy,0.5 * Math.min(cx,cy),'black')
     id2n = {};
-    sid2node = {};
     nodes = [];
     change_sort_order(nodes,cmp_on_id);
     unlinked_nodez = [];
@@ -1097,21 +1096,37 @@ function make_edge(s,t,c){
     return {source:s, target:t, color:c||'lightgrey',id:s.id+" "+t.id};
 }
 
-var find_links_from_node = function(n) {
-    var a_node;
-    var subj = n.s;
-    var x = n.x || width/2,
-    y = n.y || height/2;
+var find_links_from_node = function(node) {
+    var target;
+    var subj = node.s;
+    var x = node.x || width/2,
+    y = node.y || height/2;
     if (subj){
 	for (p in subj.predicates){
 	    var predicate = subj.predicates[p]; 
             for (oi = 0; oi < predicate.objects.length; oi++){
 		var obj = predicate.objects[oi];
+		if (obj.type == RDF_object){
+		    target = make_node_if_missing(G.subjects[obj.value],[x,y]);
+		}
+		if (! target) continue;
+		var edge = make_edge(node,target);
+		add_link(edge);
+		continue;
+
+		var idx = binary_search_on(nodes,{id:obj.value});
+		if (idx < 0){
+		    if (obj.type == RDF_object){
+			target = make_node_if_missing(G.subjects[obj.value],[x,y]);
+		    }
+		}
+		/*
 		if (! id2n[obj.value]){
 		    if (obj.type == RDF_object){
 			a_node = make_node_if_missing(G.subjects[obj.value],[x,y]);
 		    }
 		}
+		*/
 		
 		if (id2n[obj.value]){
 		    var t = get_node_by_id(obj.value);
@@ -1208,7 +1223,6 @@ var ids_to_show = start_with_http;
 //var ids_to_show = new RegExp("", "ig");
 
 var id2n = {}; // the index of linked nodes (in nodes)
-var sid2node = {}; // index of subj.id to node (eg. {name:"Anglican Church",x:,y:,s:,}
 var id2u = {}; // the index of unlinked nodes (in unlinked_nodez)
 
 var make_node_if_missing = function(subject,start_point,linked){
@@ -1241,7 +1255,6 @@ var make_node_if_missing = function(subject,start_point,linked){
     var n_idx =  add_to_array(d,nodes);  
     //var n_idx = nodes.push(d) - 1;
     id2n[subject.id] = n_idx;
-    sid2node[subject.id] = d;
     if (! linked){
 	var n_idx = add_to_array(d,unlinked_nodez);
 	id2u[subject.id] = n_idx;    
