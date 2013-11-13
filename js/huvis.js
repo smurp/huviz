@@ -1163,6 +1163,7 @@ var hide_links_to_node = function(n) {
 	remove_from(e,links);
 	remove_ghosts(e);
 	update_linked_flag(e.source);
+	update_linked_flag(e.target);
     });
     force.links(links);
     restart();  
@@ -1194,6 +1195,7 @@ var hide_links_from_node = function(n) {
 	remove_from(e,links);
 	remove_ghosts(e);
 	update_linked_flag(e.source);
+	update_linked_flag(e.target);
     });
     force.links(links);
     restart();
@@ -1327,14 +1329,17 @@ window.addEventListener('load',function(){
 });
 
 var hide_node_links = function(node){
+    console.log("hide_node_links()");
     node.links_shown.forEach(function(e,i){
-	remove_from(e,e.source.links_shown);
+	console.log("  ",e.id);
 	remove_from(e,e.target.links_shown);
 	remove_from(e,links);
-	update_linked_flag(e.source);
 	update_linked_flag(e.target);
+	update_linked_flag(e.source);
 	remove_ghosts(e);
     });
+    node.links_shown = [];
+    update_linked_flag(node);
     restart();
 };
 var hide_found_links = function(){
