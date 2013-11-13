@@ -691,7 +691,7 @@ function find_nearest_node(){
               var svg_node = node[0][new_nearest_idx];
               d3.select(svg_node).classed('nearest_node',true);
 	  }
-	  dump_details(new_nearest_node);
+	  //dump_details(new_nearest_node);
       }
   }
   nearest_node = new_nearest_node;  // possibly null
