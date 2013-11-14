@@ -488,7 +488,8 @@ var mouse_receiver = viscanvas;
 mouse_receiver
     .on("mousemove", mousemove)
     .on("mousedown", mousedown)
-    .on("mouseup", click_to_toggle_edges);
+    .on("mouseup", click_to_toggle_edges)
+    .on("mouseout", click_to_toggle_edges);
 
 /*
   var drag=false;
