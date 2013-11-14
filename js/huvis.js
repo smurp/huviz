@@ -176,6 +176,7 @@ var remove_from = function(doomed,set){
 //if (Array.__proto__.add == null) Array.prototype.add = add;
 
 var nodes, links, node, link, unlinked_nodez;
+var chosen_nodes;  // the nodes the user has chosen to see expanded
 var nearest_node;
 var lariat;
 var label_all_graphed_nodes = false; // keep synced with html
@@ -369,16 +370,15 @@ function mouseup(){
     }
     if (nearest_node){
 	var clickee = nearest_node;
-	//console.log("clickee",clickee.showing_links,clickee.name);
 	if (clickee.showing_links == 'all'){
-	    hide_node_links(clickee);
+	    unchoose(clickee);
 	} else {
-            show_links_from_node(clickee);
-            show_links_to_node(clickee);
-            clickee.showing_links = 'all';
+	    choose(clickee);
 	}
-	update_linked_flag(clickee);
+	//update_linked_flag(clickee);
+	restart();
     }
+    
 }
 
 var show_and_hide_links_from_node = function(d){
@@ -536,6 +536,7 @@ function reset_graph(){
     //draw_circle(cx,cy,0.5 * Math.min(cx,cy),'black')
     id2n = {};
     nodes = [];
+    chosen_nodes = [];
     change_sort_order(nodes,cmp_on_id);
     unlinked_nodez = [];
     change_sort_order(unlinked_nodez,cmp_on_name);
@@ -931,7 +932,9 @@ function update_status(){
     var msg = "nodes:"+nodes.length +
 	" unlinked:"+unlinked_nodez.length +
 	" links:"+links.length +
-	" subj:"+G.num_subj;
+	" subj:"+G.num_subj +
+	" chosen:"+chosen_nodes.length;
+    
     if (dragging){
 	msg += " DRAG";
     }
@@ -1437,6 +1440,8 @@ var hide_all_links = function(){
 	remove_ghosts(link);
     });
     links = [];
+    chosen_nodes = [];
+    update_history();
 };
 
 var last_status;
@@ -1470,4 +1475,72 @@ var toggle_display_tech = function(ctrl,tech){
     ctrl.checked = val;
     tick();
     return true;
+}
+
+/*
+  The CHOSEN are those nodes which the user has
+  explicitly asked to have the links shown for.
+  This is different from those nodes which find themselves
+  linked into the graph because another node has been chosen.
+ */
+var unchoose = function(goner){
+    for (var i = chosen_nodes.length - 1; i > -1; i--){
+	var node = chosen_nodes[i];
+	console.log(i);
+	if (goner == node){
+	    console.log('unchoose('+node.id+')');
+	    chosen_nodes.splice(i,1);
+	}
+    }
+    hide_node_links(goner);
+    update_linked_flag(goner);
+    //update_history();
+}
+var choose = function(chosen){
+    chosen_nodes.push(chosen); // duplicates?
+    show_links_from_node(chosen);
+    show_links_to_node(chosen);
+    chosen.showing_links = 'all';
+    update_linked_flag(chosen);
+    //update_history();
+}
+var update_history = function(){
+    if (history.pushState){
+	var the_state = {};
+	var hash = '';
+	if (chosen_nodes.length){
+	    the_state.chosen_node_ids = [];
+	    hash += '#';
+	    hash += "chosen=";
+	    var n_chosen = chosen_nodes.length;
+	    chosen_nodes.forEach(function(chosen,i){
+		hash += chosen.id;
+		the_state.chosen_node_ids.push(chosen.id);
+		if (n_chosen > i+1){
+		    hash += ',';
+		}
+	    });
+	}
+	var the_url = location.href.replace(location.hash,"") + hash;
+	var the_title = document.title;
+	history.pushState(the_state,the_title,the_state);
+    }
+}
+window.addEventListener('popstate',function(event){
+    //console.log('popstate fired',event);
+    restore_graph_state(event.state);
+});
+
+var restore_graph_state = function(state){
+    //console.log('state:',state);
+    if (! state) return;
+    if (state.chosen_node_ids){
+	reset_graph();
+	state.chosen_node_ids.forEach(function(chosen_id){
+	    var chosen = get_or_make_node(chosen_id);
+	    if (chosen){
+		choose(chosen);
+	    }
+	});
+    }
 }
