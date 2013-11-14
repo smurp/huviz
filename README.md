@@ -1,7 +1,7 @@
 huviz
 =====
 
-![Image](../blob/master/graph_ex1.png?raw=true)
+![Image](../master/graph_ex1.png?raw=true)
 
 # Installation
 
