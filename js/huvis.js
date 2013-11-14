@@ -191,6 +191,7 @@ var draw_circle_around_nearest = false;
 var draw_lariat_labels_rotated = true;
 var last_mouseup_time = 0;
 var run_force_after_mouseup_msec = 2000;
+var nodes_pinnable = false;  // bugged
 
 if (! verbose){
   console = {'log': function(){}};
@@ -338,8 +339,8 @@ function mousemove() {
 }
 var mousedown_point = [cx,cy];
 function mousedown(){
-    console.log('mousedown');
-    if (nearest_node){
+    //console.log('mousedown');
+    if (nearest_node && nearest_node.linked){ // only drag nodes in graph
 	dragging = nearest_node;
 	//force.stop();
     }
@@ -347,27 +348,36 @@ function mousedown(){
     last_mouse_pos = mousedown_point;
     //console.log(mousedown_point,'down');
     //e.preventDefault();
-    return false;
 }
-function click_to_toggle_edges(){ // mouseup
-    console.log('mouseup');
+
+function mouseup(){
+    //console.log('mouseup');
     var point = d3.mouse(this);
     //console.log(point,mousedown_point,distance(point,mousedown_point));
-    move_node_to_point(dragging,point);
-    //tick();    
-    dragging = false;
-    force.resume();
-    restart();
+    if (dragging){
+	move_node_to_point(dragging,point);
+	if (nodes_pinnable){
+	    dragging.fixed = true;
+	}
+	dragging = false;
+	force.resume();
+	restart();
+    }
+
+    if (nearest_node && nearest_node.fixed && nearest_node.linked){
+	if (nodes_pinnable){
+	    nearest_node.fixed = false;
+	}
+    }
+
     if (distance(point,mousedown_point) > drag_dist_threshold){
 	last_mouseup_time = new Date();
-	//dragging.fixed = true;
-	
 	return;  // it was a drag, not a click
     }
 
   if (nearest_node){
       var clickee = nearest_node;
-      console.log("clickee",clickee.showing_links,clickee.name);
+      //console.log("clickee",clickee.showing_links,clickee.name);
       if (clickee.showing_links == 'all'){
 	  hide_node_links(clickee);
       } else {
@@ -488,42 +498,13 @@ var mouse_receiver = viscanvas;
 mouse_receiver
     .on("mousemove", mousemove)
     .on("mousedown", mousedown)
-    .on("mouseup", click_to_toggle_edges)
-    .on("mouseout", click_to_toggle_edges);
-
-/*
-  var drag=false;
-  
-  var old_x, old_y;
-  
-  var mouseDown=function(e) {
-    drag=true;
-    old_x=e.pageX, old_y=e.pageY;
-    e.preventDefault();
-    return false;
-    }
-  
-  var mouseUp=function(e){
-    drag=false;
-    }
-  
-  var mouseMove=function(e) {
-    if (!drag) return false;
-    var dX=e.pageX-old_x,
-        dY=e.pageY-old_y;
-    THETA+=dX*2*Math.PI/CANVAS.width;
-    PHI+=dY*2*Math.PI/CANVAS.height;
-    old_x=e.pageX, old_y=e.pageY;
-    e.preventDefault();
-    }
-
-*/
+    .on("mouseup", mouseup)
+    .on("mouseout", mouseup);
 
 // lines: 5845 5848 5852 of d3.v3.js object to
 //    mouse_receiver.call(force.drag);
 // when mouse_receiver == viscanvas
 
-console.log("================== canvas =",canvas);
 var ctx = canvas.getContext('2d');
 
 var use_canvas = true;
