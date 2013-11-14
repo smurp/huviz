@@ -1,6 +1,11 @@
 huviz
 =====
 
+# Purpose:
+
+    ![Image](../blob/master/graph_ex1.png?raw=true)
+
+
 # Installation
 
     // install the python requirements
