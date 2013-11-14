@@ -175,8 +175,10 @@ var remove_from = function(doomed,set){
 
 //if (Array.__proto__.add == null) Array.prototype.add = add;
 
-var nodes, links, node, link, unlinked_nodez;
-var chosen_nodes;  // the nodes the user has chosen to see expanded
+var nodes, links, node, link;
+var chosen_nodes;    // the nodes the user has chosen to see expanded
+var discarded_nodes; // the nodes the user has discarded
+var unlinked_nodez;  // the nodes not displaying links and not discarded
 var nearest_node;
 var lariat;
 var label_all_graphed_nodes = false; // keep synced with html
@@ -354,11 +356,20 @@ function mouseup(){
     var point = d3.mouse(this);
     //console.log(point,mousedown_point,distance(point,mousedown_point));
     if (dragging){
+	if (in_disconnect_dropzone){
+	    unchoose(dragging);
+	}
+	if (in_discard_dropzone){
+	    dragging.discarded = true;
+	    add_to(dragging,discarded_nodes);
+	    unchoose(dragging);
+	}
 	move_node_to_point(dragging,point);
 	if (nodes_pinnable){
 	    dragging.fixed = true;
 	}
 	dragging = false;
+	return;
     }
     if (nearest_node && nearest_node.fixed && nearest_node.linked){
 	if (nodes_pinnable){
@@ -394,6 +405,8 @@ var charge = -30;
 var gravity = 0.3;
 var label_show_range = link_distance * 1.1;
 var graph_radius = 100;
+var discard_radius = 200;
+var discard_center = [cx,cy];
 var fisheye_radius = label_show_range * 5;
 var focus_radius = label_show_range;
 var drag_dist_threshold = 5;
@@ -420,10 +433,19 @@ var get_window_height = function(pad){
 var update_graph_radius = function(){
     graph_radius = Math.floor(Math.min(width/2,height/2)) * .9;
 };
+
+var update_discard_zone = function(){
+    var discard_ratio = .2;
+    discard_radius = graph_radius * discard_ratio;
+    discard_center = [width - discard_radius * 1.1, 
+		      height - discard_radius * 1.1];    
+};
+
 function updateWindow(){
     get_window_width();
     get_window_height();
     update_graph_radius();
+    update_discard_zone();
     if (svg){
 	svg
 	    .attr("width", width)
@@ -439,12 +461,8 @@ function updateWindow(){
 window.onresize = updateWindow;
 
 
+
 /////////////////////////////////////////////////////////////////////////////
-
-
-get_window_height();
-get_window_width();
-update_graph_radius();
 
 
 var fisheye = d3.fisheye.circular().radius(fisheye_radius).distortion(2.8);
@@ -494,6 +512,8 @@ mouse_receiver
 //    mouse_receiver.call(force.drag);
 // when mouse_receiver == viscanvas
 
+updateWindow();
+
 var ctx = canvas.getContext('2d');
 
 var use_canvas = true;
@@ -531,6 +551,40 @@ function draw_line(x1,y1,x2,y2,clr){
     ctx.closePath();
     ctx.stroke();
 }
+function draw_disconnect_dropzone(){
+    ctx.save();
+    ctx.lineWidth = graph_radius * 0.1;
+    draw_circle(cx,cy,graph_radius,'lightgreen');
+    ctx.restore()
+}
+function draw_discard_dropzone(){
+    ctx.save();
+    ctx.lineWidth = discard_radius * 0.1;
+    draw_circle(discard_center[0],
+		discard_center[1],
+		discard_radius,'salmon');
+    ctx.restore()
+}
+function draw_dropzones(){
+    if (dragging){
+	draw_disconnect_dropzone();
+	draw_discard_dropzone();
+    }
+}
+
+function in_disconnect_dropzone(node){
+    var dist = distance(node,[cx,cy]);
+    return (graph_radius * 0.9 < dist &&
+	    graph_radius * 1.1 > dist);
+}
+
+function in_discard_dropzone(node){
+    var dist = distance(node,discard_center);
+    return (discard_radius * 0.9 < dist &&
+	    discard_radius * 1.1 > dist);
+}
+
+
 
 function reset_graph(){
     //draw_circle(cx,cy,0.5 * Math.min(cx,cy),'black')
@@ -539,6 +593,7 @@ function reset_graph(){
     chosen_nodes = [];
     change_sort_order(nodes,cmp_on_id);
     unlinked_nodez = [];
+    discarded_nodes = [];
     change_sort_order(unlinked_nodez,cmp_on_name);
     links = [];
     force.nodes(nodes);
@@ -805,7 +860,37 @@ function position_nodes(){
     });
 }
 
+
+
+function draw_nodes_in_set(set,radius,center){
+    var cx = center[0];
+    var cy = center[1]
+    var num = set.length;
+    set.forEach(function(node,i){
+	var rad = 2 * Math.PI * i / num;
+	node.rad = rad;
+	node.x = cx + Math.sin(rad) * radius;
+	node.y = cy + Math.cos(rad) * radius;
+	node.fisheye = fisheye(node);
+	if (use_canvas){
+	    draw_circle(node.fisheye.x,
+			node.fisheye.y,
+			calc_node_radius(node),
+			node.color || 'yellow',
+			node.color || 'black'
+		       );
+	}
+	if (use_webgl){
+	    mv_node(node.gl,node.fisheye.x,node.fisheye.y);
+	}
+    });
+}
+function draw_discards(){
+    draw_nodes_in_set(discarded_nodes,discard_radius,discard_center);
+};
 function draw_lariat(){
+    draw_nodes_in_set(unlinked_nodez,graph_radius,[cx,cy]);
+    return;
     var n_nodes = unlinked_nodez.length;
     unlinked_nodez.forEach(function(d,i){
 	var rad = 2 * Math.PI * i / n_nodes;
@@ -855,6 +940,7 @@ function draw_nodes(){
       });
   }
 }
+
 
 function should_show_label(nodey){
     return dist_lt(last_mouse_pos,nodey,label_show_range) 
@@ -916,6 +1002,7 @@ function blank_screen(){
 function tick() {
     //if (nearest_node){	return;    }
     blank_screen();
+    draw_dropzones();
     find_nearest_node();
     fisheye.focus(last_mouse_pos);
     //show_last_mouse_pos();
@@ -924,6 +1011,7 @@ function tick() {
     draw_edges();
     draw_nodes();
     draw_lariat();
+    draw_discards();
     draw_labels();
     update_status();
 }
@@ -1476,6 +1564,24 @@ var toggle_display_tech = function(ctrl,tech){
     tick();
     return true;
 }
+/*
+  The DISCARDED are those nodes which the user has
+  explicitly asked to not have drawn into the graph.
+  They user expresses this by dropping them in the 
+  discard_dropzone.
+*/
+var discard = function(goner){
+    unchoose(goner);
+    remove_from(goner,unlinked_nodez);
+    add_to(goner,discarded_nodes);
+    update_linked_flag(goner);
+};
+var undiscard = function(prodigal){
+    remove_from(prodigal,discarded_nodes);
+    add_to(prodigal,unlinked_nodez);
+    update_linked_flag(prodigal);
+};
+
 
 /*
   The CHOSEN are those nodes which the user has
@@ -1484,20 +1590,13 @@ var toggle_display_tech = function(ctrl,tech){
   linked into the graph because another node has been chosen.
  */
 var unchoose = function(goner){
-    for (var i = chosen_nodes.length - 1; i > -1; i--){
-	var node = chosen_nodes[i];
-	console.log(i);
-	if (goner == node){
-	    console.log('unchoose('+node.id+')');
-	    chosen_nodes.splice(i,1);
-	}
-    }
+    remove_from(goner,chosen_nodes);
     hide_node_links(goner);
     update_linked_flag(goner);
     //update_history();
 }
 var choose = function(chosen){
-    chosen_nodes.push(chosen); // duplicates?
+    add_to(chosen,chosen_nodes);
     show_links_from_node(chosen);
     show_links_to_node(chosen);
     chosen.showing_links = 'all';
