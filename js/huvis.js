@@ -189,7 +189,6 @@ var DUMP = false;
 var node_radius_policy;
 var draw_circle_around_nearest = false;
 var draw_lariat_labels_rotated = true;
-var last_mouseup_time = 0;
 var run_force_after_mouseup_msec = 2000;
 var nodes_pinnable = false;  // bugged
 
@@ -351,7 +350,6 @@ function mousedown(){
 }
 
 function mouseup(){
-    //console.log('mouseup');
     var point = d3.mouse(this);
     //console.log(point,mousedown_point,distance(point,mousedown_point));
     if (dragging){
@@ -360,36 +358,27 @@ function mouseup(){
 	    dragging.fixed = true;
 	}
 	dragging = false;
-	force.resume();
-	restart();
     }
-
     if (nearest_node && nearest_node.fixed && nearest_node.linked){
 	if (nodes_pinnable){
 	    nearest_node.fixed = false;
 	}
     }
-
     if (distance(point,mousedown_point) > drag_dist_threshold){
-	last_mouseup_time = new Date();
 	return;  // it was a drag, not a click
     }
-
-  if (nearest_node){
-      var clickee = nearest_node;
-      //console.log("clickee",clickee.showing_links,clickee.name);
-      if (clickee.showing_links == 'all'){
-	  hide_node_links(clickee);
-      } else {
-          show_links_from_node(clickee);
-          show_links_to_node(clickee);
-          clickee.showing_links = 'all';
-      }
-      update_linked_flag(clickee);
-  }
-  force.links(links);
-    //console.log();
-  restart();
+    if (nearest_node){
+	var clickee = nearest_node;
+	//console.log("clickee",clickee.showing_links,clickee.name);
+	if (clickee.showing_links == 'all'){
+	    hide_node_links(clickee);
+	} else {
+            show_links_from_node(clickee);
+            show_links_to_node(clickee);
+            clickee.showing_links = 'all';
+	}
+	update_linked_flag(clickee);
+    }
 }
 
 var show_and_hide_links_from_node = function(d){
@@ -704,10 +693,8 @@ function find_nearest_node(){
     var new_nearest_node;
     var new_nearest_idx;
     var focus_threshold = focus_radius * 3;
-    var close_nodes = [];
     var closest = width;;
     var closest_point;
-    //node.each(function(d,i) {
     nodes.forEach(function(d,i) {
 	var dist = distance(d.fisheye || d,last_mouse_pos);
 	if (dist < closest){
@@ -741,19 +728,10 @@ function find_nearest_node(){
 		var svg_node = node[0][new_nearest_idx];
 		d3.select(svg_node).classed('nearest_node',true);
 	    }
-	    //dump_details(new_nearest_node);
+	    dump_details(new_nearest_node);
 	}
     }
     nearest_node = new_nearest_node;  // possibly null
-    if (nearest_node){
-	//if (its_been_long_enough()) force.stop();
-    } else {
-	force.resume();
-    }
-}
-
-function been_long_enough(){
-    ((new Date() - last_mouseup_time) > run_force_after_mouseup_msec);
 }
 
 function draw_edges(){
@@ -1159,7 +1137,7 @@ var find_links_from_node = function(node) {
             for (oi = 0; oi < predicate.objects.length; oi++){
 		var obj = predicate.objects[oi];
 		if (obj.type == RDF_object){
-		    target = make_node_if_missing(G.subjects[obj.value],[x,y]);
+		    target = get_or_make_node(G.subjects[obj.value],[x,y]);
 		}
 		if (! target) continue;
 		var edge = make_edge(node,target);
@@ -1168,7 +1146,7 @@ var find_links_from_node = function(node) {
                 var idx = binary_search_on(nodes,{id:obj.value});
 		if (idx < 0){
 		    if (obj.type == RDF_object){
-			target = make_node_if_missing(G.subjects[obj.value],[x,y]);
+			target = get_or_make_node(G.subjects[obj.value],[x,y]);
 		    }
 		}
 		
@@ -1195,7 +1173,7 @@ var find_links_to_node = function(d) {
             //console.log('  sid_pred:',sid_pred);
 	    var sid = sid_pred[0];
 	    var pred = sid_pred[1];
-	    var src = make_node_if_missing(G.subjects[sid],parent_point);
+	    var src = get_or_make_node(G.subjects[sid],parent_point);
 	    var edge = make_edge(src, d);
 	    // console.log("  edge:",edge);
             add_link(edge);
@@ -1272,12 +1250,12 @@ var ids_to_show = start_with_http;
 var id2n = {}; // the index of linked nodes (in nodes)
 var id2u = {}; // the index of unlinked nodes (in unlinked_nodez)
 
-var make_node_if_missing = function(subject,start_point,linked){
+var get_or_make_node = function(subject,start_point,linked){
   // assumes not already in nodes and id2n
     if (! subject) return;  // uhh, no subject
     var d = get_node_by_id(subject.id);
     if (d) return d; // already exist, return it
-    //console.log("make_node_if_missing(",subject.id,") MISSING!");
+    //console.log("get_or_make_node(",subject.id,") MISSING!");
     start_point = start_point || [width/2, height/2];
     //linked = typeof linked === 'undefined' || false;  // WFT!!!!
     linked =  typeof linked === 'undefined' || linked || false;
@@ -1319,7 +1297,7 @@ var make_nodes = function(g,limit){
       }
       if (! subj.match(ids_to_show)) continue;
       var subject = g.subjects[subj];  
-	make_node_if_missing(subject,[width/2,height/2],false)
+	get_or_make_node(subject,[width/2,height/2],false)
       count++;
       if (limit && count >= limit) break;
     }
@@ -1405,7 +1383,6 @@ var hide_node_links = function(node){
     });
     node.links_shown = [];
     update_linked_flag(node);
-    restart();
 };
 var hide_found_links = function(){
     nodes.forEach(function(node,i){
@@ -1419,6 +1396,7 @@ var hide_found_links = function(){
 var show_node_links = function(node){
     show_links_from_node(node);
     show_links_to_node(node);
+    update_linked_flag(node);
 };
 
 var show_found_links = function(){
@@ -1426,7 +1404,7 @@ var show_found_links = function(){
 	var subj = G.subjects[sub_id];
 	subj.getValues('f:name').forEach(function(name){
 	    if (name.match(search_regex)){
-		var node = make_node_if_missing(subj,[cx,cy]);
+		var node = get_or_make_node(subj,[cx,cy]);
 		if (node){
 		    show_node_links(node);
 		}
@@ -1444,9 +1422,23 @@ var toggle_links = function(){
   return force.links().length;
 };
 var toggle_label_display = function(){
-  label_all_graphed_nodes = ! label_all_graphed_nodes;
-  tick();
+    label_all_graphed_nodes = ! label_all_graphed_nodes;
+    tick();
 };
+var hide_all_links = function(){
+    nodes.forEach(function(node){
+	node.linked = false;
+	node.fixed = false;	
+	node.links_shown = [];
+	node.showing_links = 'none'
+	add_to_array(node,unlinked_nodez);
+    });
+    links.forEach(function(link){
+	remove_ghosts(link);
+    });
+    links = [];
+};
+
 var last_status;
 var set_status = function(txt){
     txt = txt || ''

@@ -20,12 +20,16 @@
       <div id="search" class="search_box" contenteditable="true"></div>
       <div id="show_links" class="button" onclick="show_found_links(this)">show links</div>
       <div id="hide_links" class="button" onclick="hide_found_links(this)">hide links</div>
+
            
       <div id="show_labels">
          <label for="show_labels_input">show labels</label>
          <input type="checkbox" id="show_labels_input" 
                 onchange="toggle_label_display(this)"/>
       </div>
+      <div id="hide_links" 
+	   onclick="hide_all_links(this)"
+	   class="button">hide all links</div>
       <div id="display_tech" style="display:none">
         <div id="use_canvas">
            <label for="use_canvas_input">use_canvas</label>
