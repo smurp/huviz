@@ -189,6 +189,8 @@ var DUMP = false;
 var node_radius_policy;
 var draw_circle_around_nearest = false;
 var draw_lariat_labels_rotated = true;
+var last_mouseup_time = 0;
+var run_force_after_mouseup_msec = 2000;
 
 if (! verbose){
   console = {'log': function(){}};
@@ -312,25 +314,56 @@ function color_by_type(d){
     }
 }
 
-var mousedown_point = [cx,cy];
-function register_mousedown_point(){
-    mousedown_point = d3.mouse(this);
-    //console.log(mousedown_point,'down');
-}
-
 function distance(p1,p2){
   var x = (p1.x || p1[0]) - (p2.x || p2[0]);
   var y = (p1.y || p1[1]) - (p2.y || p2[1]);
   return Math.sqrt(x * x + y * y);
 }
 
-function click_to_toggle_edges(){
-  var point = d3.mouse(this);
-  //console.log(point,mousedown_point,distance(point,mousedown_point));
-  
-  if (distance(point,mousedown_point) > drag_dist_threshold){
-    return;  // it was a drag, not a click
-  }
+function move_node_to_point(node,point){
+    node.x = point[0];
+    node.y = point[1];
+}
+
+function mousemove() {
+    console.log('mousemove');
+    last_mouse_pos = d3.mouse(this);
+    if (dragging){
+	force.resume();
+	//console.log(nearest_node.x,last_mouse_pos);
+	move_node_to_point(dragging,last_mouse_pos);
+    }
+    cursor.attr("transform", "translate(" + last_mouse_pos + ")");
+    tick();
+}
+var mousedown_point = [cx,cy];
+function mousedown(){
+    console.log('mousedown');
+    if (nearest_node){
+	dragging = nearest_node;
+	//force.stop();
+    }
+    mousedown_point = d3.mouse(this);
+    last_mouse_pos = mousedown_point;
+    //console.log(mousedown_point,'down');
+    //e.preventDefault();
+    return false;
+}
+function click_to_toggle_edges(){ // mouseup
+    console.log('mouseup');
+    var point = d3.mouse(this);
+    //console.log(point,mousedown_point,distance(point,mousedown_point));
+    move_node_to_point(dragging,point);
+    //tick();    
+    dragging = false;
+    force.resume();
+    restart();
+    if (distance(point,mousedown_point) > drag_dist_threshold){
+	last_mouseup_time = new Date();
+	//dragging.fixed = true;
+	
+	return;  // it was a drag, not a click
+    }
 
   if (nearest_node){
       var clickee = nearest_node;
@@ -365,6 +398,7 @@ var graph_radius = 100;
 var fisheye_radius = label_show_range * 5;
 var focus_radius = label_show_range;
 var drag_dist_threshold = 5;
+var dragging = false;
 /////////////////////////////////////////////////////////////////////////////
 // resize-svg-when-window-is-resized-in-d3-js
 //   http://stackoverflow.com/questions/16265123/
@@ -422,7 +456,7 @@ var fisheye = d3.fisheye.circular().radius(fisheye_radius).distortion(2.8);
 var fill = d3.scale.category20();
 
 function get_charge(d){
-    if (d.fixed) return 0;
+    if (! d.linked) return 0;
     return charge;
 };
 
@@ -453,8 +487,36 @@ var canvas = viscanvas[0][0];
 var mouse_receiver = viscanvas;
 mouse_receiver
     .on("mousemove", mousemove)
-    .on("mousedown", register_mousedown_point)
+    .on("mousedown", mousedown)
     .on("mouseup", click_to_toggle_edges);
+
+/*
+  var drag=false;
+  
+  var old_x, old_y;
+  
+  var mouseDown=function(e) {
+    drag=true;
+    old_x=e.pageX, old_y=e.pageY;
+    e.preventDefault();
+    return false;
+    }
+  
+  var mouseUp=function(e){
+    drag=false;
+    }
+  
+  var mouseMove=function(e) {
+    if (!drag) return false;
+    var dX=e.pageX-old_x,
+        dY=e.pageY-old_y;
+    THETA+=dX*2*Math.PI/CANVAS.width;
+    PHI+=dY*2*Math.PI/CANVAS.height;
+    old_x=e.pageX, old_y=e.pageY;
+    e.preventDefault();
+    }
+
+*/
 
 // lines: 5845 5848 5852 of d3.v3.js object to
 //    mouse_receiver.call(force.drag);
@@ -656,50 +718,60 @@ var dump_locations = function(srch,verbose){
 }
 
 function find_nearest_node(){
-  var new_nearest_node;
-  var new_nearest_idx;
-  var focus_threshold = focus_radius * 3;
-  var close_nodes = [];
-  var closest = width;;
-  var closest_point;
-  //node.each(function(d,i) {
-  nodes.forEach(function(d,i) {
-      var dist = distance(d.fisheye || d,last_mouse_pos);
-      if (dist < closest){
-	  closest = dist;
-	  closest_point = d.fisheye || d;
-      }
-      if (dist <= focus_threshold){
-          new_nearest_node = d;
-          focus_threshold = dist;
-          new_nearest_idx = i;
-          //console.log("dist",focus_threshold,dist,new_nearest_node.name);
-      }
-  });
-  if (draw_circle_around_nearest){
-      draw_circle(closest_point.x,closest_point.y,focus_radius,'red');
-  }
-  var msg = focus_threshold+" <> " + closest;
-  var status = $("#status");
-  //status.text(msg);
-  //console.log('new_nearest_node',focus_threshold,new_nearest_node);
-  if (nearest_node != new_nearest_node){
-      if (nearest_node){
-	  if (use_svg){
-              d3.select('.nearest_node').classed('nearest_node',false);
-	  }
-          nearest_node.nearest_node = false;
-      }
-      if (new_nearest_node){ 
-          new_nearest_node.nearest_node = true;
-	  if (use_svg){
-              var svg_node = node[0][new_nearest_idx];
-              d3.select(svg_node).classed('nearest_node',true);
-	  }
-	  //dump_details(new_nearest_node);
-      }
-  }
-  nearest_node = new_nearest_node;  // possibly null
+    if (dragging) return;
+    var new_nearest_node;
+    var new_nearest_idx;
+    var focus_threshold = focus_radius * 3;
+    var close_nodes = [];
+    var closest = width;;
+    var closest_point;
+    //node.each(function(d,i) {
+    nodes.forEach(function(d,i) {
+	var dist = distance(d.fisheye || d,last_mouse_pos);
+	if (dist < closest){
+	    closest = dist;
+	    closest_point = d.fisheye || d;
+	}
+	if (dist <= focus_threshold){
+            new_nearest_node = d;
+            focus_threshold = dist;
+            new_nearest_idx = i;
+            //console.log("dist",focus_threshold,dist,new_nearest_node.name);
+	}
+    });
+    if (draw_circle_around_nearest){
+	draw_circle(closest_point.x,closest_point.y,focus_radius,'red');
+    }
+    var msg = focus_threshold+" <> " + closest;
+    var status = $("#status");
+    //status.text(msg);
+    //console.log('new_nearest_node',focus_threshold,new_nearest_node);
+    if (nearest_node != new_nearest_node){
+	if (nearest_node){
+	    if (use_svg){
+		d3.select('.nearest_node').classed('nearest_node',false);
+	    }
+            nearest_node.nearest_node = false;
+	}
+	if (new_nearest_node){ 
+            new_nearest_node.nearest_node = true;
+	    if (use_svg){
+		var svg_node = node[0][new_nearest_idx];
+		d3.select(svg_node).classed('nearest_node',true);
+	    }
+	    //dump_details(new_nearest_node);
+	}
+    }
+    nearest_node = new_nearest_node;  // possibly null
+    if (nearest_node){
+	//if (its_been_long_enough()) force.stop();
+    } else {
+	force.resume();
+    }
+}
+
+function been_long_enough(){
+    ((new Date() - last_mouseup_time) > run_force_after_mouseup_msec);
 }
 
 function draw_edges(){
@@ -762,10 +834,13 @@ function draw_edges(){
 
 function position_nodes(){
     var n_nodes = nodes.length;
-    nodes.forEach(function(d,i){
+    nodes.forEach(function(node,i){
 	//console.log("position_node",d.name);
-	if (! d.linked) return;
-        d.fisheye = fisheye(d);
+	if (dragging == node){
+	    move_node_to_point(node,last_mouse_pos);
+	}
+	if (! node.linked) return;
+        node.fisheye = fisheye(node);
     });
 }
 
@@ -893,10 +968,14 @@ function tick() {
 }
 
 function update_status(){
-    set_status("nodes:"+nodes.length +
-	       " unlinked:"+unlinked_nodez.length +
-	       " links:"+links.length +
-	       " subj:"+G.num_subj);
+    var msg = "nodes:"+nodes.length +
+	" unlinked:"+unlinked_nodez.length +
+	" links:"+links.length +
+	" subj:"+G.num_subj;
+    if (dragging){
+	msg += " DRAG";
+    }
+    set_status(msg);
 }
 
 function svg_restart() {
@@ -982,11 +1061,6 @@ function restart(){
 function show_last_mouse_pos(){
   draw_circle(last_mouse_pos[0],last_mouse_pos[1],focus_radius,'yellow')
   //console.log(last_mouse_pos,'move');
-}
-function mousemove() {
-  last_mouse_pos = d3.mouse(this);
-  cursor.attr("transform", "translate(" + last_mouse_pos + ")");
-  tick();
 }
 
 var get_node_by_id = function(node_id,throw_on_fail){
