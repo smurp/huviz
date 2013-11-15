@@ -1251,7 +1251,8 @@ var find_links_from_node = function(node) {
     var target;
     var subj = node.s;
     var x = node.x || width/2,
-    y = node.y || height/2;
+        y = node.y || height/2;
+    var oi;
     if (subj){
 	for (p in subj.predicates){
 	    var predicate = subj.predicates[p]; 
@@ -1261,32 +1262,14 @@ var find_links_from_node = function(node) {
 		    target = get_or_make_node(G.subjects[obj.value],[x,y]);
 		}
 		if (! target) continue;
-		var edge = make_edge(node,target);
-		add_link(edge);
-		/*
-                var idx = binary_search_on(nodes,{id:obj.value});
-		if (idx < 0){
-		    if (obj.type == RDF_object){
-			target = get_or_make_node(G.subjects[obj.value],[x,y]);
-		    }
-		}
-		
-		if (id2n[obj.value]){
-		    var t = get_node_by_id(obj.value);
-		    var edge = make_edge(n,t);
-		    add_link(edge);
-		}
-		    */
+		add_link(make_edge(node,target));
             }
-	    //console.log(p,"==>",predicate);
         }    
     }
+    node.links_from_found = true;
 };
 
 var find_links_to_node = function(d) {
-  if (verbosity >= DEBUG){   
-    console.log('find_links_to_node',d);
-  }
     var subj = d.s;
     if (subj){
 	var parent_point = [d.x,d.y];
@@ -1295,20 +1278,18 @@ var find_links_to_node = function(d) {
 	    var sid = sid_pred[0];
 	    var pred = sid_pred[1];
 	    var src = get_or_make_node(G.subjects[sid],parent_point);
-	    var edge = make_edge(src, d);
-	    // console.log("  edge:",edge);
-            add_link(edge);
+            add_link(make_edge(src, d));
 	});
     }
+    d.links_to_found = true;
 };
 var show_links_to_node = function(n,even_discards) {
     even_discards = even_discards || false;
     if (! n.links_to_found){
 	find_links_to_node(n);
-	n.links_to_found = true;
     }
     n.links_to.forEach(function(e,i){
-	if (! even_discards && e.target.state == discarded_set) return;
+	if (! even_discards && e.source.state == discarded_set) return;
         add_to(e,n.links_shown);
 	add_to(e,e.source.links_shown);
         links_set.add(e);
@@ -1348,7 +1329,6 @@ var show_links_from_node = function(n,even_discards) {
     var subj = n.s;
     if (! n.links_from_found){
 	find_links_from_node(n);
-	n.links_from_found = true;
     } else {
 	n.links_from.forEach(function(e,i){
 	    if (! even_discards && e.target.state == discarded_set) return;
