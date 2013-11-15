@@ -360,7 +360,6 @@ function mouseup(){
 	} else 	if (nodes_pinnable){
 	    dragging.fixed = true;
 	}
-
 	if (in_disconnect_dropzone(dragging)){
 	    console.log("disconnect",dragging.name)
 	    unchoose(dragging);
@@ -378,9 +377,9 @@ function mouseup(){
     }
     if (nearest_node){
 	var clickee = nearest_node;
-	if (clickee.state == discarded_set){
-	    undiscard(clickee);
-	}
+	//if (clickee.state == discarded_set){
+	//    undiscard(clickee);
+	//}
 	if (! clickee.state ||  // hidden should be the default state
 	    clickee.state == 'hidden' || 
 	    clickee.state == hidden_set || 
@@ -396,7 +395,6 @@ function mouseup(){
 	//update_flags(clickee);
 	restart();
     }
-    
 }
 
 var show_and_hide_links_from_node = function(d){
@@ -1353,7 +1351,7 @@ var show_links_from_node = function(n,even_discards) {
 	n.links_from_found = true;
     } else {
 	n.links_from.forEach(function(e,i){
-	    if (! even_discards || e.target.discard) return;
+	    if (! even_discards && e.target.discard) return;
             add_to(e,n.links_shown);
             links_set.add(e);
 	    add_to(e,e.target.links_shown);
@@ -1685,6 +1683,7 @@ var choose = function(chosen){
 	//chosen.state = unlinked_set;
 	unlinked_set.acquire(chosen);
     }
+    update_state(chosen);
     update_flags(chosen);
     chosen.chosen = true;
     //update_history();
