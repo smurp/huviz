@@ -601,9 +601,7 @@ function reset_graph(){
     chosen_set = [];
     change_sort_order(nodes,cmp_on_id);
 
-    unlinked_set = [];
-    change_sort_order(unlinked_set,cmp_on_name);
-
+    unlinked_set = SortedSet().sort_on('name');
 
     discarded_set = [];
     change_sort_order(discarded_set,cmp_on_name);
@@ -1156,15 +1154,16 @@ var update_flags = function(n){
   //if (! changed) return name;  // do nothing because no change
   if (n.linked){
       //d3.select(node[0][new_nearest_idx]).classed('nearest_node',true);
-      remove_from(n,unlinked_set);
+      unlinked_set.remove(n);
       if (use_svg){
 	  var svg_node = node[0][nodes.indexOf(n)];
 	  d3.select(svg_node).classed('lariat',false).classed('node',true);
       }
       // node[0][new_nearest_idx]
   } else {
-      if (unlinked_set.indexOf(n) == -1){
-	  add_to_array(n,unlinked_set)
+      if (unlinked_set.binary_search(n) == -1){
+	  unlinked_set.add(n);
+	  //add_to_array(n,unlinked_set)
 	  if (use_svg){
 	      d3.select(svg_node).classed('lariat',true).classed('node',false);
 	  }
@@ -1380,7 +1379,7 @@ var get_or_make_node = function(subject,start_point,linked){
     //var n_idx = nodes.push(d) - 1;
     id2n[subject.id] = n_idx;
     if (! linked){
-	var n_idx = add_to_array(d,unlinked_set);
+	var n_idx = unlinked_set.add(d);
 	id2u[subject.id] = n_idx;    
     }
     update_flags(d);
@@ -1538,7 +1537,7 @@ var hide_all_links = function(){
 	node.fixed = false;	
 	node.links_shown = [];
 	node.showing_links = 'none'
-	add_to_array(node,unlinked_set);
+	unlinked_set.add(node);
     });
     links.forEach(function(link){
 	remove_ghosts(link);
@@ -1585,7 +1584,7 @@ var toggle_display_tech = function(ctrl,tech){
 var unlink = function(unlinkee){
     hide_links_from_node(unlinkee);
     hide_links_to_node(unlinkee);
-    add_to_array(unlinkee,unlinked_set);
+    unlinked_set(unlinkee);
     update_flags(unlinkee);
 };
 
@@ -1598,7 +1597,7 @@ var unlink = function(unlinkee){
 var discard = function(goner){
     unchoose(goner);
     unlink(goner);
-    remove_from(goner,unlinked_set);
+    unlinked_set.remove(goner);
     add_to(goner,discarded_set);
     update_flags(goner);
     //goner.discarded = true;
@@ -1606,7 +1605,7 @@ var discard = function(goner){
 };
 var undiscard = function(prodigal){
     remove_from(prodigal,discarded_set);
-    add_to(prodigal,unlinked_set);
+    unlinked_set.add(prodigal);
     update_flags(prodigal);
 };
 
@@ -1636,7 +1635,7 @@ var choose = function(chosen){
 	chosen.showing_links = 'all';
     } else {
 	chosen.state = 'unlinked';
-	add_to(chosen, unlinked_set);
+	unlinked_set.add(chosen);
     }
     update_flags(chosen);
     chosen.chosen = true;
