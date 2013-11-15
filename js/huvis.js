@@ -329,7 +329,7 @@ function move_node_to_point(node,point){
 }
 
 function mousemove() {
-    console.log('mousemove');
+    //console.log('mousemove');
     last_mouse_pos = d3.mouse(this);
     if (dragging){
 	force.resume();
@@ -356,18 +356,18 @@ function mouseup(){
     var point = d3.mouse(this);
     //console.log(point,mousedown_point,distance(point,mousedown_point));
     if (dragging){
-	if (in_disconnect_dropzone){
-	    unchoose(dragging);
-	}
-	if (in_discard_dropzone){
-	    dragging.discarded = true;
-	    add_to(dragging,discarded_nodes);
-	    unchoose(dragging);
-	}
 	move_node_to_point(dragging,point);
-	if (nodes_pinnable){
+	if (in_discard_dropzone(dragging)){
+	    console.log("discarding",dragging.name)
+	    discard(dragging);
+	} else 	if (nodes_pinnable){
 	    dragging.fixed = true;
 	}
+
+	if (in_disconnect_dropzone(dragging)){
+	    console.log("disconnect",dragging.name)
+	    unchoose(dragging);
+	} 
 	dragging = false;
 	return;
     }
@@ -381,12 +381,21 @@ function mouseup(){
     }
     if (nearest_node){
 	var clickee = nearest_node;
-	if (clickee.showing_links == 'all'){
+	if (clickee.state == 'discarded'){
+	    undiscard(clickee);
+	}
+	if (! clickee.state ||  // hidden should be the default state
+	    clickee.state == 'hidden' || 
+	    clickee.state == 'unlinked' || 
+	    clickee.state == 'discarded'){
+	    choose(clickee);
+	} else if (clickee.showing_links == 'all'){
 	    unchoose(clickee);
 	} else {
 	    choose(clickee);
 	}
-	//update_linked_flag(clickee);
+	force.links(links);
+	//update_flags(clickee);
 	restart();
     }
     
@@ -435,10 +444,10 @@ var update_graph_radius = function(){
 };
 
 var update_discard_zone = function(){
-    var discard_ratio = .2;
+    var discard_ratio = .1;
     discard_radius = graph_radius * discard_ratio;
-    discard_center = [width - discard_radius * 1.1, 
-		      height - discard_radius * 1.1];    
+    discard_center = [width - discard_radius * 3, 
+		      height - discard_radius * 3];    
 };
 
 function updateWindow(){
@@ -562,7 +571,7 @@ function draw_discard_dropzone(){
     ctx.lineWidth = discard_radius * 0.1;
     draw_circle(discard_center[0],
 		discard_center[1],
-		discard_radius,'salmon');
+		discard_radius,'','salmon');
     ctx.restore()
 }
 function draw_dropzones(){
@@ -573,15 +582,16 @@ function draw_dropzones(){
 }
 
 function in_disconnect_dropzone(node){
+    // is it within the RIM of the disconnect circle?
     var dist = distance(node,[cx,cy]);
     return (graph_radius * 0.9 < dist &&
 	    graph_radius * 1.1 > dist);
 }
 
 function in_discard_dropzone(node){
+    // is it ANYWHERE within the circle?
     var dist = distance(node,discard_center);
-    return (discard_radius * 0.9 < dist &&
-	    discard_radius * 1.1 > dist);
+    return (discard_radius * 1.1 > dist);
 }
 
 
@@ -590,11 +600,16 @@ function reset_graph(){
     //draw_circle(cx,cy,0.5 * Math.min(cx,cy),'black')
     id2n = {};
     nodes = [];
+
     chosen_nodes = [];
     change_sort_order(nodes,cmp_on_id);
+
     unlinked_nodez = [];
-    discarded_nodes = [];
     change_sort_order(unlinked_nodez,cmp_on_name);
+
+    discarded_nodes = [];
+    change_sort_order(discarded_nodes,cmp_on_name);
+
     links = [];
     force.nodes(nodes);
     d3.select(".link").remove();
@@ -715,7 +730,9 @@ function dump_details(node){
     */
     console.log("=================================================");
     console.log(node.name);
-    console.log("  xy:",node.x,node.y);
+    console.log("  x,y:",node.x,node.y);
+    console.log("  state:",node.state);
+    console.log("  chosen:",node.chosen);
     console.log("  fisheye:",node.fisheye);
     console.log("  fixed:",node.fixed);
     console.log("  links_shown:",
@@ -728,6 +745,7 @@ function dump_details(node){
 		node.links_from.length, 
 		names_in_edges(node.links_from));
     console.log("  showing_links:", node.showing_links);
+    console.log("  in_sets:",node.in_sets);
 }
 
 var dump_locations = function(srch,verbose){
@@ -890,26 +908,6 @@ function draw_discards(){
 };
 function draw_lariat(){
     draw_nodes_in_set(unlinked_nodez,graph_radius,[cx,cy]);
-    return;
-    var n_nodes = unlinked_nodez.length;
-    unlinked_nodez.forEach(function(d,i){
-	var rad = 2 * Math.PI * i / n_nodes;
-	d.rad = rad;
-	d.x = cx + Math.sin(rad) * graph_radius;
-	d.y = cy + Math.cos(rad) * graph_radius;
-	d.fisheye = fisheye(d);
-	if (use_canvas){
-	    draw_circle(d.fisheye.x,
-			d.fisheye.y,
-			calc_node_radius(d),
-			d.color || 'yellow',
-			d.color || 'black'
-		       );
-	}
-	if (use_webgl){
-	    mv_node(d.gl,d.fisheye.x,d.fisheye.y);
-	}
-    });
 }
 
 function draw_nodes(){
@@ -1017,10 +1015,11 @@ function tick() {
 }
 
 function update_status(){
-    var msg = "nodes:"+nodes.length +
+    var msg = "linked:"+nodes.length +
 	" unlinked:"+unlinked_nodez.length +
 	" links:"+links.length +
-	" subj:"+G.num_subj +
+	" discarded:"+discarded_nodes.length +
+	" subjects:"+G.num_subj +
 	" chosen:"+chosen_nodes.length;
     
     if (dragging){
@@ -1128,7 +1127,15 @@ var get_node_by_id = function(node_id,throw_on_fail){
     }
 };
 
-var update_linked_flag = function(n){
+var update_flags = function(n){
+    /*
+      states: linked,unlinked,discarded,unfound
+         linked: in the graph, connected to other nodes
+	 unlinked: in the lariat, available for choosing
+	 discarded: in the discard zone, findable but ignored by show_links_*
+	 hidden: findable, but not displayed anywhere
+              	 (when found, will become unlinked)
+     */
   var old_linked_status = n.linked;
   n.linked = n.links_shown.length > 0;
   n.fixed = ! n.linked;
@@ -1165,7 +1172,7 @@ var update_linked_flag = function(n){
 	  }
       }
   }
-  return name;
+  return n;
 };
 var add_link = function(e){
   //if (links.indexOf(e) > -1) return;  // already present
@@ -1183,8 +1190,8 @@ var add_link = function(e){
   add_to(e,e.source.links_shown);
   add_to(e,e.target.links_to);
   add_to(e,e.target.links_shown);
-  update_linked_flag(e.source);
-  update_linked_flag(e.target);
+  update_flags(e.source);
+  update_flags(e.target);
   restart();
 };
 var UNDEFINED;
@@ -1197,8 +1204,8 @@ var remove_link = function(e){
   remove_from(e,e.source.links_shown);
   remove_from(e,e.target.links_shown);
   remove_from(e,links);
-  update_linked_flag(e.source);
-  update_linked_flag(e.target);
+  update_flags(e.source);
+  update_flags(e.target);
 };
 
 function remove_ghosts(e){
@@ -1271,17 +1278,18 @@ var find_links_to_node = function(d) {
 	});
     }
 };
-var show_links_to_node = function(n) {
+var show_links_to_node = function(n,even_discards) {
+    even_discards = even_discards || false;
     if (! n.links_to_found){
 	find_links_to_node(n);
 	n.links_to_found = true;
     }
     n.links_to.forEach(function(e,i){
-        //console.log('adding link from',e.source.name);
+	if (! even_discards || e.source.discard) return;
         add_to(e,n.links_shown);
 	add_to(e,e.source.links_shown);
         add_to(e,links);
-        update_linked_flag(e.source);
+        update_flags(e.source);
     });
     force.links(links)
     restart();  
@@ -1292,25 +1300,27 @@ var hide_links_to_node = function(n) {
 	remove_from(e,e.source.links_shown);
 	remove_from(e,links);
 	remove_ghosts(e);
-	update_linked_flag(e.source);
-	update_linked_flag(e.target);
+	update_flags(e.source);
+	update_flags(e.target);
     });
     force.links(links);
     restart();  
 };
 
 
-var show_links_from_node = function(n) {
+var show_links_from_node = function(n,even_discards) {
+    even_discards = even_discards || false;
     var subj = n.s;
     if (! n.links_from_found){
 	find_links_from_node(n);
 	n.links_from_found = true;
     } else {
 	n.links_from.forEach(function(e,i){
+	    if (! even_discards || e.target.discard) return;
             add_to(e,n.links_shown);
             add_to(e,links);
 	    add_to(e,e.target.links_shown);
-            update_linked_flag(e.target);
+            update_flags(e.target);
 	});
     }
     force.links(links);
@@ -1324,8 +1334,8 @@ var hide_links_from_node = function(n) {
 	remove_from(e,e.target.links_shown);
 	remove_from(e,links);
 	remove_ghosts(e);
-	update_linked_flag(e.source);
-	update_linked_flag(e.target);
+	update_flags(e.source);
+	update_flags(e.target);
     });
     force.links(links);
     restart();
@@ -1375,7 +1385,7 @@ var get_or_make_node = function(subject,start_point,linked){
 	var n_idx = add_to_array(d,unlinked_nodez);
 	id2u[subject.id] = n_idx;    
     }
-    update_linked_flag(d);
+    update_flags(d);
     return d;
 }
 
@@ -1468,12 +1478,12 @@ var hide_node_links = function(node){
 	    remove_from(e,e.target.links_shown);	    
 	}
 	remove_from(e,links);
-	update_linked_flag(e.target);
-	update_linked_flag(e.source);
+	update_flags(e.target);
+	update_flags(e.source);
 	remove_ghosts(e);
     });
     node.links_shown = [];
-    update_linked_flag(node);
+    update_flags(node);
 };
 var hide_found_links = function(){
     nodes.forEach(function(node,i){
@@ -1483,11 +1493,19 @@ var hide_found_links = function(){
     });
     restart();
 };
+var discard_found_nodes = function(){
+    nodes.forEach(function(node,i){
+	if (node.name.match(search_regex)){
+	    discard(node);
+	}
+    });
+    restart();
+};
 
 var show_node_links = function(node){
     show_links_from_node(node);
     show_links_to_node(node);
-    update_linked_flag(node);
+    update_flags(node);
 };
 
 var show_found_links = function(){
@@ -1529,7 +1547,8 @@ var hide_all_links = function(){
     });
     links = [];
     chosen_nodes = [];
-    update_history();
+    restart();
+    //update_history();
 };
 
 var last_status;
@@ -1564,22 +1583,33 @@ var toggle_display_tech = function(ctrl,tech){
     tick();
     return true;
 }
+
+var unlink = function(unlinkee){
+    hide_links_from_node(unlinkee);
+    hide_links_to_node(unlinkee);
+    add_to_array(unlinkee,unlinked_nodez);
+    update_flags(unlinkee);
+};
+
 /*
   The DISCARDED are those nodes which the user has
   explicitly asked to not have drawn into the graph.
-  They user expresses this by dropping them in the 
+  The user expresses this by dropping them in the 
   discard_dropzone.
 */
 var discard = function(goner){
     unchoose(goner);
+    unlink(goner);
     remove_from(goner,unlinked_nodez);
     add_to(goner,discarded_nodes);
-    update_linked_flag(goner);
+    update_flags(goner);
+    //goner.discarded = true;
+    goner.state = 'discarded'
 };
 var undiscard = function(prodigal){
     remove_from(prodigal,discarded_nodes);
     add_to(prodigal,unlinked_nodez);
-    update_linked_flag(prodigal);
+    update_flags(prodigal);
 };
 
 
@@ -1590,17 +1620,28 @@ var undiscard = function(prodigal){
   linked into the graph because another node has been chosen.
  */
 var unchoose = function(goner){
+    goner.state = 'unlinked';
+    delete goner.chosen;
     remove_from(goner,chosen_nodes);
     hide_node_links(goner);
-    update_linked_flag(goner);
+    update_flags(goner);
     //update_history();
 }
 var choose = function(chosen){
+    // There is a flag .chosen in addition to the state 'linked'
+    // because linked means it is in the graph
     add_to(chosen,chosen_nodes);
     show_links_from_node(chosen);
     show_links_to_node(chosen);
-    chosen.showing_links = 'all';
-    update_linked_flag(chosen);
+    if (chosen.links_shown){
+	chosen.state = 'linked';
+	chosen.showing_links = 'all';
+    } else {
+	chosen.state = 'unlinked';
+	add_to(chosen, unlinked_nodez);
+    }
+    update_flags(chosen);
+    chosen.chosen = true;
     //update_history();
 }
 var update_history = function(){
