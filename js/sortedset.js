@@ -41,6 +41,20 @@ function SortedSet(){
     array.clear = function(){
 	array.length = 0;
     };
+    array.isState = function(state_property){
+	// Calling isState() on a SortedSet() prepares it so that
+	// when add() is called then the SortedSet is registered on
+	// the itm.state property.  This means that if the item
+	// is moved to a different SortedSet then it's state can 
+	// be tested and altered.
+	state_property = state_property || 'state';
+	array.state_property = state_property;
+	return array;
+    };
+    array.named = function(name){
+	array.state_name = name;
+	return array;
+    };
     array.sort_on('id');
     /*
     array.register_members_to = function(key){
@@ -61,6 +75,9 @@ function SortedSet(){
 	    return c;
 	}
 	array.splice(c.idx,0,itm);
+	if (array.state_property){
+	    itm[array.state_property] = array;
+	}
 	return c.idx;
     }
     array.remove = function(itm){
@@ -71,8 +88,20 @@ function SortedSet(){
 	if (c > -1){
 	    array.splice(c,1);
 	}
+	if (array.state_property){
+	    itm[array.state_property] = true;
+	}	
 	return array;
     }
+    array.acquire = function(itm){
+	// acquire() is like add() for SortedSet() but it takes care
+	// of removing itm from the previous SortedSet
+	var last_state = itm[array.state_property];
+	if (last_state && last_state.remove){
+	    last_state.remove(itm);
+	}
+	return array.add(itm);
+    };
     array.binary_search = function(sought,ret_ins_idx){
 	// return -1 or the idx of sought in this
 	// if ret_ins_idx instead of -1 return [n] where n is where it ought to be

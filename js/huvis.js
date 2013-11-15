@@ -175,6 +175,7 @@ var remove_from = function(doomed,set){
 var nodes, links_set, node, link;
 var chosen_set;    // the nodes the user has chosen to see expanded
 var discarded_set; // the nodes the user has discarded
+var graphed_set;   // the nodes which are in the graph, linked together
 var unlinked_set;  // the nodes not displaying links and not discarded
 var nearest_node;
 var lariat;
@@ -378,13 +379,13 @@ function mouseup(){
     }
     if (nearest_node){
 	var clickee = nearest_node;
-	if (clickee.state == 'discarded'){
+	if (clickee.state == discarded_set){
 	    undiscard(clickee);
 	}
 	if (! clickee.state ||  // hidden should be the default state
 	    clickee.state == 'hidden' || 
-	    clickee.state == 'unlinked' || 
-	    clickee.state == 'discarded'){
+	    clickee.state == unlinked_set || 
+	    clickee.state == discarded_set){
 	    choose(clickee);
 	} else if (clickee.showing_links == 'all'){
 	    unchoose(clickee);
@@ -596,13 +597,35 @@ function in_discard_dropzone(node){
 function reset_graph(){
     //draw_circle(cx,cy,0.5 * Math.min(cx,cy),'black')
     id2n = {};
-    nodes = []; SortedSet().sort_on('id');
+    nodes = []; //SortedSet().sort_on('id');
     change_sort_order(nodes,cmp_on_id);
 
     chosen_set = SortedSet().sort_on('id');
-    unlinked_set = SortedSet().sort_on('name');
 
-    discarded_set = SortedSet().sort_on('name');
+    /*
+      states: graphed,unlinked,discarded,unfound
+         graphed: in the graph, connected to other nodes
+	 unlinked: in the lariat, available for choosing
+	 discarded: in the discard zone, findable but ignored by show_links_*
+	 hidden: findable, but not displayed anywhere
+              	 (when found, will become unlinked)
+     */
+    unlinked_set = SortedSet()
+	.sort_on('name')
+        .named('unlinked')
+	.isState();
+    discarded_set = SortedSet()
+	.sort_on('name')
+	.named('discarded')
+	.isState();
+    hidden_set = SortedSet()
+	.sort_on('id')
+	.named('hidden')
+	.isState();
+    graphed_set = SortedSet()
+	.sort_on('id')
+	.named('graphed')
+	.isState();
 
     links_set = SortedSet().sort_on('id');
     force.nodes(nodes);
@@ -725,7 +748,9 @@ function dump_details(node){
     console.log("=================================================");
     console.log(node.name);
     console.log("  x,y:",node.x,node.y);
-    console.log("  state:",node.state);
+    try {
+	console.log("  state:",node.state.state_name,node.state);
+    } catch (e){}
     console.log("  chosen:",node.chosen);
     console.log("  fisheye:",node.fisheye);
     console.log("  fixed:",node.fixed);
@@ -1122,34 +1147,27 @@ var get_node_by_id = function(node_id,throw_on_fail){
 };
 
 var update_flags = function(n){
+    var old_linked_status = n.linked;
+    n.linked = n.links_shown.length > 0;
+    n.fixed = ! n.linked;
+    if (n.linked){
+	if (! n.links_from_found || ! n.links_to_found){
+	    // we do not know, so a click is worth a try
+	    n.showing_links = 'some'; 
+	} else {
+	    if (n.links_from.length + n.links_to.length > n.links_shown.length){
+		n.showing_links = 'some';
+	    } else {
+		n.showing_links = 'all';
+	    }
+	}
+    } else {
+	n.showing_links = 'none';
+    }
+    var changed = old_linked_status != n.linked;
+    return n;
     /*
-      states: linked,unlinked,discarded,unfound
-         linked: in the graph, connected to other nodes
-	 unlinked: in the lariat, available for choosing
-	 discarded: in the discard zone, findable but ignored by show_links_*
-	 hidden: findable, but not displayed anywhere
-              	 (when found, will become unlinked)
-     */
-  var old_linked_status = n.linked;
-  n.linked = n.links_shown.length > 0;
-  n.fixed = ! n.linked;
-  if (n.linked){
-      if (! n.links_from_found || ! n.links_to_found){
-	  // we do not know, so a click is worth a try
-	  n.showing_links = 'some'; 
-      } else {
-	  if (n.links_from.length + n.links_to.length > n.links_shown.length){
-	      n.showing_links = 'some';
-	  } else {
-	      n.showing_links = 'all';
-	  }
-      }
-  } else {
-      n.showing_links = 'none';
-  }
-  var name = n.name;
-  var changed = old_linked_status != n.linked;
-  //if (! changed) return name;  // do nothing because no change
+
   if (n.linked){
       //d3.select(node[0][new_nearest_idx]).classed('nearest_node',true);
       unlinked_set.remove(n);
@@ -1168,6 +1186,7 @@ var update_flags = function(n){
       }
   }
   return n;
+  */
 };
 var add_link = function(e){
   //if (links_set.indexOf(e) > -1) return;  // already present
@@ -1377,7 +1396,7 @@ var get_or_make_node = function(subject,start_point,linked){
     //var n_idx = nodes.push(d) - 1;
     id2n[subject.id] = n_idx;
     if (! linked){
-	var n_idx = unlinked_set.add(d);
+	var n_idx = unlinked_set.acquire(d);
 	id2u[subject.id] = n_idx;    
     }
     update_flags(d);
@@ -1535,7 +1554,7 @@ var hide_all_links = function(){
 	node.fixed = false;	
 	node.links_shown = [];
 	node.showing_links = 'none'
-	unlinked_set.add(node);
+	unlinked_set.acquire(node);
     });
     links_set.forEach(function(link){
 	remove_ghosts(link);
@@ -1582,7 +1601,7 @@ var toggle_display_tech = function(ctrl,tech){
 var unlink = function(unlinkee){
     hide_links_from_node(unlinkee);
     hide_links_to_node(unlinkee);
-    unlinked_set.add(unlinkee);
+    unlinked_set.acquire(unlinkee);
     update_flags(unlinkee);
 };
 
@@ -1595,15 +1614,15 @@ var unlink = function(unlinkee){
 var discard = function(goner){
     unchoose(goner);
     unlink(goner);
-    unlinked_set.remove(goner);
-    discarded_set.add(goner);
+    //unlinked_set.remove(goner);
+    discarded_set.acquire(goner);
     update_flags(goner);
     //goner.discarded = true;
-    goner.state = 'discarded'
+    //goner.state = discarded_set;
 };
 var undiscard = function(prodigal){
-    discarded_set.remove(prodigal);
-    unlinked_set.add(prodigal);
+    //discarded_set.remove(prodigal);
+    unlinked_set.acquire(prodigal);
     update_flags(prodigal);
 };
 
@@ -1615,10 +1634,10 @@ var undiscard = function(prodigal){
   linked into the graph because another node has been chosen.
  */
 var unchoose = function(goner){
-    goner.state = 'unlinked';
     delete goner.chosen;
     chosen_set.remove(goner);
     hide_node_links(goner);
+    unlinked_set.acquire(goner);
     update_flags(goner);
     //update_history();
 }
@@ -1629,11 +1648,12 @@ var choose = function(chosen){
     show_links_from_node(chosen);
     show_links_to_node(chosen);
     if (chosen.links_shown){
-	chosen.state = 'linked';
+	//chosen.state = 'linked';
+	graphed_set.acquire(chosen);
 	chosen.showing_links = 'all';
     } else {
-	chosen.state = 'unlinked';
-	unlinked_set.add(chosen);
+	//chosen.state = unlinked_set;
+	unlinked_set.acquire(chosen);
     }
     update_flags(chosen);
     chosen.chosen = true;
