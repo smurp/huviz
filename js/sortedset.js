@@ -38,6 +38,9 @@ function SortedSet(){
 	array.sort(cmp);
 	return array;
     }
+    array.clear = function(){
+	array.length = 0;
+    };
     array.sort_on('id');
     array.add = function(itm){
 	// Objective:

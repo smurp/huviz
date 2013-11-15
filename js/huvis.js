@@ -172,7 +172,7 @@ var remove_from = function(doomed,set){
 
 //if (Array.__proto__.add == null) Array.prototype.add = add;
 
-var nodes, links, node, link;
+var nodes, links_set, node, link;
 var chosen_set;    // the nodes the user has chosen to see expanded
 var discarded_set; // the nodes the user has discarded
 var unlinked_set;  // the nodes not displaying links and not discarded
@@ -391,7 +391,7 @@ function mouseup(){
 	} else {
 	    choose(clickee);
 	}
-	force.links(links);
+	force.links(links_set);
 	//update_flags(clickee);
 	restart();
     }
@@ -596,17 +596,16 @@ function in_discard_dropzone(node){
 function reset_graph(){
     //draw_circle(cx,cy,0.5 * Math.min(cx,cy),'black')
     id2n = {};
-    nodes = [];
-
-    chosen_set = [];
+    nodes = []; //SortedSet().sort_on('id');
     change_sort_order(nodes,cmp_on_id);
 
+    chosen_set = SortedSet().sort_on('id');
     unlinked_set = SortedSet().sort_on('name');
 
     discarded_set = [];
     change_sort_order(discarded_set,cmp_on_name);
 
-    links = [];
+    links_set = SortedSet().sort_on('id');
     force.nodes(nodes);
     d3.select(".link").remove();
     d3.select(".node").remove();
@@ -619,7 +618,7 @@ function reset_graph(){
     link  = svg.selectAll(".link");
     lariat = svg.selectAll(".lariat");
     
-    link = link.data(links);
+    link = link.data(links_set);
     
     link.exit().remove();
     
@@ -812,7 +811,7 @@ function draw_edges(){
         .attr("y2", function(d) { return d.target.fisheye.y; });
   }
   if (use_canvas){
-    links.forEach(function(e,i){
+    links_set.forEach(function(e,i){
 	/*
 	if (! e.target.fisheye) 
 	    e.target.fisheye = fisheye(e.target);
@@ -829,7 +828,7 @@ function draw_edges(){
       dy = height * ymult;
       dx = -1 * cx;
       dy = -1 * cy;
-      links.forEach(function(e){
+      links_set.forEach(function(e){
 	  if (! e.target.fisheye) 
 	      e.target.fisheye = fisheye(e.target);
 	  if (! e.gl){
@@ -851,7 +850,7 @@ function draw_edges(){
       });
   }
   if (use_webgl && false){
-    links.forEach(function(e,i){
+    links_set.forEach(function(e,i){
 	if (! e.gl) return;
 	var v = e.gl.geometry.vertices;
 	v[0].x = e.source.fisheye.x;
@@ -1013,7 +1012,7 @@ function tick() {
 function update_status(){
     var msg = "linked:"+nodes.length +
 	" unlinked:"+unlinked_set.length +
-	" links:"+links.length +
+	" links:"+links_set.length +
 	" discarded:"+discarded_set.length +
 	" subjects:"+G.num_subj +
 	" chosen:"+chosen_set.length;
@@ -1025,7 +1024,7 @@ function update_status(){
 }
 
 function svg_restart() {
-  link = link.data(links);
+  link = link.data(links_set);
   
   link.enter().insert("line", ".node")
 	.attr("class", function(d){
@@ -1058,7 +1057,7 @@ function svg_restart() {
       .attr("dx", ".4em")
       .text(function(d) { return d.name});
   label = svg.selectAll(".label");
-  //force.nodes(nodes).links(links).start();
+  //force.nodes(nodes).links(links_set).start();
 }
 
 function canvas_show_text(txt,x,y){
@@ -1094,7 +1093,7 @@ function add_webgl_line(e){
 }
 
 function webgl_restart(){
-    links.forEach(function(d){
+    links_set.forEach(function(d){
 	add_webgl_line(d);
     });
 }
@@ -1172,15 +1171,15 @@ var update_flags = function(n){
   return n;
 };
 var add_link = function(e){
-  //if (links.indexOf(e) > -1) return;  // already present
-  //console.log(typeof links,links.prototype.add);
+  //if (links_set.indexOf(e) > -1) return;  // already present
+  //console.log(typeof links_set,links_set.prototype.add);
   /*
-    console.log('linkes,links.add,e');
-    console.log(links)
-    console.log(links.add)
+    console.log('linkes,links_set.add,e');
+    console.log(links_set)
+    console.log(links_set.add)
     console.log(e)
   */
-  add_to(e,links);
+  links_set.add(e);
   //if (! e.source.links_from) e.source.links_from = [];  // FIXME should use links_from_found
   //if (! e.target.links_to) e.target.links_to = [];
   add_to(e,e.source.links_from);
@@ -1193,14 +1192,14 @@ var add_link = function(e){
 };
 var UNDEFINED;
 var remove_link = function(e){
-  if (links.indexOf(e) == -1) return; // not present
+  if (links_set.indexOf(e) == -1) return; // not present
   //if (! e.source.links_from) e.source.links_from = [];
   //if (! e.target.links_to) e.target.links_to = [];
   //remove_from(e,e.target.links_to);
   //remove_from(e,e.source.links_from);
   remove_from(e,e.source.links_shown);
   remove_from(e,e.target.links_shown);
-  remove_from(e,links);
+  links_set.remove(e);
   update_flags(e.source);
   update_flags(e.target);
 };
@@ -1285,22 +1284,22 @@ var show_links_to_node = function(n,even_discards) {
 	if (! even_discards || e.source.discard) return;
         add_to(e,n.links_shown);
 	add_to(e,e.source.links_shown);
-        add_to(e,links);
+        links_set.add(e);
         update_flags(e.source);
     });
-    force.links(links)
+    force.links(links_set)
     restart();  
 };
 var hide_links_to_node = function(n) {
     n.links_to.forEach(function(e,i){
 	remove_from(e,n.links_shown);
 	remove_from(e,e.source.links_shown);
-	remove_from(e,links);
+	links_set.remove(e);
 	remove_ghosts(e);
 	update_flags(e.source);
 	update_flags(e.target);
     });
-    force.links(links);
+    force.links(links_set);
     restart();  
 };
 
@@ -1315,12 +1314,12 @@ var show_links_from_node = function(n,even_discards) {
 	n.links_from.forEach(function(e,i){
 	    if (! even_discards || e.target.discard) return;
             add_to(e,n.links_shown);
-            add_to(e,links);
+            links_set.add(e);
 	    add_to(e,e.target.links_shown);
             update_flags(e.target);
 	});
     }
-    force.links(links);
+    force.links(links_set);
     restart();
 };
 
@@ -1329,12 +1328,12 @@ var hide_links_from_node = function(n) {
     n.links_from.forEach(function(e,i){
 	remove_from(e,n.links_shown);
 	remove_from(e,e.target.links_shown);
-	remove_from(e,links);
+	links_set.remove(e);
 	remove_ghosts(e);
 	update_flags(e.source);
 	update_flags(e.target);
     });
-    force.links(links);
+    force.links(links_set);
     restart();
 }
 
@@ -1410,7 +1409,7 @@ var make_links = function(g,limit){
     nodes.some(function(node,i){
 	var subj = node.s;
 	show_links_from_node(nodes[i]);
-	if ((limit > 0) && (links.length >= limit)) return true; // like break
+	if ((limit > 0) && (links_set.length >= limit)) return true; // like break
     });
     console.log('/make_links');
     restart();
@@ -1474,7 +1473,7 @@ var hide_node_links = function(node){
 	} else {
 	    remove_from(e,e.target.links_shown);	    
 	}
-	remove_from(e,links);
+	links_set.remove(e);
 	update_flags(e.target);
 	update_flags(e.source);
 	remove_ghosts(e);
@@ -1521,7 +1520,7 @@ var show_found_links = function(){
 };
 var toggle_links = function(){
   //console.log("links",force.links());
-  if (! links.length){
+  if (! links_set.length){
       make_links(G);
       restart();
   }
@@ -1539,11 +1538,11 @@ var hide_all_links = function(){
 	node.showing_links = 'none'
 	unlinked_set.add(node);
     });
-    links.forEach(function(link){
+    links_set.forEach(function(link){
 	remove_ghosts(link);
     });
-    links = [];
-    chosen_set = [];
+    links_set.clear();
+    chosen_set.clear();
     restart();
     //update_history();
 };
@@ -1584,7 +1583,7 @@ var toggle_display_tech = function(ctrl,tech){
 var unlink = function(unlinkee){
     hide_links_from_node(unlinkee);
     hide_links_to_node(unlinkee);
-    unlinked_set(unlinkee);
+    unlinked_set.add(unlinkee);
     update_flags(unlinkee);
 };
 
@@ -1619,7 +1618,7 @@ var undiscard = function(prodigal){
 var unchoose = function(goner){
     goner.state = 'unlinked';
     delete goner.chosen;
-    remove_from(goner,chosen_set);
+    chosen_set.remove(goner);
     hide_node_links(goner);
     update_flags(goner);
     //update_history();
@@ -1627,7 +1626,7 @@ var unchoose = function(goner){
 var choose = function(chosen){
     // There is a flag .chosen in addition to the state 'linked'
     // because linked means it is in the graph
-    add_to(chosen,chosen_set);
+    chosen_set.add(chosen);
     show_links_from_node(chosen);
     show_links_to_node(chosen);
     if (chosen.links_shown){
