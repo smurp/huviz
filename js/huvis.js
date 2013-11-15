@@ -596,14 +596,13 @@ function in_discard_dropzone(node){
 function reset_graph(){
     //draw_circle(cx,cy,0.5 * Math.min(cx,cy),'black')
     id2n = {};
-    nodes = []; //SortedSet().sort_on('id');
+    nodes = []; SortedSet().sort_on('id');
     change_sort_order(nodes,cmp_on_id);
 
     chosen_set = SortedSet().sort_on('id');
     unlinked_set = SortedSet().sort_on('name');
 
-    discarded_set = [];
-    change_sort_order(discarded_set,cmp_on_name);
+    discarded_set = SortedSet().sort_on('name');
 
     links_set = SortedSet().sort_on('id');
     force.nodes(nodes);
@@ -1597,13 +1596,13 @@ var discard = function(goner){
     unchoose(goner);
     unlink(goner);
     unlinked_set.remove(goner);
-    add_to(goner,discarded_set);
+    discarded_set.add(goner);
     update_flags(goner);
     //goner.discarded = true;
     goner.state = 'discarded'
 };
 var undiscard = function(prodigal){
-    remove_from(prodigal,discarded_set);
+    discarded_set.remove(prodigal);
     unlinked_set.add(prodigal);
     update_flags(prodigal);
 };

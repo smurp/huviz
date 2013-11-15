@@ -42,6 +42,16 @@ function SortedSet(){
 	array.length = 0;
     };
     array.sort_on('id');
+    /*
+    array.register_members_to = function(key){
+	// If called, then when items are add() or remove() then
+	// they will have a reference back to this SortedSet
+	// placed in an array on them with the name given by key.
+	// The motivation is so items added to SortedSet() can have
+	// references to the sets they are in.
+	// This could support light inferencing.
+    };
+    */
     array.add = function(itm){
 	// Objective:
 	//   Maintain a sorted array which acts like a set.
