@@ -46,26 +46,26 @@ function SortedSet(){
 	// when add() is called then the SortedSet is registered on
 	// the itm.state property.  This means that if the item
 	// is moved to a different SortedSet then it's state can 
-	// be tested and altered.
-	state_property = state_property || 'state';
-	array.state_property = state_property;
+	// be tested and altered.  This enforces mutually exlusive item
+	// membership among the sets which all have isState() asserted.
+	array.state_property = state_property || 'state';
 	return array;
     };
+    array.isFlag = function(flag_property){
+	// Calling isFlag() on a SortedSet() prepares it so that
+	// when add() is called then the SortedSet is registered on
+	// the itm[flag_property].  When the item is removed from 
+	// the isFlagged SortedSet then that flag_property is deleted.
+	// The default value for the name of the flag_property is
+	// simply the name of SortedSet().
+	array.flag_property = flag_property || array.state_name;
+	return array;
+    };        
     array.named = function(name){
 	array.state_name = name;
 	return array;
     };
     array.sort_on('id');
-    /*
-    array.register_members_to = function(key){
-	// If called, then when items are add() or remove() then
-	// they will have a reference back to this SortedSet
-	// placed in an array on them with the name given by key.
-	// The motivation is so items added to SortedSet() can have
-	// references to the sets they are in.
-	// This could support light inferencing.
-    };
-    */
     array.add = function(itm){
 	// Objective:
 	//   Maintain a sorted array which acts like a set.
@@ -78,6 +78,9 @@ function SortedSet(){
 	if (array.state_property){
 	    itm[array.state_property] = array;
 	}
+	if (array.flag_property){
+	    itm[array.flag_property] = array;
+	}
 	return c.idx;
     }
     array.remove = function(itm){
@@ -89,8 +92,11 @@ function SortedSet(){
 	    array.splice(c,1);
 	}
 	if (array.state_property){
-	    itm[array.state_property] = true;
-	}	
+	    itm[array.state_property] = true; // EXAMINE delete instead?
+	}
+	if (array.flag_property){
+	    delete itm[array.flag_property];
+	}
 	return array;
     }
     array.acquire = function(itm){

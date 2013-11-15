@@ -367,7 +367,9 @@ function mouseup(){
 	dragging = false;
 	return;
     }
-    if (nearest_node && nearest_node.fixed && nearest_node.linked){
+    if (nearest_node 
+	&& nearest_node.fixed 
+	&& nearest_node.state == graphed_set){
 	if (nodes_pinnable){
 	    nearest_node.fixed = false;
 	}
@@ -380,11 +382,14 @@ function mouseup(){
 	//if (clickee.state == discarded_set){
 	//    undiscard(clickee);
 	//}
+	/*
 	if (! clickee.state ||  // hidden should be the default state
 	    clickee.state == 'hidden' || 
 	    clickee.state == hidden_set || 
 	    clickee.state == unlinked_set || 
 	    clickee.state == discarded_set){
+	    */
+	if (clickee.state != graphed_set){
 	    choose(clickee);
 	} else if (clickee.showing_links == 'all'){
 	    unchoose(clickee);
@@ -598,7 +603,10 @@ function reset_graph(){
     nodes = []; //SortedSet().sort_on('id');
     change_sort_order(nodes,cmp_on_id);
 
-    chosen_set = SortedSet().sort_on('id');
+    chosen_set = SortedSet()
+	.named('chosen')
+	.isFlag()
+	.sort_on('id');
 
     /*
       states: graphed,unlinked,discarded,hidden
@@ -625,7 +633,11 @@ function reset_graph(){
 	.named('graphed')
 	.isState();
 
-    links_set = SortedSet().sort_on('id');
+    links_set = SortedSet()
+	.named('shown')
+	.isFlag()
+	.sort_on('id');
+
     force.nodes(nodes);
     d3.select(".link").remove();
     d3.select(".node").remove();
@@ -1283,20 +1295,34 @@ var find_links_to_node = function(d) {
     }
     d.links_to_found = true;
 };
-var show_links_to_node = function(n,even_discards) {
-    even_discards = even_discards || false;
+
+var show_link = function(edge,incl_discards){
+    if ((! incl_discards) && 
+	(edge.target.state == discarded_set || 
+	 edge.source.state == discarded_set )) return;
+    add_to(edge,edge.source.links_shown)
+    add_to(edge,edge.target.links_shown)
+    links_set.add(e);
+    update_state(edge.source)
+    update_state(edge.target)
+};
+
+var show_links_to_node = function(n,incl_discards) {
+    incl_discards = incl_discards || false;
     if (! n.links_to_found){
 	find_links_to_node(n);
     }
     n.links_to.forEach(function(e,i){
-	if (! even_discards && e.source.state == discarded_set) return;
-        add_to(e,n.links_shown);
-	add_to(e,e.source.links_shown);
-        links_set.add(e);
-	update_state(e.source);
-	update_state(e.target);
-        update_flags(e.source);
+	//if (! incl_discards && e.source.state == discarded_set) return;
+	show_link(e,incl_discards);
+        //add_to(e,n.links_shown);
+	//add_to(e,e.source.links_shown);
+        //links_set.add(e);
+	//update_state(e.source);
+        //update_flags(e.source);
     });
+    //update_state(n);
+    //update_flags(n);
     force.links(links_set)
     restart();  
 };
@@ -1324,19 +1350,22 @@ var hide_links_to_node = function(n) {
 };
 
 
-var show_links_from_node = function(n,even_discards) {
-    even_discards = even_discards || false;
+var show_links_from_node = function(n,incl_discards) {
+    incl_discards = incl_discards || false;
     var subj = n.s;
     if (! n.links_from_found){
 	find_links_from_node(n);
     } else {
 	n.links_from.forEach(function(e,i){
-	    if (! even_discards && e.target.state == discarded_set) return;
+	    //if (! incl_discards && e.target.state == discarded_set) return;
+	    show_link(e,incl_discards);
+	    /*
             add_to(e,n.links_shown);
             links_set.add(e);
 	    add_to(e,e.target.links_shown);
 	    update_state(e.target);
             update_flags(e.target);
+	    */
 	});
     }
     update_state(n);
@@ -1492,19 +1521,20 @@ var hide_node_links = function(node){
     console.log("hide_node_links("+node.id+")");
     node.links_shown.forEach(function(e,i){
 	console.log("  ",e.id);
+	links_set.remove(e);
 	if (e.target == node){
 	    remove_from(e,e.source.links_shown);
+	    update_state(e.source);
+	    update_flags(e.source);
 	} else {
 	    remove_from(e,e.target.links_shown);	    
+	    update_state(e.target);
+	    update_flags(e.target);
 	}
-	links_set.remove(e);
-	update_state(e.target);
-	update_state(e.source);
-	update_flags(e.target);
-	update_flags(e.source);
 	remove_ghosts(e);
     });
     node.links_shown = [];
+    update_state(node);
     update_flags(node);
 };
 var hide_found_links = function(){
@@ -1642,7 +1672,6 @@ var undiscard = function(prodigal){
   linked into the graph because another node has been chosen.
  */
 var unchoose = function(goner){
-    delete goner.chosen;
     chosen_set.remove(goner);
     hide_node_links(goner);
     unlinked_set.acquire(goner);
