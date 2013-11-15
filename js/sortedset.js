@@ -83,6 +83,9 @@ function SortedSet(){
 	}
 	return c.idx;
     }
+    array.has = function(itm){ // AKA contains() or is_state_of()
+	return (itm.state == array);
+    };
     array.remove = function(itm){
 	// Objective:
 	//   Remove item from an array acting like a set.
