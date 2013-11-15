@@ -340,7 +340,7 @@ function mousemove() {
 var mousedown_point = [cx,cy];
 function mousedown(){
     //console.log('mousedown');
-    if (nearest_node && nearest_node.linked){ // only drag nodes in graph
+    if (nearest_node && nearest_node.state == graphed_set){ // only drag nodes in graph
 	dragging = nearest_node;
 	//force.stop();
     }
@@ -483,7 +483,7 @@ var fisheye = d3.fisheye.circular().radius(fisheye_radius).distortion(2.8);
 var fill = d3.scale.category20();
 
 function get_charge(d){
-    if (! d.linked) return 0;
+    if (! graphed_set.has(d)) return 0;
     return charge;
 };
 
@@ -907,7 +907,7 @@ function position_nodes(){
 	if (dragging == node){
 	    move_node_to_point(node,last_mouse_pos);
 	}
-	if (! node.linked) return;
+	if (! graphed_set.has(node)) return;
         node.fisheye = fisheye(node);
     });
 }
@@ -956,7 +956,7 @@ function draw_nodes(){
   }
   if (use_canvas || use_webgl){
       nodes.forEach(function(d,i){
-	  if (! d.linked) return;
+	  if (! graphed_set.has(d)) return;
 	  d.fisheye = fisheye(d);
 	  if (use_canvas){
               draw_circle(d.fisheye.x,
@@ -974,10 +974,10 @@ function draw_nodes(){
 }
 
 
-function should_show_label(nodey){
-    return dist_lt(last_mouse_pos,nodey,label_show_range) 
-        || nodey.name.match(search_regex) 
-        || label_all_graphed_nodes && nodey.linked;
+function should_show_label(node){
+    return dist_lt(last_mouse_pos,node,label_show_range) 
+        || node.name.match(search_regex) 
+        || label_all_graphed_nodes && graphed_set.has(node);
 }
 
 function draw_labels(){
@@ -1005,7 +1005,7 @@ function draw_labels(){
 	      ctx.fillStyle = 'black';
 	      ctx.font = "7px sans-serif";
 	  }
-	  if (! node.linked && draw_lariat_labels_rotated){
+	  if (! graphed_set.has(node) && draw_lariat_labels_rotated){
 	      // Flip label rather than write upside down
 	      //   var flip = (node.rad > Math.PI) ? -1 : 1;
 	      //   view-source:http://www.jasondavies.com/d3-dependencies/
@@ -1168,10 +1168,10 @@ var update_flags = function(n){
     return
     */
 
-    var old_linked_status = n.linked;
-    n.linked = n.links_shown.length > 0;
-    n.fixed = ! n.linked;
-    if (n.linked){
+    var old_linked_status = graphed_set.has(n);
+    //n.linked = n.links_shown.length > 0;
+    n.fixed = ! old_linked_status;
+    if (old_linked_status){
 	if (! n.links_from_found || ! n.links_to_found){
 	    // we do not know, so a click is worth a try
 	    n.showing_links = 'some'; 
@@ -1185,7 +1185,7 @@ var update_flags = function(n){
     } else {
 	n.showing_links = 'none';
     }
-    var changed = old_linked_status != n.linked;
+    //var changed = old_linked_status != n.linked;
 //    return n;
     /*
 
@@ -1302,7 +1302,7 @@ var show_link = function(edge,incl_discards){
 	 edge.source.state == discarded_set )) return;
     add_to(edge,edge.source.links_shown)
     add_to(edge,edge.target.links_shown)
-    links_set.add(e);
+    links_set.add(edge);
     update_state(edge.source)
     update_state(edge.target)
 };
@@ -1588,17 +1588,21 @@ var toggle_label_display = function(){
 };
 var hide_all_links = function(){
     nodes.forEach(function(node){
-	node.linked = false;
-	node.fixed = false;	
+	//node.linked = false;
+	//node.fixed = false;	
+	unlinked_set.acquire(node);
 	node.links_shown = [];
 	node.showing_links = 'none'
 	unlinked_set.acquire(node);
+	update_flags(node);
     });
     links_set.forEach(function(link){
 	remove_ghosts(link);
     });
     links_set.clear();
     chosen_set.clear();
+    // It should not be neccessary to clear discarded_set or hidden_set()
+    // because unlinked_set.acquire() should have accomplished that
     restart();
     //update_history();
 };
@@ -1694,7 +1698,6 @@ var choose = function(chosen){
     }
     update_state(chosen);
     update_flags(chosen);
-    chosen.chosen = true;
     //update_history();
 }
 var update_history = function(){
