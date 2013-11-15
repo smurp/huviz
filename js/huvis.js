@@ -346,7 +346,6 @@ function mousedown(){
     }
     mousedown_point = d3.mouse(this);
     last_mouse_pos = mousedown_point;
-    //console.log(mousedown_point,'down');
     //e.preventDefault();
 }
 
@@ -384,6 +383,7 @@ function mouseup(){
 	}
 	if (! clickee.state ||  // hidden should be the default state
 	    clickee.state == 'hidden' || 
+	    clickee.state == hidden_set || 
 	    clickee.state == unlinked_set || 
 	    clickee.state == discarded_set){
 	    choose(clickee);
@@ -603,7 +603,7 @@ function reset_graph(){
     chosen_set = SortedSet().sort_on('id');
 
     /*
-      states: graphed,unlinked,discarded,unfound
+      states: graphed,unlinked,discarded,hidden
          graphed: in the graph, connected to other nodes
 	 unlinked: in the lariat, available for choosing
 	 discarded: in the discard zone, findable but ignored by show_links_*
@@ -767,7 +767,7 @@ function dump_details(node){
     console.log("  in_sets:",node.in_sets);
 }
 
-var dump_locations = function(srch,verbose){
+var dump_locations = function(srch,verbose,func){
     verbose = verbose || false;
     var pattern = new RegExp(srch, "ig");   
     nodes.forEach(
@@ -776,7 +776,12 @@ var dump_locations = function(srch,verbose){
 		if (verbose) console.log(pattern,"does not match",node.name);
 		return;
 	    }
-	    dump_details(node);
+	    if (func){
+		console.log(func.call(node));
+	    }
+	    if (! func || verbose){
+		dump_details(node);
+	    }
 	}
     );
 }
@@ -1147,6 +1152,12 @@ var get_node_by_id = function(node_id,throw_on_fail){
 };
 
 var update_flags = function(n){
+    /*
+    n.linked = n.state == graphed_set;
+    n.fixed = ! n.linked;
+    return
+    */
+
     var old_linked_status = n.linked;
     n.linked = n.links_shown.length > 0;
     n.fixed = ! n.linked;
@@ -1165,7 +1176,7 @@ var update_flags = function(n){
 	n.showing_links = 'none';
     }
     var changed = old_linked_status != n.linked;
-    return n;
+//    return n;
     /*
 
   if (n.linked){
@@ -1303,10 +1314,20 @@ var show_links_to_node = function(n,even_discards) {
         add_to(e,n.links_shown);
 	add_to(e,e.source.links_shown);
         links_set.add(e);
+	update_state(e.source);
+	update_state(e.target);
         update_flags(e.source);
     });
     force.links(links_set)
     restart();  
+};
+
+var update_state = function(node){
+    if (node.links_shown.length == 0){
+	unlinked_set.acquire(node);
+    } else {
+	graphed_set.acquire(node);
+    }
 };
 var hide_links_to_node = function(n) {
     n.links_to.forEach(function(e,i){
@@ -1314,9 +1335,11 @@ var hide_links_to_node = function(n) {
 	remove_from(e,e.source.links_shown);
 	links_set.remove(e);
 	remove_ghosts(e);
+	update_state(e.source);
 	update_flags(e.source);
 	update_flags(e.target);
     });
+    update_state(n);
     force.links(links_set);
     restart();  
 };
@@ -1334,9 +1357,11 @@ var show_links_from_node = function(n,even_discards) {
             add_to(e,n.links_shown);
             links_set.add(e);
 	    add_to(e,e.target.links_shown);
+	    update_state(e.target);
             update_flags(e.target);
 	});
     }
+    update_state(n);
     force.links(links_set);
     restart();
 };
@@ -1348,6 +1373,7 @@ var hide_links_from_node = function(n) {
 	remove_from(e,e.target.links_shown);
 	links_set.remove(e);
 	remove_ghosts(e);
+	update_state(e.target);
 	update_flags(e.source);
 	update_flags(e.target);
     });
@@ -1398,6 +1424,8 @@ var get_or_make_node = function(subject,start_point,linked){
     if (! linked){
 	var n_idx = unlinked_set.acquire(d);
 	id2u[subject.id] = n_idx;    
+    } else {
+	id2u[subject.id] = graphed_set.acquire(d);
     }
     update_flags(d);
     return d;
@@ -1492,6 +1520,8 @@ var hide_node_links = function(node){
 	    remove_from(e,e.target.links_shown);	    
 	}
 	links_set.remove(e);
+	update_state(e.target);
+	update_state(e.source);
 	update_flags(e.target);
 	update_flags(e.source);
 	remove_ghosts(e);
