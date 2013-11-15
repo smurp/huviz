@@ -87,9 +87,6 @@ var remove_from_array = function(itm,array,cmp){
     }
     return array;
 }
-function assert(be_good,or_throw){
-    if (! be_good) throw or_throw;
-}
 
 function do_tests(verbose){
     verbose = verbose || false;
@@ -176,9 +173,9 @@ var remove_from = function(doomed,set){
 //if (Array.__proto__.add == null) Array.prototype.add = add;
 
 var nodes, links, node, link;
-var chosen_nodes;    // the nodes the user has chosen to see expanded
-var discarded_nodes; // the nodes the user has discarded
-var unlinked_nodez;  // the nodes not displaying links and not discarded
+var chosen_set;    // the nodes the user has chosen to see expanded
+var discarded_set; // the nodes the user has discarded
+var unlinked_set;  // the nodes not displaying links and not discarded
 var nearest_node;
 var lariat;
 var label_all_graphed_nodes = false; // keep synced with html
@@ -601,14 +598,15 @@ function reset_graph(){
     id2n = {};
     nodes = [];
 
-    chosen_nodes = [];
+    chosen_set = [];
     change_sort_order(nodes,cmp_on_id);
 
-    unlinked_nodez = [];
-    change_sort_order(unlinked_nodez,cmp_on_name);
+    unlinked_set = [];
+    change_sort_order(unlinked_set,cmp_on_name);
 
-    discarded_nodes = [];
-    change_sort_order(discarded_nodes,cmp_on_name);
+
+    discarded_set = [];
+    change_sort_order(discarded_set,cmp_on_name);
 
     links = [];
     force.nodes(nodes);
@@ -904,10 +902,10 @@ function draw_nodes_in_set(set,radius,center){
     });
 }
 function draw_discards(){
-    draw_nodes_in_set(discarded_nodes,discard_radius,discard_center);
+    draw_nodes_in_set(discarded_set,discard_radius,discard_center);
 };
 function draw_lariat(){
-    draw_nodes_in_set(unlinked_nodez,graph_radius,[cx,cy]);
+    draw_nodes_in_set(unlinked_set,graph_radius,[cx,cy]);
 }
 
 function draw_nodes(){
@@ -1016,11 +1014,11 @@ function tick() {
 
 function update_status(){
     var msg = "linked:"+nodes.length +
-	" unlinked:"+unlinked_nodez.length +
+	" unlinked:"+unlinked_set.length +
 	" links:"+links.length +
-	" discarded:"+discarded_nodes.length +
+	" discarded:"+discarded_set.length +
 	" subjects:"+G.num_subj +
-	" chosen:"+chosen_nodes.length;
+	" chosen:"+chosen_set.length;
     
     if (dragging){
 	msg += " DRAG";
@@ -1158,15 +1156,15 @@ var update_flags = function(n){
   //if (! changed) return name;  // do nothing because no change
   if (n.linked){
       //d3.select(node[0][new_nearest_idx]).classed('nearest_node',true);
-      remove_from(n,unlinked_nodez);
+      remove_from(n,unlinked_set);
       if (use_svg){
 	  var svg_node = node[0][nodes.indexOf(n)];
 	  d3.select(svg_node).classed('lariat',false).classed('node',true);
       }
       // node[0][new_nearest_idx]
   } else {
-      if (unlinked_nodez.indexOf(n) == -1){
-	  add_to_array(n,unlinked_nodez)
+      if (unlinked_set.indexOf(n) == -1){
+	  add_to_array(n,unlinked_set)
 	  if (use_svg){
 	      d3.select(svg_node).classed('lariat',true).classed('node',false);
 	  }
@@ -1349,7 +1347,7 @@ var ids_to_show = start_with_http;
 //var ids_to_show = new RegExp("", "ig");
 
 var id2n = {}; // the index of linked nodes (in nodes)
-var id2u = {}; // the index of unlinked nodes (in unlinked_nodez)
+var id2u = {}; // the index of unlinked nodes (in unlinked_set)
 
 var get_or_make_node = function(subject,start_point,linked){
   // assumes not already in nodes and id2n
@@ -1382,7 +1380,7 @@ var get_or_make_node = function(subject,start_point,linked){
     //var n_idx = nodes.push(d) - 1;
     id2n[subject.id] = n_idx;
     if (! linked){
-	var n_idx = add_to_array(d,unlinked_nodez);
+	var n_idx = add_to_array(d,unlinked_set);
 	id2u[subject.id] = n_idx;    
     }
     update_flags(d);
@@ -1540,13 +1538,13 @@ var hide_all_links = function(){
 	node.fixed = false;	
 	node.links_shown = [];
 	node.showing_links = 'none'
-	add_to_array(node,unlinked_nodez);
+	add_to_array(node,unlinked_set);
     });
     links.forEach(function(link){
 	remove_ghosts(link);
     });
     links = [];
-    chosen_nodes = [];
+    chosen_set = [];
     restart();
     //update_history();
 };
@@ -1587,7 +1585,7 @@ var toggle_display_tech = function(ctrl,tech){
 var unlink = function(unlinkee){
     hide_links_from_node(unlinkee);
     hide_links_to_node(unlinkee);
-    add_to_array(unlinkee,unlinked_nodez);
+    add_to_array(unlinkee,unlinked_set);
     update_flags(unlinkee);
 };
 
@@ -1600,15 +1598,15 @@ var unlink = function(unlinkee){
 var discard = function(goner){
     unchoose(goner);
     unlink(goner);
-    remove_from(goner,unlinked_nodez);
-    add_to(goner,discarded_nodes);
+    remove_from(goner,unlinked_set);
+    add_to(goner,discarded_set);
     update_flags(goner);
     //goner.discarded = true;
     goner.state = 'discarded'
 };
 var undiscard = function(prodigal){
-    remove_from(prodigal,discarded_nodes);
-    add_to(prodigal,unlinked_nodez);
+    remove_from(prodigal,discarded_set);
+    add_to(prodigal,unlinked_set);
     update_flags(prodigal);
 };
 
@@ -1622,7 +1620,7 @@ var undiscard = function(prodigal){
 var unchoose = function(goner){
     goner.state = 'unlinked';
     delete goner.chosen;
-    remove_from(goner,chosen_nodes);
+    remove_from(goner,chosen_set);
     hide_node_links(goner);
     update_flags(goner);
     //update_history();
@@ -1630,7 +1628,7 @@ var unchoose = function(goner){
 var choose = function(chosen){
     // There is a flag .chosen in addition to the state 'linked'
     // because linked means it is in the graph
-    add_to(chosen,chosen_nodes);
+    add_to(chosen,chosen_set);
     show_links_from_node(chosen);
     show_links_to_node(chosen);
     if (chosen.links_shown){
@@ -1638,7 +1636,7 @@ var choose = function(chosen){
 	chosen.showing_links = 'all';
     } else {
 	chosen.state = 'unlinked';
-	add_to(chosen, unlinked_nodez);
+	add_to(chosen, unlinked_set);
     }
     update_flags(chosen);
     chosen.chosen = true;
@@ -1648,12 +1646,12 @@ var update_history = function(){
     if (history.pushState){
 	var the_state = {};
 	var hash = '';
-	if (chosen_nodes.length){
+	if (chosen_set.length){
 	    the_state.chosen_node_ids = [];
 	    hash += '#';
 	    hash += "chosen=";
-	    var n_chosen = chosen_nodes.length;
-	    chosen_nodes.forEach(function(chosen,i){
+	    var n_chosen = chosen_set.length;
+	    chosen_set.forEach(function(chosen,i){
 		hash += chosen.id;
 		the_state.chosen_node_ids.push(chosen.id);
 		if (n_chosen > i+1){
