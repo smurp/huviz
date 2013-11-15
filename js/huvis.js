@@ -1308,7 +1308,7 @@ var show_links_to_node = function(n,even_discards) {
 	n.links_to_found = true;
     }
     n.links_to.forEach(function(e,i){
-	if (! even_discards || e.source.discard) return;
+	if (! even_discards && e.target.state == discarded_set) return;
         add_to(e,n.links_shown);
 	add_to(e,e.source.links_shown);
         links_set.add(e);
@@ -1351,7 +1351,7 @@ var show_links_from_node = function(n,even_discards) {
 	n.links_from_found = true;
     } else {
 	n.links_from.forEach(function(e,i){
-	    if (! even_discards && e.target.discard) return;
+	    if (! even_discards && e.target.state == discarded_set) return;
             add_to(e,n.links_shown);
             links_set.add(e);
 	    add_to(e,e.target.links_shown);
