@@ -177,7 +177,7 @@ var chosen_set;    // the nodes the user has chosen to see expanded
 var discarded_set; // the nodes the user has discarded
 var graphed_set;   // the nodes which are in the graph, linked together
 var unlinked_set;  // the nodes not displaying links and not discarded
-var nearest_node;
+var focused_node;
 var lariat;
 var label_all_graphed_nodes = false; // keep synced with html
 var verbose = true;
@@ -188,7 +188,7 @@ var MODERATE = 20;
 var DEBUG = 40;
 var DUMP = false;
 var node_radius_policy;
-var draw_circle_around_nearest = false;
+var draw_circle_around_focused = false;
 var draw_lariat_labels_rotated = true;
 var run_force_after_mouseup_msec = 2000;
 var nodes_pinnable = false;  // bugged
@@ -329,9 +329,20 @@ function move_node_to_point(node,point){
 function mousemove() {
     //console.log('mousemove');
     last_mouse_pos = d3.mouse(this);
+
+    if (! dragging &&
+	mousedown_point &&
+	focused_node &&
+	distance(last_mouse_pos,mousedown_point) > drag_dist_threshold &&
+	focused_node.state == graphed_set // || focused_node.state == discarded_set 
+       ){
+	dragging = focused_node;
+    }
+    
+
     if (dragging){
 	force.resume();
-	//console.log(nearest_node.x,last_mouse_pos);
+	//console.log(focused_node.x,last_mouse_pos);
 	move_node_to_point(dragging,last_mouse_pos);
     }
     cursor.attr("transform", "translate(" + last_mouse_pos + ")");
@@ -340,18 +351,24 @@ function mousemove() {
 var mousedown_point = [cx,cy];
 function mousedown(){
     //console.log('mousedown');
-    if (nearest_node && nearest_node.state == graphed_set){ // only drag nodes in graph
-	dragging = nearest_node;
+    /*
+    if (focused_node && 
+	(focused_node.state == graphed_set // || focused_node.state == discarded_set 
+	)){ // only drag nodes in graph
+	dragging = focused_node;
 	//force.stop();
     }
+    */
     mousedown_point = d3.mouse(this);
     last_mouse_pos = mousedown_point;
     //e.preventDefault();
 }
 
 function mouseup(){
+    mousedown_point = false;
     var point = d3.mouse(this);
     //console.log(point,mousedown_point,distance(point,mousedown_point));
+    // if something was being dragged then handle the drop
     if (dragging){
 	move_node_to_point(dragging,point);
 	if (in_discard_dropzone(dragging)){
@@ -367,21 +384,19 @@ function mouseup(){
 	dragging = false;
 	return;
     }
-    if (nearest_node 
-	&& nearest_node.fixed 
-	&& nearest_node.state == graphed_set){
+    // if this was a click on a pinned node then unpin it
+    if (focused_node 
+	&& focused_node.fixed 
+	&& focused_node.state == graphed_set){
 	if (nodes_pinnable){
-	    nearest_node.fixed = false;
+	    focused_node.fixed = false;
 	}
     }
     if (distance(point,mousedown_point) > drag_dist_threshold){
 	return;  // it was a drag, not a click
     }
-    if (nearest_node){
-	var clickee = nearest_node;
-	//if (clickee.state == discarded_set){
-	//    undiscard(clickee);
-	//}
+    if (focused_node){
+	var clickee = focused_node;
 	/*
 	if (! clickee.state ||  // hidden should be the default state
 	    clickee.state == 'hidden' || 
@@ -796,10 +811,10 @@ var dump_locations = function(srch,verbose,func){
     );
 }
 
-function find_nearest_node(){
+function find_focused_node(){
     if (dragging) return;
-    var new_nearest_node;
-    var new_nearest_idx;
+    var new_focused_node;
+    var new_focused_idx;
     var focus_threshold = focus_radius * 3;
     var closest = width;;
     var closest_point;
@@ -810,36 +825,36 @@ function find_nearest_node(){
 	    closest_point = d.fisheye || d;
 	}
 	if (dist <= focus_threshold){
-            new_nearest_node = d;
+            new_focused_node = d;
             focus_threshold = dist;
-            new_nearest_idx = i;
-            //console.log("dist",focus_threshold,dist,new_nearest_node.name);
+            new_focused_idx = i;
+            //console.log("dist",focus_threshold,dist,new_focused_node.name);
 	}
     });
-    if (draw_circle_around_nearest){
+    if (draw_circle_around_focused){
 	draw_circle(closest_point.x,closest_point.y,focus_radius,'red');
     }
     var msg = focus_threshold+" <> " + closest;
     var status = $("#status");
     //status.text(msg);
-    //console.log('new_nearest_node',focus_threshold,new_nearest_node);
-    if (nearest_node != new_nearest_node){
-	if (nearest_node){
+    //console.log('new_focused_node',focus_threshold,new_focused_node);
+    if (focused_node != new_focused_node){
+	if (focused_node){
 	    if (use_svg){
-		d3.select('.nearest_node').classed('nearest_node',false);
+		d3.select('.focused_node').classed('focused_node',false);
 	    }
-            nearest_node.nearest_node = false;
+            focused_node.focused_node = false;
 	}
-	if (new_nearest_node){ 
-            new_nearest_node.nearest_node = true;
+	if (new_focused_node){ 
+            new_focused_node.focused_node = true;
 	    if (use_svg){
-		var svg_node = node[0][new_nearest_idx];
-		d3.select(svg_node).classed('nearest_node',true);
+		var svg_node = node[0][new_focused_idx];
+		d3.select(svg_node).classed('focused_node',true);
 	    }
-	    dump_details(new_nearest_node);
+	    dump_details(new_focused_node);
 	}
     }
-    nearest_node = new_nearest_node;  // possibly null
+    focused_node = new_focused_node;  // possibly null
 }
 
 function draw_edges(){
@@ -998,7 +1013,7 @@ function draw_labels(){
       // http://stackoverflow.com/a/10337796/1234699
       nodes.forEach(function(node){
 	  if (! should_show_label(node)) return;
-	  if (node.nearest_node){
+	  if (node.focused_node){
 	      ctx.fillStyle = node.color;
 	      ctx.font = "9px sans-serif";
 	  } else {
@@ -1032,13 +1047,13 @@ function blank_screen(){
 }
 
 function tick() {
-    //if (nearest_node){	return;    }
+    //if (focused_node){	return;    }
     blank_screen();
     draw_dropzones();
-    find_nearest_node();
+    find_focused_node();
     fisheye.focus(last_mouse_pos);
     //show_last_mouse_pos();
-    //find_nearest_node();
+    //find_focused_node();
     position_nodes();
     draw_edges();
     draw_nodes();
@@ -1170,7 +1185,8 @@ var update_flags = function(n){
 
     var old_linked_status = graphed_set.has(n);
     //n.linked = n.links_shown.length > 0;
-    n.fixed = ! old_linked_status;
+    //n.fixed = ! old_linked_status;
+    
     if (old_linked_status){
 	if (! n.links_from_found || ! n.links_to_found){
 	    // we do not know, so a click is worth a try
@@ -1190,13 +1206,13 @@ var update_flags = function(n){
     /*
 
   if (n.linked){
-      //d3.select(node[0][new_nearest_idx]).classed('nearest_node',true);
+      //d3.select(node[0][new_focused_idx]).classed('focused_node',true);
       unlinked_set.remove(n);
       if (use_svg){
 	  var svg_node = node[0][nodes.indexOf(n)];
 	  d3.select(svg_node).classed('lariat',false).classed('node',true);
       }
-      // node[0][new_nearest_idx]
+      // node[0][new_focused_idx]
   } else {
       if (unlinked_set.binary_search(n) == -1){
 	  unlinked_set.add(n);
