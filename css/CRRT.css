@@ -3,7 +3,12 @@
     Collapsible Radial Reingold-Tilford
       http://jsfiddle.net/Nivaldo/CbGh2/
 */
-
+.CRRT {
+  z-index:4; 
+  position:absolute; top:0; right:0;
+  width:400; height:400; 
+  background-color:lightgreen;
+}
 .node {
   cursor: pointer;
 }

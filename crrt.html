@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Huvis Graph Visualization</title>
+    <link href="/css/CRRT.css" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+    <div id="edgectrl" class="CRRT">CRRT goes here</div>
+    <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
+    <script src="js/mintree2d3tree.js" charset="utf-8"></script>
+    <script src="js/crrt.js" charset="utf-8"></script>
+    <script>
+      var CRRTT = new CollapsibleRadialReingoldTilfordTree();
+      CRRTT.show_tree_in("orlando_tag_tree_PRETTY.json","#edgectrl");
+    </script>
+  </body>
+</html>
