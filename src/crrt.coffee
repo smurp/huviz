@@ -4,20 +4,7 @@
 #      http://jsfiddle.net/Nivaldo/CbGh2/
 #
 
-#var CONTAINER = document.getElementByTag('body')[0];
-
-#diameter = 900;
-
-#console.log('CONTAINER',CONTAINER);
-
-#alert('woot2');
-
-#alert('woot3');
-
-#    alert('woot1');
-# start with all children collapsed
-
-class CollapsibleRadialReingoldTilfordTree ->
+class CollapsibleRadialReingoldTilfordTree
   
   update = (source) ->
     # Compute the new tree layout.
@@ -389,7 +376,7 @@ class CollapsibleRadialReingoldTilfordTree ->
     ]
 
   #"orlando_tag_tree_PRETTY.json"
-  show_tree_in = (data_url,selector) =>
+  show_tree_in: (data_url,selector) =>
 
     CONTAINER = document.getElementById(selector)
     console.log "CONTAINER", CONTAINER
@@ -435,3 +422,5 @@ class CollapsibleRadialReingoldTilfordTree ->
     root.children.forEach collapse
     update root
     d3.select(self.frameElement).style "height", "800px"
+
+window.CollapsibleRadialReingoldTilfordTree = CollapsibleRadialReingoldTilfordTree

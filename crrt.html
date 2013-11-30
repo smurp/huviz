@@ -10,8 +10,13 @@
     <script src="js/mintree2d3tree.js" charset="utf-8"></script>
     <script src="js/crrt.js" charset="utf-8"></script>
     <script>
-      var CRRTT = new CollapsibleRadialReingoldTilfordTree();
-      CRRTT.show_tree_in("orlando_tag_tree_PRETTY.json","#edgectrl");
+      var CRRTT;
+      window.addEventListener('load',function(){
+         CRRTT = new CollapsibleRadialReingoldTilfordTree();
+         CRRTT.show_tree_in("orlando_tag_tree_PRETTY.json","edgectrl");
+      
+      });
+      
     </script>
   </body>
 </html>
