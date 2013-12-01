@@ -305,18 +305,29 @@ class RDFEmitter(FormatEmitter):
                         # WORKING on linking people
 
 class TurtleEmitter(RDFEmitter):
+    # http://rdflib.readthedocs.org/en/latest/_modules/rdflib/plugins/serializers/turtle.html
     def concludeOutfile(self):
         self.generate_graph()
         self.outfile.write(self.store.serialize(format='turtle'))
 
 class NQuadsEmitter(RDFEmitter):
+    # http://rdflib.readthedocs.org/en/latest/_modules/rdflib/plugins/serializers/nquads.html
     def concludeOutfile(self):
         self.generate_graph()
         self.outfile.write(
             self.store.serialize(
                 format="nquads"))
 
+class NTriplesEmitter(RDFEmitter):
+    # http://rdflib.readthedocs.org/en/latest/_modules/rdflib/plugins/serializers/nt.html
+    def concludeOutfile(self):
+        self.generate_graph()
+        self.outfile.write(
+            self.store.serialize(
+                format="nt"))
+
 class N3Emitter(RDFEmitter):
+    # http://rdflib.readthedocs.org/en/latest/_modules/rdflib/plugins/serializers/n3.html
     def concludeOutfile(self):
         self.generate_graph()
         self.outfile.write(
@@ -424,6 +435,8 @@ if __name__ == "__main__":
         options.emitter = TurtleEmitter(options)
     if options.outfile.endswith('.nq'):
         options.emitter = NQuadsEmitter(options)
+    if options.outfile.endswith('.nt'):
+        options.emitter = NTriplesEmitter(options)
     if options.outfile.endswith('.n3'):
         options.emitter = N3Emitter(options)
     if hasattr(options,'emitter'):
