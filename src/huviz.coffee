@@ -1,5 +1,4 @@
 #
-#
 #See for inspiration:
 #  Collapsible Force Layout
 #    http://bl.ocks.org/mbostock/1093130
@@ -13,7 +12,6 @@
 #Lariat -- around the graph, the rope of nodes which serves as reorderable menu
 #Hoosegow -- a jail to contain nodes one does not want to be bothered by
 #
-# 
 class Huviz
   use_canvas = true
   use_svg = false
