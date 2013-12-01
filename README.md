@@ -5,6 +5,21 @@ huviz
 
 # Installation
 
+    // Install huviz from github
+    git clone https://github.com/smurp/huviz.git
+
+    // On OSX Mavericks install homebrew
+    http://crosstown.coolestguidesontheplanet.com/os-x/55
+
+    // On OSX you should set up pyenv-virtualenv
+    https://github.com/yyuu/pyenv-virtualenv
+
+    // Make a virtualenv
+    pyenv virtualenv huvizenv
+
+    // use it
+    echo "PYENV_VERSION=huvizenv" > .python-version
+
     // install the python requirements
     pip install -r requirements.txt 
 
