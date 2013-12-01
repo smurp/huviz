@@ -417,7 +417,7 @@
     draw_disconnect_dropzone = function() {
       ctx.save();
       ctx.lineWidth = graph_radius * 0.1;
-      draw_circle(cx, cy, graph_radius, "lightgreen");
+      draw_circle(lariat_center[0], lariat_center[1], graph_radius, "lightgreen");
       return ctx.restore();
     };
 

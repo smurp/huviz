@@ -337,7 +337,10 @@ class Huviz
     update_graph_radius()
     update_discard_zone()
     update_lariat_zone()
-    svg.attr("width", width).attr "height", height  if svg
+    if svg
+      svg.
+        attr("width", width).
+        attr("height", height)
     if canvas
       canvas.width = width
       canvas.height = height
@@ -384,7 +387,7 @@ class Huviz
   draw_disconnect_dropzone = ->
     ctx.save()
     ctx.lineWidth = graph_radius * 0.1
-    draw_circle cx, cy, graph_radius, "lightgreen"
+    draw_circle lariat_center[0], lariat_center[1], graph_radius, "lightgreen"
     ctx.restore()
   draw_discard_dropzone = ->
     ctx.save()
@@ -700,7 +703,10 @@ class Huviz
     
     #.attr("class", "node")
     #.attr("class", "lariat")
-    nodeEnter = node.enter().append("g").attr("class", "lariat node").call(force.drag)
+    nodeEnter = node.enter().
+      append("g").
+      attr("class", "lariat node").
+      call(force.drag)
     nodeEnter.append("circle").
       attr("r", calc_node_radius).
       style "fill", (d) ->
