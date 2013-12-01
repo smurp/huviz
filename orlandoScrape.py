@@ -227,7 +227,6 @@ class RDFEmitter(FormatEmitter):
         print "conext_aware:",self.store.context_aware
         self.store.bind('f',FOAF)
         self.store.bind('d',DC)
-
         self.store.bind('w',BRW)
         self.store.bind('x',XFN)
         self.entities = {}
@@ -305,7 +304,6 @@ class RDFEmitter(FormatEmitter):
                         self.store.add((writer,pred,obj))
                         # WORKING on linking people
 
-
 class TurtleEmitter(RDFEmitter):
     def concludeOutfile(self):
         self.generate_graph()
@@ -314,7 +312,16 @@ class TurtleEmitter(RDFEmitter):
 class NQuadsEmitter(RDFEmitter):
     def concludeOutfile(self):
         self.generate_graph()
-        self.outfile.write(self.store.serialize(format='nquads'))
+        self.outfile.write(
+            self.store.serialize(
+                format="nquads"))
+
+class N3Emitter(RDFEmitter):
+    def concludeOutfile(self):
+        self.generate_graph()
+        self.outfile.write(
+            self.store.serialize(
+                format="n3"))
     
 if __name__ == "__main__":
     only_predicates = 'standardName,dateOfBirth,dateOfDeath'.split(',')
@@ -417,6 +424,8 @@ if __name__ == "__main__":
         options.emitter = TurtleEmitter(options)
     if options.outfile.endswith('.nq'):
         options.emitter = NQuadsEmitter(options)
+    if options.outfile.endswith('.n3'):
+        options.emitter = N3Emitter(options)
     if hasattr(options,'emitter'):
         options.emitter.go()
     elif show_usage:
