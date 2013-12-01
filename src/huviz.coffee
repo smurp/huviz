@@ -8,6 +8,8 @@
 #    http://bl.ocks.org/jhb/5955887
 #  Multi-Focus Layout:
 #    http://bl.ocks.org/mbostock/1021953
+#  Edge Labels
+#    http://bl.ocks.org/jhb/5955887
 #
 #Lariat -- around the graph, the rope of nodes which serves as reorderable menu
 #Hoosegow -- a jail to contain nodes one does not want to be bothered by
@@ -48,7 +50,7 @@ class Huviz
   hpad = 10
   width = undefined
   height = 0
-  cx = undefined
+  cx = 0
   cy = 0
   link_distance = 20
   charge = -30
@@ -72,6 +74,10 @@ class Huviz
   little_dot = .5
   fisheye_zoom = 2.8
 
+  mousedown_point = [ cx, cy  ]
+  discard_center = [ cx, cy]
+  lariat_center = [ cx, cy ]
+  
   #if not verbose
   #  console = log: -> 
   last_mouse_pos = [
@@ -330,6 +336,7 @@ class Huviz
     get_window_height()
     update_graph_radius()
     update_discard_zone()
+    update_lariat_zone()
     svg.attr("width", width).attr "height", height  if svg
     if canvas
       canvas.width = width
@@ -602,7 +609,7 @@ class Huviz
   draw_discards = ->
     draw_nodes_in_set discarded_set, discard_radius, discard_center
   draw_lariat = ->
-    draw_nodes_in_set unlinked_set, graph_radius, [cx,cy]
+    draw_nodes_in_set unlinked_set, graph_radius, lariat_center
   draw_nodes = ->
     if use_svg
       node.attr("transform", (d, i) ->
@@ -805,64 +812,6 @@ class Huviz
     color: c or "lightgrey"
     id: s.id + " " + t.id
 
-  #console.log('  sid_pred:',sid_pred);
-
-  #if (! incl_discards && e.source.state == discarded_set) return;
-
-  #add_to(e,n.links_shown);
-  #add_to(e,e.source.links_shown);
-  #links_set.add(e);
-  #update_state(e.source);
-  #update_flags(e.source);
-
-  #update_state(n);
-  #update_flags(n);
-
-  #if (! incl_discards && e.target.state == discarded_set) return;
-
-  #
-  #            add_to(e,n.links_shown);
-  #            links_set.add(e);
-  #	    add_to(e,e.target.links_shown);
-  #	    update_state(e.target);
-  #            update_flags(e.target);
-  #	    
-
-  # remove every link from .links_shown which is in .links_from
-
-  #var blank_writers = new RegExp("_\:[a-z_]{6}");
-  #var ids_to_show = blank_writers;
-  #var ids_to_show = new RegExp("", "ig");
-  # the index of linked nodes (in nodes)
-  # the index of unlinked nodes (in unlinked_set)
-
-  # assumes not already in nodes and id2n
-  # uhh, no subject
-  # already exist, return it
-  #console.log("get_or_make_node(",subject.id,") MISSING!");
-
-  #linked = typeof linked === 'undefined' || false;  // WFT!!!!
-  # in the graph as opposed to the lariat or hoosegow
-  # it being missing triggers it being filled
-  # none|all|some
-
-  #in_count:0, out_count:0
-
-  #if (linked){ 
-
-  #var n_idx = nodes.push(d) - 1;
-
-  # for edge labels				   
-  #   http://bl.ocks.org/jhb/5955887
-
-  #for (var i =0 ; i<nodes.length; i++){
-  # like break
-
-  #show_and_hide_links_from_node(nodes[0]);
-
-  #make_links(g,Math.floor(nodes.length/10));
-  #make_links(g);
-  #restart();
   load_file = ->
     reset_graph()
     data_uri = $("select#file_picker option:selected").val()
@@ -925,7 +874,6 @@ class Huviz
       error: (jqxhr, textStatus, errorThrown) ->
         $("#status").text errorThrown + " while fetching " + url
 
-
   has_predicate_value = (subject, predicate, value) ->
     pre = subject.predicates[predicate]
     if pre
@@ -949,18 +897,10 @@ class Huviz
 
   is_node_to_always_show = is_a_main_node
 
-  mousedown_point = [
-    cx
-    cy
-  ]
   show_and_hide_links_from_node = (d) ->
     show_links_from_node d
     hide_links_from_node d
 
-  discard_center = [
-    cx
-    cy
-  ]
   get_window_width = (pad) ->
     pad = pad or hpad
     width = (window.innerWidth or document.documentElement.clientWidth or document.clientWidth) - pad
@@ -973,6 +913,9 @@ class Huviz
 
   update_graph_radius = ->
     graph_radius = Math.floor(Math.min(width / 2, height / 2)) * .9
+
+  update_lariat_zone = ->
+    lariat_center = [width / 2, height / 2]
 
   update_discard_zone = ->
     discard_ratio = .1
