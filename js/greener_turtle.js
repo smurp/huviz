@@ -1,4 +1,4 @@
-window.GreenerTurtle = function(GreenTurtle){
+var GreenerTurtle = function(){
     var verbosity = false;
     var obj_has_type = function(obj, typ) {
 	return obj.type === typ;
@@ -45,6 +45,7 @@ window.GreenerTurtle = function(GreenTurtle){
     
     return {
 	parse: function(data,type){
+	    GreenTurtle = GreenTurtle || require('green_turtle').GreenTurtle;
 	    G = GreenTurtle.implementation.parse(data,type);
 	    if (! G.oid_2_id_p) G.oid_2_id_p = {};
 	    build_indices(G);

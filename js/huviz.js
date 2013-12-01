@@ -3,7 +3,7 @@
   var Huviz;
 
   Huviz = (function() {
-    var BLANK_HACK, COARSE, DEBUG, DUMP, FOAF_Group, FOAF_name, G, MODERATE, RDF_Type, RDF_object, TEMP, UNDEFINED, add_link, add_node_ghosts, add_to, add_to_array, add_webgl_line, await_the_GreenTurtle, binary_search_on, blank_screen, calc_node_radius, canvas, canvas_show_text, change_sort_order, charge, choose, chosen_set, clear_canvas, cmp_on_id, cmp_on_name, color_by_type, ctx, cursor, cx, cy, default_node_radius_policy, discard, discard_center, discard_found_nodes, discard_radius, discarded_set, dist_lt, distance, do_tests, drag_dist_threshold, dragging, draw_circle, draw_circle_around_focused, draw_discard_dropzone, draw_discards, draw_disconnect_dropzone, draw_dropzones, draw_edges, draw_labels, draw_lariat, draw_lariat_labels_rotated, draw_line, draw_nodes, draw_nodes_in_set, dump_details, dump_locations, fetchAndShow, fill, find_focused_node, find_links_from_node, find_links_to_node, fisheye, fisheye_radius, fisheye_zoom, focus_radius, focused_node, force, get_charge, get_node_by_id, get_or_make_node, get_window_height, get_window_width, graph_radius, graphed_set, gravity, has_predicate_value, has_type, height, hide_all_links, hide_found_links, hide_links_from_node, hide_links_to_node, hide_node_links, hpad, id2n, id2u, ids_to_show, in_discard_dropzone, in_disconnect_dropzone, init_node_radius_policy, init_webgl, isArray, is_a_main_node, is_node_to_always_show, label_all_graphed_nodes, label_show_range, lariat, lariat_center, last_mouse_pos, last_status, link, link_distance, links_set, little_dot, load_file, make_edge, make_links, make_nodes, mouse_receiver, mousedown, mousedown_point, mousemove, mouseup, move_node_to_point, names_in_edges, node, node_radius_policies, node_radius_policy, nodes, nodes_pinnable, parseAndShow, pnt2str, position_nodes, remove_from, remove_from_array, remove_ghosts, remove_link, reset_graph, restart, restore_graph_state, roughSizeOfObject, run_force_after_mouseup_msec, search_regex, set_node_radius_policy, set_search_regex, set_status, should_show_label, showGraph, show_and_hide_links_from_node, show_found_links, show_last_mouse_pos, show_line, show_link, show_links_from_node, show_links_to_node, show_node_links, show_pos, start_with_http, svg, svg_restart, tick, toggle_display_tech, toggle_label_display, toggle_links, unchoose, undiscard, unlink, unlinked_set, updateWindow, update_discard_zone, update_flags, update_graph_radius, update_history, update_lariat_zone, update_searchterm, update_state, update_status, use_canvas, use_svg, use_webgl, verbose, verbosity, viscanvas, wait_for_GreenTurtle, webgl_restart, width, wpad;
+    var BLANK_HACK, COARSE, DEBUG, DUMP, FOAF_Group, FOAF_name, G, MODERATE, RDF_Type, RDF_object, TEMP, UNDEFINED, add_link, add_node_ghosts, add_to, add_to_array, add_webgl_line, await_the_GreenTurtle, binary_search_on, blank_screen, calc_node_radius, canvas, canvas_show_text, change_sort_order, charge, choose, chosen_set, clear_canvas, cmp_on_id, cmp_on_name, color_by_type, ctx, cursor, cx, cy, default_node_radius_policy, discard, discard_center, discard_found_nodes, discard_radius, discarded_set, dist_lt, distance, do_tests, drag_dist_threshold, dragging, draw_circle, draw_circle_around_focused, draw_discard_dropzone, draw_discards, draw_disconnect_dropzone, draw_dropzones, draw_edges, draw_labels, draw_lariat, draw_lariat_labels_rotated, draw_line, draw_nodes, draw_nodes_in_set, dump_details, dump_locations, edge_controller, ensure_predicate, fetchAndShow, fill, find_focused_node, find_links_from_node, find_links_to_node, fisheye, fisheye_radius, fisheye_zoom, focus_radius, focused_node, force, get_charge, get_node_by_id, get_or_make_node, get_window_height, get_window_width, graph_radius, graphed_set, gravity, has_predicate_value, has_type, height, hide_all_links, hide_found_links, hide_links_from_node, hide_links_to_node, hide_node_links, hpad, id2n, id2u, ids_to_show, in_discard_dropzone, in_disconnect_dropzone, init_node_radius_policy, init_webgl, isArray, is_a_main_node, is_node_to_always_show, label_all_graphed_nodes, label_show_range, lariat, lariat_center, last_mouse_pos, last_status, link, link_distance, links_set, little_dot, load_file, make_edge, make_links, make_nodes, mouse_receiver, mousedown, mousedown_point, mousemove, mouseup, move_node_to_point, names_in_edges, node, node_radius_policies, node_radius_policy, nodes, nodes_pinnable, parseAndShow, pnt2str, position_nodes, predicates, remove_from, remove_from_array, remove_ghosts, remove_link, reset_graph, restart, restore_graph_state, roughSizeOfObject, run_force_after_mouseup_msec, search_regex, set_node_radius_policy, set_search_regex, set_status, should_show_label, showGraph, show_and_hide_links_from_node, show_found_links, show_last_mouse_pos, show_line, show_link, show_links_from_node, show_links_to_node, show_node_links, show_pos, start_with_http, svg, svg_restart, tick, toggle_display_tech, toggle_label_display, toggle_links, unchoose, undiscard, unlink, unlinked_set, updateWindow, update_discard_zone, update_flags, update_graph_radius, update_history, update_lariat_zone, update_searchterm, update_state, update_status, use_canvas, use_svg, use_webgl, verbose, verbosity, viscanvas, wait_for_GreenTurtle, webgl_restart, width, wpad;
 
     function Huviz() {}
 
@@ -118,6 +118,26 @@
     lariat_center = [cx, cy];
 
     last_mouse_pos = [0, 0];
+
+    predicates = {
+      name: 'edges',
+      children: []
+    };
+
+    ensure_predicate = function(p_name) {
+      var pobj, _i, _len, _ref;
+      _ref = predicates.children;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        pobj = _ref[_i];
+        if (pobj.name === p_name) {
+          break;
+        }
+      }
+      return predicates.children.push({
+        name: p_name,
+        children: []
+      });
+    };
 
     change_sort_order = function(array, cmp) {
       array.__current_sort_order = cmp;
@@ -437,7 +457,7 @@
 
     in_disconnect_dropzone = function(node) {
       var dist;
-      dist = distance(node, [cx, cy]);
+      dist = distance(node, lariat_center);
       return graph_radius * 0.9 < dist && graph_radius * 1.1 > dist;
     };
 
@@ -520,6 +540,7 @@
     };
 
     dump_details = function(node) {
+      return;
       console.log("=================================================");
       console.log(node.name);
       console.log("  x,y:", node.x, node.y);
@@ -1174,20 +1195,22 @@
     };
 
     find_links_from_node = function(node) {
-      var obj, oi, p, predicate, subj, target, x, y;
+      var obj, oi, p_name, pnt, predicate, subj, target, x, y;
       target = void 0;
       subj = node.s;
       x = node.x || width / 2;
       y = node.y || height / 2;
+      pnt = [x, y];
       oi = void 0;
       if (subj) {
-        for (p in subj.predicates) {
-          predicate = subj.predicates[p];
+        for (p_name in subj.predicates) {
+          ensure_predicate(p_name);
+          predicate = subj.predicates[p_name];
           oi = 0;
           while (oi < predicate.objects.length) {
             obj = predicate.objects[oi];
             if (obj.type === RDF_object) {
-              target = get_or_make_node(G.subjects[obj.value], [x, y]);
+              target = get_or_make_node(G.subjects[obj.value], pnt);
             }
             if (!target) {
               continue;
@@ -1612,6 +1635,10 @@
     });
 
     window.addEventListener("resize", updateWindow);
+
+    edge_controller = new require("crrt").CollapsibleRadialReingoldTilfordTree();
+
+    alert(edge_controller.show_tree_in(predicates, 'edgectrl'));
 
     return Huviz;
 

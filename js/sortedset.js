@@ -17,7 +17,7 @@
     provided guidance on how to 'subclass' Array
   
  */
-function SortedSet(){
+var SortedSet = function(){
     var array = [];
     array.push.apply(array,arguments);
 
@@ -141,9 +141,9 @@ function SortedSet(){
 	}
     }
     return array;
-}
+};
 
-function SortedSets_tests(verbose){
+var SortedSets_tests = function(verbose){
     verbose = verbose || false;
     var n = function(a,b){
 	if (a == b) return 0;
@@ -209,5 +209,5 @@ function SortedSets_tests(verbose){
     expect("a_d.binary_search(b)",1);
     expect("a_d.binary_search(d)",2);
     expect("a_d.add(c)",0);
-}
+};
 //SortedSets_tests(true);

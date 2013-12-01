@@ -8,6 +8,7 @@ class CollapsibleRadialReingoldTilfordTree
   root = undefined
   tree = undefined
   EDGE_LENGTH = 50
+  CONTAINER = null
   diameter = 300
   svg = undefined
   i = 0
@@ -16,6 +17,7 @@ class CollapsibleRadialReingoldTilfordTree
   height = 100
   diagonal = undefined
   use_ids_as_names = false
+  selector = null
 
   set_center = (center_point) ->
     root.x0 = center_point.x or center_point[0]
@@ -145,8 +147,30 @@ class CollapsibleRadialReingoldTilfordTree
       root = mintree2d3tree data,{name: 'Edges',children: []},use_ids_as_names
       #show(JSON.stringify(root,null,4))
     @init_tree(root)
+
+  init_graphics: () ->
+    CONTAINER = document.getElementById(selector)
+    console.log "CONTAINER", CONTAINER
+
+    diameter = Math.max(500, Math.min(CONTAINER.getAttribute("clientHeight"), CONTAINER.getAttribute("clientWidth")))
+    #diameter = Math.min(CONTAINER.getAttribute("clientHeight"), CONTAINER.getAttribute("clientWidth"))
+    #CONTAINER.innerHTML = "diameter:" + diameter
+
+    width = diameter
+    height = diameter
+
+    svg = d3.select(CONTAINER).append("svg").
+      attr("width", width).
+      attr("height", height).
+      append("g").
+      attr("transform",
+        "translate(" + diameter / 2 + "," + diameter / 2 + ")")
+        
+  show_tree_in: (data_url_or_tree,sel,use_ids) =>
+    selector = sel
+    if not CONTAINER
+      @init_graphics()
       
-  show_tree_in: (data_url_or_tree,selector,use_ids) =>
     if typeof data_url_or_tree == typeof ''
       data_url = data_url_or_tree
       console.log('data_url',data_url)
@@ -156,47 +180,22 @@ class CollapsibleRadialReingoldTilfordTree
     
     use_ids_as_names = use_ids or false
     console.log('use_ids_as_names',use_ids_as_names)
-    CONTAINER = document.getElementById(selector)
-    console.log "CONTAINER", CONTAINER
 
-    diameter = Math.max(500, Math.min(CONTAINER.getAttribute("clientHeight"), CONTAINER.getAttribute("clientWidth")))
-    #diameter = Math.min(CONTAINER.getAttribute("clientHeight"), CONTAINER.getAttribute("clientWidth"))
-    #CONTAINER.innerHTML = "diameter:" + diameter
-    margin =
-      top: 20
-      right: 120
-      bottom: 20
-      left: 120
+    tree = d3.layout.tree().
+      size([360,diameter / 2 - 80]).
+      separation (a, b) ->
+        ((if a.parent is b.parent then 1 else 10)) / a.depth
 
-    width = diameter
-    height = diameter
-    tree = d3.layout.tree().size([
-      360
-      diameter / 2 - 80
-    ]).separation((a, b) ->
-      ((if a.parent is b.parent then 1 else 10)) / a.depth
-    )
-    diagonal = d3.svg.diagonal.radial().projection((d) ->
-      [
-        d.y
-        d.x / 180 * Math.PI
-      ]
-    )
-    svg = d3.select(CONTAINER).append("svg").
-      attr("width", width).
-      attr("height", height).
-      append("g").
-      attr("transform",
-        "translate(" + diameter / 2 + "," + diameter / 2 + ")")
+    diagonal = d3.svg.diagonal.radial().projection (d) ->
+      [d.y, d.x / 180 * Math.PI]
 
-    console.log('this',this)
-      
     if data_url
       d3.json data_url, @import_mintree, (err) -> alert err
     else
       root = data_tree
       @init_tree(root)      
-    
-    d3.select(self.frameElement).style "height", "800px"
 
-window.CollapsibleRadialReingoldTilfordTree = CollapsibleRadialReingoldTilfordTree
+    return 'youch'
+    #d3.select(self.frameElement).style "height", "800px"
+
+(exports or window).CollapsibleRadialReingoldTilfordTree = CollapsibleRadialReingoldTilfordTree

@@ -10,7 +10,7 @@
   <body>
     <div id="huvis_controls">
       <div id="file_picker_box">
-        <select id="file_picker" onchange="load_file(this)" >
+        <select id="file_picker" onchange="HVZ.load_file(this)" >
           <option>data/test_40.ttl</option>
           <option>data/test_20.ttl</option>
           <option>data/test_1.ttl</option>
@@ -49,7 +49,6 @@
                   onchange="toggle_display_tech(this,use_webgl)"/>
         </div>
       </div>
-
     </div>
     <div id="vis" class="underneath" style="z-index:-3"></div>
     <div id="viscanvas" class="underneath"></div>
@@ -57,24 +56,17 @@
     <div id="nodectrl"></div>
     <div id="edgectrl" class="CRRT"></div>
     <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
-    <script src="lib/fisheye.js" charset="utf-8"></script>
-    <script src="lib/RDFa.min.1.2.0.js" charset="utf-8"></script>
-    <Xscript src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js"></Xscript>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <script src="lib/Three.js"></script>
-    <script src="js/greener_turtle.js" charset="utf-8"> </script>
-    <script src="js/sortedset.js" charset="utf-8"> </script>
-    <script src="js/huvis_node_ctrl.js"></script>
-    <script src="js/huviz.js" charset="utf-8"> </script>
-    <script src="js/huvisgl.js" charset="utf-8"></script>
-    <script src="js/mintree2d3tree.js" charset="utf-8"></script>
-    <script src="js/crrt.js" charset="utf-8"></script>
+    <script src="application.js"></script>
     <script>
-      var CRRTT;
-      window.addEventListener('loadZZZ',function(){
-         CRRTT = new CollapsibleRadialReingoldTilfordTree();
-         //CRRTT.set_center()
-         CRRTT.show_tree_in("orlando_tag_tree_PRETTY.json","edgectrl",false);
+      var HVZ;
+      console.log('ping')
+      window.addEventListener('load',function(){
+        console.log('pong');
+        //console.log('d3',d3);
+        huviz = require('huviz')
+        HVZ = new huviz.Huviz()
+        console.log('HVZ',HVZ);
       });
     </script>
   </body>

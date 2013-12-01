@@ -14,6 +14,11 @@
 #Lariat -- around the graph, the rope of nodes which serves as reorderable menu
 #Hoosegow -- a jail to contain nodes one does not want to be bothered by
 #
+#GreenTurtle = require('GreenTurtle').GreenTurtle
+#SortedSet = require('sortedset').SortedSet
+gt = require('greenerturtle')
+console.log('gt',gt)
+GreenerTurtle = gt.GreenerTurtle
 class Huviz
   use_canvas = true
   use_svg = false
@@ -80,10 +85,23 @@ class Huviz
   
   #if not verbose
   #  console = log: -> 
-  last_mouse_pos = [
-    0
-    0
-  ]
+  last_mouse_pos = [ 0, 0]
+
+  predicates =
+    name: 'edges'
+    children: [
+      {name: 'a'},
+      {name: 'b'},
+      {name: 'c'},      
+      ]
+
+  ensure_predicate = (p_name) ->
+    for pobj in predicates.children
+      if pobj.name is p_name
+        break
+    predicates.children.push
+      name: p_name
+      children: []
 
   change_sort_order = (array, cmp) ->
     array.__current_sort_order = cmp
@@ -400,10 +418,7 @@ class Huviz
       draw_discard_dropzone()
   in_disconnect_dropzone = (node) ->
     # is it within the RIM of the disconnect circle?
-    dist = distance(node, [
-      cx
-      cy
-    ])
+    dist = distance(node, lariat_center)
     graph_radius * 0.9 < dist and graph_radius * 1.1 > dist
   in_discard_dropzone = (node) ->
     # is it ANYWHERE within the circle?
@@ -480,10 +495,9 @@ class Huviz
     out = []
     set.forEach (itm, i) ->
       out.push itm.source.name + " ---> " + itm.target.name
-
     out
   dump_details = (node) ->
-    
+    return
     #
     #    if (! DUMP){
     #      if (node.s.id != '_:E') return;
@@ -818,7 +832,7 @@ class Huviz
     color: c or "lightgrey"
     id: s.id + " " + t.id
 
-  load_file = ->
+  load_file: ->
     reset_graph()
     data_uri = $("select#file_picker option:selected").val()
     set_status data_uri
@@ -855,7 +869,9 @@ class Huviz
     set_status "parsing"
     msg = "data was " + data.length + " bytes"
     parse_start_time = new Date()
-    G = GreenerTurtle(GreenTurtle).parse(data, "text/turtle")
+    #  application/n-quads
+    #  .nq
+    G = new GreenerTurtle().parse(data, "text/turtle")
     parse_end_time = new Date()
     parse_time = (parse_end_time - parse_start_time) / 1000
     siz = roughSizeOfObject(G)
@@ -874,9 +890,14 @@ class Huviz
   fetchAndShow = (url) ->
     $("#status").text "fetching " + url
     $("body").css "cursor", "wait"
+    if url.match(/.ttl/)
+      the_parser = parseAndShowTurtle
+    else if url.match(/.nq/)
+      the_parser = parseAndShowNQ
+          
     $.ajax
       url: url
-      success: parseAndShow
+      success: the_parser
       error: (jqxhr, textStatus, errorThrown) ->
         $("#status").text errorThrown + " while fetching " + url
 
@@ -1046,19 +1067,18 @@ class Huviz
     subj = node.s
     x = node.x or width / 2
     y = node.y or height / 2
+    pnt = [x,y]
     oi = undefined
     if subj
-      for p of subj.predicates
-        predicate = subj.predicates[p]
+      for p_name of subj.predicates
+        ensure_predicate(p_name)
+        predicate = subj.predicates[p_name]
         oi = 0
         while oi < predicate.objects.length
           obj = predicate.objects[oi]
           if obj.type is RDF_object
-            target = get_or_make_node(G.subjects[obj.value], [
-              x
-              y
-            ])
-          continue  unless target
+            target = get_or_make_node(G.subjects[obj.value], pnt)
+          continue unless target
           add_link make_edge(node, target)
           oi++
     node.links_from_found = true
@@ -1395,19 +1415,8 @@ class Huviz
     make_nodes g
     restart()
 
-  wait_for_GreenTurtle = ->
-    if typeof GreenTurtle is "undefined"
-      setTimeout wait_for_GreenTurtle, 200
-    else
-      load_file()
-
-  await_the_GreenTurtle = ->
-    try
-      i = GreenTurtle.implementation
-      load_file()
-    catch error
-      console.log error
-      setTimeout await_the_GreenTurtle, 3000
+  show_the_edges = () ->
+    edge_controller.show_tree_in.call(arguments)
 
   window.addEventListener "load", ->
     # This delay is to let GreenTurtle initialize
@@ -1421,7 +1430,10 @@ class Huviz
     restore_graph_state event.state
 
   window.addEventListener "resize", updateWindow
-  
+  #window.CRT = require("crrt")
+  #console.log('CRT',CRT)
+  #edge_controller = new CRT.CollapsibleRadialReingoldTilfordTree()
+
   #do_tests(false)
-  
-#window.huviz_controller = new Huviz()
+
+(exports or window).Huviz = Huviz

@@ -4,7 +4,7 @@
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   CollapsibleRadialReingoldTilfordTree = (function() {
-    var EDGE_LENGTH, click, collapse, diagonal, diameter, duration, height, i, root, set_center, show, svg, tree, update, use_ids_as_names, width;
+    var CONTAINER, EDGE_LENGTH, click, collapse, diagonal, diameter, duration, height, i, root, selector, set_center, show, svg, tree, update, use_ids_as_names, width;
 
     function CollapsibleRadialReingoldTilfordTree() {
       this.show_tree_in = __bind(this.show_tree_in, this);
@@ -18,6 +18,8 @@
     tree = void 0;
 
     EDGE_LENGTH = 50;
+
+    CONTAINER = null;
 
     diameter = 300;
 
@@ -34,6 +36,8 @@
     diagonal = void 0;
 
     use_ids_as_names = false;
+
+    selector = null;
 
     set_center = function(center_point) {
       root.x0 = center_point.x || center_point[0];
@@ -163,8 +167,21 @@
       return this.init_tree(root);
     };
 
-    CollapsibleRadialReingoldTilfordTree.prototype.show_tree_in = function(data_url_or_tree, selector, use_ids) {
-      var CONTAINER, data_tree, data_url, margin;
+    CollapsibleRadialReingoldTilfordTree.prototype.init_graphics = function() {
+      CONTAINER = document.getElementById(selector);
+      console.log("CONTAINER", CONTAINER);
+      diameter = Math.max(500, Math.min(CONTAINER.getAttribute("clientHeight"), CONTAINER.getAttribute("clientWidth")));
+      width = diameter;
+      height = diameter;
+      return svg = d3.select(CONTAINER).append("svg").attr("width", width).attr("height", height).append("g").attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
+    };
+
+    CollapsibleRadialReingoldTilfordTree.prototype.show_tree_in = function(data_url_or_tree, sel, use_ids) {
+      var data_tree, data_url;
+      selector = sel;
+      if (!CONTAINER) {
+        this.init_graphics();
+      }
       if (typeof data_url_or_tree === typeof '') {
         data_url = data_url_or_tree;
         console.log('data_url', data_url);
@@ -174,25 +191,12 @@
       }
       use_ids_as_names = use_ids || false;
       console.log('use_ids_as_names', use_ids_as_names);
-      CONTAINER = document.getElementById(selector);
-      console.log("CONTAINER", CONTAINER);
-      diameter = Math.max(500, Math.min(CONTAINER.getAttribute("clientHeight"), CONTAINER.getAttribute("clientWidth")));
-      margin = {
-        top: 20,
-        right: 120,
-        bottom: 20,
-        left: 120
-      };
-      width = diameter;
-      height = diameter;
       tree = d3.layout.tree().size([360, diameter / 2 - 80]).separation(function(a, b) {
         return (a.parent === b.parent ? 1 : 10) / a.depth;
       });
       diagonal = d3.svg.diagonal.radial().projection(function(d) {
         return [d.y, d.x / 180 * Math.PI];
       });
-      svg = d3.select(CONTAINER).append("svg").attr("width", width).attr("height", height).append("g").attr("transform", "translate(" + diameter / 2 + "," + diameter / 2 + ")");
-      console.log('this', this);
       if (data_url) {
         d3.json(data_url, this.import_mintree, function(err) {
           return alert(err);
@@ -201,7 +205,8 @@
         root = data_tree;
         this.init_tree(root);
       }
-      return d3.select(self.frameElement).style("height", "800px");
+      alert("got to here");
+      return 'youch';
     };
 
     return CollapsibleRadialReingoldTilfordTree;
