@@ -18,8 +18,8 @@ class Huviz
   use_canvas = true
   use_svg = false
   use_webgl = false
-  use_webgl = true  if location.hash.match(/webgl/)
-  use_canvas = false  if location.hash.match(/nocanvas/)
+  #use_webgl = true  if location.hash.match(/webgl/)
+  #use_canvas = false  if location.hash.match(/nocanvas/)
 
   nodes = undefined
   links_set = undefined
@@ -62,6 +62,17 @@ class Huviz
   focus_radius = label_show_range
   drag_dist_threshold = 5
   dragging = false
+  last_status = undefined
+
+  G = {}
+  start_with_http = new RegExp("http", "ig")
+  ids_to_show = start_with_http
+  id2n = {}
+  id2u = {}
+
+  search_regex = new RegExp("^$", "ig")
+  little_dot = .5
+  fisheye_zoom = 2.8
 
   #if not verbose
   #  console = log: -> 
@@ -84,7 +95,6 @@ class Huviz
     return -1  if a.id < b.id
     1
   binary_search_on = (sorted_array, sought, cmp, ret_ins_idx) ->
-    
     # return -1 or the idx of sought in sorted_array
     # if ret_ins_idx instead of -1 return [n] where n is where it ought to be
     # AKA "RETurn the INSertion INdeX"
@@ -126,6 +136,7 @@ class Huviz
       console.log stmt, "==>", got  if verbose
       throw stmt + " returned " + got + " expected " + want  unless got is want
     verbose = verbose or false
+
     n = (a, b) ->
       return 0  if a is b
       return -1  if a < b
@@ -202,7 +213,6 @@ class Huviz
   # keep synced with html
   # bugged
   roughSizeOfObject = (object) ->
-    
     # http://stackoverflow.com/questions/1248302/javascript-object-size
     objectList = []
     stack = [object]
@@ -226,8 +236,7 @@ class Huviz
   # This is a hacky Orlando-specific way to 
   #  http:///4  
   #  _:4
-  color_by_type = (d) ->
-    
+  color_by_type = (d) ->    
     # anon red otherwise blue 
     if has_type(d.s, FOAF_Group)
       "green" # Groups
@@ -243,7 +252,6 @@ class Huviz
     node.x = point[0]
     node.y = point[1]
   mousemove = ->
-    
     #console.log('mousemove');
     last_mouse_pos = d3.mouse(this)
     # || focused_node.state == discarded_set 
@@ -493,7 +501,7 @@ class Huviz
     focus_threshold = focus_radius * 3
     closest = width
     closest_point = undefined
-    nodes?forEach (d, i) ->
+    nodes.forEach (d, i) ->
       dist = distance(d.fisheye or d, last_mouse_pos)
       if dist < closest
         closest = dist
@@ -534,7 +542,7 @@ class Huviz
         d.target.fisheye.y
 
     if use_canvas
-      links_set?forEach (e, i) ->
+      links_set.forEach (e, i) ->
         
         #
         #	if (! e.target.fisheye) 
@@ -573,9 +581,8 @@ class Huviz
         v[1].y = e.target.fisheye.y
 
   position_nodes = ->
-    n_nodes = nodes?length or 0
-    nodes?forEach (node, i) ->
-      
+    n_nodes = nodes.length or 0
+    nodes.forEach (node, i) ->
       #console.log("position_node",d.name);
       move_node_to_point node, last_mouse_pos  if dragging is node
       return  unless graphed_set.has(node)
@@ -584,8 +591,8 @@ class Huviz
   draw_nodes_in_set = (set, radius, center) ->
     cx = center[0]
     cy = center[1]
-    num = set?length
-    set?forEach (node, i) ->
+    num = set.length
+    set.forEach (node, i) ->
       rad = 2 * Math.PI * i / num
       node.rad = rad
       node.x = cx + Math.sin(rad) * radius
@@ -597,22 +604,20 @@ class Huviz
   draw_discards = ->
     draw_nodes_in_set discarded_set, discard_radius, discard_center
   draw_lariat = ->
-    draw_nodes_in_set unlinked_set, graph_radius, [
-      cx
-      cy
-    ]
+    draw_nodes_in_set unlinked_set, graph_radius, [cx,cy]
   draw_nodes = ->
     if use_svg
       node.attr("transform", (d, i) ->
         "translate(" + d.fisheye.x + "," + d.fisheye.y + ")"
       ).attr "r", calc_node_radius
     if use_canvas or use_webgl
-      nodes?forEach (d, i) ->
-        return  unless graphed_set.has(d)
+      nodes.forEach (d, i) ->
+        return unless graphed_set.has(d)
         d.fisheye = fisheye(d)
-        draw_circle d.fisheye.x, d.fisheye.y, calc_node_radius(d), d.color or "yellow", d.color or "black"  if use_canvas
-        mv_node d.gl, d.fisheye.x, d.fisheye.y  if use_webgl
-
+        if use_canvas
+          draw_circle(d.fisheye.x, d.fisheye.y, calc_node_radius(d), d.color or "yellow", d.color or "black")
+        if use_webgl
+          mv_node(d.gl, d.fisheye.x, d.fisheye.y)
   should_show_label = (node) ->
     dist_lt(last_mouse_pos, node, label_show_range) or node.name.match(search_regex) or label_all_graphed_nodes and graphed_set.has(node)
   draw_labels = ->
@@ -622,7 +627,6 @@ class Huviz
           ""
         else
           "display:none"
-
     if use_canvas or use_webgl
       
       #http://stackoverflow.com/questions/3167928/drawing-rotated-text-on-a-html5-canvas
@@ -630,7 +634,7 @@ class Huviz
       
       # http://diveintohtml5.info/canvas.html#text
       # http://stackoverflow.com/a/10337796/1234699
-      nodes?forEach (node) ->
+      nodes.forEach (node) ->
         return  unless should_show_label(node)
         if node.focused_node
           ctx.fillStyle = node.color
@@ -656,7 +660,6 @@ class Huviz
   blank_screen = ->
     clear_canvas()  if use_canvas or use_webgl
   tick = ->
-    
     #if (focused_node){	return;    }
     blank_screen()
     draw_dropzones()
@@ -678,10 +681,11 @@ class Huviz
     set_status msg
   svg_restart = ->
     link = link.data(links_set)
-    link.enter().insert("line", ".node").attr "class", (d) ->
-      
-      #console.log(l.geometry.vertices[0].x,l.geometry.vertices[1].x);
-      "link"
+    link.enter().
+      insert("line", ".node").
+      attr "class", (d) ->
+        #console.log(l.geometry.vertices[0].x,l.geometry.vertices[1].x);
+        "link"
 
     link.exit().remove()
     node = node.data(nodes)
@@ -692,13 +696,18 @@ class Huviz
     #.attr("class", "node")
     #.attr("class", "lariat")
     nodeEnter = node.enter().append("g").attr("class", "lariat node").call(force.drag)
-    nodeEnter.append("circle").attr("r", calc_node_radius).style "fill", (d) ->
-      d.color
-
+    nodeEnter.append("circle").
+      attr("r", calc_node_radius).
+      style "fill", (d) ->
+        d.color
     
-    #.attr("dy", "1em")
-    nodeEnter.append("text").attr("class", "label").attr("style", "").attr("dy", ".35em").attr("dx", ".4em").text (d) ->
-      d.name
+    nodeEnter.append("text").
+      attr("class", "label").
+      attr("style", "").
+      attr("dy", ".35em").
+      attr("dx", ".4em").
+      text (d) ->
+        d.name
 
     label = svg.selectAll(".label")
 
@@ -726,9 +735,8 @@ class Huviz
   webgl_restart = ->
     links_set.forEach (d) ->
       add_webgl_line d
-
   restart = ->
-    svg_restart()  if use_svg
+    svg_restart() if use_svg
     force.start()
   show_last_mouse_pos = ->
     draw_circle last_mouse_pos[0], last_mouse_pos[1], focus_radius, "yellow"
@@ -877,7 +885,6 @@ class Huviz
     array.splice c, 1  if c > -1
     array
 
-  do_tests false
   add_to = (itm, set) ->
     return add_to_array(itm, set, cmp_on_id)  if isArray(set)
     throw "add_to() requires itm to have an .id"  if typeof itm.id is "undefined"
@@ -977,8 +984,10 @@ class Huviz
       height - discard_radius * 3
     ]
 
-  window.onresize = updateWindow
-  fisheye = d3.fisheye.circular().radius(fisheye_radius).distortion(2.8)
+  fisheye = d3.fisheye.
+    circular().
+    radius(fisheye_radius).
+    distortion(fisheye_zoom)
   fill = d3.scale.category20()
   force = d3.layout.force().size([
     width
@@ -986,16 +995,24 @@ class Huviz
   ]).nodes([]).linkDistance(link_distance).charge(get_charge).gravity(gravity).on("tick", tick)
   svg = d3.select("#vis").append("svg").attr("width", width).attr("height", height).attr("position", "absolute")
   svg.append("rect").attr("width", width).attr "height", height
-  viscanvas = d3.select("#viscanvas").append("canvas").attr("width", width).attr("height", height)
+  viscanvas = d3.select("#viscanvas").
+    append("canvas").
+    attr("width", width).
+    attr("height", height)
   canvas = viscanvas[0][0]
   mouse_receiver = viscanvas
-  mouse_receiver.on("mousemove", mousemove).on("mousedown", mousedown).on("mouseup", mouseup).on "mouseout", mouseup
+  mouse_receiver.
+    on("mousemove", mousemove).
+    on("mousedown", mousedown).
+    on("mouseup", mouseup).
+    on("mouseout", mouseup)
   updateWindow()
   ctx = canvas.getContext("2d")
   reset_graph()
   cursor = svg.append("circle").attr("r", label_show_range).attr("transform", "translate(" + cx + "," + cy + ")").attr("class", "cursor")
   restart()
-  search_regex = new RegExp("^$", "ig")
+
+  
   set_search_regex = (text) ->
     search_regex = new RegExp(text or "^$", "ig")
 
@@ -1004,9 +1021,9 @@ class Huviz
     set_search_regex text
     restart()
 
-  set_search_regex ""
+  set_search_regex("")
   $(".search_box").on "input", update_searchterm
-  little_dot = .5
+
   node_radius_policies =
     "node radius by links": (d) ->
       d.radius = Math.max(little_dot, Math.log(d.links_shown.length))
@@ -1031,7 +1048,6 @@ class Huviz
         return
       console.log func.call(node)  if func
       dump_details node  if not func or verbose
-
 
   get_node_by_id = (node_id, throw_on_fail) ->
     throw_on_fail = throw_on_fail or false
@@ -1128,7 +1144,6 @@ class Huviz
     find_links_to_node n  unless n.links_to_found
     n.links_to.forEach (e, i) ->
       show_link e, incl_discards
-
     force.links links_set
     restart()
 
@@ -1178,11 +1193,6 @@ class Huviz
     force.links links_set
     restart()
 
-  G = {}
-  start_with_http = new RegExp("http", "ig")
-  ids_to_show = start_with_http
-  id2n = {}
-  id2u = {}
   get_or_make_node = (subject, start_point, linked) ->
     return  unless subject
     d = get_node_by_id(subject.id)
@@ -1245,31 +1255,6 @@ class Huviz
     console.log "/make_links"
     restart()
 
-  showGraph = (g) ->
-    console.log "showGraph"
-    make_nodes g
-    restart()
-
-  wait_for_GreenTurtle = ->
-    if typeof GreenTurtle is "undefined"
-      setTimeout wait_for_GreenTurtle, 200
-    else
-      load_file()
-
-  await_the_GreenTurtle = ->
-    try
-      i = GreenTurtle.implementation
-      load_file()
-    catch error
-      console.log error
-      setTimeout await_the_GreenTurtle, 3000
-
-  window.addEventListener "load", ->
-    # This delay is to let GreenTurtle initialize
-    # It would be great if there were a hook for this...
-    #init_node_radius_policy()
-    load_file()
-
   #await_the_GreenTurtle();
   hide_node_links = (node) ->
     console.log "hide_node_links(" + node.id + ")"
@@ -1315,11 +1300,9 @@ class Huviz
             cy
           ])
           show_node_links node  if node
-
     restart()
 
   toggle_links = ->
-    
     #console.log("links",force.links());
     unless links_set.length
       make_links G
@@ -1332,7 +1315,6 @@ class Huviz
 
   hide_all_links = ->
     nodes.forEach (node) ->
-      
       #node.linked = false;
       #node.fixed = false;	
       unlinked_set.acquire node
@@ -1352,8 +1334,6 @@ class Huviz
     restart()
 
 
-  #update_history();
-  last_status = undefined
   set_status = (txt) ->
     txt = txt or ""
     unless last_status is txt
@@ -1398,7 +1378,6 @@ class Huviz
     discarded_set.acquire goner
     update_flags goner
 
-
   #goner.discarded = true;
   #goner.state = discarded_set;
   undiscard = (prodigal) ->
@@ -1419,7 +1398,6 @@ class Huviz
     unlinked_set.acquire goner
     update_flags goner
 
-
   #update_history();
   choose = (chosen) ->
     # There is a flag .chosen in addition to the state 'linked'
@@ -1428,17 +1406,14 @@ class Huviz
     show_links_from_node chosen
     show_links_to_node chosen
     if chosen.links_shown
-      
       #chosen.state = 'linked';
       graphed_set.acquire chosen
       chosen.showing_links = "all"
     else
-      
       #chosen.state = unlinked_set;
       unlinked_set.acquire chosen
     update_state chosen
     update_flags chosen
-
 
   #update_history();
   update_history = ->
@@ -1459,10 +1434,6 @@ class Huviz
       the_title = document.title
       history.pushState the_state, the_title, the_state
 
-  window.addEventListener "popstate", (event) ->
-    #console.log('popstate fired',event);
-    restore_graph_state event.state
-
   restore_graph_state = (state) ->
     #console.log('state:',state);
     return  unless state
@@ -1472,4 +1443,38 @@ class Huviz
         chosen = get_or_make_node(chosen_id)
         choose chosen  if chosen
 
-window.huviz_controller = new Huviz()
+  showGraph = (g) ->
+    console.log "showGraph"
+    make_nodes g
+    restart()
+
+  wait_for_GreenTurtle = ->
+    if typeof GreenTurtle is "undefined"
+      setTimeout wait_for_GreenTurtle, 200
+    else
+      load_file()
+
+  await_the_GreenTurtle = ->
+    try
+      i = GreenTurtle.implementation
+      load_file()
+    catch error
+      console.log error
+      setTimeout await_the_GreenTurtle, 3000
+
+  window.addEventListener "load", ->
+    # This delay is to let GreenTurtle initialize
+    # It would be great if there were a hook for this...
+    #init_node_radius_policy()
+    console.log "load_file() via 'load' listener"
+    load_file()
+
+  window.addEventListener "popstate", (event) ->
+    #console.log('popstate fired',event);
+    restore_graph_state event.state
+
+  window.addEventListener "resize", updateWindow
+  
+  #do_tests(false)
+  
+#window.huviz_controller = new Huviz()
