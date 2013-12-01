@@ -65,8 +65,18 @@
     <script src="js/greener_turtle.js" charset="utf-8"> </script>
     <script src="js/sortedset.js" charset="utf-8"> </script>
     <script src="js/huvis_node_ctrl.js"></script>
-    <script src="js/huvis.js" charset="utf-8"> </script>
-    <script src="js/CRRT.js" charset="utf-8"> </script>
+    <script src="js/huviz.js" charset="utf-8"> </script>
     <script src="js/huvisgl.js" charset="utf-8"></script>
+
+    <script src="js/mintree2d3tree.js" charset="utf-8"></script>
+    <script src="js/crrt.js" charset="utf-8"></script>
+    <script>
+      var CRRTT;
+      window.addEventListener('load',function(){
+         CRRTT = new CollapsibleRadialReingoldTilfordTree();
+         //CRRTT.set_center()
+         CRRTT.show_tree_in("orlando_tag_tree_PRETTY.json","edgectrl",false);
+      });
+    </script>
   </body>
 </html>

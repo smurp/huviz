@@ -13,14 +13,19 @@
 #       "id":   "ID",
 #       
   
-mintree2d3tree = (mintree,out,default_root) ->
+mintree2d3tree = (mintree,out,default_root,use_ids_as_names) ->
+  use_ids_as_names = use_ids_as_names or false
   default_root = default_root or {name: 'All', children: []}
   out = out or default_root
   #console.log("===============\nadding:\n",mintree,"\nto:\n",out)
   for k,v of mintree
-    node = id:k
+    if use_ids_as_names
+      node = name:k
+    else
+      node = id:k
     if v
-      node.name = v[0]
+      if not use_ids_as_names
+        node.name = v[0]
       if v[1]
         node.children = []
         mintree2d3tree(v[1],node)
