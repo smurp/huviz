@@ -22,6 +22,26 @@ On 2013-10-10 it was forked from orlandoScrape5-1.py which bore the comment:
 
 LOCAL_IDENTIFIERS = True  # False causes use of external ontologies
 
+import rdflib.plugins.serializers.nt
+import rdflib.plugins.serializers.nquads
+from rdflib.plugins.serializers.nt import _xmlcharref_encode, _quoteLiteral
+
+def NQ_ROW(triple,context):
+    if isinstance(triple[2], Literal):
+        return u"%s %s %s %s .\n" % (triple[0].n3(),
+                                     triple[1].n3(),
+                                     _xmlcharref_encode(
+                                         _quoteLiteral(triple[2])),
+                                     context.n3())
+    else:
+        return u"%s %s %s %s !\n" % (triple[0].n3(),
+                                     triple[1].n3(),
+                                     _xmlcharref_encode(triple[2].n3()),
+                                     context.n3())
+
+# 
+# rdflib.plugins.serializers.nquads._nq_row = NQ_ROW
+
 import sys
 # solve the "ordinal not in range(128)" problem
 reload(sys) # http://demongin.org/blog/808/
@@ -351,6 +371,14 @@ class N3Emitter(RDFEmitter):
         self.outfile.write(
             self.store.serialize(
                 format="n3"))
+
+class TrigEmitter(RDFEmitter):
+    # http://rdflib.readthedocs.org/en/latest/_modules/rdflib/plugins/serializers/trig.html
+    def concludeOutfile(self):
+        self.generate_graph()
+        self.outfile.write(
+            self.store.serialize(
+                format="trig"))
     
 if __name__ == "__main__":
     only_predicates = 'standardName,dateOfBirth,dateOfDeath'.split(',')
@@ -457,6 +485,8 @@ if __name__ == "__main__":
         options.emitter = NTriplesEmitter(options)
     if options.outfile.endswith('.n3'):
         options.emitter = N3Emitter(options)
+    if options.outfile.endswith('.trig'):
+        options.emitter = TrigEmitter(options)
     if hasattr(options,'emitter'):
         options.emitter.go()
     elif show_usage:
