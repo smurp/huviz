@@ -20,6 +20,7 @@ On 2013-10-10 it was forked from orlandoScrape5-1.py which bore the comment:
 
 """
 
+LOCAL_IDENTIFIERS = True  # False causes use of external ontologies
 
 import sys
 # solve the "ordinal not in range(128)" problem
@@ -33,6 +34,12 @@ import json
 BASE2 = "01"
 BASE10 = "0123456789"
 BASE26 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+class LocalNode:
+    def __init__(self,val):
+        self.val = val
+    def n3(self):
+        return self.val
 
 def convert_base(src,srctable,desttable):
     """
@@ -157,8 +164,18 @@ BRW = Namespace('http://orlando.cambridge.org/public/svPeople?person_id=')
 WP  = Namespace('http://en.wikipedia.org/wiki/')
 ORL = Namespace('http://orlan.do/')
 BLANK = Namespace('http:///')
+LOCAL = Namespace('')
 BLANK_HACK = False
 BLANK_WRITERS = False # FIXME ideally this would be True so writer ids like _:abdyma
+
+ID_GENERATOR = BRW    
+if LOCAL_IDENTIFIERS:
+    #ID_GENERATOR = BNode     # 
+    #ID_GENERATOR = LocalNode # 
+    ID_GENERATOR = LOCAL 
+def make_node(an_id):
+    return ID_GENERATOR[an_id]
+
 predicates_to_groups = ['religiousInfluence','connectionToOrganization']
 predicate_to_type = {'childOf':XFN['parent'],
                      'parentOf':XFN['child'],
@@ -171,6 +188,10 @@ predicate_to_type = {'childOf':XFN['parent'],
                      'religiousInfluence':WP['Religious_denomination'],
                      'connectionToOrganization':ORL['connectionToOrganization']
                      }
+
+if LOCAL_IDENTIFIERS:
+    for k in predicate_to_type.keys():
+        predicate_to_type[k] = LOCAL[k]
 
 class FormatEmitter(object):
     def __init__(self,options):
@@ -236,10 +257,11 @@ class RDFEmitter(FormatEmitter):
             if node == None:
                 if ID == None:
                     ID = self.next_id()
-                if BLANK_HACK:
-                    node = BLANK[str(ID)]
-                else:
-                    node = BNode(ID)
+                node = make_node(ID)
+                #if BLANK_HACK:
+                #    node = BLANK[str(ID)]
+                #else:
+                #    node = BNode(ID)
             #self.store.add((node,FOAF.name,Literal(standard_name)))
             self.store.addN([(node,FOAF.name,Literal(standard_name),a_context)])
             if options.state_the_obvious:
@@ -271,14 +293,10 @@ class RDFEmitter(FormatEmitter):
                 print "skipping entry without a standardName"
                 continue
 
-            if BLANK_WRITERS:
-                writer = self.get_entity(
-                    standardName,
-                    BNode(entry['ID']),
-                    typ=FOAF.Person) # BRW normally not BNode
-
-            else:
-                writer = self.get_entity(standardName,BRW[entry['ID']],typ=FOAF.Person)
+            writer = self.get_entity(
+                standardName,
+                make_node(entry['ID']),
+                typ=FOAF.Person) # BRW normally not BNode
 
             #if entry.has_key('ID'):
             #    self.store.add((writer,RDF.about,BRW[entry['ID']]))
