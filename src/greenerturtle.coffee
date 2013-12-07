@@ -50,3 +50,5 @@ class GreenerTurtle
     count_subjects G
     G.get_incoming_predicates = get_incoming_predicates
     G
+
+exports.GreenerTurtle = GreenerTurtle

@@ -21,6 +21,8 @@ On 2013-10-10 it was forked from orlandoScrape5-1.py which bore the comment:
 """
 
 LOCAL_IDENTIFIERS = True  # False causes use of external ontologies
+LOCAL_IDENTIFIERS = False  # False causes use of external ontologies
+# False is bugged, groups are appearing as w:XXXX
 
 import rdflib.plugins.serializers.nt
 import rdflib.plugins.serializers.nquads

@@ -10,10 +10,11 @@
   <body>
     <div id="huvis_controls">
       <div id="file_picker_box">
-        <select id="file_picker" onchange="HVZ.load_file(this)" >
+        <select id="file_picker" onchange="HVZ.load_file()" >
           <option>data/test_40.ttl</option>
           <option>data/test_20.ttl</option>
           <option>data/test_1.ttl</option>
+          <option>data/test_1.nq</option>
           <option>data/all.ttl</option>
         </select>
       </div>
@@ -55,9 +56,11 @@
     <div id="status" onclick="clear_box()"></div>
     <div id="nodectrl"></div>
     <div id="edgectrl" class="CRRT"></div>
-    <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <script src="application.js"></script>
+    <!--
+      <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
+      <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    -->
+    <script src="application.js?woof=9898797"></script>
     <script>
       var HVZ;
       console.log('ping')
@@ -66,7 +69,8 @@
         //console.log('d3',d3);
         huviz = require('huviz')
         HVZ = new huviz.Huviz()
-        console.log('HVZ',HVZ);
+        
+        //console.log('HVZ',HVZ);
       });
     </script>
   </body>

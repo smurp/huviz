@@ -7,25 +7,20 @@
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<abdyma> <childOf> <C>,
-        <D> ;
-    <connectionToOrganization> <E>,
-        <F>,
-        <G> ;
-    f:name "Abdy, Maria" ;
-    <parentOf> <B> ;
-    <religiousInfluence> <E>,
-        <F> .
+<N57906e4f46f242f5b8e61b739979cd66> = {
+    <abdyma> <childOf> <C>,
+            <D> ;
+        <connectionToOrganization> <E>,
+            <F>,
+            <G> ;
+        <parentOf> <B> ;
+        <religiousInfluence> <E>,
+            <F> .
 
-<B> f:name "Abdy, Albert Channing" .
-
-<C> f:name "Smith, Richard" .
-
-<D> f:name "Smith, Maria,, 1773 - 1829" .
-
-<G> f:name "British Library" .
-
-<E> f:name "Anglican Church" .
-
-<F> f:name "Dissenters" .
+    <aberfr> <childOf> <I>,
+            <J>,
+            <K>,
+            <L> ;
+        <parentOf> <H> .
+}
 

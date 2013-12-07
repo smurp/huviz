@@ -198,4 +198,4 @@ class CollapsibleRadialReingoldTilfordTree
     return 'youch'
     #d3.select(self.frameElement).style "height", "800px"
 
-(exports or window).CollapsibleRadialReingoldTilfordTree = CollapsibleRadialReingoldTilfordTree
+(typeof exports is 'undefined' and window or exports).CollapsibleRadialReingoldTilfordTree = CollapsibleRadialReingoldTilfordTree

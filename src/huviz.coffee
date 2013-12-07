@@ -16,9 +16,9 @@
 #
 #GreenTurtle = require('GreenTurtle').GreenTurtle
 #SortedSet = require('sortedset').SortedSet
-gt = require('greenerturtle')
-console.log('gt',gt)
-GreenerTurtle = gt.GreenerTurtle
+#gt = require('greenerturtle')
+#console.log('gt',gt)
+#GreenerTurtle = gt.GreenerTurtle
 class Huviz
   use_canvas = true
   use_svg = false
@@ -832,13 +832,6 @@ class Huviz
     color: c or "lightgrey"
     id: s.id + " " + t.id
 
-  load_file: ->
-    reset_graph()
-    data_uri = $("select#file_picker option:selected").val()
-    set_status data_uri
-    G = {}
-    fetchAndShow data_uri  unless G.subjects
-    init_webgl()  if use_webgl
   add_to_array = (itm, array, cmp) ->
     cmp = cmp or array.__current_sort_order or cmp_on_id
     c = binary_search_on(array, itm, cmp, true)
@@ -865,13 +858,45 @@ class Huviz
     delete set[doomed.id]  if set[doomed.id]
     set
 
-  parseAndShow = (data, textStatus) ->
+
+  parseAndShowTurtle = (data, textStatus) ->
     set_status "parsing"
     msg = "data was " + data.length + " bytes"
     parse_start_time = new Date()
+
+    my_graph = 
+      predicates: {}
+      subjects: {}
+      objects: {}
+    
     #  application/n-quads
     #  .nq
-    G = new GreenerTurtle().parse(data, "text/turtle")
+    #
+    if GreenerTurtle?
+      G = new GreenerTurtle().parse(data, "text/turtle")
+    else
+      #console.clear()
+      console.log "n3",N3
+      predicates = {}
+      parser = N3.Parser()
+      parser.parse data, (err,trip,pref) ->
+        if pref
+          console.log pref
+        if trip
+          #console.log trip
+          my_graph.subjects[trip.subject] = {}
+          my_graph.predicates[trip.predicate] = {}
+          my_graph.objects[trip.object] = {}
+          
+        else
+          console.log err
+
+      console.log "Predicates",my_graph.predicates
+      console.log "Subjects",my_graph.subjects
+      console.log "Objects",my_graph.objects
+
+      
+          
     parse_end_time = new Date()
     parse_time = (parse_end_time - parse_start_time) / 1000
     siz = roughSizeOfObject(G)
@@ -887,6 +912,14 @@ class Huviz
     $("body").css "cursor", "default"
     $("#status").text ""
 
+  parseAndShowNQ = (data, textStatus) ->
+    n3parser = N3.Parser()
+    n3parser.parse data, (error, triple, prefixes) ->
+      if prefixes
+        console.log("prefixes ================ ",prefixes)
+      if triple
+        console.log("triple",triple)
+    
   fetchAndShow = (url) ->
     $("#status").text "fetching " + url
     $("body").css "cursor", "wait"
@@ -990,7 +1023,8 @@ class Huviz
     restart()
 
   set_search_regex("")
-  $(".search_box").on "input", update_searchterm
+  document.getElementById('search').addEventListener("input", update_searchterm)
+  #$(".search_box").on "input", update_searchterm
 
   node_radius_policies =
     "node radius by links": (d) ->
@@ -1436,4 +1470,13 @@ class Huviz
 
   #do_tests(false)
 
-(exports or window).Huviz = Huviz
+  load_file: =>
+    console.log this
+    reset_graph()
+    data_uri = $("select#file_picker option:selected").val()
+    set_status data_uri
+    G = {}
+    fetchAndShow data_uri  unless G.subjects
+    init_webgl()  if use_webgl
+
+(typeof exports is 'undefined' and window or exports).Huviz = Huviz

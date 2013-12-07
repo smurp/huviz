@@ -10,10 +10,11 @@ pkg = stitch.createPackage(
 
   # Specify your base libraries
   dependencies: [
-    __dirname + '/js/sortedset.js',
+    __dirname + '/lib/d3.v3.min.js', # before fisheye
     __dirname + '/lib/fisheye.js',
-    __dirname + '/lib/green_turtle.js', # aka RDFa.min.1.2.0.js
-    #__dirname + '/js/greener_turtle.js', 
+    __dirname + '/lib/jq.min.js',
+    __dirname + '/node_modules/n3/build/n3-browser.js',
+    __dirname + '/js/sortedset.js',
   ]
 )
 app = express.createServer()
@@ -26,6 +27,7 @@ app.configure ->
   app.use express.static(__dirname + '/js')
   app.use express.static(__dirname + '/lib')
   app.use express.static(__dirname + '/data')
+  #app.use express.static(__dirname + '/node_modules')  
   app.get "/application.js", pkg.createServer()
 
 port = argv[0] or process.env.PORT or 10000

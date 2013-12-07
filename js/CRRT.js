@@ -205,7 +205,6 @@
         root = data_tree;
         this.init_tree(root);
       }
-      alert("got to here");
       return 'youch';
     };
 
@@ -213,6 +212,6 @@
 
   })();
 
-  window.CollapsibleRadialReingoldTilfordTree = CollapsibleRadialReingoldTilfordTree;
+  (typeof exports === 'undefined' && window || exports).CollapsibleRadialReingoldTilfordTree = CollapsibleRadialReingoldTilfordTree;
 
 }).call(this);

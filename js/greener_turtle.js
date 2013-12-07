@@ -3,7 +3,7 @@ var GreenerTurtle = function(){
     var obj_has_type = function(obj, typ) {
 	return obj.type === typ;
     }
-    
+
     var RDF_object = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#object';
     var build_indices = function(graph){
 	console.log('BUILD INDICES');
