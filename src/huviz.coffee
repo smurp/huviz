@@ -69,6 +69,11 @@ class Huviz
   dragging = false
   last_status = undefined
 
+  my_graph = 
+    predicates: {}
+    subjects: {}
+    objects: {}
+
   G = {}
   start_with_http = new RegExp("http", "ig")
   ids_to_show = start_with_http
@@ -858,16 +863,11 @@ class Huviz
     delete set[doomed.id]  if set[doomed.id]
     set
 
-
   parseAndShowTurtle = (data, textStatus) ->
     set_status "parsing"
     msg = "data was " + data.length + " bytes"
     parse_start_time = new Date()
 
-    my_graph = 
-      predicates: {}
-      subjects: {}
-      objects: {}
     
     #  application/n-quads
     #  .nq
@@ -891,10 +891,17 @@ class Huviz
         else
           console.log err
 
-      console.log "Predicates",my_graph.predicates
-      console.log "Subjects",my_graph.subjects
-      console.log "Objects",my_graph.objects
+      console.log "my_graph",my_graph
+      console.log('===================================')
+      for prop_name in ['predicates','subjects','objects']
+        prop_obj = my_graph[prop_name]
+        console.log prop_name,(key for key,value of prop_obj).length,prop_obj
+      console.log('===================================')
+      #console.log "Predicates",(key for key,value of my_graph.predicates).length,my_graph.predicates
+      #console.log "Subjects",my_graph.subjects.length,my_graph.subjects
+      #console.log "Objects",my_graph.objects.length,my_graph.objects
 
+      
       
           
     parse_end_time = new Date()
@@ -1235,9 +1242,9 @@ class Huviz
   make_nodes = (g, limit) ->
     limit = limit or 0
     count = 0
-    for subj of g.subjects
-      console.log subj, g.subjects[subj]  if verbosity >= DEBUG
-      continue  unless subj.match(ids_to_show)
+    for subj_uri,subj of my_graph.subjects
+      #console.log subj, g.subjects[subj]  if verbosity >= DEBUG
+      #continue  unless subj.match(ids_to_show)
       subject = g.subjects[subj]
       get_or_make_node subject, [
         width / 2
