@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-__version__='1.1.0'
+__version__='1.1.1'
 __doc__ = """
 Script to convert XML information from the Orlanda project mark-up to
 various output formats.  It produces JSON and starting to produce Turtle (TTL).
@@ -7,16 +7,20 @@ various output formats.  It produces JSON and starting to produce Turtle (TTL).
 This file is now in GitHub at:
   https://github.com/smurp/huviz
 
-On 2013-10-10 it was forked from orlandoScrape5-1.py which bore the comment:
-# Script by John Simpson, Postdoctoral Fellow with:
-# 1. Text Mining & Visualization for Literary History
-# 2. INKE, Modeling & Prototyping
-# john.simpson@ualberta.ca / @symulation
-#
-# Copyright CC BY-SA 3.0  See: http://creativecommons.org/licenses/by-sa/3.0/
-#
-# This version was modified for the TM&V hackfest to spit out data in JSON
-# An additional modification so that the regex is only compiled once and then read out an array
+1.1.1 extracts the standard ID from the DIV tag for each section.  This will be used for linking back to the original text.
+
+ Script by
+ 
+ John Simpson, Postdoctoral Fellow with:
+ 1. Text Mining & Visualization for Literary History
+ 2. INKE, Modeling & Prototyping
+ john.simpson@ualberta.ca / @symulation
+
+AND
+
+Shown Murphy, independent contractor guy with Text Mining & Visualization for Literary History
+
+Copyright CC BY-SA 3.0  See: http://creativecommons.org/licenses/by-sa/3.0/
 
 """
 
@@ -76,10 +80,9 @@ def regexTestLoad(regexTests,options):
         parts = line.split('|')
         if options.only_predicates and not parts[0] in options.only_predicates:
             continue
-        regexArray[arrayCounter]=parts
-        
-        n=1
+        regexArray[arrayCounter]=parts  
         arrayDepth = len(regexArray[arrayCounter])
+        n=1
         while n < arrayDepth:
            regexArray[arrayCounter][n] = re.compile(regexArray[arrayCounter][n])
            n+=1
@@ -100,37 +103,49 @@ def stripExtraXML(match):
     return(''.join(cleanLine))
  
 
-def fillDict(entryDict, regexArray, tripleCheck, mainSubject, stripMatch):
+def fillDict(entryDict, regexArray, tripleCheck, mainSubject, stripMatch, structID):
     predicate = regexArray[tripleCheck][0]
     if options.only_predicates and not (predicate in options.only_predicates):
         return
     if predicate not in entryDict:
         #print "  ",predicate
-        entryDict[predicate]=[stripMatch]
+        entryDict[predicate]=[structID]+[stripMatch]
     else:
         if stripMatch not in entryDict[predicate]:
+            entryDict[predicate].append(structID)
             entryDict[predicate].append(stripMatch)
 
 
-def regexRecursion(searchText,regexArray,tripleCheck,recursionDepthPlusOne,mainSubject,entryDict):
+def regexRecursion(searchText,regexArray,tripleCheck,recursionDepthPlusOne,mainSubject,entryDict,structID):
     #print "predicate", regexArray[tripleCheck][0]
     #print "tripleCheck", regexArray[tripleCheck][recursionDepthPlusOne]
+    #Start with the lowest level structural IDs.  Find everything that matches them and pull out the structID
+    #If we can match all the way to the end then great, done.
+    #If we can't match all the way to the end then we move up a structural ID level and start again
+    #If we run out of structural ID levels then it is a failed search
+    
     tripleTest = regexArray[tripleCheck][recursionDepthPlusOne]
     resultTripleTest = tripleTest.findall(searchText)
     if resultTripleTest:
         if (recursionDepthPlusOne) >= len(regexArray[tripleCheck])-1:
             for match in resultTripleTest:
                 stripMatch=stripExtraXML(match)
-                fillDict(entryDict, regexArray, tripleCheck, mainSubject, stripMatch)
+                fillDict(entryDict, regexArray, tripleCheck, mainSubject, stripMatch, structID)
         else:
             for match in resultTripleTest:
-                regexRecursion(match,regexArray,tripleCheck,recursionDepthPlusOne+1,mainSubject,entryDict)
+                regexRecursion(match,regexArray,tripleCheck,recursionDepthPlusOne+1,mainSubject,entryDict,structID)
 
 
 def extractionCycle(orlandoRAW, regexArray, NameTest, mainSubject, options):
     entryDict=dict()
     commacheck3=False #controls the insertion of commas at the end of the objects
     count = 0
+    #These next four lines insert the regex needed to extract the closest structural ID tag during the regexRecursion function
+    structIDregex=[]
+    structIDregex.append(re.compile('<DIV0 ID="(.+?)">(.+?)</DIV0>'))
+    structIDregex.append(re.compile('<DIV1 ID="(.+?)">(.+?)</DIV1>'))
+    structIDregex.append(re.compile('<DIV2 ID="(.+?)">(.+?)</DIV2>'))
+    structIDregex.append(re.compile('<P ID="(.+?)">(.+?)</P>'))
     for line in orlandoRAW:
         LineTest = NameTest.search(line)
         #print LineTest
@@ -141,7 +156,13 @@ def extractionCycle(orlandoRAW, regexArray, NameTest, mainSubject, options):
             if options.verbose:
                 print mainSubject
             for tripleCheck in regexArray:
-                regexRecursion(line,regexArray,tripleCheck,1,mainSubject,entryDict)
+                structID=""
+                for IDcheck in structIDregex:
+                    IDcheckResults=IDcheck.findall(line)
+                    for result in IDcheckResults:
+                        structID=result[0]
+                        searchText=result[1]
+                        regexRecursion(searchText,regexArray,tripleCheck,1,mainSubject,entryDict,structID)
             options.emitter.stash(entryDict,commacheck3,options)
             commacheck3=True
         entryDict = dict()
