@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-__version__='1.1.0'
+__version__='1.1.1'
 __doc__ = """
 Script to convert XML information from the Orlanda project mark-up to
 various output formats.  It produces JSON and starting to produce Turtle (TTL).
@@ -7,16 +7,20 @@ various output formats.  It produces JSON and starting to produce Turtle (TTL).
 This file is now in GitHub at:
   https://github.com/smurp/huviz
 
-On 2013-10-10 it was forked from orlandoScrape5-1.py which bore the comment:
-# Script by John Simpson, Postdoctoral Fellow with:
-# 1. Text Mining & Visualization for Literary History
-# 2. INKE, Modeling & Prototyping
-# john.simpson@ualberta.ca / @symulation
-#
-# Copyright CC BY-SA 3.0  See: http://creativecommons.org/licenses/by-sa/3.0/
-#
-# This version was modified for the TM&V hackfest to spit out data in JSON
-# An additional modification so that the regex is only compiled once and then read out an array
+1.1.1 extracts the standard ID from the DIV tag for each section.  This will be used for linking back to the original text.
+
+ Script by
+ 
+ John Simpson, Postdoctoral Fellow with:
+ 1. Text Mining & Visualization for Literary History
+ 2. INKE, Modeling & Prototyping
+ john.simpson@ualberta.ca / @symulation
+
+AND
+
+Shawn Murphy, independent contractor guy with Text Mining & Visualization for Literary History
+
+Copyright CC BY-SA 3.0  See: http://creativecommons.org/licenses/by-sa/3.0/
 
 """
 
@@ -105,10 +109,9 @@ def regexTestLoad(regexTests,options):
         parts = line.split('|')
         if options.only_predicates and not parts[0] in options.only_predicates:
             continue
-        regexArray[arrayCounter]=parts
-        
-        n=1
+        regexArray[arrayCounter]=parts  
         arrayDepth = len(regexArray[arrayCounter])
+        n=1
         while n < arrayDepth:
            regexArray[arrayCounter][n] = re.compile(regexArray[arrayCounter][n])
            n+=1
@@ -129,32 +132,45 @@ def stripExtraXML(match):
     return(''.join(cleanLine))
  
 
-def fillDict(entryDict, regexArray, tripleCheck, mainSubject, stripMatch):
+def fillDict(entryDict, regexArray, tripleCheck, mainSubject, stripMatch, structID):
     predicate = regexArray[tripleCheck][0]
     if options.only_predicates and not (predicate in options.only_predicates):
         return
+    
+    ctx_sn = {'sn': stripMatch}
+    if structID:
+        ctx_sn['ctx'] = structID
+    
     if predicate not in entryDict:
-        #print "  ",predicate
-        entryDict[predicate]=[stripMatch]
-    else:
-        if stripMatch not in entryDict[predicate]:
-            entryDict[predicate].append(stripMatch)
+        entryDict[predicate] = []
 
+    # TODO(smurp): de-dupe by doing equivalent of:  stripMatch not in entryDict[predicate]:
+    entryDict[predicate].append(ctx_sn)
 
-def regexRecursion(searchText,regexArray,tripleCheck,recursionDepthPlusOne,mainSubject,entryDict):
-    #print "predicate", regexArray[tripleCheck][0]
-    #print "tripleCheck", regexArray[tripleCheck][recursionDepthPlusOne]
+def regexRecursion(searchText,regexArray,tripleCheck,recursionDepthPlusOne,mainSubject,entryDict,structID):
+    #Start with the lowest level structural IDs.  Find everything that matches them and pull out the structID
+    #If we can match all the way to the end then great, done.
+    #If we can't match all the way to the end then we move up a structural ID level and start again
+    #If we run out of structural ID levels then it is a failed search
+    
     tripleTest = regexArray[tripleCheck][recursionDepthPlusOne]
     resultTripleTest = tripleTest.findall(searchText)
     if resultTripleTest:
         if (recursionDepthPlusOne) >= len(regexArray[tripleCheck])-1:
             for match in resultTripleTest:
                 stripMatch=stripExtraXML(match)
-                fillDict(entryDict, regexArray, tripleCheck, mainSubject, stripMatch)
+                fillDict(entryDict, regexArray, tripleCheck, mainSubject, stripMatch, structID)
         else:
             for match in resultTripleTest:
-                regexRecursion(match,regexArray,tripleCheck,recursionDepthPlusOne+1,mainSubject,entryDict)
+                regexRecursion(match,regexArray,tripleCheck,recursionDepthPlusOne+1,mainSubject,entryDict,structID)
 
+# Create the regex needed to extractthe closest structural ID tag
+# during the regexRecursion function.
+structIDregex=[]
+structIDregex.append(re.compile('<DIV0 ID="(.+?)">(.+?)</DIV0>'))
+structIDregex.append(re.compile('<DIV1 ID="(.+?)">(.+?)</DIV1>'))
+structIDregex.append(re.compile('<DIV2 ID="(.+?)">(.+?)</DIV2>'))
+structIDregex.append(re.compile('<P ID="(.+?)">(.+?)</P>'))
 
 def extractionCycle(orlandoRAW, regexArray, NameTest, mainSubject, options):
     entryDict=dict()
@@ -170,7 +186,17 @@ def extractionCycle(orlandoRAW, regexArray, NameTest, mainSubject, options):
             if options.verbose:
                 print mainSubject
             for tripleCheck in regexArray:
-                regexRecursion(line,regexArray,tripleCheck,1,mainSubject,entryDict)
+                if options.capture_context:
+                    structID=""
+                    for IDcheck in structIDregex:
+                        IDcheckResults=IDcheck.findall(line)
+                        for result in IDcheckResults:
+                            structID=result[0]
+                            searchText=result[1]
+                            regexRecursion(searchText,regexArray,tripleCheck,
+                                           1,mainSubject,entryDict,structID)
+                else:
+                    regexRecursion(line,regexArray,tripleCheck,1,mainSubject,entryDict)
             options.emitter.stash(entryDict,commacheck3,options)
             commacheck3=True
         entryDict = dict()
@@ -310,7 +336,7 @@ class RDFEmitter(FormatEmitter):
 
         for entry in self.entries:
             standardNames = entry.get('standardName',[])
-            standardName = standardNames and standardNames[0] or None
+            standardName = standardNames and standardNames[0]['sn'] or None
             if standardName == None:
                 print "skipping entry without a standardName"
                 continue
@@ -320,29 +346,36 @@ class RDFEmitter(FormatEmitter):
                 make_node(entry['ID']),
                 typ=FOAF.Person) # BRW normally not BNode
 
-            #if entry.has_key('ID'):
-            #    self.store.add((writer,RDF.about,BRW[entry['ID']]))
-
             for predicate,values in entry.items():
-                if predicate in ['ID','standardName']:
+                if predicate in ['ID','standardName']: # TODO(smurp): add date-of-{birth,death}
                     continue
                 if predicate in predicate_to_type.keys():
                     pred = predicate_to_type[predicate]
 
+                    # add some interesting relations
                     if bogus_relations:
                         k = (entry['ID'],predicate)
                         if bogus_relations.has_key(k):
                             values.append(bogus_relations[k])
 
-                    for standard_name in values:
+                    for ctx_sn_d in values:
+                        if type(ctx_sn_d) <> dict:  # handle uncontextualized objects
+                            ctx_sn_d = {'sn':ctx_sn_d}
                         if predicate in predicates_to_groups:
-                            obj = self.get_group(standard_name)
+                            obj = self.get_group(ctx_sn_d['sn'])
                         else:
-                            obj = self.get_person(standard_name)
+                            obj = self.get_person(ctx_sn_d['sn'])
                             if obj == writer:
                                 continue 
-                        self.store.add((writer,pred,obj))
-                        # WORKING on linking people
+                        quad_or_triple = [writer,pred,obj]
+                        if ctx_sn_d.has_key('ctx'):
+                            ctx = URIRef(ctx_sn_d['ctx']) # TODO(smurp): BNode or Local
+                            quad_or_triple.append(ctx)
+                        #print "    quad =",quad_or_triple
+                        if len(quad_or_triple) > 3:
+                            self.store.addN([quad_or_triple]) # a quad
+                        else:
+                            self.store.add(quad_or_triple) # a triple
 
 class TurtleEmitter(RDFEmitter):
     # http://rdflib.readthedocs.org/en/latest/_modules/rdflib/plugins/serializers/turtle.html
@@ -408,6 +441,10 @@ if __name__ == "__main__":
     parser.add_option("--limit",
                       type = "int",
                       help = "limit the number of entries processed")    
+    parser.add_option("-x","--capture_context",
+                      default = False,
+                      action = 'store_true',
+                      help = "capture the context of relations")
     parser.add_option("--pretty",
                       action = 'store_true',
                       help = "make json or xml output more human readable")
