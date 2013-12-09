@@ -1,13 +1,16 @@
 #!/usr/bin/env python
-__version__='1.1.1'
+__version__='1.1.2'
 __doc__ = """
-Script to convert XML information from the Orlanda project mark-up to
+Script to convert XML information from the Orlando project mark-up to
 various output formats.  It produces JSON and starting to produce Turtle (TTL).
 
 This file is now in GitHub at:
   https://github.com/smurp/huviz
 
-1.1.1 extracts the standard ID from the DIV tag for each section.  This will be used for linking back to the original text.
+1.1.2 Use the structID as the 'context' in n3, nq and trig output
+
+1.1.1 extracts the standard ID from the DIV tag for each section.  
+      This will be used for linking back to the original text.
 
  Script by
  
@@ -18,14 +21,17 @@ This file is now in GitHub at:
 
 AND
 
-Shawn Murphy, independent contractor guy with Text Mining & Visualization for Literary History
+Shawn Murphy with:
+ 1. Text Mining & Visualization for Literary History
+ 2. Semandra.com
+ <shawn@semandra.com> http://smurp.com
 
 Copyright CC BY-SA 3.0  See: http://creativecommons.org/licenses/by-sa/3.0/
 
 """
 
 LOCAL_IDENTIFIERS = True  # False causes use of external ontologies
-LOCAL_IDENTIFIERS = False  # False causes use of external ontologies
+#LOCAL_IDENTIFIERS = False  # False causes use of external ontologies
 # False is bugged, groups are appearing as w:XXXX
 
 import rdflib.plugins.serializers.nt
@@ -45,7 +51,7 @@ def NQ_ROW(triple,context):
                                      _xmlcharref_encode(triple[2].n3()),
                                      context.n3())
 
-# 
+
 # rdflib.plugins.serializers.nquads._nq_row = NQ_ROW
 
 import sys
@@ -192,11 +198,12 @@ def extractionCycle(orlandoRAW, regexArray, NameTest, mainSubject, options):
                         IDcheckResults=IDcheck.findall(line)
                         for result in IDcheckResults:
                             structID=result[0]
+                            print structID
                             searchText=result[1]
                             regexRecursion(searchText,regexArray,tripleCheck,
                                            1,mainSubject,entryDict,structID)
                 else:
-                    regexRecursion(line,regexArray,tripleCheck,1,mainSubject,entryDict)
+                    regexRecursion(line,regexArray,tripleCheck,1,mainSubject,entryDict,None)
             options.emitter.stash(entryDict,commacheck3,options)
             commacheck3=True
         entryDict = dict()
@@ -205,7 +212,6 @@ def extractionCycle(orlandoRAW, regexArray, NameTest, mainSubject, options):
 
 from rdflib import Graph, Literal, BNode, RDF, ConjunctiveGraph, URIRef
 from rdflib.namespace import FOAF, DC, Namespace
-a_context = URIRef("http://bibliographica.org/entity/E10009")
 
 XFN = Namespace('http://vocab.sindice.com/xfn#')
 BRW = Namespace('http://orlando.cambridge.org/public/svPeople?person_id=')
@@ -262,6 +268,7 @@ class FormatEmitter(object):
             mainSubject=None
             extractionCycle(orlandoRAW, regexArray, NameTest, mainSubject, options)
         print "extraction ends"
+        print self.entries
         self.concludeOutfile()
         print "end"
 
@@ -293,11 +300,13 @@ class RDFEmitter(FormatEmitter):
     def __init__(self,options):
         super(RDFEmitter, self).__init__(options)
         self.store = ConjunctiveGraph()
-        print "conext_aware:",self.store.context_aware
+        if options.verbose:
+            print "context_aware:",self.store.context_aware
         self.store.bind('f',FOAF)
-        self.store.bind('d',DC)
-        self.store.bind('w',BRW)
-        self.store.bind('x',XFN)
+        if not options.capture_context:
+            self.store.bind('d',DC)
+            self.store.bind('w',BRW)
+            self.store.bind('x',XFN)
         self.entities = {}
 
     def get_entity(self,standard_name,node=None,ID=None,typ=None):
@@ -310,8 +319,7 @@ class RDFEmitter(FormatEmitter):
                 #    node = BLANK[str(ID)]
                 #else:
                 #    node = BNode(ID)
-            #self.store.add((node,FOAF.name,Literal(standard_name)))
-            self.store.addN([(node,FOAF.name,Literal(standard_name),a_context)])
+            self.store.add((node,FOAF.name,Literal(standard_name)))
             if options.state_the_obvious:
                 if typ <> FOAF.Person:
                     self.store.add((node,RDF.type,typ))
@@ -369,10 +377,13 @@ class RDFEmitter(FormatEmitter):
                                 continue 
                         quad_or_triple = [writer,pred,obj]
                         if ctx_sn_d.has_key('ctx'):
-                            ctx = URIRef(ctx_sn_d['ctx']) # TODO(smurp): BNode or Local
+                            #ctx = URIRef(ctx_sn_d['ctx']) # TODO(smurp): BNode or Local
+                            ctx = LOCAL[ctx_sn_d['ctx']]
                             quad_or_triple.append(ctx)
-                        #print "    quad =",quad_or_triple
+                        if options.verbose:
+                            print "    quad =",quad_or_triple
                         if len(quad_or_triple) > 3:
+                            print "     QUAD!"
                             self.store.addN([quad_or_triple]) # a quad
                         else:
                             self.store.add(quad_or_triple) # a triple
@@ -442,7 +453,7 @@ if __name__ == "__main__":
                       type = "int",
                       help = "limit the number of entries processed")    
     parser.add_option("-x","--capture_context",
-                      default = False,
+                      default = True,
                       action = 'store_true',
                       help = "capture the context of relations")
     parser.add_option("--pretty",
@@ -514,6 +525,7 @@ if __name__ == "__main__":
         show_usage = False
         import pydoc
         pydoc.help(__import__(__name__))
+    print options
     if options.outfile.endswith('.json'):
         options.emitter = JSONEmitter(options)
     if options.outfile.endswith('.ttl'):
@@ -530,3 +542,5 @@ if __name__ == "__main__":
         options.emitter.go()
     elif show_usage:
         parser.print_help()
+
+# TODO(shawn): remove commacheck3
