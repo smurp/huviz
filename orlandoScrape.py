@@ -18,7 +18,7 @@ This file is now in GitHub at:
 
 AND
 
-Shown Murphy, independent contractor guy with Text Mining & Visualization for Literary History
+Shawn Murphy, independent contractor guy with Text Mining & Visualization for Literary History
 
 Copyright CC BY-SA 3.0  See: http://creativecommons.org/licenses/by-sa/3.0/
 
@@ -107,18 +107,18 @@ def fillDict(entryDict, regexArray, tripleCheck, mainSubject, stripMatch, struct
     predicate = regexArray[tripleCheck][0]
     if options.only_predicates and not (predicate in options.only_predicates):
         return
+    
+    ctx_sn = {'sn': stripMatch}
+    if structID:
+        ctx_sn['ctx'] = structID
+    
     if predicate not in entryDict:
-        #print "  ",predicate
-        entryDict[predicate]=[structID]+[stripMatch]
-    else:
-        if stripMatch not in entryDict[predicate]:
-            entryDict[predicate].append(structID)
-            entryDict[predicate].append(stripMatch)
+        entryDict[predicate] = []
 
+    # TODO(smurp): de-dupe by doing equivalent of:  stripMatch not in entryDict[predicate]:
+    entryDict[predicate].append(ctx_sn)
 
 def regexRecursion(searchText,regexArray,tripleCheck,recursionDepthPlusOne,mainSubject,entryDict,structID):
-    #print "predicate", regexArray[tripleCheck][0]
-    #print "tripleCheck", regexArray[tripleCheck][recursionDepthPlusOne]
     #Start with the lowest level structural IDs.  Find everything that matches them and pull out the structID
     #If we can match all the way to the end then great, done.
     #If we can't match all the way to the end then we move up a structural ID level and start again
@@ -135,17 +135,18 @@ def regexRecursion(searchText,regexArray,tripleCheck,recursionDepthPlusOne,mainS
             for match in resultTripleTest:
                 regexRecursion(match,regexArray,tripleCheck,recursionDepthPlusOne+1,mainSubject,entryDict,structID)
 
+# Create the regex needed to extractthe closest structural ID tag
+# during the regexRecursion function.
+structIDregex=[]
+structIDregex.append(re.compile('<DIV0 ID="(.+?)">(.+?)</DIV0>'))
+structIDregex.append(re.compile('<DIV1 ID="(.+?)">(.+?)</DIV1>'))
+structIDregex.append(re.compile('<DIV2 ID="(.+?)">(.+?)</DIV2>'))
+structIDregex.append(re.compile('<P ID="(.+?)">(.+?)</P>'))
 
 def extractionCycle(orlandoRAW, regexArray, NameTest, mainSubject, options):
     entryDict=dict()
     commacheck3=False #controls the insertion of commas at the end of the objects
     count = 0
-    #These next four lines insert the regex needed to extract the closest structural ID tag during the regexRecursion function
-    structIDregex=[]
-    structIDregex.append(re.compile('<DIV0 ID="(.+?)">(.+?)</DIV0>'))
-    structIDregex.append(re.compile('<DIV1 ID="(.+?)">(.+?)</DIV1>'))
-    structIDregex.append(re.compile('<DIV2 ID="(.+?)">(.+?)</DIV2>'))
-    structIDregex.append(re.compile('<P ID="(.+?)">(.+?)</P>'))
     for line in orlandoRAW:
         LineTest = NameTest.search(line)
         #print LineTest
@@ -156,13 +157,17 @@ def extractionCycle(orlandoRAW, regexArray, NameTest, mainSubject, options):
             if options.verbose:
                 print mainSubject
             for tripleCheck in regexArray:
-                structID=""
-                for IDcheck in structIDregex:
-                    IDcheckResults=IDcheck.findall(line)
-                    for result in IDcheckResults:
-                        structID=result[0]
-                        searchText=result[1]
-                        regexRecursion(searchText,regexArray,tripleCheck,1,mainSubject,entryDict,structID)
+                if options.capture_context:
+                    structID=""
+                    for IDcheck in structIDregex:
+                        IDcheckResults=IDcheck.findall(line)
+                        for result in IDcheckResults:
+                            structID=result[0]
+                            searchText=result[1]
+                            regexRecursion(searchText,regexArray,tripleCheck,
+                                           1,mainSubject,entryDict,structID)
+                else:
+                    regexRecursion(line,regexArray,tripleCheck,1,mainSubject,entryDict)
             options.emitter.stash(entryDict,commacheck3,options)
             commacheck3=True
         entryDict = dict()
@@ -288,7 +293,7 @@ class RDFEmitter(FormatEmitter):
 
         for entry in self.entries:
             standardNames = entry.get('standardName',[])
-            standardName = standardNames and standardNames[0] or None
+            standardName = standardNames and standardNames[0]['sn'] or None
             if standardName == None:
                 print "skipping entry without a standardName"
                 continue
@@ -302,29 +307,36 @@ class RDFEmitter(FormatEmitter):
             else:
                 writer = self.get_entity(standardName,BRW[entry['ID']],typ=FOAF.Person)
 
-            #if entry.has_key('ID'):
-            #    self.store.add((writer,RDF.about,BRW[entry['ID']]))
-
             for predicate,values in entry.items():
-                if predicate in ['ID','standardName']:
+                if predicate in ['ID','standardName']: # TODO(smurp): add date-of-{birth,death}
                     continue
                 if predicate in predicate_to_type.keys():
                     pred = predicate_to_type[predicate]
 
+                    # add some interesting relations
                     if bogus_relations:
                         k = (entry['ID'],predicate)
                         if bogus_relations.has_key(k):
                             values.append(bogus_relations[k])
 
-                    for standard_name in values:
+                    for ctx_sn_d in values:
+                        if type(ctx_sn_d) <> dict:  # handle uncontextualized objects
+                            ctx_sn_d = {'sn':ctx_sn_d}
                         if predicate in predicates_to_groups:
-                            obj = self.get_group(standard_name)
+                            obj = self.get_group(ctx_sn_d['sn'])
                         else:
-                            obj = self.get_person(standard_name)
+                            obj = self.get_person(ctx_sn_d['sn'])
                             if obj == writer:
                                 continue 
-                        self.store.add((writer,pred,obj))
-                        # WORKING on linking people
+                        quad_or_triple = [writer,pred,obj]
+                        if ctx_sn_d.has_key('ctx'):
+                            ctx = URIRef(ctx_sn_d['ctx']) # TODO(smurp): BNode or Local
+                            quad_or_triple.append(ctx)
+                        #print "    quad =",quad_or_triple
+                        if len(quad_or_triple) > 3:
+                            self.store.addN([quad_or_triple]) # a quad
+                        else:
+                            self.store.add(quad_or_triple) # a triple
 
 
 class TurtleEmitter(RDFEmitter):
@@ -363,6 +375,10 @@ if __name__ == "__main__":
     parser.add_option("--limit",
                       type = "int",
                       help = "limit the number of entries processed")    
+    parser.add_option("-x","--capture_context",
+                      default = False,
+                      action = 'store_true',
+                      help = "capture the context of relations")
     parser.add_option("--pretty",
                       action = 'store_true',
                       help = "make json or xml output more human readable")
