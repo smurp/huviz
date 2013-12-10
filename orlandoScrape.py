@@ -307,12 +307,11 @@ class JSONEmitter(FormatEmitter):
         self.outfile.write(json.dumps(self.entries,**kwargs))
         self.outfile.close()
 
+    
 class RDFEmitter(FormatEmitter):
     def __init__(self,options):
         super(RDFEmitter, self).__init__(options)
-        self.store = ConjunctiveGraph()
-        if options.verbose:
-            print "context_aware:",self.store.context_aware
+        self.store = Graph()
         self.store.bind('f',FOAF)
         if not options.capture_context:
             self.store.bind('d',DC)
@@ -331,10 +330,18 @@ class RDFEmitter(FormatEmitter):
                 #else:
                 #    node = BNode(ID)
             #self.store.add((node,FOAF.name,Literal(standard_name)))
-            self.store.addN([(node,FOAF.name,Literal(standard_name),unconstrained)])
+            entuple = [node,FOAF.name,Literal(standard_name)]
+            if options.capture_context:
+                entuple.append(self.universal)
+                self.store.addN([entuple])
+            else:
+                self.store.add(entuple)
             if options.state_the_obvious:
                 if typ <> FOAF.Person:
-                    self.store.add((node,RDF.type,typ))
+                    tupl = [node,RDF.type,typ]
+                    if options.capture_context:
+                        tupl.append(self.universal)
+                    self.store.add(tupl)
             self.entities[standard_name] = node
         return self.entities[standard_name]
 
@@ -406,14 +413,6 @@ class TurtleEmitter(RDFEmitter):
         self.generate_graph()
         self.outfile.write(self.store.serialize(format='turtle'))
 
-class NQuadsEmitter(RDFEmitter):
-    # http://rdflib.readthedocs.org/en/latest/_modules/rdflib/plugins/serializers/nquads.html
-    def concludeOutfile(self):
-        self.generate_graph()
-        self.outfile.write(
-            self.store.serialize(
-                format="nquads"))
-
 class NTriplesEmitter(RDFEmitter):
     # http://rdflib.readthedocs.org/en/latest/_modules/rdflib/plugins/serializers/nt.html
     def concludeOutfile(self):
@@ -430,7 +429,24 @@ class N3Emitter(RDFEmitter):
             self.store.serialize(
                 format="n3"))
 
-class TrigEmitter(RDFEmitter):
+class ContextEmitter(RDFEmitter):
+    def __init__(self,options):
+        super(ContextEmitter, self).__init__(options)
+        self.store = ConjunctiveGraph()
+        self.universal = Graph(self.store.store,LOCAL['Universal'])
+        options.capture_context = True
+        if options.verbose:
+            print "context_aware:",self.store.context_aware
+
+class NQuadsEmitter(ContextEmitter):
+    # http://rdflib.readthedocs.org/en/latest/_modules/rdflib/plugins/serializers/nquads.html
+    def concludeOutfile(self):
+        self.generate_graph()
+        self.outfile.write(
+            self.store.serialize(
+                format="nquads"))
+
+class TrigEmitter(ContextEmitter):
     # http://rdflib.readthedocs.org/en/latest/_modules/rdflib/plugins/serializers/trig.html
     def concludeOutfile(self):
         self.generate_graph()
