@@ -138,37 +138,7 @@ def stripExtraXML(match):
     return(''.join(cleanLine))
  
 
-def fillDict(entryDict, regexArray, tripleCheck, mainSubject, stripMatch, structID):
-    predicate = regexArray[tripleCheck][0]
-    if options.only_predicates and not (predicate in options.only_predicates):
-        return
-    
-    ctx_sn = {'sn': stripMatch}
-    if structID:
-        ctx_sn['ctx'] = structID
-    
-    if predicate not in entryDict:
-        entryDict[predicate] = []
 
-    # TODO(smurp): de-dupe by doing equivalent of:  stripMatch not in entryDict[predicate]:
-    entryDict[predicate].append(ctx_sn)
-
-def regexRecursion(searchText,regexArray,tripleCheck,recursionDepthPlusOne,mainSubject,entryDict,structID):
-    #Start with the lowest level structural IDs.  Find everything that matches them and pull out the structID
-    #If we can match all the way to the end then great, done.
-    #If we can't match all the way to the end then we move up a structural ID level and start again
-    #If we run out of structural ID levels then it is a failed search
-    
-    tripleTest = regexArray[tripleCheck][recursionDepthPlusOne]
-    resultTripleTest = tripleTest.findall(searchText)
-    if resultTripleTest:
-        if (recursionDepthPlusOne) >= len(regexArray[tripleCheck])-1:
-            for match in resultTripleTest:
-                stripMatch=stripExtraXML(match)
-                fillDict(entryDict, regexArray, tripleCheck, mainSubject, stripMatch, structID)
-        else:
-            for match in resultTripleTest:
-                regexRecursion(match,regexArray,tripleCheck,recursionDepthPlusOne+1,mainSubject,entryDict,structID)
 
 # Create the regex needed to extractthe closest structural ID tag
 # during the regexRecursion function.
@@ -178,40 +148,10 @@ structIDregex.append(re.compile('<DIV1 ID="(.+?)">(.+?)</DIV1>'))
 structIDregex.append(re.compile('<DIV2 ID="(.+?)">(.+?)</DIV2>'))
 structIDregex.append(re.compile('<P ID="(.+?)">(.+?)</P>'))
 
-def extractionCycle(orlandoRAW, regexArray, NameTest, mainSubject, options):
-    entryDict=dict()
-    commacheck3=False #controls the insertion of commas at the end of the objects
-    count = 0
-    for line in orlandoRAW:
-        LineTest = NameTest.search(line)
-        #print LineTest
-        if LineTest:
-            mainSubject=LineTest.group(1)
-            entryDict['ID']=mainSubject
-            count += 1
-            if options.verbose:
-                print mainSubject
-            for tripleCheck in regexArray:
-                if options.capture_context:
-                    structID=""
-                    for IDcheck in structIDregex:
-                        IDcheckResults=IDcheck.findall(line)
-                        for result in IDcheckResults:
-                            structID=result[0]
-                            print structID
-                            searchText=result[1]
-                            regexRecursion(searchText,regexArray,tripleCheck,
-                                           1,mainSubject,entryDict,structID)
-                else:
-                    regexRecursion(line,regexArray,tripleCheck,1,mainSubject,entryDict,None)
-            options.emitter.stash(entryDict,commacheck3,options)
-            commacheck3=True
-        entryDict = dict()
-        if options.limit and count >= options.limit:
-            break
 
 from rdflib import Graph, Literal, BNode, RDF, ConjunctiveGraph, URIRef
 from rdflib.namespace import FOAF, DC, Namespace
+
 
 XFN = Namespace('http://vocab.sindice.com/xfn#')
 BRW = Namespace('http://orlando.cambridge.org/public/svPeople?person_id=')
@@ -221,6 +161,8 @@ BLANK = Namespace('http:///')
 LOCAL = Namespace('')
 BLANK_HACK = False
 BLANK_WRITERS = False # FIXME ideally this would be True so writer ids like _:abdyma
+
+unconstrained = LOCAL['unconstrained']
 
 ID_GENERATOR = BRW    
 if LOCAL_IDENTIFIERS:
@@ -249,10 +191,79 @@ if LOCAL_IDENTIFIERS:
 
 class FormatEmitter(object):
     def __init__(self,options):
+        self.contexts = {}
         self.options = options
         if hasattr(options,'outfile'):
             self.outfile = codecs.open(options.outfile, encoding='utf-8', mode='w')
         self.entries = []
+
+    def extractionCycle(self, orlandoRAW, regexArray, NameTest, mainSubject, options):
+        entryDict=dict()
+        commacheck3=False #controls the insertion of commas at the end of the objects
+        count = 0
+        for line in orlandoRAW:
+            LineTest = NameTest.search(line)
+            #print LineTest
+            if LineTest:
+                mainSubject=LineTest.group(1)
+                entryDict['ID']=mainSubject
+                count += 1
+                if options.verbose:
+                    print mainSubject
+                for tripleCheck in regexArray:
+                    if options.capture_context:
+                        structID=""
+                        for IDcheck in structIDregex:
+                            IDcheckResults=IDcheck.findall(line)
+                            for result in IDcheckResults:
+                                structID=result[0]
+                                print structID
+                                searchText=result[1]
+                                self.regexRecursion(searchText,regexArray,tripleCheck,
+                                               1,mainSubject,entryDict,structID)
+                    else:
+                        self.regexRecursion(line,regexArray,tripleCheck,1,mainSubject,entryDict,None)
+                options.emitter.stash(entryDict,commacheck3,options)
+                commacheck3=True
+            entryDict = dict()
+            if options.limit and count >= options.limit:
+                break
+
+    def regexRecursion(self,searchText,regexArray,tripleCheck,recursionDepthPlusOne,mainSubject,entryDict,structID):
+        #Start with the lowest level structural IDs.  Find everything that matches them and pull out the structID
+        #If we can match all the way to the end then great, done.
+        #If we can't match all the way to the end then we move up a structural ID level and start again
+        #If we run out of structural ID levels then it is a failed search
+
+        tripleTest = regexArray[tripleCheck][recursionDepthPlusOne]
+        resultTripleTest = tripleTest.findall(searchText)
+        if resultTripleTest:
+            if (recursionDepthPlusOne) >= len(regexArray[tripleCheck])-1:
+                for match in resultTripleTest:
+                    stripMatch=stripExtraXML(match)
+                    self.fillDict(entryDict, regexArray, tripleCheck, mainSubject, stripMatch, structID)
+            else:
+                for match in resultTripleTest:
+                    self.regexRecursion(match,regexArray,tripleCheck,recursionDepthPlusOne+1,mainSubject,entryDict,structID)
+
+    def fillDict(self, entryDict, regexArray, tripleCheck, mainSubject, stripMatch, structID):
+        predicate = regexArray[tripleCheck][0]
+        if options.only_predicates and not (predicate in options.only_predicates):
+            return
+
+        ctx_sn = {'sn': stripMatch}
+        if structID:
+            # maintain a cache of contexts keyed by structID
+            if not self.contexts.has_key(structID):
+                self.contexts[structID] = Graph(self.store.store,LOCAL[structID])
+            ctx_sn['ctx'] = self.contexts[structID]
+
+        if predicate not in entryDict:
+            entryDict[predicate] = []
+
+        # TODO(smurp): de-dupe by doing equivalent of:  stripMatch not in entryDict[predicate]:
+        entryDict[predicate].append(ctx_sn)
+
 
     def stash(self,entryDict,commacheck3,options):
         self.entries.append(entryDict)
@@ -266,9 +277,9 @@ class FormatEmitter(object):
         print "extraction starts"
         with codecs.open(options.infile, encoding='utf-8', mode='r') as orlandoRAW: 
             mainSubject=None
-            extractionCycle(orlandoRAW, regexArray, NameTest, mainSubject, options)
+            self.extractionCycle(orlandoRAW, regexArray, NameTest, mainSubject, options)
         print "extraction ends"
-        print self.entries
+        #print self.entries
         self.concludeOutfile()
         print "end"
 
@@ -319,7 +330,8 @@ class RDFEmitter(FormatEmitter):
                 #    node = BLANK[str(ID)]
                 #else:
                 #    node = BNode(ID)
-            self.store.add((node,FOAF.name,Literal(standard_name)))
+            #self.store.add((node,FOAF.name,Literal(standard_name)))
+            self.store.addN([(node,FOAF.name,Literal(standard_name),unconstrained)])
             if options.state_the_obvious:
                 if typ <> FOAF.Person:
                     self.store.add((node,RDF.type,typ))
@@ -378,12 +390,12 @@ class RDFEmitter(FormatEmitter):
                         quad_or_triple = [writer,pred,obj]
                         if ctx_sn_d.has_key('ctx'):
                             #ctx = URIRef(ctx_sn_d['ctx']) # TODO(smurp): BNode or Local
-                            ctx = LOCAL[ctx_sn_d['ctx']]
-                            quad_or_triple.append(ctx)
+                            #ctx = LOCAL[ctx_sn_d['ctx']]
+                            quad_or_triple.append(ctx_sn_d['ctx'])
                         if options.verbose:
                             print "    quad =",quad_or_triple
                         if len(quad_or_triple) > 3:
-                            print "     QUAD!"
+                            #print "     QUAD!"
                             self.store.addN([quad_or_triple]) # a quad
                         else:
                             self.store.add(quad_or_triple) # a triple
