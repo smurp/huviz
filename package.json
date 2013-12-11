@@ -1,11 +1,16 @@
 {
   "name": "huviz",
   "version": "0.0.2",
+  "repository": {
+    "type":"git",
+    "url" :"http://github.com/smurp/huviz.git"
+  },
   "dependencies": { 
     "coffee-script": "~1.6.3",
     "stitch": "~0.3.3",
     "express": "~2.5.0",
     "eco": "1.1.0-rc-1",
-    "node-n3":"https://github.com/smurp/node-n3"
+    "rdfquads":"smurp/rdfquads",
+    "node-n3":"smurp/node-n3"
   }
 }
