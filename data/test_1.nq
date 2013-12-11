@@ -1,0 +1,32 @@
+<abdyma> <connectionToOrganization> <G> <w--abdyma--0--P--6> .
+<abdyma> <connectionToOrganization> <G> <w--abdyma--0--DIV2--3> .
+<F> <http://xmlns.com/foaf/0.1/name> "Dissenters" <Universal> .
+<E> <http://xmlns.com/foaf/0.1/name> "Anglican Church" <Universal> .
+<abdyma> <http://xmlns.com/foaf/0.1/name> "Abdy, Maria" <Universal> .
+<D> <http://xmlns.com/foaf/0.1/name> "Smith, Maria,, 1773 - 1829" <Universal> .
+<G> <http://xmlns.com/foaf/0.1/name> "British Library" <Universal> .
+<C> <http://xmlns.com/foaf/0.1/name> "Smith, Richard" <Universal> .
+<B> <http://xmlns.com/foaf/0.1/name> "Abdy, Albert Channing" <Universal> .
+<abdyma> <religiousInfluence> <E> <b--abdyma--0--DIV0--1> .
+<abdyma> <parentOf> <B> <b--abdyma--0--DIV0--1> .
+<abdyma> <childOf> <D> <b--abdyma--0--DIV0--1> .
+<abdyma> <childOf> <C> <b--abdyma--0--DIV0--1> .
+<abdyma> <religiousInfluence> <F> <b--abdyma--0--DIV0--1> .
+<abdyma> <connectionToOrganization> <F> <b--abdyma--0--DIV0--1> .
+<abdyma> <connectionToOrganization> <E> <b--abdyma--0--DIV0--1> .
+<abdyma> <childOf> <D> <b--abdyma--0--DIV1--4> .
+<abdyma> <childOf> <C> <b--abdyma--0--DIV1--4> .
+<abdyma> <parentOf> <B> <b--abdyma--0--DIV1--7> .
+<abdyma> <parentOf> <B> <b--abdyma--0--P--8> .
+<abdyma> <religiousInfluence> <E> <b--abdyma--0--DIV1--3> .
+<abdyma> <religiousInfluence> <F> <b--abdyma--0--DIV1--3> .
+<abdyma> <connectionToOrganization> <F> <b--abdyma--0--DIV1--3> .
+<abdyma> <connectionToOrganization> <E> <b--abdyma--0--DIV1--3> .
+<abdyma> <connectionToOrganization> <G> <w--abdyma--0--DIV1--3> .
+<abdyma> <connectionToOrganization> <G> <w--abdyma--0--DIV0--1> .
+<abdyma> <connectionToOrganization> <F> <b--abdyma--0--P--1> .
+<abdyma> <connectionToOrganization> <E> <b--abdyma--0--P--1> .
+<abdyma> <connectionToOrganization> <F> <b--abdyma--0--DIV2--3> .
+<abdyma> <connectionToOrganization> <E> <b--abdyma--0--DIV2--3> .
+<abdyma> <parentOf> <B> <b--abdyma--0--DIV2--10> .
+

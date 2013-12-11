@@ -35,6 +35,13 @@ huviz
 
 See [data/test_20.ttl](../master/data/test_20.ttl)
 
+## Converting XML to [NQuads](http://www.w3.org/TR/n-quads/)
+
+    ./orlandoScrape.py  --outfile data/test_1.nq   --limit 1
+
+See [data/test_q.nq](../master/data/test_1.nq)
+
+
 ## Converting XML to JSON
 
   How to produce the full JSON output as `orlando_all_entries_2013-03-04.json` (the default behaviour):

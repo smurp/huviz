@@ -900,9 +900,6 @@ class Huviz
       #console.log "Predicates",(key for key,value of my_graph.predicates).length,my_graph.predicates
       #console.log "Subjects",my_graph.subjects.length,my_graph.subjects
       #console.log "Objects",my_graph.objects.length,my_graph.objects
-
-      
-      
           
     parse_end_time = new Date()
     parse_time = (parse_end_time - parse_start_time) / 1000
@@ -920,12 +917,27 @@ class Huviz
     $("#status").text ""
 
   parseAndShowNQ = (data, textStatus) ->
-    n3parser = N3.Parser()
-    n3parser.parse data, (error, triple, prefixes) ->
-      if prefixes
-        console.log("prefixes ================ ",prefixes)
-      if triple
-        console.log("triple",triple)
+    QuadParser = require("rdfquads").QuadParser
+    # Build a parser around a stream
+    
+    parser = new QuadParser(data)
+    parser.on 'quad', (quad) ->
+      console.log quad
+    parser.on 'end', (quad) ->
+      console.log 'done parsing'
+   ###    
+    // A quad event is emitted every time a valid quad is parsed
+    parser.on('quad', function(quad) {
+          if (subject == String(quad.s)) {
+                ...
+                    }
+                    })
+
+   //  An end event is emitted once the stream has been exhausted
+                    parser.on('end', function(quad) {
+                          res.end()
+                          })
+   ###
     
   fetchAndShow = (url) ->
     $("#status").text "fetching " + url
