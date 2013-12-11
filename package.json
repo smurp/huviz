@@ -6,7 +6,6 @@
     "stitch": "~0.3.3",
     "express": "~2.5.0",
     "eco": "1.1.0-rc-1",
-    //"node-n3":"git://github.com/smurp/node-n3.git",
-    //"rdflib":"git://github.com/linkeddata/rdflib.js.git"
+    "node-n3":"https://github.com/smurp/node-n3"
   }
 }

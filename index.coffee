@@ -14,6 +14,7 @@ pkg = stitch.createPackage(
     __dirname + '/lib/fisheye.js',
     __dirname + '/lib/jq.min.js',
     __dirname + '/node_modules/n3/build/n3-browser.js',
+    #__dirname + '/node_modules/rdfquads/',
     __dirname + '/js/sortedset.js',
   ]
 )
