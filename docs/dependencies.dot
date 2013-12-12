@@ -1,19 +1,40 @@
 /*
 	dot -T svg -o dependencies.svg dependencies.dot 
 
+   See:
+     http://www.graphviz.org/content/cluster
+
    NODE_A   enables   NODE_B;
    serve      ->      display;
 */
 
 digraph huviz_plan {
 	randkdir=LR;
+
+	subgraph qp {
+		 color=lightgrey;
+		 style=filled;
+		 label="NQuad parser";
+		 rdfquads[label="rdfquads working in browser"];
+		 smurpquads[label="smurp\nwrites\nquadparser"];
+		 rdfquads -> quadpars;
+		 smurpquads -> quadpars;
+	}
+
+	greenturtle -> workdata;
+	
 	workdata[label="Working_Data"];
-	start -> workdata;
+	start[shape=Mdiamond];
+	start -> pickpath;
+	pickpath -> smurpquads;
+	pickpath -> rdfquads;
+	pickpath -> greenturtle;
 	quadpars -> workdata;
-	rdfquads -> quadpars;
-	smurpquads -> quadpars;
+
 	quadpars -> servsnip;
 	
+
+
 	node [shape = circle];
 	dg[label="Debug Graph"];
 
@@ -40,5 +61,10 @@ digraph huviz_plan {
 
 	gredcom[label="graphically\nedit\commands"];
 	dispcom -> gredcom;
+
+	dispcom -> optional;
+	txtedcom -> optional;
+	gredcom -> optional;
+	clkcom -> optional;
 
 }
