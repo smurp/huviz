@@ -1,0 +1,44 @@
+/*
+	dot -T svg -o dependencies.svg dependencies.dot 
+
+   NODE_A   enables   NODE_B;
+   serve      ->      display;
+*/
+
+digraph huviz_plan {
+	randkdir=LR;
+	workdata[label="Working_Data"];
+	start -> workdata;
+	quadpars -> workdata;
+	rdfquads -> quadpars;
+	smurpquads -> quadpars;
+	quadpars -> servsnip;
+	
+	node [shape = circle];
+	dg[label="Debug Graph"];
+
+	essential -> Demo;
+	optional -> Demo;
+	dispsnip -> optional;
+	
+	workdata -> dg;
+
+	servsnip -> dispsnip;
+	
+	dispsnip[label="Display\nSnippets"];
+    	servsnip[label="Serve\nSnippets"];
+	me[label="Multiple Edges"];
+	dg -> essential;
+	me -> optional;
+	dispcom[label="display\ncommands"];
+
+	clkcom[label="clicking\nmakes\ncommands"];
+	dispcom -> clkcom;
+
+	txtedcom[label="textually\nedit\ncommands"];
+        dispcom -> txtedcom;
+
+	gredcom[label="graphically\nedit\commands"];
+	dispcom -> gredcom;
+
+}
