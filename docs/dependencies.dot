@@ -1,5 +1,7 @@
 /*
-	dot -T svg -o dependencies.svg dependencies.dot 
+
+   dot -T pdf -o dependencies.pdf dependencies.dot
+   dot -T svg -o dependencies.svg dependencies.dot 
 
    See:
      http://www.graphviz.org/content/cluster
@@ -15,16 +17,23 @@ digraph huviz_plan {
 		 color=lightgrey;
 		 style=filled;
 		 label="NQuad parser";
-		 rdfquads[label="rdfquads working in browser"];
-		 smurpquads[label="smurp\nwrites\nquadparser"];
-		 rdfquads -> quadpars;
-		 smurpquads -> quadpars;
+		 rdfquads;
+		 smurpquads;
+		 greenturtle;
 	}
 
+        rdfquads[label="debug\nrdfquads\nin browser"];
+	smurpquads[label="smurp\nwrites\nquadparser"];
+
+	smurpquads -> quadpars;
+	rdfquads -> quadpars;
+	quadpars[label="NQuad\nparser\nin browser"];
+	greenturtle[label="restore\ngreenturtle"];
 	greenturtle -> workdata;
 	
-	workdata[label="Working_Data"];
+	workdata[label="Working\nData"];
 	start[shape=Mdiamond];
+	pickpath[label="choose",shape=diamond];
 	start -> pickpath;
 	pickpath -> smurpquads;
 	pickpath -> rdfquads;
@@ -32,8 +41,6 @@ digraph huviz_plan {
 	quadpars -> workdata;
 
 	quadpars -> servsnip;
-	
-
 
 	node [shape = circle];
 	dg[label="Debug Graph"];
