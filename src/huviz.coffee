@@ -1004,35 +1004,6 @@ class Huviz
       height - discard_radius * 3
     ]
 
-  fisheye = d3.fisheye.
-    circular().
-    radius(fisheye_radius).
-    distortion(fisheye_zoom)
-  fill = d3.scale.category20()
-  force = d3.layout.force().size([
-    width
-    height
-  ]).nodes([]).linkDistance(link_distance).charge(get_charge).gravity(gravity).on("tick", tick)
-  svg = d3.select("#vis").append("svg").attr("width", width).attr("height", height).attr("position", "absolute")
-  svg.append("rect").attr("width", width).attr "height", height
-  viscanvas = d3.select("#viscanvas").
-    append("canvas").
-    attr("width", width).
-    attr("height", height)
-  canvas = viscanvas[0][0]
-  mouse_receiver = viscanvas
-  mouse_receiver.
-    on("mousemove", mousemove).
-    on("mousedown", mousedown).
-    on("mouseup", mouseup).
-    on("mouseout", mouseup)
-  updateWindow()
-  ctx = canvas.getContext("2d")
-  reset_graph()
-  cursor = svg.append("circle").attr("r", label_show_range).attr("transform", "translate(" + cx + "," + cy + ")").attr("class", "cursor")
-  restart()
-
-  
   set_search_regex = (text) ->
     search_regex = new RegExp(text or "^$", "ig")
 
@@ -1040,10 +1011,6 @@ class Huviz
     text = $(this).text()
     set_search_regex text
     restart()
-
-  set_search_regex("")
-  document.getElementById('search').addEventListener("input", update_searchterm)
-  #$(".search_box").on "input", update_searchterm
 
   node_radius_policies =
     "node radius by links": (d) ->
@@ -1471,6 +1438,14 @@ class Huviz
   show_the_edges = () ->
     edge_controller.show_tree_in.call(arguments)
 
+
+  #window.CRT = require("crrt")
+  #console.log('CRT',CRT)
+  #edge_controller = new CRT.CollapsibleRadialReingoldTilfordTree()
+
+  #do_tests(false)
+
+  ###
   window.addEventListener "load", ->
     # This delay is to let GreenTurtle initialize
     # It would be great if there were a hook for this...
@@ -1481,15 +1456,57 @@ class Huviz
   window.addEventListener "popstate", (event) ->
     #console.log('popstate fired',event);
     restore_graph_state event.state
+  ###
 
-  window.addEventListener "resize", updateWindow
-  #window.CRT = require("crrt")
-  #console.log('CRT',CRT)
-  #edge_controller = new CRT.CollapsibleRadialReingoldTilfordTree()
+  # declare variables used in intialize_graph
+  fisheye = null
+  fill = null
+  force = null
+  svg = null
+  viscanvas = null
+  canvas = null
+  mouse_receiver = null
+  ctx = null
+  cursor = null
 
-  #do_tests(false)
+  constructor: ->
+    fisheye = d3.fisheye.
+      circular().
+      radius(fisheye_radius).
+      distortion(fisheye_zoom)
+    fill = d3.scale.category20()
+    force = d3.layout.force().size([
+      width
+      height
+    ]).nodes([]).linkDistance(link_distance).charge(get_charge).gravity(gravity).on("tick", tick)
+    svg = d3.select("#vis").append("svg").attr("width", width).attr("height", height).attr("position", "absolute")
+    svg.append("rect").attr("width", width).attr "height", height
+    viscanvas = d3.select("#viscanvas").
+      append("canvas").
+      attr("width", width).
+      attr("height", height)
+    canvas = viscanvas[0][0]
+    mouse_receiver = viscanvas
+    mouse_receiver.
+      on("mousemove", mousemove).
+      on("mousedown", mousedown).
+      on("mouseup", mouseup).
+      on("mouseout", mouseup)
+    updateWindow()
+    ctx = canvas.getContext("2d")
+    reset_graph()
+    cursor = svg.append("circle").attr("r", label_show_range).attr("transform", "translate(" + cx + "," + cy + ")").attr("class", "cursor")
+    restart()
 
-  load_file: =>
+    set_search_regex("")
+    document.getElementById('search').addEventListener("input", update_searchterm)
+    #$(".search_box").on "input", update_searchterm
+    window.addEventListener "resize", updateWindow  
+
+  get_jiggy: ->
+    return width
+
+  load_file: ->
     console.log this
     reset_graph()
     data_uri = $("select#file_picker option:selected").val()
@@ -1498,4 +1515,5 @@ class Huviz
     fetchAndShow data_uri  unless G.subjects
     init_webgl()  if use_webgl
 
-(typeof exports is 'undefined' and window or exports).Huviz = Huviz
+#(typeof exports is 'undefined' and window or exports).Huviz = Huviz
+exports.Huviz = Huviz
