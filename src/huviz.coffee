@@ -16,13 +16,14 @@
 #
 #GreenTurtle = require('GreenTurtle').GreenTurtle
 
-#gt = require('greenerturtle')
+gt = require('greenerturtle')
 #console.log('gt',gt)
-#GreenerTurtle = gt.GreenerTurtle
+GreenerTurtle = gt.GreenerTurtle
 #SortedSet = require('sortedset').SortedSet
 wpad = undefined
 hpad = 10
 distance = (p1, p2) ->
+  p2 = p2 || [0,0]
   x = (p1.x or p1[0]) - (p2.x or p2[0])
   y = (p1.y or p1[1]) - (p2.y or p2[1])
   Math.sqrt x * x + y * y
@@ -56,6 +57,17 @@ class Huviz
   has_type = (subject, typ) ->
     has_predicate_value subject, RDF_Type, typ
 
+  has_predicate_value = (subject, predicate, value) ->
+    pre = subject.predicates[predicate]
+    if pre
+      objs = pre.objects
+      oi = 0
+      while oi <= objs.length
+        obj = objs[oi]
+        return true  if obj.value is value
+        oi++
+    false
+
   is_a_main_node = (d) ->
     (BLANK_HACK and d.s.id[7] isnt "/") or (not BLANK_HACK and d.s.id[0] isnt "_")
 
@@ -71,11 +83,14 @@ class Huviz
   links_set: undefined
   node: undefined
   link: undefined
-  chosen_set: undefined
-  discarded_set: undefined
-  graphed_set: undefined
-  unlinked_set: undefined
-  focused_node: undefined
+
+  ## see init_sets
+  #chosen_set: undefined
+  #discarded_set: undefined
+  #graphed_set: undefined
+  #unlinked_set: undefined
+  #focused_node: undefined
+  
   lariat: undefined
   label_all_graphed_nodes: false
   verbose: true
@@ -247,15 +262,6 @@ class Huviz
     @tick()
   mousedown: =>
     d3_event = @mouse_receiver[0][0]    
-    #console.log('mousedown');
-    #
-    #    if (focused_node && 
-    #	(focused_node.state == graphed_set // || focused_node.state == discarded_set 
-    #	)){ // only drag nodes in graph
-    #	dragging = focused_node;
-    #	//force.stop();
-    #    }
-    #    
     @mousedown_point = d3.mouse(d3_event)
     @last_mouse_pos = @mousedown_point
 
@@ -283,24 +289,14 @@ class Huviz
     @focused_node.fixed = false  if @nodes_pinnable if @focused_node and @focused_node.fixed and @focused_node.state is @graphed_set
     return  if distance(point, @mousedown_point) > @drag_dist_threshold # it was a drag, not a click
     if @focused_node
-      clickee = @focused_node
-      
-      #
-      #	if (! clickee.state ||  // hidden should be the default state
-      #	    clickee.state == 'hidden' || 
-      #	    clickee.state == hidden_set || 
-      #	    clickee.state == unlinked_set || 
-      #	    clickee.state == discarded_set){
-      #	    
-      unless clickee.state is @graphed_set
-        @choose clickee
-      else if clickee.showing_links is "all"
-        @unchoose clickee
+      unless @focused_node.state is @graphed_set
+        @choose @focused_node
+      else if @focused_node.showing_links is "all"
+        @unchoose @focused_node
       else
-        @choose clickee
+        @choose @focused_node
       @force.links @links_set
-      
-      #update_flags(clickee);
+      #update_flags(@focused_node);
       @restart()
 
   #///////////////////////////////////////////////////////////////////////////
@@ -334,8 +330,8 @@ class Huviz
   # 
   #   http://bl.ocks.org/mbostock/929623
   get_charge: (d) ->
-    return 0  unless @graphed_set.has(d)
-    charge
+    return 0  unless @graphed_set?has(d)
+    @charge
 
   # lines: 5845 5848 5852 of d3.v3.js object to
   #    mouse_receiver.call(force.drag);
@@ -364,12 +360,12 @@ class Huviz
   draw_disconnect_dropzone: ->
     @ctx.save()
     @ctx.lineWidth = graph_radius * 0.1
-    @draw_circle lariat_center[0], lariat_center[1], graph_radius, "lightgreen"
+    @draw_circle @lariat_center[0], @lariat_center[1], @graph_radius, "lightgreen"
     @ctx.restore()
   draw_discard_dropzone: ->
     @ctx.save()
     @ctx.lineWidth = discard_radius * 0.1
-    @draw_circle discard_center[0], discard_center[1], discard_radius, "", "salmon"
+    @draw_circle @discard_center[0], @discard_center[1], @discard_radius, "", "salmon"
     @ctx.restore()
   draw_dropzones: ->
     if @dragging
@@ -383,17 +379,10 @@ class Huviz
     # is it ANYWHERE within the circle?
     dist = distance(node, @discard_center)
     @discard_radius * 1.1 > dist
-  reset_graph: ->
-    #draw_circle(cx,cy,0.5 * Math.min(cx,cy),'black')
-    @id2n = {} # TODO(smurp): remove?
-    
-    #nodes = [] #SortedSet().sort_on('id');
-    #change_sort_order nodes, cmp_on_id
-    @nodes = SortedSet().sort_on("id") # is .named() required?
 
-    @chosen_set = SortedSet().named("chosen").isFlag().sort_on("id")
-    
-    #
+  init_sets: ->
+    console.log("init_sets()")
+    @id2n = {} # TODO(smurp): remove?
     #      states: graphed,unlinked,discarded,hidden
     #         graphed: in the graph, connected to other nodes
     #	 unlinked: in the lariat, available for choosing
@@ -401,11 +390,16 @@ class Huviz
     #	 hidden: findable, but not displayed anywhere
     #              	 (when found, will become unlinked)
     #     
+    @nodes = SortedSet().sort_on("id") # is .named() required?
+    @chosen_set = SortedSet().named("chosen").isFlag().sort_on("id")
     @unlinked_set = SortedSet().sort_on("name").named("unlinked").isState()
     @discarded_set = SortedSet().sort_on("name").named("discarded").isState()
     @hidden_set = SortedSet().sort_on("id").named("hidden").isState()
     @graphed_set = SortedSet().sort_on("id").named("graphed").isState()
     @links_set = SortedSet().named("shown").isFlag().sort_on("id")
+    
+  reset_graph: ->
+    @init_sets()
     @force.nodes @nodes
     d3.select(".link").remove()
     d3.select(".node").remove()
@@ -482,7 +476,7 @@ class Huviz
     closest = @width
     closest_point = undefined
     @nodes.forEach (d, i) ->
-      dist = distance(d.fisheye or d, last_mouse_pos)
+      dist = distance(d.fisheye or d, @last_mouse_pos)
       if dist < closest
         closest = dist
         closest_point = d.fisheye or d
@@ -599,7 +593,7 @@ class Huviz
         if @use_webgl
           @mv_node(d.gl, d.fisheye.x, d.fisheye.y)
   should_show_label: (node) ->
-    dist_lt(last_mouse_pos, node, label_show_range) or node.name.match(search_regex) or label_all_graphed_nodes and graphed_set.has(node)
+    dist_lt(@last_mouse_pos, node, @label_show_range) or node.name.match(@search_regex) or @label_all_graphed_nodes and @graphed_set.has(node)
   draw_labels: ->
     if @use_svg
       label.attr "style", (d) ->
@@ -736,27 +730,27 @@ class Huviz
     color: c or "lightgrey"
     id: s.id + " " + t.id
 
-  add_to_array: (itm, array, cmp) ->
+  add_to: (itm, array, cmp) ->
     cmp = cmp or array.__current_sort_order or cmp_on_id
     c = @binary_search_on(array, itm, cmp, true)
     return c  if typeof c is typeof 3
     array.splice c.idx, 0, itm
     c.idx
 
-  remove_from_array: (itm, array, cmp) ->
+  remove_from: (itm, array, cmp) ->
     cmp = cmp or array.__current_sort_order or cmp_on_id
     c = @binary_search_on(array, itm, cmp)
     array.splice c, 1  if c > -1
     array
 
-  add_to: (itm, set) ->
+  DEPRECATED_add_to: (itm, set) ->
     return add_to_array(itm, set, cmp_on_id)  if isArray(set)
     throw "add_to() requires itm to have an .id"  if typeof itm.id is "undefined"
     found = set[itm.id]
     set[itm.id] = itm  unless found
     set[itm.id]
 
-  remove_from: (doomed, set) ->
+  DEPRECATED_remove_from: (doomed, set) ->
     throw "remove_from() requires doomed to have an .id"  if typeof doomed.id is "undefined"
     return remove_from_array(doomed, set)  if isArray(set)
     delete set[doomed.id]  if set[doomed.id]
@@ -803,16 +797,16 @@ class Huviz
           
     parse_end_time = new Date()
     parse_time = (parse_end_time - parse_start_time) / 1000
-    siz = roughSizeOfObject(G)
+    siz = @roughSizeOfObject(@G)
     msg += " resulting in a graph of " + siz + " bytes"
     msg += " which took " + parse_time + " seconds to parse"
-    console.log msg  if verbosity >= COARSE
+    console.log msg  if @verbosity >= @COARSE
     show_start_time = new Date()
-    showGraph G
+    @showGraph @G
     show_end_time = new Date()
     show_time = (show_end_time - show_start_time) / 1000
     msg += " and " + show_time + " sec to show"
-    console.log msg  if verbosity >= COARSE
+    console.log msg  if @verbosity >= @COARSE
     $("body").css "cursor", "default"
     $("#status").text ""
 
@@ -840,16 +834,6 @@ class Huviz
       error: (jqxhr, textStatus, errorThrown) ->
         $("#status").text errorThrown + " while fetching " + url
 
-  has_predicate_value: (subject, predicate, value) ->
-    pre = subject.predicates[predicate]
-    if pre
-      objs = pre.objects
-      oi = 0
-      while oi <= objs.length
-        obj = objs[oi]
-        return true  if obj.value is value
-        oi++
-    false
 
   show_and_hide_links_from_node: (d) ->
     @show_links_from_node d
@@ -895,16 +879,17 @@ class Huviz
     pattern = new RegExp(srch, "ig")
     nodes.forEach (node, i) ->
       unless node.name.match(pattern)
-        console.log pattern, "does not match", node.name  if verbose
+        console.log pattern, "does not match!", node.name  if verbose
         return
       console.log func.call(node)  if func
       dump_details node  if not func or verbose
 
   get_node_by_id: (node_id, throw_on_fail) ->
     throw_on_fail = throw_on_fail or false
-    idx = binary_search_on(nodes,
-      id: node_id
-    )
+    thing = {}
+    thing.id = node_id
+
+    idx = @nodes.binary_search thing      
     if idx > -1
       @nodes[idx]
     else
@@ -914,7 +899,7 @@ class Huviz
         return
 
   update_flags: (n) ->
-    old_linked_status = graphed_set.has(n)
+    old_linked_status = @graphed_set.has(n)
     if old_linked_status
       if not n.links_from_found or not n.links_to_found
         n.showing_links = "some"
@@ -927,22 +912,22 @@ class Huviz
       n.showing_links = "none"
 
   add_link: (e) ->
-    links_set.add e
-    add_to e, e.source.links_from
-    add_to e, e.source.links_shown
-    add_to e, e.target.links_to
-    add_to e, e.target.links_shown
-    update_flags e.source
-    update_flags e.target
-    restart()
+    @links_set.add e
+    @add_to e, e.source.links_from
+    @add_to e, e.source.links_shown
+    @add_to e, e.target.links_to
+    @add_to e, e.target.links_shown
+    @update_flags e.source
+    @update_flags e.target
+    @restart()
 
   remove_link: (e) ->
-    return  if links_set.indexOf(e) is -1
-    remove_from e, e.source.links_shown
-    remove_from e, e.target.links_shown
-    links_set.remove e
-    update_flags e.source
-    update_flags e.target
+    return  if @links_set.indexOf(e) is -1
+    @remove_from e, e.source.links_shown
+    @remove_from e, e.target.links_shown
+    @links_set.remove e
+    @update_flags e.source
+    @update_flags e.target
 
   find_links_from_node: (node) ->
     target = undefined
@@ -953,15 +938,15 @@ class Huviz
     oi = undefined
     if subj
       for p_name of subj.predicates
-        ensure_predicate(p_name)
+        @ensure_predicate(p_name)
         predicate = subj.predicates[p_name]
         oi = 0
         while oi < predicate.objects.length
           obj = predicate.objects[oi]
           if obj.type is RDF_object
-            target = get_or_make_node(G.subjects[obj.value], pnt)
+            target = @get_or_make_node(@G.subjects[obj.value], pnt)
           continue unless target
-          add_link make_edge(node, target)
+          @add_link make_edge(node, target)
           oi++
     node.links_from_found = true
 
@@ -972,83 +957,83 @@ class Huviz
         d.x
         d.y
       ]
-      G.get_incoming_predicates(subj).forEach (sid_pred) ->
+      @G.get_incoming_predicates(subj).forEach (sid_pred) ->
         sid = sid_pred[0]
         pred = sid_pred[1]
-        src = get_or_make_node(G.subjects[sid], parent_point)
-        add_link make_edge(src, d)
+        src = @get_or_make_node(@G.subjects[sid], parent_point)
+        @add_link @make_edge(src, d)
 
     d.links_to_found = true
 
   show_link: (edge, incl_discards) ->
-    return  if (not incl_discards) and (edge.target.state is discarded_set or edge.source.state is discarded_set)
-    add_to edge, edge.source.links_shown
-    add_to edge, edge.target.links_shown
-    links_set.add edge
-    update_state edge.source
-    update_state edge.target
+    return  if (not incl_discards) and (edge.target.state is @discarded_set or edge.source.state is @discarded_set)
+    @add_to edge, edge.source.links_shown
+    @add_to edge, edge.target.links_shown
+    @links_set.add edge
+    @update_state edge.source
+    @update_state edge.target
 
   show_links_to_node: (n, incl_discards) ->
     incl_discards = incl_discards or false
-    find_links_to_node n  unless n.links_to_found
+    @find_links_to_node n  unless n.links_to_found
     n.links_to.forEach (e, i) ->
-      show_link e, incl_discards
-    force.links links_set
-    restart()
+      @show_link e, incl_discards
+    @force.links links_set
+    @restart()
 
   update_state: (node) ->
     if node.links_shown.length is 0
-      unlinked_set.acquire node
+      @unlinked_set.acquire node
     else
-      graphed_set.acquire node
+      @graphed_set.acquire node
 
   hide_links_to_node: (n) ->
     n.links_to.forEach (e, i) ->
-      remove_from e, n.links_shown
-      remove_from e, e.source.links_shown
-      links_set.remove e
-      remove_ghosts e
-      update_state e.source
-      update_flags e.source
-      update_flags e.target
+      @remove_from e, n.links_shown
+      @remove_from e, e.source.links_shown
+      @links_set.remove e
+      @remove_ghosts e
+      @update_state e.source
+      @update_flags e.source
+      @update_flags e.target
 
-    update_state n
-    force.links links_set
-    restart()
+    @update_state n
+    @force.links links_set
+    @restart()
 
   show_links_from_node: (n, incl_discards) ->
     incl_discards = incl_discards or false
     subj = n.s
     unless n.links_from_found
-      find_links_from_node n
+      @find_links_from_node n
     else
       n.links_from.forEach (e, i) ->
-        show_link e, incl_discards
+        @show_link e, incl_discards
 
-    update_state n
-    force.links links_set
-    restart()
+    @update_state n
+    @force.links links_set
+    @restart()
 
   hide_links_from_node: (n) ->
     n.links_from.forEach (e, i) ->
-      remove_from e, n.links_shown
-      remove_from e, e.target.links_shown
-      links_set.remove e
-      remove_ghosts e
-      update_state e.target
-      update_flags e.source
-      update_flags e.target
+      @remove_from e, n.links_shown
+      @remove_from e, e.target.links_shown
+      @links_set.remove e
+      @remove_ghosts e
+      @update_state e.target
+      @update_flags e.source
+      @update_flags e.target
 
-    force.links links_set
-    restart()
+    @force.links links_set
+    @restart()
 
   get_or_make_node: (subject, start_point, linked) ->
     return  unless subject
-    d = get_node_by_id(subject.id)
+    d = @get_node_by_id(subject.id)
     return d  if d
     start_point = start_point or [
-      width / 2
-      height / 2
+      @width / 2
+      @height / 2
     ]
     linked = typeof linked is "undefined" or linked or false
     name = subject.predicates[FOAF_name].objects[0].value
@@ -1067,29 +1052,31 @@ class Huviz
       name: name
       s: subject
 
-    d.color = color_by_type(d)
+    d.color = @color_by_type(d)
     d.id = d.s.id
-    add_node_ghosts d
-    n_idx = add_to_array(d, nodes)
-    id2n[subject.id] = n_idx
+    @add_node_ghosts d
+    #n_idx = @add_to_array(d, @nodes)
+    n_idx = @nodes.add(d)
+    @id2n[subject.id] = n_idx
     unless linked
-      n_idx = unlinked_set.acquire(d)
-      id2u[subject.id] = n_idx
+      n_idx = @unlinked_set.acquire(d)
+      @id2u[subject.id] = n_idx
     else
-      id2u[subject.id] = graphed_set.acquire(d)
-    update_flags d
+      @id2u[subject.id] = @graphed_set.acquire(d)
+    @update_flags d
     d
 
   make_nodes: (g, limit) ->
     limit = limit or 0
     count = 0
-    for subj_uri,subj of my_graph.subjects
-      #console.log subj, g.subjects[subj]  if verbosity >= DEBUG
+    for subj_uri,subj of g.subjects #my_graph.subjects
+      #console.log subj, g.subjects[subj]  if @verbosity >= @DEBUG
+      console.log subj_uri
       #continue  unless subj.match(ids_to_show)
-      subject = g.subjects[subj]
-      get_or_make_node subject, [
-        width / 2
-        height / 2
+      subject = subj #g.subjects[subj]
+      @get_or_make_node subject, [
+        @width / 2
+        @height / 2
       ], false
       count++
       break  if limit and count >= limit
@@ -1097,12 +1084,12 @@ class Huviz
   make_links: (g, limit) ->
     limit = limit or 0
     console.log "make_links"
-    nodes.some (node, i) ->
+    @nodes.some (node, i) ->
       subj = node.s
-      show_links_from_node nodes[i]
+      @show_links_from_node nodes[i]
       true  if (limit > 0) and (links_set.length >= limit)
     console.log "/make_links"
-    restart()
+    @restart()
 
   #await_the_GreenTurtle();
   hide_node_links: (node) ->
@@ -1159,7 +1146,7 @@ class Huviz
     @force.links().length
 
   toggle_label_display: ->
-    label_all_graphed_nodes = not label_all_graphed_nodes
+    @label_all_graphed_nodes = not @label_all_graphed_nodes
     @tick()
 
   hide_all_links: ->
@@ -1294,11 +1281,11 @@ class Huviz
 
   showGraph: (g) ->
     console.log "showGraph"
-    make_nodes g
-    restart()
+    @make_nodes g
+    @restart()
 
   show_the_edges: () ->
-    edge_controller.show_tree_in.call(arguments)
+    #edge_controller.show_tree_in.call(arguments)
 
   #window.CRT = require("crrt")
   #console.log('CRT',CRT)
@@ -1330,6 +1317,7 @@ class Huviz
   cursor: null
 
   constructor: ->
+    @init_sets()
     @label_show_range = @link_distance * 1.1
     @fisheye_radius = @label_show_range * 5
     @focus_radius = @label_show_range
