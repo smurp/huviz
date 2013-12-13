@@ -762,8 +762,8 @@ class Huviz
     delete set[doomed.id]  if set[doomed.id]
     set
 
-  parseAndShowTurtle: (data, textStatus) ->
-    set_status "parsing"
+  parseAndShowTurtle: (data, textStatus) =>
+    @set_status "parsing"
     msg = "data was " + data.length + " bytes"
     parse_start_time = new Date()
 
@@ -772,7 +772,7 @@ class Huviz
     #  .nq
     #
     if GreenerTurtle?
-      G = new GreenerTurtle().parse(data, "text/turtle")
+      @G = new GreenerTurtle().parse(data, "text/turtle")
     else
       alert "no GreenTurtle"
       #console.clear()
@@ -830,9 +830,9 @@ class Huviz
     $("#status").text "fetching " + url
     $("body").css "cursor", "wait"
     if url.match(/.ttl/)
-      the_parser = parseAndShowTurtle
+      the_parser = @parseAndShowTurtle
     else if url.match(/.nq/)
-      the_parser = parseAndShowNQ
+      the_parser = @parseAndShowNQ
           
     $.ajax
       url: url
@@ -1393,9 +1393,9 @@ class Huviz
     console.log this
     @reset_graph()
     data_uri = $("select#file_picker option:selected").val()
-    set_status data_uri
+    @set_status data_uri
     @G = {}
-    @fetchAndShow data_uri  unless G.subjects
+    @fetchAndShow data_uri  unless @G.subjects
     @init_webgl()  if @use_webgl
 
 #(typeof exports is 'undefined' and window or exports).Huviz = Huviz
