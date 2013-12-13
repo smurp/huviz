@@ -15,16 +15,21 @@
 #Hoosegow -- a jail to contain nodes one does not want to be bothered by
 #
 #GreenTurtle = require('GreenTurtle').GreenTurtle
-#SortedSet = require('sortedset').SortedSet
+
 #gt = require('greenerturtle')
 #console.log('gt',gt)
 #GreenerTurtle = gt.GreenerTurtle
+#SortedSet = require('sortedset').SortedSet
 wpad = undefined
 hpad = 10
-distance: (p1, p2) ->
+distance = (p1, p2) ->
   x = (p1.x or p1[0]) - (p2.x or p2[0])
   y = (p1.y or p1[1]) - (p2.y or p2[1])
   Math.sqrt x * x + y * y
+dist_lt = (mouse, d, thresh) ->
+  x = mouse[0] - d.x
+  y = mouse[1] - d.y
+  Math.sqrt(x * x + y * y) < thresh
 
 class Huviz
   UNDEFINED = undefined
@@ -183,82 +188,6 @@ class Huviz
   # cmp: a comparison function returning -1,0,1
   # an integer was returned, ie it was found
 
-  # Objective:
-  #   Remove item from an array acting like a set.
-  #   It is sorted by cmp, so we can use binary_search for removal
-  do_tests: (verbose) ->
-    expect = (stmt, want) ->
-      got = eval(stmt)
-      console.log stmt, "==>", got  if verbose
-      throw stmt + " returned " + got + " expected " + want  unless got is want
-    verbose = verbose or false
-
-    n = (a, b) ->
-      return 0  if a is b
-      return -1  if a < b
-      1
-
-    a = id: 1
-    b = id: 2
-    c = id: 0
-    d = id: 3
-    stuff = [
-      a
-      b
-    ]
-    a_d = [
-      a
-      d
-    ]
-    ints = [
-      0
-      1
-      2
-      3
-      4
-      5
-      6
-      7
-      8
-      10
-    ]
-    even = [
-      0
-      2
-      4
-      6
-      8
-      10
-    ]
-    expect "cmp_on_id(a,a)", 0
-    expect "cmp_on_id(a,b)", -1
-    expect "cmp_on_id(b,a)", 1
-    expect "binary_search_on(ints,0,n)", 0
-    expect "binary_search_on(ints,4,n)", 4
-    expect "binary_search_on(ints,8,n)", 8
-    expect "binary_search_on(ints,9,n)", -1
-    expect "binary_search_on(ints,9,n,true).idx", 9
-    expect "binary_search_on(ints,-3,n)", -1
-    expect "binary_search_on(even,1,n,true).idx", 1
-    expect "binary_search_on(even,3,n,true).idx", 2
-    expect "binary_search_on(even,5,n,true).idx", 3
-    expect "binary_search_on(even,7,n,true).idx", 4
-    expect "binary_search_on(even,9,n,true).idx", 5
-    expect "binary_search_on(even,9,n)", -1
-    expect "binary_search_on(even,11,n,true).idx", 6
-    expect "binary_search_on(stuff,a)", 0
-    expect "binary_search_on(stuff,b)", 1
-    expect "binary_search_on(stuff,c)", -1
-    expect "binary_search_on(stuff,d)", -1
-    expect "binary_search_on(a_d,c,cmp_on_id)", -1
-    expect "binary_search_on(a_d,c,cmp_on_id,true).idx", 0
-    expect "binary_search_on(a_d,b,cmp_on_id,true).idx", 1
-    expect "add_to_array(b,a_d)", 1
-    expect "binary_search_on(a_d,a,cmp_on_id)", 0
-    expect "binary_search_on(a_d,b,cmp_on_id)", 1
-    expect "binary_search_on(a_d,d,cmp_on_id)", 2
-    expect "add_to_array(c,a_d)", 0
-
   # Perform the set .add operation, adding itm only if not already present
 
   #if (Array.__proto__.add == null) Array.prototype.add = add;
@@ -303,19 +232,21 @@ class Huviz
   move_node_to_point: (node, point) ->
     node.x = point[0]
     node.y = point[1]
-  mousemove: ->
-    #console.log('mousemove');
-    last_mouse_pos = d3.mouse(this)
+  mousemove: =>
+    d3_event = @mouse_receiver[0][0]
+    #console.log('mousemove',this,d3_event)
+    @last_mouse_pos = d3.mouse(d3_event)
     # || focused_node.state == discarded_set 
-    dragging = focused_node  if not dragging and mousedown_point and focused_node and distance(last_mouse_pos, mousedown_point) > drag_dist_threshold and focused_node.state is graphed_set
-    if dragging
-      force.resume()
+    @dragging = @focused_node if not @dragging and @mousedown_point and @focused_node and distance(@last_mouse_pos, @mousedown_point) > @drag_dist_threshold and @focused_node.state is @graphed_set
+    if @dragging
+      @force.resume()
       
-      #console.log(focused_node.x,last_mouse_pos);
-      move_node_to_point dragging, last_mouse_pos
-    cursor.attr "transform", "translate(" + last_mouse_pos + ")"
-    tick()
-  mousedown: ->
+      #console.log(@focused_node.x,@last_mouse_pos);
+      @move_node_to_point @dragging, @last_mouse_pos
+    #@cursor.attr "transform", "translate(" + @last_mouse_pos + ")"
+    @tick()
+  mousedown: =>
+    d3_event = @mouse_receiver[0][0]    
     #console.log('mousedown');
     #
     #    if (focused_node && 
@@ -325,33 +256,34 @@ class Huviz
     #	//force.stop();
     #    }
     #    
-    mousedown_point = d3.mouse(this)
-    last_mouse_pos = mousedown_point
+    @mousedown_point = d3.mouse(d3_event)
+    @last_mouse_pos = @mousedown_point
 
   #e.preventDefault();
-  mouseup: ->
-    mousedown_point = false
-    point = d3.mouse(this)
+  mouseup: =>
+    d3_event = @mouse_receiver[0][0]    
+    @mousedown_point = false
+    point = d3.mouse(d3_event)
     
     #console.log(point,mousedown_point,distance(point,mousedown_point));
     # if something was being dragged then handle the drop
-    if dragging
-      move_node_to_point dragging, point
+    if @dragging
+      @move_node_to_point dragging, point
       if in_discard_dropzone(dragging)
         console.log "discarding", dragging.name
-        discard dragging
-      else dragging.fixed = true  if nodes_pinnable
-      if in_disconnect_dropzone(dragging)
-        console.log "disconnect", dragging.name
-        unchoose dragging
-      dragging = false
+        @discard @dragging
+      else @dragging.fixed = true  if @nodes_pinnable
+      if @in_disconnect_dropzone(@dragging)
+        console.log "disconnect", @dragging.name
+        @unchoose dragging
+      @dragging = false
       return
     
     # if this was a click on a pinned node then unpin it
-    focused_node.fixed = false  if nodes_pinnable  if focused_node and focused_node.fixed and focused_node.state is graphed_set
-    return  if distance(point, mousedown_point) > drag_dist_threshold # it was a drag, not a click
-    if focused_node
-      clickee = focused_node
+    @focused_node.fixed = false  if @nodes_pinnable if @focused_node and @focused_node.fixed and @focused_node.state is @graphed_set
+    return  if distance(point, @mousedown_point) > @drag_dist_threshold # it was a drag, not a click
+    if @focused_node
+      clickee = @focused_node
       
       #
       #	if (! clickee.state ||  // hidden should be the default state
@@ -360,16 +292,16 @@ class Huviz
       #	    clickee.state == unlinked_set || 
       #	    clickee.state == discarded_set){
       #	    
-      unless clickee.state is graphed_set
-        choose clickee
+      unless clickee.state is @graphed_set
+        @choose clickee
       else if clickee.showing_links is "all"
-        unchoose clickee
+        @unchoose clickee
       else
-        choose clickee
-      force.links links_set
+        @choose clickee
+      @force.links @links_set
       
       #update_flags(clickee);
-      restart()
+      @restart()
 
   #///////////////////////////////////////////////////////////////////////////
   # resize-svg-when-window-is-resized-in-d3-js
@@ -384,6 +316,7 @@ class Huviz
     @update_graph_radius()
     @update_discard_zone()
     @update_lariat_zone()
+    console.log("width",@width,"height",@height)
     if @svg
       @svg.
         attr("width", @width).
@@ -444,18 +377,21 @@ class Huviz
       @draw_discard_dropzone()
   in_disconnect_dropzone: (node) ->
     # is it within the RIM of the disconnect circle?
-    dist = distance(node, lariat_center)
-    @graph_radius * 0.9 < dist and graph_radius * 1.1 > dist
+    dist = distance(node, @lariat_center)
+    @graph_radius * 0.9 < dist and @graph_radius * 1.1 > dist
   in_discard_dropzone: (node) ->
     # is it ANYWHERE within the circle?
-    dist = distance(node, discard_center)
-    discard_radius * 1.1 > dist
+    dist = distance(node, @discard_center)
+    @discard_radius * 1.1 > dist
   reset_graph: ->
     #draw_circle(cx,cy,0.5 * Math.min(cx,cy),'black')
-    id2n = {}
-    nodes = [] #SortedSet().sort_on('id');
-    change_sort_order nodes, cmp_on_id
-    chosen_set = SortedSet().named("chosen").isFlag().sort_on("id")
+    @id2n = {} # TODO(smurp): remove?
+    
+    #nodes = [] #SortedSet().sort_on('id');
+    #change_sort_order nodes, cmp_on_id
+    @nodes = SortedSet().sort_on("id") # is .named() required?
+
+    @chosen_set = SortedSet().named("chosen").isFlag().sort_on("id")
     
     #
     #      states: graphed,unlinked,discarded,hidden
@@ -465,30 +401,26 @@ class Huviz
     #	 hidden: findable, but not displayed anywhere
     #              	 (when found, will become unlinked)
     #     
-    unlinked_set = SortedSet().sort_on("name").named("unlinked").isState()
-    discarded_set = SortedSet().sort_on("name").named("discarded").isState()
-    hidden_set = SortedSet().sort_on("id").named("hidden").isState()
-    graphed_set = SortedSet().sort_on("id").named("graphed").isState()
-    links_set = SortedSet().named("shown").isFlag().sort_on("id")
-    force.nodes nodes
+    @unlinked_set = SortedSet().sort_on("name").named("unlinked").isState()
+    @discarded_set = SortedSet().sort_on("name").named("discarded").isState()
+    @hidden_set = SortedSet().sort_on("id").named("hidden").isState()
+    @graphed_set = SortedSet().sort_on("id").named("graphed").isState()
+    @links_set = SortedSet().named("shown").isFlag().sort_on("id")
+    @force.nodes @nodes
     d3.select(".link").remove()
     d3.select(".node").remove()
     d3.select(".lariat").remove()
     
     #nodes = force.nodes();
     #links = force.links();
-    node = svg.selectAll(".node")
-    link = svg.selectAll(".link")
-    lariat = svg.selectAll(".lariat")
-    link = link.data(links_set)
-    link.exit().remove()
-    node = node.data(nodes)
-    node.exit().remove()
-    force.start()
-  dist_lt: (mouse, d, thresh) ->
-    x = mouse[0] - d.x
-    y = mouse[1] - d.y
-    Math.sqrt(x * x + y * y) < thresh
+    @node = @svg.selectAll(".node")
+    @link = @svg.selectAll(".link")
+    @lariat = @svg.selectAll(".lariat")
+    @link = @link.data(@links_set)
+    @link.exit().remove()
+    @node = @node.data(@nodes)
+    @node.exit().remove()
+    @force.start()
   # get this once per tick
 
   #console.log(this);
@@ -543,13 +475,13 @@ class Huviz
     console.log "  showing_links:", node.showing_links
     console.log "  in_sets:", node.in_sets
   find_focused_node: ->
-    return  if dragging
+    return if @dragging
     new_focused_node = undefined
     new_focused_idx = undefined
-    focus_threshold = focus_radius * 3
-    closest = width
+    focus_threshold = @focus_radius * 3
+    closest = @width
     closest_point = undefined
-    nodes.forEach (d, i) ->
+    @nodes.forEach (d, i) ->
       dist = distance(d.fisheye or d, last_mouse_pos)
       if dist < closest
         closest = dist
@@ -561,23 +493,23 @@ class Huviz
 
     
     #console.log("dist",focus_threshold,dist,new_focused_node.name);
-    draw_circle closest_point.x, closest_point.y, focus_radius, "red"  if draw_circle_around_focused
+    @draw_circle closest_point.x, closest_point.y, @focus_radius, "red"  if @draw_circle_around_focused
     msg = focus_threshold + " <> " + closest
-    status = $("#status")
+    @status = $("#status")
     
     #status.text(msg);
     #console.log('new_focused_node',focus_threshold,new_focused_node);
-    unless focused_node is new_focused_node
-      if focused_node
+    unless @focused_node is new_focused_node
+      if @focused_node
         d3.select(".focused_node").classed "focused_node", false  if @use_svg
-        focused_node.focused_node = false
+        @focused_node.focused_node = false
       if new_focused_node
         new_focused_node.focused_node = true
         if @use_svg
           svg_node = node[0][new_focused_idx]
           d3.select(svg_node).classed "focused_node", true
-        dump_details new_focused_node
-    focused_node = new_focused_node # possibly null
+        @dump_details new_focused_node
+    @focused_node = new_focused_node # possibly null
   draw_edges: ->
     if @use_svg
       link.attr("x1", (d) ->
@@ -590,24 +522,23 @@ class Huviz
         d.target.fisheye.y
 
     if @use_canvas
-      links_set.forEach (e, i) ->
+      @links_set.forEach (e, i) ->
         
         #
         #	if (! e.target.fisheye) 
         #	    e.target.fisheye = fisheye(e.target);
         #	    
-        draw_line e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, e.color
+        @draw_line e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, e.color
 
     if @use_webgl
-      
       #console.clear();
-      dx = width * xmult
-      dy = height * ymult
-      dx = -1 * cx
-      dy = -1 * cy
-      links_set.forEach (e) ->
+      dx = @width * xmult
+      dy = @height * ymult
+      dx = -1 * @cx
+      dy = -1 * @cy
+      @links_set.forEach (e) ->
         e.target.fisheye = fisheye(e.target)  unless e.target.fisheye
-        add_webgl_line e  unless e.gl
+        @add_webgl_line e  unless e.gl
         l = e.gl
         
         #
@@ -620,7 +551,7 @@ class Huviz
         dump_line l
 
     if @use_webgl and false
-      links_set.forEach (e, i) ->
+      @links_set.forEach (e, i) ->
         return  unless e.gl
         v = e.gl.geometry.vertices
         v[0].x = e.source.fisheye.x
@@ -629,14 +560,15 @@ class Huviz
         v[1].y = e.target.fisheye.y
 
   position_nodes: ->
-    n_nodes = nodes.length or 0
-    nodes.forEach (node, i) ->
+    n_nodes = @nodes.length or 0
+    @nodes.forEach (node, i) ->
       #console.log("position_node",d.name);
-      move_node_to_point node, last_mouse_pos  if dragging is node
-      return  unless graphed_set.has(node)
-      node.fisheye = fisheye(node)
+      @move_node_to_point node, @last_mouse_pos if @dragging is node
+      return  unless @graphed_set.has(node)
+      node.fisheye = @fisheye(node)
 
   draw_nodes_in_set: (set, radius, center) ->
+    # cx and cy are local here TODO(smurp) rename cx and cy
     cx = center[0]
     cy = center[1]
     num = set.length
@@ -646,32 +578,32 @@ class Huviz
       node.x = cx + Math.sin(rad) * radius
       node.y = cy + Math.cos(rad) * radius
       node.fisheye = fisheye(node)
-      draw_circle node.fisheye.x, node.fisheye.y, calc_node_radius(node), node.color or "yellow", node.color or "black"  if @use_canvas
-      mv_node node.gl, node.fisheye.x, node.fisheye.y  if @use_webgl
+      @draw_circle node.fisheye.x, node.fisheye.y, calc_node_radius(node), node.color or "yellow", node.color or "black"  if @use_canvas
+      @mv_node node.gl, node.fisheye.x, node.fisheye.y  if @use_webgl
 
   draw_discards: ->
-    draw_nodes_in_set discarded_set, discard_radius, discard_center
+    @draw_nodes_in_set @discarded_set, @discard_radius, @discard_center
   draw_lariat: ->
-    draw_nodes_in_set unlinked_set, graph_radius, lariat_center
+    @draw_nodes_in_set @unlinked_set, @graph_radius, @lariat_center
   draw_nodes: ->
     if @use_svg
       node.attr("transform", (d, i) ->
         "translate(" + d.fisheye.x + "," + d.fisheye.y + ")"
       ).attr "r", calc_node_radius
     if @use_canvas or @use_webgl
-      nodes.forEach (d, i) ->
+      @nodes.forEach (d, i) ->
         return unless graphed_set.has(d)
         d.fisheye = fisheye(d)
         if @use_canvas
-          draw_circle(d.fisheye.x, d.fisheye.y, calc_node_radius(d), d.color or "yellow", d.color or "black")
+          @draw_circle(d.fisheye.x, d.fisheye.y, @calc_node_radius(d), d.color or "yellow", d.color or "black")
         if @use_webgl
-          mv_node(d.gl, d.fisheye.x, d.fisheye.y)
+          @mv_node(d.gl, d.fisheye.x, d.fisheye.y)
   should_show_label: (node) ->
     dist_lt(last_mouse_pos, node, label_show_range) or node.name.match(search_regex) or label_all_graphed_nodes and graphed_set.has(node)
   draw_labels: ->
     if @use_svg
       label.attr "style", (d) ->
-        if should_show_label(d)
+        if @should_show_label(d)
           ""
         else
           "display:none"
@@ -682,7 +614,7 @@ class Huviz
       
       # http://diveintohtml5.info/canvas.html#text
       # http://stackoverflow.com/a/10337796/1234699
-      nodes.forEach (node) ->
+      @nodes.forEach (node) ->
         return  unless should_show_label(node)
         if node.focused_node
           ctx.fillStyle = node.color
@@ -704,25 +636,25 @@ class Huviz
           ctx.fillText node.name, node.fisheye.x, node.fisheye.y
 
   clear_canvas: ->
-    ctx.clearRect 0, 0, canvas.width, canvas.height
+    @ctx.clearRect 0, 0, @canvas.width, @canvas.height
   blank_screen: ->
-    clear_canvas()  if @use_canvas or @use_webgl
-  tick: ->
+    @clear_canvas()  if @use_canvas or @use_webgl
+  tick: =>
     #if (focused_node){	return;    }
-    blank_screen()
-    draw_dropzones()
-    find_focused_node()
-    fisheye.focus last_mouse_pos
+    @blank_screen()
+    @draw_dropzones()
+    @find_focused_node()
+    @fisheye.focus @last_mouse_pos
     
     #show_last_mouse_pos();
     #find_focused_node();
-    position_nodes()
-    draw_edges()
-    draw_nodes()
-    draw_lariat()
-    draw_discards()
-    draw_labels()
-    update_status()
+    @position_nodes()
+    @draw_edges()
+    @draw_nodes()
+    @draw_lariat()
+    @draw_discards()
+    @draw_labels()
+    @update_status()
   update_status: ->
     msg = "linked:" + @nodes.length + " unlinked:" + @unlinked_set.length + " links:" + @links_set.length + " discarded:" + @discarded_set.length + " subjects:" + @G.num_subj + " chosen:" + @chosen_set.length
     msg += " DRAG"  if @dragging
@@ -920,18 +852,21 @@ class Huviz
     false
 
   show_and_hide_links_from_node: (d) ->
-    show_links_from_node d
-    hide_links_from_node d
+    @show_links_from_node d
+    @hide_links_from_node d
 
   get_window_width: (pad) ->
     pad = pad or hpad
-    width = (window.innerWidth or document.documentElement.clientWidth or document.clientWidth) - pad
-    cx = width / 2
+    @width = (window.innerWidth or document.documentElement.clientWidth or document.clientWidth) - pad
+    #console.log "get_window_width()",window.innerWidth,document.documentElement.clientWidth,document.clientWidth,"==>",@width
+    @cx = @width / 2
 
   get_window_height: (pad) ->
-    @pad = pad or hpad
+    pad = pad or hpad
     @height = (window.innerHeight or document.documentElement.clientHeight or document.clientHeight) - pad
+    #console.log "get_window_height()",window.innerHeight,document.documentElement.clientHeight,document.clientHeight,"==>",@height
     @cy = @height / 2
+    
 
   update_graph_radius: ->
     @graph_radius = Math.floor(Math.min(@width / 2, @height / 2)) * .9
@@ -1251,7 +1186,7 @@ class Huviz
   set_status: (txt) ->
     txt = txt or ""
     unless last_status is txt
-      console.log txt
+      # console.log txt
       $("#status").text txt
     last_status = txt
 
@@ -1428,22 +1363,26 @@ class Huviz
       attr("height", @height)
     @canvas = @viscanvas[0][0]
     @mouse_receiver = @viscanvas
+    @updateWindow()
+    @ctx = @canvas.getContext("2d")
+    @reset_graph()
+    console.log("asssigning cursor")
+    @cursor = @svg.append("circle").
+                  attr("r", @label_show_range).
+                  attr("transform", "translate(" + @cx + "," + @cy + ")").
+                  attr("class", "cursor")
+    console.log("===>",@cursor)
+    the_Huviz = this
     @mouse_receiver.
       on("mousemove", @mousemove).
       on("mousedown", @mousedown).
       on("mouseup", @mouseup).
       on("mouseout", @mouseup)
-    @updateWindow()
-    @ctx = @canvas.getContext("2d")
-    @reset_graph()
-    @cursor = @svg.append("circle").
-                  attr("r", @label_show_range).
-                  attr("transform", "translate(" + @cx + "," + @cy + ")").
-                  attr("class", "cursor")
     @restart()
 
     @set_search_regex("")
-    document.getElementById('search').addEventListener("input", update_searchterm)
+    document.getElementById('search').
+                  addEventListener("input", @update_searchterm)
     #$(".search_box").on "input", @update_searchterm
     window.addEventListener "resize", @updateWindow  
 

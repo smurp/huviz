@@ -211,3 +211,4 @@ var SortedSets_tests = function(verbose){
     expect("a_d.add(c)",0);
 };
 //SortedSets_tests(true);
+exports.SortedSet = SortedSet

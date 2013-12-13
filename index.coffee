@@ -4,20 +4,27 @@ stitch  = require("stitch")
 express = require("express")
 argv    = process.argv.slice(2)
 
+ss = require('./js/sortedset')
+oink = ss.SortedSet()
+#oink.isFlag('oink')
+#console.log oink
+
 pkg = stitch.createPackage(
   # Specify the paths you want Stitch to automatically bundle up
   paths: [ __dirname + "/src" ]
 
   # Specify your base libraries
   dependencies: [
+    __dirname + '/js/sortedset.js',
     __dirname + '/lib/d3.v3.min.js', # before fisheye
     __dirname + '/lib/fisheye.js',
     __dirname + '/lib/jq.min.js',
-    __dirname + '/lib/green_turtle.js',
+    __dirname + '/lib/green_turtle.js'
+
     #__dirname + '/node_modules/express/lib/utils.js',
     #__dirname + '/node_modules/rdfquads/node_modules/lazy/lazy.js',
     #__dirname + '/node_modules/rdfquads/lib/quadParser.js',
-    #__dirname + '/js/sortedset.js',
+
   ]
 )
 app = express.createServer()
