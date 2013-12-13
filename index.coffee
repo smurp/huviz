@@ -1,5 +1,5 @@
 
-require("coffee-script")
+#require("coffee-script")
 stitch  = require("stitch")
 express = require("express")
 argv    = process.argv.slice(2)
@@ -13,14 +13,17 @@ pkg = stitch.createPackage(
     __dirname + '/lib/d3.v3.min.js', # before fisheye
     __dirname + '/lib/fisheye.js',
     __dirname + '/lib/jq.min.js',
-    __dirname + '/node_modules/n3/build/n3-browser.js',
-    #__dirname + '/node_modules/rdfquads/',
-    __dirname + '/js/sortedset.js',
+    __dirname + '/lib/green_turtle.js',
+    #__dirname + '/node_modules/express/lib/utils.js',
+    #__dirname + '/node_modules/rdfquads/node_modules/lazy/lazy.js',
+    #__dirname + '/node_modules/rdfquads/lib/quadParser.js',
+    #__dirname + '/js/sortedset.js',
   ]
 )
 app = express.createServer()
 
 app.configure ->
+  app.use express.logger()
   app.set "views", __dirname + "/views"
   app.use app.router
   #app.use express.static(__dirname + "/public")
@@ -28,6 +31,7 @@ app.configure ->
   app.use express.static(__dirname + '/js')
   app.use express.static(__dirname + '/lib')
   app.use express.static(__dirname + '/data')
+  app.use express.static(__dirname + '/docs')
   #app.use express.static(__dirname + '/node_modules')  
   app.get "/application.js", pkg.createServer()
 

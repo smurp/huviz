@@ -206,6 +206,8 @@ class FormatEmitter(object):
             #print LineTest
             if LineTest:
                 mainSubject=LineTest.group(1)
+                if options.ids and not ( mainSubject in options.ids):
+                    continue
                 entryDict['ID']=mainSubject
                 count += 1
                 if options.verbose:
@@ -217,7 +219,8 @@ class FormatEmitter(object):
                             IDcheckResults=IDcheck.findall(line)
                             for result in IDcheckResults:
                                 structID=result[0]
-                                print structID
+                                if options.verbose:
+                                    print structID,entryDict.keys()
                                 searchText=result[1]
                                 self.regexRecursion(searchText,regexArray,tripleCheck,
                                                1,mainSubject,entryDict,structID)
@@ -264,24 +267,41 @@ class FormatEmitter(object):
         # TODO(smurp): de-dupe by doing equivalent of:  stripMatch not in entryDict[predicate]:
         entryDict[predicate].append(ctx_sn)
 
+    def dump_human(self,entryDict, options):
+        print "=" * 80
+        print entryDict.get('sn') or entryDict.get('ID')
+        for k,v in entryDict.items():
+            if k in ['ID']:
+                continue
+            if type(v) == list:
+                for item in v:
+                    print "  ",k,repr(item['sn']),1,item['ctx']
+            else:
+                if type(v) == dict:
+                    print "  ",k,repr(v.get('sn')),2
+                else:
+                    print "  ",k,repr(v),3
+                    
+        print ""
 
     def stash(self,entryDict,commacheck3,options):
+        if options.human:
+            self.dump_human(entryDict,options)
         self.entries.append(entryDict)
     def go(self):
         options = self.options
         regexTests = codecs.open(options.regexes, encoding='utf-8', mode='r')
-        print "begin"
+        sys.stderr.write("begin\n")
         self.prepOutfile()
         regexArray = regexTestLoad(regexTests,options)
         NameTest = re.compile('<ENTRY.+?ID="([\w, ]+)".*>',re.I)
-        print "extraction starts"
+        sys.stderr.write("extraction starts\n")
         with codecs.open(options.infile, encoding='utf-8', mode='r') as orlandoRAW: 
             mainSubject=None
             self.extractionCycle(orlandoRAW, regexArray, NameTest, mainSubject, options)
-        print "extraction ends"
-        #print self.entries
+        sys.stderr.write("extraction ends\n")
         self.concludeOutfile()
-        print "end"
+        sys.stderr.write("end\n")
 
     def next_id(self):
         """
@@ -458,6 +478,7 @@ if __name__ == "__main__":
     only_predicates = 'standardName,dateOfBirth,dateOfDeath'.split(',')
     only_predicates.extend(predicate_to_type.keys())
     defaults = dict(
+        human = False,
         regexes = 'orlando2RDFregex4.txt',
         infile = 'orlando_all_entries_2013-03-04.xml',
         only_predicates = only_predicates,
@@ -465,10 +486,17 @@ if __name__ == "__main__":
     
     from optparse import OptionParser
     parser = OptionParser()
+    parser.add_option("--human",
+                      default = defaults['human'],
+                      action = 'store_true',                      
+                      help = "output human readable text, good while building regexes")
     parser.add_option("--outfile",
                       default = defaults['outfile'],
                       help = "output filename, default:"+\
                           defaults['outfile'])
+    parser.add_option("--ids",
+                      default = "",
+                      help = "a comma-delimited list of writer IDs: abdyma,atwoma")
     parser.add_option("--regexes",
                       default = defaults['regexes'],
                       help = "regex tests filename, default: "+\
@@ -536,6 +564,8 @@ if __name__ == "__main__":
     """
     (options,args) = parser.parse_args()
     show_usage = True
+    if options.ids:
+        options.ids = options.ids.split(",")
     if options.only_predicates:
         options.only_predicates = options.only_predicates.split(',')
     if options.doctest:
@@ -553,7 +583,7 @@ if __name__ == "__main__":
         show_usage = False
         import pydoc
         pydoc.help(__import__(__name__))
-    print options
+    #print options
     if options.outfile.endswith('.json'):
         options.emitter = JSONEmitter(options)
     if options.outfile.endswith('.ttl'):
