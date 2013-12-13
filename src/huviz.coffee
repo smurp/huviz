@@ -19,7 +19,43 @@
 #gt = require('greenerturtle')
 #console.log('gt',gt)
 #GreenerTurtle = gt.GreenerTurtle
+wpad = undefined
+hpad = 10
+distance: (p1, p2) ->
+  x = (p1.x or p1[0]) - (p2.x or p2[0])
+  y = (p1.y or p1[1]) - (p2.y or p2[1])
+  Math.sqrt x * x + y * y
+
 class Huviz
+  UNDEFINED = undefined
+  start_with_http = new RegExp("http", "ig")
+  ids_to_show = start_with_http
+  
+  node_radius_policies =
+    "node radius by links": (d) ->
+      d.radius = Math.max(little_dot, Math.log(d.links_shown.length))
+      return d.radius
+      if d.showing_links is "none"
+        d.radius = little_dot
+      else d.radius = Math.max(little_dot, 2 + Math.log(d.links_shown.length))  if d.showing_links is "all"
+      d.radius
+    "equal dots": (d) ->
+      little_dot
+  default_node_radius_policy = "equal dots"
+  default_node_radius_policy = "node radius by links"
+
+  FOAF_Group = "http://xmlns.com/foaf/0.1/Group"
+  FOAF_name = "http://xmlns.com/foaf/0.1/name"
+  RDF_Type = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+  RDF_object = "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
+  has_type = (subject, typ) ->
+    has_predicate_value subject, RDF_Type, typ
+
+  is_a_main_node = (d) ->
+    (BLANK_HACK and d.s.id[7] isnt "/") or (not BLANK_HACK and d.s.id[0] isnt "_")
+
+  is_node_to_always_show = is_a_main_node
+
   use_canvas: true
   use_svg: false
   use_webgl: false
@@ -51,8 +87,6 @@ class Huviz
   nodes_pinnable: false
 
   BLANK_HACK: false
-  wpad: undefined
-  hpad: 10
   width: undefined
   height: 0
   cx: 0
@@ -75,8 +109,6 @@ class Huviz
     objects: {}
 
   G: {}
-  start_with_http = new RegExp("http", "ig")
-  ids_to_show = start_with_http
   id2n: {}
   id2u: {}
 
@@ -268,10 +300,6 @@ class Huviz
       "red" # Other people
     else
       "blue" # the writers
-  distance: (p1, p2) ->
-    x = (p1.x or p1[0]) - (p2.x or p2[0])
-    y = (p1.y or p1[1]) - (p2.y or p2[1])
-    Math.sqrt x * x + y * y
   move_node_to_point: (node, point) ->
     node.x = point[0]
     node.y = point[1]
@@ -288,7 +316,6 @@ class Huviz
     cursor.attr "transform", "translate(" + last_mouse_pos + ")"
     tick()
   mousedown: ->
-    
     #console.log('mousedown');
     #
     #    if (focused_node && 
@@ -352,76 +379,73 @@ class Huviz
 
   #console.log('height',height);
   updateWindow: ->
-    get_window_width()
-    get_window_height()
-    update_graph_radius()
-    update_discard_zone()
-    update_lariat_zone()
-    if svg
-      svg.
-        attr("width", width).
-        attr("height", height)
-    if canvas
-      canvas.width = width
-      canvas.height = height
-    force.size [
-      width
-      height
+    @get_window_width()
+    @get_window_height()
+    @update_graph_radius()
+    @update_discard_zone()
+    @update_lariat_zone()
+    if @svg
+      @svg.
+        attr("width", @width).
+        attr("height", @height)
+    if @canvas
+      @canvas.width = @width
+      @canvas.height = @height
+    @force.size [
+      @width
+      @height
     ]
-    restart()
+    @restart()
 
   #///////////////////////////////////////////////////////////////////////////
   # 
   #   http://bl.ocks.org/mbostock/929623
   get_charge: (d) ->
-    return 0  unless graphed_set.has(d)
+    return 0  unless @graphed_set.has(d)
     charge
-  # initialize with no nodes
-
-  #var canvas = document.getElementById('#viscanvas')
 
   # lines: 5845 5848 5852 of d3.v3.js object to
   #    mouse_receiver.call(force.drag);
   # when mouse_receiver == viscanvas
   init_webgl: ->
-    init()
-    animate()
+    @init()
+    @animate()
 
   #add_frame();
   #dump_line(add_line(scene,cx,cy,width,height,'ray'))
   draw_circle: (cx, cy, radius, strclr, filclr) ->
-    ctx.strokeStyle = strclr or "blue"  if strclr
-    ctx.fillStyle = filclr or "blue"  if filclr
-    ctx.beginPath()
-    ctx.arc cx, cy, radius, 0, Math.PI * 2, true
-    ctx.closePath()
-    ctx.stroke()  if strclr
-    ctx.fill()  if filclr
+    @ctx.strokeStyle = strclr or "blue"  if strclr
+    @ctx.fillStyle = filclr or "blue"  if filclr
+    @ctx.beginPath()
+    @ctx.arc cx, cy, radius, 0, Math.PI * 2, true
+    @ctx.closePath()
+    @ctx.stroke()  if strclr
+    @ctx.fill()  if filclr
   draw_line: (x1, y1, x2, y2, clr) ->
-    ctx.strokeStyle = clr or red
-    ctx.beginPath()
-    ctx.moveTo x1, y1
-    ctx.lineTo x2, y2
-    ctx.closePath()
-    ctx.stroke()
+    @ctx.strokeStyle = clr or red
+    @ctx.beginPath()
+    @ctx.moveTo x1, y1
+    @ctx.lineTo x2, y2
+    @ctx.closePath()
+    @ctx.stroke()
   draw_disconnect_dropzone: ->
-    ctx.save()
-    ctx.lineWidth = graph_radius * 0.1
-    draw_circle lariat_center[0], lariat_center[1], graph_radius, "lightgreen"
-    ctx.restore()
+    @ctx.save()
+    @ctx.lineWidth = graph_radius * 0.1
+    @draw_circle lariat_center[0], lariat_center[1], graph_radius, "lightgreen"
+    @ctx.restore()
   draw_discard_dropzone: ->
-    ctx.save()
-    ctx.lineWidth = discard_radius * 0.1
-    draw_circle discard_center[0], discard_center[1], discard_radius, "", "salmon"
-    ctx.restore()
+    @ctx.save()
+    @ctx.lineWidth = discard_radius * 0.1
+    @draw_circle discard_center[0], discard_center[1], discard_radius, "", "salmon"
+    @ctx.restore()
   draw_dropzones: ->
-    if dragging
-      draw_disconnect_dropzone()
-      draw_discard_dropzone()
+    if @dragging
+      @draw_disconnect_dropzone()
+      @draw_discard_dropzone()
   in_disconnect_dropzone: (node) ->
     # is it within the RIM of the disconnect circle?
     dist = distance(node, lariat_center)
-    graph_radius * 0.9 < dist and graph_radius * 1.1 > dist
+    @graph_radius * 0.9 < dist and graph_radius * 1.1 > dist
   in_discard_dropzone: (node) ->
     # is it ANYWHERE within the circle?
     dist = distance(node, discard_center)
@@ -545,17 +569,17 @@ class Huviz
     #console.log('new_focused_node',focus_threshold,new_focused_node);
     unless focused_node is new_focused_node
       if focused_node
-        d3.select(".focused_node").classed "focused_node", false  if use_svg
+        d3.select(".focused_node").classed "focused_node", false  if @use_svg
         focused_node.focused_node = false
       if new_focused_node
         new_focused_node.focused_node = true
-        if use_svg
+        if @use_svg
           svg_node = node[0][new_focused_idx]
           d3.select(svg_node).classed "focused_node", true
         dump_details new_focused_node
     focused_node = new_focused_node # possibly null
   draw_edges: ->
-    if use_svg
+    if @use_svg
       link.attr("x1", (d) ->
         d.source.fisheye.x
       ).attr("y1", (d) ->
@@ -565,7 +589,7 @@ class Huviz
       ).attr "y2", (d) ->
         d.target.fisheye.y
 
-    if use_canvas
+    if @use_canvas
       links_set.forEach (e, i) ->
         
         #
@@ -574,7 +598,7 @@ class Huviz
         #	    
         draw_line e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, e.color
 
-    if use_webgl
+    if @use_webgl
       
       #console.clear();
       dx = width * xmult
@@ -595,7 +619,7 @@ class Huviz
         mv_line l, e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y
         dump_line l
 
-    if use_webgl and false
+    if @use_webgl and false
       links_set.forEach (e, i) ->
         return  unless e.gl
         v = e.gl.geometry.vertices
@@ -622,36 +646,36 @@ class Huviz
       node.x = cx + Math.sin(rad) * radius
       node.y = cy + Math.cos(rad) * radius
       node.fisheye = fisheye(node)
-      draw_circle node.fisheye.x, node.fisheye.y, calc_node_radius(node), node.color or "yellow", node.color or "black"  if use_canvas
-      mv_node node.gl, node.fisheye.x, node.fisheye.y  if use_webgl
+      draw_circle node.fisheye.x, node.fisheye.y, calc_node_radius(node), node.color or "yellow", node.color or "black"  if @use_canvas
+      mv_node node.gl, node.fisheye.x, node.fisheye.y  if @use_webgl
 
   draw_discards: ->
     draw_nodes_in_set discarded_set, discard_radius, discard_center
   draw_lariat: ->
     draw_nodes_in_set unlinked_set, graph_radius, lariat_center
   draw_nodes: ->
-    if use_svg
+    if @use_svg
       node.attr("transform", (d, i) ->
         "translate(" + d.fisheye.x + "," + d.fisheye.y + ")"
       ).attr "r", calc_node_radius
-    if use_canvas or use_webgl
+    if @use_canvas or @use_webgl
       nodes.forEach (d, i) ->
         return unless graphed_set.has(d)
         d.fisheye = fisheye(d)
-        if use_canvas
+        if @use_canvas
           draw_circle(d.fisheye.x, d.fisheye.y, calc_node_radius(d), d.color or "yellow", d.color or "black")
-        if use_webgl
+        if @use_webgl
           mv_node(d.gl, d.fisheye.x, d.fisheye.y)
   should_show_label: (node) ->
     dist_lt(last_mouse_pos, node, label_show_range) or node.name.match(search_regex) or label_all_graphed_nodes and graphed_set.has(node)
   draw_labels: ->
-    if use_svg
+    if @use_svg
       label.attr "style", (d) ->
         if should_show_label(d)
           ""
         else
           "display:none"
-    if use_canvas or use_webgl
+    if @use_canvas or @use_webgl
       
       #http://stackoverflow.com/questions/3167928/drawing-rotated-text-on-a-html5-canvas
       #ctx.rotate(Math.PI*2/(i*6));
@@ -682,7 +706,7 @@ class Huviz
   clear_canvas: ->
     ctx.clearRect 0, 0, canvas.width, canvas.height
   blank_screen: ->
-    clear_canvas()  if use_canvas or use_webgl
+    clear_canvas()  if @use_canvas or @use_webgl
   tick: ->
     #if (focused_node){	return;    }
     blank_screen()
@@ -700,11 +724,11 @@ class Huviz
     draw_labels()
     update_status()
   update_status: ->
-    msg = "linked:" + nodes.length + " unlinked:" + unlinked_set.length + " links:" + links_set.length + " discarded:" + discarded_set.length + " subjects:" + G.num_subj + " chosen:" + chosen_set.length
-    msg += " DRAG"  if dragging
-    set_status msg
+    msg = "linked:" + @nodes.length + " unlinked:" + @unlinked_set.length + " links:" + @links_set.length + " discarded:" + @discarded_set.length + " subjects:" + @G.num_subj + " chosen:" + @chosen_set.length
+    msg += " DRAG"  if @dragging
+    @set_status msg
   svg_restart: ->
-    link = link.data(links_set)
+    link = link.data(@links_set)
     link.enter().
       insert("line", ".node").
       attr "class", (d) ->
@@ -763,71 +787,17 @@ class Huviz
     links_set.forEach (d) ->
       add_webgl_line d
   restart: ->
-    svg_restart() if use_svg
-    force.start()
+    @svg_restart() if @use_svg
+    @force.start()
   show_last_mouse_pos: ->
-    draw_circle last_mouse_pos[0], last_mouse_pos[1], focus_radius, "yellow"
+    @draw_circle @last_mouse_pos[0], @last_mouse_pos[1], @focus_radius, "yellow"
 
-  #console.log(last_mouse_pos,'move');
-  # nodes is sorted by id
-
-  #
-  #    n.linked = n.state == graphed_set;
-  #    n.fixed = ! n.linked;
-  #    return
-  #    
-
-  #n.linked = n.links_shown.length > 0;
-  #n.fixed = ! old_linked_status;
-
-  # we do not know, so a click is worth a try
-
-  #var changed = old_linked_status != n.linked;
-  #    return n;
-  #
-  #
-  #  if (n.linked){
-  #      //d3.select(node[0][new_focused_idx]).classed('focused_node',true);
-  #      unlinked_set.remove(n);
-  #      if (use_svg){
-  #	  var svg_node = node[0][nodes.indexOf(n)];
-  #	  d3.select(svg_node).classed('lariat',false).classed('node',true);
-  #      }
-  #      // node[0][new_focused_idx]
-  #  } else {
-  #      if (unlinked_set.binary_search(n) == -1){
-  #	  unlinked_set.add(n);
-  #	  //add_to_array(n,unlinked_set)
-  #	  if (use_svg){
-  #	      d3.select(svg_node).classed('lariat',true).classed('node',false);
-  #	  }
-  #      }
-  #  }
-  #  return n;
-  #  
-
-  #if (links_set.indexOf(e) > -1) return;  // already present
-  #console.log(typeof links_set,links_set.prototype.add);
-  #
-  #    console.log('linkes,links_set.add,e');
-  #    console.log(links_set)
-  #    console.log(links_set.add)
-  #    console.log(e)
-  #  
-
-  #if (! e.source.links_from) e.source.links_from = [];  // FIXME should use links_from_found
-  #if (! e.target.links_to) e.target.links_to = [];
-  # not present
-  #if (! e.source.links_from) e.source.links_from = [];
-  #if (! e.target.links_to) e.target.links_to = [];
-  #remove_from(e,e.target.links_to);
-  #remove_from(e,e.source.links_from);
   remove_ghosts: (e) ->
-    if use_webgl
-      remove_gl_obj e.gl  if e.gl
+    if @use_webgl
+      @remove_gl_obj e.gl  if e.gl
       delete e.gl
   add_node_ghosts: (d) ->
-    d.gl = add_node(scene, d.x, d.y, 3, d.color)  if use_webgl
+    d.gl = add_node(scene, d.x, d.y, 3, d.color)  if @use_webgl
   make_edge: (s, t, c) ->
     source: s
     target: t
@@ -836,14 +806,14 @@ class Huviz
 
   add_to_array: (itm, array, cmp) ->
     cmp = cmp or array.__current_sort_order or cmp_on_id
-    c = binary_search_on(array, itm, cmp, true)
+    c = @binary_search_on(array, itm, cmp, true)
     return c  if typeof c is typeof 3
     array.splice c.idx, 0, itm
     c.idx
 
   remove_from_array: (itm, array, cmp) ->
     cmp = cmp or array.__current_sort_order or cmp_on_id
-    c = binary_search_on(array, itm, cmp)
+    c = @binary_search_on(array, itm, cmp)
     array.splice c, 1  if c > -1
     array
 
@@ -923,19 +893,6 @@ class Huviz
       console.log quad
     parser.on 'end', (quad) ->
       console.log 'done parsing'
-   ###    
-    // A quad event is emitted every time a valid quad is parsed
-    parser.on('quad', function(quad) {
-          if (subject == String(quad.s)) {
-                ...
-                    }
-                    })
-
-   //  An end event is emitted once the stream has been exhausted
-                    parser.on('end', function(quad) {
-                          res.end()
-                          })
-   ###
     
   fetchAndShow: (url) ->
     $("#status").text "fetching " + url
@@ -962,18 +919,6 @@ class Huviz
         oi++
     false
 
-  FOAF_Group = "http://xmlns.com/foaf/0.1/Group"
-  FOAF_name = "http://xmlns.com/foaf/0.1/name"
-  RDF_Type = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-  RDF_object = "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
-  has_type = (subject, typ) ->
-    has_predicate_value subject, RDF_Type, typ
-
-  is_a_main_node = (d) ->
-    (BLANK_HACK and d.s.id[7] isnt "/") or (not BLANK_HACK and d.s.id[0] isnt "_")
-
-  is_node_to_always_show = is_a_main_node
-
   show_and_hide_links_from_node: (d) ->
     show_links_from_node d
     hide_links_from_node d
@@ -984,47 +929,32 @@ class Huviz
     cx = width / 2
 
   get_window_height: (pad) ->
-    pad = pad or hpad
-    height = (window.innerHeight or document.documentElement.clientHeight or document.clientHeight) - pad
-    cy = height / 2
+    @pad = pad or hpad
+    @height = (window.innerHeight or document.documentElement.clientHeight or document.clientHeight) - pad
+    @cy = @height / 2
 
   update_graph_radius: ->
-    graph_radius = Math.floor(Math.min(width / 2, height / 2)) * .9
+    @graph_radius = Math.floor(Math.min(@width / 2, @height / 2)) * .9
 
   update_lariat_zone: ->
-    lariat_center = [width / 2, height / 2]
+    @lariat_center = [@width / 2, @height / 2]
 
   update_discard_zone: ->
-    discard_ratio = .1
-    discard_radius = graph_radius * discard_ratio
-    discard_center = [
-      width - discard_radius * 3
-      height - discard_radius * 3
+    @discard_ratio = .1
+    @discard_radius = @graph_radius * @discard_ratio
+    @discard_center = [
+      @width - @discard_radius * 3
+      @height - @discard_radius * 3
     ]
 
   set_search_regex: (text) ->
-    search_regex = new RegExp(text or "^$", "ig")
+    @search_regex = new RegExp(text or "^$", "ig")
 
   update_searchterm: ->
     text = $(this).text()
-    set_search_regex text
-    restart()
+    @set_search_regex text
+    @restart()
 
-  node_radius_policies =
-    "node radius by links": (d) ->
-      d.radius = Math.max(little_dot, Math.log(d.links_shown.length))
-      return d.radius
-      if d.showing_links is "none"
-        d.radius = little_dot
-      else d.radius = Math.max(little_dot, 2 + Math.log(d.links_shown.length))  if d.showing_links is "all"
-      d.radius
-
-    "equal dots": (d) ->
-      little_dot
-
-  default_node_radius_policy = "equal dots"
-  default_node_radius_policy = "node radius by links"
-  node_radius_policy = node_radius_policies[default_node_radius_policy]
   dump_locations: (srch, verbose, func) ->
     verbose = verbose or false
     pattern = new RegExp(srch, "ig")
@@ -1041,7 +971,7 @@ class Huviz
       id: node_id
     )
     if idx > -1
-      nodes[idx]
+      @nodes[idx]
     else
       if throw_on_fail
         throw "node with id <" + node_id + "> not found"
@@ -1071,7 +1001,6 @@ class Huviz
     update_flags e.target
     restart()
 
-  UNDEFINED = undefined
   remove_link: (e) ->
     return  if links_set.indexOf(e) is -1
     remove_from e, e.source.links_shown
@@ -1285,38 +1214,38 @@ class Huviz
             cy
           ])
           show_node_links node  if node
-    restart()
+    @restart()
 
   toggle_links: ->
     #console.log("links",force.links());
     unless links_set.length
       make_links G
       restart()
-    force.links().length
+    @force.links().length
 
   toggle_label_display: ->
     label_all_graphed_nodes = not label_all_graphed_nodes
-    tick()
+    @tick()
 
   hide_all_links: ->
-    nodes.forEach (node) ->
+    @nodes.forEach (node) ->
       #node.linked = false;
       #node.fixed = false;	
-      unlinked_set.acquire node
+      @unlinked_set.acquire node
       node.links_shown = []
       node.showing_links = "none"
-      unlinked_set.acquire node
-      update_flags node
+      @unlinked_set.acquire node
+      @update_flags node
 
-    links_set.forEach (link) ->
+    @links_set.forEach (link) ->
       remove_ghosts link
 
-    links_set.clear()
-    chosen_set.clear()
+    @links_set.clear()
+    @chosen_set.clear()
     
     # It should not be neccessary to clear discarded_set or hidden_set()
     # because unlinked_set.acquire() should have accomplished that
-    restart()
+    @restart()
 
 
   set_status: (txt) ->
@@ -1330,15 +1259,15 @@ class Huviz
     val = undefined
     tech = ctrl.parentNode.id
     if tech is "use_canvas"
-      use_canvas = not use_canvas
-      clear_canvas()  unless use_canvas
-      val = use_canvas
+      @use_canvas = not @use_canvas
+      clear_canvas()  unless @use_canvas
+      val = @use_canvas
     if tech is "use_svg"
-      use_svg = not use_svg
-      val = use_svg
+      @use_svg = not @use_svg
+      val = @use_svg
     if tech is "use_webgl"
-      use_webgl = not use_webgl
-      val = use_webgl
+      @use_webgl = not @use_webgl
+      val = @use_webgl
     ctrl.checked = val
     tick()
     true
@@ -1436,25 +1365,23 @@ class Huviz
   show_the_edges: () ->
     edge_controller.show_tree_in.call(arguments)
 
-
   #window.CRT = require("crrt")
   #console.log('CRT',CRT)
   #edge_controller = new CRT.CollapsibleRadialReingoldTilfordTree()
-
   #do_tests(false)
 
-  ###
-  window.addEventListener "load", ->
-    # This delay is to let GreenTurtle initialize
-    # It would be great if there were a hook for this...
-    #init_node_radius_policy()
-    console.log "load_file() via 'load' listener"
-    load_file()
+  
+  #window.addEventListener "load", ->
+  #  # This delay is to let GreenTurtle initialize
+  #  # It would be great if there were a hook for this...
+  #  #init_node_radius_policy()
+  #  console.log "load_file() via 'load' listener"
+  #  load_file()
+  #
+  #window.addEventListener "popstate", (event) ->
+  #  #console.log('popstate fired',event);
+  #  restore_graph_state event.state
 
-  window.addEventListener "popstate", (event) ->
-    #console.log('popstate fired',event);
-    restore_graph_state event.state
-  ###
 
   # declare variables used in intialize_graph
   fisheye: null
@@ -1475,43 +1402,53 @@ class Huviz
     @mousedown_point = [@cx,@cy]
     @discard_point = [@cx,@cy]
     @lariat_center = [@cx,@cy]
-        
-    alert "in constructor"
+    node_radius_policy = node_radius_policies[default_node_radius_policy]
+    
     @fisheye = d3.fisheye.
       circular().
-      radius(fisheye_radius).
-      distortion(fisheye_zoom)
+      radius(@fisheye_radius).
+      distortion(@fisheye_zoom)
     @fill = d3.scale.category20()
     @force = d3.layout.force().size([
-      width
-      height
-    ]).nodes([]).linkDistance(link_distance).charge(get_charge).gravity(gravity).on("tick", tick)
-    @svg = d3.select("#vis").append("svg").attr("width", width).attr("height", height).attr("position", "absolute")
-    @svg.append("rect").attr("width", width).attr "height", height
+      @width
+      @height
+    ]).nodes([]).linkDistance(@link_distance).
+                 charge(@get_charge).
+                 gravity(@gravity).
+                 on("tick", @tick)
+    @svg = d3.select("#vis").
+              append("svg").
+              attr("width", @width).
+              attr("height", @height).
+              attr("position", "absolute")
+    @svg.append("rect").attr("width", @width).attr "height", @height
     @viscanvas = d3.select("#viscanvas").
       append("canvas").
-      attr("width", width).
-      attr("height", height)
-    @canvas = viscanvas[0][0]
-    @mouse_receiver = viscanvas
+      attr("width", @width).
+      attr("height", @height)
+    @canvas = @viscanvas[0][0]
+    @mouse_receiver = @viscanvas
     @mouse_receiver.
-      on("mousemove", mousemove).
-      on("mousedown", mousedown).
-      on("mouseup", mouseup).
-      on("mouseout", mouseup)
+      on("mousemove", @mousemove).
+      on("mousedown", @mousedown).
+      on("mouseup", @mouseup).
+      on("mouseout", @mouseup)
     @updateWindow()
-    @ctx = canvas.getContext("2d")
+    @ctx = @canvas.getContext("2d")
     @reset_graph()
-    @cursor = svg.append("circle").attr("r", label_show_range).attr("transform", "translate(" + cx + "," + cy + ")").attr("class", "cursor")
+    @cursor = @svg.append("circle").
+                  attr("r", @label_show_range).
+                  attr("transform", "translate(" + @cx + "," + @cy + ")").
+                  attr("class", "cursor")
     @restart()
 
     @set_search_regex("")
     document.getElementById('search').addEventListener("input", update_searchterm)
-    #$(".search_box").on "input", update_searchterm
-    window.addEventListener "resize", updateWindow  
+    #$(".search_box").on "input", @update_searchterm
+    window.addEventListener "resize", @updateWindow  
 
-  get_jiggy: =>
-    return width
+  get_jiggy: ->
+    return @width
 
   load_file: ->
     console.log this
@@ -1520,7 +1457,7 @@ class Huviz
     set_status data_uri
     @G = {}
     @fetchAndShow data_uri  unless G.subjects
-    @init_webgl()  if use_webgl
+    @init_webgl()  if @use_webgl
 
 #(typeof exports is 'undefined' and window or exports).Huviz = Huviz
 exports.Huviz = Huviz

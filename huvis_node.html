@@ -69,15 +69,13 @@
         console.log('pong');
         //console.log('d3',d3);
         huviz = require('huviz');
-        HVZ = new huviz.Huviz()
+        HVZ = new huviz.Huviz();
         console.log(HVZ);
+        console.log("use_canvas",HVZ.use_canvas);
         // HVZ.load_file();
         //console.log('HVZ',HVZ);
-        alice =  new (require('zoo')).Zoo();
-        alice.inst_meth('Alice')
-        bob =  new (require('zoo')).Zoo();
-        bob.inst_meth('Bob');
-        console.log(alice.inst_meth(),bob.inst_meth());
+        require('zoo').test_Zoo();
+        console.log(HVZ.get_jiggy());
       });
     </script>
   </body>
