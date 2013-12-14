@@ -43,7 +43,10 @@ class Huviz
       return d.radius
       if d.showing_links is "none"
         d.radius = little_dot
-      else d.radius = Math.max(little_dot, 2 + Math.log(d.links_shown.length))  if d.showing_links is "all"
+      else
+        if d.showing_links is "all"
+          d.radius = Math.max(little_dot,
+            2 + Math.log(d.links_shown.length))  
       d.radius
     "equal dots": (d) ->
       little_dot
@@ -251,8 +254,11 @@ class Huviz
     d3_event = @mouse_receiver[0][0]
     #console.log('mousemove',this,d3_event)
     @last_mouse_pos = d3.mouse(d3_event)
-    # || focused_node.state == discarded_set 
-    @dragging = @focused_node if not @dragging and @mousedown_point and @focused_node and distance(@last_mouse_pos, @mousedown_point) > @drag_dist_threshold and @focused_node.state is @graphed_set
+    # || focused_node.state == discarded_set
+    if not @dragging and @mousedown_point and @focused_node and
+        distance(@last_mouse_pos, @mousedown_point) > @drag_dist_threshold and
+        @focused_node.state is @graphed_set
+      @dragging = @focused_node
     if @dragging
       @force.resume()
       
@@ -306,7 +312,7 @@ class Huviz
   #console.log('width',width);
 
   #console.log('height',height);
-  updateWindow: ->
+  updateWindow: =>
     @get_window_width()
     @get_window_height()
     @update_graph_radius()
@@ -428,9 +434,9 @@ class Huviz
     f = $("select#node_radius_policy option:selected").val()
     return  unless f
     if typeof f is typeof "str"
-      node_radius_policy = node_radius_policies[f]
-    else if typeof f is typeof set_node_radius_policy
-      node_radius_policy = f
+      @node_radius_policy = node_radius_policies[f]
+    else if typeof f is typeof @set_node_radius_policy
+      @node_radius_policy = f
     else
       console.log "f =", f
   init_node_radius_policy: ->
@@ -442,7 +448,7 @@ class Huviz
 
   #console.log(policy_name);
   calc_node_radius: (d) ->
-    node_radius_policy d
+    @node_radius_policy = d
   names_in_edges: (set) ->
     out = []
     set.forEach (itm, i) ->
@@ -475,7 +481,7 @@ class Huviz
     focus_threshold = @focus_radius * 3
     closest = @width
     closest_point = undefined
-    @nodes.forEach (d, i) ->
+    @nodes.forEach (d, i) =>
       dist = distance(d.fisheye or d, @last_mouse_pos)
       if dist < closest
         closest = dist
@@ -516,7 +522,7 @@ class Huviz
         d.target.fisheye.y
 
     if @use_canvas
-      @links_set.forEach (e, i) ->
+      @links_set.forEach (e, i) =>
         
         #
         #	if (! e.target.fisheye) 
@@ -530,7 +536,7 @@ class Huviz
       dy = @height * ymult
       dx = -1 * @cx
       dy = -1 * @cy
-      @links_set.forEach (e) ->
+      @links_set.forEach (e) =>
         e.target.fisheye = fisheye(e.target)  unless e.target.fisheye
         @add_webgl_line e  unless e.gl
         l = e.gl
@@ -541,11 +547,11 @@ class Huviz
         #	      alert(e.id + " edge has a length");
         #	  }
         #	  
-        mv_line l, e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y
-        dump_line l
+        @mv_line l, e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y
+        @dump_line l
 
     if @use_webgl and false
-      @links_set.forEach (e, i) ->
+      @links_set.forEach (e, i) =>
         return  unless e.gl
         v = e.gl.geometry.vertices
         v[0].x = e.source.fisheye.x
@@ -555,10 +561,9 @@ class Huviz
 
   position_nodes: ->
     n_nodes = @nodes.length or 0
-    @nodes.forEach (node, i) ->
-      #console.log("position_node",d.name);
+    @nodes.forEach (node, i) =>
       @move_node_to_point node, @last_mouse_pos if @dragging is node
-      return  unless @graphed_set.has(node)
+      return unless @graphed_set.has(node)
       node.fisheye = @fisheye(node)
 
   draw_nodes_in_set: (set, radius, center) ->
@@ -566,14 +571,18 @@ class Huviz
     cx = center[0]
     cy = center[1]
     num = set.length
-    set.forEach (node, i) ->
+    set.forEach (node, i) =>
       rad = 2 * Math.PI * i / num
       node.rad = rad
       node.x = cx + Math.sin(rad) * radius
       node.y = cy + Math.cos(rad) * radius
-      node.fisheye = fisheye(node)
-      @draw_circle node.fisheye.x, node.fisheye.y, calc_node_radius(node), node.color or "yellow", node.color or "black"  if @use_canvas
-      @mv_node node.gl, node.fisheye.x, node.fisheye.y  if @use_webgl
+      node.fisheye = @fisheye(node)
+      if @use_canvas
+        @draw_circle(node.fisheye.x, node.fisheye.y,
+                     @calc_node_radius(node),
+                     node.color or "yellow", node.color or "black")
+      if @use_webgl
+        @mv_node node.gl, node.fisheye.x, node.fisheye.y  
 
   draw_discards: ->
     @draw_nodes_in_set @discarded_set, @discard_radius, @discard_center
@@ -585,11 +594,13 @@ class Huviz
         "translate(" + d.fisheye.x + "," + d.fisheye.y + ")"
       ).attr "r", calc_node_radius
     if @use_canvas or @use_webgl
-      @nodes.forEach (d, i) ->
-        return unless graphed_set.has(d)
+      @nodes.forEach (d, i) =>
+        return unless @graphed_set.has(d)
         d.fisheye = fisheye(d)
         if @use_canvas
-          @draw_circle(d.fisheye.x, d.fisheye.y, @calc_node_radius(d), d.color or "yellow", d.color or "black")
+          @draw_circle(d.fisheye.x, d.fisheye.y,
+                       @calc_node_radius(d),
+                       d.color or "yellow", d.color or "black")
         if @use_webgl
           @mv_node(d.gl, d.fisheye.x, d.fisheye.y)
   should_show_label: (node) ->
@@ -602,32 +613,30 @@ class Huviz
         else
           "display:none"
     if @use_canvas or @use_webgl
-      
       #http://stackoverflow.com/questions/3167928/drawing-rotated-text-on-a-html5-canvas
       #ctx.rotate(Math.PI*2/(i*6));
       
       # http://diveintohtml5.info/canvas.html#text
       # http://stackoverflow.com/a/10337796/1234699
-      @nodes.forEach (node) ->
-        return  unless should_show_label(node)
+      @nodes.forEach (node) =>
+        return unless @should_show_label(node)
         if node.focused_node
-          ctx.fillStyle = node.color
-          ctx.font = "9px sans-serif"
+          @ctx.fillStyle = node.color
+          @ctx.font = "9px sans-serif"
         else
-          ctx.fillStyle = "black"
-          ctx.font = "7px sans-serif"
-        if not graphed_set.has(node) and draw_lariat_labels_rotated
-          
+          @ctx.fillStyle = "black"
+          @ctx.font = "7px sans-serif"
+        if not @graphed_set.has(node) and @draw_lariat_labels_rotated
           # Flip label rather than write upside down
           #   var flip = (node.rad > Math.PI) ? -1 : 1;
           #   view-source:http://www.jasondavies.com/d3-dependencies/
-          ctx.save()
-          ctx.translate node.fisheye.x, node.fisheye.y
-          ctx.rotate -1 * node.rad + Math.PI / 2
-          ctx.fillText node.name, 0, 0
-          ctx.restore()
+          @ctx.save()
+          @ctx.translate node.fisheye.x, node.fisheye.y
+          @ctx.rotate -1 * node.rad + Math.PI / 2
+          @ctx.fillText node.name, 0, 0
+          @ctx.restore()
         else
-          ctx.fillText node.name, node.fisheye.x, node.fisheye.y
+          @ctx.fillText node.name, node.fisheye.x, node.fisheye.y
 
   clear_canvas: ->
     @ctx.clearRect 0, 0, @canvas.width, @canvas.height
@@ -710,8 +719,8 @@ class Huviz
 
   #dump_line(e.gl);
   webgl_restart: ->
-    links_set.forEach (d) ->
-      add_webgl_line d
+    links_set.forEach (d) =>
+      @add_webgl_line d
   restart: ->
     @svg_restart() if @use_svg
     @force.start()
@@ -869,7 +878,7 @@ class Huviz
   set_search_regex: (text) ->
     @search_regex = new RegExp(text or "^$", "ig")
 
-  update_searchterm: ->
+  update_searchterm: =>
     text = $(this).text()
     @set_search_regex text
     @restart()
@@ -877,12 +886,12 @@ class Huviz
   dump_locations: (srch, verbose, func) ->
     verbose = verbose or false
     pattern = new RegExp(srch, "ig")
-    nodes.forEach (node, i) ->
+    nodes.forEach (node, i) =>
       unless node.name.match(pattern)
         console.log pattern, "does not match!", node.name  if verbose
         return
       console.log func.call(node)  if func
-      dump_details node  if not func or verbose
+      @dump_details node if not func or verbose
 
   get_node_by_id: (node_id, throw_on_fail) ->
     throw_on_fail = throw_on_fail or false
@@ -953,16 +962,12 @@ class Huviz
   find_links_to_node: (d) ->
     subj = d.s
     if subj
-      parent_point = [
-        d.x
-        d.y
-      ]
-      @G.get_incoming_predicates(subj).forEach (sid_pred) ->
+      parent_point = [d.x,d.y]
+      @G.get_incoming_predicates(subj).forEach (sid_pred) =>
         sid = sid_pred[0]
         pred = sid_pred[1]
         src = @get_or_make_node(@G.subjects[sid], parent_point)
         @add_link @make_edge(src, d)
-
     d.links_to_found = true
 
   show_link: (edge, incl_discards) ->
@@ -976,7 +981,7 @@ class Huviz
   show_links_to_node: (n, incl_discards) ->
     incl_discards = incl_discards or false
     @find_links_to_node n  unless n.links_to_found
-    n.links_to.forEach (e, i) ->
+    n.links_to.forEach (e, i) =>
       @show_link e, incl_discards
     @force.links links_set
     @restart()
@@ -988,7 +993,7 @@ class Huviz
       @graphed_set.acquire node
 
   hide_links_to_node: (n) ->
-    n.links_to.forEach (e, i) ->
+    n.links_to.forEach (e, i) =>
       @remove_from e, n.links_shown
       @remove_from e, e.source.links_shown
       @links_set.remove e
@@ -1007,7 +1012,7 @@ class Huviz
     unless n.links_from_found
       @find_links_from_node n
     else
-      n.links_from.forEach (e, i) ->
+      n.links_from.forEach (e, i) =>
         @show_link e, incl_discards
 
     @update_state n
@@ -1015,7 +1020,7 @@ class Huviz
     @restart()
 
   hide_links_from_node: (n) ->
-    n.links_from.forEach (e, i) ->
+    n.links_from.forEach (e, i) =>
       @remove_from e, n.links_shown
       @remove_from e, e.target.links_shown
       @links_set.remove e
@@ -1094,55 +1099,52 @@ class Huviz
   #await_the_GreenTurtle();
   hide_node_links: (node) ->
     console.log "hide_node_links(" + node.id + ")"
-    node.links_shown.forEach (e, i) ->
+    node.links_shown.forEach (e, i) =>
       console.log "  ", e.id
-      links_set.remove e
+      @links_set.remove e
       if e.target is node
-        remove_from e, e.source.links_shown
-        update_state e.source
-        update_flags e.source
+        @remove_from e, e.source.links_shown
+        @update_state e.source
+        @update_flags e.source
       else
-        remove_from e, e.target.links_shown
-        update_state e.target
-        update_flags e.target
-      remove_ghosts e
+        @remove_from e, e.target.links_shown
+        @update_state e.target
+        @update_flags e.target
+      @remove_ghosts e
 
     node.links_shown = []
-    update_state node
-    update_flags node
+    @update_state node
+    @update_flags node
 
   hide_found_links: ->
-    nodes.forEach (node, i) ->
-      hide_node_links node  if node.name.match(search_regex)
-    restart()
+    @nodes.forEach (node, i) =>
+      @hide_node_links node  if node.name.match(search_regex)
+    @restart()
 
   discard_found_nodes: ->
-    nodes.forEach (node, i) ->
-      discard node  if node.name.match(search_regex)
-    restart()
+    @nodes.forEach (node, i) =>
+      @discard node  if node.name.match(search_regex)
+    @restart()
 
   show_node_links: (node) ->
-    show_links_from_node node
-    show_links_to_node node
-    update_flags node
+    @show_links_from_node node
+    @show_links_to_node node
+    @update_flags node
 
   show_found_links: ->
     for sub_id of G.subjects
       subj = G.subjects[sub_id]
-      subj.getValues("f:name").forEach (name) ->
+      subj.getValues("f:name").forEach (name) =>
         if name.match(search_regex)
-          node = get_or_make_node(subj, [
-            cx
-            cy
-          ])
-          show_node_links node  if node
+          node = @get_or_make_node(subj, [cx,cy])
+          @show_node_links node  if node
     @restart()
 
   toggle_links: ->
     #console.log("links",force.links());
-    unless links_set.length
-      make_links G
-      restart()
+    unless @links_set.length
+      @make_links G
+      @restart()
     @force.links().length
 
   toggle_label_display: ->
@@ -1150,7 +1152,7 @@ class Huviz
     @tick()
 
   hide_all_links: ->
-    @nodes.forEach (node) ->
+    @nodes.forEach (node) =>
       #node.linked = false;
       #node.fixed = false;	
       @unlinked_set.acquire node
@@ -1159,7 +1161,7 @@ class Huviz
       @unlinked_set.acquire node
       @update_flags node
 
-    @links_set.forEach (link) ->
+    @links_set.forEach (link) =>
       remove_ghosts link
 
     @links_set.clear()
@@ -1172,17 +1174,17 @@ class Huviz
 
   set_status: (txt) ->
     txt = txt or ""
-    unless last_status is txt
+    unless @last_status is txt
       # console.log txt
       $("#status").text txt
-    last_status = txt
+    @last_status = txt
 
   toggle_display_tech: (ctrl, tech) ->
     val = undefined
     tech = ctrl.parentNode.id
     if tech is "use_canvas"
       @use_canvas = not @use_canvas
-      clear_canvas()  unless @use_canvas
+      @clear_canvas()  unless @use_canvas
       val = @use_canvas
     if tech is "use_svg"
       @use_svg = not @use_svg
@@ -1191,14 +1193,14 @@ class Huviz
       @use_webgl = not @use_webgl
       val = @use_webgl
     ctrl.checked = val
-    tick()
+    @tick()
     true
 
   unlink: (unlinkee) ->
-    hide_links_from_node unlinkee
-    hide_links_to_node unlinkee
-    unlinked_set.acquire unlinkee
-    update_flags unlinkee
+    @hide_links_from_node unlinkee
+    @hide_links_to_node unlinkee
+    @unlinked_set.acquire unlinkee
+    @update_flags unlinkee
 
   #
   #  The DISCARDED are those nodes which the user has
@@ -1207,19 +1209,19 @@ class Huviz
   #  discard_dropzone.
   #
   discard: (goner) ->
-    unchoose goner
-    unlink goner
+    @unchoose goner
+    @unlink goner
     
     #unlinked_set.remove(goner);
-    discarded_set.acquire goner
-    update_flags goner
+    @discarded_set.acquire goner
+    @update_flags goner
 
   #goner.discarded = true;
   #goner.state = discarded_set;
   undiscard: (prodigal) ->
     #discarded_set.remove(prodigal);
-    unlinked_set.acquire prodigal
-    update_flags prodigal
+    @unlinked_set.acquire prodigal
+    @update_flags prodigal
 
 
   #
@@ -1229,31 +1231,31 @@ class Huviz
   #  linked into the graph because another node has been chosen.
   # 
   unchoose: (goner) ->
-    chosen_set.remove goner
-    hide_node_links goner
-    unlinked_set.acquire goner
-    update_flags goner
+    @chosen_set.remove goner
+    @hide_node_links goner
+    @unlinked_set.acquire goner
+    @update_flags goner
 
   #update_history();
   choose: (chosen) ->
     # There is a flag .chosen in addition to the state 'linked'
     # because linked means it is in the graph
-    chosen_set.add chosen
-    show_links_from_node chosen
-    show_links_to_node chosen
+    @chosen_set.add chosen
+    @show_links_from_node chosen
+    @show_links_to_node chosen
     if chosen.links_shown
       #chosen.state = 'linked';
-      graphed_set.acquire chosen
+      @graphed_set.acquire chosen
       chosen.showing_links = "all"
     else
       #chosen.state = unlinked_set;
-      unlinked_set.acquire chosen
-    update_state chosen
-    update_flags chosen
+      @unlinked_set.acquire chosen
+    @update_state chosen
+    @update_flags chosen
 
   #update_history();
   update_history: ->
-    if history.pushState
+    if window.history.pushState
       the_state = {}
       hash = ""
       if chosen_set.length
@@ -1261,23 +1263,23 @@ class Huviz
         hash += "#"
         hash += "chosen="
         n_chosen = chosen_set.length
-        chosen_set.forEach (chosen, i) ->
+        @chosen_set.forEach (chosen, i) =>
           hash += chosen.id
           the_state.chosen_node_ids.push chosen.id
           hash += ","  if n_chosen > i + 1
 
       the_url = location.href.replace(location.hash, "") + hash
       the_title = document.title
-      history.pushState the_state, the_title, the_state
+      window.history.pushState the_state, the_title, the_state
 
   restore_graph_state: (state) ->
     #console.log('state:',state);
-    return  unless state
+    return unless state
     if state.chosen_node_ids
-      reset_graph()
-      state.chosen_node_ids.forEach (chosen_id) ->
+      @reset_graph()
+      state.chosen_node_ids.forEach (chosen_id) =>
         chosen = get_or_make_node(chosen_id)
-        choose chosen  if chosen
+        @choose chosen  if chosen
 
   showGraph: (g) ->
     console.log "showGraph"
@@ -1292,8 +1294,7 @@ class Huviz
   #edge_controller = new CRT.CollapsibleRadialReingoldTilfordTree()
   #do_tests(false)
 
-  
-  #window.addEventListener "load", ->
+    #window.addEventListener "load", ->
   #  # This delay is to let GreenTurtle initialize
   #  # It would be great if there were a hook for this...
   #  #init_node_radius_policy()
