@@ -1,4 +1,4 @@
-#
+
 #See for inspiration:
 #  Collapsible Force Layout
 #    http://bl.ocks.org/mbostock/1093130
@@ -17,7 +17,6 @@
 #GreenTurtle = require('GreenTurtle').GreenTurtle
 
 gt = require('greenerturtle')
-#console.log('gt',gt)
 GreenerTurtle = gt.GreenerTurtle
 #SortedSet = require('sortedset').SortedSet
 wpad = undefined
@@ -39,17 +38,17 @@ class Huviz
   
   node_radius_policies =
     "node radius by links": (d) ->
-      d.radius = Math.max(little_dot, Math.log(d.links_shown.length))
+      d.radius = Math.max(@little_dot, Math.log(d.links_shown.length))
       return d.radius
       if d.showing_links is "none"
-        d.radius = little_dot
+        d.radius = @little_dot
       else
         if d.showing_links is "all"
-          d.radius = Math.max(little_dot,
+          d.radius = Math.max(@little_dot,
             2 + Math.log(d.links_shown.length))  
       d.radius
     "equal dots": (d) ->
-      little_dot
+      @little_dot
   default_node_radius_policy = "equal dots"
   default_node_radius_policy = "node radius by links"
 
@@ -86,13 +85,6 @@ class Huviz
   links_set: undefined
   node: undefined
   link: undefined
-
-  ## see init_sets
-  #chosen_set: undefined
-  #discarded_set: undefined
-  #graphed_set: undefined
-  #unlinked_set: undefined
-  #focused_node: undefined
   
   lariat: undefined
   label_all_graphed_nodes: false
@@ -308,17 +300,12 @@ class Huviz
   #///////////////////////////////////////////////////////////////////////////
   # resize-svg-when-window-is-resized-in-d3-js
   #   http://stackoverflow.com/questions/16265123/
-
-  #console.log('width',width);
-
-  #console.log('height',height);
   updateWindow: =>
     @get_window_width()
     @get_window_height()
     @update_graph_radius()
     @update_discard_zone()
     @update_lariat_zone()
-    console.log("width",@width,"height",@height)
     if @svg
       @svg.
         attr("width", @width).
@@ -326,10 +313,7 @@ class Huviz
     if @canvas
       @canvas.width = @width
       @canvas.height = @height
-    @force.size [
-      @width
-      @height
-    ]
+    @force.size [@width,@height]
     @restart()
 
   #///////////////////////////////////////////////////////////////////////////
@@ -387,7 +371,6 @@ class Huviz
     @discard_radius * 1.1 > dist
 
   init_sets: ->
-    console.log("init_sets()")
     @id2n = {} # TODO(smurp): remove?
     #      states: graphed,unlinked,discarded,hidden
     #         graphed: in the graph, connected to other nodes
@@ -421,15 +404,7 @@ class Huviz
     @node = @node.data(@nodes)
     @node.exit().remove()
     @force.start()
-  # get this once per tick
 
-  #console.log(this);
-
-  #console.log('"'+text+'" ==>',search_regex);
-
-  #if (d.radius) return d.radius;
-
-  #set_node_radius_policy(node_radius_policies[default_node_radius_policy]);
   set_node_radius_policy: (evt) ->
     f = $("select#node_radius_policy option:selected").val()
     return  unless f
@@ -446,9 +421,8 @@ class Huviz
     for policy_name of node_radius_policies
       policy_picker.append("option").attr("value", policy_name).text policy_name
 
-  #console.log(policy_name);
   calc_node_radius: (d) ->
-    @node_radius_policy = d
+    @node_radius_policy d
   names_in_edges: (set) ->
     out = []
     set.forEach (itm, i) ->
@@ -490,15 +464,11 @@ class Huviz
         new_focused_node = d
         focus_threshold = dist
         new_focused_idx = i
-
     
-    #console.log("dist",focus_threshold,dist,new_focused_node.name);
     @draw_circle closest_point.x, closest_point.y, @focus_radius, "red"  if @draw_circle_around_focused
     msg = focus_threshold + " <> " + closest
     @status = $("#status")
-    
     #status.text(msg);
-    #console.log('new_focused_node',focus_threshold,new_focused_node);
     unless @focused_node is new_focused_node
       if @focused_node
         d3.select(".focused_node").classed "focused_node", false  if @use_svg
@@ -510,6 +480,7 @@ class Huviz
           d3.select(svg_node).classed "focused_node", true
         @dump_details new_focused_node
     @focused_node = new_focused_node # possibly null
+
   draw_edges: ->
     if @use_svg
       link.attr("x1", (d) ->
@@ -523,7 +494,6 @@ class Huviz
 
     if @use_canvas
       @links_set.forEach (e, i) =>
-        
         #
         #	if (! e.target.fisheye) 
         #	    e.target.fisheye = fisheye(e.target);
@@ -594,8 +564,11 @@ class Huviz
         "translate(" + d.fisheye.x + "," + d.fisheye.y + ")"
       ).attr "r", calc_node_radius
     if @use_canvas or @use_webgl
+      console.log "draw_nodes() @nodes:", @nodes.length, "@graphed:", @graphed_set.length
       @nodes.forEach (d, i) =>
         return unless @graphed_set.has(d)
+        if i < 3
+          console.log i,d
         d.fisheye = fisheye(d)
         if @use_canvas
           @draw_circle(d.fisheye.x, d.fisheye.y,
@@ -649,7 +622,7 @@ class Huviz
     @find_focused_node()
     @fisheye.focus @last_mouse_pos
     
-    #show_last_mouse_pos();
+    @show_last_mouse_pos()
     #find_focused_node();
     @position_nodes()
     @draw_edges()
@@ -672,8 +645,7 @@ class Huviz
 
     link.exit().remove()
     node = node.data(nodes)
-    
-    #if (node){ console.log('=================================',node[0]);  }
+
     node.exit().remove()
     
     #.attr("class", "node")
@@ -700,20 +672,20 @@ class Huviz
   #force.nodes(nodes).links(links_set).start();
   canvas_show_text: (txt, x, y) ->
     console.log "canvas_show_text(" + txt + ")"
-    ctx.fillStyle = "black"
-    ctx.font = "12px Courier"
-    ctx.fillText txt, x, y
+    @ctx.fillStyle = "black"
+    @ctx.font = "12px Courier"
+    @ctx.fillText txt, x, y
   pnt2str: (x, y) ->
     "[" + Math.floor(x) + ", " + Math.floor(y) + "]"
   show_pos: (x, y, dx, dy) ->
     dx = dx or 0
     dy = dy or 0
-    canvas_show_text pnt2str(x, y), x + dx, y + dy
+    @canvas_show_text pnt2str(x, y), x + dx, y + dy
   show_line: (x0, y0, x1, y1, dx, dy, label) ->
     dx = dx or 0
     dy = dy or 0
     label = typeof label is "undefined" and "" or label
-    canvas_show_text pnt2str(x0, y0) + "-->" + pnt2str(x0, y0) + " " + label, x1 + dx, y1 + dy
+    @canvas_show_text pnt2str(x0, y0) + "-->" + pnt2str(x0, y0) + " " + label, x1 + dx, y1 + dy
   add_webgl_line: (e) ->
     e.gl = add_line(scene, e.source.x, e.source.y, e.target.x, e.target.y, e.source.s.id + " - " + e.target.s.id, "green")
 
@@ -726,7 +698,6 @@ class Huviz
     @force.start()
   show_last_mouse_pos: ->
     @draw_circle @last_mouse_pos[0], @last_mouse_pos[1], @focus_radius, "yellow"
-
   remove_ghosts: (e) ->
     if @use_webgl
       @remove_gl_obj e.gl  if e.gl
@@ -1076,7 +1047,7 @@ class Huviz
     count = 0
     for subj_uri,subj of g.subjects #my_graph.subjects
       #console.log subj, g.subjects[subj]  if @verbosity >= @DEBUG
-      console.log subj_uri
+      #console.log subj_uri
       #continue  unless subj.match(ids_to_show)
       subject = subj #g.subjects[subj]
       @get_or_make_node subject, [
@@ -1132,8 +1103,8 @@ class Huviz
     @update_flags node
 
   show_found_links: ->
-    for sub_id of G.subjects
-      subj = G.subjects[sub_id]
+    for sub_id of @G.subjects
+      subj = @G.subjects[sub_id]
       subj.getValues("f:name").forEach (name) =>
         if name.match(search_regex)
           node = @get_or_make_node(subj, [cx,cy])
@@ -1326,7 +1297,7 @@ class Huviz
     @mousedown_point = [@cx,@cy]
     @discard_point = [@cx,@cy]
     @lariat_center = [@cx,@cy]
-    node_radius_policy = node_radius_policies[default_node_radius_policy]
+    @node_radius_policy = node_radius_policies[default_node_radius_policy]
     
     @fisheye = d3.fisheye.
       circular().
@@ -1355,7 +1326,6 @@ class Huviz
     @updateWindow()
     @ctx = @canvas.getContext("2d")
     @reset_graph()
-    console.log("asssigning cursor")
     @cursor = @svg.append("circle").
                   attr("r", @label_show_range).
                   attr("transform", "translate(" + @cx + "," + @cy + ")").
