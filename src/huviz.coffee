@@ -296,7 +296,6 @@ class Huviz
     # it was a drag, not a click    
     #return  if distance(point, @mousedown_point) > @drag_dist_threshold 
 
-
     if @focused_node
       console.log @focused_node.name,"was clicked on"
       unless @focused_node.state is @graphed_set
@@ -643,7 +642,7 @@ class Huviz
     @clear_canvas()  if @use_canvas or @use_webgl
   tick: =>
     #if (focused_node){	return;    }
-    console.log "tick"
+    #console.log "tick"
     @blank_screen()
     @draw_dropzones()
     @find_focused_node()
@@ -663,21 +662,22 @@ class Huviz
     msg += " DRAG"  if @dragging
     @set_status msg
   svg_restart: ->
-    link = link.data(@links_set)
-    link.enter().
+    console.log "svg_restart()"    
+    @link = @link.data(@links_set)
+    @link.enter().
       insert("line", ".node").
       attr "class", (d) ->
         #console.log(l.geometry.vertices[0].x,l.geometry.vertices[1].x);
         "link"
 
-    link.exit().remove()
-    node = node.data(nodes)
+    @link.exit().remove()
+    @node = @node.data(@nodes)
 
-    node.exit().remove()
+    @node.exit().remove()
     
     #.attr("class", "node")
     #.attr("class", "lariat")
-    nodeEnter = node.enter().
+    nodeEnter = @node.enter().
       append("g").
       attr("class", "lariat node").
       call(force.drag)
@@ -694,7 +694,7 @@ class Huviz
       text (d) ->
         d.name
 
-    label = svg.selectAll(".label")
+    @label = @svg.selectAll(".label")
 
   #force.nodes(nodes).links(links_set).start();
   canvas_show_text: (txt, x, y) ->
@@ -714,13 +714,14 @@ class Huviz
     label = typeof label is "undefined" and "" or label
     @canvas_show_text pnt2str(x0, y0) + "-->" + pnt2str(x0, y0) + " " + label, x1 + dx, y1 + dy
   add_webgl_line: (e) ->
-    e.gl = add_line(scene, e.source.x, e.source.y, e.target.x, e.target.y, e.source.s.id + " - " + e.target.s.id, "green")
+    e.gl = @add_line(scene, e.source.x, e.source.y, e.target.x, e.target.y, e.source.s.id + " - " + e.target.s.id, "green")
 
   #dump_line(e.gl);
   webgl_restart: ->
     links_set.forEach (d) =>
       @add_webgl_line d
   restart: ->
+    console.log "restart()"
     @svg_restart() if @use_svg
     @force.start()
   show_last_mouse_pos: ->
@@ -948,13 +949,12 @@ class Huviz
         @ensure_predicate(p_name)
         predicate = subj.predicates[p_name]
         oi = 0
-        while oi < predicate.objects.length
-          obj = predicate.objects[oi]
+
+        predicate.objects.forEach (obj,i) =>
           if obj.type is RDF_object
             target = @get_or_make_node(@G.subjects[obj.value], pnt)
-          continue unless target
+          return unless target
           @add_link @make_edge(node, target)
-          oi++
     node.links_from_found = true
 
   find_links_to_node: (d) ->
@@ -1008,13 +1008,14 @@ class Huviz
     incl_discards = incl_discards or false
     subj = n.s
     unless n.links_from_found
+      console.log "about to find_links_from_node",n
       @find_links_from_node n
     else
       n.links_from.forEach (e, i) =>
         @show_link e, incl_discards
 
     @update_state n
-    @force.links links_set
+    @force.links @links_set
     @restart()
 
   hide_links_from_node: (n) ->
@@ -1087,10 +1088,10 @@ class Huviz
   make_links: (g, limit) ->
     limit = limit or 0
     console.log "make_links"
-    @nodes.some (node, i) ->
+    @nodes.some (node, i) =>
       subj = node.s
-      @show_links_from_node nodes[i]
-      true  if (limit > 0) and (links_set.length >= limit)
+      @show_links_from_node @nodes[i]
+      true  if (limit > 0) and (@links_set.length >= limit)
     console.log "/make_links"
     @restart()
 
@@ -1229,6 +1230,7 @@ class Huviz
   #  linked into the graph because another node has been chosen.
   # 
   unchoose: (goner) ->
+    console.log "unchoose",goner
     @chosen_set.remove goner
     @hide_node_links goner
     @unlinked_set.acquire goner
@@ -1238,9 +1240,13 @@ class Huviz
   choose: (chosen) ->
     # There is a flag .chosen in addition to the state 'linked'
     # because linked means it is in the graph
+    console.log "choose",chosen
     @chosen_set.add chosen
+    console.log " *"
     @show_links_from_node chosen
+    console.log "  *"
     @show_links_to_node chosen
+    console.log "   *"
     if chosen.links_shown
       #chosen.state = 'linked';
       @graphed_set.acquire chosen
@@ -1249,7 +1255,9 @@ class Huviz
       #chosen.state = unlinked_set;
       @unlinked_set.acquire chosen
     @update_state chosen
+    console.log "    *"
     @update_flags chosen
+    console.log "     *"    
 
   #update_history();
   update_history: ->
