@@ -113,6 +113,7 @@ class Huviz
   graph_radius: 100
   discard_radius: 200
   fisheye_radius: null # label_show_range * 5
+  fisheye_zoom: 4.0
   focus_radius: null # label_show_range
   drag_dist_threshold: 5
   dragging: false
@@ -129,7 +130,6 @@ class Huviz
 
   search_regex: new RegExp("^$", "ig")
   little_dot: .5
-  fisheye_zoom: 2.8
 
   mousedown_point: [0,0]
   discard_center: [0,0]
@@ -258,13 +258,17 @@ class Huviz
       @move_node_to_point @dragging, @last_mouse_pos
     #@cursor.attr "transform", "translate(" + @last_mouse_pos + ")"
     @tick()
+    
   mousedown: =>
+    #console.log 'mousedown'
     d3_event = @mouse_receiver[0][0]    
     @mousedown_point = d3.mouse(d3_event)
     @last_mouse_pos = @mousedown_point
 
   #e.preventDefault();
   mouseup: =>
+    console.clear()
+    console.log 'mouseup', @dragging or "not", "dragging"
     d3_event = @mouse_receiver[0][0]    
     @mousedown_point = false
     point = d3.mouse(d3_event)
@@ -273,7 +277,7 @@ class Huviz
     # if something was being dragged then handle the drop
     if @dragging
       @move_node_to_point dragging, point
-      if in_discard_dropzone(dragging)
+      if @in_discard_dropzone(dragging)
         console.log "discarding", dragging.name
         @discard @dragging
       else @dragging.fixed = true  if @nodes_pinnable
@@ -282,11 +286,19 @@ class Huviz
         @unchoose dragging
       @dragging = false
       return
-    
+
+
     # if this was a click on a pinned node then unpin it
-    @focused_node.fixed = false  if @nodes_pinnable if @focused_node and @focused_node.fixed and @focused_node.state is @graphed_set
-    return  if distance(point, @mousedown_point) > @drag_dist_threshold # it was a drag, not a click
+    @focused_node.fixed = false if @nodes_pinnable if @focused_node and @focused_node.fixed and @focused_node.state is @graphed_set
+
+    #console.log " more", @focused_node, @drag_dist_threshold
+    console.log "drag detection disabled"
+    # it was a drag, not a click    
+    #return  if distance(point, @mousedown_point) > @drag_dist_threshold 
+
+
     if @focused_node
+      console.log @focused_node.name,"was clicked on"
       unless @focused_node.state is @graphed_set
         @choose @focused_node
       else if @focused_node.showing_links is "all"
@@ -296,6 +308,8 @@ class Huviz
       @force.links @links_set
       #update_flags(@focused_node);
       @restart()
+    else
+      console.log "no focused node"
 
   #///////////////////////////////////////////////////////////////////////////
   # resize-svg-when-window-is-resized-in-d3-js
@@ -480,6 +494,18 @@ class Huviz
           d3.select(svg_node).classed "focused_node", true
         @dump_details new_focused_node
     @focused_node = new_focused_node # possibly null
+    @adjust_cursor()
+
+  adjust_cursor: ->
+    # http://css-tricks.com/almanac/properties/c/cursor/
+    if @focused_node
+      if @focused_node.showing_links is "all"
+        next = 'not-allowed'
+      else:
+        next = 'all-scroll'
+    else
+      next = 'default'
+    $("body").css "cursor", next
 
   draw_edges: ->
     if @use_svg
@@ -564,7 +590,7 @@ class Huviz
         "translate(" + d.fisheye.x + "," + d.fisheye.y + ")"
       ).attr "r", calc_node_radius
     if @use_canvas or @use_webgl
-      console.log "draw_nodes() @nodes:", @nodes.length, "@graphed:", @graphed_set.length
+      #console.log "draw_nodes() @nodes:", @nodes.length, "@graphed:", @graphed_set.length
       @nodes.forEach (d, i) =>
         return unless @graphed_set.has(d)
         if i < 3
@@ -617,6 +643,7 @@ class Huviz
     @clear_canvas()  if @use_canvas or @use_webgl
   tick: =>
     #if (focused_node){	return;    }
+    console.log "tick"
     @blank_screen()
     @draw_dropzones()
     @find_focused_node()
@@ -926,7 +953,7 @@ class Huviz
           if obj.type is RDF_object
             target = @get_or_make_node(@G.subjects[obj.value], pnt)
           continue unless target
-          @add_link make_edge(node, target)
+          @add_link @make_edge(node, target)
           oi++
     node.links_from_found = true
 
