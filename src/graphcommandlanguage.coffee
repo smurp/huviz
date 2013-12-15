@@ -1,19 +1,31 @@
-
+class GCLTest
+  constructor: (script,expect) ->
+    
 class GraphCommand
-  get_nodes: () ->
+  get_node: (node_spec) ->
+    id = node_spec.id
+    term = id
+    tried = []
+    node = @graph_ctrl.nodes.get({'id':term})
+    tried.push(term)
+    unless node
+      @prefixes.forEach (prefix) =>
+        if not node
+          term = prefix+id
+          tried.push(term)
+          node = @graph_ctrl.nodes.get({'id':term})
+    if not node
+      throw new Error("node with id="+term+
+            " not found among "+
+            @graph_ctrl.nodes.length+" nodes: "+tried)
+    return node    
+  get_nodes: () ->    
     nodes = []
     for node_spec in @subjects
-      id = node_spec.id
-      term = id      
-      node = @graph_ctrl.nodes.get({'id':term})
-      unless node
-        @prefixes.forEach (prefix) =>
-          if not node
-            term = prefix+id
-            node = @graph_ctrl.nodes.get({'id':term})
-      if not node
-        throw new Error("node with id="+term+" not found")
-      nodes.append(node)
+      node = @get_node(node_spec)
+      if node
+        nodes.push(node)
+      nodes.push(node)
     return nodes    
   get_methods: () ->  
     methods = []
@@ -21,19 +33,20 @@ class GraphCommand
       method = @graph_ctrl[verb]
       if not method
         throw new Error("method "+method+" not found")
-      methods.append(method)
+      methods.push(method)
     return methods
   execute: (@graph_ctrl,prefixes) ->
     @prefixes = prefixes ? []
     nodes = @get_nodes()
     for meth in @get_methods()
       for node in nodes
-        meth.call(node)
+        console.log "node:",node
+        meth.call(@graph_ctrl,node)
   parse: (cmd_str) ->
     # "choose 'abdyma'"
     parts = cmd_str.split(" ")
     verb = parts[0]
-    subj = parts[1].replace("'","")
+    subj = parts[1].replace(/\'/g,"") 
     cmd =
       verbs: [verb]
       subjects: [{'id': subj}]
