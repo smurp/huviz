@@ -529,7 +529,6 @@ class Huviz
         @draw_line e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, e.color
 
     if @use_webgl
-      #console.clear();
       dx = @width * xmult
       dy = @height * ymult
       dx = -1 * @cx
@@ -724,7 +723,6 @@ class Huviz
     links_set.forEach (d) =>
       @add_webgl_line d
   restart: ->
-    console.log "restart()"
     @svg_restart() if @use_svg
     @force.start()
   show_last_mouse_pos: ->
@@ -780,7 +778,6 @@ class Huviz
       @G = new GreenerTurtle().parse(data, "text/turtle")
     else
       alert "no GreenTurtle"
-      #console.clear()
       console.log "n3",N3
       predicates = {}
       parser = N3.Parser()
@@ -953,7 +950,6 @@ class Huviz
     pnt = [x,y]
     oi = undefined
     if subj
-      console.clear()
       console.log "subj",subj
       for p_name of subj.predicates
         @ensure_predicate(p_name)
@@ -1240,7 +1236,7 @@ class Huviz
   #  This is different from those nodes which find themselves
   #  linked into the graph because another node has been chosen.
   # 
-  unchoose: (goner) ->
+  unchoose: (goner) =>
     console.log "unchoose",goner
     @chosen_set.remove goner
     @hide_node_links goner
@@ -1248,9 +1244,10 @@ class Huviz
     @update_flags goner
 
   #update_history();
-  choose: (chosen) ->
+  choose: (chosen) =>
     # There is a flag .chosen in addition to the state 'linked'
     # because linked means it is in the graph
+    a = 1/0
     @chosen_set.add chosen
     @show_links_from_node chosen
     @show_links_to_node chosen
@@ -1293,8 +1290,17 @@ class Huviz
         @choose chosen  if chosen
 
   showGraph: (g) ->
-    console.log "showGraph"
     @make_nodes g
+    if window.CustomEvent?
+      # http://www.sitepoint.com/javascript-custom-events/
+      window.dispatchEvent(
+        new CustomEvent 'showgraph',
+          detail:
+             message: "graph shown"
+             time: new Date()
+          bubbles: true
+          cancelable: true
+      )
     @restart()
 
   show_the_edges: () ->

@@ -64,17 +64,20 @@
     <script src="application.js?1234"></script>
     <script>
       var HVZ,alice,bob;
-      console.log('ping')
-      window.addEventListener('load',function(){
-        console.log('pong');
-        huviz = require('huviz');
-        HVZ = new huviz.Huviz();
-        HVZ.load_file(); // TODO(shawn) make custom event: fileloaded
+      window.addEventListener('showgraph',function(){
+        console.log('showgraph caught');
         prefix = "http://orlando.cambridge.org/public/svPeople?person_id=";
         gcl = require('graphcommandlanguage');
         gclc = new gcl.GraphCommandLanguageCtrl(HVZ,[prefix]);
-        //gclc.do("choose 'abdyma'")  // TODO(shawn) on fileloaded
+        gclc.do("choose 'abdyma'")
       });
+      
+      window.addEventListener('load',function(){
+        huviz = require('huviz');
+        HVZ = new huviz.Huviz();
+        HVZ.load_file();
+      });
+
     </script>
   </body>
 </html>

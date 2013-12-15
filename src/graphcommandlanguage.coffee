@@ -84,3 +84,5 @@ class GraphCommandLanguageCtrl
       @do(cmd_spec)
   
 (exports ? this).GraphCommandLanguageCtrl = GraphCommandLanguageCtrl
+(exports ? this).GCLTest = GCLTest
+
