@@ -6,8 +6,6 @@ class GreenerTurtle
 
   RDF_object = "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
   build_indices = (graph) ->
-    console.log "BUILD INDICES"
-    
     #console.log("SUBJ",graph.subjects);
     for subj_id of graph.subjects
       subj = graph.subjects[subj_id]
@@ -43,7 +41,6 @@ class GreenerTurtle
       graph.num_subj++
 
   parse: (data, type) ->
-    console.log('GreenTurtle =>',GreenTurtle)
     G = GreenTurtle.implementation.parse(data, type)
     G.oid_2_id_p = {}  unless G.oid_2_id_p
     build_indices G

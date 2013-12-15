@@ -40,7 +40,6 @@ class GraphCommand
     nodes = @get_nodes()
     for meth in @get_methods()
       for node in nodes
-        console.log "node:",node
         meth.call(@graph_ctrl,node)
   parse: (cmd_str) ->
     # "choose 'abdyma'"
@@ -50,16 +49,13 @@ class GraphCommand
     cmd =
       verbs: [verb]
       subjects: [{'id': subj}]
-    console.log cmd
     return cmd
     
     # "choose,label 'abdyma'"
     # "choose like 'Maria'"
     # "choose organizations like 'church'"
     # "choose writers like 'Margaret' regarding family"
-
-    # /(\w+)(,\s*\w+) '(\w+)'/
-    
+    #    /(\w+)(,\s*\w+) '(\w+)'/
 
   # Expect args: verbs, subjects, constraints, regarding
   constructor: (args_or_str) ->
@@ -69,7 +65,6 @@ class GraphCommand
       args = args_or_str
     for arg of args
       @[arg] = args[arg]
-    console.log(this)
   
 class GraphCommandLanguageCtrl
   constructor: (@graph_ctrl,@prefixes) ->

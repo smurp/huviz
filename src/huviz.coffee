@@ -270,7 +270,7 @@ class Huviz
     @last_mouse_pos = @mousedown_point
 
   mouseup: =>
-    console.log 'mouseup', @dragging or "not", "dragging"
+    #console.log 'mouseup', @dragging or "not", "dragging"
     d3_event = @mouse_receiver[0][0]    
     @mousedown_point = false
     point = d3.mouse(d3_event)
@@ -664,7 +664,7 @@ class Huviz
     msg += " DRAG"  if @dragging
     @set_status msg
   svg_restart: ->
-    console.log "svg_restart()"    
+    # console.log "svg_restart()"    
     @link = @link.data(@links_set)
     @link.enter().
       insert("line", ".node").
@@ -700,7 +700,7 @@ class Huviz
 
   #force.nodes(nodes).links(links_set).start();
   canvas_show_text: (txt, x, y) ->
-    console.log "canvas_show_text(" + txt + ")"
+    # console.log "canvas_show_text(" + txt + ")"
     @ctx.fillStyle = "black"
     @ctx.font = "12px Courier"
     @ctx.fillText txt, x, y
@@ -950,17 +950,13 @@ class Huviz
     pnt = [x,y]
     oi = undefined
     if subj
-      console.log "subj",subj
       for p_name of subj.predicates
         @ensure_predicate(p_name)
         predicate = subj.predicates[p_name]
         oi = 0
-
-        console.log predicate.objects
         predicate.objects.forEach (obj,i) =>
           if obj.type is RDF_object
             target = @get_or_make_node(@G.subjects[obj.value], pnt)
-          #  return unless target
           if target
             @add_link @make_edge(node, target)
     node.links_from_found = true
@@ -1094,19 +1090,15 @@ class Huviz
 
   make_links: (g, limit) ->
     limit = limit or 0
-    console.log "make_links"
     @nodes.some (node, i) =>
       subj = node.s
       @show_links_from_node @nodes[i]
       true  if (limit > 0) and (@links_set.length >= limit)
-    console.log "/make_links"
     @restart()
 
   #await_the_GreenTurtle();
   hide_node_links: (node) ->
-    console.log "hide_node_links(" + node.id + ")"
     node.links_shown.forEach (e, i) =>
-      console.log "  ", e.id
       @links_set.remove e
       if e.target is node
         @remove_from e, e.source.links_shown
@@ -1181,7 +1173,6 @@ class Huviz
   set_status: (txt) ->
     txt = txt or ""
     unless @last_status is txt
-      # console.log txt
       $("#status").text txt
     @last_status = txt
 
@@ -1237,7 +1228,6 @@ class Huviz
   #  linked into the graph because another node has been chosen.
   # 
   unchoose: (goner) =>
-    console.log "unchoose",goner
     @chosen_set.remove goner
     @hide_node_links goner
     @unlinked_set.acquire goner
@@ -1247,7 +1237,6 @@ class Huviz
   choose: (chosen) =>
     # There is a flag .chosen in addition to the state 'linked'
     # because linked means it is in the graph
-    a = 1/0
     @chosen_set.add chosen
     @show_links_from_node chosen
     @show_links_to_node chosen
@@ -1376,7 +1365,6 @@ class Huviz
                   attr("r", @label_show_range).
                   attr("transform", "translate(" + @cx + "," + @cy + ")").
                   attr("class", "cursor")
-    console.log("===>",@cursor)
     the_Huviz = this
     @mouse_receiver.
       on("mousemove", @mousemove).
@@ -1395,7 +1383,6 @@ class Huviz
     return @width
 
   load_file: ->
-    console.log this
     @reset_graph()
     data_uri = $("select#file_picker option:selected").val()
     @set_status data_uri
