@@ -19,7 +19,6 @@ w:abdyma ns2:Religious_denomination _:E,
         [ f:name "Smith, Maria,, 1773 - 1829" ] ;
     f:name "Abdy, Maria" .
 
-
 _:E a f:Group ;
     f:name "Anglican Church" .
 

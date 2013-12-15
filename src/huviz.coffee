@@ -441,7 +441,7 @@ class Huviz
       out.push itm.source.name + " ---> " + itm.target.name
     out
   dump_details: (node) ->
-    return
+    return unless window.dump_details
     #
     #    if (! DUMP){
     #      if (node.s.id != '_:E') return;
@@ -455,9 +455,9 @@ class Huviz
     console.log "  chosen:", node.chosen
     console.log "  fisheye:", node.fisheye
     console.log "  fixed:", node.fixed
-    console.log "  links_shown:", node.links_shown.length, names_in_edges(node.links_shown)
-    console.log "  links_to:", node.links_to.length, names_in_edges(node.links_to)
-    console.log "  links_from:", node.links_from.length, names_in_edges(node.links_from)
+    console.log "  links_shown:", node.links_shown.length, @names_in_edges(node.links_shown)
+    console.log "  links_to:", node.links_to.length, @names_in_edges(node.links_to)
+    console.log "  links_from:", node.links_from.length, @names_in_edges(node.links_from)
     console.log "  showing_links:", node.showing_links
     console.log "  in_sets:", node.in_sets
   find_focused_node: ->
@@ -926,6 +926,7 @@ class Huviz
     @add_to e, e.target.links_shown
     @update_flags e.source
     @update_flags e.target
+    @update_state e.target
     @restart()
 
   remove_link: (e) ->
