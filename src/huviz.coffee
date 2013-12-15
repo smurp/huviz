@@ -312,8 +312,7 @@ class Huviz
       @force.links @links_set
       #update_flags(@focused_node);
       @restart()
-    #else
-    #  console.log "no focused node"
+
 
   #///////////////////////////////////////////////////////////////////////////
   # resize-svg-when-window-is-resized-in-d3-js
@@ -846,24 +845,26 @@ class Huviz
       error: (jqxhr, textStatus, errorThrown) ->
         $("#status").text errorThrown + " while fetching " + url
 
-
+  # Deal with buggy situations where flashing the links on and off
+  # fixes data structures.  Not currently needed.
   show_and_hide_links_from_node: (d) ->
     @show_links_from_node d
     @hide_links_from_node d
 
+  # Should be refactored to be get_container_width
   get_window_width: (pad) ->
     pad = pad or hpad
     @width = (window.innerWidth or document.documentElement.clientWidth or document.clientWidth) - pad
     #console.log "get_window_width()",window.innerWidth,document.documentElement.clientWidth,document.clientWidth,"==>",@width
     @cx = @width / 2
 
+  # Should be refactored to be get_container_height
   get_window_height: (pad) ->
     pad = pad or hpad
     @height = (window.innerHeight or document.documentElement.clientHeight or document.clientHeight) - pad
     #console.log "get_window_height()",window.innerHeight,document.documentElement.clientHeight,document.clientHeight,"==>",@height
     @cy = @height / 2
     
-
   update_graph_radius: ->
     @graph_radius = Math.floor(Math.min(@width / 2, @height / 2)) * .9
 
@@ -926,15 +927,15 @@ class Huviz
   add_link: (e) ->
     @links_set.add e
     @add_to e, e.source.links_from
-    @add_to e, e.source.links_shown
+    #@add_to e, e.source.links_shown
     @add_to e, e.target.links_to
-    @add_to e, e.target.links_shown
+    #@add_to e, e.target.links_shown
     @update_flags e.source
     @update_flags e.target
     @update_state e.target
     # should we do;
     #    @update_state e.source
-    @restart()
+    #@restart()
 
   remove_link: (e) ->
     return  if @links_set.indexOf(e) is -1
@@ -989,9 +990,12 @@ class Huviz
 
   show_links_to_node: (n, incl_discards) ->
     incl_discards = incl_discards or false
-    @find_links_to_node n  unless n.links_to_found
+    if not n.links_to_found
+      @find_links_to_node n  
     n.links_to.forEach (e, i) =>
       @show_link e, incl_discards
+    @update_flags n
+    @update_state n
     @force.links @links_set
     @restart()
 
@@ -1017,14 +1021,10 @@ class Huviz
 
   show_links_from_node: (n, incl_discards) ->
     incl_discards = incl_discards or false
-    subj = n.s
-    unless n.links_from_found
-      console.log "about to find_links_from_node",n
+    if not n.links_from_found
       @find_links_from_node n
-    else
-      n.links_from.forEach (e, i) =>
-        @show_link e, incl_discards
-
+    n.links_from.forEach (e, i) =>
+      @show_link e, incl_discards
     @update_state n
     @force.links @links_set
     @restart()
@@ -1251,13 +1251,9 @@ class Huviz
   choose: (chosen) ->
     # There is a flag .chosen in addition to the state 'linked'
     # because linked means it is in the graph
-    console.log "choose",chosen
     @chosen_set.add chosen
-    console.log " *"
     @show_links_from_node chosen
-    console.log "  *"
     @show_links_to_node chosen
-    console.log "   *"
     if chosen.links_shown
       #chosen.state = 'linked';
       @graphed_set.acquire chosen
@@ -1266,9 +1262,7 @@ class Huviz
       #chosen.state = unlinked_set;
       @unlinked_set.acquire chosen
     @update_state chosen
-    console.log "    *"
     @update_flags chosen
-    console.log "     *"    
 
   #update_history();
   update_history: ->

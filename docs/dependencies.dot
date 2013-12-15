@@ -11,6 +11,7 @@
 */
 
 digraph huviz_plan {
+	node [ style = filled ];
 	randkdir=LR;
 
 	subgraph qp {
@@ -28,10 +29,10 @@ digraph huviz_plan {
 	smurpquads -> quadpars;
 	rdfquads -> quadpars;
 	quadpars[label="NQuad\nparser\nin browser"];
-	greenturtle[label="restore\ngreenturtle"];
+	greenturtle[label="restore\ngreenturtle",color=darkseagreen4];
 	greenturtle -> workdata;
 	
-	workdata[label="Working\nData"];
+	workdata[label="Working\nData",color=darkseagreen4];
 	start[shape=Mdiamond];
 	pickpath[label="choose",shape=diamond];
 	start -> pickpath;
@@ -43,8 +44,11 @@ digraph huviz_plan {
 	quadpars -> servsnip;
 
 	node [shape = circle];
-	dg[label="Debug Graph"];
-
+	dg[label="Debug\nGraph",color=darkseagreen4];
+        testing[label="Automated\nTesting"];
+        essential[color=darkseagreen4,shape=rect];
+	helpful[shape=rect];
+	optional[shape=rect];
 	essential -> Demo;
 	optional -> Demo;
 	dispsnip -> optional;
@@ -55,9 +59,16 @@ digraph huviz_plan {
 	
 	dispsnip[label="Display\nSnippets"];
     	servsnip[label="Serve\nSnippets"];
-	me[label="Multiple Edges"];
+	me[label="Multiple\nEdges"];
 	dg -> essential;
 	me -> optional;
+	runcom[label="run\ncommands",color=darkseagreen4];
+	runcom -> dispcom;
+        runcom -> testing;
+        testing -> helpful;
+	helpful -> dispsnip;
+        helpful -> dg;
+
 	dispcom[label="display\ncommands"];
 
 	clkcom[label="clicking\nmakes\ncommands"];
@@ -66,7 +77,7 @@ digraph huviz_plan {
 	txtedcom[label="textually\nedit\ncommands"];
         dispcom -> txtedcom;
 
-	gredcom[label="graphically\nedit\commands"];
+	gredcom[label="graphically\nedit\ncommands"];
 	dispcom -> gredcom;
 
 	dispcom -> optional;

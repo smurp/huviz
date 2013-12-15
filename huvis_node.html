@@ -69,7 +69,11 @@
         console.log('pong');
         huviz = require('huviz');
         HVZ = new huviz.Huviz();
-        HVZ.load_file();
+        HVZ.load_file(); // TODO(shawn) make custom event: fileloaded
+        prefix = "http://orlando.cambridge.org/public/svPeople?person_id=";
+        gcl = require('graphcommandlanguage');
+        gclc = new gcl.GraphCommandLanguageCtrl(HVZ,[prefix]);
+        // gclc.do("choose 'abdyma'")  // TODO(shawn) on fileloaded
       });
     </script>
   </body>

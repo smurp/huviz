@@ -2,7 +2,9 @@
   SortedSet
   
   SortedSet is a javascript Array which stays sorted and permits only
-  once instance of each itm to be added.  It adds these methods:
+  once instance of each itm to be added.  
+
+  It adds these methods:
     add(itm)
     has(itm) => bool
     acquire(itm) # remove(itm) from prior set then add(itm) to this
@@ -11,9 +13,31 @@
       sort_on(function(a,b){ return -1,0 or 1})
     remove(itm)
     binary_search(sought[,ret_ins_idx])
-    isState(state_name) # makes the sortedset act in mutual exclusion with others
-    isFlag(flag_name) # items in the set get the property [flag_name]
     clear() # empty the set
+
+  SortedSet also supports the notion of items belonging to mutually exclusive 
+  sets, represented as "being in mutually exclusive states".
+    isState(state_name) # makes the sortedset act in mutual exclusion with others
+  If an item is "in a state" then its .state property contains a link to 
+  the sortedset "it is currently in".
+
+  If one wants to record membership on items by attaching flags to them
+  this can be accomplished with SortedSet.isFlag(flag_name)
+    isFlag(flag_name) # items in the set get the property [flag_name]
+
+  dead = new SortedSet().isState('dead')
+  alive = new SortedSet().isState('alive')
+  sick = new SortedSet().isFlag('sick')
+  amputee = new SortedSet().isFlag('amputee')
+  
+  alice = {'id':'alice'};
+  alive.add(alice);
+  amputee.add(alice)
+  alice.state == alive; // ==> true
+  alice.state == dead;  // ==> false
+  dead.acquire(alice);
+  !!alice.amputee == true; // ==> true
+
 
   author: Shawn Murphy <smurp@smurp.com>
   written: 2013-11-15
@@ -117,6 +141,12 @@ var SortedSet = function(){
 	    last_state.remove(itm);
 	}
 	return array.add(itm);
+    };
+    array.get = function(sought){
+	var idx = array.binary_search(sought);
+	if (idx > -1){
+	    return array[idx];
+	}
     };
     array.binary_search = function(sought,ret_ins_idx){
 	// return -1 or the idx of sought in this
