@@ -131,7 +131,7 @@ class Huviz
   search_regex: new RegExp("^$", "ig")
   little_dot: .5
 
-  mousedown_point: [0,0]
+  mousedown_point: false
   discard_center: [0,0]
   lariat_center: [0,0]
   last_mouse_pos: [ 0, 0]
@@ -239,9 +239,11 @@ class Huviz
       "red" # Other people
     else
       "blue" # the writers
+
   move_node_to_point: (node, point) ->
     node.x = point[0]
     node.y = point[1]
+    
   mousemove: =>
     d3_event = @mouse_receiver[0][0]
     #console.log('mousemove',this,d3_event)
@@ -250,10 +252,12 @@ class Huviz
     if not @dragging and @mousedown_point and @focused_node and
         distance(@last_mouse_pos, @mousedown_point) > @drag_dist_threshold and
         @focused_node.state is @graphed_set
+      # We can only know that the users intention is to drag
+      # a node once sufficient motion has started, when there
+      # is a focused_node
       @dragging = @focused_node
     if @dragging
-      @force.resume()
-      
+      @force.resume() # why?
       #console.log(@focused_node.x,@last_mouse_pos);
       @move_node_to_point @dragging, @last_mouse_pos
     #@cursor.attr "transform", "translate(" + @last_mouse_pos + ")"
@@ -265,7 +269,6 @@ class Huviz
     @mousedown_point = d3.mouse(d3_event)
     @last_mouse_pos = @mousedown_point
 
-  #e.preventDefault();
   mouseup: =>
     console.log 'mouseup', @dragging or "not", "dragging"
     d3_event = @mouse_receiver[0][0]    
@@ -275,28 +278,31 @@ class Huviz
     #console.log(point,mousedown_point,distance(point,mousedown_point));
     # if something was being dragged then handle the drop
     if @dragging
-      @move_node_to_point dragging, point
-      if @in_discard_dropzone(dragging)
-        console.log "discarding", dragging.name
+      @move_node_to_point @dragging, point
+      if @in_discard_dropzone(@dragging)
+        console.log "discarding", @dragging.name
         @discard @dragging
       else @dragging.fixed = true  if @nodes_pinnable
       if @in_disconnect_dropzone(@dragging)
         console.log "disconnect", @dragging.name
-        @unchoose dragging
+        @unchoose @dragging
       @dragging = false
       return
 
-
     # if this was a click on a pinned node then unpin it
-    @focused_node.fixed = false if @nodes_pinnable if @focused_node and @focused_node.fixed and @focused_node.state is @graphed_set
+    if @nodes_pinnable and @focused_node and
+        @focused_node.fixed and @focused_node.state is @graphed_set
+      @focused_node.fixed = false 
 
     #console.log " more", @focused_node, @drag_dist_threshold
-    console.log "drag detection disabled"
-    # it was a drag, not a click    
-    #return  if distance(point, @mousedown_point) > @drag_dist_threshold 
+    # it was a drag, not a click
+    drag_dist = distance(point, @mousedown_point)
+    #if drag_dist > @drag_dist_threshold
+    #  console.log "drag detection probably bugged",point,@mousedown_point,drag_dist
+    #  return
 
     if @focused_node
-      console.log @focused_node.name,"was clicked on"
+      #console.log @focused_node.name,"was clicked on"
       unless @focused_node.state is @graphed_set
         @choose @focused_node
       else if @focused_node.showing_links is "all"
@@ -306,8 +312,8 @@ class Huviz
       @force.links @links_set
       #update_flags(@focused_node);
       @restart()
-    else
-      console.log "no focused node"
+    #else
+    #  console.log "no focused node"
 
   #///////////////////////////////////////////////////////////////////////////
   # resize-svg-when-window-is-resized-in-d3-js
@@ -460,6 +466,7 @@ class Huviz
     console.log "  links_from:", node.links_from.length, @names_in_edges(node.links_from)
     console.log "  showing_links:", node.showing_links
     console.log "  in_sets:", node.in_sets
+
   find_focused_node: ->
     return if @dragging
     new_focused_node = undefined
@@ -494,13 +501,15 @@ class Huviz
     @focused_node = new_focused_node # possibly null
     @adjust_cursor()
 
+  showing_links_to_cursor_map:
+    all: 'not-allowed'
+    some: 'all-scroll'
+    none: 'help'
+    
   adjust_cursor: ->
     # http://css-tricks.com/almanac/properties/c/cursor/
     if @focused_node
-      if @focused_node.showing_links is "all"
-        next = 'not-allowed'
-      else:
-        next = 'all-scroll'
+      next = @showing_links_to_cursor_map[@focused_node.showing_links]
     else
       next = 'default'
     $("body").css "cursor", next
@@ -518,10 +527,6 @@ class Huviz
 
     if @use_canvas
       @links_set.forEach (e, i) =>
-        #
-        #	if (! e.target.fisheye) 
-        #	    e.target.fisheye = fisheye(e.target);
-        #	    
         @draw_line e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, e.color
 
     if @use_webgl
@@ -927,6 +932,8 @@ class Huviz
     @update_flags e.source
     @update_flags e.target
     @update_state e.target
+    # should we do;
+    #    @update_state e.source
     @restart()
 
   remove_link: (e) ->
@@ -1032,7 +1039,7 @@ class Huviz
       @update_flags e.source
       @update_flags e.target
 
-    @force.links links_set
+    @force.links @links_set
     @restart()
 
   get_or_make_node: (subject, start_point, linked) ->
