@@ -351,7 +351,7 @@ class RDFEmitter(FormatEmitter):
                 #    node = BNode(ID)
             #self.store.add((node,FOAF.name,Literal(standard_name)))
             entuple = [node,FOAF.name,Literal(standard_name)]
-            if options.capture_context:
+            if options.capture_context and hasattr(self,'universal'):
                 entuple.append(self.universal)
                 self.store.addN([entuple])
             else:

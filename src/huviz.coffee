@@ -169,7 +169,7 @@ class Huviz
     # return -1 or the idx of sought in sorted_array
     # if ret_ins_idx instead of -1 return [n] where n is where it ought to be
     # AKA "RETurn the INSertion INdeX"
-    cmp = cmp or sorted_array.__current_sort_order or cmp_on_id
+    cmp = cmp or sorted_array.__current_sort_order or @cmp_on_id
     ret_ins_idx = ret_ins_idx or false
     seeking = true
     if sorted_array.length < 1
@@ -267,7 +267,6 @@ class Huviz
 
   #e.preventDefault();
   mouseup: =>
-    console.clear()
     console.log 'mouseup', @dragging or "not", "dragging"
     d3_event = @mouse_receiver[0][0]    
     @mousedown_point = false
@@ -332,8 +331,8 @@ class Huviz
   #///////////////////////////////////////////////////////////////////////////
   # 
   #   http://bl.ocks.org/mbostock/929623
-  get_charge: (d) ->
-    return 0  unless @graphed_set?has(d)
+  get_charge: (d) =>
+    return 0  unless @graphed_set.has(d)
     @charge
 
   # lines: 5845 5848 5852 of d3.v3.js object to
@@ -362,12 +361,12 @@ class Huviz
     @ctx.stroke()
   draw_disconnect_dropzone: ->
     @ctx.save()
-    @ctx.lineWidth = graph_radius * 0.1
+    @ctx.lineWidth = @graph_radius * 0.1
     @draw_circle @lariat_center[0], @lariat_center[1], @graph_radius, "lightgreen"
     @ctx.restore()
   draw_discard_dropzone: ->
     @ctx.save()
-    @ctx.lineWidth = discard_radius * 0.1
+    @ctx.lineWidth = @discard_radius * 0.1
     @draw_circle @discard_center[0], @discard_center[1], @discard_radius, "", "salmon"
     @ctx.restore()
   draw_dropzones: ->
@@ -532,7 +531,7 @@ class Huviz
       dx = -1 * @cx
       dy = -1 * @cy
       @links_set.forEach (e) =>
-        e.target.fisheye = fisheye(e.target)  unless e.target.fisheye
+        e.target.fisheye = @fisheye(e.target)  unless e.target.fisheye
         @add_webgl_line e  unless e.gl
         l = e.gl
         
@@ -592,9 +591,9 @@ class Huviz
       #console.log "draw_nodes() @nodes:", @nodes.length, "@graphed:", @graphed_set.length
       @nodes.forEach (d, i) =>
         return unless @graphed_set.has(d)
-        if i < 3
-          console.log i,d
-        d.fisheye = fisheye(d)
+        #if i < 3
+        #  console.log i,d
+        d.fisheye = @fisheye(d)
         if @use_canvas
           @draw_circle(d.fisheye.x, d.fisheye.y,
                        @calc_node_radius(d),
@@ -739,14 +738,14 @@ class Huviz
     id: s.id + " " + t.id
 
   add_to: (itm, array, cmp) ->
-    cmp = cmp or array.__current_sort_order or cmp_on_id
+    cmp = cmp or array.__current_sort_order or @cmp_on_id
     c = @binary_search_on(array, itm, cmp, true)
     return c  if typeof c is typeof 3
     array.splice c.idx, 0, itm
     c.idx
 
   remove_from: (itm, array, cmp) ->
-    cmp = cmp or array.__current_sort_order or cmp_on_id
+    cmp = cmp or array.__current_sort_order or @cmp_on_id
     c = @binary_search_on(array, itm, cmp)
     array.splice c, 1  if c > -1
     array
@@ -945,16 +944,20 @@ class Huviz
     pnt = [x,y]
     oi = undefined
     if subj
+      console.clear()
+      console.log "subj",subj
       for p_name of subj.predicates
         @ensure_predicate(p_name)
         predicate = subj.predicates[p_name]
         oi = 0
 
+        console.log predicate.objects
         predicate.objects.forEach (obj,i) =>
           if obj.type is RDF_object
             target = @get_or_make_node(@G.subjects[obj.value], pnt)
-          return unless target
-          @add_link @make_edge(node, target)
+          #  return unless target
+          if target
+            @add_link @make_edge(node, target)
     node.links_from_found = true
 
   find_links_to_node: (d) ->
@@ -981,7 +984,7 @@ class Huviz
     @find_links_to_node n  unless n.links_to_found
     n.links_to.forEach (e, i) =>
       @show_link e, incl_discards
-    @force.links links_set
+    @force.links @links_set
     @restart()
 
   update_state: (node) ->
@@ -1001,7 +1004,7 @@ class Huviz
       @update_flags e.target
 
     @update_state n
-    @force.links links_set
+    @force.links @links_set
     @restart()
 
   show_links_from_node: (n, incl_discards) ->
@@ -1134,7 +1137,7 @@ class Huviz
     for sub_id of @G.subjects
       subj = @G.subjects[sub_id]
       subj.getValues("f:name").forEach (name) =>
-        if name.match(search_regex)
+        if name.match(@search_regex)
           node = @get_or_make_node(subj, [cx,cy])
           @show_node_links node  if node
     @restart()

@@ -4,9 +4,16 @@
   SortedSet is a javascript Array which stays sorted and permits only
   once instance of each itm to be added.  It adds these methods:
     add(itm)
-    sort_on(f_or_k)
+    has(itm) => bool
+    acquire(itm) # remove(itm) from prior set then add(itm) to this
+    sort_on(f_or_k) # eg
+      sort_on('some_property_name')
+      sort_on(function(a,b){ return -1,0 or 1})
     remove(itm)
     binary_search(sought[,ret_ins_idx])
+    isState(state_name) # makes the sortedset act in mutual exclusion with others
+    isFlag(flag_name) # items in the set get the property [flag_name]
+    clear() # empty the set
 
   author: Shawn Murphy <smurp@smurp.com>
   written: 2013-11-15

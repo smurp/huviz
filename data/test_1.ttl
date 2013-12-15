@@ -1,5 +1,7 @@
 @prefix d: <http://purl.org/dc/elements/1.1/> .
 @prefix f: <http://xmlns.com/foaf/0.1/> .
+@prefix ns1: <http://orlan.do/> .
+@prefix ns2: <http://en.wikipedia.org/wiki/> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix w: <http://orlando.cambridge.org/public/svPeople?person_id=> .
@@ -7,25 +9,22 @@
 @prefix xml: <http://www.w3.org/XML/1998/namespace> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<abdyma> <childOf> <C>,
-        <D> ;
-    <connectionToOrganization> <E>,
-        <F>,
-        <G> ;
-    f:name "Abdy, Maria" ;
-    <parentOf> <B> ;
-    <religiousInfluence> <E>,
-        <F> .
+w:abdyma ns2:Religious_denomination _:E,
+        _:F ;
+    ns1:connectionToOrganization _:E,
+        _:F,
+        _:G ;
+    x:child [ f:name "Abdy, Albert Channing" ] ;
+    x:parent [ f:name "Smith, Richard" ],
+        [ f:name "Smith, Maria,, 1773 - 1829" ] ;
+    f:name "Abdy, Maria" .
 
-<B> f:name "Abdy, Albert Channing" .
 
-<C> f:name "Smith, Richard" .
+_:E a f:Group ;
+    f:name "Anglican Church" .
 
-<D> f:name "Smith, Maria,, 1773 - 1829" .
+_:G a f:Group ;
+    f:name "British Library" .
 
-<G> f:name "British Library" .
-
-<E> f:name "Anglican Church" .
-
-<F> f:name "Dissenters" .
-
+_:F a f:Group ;
+    f:name "Dissenters" .

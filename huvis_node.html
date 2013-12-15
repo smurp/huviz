@@ -20,14 +20,14 @@
       </div>
       <div style="border-width:1">
 	<div id="search" class="search_box" contenteditable="true"></div>
-	<div id="show_links" class="button" onclick="show_found_links(this)">show links</div>
-	<div id="hide_links" class="button" onclick="hide_found_links(this)">hide links</div>
-	<div id="discard_nodes" class="button" onclick="discard_found_nodes(this)">discard nodes</div>
+	<div id="show_links" class="button" onclick="HVZ.show_found_links(this)">show links</div>
+	<div id="hide_links" class="button" onclick="HVZ.hide_found_links(this)">hide links</div>
+	<div id="discard_nodes" class="button" onclick="HVZ.discard_found_nodes(this)">discard nodes</div>
       </div>
       <div id="show_labels">
          <label for="show_labels_input">show labels</label>
          <input type="checkbox" id="show_labels_input" 
-                onchange="toggle_label_display(this)"/>
+                onchange="HVZ.toggle_label_display(this)"/>
       </div>
       <div id="hide_links" 
 	   onclick="hide_all_links(this)"
@@ -61,21 +61,14 @@
       <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     -->
     <script>window.exports = {};</script>
-    <script src="application.js?oinkd"></script>
+    <script src="application.js?1234"></script>
     <script>
       var HVZ,alice,bob;
       console.log('ping')
       window.addEventListener('load',function(){
         console.log('pong');
-        //console.log('d3',d3);
         huviz = require('huviz');
         HVZ = new huviz.Huviz();
-        console.log(HVZ);
-        console.log("use_canvas",HVZ.use_canvas);
-        // HVZ.load_file();
-        //console.log('HVZ',HVZ);
-        require('zoo').test_Zoo();
-        console.log(HVZ.get_jiggy());
         HVZ.load_file();
       });
     </script>
