@@ -63,12 +63,29 @@
     <script>window.exports = {};</script>
     <script src="application.js?1234"></script>
     <script>
-      var HVZ,alice,bob;
+      var HVZ;
+      var gcl = require('graphcommandlanguage');
+      window.addEventListener('showgraph',function(){
+        prefix = "http://orlando.cambridge.org/public/svPeople?person_id=";
+        gclc = new gcl.GraphCommandLanguageCtrl(HVZ,[prefix]);
+        gclc.run_one("choose 'abdyma'")
+        ts = new gcl.GCLTestSuite(
+            gclc,[
+             [
+              ["choose 'abdyma'"],
+              function(){
+                this.expect(this.graph_ctrl.nodes.length,7);
+                this.expect(this.graph_ctrl.unlinked_set.length,0);
+              }
+             ] // end of first script/function pair
+            ] // end of array of script/function pairs
+          );
+      });
       window.addEventListener('showgraph',function(){
         prefix = "http://orlando.cambridge.org/public/svPeople?person_id=";
         gcl = require('graphcommandlanguage');
         gclc = new gcl.GraphCommandLanguageCtrl(HVZ,[prefix]);
-        gclc.do("choose 'abdyma'")
+        //gclc.run_one("choose 'abdyma'")
       });
       
       window.addEventListener('load',function(){
