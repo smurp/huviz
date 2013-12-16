@@ -1395,8 +1395,9 @@ class Huviz
     @restart()
 
     @set_search_regex("")
-    document.getElementById('search').
-                  addEventListener("input", @update_searchterm)
+    search_input = document.getElementById('search')
+    if search_input
+      search_input.addEventListener("input", @update_searchterm)
     #$(".search_box").on "input", @update_searchterm
     window.addEventListener "resize", @updateWindow  
 

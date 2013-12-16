@@ -13,6 +13,7 @@ class CommandController
     @comdiv = d3.select(@container).append("div").attr('class','command')
     @verbdiv = @comdiv.append('div')
     @taxdiv = @comdiv.append('div')
+    @likediv = @comdiv.append('div')    
     @build_form()
   verb_sets: [ # mutually exclusive within each set
     {choose: 'choose', unchoose: 'unchoose'},
@@ -27,8 +28,20 @@ class CommandController
   build_form: () ->
     @build_verb_form()
     #@build_taxonomy_form()
-    #@build_like()
-    #@build_submit()
+    @build_like()
+    @build_submit()
+  build_like: () ->
+    @likediv.text('like:')
+    @like_input = @likediv.append('input')
+  build_submit: () ->
+    @doit_butt = @comdiv.append("input").
+           attr("type","submit").
+           attr('value','Do it')
+    @doit_butt.on 'click', () =>
+      cmd = @get_current_command()
+      @huviz.gclc.run(cmd)
+  get_current_command: () ->
+    return "choose '_:E'"
   build_verb_form: () ->
     last_slash = null
     last_group_sep = null    
