@@ -23,7 +23,6 @@ class CommandController
   verbs_override:
     choose: ['discard','unchoose']
     discard: ['choose','retrieve']
-  engaged_verbs: []
   hierarchy: [ anything: ['Anything', {people: ['People', {writers: 'Writers', others: 'Others'}], orgs: ['Organizations']}]]
   build_form: () ->
     @build_verb_form()
@@ -40,12 +39,30 @@ class CommandController
       last_group_sep = @verbdiv.append('text').text(',')        
       last_slash.remove()
     last_group_sep.remove()
-  engage_verb: (d) ->
+  get_verbs_overridden_by: (verb_id) ->
+    override = @verbs_override[verb_id] || []
+    for vset in @verb_sets
+      if vset[verb_id]
+        for vid,label of vset
+          if not (vid in override) and verb_id isnt vid
+            override.push(vid)
+    #console.log verb_id,"overrides",override
+    return override
+  engaged_verbs: []
+  engage_verb: (verb_id) ->
+    overrides = @get_verbs_overridden_by(verb_id)
+    for vid in @engaged_verbs
+      if vid in overrides
+        @disengage_verb(vid)
+    if not (verb_id in @engaged_verbs)
+      @engaged_verbs.push(verb_id)
+  disengage_verb: (verb_id) ->
+    @engaged_verbs.filter (verb) -> verb isnt verb_id
+    @verb_control[verb_id].classed('engaged',false)
   verb_control: {}
   append_verb_control: (id,label) ->
     vbctl = @verbdiv.append('span').attr("class","verb")
     @verb_control[id] = vbctl
-    #vbctl.data('verb_id',id)
     vbctl.text(label)
     that = @
     vbctl.on 'click', () ->
@@ -54,4 +71,6 @@ class CommandController
       elem.classed('engaged',newstate)
       if newstate
         that.engage_verb(id)
+      else
+        that.disengage_verb(id)
 (exports ? this).CommandController = CommandController    
