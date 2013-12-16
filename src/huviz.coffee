@@ -1331,19 +1331,16 @@ class Huviz
   cursor: null
 
   register_gclc_prefixes: =>
-    #console.log "register_gclc_prefixes()"
     @gclc.prefixes = {}
     for abbr,prefix of @G.prefixes
-      #console.log "add",abbr,prefix
       @gclc.prefixes[abbr] = prefix
-    #console.log "@register_gclc_prefixes() =>",@gclc.prefixes
 
   init_gclc: ->
     gcl = require('graphcommandlanguage')
-    #console.log "init_gclc",gcl    
+    gclui = require('gclui')
     if gcl
       @gclc = new gcl.GraphCommandLanguageCtrl(this)
-      #console.log "gclc",@gclc
+      @gclui = new gclui.CommandController(this,d3.select("#gclui")[0][0])
       window.addEventListener 'showgraph', @register_gclc_prefixes
 
   constructor: ->

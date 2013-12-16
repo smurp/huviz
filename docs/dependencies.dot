@@ -45,7 +45,7 @@ digraph huviz_plan {
 
 	node [shape = circle];
 	dg[label="Debug\nGraph",color=darkseagreen4];
-        testing[label="Automated\nTesting"];
+        testing[label="Automated\nTesting",color=darkseagreen4];
         essential[color=darkseagreen4,shape=rect];
 	helpful[shape=rect];
 	optional[shape=rect];

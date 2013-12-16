@@ -6,8 +6,10 @@
     <link href="/css/huvis_controls.css" rel="stylesheet" type="text/css">
     <link href="/css/lariat.css" rel="stylesheet" type="text/css">
     <link href="/css/CRRT.css" rel="stylesheet" type="text/css">
+    <link href="/css/gclui.css" rel="stylesheet" type="text/css">
   </head>
   <body>
+    <div id="gclui"></div>
     <div id="huvis_controls">
       <div id="file_picker_box">
         <select id="file_picker" onchange="HVZ.load_file()" >
@@ -48,6 +50,25 @@
            <label for="use_webgl_input">use_webgl</label>
            <input type="checkbox" id="use_webgl_input" 
                   onchange="toggle_display_tech(this,use_webgl)"/>
+        </div>
+      </div>
+      <div id="commands">
+        <div id="newcommand">
+          <div id="verbs">
+            <span id="choose">choose</span>,
+            <span id="label">label</span>,
+            <span id="unlabel">unlabel</span>,
+            <span id="discard">discard</span>,
+            <span id="collapse">collapse</span>
+          </div>
+          <div id="classes">
+            <span id="people">people</span>,
+            <span id="writers">writers</span>,
+            <span id="others">others</span> or
+            <span id="orgs">organizations</span>
+            <span id="everything"></span>
+          like: <input id="like" name="like"/>
+          <input type=submit value="Do It"/>
         </div>
       </div>
     </div>
