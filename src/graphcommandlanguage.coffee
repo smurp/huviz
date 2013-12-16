@@ -1,17 +1,16 @@
 class GCLTest
-  constructor: (@runner,@script,@callback) ->
+  constructor: (@runner,@script,@expectations) ->
     @graph_ctrl = @runner.gclc.graph_ctrl
-    
   perform: ->
     @runner.gclc.run(@script)
-    console.log @callback
-    @callback.call(this)
-  expect: (got,expected,msg) ->
-    console.log(got,expected,msg)
-    if got != expected
-      #msg = msg ? ""+got+" != "+expected
-      msg = "oink"
-      return msg
+    for exp in @expectations
+      got = eval(exp[0])
+      expected = exp[1]
+      if @runner.verbose
+        console.log "got="+got + " expected:"+expected
+      if got != expected
+        msg = msg ? ""+got+" != "+expected
+        return msg
 
 class GCLTestSuite
   ###
@@ -19,18 +18,28 @@ class GCLTestSuite
   #    this.expect(this.graph_ctrl.nodes.length,7);
   #    this.expect(this.graph_ctrl.unlinked_set.length,0);
   # }
-  # ts = new GCLTestSuite(gclc,["choose 'abdyma'"],callback)
+  # ts = new GCLTestSuite(gclc, [
+  #      {script:"choose 'abdyma'",
+  #       expectations: [
+  #           ["this.graph_ctrl.nodes.length",7],
+  #           ["this.graph_ctrl.unlinked_set.length",0],
+  #       ]
+  #      }
+  #     ])
   ###
   constructor: (@gclc,@suite) ->
+  run: ->
     pass_count = 0
     errors = []
     fails = []
     num = 0
-    for scr_clbk in @suite
+    for spec in @suite
       num++
-      test = new GCLTest(this,scr_clbk[0],scr_clbk[1])
+      test = new GCLTest(this,spec.script,spec.expectations)
       try
         retval = test.perform()
+        if @verbose
+          console.log retval
         if retval?
           fails.push([num,retval])
         else
@@ -113,15 +122,16 @@ class GraphCommand
   
 class GraphCommandLanguageCtrl
   constructor: (@graph_ctrl,@prefixes) ->
-  run: (commands) ->
-    @commands =  commands ? @commands
+  run: (script) ->
+    @commands =  script.split(';')
     @execute()
   run_one: (cmd_spec) ->
     cmd = new GraphCommand(cmd_spec)
     cmd.execute(@graph_ctrl,@prefixes)
   execute: () ->
     for cmd_spec in @commands
-      @run_one(cmd_spec)
+      if cmd_spec
+        @run_one(cmd_spec)
   
 (exports ? this).GraphCommandLanguageCtrl = GraphCommandLanguageCtrl
 (exports ? this).GCLTest = GCLTest

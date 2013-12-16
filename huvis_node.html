@@ -71,21 +71,29 @@
         gclc.run_one("choose 'abdyma'")
         ts = new gcl.GCLTestSuite(
             gclc,[
-             [
-              ["choose 'abdyma'"],
-              function(){
-                this.expect(this.graph_ctrl.nodes.length,7);
-                this.expect(this.graph_ctrl.unlinked_set.length,0);
+             {script: "choose 'abdyma'",
+              expectations: [
+                 ["this.graph_ctrl.nodes.length",7],
+                 ["this.graph_ctrl.unlinked_set.length",0]
+                ]
+              },
+             {script: "discard 'abdyma'",
+              expectations: [
+                 ["this.graph_ctrl.nodes.length",7],
+                 ["this.graph_ctrl.unlinked_set.length",6],
+                 ["this.graph_ctrl.discarded_set.length",1],
+                ]
               }
-             ] // end of first script/function pair
-            ] // end of array of script/function pairs
+             ]
           );
+        //ts.verbose = true;
+        ts.run();
       });
       window.addEventListener('showgraph',function(){
         prefix = "http://orlando.cambridge.org/public/svPeople?person_id=";
         gcl = require('graphcommandlanguage');
         gclc = new gcl.GraphCommandLanguageCtrl(HVZ,[prefix]);
-        //gclc.run_one("choose 'abdyma'")
+        //gclc.run("choose 'abdyma'")
       });
       
       window.addEventListener('load',function(){
