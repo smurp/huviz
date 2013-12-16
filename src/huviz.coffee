@@ -643,15 +643,12 @@ class Huviz
   blank_screen: ->
     @clear_canvas()  if @use_canvas or @use_webgl
   tick: =>
-    #if (focused_node){	return;    }
-    #console.log "tick"
+    # return if @focused_node   # <== policy: freeze screen when selected
     @blank_screen()
     @draw_dropzones()
     @find_focused_node()
     @fisheye.focus @last_mouse_pos
-    
     @show_last_mouse_pos()
-    #find_focused_node();
     @position_nodes()
     @draw_edges()
     @draw_nodes()
@@ -660,7 +657,12 @@ class Huviz
     @draw_labels()
     @update_status()
   update_status: ->
-    msg = "linked:" + @nodes.length + " unlinked:" + @unlinked_set.length + " links:" + @links_set.length + " discarded:" + @discarded_set.length + " subjects:" + @G.num_subj + " chosen:" + @chosen_set.length
+    msg = "linked:" + @nodes.length +
+          " unlinked:" + @unlinked_set.length +
+          " links:" + @links_set.length +
+          " discarded:" + @discarded_set.length +
+          " subjects:" + @G.num_subj +
+          " chosen:" + @chosen_set.length
     msg += " DRAG"  if @dragging
     @set_status msg
   svg_restart: ->
@@ -776,6 +778,7 @@ class Huviz
     #
     if GreenerTurtle?
       @G = new GreenerTurtle().parse(data, "text/turtle")
+
     else
       alert "no GreenTurtle"
       console.log "n3",N3
@@ -922,11 +925,14 @@ class Huviz
       n.showing_links = "none"
 
   add_link: (e) ->
-    @links_set.add e
+    show = e.source.state isnt @discarded_set and
+           e.target.state isnt @discarded_set
+    if show 
+      @links_set.add e
+      @add_to e, e.source.links_shown
+      @add_to e, e.target.links_shown
     @add_to e, e.source.links_from
-    #@add_to e, e.source.links_shown
     @add_to e, e.target.links_to
-    #@add_to e, e.target.links_shown
     @update_flags e.source
     @update_flags e.target
     @update_state e.target
@@ -941,6 +947,8 @@ class Huviz
     @links_set.remove e
     @update_flags e.source
     @update_flags e.target
+    @update_state e.target
+    @update_state e.source
 
   find_links_from_node: (node) ->
     target = undefined
@@ -983,7 +991,7 @@ class Huviz
   show_links_to_node: (n, incl_discards) ->
     incl_discards = incl_discards or false
     if not n.links_to_found
-      @find_links_to_node n  
+      @find_links_to_node n,incl_discards
     n.links_to.forEach (e, i) =>
       @show_link e, incl_discards
     @update_flags n
@@ -992,9 +1000,9 @@ class Huviz
     @restart()
 
   update_state: (node) ->
-    if node.links_shown.length is 0
+    if node.state == @graphed_set and node.links_shown.length is 0
       @unlinked_set.acquire node
-    else
+    if node.links_shown.length > 0
       @graphed_set.acquire node
 
   hide_links_to_node: (n) ->
@@ -1198,7 +1206,8 @@ class Huviz
     @hide_links_to_node unlinkee
     @unlinked_set.acquire unlinkee
     @update_flags unlinkee
-
+    @update_state unlinkee
+    
   #
   #  The DISCARDED are those nodes which the user has
   #  explicitly asked to not have drawn into the graph.
@@ -1206,20 +1215,17 @@ class Huviz
   #  discard_dropzone.
   #
   discard: (goner) ->
-    @unchoose goner
+    @unchoose goner  
     @unlink goner
-    
-    #unlinked_set.remove(goner);
     @discarded_set.acquire goner
     @update_flags goner
+    goner
 
-  #goner.discarded = true;
-  #goner.state = discarded_set;
   undiscard: (prodigal) ->
-    #discarded_set.remove(prodigal);
     @unlinked_set.acquire prodigal
     @update_flags prodigal
-
+    @update_state prodigal
+    prodigal
 
   #
   #  The CHOSEN are those nodes which the user has
@@ -1232,23 +1238,24 @@ class Huviz
     @hide_node_links goner
     @unlinked_set.acquire goner
     @update_flags goner
+    goner
 
   #update_history();
   choose: (chosen) =>
     # There is a flag .chosen in addition to the state 'linked'
     # because linked means it is in the graph
     @chosen_set.add chosen
+    @graphed_set.acquire chosen # do it early so add_link shows them otherwise choosing from discards just puts them in the lariat
     @show_links_from_node chosen
     @show_links_to_node chosen
     if chosen.links_shown
-      #chosen.state = 'linked';
       @graphed_set.acquire chosen
       chosen.showing_links = "all"
     else
-      #chosen.state = unlinked_set;
       @unlinked_set.acquire chosen
     @update_state chosen
     @update_flags chosen
+    chosen
 
   #update_history();
   update_history: ->
@@ -1323,8 +1330,25 @@ class Huviz
   ctx: null
   cursor: null
 
+  register_gclc_prefixes: =>
+    #console.log "register_gclc_prefixes()"
+    @gclc.prefixes = {}
+    for abbr,prefix of @G.prefixes
+      #console.log "add",abbr,prefix
+      @gclc.prefixes[abbr] = prefix
+    #console.log "@register_gclc_prefixes() =>",@gclc.prefixes
+
+  init_gclc: ->
+    gcl = require('graphcommandlanguage')
+    #console.log "init_gclc",gcl    
+    if gcl
+      @gclc = new gcl.GraphCommandLanguageCtrl(this)
+      #console.log "gclc",@gclc
+      window.addEventListener 'showgraph', @register_gclc_prefixes
+
   constructor: ->
     @init_sets()
+    @init_gclc()
     @label_show_range = @link_distance * 1.1
     @fisheye_radius = @label_show_range * 5
     @focus_radius = @label_show_range

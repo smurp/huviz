@@ -1,15 +1,24 @@
 class GCLTest
-  constructor: (@runner,@script,@expectations) ->
+  constructor: (@runner,@spec) ->
+    #console.log "GCLTest.constructor() spec:",@spec
     @graph_ctrl = @runner.gclc.graph_ctrl
   perform: ->
-    @runner.gclc.run(@script)
-    for exp in @expectations
-      got = eval(exp[0])
+    #console.log "GCLTest.perform() @spec:",@spec
+    #console.log "@spec.script:",@spec.script
+    if @spec.script
+      #console.log "==================",@spec.script
+      @runner.gclc.run(@spec.script)
+    # should the expections be checked in a callback?
+    for exp in (@spec.expectations ? [] )
+      try
+        got = eval(exp[0])
+      catch e
+        throw new Error "while eval('"+exp[0]+"') caught: "+e
       expected = exp[1]
       if @runner.verbose
         console.log "got="+got + " expected:"+expected
       if got != expected
-        msg = msg ? ""+got+" != "+expected
+        msg = msg ? "'"+@spec.desc+"' "+exp[0]+" = "+got+" not "+expected
         return msg
 
 class GCLTestSuite
@@ -28,6 +37,7 @@ class GCLTestSuite
   #     ])
   ###
   constructor: (@gclc,@suite) ->
+    @break_quickly = true
   run: ->
     pass_count = 0
     errors = []
@@ -35,7 +45,9 @@ class GCLTestSuite
     num = 0
     for spec in @suite
       num++
-      test = new GCLTest(this,spec.script,spec.expectations)
+      passed = false
+      #console.log "spec:",spec
+      test = new GCLTest(this,spec)
       try
         retval = test.perform()
         if @verbose
@@ -43,10 +55,13 @@ class GCLTestSuite
         if retval?
           fails.push([num,retval])
         else
+          passed = true
           pass_count++
       catch e
-        throw e
-        errors.push([num,e])
+        errors.push([num,e])      
+        #throw e
+      if not passed and @break_quickly
+        break
     console.log("passed:"+pass_count+
                 " failed:"+fails.length
                 " errors:"+errors.length)
@@ -61,13 +76,23 @@ class GraphCommand
     term = id
     tried = []
     node = @graph_ctrl.nodes.get({'id':term})
-    tried.push(term)
+    tried.push(term)    
+    id_parts = id.split(':')
+    if id_parts.length > 1
+      abbr = id_parts[0]
+      id = id_parts[1]
+      prefix = @prefixes[abbr]
+      if prefix
+        term = prefix+id
+        node = @graph_ctrl.nodes.get({'id':term})
+        tried.push(term)
     unless node
-      @prefixes.forEach (prefix) =>
+      for abbr,prefix of @prefixes
         if not node
           term = prefix+id
           tried.push(term)
           node = @graph_ctrl.nodes.get({'id':term})
+      
     if not node
       throw new Error("node with id="+term+
             " not found among "+
@@ -89,12 +114,12 @@ class GraphCommand
         throw new Error("method "+method+" not found")
       methods.push(method)
     return methods
-  execute: (@graph_ctrl,prefixes) ->
-    @prefixes = prefixes ? []
+  execute: (@graph_ctrl) ->
     nodes = @get_nodes()
     for meth in @get_methods()
       for node in nodes
-        meth.call(@graph_ctrl,node)
+        retval = meth.call(@graph_ctrl,node)
+    retval
   parse: (cmd_str) ->
     # "choose 'abdyma'"
     parts = cmd_str.split(" ")
@@ -106,13 +131,17 @@ class GraphCommand
     return cmd
     
     # "choose,label 'abdyma'"
+    # "label everything"
     # "choose like 'Maria'"
     # "choose organizations like 'church'"
+    # "choose everything like 'mary'"
+    # "discard organizations like 'mary'"
     # "choose writers like 'Margaret' regarding family"
     #    /(\w+)(,\s*\w+) '(\w+)'/
 
   # Expect args: verbs, subjects, constraints, regarding
   constructor: (args_or_str) ->
+    @prefixes = {}    
     if typeof args_or_str == 'string'
       args = @parse(args_or_str)
     else
@@ -121,13 +150,16 @@ class GraphCommand
       @[arg] = args[arg]
   
 class GraphCommandLanguageCtrl
-  constructor: (@graph_ctrl,@prefixes) ->
+  constructor: (@graph_ctrl) ->
+    @prefixes = {}
   run: (script) ->
     @commands =  script.split(';')
-    @execute()
+    retval = @execute()
+    retval
   run_one: (cmd_spec) ->
     cmd = new GraphCommand(cmd_spec)
-    cmd.execute(@graph_ctrl,@prefixes)
+    cmd.prefixes = @prefixes
+    cmd.execute(@graph_ctrl)
   execute: () ->
     for cmd_spec in @commands
       if cmd_spec
@@ -136,4 +168,3 @@ class GraphCommandLanguageCtrl
 (exports ? this).GraphCommandLanguageCtrl = GraphCommandLanguageCtrl
 (exports ? this).GCLTest = GCLTest
 (exports ? this).GCLTestSuite = GCLTestSuite
-
