@@ -312,7 +312,6 @@ class Huviz
         @focused_node.fixed and @focused_node.state is @graphed_set
       @focused_node.fixed = false 
 
-    #console.log " more", @focused_node, @drag_dist_threshold
     # it was a drag, not a click
     drag_dist = distance(point, @mousedown_point)
     #if drag_dist > @drag_dist_threshold
@@ -320,15 +319,17 @@ class Huviz
     #  return
 
     if @focused_node
-      #console.log @focused_node.name,"was clicked on"
       unless @focused_node.state is @graphed_set
-        @choose @focused_node
+        @gclc.run {verbs: ['choose'], subjects: [@focused_node]}
       else if @focused_node.showing_links is "all"
-        @unchoose @focused_node
+        @gclc.run {verbs: ['unchoose'], subjects: [@focused_node]}      
+        #@unchoose @focused_node
       else
-        @choose @focused_node
+        @gclc.run {verbs: ['choose'], subjects: [@focused_node]}      
+        #@choose @focused_node
+
+      # TODO(smurp) are these still needed?
       @force.links @links_set
-      #update_flags(@focused_node);
       @restart()
 
 
