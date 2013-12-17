@@ -42,6 +42,6 @@ app.configure ->
   #app.use express.static(__dirname + '/node_modules')  
   app.get "/application.js", pkg.createServer()
 
-port = argv[0] or process.env.PORT or 10000
+port = argv[0] or process.env.PORT or 9999
 console.log "Starting server on port: #{port}"
 app.listen port
