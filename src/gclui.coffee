@@ -38,7 +38,6 @@ class CommandController
       #@engaged_verbs.filter (verb) -> verb isnt verb_id    
       @node_classes_chosen = @node_classes_chosen.filter (eye_dee) ->
         eye_dee isnt id
-    
     @update_command()    
   
   verb_sets: [ # mutually exclusive within each set
@@ -47,7 +46,7 @@ class CommandController
     {discard: 'discard', undiscard: 'retrieve'},
     #{document: 'document', redact: 'redact'}    
     ]
-  verbs_override:
+  verbs_override: # when overriding ones are selected, others are deselected
     choose: ['discard','unchoose']
     discard: ['choose','retrieve']
   hierarchy: { 'everything': ['Everything', {people: ['People', {writers: ['Writers'], others: ['Others']}], orgs: ['Organizations']}]}

@@ -298,11 +298,9 @@ class Huviz
     if @dragging
       @move_node_to_point @dragging, point
       if @in_discard_dropzone(@dragging)
-        #@gclc.run {verbs: ['discard'], subjects: [@get_handle(@dragging)]}
         @gclc.run_verb_on_subj 'discard',@dragging
       else @dragging.fixed = true  if @nodes_pinnable
       if @in_disconnect_dropzone(@dragging)
-        #@gclc.run {verbs: ['unchoose'], subjects: [@get_handle(@dragging)]}
         @gclc.run_verb_on_subj 'unchoose',@dragging        
       @dragging = false
       return
@@ -320,13 +318,10 @@ class Huviz
 
     if @focused_node
       unless @focused_node.state is @graphed_set
-        #@gclc.run {verbs: ['choose'], subjects: [@get_handle(@focused_node)]}
         @gclc.run_verb_on_subj 'choose',@focused_node
       else if @focused_node.showing_links is "all"
-        #@gclc.run {verbs: ['unchoose'], subjects: [@get_handle(@focused_node)]}
         @gclc.run_verb_on_subj 'unchoose',@focused_node
       else
-        #@gclc.run {verbs: ['choose'], subjects: [@get_handle(@focused_node)]}
         @gclc.run_verb_on_subj 'choose',@focused_node        
 
       # TODO(smurp) are these still needed?
