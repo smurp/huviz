@@ -18,7 +18,7 @@ pkg = stitch.createPackage(
     __dirname + '/js/sortedset.js',
     __dirname + '/lib/d3.v3.min.js', # before fisheye
     __dirname + '/lib/fisheye.js',
-    __dirname + '/lib/jq.min.js',
+    #__dirname + '/lib/jq.min.js',
     __dirname + '/lib/green_turtle.js'
 
     #__dirname + '/node_modules/express/lib/utils.js',

@@ -20,7 +20,9 @@
 #     label/unlabel       -- shows labels or hides them
 #     substantiate/redact -- shows source text or hides it
 #     expand/contract     -- show all links or collapse them
-
+#
+#  ToDo
+#     
 gt = require('greenerturtle')
 GreenerTurtle = gt.GreenerTurtle
 wpad = undefined
@@ -427,6 +429,7 @@ class Huviz
     @force.start()
 
   set_node_radius_policy: (evt) ->
+    # TODO(shawn) remove or replace this whole method
     f = $("select#node_radius_policy option:selected").val()
     return  unless f
     if typeof f is typeof "str"
