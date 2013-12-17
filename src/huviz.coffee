@@ -235,9 +235,20 @@ class Huviz
 
   #d3.xhr(url,'text/plain',parseAndShow);
 
+  # This is a hacky Orlando-specific way to capture this
+  assign_types: (d) ->
+    if has_type(d.s, FOAF_Group)
+      @taxonomy['orgs'].add(d)
+    else if d.s.id[0] is "_"
+      @taxonomy['people'].add(d)
+      @taxonomy['others'].add(d)      
+    else
+      @taxonomy['writers'].add(d)    
+
   # This is a hacky Orlando-specific way to 
   #  http:///4  
   #  _:4
+  #
   color_by_type: (d) ->    
     # anon red otherwise blue 
     if has_type(d.s, FOAF_Group)
@@ -411,6 +422,12 @@ class Huviz
     @graphed_set = SortedSet().sort_on("id").named("graphed").isState()
     @links_set = SortedSet().named("shown").isFlag().sort_on("id")
     @labelled_set = SortedSet().named("labelled").isFlag().sort_on("id")
+    @create_taxonomy()
+
+  create_taxonomy: ->
+    @taxonomy = {}
+    for nom in ['writers','people','others','orgs']
+      @taxonomy[nom] = SortedSet().named(nom).isFlag().sort_on("id")
     
   reset_graph: ->
     @init_sets()
@@ -1080,6 +1097,7 @@ class Huviz
       s: subject
 
     d.color = @color_by_type(d)
+    @assign_types(d)
     d.id = d.s.id
     @add_node_ghosts d
     #n_idx = @add_to_array(d, @nodes)

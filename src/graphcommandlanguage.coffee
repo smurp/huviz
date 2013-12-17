@@ -112,12 +112,16 @@ class GraphCommand
     else if @classes
       for class_name in @classes
         if class_name is 'everything'
+          the_set = @graph_ctrl.nodes
+        else
+          the_set = @graph_ctrl.taxonomy[class_name]
+          
           if @like
-            for n in @graph_ctrl.nodes
+            for n in the_set
               if n.name.match(like_regex)
                 nodes.push n
           else # a redundant loop, kept shallow for speed when no like
-            for n in @graph_ctrl.nodes
+            for n in the_set
               nodes.push n
           #nodes = (n for n in @graph_ctrl.nodes)
     #console.log(nodes.length,nodes)
