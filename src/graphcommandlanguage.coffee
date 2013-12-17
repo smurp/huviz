@@ -139,6 +139,7 @@ class GraphCommand
     for meth in @get_methods()
       for node in nodes
         retval = meth.call(@graph_ctrl,node)
+    @graph_ctrl.tick()
     retval
   parse: (cmd_str) ->
     # "choose 'abdyma'"
