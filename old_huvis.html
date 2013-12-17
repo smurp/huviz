@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Huvis Graph Visualization</title>
+    <link href="/css/huvis.css" rel="stylesheet" type="text/css">
+    <link href="/css/huvis_controls.css" rel="stylesheet" type="text/css">
+    <link href="/css/lariat.css" rel="stylesheet" type="text/css">
+    <link href="/css/CRRT.css" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+    <div id="huvis_controls">
+      <div id="file_picker_box">
+        <select id="file_picker" onchange="load_file(this)" >
+          <option>data/test_40.ttl</option>
+          <option>data/test_20.ttl</option>
+          <option>data/test_1.ttl</option>
+          <option>data/all.ttl</option>
+        </select>
+      </div>
+      <div style="border-width:1">
+	<div id="search" class="search_box" contenteditable="true"></div>
+	<div id="show_links" class="button" onclick="show_found_links(this)">show links</div>
+	<div id="hide_links" class="button" onclick="hide_found_links(this)">hide links</div>
+	<div id="discard_nodes" class="button" onclick="discard_found_nodes(this)">discard nodes</div>
+      </div>
+      <div id="show_labels">
+         <label for="show_labels_input">show labels</label>
+         <input type="checkbox" id="show_labels_input" 
+                onchange="toggle_label_display(this)"/>
+      </div>
+      <div id="hide_links" 
+	   onclick="hide_all_links(this)"
+	   class="button">hide all links</div>
+      <div id="display_tech" style="display:none">
+        <div id="use_canvas">
+           <label for="use_canvas_input">use_canvas</label>
+           <input type="checkbox" id="use_canvas_input" 
+		  checked
+                  onchange="toggle_display_tech(this,use_canvas)"/>
+        </div>
+        <div id="use_svg">
+           <label for="use_webgl_input">use_svg</label>
+           <input type="checkbox" id="use_svg_input" 
+                  onchange="toggle_display_tech(this,use_svg)"/>
+        </div>
+        <div id="use_webgl">
+           <label for="use_webgl_input">use_webgl</label>
+           <input type="checkbox" id="use_webgl_input" 
+                  onchange="toggle_display_tech(this,use_webgl)"/>
+        </div>
+      </div>
+
+    </div>
+    <div id="vis" class="underneath" style="z-index:-3"></div>
+    <div id="viscanvas" class="underneath"></div>
+    <div id="status" onclick="clear_box()"></div>
+    <div id="nodectrl"></div>
+    <div id="edgectrl" class="CRRT"></div>
+    <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
+    <script src="lib/fisheye.js" charset="utf-8"></script>
+    <script src="lib/green_turtle.js" charset="utf-8"></script>
+    <script src="lib/jq.min.js"></script>
+    <script src="lib/Three.js"></script>
+    <script src="js/greener_turtle.js" charset="utf-8"> </script>
+    <script src="js/sortedset.js" charset="utf-8"> </script>
+    <script src="js/huvis_node_ctrl.js"></script>
+    <script src="js/huviz.js" charset="utf-8"> </script>
+    <script src="js/huvisgl.js" charset="utf-8"></script>
+    <script src="js/mintree2d3tree.js" charset="utf-8"></script>
+    <script src="js/crrt.js" charset="utf-8"></script>
+    <script>
+      var CRRTT;
+      window.addEventListener('load',function(){
+         CRRTT = new CollapsibleRadialReingoldTilfordTree();
+         //CRRTT.set_center()
+         CRRTT.show_tree_in("orlando_tag_tree_PRETTY.json","edgectrl",false);
+      });
+    </script>
+  </body>
+</html>

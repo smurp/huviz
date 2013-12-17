@@ -80,7 +80,8 @@ digraph huviz_plan {
 	gredcom[label="graphically\ncreate\ncommands",color=darkseagreen4];
 	dispcom -> gredcom;
 	
-	fliplabels[label="flip\nlabels"] -> optional;
+	fliplabels[label="flip\nlabels"];
+        fliplabels  -> optional;
 
 	dispcom -> optional;
 	txtedcom -> optional;
