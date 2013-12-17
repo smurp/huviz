@@ -9,7 +9,9 @@
     "coffee-script": "~1.6.3",
     "stitch": "~0.3.3",
     "express": "~2.5.0",
-    "eco": "1.1.0-rc-1",
+    "eco": "1.1.0-rc-1"
+  },
+  "stashed-dependencies":{
     "rdfquads":"smurp/rdfquads",
     "node-n3":"smurp/node-n3"
   }
