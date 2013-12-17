@@ -13,18 +13,20 @@ class CommandController
     @comdiv = d3.select(@container).append("div").attr('class','command')
     @verbdiv = @comdiv.append('div')
     @taxdiv = @comdiv.append('div')
-    @likediv = @comdiv.append('div')    
+    @likediv = @comdiv.append('div')
     @build_form()
+    @nextcommand = @comdiv.append('div')
+    @update_command()
   verb_sets: [ # mutually exclusive within each set
     {choose: 'choose', unchoose: 'unchoose'},
-    {label:  'label', unlabel: 'unlabel'},
-    {discard: 'discard', undiscard: 'retrieve'},
-    {showtext: 'document', hidetext: 'redact'}    
+    #{label:  'label', unlabel: 'unlabel'},
+    {discard: 'discard', undiscard: 'retrieve'}
+    #{document: 'document', redact: 'redact'}    
     ]
   verbs_override:
     choose: ['discard','unchoose']
     discard: ['choose','retrieve']
-  hierarchy: [ anything: ['Anything', {people: ['People', {writers: 'Writers', others: 'Others'}], orgs: ['Organizations']}]]
+  hierarchy: [ 'everything': ['Anything', {people: ['People', {writers: 'Writers', others: 'Others'}], orgs: ['Organizations']}]]
   build_form: () ->
     @build_verb_form()
     #@build_taxonomy_form()
@@ -33,15 +35,45 @@ class CommandController
   build_like: () ->
     @likediv.text('like:')
     @like_input = @likediv.append('input')
+    @like_input.on 'input',@update_command
   build_submit: () ->
     @doit_butt = @comdiv.append("input").
            attr("type","submit").
            attr('value','Do it')
     @doit_butt.on 'click', () =>
-      cmd = @get_current_command()
-      @huviz.gclc.run(cmd)
-  get_current_command: () ->
-    return "choose '_:E'"
+      @update_command()
+      @huviz.gclc.run(@cmd_obj)
+  cmd_str: ""
+  cmd_obj: {}
+  update_command: () =>
+    @cmd_obj = {}
+    @cmd_str = ""
+    missing = '____'
+    numverbs = @engaged_verbs.length
+    if @engaged_verbs
+      @cmd_obj.verbs = []
+      @engaged_verbs.forEach (vid,i) =>
+        #console.log @cmd_str
+        if numverbs > 1
+          if (numverbs - 1) == i
+            @cmd_str += " and "
+          else
+            if i > 0
+              @cmd_str += ', '
+        @cmd_str += vid
+        @cmd_obj.verbs.push(vid)
+    else
+      @cmd_str = missing
+    @cmd_str += " "
+    @cmd_obj.classes = ['everything']
+    @cmd_str += 'everything'
+    like_str = (@like_input[0][0].value or "").trim()
+    if like_str
+      @cmd_str += " like '"+like_str+"'"
+      @cmd_obj.like = like_str
+    @cmd_str += " ."
+    @current_command = @cmd_str
+    @nextcommand.text(@cmd_str)
   build_verb_form: () ->
     last_slash = null
     last_group_sep = null    
@@ -70,7 +102,7 @@ class CommandController
     if not (verb_id in @engaged_verbs)
       @engaged_verbs.push(verb_id)
   disengage_verb: (verb_id) ->
-    @engaged_verbs.filter (verb) -> verb isnt verb_id
+    @engaged_verbs = @engaged_verbs.filter (verb) -> verb isnt verb_id
     @verb_control[verb_id].classed('engaged',false)
   verb_control: {}
   append_verb_control: (id,label) ->
@@ -86,4 +118,5 @@ class CommandController
         that.engage_verb(id)
       else
         that.disengage_verb(id)
+      that.update_command()
 (exports ? this).CommandController = CommandController    

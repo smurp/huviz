@@ -100,19 +100,38 @@ class GraphCommand
     return node    
   get_nodes: () ->    
     nodes = []
-    for node_spec in @subjects
-      node = @get_node(node_spec)
-      if node
+    like_regex = null
+    if @like
+      like_regex = new RegExp(@like,"ig") # ignore, greedy
+    if @subjects
+      for node_spec in @subjects
+        node = @get_node(node_spec)
+        if node
+          nodes.push(node)
         nodes.push(node)
-      nodes.push(node)
-    return nodes    
+    else if @classes
+      for class_name in @classes
+        if class_name is 'everything'
+          if @like
+            for n in @graph_ctrl.nodes
+              if n.name.match(like_regex)
+                nodes.push n
+          else # a redundant loop, kept shallow for speed when no like
+            for n in @graph_ctrl.nodes
+              nodes.push n
+          #nodes = (n for n in @graph_ctrl.nodes)
+    #console.log(nodes.length,nodes)
+    return nodes
   get_methods: () ->  
     methods = []
     for verb in @verbs
       method = @graph_ctrl[verb]
-      if not method
-        throw new Error("method "+method+" not found")
-      methods.push(method)
+      if method
+        methods.push(method)
+      else
+        msg = "method '"+verb+"' not found"
+        console.log msg
+        #throw new Error(msg)
     return methods
   execute: (@graph_ctrl) ->
     nodes = @get_nodes()
@@ -153,7 +172,12 @@ class GraphCommandLanguageCtrl
   constructor: (@graph_ctrl) ->
     @prefixes = {}
   run: (script) ->
-    @commands =  script.split(';')
+    if typeof script is 'string'
+      @commands =  script.split(';')
+    else if script.constructor is [].constructor
+      @commands = script
+    else # an object we presume
+      @commands = [script]
     retval = @execute()
     retval
   run_one: (cmd_spec) ->
