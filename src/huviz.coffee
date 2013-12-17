@@ -410,6 +410,7 @@ class Huviz
     @hidden_set = SortedSet().sort_on("id").named("hidden").isState()
     @graphed_set = SortedSet().sort_on("id").named("graphed").isState()
     @links_set = SortedSet().named("shown").isFlag().sort_on("id")
+    @labelled_set = SortedSet().named("labelled").isFlag().sort_on("id")
     
   reset_graph: ->
     @init_sets()
@@ -612,7 +613,10 @@ class Huviz
         if @use_webgl
           @mv_node(d.gl, d.fisheye.x, d.fisheye.y)
   should_show_label: (node) ->
-    dist_lt(@last_mouse_pos, node, @label_show_range) or node.name.match(@search_regex) or @label_all_graphed_nodes and @graphed_set.has(node)
+    node.labelled or
+        dist_lt(@last_mouse_pos, node, @label_show_range) or
+        node.name.match(@search_regex) or
+        @label_all_graphed_nodes and @graphed_set.has(node)
   draw_labels: ->
     if @use_svg
       label.attr "style", (d) ->
@@ -1208,6 +1212,14 @@ class Huviz
     ctrl.checked = val
     @tick()
     true
+
+  label: (branded) ->
+    @labelled_set.add branded
+    @tick()
+
+  unlabel: (anonymized) ->
+    @labelled_set.remove anonymized
+    @tick()
 
   unlink: (unlinkee) ->
     @hide_links_from_node unlinkee

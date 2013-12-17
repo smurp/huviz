@@ -43,7 +43,7 @@ class CommandController
   
   verb_sets: [ # mutually exclusive within each set
     {choose: 'choose', unchoose: 'unchoose'},
-    #{label:  'label', unlabel: 'unlabel'},
+    {label:  'label', unlabel: 'unlabel'},
     {discard: 'discard', undiscard: 'retrieve'},
     #{document: 'document', redact: 'redact'}    
     ]
