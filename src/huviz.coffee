@@ -298,12 +298,12 @@ class Huviz
     if @dragging
       @move_node_to_point @dragging, point
       if @in_discard_dropzone(@dragging)
-        console.log "discarding", @dragging.name
-        @discard @dragging
+        #@gclc.run {verbs: ['discard'], subjects: [@get_handle(@dragging)]}
+        @gclc.run_verb_on_subj 'discard',@dragging
       else @dragging.fixed = true  if @nodes_pinnable
       if @in_disconnect_dropzone(@dragging)
-        console.log "disconnect", @dragging.name
-        @unchoose @dragging
+        #@gclc.run {verbs: ['unchoose'], subjects: [@get_handle(@dragging)]}
+        @gclc.run_verb_on_subj 'unchoose',@dragging        
       @dragging = false
       return
 
@@ -320,13 +320,14 @@ class Huviz
 
     if @focused_node
       unless @focused_node.state is @graphed_set
-        @gclc.run {verbs: ['choose'], subjects: [@focused_node]}
+        #@gclc.run {verbs: ['choose'], subjects: [@get_handle(@focused_node)]}
+        @gclc.run_verb_on_subj 'choose',@focused_node
       else if @focused_node.showing_links is "all"
-        @gclc.run {verbs: ['unchoose'], subjects: [@focused_node]}      
-        #@unchoose @focused_node
+        #@gclc.run {verbs: ['unchoose'], subjects: [@get_handle(@focused_node)]}
+        @gclc.run_verb_on_subj 'unchoose',@focused_node
       else
-        @gclc.run {verbs: ['choose'], subjects: [@focused_node]}      
-        #@choose @focused_node
+        #@gclc.run {verbs: ['choose'], subjects: [@get_handle(@focused_node)]}
+        @gclc.run_verb_on_subj 'choose',@focused_node        
 
       # TODO(smurp) are these still needed?
       @force.links @links_set
@@ -1381,6 +1382,13 @@ class Huviz
       @gclc = new gcl.GraphCommandLanguageCtrl(this)
       @gclui = new gclui.CommandController(this,d3.select("#gclui")[0][0])
       window.addEventListener 'showgraph', @register_gclc_prefixes
+
+  get_handle: (thing) ->
+    # A handle is like a weak reference, saveable, serializable
+    # garbage collectible.  It was motivated by the desire to
+    # turn an actual node into a suitable member of the subjects list
+    # on a GraphCommand
+    return {id: thing.id}
 
   constructor: ->
     @init_sets()
