@@ -7,10 +7,25 @@
   user-select: none;
 }
 .verb {
-  padding: .4em;
-  //color: red;
+  padding: .1em;
 }
-
 .engaged {
   background-color: lightgreen;
+}
+/*  http://net.tutsplus.com/tutorials/html-css-techniques/lets-create-paper-with-css/ */
+.command {
+  margin-top: .1em;
+  margin-top: .1em;
+  padding: .3em;
+  color: gray;
+  background-color: #fcf59b; /* legal pad yellow */
+}
+.commandlist {
+  overflow-y: auto;
+  -webkit-border-top-right-radius: 20px 300px;
+  background-color: #81cbbc; /* hairline blue */  
+}
+.nextcommand {
+  color: black;
+  font-weight:bold;
 }

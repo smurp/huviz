@@ -10,12 +10,18 @@
 
 class CommandController
   constructor: (@huviz,@container) ->
-    @comdiv = d3.select(@container).append("div").attr('class','command')
+    @comdiv = d3.select(@container).append("div")
+    @cmdlist = @comdiv.append('div').attr('class','commandlist')
+    @oldcommands = @cmdlist.append('div')
+    @nextcommand = @cmdlist.append('div').
+        attr('class','nextcommand command')
+    @doitdiv = @comdiv.append('div')
     @verbdiv = @comdiv.append('div')
     @taxdiv = @comdiv.append('div')
     @likediv = @comdiv.append('div')
+
     @build_form()
-    @nextcommand = @comdiv.append('div')
+
     @update_command()
   verb_sets: [ # mutually exclusive within each set
     {choose: 'choose', unchoose: 'unchoose'},
@@ -37,43 +43,63 @@ class CommandController
     @like_input = @likediv.append('input')
     @like_input.on 'input',@update_command
   build_submit: () ->
-    @doit_butt = @comdiv.append("input").
+    @doit_butt = @doitdiv.append("input").
            attr("type","submit").
            attr('value','Do it')
     @doit_butt.on 'click', () =>
-      @update_command()
-      @huviz.gclc.run(@cmd_obj)
-  cmd_str: ""
+      if @update_command()
+        @huviz.gclc.run(@cmd_obj)
+        #if @cmdlist?
+        @push_command(@cmd_obj)
+  old_commands: []
+  push_command: (cmd) ->
+    if @old_commands.length > 0
+      prior = @old_commands[@old_commands.length-1]
+      if prior.cmd.str is cmd.str
+        return  # same as last command, ignore
+    cmd_ui = @oldcommands.append('div').attr('class','command')
+    record =
+      elem: cmd_ui
+      cmd: cmd
+    @old_commands.push(record)
+    cmd_ui.text(cmd.str)
   cmd_obj: {}
   update_command: () =>
     @cmd_obj = {}
-    @cmd_str = ""
+    cmd_str = ""
+    ready = true
     missing = '____'
     numverbs = @engaged_verbs.length
-    if @engaged_verbs
+    if @engaged_verbs.length > 0
       @cmd_obj.verbs = []
       @engaged_verbs.forEach (vid,i) =>
-        #console.log @cmd_str
+        #console.log cmd_str
         if numverbs > 1
           if (numverbs - 1) == i
-            @cmd_str += " and "
+            cmd_str += " and "
           else
             if i > 0
-              @cmd_str += ', '
-        @cmd_str += vid
+              cmd_str += ', '
+        cmd_str += vid
         @cmd_obj.verbs.push(vid)
     else
-      @cmd_str = missing
-    @cmd_str += " "
+      ready = false
+      cmd_str = missing
+    cmd_str += " "
     @cmd_obj.classes = ['everything']
-    @cmd_str += 'everything'
+    cmd_str += 'everything'
     like_str = (@like_input[0][0].value or "").trim()
     if like_str
-      @cmd_str += " like '"+like_str+"'"
+      cmd_str += " like '"+like_str+"'"
       @cmd_obj.like = like_str
-    @cmd_str += " ."
-    @current_command = @cmd_str
-    @nextcommand.text(@cmd_str)
+    cmd_str += " ."
+    @cmd_obj.str = cmd_str    
+    @nextcommand.text(cmd_str)
+    if ready
+      @doit_butt.attr('disabled',null)
+    else
+      @doit_butt.attr('disabled','disabled')
+    return ready
   build_verb_form: () ->
     last_slash = null
     last_group_sep = null    

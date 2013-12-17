@@ -1,9 +1,15 @@
+#file_picker_box {
+  position: absolute;
+  top: .2em;
+  left: .2em;
+  z-index: 3;
+}
 #huvis_controls {
-  position:absolute;
-  top:.2em; 
-  left:.2em; 
-  z-index:2; 
-  float:left;   
+  position: absolute;
+  bottom: .2em; 
+  left: .2em; 
+  z-index: 2; 
+  float: left;   
 }
 
 .search_box {
@@ -50,6 +56,6 @@
   background-color:lightgrey;
   position:absolute;
   bottom: .2em;
-  left: .2em;
+  right: .2em;
   z-index:2;
 }
