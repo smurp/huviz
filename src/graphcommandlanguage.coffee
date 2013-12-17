@@ -115,16 +115,13 @@ class GraphCommand
           the_set = @graph_ctrl.nodes
         else
           the_set = @graph_ctrl.taxonomy[class_name]
-          
-          if @like
-            for n in the_set
-              if n.name.match(like_regex)
-                nodes.push n
-          else # a redundant loop, kept shallow for speed when no like
-            for n in the_set
+        if @like
+          for n in the_set
+            if n.name.match(like_regex)
               nodes.push n
-          #nodes = (n for n in @graph_ctrl.nodes)
-    #console.log(nodes.length,nodes)
+        else # a redundant loop, kept shallow for speed when no like
+          for n in the_set
+            nodes.push n
     return nodes
   get_methods: () ->  
     methods = []
