@@ -11,14 +11,18 @@
 #  Edge Labels
 #    http://bl.ocks.org/jhb/5955887
 #
-#Lariat -- around the graph, the rope of nodes which serves as reorderable menu
-#Hoosegow -- a jail to contain nodes one does not want to be bothered by
+#  Lariat -- around the graph, the rope of nodes which serves as reorderable menu
+#  Hoosegow -- a jail to contain nodes one does not want to be bothered by
 #
-#GreenTurtle = require('GreenTurtle').GreenTurtle
+#  Commands on nodes
+#     choose/unchoose     -- graph or remove from graph
+#     discard/retrieve    -- throw away or recover
+#     label/unlabel       -- shows labels or hides them
+#     substantiate/redact -- shows source text or hides it
+#     expand/contract     -- show all links or collapse them
 
 gt = require('greenerturtle')
 GreenerTurtle = gt.GreenerTurtle
-#SortedSet = require('sortedset').SortedSet
 wpad = undefined
 hpad = 10
 distance = (p1, p2) ->
