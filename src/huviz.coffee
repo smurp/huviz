@@ -22,7 +22,8 @@
 #     expand/contract     -- show all links or collapse them
 #
 #  ToDo
-#     
+#    node-picker
+#    edge-picker
 gt = require('greenerturtle')
 GreenerTurtle = gt.GreenerTurtle
 wpad = undefined

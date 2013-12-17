@@ -29,3 +29,25 @@
   color: black;
   font-weight:bold;
 }
+
+
+p {
+    width:auto;
+    float:left;
+    margin: .1em;
+}
+.container {
+    border:1px solid;
+    overflow:hidden;
+}
+.contents {
+    font-size: 90%;
+    border:1px solid;
+    padding: .1em;
+    overflow:auto;
+}
+.picked_branch {
+    background-color: tan;
+}
+
+/* display: inline-block and white-space: nowrap */

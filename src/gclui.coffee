@@ -7,7 +7,7 @@
 #  choose,label/unlabel,discard,shelve,expand
 #
 ###
-
+angliciser = require('angliciser').angliciser
 class CommandController
   constructor: (@huviz,@container) ->
     @comdiv = d3.select(@container).append("div")
@@ -19,20 +19,38 @@ class CommandController
     @verbdiv = @comdiv.append('div')
     @taxdiv = @comdiv.append('div')
     @likediv = @comdiv.append('div')
-
+    @nodeclasspicker = @comdiv.append('div').classed('container',true)
+    @node_classes_chosen = [] # new SortedSet()
+    @build_nodeclasspicker()    
     @build_form()
-
     @update_command()
+
+  build_nodeclasspicker: ->
+    tp = require('treepicker')
+    treepicker = new tp.TreePicker()
+    treepicker.show_tree(@hierarchy,@nodeclasspicker,@onnodeclasspicked)
+  onnodeclasspicked: (id,new_state,elem) =>
+    #console.log arguments
+    if new_state
+      if not (id in @node_classes_chosen)
+        @node_classes_chosen.push(id)
+    else
+      #@engaged_verbs.filter (verb) -> verb isnt verb_id    
+      @node_classes_chosen = @node_classes_chosen.filter (eye_dee) ->
+        eye_dee isnt id
+    
+    @update_command()    
+  
   verb_sets: [ # mutually exclusive within each set
     {choose: 'choose', unchoose: 'unchoose'},
     #{label:  'label', unlabel: 'unlabel'},
-    {discard: 'discard', undiscard: 'retrieve'}
+    {discard: 'discard', undiscard: 'retrieve'},
     #{document: 'document', redact: 'redact'}    
     ]
   verbs_override:
     choose: ['discard','unchoose']
     discard: ['choose','retrieve']
-  hierarchy: [ 'everything': ['Anything', {people: ['People', {writers: 'Writers', others: 'Others'}], orgs: ['Organizations']}]]
+  hierarchy: { 'everything': ['Everything', {people: ['People', {writers: ['Writers'], others: ['Others']}], orgs: ['Organizations']}]}
   build_form: () ->
     @build_verb_form()
     #@build_taxonomy_form()
@@ -71,23 +89,21 @@ class CommandController
     missing = '____'
     numverbs = @engaged_verbs.length
     if @engaged_verbs.length > 0
-      @cmd_obj.verbs = []
-      @engaged_verbs.forEach (vid,i) =>
-        #console.log cmd_str
-        if numverbs > 1
-          if (numverbs - 1) == i
-            cmd_str += " and "
-          else
-            if i > 0
-              cmd_str += ', '
-        cmd_str += vid
-        @cmd_obj.verbs.push(vid)
+      @cmd_obj.verbs = (v for v in @engaged_verbs)
+      cmd_str = angliciser(@engaged_verbs)
     else
       ready = false
       cmd_str = missing
-    cmd_str += " "
-    @cmd_obj.classes = ['everything']
-    cmd_str += 'everything'
+    cmd_str += " "    
+    if @node_classes_chosen.length > 0
+      cmd_str += angliciser(@node_classes_chosen)
+      #console.log "node_classes_chosen",@node_classes_chosen
+      @cmd_obj.classes = (class_name for class_name in @node_classes_chosen)
+    else
+      cmd_str += missing
+      @cmd_obj.classes = []
+      ready = false
+
     like_str = (@like_input[0][0].value or "").trim()
     if like_str
       cmd_str += " like '"+like_str+"'"
@@ -99,6 +115,7 @@ class CommandController
       @doit_butt.attr('disabled',null)
     else
       @doit_butt.attr('disabled','disabled')
+    #console.log "cmd_obj",@cmd_obj      
     return ready
   build_verb_form: () ->
     last_slash = null
