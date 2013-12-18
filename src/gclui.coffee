@@ -14,9 +14,7 @@ class CommandController
     @comdiv = d3.select(@container).append("div")
     @cmdlist = @comdiv.append('div').attr('class','commandlist')
     @oldcommands = @cmdlist.append('div')
-    @nextcommand = @cmdlist.append('div').
-        attr('class','nextcommand command')
-    @doitdiv = @comdiv.append('div')
+    @nextcommandbox = @comdiv.append('div')
     @verbdiv = @comdiv.append('div')
     @taxdiv = @comdiv.append('div')
     @likediv = @comdiv.append('div')
@@ -52,13 +50,17 @@ class CommandController
   build_form: () ->
     @build_verb_form()
     @build_like()
-    @build_submit()
+    @nextcommand = @nextcommandbox.append('div').
+        attr('class','nextcommand command')
+    @nextcommandstr = @nextcommand.append('span')
+    @build_submit()        
   build_like: () ->
     @likediv.text('like:')
     @like_input = @likediv.append('input')
     @like_input.on 'input',@update_command
   build_submit: () ->
-    @doit_butt = @doitdiv.append("input").
+    @doit_butt = @nextcommand.append('span').append("input").
+           attr("style","float:right").
            attr("type","submit").
            attr('value','Do it')
     @doit_butt.on 'click', () =>
@@ -104,7 +106,7 @@ class CommandController
     @command = new gcl.GraphCommand(args)
   update_command: () =>
     @command = @build_command()
-    @nextcommand.text(@command.str)
+    @nextcommandstr.text(@command.str)
     if @command.ready
       @doit_butt.attr('disabled',null)
     else
