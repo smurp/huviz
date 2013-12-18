@@ -24,6 +24,8 @@
 #  ToDo
 #    node-picker
 #    edge-picker
+gcl = require('graphcommandlanguage')
+gclui = require('gclui')
 gt = require('greenerturtle')
 GreenerTurtle = gt.GreenerTurtle
 wpad = undefined
@@ -298,10 +300,10 @@ class Huviz
     if @dragging
       @move_node_to_point @dragging, point
       if @in_discard_dropzone(@dragging)
-        @gclc.run_verb_on_subj 'discard',@dragging
+        @run_verb_on_object 'discard',@dragging
       else @dragging.fixed = true  if @nodes_pinnable
       if @in_disconnect_dropzone(@dragging)
-        @gclc.run_verb_on_subj 'unchoose',@dragging        
+        @run_verb_on_object 'unchoose',@dragging        
       @dragging = false
       return
 
@@ -318,11 +320,11 @@ class Huviz
 
     if @focused_node
       unless @focused_node.state is @graphed_set
-        @gclc.run_verb_on_subj 'choose',@focused_node
+        @run_verb_on_object 'choose',@focused_node
       else if @focused_node.showing_links is "all"
-        @gclc.run_verb_on_subj 'unchoose',@focused_node
+        @run_verb_on_object 'unchoose',@focused_node
       else
-        @gclc.run_verb_on_subj 'choose',@focused_node        
+        @run_verb_on_object 'choose',@focused_node        
 
       # TODO(smurp) are these still needed?
       @force.links @links_set
@@ -1371,16 +1373,21 @@ class Huviz
       @gclc.prefixes[abbr] = prefix
 
   init_gclc: ->
-    gcl = require('graphcommandlanguage')
-    gclui = require('gclui')
     if gcl
       @gclc = new gcl.GraphCommandLanguageCtrl(this)
       @gclui = new gclui.CommandController(this,d3.select("#gclui")[0][0])
       window.addEventListener 'showgraph', @register_gclc_prefixes
 
+  run_verb_on_object: (verb,subject) ->
+    cmd = new gcl.GraphCommand
+      verbs: [verb]
+      subjects: [@get_handle subject]
+    @gclc.run cmd
+    @gclui.push_command cmd
+
   get_handle: (thing) ->
     # A handle is like a weak reference, saveable, serializable
-    # garbage collectible.  It was motivated by the desire to
+    # and garbage collectible.  It was motivated by the desire to
     # turn an actual node into a suitable member of the subjects list
     # on a GraphCommand
     return {id: thing.id}

@@ -216,10 +216,6 @@ class GraphCommandLanguageCtrl
     cmd = new GraphCommand(cmd_spec)
     cmd.prefixes = @prefixes
     cmd.execute(@graph_ctrl)
-  run_verb_on_subj: (verb,subject) ->
-    @run
-      verbs: [verb]
-      subjects: [@graph_ctrl.get_handle subject]
   execute: () ->
     for cmd_spec in @commands
       if cmd_spec

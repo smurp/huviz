@@ -99,7 +99,6 @@ class CommandController
     else
       @doit_butt.attr('disabled','disabled')
     return @command.ready
-
   build_verb_form: () ->
     last_slash = null
     last_group_sep = null    
