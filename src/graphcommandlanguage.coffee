@@ -1,3 +1,4 @@
+angliciser = require('angliciser').angliciser
 class GCLTest
   constructor: (@runner,@spec) ->
     #console.log "GCLTest.constructor() spec:",@spec
@@ -141,6 +142,30 @@ class GraphCommand
         retval = meth.call(@graph_ctrl,node)
     @graph_ctrl.tick()
     retval
+  update_str: ->
+    cmd_str = ""
+    ready = true
+    missing = '____'
+    numverbs = @verbs.length
+    if @verbs.length > 0
+      cmd_str = angliciser(@verbs)
+    else
+      ready = false
+      cmd_str = missing
+    cmd_str += " "
+    obj_phrase = ""
+    if @classes?length > 0
+      obj_phrase += angliciser(@classes)
+    if @subjects.length > 0
+      obj_phrase += angliciser((subj.id for subj in @subjects))
+    if obj_phrase is ""
+      obj_phrase = missing
+    cmd_str += obj_phrase
+    like_str = (@like or "").trim()
+    if like_str
+      cmd_str += " like '"+like_str+"'"
+    cmd_str += " ."
+    @str = cmd_str
   parse: (cmd_str) ->
     # "choose 'abdyma'"
     parts = cmd_str.split(" ")
@@ -169,6 +194,9 @@ class GraphCommand
       args = args_or_str
     for arg of args
       @[arg] = args[arg]
+    if not @str?
+      @update_str()
+    console.log @str
   
 class GraphCommandLanguageCtrl
   constructor: (@graph_ctrl) ->
