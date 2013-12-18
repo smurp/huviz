@@ -20,27 +20,25 @@ class CommandController
     @verbdiv = @comdiv.append('div')
     @taxdiv = @comdiv.append('div')
     @likediv = @comdiv.append('div')
-    @nodeclasspicker = @comdiv.append('div').classed('container',true)
+    @nodeclassbox = @comdiv.append('div').classed('container',true)
     @node_classes_chosen = [] # new SortedSet()
     @build_nodeclasspicker()    
     @build_form()
     @update_command()
-
   build_nodeclasspicker: ->
     tp = require('treepicker')
-    treepicker = new tp.TreePicker()
-    treepicker.show_tree(@hierarchy,@nodeclasspicker,@onnodeclasspicked)
+    @node_class_picker = new tp.TreePicker()
+    @node_class_picker.show_tree(@hierarchy,@nodeclassbox,@onnodeclasspicked)
   onnodeclasspicked: (id,new_state,elem) =>
-    #console.log arguments
     if new_state
       if not (id in @node_classes_chosen)
         @node_classes_chosen.push(id)
     else
-      #@engaged_verbs.filter (verb) -> verb isnt verb_id    
-      @node_classes_chosen = @node_classes_chosen.filter (eye_dee) ->
-        eye_dee isnt id
-    @update_command()    
-  
+      @deselect_node_class(id)
+    @update_command()
+  deselect_node_class: (node_class) ->
+    @node_classes_chosen = @node_classes_chosen.filter (eye_dee) ->
+      eye_dee isnt node_class
   verb_sets: [ # mutually exclusive within each set
     {choose: 'choose', unchoose: 'unchoose'},
     {label:  'label', unlabel: 'unlabel'},
@@ -53,7 +51,6 @@ class CommandController
   hierarchy: { 'everything': ['Everything', {people: ['People', {writers: ['Writers'], others: ['Others']}], orgs: ['Organizations']}]}
   build_form: () ->
     @build_verb_form()
-    #@build_taxonomy_form()
     @build_like()
     @build_submit()
   build_like: () ->
@@ -68,6 +65,21 @@ class CommandController
       if @update_command()
         @huviz.gclc.run(@command)
         @push_command(@command)
+        @reset_editor()
+  reset_editor: ->
+    @disengage_all_verbs()
+    @deselect_all_node_classes()
+    @clear_like()
+    @update_command()
+  disengage_all_verbs: ->
+    for vid in @engaged_verbs
+      @disengage_verb(vid)
+  deselect_all_node_classes: ->
+    for nid in @node_classes_chosen
+      @deselect_node_class(nid)
+      @node_class_picker.set_branch_pickedness(nid,false)
+  clear_like: ->
+    @like_input[0][0].value = ""
   old_commands: []
   push_command: (cmd) ->
     if @old_commands.length > 0
@@ -90,7 +102,6 @@ class CommandController
     if like_str
       args.like = like_str
     @command = new gcl.GraphCommand(args)
-    #console.log args,"str:",@command.str
   update_command: () =>
     @command = @build_command()
     @nextcommand.text(@command.str)
@@ -116,7 +127,6 @@ class CommandController
         for vid,label of vset
           if not (vid in override) and verb_id isnt vid
             override.push(vid)
-    #console.log verb_id,"overrides",override
     return override
   engaged_verbs: []
   engage_verb: (verb_id) ->

@@ -159,6 +159,7 @@ class GraphCommand
       obj_phrase += angliciser((subj.id for subj in @subjects))
     if obj_phrase is ""
       obj_phrase = missing
+      ready = false
     cmd_str += obj_phrase
     like_str = (@like or "").trim()
     if like_str
@@ -196,7 +197,6 @@ class GraphCommand
       @[argn] = argv
     if not @str?
       @update_str()
-    console.log "new GraphCommand() ==>",@str
   
 class GraphCommandLanguageCtrl
   constructor: (@graph_ctrl) ->
