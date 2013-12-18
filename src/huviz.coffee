@@ -528,7 +528,7 @@ class Huviz
   showing_links_to_cursor_map:
     all: 'not-allowed'
     some: 'all-scroll'
-    none: 'help'
+    none: 'pointer'
     
   adjust_cursor: ->
     # http://css-tricks.com/almanac/properties/c/cursor/
