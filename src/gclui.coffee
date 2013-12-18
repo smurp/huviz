@@ -8,6 +8,7 @@
 #
 ###
 angliciser = require('angliciser').angliciser
+gcl = require('graphcommandlanguage')
 class CommandController
   constructor: (@huviz,@container) ->
     @comdiv = d3.select(@container).append("div")
@@ -65,9 +66,8 @@ class CommandController
            attr('value','Do it')
     @doit_butt.on 'click', () =>
       if @update_command()
-        @huviz.gclc.run(@cmd_obj)
-        #if @cmdlist?
-        @push_command(@cmd_obj)
+        @huviz.gclc.run(@command)
+        @push_command(@command)
   old_commands: []
   push_command: (cmd) ->
     if @old_commands.length > 0
@@ -80,42 +80,26 @@ class CommandController
       cmd: cmd
     @old_commands.push(record)
     cmd_ui.text(cmd.str)
-  cmd_obj: {}
-  update_command: () =>
-    @cmd_obj = {}
-    cmd_str = ""
-    ready = true
-    missing = '____'
-    numverbs = @engaged_verbs.length
+  build_command: ->
+    args = {}
     if @engaged_verbs.length > 0
-      @cmd_obj.verbs = (v for v in @engaged_verbs)
-      cmd_str = angliciser(@engaged_verbs)
-    else
-      ready = false
-      cmd_str = missing
-    cmd_str += " "    
+      args.verbs = (v for v in @engaged_verbs)
     if @node_classes_chosen.length > 0
-      cmd_str += angliciser(@node_classes_chosen)
-      #console.log "node_classes_chosen",@node_classes_chosen
-      @cmd_obj.classes = (class_name for class_name in @node_classes_chosen)
-    else
-      cmd_str += missing
-      @cmd_obj.classes = []
-      ready = false
-
+      args.classes = (class_name for class_name in @node_classes_chosen)
     like_str = (@like_input[0][0].value or "").trim()
     if like_str
-      cmd_str += " like '"+like_str+"'"
-      @cmd_obj.like = like_str
-    cmd_str += " ."
-    @cmd_obj.str = cmd_str    
-    @nextcommand.text(cmd_str)
-    if ready
+      args.like = like_str
+    @command = new gcl.GraphCommand(args)
+    #console.log args,"str:",@command.str
+  update_command: () =>
+    @command = @build_command()
+    @nextcommand.text(@command.str)
+    if @command.ready
       @doit_butt.attr('disabled',null)
     else
       @doit_butt.attr('disabled','disabled')
-    #console.log "cmd_obj",@cmd_obj      
-    return ready
+    return @command.ready
+
   build_verb_form: () ->
     last_slash = null
     last_group_sep = null    

@@ -143,20 +143,19 @@ class GraphCommand
     @graph_ctrl.tick()
     retval
   update_str: ->
+    missing = '____'
     cmd_str = ""
     ready = true
-    missing = '____'
-    numverbs = @verbs.length
-    if @verbs.length > 0
+    if @verbs
       cmd_str = angliciser(@verbs)
     else
       ready = false
       cmd_str = missing
     cmd_str += " "
     obj_phrase = ""
-    if @classes?length > 0
+    if @classes
       obj_phrase += angliciser(@classes)
-    if @subjects.length > 0
+    if @subjects
       obj_phrase += angliciser((subj.id for subj in @subjects))
     if obj_phrase is ""
       obj_phrase = missing
@@ -165,6 +164,7 @@ class GraphCommand
     if like_str
       cmd_str += " like '"+like_str+"'"
     cmd_str += " ."
+    @ready = ready
     @str = cmd_str
   parse: (cmd_str) ->
     # "choose 'abdyma'"
@@ -192,17 +192,19 @@ class GraphCommand
       args = @parse(args_or_str)
     else
       args = args_or_str
-    for arg of args
-      @[arg] = args[arg]
+    for argn,argv of args
+      @[argn] = argv
     if not @str?
       @update_str()
-    console.log @str
+    console.log "new GraphCommand() ==>",@str
   
 class GraphCommandLanguageCtrl
   constructor: (@graph_ctrl) ->
     @prefixes = {}
   run: (script) ->
-    if typeof script is 'string'
+    if script instanceof GraphCommand
+      @commands = [script]
+    else if typeof script is 'string'
       @commands =  script.split(';')
     else if script.constructor is [].constructor
       @commands = script
@@ -224,5 +226,6 @@ class GraphCommandLanguageCtrl
         @run_one(cmd_spec)
   
 (exports ? this).GraphCommandLanguageCtrl = GraphCommandLanguageCtrl
+(exports ? this).GraphCommand = GraphCommand
 (exports ? this).GCLTest = GCLTest
 (exports ? this).GCLTestSuite = GCLTestSuite
