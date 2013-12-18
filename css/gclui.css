@@ -6,11 +6,15 @@
   -ms-user-select: none;
   user-select: none;
 }
+.alternates {
+  float:left;
+}
 .verb {
   padding: .1em;
+  border:1px solid;
 }
 .engaged {
-  background-color: lightgreen;
+  background-color: tan;
 }
 /*  http://net.tutsplus.com/tutorials/html-css-techniques/lets-create-paper-with-css/ */
 .command {
@@ -29,8 +33,6 @@
   color: black;
   font-weight:bold;
 }
-
-
 p {
     width:auto;
     float:left;
@@ -49,5 +51,4 @@ p {
 .picked_branch {
     background-color: tan;
 }
-
 /* display: inline-block and white-space: nowrap */

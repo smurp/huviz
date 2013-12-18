@@ -17,8 +17,9 @@ class CommandController
     @nextcommandbox = @comdiv.append('div')
     @verbdiv = @comdiv.append('div')
     @taxdiv = @comdiv.append('div')
-    @likediv = @comdiv.append('div')
+    @comdiv.append('div').attr('style','clear:both')
     @nodeclassbox = @comdiv.append('div').classed('container',true)
+    @likediv = @comdiv.append('div')    
     @node_classes_chosen = [] # new SortedSet()
     @build_nodeclasspicker()    
     @build_form()
@@ -113,15 +114,10 @@ class CommandController
       @doit_butt.attr('disabled','disabled')
     return @command.ready
   build_verb_form: () ->
-    last_slash = null
-    last_group_sep = null    
     for vset in @verb_sets
+      alternatives = @verbdiv.append('div').attr('class','alternates')
       for id,label of vset
-        @append_verb_control(id,label)
-        last_slash = @verbdiv.append('text').text('/')
-      last_group_sep = @verbdiv.append('text').text(',')        
-      last_slash.remove()
-    last_group_sep.remove()
+        @append_verb_control(id,label,alternatives)
   get_verbs_overridden_by: (verb_id) ->
     override = @verbs_override[verb_id] || []
     for vset in @verb_sets
@@ -142,8 +138,8 @@ class CommandController
     @engaged_verbs = @engaged_verbs.filter (verb) -> verb isnt verb_id
     @verb_control[verb_id].classed('engaged',false)
   verb_control: {}
-  append_verb_control: (id,label) ->
-    vbctl = @verbdiv.append('span').attr("class","verb")
+  append_verb_control: (id,label,alternatives) ->
+    vbctl = alternatives.append('div').attr("class","verb")
     @verb_control[id] = vbctl
     vbctl.text(label)
     that = @
