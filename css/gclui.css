@@ -26,12 +26,37 @@
 }
 .commandlist {
   overflow-y: auto;
-  -webkit-border-top-right-radius: 20px 300px;
+  /* -webkit-border-top-right-radius: 20px 300px; */
   background-color: #81cbbc; /* hairline blue */  
 }
 .nextcommand {
   color: black;
   font-weight:bold;
+}
+.cmdlistbar {
+  background-color: blue;
+}
+.cmdlisttitlebarcontent {
+  background-color: blue;
+  color: white;
+}
+.cmdlisttitle {
+  float: left;
+  margin: .2em;
+}
+.cmdlisttitle:before {
+  content: "Command History";
+}
+.hide_history:before {
+  float: right;
+  content:"╒╕ ";
+}
+.show_history:before {
+  float: right;
+  content:"╶╴";
+}
+.display_none {
+  display:none;
 }
 p {
     width:auto;

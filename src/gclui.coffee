@@ -13,6 +13,23 @@ class CommandController
   constructor: (@huviz,@container) ->
     @comdiv = d3.select(@container).append("div")
     @cmdlist = @comdiv.append('div').attr('class','commandlist')
+
+    @cmdlistbar = @cmdlist.append('div').attr('class','cmdlistbar')
+    @cmdlistbarcontent = @cmdlistbar.append('div').attr('class','cmdlisttitlebarcontent')
+    @cmdlistbarcontent.append('div').attr('class','cmdlisttitle')
+    @toggle_history_button = @cmdlistbar.append('div').
+        attr('class','hide_history')
+    @cmdlistbar.append('div').style('clear:both')
+
+    @toggle_history_button.on 'click', () =>
+      shown = not @toggle_history_button.classed('hide_history')
+      @toggle_history_button.classed('hide_history',shown)
+      @toggle_history_button.classed('show_history',not shown)
+      @oldcommands.classed('display_none',not shown)
+      
+    @toggle_commands_button = @cmdlistbar.append('div').
+        attr('class','close_commands')
+
     @oldcommands = @cmdlist.append('div')
     @nextcommandbox = @comdiv.append('div')
     @verbdiv = @comdiv.append('div')
