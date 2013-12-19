@@ -22,7 +22,8 @@
 #     expand/contract     -- show all links or collapse them
 #
 #  ToDo
-#    node-picker
+#    flip labels
+#    nquads parser (or trig?)  1 hr
 #    edge-picker
 gcl = require('graphcommandlanguage')
 gclui = require('gclui')
@@ -658,9 +659,13 @@ class Huviz
           # Flip label rather than write upside down
           #   var flip = (node.rad > Math.PI) ? -1 : 1;
           #   view-source:http://www.jasondavies.com/d3-dependencies/
+          radians = node.rad
+          flip = radians > Math.PI and radians < 2 * Math.PI
+          if flip
+            radians = radians - Math.PI
           @ctx.save()
           @ctx.translate node.fisheye.x, node.fisheye.y
-          @ctx.rotate -1 * node.rad + Math.PI / 2
+          @ctx.rotate -1 * radians + Math.PI / 2
           @ctx.fillText node.name, 0, 0
           @ctx.restore()
         else
