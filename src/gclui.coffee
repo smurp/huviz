@@ -78,7 +78,7 @@ class CommandController
     @node_classes_chosen = @node_classes_chosen.filter (eye_dee) ->
       eye_dee isnt node_class
   verb_sets: [ # mutually exclusive within each set
-    {choose: 'choose', unchoose: 'unchoose'},
+    {choose: 'choose', shelve: 'shelve'},
     {label:  'label', unlabel: 'unlabel'},
     {discard: 'discard', undiscard: 'retrieve'},
     #{document: 'document', redact: 'redact'}    

@@ -15,7 +15,7 @@
 #  Hoosegow -- a jail to contain nodes one does not want to be bothered by
 #
 #  Commands on nodes
-#     choose/unchoose     -- graph or remove from graph
+#     choose/shelve     -- graph or remove from graph
 #     discard/retrieve    -- throw away or recover
 #     label/unlabel       -- shows labels or hides them
 #     substantiate/redact -- shows source text or hides it
@@ -304,7 +304,7 @@ class Huviz
         @run_verb_on_object 'discard',@dragging
       else @dragging.fixed = true  if @nodes_pinnable
       if @in_disconnect_dropzone(@dragging)
-        @run_verb_on_object 'unchoose',@dragging        
+        @run_verb_on_object 'shelve',@dragging        
       @dragging = false
       return
 
@@ -323,7 +323,7 @@ class Huviz
       unless @focused_node.state is @graphed_set
         @run_verb_on_object 'choose',@focused_node
       else if @focused_node.showing_links is "all"
-        @run_verb_on_object 'unchoose',@focused_node
+        @run_verb_on_object 'shelve',@focused_node
       else
         @run_verb_on_object 'choose',@focused_node        
 
@@ -1262,7 +1262,7 @@ class Huviz
   #  discard_dropzone.
   #
   discard: (goner) ->
-    @unchoose goner  
+    @shelve goner  
     @unlink goner
     @discarded_set.acquire goner
     @update_flags goner
@@ -1280,7 +1280,7 @@ class Huviz
   #  This is different from those nodes which find themselves
   #  linked into the graph because another node has been chosen.
   # 
-  unchoose: (goner) =>
+  shelve: (goner) =>
     @chosen_set.remove goner
     @hide_node_links goner
     @unlinked_set.acquire goner
