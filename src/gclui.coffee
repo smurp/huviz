@@ -12,8 +12,9 @@ gcl = require('graphcommandlanguage')
 class CommandController
   constructor: (@huviz,@container) ->
     @comdiv = d3.select(@container).append("div")
-    @cmdlist = @comdiv.append('div').attr('class','commandlist')    
-    @title_bar_controls()
+    #@gclpane = @comdiv.append('div').attr('class','gclpane')
+    @cmdlist = @comdiv.append('div').attr('class','commandlist')
+    @title_bar_controls()        
     @oldcommands = @cmdlist.append('div').attr('class','commandhistory')
     @nextcommandbox = @comdiv.append('div')
     @verbdiv = @comdiv.append('div').attr('class','verbs')
@@ -32,6 +33,7 @@ class CommandController
     @show_comdiv_button.classed('display_none',true)
     #@comdiv.classed('display_none',true)
     @cmdlistbar = @cmdlist.append('div').attr('class','cmdlistbar')
+    @cmdlist.append('div').attr('style','clear:both')    
     @cmdlistbarcontent = @cmdlistbar.append('div').attr('class','cmdlisttitlebarcontent')
     @cmdlistbarcontent.append('div').attr('class','cmdlisttitle')
     @toggle_comdiv_button = @cmdlistbar.append('div').
