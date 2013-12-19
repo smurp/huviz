@@ -33,13 +33,15 @@
 .commandlist {
   overflow-y: auto;
   /* -webkit-border-top-right-radius: 20px 300px; */
-  background-color: #81cbbc; /* hairline blue */  
+  /* background-color: #81cbbc;  hairline blue */  
+  background-color: blue; /* hairline blue */  
 }
 .nextcommand {
   color: black;
   font-weight:bold;
 }
 .cmdlistbar {
+  color: white;
   background-color: blue;
 }
 .cmdlisttitlebarcontent {
