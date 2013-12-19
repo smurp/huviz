@@ -74,7 +74,7 @@ digraph huviz_plan {
 
 	dispcom[label="display\ncommands",color=darkseagreen4];
 
-	clkcom[label="clicking\nmakes\ncommands"];
+	clkcom[label="clicking\nmakes\ncommands",color=darkseagreen4];
 	dispcom -> clkcom;
 
 	txtedcom[label="textually\nedit\ncommands"];
@@ -83,7 +83,7 @@ digraph huviz_plan {
 	gredcom[label="graphically\ncreate\ncommands",color=darkseagreen4];
 	dispcom -> gredcom;
 	
-	fliplabels[label="flip\nlabels"];
+	fliplabels[label="flip\nlabels",color=darkseagreen4];
         fliplabels  -> optional;
 
 	dispcom -> optional;

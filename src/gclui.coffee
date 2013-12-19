@@ -28,13 +28,15 @@ class CommandController
     @update_command()
 
   title_bar_controls: ->
-    @show_comdiv_button = d3.select(@container).append('div').classed('show_comdiv_button',true)
+    @show_comdiv_button = d3.select(@container).
+         append('div').classed('show_comdiv_button',true)
     #@show_comdiv_button.text('oink')
     @show_comdiv_button.classed('display_none',true)
     #@comdiv.classed('display_none',true)
     @cmdlistbar = @cmdlist.append('div').attr('class','cmdlistbar')
     @cmdlist.append('div').attr('style','clear:both')    
-    @cmdlistbarcontent = @cmdlistbar.append('div').attr('class','cmdlisttitlebarcontent')
+    @cmdlistbarcontent = @cmdlistbar.append('div').
+         attr('class','cmdlisttitlebarcontent')
     @cmdlistbarcontent.append('div').attr('class','cmdlisttitle')
     @toggle_comdiv_button = @cmdlistbar.append('div').
         attr('class','hide_comdiv')
