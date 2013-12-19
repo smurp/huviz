@@ -651,22 +651,25 @@ class Huviz
         return unless @should_show_label(node)
         if node.focused_node
           @ctx.fillStyle = node.color
-          @ctx.font = "9px sans-serif"
+          @ctx.font = "1em sans-serif"
         else
           @ctx.fillStyle = "black"
-          @ctx.font = "7px sans-serif"
+          @ctx.font = ".7em sans-serif"
         if not @graphed_set.has(node) and @draw_lariat_labels_rotated
           # Flip label rather than write upside down
           #   var flip = (node.rad > Math.PI) ? -1 : 1;
           #   view-source:http://www.jasondavies.com/d3-dependencies/
           radians = node.rad
           flip = radians > Math.PI and radians < 2 * Math.PI
+          textAlign = 'left'
           if flip
             radians = radians - Math.PI
+            textAlign = 'right'
           @ctx.save()
           @ctx.translate node.fisheye.x, node.fisheye.y
           @ctx.rotate -1 * radians + Math.PI / 2
-          @ctx.fillText node.name, 0, 0
+          @ctx.textAlign = textAlign
+          @ctx.fillText node.name, 0, 0          
           @ctx.restore()
         else
           @ctx.fillText node.name, node.fisheye.x, node.fisheye.y
@@ -1460,7 +1463,7 @@ class Huviz
 
   load_file: ->
     @reset_graph()
-    data_uri = $("select#file_picker option:selected").val()
+    data_uri = $("select.file_picker option:selected").val()
     @set_status data_uri
     @G = {}
     @fetchAndShow data_uri  unless @G.subjects
