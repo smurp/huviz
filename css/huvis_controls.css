@@ -1,8 +1,12 @@
-#file_picker_box {
+.graph_controls { /* put them in the upper right, above the graph */
   position: absolute;
   top: .2em;
-  left: .2em;
+  right: .2em;
   z-index: 3;
+}
+.graph_controls label { /* slide them to the right */
+  float:right;
+  clear:both;
 }
 #huvis_controls {
   position: absolute;

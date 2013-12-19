@@ -9,15 +9,36 @@
     <link href="/css/gclui.css" rel="stylesheet" type="text/css">
   </head>
   <body>
-      <div id="file_picker_box">
-        <select id="file_picker" onchange="HVZ.load_file()" >
-          <option>data/test_40.ttl</option>
-          <option>data/test_1.ttl</option>
-          <option>data/test_20.ttl</option>
-          <option>data/test_1.nq</option>
-          <option>data/all.ttl</option>
-        </select>
+    <div class="graph_controls">
+      <div>
+        <label title="the amount bigger than a normal label the currently selected one is">
+          focus magnification
+	  <input name="focused_mag" type="range"
+                 value="1.4" min="1" max="3" step=".1"
+                 onchange="HVZ.update_graph_settings(this)">
+        </label>
       </div>
+      <div>
+        <label>
+          label size (em)
+  	  <input name="label_em" type="range" 
+                 value=".3" min=".2" max="4" step=".1"
+                 onchange="HVZ.update_graph_settings(this)">
+        </label>
+      </div>
+      <div>
+        <label>
+          data set
+          <select class="file_picker" onchange="HVZ.load_file(this)" >
+            <option>data/test_40.ttl</option>
+            <option>data/test_1.ttl</option>
+            <option>data/test_20.ttl</option>
+            <option>data/test_1.nq</option>
+            <option>data/all.ttl</option>
+          </select>
+        </label>
+      </div>
+    </div>
     <div id="huvis_controls">
       <div id="gclui"></div>
     </div>

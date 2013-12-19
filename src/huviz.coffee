@@ -643,18 +643,20 @@ class Huviz
           "display:none"
     if @use_canvas or @use_webgl
       #http://stackoverflow.com/questions/3167928/drawing-rotated-text-on-a-html5-canvas
-      #ctx.rotate(Math.PI*2/(i*6));
-      
       # http://diveintohtml5.info/canvas.html#text
       # http://stackoverflow.com/a/10337796/1234699
+      focused_font_size = @label_em * @focused_mag
+      focused_font = "#{focused_font_size}em sans-serif"
+      unfocused_font = "#{@label_em}em sans-serif"
+      #console.log focused_font,unfocused_font
       @nodes.forEach (node) =>
         return unless @should_show_label(node)
         if node.focused_node
           @ctx.fillStyle = node.color
-          @ctx.font = "1em sans-serif"
+          @ctx.font = focused_font
         else
           @ctx.fillStyle = "black"
-          @ctx.font = ".7em sans-serif"
+          @ctx.font = unfocused_font
         if not @graphed_set.has(node) and @draw_lariat_labels_rotated
           # Flip label rather than write upside down
           #   var flip = (node.rad > Math.PI) ? -1 : 1;
@@ -1460,7 +1462,12 @@ class Huviz
 
   get_jiggy: ->
     return @width
-
+  focused_mag: 1.4
+  label_em: .7
+  init_from_graph_controls: ->
+    
+  update_graph_settings: (target) =>
+    @[target.name] = target.value
   load_file: ->
     @reset_graph()
     data_uri = $("select.file_picker option:selected").val()
