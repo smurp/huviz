@@ -9,12 +9,18 @@
 .alternates {
   float:left;
 }
+.verbs {
+  margin:.1em;
+}
 .verb {
-  padding: .1em;
-  border:1px solid;
+  border:2px solid;
+  margin:0.05em;
 }
 .engaged {
   background-color: tan;
+}
+.taxonomydiv {
+  margin:0.1em;
 }
 /*  http://net.tutsplus.com/tutorials/html-css-techniques/lets-create-paper-with-css/ */
 .command {
@@ -49,11 +55,36 @@
 }
 .hide_history:before {
   float: right;
-  content:"╒╕ ";
+  content:"╶╴";
 }
 .show_history:before {
   float: right;
-  content:"╶╴";
+  content:"□";
+  content:"╒╕";
+}
+
+.hide_comdiv:before {
+  margin-right: .2em;
+  margin-top: .2em;
+  float: right;
+  color: white;
+  padding: .05em;
+  background-color: red;
+  content: '✘';
+}
+.hide_comdiv:hover {
+  title: "hide the command panel";
+}
+.show_comdiv_button:before {
+  title:"show the command history";
+  background-color: blue;
+  color: white;
+  margin-right: .2em;
+  float:right;
+  content: '↗'; /* ⇗ */ 
+}
+.show_comdiv_button:hover {
+
 }
 .display_none {
   display:none;

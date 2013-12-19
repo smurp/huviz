@@ -12,35 +12,55 @@ gcl = require('graphcommandlanguage')
 class CommandController
   constructor: (@huviz,@container) ->
     @comdiv = d3.select(@container).append("div")
-    @cmdlist = @comdiv.append('div').attr('class','commandlist')
-
-    @cmdlistbar = @cmdlist.append('div').attr('class','cmdlistbar')
-    @cmdlistbarcontent = @cmdlistbar.append('div').attr('class','cmdlisttitlebarcontent')
-    @cmdlistbarcontent.append('div').attr('class','cmdlisttitle')
-    @toggle_history_button = @cmdlistbar.append('div').
-        attr('class','hide_history')
-    @cmdlistbar.append('div').style('clear:both')
-
-    @toggle_history_button.on 'click', () =>
-      shown = not @toggle_history_button.classed('hide_history')
-      @toggle_history_button.classed('hide_history',shown)
-      @toggle_history_button.classed('show_history',not shown)
-      @oldcommands.classed('display_none',not shown)
-      
-    @toggle_commands_button = @cmdlistbar.append('div').
-        attr('class','close_commands')
-
-    @oldcommands = @cmdlist.append('div')
+    @cmdlist = @comdiv.append('div').attr('class','commandlist')    
+    @title_bar_controls()
+    @oldcommands = @cmdlist.append('div').attr('class','commandhistory')
     @nextcommandbox = @comdiv.append('div')
-    @verbdiv = @comdiv.append('div')
-    @taxdiv = @comdiv.append('div')
-    @comdiv.append('div').attr('style','clear:both')
+    @verbdiv = @comdiv.append('div').attr('class','verbs')
+    @taxdiv = @comdiv.append('div').attr('class','taxonomydiv')
+    @comdiv.append('div').attr('style','clear:both') # keep taxonomydiv from being to the right of the verbdiv
     @nodeclassbox = @comdiv.append('div').classed('container',true)
     @likediv = @comdiv.append('div')    
     @node_classes_chosen = [] # new SortedSet()
     @build_nodeclasspicker()    
     @build_form()
     @update_command()
+
+  title_bar_controls: ->
+    @show_comdiv_button = d3.select(@container).append('div').classed('show_comdiv_button',true)
+    #@show_comdiv_button.text('oink')
+    @show_comdiv_button.classed('display_none',true)
+    #@comdiv.classed('display_none',true)
+    @cmdlistbar = @cmdlist.append('div').attr('class','cmdlistbar')
+    @cmdlistbarcontent = @cmdlistbar.append('div').attr('class','cmdlisttitlebarcontent')
+    @cmdlistbarcontent.append('div').attr('class','cmdlisttitle')
+    @toggle_comdiv_button = @cmdlistbar.append('div').
+        attr('class','hide_comdiv')
+    @toggle_history_button = @cmdlistbar.append('div').
+        attr('class','hide_history')
+    @cmdlist.append('div').style('clear:both')
+
+    @toggle_history_button.on 'click', () =>
+      shown = not @toggle_history_button.classed('hide_history')
+      @toggle_history_button.classed('hide_history',shown)
+      @toggle_history_button.classed('show_history',not shown)
+      @oldcommands.classed('display_none',not shown)
+
+    @show_comdiv_button.on 'click', () =>
+      @show_comdiv_button.classed('display_none',true)
+      @comdiv.classed('display_none',false)
+      
+    @toggle_comdiv_button.on 'click', () =>
+      shown = not @toggle_comdiv_button.classed('hide_comdiv')
+      "setting toggle_comdiv:"+shown
+      #@toggle_comdiv_button.classed('hide_comdiv',shown)
+      #@toggle_comdiv_button.classed('show_comdiv',not shown)
+      @comdiv.classed('display_none',not shown)
+      @show_comdiv_button.classed('display_none',false)
+      
+    @toggle_commands_button = @cmdlistbar.append('div').
+        attr('class','close_commands')
+    
   build_nodeclasspicker: ->
     tp = require('treepicker')
     @node_class_picker = new tp.TreePicker()
