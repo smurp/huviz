@@ -85,6 +85,9 @@ class Huviz
 
   is_node_to_always_show = is_a_main_node
 
+  turtle_parser: 'GreenerTurtle'
+  #turtle_parser: 'N3'
+
   use_canvas: true
   use_svg: false
   use_webgl: false
@@ -134,6 +137,7 @@ class Huviz
     subjects: {}
     objects: {}
 
+  # required by green turtle, should be retired
   G: {}
   id2n: {}
   id2u: {}
@@ -794,17 +798,55 @@ class Huviz
 
   DEPRECATED_add_to: (itm, set) ->
     return add_to_array(itm, set, cmp_on_id)  if isArray(set)
-    throw "add_to() requires itm to have an .id"  if typeof itm.id is "undefined"
+    throw new Error "add_to() requires itm to have an .id"  if typeof itm.id is "undefined"
     found = set[itm.id]
     set[itm.id] = itm  unless found
     set[itm.id]
 
   DEPRECATED_remove_from: (doomed, set) ->
-    throw "remove_from() requires doomed to have an .id"  if typeof doomed.id is "undefined"
+    throw new Error "remove_from() requires doomed to have an .id"  if typeof doomed.id is "undefined"
     return remove_from_array(doomed, set)  if isArray(set)
     delete set[doomed.id]  if set[doomed.id]
     set
 
+  my_graph:
+    subjects: {}
+    predicates: {}
+    objects: {}
+
+  fire_newsubject_event: (s) ->
+    window.dispatchEvent(
+      new CustomEvent 'newsubject',
+        detail:
+          sid: s
+          # time: new Date()
+        bubbles: true
+        cancelable: true
+    )
+
+  # add_quad is the standard entrypoint for all data sources
+  # It is fires the events:
+  #   newsubject
+  add_quad: (quad) ->
+    #console.log quad.context
+    s = quad.subject
+    newsubj = false
+    subj = null
+    if not @my_graph.subjects[s]?
+      newsubj = true
+      subj =
+        uri: s
+        predicates: []
+      @my_graph.subjects[s] = subj
+    else
+      subj = @my_graph.subjects[s]
+      
+    @my_graph.predicates[quad.predicate] = {}
+    @my_graph.objects[quad.object] = {}
+
+    if newsubj
+      @fire_newsubject_event s if window.CustomEvent?
+  
   parseAndShowTurtle: (data, textStatus) =>
     @set_status "parsing"
     msg = "data was " + data.length + " bytes"
@@ -814,30 +856,26 @@ class Huviz
     #  application/n-quads
     #  .nq
     #
-    if GreenerTurtle?
+    if GreenerTurtle? and @turtle_parser is 'GreenerTurtle'
       @G = new GreenerTurtle().parse(data, "text/turtle")
 
-    else
-      alert "no GreenTurtle"
+    else if @turtle_parser is 'N3'
+      #N3 = require('N3')
       console.log "n3",N3
       predicates = {}
       parser = N3.Parser()
-      parser.parse data, (err,trip,pref) ->
+      parser.parse data, (err,trip,pref) =>
         if pref
           console.log pref
         if trip
-          #console.log trip
-          my_graph.subjects[trip.subject] = {}
-          my_graph.predicates[trip.predicate] = {}
-          my_graph.objects[trip.object] = {}
-          
+          @add_quad trip
         else
           console.log err
 
-      console.log "my_graph",my_graph
+      #console.log "my_graph",@my_graph
       console.log('===================================')
       for prop_name in ['predicates','subjects','objects']
-        prop_obj = my_graph[prop_name]
+        prop_obj = @my_graph[prop_name]
         console.log prop_name,(key for key,value of prop_obj).length,prop_obj
       console.log('===================================')
       #console.log "Predicates",(key for key,value of my_graph.predicates).length,my_graph.predicates
@@ -945,7 +983,7 @@ class Huviz
       @nodes[idx]
     else
       if throw_on_fail
-        throw "node with id <" + node_id + "> not found"
+        throw new Error("node with id <" + node_id + "> not found")
       else
         return
 
@@ -1143,7 +1181,6 @@ class Huviz
       true  if (limit > 0) and (@links_set.length >= limit)
     @restart()
 
-  #await_the_GreenTurtle();
   hide_node_links: (node) ->
     node.links_shown.forEach (e, i) =>
       @links_set.remove e
@@ -1332,50 +1369,23 @@ class Huviz
         chosen = get_or_make_node(chosen_id)
         @choose chosen  if chosen
 
+  fire_showgraph_event: ->
+    window.dispatchEvent(
+      new CustomEvent 'showgraph',
+        detail:
+          message: "graph shown"
+          time: new Date()
+        bubbles: true
+        cancelable: true
+    )
+
   showGraph: (g) ->
     @make_nodes g
-    if window.CustomEvent?
-      # http://www.sitepoint.com/javascript-custom-events/
-      window.dispatchEvent(
-        new CustomEvent 'showgraph',
-          detail:
-             message: "graph shown"
-             time: new Date()
-          bubbles: true
-          cancelable: true
-      )
+    @fire_showgraph_event() if window.CustomEvent?
     @restart()
 
   show_the_edges: () ->
     #edge_controller.show_tree_in.call(arguments)
-
-  #window.CRT = require("crrt")
-  #console.log('CRT',CRT)
-  #edge_controller = new CRT.CollapsibleRadialReingoldTilfordTree()
-  #do_tests(false)
-
-    #window.addEventListener "load", ->
-  #  # This delay is to let GreenTurtle initialize
-  #  # It would be great if there were a hook for this...
-  #  #init_node_radius_policy()
-  #  console.log "load_file() via 'load' listener"
-  #  load_file()
-  #
-  #window.addEventListener "popstate", (event) ->
-  #  #console.log('popstate fired',event);
-  #  restore_graph_state event.state
-
-
-  # declare variables used in intialize_graph
-  fisheye: null
-  fill: null
-  force: null
-  svg: null
-  viscanvas: null
-  canvas: null
-  mouse_receiver: null
-  ctx: null
-  cursor: null
 
   register_gclc_prefixes: =>
     @gclc.prefixes = {}
@@ -1458,7 +1468,7 @@ class Huviz
     if search_input
       search_input.addEventListener("input", @update_searchterm)
     #$(".search_box").on "input", @update_searchterm
-    window.addEventListener "resize", @updateWindow  
+    window.addEventListener "resize", @updateWindow
 
   get_jiggy: ->
     return @width

@@ -48,6 +48,7 @@
     <!--
       <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
      -->
+    <script src="/node_modules/n3/build/n3-browser.min.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script>window.exports = {};</script>
     <script src="application.js?12345"></script>
@@ -129,6 +130,10 @@
         huviz = require('huviz');
         HVZ = new huviz.Huviz();
         HVZ.load_file();
+      });
+
+      window.addEventListener('newsubject',function(e){
+        alert("new subject: "+e.detail.sid)
       });
 
     </script>
