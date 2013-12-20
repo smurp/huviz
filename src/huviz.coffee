@@ -48,17 +48,17 @@ class Huviz
   
   node_radius_policies =
     "node radius by links": (d) ->
-      d.radius = Math.max(@little_dot, Math.log(d.links_shown.length))
+      d.radius = Math.max(@node_radius, Math.log(d.links_shown.length))
       return d.radius
       if d.showing_links is "none"
-        d.radius = @little_dot
+        d.radius = @node_radius
       else
         if d.showing_links is "all"
-          d.radius = Math.max(@little_dot,
+          d.radius = Math.max(@node_radius,
             2 + Math.log(d.links_shown.length))  
       d.radius
     "equal dots": (d) ->
-      @little_dot
+      @node_radius
   default_node_radius_policy = "equal dots"
   default_node_radius_policy = "node radius by links"
 
@@ -124,6 +124,7 @@ class Huviz
   gravity: 0.3
   label_show_range: null # @link_distance * 1.1
   graph_radius: 100
+  shelf_radius: 0.9
   discard_radius: 200
   fisheye_radius: null # label_show_range * 5
   fisheye_zoom: 4.0
@@ -143,7 +144,7 @@ class Huviz
   id2u: {}
 
   search_regex: new RegExp("^$", "ig")
-  little_dot: .5
+  node_radius: .5
 
   mousedown_point: false
   discard_center: [0,0]
@@ -361,6 +362,9 @@ class Huviz
   get_charge: (d) =>
     return 0  unless @graphed_set.has(d)
     @charge
+
+  get_gravity: =>
+    return @gravity
 
   # lines: 5845 5848 5852 of d3.v3.js object to
   #    mouse_receiver.call(force.drag);
@@ -942,7 +946,7 @@ class Huviz
     @cy = @height / 2
     
   update_graph_radius: ->
-    @graph_radius = Math.floor(Math.min(@width / 2, @height / 2)) * .9
+    @graph_radius = Math.floor(Math.min(@width / 2, @height / 2)) * @shelf_radius
 
   update_lariat_zone: ->
     @lariat_center = [@width / 2, @height / 2]
@@ -1415,19 +1419,12 @@ class Huviz
   constructor: ->
     @init_sets()
     @init_gclc()
-    @label_show_range = @link_distance * 1.1
-    @fisheye_radius = @label_show_range * 5
-    @focus_radius = @label_show_range
 
     @mousedown_point = [@cx,@cy]
     @discard_point = [@cx,@cy]
     @lariat_center = [@cx,@cy]
     @node_radius_policy = node_radius_policies[default_node_radius_policy]
-    
-    @fisheye = d3.fisheye.
-      circular().
-      radius(@fisheye_radius).
-      distortion(@fisheye_zoom)
+    @update_fisheye()
     @fill = d3.scale.category20()
     @force = d3.layout.force().size([
       @width
@@ -1474,10 +1471,25 @@ class Huviz
     return @width
   focused_mag: 1.4
   label_em: .7
-  init_from_graph_controls: ->
-    
+
+  update_fisheye: ->
+    @label_show_range = @link_distance * 1.1
+    @fisheye_radius = @label_show_range * 5
+    @focus_radius = @label_show_range
+
+    @fisheye = d3.fisheye.
+      circular().
+      radius(@fisheye_radius).
+      distortion(@fisheye_zoom)
+        
   update_graph_settings: (target) =>
     @[target.name] = target.value
+    @update_fisheye()
+    @updateWindow()
+    @tick()
+  init_from_graph_controls: ->
+    # Perform update_graph_settings for everything in the form
+    # so the HTML can be used as configuration file        
   load_file: ->
     @reset_graph()
     data_uri = $("select.file_picker option:selected").val()
