@@ -30,7 +30,7 @@
         <label title="the repulsive charge between nodes">
           charge
 	  <input name="charge" type="range"
-                 value="-30" min="-60" max="10" step="1"
+                 value="-30" min="-400" max="10" step="1"
                  onchange="HVZ.update_graph_settings(this)">
         </label>
       </div>
@@ -38,7 +38,7 @@
         <label title="the attractive force keeping nodes centered">
           gravity
 	  <input name="gravity" type="range"
-                 value="0.3" min="-1" max="1" step=".05"
+                 value="0.3" min="0" max="1" step=".05"
                  onchange="HVZ.update_graph_settings(this)">
         </label>
       </div>
@@ -59,10 +59,26 @@
         </label>
       </div>
       <div>
-        <label title="how big the nodes are">
-          node_radius
+        <label title="how big the fisheye is">
+          fisheye radius
+	  <input name="fisheye_radius" type="range"
+                 value="100" min="40" max="2000" step="20"
+                 onchange="HVZ.update_graph_settings(this)">
+        </label>
+      </div>
+      <div>
+        <label title="how fat the nodes are">
+          node radius
 	  <input name="node_radius" type="range"
                  value=".5" min=".2" max="8" step=".1"
+                 onchange="HVZ.update_graph_settings(this)">
+        </label>
+      </div>
+      <div>
+        <label title="how long the lines are">
+          link distance
+	  <input name="link_distance" type="range"
+                 value="20" min="5" max="200" step="2"
                  onchange="HVZ.update_graph_settings(this)">
         </label>
       </div>

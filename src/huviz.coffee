@@ -126,7 +126,7 @@ class Huviz
   graph_radius: 100
   shelf_radius: 0.9
   discard_radius: 200
-  fisheye_radius: null # label_show_range * 5
+  fisheye_radius: 100 #null # label_show_range * 5
   fisheye_zoom: 4.0
   focus_radius: null # label_show_range
   drag_dist_threshold: 5
@@ -1424,7 +1424,7 @@ class Huviz
     @discard_point = [@cx,@cy]
     @lariat_center = [@cx,@cy]
     @node_radius_policy = node_radius_policies[default_node_radius_policy]
-    @update_fisheye()
+
     @fill = d3.scale.category20()
     @force = d3.layout.force().size([
       @width
@@ -1433,6 +1433,7 @@ class Huviz
                  charge(@get_charge).
                  gravity(@gravity).
                  on("tick", @tick)
+    @update_fisheye()
     @svg = d3.select("#vis").
               append("svg").
               attr("width", @width).
@@ -1474,13 +1475,15 @@ class Huviz
 
   update_fisheye: ->
     @label_show_range = @link_distance * 1.1
-    @fisheye_radius = @label_show_range * 5
+    #@fisheye_radius = @label_show_range * 5
     @focus_radius = @label_show_range
 
     @fisheye = d3.fisheye.
       circular().
       radius(@fisheye_radius).
       distortion(@fisheye_zoom)
+
+    @force.linkDistance(@link_distance).gravity(@gravity)
         
   update_graph_settings: (target) =>
     @[target.name] = target.value
