@@ -20,7 +20,7 @@ pkg = stitch.createPackage(
     __dirname + '/lib/fisheye.js',
     #__dirname + '/lib/jq.min.js',
     __dirname + '/lib/green_turtle.js'
-
+    #__dirname + "/node_modules/n3/build/n3-browser.min.js",
     #__dirname + '/node_modules/express/lib/utils.js',
     #__dirname + '/node_modules/rdfquads/node_modules/lazy/lazy.js',
     #__dirname + '/node_modules/rdfquads/lib/quadParser.js',
@@ -28,6 +28,15 @@ pkg = stitch.createPackage(
   ]
 )
 app = express.createServer()
+
+# a package for code2flow to visualize
+just_huviz = stitch.createPackage(
+  paths: [ __dirname + "/src" ]
+  dependencies: [
+    __dirname + '/js/sortedset.js',
+  ]
+)
+
 
 app.configure ->
   app.use express.logger()
@@ -39,8 +48,9 @@ app.configure ->
   app.use express.static(__dirname + '/lib')
   app.use express.static(__dirname + '/data')
   app.use express.static(__dirname + '/docs')
-  #app.use express.static(__dirname + '/node_modules')  
+  app.use express.static(__dirname + '/node_modules')  
   app.get "/application.js", pkg.createServer()
+  app.get "/just_huviz.js", just_huviz.createServer()
 
 port = argv[0] or process.env.PORT or 9999
 console.log "Starting server on port: #{port}"
