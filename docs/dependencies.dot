@@ -41,6 +41,8 @@ digraph huviz_plan {
 	pickpath -> greenturtle;
 	quadpars -> workdata;
 
+	trigparser[label="Trig\nParser"];
+	trigparser -> servsnip;
 	quadpars -> servsnip;
 
 	node [shape = circle];
@@ -49,8 +51,9 @@ digraph huviz_plan {
         essential[color=darkseagreen4,shape=rect];
 	helpful[shape=rect];
 	optional[shape=rect];
-	essential -> Demo;
-	optional -> Demo;
+        
+	essential -> deliverable;
+	optional -> deliverable;
 	dispsnip -> optional;
 	
 	workdata -> dg;
@@ -60,6 +63,9 @@ digraph huviz_plan {
 	dispsnip[label="Display\nSnippets"];
     	servsnip[label="Serve\nSnippets"];
 	me[label="Multiple\nEdges"];
+        dbgall[label="debug all.ttl"];
+
+        dbgall -> essential;
 	dg -> essential;
 	me -> optional;
 	runcom[label="run\ncommands",color=darkseagreen4];
