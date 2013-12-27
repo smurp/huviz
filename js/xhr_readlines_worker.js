@@ -44,7 +44,8 @@ function linearize(streamoid) {
     if (streamoid.idx == 0) {
 	self.postMessage({event:'start'});
     }
-    if (streamoid.idx == streamoid.data.length){
+    //console.log('--------- '+streamoid.idx+" "+streamoid.data.length);
+    if (streamoid.idx == streamoid.data.length - 1){
 	self.postMessage({event:'finish'});
     } else {
 	var i = streamoid.idx + 1;
@@ -68,9 +69,3 @@ self.addEventListener('message',function(e){
        });
     },false);
 
-/*
-self.addEventListener('message',function(e){
-	self.postMessage(e.data);
-    },false);
-
-*/

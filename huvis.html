@@ -86,8 +86,8 @@
         <label title="which file to load">
           data set
           <select class="file_picker" onchange="HVZ.load_file(this)" >
-            <option>/data/test_2.nq</option>
             <option>/data/test_1.nq</option>
+            <option>/data/test_2.nq</option>
             <option>/data/test_40.ttl</option>
             <option>/data/test_1.ttl</option>
             <option>/data/test_20.ttl</option>
@@ -104,9 +104,8 @@
     <div id="status" onclick="clear_box()"></div>
     <!--
       <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
+      <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
      -->
-
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script>window.exports = {};</script>
     <script src="application.js?123456"></script>
     <script>
@@ -185,7 +184,7 @@
       var HVZ;
       window.addEventListener('load',function(){
         huviz = require('huviz');
-        HVZ = new huviz.Huviz();
+        HVZ = new huviz.Orlando();
         HVZ.load_file();
       });
 

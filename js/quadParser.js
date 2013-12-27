@@ -1,46 +1,4 @@
-//var events = require('events')
-//var events = require('EventEmitter')
-//var Lazy=require("lazy");
-
-//var events = {'EventEmitter':EventEmitter};
-/*
-function QuadParser(str) {
-    var self = this;
-    events.EventEmitter.call(this);
-    this._lzy = {"lines":str.split("\n")};
-    return this;
-}
-
-QuadParser.super_ = events.EventEmitter;
-QuadParser.prototype = Object.create(events.EventEmitter.prototype, {
-    constructor: {
-        value: QuadParser,
-        enumerable: false
-    }
-});
-
-QuadParser.prototype.parse = function(){
-    console.log("this",this);
-    self = this;
-    this._lzy.lines
-    .forEach(
-	function(line) 
-	{
-            //console.log(line);
-            if (line != null && line != undefined) {
-                var str = line.toString() + "\n";
-                var quad = parseQuadLine(str);
-                console.log('quad good',quad);
-                if (quad != null) {
-		    console.log('thiis',self);
-                    self.emit("quad", quad);
-                }
-            }
-	}
-    );
-    self.emit("end")
-}
-*/
+// based on https://github.com/talis/rdfquads.js
 function Quad(subject,pred,obj,graph) {
     this.s = new RdfUri(subject);
     this.p = new RdfUri(pred);

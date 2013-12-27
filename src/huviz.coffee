@@ -43,11 +43,16 @@ dist_lt = (mouse, d, thresh) ->
   y = mouse[1] - d.y
   Math.sqrt(x * x + y * y) < thresh
 
-class Huviz
-  UNDEFINED = undefined
-  start_with_http = new RegExp("http", "ig")
-  ids_to_show = start_with_http
-  
+FOAF_Group = "http://xmlns.com/foaf/0.1/Group"
+FOAF_name = "http://xmlns.com/foaf/0.1/name"
+RDF_Type = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+RDF_object = "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
+
+UNDEFINED = undefined
+start_with_http = new RegExp("http", "ig")
+ids_to_show = start_with_http
+
+if true
   node_radius_policies =
     "node radius by links": (d) ->
       d.radius = Math.max(@node_radius, Math.log(d.links_shown.length))
@@ -64,10 +69,6 @@ class Huviz
   default_node_radius_policy = "equal dots"
   default_node_radius_policy = "node radius by links"
 
-  FOAF_Group = "http://xmlns.com/foaf/0.1/Group"
-  FOAF_name = "http://xmlns.com/foaf/0.1/name"
-  RDF_Type = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-  RDF_object = "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
   has_type = (subject, typ) ->
     has_predicate_value subject, RDF_Type, typ
 
@@ -86,6 +87,8 @@ class Huviz
     (BLANK_HACK and d.s.id[7] isnt "/") or (not BLANK_HACK and d.s.id[0] isnt "_")
 
   is_node_to_always_show = is_a_main_node
+
+class Huviz
 
   turtle_parser: 'GreenerTurtle'
   #turtle_parser: 'N3'
@@ -242,31 +245,6 @@ class Huviz
         for i of value
           stack.push value[i]
     bytes
-
-  #d3.xhr(url,'text/plain',parseAndShow);
-
-  # This is a hacky Orlando-specific way to capture this
-  assign_types: (d) ->
-    if has_type(d.s, FOAF_Group)
-      @taxonomy['orgs'].add(d)
-    else if d.s.id[0] is "_"
-      @taxonomy['people'].add(d)
-      @taxonomy['others'].add(d)      
-    else
-      @taxonomy['writers'].add(d)    
-
-  # This is a hacky Orlando-specific way to 
-  #  http:///4  
-  #  _:4
-  #
-  color_by_type: (d) ->    
-    # anon red otherwise blue 
-    if has_type(d.s, FOAF_Group)
-      "green" # Groups
-    else if d.s.id[0] is "_"
-      "red" # Other people
-    else
-      "blue" # the writers
 
   move_node_to_point: (node, point) ->
     node.x = point[0]
@@ -435,7 +413,7 @@ class Huviz
     @create_taxonomy()
 
   create_taxonomy: ->
-    @taxonomy = {}
+    @taxonomy = {}  # make driven by the hierarchy
     for nom in ['writers','people','others','orgs']
       @taxonomy[nom] = SortedSet().named(nom).isFlag().sort_on("id")
     
@@ -830,35 +808,82 @@ class Huviz
         cancelable: true
     )
 
+  last_quad: {}
+
   # add_quad is the standard entrypoint for all data sources
   # It is fires the events:
   #   newsubject
   add_quad: (quad) ->
     #console.log quad.context
-    console.log "add_quad",quad
-    s = quad.subject
+    #console.log "add_quad",quad.s.raw
+    s = quad.s.raw
     newsubj = false
     subj = null
     if not @my_graph.subjects[s]?
       newsubj = true
       subj =
-        uri: s
-        predicates: []
+        id: s
+        predicates: {}
       @my_graph.subjects[s] = subj
     else
       subj = @my_graph.subjects[s]
-      
-    @my_graph.predicates[quad.predicate] = {}
-    @my_graph.objects[quad.object] = {}
+          
+    pred_id = quad.p.raw
+    if not @my_graph.predicates[pred_id]?
+      @my_graph.predicates[pred_id] = []
+    #@my_graph.objects[quad.o.raw] = {}
 
+    # set the predicate on the subject
+    if not subj[pred_id]?
+      subj.predicates[pred_id] = {objects:[]}      
+    subj.predicates[pred_id].objects.push(quad.o.raw)
+    #console.log "  ",s,".",pred_id,".",quad.o.raw
+
+    @set_type_if_possible(subj,quad,true)
+    
     if newsubj
       @fire_newsubject_event s if window.CustomEvent?
+
+    if @last_quad?s?raw isnt quad.s.raw
+      if @last_quad
+        @fire_nextsubject_event @last_quad,quad
+    @last_quad = quad
+
+  fire_nextsubject_event: (oldquad,newquad) ->
+    #console.log "fire_nextsubject_event",oldquad
+    window.dispatchEvent(
+      new CustomEvent 'nextsubject',
+        detail:
+          old: oldquad
+          new: newquad
+        bubbles: true
+        cancelable: true
+    )
+
+  onnextsubject: (e) =>
+    #console.log "onnextsubject: called",e
+    # The event 'nextsubject' is fired when the subject of add_quad()
+    # is different from the last call to add_quad().  It will also be
+    # called when the data source has been exhausted. Our purpose
+    # in listening for this situation is that this is when we ought
+    # to check to see whether there is now enough information to create
+    # a node.  A node must have an ID, a name and a type for it to
+    # be worth making a node for it (at least in the orlando situation).
+    # The ID is the uri (or the id if a BNode)
+    if e.detail.old?
+      console.log "onnextsubject.old:",e.detail.old.s.raw
+      console.log "@my_graph.predicates",@my_graph.predicates
+      subject = @my_graph.subjects[e.detail.old.s.raw]
+      console.log "subject:",subject
+      @set_type_if_possible(subject,e.detail.old,true)
+      if @is_nodeable(subject)
+        #@get_or_create_node e.detail.old.s
+        @get_or_create_node subject
   
   parseAndShowTurtle: (data, textStatus) =>
     @set_status "parsing"
     msg = "data was " + data.length + " bytes"
     parse_start_time = new Date()
-
     
     #  application/n-quads
     #  .nq
@@ -904,47 +929,30 @@ class Huviz
     $("body").css "cursor", "default"
     $("#status").text ""
 
-  parseAndShowNQ: (data, textStatus) ->
+  parseAndShowNQStreamer: (uri) ->
     # turning a blob (data) into a stream
     #   http://stackoverflow.com/questions/4288759/asynchronous-for-cycle-in-javascript
-    #   http://www.dustindiaz.com/async-method-queues/
-    # 
-    #QP = require("quadparser").QuadParser
-    QuadParser = require("quadParser").QuadParser
-    # Build a parser around a stream
-    parser = new QuadParser(data)
-    #parser = new QP(data)
-    console.log parser
-    window.qparser =  parser
-    parser.on 'quad', (quad) ->
-      console.log "quad:",quad
-    parser.on 'end', (quad) ->
-      console.log 'done parsing'
-
-        
-    parser.grind = (blob) ->
-      lines = blob.split("\n")
-      emit_quad = ->
-        async.applyEachSeries lines,iterator,farf
-          
-    parser.grind(data)
-
-  parseAndShowNQStreamer: (uri) ->
-    #QuadParser = require("quadParser").QuadParser
-    # Build a parser around a stream
-    #parser = new QuadParser('')
-    #parseQuadLine = require("quadParser").parseQuadLine
-
+    #   http://www.dustindiaz.com/async-method-queues/    
     worker = new Worker('js/xhr_readlines_worker.js')
     worker.addEventListener 'message', (e) =>
+      msg = null
       if e.data.event is 'line'
         q = parseQuadLine(e.data.line)
         if q
+          #msg = e.data.line
+          #msg = q.toString()
           @add_quad q
-      if e.data.event is 'start'
-        console.log "starting to split",uri
+      else if e.data.event is 'start'
+        msg = "starting to split "+uri
       else if e.data.event is 'finish'
-        console.log "finished splitting",uri
+        msg = "finished_splitting "+uri
+        @fire_nextsubject_event @last_quad,null
+      else
+        msg = "unrecognized NQ event:"+e.data.event
+      if msg?
+        @set_status msg
+        console.log msg
+        #alert msg
     worker.postMessage({uri:uri})
     
   fetchAndShow: (url) ->
@@ -1160,8 +1168,12 @@ class Huviz
     @force.links @links_set
     @restart()
 
+  get_or_create_node: (subject, start_point, linked) ->
+    @get_or_make_node subject,start_point,linked
+
+  # deprecated in favour of get_or_create_node
   get_or_make_node: (subject, start_point, linked) ->
-    return  unless subject
+    return unless subject
     d = @get_node_by_id(subject.id)
     return d  if d
     start_point = start_point or [
@@ -1169,7 +1181,9 @@ class Huviz
       @height / 2
     ]
     linked = typeof linked is "undefined" or linked or false
-    name = subject.predicates[FOAF_name].objects[0].value
+    name_obj = subject.predicates[FOAF_name].objects[0]
+    name = name_obj.value? and name_obj.value or name_obj
+    #name = subject.predicates[FOAF_name].objects[0].value
     d =
       x: start_point[0]
       y: start_point[1]
@@ -1200,6 +1214,7 @@ class Huviz
     @update_flags d
     d
 
+  # deprecated in favour of add_quad:
   make_nodes: (g, limit) ->
     limit = limit or 0
     count = 0
@@ -1437,7 +1452,7 @@ class Huviz
   init_gclc: ->
     if gcl
       @gclc = new gcl.GraphCommandLanguageCtrl(this)
-      @gclui = new gclui.CommandController(this,d3.select("#gclui")[0][0])
+      @gclui = new gclui.CommandController(this,d3.select("#gclui")[0][0],@hierarchy)
       window.addEventListener 'showgraph', @register_gclc_prefixes
 
   run_verb_on_object: (verb,subject) ->
@@ -1455,6 +1470,7 @@ class Huviz
     return {id: thing.id}
 
   constructor: ->
+    window.addEventListener 'nextsubject', @onnextsubject
     @init_sets()
     @init_gclc()
 
@@ -1539,5 +1555,66 @@ class Huviz
     @fetchAndShow data_uri  unless @G.subjects
     @init_webgl()  if @use_webgl
 
+  default_color: "brown"
+  color_by_type: (d) ->
+    return @default_color
+
+  is_nodeable: (subj) ->
+    # Determine whether there is enough known about a subject to create a node for it
+    # Does it have an .id and a .type and a .name?
+    return subj.id? and subj.type and subj.predicates[FOAF_name]?
+    
+
+class Orlando extends Huviz
+  # These are the Orlando specific methods layered on Huviz.
+  # These ought to be made data-driven.
+
+  ORLANDO_org = 'orl:orgs'
+  ORLANDO_writer = 'orl:writers'
+  ORLANDO_other = 'orl:others'
+
+  hierarchy: { 'everything': ['Everything', {people: ['People', {writers: ['Writers'], others: ['Others']}], orgs: ['Organizations']}]}
+  bnode_regex: /^\_\:|^[A-Z]/
+  set_type_if_possible: (subj,quad,force) ->
+    force = not not force? and force
+    if not subj.type? and subj.type isnt ORLANDO_writer and not force
+      return
+    pred_id = quad.p.raw
+    if pred_id in [RDF_Type,'a'] and quad.o.raw is FOAF_Group
+      subj.type = ORLANDO_org
+    else if force and subj.id[0].match(@bnode_regex)
+      subj.type = ORLANDO_other    
+    else if force
+      subj.type = ORLANDO_writer
+    if subj.type?
+      name = subj.predicates[FOAF_name]? and subj.predicates[FOAF_name].objects[0] or subj.id
+      console.log name+".type <==" + subj.type, subj
+
+  # This is a hacky Orlando-specific way to assign a type to a node (not the subject!)
+  assign_types: (d) ->
+    return unless d.s? and d.s.type?
+    if d.type is ORLANDO_org
+      @taxonomy['orgs'].add(d)
+    else if d.type is ORLANDO_other
+      @taxonomy['people'].add(d)
+      @taxonomy['others'].add(d)      
+    else if d.type is ORLANDO_writer
+      @taxonomy['people'].add(d)
+      @taxonomy['writers'].add(d)    
+
+  color_by_type: (d) ->    
+    # anon red otherwise blue 
+    if d.orgs?
+      "green" 
+    else if d.others?
+      "red" 
+    else if d.writers?
+      "blue"
+    else
+      super()
+  
+  
 #(typeof exports is 'undefined' and window or exports).Huviz = Huviz
-exports.Huviz = Huviz
+
+(exports ? this).Huviz = Huviz
+(exports ? this).Orlando = Orlando
