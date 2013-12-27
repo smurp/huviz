@@ -13,6 +13,10 @@
   },
   "stashed-dependencies":{
     "rdfquads":"smurp/rdfquads",
-    "node-n3":"smurp/node-n3"
+    "node-n3":"smurp/node-n3",
+    "stream": "Jxck/stream",
+    "events": "Jxck/events",
+    "stream": "git://github.com/Jxck/stream.git#master",
+    "events": "git://github.com/Jxck/events.git#master"
   }
 }

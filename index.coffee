@@ -12,6 +12,19 @@ oink = ss.SortedSet()
 pkg = stitch.createPackage(
   # Specify the paths you want Stitch to automatically bundle up
   paths: [ __dirname + "/src" ]
+  ###
+  ,
+           __dirname + '/node_modules/events',
+           __dirname + '/node_modules/stream',
+           __dirname + "/node_modules/rdfquads/node_modules/lazy",
+           __dirname + "/node_modules/async/lib",
+           __dirname + "/node_modules/rdfquads/lib"
+          
+           #__diranem + "https://github.com/NobleJS/setImmediate"
+           #__dirname + "/links",
+      ]
+  ###
+
 
   # Specify your base libraries
   dependencies: [
@@ -20,6 +33,12 @@ pkg = stitch.createPackage(
     __dirname + '/lib/fisheye.js',
     #__dirname + '/lib/jq.min.js',
     __dirname + '/lib/green_turtle.js'
+    __dirname + '/lib/EventEmitter-4.0.3.min.js'
+    #__dirname + '/node_modules/events/events.js',    
+    #__dirname + '/node_modules/stream/stream.js',
+    
+   # __dirname + '/js/lazy.js',
+    __dirname + '/js/quadParser.js'    
     #__dirname + "/node_modules/n3/build/n3-browser.min.js",
     #__dirname + '/node_modules/express/lib/utils.js',
     #__dirname + '/node_modules/rdfquads/node_modules/lazy/lazy.js',

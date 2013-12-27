@@ -86,11 +86,12 @@
         <label title="which file to load">
           data set
           <select class="file_picker" onchange="HVZ.load_file(this)" >
-            <option>data/test_40.ttl</option>
-            <option>data/test_1.ttl</option>
-            <option>data/test_20.ttl</option>
-            <option>data/test_1.nq</option>
-            <option>data/all.ttl</option>
+            <option>/data/test_2.nq</option>
+            <option>/data/test_1.nq</option>
+            <option>/data/test_40.ttl</option>
+            <option>/data/test_1.ttl</option>
+            <option>/data/test_20.ttl</option>
+            <option>/data/all.ttl</option>
           </select>
         </label>
       </div>
@@ -104,10 +105,10 @@
     <!--
       <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
      -->
-    <script src="/node_modules/n3/build/n3-browser.min.js"></script>
+
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script>window.exports = {};</script>
-    <script src="application.js?12345"></script>
+    <script src="application.js?123456"></script>
     <script>
       var gcl = require('graphcommandlanguage');
       var testsuite = function(HVZ){
@@ -188,9 +189,11 @@
         HVZ.load_file();
       });
 
+      /*
       window.addEventListener('newsubject',function(e){
         alert("new subject: "+e.detail.sid)
       });
+      */
 
     </script>
   </body>

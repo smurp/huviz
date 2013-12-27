@@ -25,6 +25,8 @@
 #    flip labels
 #    nquads parser (or trig?)  1 hr
 #    edge-picker
+
+#asyncLoop = require('asynchronizer').asyncLoop
 gcl = require('graphcommandlanguage')
 gclui = require('gclui')
 gt = require('greenerturtle')
@@ -833,6 +835,7 @@ class Huviz
   #   newsubject
   add_quad: (quad) ->
     #console.log quad.context
+    console.log "add_quad",quad
     s = quad.subject
     newsubj = false
     subj = null
@@ -902,14 +905,47 @@ class Huviz
     $("#status").text ""
 
   parseAndShowNQ: (data, textStatus) ->
-    QuadParser = require("rdfquads").QuadParser
+    # turning a blob (data) into a stream
+    #   http://stackoverflow.com/questions/4288759/asynchronous-for-cycle-in-javascript
+    #   http://www.dustindiaz.com/async-method-queues/
+    # 
+    #QP = require("quadparser").QuadParser
+    QuadParser = require("quadParser").QuadParser
     # Build a parser around a stream
-    
     parser = new QuadParser(data)
+    #parser = new QP(data)
+    console.log parser
+    window.qparser =  parser
     parser.on 'quad', (quad) ->
-      console.log quad
+      console.log "quad:",quad
     parser.on 'end', (quad) ->
       console.log 'done parsing'
+
+        
+    parser.grind = (blob) ->
+      lines = blob.split("\n")
+      emit_quad = ->
+        async.applyEachSeries lines,iterator,farf
+          
+    parser.grind(data)
+
+  parseAndShowNQStreamer: (uri) ->
+    #QuadParser = require("quadParser").QuadParser
+    # Build a parser around a stream
+    #parser = new QuadParser('')
+    #parseQuadLine = require("quadParser").parseQuadLine
+
+    worker = new Worker('js/xhr_readlines_worker.js')
+    worker.addEventListener 'message', (e) =>
+      if e.data.event is 'line'
+        q = parseQuadLine(e.data.line)
+        if q
+          @add_quad q
+      if e.data.event is 'start'
+        console.log "starting to split",uri
+      else if e.data.event is 'finish'
+        console.log "finished splitting",uri
+    worker.postMessage({uri:uri})
     
   fetchAndShow: (url) ->
     $("#status").text "fetching " + url
@@ -918,6 +954,8 @@ class Huviz
       the_parser = @parseAndShowTurtle
     else if url.match(/.nq/)
       the_parser = @parseAndShowNQ
+      @parseAndShowNQStreamer(url)
+      return
           
     $.ajax
       url: url
