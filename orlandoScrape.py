@@ -31,7 +31,7 @@ Copyright CC BY-SA 3.0  See: http://creativecommons.org/licenses/by-sa/3.0/
 """
 
 LOCAL_IDENTIFIERS = True  # False causes use of external ontologies
-#LOCAL_IDENTIFIERS = False  # False causes use of external ontologies
+LOCAL_IDENTIFIERS = False  # False causes use of external ontologies
 # False is bugged, groups are appearing as w:XXXX
 
 import rdflib.plugins.serializers.nt
@@ -143,10 +143,10 @@ def stripExtraXML(match):
 # Create the regex needed to extractthe closest structural ID tag
 # during the regexRecursion function.
 structIDregex=[]
-structIDregex.append(re.compile('<DIV0 ID="(.+?)">(.+?)</DIV0>'))
-structIDregex.append(re.compile('<DIV1 ID="(.+?)">(.+?)</DIV1>'))
-structIDregex.append(re.compile('<DIV2 ID="(.+?)">(.+?)</DIV2>'))
-structIDregex.append(re.compile('<P ID="(.+?)">(.+?)</P>'))
+structIDregex.append(re.compile('<DIV0 ID="([^"]+?)">(.+?)</DIV0>'))
+structIDregex.append(re.compile('<DIV1 ID="([^"]+?)">(.+?)</DIV1>'))
+structIDregex.append(re.compile('<DIV2 ID="([^"]+?)">(.+?)</DIV2>'))
+structIDregex.append(re.compile('<P ID="([^"]+?)">(.+?)</P>'))
 
 
 from rdflib import Graph, Literal, BNode, RDF, ConjunctiveGraph, URIRef
@@ -258,7 +258,11 @@ class FormatEmitter(object):
         if structID:
             # maintain a cache of contexts keyed by structID
             if not self.contexts.has_key(structID):
-                self.contexts[structID] = Graph(self.store.store,LOCAL[structID])
+                if LOCAL_IDENTIFIERS:
+                    context_uri = LOCAL[structID]
+                else:
+                    context_uri = BNode(structID) #make_node(structID)
+                self.contexts[structID] = Graph(self.store.store,context_uri)
             ctx_sn['ctx'] = self.contexts[structID]
 
         if predicate not in entryDict:
