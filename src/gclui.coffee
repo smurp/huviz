@@ -10,7 +10,7 @@
 angliciser = require('angliciser').angliciser
 gcl = require('graphcommandlanguage')
 class CommandController
-  constructor: (@huviz,@container) ->
+  constructor: (@huviz,@container,@hierarchy) ->
     @comdiv = d3.select(@container).append("div")
     #@gclpane = @comdiv.append('div').attr('class','gclpane')
     @cmdlist = @comdiv.append('div').attr('class','commandlist')
@@ -79,6 +79,7 @@ class CommandController
   deselect_node_class: (node_class) ->
     @node_classes_chosen = @node_classes_chosen.filter (eye_dee) ->
       eye_dee isnt node_class
+
   verb_sets: [ # mutually exclusive within each set
     {choose: 'choose', shelve: 'shelve'},
     {label:  'label', unlabel: 'unlabel'},
@@ -88,7 +89,7 @@ class CommandController
   verbs_override: # when overriding ones are selected, others are deselected
     choose: ['discard','unchoose']
     discard: ['choose','retrieve']
-  hierarchy: { 'everything': ['Everything', {people: ['People', {writers: ['Writers'], others: ['Others']}], orgs: ['Organizations']}]}
+
   build_form: () ->
     @build_verb_form()
     @build_like()
