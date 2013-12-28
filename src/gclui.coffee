@@ -81,14 +81,21 @@ class CommandController
       eye_dee isnt node_class
 
   verb_sets: [ # mutually exclusive within each set
-    {choose: 'choose', shelve: 'shelve'},
-    {label:  'label', unlabel: 'unlabel'},
-    {discard: 'discard', undiscard: 'retrieve'},
+      choose: 'choose'
+      shelve: 'shelve'
+      hide:   'hide'
+    ,
+      label:   'label'
+      unlabel: 'unlabel'
+    ,
+      discard: 'discard'
+      undiscard: 'retrieve'
     #{document: 'document', redact: 'redact'}    
     ]
   verbs_override: # when overriding ones are selected, others are deselected
     choose: ['discard','unchoose']
-    discard: ['choose','retrieve']
+    discard: ['choose','retrieve','hide']
+    hide: ['discard','undiscard','label']
 
   build_form: () ->
     @build_verb_form()
