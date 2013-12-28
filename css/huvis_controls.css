@@ -67,5 +67,6 @@
   position:absolute;
   bottom: .2em;
   right: .2em;
+  font-size: 60%;
   z-index:2;
 }
