@@ -355,8 +355,6 @@ class RDFEmitter(FormatEmitter):
                 #    node = BLANK[str(ID)]
                 #else:
                 #    node = BNode(ID)
-            #self.store.add((node,FOAF.name,Literal(standard_name)))
-            #self.store.store.addN([(node,FOAF.name,Literal(standard_name),self.universal)])
             entuple = [node,FOAF.name,Literal(standard_name)]
             if options.capture_context: # and hasattr(self,'universal'):
                 entuple.append(self.universal)
@@ -366,9 +364,10 @@ class RDFEmitter(FormatEmitter):
                 self.store.add(entuple)
             if options.state_the_obvious:
                 if STATE_OBVIOUS_PEOPLE_TOO or typ <> FOAF.Person:
+                    # http://www.w3.org/TR/2013/NOTE-n-triples-20130409/#iri-summary
+                    #   "a for the predicate rdf:type" 
+                    #     is OK in Turtle but not N-Triples (or NQuads, likely)
                     tupl = [node,RDF.type,typ]
-                    #tupl = [node,'a',typ]
-                    print "TYPING",tupl
                     if options.capture_context:
                         tupl.append(self.universal)
                         self.store.addN([tupl])
@@ -407,7 +406,6 @@ class RDFEmitter(FormatEmitter):
 
             for predicate,values in entry.items():
                 if predicate in ['ID','standardName']: # TODO(smurp): add date-of-{birth,death}
-                    print predicate
                     continue
                 if predicate in predicate_to_type.keys():
                     pred = predicate_to_type[predicate]
@@ -432,14 +430,10 @@ class RDFEmitter(FormatEmitter):
                                 continue 
                         quad_or_triple = [writer,pred,obj]
                         if ctx_sn_d.has_key('ctx'):
-                            #ctx = URIRef(ctx_sn_d['ctx']) # TODO(smurp): BNode or Local
-                            #ctx = LOCAL[ctx_sn_d['ctx']]
                             quad_or_triple.append(ctx_sn_d['ctx'])
                         if options.verbose:
-                            print "    quad =",quad_or_triple
-                        if len(quad_or_triple) > 3:
-                            #pass
                             print "     QUAD!",quad_or_triple
+                        if len(quad_or_triple) > 3:
                             self.store.addN([quad_or_triple]) # a quad
                         else:
                             self.store.add(quad_or_triple) # a triple
