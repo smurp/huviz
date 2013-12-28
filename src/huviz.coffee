@@ -684,10 +684,11 @@ class Huviz
     @update_status()
   update_status: ->
     msg = "linked:" + @nodes.length +
-          " unlinked:" + @unlinked_set.length +
+          " shelved:" + @unlinked_set.length +
+          " hidden:" + @hidden_set.length +          
           " links:" + @links_set.length +
           " discarded:" + @discarded_set.length +
-          " subjects:" + @G.num_subj +
+          " subjects:" + @my_graph?subjects.length +
           " chosen:" + @chosen_set.length
     msg += " DRAG"  if @dragging
     @set_status msg
@@ -883,7 +884,8 @@ class Huviz
       @set_type_if_possible(subject,e.detail.old,true)
       if @is_nodeable(subject)
         @get_or_create_node subject
-  
+        @tick()
+        
   parseAndShowTurtle: (data, textStatus) =>
     @set_status "parsing"
     msg = "data was " + data.length + " bytes"
@@ -1177,7 +1179,7 @@ class Huviz
     @get_or_make_node subject,start_point,linked
 
   # deprecated in favour of get_or_create_node
-  get_or_make_node: (subject, start_point, linked) ->
+  get_or_make_node: (subject, start_point, linked, into_set) ->
     #console.log "get_or_make_node",subject
     return unless subject
     d = @get_node_by_id(subject.id)
@@ -1214,11 +1216,15 @@ class Huviz
     #n_idx = @add_to_array(d, @nodes)
     n_idx = @nodes.add(d)
     @id2n[subject.id] = n_idx
-    unless linked
-      n_idx = @unlinked_set.acquire(d)
-      @id2u[subject.id] = n_idx
+    if false
+      unless linked
+        n_idx = @unlinked_set.acquire(d)
+        @id2u[subject.id] = n_idx
+      else
+        @id2u[subject.id] = @graphed_set.acquire(d)
     else
-      @id2u[subject.id] = @graphed_set.acquire(d)
+      into_set = into_set? and into_set or linked and @graphed_set or @get_default_set_by_type(d)
+      into_set.acquire(d)
     @update_flags d
     d
 
@@ -1571,7 +1577,6 @@ class Huviz
     # Determine whether there is enough known about a subject to create a node for it
     # Does it have an .id and a .type and a .name?
     return subj.id? and subj.type and subj.predicates[FOAF_name]?
-    
 
 class Orlando extends Huviz
   # These are the Orlando specific methods layered on Huviz.
@@ -1614,6 +1619,18 @@ class Orlando extends Huviz
       @taxonomy['people'].add(d)
       @taxonomy['writers'].add(d)    
 
+  get_default_set_by_type: (d) ->
+    t = d.s.type
+    resp = null
+    if t is ORLANDO_org
+      resp = @hidden_set
+    else if t is ORLANDO_other
+      resp = @hidden_set
+    else if t is ORLANDO_writer
+      resp = @unlinked_set
+    #console.log "get_default_set_by_type",t,"==>",resp.state_name
+    return resp
+    
   color_by_type: (d) ->    
     if d.orgs?
       "green" 
