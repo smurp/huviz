@@ -214,7 +214,7 @@ class FormatEmitter(object):
                     continue
                 entryDict['ID']=mainSubject
                 count += 1
-                if options.verbose:
+                if options.verbose or options.progress:
                     print mainSubject
                 for tripleCheck in regexArray:
                     if options.capture_context:
@@ -545,6 +545,10 @@ if __name__ == "__main__":
                       default = False,
                       action = 'store_true',
                       help = "be verbose")
+    parser.add_option("--progress",
+                      default = False,
+                      action = 'store_true',
+                      help = "show the ids of writers as they are being processed")
     parser.add_option("-V","--version",
                       action = 'store_true',
                       help = "show version")
