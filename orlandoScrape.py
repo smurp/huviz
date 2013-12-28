@@ -29,7 +29,7 @@ Shawn Murphy with:
 Copyright CC BY-SA 3.0  See: http://creativecommons.org/licenses/by-sa/3.0/
 
 """
-
+STATE_OBVIOUS_PEOPLE_TOO = True # include assertions like:  <someon> a <Person>.
 LOCAL_IDENTIFIERS = True  # False causes use of external ontologies
 LOCAL_IDENTIFIERS = False  # False causes use of external ontologies
 # False is bugged, groups are appearing as w:XXXX
@@ -164,13 +164,17 @@ BLANK_WRITERS = False # FIXME ideally this would be True so writer ids like _:ab
 
 unconstrained = LOCAL['unconstrained']
 
-ID_GENERATOR = BRW    
+ID_GENERATOR = LOCAL
 if LOCAL_IDENTIFIERS:
     #ID_GENERATOR = BNode     # 
     #ID_GENERATOR = LocalNode # 
-    ID_GENERATOR = LOCAL 
+    ID_GENERATOR = LOCAL
 def make_node(an_id):
     return ID_GENERATOR[an_id]
+def make_writer(an_id):
+    return BRW[an_id]
+def make_person(an_id):
+    return LOCAL[an_id]
 
 predicates_to_groups = ['religiousInfluence','connectionToOrganization']
 predicate_to_type = {'childOf':XFN['parent'],
@@ -258,10 +262,7 @@ class FormatEmitter(object):
         if structID:
             # maintain a cache of contexts keyed by structID
             if not self.contexts.has_key(structID):
-                if LOCAL_IDENTIFIERS:
-                    context_uri = LOCAL[structID]
-                else:
-                    context_uri = BNode(structID) #make_node(structID)
+                context_uri = LOCAL[structID]
                 self.contexts[structID] = Graph(self.store.store,context_uri)
             ctx_sn['ctx'] = self.contexts[structID]
 
@@ -337,6 +338,7 @@ class RDFEmitter(FormatEmitter):
         super(RDFEmitter, self).__init__(options)
         self.store = Graph()
         self.store.bind('f',FOAF)
+        self.universal = Graph(self.store.store,LOCAL['Universal']) # really only needed by ContextEmitter
         if not options.capture_context:
             self.store.bind('d',DC)
             self.store.bind('w',BRW)
@@ -353,19 +355,25 @@ class RDFEmitter(FormatEmitter):
                 #    node = BLANK[str(ID)]
                 #else:
                 #    node = BNode(ID)
-            #self.store.add((node,FOAF.name,Literal(standard_name)))
+            self.store.add((node,FOAF.name,Literal(standard_name)))
+            #self.store.store.addN([(node,FOAF.name,Literal(standard_name),self.universal)])
             entuple = [node,FOAF.name,Literal(standard_name)]
-            if options.capture_context and hasattr(self,'universal'):
+            if options.capture_context: # and hasattr(self,'universal'):
                 entuple.append(self.universal)
+                #print "NAMING ============>",entuple
                 self.store.addN([entuple])
             else:
                 self.store.add(entuple)
             if options.state_the_obvious:
-                if typ <> FOAF.Person:
+                if STATE_OBVIOUS_PEOPLE_TOO or typ <> FOAF.Person:
                     tupl = [node,RDF.type,typ]
+                    #tupl = [node,'a',typ]
+                    print "TYPING",tupl
                     if options.capture_context:
                         tupl.append(self.universal)
-                    self.store.add(tupl)
+                        self.store.addN([tupl])
+                    else:
+                        self.store.add(tupl)
             self.entities[standard_name] = node
         return self.entities[standard_name]
 
@@ -394,11 +402,12 @@ class RDFEmitter(FormatEmitter):
 
             writer = self.get_entity(
                 standardName,
-                make_node(entry['ID']),
-                typ=FOAF.Person) # BRW normally not BNode
+                make_writer(entry['ID']),
+                typ=ORL.writer) # BRW normally not BNode
 
             for predicate,values in entry.items():
                 if predicate in ['ID','standardName']: # TODO(smurp): add date-of-{birth,death}
+                    print predicate
                     continue
                 if predicate in predicate_to_type.keys():
                     pred = predicate_to_type[predicate]
@@ -409,14 +418,17 @@ class RDFEmitter(FormatEmitter):
                         if bogus_relations.has_key(k):
                             values.append(bogus_relations[k])
 
-                    for ctx_sn_d in values:
+                    for ctx_sn_d in values: # Context_standardName_dict
+                        # if ctx_sn_d is a dict, it likely has context on the ctx key
                         if type(ctx_sn_d) <> dict:  # handle uncontextualized objects
                             ctx_sn_d = {'sn':ctx_sn_d}
                         if predicate in predicates_to_groups:
+                            # we know the object is group, by the predicate
                             obj = self.get_group(ctx_sn_d['sn'])
                         else:
+                            # we guess the object is a person since its not a group
                             obj = self.get_person(ctx_sn_d['sn'])
-                            if obj == writer:
+                            if obj == writer: # eliminate self links
                                 continue 
                         quad_or_triple = [writer,pred,obj]
                         if ctx_sn_d.has_key('ctx'):
@@ -426,7 +438,8 @@ class RDFEmitter(FormatEmitter):
                         if options.verbose:
                             print "    quad =",quad_or_triple
                         if len(quad_or_triple) > 3:
-                            #print "     QUAD!"
+                            #pass
+                            print "     QUAD!",quad_or_triple
                             self.store.addN([quad_or_triple]) # a quad
                         else:
                             self.store.add(quad_or_triple) # a triple
@@ -457,7 +470,7 @@ class ContextEmitter(RDFEmitter):
     def __init__(self,options):
         super(ContextEmitter, self).__init__(options)
         self.store = ConjunctiveGraph()
-        self.universal = Graph(self.store.store,LOCAL['Universal'])
+        self.universal = Graph(self.store.store,LOCAL['Universal']) # really only needed by ContextEmitter
         options.capture_context = True
         if options.verbose:
             print "context_aware:",self.store.context_aware
