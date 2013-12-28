@@ -844,9 +844,15 @@ class Huviz
     if newsubj
       @fire_newsubject_event s if window.CustomEvent?
 
-    if @last_quad?s?raw isnt quad.s.raw
-      if @last_quad
-        @fire_nextsubject_event @last_quad,quad
+
+    try
+      last_sid = @last_quad.s.raw
+    catch e
+      last_sid = ""       
+    #console.log(last_sid, quad.s.raw)
+    if last_sid and last_sid isnt quad.s.raw
+      #if @last_quad
+      @fire_nextsubject_event @last_quad,quad
     @last_quad = quad
 
   fire_nextsubject_event: (oldquad,newquad) ->
@@ -870,6 +876,8 @@ class Huviz
     # a node.  A node must have an ID, a name and a type for it to
     # be worth making a node for it (at least in the orlando situation).
     # The ID is the uri (or the id if a BNode)
+    @calls_to_onnextsubject++
+    #console.log "count:",@calls_to_onnextsubject
     if e.detail.old?
       subject = @my_graph.subjects[e.detail.old.s.raw]
       @set_type_if_possible(subject,e.detail.old,true)
@@ -1165,10 +1173,12 @@ class Huviz
     @restart()
 
   get_or_create_node: (subject, start_point, linked) ->
+    linked = false
     @get_or_make_node subject,start_point,linked
 
   # deprecated in favour of get_or_create_node
   get_or_make_node: (subject, start_point, linked) ->
+    #console.log "get_or_make_node",subject
     return unless subject
     d = @get_node_by_id(subject.id)
     return d  if d
@@ -1196,6 +1206,7 @@ class Huviz
       s: subject
 
     d.id = d.s.id
+    #console.log "get_or_make_node(",d.id,")"
     @assign_types(d)
     d.color = @color_by_type(d)
 
@@ -1569,7 +1580,7 @@ class Orlando extends Huviz
   ORLANDO_org = 'orl:orgs'
   ORLANDO_writer = 'orl:writers'
   ORLANDO_other = 'orl:others'
-
+  calls_to_onnextsubject: 0
   hierarchy: { 'everything': ['Everything', {people: ['People', {writers: ['Writers'], others: ['Others']}], orgs: ['Organizations']}]}
   bnode_regex: /^\_\:|^[A-Z]/
   set_type_if_possible: (subj,quad,force) ->
@@ -1579,6 +1590,7 @@ class Orlando extends Huviz
     force = not not force? and force
     if not subj.type? and subj.type isnt ORLANDO_writer and not force
       return
+    #console.log "set_type_if_possible",force,subj.type,subj.id      
     pred_id = quad.p.raw
     if pred_id in [RDF_Type,'a'] and quad.o.raw is FOAF_Group
       subj.type = ORLANDO_org
@@ -1586,9 +1598,9 @@ class Orlando extends Huviz
       subj.type = ORLANDO_other    
     else if force
       subj.type = ORLANDO_writer
-    #if subj.type?
-    #  name = subj.predicates[FOAF_name]? and subj.predicates[FOAF_name].objects[0] or subj.id
-    #  console.log name+".type <==" + subj.type, subj
+    if subj.type?
+      name = subj.predicates[FOAF_name]? and subj.predicates[FOAF_name].objects[0] or subj.id
+      #console.log "   ",subj.type
 
   # This is a hacky Orlando-specific way to assign a type to a node (not the subject!)
   assign_types: (d) ->
