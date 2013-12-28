@@ -688,7 +688,7 @@ class Huviz
           " hidden:" + @hidden_set.length +          
           " links:" + @links_set.length +
           " discarded:" + @discarded_set.length +
-          " subjects:" + @my_graph?subjects.length +
+          #" subjects:" + (@my_graph.subjects.length) +
           " chosen:" + @chosen_set.length
     msg += " DRAG"  if @dragging
     @set_status msg
@@ -1411,6 +1411,12 @@ class Huviz
     @update_state chosen
     @update_flags chosen
     chosen
+
+  hide: (hidee) =>
+    @chosen_set.remove hidee
+    @hidden_set.acquire hidee
+    @update_state hidee
+    @update_flags hidee
 
   #update_history();
   update_history: ->
