@@ -871,13 +871,9 @@ class Huviz
     # be worth making a node for it (at least in the orlando situation).
     # The ID is the uri (or the id if a BNode)
     if e.detail.old?
-      console.log "onnextsubject.old:",e.detail.old.s.raw
-      console.log "@my_graph.predicates",@my_graph.predicates
       subject = @my_graph.subjects[e.detail.old.s.raw]
-      console.log "subject:",subject
       @set_type_if_possible(subject,e.detail.old,true)
       if @is_nodeable(subject)
-        #@get_or_create_node e.detail.old.s
         @get_or_create_node subject
   
   parseAndShowTurtle: (data, textStatus) =>
@@ -1199,9 +1195,10 @@ class Huviz
       name: name
       s: subject
 
-    d.color = @color_by_type(d)
-    @assign_types(d)
     d.id = d.s.id
+    @assign_types(d)
+    d.color = @color_by_type(d)
+
     @add_node_ghosts d
     #n_idx = @add_to_array(d, @nodes)
     n_idx = @nodes.add(d)
@@ -1576,6 +1573,9 @@ class Orlando extends Huviz
   hierarchy: { 'everything': ['Everything', {people: ['People', {writers: ['Writers'], others: ['Others']}], orgs: ['Organizations']}]}
   bnode_regex: /^\_\:|^[A-Z]/
   set_type_if_possible: (subj,quad,force) ->
+    # This is a hack, ideally we would look on the subject for type at coloring
+    # and taxonomy assignment time but more thought is needed on how to
+    # integrate the semantic perspective with the coloring and the 'taxonomy'.
     force = not not force? and force
     if not subj.type? and subj.type isnt ORLANDO_writer and not force
       return
@@ -1586,24 +1586,23 @@ class Orlando extends Huviz
       subj.type = ORLANDO_other    
     else if force
       subj.type = ORLANDO_writer
-    if subj.type?
-      name = subj.predicates[FOAF_name]? and subj.predicates[FOAF_name].objects[0] or subj.id
-      console.log name+".type <==" + subj.type, subj
+    #if subj.type?
+    #  name = subj.predicates[FOAF_name]? and subj.predicates[FOAF_name].objects[0] or subj.id
+    #  console.log name+".type <==" + subj.type, subj
 
   # This is a hacky Orlando-specific way to assign a type to a node (not the subject!)
   assign_types: (d) ->
     return unless d.s? and d.s.type?
-    if d.type is ORLANDO_org
+    if d.s.type is ORLANDO_org
       @taxonomy['orgs'].add(d)
-    else if d.type is ORLANDO_other
+    else if d.s.type is ORLANDO_other
       @taxonomy['people'].add(d)
       @taxonomy['others'].add(d)      
-    else if d.type is ORLANDO_writer
+    else if d.s.type is ORLANDO_writer
       @taxonomy['people'].add(d)
       @taxonomy['writers'].add(d)    
 
   color_by_type: (d) ->    
-    # anon red otherwise blue 
     if d.orgs?
       "green" 
     else if d.others?
