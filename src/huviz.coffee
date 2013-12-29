@@ -167,6 +167,7 @@ class Huviz
   link_distance: 20
   charge: -30
   gravity: 0.3
+  swayfrac: .12
   label_show_range: null # @link_distance * 1.1
   graph_radius: 100
   shelf_radius: 0.9
@@ -404,11 +405,38 @@ class Huviz
     @ctx.stroke()  if strclr
     @ctx.fill()  if filclr
   draw_line: (x1, y1, x2, y2, clr) ->
+    alert "draw_line should never be called"
+    throw new Error "WTF"
     @ctx.strokeStyle = clr or red
     @ctx.beginPath()
     @ctx.moveTo x1, y1
     @ctx.lineTo x2, y2
     @ctx.closePath()
+    @ctx.stroke()
+  draw_curvedline: (x1, y1, x2, y2, sway_inc, clr) ->
+    pdist = distance([x1,y1],[x2,y2])
+    sway = @swayfrac * sway_inc * pdist
+    if sway is 0
+      #console.log "sway 0 =",sway_inc,"*",pdist
+      return
+    # sway is the distance to offset the control point from the midline
+    orig_angle = Math.atan(x2 - x1 / y2 - y1)
+    #console.log orig_angle
+    if orig_angle.toString() is "NaN"
+      console.log new Error "DOH"
+      
+      return 
+    angle_to_ctrl_from_mid =  orig_angle + Math.PI / 2
+    xmid = x1 + (x2-x1)/2
+    ymid = y1 + (y2-y1)/2
+    xctrl = xmid + Math.cos(angle_to_ctrl_from_mid) * sway  # TODO(smurp) fix 
+    yctrl = ymid + Math.sin(angle_to_ctrl_from_mid) * sway
+    #console.log [x1,y1],[xctrl,yctrl],[x2,y2]
+    @ctx.strokeStyle = clr or red
+    @ctx.beginPath()
+    @ctx.moveTo x1, y1
+    @ctx.quadraticCurveTo xctrl, yctrl, x2, y2
+    #@ctx.closePath()
     @ctx.stroke()
   draw_disconnect_dropzone: ->
     @ctx.save()
@@ -506,7 +534,8 @@ class Huviz
       policy_picker.append("option").attr("value", policy_name).text policy_name
 
   calc_node_radius: (d) ->
-    @node_radius_policy d
+    @node_radius
+    #@node_radius_policy d
   names_in_edges: (set) ->
     out = []
     set.forEach (itm, i) ->
@@ -601,10 +630,35 @@ class Huviz
       ).attr "y2", (d) ->
         d.target.fisheye.y
 
+  draw_edges_from: (node) ->
+    num_edges = node.links_from.length
+    node.links_shown.forEach (e, i) =>
+      return unless e.source is node # show only links_from
+      if node._last_target_drawn isnt e.target
+        node._last_target_drawn_links = 2
+      node._last_target_drawn_links++
+      if e.source.embryo?
+        console.log "source",e.source.name,"is embryo",e.source.id
+        return
+      if e.target.embryo?
+        console.log "target",e.target.name,"is embryo",e.target.id
+        return
+      sway = node._last_target_drawn_links
+       #@draw_line e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, e.color
+      @draw_curvedline e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, sway, e.color
+      node._last_target_drawn = e.target
+    node._last_target_drawn = null
+    node._last_target_drawn_links = null    
+
   draw_edges: ->
     if @use_canvas
-      @links_set.forEach (e, i) =>
-        @draw_line e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, e.color
+      @graphed_set.forEach (node, i) =>
+        @draw_edges_from(node)
+      
+      #@links_set.forEach (e, i) =>
+      #  sway = i * 2
+      #  #@draw_line e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, e.color
+      #  @draw_curvedline e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, sway, e.color
 
     if @use_webgl
       dx = @width * xmult
@@ -901,11 +955,14 @@ class Huviz
       obj_n = @get_or_create_node_by_id(quad.o.raw)
       # So we have a node for the object of the quad and this quad is relational
       # so there should be links made between this node and that node
-      edge_e = @add_edge(new Edge(subj_n,obj_n,pred_n,cntx_n))
-      @develop(obj_n)
-      if is_one_of(pred_id,TYPE_SYNS)
+      is_type = is_one_of(pred_id,TYPE_SYNS)
+      if is_type
         if @try_to_set_node_type(subj_n,quad.o.raw)
           @develop(subj_n) # might be ready now
+      else
+        edge_e = @add_edge(new Edge(subj_n,obj_n,pred_n,cntx_n))
+        @develop(obj_n)
+
 
     else
       #if @same_as(pred_id,rdf_type)
@@ -938,40 +995,12 @@ class Huviz
     #   edge.source.links_from.add(edge)
     #   edge.target.links_to.add(edge)
     #console.log "add_edge",edge.id
+    if edge.id.match /Universal$/
+      console.log "add",edge.id
     @add_to edge,edge.source.links_from
     @add_to edge,edge.target.links_to
     edge
 
-  fire_nextsubject_event: (oldquad,newquad) ->
-    #console.log "fire_nextsubject_event",oldquad
-    window.dispatchEvent(
-      new CustomEvent 'nextsubject',
-        detail:
-          old: oldquad
-          new: newquad
-        bubbles: true
-        cancelable: true
-    )
-
-  onnextsubject: (e) =>
-    #console.log "onnextsubject: called",e
-    # The event 'nextsubject' is fired when the subject of add_quad()
-    # is different from the last call to add_quad().  It will also be
-    # called when the data source has been exhausted. Our purpose
-    # in listening for this situation is that this is when we ought
-    # to check to see whether there is now enough information to create
-    # a node.  A node must have an ID, a name and a type for it to
-    # be worth making a node for it (at least in the orlando situation).
-    # The ID is the uri (or the id if a BNode)
-    @calls_to_onnextsubject++
-    #console.log "count:",@calls_to_onnextsubject
-    if e.detail.old?
-      subject = @my_graph.subjects[e.detail.old.s.raw]
-      @set_type_if_possible(subject,e.detail.old,true)
-      if @is_ready(subject)
-        @get_or_create_node subject
-        @tick()
-        
   parseAndShowTurtle: (data, textStatus) =>
     @set_status "parsing"
     msg = "data was " + data.length + " bytes"
@@ -1131,18 +1160,14 @@ class Huviz
       throw new Error("node with id <" + node_id + "> not found")
     obj
 
-  update_flags: (n) ->
-    old_linked_status = @graphed_set.has(n)
-    if old_linked_status
-      if not n.links_from_found or not n.links_to_found
+  update_showing_links: (n) ->
+    if n.links_shown.length is 0
+      n.showing_links = "none"
+    else      
+      if n.links_from.length + n.links_to.length > n.links_shown.length
         n.showing_links = "some"
       else
-        if n.links_from.length + n.links_to.length > n.links_shown.length
-          n.showing_links = "some"
-        else
-          n.showing_links = "all"
-    else
-      n.showing_links = "none"
+        n.showing_links = "all"
 
   add_link: (e) ->
     show = e.source.state isnt @discarded_set and
@@ -1153,8 +1178,8 @@ class Huviz
       @add_to e, e.target.links_shown
     @add_to e, e.source.links_from
     @add_to e, e.target.links_to
-    @update_flags e.source
-    @update_flags e.target
+    @update_showing_links e.source
+    @update_showing_links e.target
     @update_state e.target
     # should we do;
     #    @update_state e.source
@@ -1165,8 +1190,8 @@ class Huviz
     @remove_from e, e.source.links_shown
     @remove_from e, e.target.links_shown
     @links_set.remove e
-    @update_flags e.source
-    @update_flags e.target
+    @update_showing_links e.source
+    @update_showing_links e.target
     @update_state e.target
     @update_state e.source
 
@@ -1185,7 +1210,7 @@ class Huviz
     #  @find_links_to_node n,incl_discards
     n.links_to.forEach (e, i) =>
       @show_link e, incl_discards
-    @update_flags n
+    @update_showing_links n
     @update_state n
     @force.links @links_set
     @restart()
@@ -1203,8 +1228,8 @@ class Huviz
       @links_set.remove e
       @remove_ghosts e
       @update_state e.source
-      @update_flags e.source
-      @update_flags e.target
+      @update_showing_links e.source
+      @update_showing_links e.target
 
     @update_state n
     @force.links @links_set
@@ -1227,8 +1252,8 @@ class Huviz
       @links_set.remove e
       @remove_ghosts e
       @update_state e.target
-      @update_flags e.source
-      @update_flags e.target
+      @update_showing_links e.source
+      @update_showing_links e.target
 
     @force.links @links_set
     @restart()
@@ -1285,14 +1310,13 @@ class Huviz
     node.prev_point([start_point[0]*1.01,start_point[1]*1.01])
     
     node.color = @color_by_type(node)
-    @update_flags(node)
+    @update_showing_links(node)
     @tick()
     return node
       
   get_or_create_node: (subject, start_point, linked) ->      
     linked = false
     @get_or_make_node subject,start_point,linked
-
 
   # deprecated in favour of add_quad:
   make_nodes: (g, limit) ->
@@ -1324,16 +1348,16 @@ class Huviz
       if e.target is node
         @remove_from e, e.source.links_shown
         @update_state e.source
-        @update_flags e.source
+        @update_showing_links e.source
       else
         @remove_from e, e.target.links_shown
         @update_state e.target
-        @update_flags e.target
+        @update_showing_links e.target
       @remove_ghosts e
 
     node.links_shown = []
     @update_state node
-    @update_flags node
+    @update_showing_links node
 
   hide_found_links: ->
     @nodes.forEach (node, i) =>
@@ -1348,7 +1372,7 @@ class Huviz
   show_node_links: (node) ->
     @show_links_from_node node
     @show_links_to_node node
-    @update_flags node
+    @update_showing_links node
 
   toggle_links: ->
     #console.log("links",force.links());
@@ -1369,7 +1393,7 @@ class Huviz
       node.links_shown = []
       node.showing_links = "none"
       @unlinked_set.acquire node
-      @update_flags node
+      @update_showing_links node
 
     @links_set.forEach (link) =>
       remove_ghosts link
@@ -1417,7 +1441,7 @@ class Huviz
     @hide_links_from_node unlinkee
     @hide_links_to_node unlinkee
     @unlinked_set.acquire unlinkee
-    @update_flags unlinkee
+    @update_showing_links unlinkee
     @update_state unlinkee
     
   #
@@ -1430,12 +1454,12 @@ class Huviz
     @shelve goner  
     @unlink goner
     @discarded_set.acquire goner
-    @update_flags goner
+    @update_showing_links goner
     goner
 
   undiscard: (prodigal) ->  # TODO(smurp) rename command to 'retrieve' ????
     @unlinked_set.acquire prodigal
-    @update_flags prodigal
+    @update_showing_links prodigal
     @update_state prodigal
     prodigal
 
@@ -1449,7 +1473,11 @@ class Huviz
     @chosen_set.remove goner
     @hide_node_links goner
     @unlinked_set.acquire goner
-    @update_flags goner
+    @update_showing_links goner
+    if goner.links_shown.length > 0
+      console.log "shelving failed for",goner
+    else
+      console.log "worked",goner.links_shown
     goner
 
   #update_history();
@@ -1466,14 +1494,14 @@ class Huviz
     else
       @unlinked_set.acquire chosen
     @update_state chosen
-    @update_flags chosen
+    @update_showing_links chosen
     chosen
 
   hide: (hidee) =>
     @chosen_set.remove hidee
     @hidden_set.acquire hidee
     @update_state hidee
-    @update_flags hidee
+    @update_showing_links hidee
 
   #update_history();
   update_history: ->
@@ -1645,6 +1673,37 @@ class Huviz
     return node.id? and node.type? and node.name?
 
 class Deprecated extends Huviz
+  fire_nextsubject_event: (oldquad,newquad) ->
+    #console.log "fire_nextsubject_event",oldquad
+    window.dispatchEvent(
+      new CustomEvent 'nextsubject',
+        detail:
+          old: oldquad
+          new: newquad
+        bubbles: true
+        cancelable: true
+    )
+
+  onnextsubject: (e) =>
+    alert "sproing"
+    #console.log "onnextsubject: called",e
+    # The event 'nextsubject' is fired when the subject of add_quad()
+    # is different from the last call to add_quad().  It will also be
+    # called when the data source has been exhausted. Our purpose
+    # in listening for this situation is that this is when we ought
+    # to check to see whether there is now enough information to create
+    # a node.  A node must have an ID, a name and a type for it to
+    # be worth making a node for it (at least in the orlando situation).
+    # The ID is the uri (or the id if a BNode)
+    @calls_to_onnextsubject++
+    #console.log "count:",@calls_to_onnextsubject
+    if e.detail.old?
+      subject = @my_graph.subjects[e.detail.old.s.raw]
+      @set_type_if_possible(subject,e.detail.old,true)
+      if @is_ready(subject)
+        @get_or_create_node subject
+        @tick()
+          
   show_found_links: ->
     for sub_id of @G.subjects
       subj = @G.subjects[sub_id]
@@ -1691,7 +1750,7 @@ class Deprecated extends Huviz
     else
       into_set = into_set? and into_set or linked and @graphed_set or @get_default_set_by_type(d)
       into_set.acquire(d)
-    @update_flags d
+    @update_showing_links d
     d
   
   find_links_from_node: (node) ->
@@ -1745,11 +1804,10 @@ class Deprecated extends Huviz
 
 class Orlando extends Huviz
   # These are the Orlando specific methods layered on Huviz.
-  # These ought to be made data-driven.
-
-  ORLANDO_org = 'orl:orgs'
-  ORLANDO_writer = 'orl:writers'
-  ORLANDO_other = 'orl:others'
+  # These ought to be made more data-driven.
+  ORLANDO_org = 'orl:org'
+  ORLANDO_writer = 'orl:writer'
+  ORLANDO_other = 'orl:other'
   calls_to_onnextsubject: 0
   hierarchy: { 'everything': ['Everything', {people: ['People', {writers: ['Writers'], others: ['Others']}], orgs: ['Organizations']}]}
   bnode_regex: /^\_\:|^[A-Z]/
@@ -1761,6 +1819,7 @@ class Orlando extends Huviz
     else if type.match(/^orl/)
       node.type = type
     else
+      console.log node.id+".type is",type
       return false
     true
 
@@ -1787,6 +1846,8 @@ class Orlando extends Huviz
       resp = @hidden_set
     else if t is ORLANDO_writer
       resp = @unlinked_set
+    else
+      console.log t,"not in", [ORLANDO_org,ORLANDO_other,ORLANDO_writer]
     #console.log "get_default_set_by_type",t,"==>",resp.state_name
     return resp
     

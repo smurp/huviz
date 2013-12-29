@@ -134,7 +134,6 @@ class CommandController
     @like_input[0][0].value = ""
   old_commands: []
   push_command: (cmd) ->
-    console.log(cmd)
     if @old_commands.length > 0
       prior = @old_commands[@old_commands.length-1]
       if prior.cmd.str is cmd.str
