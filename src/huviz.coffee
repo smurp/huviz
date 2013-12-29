@@ -405,8 +405,8 @@ class Huviz
     @ctx.stroke()  if strclr
     @ctx.fill()  if filclr
   draw_line: (x1, y1, x2, y2, clr) ->
-    alert "draw_line should never be called"
-    throw new Error "WTF"
+    #alert "draw_line should never be called"
+    #throw new Error "WTF"
     @ctx.strokeStyle = clr or red
     @ctx.beginPath()
     @ctx.moveTo x1, y1
@@ -420,17 +420,17 @@ class Huviz
       #console.log "sway 0 =",sway_inc,"*",pdist
       return
     # sway is the distance to offset the control point from the midline
-    orig_angle = Math.atan(x2 - x1 / y2 - y1)
+    orig_angle = Math.atan((x2 - x1) / (y2 - y1))
     #console.log orig_angle
     if orig_angle.toString() is "NaN"
       console.log new Error "DOH"
       
       return 
-    angle_to_ctrl_from_mid =  orig_angle + Math.PI / 2
+    angle_to_ctrl_from_mid =  orig_angle + (Math.PI / 2)
     xmid = x1 + (x2-x1)/2
     ymid = y1 + (y2-y1)/2
-    xctrl = xmid + Math.cos(angle_to_ctrl_from_mid) * sway  # TODO(smurp) fix 
-    yctrl = ymid + Math.sin(angle_to_ctrl_from_mid) * sway
+    xctrl = xmid + Math.sin(angle_to_ctrl_from_mid) * sway
+    yctrl = ymid + Math.cos(angle_to_ctrl_from_mid) * sway
     #console.log [x1,y1],[xctrl,yctrl],[x2,y2]
     @ctx.strokeStyle = clr or red
     @ctx.beginPath()
@@ -438,6 +438,7 @@ class Huviz
     @ctx.quadraticCurveTo xctrl, yctrl, x2, y2
     #@ctx.closePath()
     @ctx.stroke()
+    #@draw_line(xmid,ymid,xctrl,yctrl,clr) # show mid to ctrl
   draw_disconnect_dropzone: ->
     @ctx.save()
     @ctx.lineWidth = @graph_radius * 0.1
