@@ -98,18 +98,20 @@ if true
 class Edge
   color: "lightgrey"
   constructor: (@source,@target,@predicate,@context) ->
-    @id = (a.id for a in [@source, @target, @predicate, @context] when a?id).join(' ')
+    @id = (a.id for a in [@source, @predicate, @target, @context]).join(' ')
+    console.log "new Edge() ==>",@id
+    this
   
 class Node
-  linked: false
+  linked: false          # TODO(smurp) probably vestigal
   links_shown: []
   links_from: []
-  links_from_found: false
+  links_from_found: true # TODO(smurp) deprecated because links*_found early
   links_to: []
-  links_to_found: false
+  links_to_found: true   # TODO(smurp) deprecated becasue links*_found early
   showing_links: "none"
   name: null
-  s: null
+  s: null                # TODO(smurp) rename Node.s to Node.subject, should be optional
   type: null
   constructor: (@id) ->
     console.log "new Node(",@id,")"
@@ -589,6 +591,10 @@ class Huviz
       ).attr "y2", (d) ->
         d.target.fisheye.y
 
+    if @use_canvas or @use_webgl
+      @links_set.forEach (e) =>
+        e.target.fisheye = @fisheye(e.target)  unless e.target.fisheye
+
     if @use_canvas
       @links_set.forEach (e, i) =>
         @draw_line e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, e.color
@@ -599,7 +605,7 @@ class Huviz
       dx = -1 * @cx
       dy = -1 * @cy
       @links_set.forEach (e) =>
-        e.target.fisheye = @fisheye(e.target)  unless e.target.fisheye
+        #e.target.fisheye = @fisheye(e.target)  unless e.target.fisheye
         @add_webgl_line e  unless e.gl
         l = e.gl
         
@@ -930,6 +936,7 @@ class Huviz
     # TODO(smurp) should .links_from and .links_to be SortedSets? Yes. Right?
     #   edge.source.links_from.add(edge)
     #   edge.target.links_to.add(edge)
+    console.log "add_edge",edge.id
     @add_to edge,edge.source.links_from
     @add_to edge,edge.target.links_to
     edge
@@ -1263,9 +1270,14 @@ class Huviz
       new_set.acquire(node)
     @assign_types(node)
     @add_node_ghosts(node)
+    start_point = [@cx,@cy]
+    node.point(start_point)
+    node.prev_point([start_point[0]*1.01,start_point[1]*1.01])
+    
     node.color = @color_by_type(node)
     @update_flags(node)
     @tick()
+    return node
       
   get_or_create_node: (subject, start_point, linked) ->      
     linked = false
@@ -1327,15 +1339,6 @@ class Huviz
     @show_links_from_node node
     @show_links_to_node node
     @update_flags node
-
-  show_found_links: ->
-    for sub_id of @G.subjects
-      subj = @G.subjects[sub_id]
-      subj.getValues("f:name").forEach (name) =>
-        if name.match(@search_regex)
-          node = @get_or_make_node(subj, [cx,cy])
-          @show_node_links node  if node
-    @restart()
 
   toggle_links: ->
     #console.log("links",force.links());
@@ -1632,6 +1635,15 @@ class Huviz
     return node.id? and node.type? and node.name?
 
 class Deprecated extends Huviz
+  show_found_links: ->
+    for sub_id of @G.subjects
+      subj = @G.subjects[sub_id]
+      subj.getValues("f:name").forEach (name) =>
+        if name.match(@search_regex)
+          node = @get_or_make_node(subj, [cx,cy])
+          @show_node_links node  if node
+    @restart()
+
   # deprecated in favour of get_or_create_node
   get_or_make_node: (subject, start_point, linked, into_set) ->
     #console.log "get_or_make_node",subject
