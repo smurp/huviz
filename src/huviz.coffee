@@ -99,7 +99,7 @@ class Edge
   color: "lightgrey"
   constructor: (@source,@target,@predicate,@context) ->
     @id = (a.id for a in [@source, @predicate, @target, @context]).join(' ')
-    console.log "new Edge() ==>",@id
+    #console.log "new Edge() ==>",@id
     this
   
 class Node
@@ -114,7 +114,7 @@ class Node
   s: null                # TODO(smurp) rename Node.s to Node.subject, should be optional
   type: null
   constructor: (@id) ->
-    console.log "new Node(",@id,")"
+    #console.log "new Node(",@id,")"
   set_name: (@name) ->
   set_subject: (@s) ->
   set_type: (@type) ->    
@@ -580,7 +580,17 @@ class Huviz
       next = 'default'
     $("body").css "cursor", next
 
-  draw_edges: ->
+  position_nodes: ->
+    n_nodes = @nodes.length or 0
+    @nodes.forEach (node, i) =>
+      @move_node_to_point node, @last_mouse_pos if @dragging is node
+      return unless @graphed_set.has(node)
+      node.fisheye = @fisheye(node)
+
+  apply_fisheye: ->
+    @links_set.forEach (e) =>
+      e.target.fisheye = @fisheye(e.target)  unless e.target.fisheye
+
     if @use_svg
       link.attr("x1", (d) ->
         d.source.fisheye.x
@@ -591,10 +601,7 @@ class Huviz
       ).attr "y2", (d) ->
         d.target.fisheye.y
 
-    if @use_canvas or @use_webgl
-      @links_set.forEach (e) =>
-        e.target.fisheye = @fisheye(e.target)  unless e.target.fisheye
-
+  draw_edges: ->
     if @use_canvas
       @links_set.forEach (e, i) =>
         @draw_line e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, e.color
@@ -626,13 +633,6 @@ class Huviz
         v[0].y = e.source.fisheye.y
         v[1].x = e.target.fisheye.x
         v[1].y = e.target.fisheye.y
-
-  position_nodes: ->
-    n_nodes = @nodes.length or 0
-    @nodes.forEach (node, i) =>
-      @move_node_to_point node, @last_mouse_pos if @dragging is node
-      return unless @graphed_set.has(node)
-      node.fisheye = @fisheye(node)
 
   draw_nodes_in_set: (set, radius, center) ->
     # cx and cy are local here TODO(smurp) rename cx and cy
@@ -733,6 +733,7 @@ class Huviz
     @fisheye.focus @last_mouse_pos
     @show_last_mouse_pos()
     @position_nodes()
+    @apply_fisheye()
     @draw_edges()
     @draw_nodes()
     @draw_lariat()
@@ -936,7 +937,7 @@ class Huviz
     # TODO(smurp) should .links_from and .links_to be SortedSets? Yes. Right?
     #   edge.source.links_from.add(edge)
     #   edge.target.links_to.add(edge)
-    console.log "add_edge",edge.id
+    #console.log "add_edge",edge.id
     @add_to edge,edge.source.links_from
     @add_to edge,edge.target.links_to
     edge
@@ -1020,6 +1021,14 @@ class Huviz
     $("body").css "cursor", "default"
     $("#status").text ""
 
+  choose_everything: ->
+    cmd = new gcl.GraphCommand
+      verbs: ['choose']
+      classes: ['everything']
+    @gclc.run cmd
+    @gclui.push_command cmd
+    @tick()
+
   parseAndShowNQStreamer: (uri) ->
     # turning a blob (data) into a stream
     #   http://stackoverflow.com/questions/4288759/asynchronous-for-cycle-in-javascript
@@ -1037,6 +1046,7 @@ class Huviz
         msg = "starting to split "+uri
       else if e.data.event is 'finish'
         msg = "finished_splitting "+uri
+        @choose_everything()
         #@fire_nextsubject_event @last_quad,null
       else
         msg = "unrecognized NQ event:"+e.data.event
@@ -1262,7 +1272,7 @@ class Huviz
 
   hatch: (node) ->
     # Take a node from being 'embryonic' to being a fully graphable node
-    console.log node.id+" "+node.name+" is being hatched!"
+    #console.log node.id+" "+node.name+" is being hatched!"
     @embryonic_set.remove(node)
     @nodes.add(node)
     new_set = @get_default_set_by_type(node)
