@@ -44,8 +44,12 @@ dist_lt = (mouse, d, thresh) ->
   Math.sqrt(x * x + y * y) < thresh
 
 FOAF_Group = "http://xmlns.com/foaf/0.1/Group"
+FOAF_Person = "http://xmlns.com/foaf/0.1/Person"
 FOAF_name = "http://xmlns.com/foaf/0.1/name"
 RDF_Type = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+RDF_a    = 'a'
+TYPE_SYNS = [RDF_Type,RDF_a,'rdf:type']
+NAME_SYNS = [FOAF_name]
 RDF_object = "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
 
 UNDEFINED = undefined
@@ -88,8 +92,42 @@ if true
 
   is_node_to_always_show = is_a_main_node
 
+  is_one_of = (itm,array) ->
+    array.indexOf(itm) > -1
+    
+class Edge
+  color: "lightgrey"
+  constructor: (@source,@target,@predicate,@context) ->
+    @id = (a.id for a in [@source, @target, @predicate, @context] when a?id).join(' ')
+  
+class Node
+  linked: false
+  links_shown: []
+  links_from: []
+  links_from_found: false
+  links_to: []
+  links_to_found: false
+  showing_links: "none"
+  name: null
+  s: null
+  type: null
+  constructor: (@id) ->
+    console.log "new Node(",@id,")"
+  set_name: (@name) ->
+  set_subject: (@s) ->
+  set_type: (@type) ->    
+  point: (point) ->
+    if point?
+      @x = point[0]
+      @y = point[1]
+    [@x,@y]
+  prev_point: (point) ->
+    if point?
+      @px = point[0]
+      @py = point[1]
+    [@px,@py]
+    
 class Huviz
-
   turtle_parser: 'GreenerTurtle'
   #turtle_parser: 'N3'
 
@@ -395,21 +433,34 @@ class Huviz
 
   init_sets: ->
     @id2n = {} # TODO(smurp): remove?
-    #      states: graphed,unlinked,discarded,hidden
-    #         graphed: in the graph, connected to other nodes
+    #  states: graphed,unlinked,discarded,hidden,embryonic
+    #  embryonic: incomplete, not ready to be used
+    #  graphed: in the graph, connected to other nodes
     #	 unlinked: in the lariat, available for choosing
     #	 discarded: in the discard zone, findable but ignored by show_links_*
     #	 hidden: findable, but not displayed anywhere
     #              	 (when found, will become unlinked)
-    #     
-    @nodes = SortedSet().sort_on("id") # is .named() required?
+    #
+    @nodes = SortedSet().sort_on("id")
+    @nodes.docs = "All Nodes are in this set, regardless of state"
+
+    @embryonic_set = SortedSet().sort_on("id").named("embryo").isFlag()
+    @embryonic_set.docs = "Nodes which are not yet complete are 'embryonic'."
+
     @chosen_set = SortedSet().named("chosen").isFlag().sort_on("id")
+    @chosen_set.docs = "Nodes which the user has picked to graph are 'chosen'."
+
     @unlinked_set = SortedSet().sort_on("name").named("unlinked").isState()
     @discarded_set = SortedSet().sort_on("name").named("discarded").isState()
     @hidden_set = SortedSet().sort_on("id").named("hidden").isState()
     @graphed_set = SortedSet().sort_on("id").named("graphed").isState()
+
     @links_set = SortedSet().named("shown").isFlag().sort_on("id")
     @labelled_set = SortedSet().named("labelled").isFlag().sort_on("id")
+
+    @predicate_set = SortedSet().named("predicate").isFlag().sort_on("id")
+    @context_set = SortedSet().named("context").isFlag().sort_on("id")
+    
     @create_taxonomy()
 
   create_taxonomy: ->
@@ -687,6 +738,7 @@ class Huviz
           " shelved:" + @unlinked_set.length +
           " hidden:" + @hidden_set.length +          
           " links:" + @links_set.length +
+          " embryos:" + @embryonic_set.length +
           " discarded:" + @discarded_set.length +
           #" subjects:" + (@my_graph.subjects.length) +
           " chosen:" + @chosen_set.length
@@ -762,11 +814,6 @@ class Huviz
       delete e.gl
   add_node_ghosts: (d) ->
     d.gl = add_node(scene, d.x, d.y, 3, d.color)  if @use_webgl
-  make_edge: (s, t, c) ->
-    source: s
-    target: t
-    color: c or "lightgrey"
-    id: s.id + " " + t.id
 
   add_to: (itm, array, cmp) ->
     cmp = cmp or array.__current_sort_order or @cmp_on_id
@@ -809,6 +856,8 @@ class Huviz
         cancelable: true
     )
 
+  make_qname: (uri) -> uri # TODO(smurp) reduce wrt prefixes
+
   last_quad: {}
 
   # add_quad is the standard entrypoint for all data sources
@@ -829,23 +878,43 @@ class Huviz
     else
       subj = @my_graph.subjects[s]
           
-    pred_id = quad.p.raw
+    pred_id = @make_qname(quad.p.raw)
     if not @my_graph.predicates[pred_id]?
       @my_graph.predicates[pred_id] = []
-    #@my_graph.objects[quad.o.raw] = {}
 
+    subj_n = @get_or_create_node_by_id(quad.s.raw)
+    pred_n = @get_or_create_predicate_by_id(pred_id)
+    cntx_n = @get_or_create_context_by_id(quad.g.raw)
     # set the predicate on the subject
-    if not subj[pred_id]?
-      subj.predicates[pred_id] = {objects:[]}      
-    subj.predicates[pred_id].objects.push(quad.o.raw)
-    #console.log "  ",s,".",pred_id,".",quad.o.raw
+    if not subj.predicates[pred_id]?
+      subj.predicates[pred_id] = {objects:[]}
+    if quad.o.type is 'uri'
+      # The object is not a literal, but another resource with an uri
+      # so we must get (or create) a node to represent it
+      obj_n = @get_or_create_node_by_id(quad.o.raw)
+      # So we have a node for the object of the quad and this quad is relational
+      # so there should be links made between this node and that node
+      edge_e = @add_edge(new Edge(subj_n,obj_n,pred_n,cntx_n))
+      @develop(obj_n)
+      if is_one_of(pred_id,TYPE_SYNS)
+        if @try_to_set_node_type(subj_n,quad.o.raw)
+          @develop(subj_n) # might be ready now
 
-    @set_type_if_possible(subj,quad,true)
+    else
+      #if @same_as(pred_id,rdf_type)
+      #  subj_n.type = quad.o.raw
+      if subj_n.embryo? and is_one_of(pred_id,NAME_SYNS)
+        subj_n.name = quad.o.raw
+        @develop(subj_n) # might be ready now
+      else
+        subj.predicates[pred_id].objects.push(quad.o.raw)
+
+    #@set_type_if_possible(subj,quad,true)
     
-    if newsubj
-      @fire_newsubject_event s if window.CustomEvent?
+    #if newsubj
+    #  @fire_newsubject_event s if window.CustomEvent?
 
-
+    ###
     try
       last_sid = @last_quad.s.raw
     catch e
@@ -854,7 +923,16 @@ class Huviz
     if last_sid and last_sid isnt quad.s.raw
       #if @last_quad
       @fire_nextsubject_event @last_quad,quad
+    ###
     @last_quad = quad
+
+  add_edge: (edge) ->
+    # TODO(smurp) should .links_from and .links_to be SortedSets? Yes. Right?
+    #   edge.source.links_from.add(edge)
+    #   edge.target.links_to.add(edge)
+    @add_to edge,edge.source.links_from
+    @add_to edge,edge.target.links_to
+    edge
 
   fire_nextsubject_event: (oldquad,newquad) ->
     #console.log "fire_nextsubject_event",oldquad
@@ -882,7 +960,7 @@ class Huviz
     if e.detail.old?
       subject = @my_graph.subjects[e.detail.old.s.raw]
       @set_type_if_possible(subject,e.detail.old,true)
-      if @is_nodeable(subject)
+      if @is_ready(subject)
         @get_or_create_node subject
         @tick()
         
@@ -952,7 +1030,7 @@ class Huviz
         msg = "starting to split "+uri
       else if e.data.event is 'finish'
         msg = "finished_splitting "+uri
-        @fire_nextsubject_event @last_quad,null
+        #@fire_nextsubject_event @last_quad,null
       else
         msg = "unrecognized NQ event:"+e.data.event
       if msg?
@@ -1031,17 +1109,10 @@ class Huviz
 
   get_node_by_id: (node_id, throw_on_fail) ->
     throw_on_fail = throw_on_fail or false
-    thing = {}
-    thing.id = node_id
-
-    idx = @nodes.binary_search thing      
-    if idx > -1
-      @nodes[idx]
-    else
-      if throw_on_fail
-        throw new Error("node with id <" + node_id + "> not found")
-      else
-        return
+    obj = @nodes.get_by('id',node_id)
+    if not obj? and throw_on_fail
+      throw new Error("node with id <" + node_id + "> not found")
+    obj
 
   update_flags: (n) ->
     old_linked_status = @graphed_set.has(n)
@@ -1082,35 +1153,6 @@ class Huviz
     @update_state e.target
     @update_state e.source
 
-  find_links_from_node: (node) ->
-    target = undefined
-    subj = node.s
-    x = node.x or width / 2
-    y = node.y or height / 2
-    pnt = [x,y]
-    oi = undefined
-    if subj
-      for p_name of subj.predicates
-        @ensure_predicate(p_name)
-        predicate = subj.predicates[p_name]
-        oi = 0
-        predicate.objects.forEach (obj,i) =>
-          if obj.type is RDF_object
-            target = @get_or_make_node(@G.subjects[obj.value], pnt)
-          if target
-            @add_link @make_edge(node, target)
-    node.links_from_found = true
-
-  find_links_to_node: (d) ->
-    subj = d.s
-    if subj
-      parent_point = [d.x,d.y]
-      @G.get_incoming_predicates(subj).forEach (sid_pred) =>
-        sid = sid_pred[0]
-        pred = sid_pred[1]
-        src = @get_or_make_node(@G.subjects[sid], parent_point)
-        @add_link @make_edge(src, d)
-    d.links_to_found = true
 
   show_link: (edge, incl_discards) ->
     return  if (not incl_discards) and (edge.target.state is @discarded_set or edge.source.state is @discarded_set)
@@ -1122,8 +1164,8 @@ class Huviz
 
   show_links_to_node: (n, incl_discards) ->
     incl_discards = incl_discards or false
-    if not n.links_to_found
-      @find_links_to_node n,incl_discards
+    #if not n.links_to_found
+    #  @find_links_to_node n,incl_discards
     n.links_to.forEach (e, i) =>
       @show_link e, incl_discards
     @update_flags n
@@ -1153,8 +1195,8 @@ class Huviz
 
   show_links_from_node: (n, incl_discards) ->
     incl_discards = incl_discards or false
-    if not n.links_from_found
-      @find_links_from_node n
+    #if not n.links_from_found
+    #  @find_links_from_node n
     n.links_from.forEach (e, i) =>
       @show_link e, incl_discards
     @update_state n
@@ -1174,59 +1216,61 @@ class Huviz
     @force.links @links_set
     @restart()
 
-  get_or_create_node: (subject, start_point, linked) ->
+  get_or_create_predicate_by_id: (sid) ->
+    obj_id = @make_qname(sid)
+    obj_n = @predicate_set.get_by('id',obj_id)
+    if not obj_n?
+      obj_n = {id:obj_id}
+      @predicate_set.add(obj_n)
+    obj_n
+
+  get_or_create_context_by_id: (sid) ->
+    obj_id = @make_qname(sid)
+    obj_n = @context_set.get_by('id',obj_id)
+    if not obj_n?
+      obj_n = {id:obj_id}
+      @context_set.add(obj_n)
+    obj_n
+
+  get_or_create_node_by_id: (sid) ->
+    obj_id = @make_qname(sid)
+    obj_n = @nodes.get_by('id',obj_id)
+    if not obj_n?
+      obj_n = @embryonic_set.get_by('id',obj_id)
+    if not obj_n?
+      # at this point the node is embryonic, all we know is its uri!
+      obj_n = new Node(obj_id)
+      if not obj_n.id?
+        alert "new Node('"+sid+"') has no id"
+      #@nodes.add(obj_n)
+      @embryonic_set.add(obj_n)
+    return obj_n
+
+  develop: (node) ->
+    # If the node is embryonic and is ready to hatch, then hatch it.
+    # In other words if the node is now complete enough to do interesting
+    # things with, then let it join the company of other complete nodes.
+    if node.embryo? and @is_ready(node)
+      @hatch(node)
+
+  hatch: (node) ->
+    # Take a node from being 'embryonic' to being a fully graphable node
+    console.log node.id+" "+node.name+" is being hatched!"
+    @embryonic_set.remove(node)
+    @nodes.add(node)
+    new_set = @get_default_set_by_type(node)
+    if new_set?
+      new_set.acquire(node)
+    @assign_types(node)
+    @add_node_ghosts(node)
+    node.color = @color_by_type(node)
+    @update_flags(node)
+    @tick()
+      
+  get_or_create_node: (subject, start_point, linked) ->      
     linked = false
     @get_or_make_node subject,start_point,linked
 
-  # deprecated in favour of get_or_create_node
-  get_or_make_node: (subject, start_point, linked, into_set) ->
-    #console.log "get_or_make_node",subject
-    return unless subject
-    d = @get_node_by_id(subject.id)
-    return d  if d
-    start_point = start_point or [
-      @width / 2
-      @height / 2
-    ]
-    linked = typeof linked is "undefined" or linked or false
-    name_obj = subject.predicates[FOAF_name].objects[0]
-    name = name_obj.value? and name_obj.value or name_obj
-    #name = subject.predicates[FOAF_name].objects[0].value
-    d =
-      x: start_point[0]
-      y: start_point[1]
-      px: start_point[0] * 1.01
-      py: start_point[1] * 1.01
-      linked: false
-      links_shown: []
-      links_from: []
-      links_from_found: false
-      links_to: []
-      links_to_found: false
-      showing_links: "none"
-      name: name
-      s: subject
-
-    d.id = d.s.id
-    #console.log "get_or_make_node(",d.id,")"
-    @assign_types(d)
-    d.color = @color_by_type(d)
-
-    @add_node_ghosts d
-    #n_idx = @add_to_array(d, @nodes)
-    n_idx = @nodes.add(d)
-    @id2n[subject.id] = n_idx
-    if false
-      unless linked
-        n_idx = @unlinked_set.acquire(d)
-        @id2u[subject.id] = n_idx
-      else
-        @id2u[subject.id] = @graphed_set.acquire(d)
-    else
-      into_set = into_set? and into_set or linked and @graphed_set or @get_default_set_by_type(d)
-      into_set.acquire(d)
-    @update_flags d
-    d
 
   # deprecated in favour of add_quad:
   make_nodes: (g, limit) ->
@@ -1376,7 +1420,7 @@ class Huviz
     @update_flags goner
     goner
 
-  undiscard: (prodigal) ->
+  undiscard: (prodigal) ->  # TODO(smurp) rename command to 'retrieve' ????
     @unlinked_set.acquire prodigal
     @update_flags prodigal
     @update_state prodigal
@@ -1579,21 +1623,85 @@ class Huviz
   color_by_type: (d) ->
     return @default_color
 
-  is_nodeable: (subj) ->
+  is_ready: (node) ->
+    # This should really be performed on NODES not subjects, meaning nodes should
+    # have FOAF_name and type assigned to them during add_quad()
+    # 
     # Determine whether there is enough known about a subject to create a node for it
     # Does it have an .id and a .type and a .name?
-    return subj.id? and subj.type and subj.predicates[FOAF_name]?
+    return node.id? and node.type? and node.name?
 
-class Orlando extends Huviz
-  # These are the Orlando specific methods layered on Huviz.
-  # These ought to be made data-driven.
+class Deprecated extends Huviz
+  # deprecated in favour of get_or_create_node
+  get_or_make_node: (subject, start_point, linked, into_set) ->
+    #console.log "get_or_make_node",subject
+    return unless subject
+    d = @get_node_by_id(subject.id)
+    return d  if d
+    start_point = start_point or [
+      @width / 2
+      @height / 2
+    ]
+    linked = typeof linked is "undefined" or linked or false
+    name_obj = subject.predicates[FOAF_name].objects[0]
+    name = name_obj.value? and name_obj.value or name_obj
+    #name = subject.predicates[FOAF_name].objects[0].value
+    d = new Node(subject.id)
+    d.s = subject
+    d.name = name
+    d.point(start_point)
+    d.prev_point([start_point[0]*1.01,start_point[1]*1.01])
+    
+    #console.log "get_or_make_node(",d.id,")"
+    @assign_types(d)
+    d.color = @color_by_type(d)
 
-  ORLANDO_org = 'orl:orgs'
-  ORLANDO_writer = 'orl:writers'
-  ORLANDO_other = 'orl:others'
-  calls_to_onnextsubject: 0
-  hierarchy: { 'everything': ['Everything', {people: ['People', {writers: ['Writers'], others: ['Others']}], orgs: ['Organizations']}]}
-  bnode_regex: /^\_\:|^[A-Z]/
+    @add_node_ghosts d
+    #n_idx = @add_to_array(d, @nodes)
+    n_idx = @nodes.add(d)
+    @id2n[subject.id] = n_idx
+    if false
+      unless linked
+        n_idx = @unlinked_set.acquire(d)
+        @id2u[subject.id] = n_idx
+      else
+        @id2u[subject.id] = @graphed_set.acquire(d)
+    else
+      into_set = into_set? and into_set or linked and @graphed_set or @get_default_set_by_type(d)
+      into_set.acquire(d)
+    @update_flags d
+    d
+  
+  find_links_from_node: (node) ->
+    target = undefined
+    subj = node.s
+    x = node.x or width / 2
+    y = node.y or height / 2
+    pnt = [x,y]
+    oi = undefined
+    if subj
+      for p_name of subj.predicates
+        @ensure_predicate(p_name)
+        predicate = subj.predicates[p_name]
+        oi = 0
+        predicate.objects.forEach (obj,i) =>
+          if obj.type is RDF_object
+            target = @get_or_make_node(@G.subjects[obj.value], pnt)
+          if target
+            @add_link( new Edge(node, target))
+    node.links_from_found = true
+
+  find_links_to_node: (d) ->
+    subj = d.s
+    if subj
+      parent_point = [d.x,d.y]
+      @G.get_incoming_predicates(subj).forEach (sid_pred) =>
+        sid = sid_pred[0]
+        pred = sid_pred[1]
+        src = @get_or_make_node(@G.subjects[sid], parent_point)
+        @add_link( new Edge(src, d))
+    d.links_to_found = true
+  
   set_type_if_possible: (subj,quad,force) ->
     # This is a hack, ideally we would look on the subject for type at coloring
     # and taxonomy assignment time but more thought is needed on how to
@@ -1613,20 +1721,43 @@ class Orlando extends Huviz
       name = subj.predicates[FOAF_name]? and subj.predicates[FOAF_name].objects[0] or subj.id
       #console.log "   ",subj.type
 
+class Orlando extends Huviz
+  # These are the Orlando specific methods layered on Huviz.
+  # These ought to be made data-driven.
+
+  ORLANDO_org = 'orl:orgs'
+  ORLANDO_writer = 'orl:writers'
+  ORLANDO_other = 'orl:others'
+  calls_to_onnextsubject: 0
+  hierarchy: { 'everything': ['Everything', {people: ['People', {writers: ['Writers'], others: ['Others']}], orgs: ['Organizations']}]}
+  bnode_regex: /^\_\:|^[A-Z]/
+  try_to_set_node_type: (node,type) ->
+    if type is FOAF_Group
+      node.type = ORLANDO_org
+    else if type is FOAF_Person
+      node.type = ORLANDO_other
+    else if type.match(/^orl/)
+      node.type = type
+    else
+      return false
+    true
+
   # This is a hacky Orlando-specific way to assign a type to a node (not the subject!)
-  assign_types: (d) ->
-    return unless d.s? and d.s.type?
-    if d.s.type is ORLANDO_org
-      @taxonomy['orgs'].add(d)
-    else if d.s.type is ORLANDO_other
-      @taxonomy['people'].add(d)
-      @taxonomy['others'].add(d)      
-    else if d.s.type is ORLANDO_writer
-      @taxonomy['people'].add(d)
-      @taxonomy['writers'].add(d)    
+  assign_types: (node) ->
+    # TODO(smurp) this should be based on node.type
+    #return unless node.s? and node.s.type?
+    t = node.type
+    if t is ORLANDO_org
+      @taxonomy['orgs'].add(node)
+    else if t is ORLANDO_other
+      @taxonomy['people'].add(node)
+      @taxonomy['others'].add(node)      
+    else if t is ORLANDO_writer
+      @taxonomy['people'].add(node)
+      @taxonomy['writers'].add(node)    
 
   get_default_set_by_type: (d) ->
-    t = d.s.type
+    t = d.type # TODO(smurp) this should be based on node.type not node.subj.type
     resp = null
     if t is ORLANDO_org
       resp = @hidden_set
@@ -1646,9 +1777,13 @@ class Orlando extends Huviz
       "blue"
     else
       super()
-  
+
+if not is_one_of(2,[3,2,4])
+  alert "is_one_of() fails"
   
 #(typeof exports is 'undefined' and window or exports).Huviz = Huviz
 
 (exports ? this).Huviz = Huviz
 (exports ? this).Orlando = Orlando
+(exports ? this).Edge = Edge
+

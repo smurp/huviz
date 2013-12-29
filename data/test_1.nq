@@ -1,39 +1,39 @@
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://orlan.do/connectionToOrganization> <G> <w--abdyma--0--P--6> .
-<D> <http://xmlns.com/foaf/0.1/name> "Smith, Maria,, 1773 - 1829" <Universal> .
-<D> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Person> <Universal> .
-<E> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Group> <Universal> .
-<E> <http://xmlns.com/foaf/0.1/name> "Anglican Church" <Universal> .
-<B> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Person> <Universal> .
-<B> <http://xmlns.com/foaf/0.1/name> "Abdy, Albert Channing" <Universal> .
-<C> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Person> <Universal> .
-<C> <http://xmlns.com/foaf/0.1/name> "Smith, Richard" <Universal> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://xmlns.com/foaf/0.1/name> "Abdy, Maria" <Universal> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://orlan.do/writer> <Universal> .
-<F> <http://xmlns.com/foaf/0.1/name> "Dissenters" <Universal> .
-<F> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Group> <Universal> .
-<G> <http://xmlns.com/foaf/0.1/name> "British Library" <Universal> .
-<G> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Group> <Universal> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://en.wikipedia.org/wiki/Religious_denomination> <F> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://en.wikipedia.org/wiki/Religious_denomination> <E> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://orlan.do/connectionToOrganization> <F> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://vocab.sindice.com/xfn#parent> <C> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://orlan.do/connectionToOrganization> <E> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://vocab.sindice.com/xfn#parent> <D> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://vocab.sindice.com/xfn#child> <B> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://orlan.do/connectionToOrganization> <G> <w--abdyma--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://vocab.sindice.com/xfn#child> <B> <b--abdyma--0--P--8> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <orl:connectionToOrganization> <G> <w--abdyma--0--DIV1--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://vocab.sindice.com/xfn#child> <B> <b--abdyma--0--DIV2--10> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <orl:connectionToOrganization> <F> <b--abdyma--0--DIV2--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <orl:connectionToOrganization> <E> <b--abdyma--0--DIV2--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://vocab.sindice.com/xfn#child> <B> <b--abdyma--0--DIV1--7> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <orl:connectionToOrganization> <G> <w--abdyma--0--DIV2--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://vocab.sindice.com/xfn#parent> <D> <b--abdyma--0--DIV1--4> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://vocab.sindice.com/xfn#parent> <C> <b--abdyma--0--DIV1--4> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <orl:connectionToOrganization> <F> <b--abdyma--0--DIV1--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <orl:connectionToOrganization> <E> <b--abdyma--0--DIV1--3> .
 <http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://en.wikipedia.org/wiki/Religious_denomination> <F> <b--abdyma--0--DIV1--3> .
 <http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://en.wikipedia.org/wiki/Religious_denomination> <E> <b--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://orlan.do/connectionToOrganization> <F> <b--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://orlan.do/connectionToOrganization> <E> <b--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://vocab.sindice.com/xfn#parent> <C> <b--abdyma--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://vocab.sindice.com/xfn#parent> <D> <b--abdyma--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://vocab.sindice.com/xfn#child> <B> <b--abdyma--0--DIV1--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://orlan.do/connectionToOrganization> <F> <b--abdyma--0--P--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://orlan.do/connectionToOrganization> <E> <b--abdyma--0--P--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://vocab.sindice.com/xfn#child> <B> <b--abdyma--0--DIV2--10> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://orlan.do/connectionToOrganization> <F> <b--abdyma--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://orlan.do/connectionToOrganization> <E> <b--abdyma--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://orlan.do/connectionToOrganization> <G> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://orlan.do/connectionToOrganization> <G> <w--abdyma--0--DIV1--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://vocab.sindice.com/xfn#child> <B> <b--abdyma--0--P--8> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <orl:connectionToOrganization> <F> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <orl:connectionToOrganization> <E> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://vocab.sindice.com/xfn#parent> <D> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://en.wikipedia.org/wiki/Religious_denomination> <F> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://en.wikipedia.org/wiki/Religious_denomination> <E> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://vocab.sindice.com/xfn#child> <B> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://vocab.sindice.com/xfn#parent> <C> <b--abdyma--0--DIV0--1> .
+<D> <http://xmlns.com/foaf/0.1/name> "Smith, Maria,, 1773 - 1829" <Universal> .
+<D> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Person> <Universal> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <orl:writer> <Universal> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://xmlns.com/foaf/0.1/name> "Abdy, Maria" <Universal> .
+<G> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Group> <Universal> .
+<G> <http://xmlns.com/foaf/0.1/name> "British Library" <Universal> .
+<E> <http://xmlns.com/foaf/0.1/name> "Anglican Church" <Universal> .
+<E> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Group> <Universal> .
+<F> <http://xmlns.com/foaf/0.1/name> "Dissenters" <Universal> .
+<F> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Group> <Universal> .
+<B> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Person> <Universal> .
+<B> <http://xmlns.com/foaf/0.1/name> "Abdy, Albert Channing" <Universal> .
+<C> <http://xmlns.com/foaf/0.1/name> "Smith, Richard" <Universal> .
+<C> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Person> <Universal> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <orl:connectionToOrganization> <F> <b--abdyma--0--P--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <orl:connectionToOrganization> <E> <b--abdyma--0--P--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <orl:connectionToOrganization> <G> <w--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <orl:connectionToOrganization> <G> <w--abdyma--0--P--6> .
 

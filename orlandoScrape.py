@@ -156,7 +156,7 @@ from rdflib.namespace import FOAF, DC, Namespace
 XFN = Namespace('http://vocab.sindice.com/xfn#')
 BRW = Namespace('http://orlando.cambridge.org/public/svPeople?person_id=')
 WP  = Namespace('http://en.wikipedia.org/wiki/')
-ORL = Namespace('http://orlan.do/')
+ORL = Namespace('orl:')
 BLANK = Namespace('http:///')
 LOCAL = Namespace('')
 BLANK_HACK = False

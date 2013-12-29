@@ -148,6 +148,11 @@ var SortedSet = function(){
 	    return array[idx];
 	}
     };
+    array.get_by = function(key,val){
+        var o = {};
+	o[key] = val;
+	return this.get(o);
+    };
     array.binary_search = function(sought,ret_ins_idx){
 	// return -1 or the idx of sought in this
 	// if ret_ins_idx instead of -1 return [n] where n is where it ought to be
