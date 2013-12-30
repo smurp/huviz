@@ -56,6 +56,16 @@ UNDEFINED = undefined
 start_with_http = new RegExp("http", "ig")
 ids_to_show = start_with_http
 
+id_escape = (an_id) ->
+  retval = an_id.replace(/\:/g,'_')
+  retval = retval.replace(/\//g,'_')
+  retval = retval.replace(new RegExp(' ','g'),'_')
+  retval = retval.replace(new RegExp('\\?','g'),'_')
+  retval = retval.replace(new RegExp('\=','g'),'_')
+  retval = retval.replace(new RegExp('\\.','g'),'_')
+  retval = retval.replace(new RegExp('\\#','g'),'_')      
+  retval  
+
 if true
   node_radius_policies =
     "node radius by links": (d) ->
@@ -806,6 +816,7 @@ class Huviz
           " chosen:" + @chosen_set.length
     msg += " DRAG"  if @dragging
     @set_status msg
+    #@push_snippet msg
   svg_restart: ->
     # console.log "svg_restart()"    
     @link = @link.data(@links_set)
@@ -1504,6 +1515,18 @@ class Huviz
     @update_state hidee
     @update_showing_links hidee
 
+  # The Verbs REVEAL and REDACT show and hide snippets respectively
+  reveal: (node) =>
+    node.links_shown.forEach (edge,i) =>
+      @push_snippet
+        edge: edge
+        pred_str: edge.predicate.id
+        context_str: edge.context.id
+    
+  redact: (node) =>
+    node.links_shown.forEach (edge,i) =>
+      @remove_snippet edge.id
+
   #update_history();
   update_history: ->
     if window.history.pushState
@@ -1561,6 +1584,40 @@ class Huviz
       @gclui = new gclui.CommandController(this,d3.select("#gclui")[0][0],@hierarchy)
       window.addEventListener 'showgraph', @register_gclc_prefixes
 
+  init_snippet_box: ->
+    if d3.select('#snippet_box')[0].length > 0
+      @snippet_box = d3.select('#snippet_box')
+  remove_snippet: (snippet_id) ->
+    if @snippet_box
+      slctr = '#'+id_escape(snippet_id)
+      console.log slctr
+      @snippet_box.select(slctr).remove()
+  push_snippet: (msg_or_obj) ->
+    if @snippet_box
+      snip_div = @snippet_box.append('div').attr('class','snippet')
+      if typeof msg_or_obj is 'string'
+        msg = msg_or_obj
+      else
+        msg = msg_or_obj.pred_str + " " + msg_or_obj.context_str
+        m = msg_or_obj
+        msg2 = """
+        <div id="#{id_escape(m.edge.id)}">
+          <div>
+            <span class="writername"><a target="SRC" href="#{m.edge.source.id}">#{m.edge.source.name}</a></span>
+              is connected to
+            <span class=""><a href="#{m.edge.target.id}">#{m.edge.target.name}</a></span>
+          </div>
+          <div>
+            <b>Tag:</b>#{m.edge.predicate.id}
+          </div>
+          <div>
+            <b>Text:</b>#{m.edge.context.id}
+          </div>
+          <hr>
+        </div>
+        """
+      snip_div.html(msg2)
+
   run_verb_on_object: (verb,subject) ->
     cmd = new gcl.GraphCommand
       verbs: [verb]
@@ -1579,7 +1636,7 @@ class Huviz
     window.addEventListener 'nextsubject', @onnextsubject
     @init_sets()
     @init_gclc()
-
+    @init_snippet_box()
     @mousedown_point = [@cx,@cy]
     @discard_point = [@cx,@cy]
     @lariat_center = [@cx,@cy]

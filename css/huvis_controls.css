@@ -70,3 +70,17 @@
   font-size: 60%;
   z-index:2;
 }
+#snippet_box {
+  position:absolute;
+  top: .2em;
+  left: .2em;
+  font-size: 50%;
+  z-index:2;
+
+  overflow: scroll; 
+  width: 20%;
+  height: 50%;
+}
+.snippet {
+  background-color: "lightgray";
+}

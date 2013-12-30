@@ -90,7 +90,9 @@ class CommandController
     ,
       discard: 'discard'
       undiscard: 'retrieve'
-    #{document: 'document', redact: 'redact'}    
+    ,
+      reveal: 'reveal'
+      redact: 'redact'
     ]
   verbs_override: # when overriding ones are selected, others are deselected
     choose: ['discard','unchoose']
