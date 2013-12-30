@@ -174,7 +174,8 @@ class Huviz
   height: 0
   cx: 0
   cy: 0
-  
+
+  edge_width: 1
   focused_mag: 1.4
   label_em: .7  
   line_length_min: 4
@@ -796,6 +797,7 @@ class Huviz
     @clear_canvas()  if @use_canvas or @use_webgl
   tick: =>
     # return if @focused_node   # <== policy: freeze screen when selected
+    @ctx.lineWidth = @edge_width
     @blank_screen()
     @draw_dropzones()
     @find_focused_node()
