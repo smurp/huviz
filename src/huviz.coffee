@@ -1598,25 +1598,8 @@ class Huviz
       if typeof msg_or_obj is 'string'
         msg = msg_or_obj
       else
-        msg = msg_or_obj.pred_str + " " + msg_or_obj.context_str
-        m = msg_or_obj
-        msg2 = """
-        <div id="#{id_escape(m.edge.id)}">
-          <div>
-            <span class="writername"><a target="SRC" href="#{m.edge.source.id}">#{m.edge.source.name}</a></span>
-              is connected to
-            <span class=""><a href="#{m.edge.target.id}">#{m.edge.target.name}</a></span>
-          </div>
-          <div>
-            <b>Tag:</b>#{m.edge.predicate.id}
-          </div>
-          <div>
-            <b>Text:</b>#{m.edge.context.id}
-          </div>
-          <hr>
-        </div>
-        """
-      snip_div.html(msg2)
+        m = msg_or_obj.toString()
+      snip_div.html(msg)
 
   run_verb_on_object: (verb,subject) ->
     cmd = new gcl.GraphCommand
@@ -1918,6 +1901,30 @@ class Orlando extends Huviz
       "blue"
     else
       super()
+
+  push_snippet: (msg_or_obj) ->
+    if @snippet_box
+      if typeof msg_or_obj isnt 'string'
+        [msg_or_obj,m] = ["",msg_or_obj]  # swap them
+        msg_or_obj = """
+        <div id="#{id_escape(m.edge.id)}">
+          <div>
+            <span class="writername"><a target="SRC" href="#{m.edge.source.id}">#{m.edge.source.name}</a></span>
+              is connected to
+            <span class=""><a href="#{m.edge.target.id}">#{m.edge.target.name}</a></span>
+          </div>
+          <div>
+            <b>Tag:</b>#{m.edge.predicate.id}
+          </div>
+          <div>
+            <b>Text:</b>#{m.edge.context.id}
+          </div>
+          <hr>
+        </div>
+        """
+      ## unconfuse emacs Coffee-mode: " """ ' '  "        
+      super(msg_or_obj) # fail back to super
+
 
 if not is_one_of(2,[3,2,4])
   alert "is_one_of() fails"
