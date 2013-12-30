@@ -99,8 +99,8 @@ class GraphCommand
             " not found among "+
             @graph_ctrl.nodes.length+" nodes: "+tried)
     return node    
-  get_nodes: () ->    
-    nodes = []
+  get_nodes: () ->
+    result_set = SortedSet().sort_on("id")
     like_regex = null
     if @like
       like_regex = new RegExp(@like,"ig") # ignore, greedy
@@ -108,8 +108,8 @@ class GraphCommand
       for node_spec in @subjects
         node = @get_node(node_spec)
         if node
-          nodes.push(node)
-        nodes.push(node)
+          result_set.add(node)
+        #nodes.push(node)
     else if @classes
       for class_name in @classes
         if class_name is 'everything'
@@ -119,11 +119,11 @@ class GraphCommand
         if @like
           for n in the_set
             if n.name.match(like_regex)
-              nodes.push n
+              result_set.add n
         else # a redundant loop, kept shallow for speed when no like
           for n in the_set
-            nodes.push n
-    return nodes
+            result_set.add n
+    return result_set
   get_methods: () ->  
     methods = []
     for verb in @verbs
@@ -137,11 +137,22 @@ class GraphCommand
     return methods
   execute: (@graph_ctrl) ->
     nodes = @get_nodes()
+    console.log @str,"on",nodes.length,"nodes"
     for meth in @get_methods()
-      for node in nodes
+      # console.log "meth",meth
+      # for node in nodes
+      #  retval = meth.call(@graph_ctrl,node)
+      iter = (node) =>
+        #console.log meth,node
         retval = meth.call(@graph_ctrl,node)
-    @graph_ctrl.tick()
-    retval
+        #console.log "retval =",retval
+        @graph_ctrl.tick()
+      async.eachSeries nodes,iter,(err) ->
+        if err
+          console.log "err =",err
+        else
+          console.log "DONE .execute()"
+    #retval
   update_str: ->
     missing = '____'
     cmd_str = ""

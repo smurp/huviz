@@ -15,6 +15,7 @@ pkg = stitch.createPackage(
 
   # Specify your base libraries
   dependencies: [
+    __dirname + '/node_modules/async/lib/async.js',
     __dirname + '/js/sortedset.js',
     __dirname + '/lib/d3.v3.min.js', # before fisheye
     __dirname + '/lib/fisheye.js',

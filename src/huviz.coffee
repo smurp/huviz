@@ -114,10 +114,7 @@ class Edge
   
 class Node
   linked: false          # TODO(smurp) probably vestigal
-  links_shown: []
-  links_from: []
   links_from_found: true # TODO(smurp) deprecated because links*_found early
-  links_to: []
   links_to_found: true   # TODO(smurp) deprecated becasue links*_found early
   showing_links: "none"
   name: null
@@ -125,6 +122,9 @@ class Node
   type: null
   constructor: (@id) ->
     #console.log "new Node(",@id,")"
+    @links_from = []
+    @links_to = []
+    @links_shown = []
   set_name: (@name) ->
   set_subject: (@s) ->
   set_type: (@type) ->    
@@ -174,6 +174,10 @@ class Huviz
   height: 0
   cx: 0
   cy: 0
+  
+  focused_mag: 1.4
+  label_em: .7  
+  line_length_min: 4
   link_distance: 20
   charge: -30
   gravity: 0.3
@@ -426,16 +430,15 @@ class Huviz
   draw_curvedline: (x1, y1, x2, y2, sway_inc, clr) ->
     pdist = distance([x1,y1],[x2,y2])
     sway = @swayfrac * sway_inc * pdist
+    if pdist < @line_length_min
+      return
     if sway is 0
-      #console.log "sway 0 =",sway_inc,"*",pdist
       return
     # sway is the distance to offset the control point from the midline
     orig_angle = Math.atan((x2 - x1) / (y2 - y1))
-    #console.log orig_angle
-    if orig_angle.toString() is "NaN"
-      console.log new Error "DOH"
-      
-      return 
+    #if orig_angle.toString() is "NaN"
+    #  console.log new Error "DOH"
+    #  return 
     angle_to_ctrl_from_mid =  orig_angle + (Math.PI / 2)
     xmid = x1 + (x2-x1)/2
     ymid = y1 + (y2-y1)/2
@@ -491,16 +494,16 @@ class Huviz
     @chosen_set = SortedSet().named("chosen").isFlag().sort_on("id")
     @chosen_set.docs = "Nodes which the user has picked to graph are 'chosen'."
 
-    @unlinked_set = SortedSet().sort_on("name").named("unlinked").isState()
+    @unlinked_set  = SortedSet().sort_on("name").named("unlinked").isState()
     @discarded_set = SortedSet().sort_on("name").named("discarded").isState()
-    @hidden_set = SortedSet().sort_on("id").named("hidden").isState()
-    @graphed_set = SortedSet().sort_on("id").named("graphed").isState()
+    @hidden_set    = SortedSet().sort_on("id").named("hidden").isState()
+    @graphed_set   = SortedSet().sort_on("id").named("graphed").isState()
 
-    @links_set = SortedSet().named("shown").isFlag().sort_on("id")
-    @labelled_set = SortedSet().named("labelled").isFlag().sort_on("id")
+    @links_set     = SortedSet().named("shown").isFlag().sort_on("id")
+    @labelled_set  = SortedSet().named("labelled").isFlag().sort_on("id")
 
     @predicate_set = SortedSet().named("predicate").isFlag().sort_on("id")
-    @context_set = SortedSet().named("context").isFlag().sort_on("id")
+    @context_set   = SortedSet().named("context").isFlag().sort_on("id")
     
     @create_taxonomy()
 
@@ -643,15 +646,16 @@ class Huviz
 
   draw_edges_from: (node) ->
     num_edges = node.links_from.length
+    return unless num_edges
     node.links_shown.forEach (e, i) =>
       return unless e.source is node # show only links_from
       if node._last_target_drawn isnt e.target
         node._last_target_drawn_links = 2
       node._last_target_drawn_links++
-      if e.source.embryo?
+      if e.source.embryo
         console.log "source",e.source.name,"is embryo",e.source.id
         return
-      if e.target.embryo?
+      if e.target.embryo
         console.log "target",e.target.name,"is embryo",e.target.id
         return
       sway = node._last_target_drawn_links
@@ -979,7 +983,7 @@ class Huviz
     else
       #if @same_as(pred_id,rdf_type)
       #  subj_n.type = quad.o.raw
-      if subj_n.embryo? and is_one_of(pred_id,NAME_SYNS)
+      if subj_n.embryo and is_one_of(pred_id,NAME_SYNS)
         subj_n.name = quad.o.raw
         @develop(subj_n) # might be ready now
       else
@@ -1003,12 +1007,14 @@ class Huviz
     @last_quad = quad
 
   add_edge: (edge) ->
+    if edge.id.match /Universal$/
+      console.log "add",edge.id
+    #@add_link(edge)
+    #return edge
     # TODO(smurp) should .links_from and .links_to be SortedSets? Yes. Right?
     #   edge.source.links_from.add(edge)
     #   edge.target.links_to.add(edge)
     #console.log "add_edge",edge.id
-    if edge.id.match /Universal$/
-      console.log "add",edge.id
     @add_to edge,edge.source.links_from
     @add_to edge,edge.target.links_to
     edge
@@ -1087,7 +1093,7 @@ class Huviz
         msg = "starting to split "+uri
       else if e.data.event is 'finish'
         msg = "finished_splitting "+uri
-        @choose_everything()
+        #@choose_everything()
         #@fire_nextsubject_event @last_quad,null
       else
         msg = "unrecognized NQ event:"+e.data.event
@@ -1181,24 +1187,31 @@ class Huviz
       else
         n.showing_links = "all"
 
+  should_show_link: (edge) ->
+    # Edges should not be shown if either source or target are discarded or embryonic.
+    ss = edge.source.state
+    ts = edge.target.state
+    d = @discarded_set
+    e = @embryonic_set 
+    not (ss is d or ts is d or ss is e or ts is e)
+
+  show_link: (e) ->
+    alert "show link "+e.id
+    @links_set.add e
+    @add_to e, e.source.links_shown
+    @add_to e, e.target.links_shown
+
   add_link: (e) ->
-    show = e.source.state isnt @discarded_set and
-           e.target.state isnt @discarded_set
-    if show 
-      @links_set.add e
-      @add_to e, e.source.links_shown
-      @add_to e, e.target.links_shown
     @add_to e, e.source.links_from
     @add_to e, e.target.links_to
+    if @should_show_link(e)
+      @show_link(e)
     @update_showing_links e.source
     @update_showing_links e.target
     @update_state e.target
-    # should we do;
-    #    @update_state e.source
-    #@restart()
 
   remove_link: (e) ->
-    return  if @links_set.indexOf(e) is -1
+    return if @links_set.indexOf(e) is -1
     @remove_from e, e.source.links_shown
     @remove_from e, e.target.links_shown
     @links_set.remove e
@@ -1311,18 +1324,17 @@ class Huviz
     # Take a node from being 'embryonic' to being a fully graphable node
     #console.log node.id+" "+node.name+" is being hatched!"
     @embryonic_set.remove(node)
-    @nodes.add(node)
     new_set = @get_default_set_by_type(node)
     if new_set?
       new_set.acquire(node)
     @assign_types(node)
-    @add_node_ghosts(node)
     start_point = [@cx,@cy]
     node.point(start_point)
     node.prev_point([start_point[0]*1.01,start_point[1]*1.01])
-    
+    @add_node_ghosts(node)
     node.color = @color_by_type(node)
     @update_showing_links(node)
+    @nodes.add(node)    
     @tick()
     return node
       
@@ -1386,37 +1398,9 @@ class Huviz
     @show_links_to_node node
     @update_showing_links node
 
-  toggle_links: ->
-    #console.log("links",force.links());
-    unless @links_set.length
-      @make_links G
-      @restart()
-    @force.links().length
-
   toggle_label_display: ->
     @label_all_graphed_nodes = not @label_all_graphed_nodes
     @tick()
-
-  hide_all_links: ->
-    @nodes.forEach (node) =>
-      #node.linked = false;
-      #node.fixed = false;	
-      @unlinked_set.acquire node
-      node.links_shown = []
-      node.showing_links = "none"
-      @unlinked_set.acquire node
-      @update_showing_links node
-
-    @links_set.forEach (link) =>
-      remove_ghosts link
-
-    @links_set.clear()
-    @chosen_set.clear()
-    
-    # It should not be neccessary to clear discarded_set or hidden_set()
-    # because unlinked_set.acquire() should have accomplished that
-    @restart()
-
 
   set_status: (txt) ->
     txt = txt or ""
@@ -1488,11 +1472,8 @@ class Huviz
     @update_showing_links goner
     if goner.links_shown.length > 0
       console.log "shelving failed for",goner
-    else
-      console.log "worked",goner.links_shown
     goner
 
-  #update_history();
   choose: (chosen) =>
     # There is a flag .chosen in addition to the state 'linked'
     # because linked means it is in the graph
@@ -1668,11 +1649,6 @@ class Huviz
     #$(".search_box").on "input", @update_searchterm
     window.addEventListener "resize", @updateWindow
 
-  get_jiggy: ->
-    return @width
-  focused_mag: 1.4
-  label_em: .7
-
   update_fisheye: ->
     @label_show_range = @link_distance * 1.1
     #@fisheye_radius = @label_show_range * 5
@@ -1714,6 +1690,34 @@ class Huviz
     return node.id? and node.type? and node.name?
 
 class Deprecated extends Huviz
+  
+  hide_all_links: ->
+    @nodes.forEach (node) =>
+      #node.linked = false;
+      #node.fixed = false;	
+      @unlinked_set.acquire node
+      node.links_shown = []
+      node.showing_links = "none"
+      @unlinked_set.acquire node
+      @update_showing_links node
+
+    @links_set.forEach (link) =>
+      @remove_ghosts link
+
+    @links_set.clear()
+    @chosen_set.clear()
+    
+    # It should not be neccessary to clear discarded_set or hidden_set()
+    # because unlinked_set.acquire() should have accomplished that
+    @restart()
+
+  toggle_links: ->
+    #console.log("links",force.links());
+    unless @links_set.length
+      @make_links G
+      @restart()
+    @force.links().length
+
   fire_nextsubject_event: (oldquad,newquad) ->
     #console.log "fire_nextsubject_event",oldquad
     window.dispatchEvent(

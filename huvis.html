@@ -86,7 +86,7 @@
         <label title="how much curvature lines have">
           sway fraction
 	  <input name="swayfrac" type="range"
-                 value=".15" min="0" max=".5" step=".01"
+                 value="0" min="0" max=".5" step=".01"
                  onchange="HVZ.update_graph_settings(this)">
         </label>
       </div>
@@ -94,9 +94,10 @@
         <label title="which file to load">
           data set
           <select class="file_picker" onchange="HVZ.load_file(this)" >
+            <option>/data/test_20.nq</option>
             <option>/data/test_40.nq</option>
             <option>/data/test_1.nq</option>
-            <option>/data/test_20.nq</option>
+
             <option>/data/test_100.nq</option>
             <option>/data/test_40.ttl</option>
             <option>/data/test_1.ttl</option>
