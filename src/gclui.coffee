@@ -21,9 +21,11 @@ class CommandController
     @taxdiv = @comdiv.append('div').attr('class','taxonomydiv')
     @comdiv.append('div').attr('style','clear:both') # keep taxonomydiv from being to the right of the verbdiv
     @nodeclassbox = @comdiv.append('div').classed('container',true)
+    @predicatebox = @comdiv.append('div').classed('container',true)    
     @likediv = @comdiv.append('div')    
     @node_classes_chosen = [] # new SortedSet()
-    @build_nodeclasspicker()    
+    @build_nodeclasspicker()
+    @build_predicatepicker()    
     @build_form()
     @update_command()
 
@@ -64,6 +66,28 @@ class CommandController
       
     @toggle_commands_button = @cmdlistbar.append('div').
         attr('class','close_commands')
+
+  ignore_predicate: (pred_id) ->
+    @predicates_ignored.push(pred_id)
+
+  handle_newpredicate: (e) =>
+    parent = 'anything'
+    pred_id = e.detail.sid
+    unless pred_id in @predicates_ignored
+      pred_name = pred_id
+      @add_newpredicate(pred_id,parent,pred_name)
+
+  add_newpredicate: (pred_id,parent,pred_name) =>
+    console.log pred_id,parent
+    @predicate_picker.add(pred_id,parent,pred_name,@onpredicatepicked)
+    @predicate_to_colors = @predicate_picker.recolor()
+
+  build_predicatepicker: ->
+    tp = require('treepicker')
+    @predicates_ignored = []
+    @predicate_picker = new tp.TreePicker()
+    @predicate_hierarchy = {'anything':['Anything']}
+    @predicate_picker.show_tree(@predicate_hierarchy,@predicatebox,@onpredicatepicked)
     
   build_nodeclasspicker: ->
     tp = require('treepicker')
@@ -202,5 +226,6 @@ class CommandController
         that.engage_verb(id)
       else
         that.disengage_verb(id)
-      that.update_command()
+      that.update_command()    
+    
 (exports ? this).CommandController = CommandController    

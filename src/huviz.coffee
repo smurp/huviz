@@ -797,7 +797,7 @@ class Huviz
     @clear_canvas()  if @use_canvas or @use_webgl
   tick: =>
     # return if @focused_node   # <== policy: freeze screen when selected
-    @ctx.lineWidth = @edge_width
+    @ctx.lineWidth = @edge_width # TODO(smurp) just edges should get this treatment
     @blank_screen()
     @draw_dropzones()
     @find_focused_node()
@@ -935,6 +935,16 @@ class Huviz
         cancelable: true
     )
 
+  fire_newpredicate_event: (pred_id) ->
+    window.dispatchEvent(
+      new CustomEvent 'newpredicate',
+        detail:
+          sid: pred_id
+          # time: new Date()
+        bubbles: true
+        cancelable: true
+    )
+
   make_qname: (uri) -> uri # TODO(smurp) reduce wrt prefixes
 
   last_quad: {}
@@ -960,6 +970,8 @@ class Huviz
     pred_id = @make_qname(quad.p.raw)
     if not @my_graph.predicates[pred_id]?
       @my_graph.predicates[pred_id] = []
+      @fire_newpredicate_event pred_id
+
 
     subj_n = @get_or_create_node_by_id(quad.s.raw)
     pred_n = @get_or_create_predicate_by_id(pred_id)
@@ -978,9 +990,10 @@ class Huviz
         if @try_to_set_node_type(subj_n,quad.o.raw)
           @develop(subj_n) # might be ready now
       else
-        edge_e = @add_edge(new Edge(subj_n,obj_n,pred_n,cntx_n))
+        e = new Edge(subj_n,obj_n,pred_n,cntx_n)
+        e.color = @gclui.predicate_to_colors[pred_n.id].deselected
+        edge_e = @add_edge(e)
         @develop(obj_n)
-
 
     else
       #if @same_as(pred_id,rdf_type)
@@ -1221,7 +1234,6 @@ class Huviz
     @update_showing_links e.target
     @update_state e.target
     @update_state e.source
-
 
   show_link: (edge, incl_discards) ->
     return  if (not incl_discards) and (edge.target.state is @discarded_set or edge.source.state is @discarded_set)
@@ -1566,6 +1578,11 @@ class Huviz
       @gclc = new gcl.GraphCommandLanguageCtrl(this)
       @gclui = new gclui.CommandController(this,d3.select("#gclui")[0][0],@hierarchy)
       window.addEventListener 'showgraph', @register_gclc_prefixes
+      window.addEventListener 'newpredicate', @gclui.handle_newpredicate
+      TYPE_SYNS.forEach (pred_id,i) =>
+        @gclui.ignore_predicate pred_id
+      NAME_SYNS.forEach (pred_id,i) =>
+        @gclui.ignore_predicate pred_id
 
   init_snippet_box: ->
     if d3.select('#snippet_box')[0].length > 0
