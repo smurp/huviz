@@ -19,8 +19,9 @@ class CommandController
     @nextcommandbox = @comdiv.append('div')
     @verbdiv = @comdiv.append('div').attr('class','verbs')
     @taxdiv = @comdiv.append('div').attr('class','taxonomydiv')
-    @comdiv.append('div').attr('style','clear:both') # keep taxonomydiv from being to the right of the verbdiv
+    @add_clear_both(@comdiv)
     @nodeclassbox = @comdiv.append('div').classed('container',true)
+    @add_clear_both(@comdiv)    
     @predicatebox = @comdiv.append('div').classed('container',true)    
     @likediv = @comdiv.append('div')    
     @node_classes_chosen = [] # new SortedSet()
@@ -28,6 +29,9 @@ class CommandController
     @build_predicatepicker()    
     @build_form()
     @update_command()
+
+  add_clear_both: (target) ->
+    target.append('div').attr('style','clear:both') # keep taxonomydiv from being to the right of the verbdiv
 
   title_bar_controls: ->
     @show_comdiv_button = d3.select(@container).
