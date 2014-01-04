@@ -34,18 +34,24 @@ class TreePicker
           listener.call(this,this.id,new_state,elem)
       contents_of_me.append('p').html(label)
       if rest.length > 1
-        my_contents = contents_of_me.append('div').attr('class','container')
+        my_contents = @get_or_create_container(contents_of_me)
+        #my_contents = contents_of_me.append('div').attr('class','container')
         @show_tree(rest[1],my_contents,listener)
   set_branch_pickedness: (id,bool) ->
     @id_to_elem[id].classed('picked_branch',bool)
+  get_or_create_container: (contents) ->
+    r = contents.select(".container")
+    if r[0][0] isnt null
+      return r
+    contents.append('div').attr('class','container')
   add: (new_id,parent_id,name,listener) ->
     branch = {}
     branch[new_id] = [name or new_id]
     parent = @id_to_elem[parent_id]
-    console.log "newpredicate.add()",new_id,parent,branch    
-    @show_tree(branch,parent,listener)
+    container = d3.select(@get_or_create_container(parent)[0][0])
+    @show_tree(branch,container,listener)
   recolor: ->
-    console.log 'recolor'
+    #console.log 'recolor'
     count = 0
     for id,elem of @id_to_elem
       count++
@@ -56,7 +62,7 @@ class TreePicker
       hue = i/count * 360
       rgb = hsv2rgb(hue,30,100)
       rgb_selected = hsv2rgb(hue,100,100)
-      console.log rgb,i,count,hue
+      #console.log rgb,i,count,hue
       elem.attr('style',"background-color:"+rgb)
       retval[id] = {'deselected':rgb,'selected':rgb_selected}
     retval
