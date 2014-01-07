@@ -363,8 +363,10 @@ class Huviz
     if @focused_node
       unless @focused_node.state is @graphed_set
         @run_verb_on_object 'choose',@focused_node
+        #@run_verb_on_object 'print',@focused_node        
       else if @focused_node.showing_links is "all"
-        @run_verb_on_object 'shelve',@focused_node
+        #@run_verb_on_object 'shelve',@focused_node
+        @run_verb_on_object 'print',@focused_node
       else
         @run_verb_on_object 'choose',@focused_node        
 
@@ -1243,6 +1245,13 @@ class Huviz
     @update_state edge.source
     @update_state edge.target
 
+  unshow_link: (edge) ->
+    @remove_from edge,edge.source.links_shown
+    @remove_from edge,edge.target.links_shown
+    @links_set.remove edge
+    @update_state edge.source
+    @update_state edge.target
+
   show_links_to_node: (n, incl_discards) ->
     incl_discards = incl_discards or false
     #if not n.links_to_found
@@ -1510,8 +1519,8 @@ class Huviz
     @update_state hidee
     @update_showing_links hidee
 
-  # The Verbs REVEAL and REDACT show and hide snippets respectively
-  reveal: (node) =>
+  # The Verbs PRINT and REDACT show and hide snippets respectively
+  print: (node) =>
     node.links_shown.forEach (edge,i) =>
       @push_snippet
         edge: edge
@@ -1521,6 +1530,18 @@ class Huviz
   redact: (node) =>
     node.links_shown.forEach (edge,i) =>
       @remove_snippet edge.id
+
+  show_edge_regarding: (node,predicate) =>
+    node.links_from.forEach (edge,i) =>
+      show_link edge
+    
+  suppress_edge_regarding: (node,predicate) =>
+    node.links_shown.forEach (edge,i) =>
+      unshow_link edge
+
+  # TODO(smurp) implement emphasize and deemphasize 'verbs' (we need a new word)
+  ## emphasize: (node,predicate,color) =>
+  ## deemphasize: (node,predicate,color) =>
 
   #update_history();
   update_history: ->

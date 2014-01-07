@@ -51,7 +51,6 @@ class TreePicker
     container = d3.select(@get_or_create_container(parent)[0][0])
     @show_tree(branch,container,listener)
   recolor: ->
-    #console.log 'recolor'
     count = 0
     for id,elem of @id_to_elem
       count++
@@ -66,7 +65,7 @@ class TreePicker
         showing:     showing
         emphasizing: hsv2rgb(hue,90,100)
       elem.style("background-color",showing)
-      console.log "recolor()",id,retval[id]
+      #console.log "recolor()",id,retval[id]
     retval
       
 (exports ? this).TreePicker = TreePicker

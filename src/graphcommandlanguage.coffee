@@ -110,7 +110,7 @@ class GraphCommand
         if node
           result_set.add(node)
         #nodes.push(node)
-    else if @classes
+    if @classes
       for class_name in @classes
         if class_name is 'everything'
           the_set = @graph_ctrl.nodes
@@ -123,6 +123,10 @@ class GraphCommand
         else # a redundant loop, kept shallow for speed when no like
           for n in the_set
             result_set.add n
+    if @sets
+      for a_set in @sets
+        for node in a_set
+          result_set.add(node)
     return result_set
   get_methods: () ->  
     methods = []
@@ -157,6 +161,7 @@ class GraphCommand
     missing = '____'
     cmd_str = ""
     ready = true
+    regarding_required = false
     if @verbs
       cmd_str = angliciser(@verbs)
     else
@@ -168,13 +173,27 @@ class GraphCommand
       obj_phrase += angliciser(@classes)
     if @subjects
       obj_phrase += angliciser((subj.id for subj in @subjects))
+    if @sets
+      obj_phrase += angliciser((s.state_name for s in @sets))
     if obj_phrase is ""
       obj_phrase = missing
       ready = false
     cmd_str += obj_phrase
     like_str = (@like or "").trim()
+    if @verbs
+      for verb in @verbs
+        if ['show','suppress'].indexOf(verb) > -1
+          regarding_required = true
+    if regarding_required
+      regarding_phrase = missing
+      if @regarding? and @regarding.length > 0
+        regarding_phrase = angliciser(@regarding)
+      else
+        ready = false
     if like_str
       cmd_str += " like '"+like_str+"'"
+    if regarding_phrase
+      cmd_str += " regarding " + regarding_phrase
     cmd_str += " ."
     @ready = ready
     @str = cmd_str
@@ -197,7 +216,19 @@ class GraphCommand
     # "choose writers like 'Margaret' regarding family"
     #    /(\w+)(,\s*\w+) '(\w+)'/
 
-  # Expect args: verbs, subjects, constraints, regarding
+  # Expect args: verbs, subjects, classes, constraints, regarding
+  #   verbs: a list of verb names eg: ['choose','label'] REQUIRED
+  #   subjects: a list of subj_ids eg: ['_:AE','http://a.com/abdyma']
+  #   classes: a list of classes: ['writers','orgs']
+  #   sets: a list of the huviz sets to act on eg: [@huviz.graphed_set]
+  #   constraints: like TODO(smurp) document GraphCommand constraints
+  #   regarding: a list of pred_ids eg: ['orl:child','orl:denom']
+  #       really [ orl:connectionToOrganization,
+  #                http://vocab.sindice.com/xfn#child ] 
+  # Every command must have at least one verb and any kind of subject, so
+  #   at least one of: subjects, classes or sets
+  # Optional parameters are:
+  #   constraints and regarding
   constructor: (args_or_str) ->
     @prefixes = {}    
     if typeof args_or_str == 'string'

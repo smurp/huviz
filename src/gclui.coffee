@@ -82,24 +82,35 @@ class CommandController
       @add_newpredicate(pred_id,parent,pred_name)
 
   onpredicatepicked: (pred_id,selected,elem) =>
-    console.log "onpredicatepicked",arguments
+    #console.log "onpredicatepicked",arguments
     #console.log "onpredicatepicked()",pred_id,@predicate_to_colors
     if selected
+      verb = 'show'
       color = @predicate_to_colors[pred_id].showing
     else
+      verb = 'suppress'
       color = @predicate_to_colors[pred_id].notshowing
     #console.log "elem",elem
     elem.style('background-color',color)
+
+    cmd = new gcl.GraphCommand
+      verbs: [verb]
+      regarding: [pred_id]
+      sets: [@huviz.chosen_set]
+      
+    @prepare_command cmd
+    #@push_command cmd
+    #@huviz.tick()
 
   add_newpredicate: (pred_id,parent,pred_name) =>
     #console.log "add_newpredicate()",pred_id,parent
     @predicate_picker.add(pred_id,parent,pred_name,@onpredicatepicked)
     @predicate_to_colors = @predicate_picker.recolor()
-    console.log "predicate_to_colors",@predicate_to_colors
+    #console.log "predicate_to_colors",@predicate_to_colors
 
   build_predicatepicker: ->
     tp = require('treepicker')
-    console.log "build_predicatepicker()"
+    #console.log "build_predicatepicker()"
     @predicates_ignored = []
     @predicate_picker = new tp.TreePicker()
     @predicate_hierarchy = {'anything':['Anything']}
@@ -131,9 +142,17 @@ class CommandController
       discard: 'discard'
       undiscard: 'retrieve'
     ,
-      reveal: 'reveal'
+      print: 'print'
       redact: 'redact'
+    ,
+      show: 'show'
+      suppress: 'suppress'
+      #emphasize: 'emphasize'
     ]
+
+  verbs_requiring_regarding:
+    ['show','suppress','emphasize','deemphasize']
+    
   verbs_override: # when overriding ones are selected, others are deselected
     choose: ['discard','unchoose']
     discard: ['choose','retrieve','hide']
@@ -197,7 +216,9 @@ class CommandController
       args.like = like_str
     @command = new gcl.GraphCommand(args)
   update_command: () =>
-    @command = @build_command()
+    @prepare_command @build_command()
+  prepare_command: (cmd) ->
+    @command = cmd
     @nextcommandstr.text(@command.str)
     if @command.ready
       @doit_butt.attr('disabled',null)
