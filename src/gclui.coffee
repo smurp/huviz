@@ -23,9 +23,9 @@ class CommandController
     @nodeclassbox = @comdiv.append('div').classed('container',true)
     @add_clear_both(@comdiv)    
     @predicatebox = @comdiv.append('div').classed('container',true)    
-    @likediv = @comdiv.append('div')    
     @node_classes_chosen = [] # new SortedSet()
     @build_nodeclasspicker()
+    @likediv = @comdiv.append('div')
     @build_predicatepicker()    
     @build_form()
     @update_command()
@@ -81,13 +81,25 @@ class CommandController
       pred_name = pred_id
       @add_newpredicate(pred_id,parent,pred_name)
 
+  onpredicatepicked: (pred_id,selected,elem) =>
+    console.log "onpredicatepicked",arguments
+    #console.log "onpredicatepicked()",pred_id,@predicate_to_colors
+    if selected
+      color = @predicate_to_colors[pred_id].showing
+    else
+      color = @predicate_to_colors[pred_id].notshowing
+    #console.log "elem",elem
+    elem.style('background-color',color)
+
   add_newpredicate: (pred_id,parent,pred_name) =>
-    console.log pred_id,parent
+    #console.log "add_newpredicate()",pred_id,parent
     @predicate_picker.add(pred_id,parent,pred_name,@onpredicatepicked)
     @predicate_to_colors = @predicate_picker.recolor()
+    console.log "predicate_to_colors",@predicate_to_colors
 
   build_predicatepicker: ->
     tp = require('treepicker')
+    console.log "build_predicatepicker()"
     @predicates_ignored = []
     @predicate_picker = new tp.TreePicker()
     @predicate_hierarchy = {'anything':['Anything']}

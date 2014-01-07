@@ -991,7 +991,7 @@ class Huviz
           @develop(subj_n) # might be ready now
       else
         e = new Edge(subj_n,obj_n,pred_n,cntx_n)
-        e.color = @gclui.predicate_to_colors[pred_n.id].deselected
+        e.color = @gclui.predicate_to_colors[pred_n.id].showing
         edge_e = @add_edge(e)
         @develop(obj_n)
 

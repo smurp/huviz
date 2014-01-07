@@ -60,11 +60,13 @@ class TreePicker
     for id,elem of @id_to_elem
       i++
       hue = i/count * 360
-      rgb = hsv2rgb(hue,30,100)
-      rgb_selected = hsv2rgb(hue,100,100)
-      #console.log rgb,i,count,hue
-      elem.attr('style',"background-color:"+rgb)
-      retval[id] = {'deselected':rgb,'selected':rgb_selected}
+      showing = hsv2rgb(hue,50,100)
+      retval[id] =
+        notshowing:  hsv2rgb(hue,15,100)
+        showing:     showing
+        emphasizing: hsv2rgb(hue,90,100)
+      elem.style("background-color",showing)
+      console.log "recolor()",id,retval[id]
     retval
       
 (exports ? this).TreePicker = TreePicker
