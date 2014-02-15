@@ -55,6 +55,10 @@
 .cmdlisttitle:before {
   content: "Command History";
 }
+.commandhistory {
+  overflow-y: scroll;
+  max-height: 6em;
+}
 .hide_history:before {
   float: right;
   content:"╶╴";
