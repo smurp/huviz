@@ -439,10 +439,27 @@ class Huviz
       return
     # sway is the distance to offset the control point from the midline
     orig_angle = Math.atan((x2 - x1) / (y2 - y1))
+    orig_angle = 2 * orig_angle + Math.PI
     #if orig_angle.toString() is "NaN"
     #  console.log new Error "DOH"
     #  return 
     angle_to_ctrl_from_mid =  orig_angle + (Math.PI / 2)
+    #angle_to_ctrl_from_mid =  2 * (orig_angle + (Math.PI / 2))
+    #angle_to_ctrl_from_mid =  2 * (orig_angle + (Math.PI / 2))
+    ang = angle_to_ctrl_from_mid
+    ang = orig_angle
+    #show_range ->
+    #  console.log("RANGE",window.max_ang,window.min_ang)
+    check_range = (val,name) ->
+      window.maxes = window.maxes or {}
+      window.ranges = window.ranges or {}
+      range = window.ranges[name] or {max: -Infinity, min: Infinity}
+      range.max = Math.max(range.max,val)
+      range.min = Math.min(range.min,val)
+
+    #check_range(orig_angle,'orig_angle')
+    #check_range(angle_to_ctrl_from_mid,'ctrl_angle')
+    
     xmid = x1 + (x2-x1)/2
     ymid = y1 + (y2-y1)/2
     xctrl = xmid + Math.sin(angle_to_ctrl_from_mid) * sway
