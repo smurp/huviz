@@ -791,6 +791,7 @@ class Huviz
         else
           @ctx.fillStyle = "black"
           @ctx.font = unfocused_font
+        return unless node.fisheye? # FIXME why is this even happening?          
         if not @graphed_set.has(node) and @draw_lariat_labels_rotated
           # Flip label rather than write upside down
           #   var flip = (node.rad > Math.PI) ? -1 : 1;
