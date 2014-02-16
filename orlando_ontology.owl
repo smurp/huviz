@@ -1,0 +1,821 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+]>
+
+
+<rdf:RDF xmlns="http://draftOrlandoOntology.org/Draft1#"
+     xml:base="http://draftOrlandoOntology.org/Draft1"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <owl:Ontology rdf:about="http://draftOrlandoOntology.org/Draft1"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- diedInRegion -->
+
+    <owl:ObjectProperty rdf:about="diedInRegion">
+        <rdfs:label xml:lang="en">died in region</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="diedIn"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- grandmotherOf -->
+
+    <owl:ObjectProperty rdf:about="grandmotherOf">
+        <rdfs:label xml:lang="en">grandmother of</rdfs:label>
+        <rdfs:domain rdf:resource="female"/>
+        <rdfs:domain rdf:resource="transgendered"/>
+        <rdfs:subPropertyOf rdf:resource="grandparentOf"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- connectionWith -->
+
+    <owl:ObjectProperty rdf:about="connectionWith">
+        <rdfs:label xml:lang="en">connection with</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="Location"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- grandfatherOf -->
+
+    <owl:ObjectProperty rdf:about="grandfatherOf">
+        <rdfs:label xml:lang="en">grandfather of</rdfs:label>
+        <rdfs:domain rdf:resource="male"/>
+        <rdfs:domain rdf:resource="transgendered"/>
+        <rdfs:subPropertyOf rdf:resource="grandparentOf"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- uncleOf -->
+
+    <owl:ObjectProperty rdf:about="uncleOf">
+        <rdfs:label xml:lang="en">uncle of</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="seniorCollateralRelationshipTo"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- hadHealthIssue -->
+
+    <owl:ObjectProperty rdf:about="hadHealthIssue">
+        <rdfs:label xml:lang="en">had health issue</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="Health"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- grandchildOf -->
+
+    <owl:ObjectProperty rdf:about="grandchildOf">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label xml:lang="en">grandchild of</rdfs:label>
+        <rdfs:range rdf:resource="Person"/>
+        <rdfs:domain rdf:resource="Person"/>
+        <rdfs:subPropertyOf rdf:resource="FamilyRelations"/>
+        <owl:inverseOf rdf:resource="grandparentOf"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- FamilyRelations -->
+
+    <owl:ObjectProperty rdf:about="FamilyRelations">
+        <rdfs:label xml:lang="en"> family relations</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="Relationships"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- Name -->
+
+    <owl:ObjectProperty rdf:about="Name">
+        <rdfs:label xml:lang="en"> name</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- bornIn -->
+
+    <owl:ObjectProperty rdf:about="bornIn">
+        <rdfs:label xml:lang="en">born in</rdfs:label>
+        <rdfs:domain rdf:resource="Person"/>
+        <rdfs:subPropertyOf rdf:resource="Location"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- diedInSettlement -->
+
+    <owl:ObjectProperty rdf:about="diedInSettlement">
+        <rdfs:label xml:lang="en">died in settlement</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="diedIn"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- childOf -->
+
+    <owl:ObjectProperty rdf:about="childOf">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label xml:lang="en">child of</rdfs:label>
+        <rdfs:domain rdf:resource="Person"/>
+        <rdfs:range rdf:resource="Person"/>
+        <rdfs:subPropertyOf rdf:resource="FamilyRelations"/>
+        <owl:inverseOf rdf:resource="parentOf"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- auntOf -->
+
+    <owl:ObjectProperty rdf:about="auntOf">
+        <rdfs:label xml:lang="en">aunt of</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="seniorCollateralRelationshipTo"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- grandsonOf -->
+
+    <owl:ObjectProperty rdf:about="grandsonOf">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label xml:lang="en">grandson of</rdfs:label>
+        <rdfs:domain rdf:resource="male"/>
+        <rdfs:domain rdf:resource="transgendered"/>
+        <rdfs:subPropertyOf rdf:resource="grandchildOf"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- motherOf -->
+
+    <owl:ObjectProperty rdf:about="motherOf">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label xml:lang="en">mother of</rdfs:label>
+        <rdfs:domain rdf:resource="female"/>
+        <rdfs:domain rdf:resource="transgendered"/>
+        <rdfs:subPropertyOf rdf:resource="parentOf"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- givenName -->
+
+    <owl:ObjectProperty rdf:about="givenName">
+        <rdfs:label xml:lang="en">given name</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="Name"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- collateralRelation -->
+
+    <owl:ObjectProperty rdf:about="collateralRelation">
+        <rdfs:label xml:lang="en">collateral relation</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="FamilyRelations"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- livedInRegion -->
+
+    <owl:ObjectProperty rdf:about="livedInRegion">
+        <rdfs:label xml:lang="en">lived in region</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="livedIn"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- connectionWithPlace -->
+
+    <owl:ObjectProperty rdf:about="connectionWithPlace">
+        <rdfs:label xml:lang="en">connection with place</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="connectionWith"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- sisterOf -->
+
+    <owl:ObjectProperty rdf:about="sisterOf">
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label xml:lang="en">sister of</rdfs:label>
+        <rdfs:domain rdf:resource="female"/>
+        <rdfs:domain rdf:resource="transgendered"/>
+        <rdfs:subPropertyOf rdf:resource="siblingOf"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- siblingOf -->
+
+    <owl:ObjectProperty rdf:about="siblingOf">
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdf:type rdf:resource="&owl;SymmetricProperty"/>
+        <rdfs:label xml:lang="en">sibling of</rdfs:label>
+        <rdfs:range rdf:resource="Person"/>
+        <rdfs:domain rdf:resource="Person"/>
+        <rdfs:subPropertyOf rdf:resource="FamilyRelations"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- religiousInfluence -->
+
+    <owl:ObjectProperty rdf:about="religiousInfluence">
+        <rdfs:label xml:lang="en">religious influence</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="Influence"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- parentOf -->
+
+    <owl:ObjectProperty rdf:about="parentOf">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label xml:lang="en">parent of</rdfs:label>
+        <rdfs:domain rdf:resource="Person"/>
+        <rdfs:range rdf:resource="Person"/>
+        <rdfs:subPropertyOf rdf:resource="FamilyRelations"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- numberOfChildren -->
+
+    <owl:ObjectProperty rdf:about="numberOfChildren">
+        <rdfs:label xml:lang="en">number of children</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="FamilyRelations"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- educationLevel -->
+
+    <owl:ObjectProperty rdf:about="educationLevel">
+        <rdfs:label xml:lang="en">education level</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="EducationRelations"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- friendOrAssociateOf -->
+
+    <owl:ObjectProperty rdf:about="friendOrAssociateOf">
+        <rdfs:label xml:lang="en">friend or associate of</rdfs:label>
+        <rdfs:range rdf:resource="Person"/>
+        <rdfs:domain rdf:resource="Person"/>
+        <rdfs:subPropertyOf rdf:resource="Relationships"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- politicalInfluence -->
+
+    <owl:ObjectProperty rdf:about="politicalInfluence">
+        <rdfs:label xml:lang="en">political influence</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="Influence"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- nickname -->
+
+    <owl:ObjectProperty rdf:about="nickname">
+        <rdfs:label xml:lang="en">nickname</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="Name"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- livedInGeog -->
+
+    <owl:ObjectProperty rdf:about="livedInGeog">
+        <rdfs:label xml:lang="en">lived in geog</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="livedIn"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- Sex -->
+
+    <owl:ObjectProperty rdf:about="Sex">
+        <rdfs:label xml:lang="en"> sex</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="PersonalProperties"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- Influence -->
+
+    <owl:ObjectProperty rdf:about="Influence">
+        <rdfs:label xml:lang="en"> influence</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- seniorCollateralRelationshipTo -->
+
+    <owl:ObjectProperty rdf:about="seniorCollateralRelationshipTo">
+        <rdfs:label xml:lang="en">senior collateral relationship to</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="collateralRelation"/>
+        <owl:inverseOf rdf:resource="juniorCollateralRelationshipTo"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- diedInGeog -->
+
+    <owl:ObjectProperty rdf:about="diedInGeog">
+        <rdfs:label xml:lang="en">died in geog</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="diedIn"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- bornInRegion -->
+
+    <owl:ObjectProperty rdf:about="bornInRegion">
+        <rdfs:label xml:lang="en">born in region</rdfs:label>
+        <rdfs:range rdf:resource="Region"/>
+        <rdfs:subPropertyOf rdf:resource="bornIn"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- fatherOf -->
+
+    <owl:ObjectProperty rdf:about="fatherOf">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label xml:lang="en">father of</rdfs:label>
+        <rdfs:domain rdf:resource="male"/>
+        <rdfs:domain rdf:resource="transgendered"/>
+        <rdfs:subPropertyOf rdf:resource="parentOf"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- cousinOf -->
+
+    <owl:ObjectProperty rdf:about="cousinOf">
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdf:type rdf:resource="&owl;SymmetricProperty"/>
+        <rdfs:label xml:lang="en">cousin of</rdfs:label>
+        <rdfs:range rdf:resource="Person"/>
+        <rdfs:domain rdf:resource="Person"/>
+        <rdfs:subPropertyOf rdf:resource="FamilyRelations"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- sonOf -->
+
+    <owl:ObjectProperty rdf:about="sonOf">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label xml:lang="en">son of</rdfs:label>
+        <rdfs:domain rdf:resource="male"/>
+        <rdfs:domain rdf:resource="transgendered"/>
+        <rdfs:subPropertyOf rdf:resource="childOf"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- surname -->
+
+    <owl:ObjectProperty rdf:about="surname">
+        <rdfs:label xml:lang="en">surname</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="Name"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- livedIn -->
+
+    <owl:ObjectProperty rdf:about="livedIn">
+        <rdfs:label xml:lang="en">lived in</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="Location"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- connectionWithSettlement -->
+
+    <owl:ObjectProperty rdf:about="connectionWithSettlement">
+        <rdfs:label xml:lang="en">connection with settlement</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="connectionWith"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- friendOf -->
+
+    <owl:ObjectProperty rdf:about="friendOf">
+        <rdfs:label xml:lang="en">friend of</rdfs:label>
+        <rdfs:domain rdf:resource="Person"/>
+        <rdfs:range rdf:resource="Person"/>
+        <rdfs:subPropertyOf rdf:resource="Relationships"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- Relationships -->
+
+    <owl:ObjectProperty rdf:about="Relationships">
+        <rdfs:label xml:lang="en"> relationships</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- bornInSettlement -->
+
+    <owl:ObjectProperty rdf:about="bornInSettlement">
+        <rdfs:label xml:lang="en">born in settlement</rdfs:label>
+        <rdfs:range rdf:resource="Settlement"/>
+        <rdfs:subPropertyOf rdf:resource="bornIn"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- Location -->
+
+    <owl:ObjectProperty rdf:about="Location">
+        <rdfs:label xml:lang="en"> location</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- husbandOf -->
+
+    <owl:ObjectProperty rdf:about="husbandOf">
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label xml:lang="en">husband of</rdfs:label>
+        <rdfs:domain rdf:resource="male"/>
+        <rdfs:domain rdf:resource="transgendered"/>
+        <rdfs:subPropertyOf rdf:resource="spouseOf"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- nieceOf -->
+
+    <owl:ObjectProperty rdf:about="nieceOf">
+        <rdfs:label xml:lang="en">niece of</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="juniorCollateralRelationshipTo"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- spouseOf -->
+
+    <owl:ObjectProperty rdf:about="spouseOf">
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdf:type rdf:resource="&owl;SymmetricProperty"/>
+        <rdfs:label xml:lang="en">spouse of</rdfs:label>
+        <rdfs:range rdf:resource="Person"/>
+        <rdfs:domain rdf:resource="Person"/>
+        <rdfs:subPropertyOf rdf:resource="FamilyRelations"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- hasSex -->
+
+    <owl:ObjectProperty rdf:about="hasSex">
+        <rdfs:label xml:lang="en">has sex</rdfs:label>
+        <rdfs:range rdf:resource="male"/>
+        <rdfs:range rdf:resource="female"/>
+        <rdfs:range rdf:resource="unknown"/>
+        <rdfs:range rdf:resource="transgendered"/>
+        <rdfs:subPropertyOf rdf:resource="Sex"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- nephewOf -->
+
+    <owl:ObjectProperty rdf:about="nephewOf">
+        <rdfs:label xml:lang="en">nephew of</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="juniorCollateralRelationshipTo"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- culturalInfluence -->
+
+    <owl:ObjectProperty rdf:about="culturalInfluence">
+        <rdfs:label xml:lang="en">cultural influence</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="Influence"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- brotherOf -->
+
+    <owl:ObjectProperty rdf:about="brotherOf">
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label xml:lang="en">brother of</rdfs:label>
+        <rdfs:domain rdf:resource="male"/>
+        <rdfs:domain rdf:resource="transgendered"/>
+        <rdfs:subPropertyOf rdf:resource="siblingOf"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- PersonalProperties -->
+
+    <owl:ObjectProperty rdf:about="PersonalProperties">
+        <rdfs:label xml:lang="en"> personal properties</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- standardName -->
+
+    <owl:ObjectProperty rdf:about="standardName">
+        <rdfs:label xml:lang="en">standard name</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="Name"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- marriedTo -->
+
+    <owl:ObjectProperty rdf:about="marriedTo">
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdf:type rdf:resource="&owl;SymmetricProperty"/>
+        <rdfs:label xml:lang="en">married to</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="FamilyRelations"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- bornInGeog -->
+
+    <owl:ObjectProperty rdf:about="bornInGeog">
+        <rdfs:label xml:lang="en">born in geog</rdfs:label>
+        <rdfs:range rdf:resource="GeographicArea"/>
+        <rdfs:subPropertyOf rdf:resource="bornIn"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- juniorCollateralRelationshipTo -->
+
+    <owl:ObjectProperty rdf:about="juniorCollateralRelationshipTo">
+        <rdfs:label xml:lang="en">junior collateral relationship to</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="collateralRelation"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- daughterOf -->
+
+    <owl:ObjectProperty rdf:about="daughterOf">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label xml:lang="en">daughter of</rdfs:label>
+        <rdfs:domain rdf:resource="female"/>
+        <rdfs:domain rdf:resource="transgendered"/>
+        <rdfs:subPropertyOf rdf:resource="childOf"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- EducationRelations -->
+
+    <owl:ObjectProperty rdf:about="EducationRelations">
+        <rdfs:label xml:lang="en"> education relations</rdfs:label>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- educationInstitutionType -->
+
+    <owl:ObjectProperty rdf:about="educationInstitutionType">
+        <rdfs:label xml:lang="en">education institution type</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="EducationRelations"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- Health -->
+
+    <owl:ObjectProperty rdf:about="Health">
+        <rdfs:label xml:lang="en"> health</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="PersonalProperties"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- wifeOf -->
+
+    <owl:ObjectProperty rdf:about="wifeOf">
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label xml:lang="en">wife of</rdfs:label>
+        <rdfs:domain rdf:resource="female"/>
+        <rdfs:domain rdf:resource="transgendered"/>
+        <rdfs:subPropertyOf rdf:resource="spouseOf"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- connectionWithAddress -->
+
+    <owl:ObjectProperty rdf:about="connectionWithAddress">
+        <rdfs:label xml:lang="en">connection with address</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="connectionWith"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- livedInSettlement -->
+
+    <owl:ObjectProperty rdf:about="livedInSettlement">
+        <rdfs:label xml:lang="en">lived in settlement</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="livedIn"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- diedIn -->
+
+    <owl:ObjectProperty rdf:about="diedIn">
+        <rdfs:label xml:lang="en">died in</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="Location"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- connectionWithRegion -->
+
+    <owl:ObjectProperty rdf:about="connectionWithRegion">
+        <rdfs:label xml:lang="en">connection with region</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="connectionWith"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- granddaughterOf -->
+
+    <owl:ObjectProperty rdf:about="granddaughterOf">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label xml:lang="en">granddaughter of</rdfs:label>
+        <rdfs:domain rdf:resource="female"/>
+        <rdfs:domain rdf:resource="transgendered"/>
+        <rdfs:subPropertyOf rdf:resource="grandchildOf"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- grandparentOf -->
+
+    <owl:ObjectProperty rdf:about="grandparentOf">
+        <rdf:type rdf:resource="&owl;AsymmetricProperty"/>
+        <rdf:type rdf:resource="&owl;IrreflexiveProperty"/>
+        <rdfs:label xml:lang="en">grandparent of</rdfs:label>
+        <rdfs:subPropertyOf rdf:resource="FamilyRelations"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- male -->
+
+    <owl:Class rdf:about="male">
+        <rdfs:label xml:lang="en">male</rdfs:label>
+        <rdfs:subClassOf rdf:resource="Sex"/>
+    </owl:Class>
+    
+
+
+    <!-- female -->
+
+    <owl:Class rdf:about="female">
+        <rdfs:label xml:lang="en">female</rdfs:label>
+        <rdfs:subClassOf rdf:resource="Sex"/>
+    </owl:Class>
+    
+
+
+    <!-- Settlement -->
+
+    <owl:Class rdf:about="Settlement">
+        <rdfs:label xml:lang="en"> settlement</rdfs:label>
+        <rdfs:subClassOf rdf:resource="Region"/>
+    </owl:Class>
+    
+
+
+    <!-- Sex -->
+
+    <owl:Class rdf:about="Sex">
+        <rdfs:label xml:lang="en"> sex</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- unknown -->
+
+    <owl:Class rdf:about="unknown">
+        <rdfs:label xml:lang="en">unknown</rdfs:label>
+        <rdfs:subClassOf rdf:resource="Sex"/>
+    </owl:Class>
+    
+
+
+    <!-- transgendered -->
+
+    <owl:Class rdf:about="transgendered">
+        <rdfs:label xml:lang="en">transgendered</rdfs:label>
+        <rdfs:subClassOf rdf:resource="Sex"/>
+    </owl:Class>
+    
+
+
+    <!-- Region -->
+
+    <owl:Class rdf:about="Region">
+        <rdfs:label xml:lang="en"> region</rdfs:label>
+        <rdfs:subClassOf rdf:resource="GeographicArea"/>
+    </owl:Class>
+    
+
+
+    <!-- GeographicArea -->
+
+    <owl:Class rdf:about="GeographicArea">
+        <rdfs:label xml:lang="en"> geographic area</rdfs:label>
+        <rdfs:subClassOf rdf:resource="Place"/>
+    </owl:Class>
+    
+
+
+    <!-- Place -->
+
+    <owl:Class rdf:about="Place">
+        <rdfs:label xml:lang="en"> place</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- Person -->
+
+    <owl:Class rdf:about="Person">
+        <rdfs:label xml:lang="en"> person</rdfs:label>
+    </owl:Class>
+    
+
+
+    <!-- Work -->
+
+    <owl:Class rdf:about="Work">
+        <rdfs:label xml:lang="en"> work</rdfs:label>
+    </owl:Class>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 3.4.2) http://owlapi.sourceforge.net -->
+
