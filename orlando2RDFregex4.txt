@@ -105,7 +105,7 @@ copyrightConnectionToOrganization|<PRODUCTION>.+?</PRODUCTION>|<PCOPYRIGHT>.+?</
 anthologizationConnectionToOrganization|<PRODUCTION>.+?</PRODUCTION>|<PCOPYRIGHT>.+?</PCOPYRIGHT>|<ORGNAME.+?STANDARD="([\w ]+?)"
 periodicalpublicationConnectiontoOrganization|<PRODUCTION>.+?</PRODUCTION>|<PPERIODICALPUBLICATION>.+?</PPERIODICALPUBLICATION>|<ORGNAME.+?STANDARD="([\w ]+?)"
 materialConditionsConnectiontoOrganization|<PRODUCTION>.+?</PRODUCTION>|<PMATERIALCONDITIONS>.+?</PMATERIALCONDITIONS>|<ORGNAME.+?STANDARD="([\w ]+?)"
-editionsConnectionToOrganization<PRODUCTION>.+?</PRODUCTION>|<PEDITIONS>.+?</PEDITIONS>|<ORGNAME.+?STANDARD="([\w ]+?)"
+editionsConnectionToOrganization|<PRODUCTION>.+?</PRODUCTION>|<PEDITIONS>.+?</PEDITIONS>|<ORGNAME.+?STANDARD="([\w ]+?)"
 relationswithpublisherConnectionToOrganization|<PRODUCTION>.+?</PRODUCTION>|<PRELATIONSWITHPUBLISHER>.+?</PRELATIONSWITHPUBLISHER>|<ORGNAME.+?STANDARD="([\w ]+?)"
 plotConnectionToOrganization<TEXTUALFEATURES>.+?</TEXTUALFEATURES>|<TPLOT>.+?</TPLOT>|<ORGNAME.+?STANDARD="([\w ]+?)"
 themetopicConnectionToOrganization<TEXTUALFEATURES>.+?</TEXTUALFEATURES>|<TTHEMETOPIC>.+?</TTHEMETOPIC>|<ORGNAME.+?STANDARD="([\w ]+?)"
