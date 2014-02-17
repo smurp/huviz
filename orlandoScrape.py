@@ -38,6 +38,8 @@ import rdflib.plugins.serializers.nt
 import rdflib.plugins.serializers.nquads
 from rdflib.plugins.serializers.nt import _xmlcharref_encode, _quoteLiteral
 
+found_predicates = {}
+
 def NQ_ROW(triple,context):
     if isinstance(triple[2], Literal):
         return u"%s %s %s %s .\n" % (triple[0].n3(),
@@ -157,6 +159,7 @@ XFN = Namespace('http://vocab.sindice.com/xfn#')
 BRW = Namespace('http://orlando.cambridge.org/public/svPeople?person_id=')
 WP  = Namespace('http://en.wikipedia.org/wiki/')
 ORL = Namespace('orl:')
+ORLONT = Namespace('http://draftOrlandoOntology.org/Draft1#')
 BLANK = Namespace('http:///')
 LOCAL = Namespace('')
 BLANK_HACK = False
@@ -176,6 +179,7 @@ def make_writer(an_id):
 def make_person(an_id):
     return LOCAL[an_id]
 
+all_predicates = False
 predicates_to_groups = ['religiousInfluence','connectionToOrganization']
 predicate_to_type = {'childOf':XFN['parent'],
                      'parentOf':XFN['child'],
@@ -188,6 +192,7 @@ predicate_to_type = {'childOf':XFN['parent'],
                      'religiousInfluence':WP['Religious_denomination'],
                      'connectionToOrganization':ORL['connectionToOrganization']
                      }
+use_ontology = False # False mean use above mappings, True means use ORL[key]
 
 if LOCAL_IDENTIFIERS:
     for k in predicate_to_type.keys():
@@ -407,8 +412,14 @@ class RDFEmitter(FormatEmitter):
             for predicate,values in entry.items():
                 if predicate in ['ID','standardName']: # TODO(smurp): add date-of-{birth,death}
                     continue
-                if predicate in predicate_to_type.keys():
-                    pred = predicate_to_type[predicate]
+                if not found_predicates.has_key(predicate):
+                    found_predicates[predicate] = False
+                if all_predicates or predicate in predicate_to_type.keys():
+                    found_predicates[predicate] = True
+                    if use_ontology:
+                        pred = ORLONT[predicate]
+                    else:
+                        pred = predicate_to_type[predicate]
 
                     # add some interesting relations
                     if bogus_relations:
@@ -530,6 +541,9 @@ if __name__ == "__main__":
         "--only_predicates",
         default = ','.join(defaults['only_predicates']),
         help = "the predicates to keep, default: %(only_predicates)s" % defaults)    
+    parser.add_option("--all_predicates",
+                      action = 'store_true',
+                      help = "use every predicate available")
     parser.add_option("--state_the_obvious",
                       default = False,
                       action = 'store_true',
@@ -555,6 +569,9 @@ if __name__ == "__main__":
     parser.add_option("--man",
                       action = 'store_true',
                       help = "show the manual for this program")
+    parser.add_option("--use_onto",
+                      action = 'store_true',
+                      help = "use the ontology")
     parser.version = __version__
     parser.usage =  """
     e.g.
@@ -583,11 +600,16 @@ if __name__ == "__main__":
         options.ids = options.ids.split(",")
     if options.only_predicates:
         options.only_predicates = options.only_predicates.split(',')
+    if options.all_predicates:
+        options.only_predicates = []
+        all_predicates = True
     if options.doctest:
         show_usage = False
         import doctest
         doctest.testmod(verbose=options.verbose)
         sys.exit()
+    if options.use_onto:
+        use_ontology = True
     if options.version:
         show_usage = False
         if options.verbose:
@@ -615,5 +637,7 @@ if __name__ == "__main__":
         options.emitter.go()
     elif show_usage:
         parser.print_help()
+    for k,v in found_predicates.items():
+        print "  ",v,k
 
 # TODO(shawn): remove commacheck3
