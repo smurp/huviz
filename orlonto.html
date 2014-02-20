@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Huvis Graph Visualization</title>
+    <title>Orlando Ontology Visualization</title>
     <link href="/css/huvis.css" rel="stylesheet" type="text/css">
     <link href="/css/huvis_controls.css" rel="stylesheet" type="text/css">
     <link href="/css/lariat.css" rel="stylesheet" type="text/css">
@@ -102,21 +102,6 @@
         <label title="which file to load">
           data set
           <select class="file_picker" onchange="HVZ.load_file(this)" >
-
-            <option>/data/atwoma.nq</option>
-            <option></option>
-            <option>/data/poetesses.nq</option>
-            <option>/data/test_1.nq</option>
-            <option>/data/test_40.nq</option>
-
-
-            <option>/data/test_100.nq</option>
-            <option>/data/test_40.ttl</option>
-            <option>/data/test_1.ttl</option>
-            <option>/data/test_20.ttl</option>
-            <option>/data/all.ttl</option>
-            <option>/data/all.nq</option>
-            <option>/data/test_20.nq</option>
             <option>/data/orlando_ontology.ttl</option>
           </select>
         </label>
@@ -138,68 +123,6 @@
     <script src="application.js?13"></script>
     <script>
       var gcl = require('graphcommandlanguage');
-      var testsuite = function(HVZ){
-        ts = new gcl.GCLTestSuite(
-            HVZ.gclc,[
-             // initially no links are displayed
-             {desc: "initial empty graph",
-              expectations: [ 
-                 ["this.graph_ctrl.nodes.length",7],
-                 ["this.graph_ctrl.links_set.length",0]
-                ]
-              },
-             {desc: "choosing writer",
-              script: "choose 'w:abdyma'",
-              expectations: [
-                 ["this.graph_ctrl.nodes.length",7],
-                 ["this.graph_ctrl.unlinked_set.length",0],
-                 ["this.graph_ctrl.links_set.length",6],
-                ]
-              },
-             {desc: "discarding writer should empty graph",
-              script: "discard 'w:abdyma'",
-              expectations: [
-                 ["this.graph_ctrl.nodes.length",7],
-                 ["this.graph_ctrl.unlinked_set.length",6],
-                 ["this.graph_ctrl.discarded_set.length",1],
-                 ["this.graph_ctrl.links_set.length",0],
-                ]
-              },
-             {desc: "choose AnglicanChurch; expect no effect",
-              script:"choose '_:E'",
-              expectations: [
-                 ["this.graph_ctrl.discarded_set.length",1],
-                 ["this.graph_ctrl.discarded_set[0].links_shown.length",0]
-                ]
-             },
-             {desc: "choose from discards should graph",
-              script:"choose 'w:abdyma'",
-              expectations: [
-                 ["this.graph_ctrl.discarded_set.length",0],
-                 ["this.graph_ctrl.graphed_set.length",7],
-                 ["this.graph_ctrl.unlinked_set.length",0]
-                ]
-             },
-             {desc: "discard AnglicanChurch; expect it to be",
-              script:"discard '_:E'",
-              expectations: [
-                 ["this.graph_ctrl.discarded_set.length",1],
-                 ["this.graph_ctrl.discarded_set[0].links_shown.length",0]
-                ]
-             },
-             {desc: "choose AnglicanChurch; expect it to be graphed",
-              script:"choose '_:E'",
-              expectations: [
-                 ["this.graph_ctrl.discarded_set.length",0],
-                 ["this.graph_ctrl.nodes.get({'id':'_:E'}).links_shown.length",1]
-                ]
-             }
-            ]
-          )
-        //ts.verbose = true;
-        alert('about to run this puppy');
-        ts.run();
-      };
       if (location.hash.match(/testsuite/)){
         window.addEventListener('showgraph',testsuite);
       }
@@ -212,7 +135,7 @@
       var HVZ;
       window.addEventListener('load',function(){
         huviz = require('huviz');
-        HVZ = new huviz.Orlando();
+        HVZ = new huviz.OntoViz();
         HVZ.load_file();
       });
 

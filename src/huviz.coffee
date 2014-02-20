@@ -972,42 +972,45 @@ class Huviz
   # add_quad is the standard entrypoint for all data sources
   # It is fires the events:
   #   newsubject
+  object_types: {}
   add_quad: (quad) ->
-    #console.log quad.context
-    #console.log "add_quad",quad.s.raw
-    s = quad.s.raw
+    #console.log(quad)
+    sid = quad.s
+    pid = @make_qname(quad.p)
+    ctxid = quad.g
+    @object_types[quad.o.type] = 1
+
     newsubj = false
     subj = null
-    if not @my_graph.subjects[s]?
+    if not @my_graph.subjects[sid]?
       newsubj = true
       subj =
-        id: s
+        id: sid
         predicates: {}
-      @my_graph.subjects[s] = subj
+      @my_graph.subjects[sid] = subj
     else
-      subj = @my_graph.subjects[s]
+      subj = @my_graph.subjects[sid]
           
-    pred_id = @make_qname(quad.p.raw)
-    if not @my_graph.predicates[pred_id]?
-      @my_graph.predicates[pred_id] = []
-      @fire_newpredicate_event pred_id
+    if not @my_graph.predicates[pid]?
+      @my_graph.predicates[pid] = []
+      @fire_newpredicate_event pid
 
 
-    subj_n = @get_or_create_node_by_id(quad.s.raw)
-    pred_n = @get_or_create_predicate_by_id(pred_id)
-    cntx_n = @get_or_create_context_by_id(quad.g.raw)
+    subj_n = @get_or_create_node_by_id(sid)
+    pred_n = @get_or_create_predicate_by_id(pid)
+    cntx_n = @get_or_create_context_by_id(ctxid)
     # set the predicate on the subject
-    if not subj.predicates[pred_id]?
-      subj.predicates[pred_id] = {objects:[]}
-    if quad.o.type is 'uri'
+    if not subj.predicates[pid]?
+      subj.predicates[pid] = {objects:[]}
+    if quad.o.type is @RDF_OBJECT
       # The object is not a literal, but another resource with an uri
       # so we must get (or create) a node to represent it
-      obj_n = @get_or_create_node_by_id(quad.o.raw)
+      obj_n = @get_or_create_node_by_id(quad.o.value)
       # So we have a node for the object of the quad and this quad is relational
       # so there should be links made between this node and that node
-      is_type = is_one_of(pred_id,TYPE_SYNS)
+      is_type = is_one_of(pid,TYPE_SYNS)
       if is_type
-        if @try_to_set_node_type(subj_n,quad.o.raw)
+        if @try_to_set_node_type(subj_n,quad.o.value)
           @develop(subj_n) # might be ready now
       else
         e = new Edge(subj_n,obj_n,pred_n,cntx_n)
@@ -1016,13 +1019,13 @@ class Huviz
         @develop(obj_n)
 
     else
-      #if @same_as(pred_id,rdf_type)
-      #  subj_n.type = quad.o.raw
-      if subj_n.embryo and is_one_of(pred_id,NAME_SYNS)
-        subj_n.name = quad.o.raw
+      #if @same_as(pid,rdf_type)
+      #  subj_n.type = quad.o.value
+      if subj_n.embryo and is_one_of(pid,NAME_SYNS)
+        subj_n.name = quad.o.value
         @develop(subj_n) # might be ready now
       else
-        subj.predicates[pred_id].objects.push(quad.o.raw)
+        subj.predicates[pid].objects.push(quad.o.value)
 
     #@set_type_if_possible(subj,quad,true)
     
@@ -1031,11 +1034,10 @@ class Huviz
 
     ###
     try
-      last_sid = @last_quad.s.raw
+      last_sid = @last_quad.s
     catch e
       last_sid = ""       
-    #console.log(last_sid, quad.s.raw)
-    if last_sid and last_sid isnt quad.s.raw
+    if last_sid and last_sid isnt quad.s
       #if @last_quad
       @fire_nextsubject_event @last_quad,quad
     ###
@@ -1054,23 +1056,45 @@ class Huviz
     @add_to edge,edge.target.links_to
     edge
 
+  parseAndShowTTLStreamer: (data, textStatus) =>
+    # modelled on parseAndShowNQStreamer
+    @set_status "parsing"
+    parse_start_time = new Date()
+    context = "http://universal"
+    if GreenerTurtle? and @turtle_parser is 'GreenerTurtle'
+      @G = new GreenerTurtle().parse(data, "text/turtle")
+      console.log "GreenTurtle"
+    for subj_uri,frame of @G.subjects
+      #console.log "frame:",frame
+      #console.log frame.predicates
+      for pred_id,pred of frame.predicates
+        for obj in pred.objects
+          # this is the right place to convert the ids (URIs) to CURIES
+          #   Or should it be QNames?
+          #      http://www.w3.org/TR/curie/#s_intro
+          @add_quad
+            s: frame.id
+            p: pred.id
+            o: obj # keys: type,value[,language]
+            g: context
+
   parseAndShowTurtle: (data, textStatus) =>
     @set_status "parsing"
     msg = "data was " + data.length + " bytes"
     parse_start_time = new Date()
     
-    #  application/n-quads
-    #  .nq
-    #
     if GreenerTurtle? and @turtle_parser is 'GreenerTurtle'
       @G = new GreenerTurtle().parse(data, "text/turtle")
-
+      console.log "GreenTurtle"
+      
     else if @turtle_parser is 'N3'
+      console.log "N3"
       #N3 = require('N3')
       console.log "n3",N3
       predicates = {}
       parser = N3.Parser()
       parser.parse data, (err,trip,pref) =>
+        console.log trip
         if pref
           console.log pref
         if trip
@@ -1111,18 +1135,29 @@ class Huviz
     @gclui.push_command cmd
     @tick()
 
+  RDF_OJBECT:  "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
+  RDF_LITERAL: "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"
+
+  remove_framing_quotes: (s) -> s.replace(/^\"/,"").replace(/\"$/,"")
   parseAndShowNQStreamer: (uri) ->
     # turning a blob (data) into a stream
     #   http://stackoverflow.com/questions/4288759/asynchronous-for-cycle-in-javascript
-    #   http://www.dustindiaz.com/async-method-queues/    
+    #   http://www.dustindiaz.com/async-method-queues/
+    owl_type_map =
+      uri:     @RDF_OBJECT
+      literal: @RDF_LITERAL
     worker = new Worker('js/xhr_readlines_worker.js')
     worker.addEventListener 'message', (e) =>
       msg = null
       if e.data.event is 'line'
         q = parseQuadLine(e.data.line)
         if q
-          #msg = e.data.line
-          #msg = q.toString()
+          q.s = q.s.raw
+          q.p = q.p.raw
+          q.g = q.g.raw
+          q.o = 
+            type:  owl_type_map[q.o.type]
+            value: @remove_framing_quotes(q.o.toString())
           @add_quad q
       else if e.data.event is 'start'
         msg = "starting to split "+uri
@@ -1143,6 +1178,7 @@ class Huviz
     $("body").css "cursor", "wait"
     if url.match(/.ttl/)
       the_parser = @parseAndShowTurtle
+      the_parser = @parseAndShowTTLStreamer
     else if url.match(/.nq/)
       the_parser = @parseAndShowNQ
       @parseAndShowNQStreamer(url)
@@ -1482,8 +1518,8 @@ class Huviz
     @update_state unlinkee
     
   #
-  #  The DISCARDED are those nodes which the user has
-  #  explicitly asked to not have drawn into the graph.
+  #  The DISCARDED are those nodes which the user has 
+ #  explicitly asked to not have drawn into the graph.
   #  The user expresses this by dropping them in the 
   #  discard_dropzone.
   #
@@ -1801,7 +1837,7 @@ class Deprecated extends Huviz
     @calls_to_onnextsubject++
     #console.log "count:",@calls_to_onnextsubject
     if e.detail.old?
-      subject = @my_graph.subjects[e.detail.old.s.raw]
+      subject = @my_graph.subjects[e.detail.old.s.raw]  # FIXME why is raw still here?
       @set_type_if_possible(subject,e.detail.old,true)
       if @is_ready(subject)
         @get_or_create_node subject
@@ -1818,7 +1854,6 @@ class Deprecated extends Huviz
 
   # deprecated in favour of get_or_create_node
   get_or_make_node: (subject, start_point, linked, into_set) ->
-    #console.log "get_or_make_node",subject
     return unless subject
     d = @get_node_by_id(subject.id)
     return d  if d
@@ -1836,7 +1871,6 @@ class Deprecated extends Huviz
     d.point(start_point)
     d.prev_point([start_point[0]*1.01,start_point[1]*1.01])
     
-    #console.log "get_or_make_node(",d.id,")"
     @assign_types(d)
     d.color = @color_by_type(d)
 
@@ -1895,7 +1929,7 @@ class Deprecated extends Huviz
       return
     #console.log "set_type_if_possible",force,subj.type,subj.id      
     pred_id = quad.p.raw
-    if pred_id in [RDF_Type,'a'] and quad.o.raw is FOAF_Group
+    if pred_id in [RDF_Type,'a'] and quad.o.value is FOAF_Group
       subj.type = ORLANDO_org
     else if force and subj.id[0].match(@bnode_regex)
       subj.type = ORLANDO_other    
@@ -1987,6 +2021,27 @@ class Orlando extends Huviz
       ## unconfuse emacs Coffee-mode: " """ ' '  "        
       super(msg_or_obj) # fail back to super
 
+class OntoViz extends Huviz
+  hierarchy:
+    everything: ['Everything', {classes: ['Classes'], preds: ['Predicates']}]
+
+  ontoviz_type_to_hier_map:
+    'http://www.w3.org/1999/02/22-rdf-syntax-ns#type': "classes"
+    "http://www.w3.org/2002/07/owl#ObjectProperty": "preds"
+    "http://www.w3.org/2002/07/owl#Class": "classes"
+  
+  assign_types: (node) ->
+    # see Orlando.assign_types
+    t = node.type
+    @taxonomy[ontoviz_type_to_hier_map[t]].add(node)
+
+  get_default_set_by_type: (node) ->
+    # see Orlando.get_default_set_by_type
+    return @graphed_set
+
+  try_to_set_node_type: (node,type) ->
+    console.log "try_to_set_node_type",node,type
+    return false
 
 if not is_one_of(2,[3,2,4])
   alert "is_one_of() fails"
@@ -1995,5 +2050,6 @@ if not is_one_of(2,[3,2,4])
 
 (exports ? this).Huviz = Huviz
 (exports ? this).Orlando = Orlando
+(exports ? this).OntoViz = OntoViz
 (exports ? this).Edge = Edge
 
