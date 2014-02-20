@@ -972,13 +972,15 @@ class Huviz
   # add_quad is the standard entrypoint for all data sources
   # It is fires the events:
   #   newsubject
-  object_types: {}
+  object_value_types: {}
+  unique_pids: {}
   add_quad: (quad) ->
     #console.log(quad)
     sid = quad.s
     pid = @make_qname(quad.p)
     ctxid = quad.g
-    @object_types[quad.o.type] = 1
+    @object_value_types[quad.o.type] = 1
+    @unique_pids[pid] = 1
 
     newsubj = false
     subj = null
@@ -1077,7 +1079,12 @@ class Huviz
             p: pred.id
             o: obj # keys: type,value[,language]
             g: context
+    @dump_stats()
 
+  dump_stats: ->
+    console.log "object_value_types:",@object_value_types    
+    console.log "unique_pids:",@unique_pids
+    
   parseAndShowTurtle: (data, textStatus) =>
     @set_status "parsing"
     msg = "data was " + data.length + " bytes"
