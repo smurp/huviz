@@ -43,14 +43,16 @@ dist_lt = (mouse, d, thresh) ->
   y = mouse[1] - d.y
   Math.sqrt(x * x + y * y) < thresh
 
-FOAF_Group = "http://xmlns.com/foaf/0.1/Group"
+FOAF_Group  = "http://xmlns.com/foaf/0.1/Group"
 FOAF_Person = "http://xmlns.com/foaf/0.1/Person"
-FOAF_name = "http://xmlns.com/foaf/0.1/name"
-RDF_Type = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-RDF_a    = 'a'
-TYPE_SYNS = [RDF_Type,RDF_a,'rdf:type']
-NAME_SYNS = [FOAF_name]
-RDF_object = "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
+FOAF_name   = "http://xmlns.com/foaf/0.1/name"
+RDF_literal = "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"
+RDF_object  = "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
+RDF_type    = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+RDF_a       = 'a'
+TYPE_SYNS   = [RDF_type,RDF_a,'rdf:type']
+NAME_SYNS   = [FOAF_name]
+
 
 UNDEFINED = undefined
 start_with_http = new RegExp("http", "ig")
@@ -84,7 +86,7 @@ if true
   default_node_radius_policy = "node radius by links"
 
   has_type = (subject, typ) ->
-    has_predicate_value subject, RDF_Type, typ
+    has_predicate_value subject, RDF_type, typ
 
   has_predicate_value = (subject, predicate, value) ->
     pre = subject.predicates[predicate]
@@ -1004,7 +1006,7 @@ class Huviz
     # set the predicate on the subject
     if not subj.predicates[pid]?
       subj.predicates[pid] = {objects:[]}
-    if quad.o.type is @RDF_OBJECT
+    if quad.o.type is RDF_object
       # The object is not a literal, but another resource with an uri
       # so we must get (or create) a node to represent it
       obj_n = @get_or_create_node_by_id(quad.o.value)
@@ -1142,17 +1144,14 @@ class Huviz
     @gclui.push_command cmd
     @tick()
 
-  RDF_OJBECT:  "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
-  RDF_LITERAL: "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"
-
   remove_framing_quotes: (s) -> s.replace(/^\"/,"").replace(/\"$/,"")
   parseAndShowNQStreamer: (uri) ->
     # turning a blob (data) into a stream
     #   http://stackoverflow.com/questions/4288759/asynchronous-for-cycle-in-javascript
     #   http://www.dustindiaz.com/async-method-queues/
     owl_type_map =
-      uri:     @RDF_OBJECT
-      literal: @RDF_LITERAL
+      uri:     RDF_object
+      literal: RDF_literal
     worker = new Worker('js/xhr_readlines_worker.js')
     worker.addEventListener 'message', (e) =>
       msg = null
@@ -1936,7 +1935,7 @@ class Deprecated extends Huviz
       return
     #console.log "set_type_if_possible",force,subj.type,subj.id      
     pred_id = quad.p.raw
-    if pred_id in [RDF_Type,'a'] and quad.o.value is FOAF_Group
+    if pred_id in [RDF_type,'a'] and quad.o.value is FOAF_Group
       subj.type = ORLANDO_org
     else if force and subj.id[0].match(@bnode_regex)
       subj.type = ORLANDO_other    
@@ -2040,10 +2039,12 @@ class OntoViz extends Huviz
   assign_types: (node) ->
     # see Orlando.assign_types
     t = node.type
+    console.log "assign_types",node
     @taxonomy[ontoviz_type_to_hier_map[t]].add(node)
 
   get_default_set_by_type: (node) ->
     # see Orlando.get_default_set_by_type
+    console.log "get_default_set_by_type",node
     return @graphed_set
 
   try_to_set_node_type: (node,type) ->
