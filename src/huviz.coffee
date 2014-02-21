@@ -50,8 +50,9 @@ RDF_literal = "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"
 RDF_object  = "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
 RDF_type    = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 RDF_a       = 'a'
+RDFS_label  = "http://www.w3.org/2000/01/rdf-schema#label"
 TYPE_SYNS   = [RDF_type,RDF_a,'rdf:type']
-NAME_SYNS   = [FOAF_name]
+NAME_SYNS   = [FOAF_name,RDFS_label]
 
 
 UNDEFINED = undefined
@@ -531,8 +532,9 @@ class Huviz
 
   create_taxonomy: ->
     @taxonomy = {}  # make driven by the hierarchy
-    for nom in ['writers','people','others','orgs']
-      @taxonomy[nom] = SortedSet().named(nom).isFlag().sort_on("id")
+
+  add_to_taxonomy: (nom) ->
+    @taxonomy[nom] = SortedSet().named(nom).isFlag().sort_on("id")
     
   reset_graph: ->
     @init_sets()
@@ -1948,6 +1950,12 @@ class Deprecated extends Huviz
 class Orlando extends Huviz
   # These are the Orlando specific methods layered on Huviz.
   # These ought to be made more data-driven.
+  #
+  create_taxonomy: ->
+    @taxonomy = {}  # make driven by the hierarchy
+    for nom in ['writers','people','others','orgs']
+      @add_to_taxonomy(nom)
+
   ORLANDO_org = 'orl:org'
   ORLANDO_writer = 'orl:writer'
   ORLANDO_other = 'orl:other'
@@ -2029,27 +2037,40 @@ class Orlando extends Huviz
 
 class OntoViz extends Huviz
   hierarchy:
-    everything: ['Everything', {classes: ['Classes'], preds: ['Predicates']}]
+    everything: ['Everything', {classes: ['Classes'], properties: ['Properties']}]
 
   ontoviz_type_to_hier_map:
     'http://www.w3.org/1999/02/22-rdf-syntax-ns#type': "classes"
-    "http://www.w3.org/2002/07/owl#ObjectProperty": "preds"
+    "http://www.w3.org/2002/07/owl#ObjectProperty": "properties"
     "http://www.w3.org/2002/07/owl#Class": "classes"
   
   assign_types: (node) ->
     # see Orlando.assign_types
     t = node.type
-    console.log "assign_types",node
-    @taxonomy[ontoviz_type_to_hier_map[t]].add(node)
+    #console.log "assign_types",node
+    if t
+      if not @taxonomy[t]?
+        @add_to_taxonomy(t)
+      @taxonomy[t].add(node)
+    else:
+      console.log "assign_types failed, missing .type on",node.id
 
   get_default_set_by_type: (node) ->
     # see Orlando.get_default_set_by_type
-    console.log "get_default_set_by_type",node
-    return @graphed_set
+    #console.log "get_default_set_by_type",node
+    return @unlinked_set
 
   try_to_set_node_type: (node,type) ->
-    console.log "try_to_set_node_type",node,type
-    return false
+    # FIXME incorporate into ontoviz_type_to_hier_map
+    if type.match(/Property$/)
+      node.type = 'properties'
+    else if type.match(/Class$/)
+      node.type = 'classes'
+    else
+      console.log node.id+".type is",type
+      return false
+    #console.log "try_to_set_node_type",node.id,"=====",node.type
+    return true
 
 if not is_one_of(2,[3,2,4])
   alert "is_one_of() fails"
