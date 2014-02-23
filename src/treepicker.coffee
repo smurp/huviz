@@ -16,6 +16,8 @@ Build and control a hierarchic menu of arbitrarily nested divs looking like:
 class TreePicker
   constructor: ->
     @id_to_elem = {}
+  uri_to_js_id: (uri) ->
+    uri.match(/([\w\d\_\-]+)$/g)[0]
   show_tree: (tree,i_am_in,listener) ->
     # http://stackoverflow.com/questions/14511872
     for node_id,rest of tree
@@ -45,27 +47,13 @@ class TreePicker
       return r
     contents.append('div').attr('class','container')
   add: (new_id,parent_id,name,listener) ->
+    new_id = @uri_to_js_id(new_id)
+    parent_id = @uri_to_js_id(parent_id)
     branch = {}
     branch[new_id] = [name or new_id]
     parent = @id_to_elem[parent_id]
     container = d3.select(@get_or_create_container(parent)[0][0])
     @show_tree(branch,container,listener)
-  recolor: ->
-    count = 0
-    for id,elem of @id_to_elem
-      count++
-    i = 0
-    retval = {}
-    for id,elem of @id_to_elem
-      i++
-      hue = i/count * 360
-      showing = hsv2rgb(hue,50,100)
-      retval[id] =
-        notshowing:  hsv2rgb(hue,15,100)
-        showing:     showing
-        emphasizing: hsv2rgb(hue,90,100)
-      elem.style("background-color",showing)
-      #console.log "recolor()",id,retval[id]
-    retval
       
 (exports ? this).TreePicker = TreePicker
+

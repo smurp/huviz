@@ -59,6 +59,8 @@ RDFS_label  = "http://www.w3.org/2000/01/rdf-schema#label"
 TYPE_SYNS   = [RDF_type,RDF_a,'rdf:type']
 NAME_SYNS   = [FOAF_name,RDFS_label,'name']
 
+uri_to_js_id = (uri) ->
+  uri.match(/([\w\d\_\-]+)$/g)[0]
 
 UNDEFINED = undefined
 start_with_http = new RegExp("http", "ig")
@@ -1021,14 +1023,13 @@ class Huviz
       # So we have a node for the object of the quad and this quad is relational
       # so there should be links made between this node and that node
       is_type = is_one_of(pid,TYPE_SYNS)
-      if pid is RDF_a
-        console.log "TYPE_ASSIGNMENT",quad
       if is_type
         if @try_to_set_node_type(subj_n,quad.o.value)
           @develop(subj_n) # might be ready now
       else
         e = new Edge(subj_n,obj_n,pred_n,cntx_n)
-        e.color = @gclui.predicate_to_colors[pred_n.id].showing
+        pred_n_js_id = uri_to_js_id(pred_n.id)
+        e.color = @gclui.predicate_picker.get_showing_color(pred_n_js_id)
         edge_e = @add_edge(e)
         @develop(obj_n)
 
@@ -2071,15 +2072,27 @@ class Orlando extends Huviz
 
 class OntoViz extends Huviz
   hierarchy:
-    everything: ['Everything', {classes: ['Classes'], properties: ['Properties']}]
+    everything: ['Everything', {}]
 
+  class_list: []
+  
   ontoviz_type_to_hier_map:
     RDF_type: "classes"
     OWL_ObjectProperty: "properties"
     OWL_Class: "classes"
-  
+
   try_to_set_node_type: (node,type) ->
+    console.log "try_to_set_node_type(",node.id,type,")"
+    type_as_id = uri_to_js_id(type)
+    if not is_one_of(type,@class_list)
+      @class_list.push type_as_id
+      @hierarchy['everything'][1][type_as_id] = [type_as_id]
+    node.type = type_as_id
+    return true
+  
+  DEPRECATED_try_to_set_node_type: (node,type) ->
     # FIXME incorporate into ontoviz_type_to_hier_map
+    # 
     if type.match(/Property$/)
       node.type = 'properties'
     else if type.match(/Class$/)
@@ -2087,7 +2100,7 @@ class OntoViz extends Huviz
     else
       console.log node.id+".type is",type
       return false
-    #console.log "try_to_set_node_type",node.id,"=====",node.type
+    console.log "try_to_set_node_type",node.id,"=====",node.type
     return true
 
 class Socrata extends Huviz

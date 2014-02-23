@@ -9,6 +9,8 @@
 ###
 angliciser = require('angliciser').angliciser
 gcl = require('graphcommandlanguage')
+TreePicker = require('treepicker').TreePicker
+ColoredTreePicker = require('coloredtreepicker').ColoredTreePicker
 class CommandController
   constructor: (@huviz,@container,@hierarchy) ->
     @comdiv = d3.select(@container).append("div")
@@ -86,10 +88,12 @@ class CommandController
     #console.log "onpredicatepicked()",pred_id,@predicate_to_colors
     if selected
       verb = 'show'
-      color = @predicate_to_colors[pred_id].showing
+      #color = @predicate_to_colors[pred_id].showing
+      color = @predicate_picker.get_showing_color(pred_id) #to_colors[pred_id].showing
     else
       verb = 'suppress'
-      color = @predicate_to_colors[pred_id].notshowing
+      #color = @predicate_to_colors[pred_id].notshowing
+      color = @predicate_picker.get_notshowing_color(pred_id)
     #console.log "elem",elem
     elem.style('background-color',color)
 
@@ -105,21 +109,23 @@ class CommandController
   add_newpredicate: (pred_id,parent,pred_name) =>
     #console.log "add_newpredicate()",pred_id,parent
     @predicate_picker.add(pred_id,parent,pred_name,@onpredicatepicked)
-    @predicate_to_colors = @predicate_picker.recolor()
+    #@predicate_to_colors = @predicate_picker.recolor()
     #console.log "predicate_to_colors",@predicate_to_colors
 
   build_predicatepicker: ->
-    tp = require('treepicker')
     #console.log "build_predicatepicker()"
     @predicates_ignored = []
-    @predicate_picker = new tp.TreePicker()
+    @predicate_picker = new ColoredTreePicker()
     @predicate_hierarchy = {'anything':['Anything']}
     @predicate_picker.show_tree(@predicate_hierarchy,@predicatebox,@onpredicatepicked)
     
   build_nodeclasspicker: ->
-    tp = require('treepicker')
-    @node_class_picker = new tp.TreePicker()
+    @node_class_picker = new TreePicker()
     @node_class_picker.show_tree(@hierarchy,@nodeclassbox,@onnodeclasspicked)
+
+  add_newnodeclass: (class_id,parent,class_name) =>
+    @node_class_picker.add(class_id,parent,class_name,)
+    
   onnodeclasspicked: (id,new_state,elem) =>
     if new_state
       if not (id in @node_classes_chosen)
@@ -127,6 +133,7 @@ class CommandController
     else
       @deselect_node_class(id)
     @update_command()
+
   deselect_node_class: (node_class) ->
     @node_classes_chosen = @node_classes_chosen.filter (eye_dee) ->
       eye_dee isnt node_class
