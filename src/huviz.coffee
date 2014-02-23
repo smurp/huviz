@@ -43,16 +43,21 @@ dist_lt = (mouse, d, thresh) ->
   y = mouse[1] - d.y
   Math.sqrt(x * x + y * y) < thresh
 
+# http://dublincore.org/documents/dcmi-terms/
+DC_subject  = "http://purl.org/dc/terms/subject"
+
 FOAF_Group  = "http://xmlns.com/foaf/0.1/Group"
 FOAF_Person = "http://xmlns.com/foaf/0.1/Person"
 FOAF_name   = "http://xmlns.com/foaf/0.1/name"
+OWL_Class   = "http://www.w3.org/2002/07/owl#Class"
+OWL_ObjectProperty = "http://www.w3.org/2002/07/owl#ObjectProperty"
 RDF_literal = "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"
 RDF_object  = "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
 RDF_type    = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 RDF_a       = 'a'
 RDFS_label  = "http://www.w3.org/2000/01/rdf-schema#label"
 TYPE_SYNS   = [RDF_type,RDF_a,'rdf:type']
-NAME_SYNS   = [FOAF_name,RDFS_label]
+NAME_SYNS   = [FOAF_name,RDFS_label,'name']
 
 
 UNDEFINED = undefined
@@ -143,6 +148,7 @@ class Node
     [@px,@py]
     
 class Huviz
+  DEFAULT_CONTEXT: 'http://universal.org/'
   turtle_parser: 'GreenerTurtle'
   #turtle_parser: 'N3'
 
@@ -982,7 +988,7 @@ class Huviz
     #console.log(quad)
     sid = quad.s
     pid = @make_qname(quad.p)
-    ctxid = quad.g
+    ctxid = quad.g || @DEFAULT_CONTEXT
     @object_value_types[quad.o.type] = 1
     @unique_pids[pid] = 1
 
@@ -1015,6 +1021,8 @@ class Huviz
       # So we have a node for the object of the quad and this quad is relational
       # so there should be links made between this node and that node
       is_type = is_one_of(pid,TYPE_SYNS)
+      if pid is RDF_a
+        console.log "TYPE_ASSIGNMENT",quad
       if is_type
         if @try_to_set_node_type(subj_n,quad.o.value)
           @develop(subj_n) # might be ready now
@@ -1180,7 +1188,10 @@ class Huviz
         console.log msg
         #alert msg
     worker.postMessage({uri:uri})
-    
+
+  DUMPER: (data) =>
+    console.log data
+
   fetchAndShow: (url) ->
     $("#status").text "fetching " + url
     $("body").css "cursor", "wait"
@@ -1191,11 +1202,17 @@ class Huviz
       the_parser = @parseAndShowNQ
       @parseAndShowNQStreamer(url)
       return
-          
+    else if url.match(/.json/)
+      console.log "GOT TO HERE"
+      the_parser = @parseAndShowJSON
+      #the_parser = @DUMPER
+      console.log "the_parser",the_parser
+      
     $.ajax
       url: url
       success: the_parser
       error: (jqxhr, textStatus, errorThrown) ->
+        console.log url, errorThrown
         $("#status").text errorThrown + " while fetching " + url
 
   # Deal with buggy situations where flashing the links on and off
@@ -1791,6 +1808,23 @@ class Huviz
     # Does it have an .id and a .type and a .name?
     return node.id? and node.type? and node.name?
 
+  assign_types: (node) ->
+    # see Orlando.assign_types
+    t = node.type
+    if t
+      console.log "assign_type",t,node.id
+      if not @taxonomy[t]?
+        @add_to_taxonomy(t)
+      @taxonomy[t].add(node)
+    else:
+      console.log "assign_types failed, missing .type on",node.id
+
+  get_default_set_by_type: (node) ->
+    # see Orlando.get_default_set_by_type
+    #console.log "get_default_set_by_type",node
+    return @unlinked_set
+
+
 class Deprecated extends Huviz
   
   hide_all_links: ->
@@ -2040,26 +2074,10 @@ class OntoViz extends Huviz
     everything: ['Everything', {classes: ['Classes'], properties: ['Properties']}]
 
   ontoviz_type_to_hier_map:
-    'http://www.w3.org/1999/02/22-rdf-syntax-ns#type': "classes"
-    "http://www.w3.org/2002/07/owl#ObjectProperty": "properties"
-    "http://www.w3.org/2002/07/owl#Class": "classes"
+    RDF_type: "classes"
+    OWL_ObjectProperty: "properties"
+    OWL_Class: "classes"
   
-  assign_types: (node) ->
-    # see Orlando.assign_types
-    t = node.type
-    #console.log "assign_types",node
-    if t
-      if not @taxonomy[t]?
-        @add_to_taxonomy(t)
-      @taxonomy[t].add(node)
-    else:
-      console.log "assign_types failed, missing .type on",node.id
-
-  get_default_set_by_type: (node) ->
-    # see Orlando.get_default_set_by_type
-    #console.log "get_default_set_by_type",node
-    return @unlinked_set
-
   try_to_set_node_type: (node,type) ->
     # FIXME incorporate into ontoviz_type_to_hier_map
     if type.match(/Property$/)
@@ -2071,6 +2089,101 @@ class OntoViz extends Huviz
       return false
     #console.log "try_to_set_node_type",node.id,"=====",node.type
     return true
+
+class Socrata extends Huviz
+  ###
+  # Inspired by https://data.edmonton.ca/
+  #             https://data.edmonton.ca/api/views{,.json,.rdf,...}
+  #
+  ###
+  categories = {}
+  ensure_category: (category_name) ->
+    cat_id = category_name.replace /\w/, '_'
+    if @categories[category_id]?
+      @categories[category_id] = category_name
+      @assert_name category_id,category_name
+      @assert_instanceOf category_id,DC_subject
+    return cat_id
+
+  assert_name: (uri,name,g) ->
+    @add_quad
+      s: uri
+      p: RDFS_label
+      o:
+        type: RDF_literal
+        value: name
+
+  assert_instanceOf: (inst,clss,g) ->
+    @add_quad
+      s: inst
+      p: RDF_a
+      o:
+        type: RDF_object
+        value: clss
+
+  assert_propertyValue: (sub_uri,pred_uri,literal) ->
+    console.log "assert_propertyValue",arguments
+    @add_quad
+      s: subj_uri
+      p: pred_uri
+      o:
+        type: RDF_literal
+        value: literal 
+
+  assert_relation: (subj_uri,pred_uri,obj_uri) ->
+    console.log "assert_relation", arguments
+    @add_quad
+      s: subj_uri
+      p: pred_uri
+      o:
+        type: RDF_object
+        value: obj_uri
+        
+  parseAndShowJSON: (data) =>
+    console.log("parseAndShowJSON",data)
+    #g = @DEFAULT_CONTEXT
+
+    #  https://data.edmonton.ca/api/views/sthd-gad4/rows.json
+
+    for dataset in data
+      #dataset_uri = "https://data.edmonton.ca/api/views/#{dataset.id}/"
+      console.log dataset_uri
+      q = 
+        g: g
+        s: dataset_uri
+        p: RDF_a
+        o:
+          type: RDF_literal
+          value: 'dataset'
+      console.log q
+      @add_quad q
+      for k,v of dataset
+        if not is_on_of(k,['category','name','id']) # ,'displayType'
+          continue
+        q =
+          g: g
+          s: dataset_uri
+          p: k
+          o:
+            type:  RDF_literal
+            value: v          
+        if k == 'category'
+          cat_id = @ensure_category(v)
+          @assert_instanceOf dataset_uri,OWL_Class
+          continue
+        if k == 'name'
+          assert_propertyValue dataset_uri, RDFS_label, v
+          continue
+        continue
+        
+        if typeof v == 'object'
+          continue
+        if k is 'name'
+          console.log dataset.id,v
+        #console.log k,typeof v
+        @add_quad q
+        #console.log q
+        
 
 if not is_one_of(2,[3,2,4])
   alert "is_one_of() fails"

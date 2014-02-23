@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Edmonton Open Data Visualization</title>
+    <link href="/css/huvis.css" rel="stylesheet" type="text/css">
+    <link href="/css/huvis_controls.css" rel="stylesheet" type="text/css">
+    <link href="/css/lariat.css" rel="stylesheet" type="text/css">
+    <link href="/css/CRRT.css" rel="stylesheet" type="text/css">
+    <link href="/css/gclui.css" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+    <div class="graph_controls">
+      <div>
+        <label title="the amount bigger than a normal label the currently selected one is">
+          focused node mag.
+	  <input name="focused_mag" type="range"
+                 value="1.4" min="1" max="3" step=".1"
+                 onchange="HVZ.update_graph_settings(this)">
+        </label>
+      </div>
+      <div>
+        <label title="the size of the font">
+          label size (em)
+  	  <input name="label_em" type="range" 
+                 value=".3" min=".2" max="4" step=".1"
+                 onchange="HVZ.update_graph_settings(this)">
+        </label>
+      </div>
+      <div>
+        <label title="the repulsive charge between nodes">
+          charge
+	  <input name="charge" type="range"
+                 value="-30" max="10" min="-2000" step="10"
+                 onchange="HVZ.update_graph_settings(this)">
+        </label>
+      </div>
+      <div>
+        <label title="the attractive force keeping nodes centered">
+          gravity
+	  <input name="gravity" type="range"
+                 value="0.3" min="0" max="1" step=".05"
+                 onchange="HVZ.update_graph_settings(this)">
+        </label>
+      </div>
+      <div>
+        <label title="how big the shelf is">
+          shelf radius
+	  <input name="shelf_radius" type="range"
+                 value="0.9" min="0.1" max="3" step=".05"
+                 onchange="HVZ.update_graph_settings(this)">
+        </label>
+      </div>
+      <div>
+        <label title="how much magnification happens">
+          fisheye zoom
+	  <input name="fisheye_zoom" type="range"
+                 value="6.0" min="1" max="20" step=".2"
+                 onchange="HVZ.update_graph_settings(this)">
+        </label>
+      </div>
+      <div>
+        <label title="how big the fisheye is">
+          fisheye radius
+	  <input name="fisheye_radius" type="range"
+                 value="100" min="40" max="2000" step="20"
+                 onchange="HVZ.update_graph_settings(this)">
+        </label>
+      </div>
+      <div>
+        <label title="how fat the nodes are">
+          node radius
+	  <input name="node_radius" type="range"
+                 value=".5" min=".2" max="8" step=".1"
+                 onchange="HVZ.update_graph_settings(this)">
+        </label>
+      </div>
+      <div>
+        <label title="how long the lines are">
+          link distance
+	  <input name="link_distance" type="range"
+                 value="60" min="5" max="200" step="2"
+                 onchange="HVZ.update_graph_settings(this)">
+        </label>
+      </div>
+      <div>
+        <label title="how thick the lines are">
+          line thickness
+	  <input name="edge_width" type="range"
+                 value="1" min="0.2" max="10" step=".2"
+                 onchange="HVZ.update_graph_settings(this)">
+        </label>
+      </div>
+      <div>
+        <label title="how much curvature lines have">
+          sway fraction
+	  <input name="swayfrac" type="range"
+                 value="0" min="0" max=".2" step=".001"
+                 onchange="HVZ.update_graph_settings(this)">
+        </label>
+      </div>
+      <div>
+        <label title="which file to load">
+          data set
+          <select class="file_picker" onchange="HVZ.load_file(this)" >
+            <option>/data/yeg.json</option>
+          </select>
+        </label>
+      </div>
+    </div>
+    <div id="snippet_box">
+    </div>
+    <div id="huvis_controls">
+      <div id="gclui"></div>
+    </div>
+    <div id="vis" class="underneath" style="z-index:-3"></div>
+    <div id="viscanvas" class="underneath"></div>
+    <div id="status" onclick="clear_box()"></div>
+    <!--
+      <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
+     -->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script>window.exports = {};</script>
+    <script src="application.js?13"></script>
+    <script>
+      var gcl = require('graphcommandlanguage');
+      if (location.hash.match(/testsuite/)){
+        window.addEventListener('showgraph',testsuite);
+      }
+      //window.addEventListener('showgraph',function(){   });
+
+      document.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+      }, false);
+
+      var HVZ;
+      window.addEventListener('load',function(){
+        huviz = require('huviz');
+        HVZ = new huviz.Socrata();
+        HVZ.load_file();
+      });
+
+      /*
+      window.addEventListener('newsubject',function(e){
+        alert("new subject: "+e.detail.sid)
+      });
+      */
+
+    </script>
+  </body>
+</html>
+
