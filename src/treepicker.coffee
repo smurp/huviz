@@ -14,8 +14,10 @@ Build and control a hierarchic menu of arbitrarily nested divs looking like:
 ###
   
 class TreePicker
-  constructor: ->
+  constructor: (elem) ->
+    @elem = d3.select(elem)
     @id_to_elem = {}
+    @ids_in_arrival_order = []
   uri_to_js_id: (uri) ->
     uri.match(/([\w\d\_\-]+)$/g)[0]
   show_tree: (tree,i_am_in,listener) ->
@@ -46,12 +48,17 @@ class TreePicker
     if r[0][0] isnt null
       return r
     contents.append('div').attr('class','container')
+  get_top: ->
+    return @ids_in_arrival_order[0] or @id
   add: (new_id,parent_id,name,listener) ->
+    @ids_in_arrival_order.push(new_id)
+    name = name? and name or new_id
+    parent_id = parent_id? and parent_id or @get_top() 
     new_id = @uri_to_js_id(new_id)
     parent_id = @uri_to_js_id(parent_id)
     branch = {}
     branch[new_id] = [name or new_id]
-    parent = @id_to_elem[parent_id]
+    parent = @id_to_elem[parent_id] or @elem
     container = d3.select(@get_or_create_container(parent)[0][0])
     @show_tree(branch,container,listener)
       

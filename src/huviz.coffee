@@ -541,8 +541,9 @@ class Huviz
   create_taxonomy: ->
     @taxonomy = {}  # make driven by the hierarchy
 
-  add_to_taxonomy: (nom) ->
-    @taxonomy[nom] = SortedSet().named(nom).isFlag().sort_on("id")
+  add_to_taxonomy: (type_id) ->
+    @taxonomy[type_id] = SortedSet().named(type_id).isFlag().sort_on("id")
+    @gclui.add_newnodeclass(type_id)
     
   reset_graph: ->
     @init_sets()
@@ -1204,10 +1205,8 @@ class Huviz
       @parseAndShowNQStreamer(url)
       return
     else if url.match(/.json/)
-      console.log "GOT TO HERE"
       the_parser = @parseAndShowJSON
       #the_parser = @DUMPER
-      console.log "the_parser",the_parser
       
     $.ajax
       url: url
@@ -1430,7 +1429,7 @@ class Huviz
     new_set = @get_default_set_by_type(node)
     if new_set?
       new_set.acquire(node)
-    @assign_types(node)
+    @assign_types(node,"hatch")
     start_point = [@cx,@cy]
     node.point(start_point)
     node.prev_point([start_point[0]*1.01,start_point[1]*1.01])
@@ -1716,10 +1715,14 @@ class Huviz
     # on a GraphCommand
     return {id: thing.id}
 
+  populate_taxonomy: () ->
+    
+
   constructor: ->
     window.addEventListener 'nextsubject', @onnextsubject
     @init_sets()
     @init_gclc()
+    @populate_taxonomy()
     @init_snippet_box()
     @mousedown_point = [@cx,@cy]
     @discard_point = [@cx,@cy]
@@ -1809,16 +1812,17 @@ class Huviz
     # Does it have an .id and a .type and a .name?
     return node.id? and node.type? and node.name?
 
-  assign_types: (node) ->
+  assign_types: (node,within) ->
     # see Orlando.assign_types
-    t = node.type
-    if t
-      console.log "assign_type",t,node.id
-      if not @taxonomy[t]?
-        @add_to_taxonomy(t)
-      @taxonomy[t].add(node)
+    type_id = node.type
+    if type_id
+      console.log "assign_type",type_id,"to",node.id,"within",within
+      if not @taxonomy[type_id]?
+        @add_to_taxonomy(type_id)
+      @taxonomy[type_id].add(node)
+      
     else:
-      console.log "assign_types failed, missing .type on",node.id
+      console.log "assign_types failed, missing .type on",node.id,"within",within
 
   get_default_set_by_type: (node) ->
     # see Orlando.get_default_set_by_type
@@ -1988,14 +1992,17 @@ class Orlando extends Huviz
   #
   create_taxonomy: ->
     @taxonomy = {}  # make driven by the hierarchy
-    for nom in ['writers','people','others','orgs']
-      @add_to_taxonomy(nom)
+
+  populate_taxonomy: ->
+  #  for nom in ['writers','people','others','orgs']
+  #    @add_to_taxonomy(nom)
 
   ORLANDO_org = 'orl:org'
   ORLANDO_writer = 'orl:writer'
   ORLANDO_other = 'orl:other'
   calls_to_onnextsubject: 0
   hierarchy: { 'everything': ['Everything', {people: ['People', {writers: ['Writers'], others: ['Others']}], orgs: ['Organizations']}]}
+  #hierarchy: { 'everything': ['Everything', {}]}
   bnode_regex: /^\_\:|^[A-Z]/
   try_to_set_node_type: (node,type) ->
     if type is FOAF_Group
@@ -2010,7 +2017,7 @@ class Orlando extends Huviz
     true
 
   # This is a hacky Orlando-specific way to assign a type to a node (not the subject!)
-  assign_types: (node) ->
+  DEFUNCT_assign_types: (node) ->
     # TODO(smurp) this should be based on node.type
     #return unless node.s? and node.s.type?
     t = node.type
@@ -2071,8 +2078,13 @@ class Orlando extends Huviz
       super(msg_or_obj) # fail back to super
 
 class OntoViz extends Huviz
-  hierarchy:
-    everything: ['Everything', {}]
+  constructor: ->
+    super()
+    #@gclui.node_class_picker.add('everything',null,'Everything!')
+
+  hierarchy: {'everything': ['Everything', {}]}
+  #hierarchy:
+  #  everything: ['Everything', {}]
 
   class_list: []
   

@@ -20,15 +20,15 @@ class CommandController
     @oldcommands = @cmdlist.append('div').attr('class','commandhistory')
     @nextcommandbox = @comdiv.append('div')
     @verbdiv = @comdiv.append('div').attr('class','verbs')
-    @taxdiv = @comdiv.append('div').attr('class','taxonomydiv')
+    #@taxdiv = @comdiv.append('div').attr('class','taxonomydiv')
     @add_clear_both(@comdiv)
-    @nodeclassbox = @comdiv.append('div').classed('container',true)
-    @add_clear_both(@comdiv)    
-    @predicatebox = @comdiv.append('div').classed('container',true)    
-    @node_classes_chosen = [] # new SortedSet()
     @build_nodeclasspicker()
+    @add_clear_both(@comdiv)
+    @build_predicatepicker()
+    @node_classes_chosen = [] # new SortedSet()
+
     @likediv = @comdiv.append('div')
-    @build_predicatepicker()    
+
     @build_form()
     @update_command()
 
@@ -114,17 +114,21 @@ class CommandController
 
   build_predicatepicker: ->
     #console.log "build_predicatepicker()"
+    id = 'predicates'
+    @predicatebox = @comdiv.append('div').classed('container',true).attr('id',id)
     @predicates_ignored = []
-    @predicate_picker = new ColoredTreePicker()
+    @predicate_picker = new ColoredTreePicker(@predicatebox)
     @predicate_hierarchy = {'anything':['Anything']}
     @predicate_picker.show_tree(@predicate_hierarchy,@predicatebox,@onpredicatepicked)
     
   build_nodeclasspicker: ->
-    @node_class_picker = new TreePicker()
+    id = 'classes'
+    @nodeclassbox = @comdiv.append('div').classed('container',true).attr('id',id)
+    @node_class_picker = new ColoredTreePicker(id)
     @node_class_picker.show_tree(@hierarchy,@nodeclassbox,@onnodeclasspicked)
 
   add_newnodeclass: (class_id,parent,class_name) =>
-    @node_class_picker.add(class_id,parent,class_name,)
+    @node_class_picker.add(class_id,parent,class_name,@onnodeclasspicked)
     
   onnodeclasspicked: (id,new_state,elem) =>
     if new_state

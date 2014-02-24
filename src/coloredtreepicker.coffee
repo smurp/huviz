@@ -2,8 +2,8 @@
 TreePicker = require('treepicker').TreePicker
   
 class ColoredTreePicker extends TreePicker
-  constructor: ->
-    super()
+  constructor: (elem) ->
+    super(elem)
     @mapping_to_colors = {}
   add: (new_id,parent_id,name,listener) ->
     super(new_id,parent_id,name,listener)
