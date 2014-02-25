@@ -992,6 +992,7 @@ class Huviz
     sid = quad.s
     pid = @make_qname(quad.p)
     ctxid = quad.g || @DEFAULT_CONTEXT
+    short_sid = uri_to_js_id(sid)
     @object_value_types[quad.o.type] = 1
     @unique_pids[pid] = 1
 
@@ -1001,6 +1002,7 @@ class Huviz
       newsubj = true
       subj =
         id: sid
+        name: short_sid
         predicates: {}
       @my_graph.subjects[sid] = subj
     else
@@ -1038,7 +1040,7 @@ class Huviz
       #if @same_as(pid,rdf_type)
       #  subj_n.type = quad.o.value
       if subj_n.embryo and is_one_of(pid,NAME_SYNS)
-        subj_n.name = quad.o.value
+        subj_n.name = quad.o.value.replace(/^\s+|\s+$/g, '')
         @develop(subj_n) # might be ready now
       else
         subj.predicates[pid].objects.push(quad.o.value)
@@ -1816,13 +1818,14 @@ class Huviz
     # see Orlando.assign_types
     type_id = node.type
     if type_id
-      console.log "assign_type",type_id,"to",node.id,"within",within
+      console.log "assign_type",type_id,"to",node.id,"within",within,type_id
       if not @taxonomy[type_id]?
         @add_to_taxonomy(type_id)
       @taxonomy[type_id].add(node)
       
-    else:
-      console.log "assign_types failed, missing .type on",node.id,"within",within
+    else
+      throw "there must be a .type before hatch can even be called:"+node.id+ " "+type_id
+      #console.log "assign_types failed, missing .type on",node.id,"within",within,type_id
 
   get_default_set_by_type: (node) ->
     # see Orlando.get_default_set_by_type
@@ -2131,12 +2134,13 @@ class Socrata extends Huviz
     return cat_id
 
   assert_name: (uri,name,g) ->
+    name = name.replace(/^\s+|\s+$/g, '')
     @add_quad
       s: uri
       p: RDFS_label
       o:
         type: RDF_literal
-        value: name
+        value: stripped_name
 
   assert_instanceOf: (inst,clss,g) ->
     @add_quad
