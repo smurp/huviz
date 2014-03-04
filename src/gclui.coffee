@@ -118,14 +118,14 @@ class CommandController
     @predicatebox = @comdiv.append('div').classed('container',true).attr('id',id)
     @predicatebox.attr('class','scrolling')
     @predicates_ignored = []
-    @predicate_picker = new ColoredTreePicker(@predicatebox)
+    @predicate_picker = new ColoredTreePicker(@predicatebox,'anything')
     @predicate_hierarchy = {'anything':['Anything']}
     @predicate_picker.show_tree(@predicate_hierarchy,@predicatebox,@onpredicatepicked)
     
   build_nodeclasspicker: ->
     id = 'classes'
     @nodeclassbox = @comdiv.append('div').classed('container',true).attr('id',id)
-    @node_class_picker = new ColoredTreePicker(id)
+    @node_class_picker = new ColoredTreePicker(@nodeclassbox,'everything')
     @node_class_picker.show_tree(@hierarchy,@nodeclassbox,@onnodeclasspicked)
 
   add_newnodeclass: (class_id,parent,class_name) =>

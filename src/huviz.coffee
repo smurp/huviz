@@ -150,6 +150,8 @@ class Node
     [@px,@py]
     
 class Huviz
+  hierarchy: {'everything': ['Everything', {}]}
+  default_color: "brown"
   DEFAULT_CONTEXT: 'http://universal.org/'
   turtle_parser: 'GreenerTurtle'
   #turtle_parser: 'N3'
@@ -1074,6 +1076,14 @@ class Huviz
     @add_to edge,edge.target.links_to
     edge
 
+  try_to_set_node_type: (node,type) ->
+    type_as_id = uri_to_js_id(type)
+    if not is_one_of(type,@class_list)
+      @class_list.push type_as_id
+      @hierarchy['everything'][1][type_as_id] = [type_as_id]
+    node.type = type_as_id
+    return true
+
   parseAndShowTTLStreamer: (data, textStatus) =>
     # modelled on parseAndShowNQStreamer
     @set_status "parsing"
@@ -1802,9 +1812,9 @@ class Huviz
     @fetchAndShow data_uri  unless @G.subjects
     @init_webgl()  if @use_webgl
 
-  default_color: "brown"
   color_by_type: (d) ->
-    return @default_color
+    color = @gclui.node_class_picker.get_showing_color(d.type)
+    color or @default_color
 
   is_ready: (node) ->
     # This should really be performed on NODES not subjects, meaning nodes should
@@ -1818,7 +1828,7 @@ class Huviz
     # see Orlando.assign_types
     type_id = node.type
     if type_id
-      console.log "assign_type",type_id,"to",node.id,"within",within,type_id
+      #console.log "assign_type",type_id,"to",node.id,"within",within,type_id
       if not @taxonomy[type_id]?
         @add_to_taxonomy(type_id)
       @taxonomy[type_id].add(node)
@@ -1833,161 +1843,6 @@ class Huviz
     return @unlinked_set
 
 
-class Deprecated extends Huviz
-  
-  hide_all_links: ->
-    @nodes.forEach (node) =>
-      #node.linked = false;
-      #node.fixed = false;	
-      @unlinked_set.acquire node
-      node.links_shown = []
-      node.showing_links = "none"
-      @unlinked_set.acquire node
-      @update_showing_links node
-
-    @links_set.forEach (link) =>
-      @remove_ghosts link
-
-    @links_set.clear()
-    @chosen_set.clear()
-    
-    # It should not be neccessary to clear discarded_set or hidden_set()
-    # because unlinked_set.acquire() should have accomplished that
-    @restart()
-
-  toggle_links: ->
-    #console.log("links",force.links());
-    unless @links_set.length
-      @make_links G
-      @restart()
-    @force.links().length
-
-  fire_nextsubject_event: (oldquad,newquad) ->
-    #console.log "fire_nextsubject_event",oldquad
-    window.dispatchEvent(
-      new CustomEvent 'nextsubject',
-        detail:
-          old: oldquad
-          new: newquad
-        bubbles: true
-        cancelable: true
-    )
-
-  onnextsubject: (e) =>
-    alert "sproing"
-    #console.log "onnextsubject: called",e
-    # The event 'nextsubject' is fired when the subject of add_quad()
-    # is different from the last call to add_quad().  It will also be
-    # called when the data source has been exhausted. Our purpose
-    # in listening for this situation is that this is when we ought
-    # to check to see whether there is now enough information to create
-    # a node.  A node must have an ID, a name and a type for it to
-    # be worth making a node for it (at least in the orlando situation).
-    # The ID is the uri (or the id if a BNode)
-    @calls_to_onnextsubject++
-    #console.log "count:",@calls_to_onnextsubject
-    if e.detail.old?
-      subject = @my_graph.subjects[e.detail.old.s.raw]  # FIXME why is raw still here?
-      @set_type_if_possible(subject,e.detail.old,true)
-      if @is_ready(subject)
-        @get_or_create_node subject
-        @tick()
-          
-  show_found_links: ->
-    for sub_id of @G.subjects
-      subj = @G.subjects[sub_id]
-      subj.getValues("f:name").forEach (name) =>
-        if name.match(@search_regex)
-          node = @get_or_make_node(subj, [cx,cy])
-          @show_node_links node  if node
-    @restart()
-
-  # deprecated in favour of get_or_create_node
-  get_or_make_node: (subject, start_point, linked, into_set) ->
-    return unless subject
-    d = @get_node_by_id(subject.id)
-    return d  if d
-    start_point = start_point or [
-      @width / 2
-      @height / 2
-    ]
-    linked = typeof linked is "undefined" or linked or false
-    name_obj = subject.predicates[FOAF_name].objects[0]
-    name = name_obj.value? and name_obj.value or name_obj
-    #name = subject.predicates[FOAF_name].objects[0].value
-    d = new Node(subject.id)
-    d.s = subject
-    d.name = name
-    d.point(start_point)
-    d.prev_point([start_point[0]*1.01,start_point[1]*1.01])
-    
-    @assign_types(d)
-    d.color = @color_by_type(d)
-
-    @add_node_ghosts d
-    #n_idx = @add_to_array(d, @nodes)
-    n_idx = @nodes.add(d)
-    @id2n[subject.id] = n_idx
-    if false
-      unless linked
-        n_idx = @unlinked_set.acquire(d)
-        @id2u[subject.id] = n_idx
-      else
-        @id2u[subject.id] = @graphed_set.acquire(d)
-    else
-      into_set = into_set? and into_set or linked and @graphed_set or @get_default_set_by_type(d)
-      into_set.acquire(d)
-    @update_showing_links d
-    d
-  
-  find_links_from_node: (node) ->
-    target = undefined
-    subj = node.s
-    x = node.x or width / 2
-    y = node.y or height / 2
-    pnt = [x,y]
-    oi = undefined
-    if subj
-      for p_name of subj.predicates
-        @ensure_predicate(p_name)
-        predicate = subj.predicates[p_name]
-        oi = 0
-        predicate.objects.forEach (obj,i) =>
-          if obj.type is RDF_object
-            target = @get_or_make_node(@G.subjects[obj.value], pnt)
-          if target
-            @add_link( new Edge(node, target))
-    node.links_from_found = true
-
-  find_links_to_node: (d) ->
-    subj = d.s
-    if subj
-      parent_point = [d.x,d.y]
-      @G.get_incoming_predicates(subj).forEach (sid_pred) =>
-        sid = sid_pred[0]
-        pred = sid_pred[1]
-        src = @get_or_make_node(@G.subjects[sid], parent_point)
-        @add_link( new Edge(src, d))
-    d.links_to_found = true
-  
-  set_type_if_possible: (subj,quad,force) ->
-    # This is a hack, ideally we would look on the subject for type at coloring
-    # and taxonomy assignment time but more thought is needed on how to
-    # integrate the semantic perspective with the coloring and the 'taxonomy'.
-    force = not not force? and force
-    if not subj.type? and subj.type isnt ORLANDO_writer and not force
-      return
-    #console.log "set_type_if_possible",force,subj.type,subj.id      
-    pred_id = quad.p.raw
-    if pred_id in [RDF_type,'a'] and quad.o.value is FOAF_Group
-      subj.type = ORLANDO_org
-    else if force and subj.id[0].match(@bnode_regex)
-      subj.type = ORLANDO_other    
-    else if force
-      subj.type = ORLANDO_writer
-    if subj.type?
-      name = subj.predicates[FOAF_name]? and subj.predicates[FOAF_name].objects[0] or subj.id
-      #console.log "   ",subj.type
 
 class Orlando extends Huviz
   # These are the Orlando specific methods layered on Huviz.
@@ -2000,63 +1855,9 @@ class Orlando extends Huviz
   #  for nom in ['writers','people','others','orgs']
   #    @add_to_taxonomy(nom)
 
-  ORLANDO_org = 'orl:org'
-  ORLANDO_writer = 'orl:writer'
-  ORLANDO_other = 'orl:other'
-  calls_to_onnextsubject: 0
-  hierarchy: { 'everything': ['Everything', {people: ['People', {writers: ['Writers'], others: ['Others']}], orgs: ['Organizations']}]}
-  #hierarchy: { 'everything': ['Everything', {}]}
-  bnode_regex: /^\_\:|^[A-Z]/
-  try_to_set_node_type: (node,type) ->
-    if type is FOAF_Group
-      node.type = ORLANDO_org
-    else if type is FOAF_Person
-      node.type = ORLANDO_other
-    else if type.match(/^orl/)
-      node.type = type
-    else
-      console.log node.id+".type is",type
-      return false
-    true
+  #hierarchy: { 'everything': ['Everything', {people: ['People', {writers: ['Writers'], others: ['Others']}], orgs: ['Organizations']}]}
 
-  # This is a hacky Orlando-specific way to assign a type to a node (not the subject!)
-  DEFUNCT_assign_types: (node) ->
-    # TODO(smurp) this should be based on node.type
-    #return unless node.s? and node.s.type?
-    t = node.type
-    if t is ORLANDO_org
-      @taxonomy['orgs'].add(node)
-    else if t is ORLANDO_other
-      @taxonomy['people'].add(node)
-      @taxonomy['others'].add(node)      
-    else if t is ORLANDO_writer
-      @taxonomy['people'].add(node)
-      @taxonomy['writers'].add(node)    
-
-  get_default_set_by_type: (d) ->
-    t = d.type # TODO(smurp) this should be based on node.type not node.subj.type
-    resp = null
-    if t is ORLANDO_org
-      resp = @hidden_set
-    else if t is ORLANDO_other
-      resp = @hidden_set
-    else if t is ORLANDO_writer
-      resp = @unlinked_set
-    else
-      console.log t,"not in", [ORLANDO_org,ORLANDO_other,ORLANDO_writer]
-    #console.log "get_default_set_by_type",t,"==>",resp.state_name
-    return resp
-    
-  color_by_type: (d) ->    
-    if d.orgs?
-      "green" 
-    else if d.others?
-      "red" 
-    else if d.writers?
-      "blue"
-    else
-      super()
-
+  class_list: []
   push_snippet: (msg_or_obj) ->
     if @snippet_box
       if typeof msg_or_obj isnt 'string'
@@ -2085,25 +1886,12 @@ class OntoViz extends Huviz
     super()
     #@gclui.node_class_picker.add('everything',null,'Everything!')
 
-  hierarchy: {'everything': ['Everything', {}]}
-  #hierarchy:
-  #  everything: ['Everything', {}]
-
   class_list: []
   
   ontoviz_type_to_hier_map:
     RDF_type: "classes"
     OWL_ObjectProperty: "properties"
     OWL_Class: "classes"
-
-  try_to_set_node_type: (node,type) ->
-    console.log "try_to_set_node_type(",node.id,type,")"
-    type_as_id = uri_to_js_id(type)
-    if not is_one_of(type,@class_list)
-      @class_list.push type_as_id
-      @hierarchy['everything'][1][type_as_id] = [type_as_id]
-    node.type = type_as_id
-    return true
   
   DEPRECATED_try_to_set_node_type: (node,type) ->
     # FIXME incorporate into ontoviz_type_to_hier_map

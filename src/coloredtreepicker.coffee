@@ -2,8 +2,8 @@
 TreePicker = require('treepicker').TreePicker
   
 class ColoredTreePicker extends TreePicker
-  constructor: (elem) ->
-    super(elem)
+  constructor: (elem,root) ->
+    super(elem,root)
     @mapping_to_colors = {}
   add: (new_id,parent_id,name,listener) ->
     super(new_id,parent_id,name,listener)
@@ -23,7 +23,7 @@ class ColoredTreePicker extends TreePicker
         showing:     showing
         emphasizing: hsv2rgb(hue,90,100)
       elem.style("background-color",showing)
-      #console.log "recolor()",id,retval[id]
+    #console.log "ColoredTreePicker.add:",[id for id,colors of retval]
     retval
   get_showing_color: (id) ->
     id = @uri_to_js_id(id)
