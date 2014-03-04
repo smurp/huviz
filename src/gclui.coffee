@@ -116,6 +116,7 @@ class CommandController
     #console.log "build_predicatepicker()"
     id = 'predicates'
     @predicatebox = @comdiv.append('div').classed('container',true).attr('id',id)
+    @predicatebox.attr('class','scrolling')
     @predicates_ignored = []
     @predicate_picker = new ColoredTreePicker(@predicatebox)
     @predicate_hierarchy = {'anything':['Anything']}

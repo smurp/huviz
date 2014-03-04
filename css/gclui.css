@@ -114,4 +114,8 @@ p {
 .picked_branch {
     background-color: tan;
 }
+.scrolling {
+    overflow-y: scroll;
+    height: 10em;
+}
 /* display: inline-block and white-space: nowrap */
