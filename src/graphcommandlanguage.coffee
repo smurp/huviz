@@ -146,16 +146,22 @@ class GraphCommand
       # console.log "meth",meth
       # for node in nodes
       #  retval = meth.call(@graph_ctrl,node)
-      iter = (node) =>
-        #console.log meth,node
-        retval = meth.call(@graph_ctrl,node)
-        #console.log "retval =",retval
-        @graph_ctrl.tick()
-      async.eachSeries nodes,iter,(err) ->
+      err = (gack) ->
         if err
           console.log "err =",err
         else
           console.log "DONE .execute()"
+      iter = (node) =>
+        #console.log meth,node
+        #console.log "execute",meth,node
+        retval = meth.call(@graph_ctrl,node)        
+        #console.log "retval =",retval
+        @graph_ctrl.tick()
+      #async.eachSeries nodes,iter,err
+      async.each nodes,iter,err
+      #for node in nodes
+      #  iter node
+        
     #retval
   update_str: ->
     missing = '____'
