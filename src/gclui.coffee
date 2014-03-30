@@ -171,6 +171,25 @@ class CommandController
     discard: ['choose','retrieve','hide']
     hide: ['discard','undiscard','label']
 
+  verb_descriptions:
+    choose: "Put nodes in the graph."
+    shelve: "Remove nodes from the graph and put them on the shelf
+             (the circle of nodes around the graph) from which they
+             might return if called back into the graph by "
+    hide: "Remove nodes from the grpah and don't display them anywhere,
+           though they might be called back into the graph when some
+           other node calls it back in to show an edge."
+    label: "Show the node's labels."
+    unlabel: "Stop showing the node's labels."
+    discard: "Put nodes in the discard bin (the small red circle) from
+              which they do not get called back into the graph unless
+              they are retrieved."
+    undiscard: "Retrieve nodes from the discard bin (the small red circle)."
+    print: "Print associated snippets."
+    redact: "Hide the associated snippets."
+    show: "Show edges: 'Show (nodes) regarding (edges).'"
+    suppress: "Stop showing: 'Suppress (nodes) regarding (edges).'"
+
   build_form: () ->
     @build_verb_form()
     @build_like()
@@ -265,6 +284,8 @@ class CommandController
   verb_control: {}
   append_verb_control: (id,label,alternatives) ->
     vbctl = alternatives.append('div').attr("class","verb")
+    if @verb_descriptions[id]
+      vbctl.attr("title",@verb_descriptions[id])
     @verb_control[id] = vbctl
     vbctl.text(label)
     that = @
