@@ -13,6 +13,7 @@ TreePicker = require('treepicker').TreePicker
 ColoredTreePicker = require('coloredtreepicker').ColoredTreePicker
 class CommandController
   constructor: (@huviz,@container,@hierarchy) ->
+    d3.select(@container).html("")
     @comdiv = d3.select(@container).append("div")
     #@gclpane = @comdiv.append('div').attr('class','gclpane')
     @cmdlist = @comdiv.append('div').attr('class','commandlist')

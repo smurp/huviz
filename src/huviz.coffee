@@ -549,6 +549,7 @@ class Huviz
     
   reset_graph: ->
     @init_sets()
+    @init_gclc()
     @force.nodes @nodes
     d3.select(".link").remove()
     d3.select(".node").remove()
@@ -1732,8 +1733,9 @@ class Huviz
 
   constructor: ->
     window.addEventListener 'nextsubject', @onnextsubject
-    @init_sets()
-    @init_gclc()
+    #@reset_graph() # FIXME should it be a goal to make this first?
+    @init_sets()    #   because these are the first two lines of reset_graph
+    @init_gclc()   
     @populate_taxonomy()
     @init_snippet_box()
     @mousedown_point = [@cx,@cy]
