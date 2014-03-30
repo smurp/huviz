@@ -780,10 +780,10 @@ class Huviz
         if @use_webgl
           @mv_node(d.gl, d.fisheye.x, d.fisheye.y)
   should_show_label: (node) ->
-    node.labelled or
+    (not node.hidden) and (node.labelled or
         dist_lt(@last_mouse_pos, node, @label_show_range) or
         node.name.match(@search_regex) or
-        @label_all_graphed_nodes and @graphed_set.has(node)
+        @label_all_graphed_nodes and @graphed_set.has(node))
   draw_labels: ->
     if @use_svg
       label.attr "style", (d) ->
