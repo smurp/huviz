@@ -17,12 +17,12 @@ class ColoredTreePicker extends TreePicker
     for id,elem of @id_to_elem
       i++
       hue = i/count * 360
-      showing = hsv2rgb(hue,50,100)
+      showing = 
       retval[id] =
         notshowing:  hsv2rgb(hue,15,100)
-        showing:     showing
+        showing:     hsv2rgb(hue,50,100)
         emphasizing: hsv2rgb(hue,90,100)
-      elem.style("background-color",showing)
+      elem.style("background-color",retval[id].notshowing)
     #console.log "ColoredTreePicker.add:",[id for id,colors of retval]
     retval
   get_showing_color: (id) ->
