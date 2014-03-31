@@ -22,7 +22,7 @@ class ColoredTreePicker extends TreePicker
         notshowing:  hsv2rgb(hue,15,100)
         showing:     hsv2rgb(hue,50,100)
         emphasizing: hsv2rgb(hue,90,100)
-      elem.style("background-color",retval[id].showing)
+      elem.style("background-color",retval[id].notshowing)
     retval
   get_color_forId_byName: (id, state_name) ->
     id = @uri_to_js_id(id)

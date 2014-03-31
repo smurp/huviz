@@ -39,7 +39,6 @@ class TreePicker
       contents_of_me.append('p').html(label)
       if rest.length > 1
         my_contents = @get_or_create_container(contents_of_me)
-        #my_contents = contents_of_me.append('div').attr('class','container')
         @show_tree(rest[1],my_contents,listener)
   set_branch_pickedness: (id,bool) ->
     @id_to_elem[id].classed('picked_branch',bool)
