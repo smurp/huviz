@@ -22,14 +22,14 @@ class ColoredTreePicker extends TreePicker
         notshowing:  hsv2rgb(hue,15,100)
         showing:     hsv2rgb(hue,50,100)
         emphasizing: hsv2rgb(hue,90,100)
-      elem.style("background-color",retval[id].notshowing)
-    #console.log "ColoredTreePicker.add:",[id for id,colors of retval]
+      elem.style("background-color",retval[id].showing)
     retval
-  get_showing_color: (id) ->
+  get_color_forId_byName: (id, state_name) ->
     id = @uri_to_js_id(id)
-    @mapping_to_colors[id].showing
-  get_notshowing_color: (id) ->
-    id = @uri_to_js_id(id)
-    @mapping_to_colors[id].notshowing
+    @mapping_to_colors[id][state_name]
+  color_by_selected: (elem, selected) ->
+    state_name = selected and 'showing' or 'notshowing'
+    # FIXME do we really want to be dealing with this [0][0] nonsense everywhere?
+    elem.style('background-color',@mapping_to_colors[elem[0][0].id][state_name])
 
 (exports ? this).ColoredTreePicker = ColoredTreePicker

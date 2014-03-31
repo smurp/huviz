@@ -84,19 +84,24 @@ class CommandController
       pred_name = pred_id
       @add_newpredicate(pred_id,parent,pred_name)
 
-  onpredicatepicked: (pred_id,selected,elem) =>
-    #console.log "onpredicatepicked",arguments
-    #console.log "onpredicatepicked()",pred_id,@predicate_to_colors
+  build_predicatepicker: ->
+    id = 'predicates'
+    @predicatebox = @comdiv.append('div').classed('container',true).attr('id',id)
+    @predicatebox.attr('class','scrolling')
+    @predicates_ignored = []
+    @predicate_picker = new ColoredTreePicker(@predicatebox,'anything')
+    @predicate_hierarchy = {'anything':['Anything']}
+    @predicate_picker.show_tree(@predicate_hierarchy,@predicatebox,@onpredicateclicked)
+
+  add_newpredicate: (pred_id,parent,pred_name) =>
+    @predicate_picker.add(pred_id,parent,pred_name,@onpredicateclicked)
+
+  onpredicateclicked: (pred_id,selected,elem) =>
+    @predicate_picker.color_by_selected(elem,selected)
     if selected
       verb = 'show'
-      #color = @predicate_to_colors[pred_id].showing
-      color = @predicate_picker.get_showing_color(pred_id) #to_colors[pred_id].showing
     else
       verb = 'suppress'
-      #color = @predicate_to_colors[pred_id].notshowing
-      color = @predicate_picker.get_notshowing_color(pred_id)
-    #console.log "elem",elem
-    elem.style('background-color',color)
 
     cmd = new gcl.GraphCommand
       verbs: [verb]
@@ -104,25 +109,7 @@ class CommandController
       sets: [@huviz.chosen_set]
       
     @prepare_command cmd
-    #@push_command cmd
-    #@huviz.tick()
 
-  add_newpredicate: (pred_id,parent,pred_name) =>
-    #console.log "add_newpredicate()",pred_id,parent
-    @predicate_picker.add(pred_id,parent,pred_name,@onpredicatepicked)
-    #@predicate_to_colors = @predicate_picker.recolor()
-    #console.log "predicate_to_colors",@predicate_to_colors
-
-  build_predicatepicker: ->
-    #console.log "build_predicatepicker()"
-    id = 'predicates'
-    @predicatebox = @comdiv.append('div').classed('container',true).attr('id',id)
-    @predicatebox.attr('class','scrolling')
-    @predicates_ignored = []
-    @predicate_picker = new ColoredTreePicker(@predicatebox,'anything')
-    @predicate_hierarchy = {'anything':['Anything']}
-    @predicate_picker.show_tree(@predicate_hierarchy,@predicatebox,@onpredicatepicked)
-    
   build_nodeclasspicker: ->
     id = 'classes'
     @nodeclassbox = @comdiv.append('div').classed('container',true).attr('id',id)
@@ -131,9 +118,10 @@ class CommandController
 
   add_newnodeclass: (class_id,parent,class_name) =>
     @node_class_picker.add(class_id,parent,class_name,@onnodeclasspicked)
-    
-  onnodeclasspicked: (id,new_state,elem) =>
-    if new_state
+
+  onnodeclasspicked: (id,selected,elem) =>
+    @node_class_picker.color_by_selected(elem,selected)
+    if selected
       if not (id in @node_classes_chosen)
         @node_classes_chosen.push(id)
     else

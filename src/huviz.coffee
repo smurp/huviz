@@ -1035,7 +1035,7 @@ class Huviz
       else
         e = new Edge(subj_n,obj_n,pred_n,cntx_n)
         pred_n_js_id = uri_to_js_id(pred_n.id)
-        e.color = @gclui.predicate_picker.get_showing_color(pred_n_js_id)
+        e.color = @gclui.predicate_picker.get_color_forId_byName(pred_n_js_id,'showing')
         edge_e = @add_edge(e)
         @develop(obj_n)
 
@@ -1815,7 +1815,7 @@ class Huviz
     @init_webgl()  if @use_webgl
 
   color_by_type: (d) ->
-    color = @gclui.node_class_picker.get_showing_color(d.type)
+    color = @gclui.node_class_picker.get_color_forId_byName(d.type,'showing')
     color or @default_color
 
   is_ready: (node) ->
