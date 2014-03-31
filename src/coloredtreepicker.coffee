@@ -19,7 +19,7 @@ class ColoredTreePicker extends TreePicker
       hue = i/count * 360
       showing = 
       retval[id] =
-        notshowing:  hsv2rgb(hue,15,100)
+        notshowing:  hsv2rgb(hue,20,100)
         showing:     hsv2rgb(hue,50,100)
         emphasizing: hsv2rgb(hue,90,100)
       elem.style("background-color",retval[id].notshowing)
@@ -29,6 +29,7 @@ class ColoredTreePicker extends TreePicker
     @mapping_to_colors[id][state_name]
   color_by_selected: (elem, selected) ->
     state_name = selected and 'showing' or 'notshowing'
+    #state_name = selected and 'emphasized' or 'notshowing'
     # FIXME do we really want to be dealing with this [0][0] nonsense everywhere?
     elem.style('background-color',@mapping_to_colors[elem[0][0].id][state_name])
 

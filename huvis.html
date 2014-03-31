@@ -101,10 +101,13 @@
       <div>
         <label title="which file to load">
           data set
-          <select name="data_set" class="file_picker" onchange="HVZ.load_file(this)" >
-
+          <select name="data_set" class="file_picker" onchange="HVZ.load_file(this)" 
+             title="data sets are in order of increasing complexity">
+            <option title="R.M. Ballantyne -- all attributes -- 2 nodes">/data/ballrm.nq</option>
+            <option title="Maria Abdy -- all attributes -- 6 nodes">/data/abdyma.nq</option>
             <option title="Margaret Atwood -- all attributes">/data/atwoma.nq</option>
             <option title="The Poetesses -- all attributes">/data/poetesses.nq</option>
+
 	    <!--
             <option>/data/test_1.nq</option>
             <option>/data/test_40.nq</option>

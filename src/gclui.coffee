@@ -34,7 +34,8 @@ class CommandController
     @update_command()
 
   add_clear_both: (target) ->
-    target.append('div').attr('style','clear:both') # keep taxonomydiv from being to the right of the verbdiv
+    # keep taxonomydiv from being to the right of the verbdiv
+    target.append('div').attr('style','clear:both') 
 
   title_bar_controls: ->
     @show_comdiv_button = d3.select(@container).
@@ -102,7 +103,7 @@ class CommandController
       verb = 'show'
     else
       verb = 'suppress'
-
+    console.log "engaged_verbs:",@engaged_verbs
     cmd = new gcl.GraphCommand
       verbs: [verb]
       regarding: [pred_id]

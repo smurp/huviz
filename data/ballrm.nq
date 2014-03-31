@@ -1,0 +1,9 @@
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <orl:connectionToOrganization> <B> <b--ballrm--0--DIV2--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <orl:connectionToOrganization> <B> <b--ballrm--0--DIV1--4> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <orl:connectionToOrganization> <B> <b--ballrm--0--P--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <orl:connectionToOrganization> <B> <b--ballrm--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <orl:writer> <Universal> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://xmlns.com/foaf/0.1/name> "Ballantyne, R. M." <Universal> .
+<B> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://xmlns.com/foaf/0.1/Group> <Universal> .
+<B> <http://xmlns.com/foaf/0.1/name> "Hudson Bay Company" <Universal> .
+
