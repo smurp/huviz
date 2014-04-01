@@ -147,8 +147,9 @@ class CommandController
       print: 'print'
       redact: 'redact'
     ,
-      show: 'show'
+      show: 'reveal'
       suppress: 'suppress'
+      specify: 'specify'
       #emphasize: 'emphasize'
     ]
 
@@ -176,8 +177,15 @@ class CommandController
     undiscard: "Retrieve nodes from the discard bin (the small red circle)."
     print: "Print associated snippets."
     redact: "Hide the associated snippets."
-    show: "Show edges: 'Show (nodes) regarding (edges).'"
-    suppress: "Stop showing: 'Suppress (nodes) regarding (edges).'"
+    show: "Show edges: 'Show (nodes) regarding (edges).'
+           Add to the existing state of the graph edges from nodes of
+           the classes indicated edges of the types indicated."
+    suppress: "Stop showing: 'Suppress (nodes) regarding (edges).'
+               Remove from the existing sate of the graph edges of the types
+               indicated from nodes of the types classes indicated."
+    specify: "Immediately specify the entire state of the graph with
+              the constantly updating set of edges indicated from nodes
+              of the classes indicated."
 
   build_form: () ->
     @build_verb_form()

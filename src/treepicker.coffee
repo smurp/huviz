@@ -55,7 +55,6 @@ class TreePicker
     new_id = @uri_to_js_id(new_id)    
     parent_id = @uri_to_js_id(parent_id)
     name = name? and name or new_id
-    #console.log "TreePicker.add",new_id,parent_id,name
     branch = {}
     branch[new_id] = [name or new_id]
     parent = @id_to_elem[parent_id] or @elem
