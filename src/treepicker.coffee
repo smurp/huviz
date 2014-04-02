@@ -41,7 +41,7 @@ class TreePicker
         my_contents = @get_or_create_container(contents_of_me)
         @show_tree(rest[1],my_contents,listener)
   set_branch_pickedness: (id,bool) ->
-    @id_to_elem[id].classed('picked_branch',bool)
+    @id_to_elem[id].classed('picked_branch',bool)  
   get_or_create_container: (contents) ->
     r = contents.select(".container")
     if r[0][0] isnt null

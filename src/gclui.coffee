@@ -174,7 +174,8 @@ class CommandController
     discard: "Put nodes in the discard bin (the small red circle) from
               which they do not get called back into the graph unless
               they are retrieved."
-    undiscard: "Retrieve nodes from the discard bin (the small red circle)."
+    undiscard: "Retrieve nodes from the discard bin (the small red circle)
+                and put them back on the shelf."
     print: "Print associated snippets."
     redact: "Hide the associated snippets."
     show: "Show edges: 'Show (nodes) regarding (edges).'

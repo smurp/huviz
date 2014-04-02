@@ -855,7 +855,8 @@ class Huviz
           " embryos:" + @embryonic_set.length +
           " discarded:" + @discarded_set.length +
           #" subjects:" + (@my_graph.subjects.length) +
-          " chosen:" + @chosen_set.length
+          " chosen:" + @chosen_set.length +
+          " predicates:"  + Object.keys(@my_graph.predicates).length
     msg += " DRAG"  if @dragging
     @set_status msg
     #@push_snippet msg
