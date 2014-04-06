@@ -68,7 +68,13 @@
   content:"□";
   content:"╒╕";
 }
-
+.clear_history:before {
+  float: right;
+  content: "clear";
+  background-color: "yellow";
+  color: "black";
+  font-size: 75%;
+}
 .hide_comdiv:before {
   margin-right: .2em;
   margin-top: .2em;

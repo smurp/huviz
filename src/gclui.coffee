@@ -52,6 +52,8 @@ class CommandController
         attr('class','hide_comdiv')
     @toggle_history_button = @cmdlistbar.append('div').
         attr('class','hide_history')
+    @clear_history_button = @cmdlistbar.append('div').
+        attr('class','clear_history')
     @cmdlist.append('div').style('clear:both')
 
     @toggle_history_button.on 'click', () =>
@@ -59,6 +61,9 @@ class CommandController
       @toggle_history_button.classed('hide_history',shown)
       @toggle_history_button.classed('show_history',not shown)
       @oldcommands.classed('display_none',not shown)
+
+    @clear_history_button.on 'click', () =>
+      @oldcommands.html("")
 
     @show_comdiv_button.on 'click', () =>
       @show_comdiv_button.classed('display_none',true)
