@@ -27,7 +27,7 @@ class CommandController
     @add_clear_both(@comdiv)
     @build_predicatepicker()
     @node_classes_chosen = [] # new SortedSet()
-
+    @subjects = []
     @likediv = @comdiv.append('div')
 
     @build_form()
@@ -133,6 +133,14 @@ class CommandController
     @node_classes_chosen = @node_classes_chosen.filter (eye_dee) ->
       eye_dee isnt node_class
 
+  onsubjectpicked: (subject) =>
+    if not (subject in @subjects)
+      @subjects.push(subject)
+    else
+      @subjects = @subjects.filter (member) ->
+        subject isnt member
+    @update_command()
+
   verb_sets: [ # mutually exclusive within each set
       choose: 'choose'
       shelve: 'shelve'
@@ -212,6 +220,7 @@ class CommandController
   reset_editor: ->
     @disengage_all_verbs()
     @deselect_all_node_classes()
+    @subjects = []
     @clear_like()
     @update_command()
   disengage_all_verbs: ->
@@ -237,6 +246,8 @@ class CommandController
     cmd_ui.text(cmd.str)
   build_command: ->
     args = {}
+    if @subjects.length > 0
+      args.subjects = (s for s in @subjects)
     if @engaged_verbs.length > 0
       args.verbs = (v for v in @engaged_verbs)
     if @node_classes_chosen.length > 0

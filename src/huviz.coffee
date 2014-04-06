@@ -365,7 +365,12 @@ class Huviz
     # if this was a click on a pinned node then unpin it
     if @nodes_pinnable and @focused_node and
         @focused_node.fixed and @focused_node.state is @graphed_set
-      @focused_node.fixed = false 
+      @focused_node.fixed = false
+
+    # this is the node being clicked
+    if @focused_node # and @focused_node.state is @graphed_set
+      @gclui.onsubjectpicked(@focused_node)
+      return
 
     # it was a drag, not a click
     drag_dist = distance(point, @mousedown_point)
