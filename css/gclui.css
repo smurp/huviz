@@ -125,3 +125,9 @@ p {
     height: 10em;
 }
 /* display: inline-block and white-space: nowrap */
+.hidden {
+    display: none;
+}
+.both_shown_and_unshown {
+    font-style: italic;
+}

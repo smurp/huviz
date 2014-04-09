@@ -41,7 +41,30 @@ class TreePicker
         my_contents = @get_or_create_container(contents_of_me)
         @show_tree(rest[1],my_contents,listener)
   set_branch_pickedness: (id,bool) ->
-    @id_to_elem[id].classed('picked_branch',bool)  
+    console.log(id,"pickedness",bool)
+    if @id_to_elem[id]?
+      @id_to_elem[id].classed('picked_branch',bool)
+    else
+      console.log "  not found among:",(id for id in @id_to_elam)
+  set_all_hiddenness: (bool) ->
+    top = @get_top()
+    @set_branch_hiddenness(top,false)
+    for id,elem of @id_to_elem
+      console.log "hiddenness",id,top
+      if id isnt top and id isnt 'anything' and id isnt 'root'
+        @set_branch_hiddenness(id,bool)
+  set_branch_hiddenness: (id,bool) ->
+    console.log(id,"hiddenness",bool)
+    if @id_to_elem[id]?
+      @id_to_elem[id].classed('hidden',bool)
+    else
+      console.log "  not found among:",(id for id in @id_to_elem)
+      
+  set_branch_mixedness: (id, bool) ->
+    # Calling set_branch_mixedness(id, true) means there exist
+    #      nodes showing edges for this predicate AND
+    #      nodes not showing edges for this predicate
+    @id_to_elem[id].classed('both_show_and_unshown',bool)    
   get_or_create_container: (contents) ->
     r = contents.select(".container")
     if r[0][0] isnt null
