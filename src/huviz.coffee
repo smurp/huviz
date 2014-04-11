@@ -1200,7 +1200,7 @@ class Huviz
         msg = "starting to split "+uri
       else if e.data.event is 'finish'
         msg = "finished_splitting "+uri
-        #@choose_everything()
+        @choose_everything()
         #@fire_nextsubject_event @last_quad,null
       else
         msg = "unrecognized NQ event:"+e.data.event
@@ -1803,16 +1803,23 @@ class Huviz
       distortion(@fisheye_zoom)
 
     @force.linkDistance(@link_distance).gravity(@gravity)
-        
   update_graph_settings: (target) =>
     @[target.name] = target.value
     @update_fisheye()
     @updateWindow()
     @tick()
+  xpath_query: (xpath) ->
+    document.evaluate(xpath,document,null,XPathResult.ANY_TYPE, null)
   init_from_graph_controls: ->
     # Perform update_graph_settings for everything in the form
-    # so the HTML can be used as configuration file        
+    # so the HTML can be used as configuration file
+    iterator = @xpath_query("//div[@class='graph_controls']//input")
+    elem = iterator.iterateNext()
+    while (elem)
+      @[elem.name] = elem.value
+      elem = iterator.iterateNext()
   load_file: ->
+    @init_from_graph_controls()
     @reset_graph()
     data_uri = $("select.file_picker option:selected").val()
     @set_status data_uri
