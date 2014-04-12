@@ -21,19 +21,35 @@ class CommandController
     @oldcommands = @cmdlist.append('div').attr('class','commandhistory')
     @nextcommandbox = @comdiv.append('div')
     @verbdiv = @comdiv.append('div').attr('class','verbs')
+    @likediv = @comdiv.append('div')
     #@taxdiv = @comdiv.append('div').attr('class','taxonomydiv')
     @add_clear_both(@comdiv)
     @build_nodeclasspicker()
     @add_clear_both(@comdiv)
     @build_predicatepicker()
-    @shown_edges_by_predicate = {}
-    @unshown_edges_by_predicate = {}    
-    @node_classes_chosen = [] # new SortedSet()
-    @subjects = []
-    @likediv = @comdiv.append('div')
+    @init_editor()
+
 
     @build_form()
     @update_command()
+        
+
+  init_editor: ->
+    # operations common to the constructor and reset_editor
+    @shown_edges_by_predicate = {}
+    @unshown_edges_by_predicate = {}
+    @node_classes_chosen = [] # new SortedSet()
+    @subjects = []
+        
+  reset_editor: ->
+    console.log "reset_editor","====================="
+    @disengage_all_verbs()
+    @deselect_all_node_classes()
+    @init_editor()
+    @clear_like()
+    @update_command()
+    #@predicate_picker.set_all_hiddenness(true)
+
 
   add_clear_both: (target) ->
     # keep taxonomydiv from being to the right of the verbdiv
@@ -360,16 +376,6 @@ class CommandController
         @huviz.gclc.run(@command)
         @push_command(@command)
         @reset_editor()
-  reset_editor: ->
-    console.log "reset_editor","====================="
-    @disengage_all_verbs()
-    @deselect_all_node_classes()
-    @subjects = []
-    @shown_edges_by_predicate = {}
-    @unshown_edges_by_predicate = {}
-    @clear_like()
-    @update_command()
-    @predicate_picker.set_all_hiddenness(true)
   disengage_all_verbs: ->
     for vid in @engaged_verbs
       @disengage_verb(vid)
