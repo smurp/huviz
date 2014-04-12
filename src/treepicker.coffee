@@ -41,11 +41,11 @@ class TreePicker
         my_contents = @get_or_create_container(contents_of_me)
         @show_tree(rest[1],my_contents,listener)
   set_branch_pickedness: (id,bool) ->
-    console.log(id,"pickedness",bool)
+    console.log("    ",id,"pickedness",bool)
     if @id_to_elem[id]?
       @id_to_elem[id].classed('picked_branch',bool)
     else
-      console.log "  not found among:",(id for id in @id_to_elam)
+      console.log "  not found among:",(id for id in @id_to_elem)
   set_all_hiddenness: (bool) ->
     top = @get_top()
     @set_branch_hiddenness(top,false)
@@ -54,7 +54,7 @@ class TreePicker
       if id isnt top and id isnt 'anything' and id isnt 'root'
         @set_branch_hiddenness(id,bool)
   set_branch_hiddenness: (id,bool) ->
-    console.log(id,"hiddenness",bool)
+    console.log("    ",id,"hiddenness",bool)
     if @id_to_elem[id]?
       @id_to_elem[id].classed('hidden',bool)
     else

@@ -1200,7 +1200,7 @@ class Huviz
         msg = "starting to split "+uri
       else if e.data.event is 'finish'
         msg = "finished_splitting "+uri
-        @choose_everything()
+        #@choose_everything()
         #@fire_nextsubject_event @last_quad,null
       else
         msg = "unrecognized NQ event:"+e.data.event
