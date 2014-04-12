@@ -27,14 +27,12 @@ class CommandController
     @build_nodeclasspicker()
     @add_clear_both(@comdiv)
     @build_predicatepicker()
-    @init_editor()
-
-
+    @init_editor_data()
     @build_form()
     @update_command()
         
 
-  init_editor: ->
+  init_editor_data: ->
     # operations common to the constructor and reset_editor
     @shown_edges_by_predicate = {}
     @unshown_edges_by_predicate = {}
@@ -45,7 +43,7 @@ class CommandController
     console.log "reset_editor","====================="
     @disengage_all_verbs()
     @deselect_all_node_classes()
-    @init_editor()
+    @init_editor_data()
     @clear_like()
     @update_command()
     #@predicate_picker.set_all_hiddenness(true)

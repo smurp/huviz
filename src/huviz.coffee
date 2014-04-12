@@ -1778,11 +1778,11 @@ class Huviz
                   attr("transform", "translate(" + @cx + "," + @cy + ")").
                   attr("class", "cursor")
     the_Huviz = this
-    @mouse_receiver.
-      on("mousemove", @mousemove).
-      on("mousedown", @mousedown).
-      on("mouseup", @mouseup).
-      on("mouseout", @mouseup)
+    @mouse_receiver
+      .on("mousemove", @mousemove)
+      .on("mousedown", @mousedown)
+      .on("mouseup", @mouseup)
+      #.on("mouseout", @mouseup) # FIXME what *should* happen on mouseout?
     @restart()
 
     @set_search_regex("")
