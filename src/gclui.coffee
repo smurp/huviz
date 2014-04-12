@@ -26,6 +26,8 @@ class CommandController
     @build_nodeclasspicker()
     @add_clear_both(@comdiv)
     @build_predicatepicker()
+    @shown_edges_by_predicate = {}
+    @unshown_edges_by_predicate = {}    
     @node_classes_chosen = [] # new SortedSet()
     @subjects = []
     @likediv = @comdiv.append('div')
