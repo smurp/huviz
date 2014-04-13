@@ -295,8 +295,8 @@ class CommandController
       @predicate_picker.set_branch_hiddenness(pred_js_id, true)
     
     predicates_to_newly_hide = []
-    predicates_to_newly_show = []      
-
+    predicates_to_newly_show = []
+    
 
   verb_sets: [ # mutually exclusive within each set
       choose: 'choose'

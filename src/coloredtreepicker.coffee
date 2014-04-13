@@ -19,7 +19,7 @@ class ColoredTreePicker extends TreePicker
       hue = i/count * 360
       showing = 
       retval[id] =
-        notshowing:  hsv2rgb(hue,20,100)
+        notshowing:  hsv2rgb(hue,12,100)
         showing:     hsv2rgb(hue,50,100)
         emphasizing: hsv2rgb(hue,90,100)
       elem.style("background-color",retval[id].notshowing)
