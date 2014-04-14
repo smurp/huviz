@@ -456,15 +456,11 @@ class Huviz
     if sway is 0
       return
     # sway is the distance to offset the control point from the midline
-    orig_angle = Math.atan((x2 - x1) / (y2 - y1))
-    orig_angle = 2 * orig_angle + Math.PI
-    #if orig_angle.toString() is "NaN"
-    #  console.log new Error "DOH"
-    #  return 
-    angle_to_ctrl_from_mid =  orig_angle + (Math.PI / 2)
-    #angle_to_ctrl_from_mid =  2 * (orig_angle + (Math.PI / 2))
-    #angle_to_ctrl_from_mid =  2 * (orig_angle + (Math.PI / 2))
-    ang = angle_to_ctrl_from_mid
+    orig_angle = Math.atan2(x2 - x1, y2 - y1)
+    ctrl_angle = (orig_angle + (Math.PI / 2))
+    # console.log "orig",orig_angle
+    # console.log "ctrl",ctrl_angle    
+    ang = ctrl_angle
     ang = orig_angle
     #show_range ->
     #  console.log("RANGE",window.max_ang,window.min_ang)
@@ -474,14 +470,12 @@ class Huviz
       range = window.ranges[name] or {max: -Infinity, min: Infinity}
       range.max = Math.max(range.max,val)
       range.min = Math.min(range.min,val)
-
     #check_range(orig_angle,'orig_angle')
-    #check_range(angle_to_ctrl_from_mid,'ctrl_angle')
-    
+    #check_range(ctrl_angle,'ctrl_angle')
     xmid = x1 + (x2-x1)/2
     ymid = y1 + (y2-y1)/2
-    xctrl = xmid + Math.sin(angle_to_ctrl_from_mid) * sway
-    yctrl = ymid + Math.cos(angle_to_ctrl_from_mid) * sway
+    xctrl = xmid + Math.sin(ctrl_angle) * sway
+    yctrl = ymid + Math.cos(ctrl_angle) * sway
     #console.log [x1,y1],[xctrl,yctrl],[x2,y2]
     @ctx.strokeStyle = clr or red
     @ctx.beginPath()
@@ -490,6 +484,7 @@ class Huviz
     #@ctx.closePath()
     @ctx.stroke()
     #@draw_line(xmid,ymid,xctrl,yctrl,clr) # show mid to ctrl
+    console.log(xmid,ymid,xctrl,yctrl,clr)
   draw_disconnect_dropzone: ->
     @ctx.save()
     @ctx.lineWidth = @graph_radius * 0.1
@@ -839,6 +834,7 @@ class Huviz
   tick: =>
     # return if @focused_node   # <== policy: freeze screen when selected
     @ctx.lineWidth = @edge_width # TODO(smurp) just edges should get this treatment
+    
     @blank_screen()
     @draw_dropzones()
     @find_focused_node()
@@ -852,6 +848,7 @@ class Huviz
     @draw_discards()
     @draw_labels()
     @update_status()
+
   update_status: ->
     msg = "linked:" + @nodes.length +
           " shelved:" + @unlinked_set.length +
@@ -2025,5 +2022,6 @@ if not is_one_of(2,[3,2,4])
 (exports ? this).Huviz = Huviz
 (exports ? this).Orlando = Orlando
 (exports ? this).OntoViz = OntoViz
+(exports ? this).LineDrawTest = LineDrawTest
 (exports ? this).Edge = Edge
 
