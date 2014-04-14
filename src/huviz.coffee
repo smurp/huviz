@@ -484,7 +484,7 @@ class Huviz
     #@ctx.closePath()
     @ctx.stroke()
     #@draw_line(xmid,ymid,xctrl,yctrl,clr) # show mid to ctrl
-    console.log(xmid,ymid,xctrl,yctrl,clr)
+    #console.log(xmid,ymid,xctrl,yctrl,clr)
   draw_disconnect_dropzone: ->
     @ctx.save()
     @ctx.lineWidth = @graph_radius * 0.1
@@ -2022,6 +2022,5 @@ if not is_one_of(2,[3,2,4])
 (exports ? this).Huviz = Huviz
 (exports ? this).Orlando = Orlando
 (exports ? this).OntoViz = OntoViz
-(exports ? this).LineDrawTest = LineDrawTest
 (exports ? this).Edge = Edge
 
