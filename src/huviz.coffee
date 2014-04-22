@@ -25,6 +25,9 @@
 #    flip labels
 #    nquads parser (or trig?)  1 hr
 #    edge-picker
+#
+# Use Cases
+#   show family relations 
 
 #asyncLoop = require('asynchronizer').asyncLoop
 gcl = require('graphcommandlanguage')
