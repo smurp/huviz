@@ -373,6 +373,7 @@ class Huviz
     # this is the node being clicked
     if @focused_node # and @focused_node.state is @graphed_set
       @gclui.onsubjectpicked(@focused_node)
+      @tick()
       return
 
     # it was a drag, not a click

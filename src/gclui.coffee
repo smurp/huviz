@@ -158,7 +158,9 @@ class CommandController
     if not (subject in @subjects)
       adding = true
       @subjects.push(subject)
+      subject.color = @node_class_picker.get_color_forId_byName(subject.type,'emphasizing')
     else
+      subject.color = @node_class_picker.get_color_forId_byName(subject.type,'showing')
       adding = false
       @subjects = @subjects.filter (member) ->
         subject isnt member

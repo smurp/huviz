@@ -1,5 +1,8 @@
 
 TreePicker = require('treepicker').TreePicker
+
+# FIXME Add support for 'abstract' nodes in the tree, nodes which do not represent pickable things.
+#       Color them with a gradient, using intensity for mixedness and the hue for taxonomic range.
   
 class ColoredTreePicker extends TreePicker
   constructor: (elem,root) ->
@@ -20,8 +23,8 @@ class ColoredTreePicker extends TreePicker
       showing = 
       retval[id] =
         notshowing:  hsv2rgb(hue,12,100)
-        showing:     hsv2rgb(hue,50,100)
-        emphasizing: hsv2rgb(hue,90,100)
+        showing:     hsv2rgb(hue,55,100)
+        emphasizing: hsv2rgb(hue,100,100)
       elem.style("background-color",retval[id].notshowing)
     retval
   get_color_forId_byName: (id, state_name) ->
@@ -33,15 +36,13 @@ class ColoredTreePicker extends TreePicker
     #state_name = selected and 'emphasized' or 'notshowing'
     # FIXME do we really want to be dealing with this [0][0] nonsense everywhere?
     elem.style('background-color',@mapping_to_colors[elem[0][0].id][state_name])
-  set_branch_mixedness_WIP: (id, bool) ->
-    # http://www.dynamicdrive.com/style/csslibrary/item/css_triangle_arrow_divs/
-    #   Sigh, this does not actually work because the content area of the div
-    #   must be nil.  Could we put a div underneath the real div which does
-    #   use this trick?  Does this trick work for non-square divs?
+  set_branch_mixedness: (id, bool) ->
+    #  when a div represents a mixed branch then color with a gradient of the two representative colors
+    #    https://developer.mozilla.org/en-US/docs/Web/CSS/linear-gradient
     if bool
       sc = @mapping_to_colors[id].showing
       nc = @mapping_to_colors[id].notshowing
-      @id_to_elem[id].style("border-color: "+ sc + " " + sc + " " + nc + " " + nc + "; border-style:solid" )
+      @id_to_elem[id].style("background: linear-gradient("+ sc + ", " + nc + ")" )
     else
       @id_to_elem[id].style("")
   set_branch_pickedness: (id,bool) ->
