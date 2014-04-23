@@ -154,7 +154,14 @@ class CommandController
     @node_classes_chosen = @node_classes_chosen.filter (eye_dee) ->
       eye_dee isnt node_class
 
-  onsubjectpicked: (subject) => # FIXME rename subject to node
+  pick: (node) =>
+    if not (node in @subjects)
+      @toggle_picked(node)
+  unpick: (node) =>
+    if (node in @subjects)
+      @toggle_picked(node)
+
+  toggle_picked: (subject) => # FIXME rename subject to node
     if not (subject in @subjects)
       adding = true
       @subjects.push(subject)

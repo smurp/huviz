@@ -329,14 +329,15 @@ class Huviz
     # || focused_node.state == discarded_set
     if not @dragging and @mousedown_point and @focused_node and
         distance(@last_mouse_pos, @mousedown_point) > @drag_dist_threshold and
-        @focused_node.state is @graphed_set
+        ((@focused_node.state is @graphed_set) or (@focused_node.state is @unlinked_set))
       # We can only know that the users intention is to drag
       # a node once sufficient motion has started, when there
       # is a focused_node
       @dragging = @focused_node
+      if @dragging.state is @unlinked_set
+        @graphed_set.acquire(@dragging)
     if @dragging
       @force.resume() # why?
-      #console.log(@focused_node.x,@last_mouse_pos);
       @move_node_to_point @dragging, @last_mouse_pos
     #@cursor.attr "transform", "translate(" + @last_mouse_pos + ")"
     @tick()
@@ -358,10 +359,16 @@ class Huviz
     if @dragging
       @move_node_to_point @dragging, point
       if @in_discard_dropzone(@dragging)
-        @run_verb_on_object 'discard',@dragging
-      else @dragging.fixed = true  if @nodes_pinnable
+        @run_verb_on_object 'discard', @dragging
+      else
+        if @nodes_pinnable
+          @dragging.fixed = true  
       if @in_disconnect_dropzone(@dragging)
-        @run_verb_on_object 'shelve',@dragging        
+        @run_verb_on_object 'shelve', @dragging
+        @gclui.unpick(@dragging)
+      else if @dragging.links_shown.length == 0
+        @run_verb_on_object 'choose', @dragging
+        @gclui.pick(@dragging)
       @dragging = false
       return
 
@@ -372,7 +379,7 @@ class Huviz
 
     # this is the node being clicked
     if @focused_node # and @focused_node.state is @graphed_set
-      @gclui.onsubjectpicked(@focused_node)
+      @gclui.toggle_picked(@focused_node)
       @tick()
       return
 
@@ -395,7 +402,6 @@ class Huviz
       # TODO(smurp) are these still needed?
       @force.links @links_set
       @restart()
-
 
   #///////////////////////////////////////////////////////////////////////////
   # resize-svg-when-window-is-resized-in-d3-js
