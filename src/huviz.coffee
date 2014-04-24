@@ -183,7 +183,7 @@ class Huviz
   draw_circle_around_focused: false
   draw_lariat_labels_rotated: true
   run_force_after_mouseup_msec: 2000
-  nodes_pinnable: false
+  nodes_pinnable: true
 
   BLANK_HACK: false
   width: undefined
@@ -360,15 +360,14 @@ class Huviz
       @move_node_to_point @dragging, point
       if @in_discard_dropzone(@dragging)
         @run_verb_on_object 'discard', @dragging
-      else
-        if @nodes_pinnable
-          @dragging.fixed = true  
-      if @in_disconnect_dropzone(@dragging)
+      else if @in_disconnect_dropzone(@dragging)
         @run_verb_on_object 'shelve', @dragging
         @gclui.unpick(@dragging)
       else if @dragging.links_shown.length == 0
         @run_verb_on_object 'choose', @dragging
         @gclui.pick(@dragging)
+      else if @nodes_pinnable
+        @dragging.fixed = not @dragging.fixed
       @dragging = false
       return
 
@@ -1636,13 +1635,19 @@ class Huviz
     node.links_shown.forEach (edge,i) =>
       @remove_snippet edge.id
 
-  show_edge_regarding: (node,predicate) =>
+  # deprecate
+  show_edge_regarding: (node, predicate) =>
+    #alert("show_edge_regarding:" + predicate)
     node.links_from.forEach (edge,i) =>
-      show_link edge
+      @show_link edge
     
-  suppress_edge_regarding: (node,predicate) =>
+  suppress_edge_regarding: (node, predicate) =>
     node.links_shown.forEach (edge,i) =>
-      unshow_link edge
+      @unshow_link edge
+
+  reveal_edge_regarding: (node, predicate) =>
+    node.links_shown.forEach (edge,i) =>
+      @show_link edge
 
   # TODO(smurp) implement emphasize and deemphasize 'verbs' (we need a new word)
   ## emphasize: (node,predicate,color) =>

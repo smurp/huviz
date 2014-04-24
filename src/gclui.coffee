@@ -124,6 +124,7 @@ class CommandController
       verb = 'show'
     else
       verb = 'suppress'
+    #console.clear()
     console.log "engaged_verbs:",@engaged_verbs
     cmd = new gcl.GraphCommand
       verbs: [verb]
@@ -131,6 +132,7 @@ class CommandController
       sets: [@huviz.chosen_set]
       
     @prepare_command cmd
+    @huviz.gclc.run(@command)
 
   build_nodeclasspicker: ->
     id = 'classes'
@@ -192,7 +194,7 @@ class CommandController
     #   'unshown' means 
 
     uri_to_js_id = @predicate_picker.uri_to_js_id
-    console.clear()
+    #console.clear()
     console.log "adding:",adding,"id:",node.id,"name:",node.name
     predicates_newly_identified_as_having_shown_edges = []    
     predicates_newly_identified_as_having_unshown_edges = []

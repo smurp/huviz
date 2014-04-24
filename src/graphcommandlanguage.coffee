@@ -137,32 +137,60 @@ class GraphCommand
       else
         msg = "method '"+verb+"' not found"
         console.log msg
+        alert msg
         #throw new Error(msg)
     return methods
+  get_predicate_methods: () ->
+    methods = []
+    for verb in @verbs
+      method = @graph_ctrl[verb + "_edge_regarding"]
+      if method
+        methods.push(method)
+      else
+        msg = "method '"+verb+"' not found"
+        console.log msg
+    return methods    
+
+  regarding_required: () ->
+    return @regarding? and @regarding.length > 0
+
   execute: (@graph_ctrl) ->
+    reg_req = @regarding_required()    
     nodes = @get_nodes()
     console.log @str,"on",nodes.length,"nodes"
-    for meth in @get_methods()
-      # console.log "meth",meth
-      # for node in nodes
-      #  retval = meth.call(@graph_ctrl,node)
-      err = (gack) ->
-        if err
-          console.log "err =",err
-        else
-          console.log "DONE .execute()"
-      iter = (node) =>
-        #console.log meth,node
-        #console.log "execute",meth,node
-        retval = meth.call(@graph_ctrl,node)        
-        #console.log "retval =",retval
-        @graph_ctrl.tick()
-      #async.eachSeries nodes,iter,err
-      async.each nodes,iter,err
-      #for node in nodes
-      #  iter node
-        
-    #retval
+    if reg_req
+      for meth in @get_predicate_methods()
+        err = (gack) ->
+          if err
+            console.log "err =",err
+          else
+            console.log "DONE .execute()"
+        iter = (node) =>
+          for pred in @regarding
+            retval = meth.call(@graph_ctrl,node,pred)
+          @graph_ctrl.tick()
+        #async.eachSeries nodes,iter,err
+        async.each nodes,iter,err
+
+    else
+      for meth in @get_methods()
+        # console.log "meth",meth
+        # for node in nodes
+        #  retval = meth.call(@graph_ctrl,node)
+        err = (gack) ->
+          if err
+            console.log "err =",err
+          else
+            console.log "DONE .execute()"
+        iter = (node) =>
+          #console.log meth,node
+          #console.log "execute",meth,node
+          retval = meth.call(@graph_ctrl,node)        
+          #console.log "retval =",retval
+          @graph_ctrl.tick()
+        #async.eachSeries nodes,iter,err
+        async.each nodes,iter,err
+    
   update_str: ->
     missing = '____'
     cmd_str = ""
@@ -250,6 +278,7 @@ class GraphCommandLanguageCtrl
   constructor: (@graph_ctrl) ->
     @prefixes = {}
   run: (script) ->
+    console.clear()
     if script instanceof GraphCommand
       @commands = [script]
     else if typeof script is 'string'
