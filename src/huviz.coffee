@@ -1818,6 +1818,7 @@ class Huviz
     @force.linkDistance(@link_distance).gravity(@gravity)
   update_graph_settings: (target) =>
     @[target.name] = target.value
+    target.title = target.value
     @update_fisheye()
     @updateWindow()
     @tick()
