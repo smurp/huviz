@@ -557,6 +557,7 @@ class Huviz
     @gclui.add_newnodeclass(type_id)
     
   reset_graph: ->
+    @G = {} # is this deprecated?
     @init_sets()
     @init_gclc()
     @force.nodes @nodes
@@ -1833,11 +1834,30 @@ class Huviz
   load_file: ->
     @init_from_graph_controls()
     @reset_graph()
-    data_uri = $("select.file_picker option:selected").val()
+    data_uri = @get_dataset_uri()
     @set_status data_uri
-    @G = {}
     @fetchAndShow data_uri  unless @G.subjects
     @init_webgl()  if @use_webgl
+
+  get_dataset_uri: () ->
+    return $("select.file_picker option:selected").val()
+
+  get_script_from_hash: () ->
+    return location.hash
+
+  boot_sequence: ->
+    # If there is a script after the hash, run it.
+    # Otherwise load the default dataset defined by the page.
+    # Or load nothing if there is no default.
+    @init_from_graph_controls()
+    @reset_graph()
+    script = @get_script_from_hash()
+    if script? and script and script isnt "#"
+      alert(script)
+    else
+      data_uri = @get_dataset_uri()
+      @fetchAndShow data_uri  unless @G.subjects
+      @init_webgl()  if @use_webgl
 
   color_by_type: (d) ->
     color = @gclui.node_class_picker.get_color_forId_byName(d.type,'showing')

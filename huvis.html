@@ -28,9 +28,9 @@
       </div>
       <div>
         <label title="the repulsive charge between nodes">
-          charge
+          repulsion
 	  <input name="charge" type="range"
-                 value="-1800" max="10" min="-2000" step="10"
+                 value="-1800" min="10" max="-4000" step="10"
                  onchange="HVZ.update_graph_settings(this)">
         </label>
       </div>
@@ -103,12 +103,10 @@
           data set
           <select name="data_set" class="file_picker" onchange="HVZ.load_file(this)" 
              title="data sets are in order of increasing complexity">
+	    <option value=""> -- pick -- </option>
             <option title="R.M. Ballantyne -- all attributes -- 14 nodes; 60 edges; 17 predicates">/data/ballrm.nq</option>
-	    <option> -- pick -- </option>
-
             <option title="Maria Abdy -- all attributes -- 68 nodes; 308 edges; 37 predicates">/data/abdyma.nq</option>
             <option title="Margaret Atwood -- all attributes -- 444 nodes; 2325 edges; 41 predicates">/data/atwoma.nq</option>
-
             <option title="The Poetesses -- all attributes -- 1493 nodes; 10335 edges; 97 predicates">/data/poetesses.nq</option>
 
 	    <!--
@@ -220,14 +218,8 @@
       window.addEventListener('load',function(){
         huviz = require('huviz');
         HVZ = new huviz.Orlando();
-        HVZ.load_file();
+        HVZ.boot_sequence();
       });
-
-      /*
-      window.addEventListener('newsubject',function(e){
-        alert("new subject: "+e.detail.sid)
-      });
-      */
 
     </script>
   </body>
