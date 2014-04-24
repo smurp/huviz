@@ -160,9 +160,9 @@ class GraphCommand
     console.log @str,"on",nodes.length,"nodes"
     if reg_req
       for meth in @get_predicate_methods()
-        err = (gack) ->
+        err = (err_arg) ->
           if err
-            console.log "err =",err
+            console.log "err =",err_arg
           else
             console.log "DONE .execute()"
         iter = (node) =>
@@ -172,21 +172,22 @@ class GraphCommand
         #async.eachSeries nodes,iter,err
         async.each nodes,iter,err
 
+    else if @verbs[0] is 'load' # FIXME not very general, but it appears to be the sole exception
+      @graph_ctrl.load(@data_uri)
+      console.log("load data_uri has returned")
+      
     else
       for meth in @get_methods()
         # console.log "meth",meth
         # for node in nodes
         #  retval = meth.call(@graph_ctrl,node)
-        err = (gack) ->
+        err = (err_arg) ->
           if err
-            console.log "err =",err
+            console.log "err =",err_arg
           else
             console.log "DONE .execute()"
         iter = (node) =>
-          #console.log meth,node
-          #console.log "execute",meth,node
           retval = meth.call(@graph_ctrl,node)        
-          #console.log "retval =",retval
           @graph_ctrl.tick()
         #async.eachSeries nodes,iter,err
         async.each nodes,iter,err
@@ -203,6 +204,9 @@ class GraphCommand
       cmd_str = missing
     cmd_str += " "
     obj_phrase = ""
+    if cmd_str is 'load '
+      @str += @data_uri + " ."
+      return
     if @classes
       obj_phrase += angliciser(@classes)
     if @subjects
@@ -235,10 +239,13 @@ class GraphCommand
     # "choose 'abdyma'"
     parts = cmd_str.split(" ")
     verb = parts[0]
-    subj = parts[1].replace(/\'/g,"") 
-    cmd =
-      verbs: [verb]
-      subjects: [{'id': subj}]
+    cmd = {}
+    cmd.verbs = [verb]
+    if verb is 'load'
+      cmd.data_uri = parts[1]
+    else
+      subj = parts[1].replace(/\'/g,"") 
+      cmd.subjects = [{'id': subj}]
     return cmd
     
     # "choose,label 'abdyma'"
@@ -278,7 +285,8 @@ class GraphCommandLanguageCtrl
   constructor: (@graph_ctrl) ->
     @prefixes = {}
   run: (script) ->
-    console.clear()
+    #console.clear()
+    console.log("script: ",script)
     if script instanceof GraphCommand
       @commands = [script]
     else if typeof script is 'string'
@@ -293,11 +301,21 @@ class GraphCommandLanguageCtrl
     cmd = new GraphCommand(cmd_spec)
     cmd.prefixes = @prefixes
     cmd.execute(@graph_ctrl)
-  execute: () ->
+
+  execute: () =>
+    if @commands.length > 0 and typeof @commands[0] is 'string' and @commands[0].match(/^load /)
+      console.log("initial execute", @commands)
+      @run_one(@commands.shift())
+      #setTimeout @execute, 2000
+      run_once = () =>
+        document.removeEventListener('dataset-loaded',run_once)
+        @execute()
+      document.addEventListener('dataset-loaded',run_once)
+      return
     for cmd_spec in @commands
-      if cmd_spec
+      if cmd_spec # ie not blank
         @run_one(cmd_spec)
-  
+    
 (exports ? this).GraphCommandLanguageCtrl = GraphCommandLanguageCtrl
 (exports ? this).GraphCommand = GraphCommand
 (exports ? this).GCLTest = GCLTest

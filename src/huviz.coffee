@@ -1207,6 +1207,7 @@ class Huviz
         msg = "starting to split "+uri
       else if e.data.event is 'finish'
         msg = "finished_splitting "+uri
+        document.dispatchEvent(new CustomEvent("dataset-loaded", {detail: uri}))
         #@choose_everything()
         #@fire_nextsubject_event @last_quad,null
       else
@@ -1809,13 +1810,12 @@ class Huviz
     @label_show_range = @link_distance * 1.1
     #@fisheye_radius = @label_show_range * 5
     @focus_radius = @label_show_range
-
     @fisheye = d3.fisheye.
       circular().
       radius(@fisheye_radius).
       distortion(@fisheye_zoom)
-
     @force.linkDistance(@link_distance).gravity(@gravity)
+    
   update_graph_settings: (target) =>
     @[target.name] = target.value
     target.title = target.value
@@ -1844,7 +1844,10 @@ class Huviz
     return $("select.file_picker option:selected").val()
 
   get_script_from_hash: () ->
-    return location.hash
+    script = location.hash
+    script = (not script? or script is "#") and "" or script.replace(/^#/,"")
+    script = script.replace(/\+/g," ")
+    return script
 
   boot_sequence: ->
     # If there is a script after the hash, run it.
@@ -1853,12 +1856,16 @@ class Huviz
     @init_from_graph_controls()
     @reset_graph()
     script = @get_script_from_hash()
-    if script? and script and script isnt "#"
-      alert(script)
+    if script
+      @gclui.run_script(script)
     else
       data_uri = @get_dataset_uri()
-      @fetchAndShow data_uri  unless @G.subjects
-      @init_webgl()  if @use_webgl
+      if data_uri
+        @load(data_uri)
+
+  load: (data_uri) ->
+    @fetchAndShow data_uri  unless @G.subjects
+    @init_webgl()  if @use_webgl
 
   color_by_type: (d) ->
     color = @gclui.node_class_picker.get_color_forId_byName(d.type,'showing')

@@ -30,7 +30,6 @@ class CommandController
     @init_editor_data()
     @build_form()
     @update_command()
-        
 
   init_editor_data: ->
     # operations common to the constructor and reset_editor
@@ -47,7 +46,6 @@ class CommandController
     @clear_like()
     @update_command()
     #@predicate_picker.set_all_hiddenness(true)
-
 
   add_clear_both: (target) ->
     # keep taxonomydiv from being to the right of the verbdiv
@@ -363,6 +361,7 @@ class CommandController
     specify: "Immediately specify the entire state of the graph with
               the constantly updating set of edges indicated from nodes
               of the classes indicated."
+    load: "Load knowledge from the given uri."
 
   build_form: () ->
     @build_verb_form()
@@ -469,5 +468,7 @@ class CommandController
       else
         that.disengage_verb(id)
       that.update_command()    
+  run_script: (script) ->
+    @huviz.gclc.run(script)
     
-(exports ? this).CommandController = CommandController    
+(exports ? this).CommandController = CommandController
