@@ -321,20 +321,20 @@ class Huviz
   move_node_to_point: (node, point) ->
     node.x = point[0]
     node.y = point[1]
-    
+
   mousemove: =>
     d3_event = @mouse_receiver[0][0]
     #console.log('mousemove',this,d3_event)
     @last_mouse_pos = d3.mouse(d3_event)
     # || focused_node.state == discarded_set
     if not @dragging and @mousedown_point and @focused_node and
-        distance(@last_mouse_pos, @mousedown_point) > @drag_dist_threshold and
-        ((@focused_node.state is @graphed_set) or (@focused_node.state is @unlinked_set))
+        distance(@last_mouse_pos, @mousedown_point) > @drag_dist_threshold
       # We can only know that the users intention is to drag
       # a node once sufficient motion has started, when there
       # is a focused_node
+      console.log "START_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
       @dragging = @focused_node
-      if @dragging.state is @unlinked_set
+      if @dragging.state isnt @graphed_set
         @graphed_set.acquire(@dragging)
     if @dragging
       @force.resume() # why?
@@ -1758,7 +1758,7 @@ class Huviz
     @init_gclc()   
     @populate_taxonomy()
     @init_snippet_box()
-    @mousedown_point = [@cx,@cy]
+    @mousedown_point = false
     @discard_point = [@cx,@cy]
     @lariat_center = [@cx,@cy]
     @node_radius_policy = node_radius_policies[default_node_radius_policy]
