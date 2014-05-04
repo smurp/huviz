@@ -3,7 +3,7 @@ TreePicker = require('treepicker').TreePicker
 
 # FIXME Add support for 'abstract' nodes in the tree, nodes which do not represent pickable things.
 #       Color them with a gradient, using intensity for mixedness and the hue for taxonomic range.
-  
+
 class ColoredTreePicker extends TreePicker
   constructor: (elem,root) ->
     super(elem,root)
@@ -39,15 +39,26 @@ class ColoredTreePicker extends TreePicker
   set_branch_mixedness: (id, bool) ->
     #  when a div represents a mixed branch then color with a gradient of the two representative colors
     #    https://developer.mozilla.org/en-US/docs/Web/CSS/linear-gradient
+    console.log("set_branch_mixedness()",id,bool)
     if bool
       sc = @mapping_to_colors[id].showing
       nc = @mapping_to_colors[id].notshowing
       @id_to_elem[id].style("background: linear-gradient("+ sc + ", " + nc + ")" )
+      console.log("  mixed:",@id_to_elem[id])
     else
       @id_to_elem[id].style("")
   set_branch_pickedness: (id,bool) ->
     super(id, bool)
     if @id_to_elem[id]?
       @color_by_selected(@id_to_elem[id], bool)
-
+  ###
+  set_branch_state: (id, state) -> # hidden|notshowing|showing|emphasizing|mixed
+    mixedness = false
+    if state is 'notshowing'
+      pickedness = false
+    else if state is 'showing'
+      pickedness = true
+    else if state is 'emphasizing'
+  ###    
+    
 (exports ? this).ColoredTreePicker = ColoredTreePicker

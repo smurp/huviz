@@ -115,6 +115,7 @@ class CommandController
 
   add_newpredicate: (pred_id,parent,pred_name) =>
     @predicate_picker.add(pred_id,parent,pred_name,@onpredicateclicked)
+    @recolor_edges()
 
   onpredicateclicked: (pred_id,selected,elem) =>
     @predicate_picker.color_by_selected(elem,selected)
@@ -132,6 +133,18 @@ class CommandController
     @prepare_command cmd
     @huviz.gclc.run(@command)
 
+  recolor_nodes: ->
+    # The nodes needing recoloring are all but the embryonic.
+    for node in @huviz.nodes
+      node.color = @huviz.color_by_type(node)
+
+  recolor_edges: ->
+    for edge in @huviz.links_set
+      # FIXME set edge color by state
+      # FIXME is this needed?
+      console.log "recolor_edges:", edge.id, "state:", edge.state.name
+      edge.color = @predicate_picker.get_color_forId_byName(pred_n_js_id,'showing')
+
   build_nodeclasspicker: ->
     id = 'classes'
     @nodeclassbox = @comdiv.append('div').classed('container',true).attr('id',id)
@@ -140,26 +153,43 @@ class CommandController
 
   add_newnodeclass: (class_id,parent,class_name) =>
     @node_class_picker.add(class_id,parent,class_name,@onnodeclasspicked)
+    @recolor_nodes()
 
   onnodeclasspicked: (id,selected,elem) =>
+    # Mixed —> On
+    # On —> Off
+    # Off —> On
+    # When we pick "everything" we mean:
+    #    all nodes except the embryonic and the discarded
+    #    OR rather, the hidden, the graphed and the unlinked
+    console.log "onnodeclasspicked:", id, "<======"
     @node_class_picker.color_by_selected(elem,selected)
     if selected
       if not (id in @node_classes_chosen)
         @node_classes_chosen.push(id)
+      # PICK all members of the currently chosen classes
+      cmd = new gcl.GraphCommand
+        verbs: ['pick']
+        classes: (class_name for class_name in @node_classes_chosen)
+      @huviz.gclc.run(cmd)
     else
       @deselect_node_class(id)
+      # UNPICK
+      cmd = new gcl.GraphCommand
+        verbs: ['unpick']
+        classes: [id]
+      @huviz.gclc.run(cmd)
+      
     @update_command()
+    #console.log("set_branch_mixedness: anything")
+    # ////////////////////////////////////////
+    # FIXME this is just for testing
+    # @predicate_picker.set_branch_mixedness('anything',true)
+    # ////////////////////////////////////////
 
   deselect_node_class: (node_class) ->
     @node_classes_chosen = @node_classes_chosen.filter (eye_dee) ->
       eye_dee isnt node_class
-
-  pick: (node) =>
-    if not (node in @subjects)
-      @toggle_picked(node)
-  unpick: (node) =>
-    if (node in @subjects)
-      @toggle_picked(node)
 
   toggle_picked: (subject) => # FIXME rename subject to node
     if not (subject in @subjects)
@@ -173,6 +203,23 @@ class CommandController
         subject isnt member
     @update_predicate_visibility(adding, subject)
     @update_command()
+
+  update_nodeclass_visibility: (adding, node) =>
+    # Maintain the nodeclass picker
+    # 
+    # # Elements may be in one of these states:
+    #   hidden     - TBD: not sure when hidden is appropriate
+    #   notshowing - a light color indicating nothing of that type is picked
+    #   showing    - a medium color indicating all things of that type are picked
+    #   emphasized - mark the class of the focused_node
+    #   mixed      - some instances of the node class are picked, but not all
+    #   abstract   - the element represents an abstract superclass, presumably containing concrete node classes
+
+    @node_class_picker
+    classes_newly_identified_as_having_all_nodes = []
+    classes_newly_identified_as_having_no_nodes = []
+    classes_newly_identified_as_having_some_nodes = []
+    classes_newly_identified_as_having_neither = []
 
   update_predicate_visibility: (adding, node) =>
     # Maintain per-predicate lists of shown and unshown edges
@@ -191,17 +238,25 @@ class CommandController
     #   'shown' means 
     #   'unshown' means 
 
+    # Elements may be in one of these states:
+    #   hidden     - the predicate is not used at all by the current node selection
+    #   notshowing - that predicate is used by selected nodes but no such edges are currently shown
+    #   showing    - that predicate is used by selected nodes and all such edges are currently shown
+    #   emphasized - varies in meaning, but used to hilight, say, the focused node
+    #   mixed      - the predicate is used by selected nodes and some edges are showing but not all
+    #   abstract   - the element in the tree is not a predicate but is an abstract superclass of some
+
     uri_to_js_id = @predicate_picker.uri_to_js_id
-    #console.clear()
+    console.clear()
     console.log "adding:",adding,"id:",node.id,"name:",node.name
     predicates_newly_identified_as_having_shown_edges = []    
     predicates_newly_identified_as_having_unshown_edges = []
-    predicates_newly_identified_as_having_both = []
+    predicates_newly_identified_as_having_some = []
     predicates_newly_identified_as_having_neither = []
 
     add_shown = (pred_id, edge) =>
       # This edge is shown, so the associated predicate has at least one shown edge.
-      console.log "  adding shown",pred_id        
+      console.log "  adding shown",pred_id, edge.context.id
       if not @shown_edges_by_predicate[pred_id]?
         @shown_edges_by_predicate[pred_id] = []
         # this predicate is newly identified as being shown
@@ -276,7 +331,7 @@ class CommandController
         predicates_newly_identified_as_having_unshown_edges.splice(unshown_idx)
         # We could remove this predicate from ...having_shown_edges but will not bother
         # because that list will not be used again
-        predicates_newly_identified_as_having_both.push(predicate)
+        predicates_newly_identified_as_having_some.push(predicate)
         return
       @predicate_picker.set_branch_hiddenness(pred_js_id, false)
       #@predicate_picker.color_by_selected(pred_js_id, true)
@@ -291,7 +346,7 @@ class CommandController
       @predicate_picker.set_branch_pickedness(predicate.id, false)
 
     console.log "newly both AKA mixed: to be marked mixed ============ ============ ============"
-    predicates_newly_identified_as_having_both.forEach  (predicate, i) =>
+    predicates_newly_identified_as_having_some.forEach  (predicate, i) =>
       pred_js_id = uri_to_js_id(predicate.id)
       console.log " ",pred_js_id,"mixed"
       @predicate_picker.set_branch_hiddenness(pred_js_id, false)

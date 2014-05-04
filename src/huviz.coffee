@@ -362,10 +362,10 @@ class Huviz
         @run_verb_on_object 'discard', @dragging
       else if @in_disconnect_dropzone(@dragging)
         @run_verb_on_object 'shelve', @dragging
-        @gclui.unpick(@dragging)
+        @unpick(@dragging)
       else if @dragging.links_shown.length == 0
         @run_verb_on_object 'choose', @dragging
-        @gclui.pick(@dragging)
+        @pick(@dragging)
       else if @nodes_pinnable
         @dragging.fixed = not @dragging.fixed
       @dragging = false
@@ -1046,10 +1046,10 @@ class Huviz
         if @try_to_set_node_type(subj_n,quad.o.value)
           @develop(subj_n) # might be ready now
       else
-        e = new Edge(subj_n,obj_n,pred_n,cntx_n)
+        edge = new Edge(subj_n,obj_n,pred_n,cntx_n)
         pred_n_js_id = uri_to_js_id(pred_n.id)
-        e.color = @gclui.predicate_picker.get_color_forId_byName(pred_n_js_id,'showing')
-        edge_e = @add_edge(e)
+        edge.color = @gclui.predicate_picker.get_color_forId_byName(pred_n_js_id,'showing')
+        edge_e = @add_edge(edge)
         @develop(obj_n)
 
     else
@@ -1624,6 +1624,21 @@ class Huviz
     @hidden_set.acquire hidee
     @update_state hidee
     @update_showing_links hidee
+
+  #
+  # The verbs PICK and UNPICK perhaps don't need to be exposed on the UI
+  # but they perform the function of manipulating the set of @gclui.subjects
+  # which perhaps ought to live here in huviz instead
+  #   FIXME move gclui.subjects to huviz.picked (consider the picked/chosen distinction)
+  pick: (node) =>
+    # FIXME OMG this is inefficient, .subject should be a SortedSet
+    if not (node in @gclui.subjects) 
+      @gclui.toggle_picked(node)
+
+  unpick: (node) =>
+    # FIXME OMG this is inefficient, .subject should be a SortedSet
+    if (node in @gclui.subjects)
+      @gclui.toggle_picked(node)
 
   # The Verbs PRINT and REDACT show and hide snippets respectively
   print: (node) =>
