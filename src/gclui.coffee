@@ -13,6 +13,7 @@ TreePicker = require('treepicker').TreePicker
 ColoredTreePicker = require('coloredtreepicker').ColoredTreePicker
 class CommandController
   constructor: (@huviz,@container,@hierarchy) ->
+    document.addEventListener 'dataset-loaded', @pick_everything    
     d3.select(@container).html("")
     @comdiv = d3.select(@container).append("div")
     #@gclpane = @comdiv.append('div').attr('class','gclpane')
@@ -30,6 +31,9 @@ class CommandController
     @init_editor_data()
     @build_form()
     @update_command()
+
+  pick_everything: () =>
+    @onnodeclasspicked 'everything',true
 
   init_editor_data: ->
     # operations common to the constructor and reset_editor
@@ -116,7 +120,7 @@ class CommandController
     @recolor_edges()
 
   onpredicateclicked: (pred_id,selected,elem) =>
-    @predicate_picker.color_by_selected(elem,selected)
+    @predicate_picker.color_by_selected(pred_id,selected)
     if selected
       verb = 'show'
     else
@@ -158,7 +162,7 @@ class CommandController
     # When we pick "everything" we mean:
     #    all nodes except the embryonic and the discarded
     #    OR rather, the hidden, the graphed and the unlinked
-    @node_class_picker.color_by_selected(elem,selected)
+    @node_class_picker.color_by_selected(id,selected)
     if selected
       if not (id in @node_classes_chosen)
         @node_classes_chosen.push(id)
@@ -241,7 +245,7 @@ class CommandController
     #   abstract   - the element in the tree is not a predicate but is an abstract superclass of some
 
     uri_to_js_id = @predicate_picker.uri_to_js_id
-    console.clear()
+    #console.clear()
     console.log "adding:",adding,"id:",node.id,"name:",node.name
     predicates_newly_identified_as_having_shown_edges = []    
     predicates_newly_identified_as_having_unshown_edges = []

@@ -9,6 +9,7 @@ class ColoredTreePicker extends TreePicker
     super(elem,root)
     @mapping_to_colors = {}
   add: (new_id,parent_id,name,listener) ->
+    console.log "added",new_id
     super(new_id,parent_id,name,listener)
     @mapping_to_colors = @recolor()
   recolor: ->
@@ -30,12 +31,11 @@ class ColoredTreePicker extends TreePicker
   get_color_forId_byName: (id, state_name) ->
     id = @uri_to_js_id(id)
     @mapping_to_colors[id][state_name]
-  color_by_selected: (elem, selected) ->
-    console.log("color_by_selected",elem[0][0].id,selected)
+  color_by_selected: (id, selected) ->
+    elem = @id_to_elem[id]
     state_name = selected and 'showing' or 'notshowing'
-    #state_name = selected and 'emphasized' or 'notshowing'
-    # FIXME do we really want to be dealing with this [0][0] nonsense everywhere?
-    elem.style('background-color',@mapping_to_colors[elem[0][0].id][state_name])
+    if elem?
+      elem.style('background-color',@mapping_to_colors[id][state_name])
   set_branch_mixedness: (id, bool) ->
     #  when a div represents a mixed branch then color with a gradient of the two representative colors
     #    https://developer.mozilla.org/en-US/docs/Web/CSS/linear-gradient
@@ -49,8 +49,7 @@ class ColoredTreePicker extends TreePicker
       @id_to_elem[id].style("")
   set_branch_pickedness: (id,bool) ->
     super(id, bool)
-    if @id_to_elem[id]?
-      @color_by_selected(@id_to_elem[id], bool)
+    @color_by_selected(id, bool)
   ###
   set_branch_state: (id, state) -> # hidden|notshowing|showing|emphasizing|mixed
     mixedness = false
