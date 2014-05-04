@@ -1218,6 +1218,10 @@ class Huviz
         #alert msg
     worker.postMessage({uri:uri})
 
+  pick_everything: () =>
+    for node in @nodes
+      @pick node
+
   DUMPER: (data) =>
     console.log data
 
@@ -1767,7 +1771,8 @@ class Huviz
     
 
   constructor: ->
-    window.addEventListener 'nextsubject', @onnextsubject
+    document.addEventListener 'nextsubject', @onnextsubject
+    document.addEventListener 'dataset-loaded', @pick_everything
     #@reset_graph() # FIXME should it be a goal to make this first?
     @init_sets()    #   because these are the first two lines of reset_graph
     @init_gclc()   

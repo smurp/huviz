@@ -39,13 +39,11 @@ class CommandController
     @subjects = []
         
   reset_editor: ->
-    console.log "reset_editor","====================="
     @disengage_all_verbs()
     @deselect_all_node_classes()
     @init_editor_data()
     @clear_like()
     @update_command()
-    #@predicate_picker.set_all_hiddenness(true)
 
   add_clear_both: (target) ->
     # keep taxonomydiv from being to the right of the verbdiv
@@ -124,7 +122,6 @@ class CommandController
     else
       verb = 'suppress'
     #console.clear()
-    console.log "engaged_verbs:",@engaged_verbs
     cmd = new gcl.GraphCommand
       verbs: [verb]
       regarding: [pred_id]
@@ -142,7 +139,6 @@ class CommandController
     for edge in @huviz.links_set
       # FIXME set edge color by state
       # FIXME is this needed?
-      console.log "recolor_edges:", edge.id, "state:", edge.state.name
       edge.color = @predicate_picker.get_color_forId_byName(pred_n_js_id,'showing')
 
   build_nodeclasspicker: ->
@@ -162,7 +158,6 @@ class CommandController
     # When we pick "everything" we mean:
     #    all nodes except the embryonic and the discarded
     #    OR rather, the hidden, the graphed and the unlinked
-    console.log "onnodeclasspicked:", id, "<======"
     @node_class_picker.color_by_selected(elem,selected)
     if selected
       if not (id in @node_classes_chosen)
@@ -181,7 +176,6 @@ class CommandController
       @huviz.gclc.run(cmd)
       
     @update_command()
-    #console.log("set_branch_mixedness: anything")
     # ////////////////////////////////////////
     # FIXME this is just for testing
     # @predicate_picker.set_branch_mixedness('anything',true)
