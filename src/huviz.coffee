@@ -1580,6 +1580,8 @@ class Huviz
     @unlink goner
     @discarded_set.acquire goner
     @update_showing_links goner
+    @unpick goner
+    @gclui.update_predicate_visibility(false, goner)
     goner
 
   undiscard: (prodigal) ->  # TODO(smurp) rename command to 'retrieve' ????
@@ -1601,6 +1603,7 @@ class Huviz
     @update_showing_links goner
     if goner.links_shown.length > 0
       console.log "shelving failed for",goner
+    @gclui.update_predicate_visibility(false, goner)
     goner
 
   choose: (chosen) =>
@@ -1617,6 +1620,7 @@ class Huviz
       @unlinked_set.acquire chosen
     @update_state chosen
     @update_showing_links chosen
+    @gclui.update_predicate_visibility(true, chosen)
     chosen
 
   hide: (hidee) =>
@@ -1624,6 +1628,7 @@ class Huviz
     @hidden_set.acquire hidee
     @update_state hidee
     @update_showing_links hidee
+    @gclui.update_predicate_visibility(false, hidee)
 
   #
   # The verbs PICK and UNPICK perhaps don't need to be exposed on the UI
@@ -1639,6 +1644,8 @@ class Huviz
     # FIXME OMG this is inefficient, .subject should be a SortedSet
     if (node in @gclui.subjects)
       @gclui.toggle_picked(node)
+    else
+      console.log node.id + " was not in @gclui.subjects, so did not toggle_picked()"
 
   # The Verbs PRINT and REDACT show and hide snippets respectively
   print: (node) =>

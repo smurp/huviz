@@ -7,49 +7,67 @@ TreePicker = require('treepicker').TreePicker
 class ColoredTreePicker extends TreePicker
   constructor: (elem,root) ->
     super(elem,root)
-    @mapping_to_colors = {}
-  add: (new_id,parent_id,name,listener) ->
-    console.log "added",new_id
-    super(new_id,parent_id,name,listener)
-    @mapping_to_colors = @recolor()
+    @id_to_colors = {}
+  add: (id,parent_id,name,listener) ->
+    console.log "added",id
+    super(id,parent_id,name,listener)
+    @id_to_colors = @recolor()
+    console.log "id_to_colors", @id_to_colors
   recolor: ->
-    count = 0
-    for id,elem of @id_to_elem
-      count++
+    count = Object.keys(@id_to_elem).length - @get_abstract_count()
     i = 0
     retval = {}
     for id,elem of @id_to_elem
-      i++
+      if @is_abstract(id)
+        continue
+      i++        
       hue = i/count * 360
-      showing = 
       retval[id] =
         notshowing:  hsv2rgb(hue,12,100)
         showing:     hsv2rgb(hue,55,100)
         emphasizing: hsv2rgb(hue,100,100)
       elem.style("background-color",retval[id].notshowing)
+
     retval
   get_color_forId_byName: (id, state_name) ->
     id = @uri_to_js_id(id)
-    @mapping_to_colors[id][state_name]
+    colors = @id_to_colors[id]
+    if colors?
+      return colors[state_name]
+    else
+      msg = "get_color_forId_byName(" + id + ") failed because @id_to_colors[id] not found"
+      console.log msg,@id_to_colors
   color_by_selected: (id, selected) ->
     elem = @id_to_elem[id]
     state_name = selected and 'showing' or 'notshowing'
     if elem?
-      elem.style('background-color',@mapping_to_colors[id][state_name])
+      colors = @id_to_colors[id]
+      if colors?
+        elem.style('background-color',colors[state_name])
+      else
+        if @id_is_abstract[id]? and not @id_is_abstract[id]
+          msg = "id_to_colors has no colors for " + id
+          console.log msg
   set_branch_mixedness: (id, bool) ->
     #  when a div represents a mixed branch then color with a gradient of the two representative colors
     #    https://developer.mozilla.org/en-US/docs/Web/CSS/linear-gradient
     console.log("set_branch_mixedness()",id,bool)
     if bool
-      sc = @mapping_to_colors[id].showing
-      nc = @mapping_to_colors[id].notshowing
+      sc = @id_to_colors[id].showing
+      nc = @id_to_colors[id].notshowing
       @id_to_elem[id].style("background: linear-gradient("+ sc + ", " + nc + ")" )
       console.log("  mixed:",@id_to_elem[id])
     else
       @id_to_elem[id].style("")
   set_branch_pickedness: (id,bool) ->
     super(id, bool)
-    @color_by_selected(id, bool)
+    #@color_by_selected(id, bool)
+    @render(id,bool)
+  render: (id,selectedness) ->
+    if @is_abstract(id)
+      @set_branch_mixedness(id, selectedness)
+    else
+      @color_by_selected(id, selectedness)
   ###
   set_branch_state: (id, state) -> # hidden|notshowing|showing|emphasizing|mixed
     mixedness = false

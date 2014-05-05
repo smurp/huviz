@@ -13,7 +13,8 @@ TreePicker = require('treepicker').TreePicker
 ColoredTreePicker = require('coloredtreepicker').ColoredTreePicker
 class CommandController
   constructor: (@huviz,@container,@hierarchy) ->
-    document.addEventListener 'dataset-loaded', @pick_everything    
+    document.addEventListener 'dataset-loaded', @pick_everything
+    document.addEventListener 'dataset-loaded', @recolor_edges
     d3.select(@container).html("")
     @comdiv = d3.select(@container).append("div")
     #@gclpane = @comdiv.append('div').attr('class','gclpane')
@@ -117,7 +118,6 @@ class CommandController
 
   add_newpredicate: (pred_id,parent,pred_name) =>
     @predicate_picker.add(pred_id,parent,pred_name,@onpredicateclicked)
-    @recolor_edges()
 
   onpredicateclicked: (pred_id,selected,elem) =>
     @predicate_picker.color_by_selected(pred_id,selected)
@@ -134,16 +134,18 @@ class CommandController
     @prepare_command cmd
     @huviz.gclc.run(@command)
 
-  recolor_nodes: ->
+  recolor_nodes: =>
     # The nodes needing recoloring are all but the embryonic.
     for node in @huviz.nodes
       node.color = @huviz.color_by_type(node)
 
-  recolor_edges: ->
-    for edge in @huviz.links_set
-      # FIXME set edge color by state
-      # FIXME is this needed?
-      edge.color = @predicate_picker.get_color_forId_byName(pred_n_js_id,'showing')
+  recolor_edges: =>
+    count = 0
+    for node in @huviz.nodes
+      for edge in node.links_from
+        count++
+        pred_n_js_id = edge.predicate.id
+        edge.color = @predicate_picker.get_color_forId_byName(pred_n_js_id,'showing')
 
   build_nodeclasspicker: ->
     id = 'classes'
@@ -246,6 +248,8 @@ class CommandController
 
     uri_to_js_id = @predicate_picker.uri_to_js_id
     #console.clear()
+    # alert "update_predicate_visibility()"
+    console.log "update_predicate_visibility()"
     console.log "adding:",adding,"id:",node.id,"name:",node.name
     predicates_newly_identified_as_having_shown_edges = []    
     predicates_newly_identified_as_having_unshown_edges = []

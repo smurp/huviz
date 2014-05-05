@@ -17,7 +17,19 @@ class TreePicker
   constructor: (elem,root) ->
     @elem = d3.select(elem)
     @id_to_elem = {root:elem}
+    @id_to_elem[root] = elem
     @ids_in_arrival_order = [root]
+    @id_is_abstract = {}
+    @set_abstract(root)
+    @set_abstract('root')
+    # alert 'root =' + root
+  set_abstract: (id) ->
+    @id_is_abstract[id] = true
+  get_abstract_count: ->
+    return Object.keys(@id_is_abstract).length
+  is_abstract: (id) ->
+    tmp = @id_is_abstract[id]
+    tmp? and tmp
   uri_to_js_id: (uri) ->
     uri.match(/([\w\d\_\-]+)$/g)[0]
   show_tree: (tree,i_am_in,listener) ->
