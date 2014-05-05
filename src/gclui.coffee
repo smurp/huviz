@@ -246,6 +246,8 @@ class CommandController
     #   mixed      - the predicate is used by selected nodes and some edges are showing but not all
     #   abstract   - the element in the tree is not a predicate but is an abstract superclass of some
 
+    if @huviz.LOGGING?
+      alert "update_predicate_visibility() " + adding + " node.id:" + node.id
     uri_to_js_id = @predicate_picker.uri_to_js_id
     #console.clear()
     # alert "update_predicate_visibility()"
@@ -308,20 +310,37 @@ class CommandController
       # we must find those links_from which are not links_shown
 
       pred_id = uri_to_js_id(edge.predicate.id)
+      msg = "consider_edge_significance() adding:" + adding + " edge:" +edge.id + " i:" + i      
+      console.log msg
+      
       if adding
-        if edge.shown
+        console.log '  adding'
+        if edge.shown?
+          console.log '    edge.shown'          
           add_shown(pred_id, edge)
         else
+          console.log '    not edge.shown'
           add_unshown(pred_id, edge)
       else
-        if edge.shown
+        console.log '  not adding'
+        if edge.shown?
+          console.log '    edge.shown'
           remove_shown(pred_id, edge)
         else
+          console.log '    not edge.shown'
           remove_unshown(pred_id, edge)
 
-    # Consider all the edges for which node is either subject or object
-    node.links_from.forEach consider_edge_significance # node is the subject
-    node.links_to.forEach consider_edge_significance   # node is the object
+
+    # Consider all the edges for which node is subject or the object
+    REVERSEDLY = false # this can be destructive, so go backwards
+    if REVERSEDLY
+      for i in [node.links_from.length-1..0] by -1
+        consider_edge_significance(node.links_from[i],i)
+      for i in [node.links_to.length-1..0] by -1
+        consider_edge_significance(node.links_to[i],i)
+    else
+      node.links_to.forEach consider_edge_significance   # node is the object
+      node.links_from.forEach consider_edge_significance # node is the subject
 
     console.log "newly shown: to be picked ============"
     predicates_newly_identified_as_having_shown_edges.forEach (predicate, i) =>
