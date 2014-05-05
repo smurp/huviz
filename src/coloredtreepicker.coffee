@@ -53,9 +53,19 @@ class ColoredTreePicker extends TreePicker
     #    https://developer.mozilla.org/en-US/docs/Web/CSS/linear-gradient
     console.log("set_branch_mixedness()",id,bool)
     if bool
-      sc = @id_to_colors[id].showing
-      nc = @id_to_colors[id].notshowing
-      @id_to_elem[id].style("background: linear-gradient("+ sc + ", " + nc + ")" )
+      if @is_abstract(id)
+        msg =  "set_branch_mixedness(" +id + "): " + bool + " for abstract"
+        console.log msg
+        # FIXME these colors should come from first and last child of this abstraction
+        sc = 'red'
+        nc = 'green'
+      else
+        # these colors show the range from showing to notshowing for this predicate
+        sc = @id_to_colors[id].showing
+        nc = @id_to_colors[id].notshowing
+      the_style = "background: linear-gradient("+ sc + ", " + nc + ")"
+      @id_to_elem[id].style(the_style)
+      console.log the_style
       console.log("  mixed:",@id_to_elem[id])
     else
       @id_to_elem[id].style("")
