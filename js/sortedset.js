@@ -88,7 +88,9 @@ var SortedSet = function(){
 	// the itm[flag_property].  When the item is removed from 
 	// the isFlagged SortedSet then that flag_property is deleted.
 	// The default value for the name of the flag_property is
-	// simply the name of SortedSet().
+	// simply the name of SortedSet().  The motivation of course
+        // is for many flags to be able to be set on each node, unlike 
+        // states, which are mutually exclusive.
 	array.flag_property = flag_property || array.state_name;
 	return array;
     };        
@@ -97,6 +99,15 @@ var SortedSet = function(){
 	return array;
     };
     array.sort_on('id');
+    array.toggle = function(itm){
+        // Objective:
+        //   add() or remove() as needed
+        if (array.has(itm)) {
+	    array.remove(itm);
+	} else {
+	    array.add(itm);
+	}
+    };
     array.add = function(itm){
 	// Objective:
 	//   Maintain a sorted array which acts like a set.
@@ -115,7 +126,13 @@ var SortedSet = function(){
 	return c.idx;
     }
     array.has = function(itm){ // AKA contains() or is_state_of()
-	return (itm.state == array);
+	if (array.state_property){
+	    return itm.state == array;
+	}
+	if (array.flag_property){
+	    return itm[array.flag_property] == array;
+	}
+	alert("we should never get here");
     };
     array.remove = function(itm){
 	// Objective:

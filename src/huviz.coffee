@@ -183,7 +183,7 @@ class Huviz
   draw_circle_around_focused: false
   draw_lariat_labels_rotated: true
   run_force_after_mouseup_msec: 2000
-  nodes_pinnable: true
+  nodes_pinnable: false
 
   BLANK_HACK: false
   width: undefined
@@ -332,9 +332,11 @@ class Huviz
       # We can only know that the users intention is to drag
       # a node once sufficient motion has started, when there
       # is a focused_node
+      console.log "state_name == '" + @focused_node.state.state_name + "' and picked? == " + @focused_node.picked?
       console.log "START_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
       @dragging = @focused_node
       if @dragging.state isnt @graphed_set
+        console.log "graphed_set.acquire()"
         @graphed_set.acquire(@dragging)
     if @dragging
       @force.resume() # why?
@@ -353,10 +355,10 @@ class Huviz
     d3_event = @mouse_receiver[0][0]    
     @mousedown_point = false
     point = d3.mouse(d3_event)
-    
-    #console.log(point,mousedown_point,distance(point,mousedown_point));
+
     # if something was being dragged then handle the drop
     if @dragging
+      #console.log "STOPPING_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
       @move_node_to_point @dragging, point
       if @in_discard_dropzone(@dragging)
         @run_verb_on_object 'discard', @dragging
@@ -378,7 +380,9 @@ class Huviz
 
     # this is the node being clicked
     if @focused_node # and @focused_node.state is @graphed_set
-      @gclui.toggle_picked(@focused_node)
+      @picked_set.toggle(@focused_node)
+      #alert(@focused_node.id + " is now picked: " + @focused_node.picked?)
+      @gclui.update_visibility(@focused_node.picked?, @focused_node)
       @tick()
       return
 
@@ -535,6 +539,10 @@ class Huviz
 
     @chosen_set = SortedSet().named("chosen").isFlag().sort_on("id")
     @chosen_set.docs = "Nodes which the user has picked to graph are 'chosen'."
+    @chosen_set.comment = "This concept should perhaps be retired now that picked_set is being maintainted."
+
+    @picked_set = SortedSet().named("picked").isFlag().sort_on("id")
+    @picked_set.docs = "Nodes which are in the currently 'picked' set visible to the user."
 
     @unlinked_set  = SortedSet().sort_on("name").named("unlinked").isState()
     @discarded_set = SortedSet().sort_on("name").named("discarded").isState()
@@ -777,11 +785,8 @@ class Huviz
         "translate(" + d.fisheye.x + "," + d.fisheye.y + ")"
       ).attr "r", calc_node_radius
     if @use_canvas or @use_webgl
-      #console.log "draw_nodes() @nodes:", @nodes.length, "@graphed:", @graphed_set.length
       @nodes.forEach (d, i) =>
         return unless @graphed_set.has(d)
-        #if i < 3
-        #  console.log i,d
         d.fisheye = @fisheye(d)
         if @use_canvas
           @draw_circle(d.fisheye.x, d.fisheye.y,
@@ -860,15 +865,17 @@ class Huviz
     @update_status()
 
   update_status: ->
-    msg = "linked:" + @nodes.length +
-          " shelved:" + @unlinked_set.length +
-          " hidden:" + @hidden_set.length +          
-          " links:" + @links_set.length +
-          " embryos:" + @embryonic_set.length +
-          " discarded:" + @discarded_set.length +
+    msg = "nodes:" + @nodes.length +
+          "\ngraphed:" + @graphed_set.length +    
+          "\nshelved:" + @unlinked_set.length +
+          "\nhidden:" + @hidden_set.length +          
+          "\nlinks:" + @links_set.length +
+          "\nembryos:" + @embryonic_set.length +
+          "\ndiscarded:" + @discarded_set.length +
           #" subjects:" + (@my_graph.subjects.length) +
-          " chosen:" + @chosen_set.length +
-          " predicates:"  + Object.keys(@my_graph.predicates).length
+          "\nchosen:" + @chosen_set.length +
+          "\npredicates:"  + Object.keys(@my_graph.predicates).length +
+          "\npicked:"  + @picked_set.length
     msg += " DRAG"  if @dragging
     @set_status msg
     #@push_snippet msg
@@ -1323,6 +1330,7 @@ class Huviz
     @links_set.add e
     @add_to e, e.source.links_shown
     @add_to e, e.target.links_shown
+    #@gclui.add_shown(edge.predicate.lid,edge)
 
   add_link: (e) ->
     @add_to e, e.source.links_from
@@ -1350,6 +1358,7 @@ class Huviz
     @links_set.add edge
     @update_state edge.source
     @update_state edge.target
+    @gclui.add_shown(edge.predicate.lid,edge)
 
   unshow_link: (edge) ->
     @remove_from edge,edge.source.links_shown
@@ -1357,6 +1366,7 @@ class Huviz
     @links_set.remove edge
     @update_state edge.source
     @update_state edge.target
+    @gclui.remove_shown(edge.predicate.lid,edge)
 
   show_links_to_node: (n, incl_discards) ->
     incl_discards = incl_discards or false
@@ -1416,7 +1426,7 @@ class Huviz
     obj_id = @make_qname(sid)
     obj_n = @predicate_set.get_by('id',obj_id)
     if not obj_n?
-      obj_n = {id:obj_id}
+      obj_n = {id:obj_id, lid:obj_id.match(/([\w\d\_\-]+)$/g)[0]} # lid means local id
       @predicate_set.add(obj_n)
     obj_n
 
@@ -1632,20 +1642,20 @@ class Huviz
 
   #
   # The verbs PICK and UNPICK perhaps don't need to be exposed on the UI
-  # but they perform the function of manipulating the set of @gclui.subjects
-  # which perhaps ought to live here in huviz instead
-  #   FIXME move gclui.subjects to huviz.picked (consider the picked/chosen distinction)
+  # but they perform the function of manipulating the @picked_set
   pick: (node) =>
-    # FIXME OMG this is inefficient, .subject should be a SortedSet
-    if not (node in @gclui.subjects) 
-      @gclui.toggle_picked(node)
+    if not node.picked?
+      @picked_set.add(node)
+      @gclui.update_visibility(node.picked?, node)
+    #else
+    #  console.log node.id + " was already in @picked_set, so @pick() was NOOP"
 
   unpick: (node) =>
-    # FIXME OMG this is inefficient, .subject should be a SortedSet
-    if (node in @gclui.subjects)
-      @gclui.toggle_picked(node)
-    else
-      console.log node.id + " was not in @gclui.subjects, so did not toggle_picked()"
+    if node.picked?
+      @picked_set.remove(node)
+      @gclui.update_visibility(node.picked?, node)      
+    #else
+    #  console.log(node.id + " was not in @picked_set, so @unpick() was NOOP")
 
   # The Verbs PRINT and REDACT show and hide snippets respectively
   print: (node) =>
@@ -1772,8 +1782,22 @@ class Huviz
 
   populate_taxonomy: () ->
     
+  log: () ->
+    console.log arguments
+    if @LOGGING
+      alert arguments.toString()
+    else
+      alert("BROKEN")
 
+  toggle_logging: () ->
+    if @console_log?
+      console.log = @console_log
+    else
+      @console_log = console.log
+      console.log = () ->
+    
   constructor: ->
+    @toggle_logging()
     document.addEventListener 'nextsubject', @onnextsubject
     #@reset_graph() # FIXME should it be a goal to make this first?
     @init_sets()    #   because these are the first two lines of reset_graph

@@ -65,10 +65,11 @@
 #status {
   background-color:lightgrey;
   position:absolute;
-  bottom: .2em;
+  bottom: -0.8em;
   right: .2em;
   font-size: 60%;
-  z-index:2;
+  z-index: -100;
+  user-select: none;
 }
 #snippet_box {
   position:absolute;

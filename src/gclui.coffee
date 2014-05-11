@@ -41,7 +41,7 @@ class CommandController
     @shown_edges_by_predicate = {}
     @unshown_edges_by_predicate = {}
     @node_classes_chosen = [] # new SortedSet()
-    @subjects = []
+    #@subjects = [] # FIXME remove as part of switch to @huviz.picked_set
         
   reset_editor: ->
     @disengage_all_verbs()
@@ -191,7 +191,7 @@ class CommandController
     @node_classes_chosen = @node_classes_chosen.filter (eye_dee) ->
       eye_dee isnt node_class
 
-  toggle_picked: (subject) => # FIXME rename subject to node
+  XXX_toggle_picked: (subject) => # FIXME rename subject to node
     if not (subject in @subjects)
       adding = true
       @subjects.push(subject)
@@ -204,7 +204,7 @@ class CommandController
     @update_predicate_visibility(adding, subject)
     @update_command()
 
-  update_nodeclass_visibility: (adding, node) =>
+  update_node_visibility: (adding, node) =>
     # Maintain the nodeclass picker
     # 
     # # Elements may be in one of these states:
@@ -221,12 +221,61 @@ class CommandController
     classes_newly_identified_as_having_some_nodes = []
     classes_newly_identified_as_having_neither = []
 
+  add_shown: (pred_id, edge) =>
+    if @huviz.LOGGING?
+      alert "add_shown(" + pred_id + ", " + edge.id + ")"
+    # This edge is shown, so the associated predicate has at least one shown edge.
+    console.log "  adding shown",pred_id, edge.context.id
+    if not @shown_edges_by_predicate[pred_id]?
+      @shown_edges_by_predicate[pred_id] = []
+      # this predicate is newly identified as being shown
+      @predicates_newly_identified_as_having_shown_edges.push(edge.predicate)
+    @shown_edges_by_predicate[pred_id].push(edge)
+
+  remove_shown: (pred_id, edge) =>
+    # The node with this edge is being removed from consideration so the predicate
+    # associated with this edge has one fewer (or now possibly no) uses.
+    console.log "  removing shown",pred_id      
+    if @shown_edges_by_predicate[pred_id]?
+      @shown_edges_by_predicate[pred_id] = @shown_edges_by_predicate[pred_id].filter (member) ->
+        edge isnt member
+      if not @shown_edges_by_predicate[pred_id].length
+        delete @shown_edges_by_predicate[pred_id]
+        @predicates_newly_identified_as_having_neither.push(edge.predicate)
+          
+  add_unshown: (pred_id, edge) =>
+    # This edge is not shown, so the associated predicate has at least one unshown edge
+    console.log "  adding unshown",pred_id
+    if not @unshown_edges_by_predicate[pred_id]?
+      @unshown_edges_by_predicate[pred_id] = []
+      @predicates_newly_identified_as_having_unshown_edges.push(edge.predicate)
+    @unshown_edges_by_predicate[pred_id].push(edge)
+
+  remove_unshown: (pred_id, edge) =>
+    # The node with this edge is being removed from consideration so the predicate
+    # associated with this edge has one fewer (or now possibly no) uses.
+    console.log "  removing unshown",pred_id
+    if @unshown_edges_by_predicate[pred_id]?
+      @unshown_edges_by_predicate[pred_id] = @unshown_edges_by_predicate[pred_id].filter (member) ->
+        edge isnt member
+      if not @unshown_edges_by_predicate[pred_id].length
+        delete @unshown_edges_by_predicate[pred_id]
+        if not @shown_edges_by_predicate[pred_id]?
+          @predicates_newly_identified_as_having_neither.push(edge.predicate)
+
+  update_visibility: (adding, node) =>
+    @update_predicate_visibility(adding,node)
+    @update_node_visibility(adding,node)
+    node.color = @node_class_picker.get_color_forId_byName(node.type, adding and 'emphasizing' or 'showing')
+    @update_command()
+    alert "update_visibility() " + node.name
+
   update_predicate_visibility: (adding, node) =>
     # Maintain per-predicate lists of shown and unshown edges
     # and the list of predicates which have predicates of either
     # kind among the set of nodes which are the current subject set.
     # This collection of data is used to determine the state of
-    # the elements in the predicate_picker, wrt the current subjects:
+    # the elements in the predicate_picker, wrt the current @picked_set:
     #  * hidden for those predicates with no edges
     #  * showing-colored for those with edges showing
     #  * notshowing-colored for those with edges but none showing
@@ -253,50 +302,10 @@ class CommandController
     # alert "update_predicate_visibility()"
     console.log "update_predicate_visibility()"
     console.log "adding:",adding,"id:",node.id,"name:",node.name
-    predicates_newly_identified_as_having_shown_edges = []    
-    predicates_newly_identified_as_having_unshown_edges = []
-    predicates_newly_identified_as_having_some = []
-    predicates_newly_identified_as_having_neither = []
-
-    add_shown = (pred_id, edge) =>
-      # This edge is shown, so the associated predicate has at least one shown edge.
-      console.log "  adding shown",pred_id, edge.context.id
-      if not @shown_edges_by_predicate[pred_id]?
-        @shown_edges_by_predicate[pred_id] = []
-        # this predicate is newly identified as being shown
-        predicates_newly_identified_as_having_shown_edges.push(edge.predicate)
-      @shown_edges_by_predicate[pred_id].push(edge)
-
-    remove_shown = (pred_id, edge) =>
-      # The node with this edge is being removed from consideration so the predicate
-      # associated with this edge has one fewer (or now possibly no) uses.
-      console.log "  removing shown",pred_id      
-      if @shown_edges_by_predicate[pred_id]?
-        @shown_edges_by_predicate[pred_id] = @shown_edges_by_predicate[pred_id].filter (member) ->
-          edge isnt member
-        if not @shown_edges_by_predicate[pred_id].length
-          delete @shown_edges_by_predicate[pred_id]
-          predicates_newly_identified_as_having_neither.push(edge.predicate)
-          
-    add_unshown = (pred_id, edge) =>
-      # This edge is not shown, so the associated predicate has at least one unshown edge
-      console.log "  adding unshown",pred_id
-      if not @unshown_edges_by_predicate[pred_id]?
-        @unshown_edges_by_predicate[pred_id] = []
-        predicates_newly_identified_as_having_unshown_edges.push(edge.predicate)
-      @unshown_edges_by_predicate[pred_id].push(edge)
-
-    remove_unshown = (pred_id, edge) =>
-      # The node with this edge is being removed from consideration so the predicate
-      # associated with this edge has one fewer (or now possibly no) uses.
-      console.log "  removing unshown",pred_id
-      if @unshown_edges_by_predicate[pred_id]?
-        @unshown_edges_by_predicate[pred_id] = @unshown_edges_by_predicate[pred_id].filter (member) ->
-          edge isnt member
-        if not @unshown_edges_by_predicate[pred_id].length
-          delete @unshown_edges_by_predicate[pred_id]
-          if not @shown_edges_by_predicate[pred_id]?
-            predicates_newly_identified_as_having_neither.push(edge.predicate)
+    @predicates_newly_identified_as_having_shown_edges = []    
+    @predicates_newly_identified_as_having_unshown_edges = []
+    @predicates_newly_identified_as_having_some = []
+    @predicates_newly_identified_as_having_neither = []
     
     consider_edge_significance = (edge, i) =>
       # FIXME perhaps we should exclude edges where edge.subject isnt subject
@@ -317,18 +326,18 @@ class CommandController
         console.log '  adding'
         if edge.shown?
           console.log '    edge.shown'          
-          add_shown(pred_id, edge)
+          @add_shown(pred_id, edge)
         else
           console.log '    not edge.shown'
-          add_unshown(pred_id, edge)
+          @add_unshown(pred_id, edge)
       else
         console.log '  not adding'
         if edge.shown?
           console.log '    edge.shown'
-          remove_shown(pred_id, edge)
+          @remove_shown(pred_id, edge)
         else
           console.log '    not edge.shown'
-          remove_unshown(pred_id, edge)
+          @remove_unshown(pred_id, edge)
 
 
     # Consider all the edges for which node is subject or the object
@@ -343,23 +352,23 @@ class CommandController
       node.links_from.forEach consider_edge_significance # node is the subject
 
     console.log "newly shown: to be picked ============"
-    predicates_newly_identified_as_having_shown_edges.forEach (predicate, i) =>
+    @predicates_newly_identified_as_having_shown_edges.forEach (predicate, i) =>
       pred_js_id = uri_to_js_id(predicate.id)
       #pred_js_id = predicate.id
       console.log " ",pred_js_id, "newly showing"
-      unshown_idx = predicates_newly_identified_as_having_unshown_edges.indexOf(predicate)
+      unshown_idx = @predicates_newly_identified_as_having_unshown_edges.indexOf(predicate)
       if unshown_idx > -1
-        predicates_newly_identified_as_having_unshown_edges.splice(unshown_idx)
+        @predicates_newly_identified_as_having_unshown_edges.splice(unshown_idx)
         # We could remove this predicate from ...having_shown_edges but will not bother
         # because that list will not be used again
-        predicates_newly_identified_as_having_some.push(predicate)
+        @predicates_newly_identified_as_having_some.push(predicate)
         return
       @predicate_picker.set_branch_hiddenness(pred_js_id, false)
       #@predicate_picker.color_by_selected(pred_js_id, true)
       @predicate_picker.set_branch_pickedness(pred_js_id, true)
 
     console.log "newly unshown: to be unpicked ============ ============"
-    predicates_newly_identified_as_having_unshown_edges.forEach (predicate, i) =>
+    @predicates_newly_identified_as_having_unshown_edges.forEach (predicate, i) =>
       # no need to compare with ...having_shown_edges because that is done above
       pred_js_id = uri_to_js_id(predicate.id)
       console.log " ",pred_js_id, "unshowing"
@@ -367,14 +376,14 @@ class CommandController
       @predicate_picker.set_branch_pickedness(predicate.id, false)
 
     console.log "newly both AKA mixed: to be marked mixed ============ ============ ============"
-    predicates_newly_identified_as_having_some.forEach  (predicate, i) =>
+    @predicates_newly_identified_as_having_some.forEach  (predicate, i) =>
       pred_js_id = uri_to_js_id(predicate.id)
       console.log " ",pred_js_id,"mixed"
       @predicate_picker.set_branch_hiddenness(pred_js_id, false)
       @predicate_picker.set_branch_mixedness(predicate.id,true)
 
     console.log "newly neither: to be hidden ============ ============ ============ ============"
-    predicates_newly_identified_as_having_neither.forEach (predicate, i) =>
+    @predicates_newly_identified_as_having_neither.forEach (predicate, i) =>
       pred_js_id = uri_to_js_id(predicate.id)
       console.log " ",pred_js_id,"hiding"
       @predicate_picker.set_branch_hiddenness(pred_js_id, true)
@@ -483,8 +492,10 @@ class CommandController
     cmd_ui.text(cmd.str)
   build_command: ->
     args = {}
-    if @subjects.length > 0
-      args.subjects = (s for s in @subjects)
+    # if @subjects.length > 0
+    #   args.subjects = (s for s in @subjects)
+    if @huviz.picked_set.length > 0      
+      args.subjects = (s for s in @huviz.picked_set)
     if @engaged_verbs.length > 0
       args.verbs = (v for v in @engaged_verbs)
     if @node_classes_chosen.length > 0
