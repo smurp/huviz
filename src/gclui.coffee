@@ -15,6 +15,7 @@ class CommandController
   constructor: (@huviz,@container,@hierarchy) ->
     document.addEventListener 'dataset-loaded', @on_dataset_loaded
     d3.select(@container).html("")
+    @init_indices()
     @comdiv = d3.select(@container).append("div")
     #@gclpane = @comdiv.append('div').attr('class','gclpane')
     @cmdlist = @comdiv.append('div').attr('class','commandlist')
@@ -146,7 +147,6 @@ class CommandController
       node.color = @huviz.color_by_type(node)
 
   recolor_edges: (evt) =>
-    alert "recolor_edges"
     count = 0
     for node in @huviz.nodes
       for edge in node.links_from
@@ -230,14 +230,15 @@ class CommandController
     classes_newly_identified_as_having_neither = []
 
   add_shown: (pred_id, edge) =>
-    #if @huviz.LOGGING?
     #alert "add_shown(" + pred_id + ", " + edge.id + ")"
     # This edge is shown, so the associated predicate has at least one shown edge.
     console.log "  adding shown",pred_id, edge.context.id
     if not @shown_edges_by_predicate[pred_id]?
+      console.log("shown_edges_by_predicate[" + pred_id + "]")
       @shown_edges_by_predicate[pred_id] = []
       # this predicate is newly identified as being shown
       @predicates_newly_identified_as_having_shown_edges.push(edge.predicate)
+      console.log("SET shown_edge_count: " + pred_id + " " + @predicates_newly_identified_as_having_shown_edges.length)
     @shown_edges_by_predicate[pred_id].push(edge)
 
   remove_shown: (pred_id, edge) =>
@@ -278,6 +279,12 @@ class CommandController
     @update_command()
     #alert "update_visibility() " + node.name
 
+  init_indices: ->
+    @predicates_newly_identified_as_having_shown_edges = []    
+    @predicates_newly_identified_as_having_unshown_edges = []
+    @predicates_newly_identified_as_having_some = []
+    @predicates_newly_identified_as_having_neither = []
+
   update_predicate_visibility: (adding, node) =>
     # Maintain per-predicate lists of shown and unshown edges
     # and the list of predicates which have predicates of either
@@ -310,10 +317,6 @@ class CommandController
     # alert "update_predicate_visibility()"
     console.log "update_predicate_visibility()"
     console.log "adding:",adding,"id:",node.id,"name:",node.name
-    @predicates_newly_identified_as_having_shown_edges = []    
-    @predicates_newly_identified_as_having_unshown_edges = []
-    @predicates_newly_identified_as_having_some = []
-    @predicates_newly_identified_as_having_neither = []
     
     consider_edge_significance = (edge, i) =>
       # FIXME perhaps we should exclude edges where edge.subject isnt subject
@@ -360,7 +363,9 @@ class CommandController
       node.links_from.forEach consider_edge_significance # node is the subject
 
     console.log "newly shown: to be picked ============"
+    console.log "GET shown_edge_count: " + @predicates_newly_identified_as_having_shown_edges.length
     @predicates_newly_identified_as_having_shown_edges.forEach (predicate, i) =>
+      console.log(predicate + " newly identified as having shown edges")
       pred_js_id = uri_to_js_id(predicate.id)
       #pred_js_id = predicate.id
       console.log " ",pred_js_id, "newly showing"
@@ -395,7 +400,10 @@ class CommandController
       pred_js_id = uri_to_js_id(predicate.id)
       console.log " ",pred_js_id,"hiding"
       @predicate_picker.set_branch_hiddenness(pred_js_id, true)
-    
+
+    console.log "RESET shown_edge_count: []", "adding:",adding,"id:",node.id,"name:",node.name
+    @init_indices()
+
     predicates_to_newly_hide = []
     predicates_to_newly_show = []
     

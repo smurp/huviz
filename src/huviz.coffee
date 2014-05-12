@@ -1790,15 +1790,16 @@ class Huviz
       alert("BROKEN")
 
   toggle_logging: () ->
-    alert("toggle_logging()")
+    #alert("toggle_logging()")
     if @console_log?
       console.log = @console_log
     else
       @console_log = console.log
       console.log = () ->
+    return
     
   constructor: ->
-    #@toggle_logging()
+    @toggle_logging()
     document.addEventListener 'nextsubject', @onnextsubject
     #@reset_graph() # FIXME should it be a goal to make this first?
     @init_sets()    #   because these are the first two lines of reset_graph
