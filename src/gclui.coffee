@@ -13,8 +13,7 @@ TreePicker = require('treepicker').TreePicker
 ColoredTreePicker = require('coloredtreepicker').ColoredTreePicker
 class CommandController
   constructor: (@huviz,@container,@hierarchy) ->
-    document.addEventListener 'dataset-loaded', @pick_everything
-    document.addEventListener 'dataset-loaded', @recolor_edges
+    document.addEventListener 'dataset-loaded', @on_dataset_loaded
     d3.select(@container).html("")
     @comdiv = d3.select(@container).append("div")
     #@gclpane = @comdiv.append('div').attr('class','gclpane')
@@ -33,7 +32,14 @@ class CommandController
     @build_form()
     @update_command()
 
-  pick_everything: () =>
+  on_dataset_loaded: (evt) =>
+    if not evt.done?
+      @pick_everything()
+      @recolor_edges()
+      # FIXME is there a standards-based way to prevent this happening three times?
+      evt.done = true
+
+  pick_everything: =>
     @onnodeclasspicked 'everything',true
 
   init_editor_data: ->
@@ -139,7 +145,8 @@ class CommandController
     for node in @huviz.nodes
       node.color = @huviz.color_by_type(node)
 
-  recolor_edges: =>
+  recolor_edges: (evt) =>
+    alert "recolor_edges"
     count = 0
     for node in @huviz.nodes
       for edge in node.links_from
@@ -164,6 +171,7 @@ class CommandController
     # When we pick "everything" we mean:
     #    all nodes except the embryonic and the discarded
     #    OR rather, the hidden, the graphed and the unlinked
+    console.log("onnodeclasspicked('" + id + ", " + selected + "')")
     @node_class_picker.color_by_selected(id,selected)
     if selected
       if not (id in @node_classes_chosen)
@@ -222,8 +230,8 @@ class CommandController
     classes_newly_identified_as_having_neither = []
 
   add_shown: (pred_id, edge) =>
-    if @huviz.LOGGING?
-      alert "add_shown(" + pred_id + ", " + edge.id + ")"
+    #if @huviz.LOGGING?
+    #alert "add_shown(" + pred_id + ", " + edge.id + ")"
     # This edge is shown, so the associated predicate has at least one shown edge.
     console.log "  adding shown",pred_id, edge.context.id
     if not @shown_edges_by_predicate[pred_id]?
@@ -268,7 +276,7 @@ class CommandController
     @update_node_visibility(adding,node)
     node.color = @node_class_picker.get_color_forId_byName(node.type, adding and 'emphasizing' or 'showing')
     @update_command()
-    alert "update_visibility() " + node.name
+    #alert "update_visibility() " + node.name
 
   update_predicate_visibility: (adding, node) =>
     # Maintain per-predicate lists of shown and unshown edges

@@ -9,10 +9,8 @@ class ColoredTreePicker extends TreePicker
     super(elem,root)
     @id_to_colors = {}
   add: (id,parent_id,name,listener) ->
-    console.log "added",id
     super(id,parent_id,name,listener)
     @id_to_colors = @recolor()
-    console.log "id_to_colors", @id_to_colors
   recolor: ->
     count = Object.keys(@id_to_elem).length - @get_abstract_count()
     i = 0
@@ -36,7 +34,6 @@ class ColoredTreePicker extends TreePicker
       return colors[state_name]
     else
       msg = "get_color_forId_byName(" + id + ") failed because @id_to_colors[id] not found"
-      console.log msg,@id_to_colors
   color_by_selected: (id, selected) ->
     elem = @id_to_elem[id]
     state_name = selected and 'showing' or 'notshowing'
@@ -47,7 +44,7 @@ class ColoredTreePicker extends TreePicker
       else
         if @id_is_abstract[id]? and not @id_is_abstract[id]
           msg = "id_to_colors has no colors for " + id
-          console.log msg
+          console.debug msg
   set_branch_mixedness: (id, bool) ->
     #  when a div represents a mixed branch then color with a gradient of the two representative colors
     #    https://developer.mozilla.org/en-US/docs/Web/CSS/linear-gradient
@@ -55,7 +52,6 @@ class ColoredTreePicker extends TreePicker
     if bool
       if @is_abstract(id)
         msg =  "set_branch_mixedness(" +id + "): " + bool + " for abstract"
-        console.log msg
         # FIXME these colors should come from first and last child of this abstraction
         sc = 'red'
         nc = 'green'
@@ -65,8 +61,6 @@ class ColoredTreePicker extends TreePicker
         nc = @id_to_colors[id].notshowing
       the_style = "background: linear-gradient("+ sc + ", " + nc + ")"
       @id_to_elem[id].style(the_style)
-      console.log the_style
-      console.log("  mixed:",@id_to_elem[id])
     else
       @id_to_elem[id].style("")
   set_branch_pickedness: (id,bool) ->

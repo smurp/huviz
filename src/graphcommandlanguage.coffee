@@ -161,7 +161,7 @@ class GraphCommand
     if reg_req
       for meth in @get_predicate_methods()
         err = (err_arg) ->
-          if err
+          if err_arg?
             console.log "err =",err_arg
           else
             console.log "DONE .execute()"

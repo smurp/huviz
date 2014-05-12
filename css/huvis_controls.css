@@ -67,7 +67,7 @@
   position:absolute;
   bottom: -0.8em;
   right: .2em;
-  font-size: 60%;
+  font-size: 120%;
   z-index: -100;
   user-select: none;
 }
