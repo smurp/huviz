@@ -21,13 +21,18 @@
 #     substantiate/redact -- shows source text or hides it
 #     expand/contract     -- show all links or collapse them
 #
-#  ToDo
-#    flip labels
-#    nquads parser (or trig?)  1 hr
-#    edge-picker
+# TODO(smurp) implement emphasize and deemphasize 'verbs' (we need a new word)
+#   emphasize: (node,predicate,color) =>
+#   deemphasize: (node,predicate,color) =>
+# THOUGHT: perhaps there is a distinction to be made between verbs 
+#   and 'actuators' where verbs are the things that people issue
+#   while actuators (actions?) are the one-or-more things per-verb that
+#   constitute the implementation of the verb.  The motivations are:
+#     a) that actuators may be shared between verbs
+#     b) multiple actuators might be needed per verb
+#     c) there might be applications for actuators other than verbs
+#     d) there might be update operations against gclui apart from actuators
 #
-# Use Cases
-#   show family relations 
 
 #asyncLoop = require('asynchronizer').asyncLoop
 gcl = require('graphcommandlanguage')
@@ -1670,24 +1675,27 @@ class Huviz
       @remove_snippet edge.id
 
   # deprecate
-  show_edge_regarding: (node, predicate) =>
+  show_edge_regarding: (node, predicate_lid) =>
     #alert("show_edge_regarding:" + predicate)
     node.links_from.forEach (edge,i) =>
-      @show_link edge
+      if edge.predicate.lid is predicate_lid
+        console.log "show_edge_regarding,from",i,predicate_lid
+        if not edge.shown?
+          @show_link edge
+    node.links_to.forEach (edge,i) =>
+      if edge.predicate.lid is predicate_lid
+        console.log "show_edge_regarding,to",i,predicate_lid
+        if not edge.shown?
+          @show_link edge
     
-  suppress_edge_regarding: (node, predicate) =>
+  suppress_edge_regarding: (node, predicate_lid) =>
     node.links_shown.forEach (edge,i) =>
-      @unshow_link edge
+      console.log "suppress(edge.id):",edge.id
+      #console.log "suppress_edge_regarding:",i,predicate_lid,node
+      if edge.predicate.lid is predicate_lid
+        console.log "suppress_edge_regarding",i,predicate_lid,
+        @unshow_link edge
 
-  reveal_edge_regarding: (node, predicate) =>
-    node.links_shown.forEach (edge,i) =>
-      @show_link edge
-
-  # TODO(smurp) implement emphasize and deemphasize 'verbs' (we need a new word)
-  ## emphasize: (node,predicate,color) =>
-  ## deemphasize: (node,predicate,color) =>
-
-  #update_history();
   update_history: ->
     if window.history.pushState
       the_state = {}
