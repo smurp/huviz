@@ -166,11 +166,14 @@ class GraphCommand
           else
             console.log "DONE .execute()"
         iter = (node) =>
+          console.log "looping",node.id
           for pred in @regarding
             retval = meth.call(@graph_ctrl,node,pred)
           @graph_ctrl.tick()
         #async.eachSeries nodes,iter,err
-        async.each nodes,iter,err
+        #async.each nodes,iter,err
+        nodes.forEach (node,i) =>
+          iter(node)
 
     else if @verbs[0] is 'load' # FIXME not very general, but it appears to be the sole exception
       @graph_ctrl.load(@data_uri)
@@ -187,10 +190,15 @@ class GraphCommand
           else
             console.log "DONE .execute()"
         iter = (node) =>
+          console.log "looping",node.id
           retval = meth.call(@graph_ctrl,node)        
-          @graph_ctrl.tick()
+          @graph_ctrl.tick() # TODO(smurp) move this out, or call every Nth node
         #async.eachSeries nodes,iter,err
-        async.each nodes,iter,err
+        #async.each nodes,iter,err
+        nodes.forEach (node,i) =>
+          iter(node)
+        #  retval = meth.call(@graph_ctrl,node)
+        #  @graph_ctrl.tick()
     
   update_str: ->
     missing = '____'

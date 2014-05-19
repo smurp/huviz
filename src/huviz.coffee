@@ -1356,6 +1356,7 @@ class Huviz
     @update_state e.target
     @update_state e.source
 
+  # FIXME it looks like incl_discards is not needed and could be removed
   show_link: (edge, incl_discards) ->
     return  if (not incl_discards) and (edge.target.state is @discarded_set or edge.source.state is @discarded_set)
     @add_to edge, edge.source.links_shown
@@ -1578,6 +1579,7 @@ class Huviz
     @tick()
 
   unlink: (unlinkee) ->
+    # FIXME discover whether unlink is still needed
     @hide_links_from_node unlinkee
     @hide_links_to_node unlinkee
     @unlinked_set.acquire unlinkee
@@ -1676,25 +1678,30 @@ class Huviz
 
   # deprecate
   show_edge_regarding: (node, predicate_lid) =>
-    #alert("show_edge_regarding:" + predicate)
+    doit = (edge,i,frOrTo) =>
+      if edge.predicate.lid is predicate_lid
+        console.log "  show_edge_regarding",frOrTo,predicate_lid
+        if not edge.shown?
+          @show_link edge
+
     node.links_from.forEach (edge,i) =>
-      if edge.predicate.lid is predicate_lid
-        console.log "show_edge_regarding,from",i,predicate_lid
-        if not edge.shown?
-          @show_link edge
+      doit(edge,i,'from')
     node.links_to.forEach (edge,i) =>
-      if edge.predicate.lid is predicate_lid
-        console.log "show_edge_regarding,to",i,predicate_lid
-        if not edge.shown?
-          @show_link edge
+      doit(edge,i,'to')
     
   suppress_edge_regarding: (node, predicate_lid) =>
-    node.links_shown.forEach (edge,i) =>
-      console.log "suppress(edge.id):",edge.id
-      #console.log "suppress_edge_regarding:",i,predicate_lid,node
+    doit = (edge,i,frOrTo) =>
       if edge.predicate.lid is predicate_lid
-        console.log "suppress_edge_regarding",i,predicate_lid,
+        console.log "  suppress_edge_regarding",predicate_lid,node.id
         @unshow_link edge
+    node.links_from.forEach (edge,i) =>
+      doit(edge,i,'from')
+    node.links_to.forEach (edge,i) =>
+      doit(edge,i,'to')
+
+    # FIXME(shawn) Looping through links_shown should suffice
+    #node.links_shown.forEach (edge,i) =>
+    #  doit(edge,'shown')
 
   update_history: ->
     if window.history.pushState

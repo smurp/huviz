@@ -57,10 +57,13 @@ class ColoredTreePicker extends TreePicker
         nc = 'green'
       else
         # these colors show the range from showing to notshowing for this predicate
-        sc = @id_to_colors[id].showing
-        nc = @id_to_colors[id].notshowing
-      the_style = "background: linear-gradient("+ sc + ", " + nc + ")"
-      @id_to_elem[id].style(the_style)
+        id2clr = @id_to_colors[id]
+        if id2clr?
+          sc = id2clr.showing
+          nc = id2clr.notshowing
+      if sc?
+        the_style = "background: linear-gradient("+ sc + ", " + nc + ")"
+        @id_to_elem[id].style(the_style)
     else
       @id_to_elem[id].style("")
   set_branch_pickedness: (id,bool) ->
