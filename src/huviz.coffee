@@ -24,6 +24,7 @@
 # TODO(smurp) implement emphasize and deemphasize 'verbs' (we need a new word)
 #   emphasize: (node,predicate,color) =>
 #   deemphasize: (node,predicate,color) =>
+# 
 # THOUGHT: perhaps there is a distinction to be made between verbs 
 #   and 'actuators' where verbs are the things that people issue
 #   while actuators (actions?) are the one-or-more things per-verb that
@@ -33,7 +34,19 @@
 #     c) there might be applications for actuators other than verbs
 #     d) there might be update operations against gclui apart from actuators
 #
-
+# ISSUES:
+#   1) Graph one node, graph second, should show both pred sets not
+#      just second (the contrary was only seen after emptying the picked_set
+#      by toggling Everything)
+#   2) With everything in the picked set and two nodes are when there
+#      is a graphed node, clicking off one of its predicates correctly
+#      unshows the edges, but clicking on the predicate only reshows
+#      its edges and fails to show all the edges for that predicate to/from
+#      the other nodes in the picked_set
+#
+#
+#
+# 
 #asyncLoop = require('asynchronizer').asyncLoop
 gcl = require('graphcommandlanguage')
 gclui = require('gclui')

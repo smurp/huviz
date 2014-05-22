@@ -171,10 +171,9 @@ class GraphCommand
             retval = meth.call(@graph_ctrl,node,pred)
           @graph_ctrl.tick()
         #async.eachSeries nodes,iter,err
-        #async.each nodes,iter,err
-        nodes.forEach (node,i) =>
-          iter(node)
-
+        async.each nodes,iter,err
+        #@graph_ctrl.tick()
+        
     else if @verbs[0] is 'load' # FIXME not very general, but it appears to be the sole exception
       @graph_ctrl.load(@data_uri)
       console.log("load data_uri has returned")
@@ -194,11 +193,8 @@ class GraphCommand
           retval = meth.call(@graph_ctrl,node)        
           @graph_ctrl.tick() # TODO(smurp) move this out, or call every Nth node
         #async.eachSeries nodes,iter,err
-        #async.each nodes,iter,err
-        nodes.forEach (node,i) =>
-          iter(node)
-        #  retval = meth.call(@graph_ctrl,node)
-        #  @graph_ctrl.tick()
+        async.each nodes,iter,err
+        #@graph_ctrl.tick()
     
   update_str: ->
     missing = '____'
