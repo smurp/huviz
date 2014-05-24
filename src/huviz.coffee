@@ -43,8 +43,12 @@
 #      unshows the edges, but clicking on the predicate only reshows
 #      its edges and fails to show all the edges for that predicate to/from
 #      the other nodes in the picked_set
-#
-#
+#   3) TASK: Suppress the host and path of predicates in the picker
+#   4) TASK: Suppress all but the 6-letter id of writers in the cmd cli
+#   5) TASK: make long commands wrap rather than widen everything
+#   6) Load ballrm, drag italy in, click an unlit predicate SHOULD see new edges
+#   7) TASK: increase node_radius when in picked_set
+#   8) load dataset, click predicate, nodes are graphed SHOULD not collapse as if no repulsion
 #
 # 
 #asyncLoop = require('asynchronizer').asyncLoop
@@ -447,8 +451,7 @@ class Huviz
   # 
   #   http://bl.ocks.org/mbostock/929623
   get_charge: (d) =>
-    return 0  unless @graphed_set.has(d)
-    @charge
+    return d.graphed? and @charge or 0  # zero so lariat has no influence
 
   get_gravity: =>
     return @gravity
@@ -1810,21 +1813,15 @@ class Huviz
 
   populate_taxonomy: () ->
     
-  log: () ->
-    console.log arguments
-    if @LOGGING
-      alert arguments.toString()
-    else
-      alert("BROKEN")
-
   toggle_logging: () ->
-    #alert("toggle_logging()")
-    if @console_log?
-      console.log = @console_log
-    else
-      @console_log = console.log
+    if not console.log_real?
+      console.log_real = console.log       
+    if console.log is console.log_real
       console.log = () ->
-    return
+      return false
+     else
+      console.log = console.log_real
+      return true
     
   constructor: ->
     @toggle_logging()
@@ -1840,13 +1837,13 @@ class Huviz
     @node_radius_policy = node_radius_policies[default_node_radius_policy]
 
     @fill = d3.scale.category20()
-    @force = d3.layout.force().size([
-      @width
-      @height
-    ]).nodes([]).linkDistance(@link_distance).
-                 charge(@get_charge).
-                 gravity(@gravity).
-                 on("tick", @tick)
+    @force = d3.layout.force().
+             size([@width,@height]).
+             nodes([]).
+             linkDistance(@link_distance).
+             charge(@get_charge).
+             gravity(@gravity).
+             on("tick", @tick)
     @update_fisheye()
     @svg = d3.select("#vis").
               append("svg").

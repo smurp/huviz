@@ -136,7 +136,7 @@ class CommandController
     cmd = new gcl.GraphCommand
       verbs: [verb]
       regarding: [pred_id]
-      sets: [@huviz.chosen_set]
+      sets: [@huviz.picked_set]
       
     @prepare_command cmd
     @huviz.gclc.run(@command)
@@ -277,6 +277,7 @@ class CommandController
     @update_node_visibility(adding,node)
     node.color = @node_class_picker.get_color_forId_byName(node.type, adding and 'emphasizing' or 'showing')
     @update_command()
+    #@huviz.force.start()
     #alert "update_visibility() " + node.name
 
   init_indices: ->

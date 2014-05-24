@@ -29,6 +29,7 @@
   padding: .1em;
   color: gray;
   background-color: #fcf59b; /* legal pad yellow */
+  /* width: 300px; */
 }
 .commandlist {
   overflow-y: auto;
