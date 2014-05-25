@@ -48,8 +48,10 @@
 #   5) TASK: make long commands wrap rather than widen everything
 #   6) Load ballrm, drag italy in, click an unlit predicate SHOULD see new edges
 #   7) TASK: increase node_radius when in picked_set
-#   8) load dataset, click predicate, nodes are graphed SHOULD not collapse as if no repulsion
-#
+#   8) Load dataset, click predicate, nodes are graphed SHOULD not
+#      collapse as if no repulsion.  Dragging nodes in works though.
+#   9) Dragging in one node then predicate-clicking in others SHOULD show
+#      the edges for the subsequent ones
 # 
 #asyncLoop = require('asynchronizer').asyncLoop
 gcl = require('graphcommandlanguage')
@@ -566,7 +568,12 @@ class Huviz
     @picked_set.docs = "Nodes which are in the currently 'picked' set visible to the user."
 
     @unlinked_set  = SortedSet().sort_on("name").named("unlinked").isState()
+    @unlinked_set.doc = "Nodes which are in the lariat.
+"
     @discarded_set = SortedSet().sort_on("name").named("discarded").isState()
+    @discarded_set.doc = "Nodes which have been discarded so edges to them will" +
+    
+    
     @hidden_set    = SortedSet().sort_on("id").named("hidden").isState()
     @graphed_set   = SortedSet().sort_on("id").named("graphed").isState()
 
@@ -896,7 +903,12 @@ class Huviz
           #" subjects:" + (@my_graph.subjects.length) +
           "\nchosen:" + @chosen_set.length +
           "\npredicates:"  + Object.keys(@my_graph.predicates).length +
-          "\npicked:"  + @picked_set.length
+          "\npicked:"  + @picked_set.length +
+          "\nalpha: #{Math.round(100 * @force.alpha()) / 100}" +
+          "\ntheta: #{Math.round(100 * @force.theta()) / 100}" +
+          "\nfriction: #{Math.round(100 * @force.friction()) / 100}" +
+          "\ngravity: #{Math.round(100 * @force.gravity()) / 100}"
+          
     msg += " DRAG"  if @dragging
     @set_status msg
     #@push_snippet msg
@@ -1402,9 +1414,11 @@ class Huviz
     @restart()
 
   update_state: (node) ->
-    if node.state == @graphed_set and node.links_shown.length is 0
+    if node.state is @graphed_set and node.links_shown.length is 0
       @unlinked_set.acquire node
-    if node.links_shown.length > 0
+      console.warn("update_state() had to @unlinked_set.acquire(#{node.name})",node)
+    if node.state isnt @graphed_set and node.links_shown.length > 0
+      console.warn("update_state() had to @graphed_set.acquire(#{node.name})",node)
       @graphed_set.acquire node
 
   hide_links_to_node: (n) ->
@@ -1647,9 +1661,11 @@ class Huviz
     @show_links_from_node chosen
     @show_links_to_node chosen
     if chosen.links_shown
-      @graphed_set.acquire chosen
+      @graphed_set.acquire chosen  # FIXME this duplication (see above) is fishy
       chosen.showing_links = "all"
     else
+      # FIXME after this weird side effect, at the least we should not go on
+      console.warn(chosen.lid,"was found to have no links_shown so: @unlink_set.acquire(chosen)", chosen)
       @unlinked_set.acquire chosen
     @update_state chosen
     @update_showing_links chosen
@@ -1670,15 +1686,15 @@ class Huviz
     if not node.picked?
       @picked_set.add(node)
       @gclui.update_visibility(node.picked?, node)
-    #else
-    #  console.log node.id + " was already in @picked_set, so @pick() was NOOP"
+    else
+      console.warn(node.id + " was already in @picked_set, so @pick() was NOOP")
 
   unpick: (node) =>
     if node.picked?
       @picked_set.remove(node)
       @gclui.update_visibility(node.picked?, node)      
-    #else
-    #  console.log(node.id + " was not in @picked_set, so @unpick() was NOOP")
+    else
+      console.warn(node.id + " was not in @picked_set, so @unpick() was NOOP")
 
   # The Verbs PRINT and REDACT show and hide snippets respectively
   print: (node) =>
@@ -1692,32 +1708,44 @@ class Huviz
     node.links_shown.forEach (edge,i) =>
       @remove_snippet edge.id
 
-  # deprecate
   show_edge_regarding: (node, predicate_lid) =>
+    dirty = false
     doit = (edge,i,frOrTo) =>
       if edge.predicate.lid is predicate_lid
         console.log "  show_edge_regarding",frOrTo,predicate_lid
         if not edge.shown?
           @show_link edge
+          dirty = true
 
     node.links_from.forEach (edge,i) =>
       doit(edge,i,'from')
     node.links_to.forEach (edge,i) =>
       doit(edge,i,'to')
+
+    if dirty
+      @update_state(node)
+      @update_showing_links(node)
+      @force.alpha(0.1)
     
   suppress_edge_regarding: (node, predicate_lid) =>
+    dirty = false
     doit = (edge,i,frOrTo) =>
       if edge.predicate.lid is predicate_lid
         console.log "  suppress_edge_regarding",predicate_lid,node.id
+        dirty = true
         @unshow_link edge
     node.links_from.forEach (edge,i) =>
       doit(edge,i,'from')
     node.links_to.forEach (edge,i) =>
       doit(edge,i,'to')
-
-    # FIXME(shawn) Looping through links_shown should suffice
+    # FIXME(shawn) Looping through links_shown should suffice, try it again
     #node.links_shown.forEach (edge,i) =>
     #  doit(edge,'shown')
+      
+    if dirty
+      @update_state(node)
+      @update_showing_links(node)
+      @force.alpha(0.1)
 
   update_history: ->
     if window.history.pushState
