@@ -46,7 +46,23 @@
 #   9) fixed
 #  10) load ballrm; choose Edinburgh;
 #      SHOULD show connectionWithSettlement as mixed
-#  11) current command shows redundant mix of nodeclasses and node ids
+#  11) Current command shows redundant mix of nodeclasses and node ids
+#  12) Graph layout of a single writer and peripheral nodes is not
+#      a simple flower, suggesting either that the lariat is exerting
+#      force or that an inappropriate combination of charge and link
+#      distance is occuring.
+#  13) Sometimes line are drawn over one another, this seems to occur
+#      when two edges with the same contextId (ie xml structural id) exist
+#  14) TASK: it takes time for clicks on the predicate picker to finish;
+#      showing a busy cursor or a special state for the picked div
+#      would help the user have faith.
+#      (Investigate possible inefficiencies, too.)
+#  15) TASK: collapse edges to one-per-color (width for number?)
+#  16) TASK: click edge to show snippet
+#  17) TASK: incorporate ontology to drive predicate nesting
+#  18) TASK: drop a node on another node to draw their mutual edges only
+#  19) TASK: progressive documentation (context sensitive tips and intros)
+#  20) 
 # 
 #asyncLoop = require('asynchronizer').asyncLoop
 gcl = require('graphcommandlanguage')
@@ -202,7 +218,7 @@ class Huviz
   draw_circle_around_focused: false
   draw_lariat_labels_rotated: true
   run_force_after_mouseup_msec: 2000
-  nodes_pinnable: false
+  nodes_pinnable: true
 
   BLANK_HACK: false
   width: undefined

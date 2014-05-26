@@ -111,7 +111,8 @@ class CommandController
     parent = 'anything'
     pred_id = e.detail.sid
     unless pred_id in @predicates_ignored
-      pred_name = pred_id
+      #pred_name = pred_id
+      pred_name = pred_id.match(/([\w\d\_\-]+)$/g)[0]
       @add_newpredicate(pred_id,parent,pred_name)
 
   build_predicatepicker: ->
