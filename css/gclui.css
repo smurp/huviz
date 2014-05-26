@@ -29,10 +29,10 @@
   padding: .1em;
   color: gray;
   background-color: #fcf59b; /* legal pad yellow */
-  /* width: 300px; */
 }
 .commandlist {
   overflow-y: auto;
+  width: 450px;
   /* -webkit-border-top-right-radius: 20px 300px; */
   /* background-color: #81cbbc;  hairline blue */  
   background-color: blue; /* hairline blue */  
@@ -40,6 +40,7 @@
 .nextcommand {
   color: black;
   font-weight:bold;
+  width: 450px;
 }
 .cmdlistbar {
   color: white;

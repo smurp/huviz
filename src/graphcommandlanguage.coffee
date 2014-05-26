@@ -155,6 +155,7 @@ class GraphCommand
     return @regarding? and @regarding.length > 0
 
   execute: (@graph_ctrl) ->
+    @graph_ctrl.force.stop()
     reg_req = @regarding_required()    
     nodes = @get_nodes()
     console.log @str,"on",nodes.length,"nodes"
@@ -195,6 +196,7 @@ class GraphCommand
         #async.eachSeries nodes,iter,err
         async.each nodes,iter,err
         #@graph_ctrl.tick()
+    @graph_ctrl.force.start()
     
   update_str: ->
     missing = '____'

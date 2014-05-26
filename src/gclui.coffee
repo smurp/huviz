@@ -276,6 +276,8 @@ class CommandController
     @update_predicate_visibility(adding,node)
     @update_node_visibility(adding,node)
     node.color = @node_class_picker.get_color_forId_byName(node.type, adding and 'emphasizing' or 'showing')
+    if not node.color
+      log.error "update_visibility", adding, node.name,"==> a null node.color"
     @update_command()
     #@huviz.force.start()
     #alert "update_visibility() " + node.name

@@ -35,23 +35,18 @@
 #     d) there might be update operations against gclui apart from actuators
 #
 # ISSUES:
-#   1) Graph one node, graph second, should show both pred sets not
-#      just second (the contrary was only seen after emptying the picked_set
-#      by toggling Everything)
-#   2) With everything in the picked set and two nodes are when there
-#      is a graphed node, clicking off one of its predicates correctly
-#      unshows the edges, but clicking on the predicate only reshows
-#      its edges and fails to show all the edges for that predicate to/from
-#      the other nodes in the picked_set
+#   1) fixed
+#   2) fixed
 #   3) TASK: Suppress the host and path of predicates in the picker
 #   4) TASK: Suppress all but the 6-letter id of writers in the cmd cli
 #   5) TASK: make long commands wrap rather than widen everything
-#   6) Load ballrm, drag italy in, click an unlit predicate SHOULD see new edges
+#   6) fixed
 #   7) TASK: increase node_radius when in picked_set
-#   8) Load dataset, click predicate, nodes are graphed SHOULD not
-#      collapse as if no repulsion.  Dragging nodes in works though.
-#   9) Dragging in one node then predicate-clicking in others SHOULD show
-#      the edges for the subsequent ones
+#   8) fixed
+#   9) fixed
+#  10) load ballrm; choose Edinburgh;
+#      SHOULD show connectionWithSettlement as mixed
+#  11) current command shows redundant mix of nodeclasses and node ids
 # 
 #asyncLoop = require('asynchronizer').asyncLoop
 gcl = require('graphcommandlanguage')
@@ -151,8 +146,8 @@ class Edge
   
 class Node
   linked: false          # TODO(smurp) probably vestigal
-  links_from_found: true # TODO(smurp) deprecated because links*_found early
-  links_to_found: true   # TODO(smurp) deprecated becasue links*_found early
+  #links_from_found: true # TODO(smurp) deprecated because links*_found early
+  #links_to_found: true   # TODO(smurp) deprecated becasue links*_found early
   showing_links: "none"
   name: null
   s: null                # TODO(smurp) rename Node.s to Node.subject, should be optional
@@ -453,7 +448,20 @@ class Huviz
   # 
   #   http://bl.ocks.org/mbostock/929623
   get_charge: (d) =>
-    return d.graphed? and @charge or 0  # zero so lariat has no influence
+    graphed = d.state == @graphed_set
+    #if d.graphed? isnt @graphed_set.has(d)
+    #  console.error("d.graphed? (#{d.graphed?}) isnt @graphed_set.has(d) (#{@graphed_set.has(d)})",d)
+    #console.debug d.graphed?,@charge,typeof @charge
+    retval = graphed and @charge or 0  # zero so lariat has no influence
+    #console.debug "graphed? #{d.graphed?} #{retval}=#{@charge} (#{typeof retval}) #{d.name}"
+    if retval is 0 and graphed
+      console.error "bad combo of retval and graphed?",retval,graphed,d.name
+    #else
+    #  console.info "charge:",retval,"for",d.name
+    #if typeof retval is 'string'
+    #  console.error "#{retval} is string"
+    #console.debug retval
+    return retval
 
   get_gravity: =>
     return @gravity
@@ -877,7 +885,6 @@ class Huviz
   tick: =>
     # return if @focused_node   # <== policy: freeze screen when selected
     @ctx.lineWidth = @edge_width # TODO(smurp) just edges should get this treatment
-    
     @blank_screen()
     @draw_dropzones()
     @find_focused_node()
@@ -891,6 +898,9 @@ class Huviz
     @draw_discards()
     @draw_labels()
     @update_status()
+    #console.info("tick")
+    #@force.tick()
+
 
   update_status: ->
     msg = "nodes:" + @nodes.length +
@@ -904,9 +914,10 @@ class Huviz
           "\nchosen:" + @chosen_set.length +
           "\npredicates:"  + Object.keys(@my_graph.predicates).length +
           "\npicked:"  + @picked_set.length +
+          #"\ncharge: #{Math.round(100 * @force.charge()) / 100}" +          
           "\nalpha: #{Math.round(100 * @force.alpha()) / 100}" +
           "\ntheta: #{Math.round(100 * @force.theta()) / 100}" +
-          "\nfriction: #{Math.round(100 * @force.friction()) / 100}" +
+          #"\nfriction: #{Math.round(100 * @force.friction()) / 100}" +
           "\ngravity: #{Math.round(100 * @force.gravity()) / 100}"
           
     msg += " DRAG"  if @dragging
@@ -1416,9 +1427,9 @@ class Huviz
   update_state: (node) ->
     if node.state is @graphed_set and node.links_shown.length is 0
       @unlinked_set.acquire node
-      console.warn("update_state() had to @unlinked_set.acquire(#{node.name})",node)
+      #console.debug("update_state() had to @unlinked_set.acquire(#{node.name})",node)
     if node.state isnt @graphed_set and node.links_shown.length > 0
-      console.warn("update_state() had to @graphed_set.acquire(#{node.name})",node)
+      #console.debug("update_state() had to @graphed_set.acquire(#{node.name})",node)
       @graphed_set.acquire node
 
   hide_links_to_node: (n) ->
@@ -1870,6 +1881,7 @@ class Huviz
              nodes([]).
              linkDistance(@link_distance).
              charge(@get_charge).
+             #charge(-300).
              gravity(@gravity).
              on("tick", @tick)
     @update_fisheye()
@@ -1917,21 +1929,25 @@ class Huviz
       distortion(@fisheye_zoom)
     @force.linkDistance(@link_distance).gravity(@gravity)
     
-  update_graph_settings: (target) =>
-    @[target.name] = target.value
-    target.title = target.value
-    @update_fisheye()
-    @updateWindow()
-    @tick()
+  update_graph_settings: (target, update) =>
+    update = not update? and true or update
+    asNum = parseFloat(target.value)
+    cooked_value = ('' + asNum) isnt 'NaN' and asNum or target.value
+    @[target.name] = cooked_value
+    #console.debug "setting",target.name,typeof @[target.name],@[target.name],update
+    if update
+      @update_fisheye()
+      @updateWindow()
+      @tick()
   xpath_query: (xpath) ->
-    document.evaluate(xpath,document,null,XPathResult.ANY_TYPE, null)
+    document.evaluate(xpath,document,null,XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
   init_from_graph_controls: ->
     # Perform update_graph_settings for everything in the form
     # so the HTML can be used as configuration file
     iterator = @xpath_query("//div[@class='graph_controls']//input")
     elem = iterator.iterateNext()
     while (elem)
-      @[elem.name] = elem.value
+      @update_graph_settings(elem, false)
       elem = iterator.iterateNext()
   load_file: ->
     @init_from_graph_controls()
