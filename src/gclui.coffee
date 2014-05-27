@@ -213,7 +213,7 @@ class CommandController
     @update_predicate_visibility(adding, subject)
     @update_command()
 
-  update_node_visibility: (adding, node) =>
+  update_class_picker: (node, picked) =>
     # Maintain the nodeclass picker
     # 
     # # Elements may be in one of these states:
@@ -223,6 +223,10 @@ class CommandController
     #   emphasized - mark the class of the focused_node
     #   mixed      - some instances of the node class are picked, but not all
     #   abstract   - the element represents an abstract superclass, presumably containing concrete node classes
+
+    node.color = @node_class_picker.get_color_forId_byName(node.type, picked and 'emphasizing' or 'showing')
+    if not node.color
+      console.error "update_node_visibility", adding, node.name,"==> a null node.color"
 
     @node_class_picker
     classes_newly_identified_as_having_all_nodes = []
@@ -243,8 +247,8 @@ class CommandController
     @shown_edges_by_predicate[pred_id].push(edge)
 
   remove_shown: (pred_id, edge) =>
-    # The node with this edge is being removed from consideration so the predicate
-    # associated with this edge has one fewer (or now possibly no) uses.
+    # The node with this edge is being removed from consideration so the
+    # predicate used by this edge has one fewer (or now possibly no) uses.
     console.log "  removing shown",pred_id      
     if @shown_edges_by_predicate[pred_id]?
       @shown_edges_by_predicate[pred_id] = @shown_edges_by_predicate[pred_id].filter (member) ->
@@ -273,12 +277,19 @@ class CommandController
         if not @shown_edges_by_predicate[pred_id]?
           @predicates_newly_identified_as_having_neither.push(edge.predicate)
 
-  update_visibility: (adding, node) =>
-    @update_predicate_visibility(adding,node)
-    @update_node_visibility(adding,node)
-    node.color = @node_class_picker.get_color_forId_byName(node.type, adding and 'emphasizing' or 'showing')
-    if not node.color
-      log.error "update_visibility", adding, node.name,"==> a null node.color"
+  update_pickers: (node, picked, shown) =>
+    # There appear to be two considerations:
+    #   has the picked-ness of the node changed?
+    #   has the shown-ness of any edges changed?
+    # If pick or unpick then both treepickers could be affected
+    # If show or unshow (edges) then only the pred-picker will be affected
+    # Should all huviz effectors call update_visibility as their point of entry?
+    #   with a list (max length, pair) of changes, eg: (node, ['picked','unshow'])
+    #   or with two tristate args (node, pick, show) YES
+    if picked isnt null
+      # changes in edge shown-ness to the node-picker
+      @update_class_picker(node, picked) 
+    @update_predicate_picker(node, picked, shown)
     @update_command()
     #@huviz.force.start()
     #alert "update_visibility() " + node.name
@@ -289,7 +300,28 @@ class CommandController
     @predicates_newly_identified_as_having_some = []
     @predicates_newly_identified_as_having_neither = []
 
-  update_predicate_visibility: (adding, node) =>
+  update_predicate_picker: (node, picked, shown) =>
+    # This method translates from operations in the node and edge frame
+    # of reference to the predicate frame of reference.
+    # 
+    # The purpose of this method is to perform maintenance operations
+    # on the predicate picker after external actions have altered the
+    # picked_set (adding or removing nodes) or have altered the shown
+    # or unshown status of the edges associated with the nodes in the
+    # picked_set.
+    #
+    #                     |  picked  | not picked | picked is null
+    #    -----------------+---------------+----------------
+    #    edge.shown       | add_shown()   | remove_shown()
+    #    -----------------+---------------+----------------
+    #    not edge.shown   |               |
+    #
+    #    Where add_shown means
+    #     "an instance of edge which representing some predicate
+    #      where that edge is showing has been added to the picked set"
+    # 
+    # 
+    # removed nodes from the picked_set or 
     # Maintain per-predicate lists of shown and unshown edges
     # and the list of predicates which have predicates of either
     # kind among the set of nodes which are the current subject set.
@@ -302,7 +334,7 @@ class CommandController
 
     # Glossary:
     #   'adding' a subject means that all its predicates will become visible in the colorpicker
-    #   'removing' means
+    #   'removing' is the opposite of adding: all 
     #   'shown' means 
     #   'unshown' means 
 
@@ -314,6 +346,7 @@ class CommandController
     #   mixed      - the predicate is used by selected nodes and some edges are showing but not all
     #   abstract   - the element in the tree is not a predicate but is an abstract superclass of some
 
+    adding = picked  # FIXME refactor away from adding/removing??
     if @huviz.LOGGING?
       alert "update_predicate_visibility() " + adding + " node.id:" + node.id
     uri_to_js_id = @predicate_picker.uri_to_js_id
@@ -336,24 +369,29 @@ class CommandController
       pred_id = uri_to_js_id(edge.predicate.id)
       msg = "consider_edge_significance() adding:" + adding + " edge:" +edge.id + " i:" + i      
       console.log msg
-      
-      if adding
-        console.log '  adding'
+
+      if edge.shown?
+        console.error "edge.shown? is true",edge
+      if adding # ie the edge is being added to the graph
+        #console.log '  adding'
         if edge.shown?
-          console.log '    edge.shown'          
+          #console.log '    edge.shown'
+          eg = "User picked a graphed node (or graphed a picked node?)"
           @add_shown(pred_id, edge)
         else
-          console.log '    not edge.shown'
+          #console.log '    not edge.shown'
+          eg = "User picked a node on the shelf (or shelved a picked node?)"
           @add_unshown(pred_id, edge)
-      else
-        console.log '  not adding'
+      else # the edge has been removed from the graph
+        #console.error 'removing from graph:',edge.id
         if edge.shown?
-          console.log '    edge.shown'
+          console.debug '    edge.shown'
+          eg = "User unpicked a now graphed node."
           @remove_shown(pred_id, edge)
         else
-          console.log '    not edge.shown'
+          eg = "User unpicked a now ungraphed node."
           @remove_unshown(pred_id, edge)
-
+      console.debug eg,edge
 
     # Consider all the edges for which node is subject or the object
     REVERSEDLY = false # this can be destructive, so go backwards
@@ -395,7 +433,7 @@ class CommandController
     console.log "newly both AKA mixed: to be marked mixed ============ ============ ============"
     @predicates_newly_identified_as_having_some.forEach  (predicate, i) =>
       pred_js_id = uri_to_js_id(predicate.id)
-      console.log " ",pred_js_id,"mixed"
+      console.debug " ",pred_js_id,"mixed"
       @predicate_picker.set_branch_hiddenness(pred_js_id, false)
       @predicate_picker.set_branch_mixedness(predicate.id,true)
 

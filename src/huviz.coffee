@@ -35,15 +35,8 @@
 #     d) there might be update operations against gclui apart from actuators
 #
 # ISSUES:
-#   1) fixed
-#   2) fixed
-#   3) TASK: Suppress the host and path of predicates in the picker
 #   4) TASK: Suppress all but the 6-letter id of writers in the cmd cli
-#   5) TASK: make long commands wrap rather than widen everything
-#   6) fixed
 #   7) TASK: increase node_radius when in picked_set
-#   8) fixed
-#   9) fixed
 #  10) load ballrm; choose Edinburgh;
 #      SHOULD show connectionWithSettlement as mixed
 #  11) Current command shows redundant mix of nodeclasses and node ids
@@ -62,7 +55,10 @@
 #  17) TASK: incorporate ontology to drive predicate nesting
 #  18) TASK: drop a node on another node to draw their mutual edges only
 #  19) TASK: progressive documentation (context sensitive tips and intros)
-#  20) 
+#  20) BUG: choose italy; shelve italy;
+#           SHOULD remove unhighlit {lived,died}InGeog
+#  21) BUG: pred-click workedAs; shelf-drag clerical;
+#           SHOULD mark workedAs as mixed (ie some but not all edges are shown)
 # 
 #asyncLoop = require('asynchronizer').asyncLoop
 gcl = require('graphcommandlanguage')
@@ -399,7 +395,7 @@ class Huviz
         @run_verb_on_object 'discard', @dragging
       else if @in_disconnect_dropzone(@dragging)
         @run_verb_on_object 'shelve', @dragging
-        @unpick(@dragging)
+        # @unpick(@dragging) # this might be confusing
       else if @dragging.links_shown.length == 0
         @run_verb_on_object 'choose', @dragging
         @pick(@dragging)
@@ -416,8 +412,7 @@ class Huviz
     # this is the node being clicked
     if @focused_node # and @focused_node.state is @graphed_set
       @picked_set.toggle(@focused_node)
-      #alert(@focused_node.id + " is now picked: " + @focused_node.picked?)
-      @gclui.update_visibility(@focused_node.picked?, @focused_node)
+      @gclui.update_pickers(@focused_node, @focused_node.picked?, null)
       @tick()
       return
 
@@ -595,13 +590,15 @@ class Huviz
     @unlinked_set.doc = "Nodes which are in the lariat.
 "
     @discarded_set = SortedSet().sort_on("name").named("discarded").isState()
-    @discarded_set.doc = "Nodes which have been discarded so edges to them will" +
+    @discarded_set.docs = "Nodes which have been discarded so edges to them will" +
     
     
     @hidden_set    = SortedSet().sort_on("id").named("hidden").isState()
     @graphed_set   = SortedSet().sort_on("id").named("graphed").isState()
 
-    @links_set     = SortedSet().named("shown").isFlag().sort_on("id")
+    @links_set     = SortedSet().sort_on("id").named("shown").isFlag()
+    @links_set.docs = "Links which are shown."
+    
     @labelled_set  = SortedSet().named("labelled").isFlag().sort_on("id")
 
     @predicate_set = SortedSet().named("predicate").isFlag().sort_on("id")
@@ -1369,6 +1366,7 @@ class Huviz
     obj
 
   update_showing_links: (n) ->
+    old_status = n.showing_links
     if n.links_shown.length is 0
       n.showing_links = "none"
     else      
@@ -1376,6 +1374,12 @@ class Huviz
         n.showing_links = "some"
       else
         n.showing_links = "all"
+    # The return value is used as the 'shown' arg to update_pickers()
+    # FIXME prepare truth table to confirm update_showing_links return value
+    if old_status is n.showing_links
+      return null # no change, so null
+    # We return true to mean that edges where shown, so
+    return old_status is "none" or n.showing_links is "all"
 
   should_show_link: (edge) ->
     # Edges should not be shown if either source or target are discarded or embryonic.
@@ -1645,17 +1649,18 @@ class Huviz
     
   #
   #  The DISCARDED are those nodes which the user has 
- #  explicitly asked to not have drawn into the graph.
+  #  explicitly asked to not have drawn into the graph.
   #  The user expresses this by dropping them in the 
   #  discard_dropzone.
   #
   discard: (goner) ->
-    @shelve goner  
+    #@shelve goner
     @unlink goner
     @discarded_set.acquire goner
-    @update_showing_links goner
-    @unpick goner
-    @gclui.update_predicate_visibility(false, goner)
+    shown = @update_showing_links goner
+    #@unpick goner
+    @picked_set.remove goner
+    @gclui.update_pickers(goner, false, shown) # handled by unpicked
     goner
 
   undiscard: (prodigal) ->  # TODO(smurp) rename command to 'retrieve' ????
@@ -1674,10 +1679,10 @@ class Huviz
     @chosen_set.remove goner
     @hide_node_links goner
     @unlinked_set.acquire goner
-    @update_showing_links goner
+    shown = @update_showing_links goner
     if goner.links_shown.length > 0
       console.log "shelving failed for",goner
-    @gclui.update_predicate_visibility(false, goner)
+    @gclui.update_predicate_picker(goner, false, shown)
     goner
 
   choose: (chosen) =>
@@ -1692,19 +1697,19 @@ class Huviz
       chosen.showing_links = "all"
     else
       # FIXME after this weird side effect, at the least we should not go on
-      console.warn(chosen.lid,"was found to have no links_shown so: @unlink_set.acquire(chosen)", chosen)
+      console.error(chosen.lid,"was found to have no links_shown so: @unlink_set.acquire(chosen)", chosen)
       @unlinked_set.acquire chosen
     @update_state chosen
-    @update_showing_links chosen
-    @gclui.update_predicate_visibility(true, chosen)
+    shown = @update_showing_links chosen
+    @gclui.update_predicate_picker(chosen, true, shown)
     chosen
 
   hide: (hidee) =>
     @chosen_set.remove hidee
     @hidden_set.acquire hidee
     @update_state hidee
-    @update_showing_links hidee
-    @gclui.update_predicate_visibility(false, hidee)
+    shown = @update_showing_links hidee
+    @gclui.update_predicate_picker(hidee, false, shown)
 
   #
   # The verbs PICK and UNPICK perhaps don't need to be exposed on the UI
@@ -1712,14 +1717,14 @@ class Huviz
   pick: (node) =>
     if not node.picked?
       @picked_set.add(node)
-      @gclui.update_visibility(node.picked?, node)
+      @gclui.update_pickers(node, true, null)
     else
       console.warn(node.id + " was already in @picked_set, so @pick() was NOOP")
 
   unpick: (node) =>
     if node.picked?
       @picked_set.remove(node)
-      @gclui.update_visibility(node.picked?, node)      
+      @gclui.update_pickers(node, false, null)
     else
       console.warn(node.id + " was not in @picked_set, so @unpick() was NOOP")
 
