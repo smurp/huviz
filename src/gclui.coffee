@@ -369,7 +369,6 @@ class CommandController
       pred_id = uri_to_js_id(edge.predicate.id)
       msg = "consider_edge_significance() adding:" + adding + " edge:" +edge.id + " i:" + i      
       console.log msg
-
       if edge.shown?
         console.error "edge.shown? is true",edge
       if adding # ie the edge is being added to the graph
@@ -391,6 +390,8 @@ class CommandController
         else
           eg = "User unpicked a now ungraphed node."
           @remove_unshown(pred_id, edge)
+
+      # update predicates_to_newly_{hide,show}
       console.debug eg,edge
 
     # Consider all the edges for which node is subject or the object
@@ -410,7 +411,7 @@ class CommandController
       console.log(predicate + " newly identified as having shown edges")
       pred_js_id = uri_to_js_id(predicate.id)
       #pred_js_id = predicate.id
-      console.log " ",pred_js_id, "newly showing"
+      console.debug " ",pred_js_id, "newly showing"
       unshown_idx = @predicates_newly_identified_as_having_unshown_edges.indexOf(predicate)
       if unshown_idx > -1
         @predicates_newly_identified_as_having_unshown_edges.splice(unshown_idx)
@@ -426,7 +427,7 @@ class CommandController
     @predicates_newly_identified_as_having_unshown_edges.forEach (predicate, i) =>
       # no need to compare with ...having_shown_edges because that is done above
       pred_js_id = uri_to_js_id(predicate.id)
-      console.log " ",pred_js_id, "unshowing"
+      console.debug " ",pred_js_id, "unshowing"
       @predicate_picker.set_branch_hiddenness(pred_js_id, false)
       @predicate_picker.set_branch_pickedness(predicate.id, false)
 
@@ -440,7 +441,7 @@ class CommandController
     console.log "newly neither: to be hidden ============ ============ ============ ============"
     @predicates_newly_identified_as_having_neither.forEach (predicate, i) =>
       pred_js_id = uri_to_js_id(predicate.id)
-      console.log " ",pred_js_id,"hiding"
+      console.debug " ",pred_js_id,"hiding"
       @predicate_picker.set_branch_hiddenness(pred_js_id, true)
 
     console.log "RESET shown_edge_count: []", "adding:",adding,"id:",node.id,"name:",node.name

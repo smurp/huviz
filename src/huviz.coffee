@@ -155,7 +155,15 @@ class Edge
     @id = (a.id for a in [@source, @predicate, @target, @context]).join(' ')
     #console.log "new Edge() ==>",@id
     this
-  
+
+class Predicate
+  constructor: (@id) ->
+    @lid = @id.match(/([\w\d\_\-]+)$/g)[0] # lid means local id
+    console.warn("new Predicate()",@lid,@id)
+    @shown_edges = SortedSet().sort_on("id").named("shown").isState()
+    @unshown_edges = SortedSet().sort_on("id").named("unshown").isState()
+    this
+    
 class Node
   linked: false          # TODO(smurp) probably vestigal
   #links_from_found: true # TODO(smurp) deprecated because links*_found early
@@ -1493,7 +1501,8 @@ class Huviz
     obj_id = @make_qname(sid)
     obj_n = @predicate_set.get_by('id',obj_id)
     if not obj_n?
-      obj_n = {id:obj_id, lid:obj_id.match(/([\w\d\_\-]+)$/g)[0]} # lid means local id
+      obj_n = new Predicate(obj_id)
+      #obj_n = {id:obj_id, lid:obj_id.match(/([\w\d\_\-]+)$/g)[0]} # lid means local id
       @predicate_set.add(obj_n)
     obj_n
 
