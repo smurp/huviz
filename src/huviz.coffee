@@ -154,15 +154,21 @@ class Edge
   constructor: (@source,@target,@predicate,@context) ->
     @id = (a.id for a in [@source, @predicate, @target, @context]).join(' ')
     #console.log "new Edge() ==>",@id
+    @register()
     this
+  register: () ->
+    @predicate.add_edge(this)
 
 class Predicate
   constructor: (@id) ->
     @lid = @id.match(/([\w\d\_\-]+)$/g)[0] # lid means local id
-    console.warn("new Predicate()",@lid,@id)
     @shown_edges = SortedSet().sort_on("id").named("shown").isState()
     @unshown_edges = SortedSet().sort_on("id").named("unshown").isState()
+    #@all_edges = [] # FIXME not a SortedSet because edge.predicate already exists
+    @all_edges = SortedSet().sort_on("id").named("predicate")
     this
+  add_edge: (edge) ->
+    @all_edges.add(edge)
     
 class Node
   linked: false          # TODO(smurp) probably vestigal
@@ -1688,10 +1694,10 @@ class Huviz
     @chosen_set.remove goner
     @hide_node_links goner
     @unlinked_set.acquire goner
-    shown = @update_showing_links goner
+    shownness = @update_showing_links goner
     if goner.links_shown.length > 0
       console.log "shelving failed for",goner
-    @gclui.update_predicate_picker(goner, false, shown)
+    @gclui.update_predicate_picker(goner, false, shownness)
     goner
 
   choose: (chosen) =>
@@ -1709,16 +1715,16 @@ class Huviz
       console.error(chosen.lid,"was found to have no links_shown so: @unlink_set.acquire(chosen)", chosen)
       @unlinked_set.acquire chosen
     @update_state chosen
-    shown = @update_showing_links chosen
-    @gclui.update_predicate_picker(chosen, true, shown)
+    shownness = @update_showing_links chosen
+    @gclui.update_predicate_picker(chosen, true, shownness)
     chosen
 
   hide: (hidee) =>
     @chosen_set.remove hidee
     @hidden_set.acquire hidee
     @update_state hidee
-    shown = @update_showing_links hidee
-    @gclui.update_predicate_picker(hidee, false, shown)
+    shownness = @update_showing_links hidee
+    @gclui.update_predicate_picker(hidee, false, shownness)
 
   #
   # The verbs PICK and UNPICK perhaps don't need to be exposed on the UI
