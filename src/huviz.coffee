@@ -57,8 +57,6 @@
 #  19) TASK: progressive documentation (context sensitive tips and intros)
 #  20) BUG: choose italy; shelve italy;
 #           SHOULD remove unhighlit {lived,died}InGeog
-#  21) BUG: pred-click workedAs; shelf-drag clerical;
-#           SHOULD mark workedAs as mixed (ie some but not all edges are shown)
 # 
 #asyncLoop = require('asynchronizer').asyncLoop
 gcl = require('graphcommandlanguage')
@@ -161,13 +159,13 @@ class Edge
   isPicked: () ->
     return @source.picked? or @target.picked?
   show: () ->
-    @predicate.update_edge(this,{show:true})
     @predicate.shown_edges.acquire(this)
     if @isPicked()
       @predicate.pick(this)
     else
       @predicate.unshown_edges.remove(this)
       @predicate.unpick(this)
+    @predicate.update_edge(this,{show:true})
     
   unshow: () ->
     if @isPicked()
@@ -176,6 +174,9 @@ class Edge
     else
       @predicate.unshown_edges.acquire(this)
       @predicate.unpicked_edges.acquire(this)
+    @predicate.update_edge(this,{show:false})      
+  an_end_is_picked: () ->
+    return this.target.picked? or this.source.picked?
 
 class Predicate
   constructor: (@id) ->
@@ -221,15 +222,15 @@ class Predicate
     @state = false
     if @picked_edges.length is 0
       @state = "hidden"
+    else if @only_some_picked_edges_are_shown()
+      @state = "mixed" # FIXME maybe "partial"?
     else if @picked_edges.length > 0 and @all_picked_edges_are_shown()
       @state = "showing" # FIXME maybe "all"?
     else if @no_picked_edges_are_shown()
-      @state = "unshowing" # FIXME maybe "none"?
-    else if @only_some_picked_edges_are_shown()
-      @state = "mixed" # FIXME maybe "partial"?
+      @state = "unshowing" # FIXME maybe "none"?      
     else
-      console.info "Predicate.update_state() should not fall thru",@lid
-      @state = "hidden" # default
+      console.info "Predicate.update_state() should not fall thru",this
+      throw "Predicate.update_state() should not fall thru (#{@lid})"
     console.info "old:",old_state,"new:",@state
     if old_state isnt @state
       evt = new CustomEvent 'changePredicate',
@@ -245,13 +246,12 @@ class Predicate
     console.error @lid,@shown_edges.length,@picked_edges.length
     #if @shown_edges.length is 0
     #  return true
-    
-    @picked_edges.forEach (e,i) =>
-      if e._s.shown?
+    for e in @picked_edges
+      if e.shown?
         return false
     return true
   all_picked_edges_are_shown: () ->
-    @picked_edges.forEach (e,i) =>
+    for e in @picked_edges
       #if not e._s.shown?
       if not e.shown?
         return false
@@ -259,10 +259,11 @@ class Predicate
   only_some_picked_edges_are_shown: () ->
     some = false
     only = false
-    @picked_edges.forEach (e,i) =>
-      if e._s.shown?
+    for e in @all_edges
+      continue unless e.an_end_is_picked()
+      if e.shown?
         some = true
-      if not e._s.shown?
+      if not e.shown?
         only = true
       if only and some
         return true
@@ -1525,8 +1526,8 @@ class Huviz
     return  if (not incl_discards) and (edge.target.state is @discarded_set or edge.source.state is @discarded_set)
     @add_to edge, edge.source.links_shown
     @add_to edge, edge.target.links_shown
-    edge.show()
     @links_set.add edge
+    edge.show()
     @update_state edge.source
     @update_state edge.target
     @gclui.add_shown(edge.predicate.lid,edge)
@@ -1534,8 +1535,8 @@ class Huviz
   unshow_link: (edge) ->
     @remove_from edge,edge.source.links_shown
     @remove_from edge,edge.target.links_shown
-    edge.unshow()
     @links_set.remove edge
+    edge.unshow()
     @update_state edge.source
     @update_state edge.target
     @gclui.remove_shown(edge.predicate.lid,edge)

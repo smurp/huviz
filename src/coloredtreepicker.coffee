@@ -40,7 +40,7 @@ class ColoredTreePicker extends TreePicker
     if elem?
       colors = @id_to_colors[id]
       if colors?
-        elem.style('background-color',colors[state_name])
+        elem.style("background","").style('background-color',colors[state_name])
       else
         if @id_is_abstract[id]? and not @id_is_abstract[id]
           msg = "id_to_colors has no colors for " + id
@@ -48,7 +48,7 @@ class ColoredTreePicker extends TreePicker
   set_branch_mixedness: (id, bool) ->
     #  when a div represents a mixed branch then color with a gradient of the two representative colors
     #    https://developer.mozilla.org/en-US/docs/Web/CSS/linear-gradient
-    console.log("set_branch_mixedness()",id,bool)
+    console.warn("set_branch_mixedness()",id,bool)
     if bool
       if @is_abstract(id)
         msg =  "set_branch_mixedness(" +id + "): " + bool + " for abstract"
@@ -62,8 +62,9 @@ class ColoredTreePicker extends TreePicker
           sc = id2clr.showing
           nc = id2clr.notshowing
       if sc?
-        the_style = "background: linear-gradient("+ sc + ", " + nc + ")"
-        @id_to_elem[id].style(the_style)
+        @id_to_elem[id].
+           style("background": "linear-gradient(to left, "+ sc + ", " + nc + ")")
+           style("background-color", "")
     else
       @id_to_elem[id].style("")
   set_branch_pickedness: (id,bool) ->
