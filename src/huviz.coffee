@@ -53,7 +53,8 @@
 #  17) TASK: incorporate ontology to drive predicate nesting
 #  18) TASK: drop a node on another node to draw their mutual edges only
 #  19) TASK: progressive documentation (context sensitive tips and intros)
-
+   20) drag and drop from the discard bin not modernized
+   21) TASK: remove update_pickers
 # 
 #asyncLoop = require('asynchronizer').asyncLoop
 gcl = require('graphcommandlanguage')
