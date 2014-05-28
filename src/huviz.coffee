@@ -53,7 +53,7 @@
 #  17) TASK: incorporate ontology to drive predicate nesting
 #  18) TASK: drop a node on another node to draw their mutual edges only
 #  19) TASK: progressive documentation (context sensitive tips and intros)
-#  20) picking and nodes does not properly update the predicate_picker
+
 # 
 #asyncLoop = require('asynchronizer').asyncLoop
 gcl = require('graphcommandlanguage')
@@ -163,7 +163,6 @@ class Edge
       @predicate.unshown_edges.remove(this)
       @predicate.unpick(this)
     @predicate.update_edge(this,{show:true})
-    
   unshow: () ->
     if @isPicked()
       @predicate.unshown_edges.acquire(this)
@@ -174,7 +173,10 @@ class Edge
     @predicate.update_edge(this,{show:false})      
   an_end_is_picked: () ->
     return this.target.picked? or this.source.picked?
-
+  unpick: () ->
+    @predicate.unpick(this)
+  pick: () ->
+    @predicate.pick(this)
 class Predicate
   constructor: (@id) ->
     @lid = @id.match(/([\w\d\_\-]+)$/g)[0] # lid means local id
@@ -201,11 +203,24 @@ class Predicate
         @unpicked_edges.acquire(edge)
     @update_state()
   pick: (edge) ->
-    @picked_edges.acquire(edge)
+    @update_edge(edge,{pick:true})
+    @update_state()
   unpick: (edge) ->
-    @unpicked_edges.remove(edge)
+    @update_edge(edge,{pick:false})
+    @update_state()
   add_edge: (edge) ->
     @all_edges.add(edge)
+    @update_state()
+  update_picked_edges: () ->
+    before_count = @picked_edges.length
+    for e in @all_edges  # FIXME why can @picked_edges not be trusted?
+      if e.an_end_is_picked()
+        @picked_edges.acquire(e)
+    #if @picked_edges.length is before_count
+    #  console.warn "update_picked_edges() was not needed"
+    #else
+    #  console.warn "update_picked_edges() was needed"
+    
   update_state: () ->
     # FIXME determine the state info needed by the predicate_picker
     # terminology:
@@ -217,6 +232,8 @@ class Predicate
     #   are there no picked edges?
     old_state = @state
     @state = false
+    #console.warn "picked_edges.length",@picked_edges.length
+    @update_picked_edges()
     if @picked_edges.length is 0
       @state = "hidden" # FIXME maybe "noneToShow"
     else if @only_some_picked_edges_are_shown()
@@ -228,6 +245,7 @@ class Predicate
     else
       console.info "Predicate.update_state() should not fall thru",this
       throw "Predicate.update_state() should not fall thru (#{@lid})"
+    #console.debug this.lid,old_state,"==>",@state
     if old_state isnt @state
       evt = new CustomEvent 'changePredicate',
           detail:
@@ -252,8 +270,8 @@ class Predicate
     some = false
     only = false
     shown_count = 0
-    for e in @all_edges  # FIXME why can @picked_edges not be trusted?
-      continue unless e.an_end_is_picked()
+    for e in @picked_edges  # FIXME why can @picked_edges not be trusted?
+      #continue unless e.an_end_is_picked()
       if e.shown?
         some = true
         shown_count++
@@ -261,7 +279,7 @@ class Predicate
         only = true
       if only and some
         return true
-    console.debug only and "only", some and "some", shown_count
+    #console.debug only and "only", some and "some", shown_count
     return false
 class Node
   linked: false          # TODO(smurp) probably vestigal
@@ -289,7 +307,16 @@ class Node
       @px = point[0]
       @py = point[1]
     [@px,@py]
-    
+  pick: () ->
+    for edge in this.links_from
+      edge.pick()
+    for edge in this.links_to
+      edge.pick()
+  unpick: () ->
+    for edge in this.links_from
+      edge.unpick()
+    for edge in this.links_to
+      edge.unpick()
 class Huviz
   hierarchy: {'everything': ['Everything', {}]}
   default_color: "brown"
@@ -518,8 +545,8 @@ class Huviz
 
     # this is the node being clicked
     if @focused_node # and @focused_node.state is @graphed_set
-      @picked_set.toggle(@focused_node)
-      @gclui.update_pickers(@focused_node, @focused_node.picked?, null)
+      @toggle_picked(@focused_node)
+      #@gclui.update_pickers(@focused_node, @focused_node.picked?, null)
       @tick()
       return
 
@@ -1825,6 +1852,7 @@ class Huviz
   pick: (node) =>
     if not node.picked?
       @picked_set.add(node)
+      node.pick()
       @gclui.update_pickers(node, true, null)
     else
       console.warn(node.id + " was already in @picked_set, so @pick() was NOOP")
@@ -1832,9 +1860,16 @@ class Huviz
   unpick: (node) =>
     if node.picked?
       @picked_set.remove(node)
+      node.unpick()
       @gclui.update_pickers(node, false, null)
     else
       console.warn(node.id + " was not in @picked_set, so @unpick() was NOOP")
+
+  toggle_picked: (node) ->
+    if node.picked?
+      @unpick(node)
+    else
+      @pick(node)
 
   # The Verbs PRINT and REDACT show and hide snippets respectively
   print: (node) =>
