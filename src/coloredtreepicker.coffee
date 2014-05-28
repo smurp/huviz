@@ -48,7 +48,6 @@ class ColoredTreePicker extends TreePicker
   set_branch_mixedness: (id, bool) ->
     #  when a div represents a mixed branch then color with a gradient of the two representative colors
     #    https://developer.mozilla.org/en-US/docs/Web/CSS/linear-gradient
-    console.warn("set_branch_mixedness()",id,bool)
     if bool
       if @is_abstract(id)
         msg =  "set_branch_mixedness(" +id + "): " + bool + " for abstract"

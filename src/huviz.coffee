@@ -37,14 +37,12 @@
 # ISSUES:
 #   4) TASK: Suppress all but the 6-letter id of writers in the cmd cli
 #   7) TASK: increase node_radius when in picked_set
-#  10) load ballrm; choose Edinburgh;
-#      SHOULD show connectionWithSettlement as mixed
 #  11) Current command shows redundant mix of nodeclasses and node ids
 #  12) Graph layout of a single writer and peripheral nodes is not
 #      a simple flower, suggesting either that the lariat is exerting
 #      force or that an inappropriate combination of charge and link
 #      distance is occuring.
-#  13) Sometimes line are drawn over one another, this seems to occur
+#  13) Sometimes lines are drawn over one another, this seems to occur
 #      when two edges with the same contextId (ie xml structural id) exist
 #  14) TASK: it takes time for clicks on the predicate picker to finish;
 #      showing a busy cursor or a special state for the picked div
@@ -55,8 +53,7 @@
 #  17) TASK: incorporate ontology to drive predicate nesting
 #  18) TASK: drop a node on another node to draw their mutual edges only
 #  19) TASK: progressive documentation (context sensitive tips and intros)
-#  20) BUG: choose italy; shelve italy;
-#           SHOULD remove unhighlit {lived,died}InGeog
+#  20) picking and nodes does not properly update the predicate_picker
 # 
 #asyncLoop = require('asynchronizer').asyncLoop
 gcl = require('graphcommandlanguage')
@@ -221,17 +218,16 @@ class Predicate
     old_state = @state
     @state = false
     if @picked_edges.length is 0
-      @state = "hidden"
+      @state = "hidden" # FIXME maybe "noneToShow"
     else if @only_some_picked_edges_are_shown()
-      @state = "mixed" # FIXME maybe "partial"?
+      @state = "mixed" # FIXME maybe "partialShowing"?
     else if @picked_edges.length > 0 and @all_picked_edges_are_shown()
-      @state = "showing" # FIXME maybe "all"?
+      @state = "showing" # FIXME maybe "allShowing"?
     else if @no_picked_edges_are_shown()
-      @state = "unshowing" # FIXME maybe "none"?      
+      @state = "unshowing" # FIXME maybe "noneShowing"?      
     else
       console.info "Predicate.update_state() should not fall thru",this
       throw "Predicate.update_state() should not fall thru (#{@lid})"
-    console.info "old:",old_state,"new:",@state
     if old_state isnt @state
       evt = new CustomEvent 'changePredicate',
           detail:
@@ -240,13 +236,9 @@ class Predicate
             new_state: @state
           bubbles: true
           cancelable: true
-      console.info "dispatchEvent",evt
       window.dispatchEvent evt
   no_picked_edges_are_shown: () ->
-    console.error @lid,@shown_edges.length,@picked_edges.length
-    #if @shown_edges.length is 0
-    #  return true
-    for e in @picked_edges
+    for e in @picked_edges # FIXME should this use all_edges like only_some...?
       if e.shown?
         return false
     return true
@@ -259,14 +251,17 @@ class Predicate
   only_some_picked_edges_are_shown: () ->
     some = false
     only = false
-    for e in @all_edges
+    shown_count = 0
+    for e in @all_edges  # FIXME why can @picked_edges not be trusted?
       continue unless e.an_end_is_picked()
       if e.shown?
         some = true
+        shown_count++
       if not e.shown?
         only = true
       if only and some
         return true
+    console.debug only and "only", some and "some", shown_count
     return false
 class Node
   linked: false          # TODO(smurp) probably vestigal
@@ -1689,10 +1684,12 @@ class Huviz
       if e.target is node
         @remove_from e, e.source.links_shown
         @update_state e.source
+        e.unshow()
         @update_showing_links e.source
       else
         @remove_from e, e.target.links_shown
         @update_state e.target
+        e.unshow()
         @update_showing_links e.target
       @remove_ghosts e
 
