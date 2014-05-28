@@ -63,7 +63,7 @@ class ColoredTreePicker extends TreePicker
           nc = id2clr.notshowing
       if sc?
         @id_to_elem[id].
-           style("background": "linear-gradient(to left, "+ sc + ", " + nc + ")")
+           style("background": "linear-gradient(to left, "+ sc + ", " + nc + ")").
            style("background-color", "")
     else
       @id_to_elem[id].style("")
