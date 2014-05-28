@@ -158,18 +158,115 @@ class Edge
     this
   register: () ->
     @predicate.add_edge(this)
+  isPicked: () ->
+    return @source.picked? or @target.picked?
+  show: () ->
+    @predicate.update_edge(this,{show:true})
+    @predicate.shown_edges.acquire(this)
+    if @isPicked()
+      @predicate.pick(this)
+    else
+      @predicate.unshown_edges.remove(this)
+      @predicate.unpick(this)
+    
+  unshow: () ->
+    if @isPicked()
+      @predicate.unshown_edges.acquire(this)
+      @predicate.pick(this)
+    else
+      @predicate.unshown_edges.acquire(this)
+      @predicate.unpicked_edges.acquire(this)
 
 class Predicate
   constructor: (@id) ->
     @lid = @id.match(/([\w\d\_\-]+)$/g)[0] # lid means local id
-    @shown_edges = SortedSet().sort_on("id").named("shown").isState()
-    @unshown_edges = SortedSet().sort_on("id").named("unshown").isState()
+    # pshown edges are those which are shown and linked to a picked source or target
+    @shown_edges = SortedSet().sort_on("id").named("shown").isState("_s")
+    # punshown edges are those which are unshown and linked to a picked source or target
+    @unshown_edges = SortedSet().sort_on("id").named("unshown").isState("_s")
     #@all_edges = [] # FIXME not a SortedSet because edge.predicate already exists
+    @picked_edges = SortedSet().sort_on("id").named("picked").isState('_p')
+    @unpicked_edges = SortedSet().sort_on("id").named("picked").isState('_p')
     @all_edges = SortedSet().sort_on("id").named("predicate")
+    @state = "hidden"
     this
+  update_edge: (edge,change) ->
+    if change.show?
+      if change.show
+        @shown_edges.acquire(edge)
+      else
+        @unshown_edges.acquire(edge)
+    if change.pick?
+      if change.pick
+        @picked_edges.acquire(edge)
+      else
+        @unpicked_edges.acquire(edge)
+    @update_state()
+  pick: (edge) ->
+    @picked_edges.acquire(edge)
+  unpick: (edge) ->
+    @unpicked_edges.remove(edge)
   add_edge: (edge) ->
     @all_edges.add(edge)
+  update_state: () ->
+    # FIXME determine the state info needed by the predicate_picker
+    # terminology:
+    #   picked edge:  an edge (shown or not) to or from a node in the picked_set
+    # roughly: all_shown, none_shown, mixed, hidden
+    #   are all the picked edges shown?
+    #   are none of the picked edges shown?
+    #   are strictly some of the picked edges shown?
+    #   are there no picked edges?
+    old_state = @state
+    @state = false
+    if @picked_edges.length is 0
+      @state = "hidden"
+    else if @picked_edges.length > 0 and @all_picked_edges_are_shown()
+      @state = "showing" # FIXME maybe "all"?
+    else if @no_picked_edges_are_shown()
+      @state = "unshowing" # FIXME maybe "none"?
+    else if @only_some_picked_edges_are_shown()
+      @state = "mixed" # FIXME maybe "partial"?
+    else
+      console.info "Predicate.update_state() should not fall thru",@lid
+      @state = "hidden" # default
+    console.info "old:",old_state,"new:",@state
+    if old_state isnt @state
+      evt = new CustomEvent 'changePredicate',
+          detail:
+            predicate: this
+            old_state: old_state
+            new_state: @state
+          bubbles: true
+          cancelable: true
+      console.info "dispatchEvent",evt
+      window.dispatchEvent evt
+  no_picked_edges_are_shown: () ->
+    console.error @lid,@shown_edges.length,@picked_edges.length
+    #if @shown_edges.length is 0
+    #  return true
     
+    @picked_edges.forEach (e,i) =>
+      if e._s.shown?
+        return false
+    return true
+  all_picked_edges_are_shown: () ->
+    @picked_edges.forEach (e,i) =>
+      #if not e._s.shown?
+      if not e.shown?
+        return false
+    return true
+  only_some_picked_edges_are_shown: () ->
+    some = false
+    only = false
+    @picked_edges.forEach (e,i) =>
+      if e._s.shown?
+        some = true
+      if not e._s.shown?
+        only = true
+      if only and some
+        return true
+    return false
 class Node
   linked: false          # TODO(smurp) probably vestigal
   #links_from_found: true # TODO(smurp) deprecated because links*_found early
@@ -1022,6 +1119,7 @@ class Huviz
     d.gl = add_node(scene, d.x, d.y, 3, d.color)  if @use_webgl
 
   add_to: (itm, array, cmp) ->
+    # FIXME should these arrays be SortedSets instead?
     cmp = cmp or array.__current_sort_order or @cmp_on_id
     c = @binary_search_on(array, itm, cmp, true)
     return c  if typeof c is typeof 3
@@ -1403,13 +1501,6 @@ class Huviz
     e = @embryonic_set 
     not (ss is d or ts is d or ss is e or ts is e)
 
-  show_link: (e) ->
-    alert "show link "+e.id
-    @links_set.add e
-    @add_to e, e.source.links_shown
-    @add_to e, e.target.links_shown
-    #@gclui.add_shown(edge.predicate.lid,edge)
-
   add_link: (e) ->
     @add_to e, e.source.links_from
     @add_to e, e.target.links_to
@@ -1434,6 +1525,7 @@ class Huviz
     return  if (not incl_discards) and (edge.target.state is @discarded_set or edge.source.state is @discarded_set)
     @add_to edge, edge.source.links_shown
     @add_to edge, edge.target.links_shown
+    edge.show()
     @links_set.add edge
     @update_state edge.source
     @update_state edge.target
@@ -1442,6 +1534,7 @@ class Huviz
   unshow_link: (edge) ->
     @remove_from edge,edge.source.links_shown
     @remove_from edge,edge.target.links_shown
+    edge.unshow()
     @links_set.remove edge
     @update_state edge.source
     @update_state edge.target
@@ -1470,6 +1563,7 @@ class Huviz
     n.links_to.forEach (e, i) =>
       @remove_from e, n.links_shown
       @remove_from e, e.source.links_shown
+      e.unshow()
       @links_set.remove e
       @remove_ghosts e
       @update_state e.source
@@ -1494,6 +1588,7 @@ class Huviz
     n.links_from.forEach (e, i) =>
       @remove_from e, n.links_shown
       @remove_from e, e.target.links_shown
+      e.unshow()
       @links_set.remove e
       @remove_ghosts e
       @update_state e.target

@@ -32,7 +32,28 @@ class CommandController
     @init_editor_data()
     @build_form()
     @update_command()
+    @install_listeners()
 
+  install_listeners: () ->
+    window.addEventListener 'changePredicate', @onChangePredicate
+
+  onChangePredicate: (evt) =>
+    new_state = evt.detail.new_state
+    pred_id = evt.detail.predicate.lid
+    console.debug pred_id,new_state,evt.detail.predicate
+    if new_state is "hidden"
+      @predicate_picker.set_branch_hiddenness(pred_id, true)
+    else
+      @predicate_picker.set_branch_hiddenness(pred_id, false)
+    if new_state is "showing"
+      @predicate_picker.set_branch_pickedness(pred_id, true)
+    if new_state is "unshowing"
+      @predicate_picker.set_branch_pickedness(pred_id, false)
+    if new_state is "mixed"
+      @predicate_picker.set_branch_mixedness(pred_id, true)
+    else
+      @predicate_picker.set_branch_mixedness(pred_id, false)
+      
   on_dataset_loaded: (evt) =>
     if not evt.done?
       @pick_everything()
@@ -301,6 +322,7 @@ class CommandController
     @predicates_newly_identified_as_having_neither = []
 
   update_predicate_picker: (node, picked, shown) =>
+    return # see the event listener onChangePredicate
     # This method translates from operations in the node and edge frame
     # of reference to the predicate frame of reference.
     # 
