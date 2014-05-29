@@ -1800,7 +1800,6 @@ class Huviz
     shownness = @update_showing_links goner
     if goner.links_shown.length > 0
       console.log "shelving failed for",goner
-    @gclui.update_predicate_picker(goner, false, shownness)
     goner
 
   choose: (chosen) =>
@@ -1819,15 +1818,15 @@ class Huviz
       @unlinked_set.acquire chosen
     @update_state chosen
     shownness = @update_showing_links chosen
-    @gclui.update_predicate_picker(chosen, true, shownness)
     chosen
 
   hide: (hidee) =>
     @chosen_set.remove hidee
     @hidden_set.acquire hidee
+    @picked_set.remove hidee
     @update_state hidee
     shownness = @update_showing_links hidee
-    @gclui.update_predicate_picker(hidee, false, shownness)
+    hidee.unpick()
 
   #
   # The verbs PICK and UNPICK perhaps don't need to be exposed on the UI
