@@ -191,7 +191,7 @@ class Predicate
     @unshown_edges = SortedSet().sort_on("id").named("unshown").isState("_s")
     #@all_edges = [] # FIXME not a SortedSet because edge.predicate already exists
     @picked_edges = SortedSet().sort_on("id").named("picked").isState('_p')
-    @unpicked_edges = SortedSet().sort_on("id").named("picked").isState('_p')
+    @unpicked_edges = SortedSet().sort_on("id").named("unpicked").isState('_p')
     @all_edges = SortedSet().sort_on("id").named("predicate")
     @state = "hidden"
     this
@@ -278,12 +278,10 @@ class Predicate
       #continue unless e.an_end_is_picked()
       if e.shown?
         some = true
-        shown_count++
-      if not e.shown?
+      if not e.shown? # AKA e._s?.id isnt 'shown'
         only = true
       if only and some
         return true
-    #console.debug only and "only", some and "some", shown_count
     return false
 class Node
   linked: false          # TODO(smurp) probably vestigal

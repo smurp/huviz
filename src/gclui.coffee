@@ -190,7 +190,7 @@ class CommandController
     # When we pick "everything" we mean:
     #    all nodes except the embryonic and the discarded
     #    OR rather, the hidden, the graphed and the unlinked
-    console.info("onnodeclasspicked('" + id + ", " + selected + "')")
+    #console.info("onnodeclasspicked('" + id + ", " + selected + "')")
     @taxon_picker.color_by_selected(id,selected)
     taxon = @huviz.taxonomy[id]
     if taxon?
@@ -198,7 +198,7 @@ class CommandController
       state = taxon.recalc_state()
     else
       state = 'unshowing'
-    console.debug "id:",id,"state:",state,taxon
+    #console.debug "id:",id,"state:",state,taxon
     if state in ['mixed','unshowing']
       if not (id in @node_classes_chosen)
         @node_classes_chosen.push(id)
@@ -211,7 +211,7 @@ class CommandController
       cmd = new gcl.GraphCommand
         verbs: ['unpick']
         classes: [id]
-    console.info cmd
+    #console.info cmd
     @huviz.gclc.run(cmd)
       
     @update_command()
@@ -409,7 +409,7 @@ class CommandController
       else # the edge has been removed from the graph
         #console.error 'removing from graph:',edge.id
         if edge.shown?
-          console.debug '    edge.shown'
+          #console.debug '    edge.shown'
           eg = "User unpicked a now graphed node."
           @remove_shown(pred_id, edge)
         else
@@ -417,7 +417,7 @@ class CommandController
           @remove_unshown(pred_id, edge)
 
       # update predicates_to_newly_{hide,show}
-      console.debug eg,edge
+      #console.debug eg,edge
 
     # Consider all the edges for which node is subject or the object
     REVERSEDLY = false # this can be destructive, so go backwards
@@ -436,7 +436,7 @@ class CommandController
       console.log(predicate + " newly identified as having shown edges")
       pred_js_id = uri_to_js_id(predicate.id)
       #pred_js_id = predicate.id
-      console.debug " ",pred_js_id, "newly showing"
+      #console.debug " ",pred_js_id, "newly showing"
       unshown_idx = @predicates_newly_identified_as_having_unshown_edges.indexOf(predicate)
       if unshown_idx > -1
         @predicates_newly_identified_as_having_unshown_edges.splice(unshown_idx)
