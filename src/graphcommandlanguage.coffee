@@ -115,7 +115,7 @@ class GraphCommand
         if class_name is 'everything'
           the_set = @graph_ctrl.nodes
         else
-          the_set = @graph_ctrl.taxonomy[class_name]
+          the_set = @graph_ctrl.taxonomy[class_name].instances
         if @like
           for n in the_set
             if n.name.match(like_regex)

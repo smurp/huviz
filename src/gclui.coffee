@@ -183,13 +183,14 @@ class CommandController
     @recolor_nodes()
 
   onnodeclasspicked: (id,selected,elem) =>
-    # Mixed —> On
-    # On —> Off
-    # Off —> On
+    # FIXME implement the tristate behaviour:
+    #   Mixed —> On
+    #   On —> Off
+    #   Off —> On
     # When we pick "everything" we mean:
     #    all nodes except the embryonic and the discarded
     #    OR rather, the hidden, the graphed and the unlinked
-    console.log("onnodeclasspicked('" + id + ", " + selected + "')")
+    console.info("onnodeclasspicked('" + id + ", " + selected + "')")
     @taxon_picker.color_by_selected(id,selected)
     if selected
       if not (id in @node_classes_chosen)
@@ -198,14 +199,14 @@ class CommandController
       cmd = new gcl.GraphCommand
         verbs: ['pick']
         classes: (class_name for class_name in @node_classes_chosen)
-      @huviz.gclc.run(cmd)
     else
       @deselect_node_class(id)
       # UNPICK
       cmd = new gcl.GraphCommand
         verbs: ['unpick']
         classes: [id]
-      @huviz.gclc.run(cmd)
+    console.info cmd
+    @huviz.gclc.run(cmd)
       
     @update_command()
     # ////////////////////////////////////////

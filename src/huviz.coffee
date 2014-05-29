@@ -261,7 +261,7 @@ class Predicate
           cancelable: true
       window.dispatchEvent evt
   no_picked_edges_are_shown: () ->
-    for e in @picked_edges # FIXME should this use all_edges like only_some...?
+    for e in @picked_edges
       if e.shown?
         return false
     return true
@@ -275,7 +275,7 @@ class Predicate
     some = false
     only = false
     shown_count = 0
-    for e in @picked_edges  # FIXME why can @picked_edges not be trusted?
+    for e in @picked_edges
       #continue unless e.an_end_is_picked()
       if e.shown?
         some = true
@@ -316,15 +316,25 @@ class Node
       edge.pick()
     for edge in this.links_to
       edge.pick()
+    @taxon.update_node(this,{pick:true})
   unpick: () ->
     for edge in this.links_from
       edge.unpick()
     for edge in this.links_to
       edge.unpick()
+    @taxon.update_node(this,{pick:false})
 
 class Taxon # as Predicate is to Edge, Taxon is to Node, ie: type or class or whatever
   constructor: (@id) ->
-    @instances = SortedSet().named(@id).isFlag().sort_on("id")
+    @instances = SortedSet().named(@id).isState('_isa').sort_on("id") # FIXME state?
+    # _tp is for 'taxon-pickedness' and has value picked or unpicked
+    @picked_nodes = SortedSet().named('picked').isState('_tp').sort_on("id")
+    @unpicked_nodes = SortedSet().named('unpicked').isState('_tp').sort_on("id")
+    @lid = @id # FIXME @lid should be local @id should be uri, no?
+    @state = 'hidden'
+  register: (node) ->
+    node.taxon = this
+    @add(node)
   add: (node) ->
     @instances.add(node)
   update_node: (node,change) ->
@@ -338,7 +348,49 @@ class Taxon # as Predicate is to Edge, Taxon is to Node, ie: type or class or wh
     @update_state()
   update_state: () ->
     old_state = @state
-    #@st
+    # @update_picked_nodes() # can we avoid this?!
+    # FIXME CRITICAL ensure that discarded nodes can not be picked
+    #       by having picking a discarded node shelve it
+    if @all_nodes_are_discarded()
+      @state = "hidden"
+    else if @only_some_undiscarded_nodes_are_picked()
+      @state = "mixed"
+    else if @picked_nodes.length > 0 and @all_undiscarded_nodes_are_picked()
+      @state = "showing"
+    else if @no_undiscarded_nodes_are_picked()
+      @state = "unshowing"
+    else
+      console.warn "Taxon.update_state() should not fall thru"
+      @state = "unshowing"
+    if old_state isnt @state
+      evt = new CustomEvent 'changeTaxon',
+        detail:
+          target_id: this.lid
+          taxon: this
+          old_state: old_state
+          new_state: @state
+        bubbles: true
+        cancelable: true
+      window.dispatchEvent evt # could pass to picker, this is async
+  all_nodes_are_discarded: () ->
+    return false # FIXME should really check for this case!
+  only_some_undiscarded_nodes_are_picked: () ->
+    # patterned after Predicate.only_some_picked_edges_are_shown
+    for n in @picked_nodes
+      if not @picked_nodes.has(n)
+        return false
+    return true
+  all_undiscarded_nodes_are_picked: () ->
+    # patterned after Predicate.all_picked_edges_are_shown
+    for n in @picked_nodes
+      if not @picked_nodes.has(n)
+        return false
+    return true
+  no_undiscarded_nodes_are_picked: () ->
+    # no discarded node may be picked (picking undiscards them!)
+    return @picked_nodes.length is 0
+  
+          
   
 class Huviz
   hierarchy: {'everything': ['Everything', {}]}
@@ -756,10 +808,11 @@ class Huviz
   create_taxonomy: ->
     @taxonomy = {}  # make driven by the hierarchy
 
-  add_to_taxonomy: (taxon_id) ->
-    console.warn("add_to_taxonomy()",taxon_id)
-    @taxonomy[taxon_id] = new Taxon(taxon_id)
-    @gclui.add_newnodeclass(taxon_id) # FIXME should this be an event?
+  get_or_create_taxon: (taxon_id) ->
+    if not @taxonomy[taxon_id]?
+      @taxonomy[taxon_id] = new Taxon(taxon_id)
+      @gclui.add_newnodeclass(taxon_id) # FIXME should this be an event on the Taxon constructor?
+    @taxonomy[taxon_id]
     
   reset_graph: ->
     @G = {} # is this deprecated?
@@ -2168,12 +2221,10 @@ class Huviz
 
   assign_types: (node,within) ->
     # see Orlando.assign_types
-    type_id = node.type
+    type_id = node.type # FIXME one of type or taxon_id gotta go, bye 'type'
     if type_id
-      #console.log "assign_type",type_id,"to",node.id,"within",within,type_id
-      if not @taxonomy[type_id]?
-        @add_to_taxonomy(type_id)
-      @taxonomy[type_id].add(node)
+      console.log "assign_type",type_id,"to",node.id,"within",within,type_id
+      @get_or_create_taxon(type_id).register(node)
       
     else
       throw "there must be a .type before hatch can even be called:"+node.id+ " "+type_id

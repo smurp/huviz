@@ -65,7 +65,7 @@ class ColoredTreePicker extends TreePicker
            style("background": "linear-gradient(45deg, #{nc}, #{sc}, #{nc}, #{sc}, #{nc}, #{sc}, #{nc}, #{sc})").
            style("background-color", "")
     else
-      @id_to_elem[id].style("")
+      @id_to_elem[id]?style("")
   set_branch_pickedness: (id,bool) ->
     super(id, bool)
     #@color_by_selected(id, bool)

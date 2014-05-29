@@ -91,11 +91,12 @@ var SortedSet = function(){
 	// simply the name of SortedSet().  The motivation of course
         // is for many flags to be able to be set on each node, unlike 
         // states, which are mutually exclusive.
-	array.flag_property = flag_property || array.state_name;
+	array.flag_property = flag_property || array.id; // array.state_name
 	return array;
     };        
     array.named = function(name){
-	array.state_name = name;
+	//array.state_name = name;
+	array.id = name; // 
 	return array;
     };
     array.sort_on('id');
