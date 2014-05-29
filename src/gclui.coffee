@@ -40,7 +40,7 @@ class CommandController
 
   on_dataset_loaded: (evt) =>
     if not evt.done?
-      #@pick_everything()
+      @pick_everything()
       @recolor_edges()
       # FIXME is there a standards-based way to prevent this happening three times?
       evt.done = true

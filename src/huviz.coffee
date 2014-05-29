@@ -37,7 +37,6 @@
 # ISSUES:
 #   4) TASK: Suppress all but the 6-letter id of writers in the cmd cli
 #   7) TASK: increase node_radius when in picked_set
-#  11) Current command shows redundant mix of nodeclasses and node ids
 #  12) Graph layout of a single writer and peripheral nodes is not
 #      a simple flower, suggesting either that the lariat is exerting
 #      force or that an inappropriate combination of charge and link
@@ -56,10 +55,17 @@
 #  21) TASK: remove update_pickers
 #  22) TASK: summarize picked_set succinctly in english version of cmd
 #            eg  writers but atwoma
+#       Current command shows redundant mix of nodeclasses and node ids
 #  23) TASK: discipline consequence of clicking a picker div:
 #            strict cycle:  someShown -> allShown -> noneShown
 #                      ie:  mixed        shown       unshown
-# 
+#  24) TASK: add a set_picker like taxon picker enabling commands like:
+#        Discard every hidden [node];
+#        Choose every picked;
+#        Discard every picked [node] like 'smith';
+#        Discard every graphed [node];
+#        Choose and label every picked [node] except Group and Person like 'bob';
+#        Pick and label every 
 #asyncLoop = require('asynchronizer').asyncLoop
 gcl = require('graphcommandlanguage')
 gclui = require('gclui')
