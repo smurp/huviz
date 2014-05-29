@@ -331,7 +331,7 @@ class Taxon # as Predicate is to Edge, Taxon is to Node, ie: type or class or wh
     @picked_nodes = SortedSet().named('picked').isState('_tp').sort_on("id")
     @unpicked_nodes = SortedSet().named('unpicked').isState('_tp').sort_on("id")
     @lid = @id # FIXME @lid should be local @id should be uri, no?
-    @state = 'hidden'
+    @state = 'unshowing'
   register: (node) ->
     node.taxon = this
     @add(node)
@@ -348,6 +348,18 @@ class Taxon # as Predicate is to Edge, Taxon is to Node, ie: type or class or wh
     @update_state()
   update_state: () ->
     old_state = @state
+    @recalc_state()
+    if old_state isnt @state
+      evt = new CustomEvent 'changeTaxon',
+        detail:
+          target_id: this.lid
+          taxon: this
+          old_state: old_state
+          new_state: @state
+        bubbles: true
+        cancelable: true
+      window.dispatchEvent evt # could pass to picker, this is async    
+  recalc_state: () ->
     # @update_picked_nodes() # can we avoid this?!
     # FIXME CRITICAL ensure that discarded nodes can not be picked
     #       by having picking a discarded node shelve it
@@ -360,21 +372,13 @@ class Taxon # as Predicate is to Edge, Taxon is to Node, ie: type or class or wh
     else if @no_undiscarded_nodes_are_picked()
       @state = "unshowing"
     else
-      console.warn "Taxon.update_state() should not fall thru"
+      console.warn "Taxon.recalc_state() should not fall thru"
       @state = "unshowing"
-    if old_state isnt @state
-      evt = new CustomEvent 'changeTaxon',
-        detail:
-          target_id: this.lid
-          taxon: this
-          old_state: old_state
-          new_state: @state
-        bubbles: true
-        cancelable: true
-      window.dispatchEvent evt # could pass to picker, this is async
+    return @state
   all_nodes_are_discarded: () ->
     return false # FIXME should really check for this case!
   only_some_undiscarded_nodes_are_picked: () ->
+    return @picked_nodes.length > 0 and @unpicked_nodes.length > 0
     # patterned after Predicate.only_some_picked_edges_are_shown
     for n in @picked_nodes
       if not @picked_nodes.has(n)

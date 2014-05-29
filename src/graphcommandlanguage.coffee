@@ -95,9 +95,8 @@ class GraphCommand
           node = @graph_ctrl.nodes.get({'id':term})
       
     if not node
-      throw new Error("node with id="+term+
-            " not found among "+
-            @graph_ctrl.nodes.length+" nodes: "+tried)
+      msg = "node with id = #{term} not found among #{@graph_ctrl.nodes.length} nodes: #{tried}"
+      console.warn msg
     return node    
   get_nodes: () ->
     result_set = SortedSet().sort_on("id")
@@ -109,14 +108,18 @@ class GraphCommand
         node = @get_node(node_spec)
         if node
           result_set.add(node)
+        else
+          if not @classes?
+            @classes = []
+          @classes.push(node_spec.id) # very hacky
         #nodes.push(node)
     if @classes
       for class_name in @classes
         if class_name is 'everything'
           the_set = @graph_ctrl.nodes
         else
-          the_set = @graph_ctrl.taxonomy[class_name].instances
-        if @like
+          the_set = @graph_ctrl.taxonomy[class_name]?.instances
+        if @like and the_set?
           for n in the_set
             if n.name.match(like_regex)
               result_set.add n

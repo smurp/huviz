@@ -40,7 +40,7 @@ class CommandController
 
   on_dataset_loaded: (evt) =>
     if not evt.done?
-      @pick_everything()
+      #@pick_everything()
       @recolor_edges()
       # FIXME is there a standards-based way to prevent this happening three times?
       evt.done = true
@@ -192,16 +192,22 @@ class CommandController
     #    OR rather, the hidden, the graphed and the unlinked
     console.info("onnodeclasspicked('" + id + ", " + selected + "')")
     @taxon_picker.color_by_selected(id,selected)
-    if selected
+    taxon = @huviz.taxonomy[id]
+    if taxon?
+      console.clear()
+      state = taxon.recalc_state()
+    else
+      state = 'unshowing'
+    console.debug "id:",id,"state:",state,taxon
+    if state in ['mixed','unshowing']
       if not (id in @node_classes_chosen)
         @node_classes_chosen.push(id)
       # PICK all members of the currently chosen classes
       cmd = new gcl.GraphCommand
         verbs: ['pick']
         classes: (class_name for class_name in @node_classes_chosen)
-    else
+    else if state is 'showing'
       @deselect_node_class(id)
-      # UNPICK
       cmd = new gcl.GraphCommand
         verbs: ['unpick']
         classes: [id]
