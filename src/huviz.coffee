@@ -297,7 +297,6 @@ class Node
     @links_shown = []
   set_name: (@name) ->
   set_subject: (@s) ->
-  set_type: (@type) ->    
   point: (point) ->
     if point?
       @x = point[0]
@@ -595,18 +594,9 @@ class Huviz
   #   http://bl.ocks.org/mbostock/929623
   get_charge: (d) =>
     graphed = d.state == @graphed_set
-    #if d.graphed? isnt @graphed_set.has(d)
-    #  console.error("d.graphed? (#{d.graphed?}) isnt @graphed_set.has(d) (#{@graphed_set.has(d)})",d)
-    #console.debug d.graphed?,@charge,typeof @charge
     retval = graphed and @charge or 0  # zero so lariat has no influence
-    #console.debug "graphed? #{d.graphed?} #{retval}=#{@charge} (#{typeof retval}) #{d.name}"
     if retval is 0 and graphed
       console.error "bad combo of retval and graphed?",retval,graphed,d.name
-    #else
-    #  console.info "charge:",retval,"for",d.name
-    #if typeof retval is 'string'
-    #  console.error "#{retval} is string"
-    #console.debug retval
     return retval
 
   get_gravity: =>
@@ -619,7 +609,6 @@ class Huviz
     @init()
     @animate()
 
-  #add_frame();
   #dump_line(add_line(scene,cx,cy,width,height,'ray'))
   draw_circle: (cx, cy, radius, strclr, filclr) ->
     @ctx.strokeStyle = strclr or "blue"  if strclr
@@ -745,6 +734,7 @@ class Huviz
     @taxonomy = {}  # make driven by the hierarchy
 
   add_to_taxonomy: (type_id) ->
+    console.warn("add_to_taxonomy()",type_id)
     @taxonomy[type_id] = SortedSet().named(type_id).isFlag().sort_on("id")
     @gclui.add_newnodeclass(type_id)
     
@@ -1260,11 +1250,6 @@ class Huviz
         @develop(subj_n) # might be ready now
       else
         subj.predicates[pid].objects.push(quad.o.value)
-
-    #@set_type_if_possible(subj,quad,true)
-    
-    #if newsubj
-    #  @fire_newsubject_event s if window.CustomEvent?
 
     ###
     try
@@ -1852,16 +1837,16 @@ class Huviz
       @picked_set.add(node)
       node.pick()
       @gclui.update_pickers(node, true, null)
-    else
-      console.warn(node.id + " was already in @picked_set, so @pick() was NOOP")
+    #else
+    #  console.warn(node.id + " was already in @picked_set, so @pick() was NOOP")
 
   unpick: (node) =>
     if node.picked?
       @picked_set.remove(node)
       node.unpick()
       @gclui.update_pickers(node, false, null)
-    else
-      console.warn(node.id + " was not in @picked_set, so @unpick() was NOOP")
+    #else
+    #  console.warn(node.id + " was not in @picked_set, so @unpick() was NOOP")
 
   toggle_picked: (node) ->
     if node.picked?

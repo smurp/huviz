@@ -78,7 +78,7 @@ class ColoredTreePicker extends TreePicker
   onChangeState: (evt) =>
     new_state = evt.detail.new_state
     target_id = evt.detail.target_id
-    console.debug target_id,new_state,evt.detail.predicate
+    #console.debug target_id,new_state,evt.detail.predicate
     if new_state is "hidden"
       @set_branch_hiddenness(target_id, true)
     else
