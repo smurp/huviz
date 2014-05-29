@@ -54,6 +54,11 @@
 #  18) TASK: drop a node on another node to draw their mutual edges only
 #  19) TASK: progressive documentation (context sensitive tips and intros)
 #  21) TASK: remove update_pickers
+#  22) TASK: summarize picked_set succinctly in english version of cmd
+#            eg  writers but atwoma
+#  23) TASK: discipline consequence of clicking a picker div:
+#            strict cycle:  someShown -> allShown -> noneShown
+#                      ie:  mixed        shown       unshown
 # 
 #asyncLoop = require('asynchronizer').asyncLoop
 gcl = require('graphcommandlanguage')
@@ -231,7 +236,6 @@ class Predicate
     #   are strictly some of the picked edges shown?
     #   are there no picked edges?
     old_state = @state
-    @state = false
     #console.warn "picked_edges.length",@picked_edges.length
     @update_picked_edges()
     if @picked_edges.length is 0
@@ -317,6 +321,25 @@ class Node
       edge.unpick()
     for edge in this.links_to
       edge.unpick()
+
+class Taxon # as Predicate is to Edge, Taxon is to Node, ie: type or class or whatever
+  constructor: (@id) ->
+    @instances = SortedSet().named(@id).isFlag().sort_on("id")
+  add: (node) ->
+    @instances.add(node)
+  update_node: (node,change) ->
+    # like Predicates, fully picked onpick?
+    # should hidden and/or discarded taxons be invisible?
+    if change.pick?
+      if change.pick
+        @picked_nodes.acquire(node)
+      else
+        @unpicked_nodes.acquire(node)
+    @update_state()
+  update_state: () ->
+    old_state = @state
+    #@st
+  
 class Huviz
   hierarchy: {'everything': ['Everything', {}]}
   default_color: "brown"
@@ -733,10 +756,10 @@ class Huviz
   create_taxonomy: ->
     @taxonomy = {}  # make driven by the hierarchy
 
-  add_to_taxonomy: (type_id) ->
-    console.warn("add_to_taxonomy()",type_id)
-    @taxonomy[type_id] = SortedSet().named(type_id).isFlag().sort_on("id")
-    @gclui.add_newnodeclass(type_id)
+  add_to_taxonomy: (taxon_id) ->
+    console.warn("add_to_taxonomy()",taxon_id)
+    @taxonomy[taxon_id] = new Taxon(taxon_id)
+    @gclui.add_newnodeclass(taxon_id) # FIXME should this be an event?
     
   reset_graph: ->
     @G = {} # is this deprecated?
@@ -1487,6 +1510,7 @@ class Huviz
     obj
 
   update_showing_links: (n) ->
+    # TODO understand why this is like {Taxon,Predicate}.update_state
     old_status = n.showing_links
     if n.links_shown.length is 0
       n.showing_links = "none"

@@ -123,6 +123,12 @@ class CommandController
   build_predicatepicker: ->
     id = 'predicates'
     @predicatebox = @comdiv.append('div').classed('container',true).attr('id',id)
+    @predicatebox.attr('title',
+                       "Medium color: all edges shown -- click to show none\n" +
+                       "Faint color: no edges are shown -- click to show all\n" +
+                       "Stripey color: some edges shown -- click to show all\n" +
+                       "Hidden: no edges among the picked nodes")
+    
     @predicatebox.attr('class','scrolling')
     @predicates_ignored = []
     @predicate_picker = new ColoredTreePicker(@predicatebox,'anything')
@@ -163,6 +169,12 @@ class CommandController
   build_nodeclasspicker: ->
     id = 'classes'
     @nodeclassbox = @comdiv.append('div').classed('container',true).attr('id',id)
+    @nodeclassbox.attr(
+      'title',
+      "Medium color: all nodes are picked -- click to pick none\n" +
+      "Faint color: no nodes are picked -- click to pick all\n" +
+      "Stripey color: some nodes are picked -- click to pick all\n")
+
     @taxon_picker = new ColoredTreePicker(@nodeclassbox,'everything')
     @taxon_picker.show_tree(@hierarchy,@nodeclassbox,@onnodeclasspicked)
 

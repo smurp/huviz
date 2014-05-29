@@ -79,15 +79,15 @@ class ColoredTreePicker extends TreePicker
     new_state = evt.detail.new_state
     target_id = evt.detail.target_id
     #console.debug target_id,new_state,evt.detail.predicate
-    if new_state is "hidden"
+    if new_state is "hidden" # rename noneToShow
       @set_branch_hiddenness(target_id, true)
     else
       @set_branch_hiddenness(target_id, false)
-    if new_state is "showing"
+    if new_state is "showing" # rename allShowing
       @set_branch_pickedness(target_id, true)
-    if new_state is "unshowing"
+    if new_state is "unshowing" # rename noneShowing
       @set_branch_pickedness(target_id, false)
-    if new_state is "mixed"
+    if new_state is "mixed" # rename partiallyShowing
       @set_branch_mixedness(target_id, true)
     else
       @set_branch_mixedness(target_id, false)
