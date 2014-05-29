@@ -267,7 +267,6 @@ class Predicate
     return true
   all_picked_edges_are_shown: () ->
     for e in @picked_edges
-      #if not e._s.shown?
       if not e.shown?
         return false
     return true
@@ -367,7 +366,7 @@ class Taxon # as Predicate is to Edge, Taxon is to Node, ie: type or class or wh
       @state = "hidden"
     else if @only_some_undiscarded_nodes_are_picked()
       @state = "mixed"
-    else if @picked_nodes.length > 0 and @all_undiscarded_nodes_are_picked()
+    else if @all_undiscarded_nodes_are_picked()
       @state = "showing"
     else if @no_undiscarded_nodes_are_picked()
       @state = "unshowing"
@@ -378,20 +377,28 @@ class Taxon # as Predicate is to Edge, Taxon is to Node, ie: type or class or wh
   all_nodes_are_discarded: () ->
     return false # FIXME should really check for this case!
   only_some_undiscarded_nodes_are_picked: () ->
-    return @picked_nodes.length > 0 and @unpicked_nodes.length > 0
     # patterned after Predicate.only_some_picked_edges_are_shown
-    for n in @picked_nodes
-      if not @picked_nodes.has(n)
-        return false
-    return true
+    some = false
+    only = false
+    for n in @instances
+      if not some and n._tp?.id is 'picked'
+        some = true
+      if not only and n._tp?.id isnt 'picked'
+        only = true
+      if only and some
+        return true
+    return false
   all_undiscarded_nodes_are_picked: () ->
     # patterned after Predicate.all_picked_edges_are_shown
-    for n in @picked_nodes
-      if not @picked_nodes.has(n)
+    for n in @instances
+      if n.discarded?
+        continue
+      if n._tp?.id isnt 'picked' # AKA: if not @picked_nodes.has(n)
         return false
     return true
   no_undiscarded_nodes_are_picked: () ->
     # no discarded node may be picked (picking undiscards them!)
+    # FIXME THIS IS NOT RIGHT!!!!
     return @picked_nodes.length is 0
   
           

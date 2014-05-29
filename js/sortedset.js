@@ -128,7 +128,7 @@ var SortedSet = function(){
     }
     array.has = function(itm){ // AKA contains() or is_state_of()
 	if (array.state_property){
-	    return itm.state == array;
+	    return itm[array.state_property] == array;
 	}
 	if (array.flag_property){
 	    return itm[array.flag_property] == array;
