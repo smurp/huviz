@@ -53,8 +53,7 @@
 #  17) TASK: incorporate ontology to drive predicate nesting
 #  18) TASK: drop a node on another node to draw their mutual edges only
 #  19) TASK: progressive documentation (context sensitive tips and intros)
-   20) drag and drop from the discard bin not modernized
-   21) TASK: remove update_pickers
+#  21) TASK: remove update_pickers
 # 
 #asyncLoop = require('asynchronizer').asyncLoop
 gcl = require('graphcommandlanguage')
@@ -1790,13 +1789,10 @@ class Huviz
   #  discard_dropzone.
   #
   discard: (goner) ->
-    #@shelve goner
     @unlink goner
     @discarded_set.acquire goner
     shown = @update_showing_links goner
-    #@unpick goner
-    @picked_set.remove goner
-    @gclui.update_pickers(goner, false, shown) # handled by unpicked
+    @unpick goner
     goner
 
   undiscard: (prodigal) ->  # TODO(smurp) rename command to 'retrieve' ????
