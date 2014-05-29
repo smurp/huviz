@@ -75,14 +75,21 @@ class ColoredTreePicker extends TreePicker
       @set_branch_mixedness(id, selectedness)
     else
       @color_by_selected(id, selectedness)
-  ###
-  set_branch_state: (id, state) -> # hidden|notshowing|showing|emphasizing|mixed
-    mixedness = false
-    if state is 'notshowing'
-      pickedness = false
-    else if state is 'showing'
-      pickedness = true
-    else if state is 'emphasizing'
-  ###    
-    
+  onChangeState: (evt) =>
+    new_state = evt.detail.new_state
+    target_id = evt.detail.target_id
+    console.debug target_id,new_state,evt.detail.predicate
+    if new_state is "hidden"
+      @set_branch_hiddenness(target_id, true)
+    else
+      @set_branch_hiddenness(target_id, false)
+    if new_state is "showing"
+      @set_branch_pickedness(target_id, true)
+    if new_state is "unshowing"
+      @set_branch_pickedness(target_id, false)
+    if new_state is "mixed"
+      @set_branch_mixedness(target_id, true)
+    else
+      @set_branch_mixedness(target_id, false)
+  
 (exports ? this).ColoredTreePicker = ColoredTreePicker

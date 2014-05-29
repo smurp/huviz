@@ -35,7 +35,8 @@ class CommandController
     @install_listeners()
 
   install_listeners: () ->
-    window.addEventListener 'changePredicate', @onChangePredicate
+    window.addEventListener 'changePredicate', @predicate_picker.onChangeState
+    window.addEventListener 'changeTaxon', @taxon_picker.onChangeState
 
   onChangePredicate: (evt) =>
     new_state = evt.detail.new_state
@@ -179,11 +180,11 @@ class CommandController
   build_nodeclasspicker: ->
     id = 'classes'
     @nodeclassbox = @comdiv.append('div').classed('container',true).attr('id',id)
-    @node_class_picker = new ColoredTreePicker(@nodeclassbox,'everything')
-    @node_class_picker.show_tree(@hierarchy,@nodeclassbox,@onnodeclasspicked)
+    @taxon_picker = new ColoredTreePicker(@nodeclassbox,'everything')
+    @taxon_picker.show_tree(@hierarchy,@nodeclassbox,@onnodeclasspicked)
 
   add_newnodeclass: (class_id,parent,class_name) =>
-    @node_class_picker.add(class_id,parent,class_name,@onnodeclasspicked)
+    @taxon_picker.add(class_id,parent,class_name,@onnodeclasspicked)
     @recolor_nodes()
 
   onnodeclasspicked: (id,selected,elem) =>
@@ -194,7 +195,7 @@ class CommandController
     #    all nodes except the embryonic and the discarded
     #    OR rather, the hidden, the graphed and the unlinked
     console.log("onnodeclasspicked('" + id + ", " + selected + "')")
-    @node_class_picker.color_by_selected(id,selected)
+    @taxon_picker.color_by_selected(id,selected)
     if selected
       if not (id in @node_classes_chosen)
         @node_classes_chosen.push(id)
@@ -225,9 +226,9 @@ class CommandController
     if not (subject in @subjects)
       adding = true
       @subjects.push(subject)
-      subject.color = @node_class_picker.get_color_forId_byName(subject.type,'emphasizing')
+      subject.color = @taxon_picker.get_color_forId_byName(subject.type,'emphasizing')
     else
-      subject.color = @node_class_picker.get_color_forId_byName(subject.type,'showing')
+      subject.color = @taxon_picker.get_color_forId_byName(subject.type,'showing')
       adding = false
       @subjects = @subjects.filter (member) ->
         subject isnt member
@@ -245,11 +246,11 @@ class CommandController
     #   mixed      - some instances of the node class are picked, but not all
     #   abstract   - the element represents an abstract superclass, presumably containing concrete node classes
 
-    node.color = @node_class_picker.get_color_forId_byName(node.type, picked and 'emphasizing' or 'showing')
+    node.color = @taxon_picker.get_color_forId_byName(node.type, picked and 'emphasizing' or 'showing')
     if not node.color
       console.error "update_node_visibility", adding, node.name,"==> a null node.color"
 
-    @node_class_picker
+    @taxon_picker
     classes_newly_identified_as_having_all_nodes = []
     classes_newly_identified_as_having_no_nodes = []
     classes_newly_identified_as_having_some_nodes = []
@@ -556,7 +557,7 @@ class CommandController
   deselect_all_node_classes: ->
     for nid in @node_classes_chosen
       @deselect_node_class(nid)
-      @node_class_picker.set_branch_pickedness(nid,false)
+      @taxon_picker.set_branch_pickedness(nid,false)
   clear_like: ->
     @like_input[0][0].value = ""
   old_commands: []

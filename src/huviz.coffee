@@ -249,6 +249,7 @@ class Predicate
     if old_state isnt @state
       evt = new CustomEvent 'changePredicate',
           detail:
+            target_id: this.lid
             predicate: this
             old_state: old_state
             new_state: @state
@@ -2146,7 +2147,7 @@ class Huviz
     @init_webgl()  if @use_webgl
 
   color_by_type: (d) ->
-    color = @gclui.node_class_picker.get_color_forId_byName(d.type,'showing')
+    color = @gclui.taxon_picker.get_color_forId_byName(d.type,'showing')
     color or @default_color
 
   is_ready: (node) ->
@@ -2217,7 +2218,7 @@ class Orlando extends Huviz
 class OntoViz extends Huviz
   constructor: ->
     super()
-    #@gclui.node_class_picker.add('everything',null,'Everything!')
+    #@gclui.taxon_picker.add('everything',null,'Everything!')
 
   class_list: []
   
