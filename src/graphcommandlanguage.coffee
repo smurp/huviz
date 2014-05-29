@@ -96,7 +96,7 @@ class GraphCommand
       
     if not node
       msg = "node with id = #{term} not found among #{@graph_ctrl.nodes.length} nodes: #{tried}"
-      console.warn msg
+      #console.warn msg
     return node    
   get_nodes: () ->
     result_set = SortedSet().sort_on("id")
@@ -289,7 +289,9 @@ class GraphCommand
       @[argn] = argv
     if not @str?
       @update_str()
-  
+  toString: () ->
+    return @str
+      
 class GraphCommandLanguageCtrl
   constructor: (@graph_ctrl) ->
     @prefixes = {}

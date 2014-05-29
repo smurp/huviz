@@ -1122,20 +1122,19 @@ class Huviz
 
   update_status: ->
     msg = "nodes:" + @nodes.length +
-          "\ngraphed:" + @graphed_set.length +    
-          "\nshelved:" + @unlinked_set.length +
-          "\nhidden:" + @hidden_set.length +          
-          "\nlinks:" + @links_set.length +
-          "\nembryos:" + @embryonic_set.length +
-          "\ndiscarded:" + @discarded_set.length +
-          #" subjects:" + (@my_graph.subjects.length) +
-          "\nchosen:" + @chosen_set.length +
+          "\n picked:"  + @picked_set.length +
+          "\n chosen:" + @chosen_set.length +          
+          "\n graphed:" + @graphed_set.length +    
+          "\n shelved:" + @unlinked_set.length +
+          "\n hidden:" + @hidden_set.length +
+          "\n discarded:" + @discarded_set.length +
+          "\n embryonic:" + @embryonic_set.length +
           "\npredicates:"  + Object.keys(@my_graph.predicates).length +
-          "\npicked:"  + @picked_set.length +
+          "\nlinks:" + @links_set.length +
           #"\ncharge: #{Math.round(100 * @force.charge()) / 100}" +          
           "\nalpha: #{Math.round(100 * @force.alpha()) / 100}" +
           "\ntheta: #{Math.round(100 * @force.theta()) / 100}" +
-          #"\nfriction: #{Math.round(100 * @force.friction()) / 100}" +
+          "\nfriction: #{Math.round(100 * @force.friction()) / 100}" +
           "\ngravity: #{Math.round(100 * @force.gravity()) / 100}"
           
     msg += " DRAG"  if @dragging
@@ -1886,6 +1885,7 @@ class Huviz
   choose: (chosen) =>
     # There is a flag .chosen in addition to the state 'linked'
     # because linked means it is in the graph
+    @pick chosen
     @chosen_set.add chosen
     @graphed_set.acquire chosen # do it early so add_link shows them otherwise choosing from discards just puts them in the lariat
     @show_links_from_node chosen
