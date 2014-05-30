@@ -17,13 +17,17 @@ class ColoredTreePicker extends TreePicker
     retval = {}
     for id,elem of @id_to_elem
       if @is_abstract(id)
-        continue
-      i++        
-      hue = i/count * 360
-      retval[id] =
-        notshowing:  hsv2rgb(hue,12,100)
-        showing:     hsv2rgb(hue,55,100)
-        emphasizing: hsv2rgb(hue,100,100)
+        retval[id] =
+          notshowing: '#EEE'
+          showing: '#CCC'
+          emphasizing: '#AAA'
+      else
+        i++        
+        hue = i/count * 360
+        retval[id] =
+          notshowing:  hsv2rgb(hue,12,100)
+          showing:     hsv2rgb(hue,55,100)
+          emphasizing: hsv2rgb(hue,100,100)
       elem.style("background-color",retval[id].notshowing)
 
     retval
