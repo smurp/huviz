@@ -194,7 +194,7 @@ class CommandController
     @taxon_picker.color_by_selected(id,selected)
     taxon = @huviz.taxonomy[id]
     if taxon?
-      console.clear()
+      #console.clear()
       state = taxon.recalc_state()
     else
       state = 'unshowing'

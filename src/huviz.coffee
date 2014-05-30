@@ -65,7 +65,11 @@
 #        Discard every picked [node] like 'smith';
 #        Discard every graphed [node];
 #        Choose and label every picked [node] except Group and Person like 'bob';
-#        Pick and label every 
+#        Pick and label every
+#  25) TASK: show busy pointer when slow operations are happening, maybe
+#      prevent starting operations when slow stuff is underway
+#  26) boot script should perhaps be "choose writer." or some reasonable set
+#  
 #asyncLoop = require('asynchronizer').asyncLoop
 gcl = require('graphcommandlanguage')
 gclui = require('gclui')
@@ -212,7 +216,7 @@ class Predicate
         @picked_edges.acquire(edge)
       else
         @unpicked_edges.acquire(edge)
-    @update_state()
+    @update_state(edge,change)
   pick: (edge) ->
     @update_edge(edge,{pick:true})
     @update_state()
@@ -232,8 +236,9 @@ class Predicate
     #else
     #  console.warn "update_picked_edges() was needed"
     
-  update_state: () ->
-    # FIXME determine the state info needed by the predicate_picker
+  update_state: (edge,change) ->
+    # FIXME fold the subroutines into this method for a single pass
+    # FIXME make use of the edge and change hints in the single pass
     # terminology:
     #   picked edge:  an edge (shown or not) to or from a node in the picked_set
     # roughly: all_shown, none_shown, mixed, hidden
@@ -327,15 +332,65 @@ class Node
       edge.unpick()
     @taxon.update_node(this,{pick:false})
 
+class AbstractTaxon
+  # These are containers for Taxons or Predicates.  There is a tree structure
+  # of AbstractTaxons and Taxons and Predicates comprise the leaves.
+  # seq message   meaning     styling
+  #   0 hidden    noneToShow  hidden/nocolor
+  #   1 unshowing noneShowing lowcolor
+  #   2 mixed     someShowing stripey
+  #   3 showing   allShowing  medcolor
+  #   4 selected  emphasized  hicolor
+  constructor: (@id) ->
+    @kids = SortedSet().sort_on("id").named(@id).isState("_mom")
+  register: (kid) ->
+    this.mom
+  addSub: (kid) ->
+    @kids.add(kid)
+  get_instances: () ->
+    retval = []
+    for kid in @kids
+      for i in kid.get_instances()
+        retval.push(i)
+    return retval
+  recalc_state: () ->
+    summary =
+      showing: false
+      hidden: false
+      unshowing: false
+      mixed: false
+    for k in @kids
+      summary[k.state] = true
+    if summary.mixed or (summary.showing  and summary.unshowing)
+      return 'mixed'
+    if summary.showing
+      return "showing"
+    if summary.unshowing
+      return "unshowing"
+    return "hidden"
+    
 class Taxon # as Predicate is to Edge, Taxon is to Node, ie: type or class or whatever
   constructor: (@id) ->
+    # FIXME try again to conver Taxon into a subclass of SortedSet
+    #   Motivations
+    #     1) remove redundancy of .register() and .add()
+    #   Problems encountered:
+    #     1) SortedSet is itself not really a proper subclass of Array.
+    #        Isn't each instance directly adorned with methods like isState?
+    #     2) Remember that d3 might need real Array instances for nodes, etc
     @instances = SortedSet().named(@id).isState('_isa').sort_on("id") # FIXME state?
     # _tp is for 'taxon-pickedness' and has value picked or unpicked
     @picked_nodes = SortedSet().named('picked').isState('_tp').sort_on("id")
     @unpicked_nodes = SortedSet().named('unpicked').isState('_tp').sort_on("id")
     @lid = @id # FIXME @lid should be local @id should be uri, no?
     @state = 'unshowing'
+  get_instances: () ->
+    return @instances
   register: (node) ->
+    # This is slightly redundant given that @add makes a bidirection link too
+    # but the .taxon on node gives it access to the methods on the taxon
+    # perhaps taxon should be a super of SortedSet rather than a facade.
+    # Should Taxon delegate to SortedSet?
     node.taxon = this
     @add(node)
   add: (node) ->
@@ -348,10 +403,10 @@ class Taxon # as Predicate is to Edge, Taxon is to Node, ie: type or class or wh
         @picked_nodes.acquire(node)
       else
         @unpicked_nodes.acquire(node)
-    @update_state()
-  update_state: () ->
+    @update_state(node,change)
+  update_state: (node, change) ->
     old_state = @state
-    @recalc_state()
+    @recalc_state(node, change)
     if old_state isnt @state
       evt = new CustomEvent 'changeTaxon',
         detail:
@@ -362,18 +417,19 @@ class Taxon # as Predicate is to Edge, Taxon is to Node, ie: type or class or wh
         bubbles: true
         cancelable: true
       window.dispatchEvent evt # could pass to picker, this is async    
-  recalc_state: () ->
-    # @update_picked_nodes() # can we avoid this?!
+  recalc_state: (node, change) ->
+    # FIXME fold the subroutines into this method for a single pass
+    #       respecting the node and change hints
     # FIXME CRITICAL ensure that discarded nodes can not be picked
     #       by having picking a discarded node shelve it
-    if @all_nodes_are_discarded()
-      @state = "hidden"
+    if @all_nodes_are_discarded() # AKA there are no undiscarded nodes
+      @state = "hidden" # 0
     else if @only_some_undiscarded_nodes_are_picked()
-      @state = "mixed"
+      @state = "mixed"  # 2
     else if @all_undiscarded_nodes_are_picked()
-      @state = "showing"
+      @state = "showing" # 3
     else if @no_undiscarded_nodes_are_picked()
-      @state = "unshowing"
+      @state = "unshowing" # 1
     else
       console.warn "Taxon.recalc_state() should not fall thru"
       @state = "unshowing"
@@ -408,7 +464,11 @@ class Taxon # as Predicate is to Edge, Taxon is to Node, ie: type or class or wh
           
   
 class Huviz
-  hierarchy: {'everything': ['Everything', {}]}
+  class_list: [] # FIXME remove
+  #class_set: SortedSet().sort_on("id").named("all")
+  class_index: {}
+  #hierarchy: {'everything': ['EveryThing', {}]}
+  hierarchy: {}
   default_color: "brown"
   DEFAULT_CONTEXT: 'http://universal.org/'
   turtle_parser: 'GreenerTurtle'
@@ -823,10 +883,19 @@ class Huviz
   create_taxonomy: ->
     @taxonomy = {}  # make driven by the hierarchy
 
-  get_or_create_taxon: (taxon_id) ->
+  get_or_create_taxon: (taxon_id,abstract) ->
     if not @taxonomy[taxon_id]?
-      @taxonomy[taxon_id] = new Taxon(taxon_id)
-      @gclui.add_newnodeclass(taxon_id) # FIXME should this be an event on the Taxon constructor?
+      if abstract
+        taxon = new AbstractTaxon(taxon_id)
+        @gclui.taxon_picker.set_abstract(taxon_id) # OMG
+      else
+        taxon = new Taxon(taxon_id)
+      @taxonomy[taxon_id] = taxon
+      parent_lid = @HHH[taxon_id]
+      if parent_lid?
+        parent = @get_or_create_taxon(parent_lid, true)
+        parent.addSub(taxon)
+      @gclui.add_newnodeclass(taxon_id,parent_lid) # FIXME should this be an event on the Taxon constructor?
     @taxonomy[taxon_id]
     
   reset_graph: ->
@@ -1365,12 +1434,13 @@ class Huviz
     @add_to edge,edge.target.links_to
     edge
 
-  try_to_set_node_type: (node,type) ->
-    type_as_id = uri_to_js_id(type)
-    if not is_one_of(type,@class_list)
-      @class_list.push type_as_id
-      @hierarchy['everything'][1][type_as_id] = [type_as_id]
-    node.type = type_as_id
+  try_to_set_node_type: (node,type_uri) ->
+    #console.info "try_to_set_node_type",type_uri,@class_list
+    type_lid = uri_to_js_id(type_uri) # should ensure uniqueness
+    #if not is_one_of(type_uri,@class_list)
+    #  @class_list.push type_uri
+    #  @hierarchy['everything'][1][type_lid] = [type_lid]
+    node.type = type_lid
     return true
 
   parseAndShowTTLStreamer: (data, textStatus) =>
@@ -2239,7 +2309,7 @@ class Huviz
     type_id = node.type # FIXME one of type or taxon_id gotta go, bye 'type'
     if type_id
       console.log "assign_type",type_id,"to",node.id,"within",within,type_id
-      @get_or_create_taxon(type_id).register(node)
+      @get_or_create_taxon(type_id).register(node) 
       
     else
       throw "there must be a .type before hatch can even be called:"+node.id+ " "+type_id
@@ -2250,22 +2320,28 @@ class Huviz
     #console.log "get_default_set_by_type",node
     return @unlinked_set
 
-
-
 class Orlando extends Huviz
   # These are the Orlando specific methods layered on Huviz.
   # These ought to be made more data-driven.
   #
   create_taxonomy: ->
     @taxonomy = {}  # make driven by the hierarchy
+    #e = new AbstractTaxon('everything')
+    #@taxonomy['everything'] = e
 
   populate_taxonomy: ->
+  # use the hints or the HHH to build a hierarchy of AbstractTaxons and Taxons
   #  for nom in ['writers','people','others','orgs']
   #    @add_to_taxonomy(nom)
 
-  #hierarchy: { 'everything': ['Everything', {people: ['People', {writers: ['Writers'], others: ['Others']}], orgs: ['Organizations']}]}
+  HHH: # hardcoded hierarchy hints, kv pairs of child to parent
+    human: 'everything'
+    writer: 'human'
+    Group: 'everything'
+    Person: 'human'
+    
+  hints: { 'everything': ['Everything', {human: ['human', {writer: ['Writers'], Person: ['Person']}], Group: ['Group']}]}
 
-  class_list: []
   push_snippet: (msg_or_obj) ->
     if @snippet_box
       if typeof msg_or_obj isnt 'string'
@@ -2294,8 +2370,6 @@ class OntoViz extends Huviz
     super()
     #@gclui.taxon_picker.add('everything',null,'Everything!')
 
-  class_list: []
-  
   ontoviz_type_to_hier_map:
     RDF_type: "classes"
     OWL_ObjectProperty: "properties"

@@ -118,7 +118,7 @@ class GraphCommand
         if class_name is 'everything'
           the_set = @graph_ctrl.nodes
         else
-          the_set = @graph_ctrl.taxonomy[class_name]?.instances
+          the_set = @graph_ctrl.taxonomy[class_name]?.get_instances()
         if @like and the_set?
           for n in the_set
             if n.name.match(like_regex)
@@ -296,8 +296,10 @@ class GraphCommandLanguageCtrl
   constructor: (@graph_ctrl) ->
     @prefixes = {}
   run: (script) ->
-    #console.clear()
     console.log("script: ",script)
+    if not script?
+      console.error "script must be defined"
+      return
     if script instanceof GraphCommand
       @commands = [script]
     else if typeof script is 'string'
