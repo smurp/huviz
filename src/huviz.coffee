@@ -332,7 +332,26 @@ class Node
       edge.unpick()
     @taxon.update_node(this,{pick:false})
 
-class AbstractTaxon
+class BaseTaxon
+  update_state: (node, change) ->
+    old_state = @state
+    @recalc_state(node, change)
+    if old_state isnt @state
+      evt = new CustomEvent 'changeTaxon',
+        detail:
+          target_id: this.id
+          taxon: this
+          old_state: old_state
+          new_state: @state
+        bubbles: true
+        cancelable: true
+      if @mom?
+        #@mom.state = false # force mom to dispatch an event
+        @mom.update_state()
+      console.debug evt.detail.target_id,evt.detail.new_state
+      window.dispatchEvent evt # could pass to picker, this is async    
+
+class AbstractTaxon extends BaseTaxon
   # These are containers for Taxons or Predicates.  There is a tree structure
   # of AbstractTaxons and Taxons and Predicates comprise the leaves.
   # seq message   meaning     styling
@@ -342,9 +361,11 @@ class AbstractTaxon
   #   3 showing   allShowing  medcolor
   #   4 selected  emphasized  hicolor
   constructor: (@id) ->
+    super()
     @kids = SortedSet().sort_on("id").named(@id).isState("_mom")
   register: (kid) ->
-    this.mom
+    kid.mom = this
+    @addSub(kid)
   addSub: (kid) ->
     @kids.add(kid)
   get_instances: () ->
@@ -362,15 +383,18 @@ class AbstractTaxon
     for k in @kids
       summary[k.state] = true
     if summary.mixed or (summary.showing  and summary.unshowing)
-      return 'mixed'
-    if summary.showing
-      return "showing"
-    if summary.unshowing
-      return "unshowing"
-    return "hidden"
+      @state = 'mixed'
+    else if summary.showing
+      @state = "showing"
+    else if summary.unshowing
+      @state = "unshowing"
+    else
+      @state = "hidden"
+    return @state
     
-class Taxon # as Predicate is to Edge, Taxon is to Node, ie: type or class or whatever
+class Taxon extends BaseTaxon # as Predicate is to Edge, Taxon is to Node, ie: type or class or whatever
   constructor: (@id) ->
+    super()
     # FIXME try again to conver Taxon into a subclass of SortedSet
     #   Motivations
     #     1) remove redundancy of .register() and .add()
@@ -404,19 +428,6 @@ class Taxon # as Predicate is to Edge, Taxon is to Node, ie: type or class or wh
       else
         @unpicked_nodes.acquire(node)
     @update_state(node,change)
-  update_state: (node, change) ->
-    old_state = @state
-    @recalc_state(node, change)
-    if old_state isnt @state
-      evt = new CustomEvent 'changeTaxon',
-        detail:
-          target_id: this.lid
-          taxon: this
-          old_state: old_state
-          new_state: @state
-        bubbles: true
-        cancelable: true
-      window.dispatchEvent evt # could pass to picker, this is async    
   recalc_state: (node, change) ->
     # FIXME fold the subroutines into this method for a single pass
     #       respecting the node and change hints
@@ -894,7 +905,7 @@ class Huviz
       parent_lid = @HHH[taxon_id]
       if parent_lid?
         parent = @get_or_create_taxon(parent_lid, true)
-        parent.addSub(taxon)
+        parent.register(taxon)
       @gclui.add_newnodeclass(taxon_id,parent_lid) # FIXME should this be an event on the Taxon constructor?
     @taxonomy[taxon_id]
     

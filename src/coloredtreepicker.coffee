@@ -53,7 +53,7 @@ class ColoredTreePicker extends TreePicker
     #  when a div represents a mixed branch then color with a gradient of the two representative colors
     #    https://developer.mozilla.org/en-US/docs/Web/CSS/linear-gradient
     if bool
-      if @is_abstract(id)
+      if @is_abstract(id) and false
         msg =  "set_branch_mixedness(" +id + "): " + bool + " for abstract"
         # FIXME these colors should come from first and last child of this abstraction
         sc = 'red'
@@ -75,10 +75,10 @@ class ColoredTreePicker extends TreePicker
     #@color_by_selected(id, bool)
     @render(id,bool)
   render: (id,selectedness) ->
-    if @is_abstract(id)
-      @set_branch_mixedness(id, selectedness)
-    else
-      @color_by_selected(id, selectedness)
+    #if @is_abstract(id)
+    #  @set_branch_mixedness(id, selectedness)
+    #else
+    @color_by_selected(id, selectedness)
   onChangeState: (evt) =>
     new_state = evt.detail.new_state
     target_id = evt.detail.target_id
