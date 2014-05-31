@@ -70,10 +70,16 @@
 #  26) boot script should perhaps be "choose writer." or some reasonable set
 #  
 #asyncLoop = require('asynchronizer').asyncLoop
-gcl = require('graphcommandlanguage')
-gclui = require('gclui')
-gt = require('greenerturtle')
-GreenerTurtle = gt.GreenerTurtle
+
+CommandController = require('gclui').CommandController
+Edge = require('edge').Edge
+GraphCommandLanguageCtrl = require('graphcommandlanguage').GraphCommandLanguageCtrl
+GreenerTurtle = require('greenerturtle').GreenerTurtle
+Node = require('node').Node
+Predicate = require('predicate').Predicate
+TaxonAbstract = require('taxonabstract').TaxonAbstract
+Taxon = require('taxon').Taxon
+
 wpad = undefined
 hpad = 10
 distance = (p1, p2) ->
@@ -158,316 +164,6 @@ if true
   is_one_of = (itm,array) ->
     array.indexOf(itm) > -1
     
-class Edge
-  color: "lightgrey"
-  constructor: (@source,@target,@predicate,@context) ->
-    @id = (a.id for a in [@source, @predicate, @target, @context]).join(' ')
-    #console.log "new Edge() ==>",@id
-    @register()
-    this
-  register: () ->
-    @predicate.add_edge(this)
-  isPicked: () ->
-    return @source.picked? or @target.picked?
-  show: () ->
-    @predicate.shown_edges.acquire(this)
-    if @isPicked()
-      @predicate.pick(this)
-    else
-      @predicate.unshown_edges.remove(this)
-      @predicate.unpick(this)
-    @predicate.update_edge(this,{show:true})
-  unshow: () ->
-    if @isPicked()
-      @predicate.unshown_edges.acquire(this)
-      @predicate.pick(this)
-    else
-      @predicate.unshown_edges.acquire(this)
-      @predicate.unpicked_edges.acquire(this)
-    @predicate.update_edge(this,{show:false})      
-  an_end_is_picked: () ->
-    return this.target.picked? or this.source.picked?
-  unpick: () ->
-    @predicate.unpick(this)
-  pick: () ->
-    @predicate.pick(this)
-class Predicate
-  constructor: (@id) ->
-    @lid = @id.match(/([\w\d\_\-]+)$/g)[0] # lid means local id
-    # pshown edges are those which are shown and linked to a picked source or target
-    @shown_edges = SortedSet().sort_on("id").named("shown").isState("_s")
-    # punshown edges are those which are unshown and linked to a picked source or target
-    @unshown_edges = SortedSet().sort_on("id").named("unshown").isState("_s")
-    #@all_edges = [] # FIXME not a SortedSet because edge.predicate already exists
-    @picked_edges = SortedSet().sort_on("id").named("picked").isState('_p')
-    @unpicked_edges = SortedSet().sort_on("id").named("unpicked").isState('_p')
-    @all_edges = SortedSet().sort_on("id").named("predicate")
-    @state = "hidden"
-    this
-  update_edge: (edge,change) ->
-    if change.show?
-      if change.show
-        @shown_edges.acquire(edge)
-      else
-        @unshown_edges.acquire(edge)
-    if change.pick?
-      if change.pick
-        @picked_edges.acquire(edge)
-      else
-        @unpicked_edges.acquire(edge)
-    @update_state(edge,change)
-  pick: (edge) ->
-    @update_edge(edge,{pick:true})
-    @update_state()
-  unpick: (edge) ->
-    @update_edge(edge,{pick:false})
-    @update_state()
-  add_edge: (edge) ->
-    @all_edges.add(edge)
-    @update_state()
-  update_picked_edges: () ->
-    before_count = @picked_edges.length
-    for e in @all_edges  # FIXME why can @picked_edges not be trusted?
-      if e.an_end_is_picked()
-        @picked_edges.acquire(e)
-    
-  update_state: (edge,change) ->
-    # FIXME fold the subroutines into this method for a single pass
-    # FIXME make use of the edge and change hints in the single pass
-    # terminology:
-    #   picked edge:  an edge (shown or not) to or from a node in the picked_set
-    # roughly: all_shown, none_shown, mixed, hidden
-    #   are all the picked edges shown?
-    #   are none of the picked edges shown?
-    #   are strictly some of the picked edges shown?
-    #   are there no picked edges?
-    old_state = @state
-    #console.warn "picked_edges.length",@picked_edges.length
-    @update_picked_edges()
-    if @picked_edges.length is 0
-      @state = "hidden" # FIXME maybe "noneToShow"
-    else if @only_some_picked_edges_are_shown()
-      @state = "mixed" # FIXME maybe "partialShowing"?
-    else if @picked_edges.length > 0 and @all_picked_edges_are_shown()
-      @state = "showing" # FIXME maybe "allShowing"?
-    else if @no_picked_edges_are_shown()
-      @state = "unshowing" # FIXME maybe "noneShowing"?      
-    else
-      console.info "Predicate.update_state() should not fall thru",this
-      throw "Predicate.update_state() should not fall thru (#{@lid})"
-    #console.debug this.lid,old_state,"==>",@state
-    if old_state isnt @state
-      evt = new CustomEvent 'changePredicate',
-          detail:
-            target_id: this.lid
-            predicate: this
-            old_state: old_state
-            new_state: @state
-          bubbles: true
-          cancelable: true
-      window.dispatchEvent evt
-  no_picked_edges_are_shown: () ->
-    for e in @picked_edges
-      if e.shown?
-        return false
-    return true
-  all_picked_edges_are_shown: () ->
-    for e in @picked_edges
-      if not e.shown?
-        return false
-    return true
-  only_some_picked_edges_are_shown: () ->
-    some = false
-    only = false
-    shown_count = 0
-    for e in @picked_edges
-      #continue unless e.an_end_is_picked()
-      if e.shown?
-        some = true
-      if not e.shown? # AKA e._s?.id isnt 'shown'
-        only = true
-      if only and some
-        return true
-    return false
-class Node
-  linked: false          # TODO(smurp) probably vestigal
-  #links_from_found: true # TODO(smurp) deprecated because links*_found early
-  #links_to_found: true   # TODO(smurp) deprecated becasue links*_found early
-  showing_links: "none"
-  name: null
-  s: null                # TODO(smurp) rename Node.s to Node.subject, should be optional
-  type: null
-  constructor: (@id) ->
-    #console.log "new Node(",@id,")"
-    @links_from = []
-    @links_to = []
-    @links_shown = []
-  set_name: (@name) ->
-  set_subject: (@s) ->
-  point: (point) ->
-    if point?
-      @x = point[0]
-      @y = point[1]
-    [@x,@y]
-  prev_point: (point) ->
-    if point?
-      @px = point[0]
-      @py = point[1]
-    [@px,@py]
-  pick: () ->
-    for edge in this.links_from
-      edge.pick()
-    for edge in this.links_to
-      edge.pick()
-    @taxon.update_node(this,{pick:true})
-  unpick: () ->
-    for edge in this.links_from
-      edge.unpick()
-    for edge in this.links_to
-      edge.unpick()
-    @taxon.update_node(this,{pick:false})
-
-class BaseTaxon
-  update_state: (node, change) ->
-    old_state = @state
-    @recalc_state(node, change)
-    if old_state isnt @state
-      evt = new CustomEvent 'changeTaxon',
-        detail:
-          target_id: this.id
-          taxon: this
-          old_state: old_state
-          new_state: @state
-        bubbles: true
-        cancelable: true
-      if @mom?
-        #@mom.state = false # force mom to dispatch an event
-        @mom.update_state()
-      console.debug evt.detail.target_id,evt.detail.new_state
-      window.dispatchEvent evt # could pass to picker, this is async    
-
-class AbstractTaxon extends BaseTaxon
-  # These are containers for Taxons or Predicates.  There is a tree structure
-  # of AbstractTaxons and Taxons and Predicates comprise the leaves.
-  # seq message   meaning     styling
-  #   0 hidden    noneToShow  hidden/nocolor
-  #   1 unshowing noneShowing lowcolor
-  #   2 mixed     someShowing stripey
-  #   3 showing   allShowing  medcolor
-  #   4 selected  emphasized  hicolor
-  constructor: (@id) ->
-    super()
-    @kids = SortedSet().sort_on("id").named(@id).isState("_mom")
-  register: (kid) ->
-    kid.mom = this
-    @addSub(kid)
-  addSub: (kid) ->
-    @kids.add(kid)
-  get_instances: () ->
-    retval = []
-    for kid in @kids
-      for i in kid.get_instances()
-        retval.push(i)
-    return retval
-  recalc_state: () ->
-    summary =
-      showing: false
-      hidden: false
-      unshowing: false
-      mixed: false
-    for k in @kids
-      summary[k.state] = true
-    if summary.mixed or (summary.showing  and summary.unshowing)
-      @state = 'mixed'
-    else if summary.showing
-      @state = "showing"
-    else if summary.unshowing
-      @state = "unshowing"
-    else
-      @state = "hidden"
-    return @state
-    
-class Taxon extends BaseTaxon # as Predicate is to Edge, Taxon is to Node, ie: type or class or whatever
-  constructor: (@id) ->
-    super()
-    # FIXME try again to conver Taxon into a subclass of SortedSet
-    #   Motivations
-    #     1) remove redundancy of .register() and .add()
-    #   Problems encountered:
-    #     1) SortedSet is itself not really a proper subclass of Array.
-    #        Isn't each instance directly adorned with methods like isState?
-    #     2) Remember that d3 might need real Array instances for nodes, etc
-    @instances = SortedSet().named(@id).isState('_isa').sort_on("id") # FIXME state?
-    # _tp is for 'taxon-pickedness' and has value picked or unpicked
-    @picked_nodes = SortedSet().named('picked').isState('_tp').sort_on("id")
-    @unpicked_nodes = SortedSet().named('unpicked').isState('_tp').sort_on("id")
-    @lid = @id # FIXME @lid should be local @id should be uri, no?
-    @state = 'unshowing'
-  get_instances: () ->
-    return @instances
-  register: (node) ->
-    # This is slightly redundant given that @add makes a bidirection link too
-    # but the .taxon on node gives it access to the methods on the taxon
-    # perhaps taxon should be a super of SortedSet rather than a facade.
-    # Should Taxon delegate to SortedSet?
-    node.taxon = this
-    @add(node)
-  add: (node) ->
-    @instances.add(node)
-  update_node: (node,change) ->
-    # like Predicates, fully picked onpick?
-    # should hidden and/or discarded taxons be invisible?
-    if change.pick?
-      if change.pick
-        @picked_nodes.acquire(node)
-      else
-        @unpicked_nodes.acquire(node)
-    @update_state(node,change)
-  recalc_state: (node, change) ->
-    # FIXME fold the subroutines into this method for a single pass
-    #       respecting the node and change hints
-    # FIXME CRITICAL ensure that discarded nodes can not be picked
-    #       by having picking a discarded node shelve it
-    if @all_nodes_are_discarded() # AKA there are no undiscarded nodes
-      @state = "hidden" # 0
-    else if @only_some_undiscarded_nodes_are_picked()
-      @state = "mixed"  # 2
-    else if @all_undiscarded_nodes_are_picked()
-      @state = "showing" # 3
-    else if @no_undiscarded_nodes_are_picked()
-      @state = "unshowing" # 1
-    else
-      console.warn "Taxon.recalc_state() should not fall thru"
-      @state = "unshowing"
-    return @state
-  all_nodes_are_discarded: () ->
-    return false # FIXME should really check for this case!
-  only_some_undiscarded_nodes_are_picked: () ->
-    # patterned after Predicate.only_some_picked_edges_are_shown
-    some = false
-    only = false
-    for n in @instances
-      if not some and n._tp?.id is 'picked'
-        some = true
-      if not only and n._tp?.id isnt 'picked'
-        only = true
-      if only and some
-        return true
-    return false
-  all_undiscarded_nodes_are_picked: () ->
-    # patterned after Predicate.all_picked_edges_are_shown
-    for n in @instances
-      if n.discarded?
-        continue
-      if n._tp?.id isnt 'picked' # AKA: if not @picked_nodes.has(n)
-        return false
-    return true
-  no_undiscarded_nodes_are_picked: () ->
-    # no discarded node may be picked (picking undiscards them!)
-    # FIXME THIS IS NOT RIGHT!!!!
-    return @picked_nodes.length is 0
-  
-          
   
 class Huviz
   class_list: [] # FIXME remove
@@ -891,7 +587,7 @@ class Huviz
   get_or_create_taxon: (taxon_id,abstract) ->
     if not @taxonomy[taxon_id]?
       if abstract
-        taxon = new AbstractTaxon(taxon_id)
+        taxon = new TaxonAbstract(taxon_id)
         @gclui.taxon_picker.set_abstract(taxon_id) # OMG
       else
         taxon = new Taxon(taxon_id)
@@ -2127,8 +1823,8 @@ class Huviz
 
   init_gclc: ->
     if gcl
-      @gclc = new gcl.GraphCommandLanguageCtrl(this)
-      @gclui = new gclui.CommandController(this,d3.select("#gclui")[0][0],@hierarchy)
+      @gclc = new GraphCommandLanguageCtrl(this)
+      @gclui = new CommandController(this,d3.select("#gclui")[0][0],@hierarchy)
       window.addEventListener 'showgraph', @register_gclc_prefixes
       window.addEventListener 'newpredicate', @gclui.handle_newpredicate
       TYPE_SYNS.forEach (pred_id,i) =>
