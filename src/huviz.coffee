@@ -321,7 +321,6 @@ class Node
       edge.pick()
     @taxon.update_node(this,{pick:true})
   unpick: () ->
-    @picked.remove(this)
     for edge in this.links_from
       edge.unpick()
     for edge in this.links_to
@@ -2001,12 +2000,14 @@ class Huviz
   pick: (node) =>
     if not node.picked?
       @picked_set.add(node)
-      node.pick() 
+      node.pick()
+      @gclui.update_pickers(node, true, null)
 
   unpick: (node) =>
     if node.picked?
       @picked_set.remove(node)
       node.unpick()
+      @gclui.update_pickers(node, false, null)
 
   toggle_picked: (node) ->
     if node.picked?

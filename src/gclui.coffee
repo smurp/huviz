@@ -153,6 +153,16 @@ class CommandController
     @prepare_command cmd
     @huviz.gclc.run(@command)
 
+  update_pickers: (node, picked, shown) =>
+    if picked isnt null
+      @update_class_picker(node, picked)
+      @update_command()
+
+  update_class_picker: (node, picked) =>
+    node.color = @taxon_picker.get_color_forId_byName(node.type, picked and 'emphasizing' or 'showing')
+    if not node.color
+      console.error "update_node_visibility", adding, node.name,"==> a null node.color"
+
   recolor_nodes: =>
     # The nodes needing recoloring are all but the embryonic.
     for node in @huviz.nodes
