@@ -1710,16 +1710,16 @@ class Huviz
     edge.show()
     @update_state edge.source
     @update_state edge.target
-    @gclui.add_shown(edge.predicate.lid,edge)
+    #@gclui.add_shown(edge.predicate.lid,edge)
 
   unshow_link: (edge) ->
     @remove_from edge,edge.source.links_shown
     @remove_from edge,edge.target.links_shown
     @links_set.remove edge
-    edge.unshow()
+    edge.unshow() # FIXME make unshow call @update_state WHICH ONE? :)
     @update_state edge.source
     @update_state edge.target
-    @gclui.remove_shown(edge.predicate.lid,edge)
+    #@gclui.remove_shown(edge.predicate.lid,edge)
 
   show_links_to_node: (n, incl_discards) ->
     incl_discards = incl_discards or false
@@ -2008,7 +2008,7 @@ class Huviz
     if not node.picked?
       @picked_set.add(node)
       node.pick()
-      @gclui.update_pickers(node, true, null)
+      ##@gclui.update_pickers(node, true, null)
     #else
     #  console.warn(node.id + " was already in @picked_set, so @pick() was NOOP")
 
@@ -2016,7 +2016,7 @@ class Huviz
     if node.picked?
       @picked_set.remove(node)
       node.unpick()
-      @gclui.update_pickers(node, false, null)
+      ##@gclui.update_pickers(node, false, null)
     #else
     #  console.warn(node.id + " was not in @picked_set, so @unpick() was NOOP")
 

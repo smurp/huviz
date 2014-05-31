@@ -15,7 +15,7 @@ class CommandController
   constructor: (@huviz,@container,@hierarchy) ->
     document.addEventListener 'dataset-loaded', @on_dataset_loaded
     d3.select(@container).html("")
-    @init_indices()
+    #@init_indices()
     @comdiv = d3.select(@container).append("div")
     #@gclpane = @comdiv.append('div').attr('class','gclpane')
     @cmdlist = @comdiv.append('div').attr('class','commandlist')
@@ -224,22 +224,7 @@ class CommandController
     @node_classes_chosen = @node_classes_chosen.filter (eye_dee) ->
       eye_dee isnt node_class
 
-  XXX_toggle_picked: (subject) => # FIXME rename subject to node
-    if not (subject in @subjects)
-      adding = true
-      @subjects.push(subject)
-      subject.color = @taxon_picker.get_color_forId_byName(subject.type,'emphasizing')
-    else
-      subject.color = @taxon_picker.get_color_forId_byName(subject.type,'showing')
-      adding = false
-      @subjects = @subjects.filter (member) ->
-        subject isnt member
-    @update_predicate_visibility(adding, subject)
-    @update_command()
 
-  update_class_picker: (node, picked) =>
-    # Maintain the nodeclass picker
-    # 
     # # Elements may be in one of these states:
     #   hidden     - TBD: not sure when hidden is appropriate
     #   notshowing - a light color indicating nothing of that type is picked
@@ -248,17 +233,8 @@ class CommandController
     #   mixed      - some instances of the node class are picked, but not all
     #   abstract   - the element represents an abstract superclass, presumably containing concrete node classes
 
-    node.color = @taxon_picker.get_color_forId_byName(node.type, picked and 'emphasizing' or 'showing')
-    if not node.color
-      console.error "update_node_visibility", adding, node.name,"==> a null node.color"
 
-    @taxon_picker
-    classes_newly_identified_as_having_all_nodes = []
-    classes_newly_identified_as_having_no_nodes = []
-    classes_newly_identified_as_having_some_nodes = []
-    classes_newly_identified_as_having_neither = []
-
-  add_shown: (pred_id, edge) =>
+  XXXadd_shown: (pred_id, edge) =>
     #alert "add_shown(" + pred_id + ", " + edge.id + ")"
     # This edge is shown, so the associated predicate has at least one shown edge.
     console.log "  adding shown",pred_id, edge.context.id
@@ -270,7 +246,7 @@ class CommandController
       console.log("SET shown_edge_count: " + pred_id + " " + @predicates_newly_identified_as_having_shown_edges.length)
     @shown_edges_by_predicate[pred_id].push(edge)
 
-  remove_shown: (pred_id, edge) =>
+  XXXremove_shown: (pred_id, edge) =>
     # The node with this edge is being removed from consideration so the
     # predicate used by this edge has one fewer (or now possibly no) uses.
     console.log "  removing shown",pred_id      
@@ -281,7 +257,7 @@ class CommandController
         delete @shown_edges_by_predicate[pred_id]
         @predicates_newly_identified_as_having_neither.push(edge.predicate)
           
-  add_unshown: (pred_id, edge) =>
+  XXXadd_unshown: (pred_id, edge) =>
     # This edge is not shown, so the associated predicate has at least one unshown edge
     console.log "  adding unshown",pred_id
     if not @unshown_edges_by_predicate[pred_id]?
@@ -289,7 +265,7 @@ class CommandController
       @predicates_newly_identified_as_having_unshown_edges.push(edge.predicate)
     @unshown_edges_by_predicate[pred_id].push(edge)
 
-  remove_unshown: (pred_id, edge) =>
+  XXXremove_unshown: (pred_id, edge) =>
     # The node with this edge is being removed from consideration so the predicate
     # associated with this edge has one fewer (or now possibly no) uses.
     console.log "  removing unshown",pred_id
@@ -301,7 +277,7 @@ class CommandController
         if not @shown_edges_by_predicate[pred_id]?
           @predicates_newly_identified_as_having_neither.push(edge.predicate)
 
-  update_pickers: (node, picked, shown) =>
+  XXXupdate_pickers: (node, picked, shown) =>
     # There appear to be two considerations:
     #   has the picked-ness of the node changed?
     #   has the shown-ness of any edges changed?
@@ -318,13 +294,13 @@ class CommandController
     #@huviz.force.start()
     #alert "update_visibility() " + node.name
 
-  init_indices: ->
+  XXXinit_indices: ->
     @predicates_newly_identified_as_having_shown_edges = []    
     @predicates_newly_identified_as_having_unshown_edges = []
     @predicates_newly_identified_as_having_some = []
     @predicates_newly_identified_as_having_neither = []
 
-  update_predicate_picker: (node, picked, shown) =>
+  XXXupdate_predicate_picker: (node, picked, shown) =>
     return # see the event listener onChangePredicate
     # This method translates from operations in the node and edge frame
     # of reference to the predicate frame of reference.
