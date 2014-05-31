@@ -53,7 +53,6 @@ class CommandController
     @shown_edges_by_predicate = {}
     @unshown_edges_by_predicate = {}
     @node_classes_chosen = [] # new SortedSet()
-    #@subjects = [] # FIXME remove as part of switch to @huviz.picked_set
         
   reset_editor: ->
     @disengage_all_verbs()
@@ -144,7 +143,6 @@ class CommandController
       verb = 'show'
     else
       verb = 'suppress'
-    #console.clear()
     cmd = new gcl.GraphCommand
       verbs: [verb]
       regarding: [pred_id]

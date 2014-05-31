@@ -68,6 +68,10 @@
 #  25) TASK: show busy pointer when slow operations are happening, maybe
 #      prevent starting operations when slow stuff is underway
 #  26) boot script should perhaps be "choose writer." or some reasonable set
+#  27) make picking anything (abstract predicates) do the right things
+#  28) switch to CEI*Lab color space (see recent hacker news javascript library)
+#  29) get rid of the select/deselect thing at startup
+#  
 #  
 #asyncLoop = require('asynchronizer').asyncLoop
 
@@ -2024,7 +2028,6 @@ class Huviz
 class Orlando extends Huviz
   # These are the Orlando specific methods layered on Huviz.
   # These ought to be made more data-driven.
-  #
   create_taxonomy: ->
     @taxonomy = {}  # make driven by the hierarchy
     #e = new AbstractTaxon('everything')

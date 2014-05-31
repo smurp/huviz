@@ -1,6 +1,7 @@
 TaxonBase = require('taxonbase').TaxonBase
   
-class Taxon extends TaxonBase # as Predicate is to Edge, Taxon is to Node, ie: type or class or whatever
+class Taxon extends TaxonBase
+  # as Predicate is to Edge, Taxon is to Node, ie: type or class or whatever
   constructor: (@id) ->
     super()
     # FIXME try again to conver Taxon into a subclass of SortedSet
@@ -19,7 +20,7 @@ class Taxon extends TaxonBase # as Predicate is to Edge, Taxon is to Node, ie: t
   get_instances: () ->
     return @instances
   register: (node) ->
-    # This is slightly redundant given that @add makes a bidirection link too
+    # This is slightly redundant given that @add makes a bidirectional link too
     # but the .taxon on node gives it access to the methods on the taxon
     # perhaps taxon should be a super of SortedSet rather than a facade.
     # Should Taxon delegate to SortedSet?

@@ -12,9 +12,30 @@ class TaxonBase
         bubbles: true
         cancelable: true
       if @mom?
-        #@mom.state = false # force mom to dispatch an event
         @mom.update_state()
-      console.debug evt.detail.target_id,evt.detail.new_state
       window.dispatchEvent evt # could pass to picker, this is async    
 
 (exports ? this).TaxonBase = TaxonBase
+
+###
+[Thing
+  [Human
+    [Person] [Writer]]
+  [Group]]
+--> THING
+
+Showing
+unshowing
+
+
+
+[thing
+  [human
+    [Person] [writer]]
+  [Group]]
+--> Person except smith and Group except mormons
+
+--> Everything except Beauty
+
+
+###
