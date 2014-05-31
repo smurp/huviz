@@ -52,7 +52,6 @@
 #  17) TASK: incorporate ontology to drive predicate nesting
 #  18) TASK: drop a node on another node to draw their mutual edges only
 #  19) TASK: progressive documentation (context sensitive tips and intros)
-#  21) TASK: remove update_pickers
 #  22) TASK: summarize picked_set succinctly in english version of cmd
 #            eg  writers but atwoma
 #       Current command shows redundant mix of nodeclasses and node ids
@@ -231,10 +230,6 @@ class Predicate
     for e in @all_edges  # FIXME why can @picked_edges not be trusted?
       if e.an_end_is_picked()
         @picked_edges.acquire(e)
-    #if @picked_edges.length is before_count
-    #  console.warn "update_picked_edges() was not needed"
-    #else
-    #  console.warn "update_picked_edges() was needed"
     
   update_state: (edge,change) ->
     # FIXME fold the subroutines into this method for a single pass
@@ -326,6 +321,7 @@ class Node
       edge.pick()
     @taxon.update_node(this,{pick:true})
   unpick: () ->
+    @picked.remove(this)
     for edge in this.links_from
       edge.unpick()
     for edge in this.links_to
@@ -707,7 +703,6 @@ class Huviz
     # this is the node being clicked
     if @focused_node # and @focused_node.state is @graphed_set
       @toggle_picked(@focused_node)
-      #@gclui.update_pickers(@focused_node, @focused_node.picked?, null)
       @tick()
       return
 
@@ -1659,6 +1654,7 @@ class Huviz
 
   update_showing_links: (n) ->
     # TODO understand why this is like {Taxon,Predicate}.update_state
+    #   Is this even needed anymore?
     old_status = n.showing_links
     if n.links_shown.length is 0
       n.showing_links = "none"
@@ -1667,8 +1663,6 @@ class Huviz
         n.showing_links = "some"
       else
         n.showing_links = "all"
-    # The return value is used as the 'shown' arg to update_pickers()
-    # FIXME prepare truth table to confirm update_showing_links return value
     if old_status is n.showing_links
       return null # no change, so null
     # We return true to mean that edges where shown, so
@@ -2007,18 +2001,12 @@ class Huviz
   pick: (node) =>
     if not node.picked?
       @picked_set.add(node)
-      node.pick()
-      ##@gclui.update_pickers(node, true, null)
-    #else
-    #  console.warn(node.id + " was already in @picked_set, so @pick() was NOOP")
+      node.pick() 
 
   unpick: (node) =>
     if node.picked?
       @picked_set.remove(node)
       node.unpick()
-      ##@gclui.update_pickers(node, false, null)
-    #else
-    #  console.warn(node.id + " was not in @picked_set, so @unpick() was NOOP")
 
   toggle_picked: (node) ->
     if node.picked?
