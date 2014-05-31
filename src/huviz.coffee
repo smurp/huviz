@@ -1822,9 +1822,9 @@ class Huviz
     node.point(start_point)
     node.prev_point([start_point[0]*1.01,start_point[1]*1.01])
     @add_node_ghosts(node)
-    node.color = @color_by_type(node)
     @update_showing_links(node)
-    @nodes.add(node)    
+    @nodes.add(node)
+    @recolor_node(node)
     @tick()
     return node
       
@@ -2001,13 +2001,22 @@ class Huviz
     if not node.picked?
       @picked_set.add(node)
       node.pick()
-      @gclui.update_pickers(node, true, null)
+      @recolor_node(node)
 
   unpick: (node) =>
     if node.picked?
       @picked_set.remove(node)
       node.unpick()
-      @gclui.update_pickers(node, false, null)
+      @recolor_node(node)
+
+  recolor_node: (node) ->
+    state = node.picked? and "emphasizing" or "showing"
+    node.color = @gclui.taxon_picker.get_color_forId_byName(node.type,state)
+
+  recolor_nodes: () ->
+    # The nodes needing recoloring are all but the embryonic.
+    for node in @nodes
+      @recolor_node(node)
 
   toggle_picked: (node) ->
     if node.picked?
@@ -2291,10 +2300,6 @@ class Huviz
   load: (data_uri) ->
     @fetchAndShow data_uri  unless @G.subjects
     @init_webgl()  if @use_webgl
-
-  color_by_type: (d) ->
-    color = @gclui.taxon_picker.get_color_forId_byName(d.type,'showing')
-    color or @default_color
 
   is_ready: (node) ->
     # This should really be performed on NODES not subjects, meaning nodes should
