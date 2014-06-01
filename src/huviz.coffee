@@ -36,7 +36,6 @@
 #
 # ISSUES:
 #   4) TASK: Suppress all but the 6-letter id of writers in the cmd cli
-#   7) TASK: increase node_radius when in picked_set
 #  12) Graph layout of a single writer and peripheral nodes is not
 #      a simple flower, suggesting either that the lariat is exerting
 #      force or that an inappropriate combination of charge and link
@@ -68,12 +67,13 @@
 #  25) TASK: show busy pointer when slow operations are happening, maybe
 #      prevent starting operations when slow stuff is underway
 #  26) boot script should perhaps be "choose writer." or some reasonable set
-#  27) make picking anything (abstract predicates) do the right things
-#  28) switch to CEI*Lab color space (see recent hacker news javascript library)
+#  27) make picking 'anything' (abstract predicates) do the right things
 #  30) TASK: Stop passing (node, change, old_node_status, new_node_status) to
 #      Taxon.update_state() because it never seems to be needed
-#  31) Figure out why recalc_state_useing_set_theory() disagrees with _classic during loading
-#  
+#  32) TASK: make a settings controller for picked_mag
+#  33) TASK: make a factory for the settings (so they're software generated)
+#  34) TASK: make a settings controller for whether pinning is enabled
+# 
 #asyncLoop = require('asynchronizer').asyncLoop
 
 CommandController = require('gclui').CommandController
@@ -228,6 +228,7 @@ class Huviz
   discard_radius: 200
   fisheye_radius: 100 #null # label_show_range * 5
   fisheye_zoom: 4.0
+  picked_mag:  1.2
   focus_radius: null # label_show_range
   drag_dist_threshold: 5
   dragging: false
@@ -643,7 +644,7 @@ class Huviz
       policy_picker.append("option").attr("value", policy_name).text policy_name
 
   calc_node_radius: (d) ->
-    @node_radius
+    @node_radius * (not d.picked? and 1 or @picked_mag)
     #@node_radius_policy d
   names_in_edges: (set) ->
     out = []
@@ -878,10 +879,10 @@ class Huviz
           @ctx.translate node.fisheye.x, node.fisheye.y
           @ctx.rotate -1 * radians + Math.PI / 2
           @ctx.textAlign = textAlign
-          @ctx.fillText node.name, 0, 0          
+          @ctx.fillText "  " + node.name, 0, 0          
           @ctx.restore()
         else
-          @ctx.fillText node.name, node.fisheye.x, node.fisheye.y
+          @ctx.fillText "  " + node.name, node.fisheye.x, node.fisheye.y
 
   clear_canvas: ->
     @ctx.clearRect 0, 0, @canvas.width, @canvas.height
