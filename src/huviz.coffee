@@ -172,6 +172,7 @@ if true
   
 class Huviz
   class_list: [] # FIXME remove
+  HHH: {}
   #class_set: SortedSet().sort_on("id").named("all")
   class_index: {}
   #hierarchy: {'everything': ['EveryThing', {}]}
@@ -921,7 +922,8 @@ class Huviz
           "\nalpha: #{Math.round(100 * @force.alpha()) / 100}" +
           "\ntheta: #{Math.round(100 * @force.theta()) / 100}" +
           "\nfriction: #{Math.round(100 * @force.friction()) / 100}" +
-          "\ngravity: #{Math.round(100 * @force.gravity()) / 100}"
+          "\ngravity: #{Math.round(100 * @force.gravity()) / 100}" +
+          "\n" + @gclui?.object_phrase or "";
           
     msg += " DRAG"  if @dragging
     @set_status msg

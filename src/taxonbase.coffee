@@ -1,3 +1,4 @@
+angliciser = require('angliciser').angliciser
 class TaxonBase
   get_state: () ->
     if not @state?
@@ -17,29 +18,29 @@ class TaxonBase
         cancelable: true
       if @mom?
         @mom.update_state()
-      window.dispatchEvent evt # could pass to picker, this is async    
+      window.dispatchEvent evt # could pass to picker, this is async
+    @update_english()
 
+  update_english: () ->
+    if @mom?
+      @mom.update_english()
+      return
+    # called upon state change, english must change too
+    in_and_out =
+      include: []
+      exclude: []
+    @recalc_english(in_and_out)
+    evt = new CustomEvent 'changeEnglish',
+      detail:
+        english: @english_from(in_and_out)
+      bubbles: true
+      cancelable: true
+    window.dispatchEvent evt
+  english_from: (in_and_out) -> 
+    english = angliciser(in_and_out.include)
+    if in_and_out.exclude.length
+      english += " but not " + angliciser(in_and_out.exclude, " or ")
+    console.debug "#{JSON.stringify(in_and_out)} ==> #{english}"
+    return english
+ 
 (exports ? this).TaxonBase = TaxonBase
-
-###
-[Thing
-  [Human
-    [Person] [Writer]]
-  [Group]]
---> THING
-
-Showing
-unshowing
-
-
-
-[thing
-  [human
-    [Person] [writer]]
-  [Group]]
---> Person except smith and Group except mormons
-
---> Everything except Beauty
-
-
-###

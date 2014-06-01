@@ -7,7 +7,6 @@
 #  choose,label/unlabel,discard,shelve,expand
 #
 ###
-angliciser = require('angliciser').angliciser
 gcl = require('graphcommandlanguage')
 TreePicker = require('treepicker').TreePicker
 ColoredTreePicker = require('coloredtreepicker').ColoredTreePicker
@@ -37,6 +36,7 @@ class CommandController
   install_listeners: () ->
     window.addEventListener 'changePredicate', @predicate_picker.onChangeState
     window.addEventListener 'changeTaxon', @taxon_picker.onChangeState
+    window.addEventListener 'changeEnglish', @onChangeEnglish
 
   on_dataset_loaded: (evt) =>
     if not evt.done?
@@ -175,6 +175,10 @@ class CommandController
     @taxon_picker.add(class_id,parent,class_name,@onnodeclasspicked)
     @huviz.recolor_nodes()
 
+  onChangeEnglish: (evt) =>
+    @object_phrase = evt.detail.english
+    @update_command()
+    
   onnodeclasspicked: (id,selected,elem) =>
     # FIXME implement the tristate behaviour:
     #   Mixed —> On
@@ -206,6 +210,8 @@ class CommandController
         classes: [id]
     else if state is "hidden"
       throw "Uhh, how is it possible for state to equal 'hidden' at this point?"
+    if @object_phrase? and @object_phrase isnt ""
+      cmd.object_phrase = @object_phrase
     @huviz.gclc.run(cmd)
       
     @update_command()
@@ -329,6 +335,7 @@ class CommandController
     args = {}
     # if @subjects.length > 0
     #   args.subjects = (s for s in @subjects)
+    args.object_phrase = @object_phrase
     if @huviz.picked_set.length > 0      
       args.subjects = (s for s in @huviz.picked_set)
     if @engaged_verbs.length > 0

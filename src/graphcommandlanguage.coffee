@@ -200,7 +200,7 @@ class GraphCommand
         async.each nodes,iter,err
         #@graph_ctrl.tick()
     @graph_ctrl.force.start()
-    
+
   update_str: ->
     missing = '____'
     cmd_str = ""
@@ -216,12 +216,16 @@ class GraphCommand
     if cmd_str is 'load '
       @str += @data_uri + " ."
       return
-    if @classes
-      obj_phrase += angliciser(@classes)
-    if @subjects
-      obj_phrase += angliciser((subj.id for subj in @subjects))
-    if @sets
-      obj_phrase += angliciser((s.state_name for s in @sets))
+    if @object_phrase?
+      obj_phrase = @object_phrase
+    else
+      if @classes
+        obj_phrase += angliciser(@classes)
+      if @subjects
+        obj_phrase += angliciser((subj.id for subj in @subjects))
+      if @sets
+        obj_phrase += angliciser((s.state_name for s in @sets))
+    console.debug "obj_phrase",obj_phrase
     if obj_phrase is ""
       obj_phrase = missing
       ready = false

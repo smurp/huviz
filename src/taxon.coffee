@@ -48,7 +48,6 @@ class Taxon extends TaxonBase
     settheory = @recalc_state_using_set_theory(node, change, old_node_state, new_node_state)
     @state = settheory
     return @state
-
   recalc_state_using_set_theory: (node, change, old_node_state, new_node_state) ->
     if @picked_nodes.length + @unpicked_nodes is 0
       return "hidden"
@@ -60,5 +59,18 @@ class Taxon extends TaxonBase
       return "unshowing"
     else
       throw "Taxon[#{@id}].recalc_state should not fall thru, #picked:#{@picked_nodes.length} #unpicked:#{@unpicked_nodes.length}"
+  recalc_english: (in_and_out) ->
+    if @state is 'showing'
+      in_and_out.include.push @id
+    else if @state is 'unshowing'
+      # uh what?
+    else if @state is 'mixed'
+      if @picked_nodes.length < @unpicked_nodes.length
+        for n in @picked_nodes
+          in_and_out.include.push n.id
+      else
+        in_and_out.include.push @id
+        for n in @unpicked_nodes
+          in_and_out.exclude.push n.id
 
 (exports ? this).Taxon = Taxon

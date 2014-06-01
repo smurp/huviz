@@ -36,24 +36,23 @@ class TaxonAbstract extends TaxonBase
       if not summary[k.state]
         summary[k.state] = true
         different_states++
-    if summary.mixed or different_states > 1
+    if different_states > 1  # no consensus
       @state = 'mixed'
-    # set the state to the kids' consensus
-    #   (review in case a kid is fully hidden)
-    else
+    else  # return consensus
       for k,v of summary
         if v
           @state = k
           break
     return @state
-  recalc_english: () ->
+  recalc_english: (in_and_out) ->
     if @state is 'showing'
       # ie this level contributes no detail
-      @english = @id
+      in_and_out.include.push @id
     else if @state is "unshowing"
-      @english = ''
+      # twiddle thumbs violently
+      # what goes here?     
     else if @state is "mixed"
-      @english = ""
-      #for k in kids
-
+      for kid in @kids
+        kid.recalc_english(in_and_out)
+    
 (exports ? this).TaxonAbstract = TaxonAbstract

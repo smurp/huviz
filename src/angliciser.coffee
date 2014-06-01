@@ -5,7 +5,11 @@
 #  angliciser(['a']) ==> "a"#
 #  angliciser([]) ==> ""
 
-angliciser = (lst) ->
+angliciser = (lst, and_or_or) ->
+  b = and_or_or
+  and_or_or = not and_or_or? and " and " or and_or_or # uh really?! so one can pass in " or "
+  if b? and and_or_or isnt b
+    throw "and_or_or failing " + b
   english = ""
   #console.log lst
   lstlen = lst.length
@@ -13,7 +17,7 @@ angliciser = (lst) ->
     #console.log english
     if lstlen > 1
       if (lstlen - 1) == i
-        english += " and "
+        english += and_or_or
       else
         if i > 0
           english += ', '
