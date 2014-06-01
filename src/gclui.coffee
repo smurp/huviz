@@ -188,9 +188,9 @@ class CommandController
     taxon = @huviz.taxonomy[id]
     if taxon?
       #console.clear()
-      state = taxon.recalc_state()
+      state = taxon.get_state()
     else
-      state = 'unshowing'
+      throw "Uhh, there should be a root Taxon 'everything' by this point"
     #console.debug "id:",id,"state:",state,taxon
     if state in ['mixed','unshowing']
       if not (id in @node_classes_chosen)
@@ -204,7 +204,8 @@ class CommandController
       cmd = new gcl.GraphCommand
         verbs: ['unpick']
         classes: [id]
-    #console.info cmd
+    else if state is "hidden"
+      throw "Uhh, how is it possible for state to equal 'hidden' at this point?"
     @huviz.gclc.run(cmd)
       
     @update_command()

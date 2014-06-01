@@ -70,8 +70,9 @@
 #  26) boot script should perhaps be "choose writer." or some reasonable set
 #  27) make picking anything (abstract predicates) do the right things
 #  28) switch to CEI*Lab color space (see recent hacker news javascript library)
-#  29) get rid of the select/deselect thing at startup
-#  
+#  30) TASK: Stop passing (node, change, old_node_status, new_node_status) to
+#      Taxon.update_state() because it never seems to be needed
+#  31) Figure out why recalc_state_useing_set_theory() disagrees with _classic during loading
 #  
 #asyncLoop = require('asynchronizer').asyncLoop
 
@@ -1644,6 +1645,7 @@ class Huviz
     @discarded_set.acquire goner
     shown = @update_showing_links goner
     @unpick goner
+    #@update_state goner
     goner
 
   undiscard: (prodigal) ->  # TODO(smurp) rename command to 'retrieve' ????

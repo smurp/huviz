@@ -31,7 +31,7 @@ class TaxonAbstract extends TaxonBase
       mixed: false
     different_states = 0
     for k in @kids
-      if typeof k.state is 'undefined'
+      if typeof k.get_state() is 'undefined'
         console.debug k
       if not summary[k.state]
         summary[k.state] = true

@@ -35,5 +35,7 @@ class Node
     for edge in this.links_to
       edge.unpick()
     @taxon.update_node(this,{pick:false})
-
+  discard: () ->
+    # should we unpick first if node.state is picked?
+    @taxon.update_node(this,{discard:true})
 (exports ? this).Node = Node
