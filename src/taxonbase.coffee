@@ -4,7 +4,6 @@ class TaxonBase
       @state = @recalc_state()
     return @state
   update_state: (node, change, old_node_state, new_node_state) ->
-    #console.info "TaxonBase.update_state",@id
     old_state = @state
     @recalc_state(node, change, old_node_state, new_node_state)
     if old_state isnt @state

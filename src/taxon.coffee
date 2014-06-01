@@ -45,13 +45,7 @@ class Taxon extends TaxonBase
     new_node_state = node._tp
     @update_state(node, change, old_node_state, new_node_state)
   recalc_state: (node, change, old_node_state, new_node_state) ->
-    #classic = @recalc_state_classic(node, change)
     settheory = @recalc_state_using_set_theory(node, change, old_node_state, new_node_state)
-    #if classic isnt settheory
-    #  msg = "#{@id}.recalc_state() classic:#{classic} isnt settheory:#{settheory}"
-      #throw msg
-      #console.debug msg
-    #@state = classic
     @state = settheory
     return @state
 
@@ -65,50 +59,6 @@ class Taxon extends TaxonBase
     if @picked_nodes.length is 0
       return "unshowing"
     else
-      console.error "Taxon[#{@id}].recalc_state should not fall thru, #picked:#{@picked_nodes.length} #unpicked:#{@unpicked_nodes.length}"
+      throw "Taxon[#{@id}].recalc_state should not fall thru, #picked:#{@picked_nodes.length} #unpicked:#{@unpicked_nodes.length}"
 
-  recalc_state_classic: (node, change) ->
-    # FIXME fold the subroutines into this method for a single pass
-    #       respecting the node and change hints
-    # FIXME CRITICAL ensure that discarded nodes can not be picked
-    #       by having picking a discarded node shelve it
-    if @all_nodes_are_discarded() # AKA there are no undiscarded nodes
-      return "hidden" # 0
-    else if @only_some_undiscarded_nodes_are_picked()
-      return "mixed"  # 2
-    else if @all_undiscarded_nodes_are_picked()
-      return "showing" # 3
-    else if @no_undiscarded_nodes_are_picked()
-      return "unshowing" # 1
-    else
-      console.warn "Taxon.recalc_state() should not fall thru"
-      return "unshowing"
-
-  all_nodes_are_discarded: () ->
-    return false # FIXME should really check for this case!
-  only_some_undiscarded_nodes_are_picked: () ->
-    # patterned after Predicate.only_some_picked_edges_are_shown
-    some = false
-    only = false
-    for n in @instances
-      if not some and n._tp?.id is 'picked'
-        some = true
-      if not only and n._tp?.id isnt 'picked'
-        only = true
-      if only and some
-        return true
-    return false
-  all_undiscarded_nodes_are_picked: () ->
-    # patterned after Predicate.all_picked_edges_are_shown
-    for n in @instances
-      if n.discarded?
-        continue
-      if n._tp?.id isnt 'picked' # AKA: if not @picked_nodes.has(n)
-        return false
-    return true
-  no_undiscarded_nodes_are_picked: () ->
-    # no discarded node may be picked (picking undiscards them!)
-    # FIXME THIS IS NOT RIGHT!!!!
-    return @picked_nodes.length is 0
-  
 (exports ? this).Taxon = Taxon

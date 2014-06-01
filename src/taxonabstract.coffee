@@ -45,22 +45,6 @@ class TaxonAbstract extends TaxonBase
         if v
           @state = k
           break
-
-    if false # enable to crosscheck, oldstyle
-      if summary.mixed or (summary.showing  and summary.unshowing)
-        @state0 = "mixed"
-      else if summary.showing
-        @state0 = "showing"
-      else if summary.unshowing
-        @state0 = "unshowing"
-      else
-        @state0 = "hidden"
-      if @state0 isnt @state
-        msg = "OMG #{@state} isnt #{@state0} count = #{different_states}"
-        console.debug summary
-      #@state = @state0
-        
-    #@recalc_english()
     return @state
   recalc_english: () ->
     if @state is 'showing'
