@@ -227,7 +227,8 @@ class CommandController
     if @object_phrase? and @object_phrase isnt ""
       cmd.object_phrase = @object_phrase
     @huviz.gclc.run(cmd)
-    toggle_suspend_updates(false)      
+    toggle_suspend_updates(false)
+    @huviz.taxonomy['everything'].update_english()
     @update_command()
     # ////////////////////////////////////////
     # FIXME this is just for testing
