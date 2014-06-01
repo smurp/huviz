@@ -40,7 +40,7 @@ class TaxonBase
     english = angliciser(in_and_out.include)
     if in_and_out.exclude.length
       english += " but not " + angliciser(in_and_out.exclude, " or ")
-    console.debug "#{JSON.stringify(in_and_out)} ==> #{english}"
+    #console.debug "#{JSON.stringify(in_and_out)} ==> #{english}"
     return english
  
 (exports ? this).TaxonBase = TaxonBase
