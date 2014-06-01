@@ -225,7 +225,7 @@ class GraphCommand
         obj_phrase += angliciser((subj.id for subj in @subjects))
       if @sets
         obj_phrase += angliciser((s.state_name for s in @sets))
-    console.debug "obj_phrase",obj_phrase
+    #console.debug "obj_phrase",obj_phrase
     if obj_phrase is ""
       obj_phrase = missing
       ready = false

@@ -918,12 +918,12 @@ class Huviz
           "\n embryonic:" + @embryonic_set.length +
           "\npredicates:"  + Object.keys(@my_graph.predicates).length +
           "\nlinks:" + @links_set.length +
-          #"\ncharge: #{Math.round(100 * @force.charge()) / 100}" +          
           "\nalpha: #{Math.round(100 * @force.alpha()) / 100}" +
-          "\ntheta: #{Math.round(100 * @force.theta()) / 100}" +
-          "\nfriction: #{Math.round(100 * @force.friction()) / 100}" +
-          "\ngravity: #{Math.round(100 * @force.gravity()) / 100}" +
-          "\n" + @gclui?.object_phrase or "";
+          "\ngravity: #{Math.round(100 * @force.gravity()) / 100}"
+          #"\ncharge: #{Math.round(100 * @force.charge()) / 100}"
+          #"\ntheta: #{Math.round(100 * @force.theta()) / 100}" +          
+          #"\nfriction: #{Math.round(100 * @force.friction()) / 100}" +
+
           
     msg += " DRAG"  if @dragging
     @set_status msg

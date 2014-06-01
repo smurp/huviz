@@ -7,6 +7,17 @@
 #  choose,label/unlabel,discard,shelve,expand
 #
 ###
+window.toggle_suspend_updates = (val) ->
+  if not window.suspend_updates? or not window.suspend_updates
+    window.suspend_updates = true
+  else
+    window.suspend_updates = false
+  if val?
+    window.suspend_updates = val
+  #console.warn "suspend_updates",window.suspend_updates
+  return window.suspend_updates
+  
+TaxonBase = require("taxonbase").TaxonBase
 gcl = require('graphcommandlanguage')
 TreePicker = require('treepicker').TreePicker
 ColoredTreePicker = require('coloredtreepicker').ColoredTreePicker
@@ -42,11 +53,13 @@ class CommandController
     if not evt.done?
       @pick_everything()
       @recolor_edges()
+
       # FIXME is there a standards-based way to prevent this happening three times?
       evt.done = true
 
   pick_everything: =>
     @onnodeclasspicked 'everything',true
+    @huviz.taxonomy['everything'].update_english()
 
   init_editor_data: ->
     # operations common to the constructor and reset_editor
@@ -188,6 +201,7 @@ class CommandController
     #    all nodes except the embryonic and the discarded
     #    OR rather, the hidden, the graphed and the unlinked
     #console.info("onnodeclasspicked('" + id + ", " + selected + "')")
+    toggle_suspend_updates(true)
     @taxon_picker.color_by_selected(id,selected)
     taxon = @huviz.taxonomy[id]
     if taxon?
@@ -213,7 +227,7 @@ class CommandController
     if @object_phrase? and @object_phrase isnt ""
       cmd.object_phrase = @object_phrase
     @huviz.gclc.run(cmd)
-      
+    toggle_suspend_updates(false)      
     @update_command()
     # ////////////////////////////////////////
     # FIXME this is just for testing

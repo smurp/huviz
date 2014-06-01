@@ -4,9 +4,10 @@ TreePicker = require('treepicker').TreePicker
 # FIXME Add support for 'abstract' nodes in the tree, nodes which do not represent pickable things.
 #       Color them with a gradient, using intensity for mixedness and the hue for taxonomic range.
 
-L_notshowing = 0.92
-L_showing = 0.8
+L_notshowing = 0.93
+L_showing = 0.75
 L_emphasizing = 0.5
+S_all = 0.5
 
 class ColoredTreePicker extends TreePicker
   constructor: (elem,root) ->
@@ -16,6 +17,7 @@ class ColoredTreePicker extends TreePicker
     super(id,parent_id,name,listener)
     @id_to_colors = @recolor()
   recolor: ->
+    #console.warn "recolor"
     count = Object.keys(@id_to_elem).length - @get_abstract_count()
     i = 0
     retval = {}
@@ -26,12 +28,13 @@ class ColoredTreePicker extends TreePicker
           showing:     hsl2rgb(0, 0, L_showing)
           emphasizing: hsl2rgb(0, 0, L_emphasizing)
       else
+        # https://en.wikipedia.org/wiki/HSL_and_HSV#HSL
         i++        
         hue = i/count * 360
         retval[id] =
-          notshowing:  hsl2rgb(hue, 1, L_notshowing)
-          showing:     hsl2rgb(hue, 1, L_showing)
-          emphasizing: hsl2rgb(hue, 1, L_emphasizing)
+          notshowing:  hsl2rgb(hue, S_all, L_notshowing)
+          showing:     hsl2rgb(hue, S_all, L_showing)
+          emphasizing: hsl2rgb(hue, S_all, L_emphasizing)
       elem.style("background-color",retval[id].notshowing)
 
     retval

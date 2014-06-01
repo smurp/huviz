@@ -1,10 +1,15 @@
 angliciser = require('angliciser').angliciser
 class TaxonBase
+  suspend_updates: false
   get_state: () ->
     if not @state?
       @state = @recalc_state()
     return @state
   update_state: (node, change, old_node_state, new_node_state) ->
+    #if @constructor.suspend_updates
+    #if window.suspend_updates
+    #  console.warn "suspending update_state"
+    #  return
     old_state = @state
     @recalc_state(node, change, old_node_state, new_node_state)
     if old_state isnt @state
@@ -22,6 +27,13 @@ class TaxonBase
     @update_english()
 
   update_english: () ->
+    #if @constructor.suspend_updates
+    if window.suspend_updates
+      #console.warn "suspending update_english"
+      return
+    #else
+    #  console.warn "running update_english"
+
     if @mom?
       @mom.update_english()
       return
