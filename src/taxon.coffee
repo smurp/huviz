@@ -38,22 +38,27 @@ class Taxon extends TaxonBase
         @unpicked_nodes.acquire(node)
     @update_state(node,change)
   recalc_state: (node, change) ->
+    classic = @recalc_state_classic(node, change)
+    @state = classic
+    return @state
+
+  recalc_state_classic: (node, change) ->
     # FIXME fold the subroutines into this method for a single pass
     #       respecting the node and change hints
     # FIXME CRITICAL ensure that discarded nodes can not be picked
     #       by having picking a discarded node shelve it
     if @all_nodes_are_discarded() # AKA there are no undiscarded nodes
-      @state = "hidden" # 0
+      return "hidden" # 0
     else if @only_some_undiscarded_nodes_are_picked()
-      @state = "mixed"  # 2
+      return "mixed"  # 2
     else if @all_undiscarded_nodes_are_picked()
-      @state = "showing" # 3
+      return "showing" # 3
     else if @no_undiscarded_nodes_are_picked()
-      @state = "unshowing" # 1
+      return "unshowing" # 1
     else
       console.warn "Taxon.recalc_state() should not fall thru"
-      @state = "unshowing"
-    return @state
+      return "unshowing"
+
   all_nodes_are_discarded: () ->
     return false # FIXME should really check for this case!
   only_some_undiscarded_nodes_are_picked: () ->
