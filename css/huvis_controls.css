@@ -79,8 +79,8 @@
   z-index:2;
 
   overflow: scroll; 
-  width: 20%;
-  height: 50%;
+  width: 320px;
+  height: 30%;
 }
 .snippet {
   background-color: "lightgray";

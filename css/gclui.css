@@ -32,7 +32,7 @@
 }
 .commandlist {
   overflow-y: auto;
-  width: 450px;
+  width: 320px;
   /* -webkit-border-top-right-radius: 20px 300px; */
   /* background-color: #81cbbc;  hairline blue */  
   background-color: blue; /* hairline blue */  
@@ -40,7 +40,7 @@
 .nextcommand {
   color: black;
   font-weight:bold;
-  width: 450px;
+  width: 320px;
 }
 .cmdlistbar {
   color: white;

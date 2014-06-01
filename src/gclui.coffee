@@ -33,10 +33,11 @@ class CommandController
     @oldcommands = @cmdlist.append('div').attr('class','commandhistory')
     @nextcommandbox = @comdiv.append('div')
     @verbdiv = @comdiv.append('div').attr('class','verbs')
-    @likediv = @comdiv.append('div')
     #@taxdiv = @comdiv.append('div').attr('class','taxonomydiv')
     @add_clear_both(@comdiv)
     @build_nodeclasspicker()
+
+    @likediv = @comdiv.append('div')
     @add_clear_both(@comdiv)
     @build_predicatepicker()
     @init_editor_data()
