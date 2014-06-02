@@ -1745,7 +1745,8 @@ class Huviz
       which = "poetesses"
     else
       which = "orlando"
-    if @snippet_safety
+    if @SNIPPET_SAFETY and which is "orlando"
+      # return a hardcoded, performant, result (the orlando snippet server is too slow)
       # snippet_id = "w--abdyma--0--P--3"  # early in orlando<...>.xml
       #return "http://localhost:9999/snippet/poetesses/b--balfcl--0--P--3/"
       #return "http://localhost:9999/snippet/orlando/w--abdyma--0--P--3/"
