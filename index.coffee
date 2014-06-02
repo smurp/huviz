@@ -34,29 +34,62 @@ just_huviz = stitch.createPackage(
   ]
 )
 
-xpath = require('xpath') # https://www.npmjs.org/package/xpath
-dom = require('xmldom').DOMParser  # https://github.com/jindw/xmldom
+#xpath = require('xpath')           # https://www.npmjs.org/package/xpath
+#dom = require('xmldom').DOMParser  # https://github.com/jindw/xmldom
+libxmljs = require "libxmljs"       # https://github.com/polotek/libxmljs
+# https://github.com/polotek/libxmljs/wiki/Document
+#   NOTE attribute names and tag names are CASE SENSITIVE!!!!?!!???
 fs = require('fs')
 createSnippetServer = (xmlFileName) ->
   doc = null
+  nodes_with_id = []
+  elems_by_id = {}
+  elems_idx_by_id = {}
   makeXmlDoc = (err, data) ->
     if err
       console.error err
     else
       console.log "parsing #{xmlFileName}..."
       started = new Date().getTime() / 1000
-      doc = new dom().parseFromString(data.toString())
+      doc = libxmljs.parseXml(data.toString())
+      #doc = new dom().parseFromString(data.toString())
       finished = new Date().getTime() / 1000
       console.log "finished parsing #{xmlFileName} in #{finished - started} sec"
+
+      # FIXME possibility of an optimization if only there was a way to
+      #   return a Map<Id, Elem> using xpath.
+      #   If a means can't be found then a two-pass solution would work:
+      #      1) get all elems with ids
+      #      2) then iterate to index them by id
+      if true
+        console.log "finding IDs in #{xmlFileName}..."
+        started = new Date().getTime() / 1000
+        # http://stackoverflow.com/questions/4107831/an-xpath-query-that-returns-all-nodes-with-the-id-attribute-set
+        nodes_with_id = doc.find('//*[@ID]')
+        #nodes_with_id = doc.find('//*[@ID!=""]')
+        count = nodes_with_id.length
+        finished = new Date().getTime() / 1000
+        console.log "finished parsing #{xmlFileName} in #{finished - started} sec found: #{count}"
+
+        if true
+          started = new Date().getTime() / 1000
+          for elem,i in nodes_with_id
+            id = elem.get("@ID").value()
+            #console.log "   ",id,i
+            elems_idx_by_id[id] = i
+          finished = new Date().getTime() / 1000
+          console.log "finished indexing #{xmlFileName} in #{finished - started} sec"
+      
   getSnippetById = (req, res) ->
     if doc
       started = new Date().getTime()
       console.log "xpath select #{ req.params.id }"
-      nodes = xpath.select("//*[@id='#{req.params.id}']", doc)
+      #elem = doc.get("//*[@ID='#{req.params.id}']")
+      elem = nodes_with_id[elems_idx_by_id[req.params.id]]
       finished = new Date().getTime()
       sec = (finished - started) / 1000
-      if nodes.length > 0
-        snippet = nodes[0].toString()
+      if elem?
+        snippet = elem.toString()
         console.log "found #{ req.params.id } in #{sec} sec"
         res.send(snippet)
       else
@@ -82,6 +115,7 @@ app.configure ->
   app.get "/snippet/poetesses/:id([A-Za-z0-9-]+)/",
       createSnippetServer("poetesses_decomposed.xml")
 
+# http://regexpal.com/
 port = argv[0] or process.env.PORT or 9999
 if not ('--skip_orlando' in argv)
   app.get "/snippet/orlando/:id([A-Za-z0-9-]+)/",

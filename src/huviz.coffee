@@ -1731,7 +1731,7 @@ class Huviz
     else
       @pick(node)
 
-  SNIPPET_SAFETY: true
+  SNIPPET_SAFETY: false
 
   get_snippet_url: (snippet_id) ->
     if snippet_id.match(/http\:/)
@@ -1742,6 +1742,7 @@ class Huviz
   get_snippetServer_path: (snippet_id) ->
     # this relates to index.coffee and the urls for the
     if @data_uri.match('poetesses')
+      console.info @data_uri,@data_uri.match('poetesses')
       which = "poetesses"
     else
       which = "orlando"
@@ -1760,10 +1761,11 @@ class Huviz
     snippet_id = edge.context.id
     snippet_js_key = @get_snippet_js_key(snippet_id)
     snippet_text = @snippet_db[snippet_js_key]
+    url = @get_snippet_url(snippet_id)
     if snippet_text
       callback(null, {response:snippet_text})
     else
-      url = "http://localhost:9999/snippet/poetesses/b--balfcl--0--P--3/"
+      #url = "http://localhost:9999/snippet/poetesses/b--balfcl--0--P--3/"
       console.warn(url)
       d3.xhr(url, callback)
     return "got it"
