@@ -73,6 +73,7 @@
 #  32) TASK: make a settings controller for picked_mag
 #  33) TASK: make a factory for the settings (so they're software generated)
 #  34) TASK: make a settings controller for whether pinning is enabled
+#  35) TASK: get rid of jquery
 # 
 #asyncLoop = require('asynchronizer').asyncLoop
 

@@ -4,6 +4,8 @@ stitch  = require("stitch")
 express = require("express")
 argv    = process.argv.slice(2)
 
+#snippetsnooper = require("src/snippetsnooper")
+
 ss = require('./js/sortedset')
 oink = ss.SortedSet()
 #oink.isFlag('oink')
@@ -36,6 +38,34 @@ just_huviz = stitch.createPackage(
   ]
 )
 
+xpath = require('xpath') # https://www.npmjs.org/package/xpath
+dom = require('xmldom').DOMParser  # https://github.com/jindw/xmldom
+fs = require('fs')
+createSnippetServer = (xmlFileName) ->
+  doc = null
+  makeXmlDoc = (err, data) ->
+    if err
+      console.error err
+    else
+      console.log "parsing #{xmlFileName}..."
+      started = new Date().getTime() / 1000
+      doc = new dom().parseFromString(data.toString())
+      finished = new Date().getTime() / 1000
+      console.log "finished parsing #{xmlFileName} in #{finished - started} sec"
+  getSnippetById = (req, res) ->
+    if doc
+      console.log "xpath select #{ req.params.id }"
+      nodes = xpath.select("//*[@id='#{req.params.id}']", doc)
+      if nodes.length > 0
+        snippet = nodes[0].toString()
+        console.log "found ",snippet
+        res.send(snippet)
+      else
+        res.send("not found")
+    else
+      res.send("doc still parsing")
+  fs.readFile(xmlFileName, makeXmlDoc)
+  return getSnippetById
 
 app.configure ->
   app.use express.logger()
@@ -47,9 +77,14 @@ app.configure ->
   app.use express.static(__dirname + '/lib')
   app.use express.static(__dirname + '/data')
   app.use express.static(__dirname + '/docs')
-  app.use express.static(__dirname + '/node_modules')  
+  app.use express.static(__dirname + '/node_modules')
   app.get "/application.js", pkg.createServer()
   app.get "/just_huviz.js", just_huviz.createServer()
+  app.get "/snippet/poetesses/:id([A-Za-z0-9-]+)/",
+      createSnippetServer("poetesses_decomposed.xml")
+  app.get "/snippet/orlando/:id([A-Za-z0-9-]+)/",
+      createSnippetServer("orlando_all_entries_2013-03-04.xml")
+  
 
 port = argv[0] or process.env.PORT or 9999
 console.log "Starting server on port: #{port}"
