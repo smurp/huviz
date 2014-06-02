@@ -4,12 +4,8 @@ stitch  = require("stitch")
 express = require("express")
 argv    = process.argv.slice(2)
 
-#snippetsnooper = require("src/snippetsnooper")
-
 ss = require('./js/sortedset')
 oink = ss.SortedSet()
-#oink.isFlag('oink')
-#console.log oink
 
 pkg = stitch.createPackage(
   # Specify the paths you want Stitch to automatically bundle up
@@ -54,11 +50,14 @@ createSnippetServer = (xmlFileName) ->
       console.log "finished parsing #{xmlFileName} in #{finished - started} sec"
   getSnippetById = (req, res) ->
     if doc
+      started = new Date().getTime()
       console.log "xpath select #{ req.params.id }"
       nodes = xpath.select("//*[@id='#{req.params.id}']", doc)
+      finished = new Date().getTime()
+      sec = (finished - started) / 1000
       if nodes.length > 0
         snippet = nodes[0].toString()
-        console.log "found ",snippet
+        console.log "found #{ req.params.id } in #{sec} sec"
         res.send(snippet)
       else
         res.send("not found")
@@ -78,14 +77,15 @@ app.configure ->
   app.use express.static(__dirname + '/data')
   app.use express.static(__dirname + '/docs')
   app.use express.static(__dirname + '/node_modules')
-  app.get "/application.js", pkg.createServer()
+  #app.get "/application.js", pkg.createServer()
   app.get "/just_huviz.js", just_huviz.createServer()
   app.get "/snippet/poetesses/:id([A-Za-z0-9-]+)/",
       createSnippetServer("poetesses_decomposed.xml")
-  app.get "/snippet/orlando/:id([A-Za-z0-9-]+)/",
-      createSnippetServer("orlando_all_entries_2013-03-04.xml")
-  
 
 port = argv[0] or process.env.PORT or 9999
+if not ('--skip_orlando' in argv)
+  app.get "/snippet/orlando/:id([A-Za-z0-9-]+)/",
+      createSnippetServer("orlando_all_entries_2013-03-04.xml")
+
 console.log "Starting server on port: #{port}"
 app.listen port

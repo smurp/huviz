@@ -4,6 +4,7 @@ TreePicker = require('treepicker').TreePicker
 # FIXME Add support for 'abstract' nodes in the tree, nodes which do not represent pickable things.
 #       Color them with a gradient, using intensity for mixedness and the hue for taxonomic range.
 
+
 L_notshowing = 0.93
 L_showing = 0.75
 L_emphasizing = 0.5

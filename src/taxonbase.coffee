@@ -29,7 +29,7 @@ class TaxonBase
   update_english: () ->
     #if @constructor.suspend_updates
     if window.suspend_updates
-      #console.warn "suspending update_english"
+      console.warn "Suspending update_english"
       return
     #else
     #  console.warn "running update_english"

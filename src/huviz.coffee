@@ -174,6 +174,7 @@ if true
 class Huviz
   class_list: [] # FIXME remove
   HHH: {}
+  snippet_db: {}
   #class_set: SortedSet().sort_on("id").named("all")
   class_index: {}
   #hierarchy: {'everything': ['EveryThing', {}]}
@@ -1730,13 +1731,54 @@ class Huviz
     else
       @pick(node)
 
+  SNIPPET_SAFETY: true
+
+  get_snippet_url: (snippet_id) ->
+    if snippet_id.match(/http\:/)
+      return snippet_id
+    else
+      return "#{window.location.origin}#{@get_snippetServer_path(snippet_id)}"
+
+  get_snippetServer_path: (snippet_id) ->
+    # this relates to index.coffee and the urls for the
+    if @data_uri.match('poetesses')
+      which = "poetesses"
+    else
+      which = "orlando"
+    if @snippet_safety
+      # snippet_id = "w--abdyma--0--P--3"  # early in orlando<...>.xml
+      #return "http://localhost:9999/snippet/poetesses/b--balfcl--0--P--3/"
+      #return "http://localhost:9999/snippet/orlando/w--abdyma--0--P--3/"
+      return "/snippet/poetesses/b--balfcl--0--P--3/"
+    return "/snippet/#{which}/#{snippet_id}/"
+    
+  get_snippet_js_key: (snippet_id) ->
+    return "K_" + snippet_id
+
+  get_snippet: (edge, callback) ->
+    snippet_id = edge.context.id
+    snippet_js_key = @get_snippet_js_key(snippet_id)
+    snippet_text = @snippet_db[snippet_js_key]
+    if snippet_text
+      callback(null, {response:snippet_text})
+    else
+      url = "http://localhost:9999/snippet/poetesses/b--balfcl--0--P--3/"
+      console.warn(url)
+      d3.xhr(url, callback)
+    return "got it"
+
   # The Verbs PRINT and REDACT show and hide snippets respectively
   print: (node) =>
     node.links_shown.forEach (edge,i) =>
-      @push_snippet
-        edge: edge
-        pred_str: edge.predicate.id
-        context_str: edge.context.id
+      @get_snippet edge,(err,data) =>
+        snippet_text = data.response
+        @snippet_db[edge.context.id] = snippet_text
+        console.warn snippet_text
+        @push_snippet
+          edge: edge
+          pred_str: edge.predicate.id
+          context_str: edge.context.id
+          snippet_text: snippet_text
     
   redact: (node) =>
     node.links_shown.forEach (edge,i) =>
@@ -1975,9 +2017,9 @@ class Huviz
   load_file: ->
     @init_from_graph_controls()
     @reset_graph()
-    data_uri = @get_dataset_uri()
-    @set_status data_uri
-    @fetchAndShow data_uri  unless @G.subjects
+    @data_uri = @get_dataset_uri()
+    @set_status @data_uri
+    @fetchAndShow @data_uri  unless @G.subjects
     @init_webgl()  if @use_webgl
 
   get_dataset_uri: () ->
@@ -2067,7 +2109,7 @@ class Orlando extends Huviz
             <b>Tag:</b>#{m.edge.predicate.id}
           </div>
           <div>
-            <b>Text:</b>#{m.edge.context.id}
+            <b>Text:</b>#{m.snippet_text}
           </div>
           <hr>
         </div>
