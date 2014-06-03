@@ -34,8 +34,6 @@ just_huviz = stitch.createPackage(
   ]
 )
 
-#xpath = require('xpath')           # https://www.npmjs.org/package/xpath
-#dom = require('xmldom').DOMParser  # https://github.com/jindw/xmldom
 libxmljs = require "libxmljs"       # https://github.com/polotek/libxmljs
 # https://github.com/polotek/libxmljs/wiki/Document
 #   NOTE attribute names and tag names are CASE SENSITIVE!!!!?!!???
@@ -56,11 +54,6 @@ createSnippetServer = (xmlFileName) ->
       finished = new Date().getTime() / 1000
       console.log "finished parsing #{xmlFileName} in #{finished - started} sec"
 
-      # FIXME possibility of an optimization if only there was a way to
-      #   return a Map<Id, Elem> using xpath.
-      #   If a means can't be found then a two-pass solution would work:
-      #      1) get all elems with ids
-      #      2) then iterate to index them by id
       if true
         console.log "finding IDs in #{xmlFileName}..."
         started = new Date().getTime() / 1000
@@ -83,14 +76,11 @@ createSnippetServer = (xmlFileName) ->
   getSnippetById = (req, res) ->
     if doc
       started = new Date().getTime()
-      console.log "xpath select #{ req.params.id }"
-      #elem = doc.get("//*[@ID='#{req.params.id}']")
       elem = nodes_with_id[elems_idx_by_id[req.params.id]]
       finished = new Date().getTime()
       sec = (finished - started) / 1000
       if elem?
         snippet = elem.toString()
-        console.log "found #{ req.params.id } in #{sec} sec"
         res.send(snippet)
       else
         res.send("not found")
@@ -110,7 +100,7 @@ app.configure ->
   app.use express.static(__dirname + '/data')
   app.use express.static(__dirname + '/docs')
   app.use express.static(__dirname + '/node_modules')
-  #app.get "/application.js", pkg.createServer()
+  app.get "/application.js", pkg.createServer()
   app.get "/just_huviz.js", just_huviz.createServer()
   app.get "/snippet/poetesses/:id([A-Za-z0-9-]+)/",
       createSnippetServer("poetesses_decomposed.xml")

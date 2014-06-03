@@ -1741,17 +1741,11 @@ class Huviz
 
   get_snippetServer_path: (snippet_id) ->
     # this relates to index.coffee and the urls for the
-    if @data_uri.match('poetesses')
+    if @data_uri?.match('poetesses')
       console.info @data_uri,@data_uri.match('poetesses')
       which = "poetesses"
     else
       which = "orlando"
-    if @SNIPPET_SAFETY and which is "orlando"
-      # return a hardcoded, performant, result (the orlando snippet server is too slow)
-      # snippet_id = "w--abdyma--0--P--3"  # early in orlando<...>.xml
-      #return "http://localhost:9999/snippet/poetesses/b--balfcl--0--P--3/"
-      #return "http://localhost:9999/snippet/orlando/w--abdyma--0--P--3/"
-      return "/snippet/poetesses/b--balfcl--0--P--3/"
     return "/snippet/#{which}/#{snippet_id}/"
     
   get_snippet_js_key: (snippet_id) ->
