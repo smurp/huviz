@@ -1,7 +1,10 @@
 class Edge
   color: "lightgrey"
   constructor: (@source,@target,@predicate,@context) ->
-    @id = (a.id for a in [@source, @predicate, @target, @context]).join(' ')
+    # FIXME if everything already has .lid then remove the test "not a.lid?"
+    @id = (not a.lid? and a.id or a.lid for a in [@source, @predicate, @target, @context]).join(' ')
+    #@id = (a.id for a in [@source, @predicate, @target, @context]).join(' ')
+    console.debug "LLID",@llid
     #console.log "new Edge() ==>",@id
     @register()
     this

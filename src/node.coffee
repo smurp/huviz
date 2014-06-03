@@ -11,6 +11,8 @@ class Node
     @links_from = []
     @links_to = []
     @links_shown = []
+    # FIXME use the as-yet-unimplemented unique-id-generator
+    @lid = @id.match(/([\w\d\_\-]+)$/g)[0]
   set_name: (@name) ->
   set_subject: (@s) ->
   point: (point) ->
