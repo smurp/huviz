@@ -1519,6 +1519,7 @@ class Huviz
   hatch: (node) ->
     # Take a node from being 'embryonic' to being a fully graphable node
     #console.log node.id+" "+node.name+" is being hatched!"
+    node.lid = uri_to_js_id(node.id) # FIXME ensure uniqueness
     @embryonic_set.remove(node)
     new_set = @get_default_set_by_type(node)
     if new_set?
