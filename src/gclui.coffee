@@ -60,6 +60,10 @@ class CommandController
 
   pick_everything: =>
     @onnodeclasspicked 'everything',true
+    if @huviz.is_big_data()
+      # FIXME this is very clunky (and slow)
+      @onnodeclasspicked 'everything',false
+      @onnodeclasspicked 'Group',true
     @huviz.taxonomy['everything'].update_english()
 
   init_editor_data: ->

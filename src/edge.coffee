@@ -1,15 +1,18 @@
 class Edge
   color: "lightgrey"
-  constructor: (@source,@target,@predicate,@context) ->
+  constructor: (@source,@target,@predicate) ->
     # FIXME if everything already has .lid then remove the test "not a.lid?"
-    @id = (not a.lid? and a.id or a.lid for a in [@source, @predicate, @target, @context]).join(' ')
+    @id = (not a.lid? and a.id or a.lid for a in [@source, @predicate, @target]).join(' ')
     #@id = (a.id for a in [@source, @predicate, @target, @context]).join(' ')
-    console.debug "LLID",@llid
-    #console.log "new Edge() ==>",@id
+    @lid = @id
     @register()
+    @contexts = []
     this
   register: () ->
     @predicate.add_edge(this)
+  register_context: (context) ->
+    @contexts.push(context)
+    # context.register_context_for(this) # FIXME to see all assertions in a context
   isPicked: () ->
     return @source.picked? or @target.picked?
   show: () ->

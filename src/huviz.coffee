@@ -74,6 +74,8 @@
 #  33) TASK: make a factory for the settings (so they're software generated)
 #  34) TASK: make a settings controller for whether pinning is enabled
 #  35) TASK: get rid of jquery
+#  36) TASK: figure out UX to trigger snippet display and
+#            figure out UX for print / redact if still useful
 # 
 #asyncLoop = require('asynchronizer').asyncLoop
 
@@ -174,6 +176,8 @@ if true
 class Huviz
   class_list: [] # FIXME remove
   HHH: {}
+  edges_by_id: {}
+  edge_count: 0
   snippet_db: {}
   #class_set: SortedSet().sort_on("id").named("all")
   class_index: {}
@@ -745,23 +749,26 @@ class Huviz
   draw_edges_from: (node) ->
     num_edges = node.links_from.length
     return unless num_edges
-    node.links_shown.forEach (e, i) =>
+
+    draw_n_n = {}
+    for e in node.links_shown
       return unless e.source is node # show only links_from
-      if node._last_target_drawn isnt e.target
-        node._last_target_drawn_links = 2
-      node._last_target_drawn_links++
       if e.source.embryo
         console.log "source",e.source.name,"is embryo",e.source.id
         return
       if e.target.embryo
         console.log "target",e.target.name,"is embryo",e.target.id
         return
-      sway = node._last_target_drawn_links
-       #@draw_line e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, e.color
-      @draw_curvedline e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, sway, e.color
-      node._last_target_drawn = e.target
-    node._last_target_drawn = null
-    node._last_target_drawn_links = null    
+      n_n = e.source.lid + " " + e.target.lid
+      if not draw_n_n[n_n]?
+        draw_n_n[n_n] = []
+      draw_n_n[n_n].push(e)
+
+    for n_n, edges_between of draw_n_n
+      sway = 1
+      for e in edges_between
+        @draw_curvedline e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, sway, e.color, e.contexts.length
+        sway++
 
   draw_edges: ->
     if @use_canvas
@@ -921,8 +928,10 @@ class Huviz
           "\n embryonic:" + @embryonic_set.length +
           "\npredicates:"  + Object.keys(@my_graph.predicates).length +
           "\nlinks:" + @links_set.length +
+          "\nedges: #{@edge_count}" +          
           "\nalpha: #{Math.round(100 * @force.alpha()) / 100}" +
           "\ngravity: #{Math.round(100 * @force.gravity()) / 100}"
+
           #"\ncharge: #{Math.round(100 * @force.charge()) / 100}"
           #"\ntheta: #{Math.round(100 * @force.theta()) / 100}" +          
           #"\nfriction: #{Math.round(100 * @force.friction()) / 100}" +
@@ -930,7 +939,7 @@ class Huviz
           
     msg += " DRAG"  if @dragging
     @set_status msg
-    #@push_snippet msg
+
   svg_restart: ->
     # console.log "svg_restart()"    
     @link = @link.data(@links_set)
@@ -1055,6 +1064,7 @@ class Huviz
     )
 
   make_qname: (uri) -> uri # TODO(smurp) reduce wrt prefixes
+                           #     How does this relate to .lid?
 
   last_quad: {}
 
@@ -1068,7 +1078,7 @@ class Huviz
     sid = quad.s
     pid = @make_qname(quad.p)
     ctxid = quad.g || @DEFAULT_CONTEXT
-    short_sid = uri_to_js_id(sid)
+    subj_lid = uri_to_js_id(sid)
     @object_value_types[quad.o.type] = 1
     @unique_pids[pid] = 1
 
@@ -1078,7 +1088,7 @@ class Huviz
       newsubj = true
       subj =
         id: sid
-        name: short_sid
+        name: subj_lid
         predicates: {}
       @my_graph.subjects[sid] = subj
     else
@@ -1106,9 +1116,9 @@ class Huviz
         if @try_to_set_node_type(subj_n,quad.o.value)
           @develop(subj_n) # might be ready now
       else
-        edge = new Edge(subj_n,obj_n,pred_n,cntx_n)
-        pred_n_js_id = uri_to_js_id(pred_n.id)
-        edge.color = @gclui.predicate_picker.get_color_forId_byName(pred_n_js_id,'showing')
+        edge = @get_or_create_Edge(subj_n,obj_n,pred_n,cntx_n)
+        edge.register_context(cntx_n)
+        edge.color = @gclui.predicate_picker.get_color_forId_byName(pred_n.lid,'showing')
         edge_e = @add_edge(edge)
         @develop(obj_n)
 
@@ -1131,6 +1141,18 @@ class Huviz
       @fire_nextsubject_event @last_quad,quad
     ###
     @last_quad = quad
+
+  make_Edge_id: (subj_n, obj_n, pred_n) ->
+    return (a.lid for a in [subj_n, pred_n, obj_n]).join(' ')
+
+  get_or_create_Edge: (subj_n, obj_n, pred_n) ->
+    edge_id = @make_Edge_id(subj_n, obj_n, pred_n)
+    edge = @edges_by_id[edge_id]
+    if not edge?
+      @edge_count++
+      edge = new Edge(subj_n,obj_n,pred_n)
+      @edges_by_id[edge_id] = edge
+    return edge    
 
   add_edge: (edge) ->
     if edge.id.match /Universal$/
@@ -1496,6 +1518,7 @@ class Huviz
     obj_n
 
   get_or_create_node_by_id: (sid) ->
+    # FIXME OMG must standardize on .lid as the short local id, ie internal id
     obj_id = @make_qname(sid)
     obj_n = @nodes.get_by('id',obj_id)
     if not obj_n?
@@ -1750,10 +1773,11 @@ class Huviz
     return "/snippet/#{which}/#{snippet_id}/"
     
   get_snippet_js_key: (snippet_id) ->
+    # This is in case snippet_ids can not be trusted as javascript
+    # property ids because they might have leading '-' or something.
     return "K_" + snippet_id
 
-  get_snippet: (edge, callback) ->
-    snippet_id = edge.context.id
+  get_snippet: (snippet_id, callback) ->
     snippet_js_key = @get_snippet_js_key(snippet_id)
     snippet_text = @snippet_db[snippet_js_key]
     url = @get_snippet_url(snippet_id)
@@ -1761,22 +1785,29 @@ class Huviz
       callback(null, {response:snippet_text})
     else
       #url = "http://localhost:9999/snippet/poetesses/b--balfcl--0--P--3/"
-      console.warn(url)
+      #console.warn(url)
       d3.xhr(url, callback)
     return "got it"
-
+  
   # The Verbs PRINT and REDACT show and hide snippets respectively
   print: (node) =>
-    node.links_shown.forEach (edge,i) =>
-      @get_snippet edge,(err,data) =>
-        snippet_text = data.response
-        @snippet_db[edge.context.id] = snippet_text
-        console.warn snippet_text
-        @push_snippet
-          edge: edge
-          pred_str: edge.predicate.id
-          context_str: edge.context.id
-          snippet_text: snippet_text
+    for edge in node.links_shown
+      for context in edge.contexts
+        snippet_id = context.id
+        snippet_js_key = @get_snippet_js_key(snippet_id)
+        if @currently_printed_snippets[snippet_js_key]?
+          continue # so there is no duplication
+        @currently_printed_snippets[snippet_js_key] = edge
+
+        @get_snippet snippet_id,(err,data) =>
+          snippet_text = data.response
+          @snippet_db[snippet_js_key] = snippet_text
+          @push_snippet
+            edge: edge
+            pred_id: edge.predicate.lid
+            pred_name: edge.predicate.name
+            context_id: snippet_id
+            snippet_text: snippet_text
     
   redact: (node) =>
     node.links_shown.forEach (edge,i) =>
@@ -1886,6 +1917,8 @@ class Huviz
     if d3.select('#snippet_box')[0].length > 0
       @snippet_box = d3.select('#snippet_box')
   remove_snippet: (snippet_id) ->
+    key = @get_snippet_js_key(snippet_id)
+    delete @currently_printed_snippets[key]
     if @snippet_box
       slctr = '#'+id_escape(snippet_id)
       console.log slctr
@@ -1937,7 +1970,7 @@ class Huviz
     @discard_point = [@cx,@cy]
     @lariat_center = [@cx,@cy]
     @node_radius_policy = node_radius_policies[default_node_radius_policy]
-
+    @currently_printed_snippets = {}
     @fill = d3.scale.category20()
     @force = d3.layout.force().
              size([@width,@height]).
@@ -2066,9 +2099,23 @@ class Huviz
       throw "there must be a .type before hatch can even be called:"+node.id+ " "+type_id
       #console.log "assign_types failed, missing .type on",node.id,"within",within,type_id
 
+  is_big_data: () ->
+    if not @big_data_p?
+      #if @nodes.length > 200
+      if @data_uri?.match('poetesses|atwoma')
+        @big_data_p = true
+      else
+        @big_data_p = false
+    return @big_data_p
+    
   get_default_set_by_type: (node) ->
     # see Orlando.get_default_set_by_type
     #console.log "get_default_set_by_type",node
+    if @is_big_data()
+      if node.type in ['writer','Group']
+        return @unlinked_set
+      else
+        return @hidden_set
     return @unlinked_set
 
 class Orlando extends Huviz
@@ -2099,15 +2146,14 @@ class Orlando extends Huviz
         msg_or_obj = """
         <div id="#{id_escape(m.edge.id)}">
           <div>
-            <span class="writername"><a target="SRC" href="#{m.edge.source.id}">#{m.edge.source.name}</a></span>
-              is connected to
+            <span class="writername">
+              <a target="SRC" href="#{m.edge.source.id}">#{m.edge.source.name}</a></span>
+              <span>#{m.pred_id}</span>
             <span class=""><a href="#{m.edge.target.id}">#{m.edge.target.name}</a></span>
           </div>
-          <div>
-            <b>Tag:</b>#{m.edge.predicate.id}
-          </div>
-          <div>
-            <b>Text:</b>#{m.snippet_text}
+          <div id="#{m.context_id}">
+            <b>Text:</b> <i style="font-size:80%">#{m.context_id}</i>
+            <p>#{m.snippet_text}<p>
           </div>
           <hr>
         </div>

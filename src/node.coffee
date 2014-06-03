@@ -40,4 +40,7 @@ class Node
   discard: () ->
     # should we unpick first if node.state is picked?
     @taxon.update_node(this,{discard:true})
+  # FIXME possibly useful, a record of which assertions a node is the context for
+  # register_context_for: (edge) ->
+  #   @is_context_for.push(edge)
 (exports ? this).Node = Node
