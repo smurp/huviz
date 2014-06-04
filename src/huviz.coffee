@@ -2166,6 +2166,11 @@ class OntoViz extends Huviz
     super()
     #@gclui.taxon_picker.add('everything',null,'Everything!')
 
+  HHH: # hardcoded hierarchy hints, kv pairs of child to parent
+    ObjectProperty: 'everything'
+    Class: 'everything'
+    SymmetricProperty: 'everything'
+
   ontoviz_type_to_hier_map:
     RDF_type: "classes"
     OWL_ObjectProperty: "properties"
