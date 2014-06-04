@@ -61,16 +61,16 @@ class Taxon extends TaxonBase
       throw "Taxon[#{@id}].recalc_state should not fall thru, #picked:#{@picked_nodes.length} #unpicked:#{@unpicked_nodes.length}"
   recalc_english: (in_and_out) ->
     if @state is 'showing'
-      in_and_out.include.push @id
+      in_and_out.include.push @lid
     else if @state is 'unshowing'
       # uh what?
     else if @state is 'mixed'
       if @picked_nodes.length < @unpicked_nodes.length
         for n in @picked_nodes
-          in_and_out.include.push n.id
+          in_and_out.include.push n.lid
       else
         in_and_out.include.push @id
         for n in @unpicked_nodes
-          in_and_out.exclude.push n.id
+          in_and_out.exclude.push n.lid
 
 (exports ? this).Taxon = Taxon

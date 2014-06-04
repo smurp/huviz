@@ -38,7 +38,11 @@ libxmljs = require "libxmljs"       # https://github.com/polotek/libxmljs
 # https://github.com/polotek/libxmljs/wiki/Document
 #   NOTE attribute names and tag names are CASE SENSITIVE!!!!?!!???
 fs = require('fs')
-createSnippetServer = (xmlFileName) ->
+createSnippetServer = (xmlFileName, uppercase) ->
+  if not uppercase? or uppercase
+    id_in_case = "ID"
+  else
+    id_in_case = "id"
   doc = null
   nodes_with_id = []
   elems_by_id = {}
@@ -58,7 +62,7 @@ createSnippetServer = (xmlFileName) ->
         console.log "finding IDs in #{xmlFileName}..."
         started = new Date().getTime() / 1000
         # http://stackoverflow.com/questions/4107831/an-xpath-query-that-returns-all-nodes-with-the-id-attribute-set
-        nodes_with_id = doc.find('//*[@ID]')
+        nodes_with_id = doc.find('//*[@' + id_in_case + ']')  #  //*[@ID]
         #nodes_with_id = doc.find('//*[@ID!=""]')
         count = nodes_with_id.length
         finished = new Date().getTime() / 1000
@@ -67,7 +71,7 @@ createSnippetServer = (xmlFileName) ->
         if true
           started = new Date().getTime() / 1000
           for elem,i in nodes_with_id
-            id = elem.get("@ID").value()
+            id = elem.get("@" + id_in_case).value() # @id  OR  @ID
             #console.log "   ",id,i
             elems_idx_by_id[id] = i
           finished = new Date().getTime() / 1000
@@ -107,11 +111,11 @@ app.configure ->
 port = argv[0] or process.env.PORT or 9999
 if not ('--skip_orlando' in argv)
   app.get "/snippet/orlando/:id([A-Za-z0-9-]+)/",
-      createSnippetServer("orlando_all_entries_2013-03-04.xml")
+      createSnippetServer("orlando_all_entries_2013-03-04.xml", true)
 
 if ('--serve_poetesses' in argv)
   app.get "/snippet/poetesses/:id([A-Za-z0-9-]+)/",
-      createSnippetServer("poetesses_decomposed.xml")
+      createSnippetServer("poetesses_decomposed.xml", false)
 
 console.log "Starting server on port: #{port}"
 app.listen port

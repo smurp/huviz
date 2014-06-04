@@ -764,11 +764,16 @@ class Huviz
         draw_n_n[n_n] = []
       draw_n_n[n_n].push(e)
 
+    #dump_and_throw = n_n.match(/barban/) and false
     for n_n, edges_between of draw_n_n
       sway = 1
       for e in edges_between
+        #if dump_and_throw
+        #  console.info "dump_and_throw",e
         @draw_curvedline e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, sway, e.color, e.contexts.length
         sway++
+      #if dump_and_throw
+      #  throw "give that a gander"
 
   draw_edges: ->
     if @use_canvas
@@ -2102,21 +2107,27 @@ class Huviz
   is_big_data: () ->
     if not @big_data_p?
       #if @nodes.length > 200
-      if @data_uri?.match('poetesses|atwoma')
+      if @data_uri?.match('poetesses|atwoma|relations')
         @big_data_p = true
       else
         @big_data_p = false
     return @big_data_p
-    
+
   get_default_set_by_type: (node) ->
     # see Orlando.get_default_set_by_type
     #console.log "get_default_set_by_type",node
     if @is_big_data()
-      if node.type in ['writer','Group']
+      if node.type in ['writer']
         return @unlinked_set
       else
         return @hidden_set
     return @unlinked_set
+
+  get_default_set_by_type: (node) ->
+    return @unlinked_set
+
+  get_taxon_to_initially_pick: () ->
+    return 'writer'
 
 class Orlando extends Huviz
   # These are the Orlando specific methods layered on Huviz.
@@ -2130,6 +2141,17 @@ class Orlando extends Huviz
   # use the hints or the HHH to build a hierarchy of AbstractTaxons and Taxons
   #  for nom in ['writers','people','others','orgs']
   #    @add_to_taxonomy(nom)
+
+  get_taxon_to_initially_pick: () ->
+    return 'writer'
+
+  get_default_set_by_type: (node) ->
+    if @is_big_data()
+      if node.type in ['writer']
+        return @unlinked_set
+      else
+        return @hidden_set
+    return @unlinked_set
 
   HHH: # hardcoded hierarchy hints, kv pairs of child to parent
     human: 'everything'

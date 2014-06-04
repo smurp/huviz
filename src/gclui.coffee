@@ -52,18 +52,18 @@ class CommandController
 
   on_dataset_loaded: (evt) =>
     if not evt.done?
-      @pick_everything()
+      @pick_the_initial_set()
       @recolor_edges()
 
       # FIXME is there a standards-based way to prevent this happening three times?
       evt.done = true
 
-  pick_everything: =>
+  pick_the_initial_set: =>
     @onnodeclasspicked 'everything',true
     if @huviz.is_big_data()
       # FIXME this is very clunky (and slow)
       @onnodeclasspicked 'everything',false
-      @onnodeclasspicked 'Group',true
+      @onnodeclasspicked @huviz.get_taxon_to_initially_pick(),true
     @huviz.taxonomy['everything'].update_english()
 
   init_editor_data: ->
