@@ -113,7 +113,7 @@ if not ('--skip_orlando' in argv)
   app.get "/snippet/orlando/:id([A-Za-z0-9-]+)/",
       createSnippetServer("orlando_all_entries_2013-03-04.xml", true)
 
-if ('--serve_poetesses' in argv)
+if not ('--skip_poetesses' in argv)
   app.get "/snippet/poetesses/:id([A-Za-z0-9-]+)/",
       createSnippetServer("poetesses_decomposed.xml", false)
 
