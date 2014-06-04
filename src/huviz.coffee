@@ -1949,7 +1949,7 @@ class Huviz
     # and garbage collectible.  It was motivated by the desire to
     # turn an actual node into a suitable member of the subjects list
     # on a GraphCommand
-    return {id: thing.id}
+    return {id: thing.id, lid: thing.lid}
 
   populate_taxonomy: () ->
     
@@ -2169,9 +2169,11 @@ class Orlando extends Huviz
         <div id="#{id_escape(m.edge.id)}">
           <div>
             <span class="writername">
-              <a target="SRC" href="#{m.edge.source.id}">#{m.edge.source.name}</a></span>
+              <a target="SRC"
+                 href="#{m.edge.source.id}">#{m.edge.source.name}</a></span>
               <span>#{m.pred_id}</span>
-            <span class=""><a href="#{m.edge.target.id}">#{m.edge.target.name}</a></span>
+            <span class="">
+              <a href="#{m.edge.target.id}">#{m.edge.target.name}</a></span>
           </div>
           <div id="#{m.context_id}">
             <b>Text:</b> <i style="font-size:80%">#{m.context_id}</i>

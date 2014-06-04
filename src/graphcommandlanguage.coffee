@@ -222,7 +222,7 @@ class GraphCommand
       if @classes
         obj_phrase += angliciser(@classes)
       if @subjects
-        obj_phrase += angliciser((subj.id for subj in @subjects))
+        obj_phrase += angliciser((subj.lid for subj in @subjects))
       if @sets
         obj_phrase += angliciser((s.state_name for s in @sets))
     #console.debug "obj_phrase",obj_phrase
