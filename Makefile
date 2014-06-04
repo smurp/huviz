@@ -1,8 +1,10 @@
 
-ARGS = --state_the_obvious \
-	--all_predicates \
+BASE_ARGS = \
+	--state_the_obvious \
 	--use_onto \
 	--progress
+
+ARGS = 	--all_predicates ${BASE_ARGS}
 
 all: ballrm abdyma atwoma poetesses
 
@@ -18,4 +20,4 @@ atwoma:
 
 poetesses:
 	./orlandoscrape.py --outfile data/poetesses.nq \
-		--ids `bin/get_poetesses_ids.sh` ${ARGS}
+		--ids `bin/get_poetesses_ids.sh` ${BASE_ARGS}
