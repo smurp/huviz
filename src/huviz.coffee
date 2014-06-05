@@ -76,6 +76,7 @@
 #  35) TASK: get rid of jquery
 #  36) TASK: figure out UX to trigger snippet display and
 #            figure out UX for print / redact if still useful
+#  37) TASK: fix Bronte names, ie unicode
 # 
 #asyncLoop = require('asynchronizer').asyncLoop
 
@@ -921,6 +922,20 @@ class Huviz
     #console.info("tick")
     #@force.tick()
 
+  msg_history: ""
+  show_state_msg: (txt) ->
+    console.warn(txt)
+    if false
+      @msg_history += " " + txt
+      txt = @msg_history
+    @state_msg_box.show()
+    @state_msg_box.html(txt)
+    $("body").css "cursor", "wait"
+
+  hide_state_msg: () ->
+    #@show_state_msg(' * ')
+    @state_msg_box.hide()
+    $("body").css "cursor", "default"
 
   update_status: ->
     msg = "nodes:" + @nodes.length +
@@ -1274,9 +1289,13 @@ class Huviz
       uri:     RDF_object
       literal: RDF_literal
     worker = new Worker('js/xhr_readlines_worker.js')
+    quad_count = 0
     worker.addEventListener 'message', (e) =>
       msg = null
       if e.data.event is 'line'
+        quad_count++
+        if quad_count % 100 is 0
+          @show_state_msg("parsed quad " + quad_count)
         q = parseQuadLine(e.data.line)
         if q
           q.s = q.s.raw
@@ -1290,7 +1309,9 @@ class Huviz
         msg = "starting to split "+uri
       else if e.data.event is 'finish'
         msg = "finished_splitting "+uri
+        @show_state_msg("done loading")
         document.dispatchEvent(new CustomEvent("dataset-loaded", {detail: uri}))
+
         #@choose_everything()
         #@fire_nextsubject_event @last_quad,null
       else
@@ -1305,8 +1326,7 @@ class Huviz
     console.log data
 
   fetchAndShow: (url) ->
-    $("#status").text "fetching " + url
-    $("body").css "cursor", "wait"
+    @show_state_msg("fetching " + url)
     if url.match(/.ttl/)
       the_parser = @parseAndShowTurtle
       the_parser = @parseAndShowTTLStreamer
@@ -1941,7 +1961,9 @@ class Huviz
     cmd = new gcl.GraphCommand
       verbs: [verb]
       subjects: [@get_handle subject]
+    @show_state_msg(cmd.as_msg())
     @gclc.run cmd
+    @hide_state_msg()
     @gclui.push_command cmd
 
   get_handle: (thing) ->
@@ -1962,9 +1984,15 @@ class Huviz
      else
       console.log = console.log_real
       return true
-    
+
+  create_state_msg_box: () ->
+    @state_msg_box = $("#state_msg_box")
+    @hide_state_msg()
+    console.info @state_msg_box
+        
   constructor: ->
     @toggle_logging()
+    @create_state_msg_box()
     document.addEventListener 'nextsubject', @onnextsubject
     #@reset_graph() # FIXME should it be a goal to make this first?
     @init_sets()    #   because these are the first two lines of reset_graph
@@ -2051,6 +2079,7 @@ class Huviz
       @update_graph_settings(elem, false)
       elem = iterator.iterateNext()
   load_file: ->
+    @show_state_msg("loading...")
     @init_from_graph_controls()
     @reset_graph()
     @data_uri = @get_dataset_uri()
@@ -2059,6 +2088,7 @@ class Huviz
     @init_webgl()  if @use_webgl
 
   get_dataset_uri: () ->
+    # FIXME goodbye jquery
     return $("select.file_picker option:selected").val()
 
   get_script_from_hash: () ->

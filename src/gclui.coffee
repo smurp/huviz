@@ -211,7 +211,9 @@ class CommandController
     taxon = @huviz.taxonomy[id]
     if taxon?
       #console.clear()
+      @huviz.show_state_msg("get_state()")
       state = taxon.get_state()
+      @huviz.hide_state_msg()
     else
       throw "Uhh, there should be a root Taxon 'everything' by this point"
     #console.debug "id:",id,"state:",state,taxon
@@ -367,7 +369,9 @@ class CommandController
       args.like = like_str
     @command = new gcl.GraphCommand(args)
   update_command: () =>
+    @huviz.show_state_msg("update_command")
     @prepare_command @build_command()
+    @huviz.hide_state_msg()
   prepare_command: (cmd) ->
     @command = cmd
     @nextcommandstr.text(@command.str)

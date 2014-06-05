@@ -158,6 +158,7 @@ class GraphCommand
     return @regarding? and @regarding.length > 0
 
   execute: (@graph_ctrl) ->
+    @graph_ctrl.show_state_msg(@as_msg())
     @graph_ctrl.force.stop()
     reg_req = @regarding_required()    
     nodes = @get_nodes()
@@ -199,6 +200,7 @@ class GraphCommand
         #async.eachSeries nodes,iter,err
         async.each nodes,iter,err
         #@graph_ctrl.tick()
+    @graph_ctrl.hide_state_msg()
     @graph_ctrl.force.start()
 
   update_str: ->
@@ -295,6 +297,8 @@ class GraphCommand
       @update_str()
   toString: () ->
     return @str
+  as_msg: () ->
+    return @str
       
 class GraphCommandLanguageCtrl
   constructor: (@graph_ctrl) ->
@@ -318,6 +322,7 @@ class GraphCommandLanguageCtrl
     cmd = new GraphCommand(cmd_spec)
     cmd.prefixes = @prefixes
     cmd.execute(@graph_ctrl)
+
 
   execute: () =>
     if @commands.length > 0 and typeof @commands[0] is 'string' and @commands[0].match(/^load /)
