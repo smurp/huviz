@@ -411,7 +411,8 @@ class Huviz
 
     # this is the node being clicked
     if @focused_node # and @focused_node.state is @graphed_set
-      @toggle_picked(@focused_node)
+      @perform_current_command(@focused_node)
+      #@toggle_picked(@focused_node)
       @tick()
       return
 
@@ -434,6 +435,18 @@ class Huviz
       # TODO(smurp) are these still needed?
       @force.links @links_set
       @restart()
+
+  perform_current_command: (node) ->
+    if @gclui.ready_to_perform()
+      cmd = new gcl.GraphCommand
+        verbs: @gclui.engaged_verbs
+        subjects: [node]
+      @show_state_msg(cmd.as_msg())
+      @gclc.run cmd
+      @hide_state_msg()
+      @gclui.push_command cmd
+    else
+      @toggle_picked(node)
 
   #///////////////////////////////////////////////////////////////////////////
   # resize-svg-when-window-is-resized-in-d3-js
@@ -1726,7 +1739,7 @@ class Huviz
   choose: (chosen) =>
     # There is a flag .chosen in addition to the state 'linked'
     # because linked means it is in the graph
-    @pick chosen
+    #@pick chosen
     @chosen_set.add chosen
     @graphed_set.acquire chosen # do it early so add_link shows them otherwise choosing from discards just puts them in the lariat
     @show_links_from_node chosen
@@ -1813,9 +1826,15 @@ class Huviz
       #console.warn(url)
       d3.xhr(url, callback)
     return "got it"
+
+  clear_snippets: () ->
+    @currently_printed_snippets = {}
+    if @snippet_box
+      @snippet_box.html("")
   
   # The Verbs PRINT and REDACT show and hide snippets respectively
   print: (node) =>
+    @clear_snippets()
     for edge in node.links_shown
       for context in edge.contexts
         snippet_id = context.id

@@ -206,6 +206,7 @@ class CommandController
     #    all nodes except the embryonic and the discarded
     #    OR rather, the hidden, the graphed and the unlinked
     #console.info("onnodeclasspicked('" + id + ", " + selected + "')")
+    @huviz.show_state_msg("toggling " + selected)
     toggle_suspend_updates(true)
     @taxon_picker.color_by_selected(id,selected)
     taxon = @huviz.taxonomy[id]
@@ -380,6 +381,8 @@ class CommandController
     else
       @doit_butt.attr('disabled','disabled')
     return @command.ready
+  ready_to_perform: () ->
+    @engaged_verbs.length > 0 and not @object_phrase
   build_verb_form: () ->
     for vset in @verb_sets
       alternatives = @verbdiv.append('div').attr('class','alternates')
