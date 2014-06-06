@@ -23,8 +23,6 @@ class TaxonBase
         cancelable: true
       if @mom?
         @mom.update_state()
-      else
-        
       window.dispatchEvent evt # could pass to picker, this is async
     @update_english()
 

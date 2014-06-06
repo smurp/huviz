@@ -929,7 +929,7 @@ class Huviz
       @msg_history += " " + txt
       txt = @msg_history
     @state_msg_box.show()
-    @state_msg_box.html(txt)
+    @state_msg_box.html("<br><br>" + txt)  # FIXME: OMG CSS PDQ
     $("body").css "cursor", "wait"
 
   hide_state_msg: () ->
