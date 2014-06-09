@@ -110,11 +110,11 @@ app.configure ->
 # http://regexpal.com/
 port = argv[0] or process.env.PORT or 9999
 if not ('--skip_orlando' in argv)
-  app.get "/snippet/orlando/:id([A-Za-z0-9-]+)/",
+  app.get "/snippet/orlando/:id([A-Za-z0-9-_]+)/",
       createSnippetServer("orlando_all_entries_2013-03-04.xml", true)
 
 if not ('--skip_poetesses' in argv)
-  app.get "/snippet/poetesses/:id([A-Za-z0-9-]+)/",
+  app.get "/snippet/poetesses/:id([A-Za-z0-9-_]+)/",
       createSnippetServer("poetesses_decomposed.xml", false)
 
 console.log "Starting server on port: #{port}"
