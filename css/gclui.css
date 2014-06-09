@@ -133,3 +133,12 @@ p {
 .both_shown_and_unshown {
     font-style: italic;
 }
+.close_snippet:before {
+  margin-right: .2em;
+  margin-top: .2em;
+  float: right;
+  color: white;
+  padding: .05em;
+  background-color: red;
+  content: '✘';
+}

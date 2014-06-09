@@ -2220,9 +2220,10 @@ class Orlando extends Huviz
             <span class="writername">
               <a target="SRC"
                  href="#{m.edge.source.id}">#{m.edge.source.name}</a></span>
-              <span>#{m.pred_id}</span>
+              <span style="background-color:#{m.edge.color}">#{m.pred_id}</span>
             <span class="">
               <a href="#{m.edge.target.id}">#{m.edge.target.name}</a></span>
+            <span class="close_snippet"></span>
           </div>
           <div id="#{m.context_id}">
             <b>Text:</b> <i style="font-size:80%">#{m.context_id}</i>
@@ -2231,7 +2232,10 @@ class Orlando extends Huviz
           <hr>
         </div>
         """
-      ## unconfuse emacs Coffee-mode: " """ ' '  "        
+        ## unconfuse emacs Coffee-mode: " """ ' '  "                      
+        $('.close_snippet').on 'click', (evt) ->
+          $(evt.target).parent().parent().remove()
+
       super(msg_or_obj) # fail back to super
 
 class OntoViz extends Huviz
