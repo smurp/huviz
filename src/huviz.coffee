@@ -11,8 +11,8 @@
 #  Edge Labels
 #    http://bl.ocks.org/jhb/5955887
 #
-#  Lariat -- around the graph, the rope of nodes which serves as reorderable menu
-#  Hoosegow -- a jail to contain nodes one does not want to be bothered by
+#  Shelf -- around the graph, the ring of nodes which serves as reorderable menu
+#  Discard Bin -- a jail to contain nodes one does not want to be bothered by
 #
 #  Commands on nodes
 #     choose/shelve     -- graph or remove from graph
@@ -865,7 +865,7 @@ class Huviz
         if @use_webgl
           @mv_node(d.gl, d.fisheye.x, d.fisheye.y)
   should_show_label: (node) ->
-    (not node.hidden) and (node.labelled or
+    (not node.hidden?) and (node.labelled or
         dist_lt(@last_mouse_pos, node, @label_show_range) or
         node.name.match(@search_regex) or
         @label_all_graphed_nodes and @graphed_set.has(node))

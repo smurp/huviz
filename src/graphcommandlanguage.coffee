@@ -107,7 +107,8 @@ class GraphCommand
       for node_spec in @subjects
         node = @get_node(node_spec)
         if node
-          result_set.add(node)
+          if not like_regex? or node.name.match(like_regex)
+            result_set.add(node)
         else
           if not @classes?
             @classes = []
@@ -119,7 +120,7 @@ class GraphCommand
           the_set = @graph_ctrl.nodes
         else
           the_set = @graph_ctrl.taxonomy[class_name]?.get_instances()
-        if @like and the_set?
+        if like_regex and the_set?
           for n in the_set
             if n.name.match(like_regex)
               result_set.add n
@@ -129,7 +130,8 @@ class GraphCommand
     if @sets
       for a_set in @sets
         for node in a_set
-          result_set.add(node)
+          if not like_regex? or node.name.match(like_regex)
+            result_set.add(node)
     return result_set
   get_methods: () ->  
     methods = []
