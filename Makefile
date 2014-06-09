@@ -34,7 +34,7 @@ relations:  # commented out religiousInfluence and connectionToOrganization
 	./orlandoscrape.py --outfile data/relations.nq \
 		${BASE_ARGS}
 
-talk: 
-	./orlandoScrape.py --outfile data/talk.nq \
+early_writers: 
+	./orlandoScrape.py --outfile data/early_writers.nq \
 		--id boccgi,chauge,chripi,dant__,helo__,hildbi,julino,kempma,maloth,margna,marifr,petr__ \
 		${ARGS}
