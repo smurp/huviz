@@ -38,7 +38,3 @@ talk:
 	./orlandoScrape.py --outfile data/talk.nq \
 		--id boccgi,chauge,chripi,dant__,helo__,hildbi,julino,kempma,maloth,margna,marifr,petr__ \
 		${ARGS}
-
-julino:
-	./orlandoScrape.py --outfile data/julino.nq \
-		--id hildbi,julino ${ARGS}
