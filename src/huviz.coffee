@@ -855,8 +855,7 @@ class Huviz
         "translate(" + d.fisheye.x + "," + d.fisheye.y + ")"
       ).attr "r", calc_node_radius
     if @use_canvas or @use_webgl
-      @nodes.forEach (d, i) =>
-        return unless @graphed_set.has(d)
+      @graphed_set.forEach (d, i) =>
         d.fisheye = @fisheye(d)
         if @use_canvas
           @draw_circle(d.fisheye.x, d.fisheye.y,
