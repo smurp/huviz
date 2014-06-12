@@ -847,7 +847,7 @@ class Huviz
 
   draw_discards: ->
     @draw_nodes_in_set @discarded_set, @discard_radius, @discard_center
-  draw_lariat: ->
+  draw_shelf: ->
     @draw_nodes_in_set @unlinked_set, @graph_radius, @lariat_center
   draw_nodes: ->
     if @use_svg
@@ -865,10 +865,10 @@ class Huviz
         if @use_webgl
           @mv_node(d.gl, d.fisheye.x, d.fisheye.y)
   should_show_label: (node) ->
-    (not node.hidden?) and (node.labelled or
+    (node.labelled or
         dist_lt(@last_mouse_pos, node, @label_show_range) or
         node.name.match(@search_regex) or
-        @label_all_graphed_nodes and @graphed_set.has(node))
+        @label_all_graphed_nodes and node.graphed?)
   draw_labels: ->
     if @use_svg
       label.attr "style", (d) ->
@@ -884,7 +884,7 @@ class Huviz
       focused_font = "#{focused_font_size}em sans-serif"
       unfocused_font = "#{@label_em}em sans-serif"
       #console.log focused_font,unfocused_font
-      @nodes.forEach (node) =>
+      label_node = (node) =>
         return unless @should_show_label(node)
         if node.focused_node
           @ctx.fillStyle = node.color
@@ -911,6 +911,9 @@ class Huviz
           @ctx.restore()
         else
           @ctx.fillText "  " + node.name, node.fisheye.x, node.fisheye.y
+      @graphed_set.forEach label_node
+      @unlinked_set.forEach label_node
+      @discarded_set.forEach label_node
 
   clear_canvas: ->
     @ctx.clearRect 0, 0, @canvas.width, @canvas.height
@@ -928,7 +931,7 @@ class Huviz
     @apply_fisheye()
     @draw_edges()
     @draw_nodes()
-    @draw_lariat()
+    @draw_shelf()
     @draw_discards()
     @draw_labels()
     @update_status()
