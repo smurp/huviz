@@ -2220,12 +2220,14 @@ class Orlando extends Huviz
         msg_or_obj = """
         <div id="#{id_escape(m.edge.id)}">
           <div>
-            <span class="writername">
+            <span class="writername" style="background-color:#{m.edge.source.color}">
               <a target="SRC"
-                 href="#{m.edge.source.id}">#{m.edge.source.name}</a></span>
-              <span style="background-color:#{m.edge.color}">#{m.pred_id}</span>
-            <span class="">
-              <a href="#{m.edge.target.id}">#{m.edge.target.name}</a></span>
+                 href="#{m.edge.source.id}">#{m.edge.source.name}</a>
+            </span>
+            —
+            <span style="background-color:#{m.edge.color}">#{m.pred_id}</span>
+            —
+            <span style="background-color:#{m.edge.target.color}">#{m.edge.target.name}</span>
             <span class="close_snippet"></span>
           </div>
           <div id="#{m.context_id}">
