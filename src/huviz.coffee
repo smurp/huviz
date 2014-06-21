@@ -1761,9 +1761,11 @@ class Huviz
     @chosen_set.remove hidee
     @hidden_set.acquire hidee
     @picked_set.remove hidee
+    hidee.unpick()
+    @hide_node_links hidee
     @update_state hidee
     shownness = @update_showing_links hidee
-    hidee.unpick()
+
 
   #
   # The verbs PICK and UNPICK perhaps don't need to be exposed on the UI
