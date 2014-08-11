@@ -142,6 +142,6 @@ p {
   background-color: red;
   content: '✘';
 }
-.lateral:first-child:first-child {
+.lateral {
   display:inline-flex;
 }

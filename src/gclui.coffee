@@ -32,18 +32,21 @@ class CommandController
     @title_bar_controls()        
     @oldcommands = @cmdlist.append('div').attr('class','commandhistory')
     @nextcommandbox = @comdiv.append('div')
+
     @verbdiv = @comdiv.append('div').attr('class','verbs')
     @add_clear_both(@comdiv)
-    @build_nodeclasspicker()
 
+    @build_setpicker()
+    @add_clear_both(@comdiv)    
+
+    @build_nodeclasspicker()    
     @likediv = @comdiv.append('div')
     @add_clear_both(@comdiv)
+    
     @build_predicatepicker()
     @init_editor_data()
     @build_form()
     @update_command()
-
-    @build_setpicker()
     @install_listeners()
 
   install_listeners: () ->
@@ -439,10 +442,6 @@ class CommandController
         .attr('id', 'sets')
     @set_picker = new TreePicker(@set_picker_box,'all',true)
     @set_picker.show_tree(@the_sets, @set_picker_box, @on_set_picked)
-    @huviz.toggle_logging()
-    console.log "set_picker_box",@set_picker_box    
-    #@set_picker_box.children[0].classed('lateral',true)
-    @huviz.toggle_logging()
 
   on_set_picked: (set_id, picking) =>
     @clear_set_picker()

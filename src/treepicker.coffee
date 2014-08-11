@@ -14,7 +14,8 @@ Build and control a hierarchic menu of arbitrarily nested divs looking like:
 ###
   
 class TreePicker
-  constructor: (elem, root) ->
+  constructor: (elem, root, lateral) ->
+    @lateral = (lateral? and lateral) or false
     @elem = d3.select(elem)
     @id_to_elem = {root:elem}
     @id_to_elem[root] = elem
@@ -32,8 +33,9 @@ class TreePicker
     tmp? and tmp
   uri_to_js_id: (uri) ->
     uri.match(/([\w\d\_\-]+)$/g)[0]
-  show_tree: (tree,i_am_in,listener) ->
+  show_tree: (tree,i_am_in,listener,top) ->
     # http://stackoverflow.com/questions/14511872
+    top = not top? or top
     for node_id,rest of tree
       label = rest[0]
       contents_of_me = i_am_in.append('div').
@@ -51,26 +53,25 @@ class TreePicker
       contents_of_me.append('p').html(label)
       if rest.length > 1
         my_contents = @get_or_create_container(contents_of_me)
-        @show_tree(rest[1],my_contents,listener)
+        if top and @lateral
+          my_contents.classed("lateral", true)
+        @show_tree(rest[1],my_contents,listener,false)
   set_branch_pickedness: (id,bool) ->
-    console.log("    ",id,"pickedness",bool)
     if @id_to_elem[id]?
       @id_to_elem[id].classed('picked_branch',bool)
-    else
-      console.log "  not found among:",(id for id in @id_to_elem)
+    #else
+    #  console.log "  not found among:",(id for id in @id_to_elem)
   set_all_hiddenness: (bool) ->
     top = @get_top()
     @set_branch_hiddenness(top,false)
     for id,elem of @id_to_elem
-      console.log "hiddenness",id,top
       if id isnt top and id isnt 'anything' and id isnt 'root'
         @set_branch_hiddenness(id,bool)
   set_branch_hiddenness: (id,bool) ->
-    console.log("    ",id,"hiddenness",bool)
     if @id_to_elem[id]?
       @id_to_elem[id].classed('hidden',bool)
-    else
-      console.log "  not found among:",(id for id in @id_to_elem)
+    #else
+    #  console.log "  not found among:",(id for id in @id_to_elem)
       
   set_branch_mixedness: (id, bool) ->
     # Calling set_branch_mixedness(id, true) means there exist
