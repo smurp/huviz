@@ -575,7 +575,7 @@ class Huviz
     #	 hidden: findable, but not displayed anywhere
     #              	 (when found, will become unlinked)
     #
-    @nodes = SortedSet().sort_on("id")
+    @nodes = SortedSet().sort_on("id").named("All")
     @nodes.docs = "All Nodes are in this set, regardless of state"
 
     @embryonic_set = SortedSet().sort_on("id").named("embryo").isFlag()
@@ -2000,13 +2000,18 @@ class Huviz
     
   toggle_logging: () ->
     if not console.log_real?
-      console.log_real = console.log       
-    if console.log is console.log_real
-      console.log = () ->
-      return false
-     else
+      console.log_real = console.log
+      
+    new_state = console.log is console.log_real
+    @set_logging(new_state)
+
+  set_logging: (new_state) ->
+    if new_state
       console.log = console.log_real
       return true
+    else  
+      console.log = () ->
+      return false
 
   create_state_msg_box: () ->
     @state_msg_box = $("#state_msg_box")
@@ -2150,7 +2155,7 @@ class Huviz
     # see Orlando.assign_types
     type_id = node.type # FIXME one of type or taxon_id gotta go, bye 'type'
     if type_id
-      console.log "assign_type",type_id,"to",node.id,"within",within,type_id
+      #console.log "assign_type",type_id,"to",node.id,"within",within,type_id
       @get_or_create_taxon(type_id).register(node) 
       
     else

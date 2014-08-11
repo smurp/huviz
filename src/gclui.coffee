@@ -1,3 +1,4 @@
+
 ###
 # verbs: choose,label,discard,shelve,unlabel
 # classes: writers,others,people,orgs # places,titles
@@ -27,13 +28,11 @@ class CommandController
     d3.select(@container).html("")
     #@init_indices()
     @comdiv = d3.select(@container).append("div")
-    #@gclpane = @comdiv.append('div').attr('class','gclpane')
     @cmdlist = @comdiv.append('div').attr('class','commandlist')
     @title_bar_controls()        
     @oldcommands = @cmdlist.append('div').attr('class','commandhistory')
     @nextcommandbox = @comdiv.append('div')
     @verbdiv = @comdiv.append('div').attr('class','verbs')
-    #@taxdiv = @comdiv.append('div').attr('class','taxonomydiv')
     @add_clear_both(@comdiv)
     @build_nodeclasspicker()
 
@@ -43,6 +42,8 @@ class CommandController
     @init_editor_data()
     @build_form()
     @update_command()
+
+    @build_setpicker()
     @install_listeners()
 
   install_listeners: () ->
@@ -86,7 +87,6 @@ class CommandController
   title_bar_controls: ->
     @show_comdiv_button = d3.select(@container).
          append('div').classed('show_comdiv_button',true)
-    #@show_comdiv_button.text('oink')
     @show_comdiv_button.classed('display_none',true)
     #@comdiv.classed('display_none',true)
     @cmdlistbar = @cmdlist.append('div').attr('class','cmdlistbar')
@@ -179,7 +179,9 @@ class CommandController
 
   build_nodeclasspicker: ->
     id = 'classes'
-    @nodeclassbox = @comdiv.append('div').classed('container',true).attr('id',id)
+    @nodeclassbox = @comdiv.append('div')
+        .classed('container',true)
+        .attr('id',id)
     @nodeclassbox.attr(
       'title',
       "Medium color: all nodes are picked -- click to pick none\n" +
@@ -359,12 +361,15 @@ class CommandController
     # if @subjects.length > 0
     #   args.subjects = (s for s in @subjects)
     args.object_phrase = @object_phrase
-    if @huviz.picked_set.length > 0      
-      args.subjects = (s for s in @huviz.picked_set)
     if @engaged_verbs.length > 0
       args.verbs = (v for v in @engaged_verbs)
-    if @node_classes_chosen.length > 0
-      args.classes = (class_name for class_name in @node_classes_chosen)
+    if @chosen_set_id
+      args.sets = [@chosen_set]
+    else
+      if @node_classes_chosen.length > 0
+        args.classes = (class_name for class_name in @node_classes_chosen)
+      if @huviz.picked_set.length > 0      
+        args.subjects = (s for s in @huviz.picked_set)
     like_str = (@like_input[0][0].value or "").trim()
     if like_str
       args.like = like_str
@@ -387,7 +392,7 @@ class CommandController
     for vset in @verb_sets
       alternatives = @verbdiv.append('div').attr('class','alternates')
       for id,label of vset
-        @append_verb_control(id,label,alternatives)
+        @build_verb_picker(id,label,alternatives)
   get_verbs_overridden_by: (verb_id) ->
     override = @verbs_override[verb_id] || []
     for vset in @verb_sets
@@ -408,7 +413,7 @@ class CommandController
     @engaged_verbs = @engaged_verbs.filter (verb) -> verb isnt verb_id
     @verb_control[verb_id].classed('engaged',false)
   verb_control: {}
-  append_verb_control: (id,label,alternatives) ->
+  build_verb_picker: (id,label,alternatives) ->
     vbctl = alternatives.append('div').attr("class","verb")
     if @verb_descriptions[id]
       vbctl.attr("title",@verb_descriptions[id])
@@ -426,5 +431,32 @@ class CommandController
       that.update_command()    
   run_script: (script) ->
     @huviz.gclc.run(script)
-    
+
+  build_setpicker: () ->
+    @the_sets = {'nodes': ['All', {'picked_set': ['Picked'], 'chosen_set': ['Chosen'], 'graphed_set': ['Graphed'], 'unlinked_set': ['Shelved'], 'hidden_set': ['Hidden'], 'discarded_set': ['Discarded']}]}
+    @set_picker_box = @comdiv.append('div')
+        .classed('container',true)
+        .attr('id', 'sets')
+    @set_picker = new TreePicker(@set_picker_box,'all',true)
+    @set_picker.show_tree(@the_sets, @set_picker_box, @on_set_picked)
+    @huviz.toggle_logging()
+    console.log "set_picker_box",@set_picker_box    
+    #@set_picker_box.children[0].classed('lateral',true)
+    @huviz.toggle_logging()
+
+  on_set_picked: (set_id, picking) =>
+    @clear_set_picker()
+    if picking
+      @chosen_set = @huviz[set_id]
+      @chosen_set_id = set_id
+    else
+      delete @chosen_set
+      delete @chosen_set_id
+    @update_command()
+
+  clear_set_picker: () ->
+    if @chosen_set_id?
+      @set_picker.set_branch_pickedness(@chosen_set_id, false)
+      delete @chosen_set_id
+        
 (exports ? this).CommandController = CommandController

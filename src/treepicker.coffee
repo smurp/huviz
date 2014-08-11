@@ -14,7 +14,7 @@ Build and control a hierarchic menu of arbitrarily nested divs looking like:
 ###
   
 class TreePicker
-  constructor: (elem,root) ->
+  constructor: (elem, root) ->
     @elem = d3.select(elem)
     @id_to_elem = {root:elem}
     @id_to_elem[root] = elem

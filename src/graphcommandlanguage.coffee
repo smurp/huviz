@@ -220,16 +220,16 @@ class GraphCommand
     if cmd_str is 'load '
       @str += @data_uri + " ."
       return
+    if @sets?
+      more = angliciser((s.id for s in @sets))
+      @object_phrase = more
     if @object_phrase?
       obj_phrase = @object_phrase
-    else
+    else 
       if @classes
         obj_phrase += angliciser(@classes)
       if @subjects
-        obj_phrase += angliciser((subj.lid for subj in @subjects))
-      if @sets
-        obj_phrase += angliciser((s.state_name for s in @sets))
-    #console.debug "obj_phrase",obj_phrase
+        obj_phrase = angliciser((subj.lid for subj in @subjects))
     if obj_phrase is ""
       obj_phrase = missing
       ready = false
@@ -253,7 +253,6 @@ class GraphCommand
     @ready = ready
     @str = cmd_str
   parse: (cmd_str) ->
-    # "choose 'abdyma'"
     parts = cmd_str.split(" ")
     verb = parts[0]
     cmd = {}
