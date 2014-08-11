@@ -1995,6 +1995,7 @@ class Huviz
     @gclc.run cmd
     @hide_state_msg()
     @gclui.push_command cmd
+    @update_all_counts()
 
   get_handle: (thing) ->
     # A handle is like a weak reference, saveable, serializable
