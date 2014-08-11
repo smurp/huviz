@@ -26,13 +26,13 @@ class GCLTestSuite
   ###
   # callback = function(){
   #    this.expect(this.graph_ctrl.nodes.length,7);
-  #    this.expect(this.graph_ctrl.unlinked_set.length,0);
+  #    this.expect(this.graph_ctrl.shelved_set.length,0);
   # }
   # ts = new GCLTestSuite(gclc, [
   #      {script:"choose 'abdyma'",
   #       expectations: [
   #           ["this.graph_ctrl.nodes.length",7],
-  #           ["this.graph_ctrl.unlinked_set.length",0],
+  #           ["this.graph_ctrl.shelved_set.length",0],
   #       ]
   #      }
   #     ])

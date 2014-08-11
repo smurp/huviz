@@ -436,7 +436,7 @@ class CommandController
     @huviz.gclc.run(script)
 
   build_setpicker: () ->
-    @the_sets = {'nodes': ['All', {'picked_set': ['Picked'], 'chosen_set': ['Chosen'], 'graphed_set': ['Graphed'], 'unlinked_set': ['Shelved'], 'hidden_set': ['Hidden'], 'discarded_set': ['Discarded']}]}
+    @the_sets = {'nodes': ['All', {'picked_set': ['Picked'], 'chosen_set': ['Chosen'], 'graphed_set': ['Graphed'], 'shelved_set': ['Shelved'], 'hidden_set': ['Hidden'], 'discarded_set': ['Discarded']}]}
     @set_picker_box = @comdiv.append('div')
         .classed('container',true)
         .attr('id', 'sets')

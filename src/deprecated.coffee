@@ -7,10 +7,10 @@ class Deprecated extends Huviz
     @nodes.forEach (node) =>
       #node.linked = false;
       #node.fixed = false;	
-      @unlinked_set.acquire node
+      @shelved_set.acquire node
       node.links_shown = []
       node.showing_links = "none"
-      @unlinked_set.acquire node
+      @shelved_set.acquire node
       @update_showing_links node
 
     @links_set.forEach (link) =>
@@ -20,7 +20,7 @@ class Deprecated extends Huviz
     @chosen_set.clear()
     
     # It should not be neccessary to clear discarded_set or hidden_set()
-    # because unlinked_set.acquire() should have accomplished that
+    # because shelved_set.acquire() should have accomplished that
     @restart()
 
   toggle_links: ->
@@ -98,7 +98,7 @@ class Deprecated extends Huviz
     @id2n[subject.id] = n_idx
     if false
       unless linked
-        n_idx = @unlinked_set.acquire(d)
+        n_idx = @shelved_set.acquire(d)
         @id2u[subject.id] = n_idx
       else
         @id2u[subject.id] = @graphed_set.acquire(d)
@@ -161,10 +161,10 @@ class Deprecated extends Huviz
     @nodes.forEach (node) =>
       #node.linked = false;
       #node.fixed = false;	
-      @unlinked_set.acquire node
+      @shelved_set.acquire node
       node.links_shown = []
       node.showing_links = "none"
-      @unlinked_set.acquire node
+      @shelved_set.acquire node
       @update_showing_links node
 
     @links_set.forEach (link) =>
@@ -174,7 +174,7 @@ class Deprecated extends Huviz
     @chosen_set.clear()
     
     # It should not be neccessary to clear discarded_set or hidden_set()
-    # because unlinked_set.acquire() should have accomplished that
+    # because shelved_set.acquire() should have accomplished that
     @restart()
 
   toggle_links: ->
@@ -252,7 +252,7 @@ class Deprecated extends Huviz
     @id2n[subject.id] = n_idx
     if false
       unless linked
-        n_idx = @unlinked_set.acquire(d)
+        n_idx = @shelved_set.acquire(d)
         @id2u[subject.id] = n_idx
       else
         @id2u[subject.id] = @graphed_set.acquire(d)

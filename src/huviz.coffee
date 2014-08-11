@@ -567,13 +567,13 @@ class Huviz
 
   init_sets: ->
     @id2n = {} # TODO(smurp): remove?
-    #  states: graphed,unlinked,discarded,hidden,embryonic
+    #  states: graphed,shelved,discarded,hidden,embryonic
     #  embryonic: incomplete, not ready to be used
     #  graphed: in the graph, connected to other nodes
-    #	 unlinked: in the lariat, available for choosing
+    #	 shelved: in the lariat, available for choosing
     #	 discarded: in the discard zone, findable but ignored by show_links_*
     #	 hidden: findable, but not displayed anywhere
-    #              	 (when found, will become unlinked)
+    #              	 (when found, will become shelved)
     #
     @nodes = SortedSet().sort_on("id").named("All")
     @nodes.docs = "All Nodes are in this set, regardless of state"
@@ -588,8 +588,8 @@ class Huviz
     @picked_set = SortedSet().named("picked").isFlag().sort_on("id")
     @picked_set.docs = "Nodes which are in the currently 'picked' set visible to the user."
 
-    @unlinked_set  = SortedSet().sort_on("name").named("unlinked").isState()
-    @unlinked_set.doc = "Nodes which are in the lariat.
+    @shelved_set  = SortedSet().sort_on("name").named("shelved").isState()
+    @shelved_set.doc = "Nodes which are in the lariat.
 "
     @discarded_set = SortedSet().sort_on("name").named("discarded").isState()
     @discarded_set.docs = "Nodes which have been discarded so edges to them will" +
@@ -848,7 +848,7 @@ class Huviz
   draw_discards: ->
     @draw_nodes_in_set @discarded_set, @discard_radius, @discard_center
   draw_shelf: ->
-    @draw_nodes_in_set @unlinked_set, @graph_radius, @lariat_center
+    @draw_nodes_in_set @shelved_set, @graph_radius, @lariat_center
   draw_nodes: ->
     if @use_svg
       node.attr("transform", (d, i) ->
@@ -911,7 +911,7 @@ class Huviz
         else
           @ctx.fillText "  " + node.name, node.fisheye.x, node.fisheye.y
       @graphed_set.forEach label_node
-      @unlinked_set.forEach label_node
+      @shelved_set.forEach label_node
       @discarded_set.forEach label_node
 
   clear_canvas: ->
@@ -957,7 +957,7 @@ class Huviz
           "\n picked:"  + @picked_set.length +
           "\n chosen:" + @chosen_set.length +          
           "\n graphed:" + @graphed_set.length +    
-          "\n shelved:" + @unlinked_set.length +
+          "\n shelved:" + @shelved_set.length +
           "\n hidden:" + @hidden_set.length +
           "\n discarded:" + @discarded_set.length +
           "\n embryonic:" + @embryonic_set.length +
@@ -1495,8 +1495,8 @@ class Huviz
 
   update_state: (node) ->
     if node.state is @graphed_set and node.links_shown.length is 0
-      @unlinked_set.acquire node
-      #console.debug("update_state() had to @unlinked_set.acquire(#{node.name})",node)
+      @shelved_set.acquire node
+      #console.debug("update_state() had to @shelved_set.acquire(#{node.name})",node)
     if node.state isnt @graphed_set and node.links_shown.length > 0
       #console.debug("update_state() had to @graphed_set.acquire(#{node.name})",node)
       @graphed_set.acquire node
@@ -1699,7 +1699,7 @@ class Huviz
     # FIXME discover whether unlink is still needed
     @hide_links_from_node unlinkee
     @hide_links_to_node unlinkee
-    @unlinked_set.acquire unlinkee
+    @shelved_set.acquire unlinkee
     @update_showing_links unlinkee
     @update_state unlinkee
     
@@ -1718,7 +1718,7 @@ class Huviz
     goner
 
   undiscard: (prodigal) ->  # TODO(smurp) rename command to 'retrieve' ????
-    @unlinked_set.acquire prodigal
+    @shelved_set.acquire prodigal
     @update_showing_links prodigal
     @update_state prodigal
     prodigal
@@ -1732,7 +1732,7 @@ class Huviz
   shelve: (goner) =>
     @chosen_set.remove goner
     @hide_node_links goner
-    @unlinked_set.acquire goner
+    @shelved_set.acquire goner
     shownness = @update_showing_links goner
     if goner.links_shown.length > 0
       console.log "shelving failed for",goner
@@ -1752,7 +1752,7 @@ class Huviz
     else
       # FIXME after this weird side effect, at the least we should not go on
       console.error(chosen.lid,"was found to have no links_shown so: @unlink_set.acquire(chosen)", chosen)
-      @unlinked_set.acquire chosen
+      @shelved_set.acquire chosen
     @update_state chosen
     shownness = @update_showing_links chosen
     chosen
@@ -2176,13 +2176,13 @@ class Huviz
     #console.log "get_default_set_by_type",node
     if @is_big_data()
       if node.type in ['writer']
-        return @unlinked_set
+        return @shelved_set
       else
         return @hidden_set
-    return @unlinked_set
+    return @shelved_set
 
   get_default_set_by_type: (node) ->
-    return @unlinked_set
+    return @shelved_set
 
   get_taxon_to_initially_pick: () ->
     return 'writer'
@@ -2206,10 +2206,10 @@ class Orlando extends Huviz
   get_default_set_by_type: (node) ->
     if @is_big_data()
       if node.type in ['writer']
-        return @unlinked_set
+        return @shelved_set
       else
         return @hidden_set
-    return @unlinked_set
+    return @shelved_set
 
   HHH: # hardcoded hierarchy hints, kv pairs of child to parent
     human: 'everything'
