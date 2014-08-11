@@ -22,8 +22,7 @@ class TreePicker
     @ids_in_arrival_order = [root]
     @id_is_abstract = {}
     @set_abstract(root)
-    @set_abstract('root')
-    # alert 'root =' + root
+    @set_abstract('root') # FIXME duplication?!?
   set_abstract: (id) ->
     @id_is_abstract[id] = true
   get_abstract_count: ->
@@ -96,6 +95,20 @@ class TreePicker
     parent = @id_to_elem[parent_id] or @elem
     container = d3.select(@get_or_create_container(parent)[0][0])
     @show_tree(branch,container,listener)
+  get_or_create_payload: (thing) ->
+    if thing? and thing
+      r = thing.select(".payload")
+      if r[0][0] isnt null
+        return r
+      thing.append('div').classed("payload", true)
+  set_payload: (id, payload) ->
+    elem = @id_to_elem[id]
+    carrier = @get_or_create_payload(elem)
+    if carrier?
+      if payload?
+        carrier.text(payload)
+      else
+        carrier.remove()
       
 (exports ? this).TreePicker = TreePicker
 

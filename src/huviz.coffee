@@ -37,7 +37,7 @@
 # ISSUES:
 #   4) TASK: Suppress all but the 6-letter id of writers in the cmd cli
 #  12) Graph layout of a single writer and peripheral nodes is not
-#      a simple flower, suggesting either that the lariat is exerting
+#      a simple flower, suggesting either that the shelf is exerting
 #      force or that an inappropriate combination of charge and link
 #      distance is occuring.
 #  13) Sometimes lines are drawn over one another, this seems to occur
@@ -472,7 +472,7 @@ class Huviz
   #   http://bl.ocks.org/mbostock/929623
   get_charge: (d) =>
     graphed = d.state == @graphed_set
-    retval = graphed and @charge or 0  # zero so lariat has no influence
+    retval = graphed and @charge or 0  # zero so shelf has no influence
     if retval is 0 and graphed
       console.error "bad combo of retval and graphed?",retval,graphed,d.name
     return retval
@@ -570,7 +570,7 @@ class Huviz
     #  states: graphed,shelved,discarded,hidden,embryonic
     #  embryonic: incomplete, not ready to be used
     #  graphed: in the graph, connected to other nodes
-    #	 shelved: in the lariat, available for choosing
+    #	 shelved: on the shelf, available for choosing
     #	 discarded: in the discard zone, findable but ignored by show_links_*
     #	 hidden: findable, but not displayed anywhere
     #              	 (when found, will become shelved)
@@ -589,8 +589,7 @@ class Huviz
     @picked_set.docs = "Nodes which are in the currently 'picked' set visible to the user."
 
     @shelved_set  = SortedSet().sort_on("name").named("shelved").isState()
-    @shelved_set.doc = "Nodes which are in the lariat.
-"
+    @shelved_set.doc = "Nodes which are in the lariat."
     @discarded_set = SortedSet().sort_on("name").named("discarded").isState()
     @discarded_set.docs = "Nodes which have been discarded so edges to them will" +
     
@@ -975,6 +974,16 @@ class Huviz
     msg += " DRAG"  if @dragging
     @set_status msg
 
+  update_all_counts: ->
+    @gclui.on_set_count_update('picked_set', @picked_set.length)
+    @gclui.on_set_count_update('shelved_set', @shelved_set.length)
+    @gclui.on_set_count_update('chosen_set', @chosen_set.length)
+    @gclui.on_set_count_update('graphed_set', @graphed_set.length)
+    @gclui.on_set_count_update('hidden_set', @hidden_set.length)
+    @gclui.on_set_count_update('discarded_set', @discarded_set.length)
+    console.log("done update_all_counts")
+    # not embryonic
+
   svg_restart: ->
     # console.log "svg_restart()"    
     @link = @link.data(@links_set)
@@ -989,8 +998,6 @@ class Huviz
 
     @node.exit().remove()
     
-    #.attr("class", "node")
-    #.attr("class", "lariat")
     nodeEnter = @node.enter().
       append("g").
       attr("class", "lariat node").
@@ -1743,7 +1750,7 @@ class Huviz
     # because linked means it is in the graph
     #@pick chosen
     @chosen_set.add chosen
-    @graphed_set.acquire chosen # do it early so add_link shows them otherwise choosing from discards just puts them in the lariat
+    @graphed_set.acquire chosen # do it early so add_link shows them otherwise choosing from discards just puts them on the shelf
     @show_links_from_node chosen
     @show_links_to_node chosen
     if chosen.links_shown

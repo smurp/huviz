@@ -145,3 +145,7 @@ p {
 .lateral {
   display:inline-flex;
 }
+.payload {
+  color: grey;
+  text-align: center;
+}

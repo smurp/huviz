@@ -171,6 +171,7 @@ class CommandController
       
     @prepare_command cmd
     @huviz.gclc.run(@command)
+    @huviz.update_all_counts()
 
   recolor_edges: (evt) =>
     count = 0
@@ -243,6 +244,7 @@ class CommandController
     toggle_suspend_updates(false)
     @huviz.taxonomy['everything'].update_english()
     @update_command()
+    @huviz.update_all_counts()
     # ////////////////////////////////////////
     # FIXME this is just for testing
     # @predicate_picker.set_branch_mixedness('anything',true)
@@ -293,7 +295,8 @@ class CommandController
     choose: "Put nodes in the graph."
     shelve: "Remove nodes from the graph and put them on the shelf
              (the circle of nodes around the graph) from which they
-             might return if called back into the graph by "
+             might return if called back into the graph by a neighbor
+             being chosen."
     hide: "Remove nodes from the grpah and don't display them anywhere,
            though they might be called back into the graph when some
            other node calls it back in to show an edge."
@@ -338,6 +341,7 @@ class CommandController
         @huviz.gclc.run(@command)
         @push_command(@command)
         @reset_editor()
+        @huviz.update_all_counts()
   disengage_all_verbs: ->
     for vid in @engaged_verbs
       @disengage_verb(vid)
@@ -434,6 +438,7 @@ class CommandController
       that.update_command()    
   run_script: (script) ->
     @huviz.gclc.run(script)
+    @huviz.update_all_counts()
 
   build_setpicker: () ->
     @the_sets = {'nodes': ['All', {'picked_set': ['Picked'], 'chosen_set': ['Chosen'], 'graphed_set': ['Graphed'], 'shelved_set': ['Shelved'], 'hidden_set': ['Hidden'], 'discarded_set': ['Discarded']}]}
@@ -452,6 +457,10 @@ class CommandController
       delete @chosen_set
       delete @chosen_set_id
     @update_command()
+
+  on_set_count_update: (set_id, count) =>
+    console.log "about to set_payload(" + set_id + ", " + count + ")"
+    @set_picker.set_payload(set_id, count)
 
   clear_set_picker: () ->
     if @chosen_set_id?
