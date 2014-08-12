@@ -56,14 +56,6 @@
 #       Current command shows redundant mix of nodeclasses and node ids
 #  23) TASK: discipline consequence of clicking a picker div:
 #            strict cycle:  someShown -> allShown -> noneShown
-#                      ie:  mixed        shown       unshown
-#  24) TASK: add a set_picker like taxon picker enabling commands like:
-#        Discard every hidden [node];
-#        Choose every picked;
-#        Discard every picked [node] like 'smith';
-#        Discard every graphed [node];
-#        Choose and label every picked [node] except Group and Person like 'bob';
-#        Pick and label every
 #  25) TASK: show busy pointer when slow operations are happening, maybe
 #      prevent starting operations when slow stuff is underway
 #  26) boot script should perhaps be "choose writer." or some reasonable set

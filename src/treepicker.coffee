@@ -104,23 +104,16 @@ class TreePicker
   set_payload: (id, value) ->
     elem = @id_to_elem[id]
     if not elem? and elem isnt null
-      alert "could not find " + id
+      console.log "set_payload could not find " + id
     payload = @get_or_create_payload(elem)
     if payload?
       if value?
-        if id is "nodes"
-          alert "setting nodes to " + value
         payload.text(value)
       else
-        alert "whoa " + id
         payload.remove()
   set_title: (id, title) ->
     elem = @id_to_elem[id]
-    alert "set_title " + id
     if elem?
-      elem?attr("title", title)
-    else
-      alert "could not find " + id
+      elem.attr("title", title)
       
 (exports ? this).TreePicker = TreePicker
-
