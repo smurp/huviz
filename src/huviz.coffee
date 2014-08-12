@@ -2066,11 +2066,11 @@ class Huviz
     asNum = parseFloat(target.value)
     cooked_value = ('' + asNum) isnt 'NaN' and asNum or target.value
     @[target.name] = cooked_value
-    #console.debug "setting",target.name,typeof @[target.name],@[target.name],update
     if update
       @update_fisheye()
       @updateWindow()
       @tick()
+    d3.select(target).attr("title", cooked_value)
   xpath_query: (xpath) ->
     document.evaluate(xpath,document,null,XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
   init_from_graph_controls: ->
