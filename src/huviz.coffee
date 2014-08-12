@@ -604,8 +604,23 @@ class Huviz
 
     @predicate_set = SortedSet().named("predicate").isFlag().sort_on("id")
     @context_set   = SortedSet().named("context").isFlag().sort_on("id")
-    
+
+    @pickable_sets =
+      # nodes: @nodes # FIXME reenable after fixing payload position
+      chosen_set: @chosen_set
+      picked_set: @picked_set
+      shelved_set: @shelved_set
+      discarded_set: @discarded_set
+      hidden_set: @hidden_set
+      graphed_set: @graphed_set
+      labelled_set: @labelled_set
+      # FIXME consider adding labelled_set
+            
     @create_taxonomy()
+
+  update_all_counts: ->
+    for name, a_set of @pickable_sets
+      @gclui.on_set_count_update(name, a_set.length)
 
   create_taxonomy: ->
     @taxonomy = {}  # make driven by the hierarchy
@@ -932,13 +947,10 @@ class Huviz
     @draw_shelf()
     @draw_discards()
     @draw_labels()
-    @update_status()
-    #console.info("tick")
-    #@force.tick()
 
   msg_history: ""
   show_state_msg: (txt) ->
-    console.warn(txt)
+    #console.warn(txt)
     if false
       @msg_history += " " + txt
       txt = @msg_history
@@ -950,39 +962,6 @@ class Huviz
     #@show_state_msg(' * ')
     @state_msg_box.hide()
     $("body").css "cursor", "default"
-
-  update_status: ->
-    msg = "nodes:" + @nodes.length +
-          "\n picked:"  + @picked_set.length +
-          "\n chosen:" + @chosen_set.length +          
-          "\n graphed:" + @graphed_set.length +    
-          "\n shelved:" + @shelved_set.length +
-          "\n hidden:" + @hidden_set.length +
-          "\n discarded:" + @discarded_set.length +
-          "\n embryonic:" + @embryonic_set.length +
-          "\npredicates:"  + Object.keys(@my_graph.predicates).length +
-          "\nlinks:" + @links_set.length +
-          "\nedges: #{@edge_count}" +          
-          "\nalpha: #{Math.round(100 * @force.alpha()) / 100}" +
-          "\ngravity: #{Math.round(100 * @force.gravity()) / 100}"
-
-          #"\ncharge: #{Math.round(100 * @force.charge()) / 100}"
-          #"\ntheta: #{Math.round(100 * @force.theta()) / 100}" +          
-          #"\nfriction: #{Math.round(100 * @force.friction()) / 100}" +
-
-          
-    msg += " DRAG"  if @dragging
-    @set_status msg
-
-  update_all_counts: ->
-    @gclui.on_set_count_update('picked_set', @picked_set.length)
-    @gclui.on_set_count_update('shelved_set', @shelved_set.length)
-    @gclui.on_set_count_update('chosen_set', @chosen_set.length)
-    @gclui.on_set_count_update('graphed_set', @graphed_set.length)
-    @gclui.on_set_count_update('hidden_set', @hidden_set.length)
-    @gclui.on_set_count_update('discarded_set', @discarded_set.length)
-    console.log("done update_all_counts")
-    # not embryonic
 
   svg_restart: ->
     # console.log "svg_restart()"    
@@ -1220,7 +1199,6 @@ class Huviz
 
   parseAndShowTTLStreamer: (data, textStatus) =>
     # modelled on parseAndShowNQStreamer
-    @set_status "parsing"
     parse_start_time = new Date()
     context = "http://universal"
     if GreenerTurtle? and @turtle_parser is 'GreenerTurtle'
@@ -1246,7 +1224,6 @@ class Huviz
     console.log "unique_pids:",@unique_pids
     
   parseAndShowTurtle: (data, textStatus) =>
-    @set_status "parsing"
     msg = "data was " + data.length + " bytes"
     parse_start_time = new Date()
     
@@ -1339,7 +1316,6 @@ class Huviz
       else
         msg = "unrecognized NQ event:"+e.data.event
       if msg?
-        @set_status msg
         console.log msg
         #alert msg
     worker.postMessage({uri:uri})
@@ -1670,12 +1646,6 @@ class Huviz
   toggle_label_display: ->
     @label_all_graphed_nodes = not @label_all_graphed_nodes
     @tick()
-
-  set_status: (txt) ->
-    txt = txt or ""
-    unless @last_status is txt
-      $("#status").text txt
-    @last_status = txt
 
   toggle_display_tech: (ctrl, tech) ->
     val = undefined
@@ -2119,7 +2089,7 @@ class Huviz
     @init_from_graph_controls()
     @reset_graph()
     @data_uri = @get_dataset_uri()
-    @set_status @data_uri
+    @show_state_msg @data_uri
     @fetchAndShow @data_uri  unless @G.subjects
     @init_webgl()  if @use_webgl
 

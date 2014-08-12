@@ -101,14 +101,26 @@ class TreePicker
       if r[0][0] isnt null
         return r
       thing.append('div').classed("payload", true)
-  set_payload: (id, payload) ->
+  set_payload: (id, value) ->
     elem = @id_to_elem[id]
-    carrier = @get_or_create_payload(elem)
-    if carrier?
-      if payload?
-        carrier.text(payload)
+    if not elem? and elem isnt null
+      alert "could not find " + id
+    payload = @get_or_create_payload(elem)
+    if payload?
+      if value?
+        if id is "nodes"
+          alert "setting nodes to " + value
+        payload.text(value)
       else
-        carrier.remove()
+        alert "whoa " + id
+        payload.remove()
+  set_title: (id, title) ->
+    elem = @id_to_elem[id]
+    alert "set_title " + id
+    if elem?
+      elem?attr("title", title)
+    else
+      alert "could not find " + id
       
 (exports ? this).TreePicker = TreePicker
 

@@ -36,6 +36,7 @@ class CommandController
     @verbdiv = @comdiv.append('div').attr('class','verbs')
     @add_clear_both(@comdiv)
 
+    alert("starting")
     @build_setpicker()
     @add_clear_both(@comdiv)    
 
@@ -441,25 +442,35 @@ class CommandController
     @huviz.update_all_counts()
 
   build_setpicker: () ->
-    @the_sets = {'nodes': ['All', {'picked_set': ['Picked'], 'chosen_set': ['Chosen'], 'graphed_set': ['Graphed'], 'shelved_set': ['Shelved'], 'hidden_set': ['Hidden'], 'discarded_set': ['Discarded']}]}
+    alert "build_setpicker start"    
+    # FIXME populate @the_sets from @huviz.pickable_sets
+    @the_sets = {'nodes': ['All', {'picked_set': ['Picked'], 'chosen_set': ['Chosen'], 'graphed_set': ['Graphed'], 'shelved_set': ['Shelved'], 'hidden_set': ['Hidden'], 'discarded_set': ['Discarded'], 'labelled_set': ['Labelled']}]}
     @set_picker_box = @comdiv.append('div')
         .classed('container',true)
         .attr('id', 'sets')
     @set_picker = new TreePicker(@set_picker_box,'all',true)
     @set_picker.show_tree(@the_sets, @set_picker_box, @on_set_picked)
+    alert "build_setpicker end"
+    @populate_all_set_docs()
+
+  populate_all_set_docs: ->
+    alert "POPULATE"
+    for name, a_set of @huviz.pickable_sets
+      if a_set.docs?
+        alert a_set.docs
+        @set_picker.set_title(a_set.docs)
 
   on_set_picked: (set_id, picking) =>
     @clear_set_picker()
     if picking
       @chosen_set = @huviz[set_id]
       @chosen_set_id = set_id
-    else
+    else  # FIXME @chosen_set OR @chosen_set_id but why both?
       delete @chosen_set
       delete @chosen_set_id
     @update_command()
 
   on_set_count_update: (set_id, count) =>
-    console.log "about to set_payload(" + set_id + ", " + count + ")"
     @set_picker.set_payload(set_id, count)
 
   clear_set_picker: () ->
