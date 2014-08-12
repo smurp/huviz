@@ -2077,10 +2077,14 @@ class Huviz
     # Perform update_graph_settings for everything in the form
     # so the HTML can be used as configuration file
     iterator = @xpath_query("//div[@class='graph_controls']//input")
+    elems = []
     elem = iterator.iterateNext()
-    while (elem)
-      @update_graph_settings(elem, false)
+    while (elem) # materialize the iterator
+      elems.push elem
       elem = iterator.iterateNext()
+    for elem in elems # so we can modify them in a loop
+      @update_graph_settings(elem, false)
+
   load_file: ->
     @show_state_msg("loading...")
     @init_from_graph_controls()
