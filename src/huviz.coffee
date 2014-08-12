@@ -566,36 +566,41 @@ class Huviz
     #	 discarded: in the discard zone, findable but ignored by show_links_*
     #	 hidden: findable, but not displayed anywhere
     #              	 (when found, will become shelved)
-    #
+    #  FIXME consider adding the pinned_set
     @nodes = SortedSet().sort_on("id").named("All")
     @nodes.docs = "All Nodes are in this set, regardless of state"
 
     @embryonic_set = SortedSet().sort_on("id").named("embryo").isFlag()
-    @embryonic_set.docs = "Nodes which are not yet complete are 'embryonic'."
+    @embryonic_set.docs = "Nodes which are not yet complete are 'embryonic' and not yet in 'nodes'."
 
     @chosen_set = SortedSet().named("chosen").isFlag().sort_on("id")
-    @chosen_set.docs = "Nodes which the user has picked to graph are 'chosen'."
+    @chosen_set.docs = "Nodes which the user has individually 'chosen' to graph by clicking or dragging them."
     @chosen_set.comment = "This concept should perhaps be retired now that picked_set is being maintainted."
 
     @picked_set = SortedSet().named("picked").isFlag().sort_on("id")
-    @picked_set.docs = "Nodes which are in the currently 'picked' set visible to the user."
+    @picked_set.docs = "Nodes which have been 'picked' using the class picker ie which are highlighted."
 
     @shelved_set  = SortedSet().sort_on("name").named("shelved").isState()
-    @shelved_set.doc = "Nodes which are in the lariat."
+    @shelved_set.docs = "Nodes which are on the surrounding 'shelf'."
+
     @discarded_set = SortedSet().sort_on("name").named("discarded").isState()
-    @discarded_set.docs = "Nodes which have been discarded so edges to them will" +
-    
+    @discarded_set.docs = "Nodes which have been discarded so they will not be included in graphs." +
     
     @hidden_set    = SortedSet().sort_on("id").named("hidden").isState()
+    @hidden_set.docs = "Nodes which are invisible but can be pulled into graphs by other nodes."
+    
     @graphed_set   = SortedSet().sort_on("id").named("graphed").isState()
+    @graphed_set.docs = "Nodes which are included in the central graph."
 
     @links_set     = SortedSet().sort_on("id").named("shown").isFlag()
     @links_set.docs = "Links which are shown."
     
     @labelled_set  = SortedSet().named("labelled").isFlag().sort_on("id")
+    @labelled_set.docs = "Nodes which have their labels permanently shown."
 
     @predicate_set = SortedSet().named("predicate").isFlag().sort_on("id")
     @context_set   = SortedSet().named("context").isFlag().sort_on("id")
+    @context_set.docs = "The set of quad contexts."
 
     @pickable_sets =
       # nodes: @nodes # FIXME reenable after fixing payload position

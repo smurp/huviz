@@ -443,7 +443,7 @@ class CommandController
 
   build_setpicker: () ->
     # FIXME populate @the_sets from @huviz.pickable_sets
-    @the_sets = {'nodes': ['All', {'picked_set': ['Picked'], 'chosen_set': ['Chosen'], 'graphed_set': ['Graphed'], 'shelved_set': ['Shelved'], 'hidden_set': ['Hidden'], 'discarded_set': ['Discarded'], 'labelled_set': ['Labelled']}]}
+    @the_sets = {'nodes': ['Nodes', {'picked_set': ['Picked'], 'chosen_set': ['Chosen'], 'graphed_set': ['Graphed'], 'shelved_set': ['Shelved'], 'hidden_set': ['Hidden'], 'discarded_set': ['Discarded'], 'labelled_set': ['Labelled']}]}
     @set_picker_box = @comdiv.append('div')
         .classed('container',true)
         .attr('id', 'sets')
