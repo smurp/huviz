@@ -62,7 +62,7 @@
 #            strict cycle:  someShown -> allShown -> noneShown
 #  25) TASK: debug wait cursor when slow operations are happening, maybe
 #      prevent starting operations when slow stuff is underway
-       AKA: show waiting cursor during verb execution
+#      AKA: show waiting cursor during verb execution
 #  26) boot script should perhaps be "choose writer." or some reasonable set
 #  27) make picking 'anything' (abstract predicates) do the right things
 #  30) TASK: Stop passing (node, change, old_node_status, new_node_status) to
@@ -82,7 +82,6 @@
 #  45) TASK: improve layout
 # 
 #asyncLoop = require('asynchronizer').asyncLoop
-
 CommandController = require('gclui').CommandController
 Edge = require('edge').Edge
 GraphCommandLanguageCtrl = require('graphcommandlanguage').GraphCommandLanguageCtrl
