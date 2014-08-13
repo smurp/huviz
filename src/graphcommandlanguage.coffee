@@ -195,7 +195,6 @@ class GraphCommand
           else
             console.log "DONE .execute()"
         iter = (node) =>
-          console.log "looping",node.id
           retval = meth.call(@graph_ctrl,node)        
           @graph_ctrl.tick() # TODO(smurp) move this out, or call every Nth node
         #async.eachSeries nodes,iter,err
@@ -304,6 +303,7 @@ class GraphCommandLanguageCtrl
   constructor: (@graph_ctrl) ->
     @prefixes = {}
   run: (script) ->
+    @graph_ctrl.before_running_command(this)
     console.log("script: ",script)
     if not script?
       console.error "script must be defined"
@@ -317,6 +317,7 @@ class GraphCommandLanguageCtrl
     else # an object we presume
       @commands = [script]
     retval = @execute()
+    @graph_ctrl.after_running_command(this)
     retval
   run_one: (cmd_spec) ->
     cmd = new GraphCommand(cmd_spec)

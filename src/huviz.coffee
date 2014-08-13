@@ -70,6 +70,16 @@
 #  36) TASK: figure out UX to trigger snippet display and
 #            figure out UX for print / redact if still useful
 #  37) TASK: fix Bronte names, ie unicode
+#  38) TASK: fix bad-layout-until-drag-and-drop bug
+#  39) TASK: make understandable
+#  40) TASK: support search
+#  41) TASK: link to new backend
+#  42) TASK: display each snippet once
+#  43) TASK: fix snippet layout bug
+#  44) TASK: make edges separately snippetable
+#  45) TASK: improve layout
+#  46) TASK: impute node type based on predicates via ontology
+#  47) TASK: show waiting cursor during verb execution
 # 
 #asyncLoop = require('asynchronizer').asyncLoop
 
@@ -1974,9 +1984,19 @@ class Huviz
       subjects: [@get_handle subject]
     @show_state_msg(cmd.as_msg())
     @gclc.run cmd
-    @hide_state_msg()
     @gclui.push_command cmd
-    @update_all_counts() # FIXME consider gclui events calling run_verb_on_object
+
+  before_running_command: ->
+    # FIXME fix non-display of cursor and color changes
+    $("body").css "cursor", "wait"
+    $("body").css "background-color", "red" # FIXME remove once it works!
+    #alert "starting wait"
+
+  after_running_command: ->
+    #alert "done waiting"
+    $("body").css "cursor", "default"
+    $("body").css "background-color", "white" # FIXME remove once it works!
+    @update_all_counts()
 
   get_handle: (thing) ->
     # A handle is like a weak reference, saveable, serializable
