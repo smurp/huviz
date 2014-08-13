@@ -57,7 +57,7 @@
 #       Current command shows redundant mix of nodeclasses and node ids
 #  23) TASK: discipline consequence of clicking a picker div:
 #            strict cycle:  someShown -> allShown -> noneShown
-#  25) TASK: show busy pointer when slow operations are happening, maybe
+#  25) TASK: debug wait cursor when slow operations are happening, maybe
 #      prevent starting operations when slow stuff is underway
 #  26) boot script should perhaps be "choose writer." or some reasonable set
 #  27) make picking 'anything' (abstract predicates) do the right things
@@ -76,7 +76,7 @@
 #  41) TASK: link to new backend
 #  42) TASK: display each snippet once
 #  43) TASK: fix snippet layout bug
-#  44) TASK: make edges separately snippetable
+#  44) TASK: print edge snippets separately
 #  45) TASK: improve layout
 #  46) TASK: impute node type based on predicates via ontology
 #  47) TASK: show waiting cursor during verb execution
@@ -617,7 +617,7 @@ class Huviz
     @context_set.docs = "The set of quad contexts."
 
     @pickable_sets =
-      # nodes: @nodes # FIXME reenable after fixing payload position
+      nodes: @nodes
       chosen_set: @chosen_set
       picked_set: @picked_set
       shelved_set: @shelved_set
@@ -625,7 +625,6 @@ class Huviz
       hidden_set: @hidden_set
       graphed_set: @graphed_set
       labelled_set: @labelled_set
-      # FIXME consider adding labelled_set
             
     @create_taxonomy()
 

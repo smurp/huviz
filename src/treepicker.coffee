@@ -49,7 +49,7 @@ class TreePicker
         picker.set_branch_pickedness(this.id,new_state)
         if listener  # TODO(shawn) replace with custom event?
           listener.call(this,this.id,new_state,elem)
-      contents_of_me.append('p').html(label)
+      contents_of_me.append("p").attr("class", "treepicker-label").text(label)
       if rest.length > 1
         my_contents = @get_or_create_container(contents_of_me)
         if top and @lateral
@@ -100,7 +100,7 @@ class TreePicker
       r = thing.select(".payload")
       if r[0][0] isnt null
         return r
-      thing.append('div').classed("payload", true)
+      thing.select(".treepicker-label").append('div').classed("payload", true)
   set_payload: (id, value) ->
     elem = @id_to_elem[id]
     if not elem? and elem isnt null
