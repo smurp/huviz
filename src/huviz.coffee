@@ -47,9 +47,12 @@
 #      showing a busy cursor or a special state for the picked div
 #      would help the user have faith.
 #      (Investigate possible inefficiencies, too.)
+#      AKA: fix bad-layout-until-drag-and-drop bug
 #  15) TASK: collapse edges to one-per-color (width for number?)
 #  16) TASK: click edge to show snippet
+#  44) TASK: print edge snippets separately
 #  17) TASK: incorporate ontology to drive predicate nesting
+#  46) TASK: impute node type based on predicates via ontology
 #  18) TASK: drop a node on another node to draw their mutual edges only
 #  19) TASK: progressive documentation (context sensitive tips and intros)
 #  22) TASK: summarize picked_set succinctly in english version of cmd
@@ -59,6 +62,7 @@
 #            strict cycle:  someShown -> allShown -> noneShown
 #  25) TASK: debug wait cursor when slow operations are happening, maybe
 #      prevent starting operations when slow stuff is underway
+       AKA: show waiting cursor during verb execution
 #  26) boot script should perhaps be "choose writer." or some reasonable set
 #  27) make picking 'anything' (abstract predicates) do the right things
 #  30) TASK: Stop passing (node, change, old_node_status, new_node_status) to
@@ -70,16 +74,12 @@
 #  36) TASK: figure out UX to trigger snippet display and
 #            figure out UX for print / redact if still useful
 #  37) TASK: fix Bronte names, ie unicode
-#  38) TASK: fix bad-layout-until-drag-and-drop bug
 #  39) TASK: make understandable
 #  40) TASK: support search
 #  41) TASK: link to new backend
 #  42) TASK: display each snippet once
 #  43) TASK: fix snippet layout bug
-#  44) TASK: print edge snippets separately
 #  45) TASK: improve layout
-#  46) TASK: impute node type based on predicates via ontology
-#  47) TASK: show waiting cursor during verb execution
 # 
 #asyncLoop = require('asynchronizer').asyncLoop
 
@@ -253,8 +253,6 @@ class Huviz
 
   # required by green turtle, should be retired
   G: {}
-  id2n: {}
-  id2u: {}
 
   search_regex: new RegExp("^$", "ig")
   node_radius: .5
@@ -572,7 +570,6 @@ class Huviz
     @discard_radius * 1.1 > dist
 
   init_sets: ->
-    @id2n = {} # TODO(smurp): remove?
     #  states: graphed,shelved,discarded,hidden,embryonic
     #  embryonic: incomplete, not ready to be used
     #  graphed: in the graph, connected to other nodes
