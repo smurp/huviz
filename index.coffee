@@ -71,12 +71,13 @@ createSnippetServer = (xmlFileName, uppercase) ->
         if true
           started = new Date().getTime() / 1000
           for elem,i in nodes_with_id
-            id = elem.get("@" + id_in_case).value() # @id  OR  @ID
+            thing = elem.get("@" + id_in_case);
+            id = thing.value() # @id  OR  @ID
             #console.log "   ",id,i
             elems_idx_by_id[id] = i
           finished = new Date().getTime() / 1000
           console.log "finished indexing #{xmlFileName} in #{finished - started} sec"
-      
+
   getSnippetById = (req, res) ->
     if doc
       started = new Date().getTime()

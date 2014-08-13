@@ -24,6 +24,7 @@
 # TODO(smurp) implement emphasize and deemphasize 'verbs' (we need a new word)
 #   emphasize: (node,predicate,color) =>
 #   deemphasize: (node,predicate,color) =>
+#   pin/unpin
 # 
 # THOUGHT: perhaps there is a distinction to be made between verbs 
 #   and 'actuators' where verbs are the things that people issue
@@ -112,6 +113,8 @@ NAME_SYNS   = [FOAF_name,RDFS_label,'name']
 uri_to_js_id = (uri) ->
   uri.match(/([\w\d\_\-]+)$/g)[0]
 
+XML_TAG_REGEX = /(<([^>]+)>)/ig
+MANY_SPACES_REGEX = /\s{2,}/g
 UNDEFINED = undefined
 start_with_http = new RegExp("http", "ig")
 ids_to_show = start_with_http
@@ -447,6 +450,7 @@ class Huviz
     @get_window_width()
     @get_window_height()
     @update_graph_radius()
+    @update_graph_center()    
     @update_discard_zone()
     @update_lariat_zone()
     if @svg
@@ -1116,7 +1120,6 @@ class Huviz
       @my_graph.predicates[pid] = []
       @fire_newpredicate_event pid
 
-
     subj_n = @get_or_create_node_by_id(sid)
     pred_n = @get_or_create_predicate_by_id(pid)
     cntx_n = @get_or_create_context_by_id(ctxid)
@@ -1127,7 +1130,7 @@ class Huviz
       # The object is not a literal, but another resource with an uri
       # so we must get (or create) a node to represent it
       obj_n = @get_or_create_node_by_id(quad.o.value)
-      # So we have a node for the object of the quad and this quad is relational
+      # We have a node for the object of the quad and this quad is relational
       # so there should be links made between this node and that node
       is_type = is_one_of(pid,TYPE_SYNS)
       if is_type
@@ -1351,20 +1354,24 @@ class Huviz
     pad = pad or hpad
     @width = (window.innerWidth or document.documentElement.clientWidth or document.clientWidth) - pad
     #console.log "get_window_width()",window.innerWidth,document.documentElement.clientWidth,document.clientWidth,"==>",@width
-    @cx = @width / 2
 
   # Should be refactored to be get_container_height
   get_window_height: (pad) ->
     pad = pad or hpad
     @height = (window.innerHeight or document.documentElement.clientHeight or document.clientHeight) - pad
     #console.log "get_window_height()",window.innerHeight,document.documentElement.clientHeight,document.clientHeight,"==>",@height
-    @cy = @height / 2
     
   update_graph_radius: ->
     @graph_radius = Math.floor(Math.min(@width / 2, @height / 2)) * @shelf_radius
 
+  update_graph_center: ->
+    @cy = @height / 2
+    @cx = @width / 2
+    #@cx = @width - @graph_radius
+    
   update_lariat_zone: ->
     @lariat_center = [@width / 2, @height / 2]
+    #@lariat_center = [@cx, @cy]
 
   update_discard_zone: ->
     @discard_ratio = .1
@@ -1809,7 +1816,10 @@ class Huviz
     @currently_printed_snippets = {}
     if @snippet_box
       @snippet_box.html("")
-  
+
+  remove_tags: (xml) ->
+    xml.replace(XML_TAG_REGEX, " ").replace(MANY_SPACES_REGEX, " ")
+      
   # The Verbs PRINT and REDACT show and hide snippets respectively
   print: (node) =>
     @clear_snippets()
@@ -1822,7 +1832,7 @@ class Huviz
         @currently_printed_snippets[snippet_js_key] = edge
 
         @get_snippet snippet_id,(err,data) =>
-          snippet_text = data.response
+          snippet_text = @remove_tags(data.response)
           @snippet_db[snippet_js_key] = snippet_text
           @push_snippet
             edge: edge
@@ -2072,7 +2082,7 @@ class Huviz
       @tick()
     d3.select(target).attr("title", cooked_value)
   xpath_query: (xpath) ->
-    document.evaluate(xpath,document,null,XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
+    document.evaluate(xpath, document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
   init_from_graph_controls: ->
     # Perform update_graph_settings for everything in the form
     # so the HTML can be used as configuration file
@@ -2216,11 +2226,13 @@ class Orlando extends Huviz
             <span class="close_snippet"></span>
           </div>
           <div id="#{m.context_id}">
-            <b>Text:</b> <i style="font-size:80%">#{m.context_id}</i>
-            <p>#{m.snippet_text}<p>
+            <p>
+              <b>Text:</b> <i style="font-size:80%">#{m.context_id}</i>
+            </p>
+            <p>#{m.snippet_text}</p>
           </div>
-          <hr>
         </div>
+
         """
         ## unconfuse emacs Coffee-mode: " """ ' '  "                      
         $('.close_snippet').on 'click', (evt) ->
