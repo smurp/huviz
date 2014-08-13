@@ -460,7 +460,7 @@ class Huviz
     if @canvas
       @canvas.width = @width
       @canvas.height = @height
-    @force.size [@width,@height]
+    @force.size [@mx, @my]
     @restart()
 
   #///////////////////////////////////////////////////////////////////////////
@@ -1362,16 +1362,20 @@ class Huviz
     #console.log "get_window_height()",window.innerHeight,document.documentElement.clientHeight,document.clientHeight,"==>",@height
     
   update_graph_radius: ->
-    @graph_radius = Math.floor(Math.min(@width / 2, @height / 2)) * @shelf_radius
+    @graph_region_radius = Math.floor(Math.min(@width / 2, @height / 2))
+    @graph_radius = @graph_region_radius * @shelf_radius
 
   update_graph_center: ->
     @cy = @height / 2
-    @cx = @width / 2
-    #@cx = @width - @graph_radius
-    
+    if @off_center
+      @cx = @width - @graph_region_radius
+    else
+      @cx = @width / 2
+    @my = @cy * 2
+    @mx = @cx * 2
+
   update_lariat_zone: ->
-    @lariat_center = [@width / 2, @height / 2]
-    #@lariat_center = [@cx, @cy]
+    @lariat_center = [@cx, @cy]
 
   update_discard_zone: ->
     @discard_ratio = .1
@@ -1575,7 +1579,7 @@ class Huviz
     if new_set?
       new_set.acquire(node)
     @assign_types(node,"hatch")
-    start_point = [@cx,@cy]
+    start_point = [@cx, @cy]
     node.point(start_point)
     node.prev_point([start_point[0]*1.01,start_point[1]*1.01])
     @add_node_ghosts(node)
@@ -2004,6 +2008,7 @@ class Huviz
     console.info @state_msg_box
         
   constructor: ->
+    @off_center = false # FIXME expose this or make the amount a slider
     @toggle_logging()
     @create_state_msg_box()
     document.addEventListener 'nextsubject', @onnextsubject
@@ -2013,8 +2018,8 @@ class Huviz
     @populate_taxonomy()
     @init_snippet_box()
     @mousedown_point = false
-    @discard_point = [@cx,@cy]
-    @lariat_center = [@cx,@cy]
+    @discard_point = [@cx,@cy] # FIXME refactor so updateWindow handles this
+    @lariat_center = [@cx,@cy] #       and this....
     @node_radius_policy = node_radius_policies[default_node_radius_policy]
     @currently_printed_snippets = {}
     @fill = d3.scale.category20()
