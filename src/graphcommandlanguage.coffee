@@ -173,7 +173,6 @@ class GraphCommand
           else
             console.log "DONE .execute()"
         iter = (node) =>
-          console.log "looping",node.id
           for pred in @regarding
             retval = meth.call(@graph_ctrl,node,pred)
           @graph_ctrl.tick()
