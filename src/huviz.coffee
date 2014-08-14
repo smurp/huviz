@@ -1985,12 +1985,16 @@ class Huviz
     # FIXME fix non-display of cursor and color changes
     $("body").css "cursor", "wait"
     $("body").css "background-color", "red" # FIXME remove once it works!
+    toggle_suspend_updates(true)
     #alert "starting wait"
 
   after_running_command: ->
     #alert "done waiting"
+    toggle_suspend_updates(false)
     $("body").css "cursor", "default"
     $("body").css "background-color", "white" # FIXME remove once it works!
+    #@restart()
+    #@taxonomy['everything'].update_english()
     @update_all_counts()
 
   get_handle: (thing) ->

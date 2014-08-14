@@ -172,7 +172,6 @@ class CommandController
       
     @prepare_command cmd
     @huviz.gclc.run(@command)
-    @huviz.update_all_counts()
 
   recolor_edges: (evt) =>
     count = 0
@@ -214,7 +213,7 @@ class CommandController
     #    OR rather, the hidden, the graphed and the unlinked
     #console.info("onnodeclasspicked('" + id + ", " + selected + "')")
     @huviz.show_state_msg("toggling " + selected)
-    toggle_suspend_updates(true)
+
     @taxon_picker.color_by_selected(id,selected)
     taxon = @huviz.taxonomy[id]
     if taxon?
@@ -242,14 +241,9 @@ class CommandController
     if @object_phrase? and @object_phrase isnt ""
       cmd.object_phrase = @object_phrase
     @huviz.gclc.run(cmd)
-    toggle_suspend_updates(false)
+
     @huviz.taxonomy['everything'].update_english()
     @update_command()
-    @huviz.update_all_counts()
-    # ////////////////////////////////////////
-    # FIXME this is just for testing
-    # @predicate_picker.set_branch_mixedness('anything',true)
-    # ////////////////////////////////////////
 
   deselect_node_class: (node_class) ->
     @node_classes_chosen = @node_classes_chosen.filter (eye_dee) ->
