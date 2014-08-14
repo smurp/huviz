@@ -78,7 +78,6 @@
 #  40) TASK: support search
 #  41) TASK: link to new backend
 #  42) TASK: display each snippet once
-#  43) TASK: fix snippet layout bug
 #  45) TASK: improve layout
 # 
 #asyncLoop = require('asynchronizer').asyncLoop
@@ -2250,10 +2249,10 @@ class Orlando extends Huviz
             <span class="close_snippet"></span>
           </div>
           <div id="#{m.context_id}">
-            <p>
+            <div>
               <b>Text:</b> <i style="font-size:80%">#{m.context_id}</i>
-            </p>
-            <p>#{m.snippet_text}</p>
+            </div>
+            <div>#{m.snippet_text}</div>
           </div>
         </div>
 
