@@ -127,6 +127,8 @@ UNDEFINED = undefined
 start_with_http = new RegExp("http", "ig")
 ids_to_show = start_with_http
 
+PEEKING_COLOR = "darkgray"
+
 id_escape = (an_id) ->
   retval = an_id.replace(/\:/g,'_')
   retval = retval.replace(/\//g,'_')
@@ -229,6 +231,7 @@ class Huviz
   label_em: .7  
   line_length_min: 4
   link_distance: 20
+  peeking_line_thicker: 5
   charge: -30
   gravity: 0.3
   swayfrac: .12
@@ -374,6 +377,18 @@ class Huviz
       @force.resume() # why?
       @move_node_to_point @dragging, @last_mouse_pos
     #@cursor.attr "transform", "translate(" + @last_mouse_pos + ")"
+    if @peeking_node?
+      #console.log "PEEKING at node: " + @peeking_node.id
+      if @focused_node? and @focused_node isnt @peeking_node
+        pair = [ @peeking_node.id, @focused_node.id ]
+        #console.log "   PEEKING at edge between" + @peeking_node.id + " and " + @focused_node.id
+        for edge in @peeking_node.links_shown
+          if edge.source.id in pair and edge.target.id in pair
+            #console.log "PEEK edge.id is '" + edge.id + "'"
+            edge.flag = true
+            @print_edge edge
+          else
+            edge.flag = false
     @tick()
     
   mousedown: =>
@@ -507,7 +522,7 @@ class Huviz
     @ctx.lineTo x2, y2
     @ctx.closePath()
     @ctx.stroke()
-  draw_curvedline: (x1, y1, x2, y2, sway_inc, clr) ->
+  draw_curvedline: (x1, y1, x2, y2, sway_inc, clr, num_contexts, line_width) ->
     pdist = distance([x1,y1],[x2,y2])
     sway = @swayfrac * sway_inc * pdist
     if pdist < @line_length_min
@@ -538,6 +553,7 @@ class Huviz
     #console.log [x1,y1],[xctrl,yctrl],[x2,y2]
     @ctx.strokeStyle = clr or red
     @ctx.beginPath()
+    @ctx.lineWidth = line_width
     @ctx.moveTo x1, y1
     @ctx.quadraticCurveTo xctrl, yctrl, x2, y2
     #@ctx.closePath()
@@ -779,6 +795,7 @@ class Huviz
       ).attr "y2", (d) ->
         d.target.fisheye.y
 
+
   draw_edges_from: (node) ->
     num_edges = node.links_from.length
     return unless num_edges
@@ -798,12 +815,17 @@ class Huviz
       draw_n_n[n_n].push(e)
 
     #dump_and_throw = n_n.match(/barban/) and false
+    edge_width = @edge_width
     for n_n, edges_between of draw_n_n
       sway = 1
       for e in edges_between
         #if dump_and_throw
         #  console.info "dump_and_throw",e
-        @draw_curvedline e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, sway, e.color, e.contexts.length
+        if e.flag? and e.flag
+          line_width = @edge_width * @peeking_line_thicker
+        else
+          line_width = edge_width
+        @draw_curvedline e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, sway, e.color, e.contexts.length, line_width
         sway++
       #if dump_and_throw
       #  throw "give that a gander"
@@ -1811,6 +1833,7 @@ class Huviz
   get_snippet: (snippet_id, callback) ->
     snippet_js_key = @get_snippet_js_key(snippet_id)
     snippet_text = @snippet_db[snippet_js_key]
+    snippet_text = false
     url = @get_snippet_url(snippet_id)
     if snippet_text
       callback(null, {response:snippet_text})
@@ -1827,27 +1850,59 @@ class Huviz
 
   remove_tags: (xml) ->
     xml.replace(XML_TAG_REGEX, " ").replace(MANY_SPACES_REGEX, " ")
-      
-  # The Verbs PRINT and REDACT show and hide snippets respectively
-  print: (node) =>
-    @clear_snippets()
+
+  # peek selects a node so that subsequent mouse motions pick not nodes but edges of this node
+  peek: (node) =>
+    was_already_peeking = false
+    if @peeking_node?
+      if @peeking_node is node
+        was_already_peeking = true
+      @recolor_node @peeking_node
+      @unflag_all_edges @peeking_node
+    if not was_already_peeking
+      @peeking_node = node
+      @peeking_node.color = PEEKING_COLOR
+
+  unflag_all_edges: (node) ->
     for edge in node.links_shown
+      edge.flag = false
+
+  print_edge: (edge) ->
+    dorf = "FROG "
+    @clear_snippets()    
+    if true
       for context in edge.contexts
         snippet_id = context.id
         snippet_js_key = @get_snippet_js_key(snippet_id)
-        if @currently_printed_snippets[snippet_js_key]?
-          continue # so there is no duplication
-        @currently_printed_snippets[snippet_js_key] = edge
+        #console.log "context", context
+        #console.log("print():", snippet_id,"OINK", snippet_js_key, edge.id)
+        if false
+          if @currently_printed_snippets[snippet_js_key]?
+            continue # so there is no duplication
+          else
+            @currently_printed_snippets[snippet_js_key] = []
+          @currently_printed_snippets[snippet_js_key].push(edge)
+        dorf += " " + snippet_id
 
         @get_snippet snippet_id,(err,data) =>
           snippet_text = @remove_tags(data.response)
+          snippet_js_key = @get_snippet_js_key snippet_id
           @snippet_db[snippet_js_key] = snippet_text
+
+          #console.log("callback():", snippet_id, context.id, edge.id)
+          #console.log "DORF", dorf
           @push_snippet
             edge: edge
             pred_id: edge.predicate.lid
             pred_name: edge.predicate.name
-            context_id: snippet_id
+            context_id: context.id
             snippet_text: snippet_text
+    
+  # The Verbs PRINT and REDACT show and hide snippets respectively
+  print: (node) =>
+    @clear_snippets()
+    for edge in node.links_shown
+      @print_edge edge
     
   redact: (node) =>
     node.links_shown.forEach (edge,i) =>
@@ -2250,7 +2305,7 @@ class Orlando extends Huviz
           </div>
           <div id="#{m.context_id}">
             <div>
-              <b>Text:</b> <i style="font-size:80%">#{m.context_id}</i>
+              <b>Text:</b> <i>#{m.context_id}</i>
             </div>
             <div>#{m.snippet_text}</div>
           </div>

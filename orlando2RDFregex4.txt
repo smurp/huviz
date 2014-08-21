@@ -60,7 +60,7 @@ diedInRegion|<DEATH>.+?</DEATH>|<REGION.+?>([\w ,']+?)</REGION>
 diedInRegion|<DEATH>.+?</DEATH>|<REGION REG="([\w ,']+?)"
 diedInGeog|<DEATH>.+?</DEATH>|<GEOG.+?>([\w ]+?)</GEOG>
 diedInGeog|<DEATH>.+?</DEATH>|<GEOG REG="([\w ,]+?)"
-contributionToDeath|<DEATH>.+?</DEATH>|<CAUSE>([\w ,']+?)</CAUSE>
+contributionToDeath|<DEATH>.+?</DEATH>|<CAUSE>([^<]+)</CAUSE>
 wroteInGenre|<TGENRE GENRENAME="([\w ]+?)"
 wrote|<TEXTSCOPE.+?>|PLACEHOLDER=".+?,([\w ,-\.']+?),
 wroteOnTopic|<TTHEMETOPIC>(.+?)</TTHEMETOPIC>
