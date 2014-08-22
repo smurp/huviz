@@ -756,7 +756,6 @@ class Huviz
 
     @links_set.forEach (e, i) =>
       if e.handle?
-        alert e.id
         e_dist = distance(e.handle, @last_mouse_pos)
         if e_dist < closest
           closest = e_dist
