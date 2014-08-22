@@ -271,7 +271,7 @@ class CommandController
     ,
       print: 'print'
       redact: 'redact'
-      peek: 'peek'
+      #peek: 'peek'
     ,
       show: 'reveal'
       suppress: 'suppress'

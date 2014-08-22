@@ -215,7 +215,7 @@ class Huviz
   DEBUG: 40
   DUMP: false
   node_radius_policy: undefined
-  draw_circle_around_focused: false
+  draw_circle_around_focused: true
   draw_lariat_labels_rotated: true
   run_force_after_mouseup_msec: 2000
   nodes_pinnable: true
@@ -231,7 +231,7 @@ class Huviz
   label_em: .7  
   line_length_min: 4
   link_distance: 20
-  peeking_line_thicker: 5
+  peeking_line_thicker: 4
   charge: -30
   gravity: 0.3
   swayfrac: .12
@@ -385,10 +385,10 @@ class Huviz
         for edge in @peeking_node.links_shown
           if edge.source.id in pair and edge.target.id in pair
             #console.log "PEEK edge.id is '" + edge.id + "'"
-            edge.flag = true
+            edge.focused = true
             @print_edge edge
           else
-            edge.flag = false
+            edge.focused = false
     @tick()
     
   mousedown: =>
@@ -430,6 +430,11 @@ class Huviz
       @perform_current_command(@focused_node)
       #@toggle_picked(@focused_node)
       @tick()
+      return
+
+    if @focused_edge
+      # FIXME do the edge equivalent of @perform_current_command
+      @update_snippet()
       return
 
     # it was a drag, not a click
@@ -522,7 +527,7 @@ class Huviz
     @ctx.lineTo x2, y2
     @ctx.closePath()
     @ctx.stroke()
-  draw_curvedline: (x1, y1, x2, y2, sway_inc, clr, num_contexts, line_width) ->
+  draw_curvedline: (x1, y1, x2, y2, sway_inc, clr, num_contexts, line_width, edge) ->
     pdist = distance([x1,y1],[x2,y2])
     sway = @swayfrac * sway_inc * pdist
     if pdist < @line_length_min
@@ -532,12 +537,8 @@ class Huviz
     # sway is the distance to offset the control point from the midline
     orig_angle = Math.atan2(x2 - x1, y2 - y1)
     ctrl_angle = (orig_angle + (Math.PI / 2))
-    # console.log "orig",orig_angle
-    # console.log "ctrl",ctrl_angle    
     ang = ctrl_angle
     ang = orig_angle
-    #show_range ->
-    #  console.log("RANGE",window.max_ang,window.min_ang)
     check_range = (val,name) ->
       window.maxes = window.maxes or {}
       window.ranges = window.ranges or {}
@@ -550,7 +551,6 @@ class Huviz
     ymid = y1 + (y2-y1)/2
     xctrl = xmid + Math.sin(ctrl_angle) * sway
     yctrl = ymid + Math.cos(ctrl_angle) * sway
-    #console.log [x1,y1],[xctrl,yctrl],[x2,y2]
     @ctx.strokeStyle = clr or red
     @ctx.beginPath()
     @ctx.lineWidth = line_width
@@ -558,8 +558,15 @@ class Huviz
     @ctx.quadraticCurveTo xctrl, yctrl, x2, y2
     #@ctx.closePath()
     @ctx.stroke()
+
+    xhndl = xmid + Math.sin(ctrl_angle) * (sway/2)
+    yhndl = ymid + Math.cos(ctrl_angle) * (sway/2)
+    edge.handle =
+      x: xhndl
+      y: yhndl
+    @draw_circle xhndl,yhndl,(line_width/2),clr # draw a circle at the midpoint of the line
     #@draw_line(xmid,ymid,xctrl,yctrl,clr) # show mid to ctrl
-    #console.log(xmid,ymid,xctrl,yctrl,clr)
+    
   draw_disconnect_dropzone: ->
     @ctx.save()
     @ctx.lineWidth = @graph_radius * 0.1
@@ -727,38 +734,64 @@ class Huviz
     console.log "  showing_links:", node.showing_links
     console.log "  in_sets:", node.in_sets
 
-  find_focused_node: ->
+  find_focused_node_or_edge: ->
     return if @dragging
     new_focused_node = undefined
+    new_focused_edge = undefined
     new_focused_idx = undefined
     focus_threshold = @focus_radius * 3
     closest = @width
     closest_point = undefined
+
+    # FIXME build a spatial index!!!! OMG
     @nodes.forEach (d, i) =>
-      dist = distance(d.fisheye or d, @last_mouse_pos)
-      if dist < closest
-        closest = dist
+      n_dist = distance(d.fisheye or d, @last_mouse_pos)
+      if n_dist < closest
+        closest = n_dist
         closest_point = d.fisheye or d
-      if dist <= focus_threshold
+      if n_dist <= focus_threshold
         new_focused_node = d
-        focus_threshold = dist
+        focus_threshold = n_dist
         new_focused_idx = i
-    
-    @draw_circle closest_point.x, closest_point.y, @focus_radius, "red"  if @draw_circle_around_focused
-    msg = focus_threshold + " <> " + closest
-    @status = $("#status")
-    #status.text(msg);
+
+    @links_set.forEach (e, i) =>
+      if e.handle?
+        alert e.id
+        e_dist = distance(e.handle, @last_mouse_pos)
+        if e_dist < closest
+          closest = e_dist
+          closest_point = e.handle
+        if e_dist <= focus_threshold
+          new_focused_edge = e
+          focus_threshold = e_dist
+          new_focused_edge_idx = i
+
+    if new_focused_edge?
+      new_focused_node = undefined
+
+    if closest_point?
+      @draw_circle closest_point.x, closest_point.y, @node_radius * 3, "red"  if @draw_circle_around_focused
+
     unless @focused_node is new_focused_node
       if @focused_node
         d3.select(".focused_node").classed "focused_node", false  if @use_svg
         @focused_node.focused_node = false
-      if new_focused_node
+      if new_focused_node?
         new_focused_node.focused_node = true
         if @use_svg
           svg_node = node[0][new_focused_idx]
           d3.select(svg_node).classed "focused_node", true
-        @dump_details new_focused_node
+        #@dump_details new_focused_node
+
+    unless @focused_edge is new_focused_edge    
+      if @focused_edge? #and @focused_edge isnt new_focused_edge
+        @focused_edge.focused = false
+      if new_focused_edge?
+        # FIXME add use_svg stanza
+        new_focused_edge.focused = true
+          
     @focused_node = new_focused_node # possibly null
+    @focused_edge = new_focused_edge
     @adjust_cursor()
 
   showing_links_to_cursor_map:
@@ -821,11 +854,11 @@ class Huviz
       for e in edges_between
         #if dump_and_throw
         #  console.info "dump_and_throw",e
-        if e.flag? and e.flag
+        if e.focused? and e.focused
           line_width = @edge_width * @peeking_line_thicker
         else
           line_width = edge_width
-        @draw_curvedline e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, sway, e.color, e.contexts.length, line_width
+        @draw_curvedline e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, sway, e.color, e.contexts.length, line_width, e
         sway++
       #if dump_and_throw
       #  throw "give that a gander"
@@ -962,9 +995,10 @@ class Huviz
   tick: =>
     # return if @focused_node   # <== policy: freeze screen when selected
     @ctx.lineWidth = @edge_width # TODO(smurp) just edges should get this treatment
+    @find_focused_node_or_edge()
+    #@update_snippet() # show the current snippet all the time
     @blank_screen()
     @draw_dropzones()
-    @find_focused_node()
     @fisheye.focus @last_mouse_pos
     @show_last_mouse_pos()
     @position_nodes()
@@ -974,6 +1008,10 @@ class Huviz
     @draw_shelf()
     @draw_discards()
     @draw_labels()
+
+  update_snippet: ->
+    if @focused_edge? and @focused_edge isnt @printed_edge
+      @print_edge @focused_edge
 
   msg_history: ""
   show_state_msg: (txt) ->
@@ -1865,38 +1903,31 @@ class Huviz
 
   unflag_all_edges: (node) ->
     for edge in node.links_shown
-      edge.flag = false
+      edge.focused = false
 
   print_edge: (edge) ->
-    dorf = "FROG "
     @clear_snippets()    
-    if true
-      for context in edge.contexts
-        snippet_id = context.id
-        snippet_js_key = @get_snippet_js_key(snippet_id)
-        #console.log "context", context
-        #console.log("print():", snippet_id,"OINK", snippet_js_key, edge.id)
-        if false
-          if @currently_printed_snippets[snippet_js_key]?
-            continue # so there is no duplication
-          else
-            @currently_printed_snippets[snippet_js_key] = []
-          @currently_printed_snippets[snippet_js_key].push(edge)
-        dorf += " " + snippet_id
+    for context in edge.contexts
+      snippet_id = context.id
+      snippet_js_key = @get_snippet_js_key(snippet_id)
+      if true
+        if @currently_printed_snippets[snippet_js_key]?
+          continue # so there is no duplication
+        else
+          @currently_printed_snippets[snippet_js_key] = []
+        @currently_printed_snippets[snippet_js_key].push(edge)
+      @get_snippet snippet_id,(err,data) =>
+        snippet_text = @remove_tags(data.response)
+        snippet_js_key = @get_snippet_js_key snippet_id
+        @snippet_db[snippet_js_key] = snippet_text
+        @printed_edge = edge
 
-        @get_snippet snippet_id,(err,data) =>
-          snippet_text = @remove_tags(data.response)
-          snippet_js_key = @get_snippet_js_key snippet_id
-          @snippet_db[snippet_js_key] = snippet_text
-
-          #console.log("callback():", snippet_id, context.id, edge.id)
-          #console.log "DORF", dorf
-          @push_snippet
-            edge: edge
-            pred_id: edge.predicate.lid
-            pred_name: edge.predicate.name
-            context_id: context.id
-            snippet_text: snippet_text
+        @push_snippet
+          edge: edge
+          pred_id: edge.predicate.lid
+          pred_name: edge.predicate.name
+          context_id: context.id
+          snippet_text: snippet_text
     
   # The Verbs PRINT and REDACT show and hide snippets respectively
   print: (node) =>
