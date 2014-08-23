@@ -232,6 +232,7 @@ class Huviz
   line_length_min: 4
   link_distance: 20
   peeking_line_thicker: 4
+  show_snippets_constantly: false
   charge: -30
   gravity: 0.3
   swayfrac: .12
@@ -434,7 +435,8 @@ class Huviz
 
     if @focused_edge
       # FIXME do the edge equivalent of @perform_current_command
-      @update_snippet()
+      #@update_snippet()
+      @print_edge @focused_edge
       return
 
     # it was a drag, not a click
@@ -519,8 +521,6 @@ class Huviz
     @ctx.stroke()  if strclr
     @ctx.fill()  if filclr
   draw_line: (x1, y1, x2, y2, clr) ->
-    #alert "draw_line should never be called"
-    #throw new Error "WTF"
     @ctx.strokeStyle = clr or red
     @ctx.beginPath()
     @ctx.moveTo x1, y1
@@ -995,7 +995,7 @@ class Huviz
     # return if @focused_node   # <== policy: freeze screen when selected
     @ctx.lineWidth = @edge_width # TODO(smurp) just edges should get this treatment
     @find_focused_node_or_edge()
-    # @update_snippet() # continuously update the snippet based on the currently focused_edge
+    @update_snippet() # continuously update the snippet based on the currently focused_edge
     @blank_screen()
     @draw_dropzones()
     @fisheye.focus @last_mouse_pos
@@ -1009,7 +1009,7 @@ class Huviz
     @draw_labels()
 
   update_snippet: ->
-    if @focused_edge? and @focused_edge isnt @printed_edge
+    if @show_snippets_constantly and @focused_edge? and @focused_edge isnt @printed_edge
       @print_edge @focused_edge
 
   msg_history: ""
@@ -1905,16 +1905,15 @@ class Huviz
       edge.focused = false
 
   print_edge: (edge) ->
-    @clear_snippets()    
+    # @clear_snippets()    
     for context in edge.contexts
       snippet_id = context.id
       snippet_js_key = @get_snippet_js_key(snippet_id)
-      if true
-        if @currently_printed_snippets[snippet_js_key]?
-          continue # so there is no duplication
-        else
-          @currently_printed_snippets[snippet_js_key] = []
-        @currently_printed_snippets[snippet_js_key].push(edge)
+
+      if not @currently_printed_snippets[snippet_js_key]?
+        @currently_printed_snippets[snippet_js_key] = []
+      @currently_printed_snippets[snippet_js_key].push(edge)
+
       @get_snippet snippet_id,(err,data) =>
         snippet_text = @remove_tags(data.response)
         snippet_js_key = @get_snippet_js_key snippet_id
@@ -2048,15 +2047,14 @@ class Huviz
       slctr = '#'+id_escape(snippet_id)
       console.log slctr
       @snippet_box.select(slctr).remove()
-  push_snippet: (msg_or_obj) ->
+  push_snippet: (obj, msg) ->
     if @snippet_box
       snip_div = @snippet_box.append('div').attr('class','snippet')
-      if typeof msg_or_obj is 'string'
-        msg = msg_or_obj
-      else
-        m = msg_or_obj.toString()
       snip_div.html(msg)
-      $(snip_div).dialog()
+      dialog_args =
+        maxHeight: 300
+        title: obj.edge.source.name
+      $(snip_div).dialog(dialog_args)
 
   run_verb_on_object: (verb,subject) ->
     cmd = new gcl.GraphCommand
@@ -2319,6 +2317,7 @@ class Orlando extends Huviz
   hints: { 'everything': ['Everything', {human: ['human', {writer: ['Writers'], Person: ['Person']}], Group: ['Group']}]}
 
   push_snippet: (msg_or_obj) ->
+    obj = msg_or_obj
     if @snippet_box
       if typeof msg_or_obj isnt 'string'
         [msg_or_obj, m] = ["", msg_or_obj]  # swap them
@@ -2344,7 +2343,7 @@ class Orlando extends Huviz
 
         """
         ## unconfuse emacs Coffee-mode: " """ ' '  "                      
-      super(msg_or_obj) # fail back to super
+      super(obj, msg_or_obj) # fail back to super
 
 class OntoViz extends Huviz
   constructor: ->
