@@ -995,7 +995,7 @@ class Huviz
     # return if @focused_node   # <== policy: freeze screen when selected
     @ctx.lineWidth = @edge_width # TODO(smurp) just edges should get this treatment
     @find_focused_node_or_edge()
-    #@update_snippet() # show the current snippet all the time
+    # @update_snippet() # continuously update the snippet based on the currently focused_edge
     @blank_screen()
     @draw_dropzones()
     @fisheye.focus @last_mouse_pos
@@ -2056,6 +2056,7 @@ class Huviz
       else
         m = msg_or_obj.toString()
       snip_div.html(msg)
+      $(snip_div).dialog()
 
   run_verb_on_object: (verb,subject) ->
     cmd = new gcl.GraphCommand
@@ -2319,7 +2320,7 @@ class Orlando extends Huviz
   push_snippet: (msg_or_obj) ->
     if @snippet_box
       if typeof msg_or_obj isnt 'string'
-        [msg_or_obj,m] = ["",msg_or_obj]  # swap them
+        [msg_or_obj, m] = ["", msg_or_obj]  # swap them
         msg_or_obj = """
         <div id="#{id_escape(m.edge.id)}">
           <div>
@@ -2331,21 +2332,17 @@ class Orlando extends Huviz
             <span style="background-color:#{m.edge.color}">#{m.pred_id}</span>
             —
             <span style="background-color:#{m.edge.target.color}">#{m.edge.target.name}</span>
-            <span class="close_snippet"></span>
           </div>
           <div id="#{m.context_id}">
             <div>
               <b>Text:</b> <i>#{m.context_id}</i>
             </div>
-            <div>#{m.snippet_text}</div>
+            <div contenteditable style="cursor:text">#{m.snippet_text}</div>
           </div>
         </div>
 
         """
         ## unconfuse emacs Coffee-mode: " """ ' '  "                      
-        $('.close_snippet').on 'click', (evt) ->
-          $(evt.target).parent().parent().remove()
-
       super(msg_or_obj) # fail back to super
 
 class OntoViz extends Huviz
