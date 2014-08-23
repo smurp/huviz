@@ -2194,7 +2194,7 @@ class Huviz
     document.evaluate(xpath, document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
   init_from_graph_controls: ->
     # Perform update_graph_settings for everything in the form
-    # so the HTML can be used as configuration file
+    # so the HTML can be used as configuration file    
     iterator = @xpath_query("//div[@class='graph_controls']//input")
     elems = []
     elem = iterator.iterateNext()
@@ -2228,6 +2228,7 @@ class Huviz
     # Otherwise load the default dataset defined by the page.
     # Or load nothing if there is no default.
     @init_from_graph_controls()
+    # $(".graph_controls").sortable() # FIXME make graph_controls sortable
     @reset_graph()
     script = @get_script_from_hash()
     if script
