@@ -785,9 +785,14 @@ class Huviz
     unless @focused_edge is new_focused_edge    
       if @focused_edge? #and @focused_edge isnt new_focused_edge
         @focused_edge.focused = false
+        delete @focused_edge.source.focused_edge
+        delete @focused_edge.target.focused_edge
       if new_focused_edge?
         # FIXME add use_svg stanza
         new_focused_edge.focused = true
+        new_focused_edge.source.focused_edge = true
+        new_focused_edge.target.focused_edge = true
+        
           
     @focused_node = new_focused_node # possibly null
     @focused_edge = new_focused_edge
@@ -938,6 +943,7 @@ class Huviz
           @mv_node(d.gl, d.fisheye.x, d.fisheye.y)
   should_show_label: (node) ->
     (node.labelled or
+        node.focused_edge or
         dist_lt(@last_mouse_pos, node, @label_show_range) or
         node.name.match(@search_regex) or
         @label_all_graphed_nodes and node.graphed?)
@@ -956,14 +962,15 @@ class Huviz
       focused_font = "#{focused_font_size}em sans-serif"
       unfocused_font = "#{@label_em}em sans-serif"
       #console.log focused_font,unfocused_font
-      label_node = (node) =>
+      label_node = (node) =>        
         return unless @should_show_label(node)
-        if node.focused_node
-          @ctx.fillStyle = node.color
-          @ctx.font = focused_font
+        ctx = @ctx
+        if node.focused_node or node.focused_edge? 
+          ctx.fillStyle = node.color
+          ctx.font = focused_font
         else
-          @ctx.fillStyle = "black"
-          @ctx.font = unfocused_font
+          ctx.fillStyle = "black"
+          ctx.font = unfocused_font
         return unless node.fisheye? # FIXME why is this even happening?          
         if not @graphed_set.has(node) and @draw_lariat_labels_rotated
           # Flip label rather than write upside down
@@ -975,14 +982,14 @@ class Huviz
           if flip
             radians = radians - Math.PI
             textAlign = 'right'
-          @ctx.save()
-          @ctx.translate node.fisheye.x, node.fisheye.y
-          @ctx.rotate -1 * radians + Math.PI / 2
-          @ctx.textAlign = textAlign
-          @ctx.fillText "  " + node.name, 0, 0          
-          @ctx.restore()
+          ctx.save()
+          ctx.translate node.fisheye.x, node.fisheye.y
+          ctx.rotate -1 * radians + Math.PI / 2
+          ctx.textAlign = textAlign
+          ctx.fillText "  " + node.name, 0, 0          
+          ctx.restore()
         else
-          @ctx.fillText "  " + node.name, node.fisheye.x, node.fisheye.y
+          ctx.fillText "  " + node.name, node.fisheye.x, node.fisheye.y
       @graphed_set.forEach label_node
       @shelved_set.forEach label_node
       @discarded_set.forEach label_node
@@ -1007,6 +1014,18 @@ class Huviz
     @draw_shelf()
     @draw_discards()
     @draw_labels()
+    @draw_edge_labels()    
+
+  draw_edge_labels: ->
+    if @focused_edge?
+      @draw_edge_label(@focused_edge)
+
+  draw_edge_label: (edge) ->
+    ctx = @ctx
+    ctx.fillStyle = "white"
+    ctx.fillText " " + edge.predicate.lid, edge.handle.x + 1, edge.handle.y + 1
+    ctx.fillStyle = edge.color
+    ctx.fillText " " + edge.predicate.lid, edge.handle.x, edge.handle.y
 
   update_snippet: ->
     if @show_snippets_constantly and @focused_edge? and @focused_edge isnt @printed_edge
