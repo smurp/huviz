@@ -268,11 +268,11 @@ class CommandController
     ,
       discard: 'discard'
       undiscard: 'retrieve'
-    ,
-      print: 'print'
-      redact: 'redact'
-      #peek: 'peek'
-    ,
+    #,
+    #  print: 'print'
+    #  redact: 'redact'
+    #  peek: 'peek'
+    ,  # FIXME the edge related commands must be reviewed
       show: 'reveal'
       suppress: 'suppress'
       specify: 'specify'

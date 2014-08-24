@@ -1870,7 +1870,7 @@ class Huviz
   get_snippet: (snippet_id, callback) ->
     snippet_js_key = @get_snippet_js_key(snippet_id)
     snippet_text = @snippet_db[snippet_js_key]
-    snippet_text = false
+    #snippet_text = false
     url = @get_snippet_url(snippet_id)
     if snippet_text
       callback(null, {response:snippet_text})
@@ -1905,27 +1905,31 @@ class Huviz
       edge.focused = false
 
   print_edge: (edge) ->
-    # @clear_snippets()    
+    # @clear_snippets()
+    context_no = 0
     for context in edge.contexts
-      snippet_id = context.id
-      snippet_js_key = @get_snippet_js_key(snippet_id)
+      context_no++
+      me = this
+      make_callback = (context_no, edge, context) ->
+        (err,data) ->
+          snippet_text = me.remove_tags(data.response)
+          snippet_id = context.id
+          snippet_js_key = me.get_snippet_js_key snippet_id
+          if not me.currently_printed_snippets[snippet_js_key]?
+            me.currently_printed_snippets[snippet_js_key] = []
+          me.currently_printed_snippets[snippet_js_key].push(edge)
+          me.snippet_db[snippet_js_key] = snippet_text
+          me.printed_edge = edge
+          me.push_snippet
+            edge: edge
+            pred_id: edge.predicate.lid
+            pred_name: edge.predicate.name
+            context_id: context.id
+            snippet_text: snippet_text
+            no: context_no
+            snippet_js_key: snippet_js_key
 
-      if not @currently_printed_snippets[snippet_js_key]?
-        @currently_printed_snippets[snippet_js_key] = []
-      @currently_printed_snippets[snippet_js_key].push(edge)
-
-      @get_snippet snippet_id,(err,data) =>
-        snippet_text = @remove_tags(data.response)
-        snippet_js_key = @get_snippet_js_key snippet_id
-        @snippet_db[snippet_js_key] = snippet_text
-        @printed_edge = edge
-
-        @push_snippet
-          edge: edge
-          pred_id: edge.predicate.lid
-          pred_name: edge.predicate.name
-          context_id: context.id
-          snippet_text: snippet_text
+      @get_snippet context.id, make_callback(context_no, edge, context)
     
   # The Verbs PRINT and REDACT show and hide snippets respectively
   print: (node) =>
@@ -2054,6 +2058,7 @@ class Huviz
       dialog_args =
         maxHeight: 300
         title: obj.edge.source.name
+        #close: (event, ui) ->  console.log "close", event
       $(snip_div).dialog(dialog_args)
 
   run_verb_on_object: (verb,subject) ->
@@ -2322,7 +2327,7 @@ class Orlando extends Huviz
       if typeof msg_or_obj isnt 'string'
         [msg_or_obj, m] = ["", msg_or_obj]  # swap them
         msg_or_obj = """
-        <div id="#{id_escape(m.edge.id)}">
+        <div id="#{obj.snippet_js_key}">
           <div>
             <span class="writername" style="background-color:#{m.edge.source.color}">
               <a target="SRC"
@@ -2335,7 +2340,7 @@ class Orlando extends Huviz
           </div>
           <div id="#{m.context_id}">
             <div>
-              <b>Text:</b> <i>#{m.context_id}</i>
+              <b>Text: #{m.no}</b> <i>#{m.context_id}</i>
             </div>
             <div contenteditable style="cursor:text">#{m.snippet_text}</div>
           </div>
