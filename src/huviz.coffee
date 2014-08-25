@@ -2135,14 +2135,15 @@ class Huviz
         
   constructor: ->
     @off_center = false # FIXME expose this or make the amount a slider
-    @toggle_logging()
+    #@toggle_logging()
     @create_state_msg_box()
     document.addEventListener 'nextsubject', @onnextsubject
     #@reset_graph() # FIXME should it be a goal to make this first?
     @init_sets()    #   because these are the first two lines of reset_graph
+
     @init_gclc()   
-    @populate_taxonomy()
-    @init_snippet_box()
+    @populate_taxonomy() # FIXME remove this because it is empty!
+    @init_snippet_box()  # FIXME not sure this does much useful anymore
     @mousedown_point = false
     @discard_point = [@cx,@cy] # FIXME refactor so updateWindow handles this
     @lariat_center = [@cx,@cy] #       and this....
@@ -2191,6 +2192,7 @@ class Huviz
       search_input.addEventListener("input", @update_searchterm)
     #$(".search_box").on "input", @update_searchterm
     window.addEventListener "resize", @updateWindow
+    $("#tabs").tabs()
 
   update_fisheye: ->
     @label_show_range = @link_distance * 1.1

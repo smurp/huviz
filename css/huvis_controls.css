@@ -1,3 +1,10 @@
+#tabs {
+  position: fixed;
+  width: 300px;
+  right: 0px;
+  font-size: 80%;
+  z-index: 3;
+}
 .graph_controls { /* put them in the upper right, above the graph */
   position: absolute;
   top: .2em;
@@ -15,11 +22,11 @@
   clear:both;
 }
 #huvis_controls {
-  position: absolute;
-  bottom: .2em; 
-  left: .2em; 
-  z-index: 2; 
-  float: left;   
+  //position: absolute;
+  //bottom: .2em; 
+  //left: .2em; 
+  //z-index: 2; 
+  //float: left;   
 }
 
 .search_box {
@@ -76,7 +83,7 @@
   top: .2em;
   left: .2em;
   font-size: 90%;
-  z-index:2;
+  //z-index:2;
 
   overflow: scroll; 
   width: 3px;

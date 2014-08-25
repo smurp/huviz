@@ -10,8 +10,8 @@
     <!--
     <link href="/css/jquery-ui.css" rel="stylesheet"/>
     -->
-    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/themes/smoothness/jquery-ui.css" />
 
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/themes/smoothness/jquery-ui.css" />
     <!--
     <script src="/lib/jquery.js"></script>
     <script src="/lib/d3.v3.min.js"></script>
@@ -24,7 +24,32 @@
 
   </head>
   <body>
-    <div class="graph_controls">
+    <div id="snippet_box">
+    </div>
+  <section role="controls" id="tabs">
+    <ul style="font-size:80%">
+       <li><a href="#tabs-intro">Help</a></li>
+       <li><a href="#tabs-1">Options</a></l>i
+       <li><a href="#huvis_controls">Controls</a></li>
+       <li><a href="#tabs-history">History</a></li>
+       <li><a href="#tabs-hide">Hide</a></li>
+    </ul>
+    <div id="tabs-intro">
+      <h1>HuViz</h1>
+      <h2>Orlando RDF Explorer</h2>
+      <p>This interface is intended to help you explore the
+        information and relationships encoded in
+        the <a href="http://www.artsrn.ualberta.ca/orlando/" target="_blank">Orlando</a> 
+        text database of British Women
+        Writers. In particular, HuViz helps explore semantic information
+        expressed in 
+           <a hef="http://www.artsrn.ualberta.ca/orlando/">RDF triples</a> 
+        that assert things
+        like <span class='about'>Writer</span> <span class='predicate'>hasSex</span> <span class='resource'>FEMALE</span>
+        or <span class='about'>Writer</span> <span class='predicate'>livedInPlace</span> <span class='resource'>London</span>.
+      </p>
+    </div>
+    <div id="tabs-1" class="graph_controlsXXX" >
       <div>
         <label title="the amount bigger than a normal label the currently selected one is">
           focused node mag.
@@ -148,11 +173,11 @@
         </label>
       </div>
     </div>
-    <div id="snippet_box">
-    </div>
+
     <div id="huvis_controls">
       <div id="gclui"></div>
     </div>
+  </section>
     <div id="vis" class="underneath" style="z-index:-3"></div>
     <div id="viscanvas" class="underneath"></div>
     <pre id="status"></pre>
