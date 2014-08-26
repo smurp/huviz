@@ -12,6 +12,9 @@
 #tabs-help h3 {
   margin-bottom: 0px;
 }
+#tabs-help ul {
+  padding-left: 16px;
+}
 .eg-subject {
   color: red;
 }
