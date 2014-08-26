@@ -226,16 +226,16 @@ class Huviz
   cx: 0
   cy: 0
 
-  edge_width: 1
-  focused_mag: 1.4
+  edge_width: 1.8
+  focused_mag: 1.9
   label_em: .7  
   line_length_min: 4
-  link_distance: 20
+  link_distance: 100
   peeking_line_thicker: 4
   show_snippets_constantly: false
-  charge: -30
-  gravity: 0.3
-  swayfrac: .12
+  charge: -193
+  gravity: 0.025
+  swayfrac: .2
   label_show_range: null # @link_distance * 1.1
   graph_radius: 100
   shelf_radius: 0.9
@@ -257,7 +257,7 @@ class Huviz
   G: {}
 
   search_regex: new RegExp("^$", "ig")
-  node_radius: .5
+  node_radius: 3.2
 
   mousedown_point: false
   discard_center: [0,0]
