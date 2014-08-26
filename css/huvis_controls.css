@@ -1,15 +1,12 @@
 #tabs {
   position: fixed;
-  width: 300px;
+  width: 320px;
   right: 0px;
   font-size: 80%;
   z-index: 3;
 }
 .graph_controls { /* put them in the upper right, above the graph */
-  position: absolute;
-  top: .2em;
   right: .2em;
-  z-index: 3;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -109,14 +106,3 @@ body, html {
   border: 0px;
   border-radius: 20px;
 }
-
-/*
-  left:50%;
-  width:99%;
-  position: fixed;
-  border-radius: 4px;
-  box-shadow: 0px 6px 12px rgba(0,0,0,0.176);
-  background-clip:padding-box;
-  padding: 5px 5px;
-  z-index: 1000;
-*/

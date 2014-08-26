@@ -7,11 +7,13 @@
     <link href="/css/lariat.css" rel="stylesheet" type="text/css">
     <link href="/css/CRRT.css" rel="stylesheet" type="text/css">
     <link href="/css/gclui.css" rel="stylesheet" type="text/css">
+    <link href="/css/help.css" rel="stylesheet" type="text/css">
     <!--
     <link href="/css/jquery-ui.css" rel="stylesheet"/>
     -->
 
     <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/themes/smoothness/jquery-ui.css" />
+
     <!--
     <script src="/lib/jquery.js"></script>
     <script src="/lib/d3.v3.min.js"></script>
@@ -28,28 +30,40 @@
     </div>
   <section role="controls" id="tabs">
     <ul style="font-size:80%">
-       <li><a href="#tabs-intro">Help</a></li>
-       <li><a href="#tabs-1">Options</a></l>i
-       <li><a href="#huvis_controls">Controls</a></li>
-       <li><a href="#tabs-history">History</a></li>
-       <li><a href="#tabs-hide">Hide</a></li>
+       <li><a href="#tabs-help" title="Introduction and Usage">Help</a></li>
+       <li><a href="#tabs-options" title="Fine tune sizes, lengths and thicknesses.">Options</a></li>
+       <li><a href="#huvis_controls" title="Power tools for controlling the graph with commands consisting of verbs and nouns.">Controls</a></li>
+       <li><a href="#tabs-history" title="The history of commands">History</a></li>
+       <li><a href="#tabs-hide" title="Shrink this menu for maximum room to play.">Hide</a></li>
     </ul>
-    <div id="tabs-intro">
+    <div id="tabs-help" class="scrolling_tab">
       <h1>HuViz</h1>
       <h2>Orlando RDF Explorer</h2>
       <p>This interface is intended to help you explore the
         information and relationships encoded in
         the <a href="http://www.artsrn.ualberta.ca/orlando/" target="_blank">Orlando</a> 
-        text database of British Women
-        Writers. In particular, HuViz helps explore semantic information
-        expressed in 
-           <a hef="http://www.artsrn.ualberta.ca/orlando/">RDF triples</a> 
-        that assert things
-        like <span class='about'>Writer</span> <span class='predicate'>hasSex</span> <span class='resource'>FEMALE</span>
-        or <span class='about'>Writer</span> <span class='predicate'>livedInPlace</span> <span class='resource'>London</span>.
+        text database of British Women Writers. 
+        In particular, HuViz helps explore semantic information expressed in 
+        <a hef="http://www.artsrn.ualberta.ca/orlando/">RDF triples</a> 
+        that assert things like 
+        <span class='eg-subject'>Writer</span> <span class='eg-verb'>hasSex</span> <span class='eg-object'>FEMALE</span>
+        or <span class='eg-subject'>Writer</span> <span class='eg-verb'>livedInPlace</span> <span class='eg-object'>London</span>.
       </p>
+      <h3>Quick Start</h3>
+      <ul>
+        <li>Go to <a class="open_tab" href="#2">Controls</a> and pick a <i>data set</i>.</li>
+        <li>Click the verb <i>choose</i>,
+            notice the command you've built -- <code>choose everything.</code> --
+            then press <button disabled>Do it</button>.</li>
+        <li>Go to <a class="open_tab" href="#1">Options</a> to adjust the sizes of things</li>
+        <li>Try hovering over nodes and edges to see their labels</li>
+        <li>Click edges to see the snippets of text which inspired them.</li>
+        <li>Drag nodes to and from the green shelf and the red discard pile</li>
+      </ul>
     </div>
-    <div id="tabs-1" class="graph_controlsXXX" >
+    <div id="tabs-history" class="scrolling_tab">
+    </div>
+    <div id="tabs-options" class="graph_controls" >
       <div>
         <label title="the amount bigger than a normal label the currently selected one is">
           focused node mag.
@@ -138,6 +152,9 @@
                  onchange="HVZ.update_graph_settings(this)">
         </label>
       </div>
+    </div>
+
+    <div id="huvis_controls">
       <div>
         <label title="which file to load">
           data set
@@ -172,9 +189,7 @@
           </select>
         </label>
       </div>
-    </div>
 
-    <div id="huvis_controls">
       <div id="gclui"></div>
     </div>
   </section>

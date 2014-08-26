@@ -2192,7 +2192,15 @@ class Huviz
       search_input.addEventListener("input", @update_searchterm)
     #$(".search_box").on "input", @update_searchterm
     window.addEventListener "resize", @updateWindow
-    $("#tabs").tabs()
+    $("#tabs").tabs
+      active: 0
+    $('.open_tab').click (event) ->
+      tab_idx = parseInt($(event.target).attr('href').replace("#",""))
+      console.log tab_idx
+      $('#tabs').tabs
+        active: tab_idx
+      return false
+
 
   update_fisheye: ->
     @label_show_range = @link_distance * 1.1
@@ -2225,6 +2233,7 @@ class Huviz
     while (elem) # materialize the iterator
       elems.push elem
       elem = iterator.iterateNext()
+    console.log "initializing from #{elems.length} settings"
     for elem in elems # so we can modify them in a loop
       @update_graph_settings(elem, false)
 

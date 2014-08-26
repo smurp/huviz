@@ -1,0 +1,23 @@
+#tabs-help h1 {
+  font-size: 36px;
+}
+#tabs-help h2 {
+  font-size: 18px;
+}
+#tabs-help h1, h2 {
+  text-align: center;
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+#tabs-help h3 {
+  margin-bottom: 0px;
+}
+.eg-subject {
+  color: red;
+}
+.eg-verb {
+  color: green;
+}
+.eg-object {
+  color: blue;
+}

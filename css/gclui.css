@@ -32,7 +32,6 @@
 }
 .commandlist {
   overflow-y: auto;
-  width: 320px;
   /* -webkit-border-top-right-radius: 20px 300px; */
   /* background-color: #81cbbc;  hairline blue */  
   background-color: blue; /* hairline blue */  
@@ -40,7 +39,7 @@
 .nextcommand {
   color: black;
   font-weight:bold;
-  width: 320px;
+
 }
 .cmdlistbar {
   color: white;
@@ -50,55 +49,9 @@
   background-color: blue;
   color: white;
 }
-.cmdlisttitle {
-  float: left;
-  margin: .2em;
-}
-.cmdlisttitle:before {
-  content: "Command History";
-}
 .commandhistory {
   overflow-y: scroll;
   max-height: 6em;
-}
-.hide_history:before {
-  float: right;
-  content:"╶╴";
-}
-.show_history:before {
-  float: right;
-  content:"□";
-  content:"╒╕";
-}
-.clear_history:before {
-  float: right;
-  content: "clear";
-  background-color: "yellow";
-  color: "black";
-  font-size: 75%;
-}
-.hide_comdiv:before {
-  margin-right: .2em;
-  margin-top: .2em;
-  float: right;
-  color: white;
-  padding: .05em;
-  background-color: red;
-  content: '✘';
-}
-.hide_comdiv:hover {
-  title: "hide the command panel";
-}
-.show_comdiv_button:before {
-  title:"show the command history";
-  background-color: blue;
-  color: white;
-  margin-right: .2em;
-  float:right;
-  content: '↗'; /* ⇗ */ 
-}
-.show_comdiv_button:hover {
-
 }
 .display_none {
   display:none;
@@ -124,7 +77,7 @@ p {
 }
 .scrolling {
     overflow-y: scroll;
-    height: 10em;
+    max-height: 10em;
 }
 /* display: inline-block and white-space: nowrap */
 .hidden {

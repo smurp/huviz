@@ -28,8 +28,8 @@ class CommandController
     d3.select(@container).html("")
     #@init_indices()
     @comdiv = d3.select(@container).append("div")
-    @cmdlist = @comdiv.append('div').attr('class','commandlist')
-    @title_bar_controls()        
+    @cmdlist = d3.select("#tabs-history").append('div').attr('class','commandlist')
+    @title_bar_controls()
     @oldcommands = @cmdlist.append('div').attr('class','commandhistory')
     @nextcommandbox = @comdiv.append('div')
 
@@ -102,8 +102,6 @@ class CommandController
         attr('class','hide_comdiv')
     @toggle_history_button = @cmdlistbar.append('div').
         attr('class','hide_history')
-    @clear_history_button = @cmdlistbar.append('div').
-        attr('class','clear_history')
     @cmdlist.append('div').style('clear:both')
 
     @toggle_history_button.on 'click', () =>
@@ -112,6 +110,10 @@ class CommandController
       @toggle_history_button.classed('show_history',not shown)
       @oldcommands.classed('display_none',not shown)
 
+    @clear_history_button = d3.select("#tab-history").
+        append('input').
+        attr("type","submit").
+        attr('value','Clear')
     @clear_history_button.on 'click', () =>
       @oldcommands.html("")
 
