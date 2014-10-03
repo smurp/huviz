@@ -13,6 +13,9 @@
     "async": "~0.2.9",
     "libxmljs": "~0.9.0"
   },
+  "scripts":{
+    "start": "node_modules/coffee-script/bin/coffee -w index.coffee"
+  },
   "stashed-dependencies":{
     "rdfquads":"smurp/rdfquads",
     "node-n3":"smurp/node-n3",
