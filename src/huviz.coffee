@@ -1157,11 +1157,28 @@ class Huviz
         cancelable: true
     )
 
+  get_property_lineage: (pred_lid, retlist) ->
+    # return the list of super_properties back to and including 'anything'
+    retlist = retlist? or []
+    super_lid = @subPropertyOf[pred_lid]
+    if super_lid?
+      retlist.append('anything')
+    else
+      retlist.append(super_lid)
+      retlist = @get_property_lineage(super_lid)
+    return retlist
+
   fire_newpredicate_event: (pred_id) ->
+    pred_lid = uri_to_js_id(pred_id)
+    parent_id = @subPropertyOf[pred_lid] or 'anything'
+    #lineage = @get_property_lineage(pred_lid)
+    # console.log("fire_newpredicate_event",pred_lid,parent_id)
     window.dispatchEvent(
       new CustomEvent 'newpredicate',
         detail:
           sid: pred_id
+          parent_id: parent_id
+          #parents: lineage
           # time: new Date()
         bubbles: true
         cancelable: true
@@ -1286,6 +1303,7 @@ class Huviz
     if GreenerTurtle? and @turtle_parser is 'GreenerTurtle'
       @G = new GreenerTurtle().parse(data, "text/turtle")
       console.log "GreenTurtle"
+    quad_count = 0
     for subj_uri,frame of @G.subjects
       #console.log "frame:",frame
       #console.log frame.predicates
@@ -1294,6 +1312,9 @@ class Huviz
           # this is the right place to convert the ids (URIs) to CURIES
           #   Or should it be QNames?
           #      http://www.w3.org/TR/curie/#s_intro
+          if quad_count % 100 is 0
+            @show_state_msg("parsed quad " + quad_count)
+          quad_count++
           @add_quad
             s: frame.id
             p: pred.id
@@ -1408,7 +1429,7 @@ class Huviz
   fetchAndShow: (url) ->
     @show_state_msg("fetching " + url)
     if url.match(/.ttl/)
-      the_parser = @parseAndShowTurtle
+      #the_parser = @parseAndShowTurtle
       the_parser = @parseAndShowTTLStreamer
     else if url.match(/.nq/)
       the_parser = @parseAndShowNQ
@@ -2319,7 +2340,32 @@ class Huviz
   get_taxon_to_initially_pick: () ->
     return 'writer'
 
-class Orlando extends Huviz
+class OntologicallyGrounded extends Huviz
+  # If OntologicallyGrounded then there is an associated ontology which informs
+  # the TaxonPicker and the PredicatePicker
+  set_ontology: (ontology_uri) ->
+    @subPropertyOf = {} # this should exist on Huviz, not just down here
+    @read_ontology(ontology_uri)
+
+  read_ontology: (ontology_uri) ->
+    $.ajax
+      url: ontology_uri
+      success: @parseTTLOntology
+      error: (jqxhr, textStatus, errorThrown) ->
+        @show_state_msg(errorThrown + " while fetching ontology " + url)
+
+  parseTTLOntology: (data, textStatus) =>
+    if GreenerTurtle? and @turtle_parser is 'GreenerTurtle'
+      @raw_ontology = new GreenerTurtle().parse(data, "text/turtle")
+      for subj_uri, frame of @raw_ontology.subjects
+        subj_lid = uri_to_js_id(subj_uri)
+        for pred_id, pred of frame.predicates
+          if pred_id.match(/\#subPropertyOf$/g)
+            super_property_lid = uri_to_js_id(pred.objects[0].value)
+            @subPropertyOf[subj_lid] = super_property_lid
+            # console.log "subPropertyOf(" + subj_lid + ", " + super_property_lid + ")"
+  
+class Orlando extends OntologicallyGrounded
   # These are the Orlando specific methods layered on Huviz.
   # These ought to be made more data-driven.
   create_taxonomy: ->

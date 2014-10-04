@@ -1,15 +1,70 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Orlando Ontology Visualization</title>
+    <title>Huvis Graph Visualization</title>
     <link href="/css/huvis.css" rel="stylesheet" type="text/css">
     <link href="/css/huvis_controls.css" rel="stylesheet" type="text/css">
     <link href="/css/lariat.css" rel="stylesheet" type="text/css">
     <link href="/css/CRRT.css" rel="stylesheet" type="text/css">
     <link href="/css/gclui.css" rel="stylesheet" type="text/css">
+    <link href="/css/help.css" rel="stylesheet" type="text/css">
+
+    <link href="/css/jquery-ui.css" rel="stylesheet"/>
+
+    <!--
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/themes/smoothness/jquery-ui.css" />
+    -->
+
+    <!--
+    <script src="/lib/jquery.js"></script>
+    <script src="/lib/d3.v3.min.js"></script>
+    <script src="/lib/jquery-ui.min.js"></script>
+    -->
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="//d3js.org/d3.v3.js" charset="utf-8"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
+
   </head>
   <body>
-    <div class="graph_controls">
+    <div id="snippet_box">
+    </div>
+  <section role="controls" id="tabs">
+    <ul style="font-size:80%">
+       <li><a href="#tabs-help" title="Introduction and Usage">Help</a></li>
+       <li><a href="#tabs-options" title="Fine tune sizes, lengths and thicknesses.">Settings</a></li>
+       <li><a href="#huvis_controls" title="Power tools for controlling the graph with commands consisting of verbs and nouns.">Commands</a></li>
+       <li><a href="#tabs-history" title="The history of commands">History</a></li>
+       <li><a href="#tabs-hide" title="Shrink this menu for maximum room to play.">Hide</a></li>
+    </ul>
+    <div id="tabs-help" class="scrolling_tab">
+      <h1>HuViz</h1>
+      <h2>Orlando RDF Explorer</h2>
+      <p>This interface is intended to help you explore the
+        information and relationships encoded in
+        the <a href="http://www.artsrn.ualberta.ca/orlando/" target="_blank">Orlando</a> 
+        text database of British Women Writers. 
+        In particular, HuViz helps explore semantic information expressed in 
+        <a hef="http://www.artsrn.ualberta.ca/orlando/">RDF triples</a> 
+        that assert things like 
+        <span class='eg-subject'>Writer</span> <span class='eg-verb'>hasSex</span> <span class='eg-object'>FEMALE</span>
+        or <span class='eg-subject'>Writer</span> <span class='eg-verb'>livedInPlace</span> <span class='eg-object'>London</span>.
+      </p>
+      <h3>Quick Start</h3>
+      <ul>
+        <li>Go to <a class="open_tab" href="#2">Commands</a> and pick a <i>data set</i>.</li>
+        <li>Click the verb <i>choose</i>,
+            notice the command you've built -- <code>choose everything.</code> --
+            then press <button disabled>Do it</button>.</li>
+        <li>Go to <a class="open_tab" href="#1">Settings</a> to adjust the sizes of things</li>
+        <li>Try hovering over nodes and edges to see their labels</li>
+        <li>Click edges to see the snippets of text which inspired them.</li>
+        <li>Drag nodes to and from the green shelf and the red discard pile</li>
+      </ul>
+    </div>
+    <div id="tabs-history" class="scrolling_tab">
+    </div>
+    <div id="tabs-options" class="graph_controls" >
       <div>
         <label title="the amount bigger than a normal label the currently selected one is">
           focused node mag.
@@ -22,15 +77,15 @@
         <label title="the size of the font">
           label size (em)
   	  <input name="label_em" type="range" 
-                 value=".3" min=".2" max="4" step=".1"
+                 value=".9" min=".2" max="4" step=".1"
                  onchange="HVZ.update_graph_settings(this)">
         </label>
       </div>
       <div>
         <label title="the repulsive charge between nodes">
-          charge
+          charge (-)
 	  <input name="charge" type="range"
-                 value="-30" max="10" min="-2000" step="10"
+                 value="-183" max="-1" min="-200" step="1"
                  onchange="HVZ.update_graph_settings(this)">
         </label>
       </div>
@@ -38,7 +93,7 @@
         <label title="the attractive force keeping nodes centered">
           gravity
 	  <input name="gravity" type="range"
-                 value="0.3" min="0" max="1" step=".05"
+                 value="0.2" min="0" max="1" step=".025"
                  onchange="HVZ.update_graph_settings(this)">
         </label>
       </div>
@@ -70,7 +125,7 @@
         <label title="how fat the nodes are">
           node radius
 	  <input name="node_radius" type="range"
-                 value=".5" min=".2" max="8" step=".1"
+                 value="3" min=".2" max="8" step=".1"
                  onchange="HVZ.update_graph_settings(this)">
         </label>
       </div>
@@ -78,7 +133,7 @@
         <label title="how long the lines are">
           link distance
 	  <input name="link_distance" type="range"
-                 value="60" min="5" max="200" step="2"
+                 value="125" min="5" max="200" step="2"
                  onchange="HVZ.update_graph_settings(this)">
         </label>
       </div>
@@ -94,34 +149,62 @@
         <label title="how much curvature lines have">
           sway fraction
 	  <input name="swayfrac" type="range"
-                 value=".05" min="0" max=".2" step=".001"
+                 value="0.22" min="0.001" max=".4" step=".01"
                  onchange="HVZ.update_graph_settings(this)">
         </label>
       </div>
+    </div>
+
+    <div id="huvis_controls">
       <div>
         <label title="which file to load">
           data set
-          <select name="data_set" class="file_picker" 
-                  onchange="HVZ.load_file(this)" >
+          <select 
+              name="data_set" class="file_picker"
+              onchange="HVZ.load_file(this)" 
+              title="data sets are in order of increasing complexity">
+
+
+	    <option value=""> -- pick -- </option>
+	    <!--
+            <option title="R.M. Ballantyne -- all attributes -- 14 nodes; 60 edges; 17 predicates">/data/ballrm.nq</option>
+            <option title="Maria Abdy -- all attributes -- 68 nodes; 308 edges; 37 predicates">/data/abdyma.nq</option>
+            <option title="William Shakespeare -- basic relational predicates -- 41 nodes; 46 edges; 21 predicates ">/data/shakwi.nq</option>
+            <option title="Brontes -- all attributes -- 423 node; 666 edges; 43 predicates">/data/brontes.nq</option>
+            <option title="Margaret Atwood -- all attributes -- 444 nodes; 2325 edges; 41 predicates">/data/atwoma.nq</option>
+            <option title="Early Writers:  573 nodes; edges 835; predicates 52">/data/early_writers.nq</option>
+            <option title="The Poetesses -- all attributes -- 1735 nodes; 1646 edges; 11 predicates">/data/poetesses.nq</option>
+            <option title="Relations -- all writers -- basic relational predicates -- DANGER! -- 6897 nodes; edges 11761; predicates 10">/data/relations.nq</option>
+
+
+            <option>/data/test_1.nq</option>
+            <option>/data/test_40.nq</option>
+
+
+            <option>/data/test_100.nq</option>
+            <option>/data/test_40.ttl</option>
+            <option>/data/test_1.ttl</option>
+            <option>/data/test_20.ttl</option>
+            <option>/data/all.ttl</option>
+            <option>/data/all.nq</option>
+            <option>/data/test_20.nq</option>
+            <option>/data/orlando_ontology.ttl</option>
+	    -->
             <option title="the Orlando ontology">/data/orlando_ontology.ttl</option>
           </select>
-        </label>
+        </label> <span class="little-hint">hover!</span>
       </div>
-    </div>
-    <div id="snippet_box">
-    </div>
-    <div id="huvis_controls">
+
       <div id="gclui"></div>
     </div>
+  </section>
     <div id="vis" class="underneath" style="z-index:-3"></div>
     <div id="viscanvas" class="underneath"></div>
-    <div id="status" onclick="clear_box()"></div>
-    <!--
-      <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
-     -->
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <pre id="status"></pre>
+    <div id="state_msg_box"></div>
+
     <script>window.exports = {};</script>
-    <script src="application.js?13"></script>
+    <script src="/application.js?23234"></script>
     <script>
       var gcl = require('graphcommandlanguage');
       if (location.hash.match(/testsuite/)){
@@ -137,7 +220,8 @@
       window.addEventListener('load',function(){
         huviz = require('huviz');
         HVZ = new huviz.OntoViz();
-        HVZ.load_file();
+        //HVZ.load_file();
+        HVZ.boot_sequence();
       });
 
       /*

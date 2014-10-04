@@ -8,22 +8,22 @@
     <link href="/css/CRRT.css" rel="stylesheet" type="text/css">
     <link href="/css/gclui.css" rel="stylesheet" type="text/css">
     <link href="/css/help.css" rel="stylesheet" type="text/css">
-    <!--
+
     <link href="/css/jquery-ui.css" rel="stylesheet"/>
+
+    <!--
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/themes/smoothness/jquery-ui.css" />
     -->
 
-    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/themes/smoothness/jquery-ui.css" />
-
-    <!--
     <script src="/lib/jquery.js"></script>
     <script src="/lib/d3.v3.min.js"></script>
     <script src="/lib/jquery-ui.min.js"></script>
-    -->
 
+    <!--
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script src="//d3js.org/d3.v3.js" charset="utf-8"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
-
+    -->
   </head>
   <body>
     <div id="snippet_box">
@@ -277,6 +277,7 @@
       window.addEventListener('load',function(){
         huviz = require('huviz');
         HVZ = new huviz.Orlando();
+        HVZ.set_ontology("/data/orlando_ontology.ttl");
         HVZ.boot_sequence();
       });
 
