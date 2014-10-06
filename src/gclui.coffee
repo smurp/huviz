@@ -136,11 +136,12 @@ class CommandController
     @predicates_ignored.push(pred_id)
 
   handle_newpredicate: (e) =>
-    parent = e.detail.parent_id
-    pred_id = e.detail.sid
-    unless pred_id in @predicates_ignored
-      pred_name = pred_id.match(/([\w\d\_\-]+)$/g)[0]
-      @add_newpredicate(pred_id,parent,pred_name)
+    pred_uri = e.detail.pred_uri
+    unless pred_uri in @predicates_ignored
+      parent_lid = e.detail.parent_lid
+      pred_lid = e.detail.pred_lid
+      pred_name = pred_lid.match(/([\w\d\_\-]+)$/g)[0]      
+      @add_newpredicate(pred_lid,parent_lid,pred_name)
 
   build_predicatepicker: ->
     id = 'predicates'
@@ -157,11 +158,8 @@ class CommandController
     @predicate_hierarchy = {'anything':['Anything']}
     @predicate_picker.show_tree(@predicate_hierarchy,@predicatebox,@onpredicateclicked)
 
-  add_newpredicate: (pred_id,parent_lid,pred_name) =>
-    if not @predicate_picker.id_to_elem[parent_lid]?
-      console.log parent_lid,"is not already in the tree, so adding it under 'anything', which is wrong"
-      @predicate_picker.add(parent_lid,'anything',parent_lid,@onpredicateclicked)
-    @predicate_picker.add(pred_id,parent_lid,pred_name,@onpredicateclicked)
+  add_newpredicate: (pred_lid, parent_lid, pred_name) =>
+    @predicate_picker.add(pred_lid, parent_lid, pred_name, @onpredicateclicked)
 
   onpredicateclicked: (pred_id,selected,elem) =>
     @predicate_picker.color_by_selected(pred_id,selected)

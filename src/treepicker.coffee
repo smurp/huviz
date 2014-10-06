@@ -91,9 +91,7 @@ class TreePicker
     parent_id = @uri_to_js_id(parent_id)
     name = name? and name or new_id
     branch = {}
-    branch[new_id] = [name or new_id]
-    if not @id_to_elem[parent_id]?
-      console.log parent_id,"is not already in the tree"
+    branch[new_id] = [name or new_id]      
     parent = @id_to_elem[parent_id] or @elem
     container = d3.select(@get_or_create_container(parent)[0][0])
     @show_tree(branch,container,listener)

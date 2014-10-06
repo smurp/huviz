@@ -79,6 +79,15 @@
 #  41) TASK: link to new backend
 #  42) TASK: display each snippet once
 #  45) TASK: improve layout
+#  46) BUG: Anything and anything
+#  47) BUG: type appearing in predicate picker
+#  48) BUG: why do Name, FamilyRelations etc have some character after them
+#           AKA discipline the behaviour of abstract predicates
+#               ie they should have collapse/expand triangles ala Finder
+#  49) BUG: recoloring should be based on heirarchy, not order of entry
+#  50) BUG: order of colorpicker should be alphabetic at a level
+#  51) TASK: make predicate picker height adjustable
+
 # 
 #asyncLoop = require('asynchronizer').asyncLoop
 CommandController = require('gclui').CommandController
@@ -1157,29 +1166,26 @@ class Huviz
         cancelable: true
     )
 
-  get_property_lineage: (pred_lid, retlist) ->
-    # return the list of super_properties back to and including 'anything'
-    retlist = retlist? or []
-    super_lid = @subPropertyOf[pred_lid]
-    if super_lid?
-      retlist.append('anything')
-    else
-      retlist.append(super_lid)
-      retlist = @get_property_lineage(super_lid)
-    return retlist
+  ensure_predicate_lineage: (pid) ->
+    # Ensure that fire_newpredicate_event is run for pid all the way back
+    # to its earliest (possibly abstract) parent starting with the earliest
+    pred_lid = uri_to_js_id(pid)
+    if not @my_graph.predicates[pred_lid]?
+      if @subPropertyOf[pred_lid]?
+        parent_lid = @subPropertyOf[pred_lid]
+      else
+        parent_lid = "anything"
+      @my_graph.predicates[pred_lid] = []
+      @ensure_predicate_lineage(parent_lid)
+      @fire_newpredicate_event pid, pred_lid, parent_lid
 
-  fire_newpredicate_event: (pred_id) ->
-    pred_lid = uri_to_js_id(pred_id)
-    parent_id = @subPropertyOf[pred_lid] or 'anything'
-    #lineage = @get_property_lineage(pred_lid)
-    # console.log("fire_newpredicate_event",pred_lid,parent_id)
+  fire_newpredicate_event: (pred_uri, pred_lid, parent_lid) ->
     window.dispatchEvent(
       new CustomEvent 'newpredicate',
         detail:
-          sid: pred_id
-          parent_id: parent_id
-          #parents: lineage
-          # time: new Date()
+          pred_uri: pred_uri
+          pred_lid: pred_lid
+          parent_lid: parent_lid
         bubbles: true
         cancelable: true
     )
@@ -1215,9 +1221,7 @@ class Huviz
     else
       subj = @my_graph.subjects[sid]
           
-    if not @my_graph.predicates[pid]?
-      @my_graph.predicates[pid] = []
-      @fire_newpredicate_event pid
+    @ensure_predicate_lineage pid
 
     subj_n = @get_or_create_node_by_id(sid)
     pred_n = @get_or_create_predicate_by_id(pid)
