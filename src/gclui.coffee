@@ -142,8 +142,11 @@ class CommandController
       pred_lid = e.detail.pred_lid
       pred_name = pred_lid.match(/([\w\d\_\-]+)$/g)[0]      
       @add_newpredicate(pred_lid,parent_lid,pred_name)
-      @recolor_edges() # FIXME should only really be run after the predicate set has settled for some amount of time
+      @recolor_predicates(e)
 
+  recolor_predicates: (evt) ->
+    @recolor_edges() # FIXME should only really be run after the predicate set has settled for some amount of time
+          
   build_predicatepicker: ->
     id = 'predicates'
     @predicatebox = @comdiv.append('div').classed('container',true).attr('id',id)
@@ -156,11 +159,13 @@ class CommandController
     @predicatebox.attr('class','scrolling')
     @predicates_ignored = []
     @predicate_picker = new ColoredTreePicker(@predicatebox,'anything')
-    @predicate_hierarchy = {'anything':['Anything']}
+    @predicate_hierarchy = {'anything':['anything']}
     # FIXME Why is show_tree being called four times per node?
     @predicate_picker.show_tree(@predicate_hierarchy,@predicatebox,@onpredicateclicked)
 
   add_newpredicate: (pred_lid, parent_lid, pred_name) =>
+    if pred_lid is 'anything'
+      return
     @predicate_picker.add(pred_lid, parent_lid, pred_name, @onpredicateclicked)
 
   onpredicateclicked: (pred_id,selected,elem) =>

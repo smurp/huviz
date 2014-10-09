@@ -79,12 +79,12 @@
 #  41) TASK: link to new backend
 #  42) TASK: display each snippet once
 #  45) TASK: improve layout
-#  46) BUG: Anything and anything
 #  48) BUG: discipline the behaviour of abstract predicates
 #           ie they should have collapse/expand triangles ala Finder
-#  49) BUG: recoloring should be based on heirarchy, not order of entry
+#  49) BUG: recolor based on non-abstract leaves in predicate hierarchy
 #  51) TASK: make predicate picker height adjustable
-
+#  52) BUG: until clicking abstract predicates does the right thing
+#           it should do nothing
 # 
 #asyncLoop = require('asynchronizer').asyncLoop
 CommandController = require('gclui').CommandController

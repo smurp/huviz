@@ -32,7 +32,7 @@ class TreePicker
     tmp? and tmp
   uri_to_js_id: (uri) ->
     uri.match(/([\w\d\_\-]+)$/g)[0]
-  add_alphabetically: (i_am_in, node_id, label) -> # forward
+  add_alphabetically: (i_am_in, node_id, label) ->
     label_lower = label.toLowerCase()
     container = i_am_in[0][0]
     for elem in container.children
