@@ -32,14 +32,26 @@ class TreePicker
     tmp? and tmp
   uri_to_js_id: (uri) ->
     uri.match(/([\w\d\_\-]+)$/g)[0]
+  add_alphabetically: (i_am_in, node_id, label) -> # forward
+    label_lower = label.toLowerCase()
+    container = i_am_in[0][0]
+    for elem in container.children
+      elem_lower = elem.id.toLowerCase() # FIXME should be the elem.label
+      if (elem_lower > label_lower)
+        return @add_to_elem_before(i_am_in, node_id, "#"+elem.id, label)
+    # fall through and append if it comes before nothing
+    @add_to_elem_before(i_am_in, node_id, undefined, label)
+  add_to_elem_before: (i_am_in, node_id, before, label) ->
+    i_am_in.insert('div', before). # insert just appends if before is undef
+        attr('class','contents').
+        attr('id',node_id)
   show_tree: (tree,i_am_in,listener,top) ->
     # http://stackoverflow.com/questions/14511872
     top = not top? or top
     for node_id,rest of tree
       label = rest[0]
-      contents_of_me = i_am_in.append('div').
-          attr('class','contents').
-          attr('id',node_id)
+      #console.log "appending",node_id,"to",i_am_in
+      contents_of_me = @add_alphabetically(i_am_in, node_id, label)
       @id_to_elem[node_id] = contents_of_me
       picker = this
       contents_of_me.on 'click', () ->

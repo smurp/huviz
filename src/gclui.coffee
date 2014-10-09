@@ -157,6 +157,7 @@ class CommandController
     @predicates_ignored = []
     @predicate_picker = new ColoredTreePicker(@predicatebox,'anything')
     @predicate_hierarchy = {'anything':['Anything']}
+    # FIXME Why is show_tree being called four times per node?
     @predicate_picker.show_tree(@predicate_hierarchy,@predicatebox,@onpredicateclicked)
 
   add_newpredicate: (pred_lid, parent_lid, pred_name) =>

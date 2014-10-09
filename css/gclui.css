@@ -75,7 +75,7 @@ p {
 .picked_branch {
     background-color: tan;
 }
-.scrolling {
+.Xscrolling {
     overflow-y: scroll;
     max-height: 10em;
 }

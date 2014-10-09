@@ -80,12 +80,9 @@
 #  42) TASK: display each snippet once
 #  45) TASK: improve layout
 #  46) BUG: Anything and anything
-#  47) BUG: type appearing in predicate picker
-#  48) BUG: why do Name, FamilyRelations etc have some character after them
-#           AKA discipline the behaviour of abstract predicates
-#               ie they should have collapse/expand triangles ala Finder
+#  48) BUG: discipline the behaviour of abstract predicates
+#           ie they should have collapse/expand triangles ala Finder
 #  49) BUG: recoloring should be based on heirarchy, not order of entry
-#  50) BUG: order of colorpicker should be alphabetic at a level
 #  51) TASK: make predicate picker height adjustable
 
 # 
