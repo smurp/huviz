@@ -18,27 +18,31 @@ class ColoredTreePicker extends TreePicker
     super(id,parent_id,name,listener)
     @id_to_colors = @recolor()
   recolor: ->
-    #console.warn "recolor"
-    count = Object.keys(@id_to_elem).length - @get_abstract_count()
-    i = 0
+    recursor =
+      count: Object.keys(@id_to_elem).length - @get_abstract_count()
+      i: 0
     retval = {}
+    @recolor_recurse(retval, recursor)
+  recolor_recurse: (retval, recursor) ->
     for id,elem of @id_to_elem
-      if @is_abstract(id)
-        retval[id] =
-          notshowing:  hsl2rgb(0, 0, L_notshowing)
-          showing:     hsl2rgb(0, 0, L_showing)
-          emphasizing: hsl2rgb(0, 0, L_emphasizing)
-      else
-        # https://en.wikipedia.org/wiki/HSL_and_HSV#HSL
-        i++        
-        hue = i/count * 360
-        retval[id] =
-          notshowing:  hsl2rgb(hue, S_all, L_notshowing)
-          showing:     hsl2rgb(hue, S_all, L_showing)
-          emphasizing: hsl2rgb(hue, S_all, L_emphasizing)
-      elem.style("background-color",retval[id].notshowing)
-
+      @recolor_node(retval, recursor, id, elem)
     retval
+  recolor_node: (retval, recursor, id, elem) ->
+    if @is_abstract(id)
+      retval[id] =
+        notshowing:  hsl2rgb(0, 0, L_notshowing)
+        showing:     hsl2rgb(0, 0, L_showing)
+        emphasizing: hsl2rgb(0, 0, L_emphasizing)
+    else
+      # https://en.wikipedia.org/wiki/HSL_and_HSV#HSL
+      recursor.i++        
+      hue = recursor.i/recursor.count * 360
+      retval[id] =
+        notshowing:  hsl2rgb(hue, S_all, L_notshowing)
+        showing:     hsl2rgb(hue, S_all, L_showing)
+        emphasizing: hsl2rgb(hue, S_all, L_emphasizing)
+    elem.style("background-color",retval[id].notshowing)
+
   get_color_forId_byName: (id, state_name) ->
     id = @uri_to_js_id(id)
     colors = @id_to_colors[id]
