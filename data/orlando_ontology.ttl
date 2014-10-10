@@ -1,26 +1,12 @@
-@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix : <http://draftOrlandoOntology.org/Draft1#> .
-@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
-@base <http://draftOrlandoOntology.org/Draft1> .
+@base <http://draftOrlandoOntology.org/Draft3> .
 
-<http://draftOrlandoOntology.org/Draft1> rdf:type owl:Ontology .
-
-
-#################################################################
-#
-#    Annotation properties
-#
-#################################################################
-
-
-rdfs:label rdf:type owl:AnnotationProperty .
-
-
-
+<http://draftOrlandoOntology.org/Draft3> rdf:type owl:Ontology .
 
 
 #################################################################
@@ -30,788 +16,1933 @@ rdfs:label rdf:type owl:AnnotationProperty .
 #################################################################
 
 
-###  http://draftOrlandoOntology.org/EducationRelations
+###  http://cwrc.ca/orlandont#causedDeathOf
 
-<http://draftOrlandoOntology.org/EducationRelations> rdf:type owl:ObjectProperty ;
-                                                     
-                                                     rdfs:label " education relations"@en .
-
-
-
-###  http://draftOrlandoOntology.org/FamilyRelations
-
-<http://draftOrlandoOntology.org/FamilyRelations> rdf:type owl:ObjectProperty ;
-                                                  
-                                                  rdfs:label " family relations"@en ;
-                                                  
-                                                  rdfs:subPropertyOf <http://draftOrlandoOntology.org/Relationships> .
-
-
-
-###  http://draftOrlandoOntology.org/Health
-
-<http://draftOrlandoOntology.org/Health> rdf:type owl:ObjectProperty ;
-                                         
-                                         rdfs:label " health"@en ;
-                                         
-                                         rdfs:subPropertyOf <http://draftOrlandoOntology.org/PersonalProperties> .
-
-
-
-###  http://draftOrlandoOntology.org/Influence
-
-<http://draftOrlandoOntology.org/Influence> rdf:type owl:ObjectProperty ;
-                                            
-                                            rdfs:label " influence"@en .
-
-
-
-###  http://draftOrlandoOntology.org/Location
-
-<http://draftOrlandoOntology.org/Location> rdf:type owl:ObjectProperty ;
-                                           
-                                           rdfs:label " location"@en .
-
-
-
-###  http://draftOrlandoOntology.org/Name
-
-<http://draftOrlandoOntology.org/Name> rdf:type owl:ObjectProperty ;
-                                       
-                                       rdfs:label " name"@en .
-
-
-
-###  http://draftOrlandoOntology.org/PersonalProperties
-
-<http://draftOrlandoOntology.org/PersonalProperties> rdf:type owl:ObjectProperty ;
-                                                     
-                                                     rdfs:label " personal properties"@en .
-
-
-
-###  http://draftOrlandoOntology.org/Relationships
-
-<http://draftOrlandoOntology.org/Relationships> rdf:type owl:ObjectProperty ;
-                                                
-                                                rdfs:label " relationships"@en .
-
-
-
-###  http://draftOrlandoOntology.org/Sex
-
-<http://draftOrlandoOntology.org/Sex> rdf:type owl:ObjectProperty ;
-                                      
-                                      rdfs:label " sex"@en ;
-                                      
-                                      rdfs:subPropertyOf <http://draftOrlandoOntology.org/PersonalProperties> .
-
-
-
-###  http://draftOrlandoOntology.org/auntOf
-
-<http://draftOrlandoOntology.org/auntOf> rdf:type owl:ObjectProperty ;
-                                         
-                                         rdfs:label "aunt of"@en ;
-                                         
-                                         rdfs:subPropertyOf <http://draftOrlandoOntology.org/seniorCollateralRelationshipTo> .
-
-
-
-###  http://draftOrlandoOntology.org/bornIn
-
-<http://draftOrlandoOntology.org/bornIn> rdf:type owl:ObjectProperty ;
-                                         
-                                         rdfs:label "born in"@en ;
-                                         
-                                         rdfs:subPropertyOf <http://draftOrlandoOntology.org/Location> ;
-                                         
-                                         rdfs:domain <http://draftOrlandoOntology.org/Person> .
-
-
-
-###  http://draftOrlandoOntology.org/bornInGeog
-
-<http://draftOrlandoOntology.org/bornInGeog> rdf:type owl:ObjectProperty ;
-                                             
-                                             rdfs:label "born in geog"@en ;
-                                             
-                                             rdfs:range <http://draftOrlandoOntology.org/GeographicArea> ;
-                                             
-                                             rdfs:subPropertyOf <http://draftOrlandoOntology.org/bornIn> .
-
-
-
-###  http://draftOrlandoOntology.org/bornInRegion
-
-<http://draftOrlandoOntology.org/bornInRegion> rdf:type owl:ObjectProperty ;
-                                               
-                                               rdfs:label "born in region"@en ;
-                                               
-                                               rdfs:range <http://draftOrlandoOntology.org/Region> ;
-                                               
-                                               rdfs:subPropertyOf <http://draftOrlandoOntology.org/bornIn> .
-
-
-
-###  http://draftOrlandoOntology.org/bornInSettlement
-
-<http://draftOrlandoOntology.org/bornInSettlement> rdf:type owl:ObjectProperty ;
-                                                   
-                                                   rdfs:label "born in settlement"@en ;
-                                                   
-                                                   rdfs:range <http://draftOrlandoOntology.org/Settlement> ;
-                                                   
-                                                   rdfs:subPropertyOf <http://draftOrlandoOntology.org/bornIn> .
-
-
-
-###  http://draftOrlandoOntology.org/brotherOf
-
-<http://draftOrlandoOntology.org/brotherOf> rdf:type owl:IrreflexiveProperty ,
-                                                     owl:ObjectProperty ;
-                                            
-                                            rdfs:label "brother of"@en ;
-                                            
-                                            rdfs:domain <http://draftOrlandoOntology.org/male> ;
-                                            
-                                            rdfs:subPropertyOf <http://draftOrlandoOntology.org/siblingOf> ;
-                                            
-                                            rdfs:domain <http://draftOrlandoOntology.org/transgendered> .
-
-
-
-###  http://draftOrlandoOntology.org/childOf
-
-<http://draftOrlandoOntology.org/childOf> rdf:type owl:AsymmetricProperty ,
-                                                   owl:IrreflexiveProperty ,
-                                                   owl:ObjectProperty ;
-                                          
-                                          rdfs:label "child of"@en ;
-                                          
-                                          rdfs:subPropertyOf <http://draftOrlandoOntology.org/FamilyRelations> ;
-                                          
-                                          rdfs:range <http://draftOrlandoOntology.org/Person> ;
-                                          
-                                          rdfs:domain <http://draftOrlandoOntology.org/Person> ;
-                                          
-                                          owl:inverseOf <http://draftOrlandoOntology.org/parentOf> .
-
-
-
-###  http://draftOrlandoOntology.org/collateralRelation
-
-<http://draftOrlandoOntology.org/collateralRelation> rdf:type owl:ObjectProperty ;
-                                                     
-                                                     rdfs:label "collateral relation"@en ;
-                                                     
-                                                     rdfs:subPropertyOf <http://draftOrlandoOntology.org/FamilyRelations> .
-
-
-
-###  http://draftOrlandoOntology.org/connectionWith
-
-<http://draftOrlandoOntology.org/connectionWith> rdf:type owl:ObjectProperty ;
-                                                 
-                                                 rdfs:label "connection with"@en ;
-                                                 
-                                                 rdfs:subPropertyOf <http://draftOrlandoOntology.org/Location> .
-
-
-
-###  http://draftOrlandoOntology.org/connectionWithAddress
-
-<http://draftOrlandoOntology.org/connectionWithAddress> rdf:type owl:ObjectProperty ;
-                                                        
-                                                        rdfs:label "connection with address"@en ;
-                                                        
-                                                        rdfs:subPropertyOf <http://draftOrlandoOntology.org/connectionWith> .
-
-
-
-###  http://draftOrlandoOntology.org/connectionWithPlace
-
-<http://draftOrlandoOntology.org/connectionWithPlace> rdf:type owl:ObjectProperty ;
-                                                      
-                                                      rdfs:label "connection with place"@en ;
-                                                      
-                                                      rdfs:subPropertyOf <http://draftOrlandoOntology.org/connectionWith> .
-
-
-
-###  http://draftOrlandoOntology.org/connectionWithRegion
-
-<http://draftOrlandoOntology.org/connectionWithRegion> rdf:type owl:ObjectProperty ;
-                                                       
-                                                       rdfs:label "connection with region"@en ;
-                                                       
-                                                       rdfs:subPropertyOf <http://draftOrlandoOntology.org/connectionWith> .
-
-
-
-###  http://draftOrlandoOntology.org/connectionWithSettlement
-
-<http://draftOrlandoOntology.org/connectionWithSettlement> rdf:type owl:ObjectProperty ;
-                                                           
-                                                           rdfs:label "connection with settlement"@en ;
-                                                           
-                                                           rdfs:subPropertyOf <http://draftOrlandoOntology.org/connectionWith> .
-
-
-
-###  http://draftOrlandoOntology.org/cousinOf
-
-<http://draftOrlandoOntology.org/cousinOf> rdf:type owl:IrreflexiveProperty ,
-                                                    owl:ObjectProperty ,
-                                                    owl:SymmetricProperty ;
-                                           
-                                           rdfs:label "cousin of"@en ;
-                                           
-                                           rdfs:subPropertyOf <http://draftOrlandoOntology.org/FamilyRelations> ;
-                                           
-                                           rdfs:range <http://draftOrlandoOntology.org/Person> ;
-                                           
-                                           rdfs:domain <http://draftOrlandoOntology.org/Person> .
-
-
-
-###  http://draftOrlandoOntology.org/culturalInfluence
-
-<http://draftOrlandoOntology.org/culturalInfluence> rdf:type owl:ObjectProperty ;
-                                                    
-                                                    rdfs:label "cultural influence"@en ;
-                                                    
-                                                    rdfs:subPropertyOf <http://draftOrlandoOntology.org/Influence> .
-
-
-
-###  http://draftOrlandoOntology.org/daughterOf
-
-<http://draftOrlandoOntology.org/daughterOf> rdf:type owl:AsymmetricProperty ,
-                                                      owl:IrreflexiveProperty ,
-                                                      owl:ObjectProperty ;
-                                             
-                                             rdfs:label "daughter of"@en ;
-                                             
-                                             rdfs:subPropertyOf <http://draftOrlandoOntology.org/childOf> ;
-                                             
-                                             rdfs:domain <http://draftOrlandoOntology.org/female> ,
-                                                         <http://draftOrlandoOntology.org/transgendered> .
-
-
-
-###  http://draftOrlandoOntology.org/diedIn
-
-<http://draftOrlandoOntology.org/diedIn> rdf:type owl:ObjectProperty ;
-                                         
-                                         rdfs:label "died in"@en ;
-                                         
-                                         rdfs:subPropertyOf <http://draftOrlandoOntology.org/Location> .
-
-
-
-###  http://draftOrlandoOntology.org/diedInGeog
-
-<http://draftOrlandoOntology.org/diedInGeog> rdf:type owl:ObjectProperty ;
-                                             
-                                             rdfs:label "died in geog"@en ;
-                                             
-                                             rdfs:subPropertyOf <http://draftOrlandoOntology.org/diedIn> .
-
-
-
-###  http://draftOrlandoOntology.org/diedInRegion
-
-<http://draftOrlandoOntology.org/diedInRegion> rdf:type owl:ObjectProperty ;
-                                               
-                                               rdfs:label "died in region"@en ;
-                                               
-                                               rdfs:subPropertyOf <http://draftOrlandoOntology.org/diedIn> .
-
-
-
-###  http://draftOrlandoOntology.org/diedInSettlement
-
-<http://draftOrlandoOntology.org/diedInSettlement> rdf:type owl:ObjectProperty ;
-                                                   
-                                                   rdfs:label "died in settlement"@en ;
-                                                   
-                                                   rdfs:subPropertyOf <http://draftOrlandoOntology.org/diedIn> .
-
-
-
-###  http://draftOrlandoOntology.org/educationInstitutionType
-
-<http://draftOrlandoOntology.org/educationInstitutionType> rdf:type owl:ObjectProperty ;
-                                                           
-                                                           rdfs:label "education institution type"@en ;
-                                                           
-                                                           rdfs:subPropertyOf <http://draftOrlandoOntology.org/EducationRelations> .
-
-
-
-###  http://draftOrlandoOntology.org/educationLevel
-
-<http://draftOrlandoOntology.org/educationLevel> rdf:type owl:ObjectProperty ;
-                                                 
-                                                 rdfs:label "education level"@en ;
-                                                 
-                                                 rdfs:subPropertyOf <http://draftOrlandoOntology.org/EducationRelations> .
-
-
-
-###  http://draftOrlandoOntology.org/fatherOf
-
-<http://draftOrlandoOntology.org/fatherOf> rdf:type owl:AsymmetricProperty ,
-                                                    owl:IrreflexiveProperty ,
-                                                    owl:ObjectProperty ;
-                                           
-                                           rdfs:label "father of"@en ;
-                                           
-                                           rdfs:domain <http://draftOrlandoOntology.org/male> ;
-                                           
-                                           rdfs:subPropertyOf <http://draftOrlandoOntology.org/parentOf> ;
-                                           
-                                           rdfs:domain <http://draftOrlandoOntology.org/transgendered> .
-
-
-
-###  http://draftOrlandoOntology.org/friendOf
-
-<http://draftOrlandoOntology.org/friendOf> rdf:type owl:ObjectProperty ;
-                                           
-                                           rdfs:label "friend of"@en ;
-                                           
-                                           rdfs:domain <http://draftOrlandoOntology.org/Person> ;
-                                           
-                                           rdfs:range <http://draftOrlandoOntology.org/Person> ;
-                                           
-                                           rdfs:subPropertyOf <http://draftOrlandoOntology.org/Relationships> .
-
-
-
-###  http://draftOrlandoOntology.org/friendOrAssociateOf
-
-<http://draftOrlandoOntology.org/friendOrAssociateOf> rdf:type owl:ObjectProperty ;
-                                                      
-                                                      rdfs:label "friend or associate of"@en ;
-                                                      
-                                                      rdfs:range <http://draftOrlandoOntology.org/Person> ;
-                                                      
-                                                      rdfs:domain <http://draftOrlandoOntology.org/Person> ;
-                                                      
-                                                      rdfs:subPropertyOf <http://draftOrlandoOntology.org/Relationships> .
-
-
-
-###  http://draftOrlandoOntology.org/givenName
-
-<http://draftOrlandoOntology.org/givenName> rdf:type owl:ObjectProperty ;
-                                            
-                                            rdfs:label "given name"@en ;
-                                            
-                                            rdfs:subPropertyOf <http://draftOrlandoOntology.org/Name> .
-
-
-
-###  http://draftOrlandoOntology.org/grandchildOf
-
-<http://draftOrlandoOntology.org/grandchildOf> rdf:type owl:AsymmetricProperty ,
-                                                        owl:IrreflexiveProperty ,
-                                                        owl:ObjectProperty ;
-                                               
-                                               rdfs:label "grandchild of"@en ;
-                                               
-                                               rdfs:subPropertyOf <http://draftOrlandoOntology.org/FamilyRelations> ;
-                                               
-                                               rdfs:domain <http://draftOrlandoOntology.org/Person> ;
-                                               
-                                               rdfs:range <http://draftOrlandoOntology.org/Person> ;
-                                               
-                                               owl:inverseOf <http://draftOrlandoOntology.org/grandparentOf> .
-
-
-
-###  http://draftOrlandoOntology.org/granddaughterOf
-
-<http://draftOrlandoOntology.org/granddaughterOf> rdf:type owl:AsymmetricProperty ,
-                                                           owl:IrreflexiveProperty ,
-                                                           owl:ObjectProperty ;
-                                                  
-                                                  rdfs:label "granddaughter of"@en ;
-                                                  
-                                                  rdfs:domain <http://draftOrlandoOntology.org/female> ;
-                                                  
-                                                  rdfs:subPropertyOf <http://draftOrlandoOntology.org/grandchildOf> ;
-                                                  
-                                                  rdfs:domain <http://draftOrlandoOntology.org/transgendered> .
-
-
-
-###  http://draftOrlandoOntology.org/grandfatherOf
-
-<http://draftOrlandoOntology.org/grandfatherOf> rdf:type owl:ObjectProperty ;
-                                                
-                                                rdfs:label "grandfather of"@en ;
-                                                
-                                                rdfs:subPropertyOf <http://draftOrlandoOntology.org/grandparentOf> ;
-                                                
-                                                rdfs:domain <http://draftOrlandoOntology.org/male> ,
-                                                            <http://draftOrlandoOntology.org/transgendered> .
-
-
-
-###  http://draftOrlandoOntology.org/grandmotherOf
-
-<http://draftOrlandoOntology.org/grandmotherOf> rdf:type owl:ObjectProperty ;
-                                                
-                                                rdfs:label "grandmother of"@en ;
-                                                
-                                                rdfs:domain <http://draftOrlandoOntology.org/female> ;
-                                                
-                                                rdfs:subPropertyOf <http://draftOrlandoOntology.org/grandparentOf> ;
-                                                
-                                                rdfs:domain <http://draftOrlandoOntology.org/transgendered> .
-
-
-
-###  http://draftOrlandoOntology.org/grandparentOf
-
-<http://draftOrlandoOntology.org/grandparentOf> rdf:type owl:AsymmetricProperty ,
-                                                         owl:IrreflexiveProperty ,
-                                                         owl:ObjectProperty ;
-                                                
-                                                rdfs:label "grandparent of"@en ;
-                                                
-                                                rdfs:subPropertyOf <http://draftOrlandoOntology.org/FamilyRelations> .
-
-
-
-###  http://draftOrlandoOntology.org/grandsonOf
-
-<http://draftOrlandoOntology.org/grandsonOf> rdf:type owl:AsymmetricProperty ,
-                                                      owl:IrreflexiveProperty ,
-                                                      owl:ObjectProperty ;
-                                             
-                                             rdfs:label "grandson of"@en ;
-                                             
-                                             rdfs:subPropertyOf <http://draftOrlandoOntology.org/grandchildOf> ;
-                                             
-                                             rdfs:domain <http://draftOrlandoOntology.org/male> ,
-                                                         <http://draftOrlandoOntology.org/transgendered> .
-
-
-
-###  http://draftOrlandoOntology.org/hadHealthIssue
-
-<http://draftOrlandoOntology.org/hadHealthIssue> rdf:type owl:ObjectProperty ;
-                                                 
-                                                 rdfs:label "had health issue"@en ;
-                                                 
-                                                 rdfs:subPropertyOf <http://draftOrlandoOntology.org/Health> .
-
-
-
-###  http://draftOrlandoOntology.org/hasSex
-
-<http://draftOrlandoOntology.org/hasSex> rdf:type owl:ObjectProperty ;
-                                         
-                                         rdfs:label "has sex"@en ;
-                                         
-                                         rdfs:subPropertyOf <http://draftOrlandoOntology.org/Sex> ;
-                                         
-                                         rdfs:range <http://draftOrlandoOntology.org/female> ,
-                                                    <http://draftOrlandoOntology.org/male> ,
-                                                    <http://draftOrlandoOntology.org/transgendered> ,
-                                                    <http://draftOrlandoOntology.org/unknown> .
-
-
-
-###  http://draftOrlandoOntology.org/husbandOf
-
-<http://draftOrlandoOntology.org/husbandOf> rdf:type owl:IrreflexiveProperty ,
-                                                     owl:ObjectProperty ;
-                                            
-                                            rdfs:label "husband of"@en ;
-                                            
-                                            rdfs:domain <http://draftOrlandoOntology.org/male> ;
-                                            
-                                            rdfs:subPropertyOf <http://draftOrlandoOntology.org/spouseOf> ;
-                                            
-                                            rdfs:domain <http://draftOrlandoOntology.org/transgendered> .
-
-
-
-###  http://draftOrlandoOntology.org/juniorCollateralRelationshipTo
-
-<http://draftOrlandoOntology.org/juniorCollateralRelationshipTo> rdf:type owl:ObjectProperty ;
-                                                                 
-                                                                 rdfs:label "junior collateral relationship to"@en ;
-                                                                 
-                                                                 rdfs:subPropertyOf <http://draftOrlandoOntology.org/collateralRelation> .
-
-
-
-###  http://draftOrlandoOntology.org/livedIn
-
-<http://draftOrlandoOntology.org/livedIn> rdf:type owl:ObjectProperty ;
-                                          
-                                          rdfs:label "lived in"@en ;
-                                          
-                                          rdfs:subPropertyOf <http://draftOrlandoOntology.org/Location> .
-
-
-
-###  http://draftOrlandoOntology.org/livedInGeog
-
-<http://draftOrlandoOntology.org/livedInGeog> rdf:type owl:ObjectProperty ;
-                                              
-                                              rdfs:label "lived in geog"@en ;
-                                              
-                                              rdfs:subPropertyOf <http://draftOrlandoOntology.org/livedIn> .
-
-
-
-###  http://draftOrlandoOntology.org/livedInRegion
-
-<http://draftOrlandoOntology.org/livedInRegion> rdf:type owl:ObjectProperty ;
-                                                
-                                                rdfs:label "lived in region"@en ;
-                                                
-                                                rdfs:subPropertyOf <http://draftOrlandoOntology.org/livedIn> .
-
-
-
-###  http://draftOrlandoOntology.org/livedInSettlement
-
-<http://draftOrlandoOntology.org/livedInSettlement> rdf:type owl:ObjectProperty ;
-                                                    
-                                                    rdfs:label "lived in settlement"@en ;
-                                                    
-                                                    rdfs:subPropertyOf <http://draftOrlandoOntology.org/livedIn> .
-
-
-
-###  http://draftOrlandoOntology.org/marriedTo
-
-<http://draftOrlandoOntology.org/marriedTo> rdf:type owl:IrreflexiveProperty ,
-                                                     owl:ObjectProperty ,
-                                                     owl:SymmetricProperty ;
-                                            
-                                            rdfs:label "married to"@en ;
-                                            
-                                            rdfs:subPropertyOf <http://draftOrlandoOntology.org/FamilyRelations> .
-
-
-
-###  http://draftOrlandoOntology.org/motherOf
-
-<http://draftOrlandoOntology.org/motherOf> rdf:type owl:AsymmetricProperty ,
-                                                    owl:IrreflexiveProperty ,
-                                                    owl:ObjectProperty ;
-                                           
-                                           rdfs:label "mother of"@en ;
-                                           
-                                           rdfs:domain <http://draftOrlandoOntology.org/female> ;
-                                           
-                                           rdfs:subPropertyOf <http://draftOrlandoOntology.org/parentOf> ;
-                                           
-                                           rdfs:domain <http://draftOrlandoOntology.org/transgendered> .
-
-
-
-###  http://draftOrlandoOntology.org/nephewOf
-
-<http://draftOrlandoOntology.org/nephewOf> rdf:type owl:ObjectProperty ;
-                                           
-                                           rdfs:label "nephew of"@en ;
-                                           
-                                           rdfs:subPropertyOf <http://draftOrlandoOntology.org/juniorCollateralRelationshipTo> .
-
-
-
-###  http://draftOrlandoOntology.org/nickname
-
-<http://draftOrlandoOntology.org/nickname> rdf:type owl:ObjectProperty ;
-                                           
-                                           rdfs:label "nickname"@en ;
-                                           
-                                           rdfs:subPropertyOf <http://draftOrlandoOntology.org/Name> .
-
-
-
-###  http://draftOrlandoOntology.org/nieceOf
-
-<http://draftOrlandoOntology.org/nieceOf> rdf:type owl:ObjectProperty ;
-                                          
-                                          rdfs:label "niece of"@en ;
-                                          
-                                          rdfs:subPropertyOf <http://draftOrlandoOntology.org/juniorCollateralRelationshipTo> .
-
-
-
-###  http://draftOrlandoOntology.org/numberOfChildren
-
-<http://draftOrlandoOntology.org/numberOfChildren> rdf:type owl:ObjectProperty ;
-                                                   
-                                                   rdfs:label "number of children"@en ;
-                                                   
-                                                   rdfs:subPropertyOf <http://draftOrlandoOntology.org/FamilyRelations> .
-
-
-
-###  http://draftOrlandoOntology.org/parentOf
-
-<http://draftOrlandoOntology.org/parentOf> rdf:type owl:AsymmetricProperty ,
-                                                    owl:IrreflexiveProperty ,
-                                                    owl:ObjectProperty ;
-                                           
-                                           rdfs:label "parent of"@en ;
-                                           
-                                           rdfs:subPropertyOf <http://draftOrlandoOntology.org/FamilyRelations> ;
-                                           
-                                           rdfs:range <http://draftOrlandoOntology.org/Person> ;
-                                           
-                                           rdfs:domain <http://draftOrlandoOntology.org/Person> .
-
-
-
-###  http://draftOrlandoOntology.org/politicalInfluence
-
-<http://draftOrlandoOntology.org/politicalInfluence> rdf:type owl:ObjectProperty ;
-                                                     
-                                                     rdfs:label "political influence"@en ;
-                                                     
-                                                     rdfs:subPropertyOf <http://draftOrlandoOntology.org/Influence> .
-
-
-
-###  http://draftOrlandoOntology.org/religiousInfluence
-
-<http://draftOrlandoOntology.org/religiousInfluence> rdf:type owl:ObjectProperty ;
-                                                     
-                                                     rdfs:label "religious influence"@en ;
-                                                     
-                                                     rdfs:subPropertyOf <http://draftOrlandoOntology.org/Influence> .
-
-
-
-###  http://draftOrlandoOntology.org/seniorCollateralRelationshipTo
-
-<http://draftOrlandoOntology.org/seniorCollateralRelationshipTo> rdf:type owl:ObjectProperty ;
-                                                                 
-                                                                 rdfs:label "senior collateral relationship to"@en ;
-                                                                 
-                                                                 rdfs:subPropertyOf <http://draftOrlandoOntology.org/collateralRelation> ;
-                                                                 
-                                                                 owl:inverseOf <http://draftOrlandoOntology.org/juniorCollateralRelationshipTo> .
-
-
-
-###  http://draftOrlandoOntology.org/siblingOf
-
-<http://draftOrlandoOntology.org/siblingOf> rdf:type owl:IrreflexiveProperty ,
-                                                     owl:ObjectProperty ,
-                                                     owl:SymmetricProperty ;
-                                            
-                                            rdfs:label "sibling of"@en ;
-                                            
-                                            rdfs:subPropertyOf <http://draftOrlandoOntology.org/FamilyRelations> ;
-                                            
-                                            rdfs:domain <http://draftOrlandoOntology.org/Person> ;
-                                            
-                                            rdfs:range <http://draftOrlandoOntology.org/Person> .
-
-
-
-###  http://draftOrlandoOntology.org/sisterOf
-
-<http://draftOrlandoOntology.org/sisterOf> rdf:type owl:IrreflexiveProperty ,
-                                                    owl:ObjectProperty ;
-                                           
-                                           rdfs:label "sister of"@en ;
-                                           
-                                           rdfs:domain <http://draftOrlandoOntology.org/female> ;
-                                           
-                                           rdfs:subPropertyOf <http://draftOrlandoOntology.org/siblingOf> ;
-                                           
-                                           rdfs:domain <http://draftOrlandoOntology.org/transgendered> .
-
-
-
-###  http://draftOrlandoOntology.org/sonOf
-
-<http://draftOrlandoOntology.org/sonOf> rdf:type owl:AsymmetricProperty ,
-                                                 owl:IrreflexiveProperty ,
-                                                 owl:ObjectProperty ;
-                                        
-                                        rdfs:label "son of"@en ;
-                                        
-                                        rdfs:subPropertyOf <http://draftOrlandoOntology.org/childOf> ;
-                                        
-                                        rdfs:domain <http://draftOrlandoOntology.org/male> ,
-                                                    <http://draftOrlandoOntology.org/transgendered> .
-
-
-
-###  http://draftOrlandoOntology.org/spouseOf
-
-<http://draftOrlandoOntology.org/spouseOf> rdf:type owl:IrreflexiveProperty ,
-                                                    owl:ObjectProperty ,
-                                                    owl:SymmetricProperty ;
-                                           
-                                           rdfs:label "spouse of"@en ;
-                                           
-                                           rdfs:subPropertyOf <http://draftOrlandoOntology.org/FamilyRelations> ;
-                                           
-                                           rdfs:domain <http://draftOrlandoOntology.org/Person> ;
-                                           
-                                           rdfs:range <http://draftOrlandoOntology.org/Person> .
-
-
-
-###  http://draftOrlandoOntology.org/standardName
-
-<http://draftOrlandoOntology.org/standardName> rdf:type owl:ObjectProperty ;
-                                               
-                                               rdfs:label "standard name"@en ;
-                                               
-                                               rdfs:subPropertyOf <http://draftOrlandoOntology.org/Name> .
-
-
-
-###  http://draftOrlandoOntology.org/surname
-
-<http://draftOrlandoOntology.org/surname> rdf:type owl:ObjectProperty ;
-                                          
-                                          rdfs:label "surname"@en ;
-                                          
-                                          rdfs:subPropertyOf <http://draftOrlandoOntology.org/Name> .
-
-
-
-###  http://draftOrlandoOntology.org/uncleOf
-
-<http://draftOrlandoOntology.org/uncleOf> rdf:type owl:ObjectProperty ;
-                                          
-                                          rdfs:label "uncle of"@en ;
-                                          
-                                          rdfs:subPropertyOf <http://draftOrlandoOntology.org/seniorCollateralRelationshipTo> .
-
-
-
-###  http://draftOrlandoOntology.org/wifeOf
-
-<http://draftOrlandoOntology.org/wifeOf> rdf:type owl:IrreflexiveProperty ,
+<http://cwrc.ca/orlandont#causedDeathOf> rdf:type owl:AsymmetricProperty ,
                                                   owl:ObjectProperty ;
                                          
-                                         rdfs:label "wife of"@en ;
+                                         owl:inverseOf <http://cwrc.ca/orlandont#hadCauseOfDeath> ;
                                          
-                                         rdfs:domain <http://draftOrlandoOntology.org/female> ;
+                                         rdfs:subPropertyOf :Health ;
                                          
-                                         rdfs:subPropertyOf <http://draftOrlandoOntology.org/spouseOf> ;
-                                         
-                                         rdfs:domain <http://draftOrlandoOntology.org/transgendered> .
+                                         rdfs:range :Person .
+
+
+
+###  http://cwrc.ca/orlandont#hadCauseOfDeath
+
+<http://cwrc.ca/orlandont#hadCauseOfDeath> rdf:type owl:AsymmetricProperty ,
+                                                    owl:ObjectProperty ;
+                                           
+                                           rdfs:subPropertyOf :Health ;
+                                           
+                                           rdfs:domain :Person .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#EducationRelations
+
+:EducationRelations rdf:type owl:ObjectProperty ;
+                    
+                    rdfs:label "EducationRelations"@en .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#FamilyRelations
+
+:FamilyRelations rdf:type owl:ObjectProperty ;
+                 
+                 rdfs:label "FamilyRelations"@en ;
+                 
+                 rdfs:range :Person ;
+                 
+                 rdfs:domain :Person ;
+                 
+                 rdfs:subPropertyOf :Relationships .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#Health
+
+:Health rdf:type owl:AsymmetricProperty ,
+                 owl:IrreflexiveProperty ,
+                 owl:ObjectProperty ;
+        
+        rdfs:label "Health"@en ;
+        
+        rdfs:subPropertyOf :PersonalProperties .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#Influence
+
+:Influence rdf:type owl:ObjectProperty ;
+           
+           rdfs:label "Influence"@en .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#Location
+
+:Location rdf:type owl:ObjectProperty .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#Name
+
+:Name rdf:type owl:ObjectProperty ;
+      
+      rdfs:label "Name"@en .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#PRelationsWithPublisher
+
+:PRelationsWithPublisher rdf:type owl:ObjectProperty ;
+                         
+                         rdfs:domain :Person ;
+                         
+                         rdfs:range :Person ;
+                         
+                         rdfs:domain :Work ;
+                         
+                         rdfs:range :Work ;
+                         
+                         rdfs:subPropertyOf :relatedViaPublishingTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#PersonalProperties
+
+:PersonalProperties rdf:type owl:AsymmetricProperty ,
+                             owl:IrreflexiveProperty ,
+                             owl:ObjectProperty ;
+                    
+                    rdfs:label "PersonalProperties"@en .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#RelatedViaMaterialityTo
+
+:RelatedViaMaterialityTo rdf:type owl:ObjectProperty ,
+                                  owl:SymmetricProperty ;
+                         
+                         rdfs:range :Person ;
+                         
+                         rdfs:domain :Person ;
+                         
+                         rdfs:range :Work ;
+                         
+                         rdfs:domain :Work ;
+                         
+                         rdfs:subPropertyOf :relatedViaReceptionTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#Relationships
+
+:Relationships rdf:type owl:ObjectProperty ;
+               
+               rdfs:label "Relationships"@en ;
+               
+               rdfs:domain :Organization ;
+               
+               rdfs:range :Organization ;
+               
+               rdfs:domain :Person ;
+               
+               rdfs:range :Person .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#Sex
+
+:Sex rdf:type owl:AsymmetricProperty ,
+              owl:IrreflexiveProperty ,
+              owl:ObjectProperty ;
+     
+     rdfs:label "Sex"@en ;
+     
+     rdfs:subPropertyOf :PersonalProperties .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#auntOf
+
+:auntOf rdf:type owl:AsymmetricProperty ,
+                 owl:IrreflexiveProperty ,
+                 owl:ObjectProperty ;
+        
+        rdfs:label "auntOf"@en ;
+        
+        rdfs:range :Person ;
+        
+        rdfs:domain :Person ,
+                    :female ;
+        
+        rdfs:subPropertyOf :seniorCollateralRelationshipTo ;
+        
+        rdfs:domain :transgendered .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#bornIn
+
+:bornIn rdf:type owl:IrreflexiveProperty ,
+                 owl:ObjectProperty ;
+        
+        rdfs:subPropertyOf :Location ;
+        
+        rdfs:domain :Person ;
+        
+        rdfs:range :Place .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#bornInGeog
+
+:bornInGeog rdf:type owl:AsymmetricProperty ,
+                     owl:IrreflexiveProperty ,
+                     owl:ObjectProperty ;
+            
+            rdfs:range :GeographicArea ;
+            
+            rdfs:domain :Person ;
+            
+            rdfs:subPropertyOf :bornIn .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#bornInRegion
+
+:bornInRegion rdf:type owl:AsymmetricProperty ,
+                       owl:IrreflexiveProperty ,
+                       owl:ObjectProperty ;
+              
+              rdfs:domain :Person ;
+              
+              rdfs:range :Region ;
+              
+              rdfs:subPropertyOf :bornInGeog .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#bornInSettlement
+
+:bornInSettlement rdf:type owl:AsymmetricProperty ,
+                           owl:IrreflexiveProperty ,
+                           owl:ObjectProperty ;
+                  
+                  rdfs:domain :Person ;
+                  
+                  rdfs:range :Settlement ;
+                  
+                  rdfs:subPropertyOf :bornInRegion .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#brotherOf
+
+:brotherOf rdf:type owl:IrreflexiveProperty ,
+                    owl:ObjectProperty ;
+           
+           rdfs:label "brotherOf"@en ;
+           
+           rdfs:domain :Person ;
+           
+           rdfs:range :Person ;
+           
+           rdfs:domain :male ;
+           
+           rdfs:subPropertyOf :siblingOf ;
+           
+           rdfs:domain :transgendered .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#childOf
+
+:childOf rdf:type owl:AsymmetricProperty ,
+                  owl:IrreflexiveProperty ,
+                  owl:ObjectProperty ;
+         
+         rdfs:label "childOf"@en ;
+         
+         rdfs:subPropertyOf :FamilyRelations ;
+         
+         rdfs:range :Person ;
+         
+         rdfs:domain :Person ;
+         
+         owl:inverseOf :parentOf .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#collateralRelation
+
+:collateralRelation rdf:type owl:ObjectProperty ,
+                             owl:SymmetricProperty ;
+                    
+                    rdfs:label "collateralRelation"@en ;
+                    
+                    rdfs:subPropertyOf :FamilyRelations ;
+                    
+                    rdfs:domain :Person ;
+                    
+                    rdfs:range :Person .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#connectionWithAddress
+
+:connectionWithAddress rdf:type owl:IrreflexiveProperty ,
+                                owl:ObjectProperty ;
+                       
+                       rdfs:subPropertyOf :connectionWithSettlement .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#connectionWithGeographicArea
+
+:connectionWithGeographicArea rdf:type owl:IrreflexiveProperty ,
+                                       owl:ObjectProperty ;
+                              
+                              rdfs:range :GeographicArea ;
+                              
+                              rdfs:subPropertyOf :connectionWithPlace .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#connectionWithPlace
+
+:connectionWithPlace rdf:type owl:IrreflexiveProperty ,
+                              owl:ObjectProperty ;
+                     
+                     rdfs:subPropertyOf :Location ;
+                     
+                     rdfs:range :Place .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#connectionWithRegion
+
+:connectionWithRegion rdf:type owl:IrreflexiveProperty ,
+                               owl:ObjectProperty ;
+                      
+                      rdfs:range :Region ;
+                      
+                      rdfs:subPropertyOf :connectionWithGeographicArea .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#connectionWithSettlement
+
+:connectionWithSettlement rdf:type owl:IrreflexiveProperty ,
+                                   owl:ObjectProperty ;
+                          
+                          rdfs:range :Settlement ;
+                          
+                          rdfs:subPropertyOf :connectionWithRegion .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#cousinOf
+
+:cousinOf rdf:type owl:IrreflexiveProperty ,
+                   owl:ObjectProperty ,
+                   owl:SymmetricProperty ;
+          
+          rdfs:label "cousinOf"@en ;
+          
+          rdfs:subPropertyOf :FamilyRelations ;
+          
+          rdfs:domain :Person ;
+          
+          rdfs:range :Person .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#culturalInfluence
+
+:culturalInfluence rdf:type owl:AsymmetricProperty ,
+                            owl:IrreflexiveProperty ,
+                            owl:ObjectProperty ;
+                   
+                   rdfs:label "culturalInfluence"@en ;
+                   
+                   rdfs:subPropertyOf :Influence .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#daughterOf
+
+:daughterOf rdf:type owl:AsymmetricProperty ,
+                     owl:IrreflexiveProperty ,
+                     owl:ObjectProperty ;
+            
+            rdfs:label "daughterOf"@en ;
+            
+            rdfs:domain :Person ;
+            
+            rdfs:subPropertyOf :childOf ;
+            
+            rdfs:domain :female ,
+                        :transgendered .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#diedIn
+
+:diedIn rdf:type owl:AsymmetricProperty ,
+                 owl:IrreflexiveProperty ,
+                 owl:ObjectProperty ;
+        
+        rdfs:subPropertyOf :Location ;
+        
+        rdfs:domain :Person ;
+        
+        rdfs:range :Place .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#diedInGeog
+
+:diedInGeog rdf:type owl:AsymmetricProperty ,
+                     owl:IrreflexiveProperty ,
+                     owl:ObjectProperty ;
+            
+            rdfs:range :GeographicArea ;
+            
+            rdfs:subPropertyOf :diedIn .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#diedInRegion
+
+:diedInRegion rdf:type owl:AsymmetricProperty ,
+                       owl:IrreflexiveProperty ,
+                       owl:ObjectProperty ;
+              
+              rdfs:range :Region ;
+              
+              rdfs:subPropertyOf :diedInGeog .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#diedInSettlement
+
+:diedInSettlement rdf:type owl:AsymmetricProperty ,
+                           owl:IrreflexiveProperty ,
+                           owl:ObjectProperty ;
+                  
+                  rdfs:range :Settlement ;
+                  
+                  rdfs:subPropertyOf :diedInRegion .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#educationInstitutionType
+
+:educationInstitutionType rdf:type owl:AsymmetricProperty ,
+                                   owl:ObjectProperty ;
+                          
+                          rdfs:label "educationInstitutionType"@en ;
+                          
+                          rdfs:subPropertyOf :EducationRelations .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#educationLevel
+
+:educationLevel rdf:type owl:AsymmetricProperty ,
+                         owl:ObjectProperty ;
+                
+                rdfs:label "educationLevel"@en ;
+                
+                rdfs:subPropertyOf :EducationRelations .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#fatherOf
+
+:fatherOf rdf:type owl:AsymmetricProperty ,
+                   owl:IrreflexiveProperty ,
+                   owl:ObjectProperty ;
+          
+          rdfs:label "fatherOf"@en ;
+          
+          rdfs:domain :Person ;
+          
+          rdfs:range :Person ;
+          
+          rdfs:domain :male ;
+          
+          rdfs:subPropertyOf :parentOf ;
+          
+          rdfs:domain :transgendered .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#friendOf
+
+:friendOf rdf:type owl:IrreflexiveProperty ,
+                   owl:ObjectProperty ;
+          
+          rdfs:label "friendOf"@en ;
+          
+          rdfs:domain :Person ;
+          
+          rdfs:range :Person ;
+          
+          rdfs:subPropertyOf :Relationships .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#friendOrAssociateOf
+
+:friendOrAssociateOf rdf:type owl:IrreflexiveProperty ,
+                              owl:ObjectProperty ;
+                     
+                     rdfs:label "friendOrAssociateOf"@en ;
+                     
+                     rdfs:range :Person ;
+                     
+                     rdfs:domain :Person ;
+                     
+                     rdfs:subPropertyOf :Relationships .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#givenName
+
+:givenName rdf:type owl:ObjectProperty ;
+           
+           rdfs:label "givenName"@en ;
+           
+           rdfs:subPropertyOf :Name ;
+           
+           rdfs:domain :Person .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#grandchildOf
+
+:grandchildOf rdf:type owl:AsymmetricProperty ,
+                       owl:IrreflexiveProperty ,
+                       owl:ObjectProperty ;
+              
+              rdfs:label "grandchildOf"@en ;
+              
+              rdfs:subPropertyOf :FamilyRelations ;
+              
+              rdfs:range :Person ;
+              
+              rdfs:domain :Person ;
+              
+              owl:inverseOf :grandparentOf .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#granddaughterOf
+
+:granddaughterOf rdf:type owl:AsymmetricProperty ,
+                          owl:IrreflexiveProperty ,
+                          owl:ObjectProperty ;
+                 
+                 rdfs:label "granddaughterOf"@en ;
+                 
+                 rdfs:range :Person ;
+                 
+                 rdfs:domain :Person ,
+                             :female ;
+                 
+                 rdfs:subPropertyOf :grandchildOf ;
+                 
+                 rdfs:domain :transgendered .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#grandfatherOf
+
+:grandfatherOf rdf:type owl:AsymmetricProperty ,
+                        owl:IrreflexiveProperty ,
+                        owl:ObjectProperty ;
+               
+               rdfs:label "grandfatherOf"@en ;
+               
+               rdfs:domain :Person ;
+               
+               rdfs:subPropertyOf :grandparentOf ;
+               
+               rdfs:domain :male ,
+                           :transgendered .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#grandmotherOf
+
+:grandmotherOf rdf:type owl:AsymmetricProperty ,
+                        owl:IrreflexiveProperty ,
+                        owl:ObjectProperty ;
+               
+               rdfs:label "grandmotherOf"@en ;
+               
+               rdfs:domain :Person ,
+                           :female ;
+               
+               rdfs:subPropertyOf :grandparentOf ;
+               
+               rdfs:domain :transgendered .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#grandparentOf
+
+:grandparentOf rdf:type owl:AsymmetricProperty ,
+                        owl:IrreflexiveProperty ,
+                        owl:ObjectProperty ;
+               
+               rdfs:label "grandparentOf"@en ;
+               
+               rdfs:subPropertyOf :FamilyRelations ;
+               
+               rdfs:domain :Person ;
+               
+               rdfs:range :Person .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#grandsonOf
+
+:grandsonOf rdf:type owl:AsymmetricProperty ,
+                     owl:IrreflexiveProperty ,
+                     owl:ObjectProperty ;
+            
+            rdfs:label "grandsonOf"@en ;
+            
+            rdfs:domain :Person ;
+            
+            rdfs:range :Person ;
+            
+            rdfs:subPropertyOf :grandchildOf ;
+            
+            rdfs:domain :male ,
+                        :transgendered .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#hadHealthIssue
+
+:hadHealthIssue rdf:type owl:AsymmetricProperty ,
+                         owl:IrreflexiveProperty ,
+                         owl:ObjectProperty ;
+                
+                rdfs:label "hadHealthIssue"@en ;
+                
+                rdfs:subPropertyOf :Health .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#hasSex
+
+:hasSex rdf:type owl:AsymmetricProperty ,
+                 owl:IrreflexiveProperty ,
+                 owl:ObjectProperty ;
+        
+        rdfs:label "hasSex"@en ;
+        
+        rdfs:domain :Person ;
+        
+        rdfs:subPropertyOf :Sex ;
+        
+        rdfs:range :female ,
+                   :male ,
+                   :transgendered ,
+                   :unknown .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#husbandOf
+
+:husbandOf rdf:type owl:AsymmetricProperty ,
+                    owl:IrreflexiveProperty ,
+                    owl:ObjectProperty ;
+           
+           rdfs:label "husbandOf"@en ;
+           
+           rdfs:range :Person ;
+           
+           rdfs:domain :Person ,
+                       :male ;
+           
+           rdfs:subPropertyOf :spouseOf ;
+           
+           rdfs:domain :transgendered .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#influencedBy
+
+:influencedBy rdf:type owl:AsymmetricProperty ,
+                       owl:ObjectProperty ;
+              
+              rdfs:comment "modification of Orlando tag \"PInfluencesHer\"." ;
+              
+              rdfs:range :Person ;
+              
+              rdfs:domain :Person ,
+                          :Work ;
+              
+              rdfs:range :Work ;
+              
+              rdfs:subPropertyOf :relatedViaIntertextualityOrInfluenceTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#influences
+
+:influences rdf:type owl:AsymmetricProperty ,
+                     owl:ObjectProperty ;
+            
+            rdfs:comment "modification of Orlando tag \"RSheInfluences\"." ;
+            
+            rdfs:domain :Person ;
+            
+            rdfs:range :Person ;
+            
+            rdfs:domain :Work ;
+            
+            rdfs:range :Work ;
+            
+            owl:inverseOf :influencedBy ;
+            
+            rdfs:subPropertyOf :relatedViaIntertextualityOrInfluenceTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#juniorCollateralRelationshipTo
+
+:juniorCollateralRelationshipTo rdf:type owl:AsymmetricProperty ,
+                                         owl:IrreflexiveProperty ,
+                                         owl:ObjectProperty ;
+                                
+                                rdfs:label "juniorCollateralRelationshipTo"@en ;
+                                
+                                rdfs:range :Person ;
+                                
+                                rdfs:domain :Person ;
+                                
+                                rdfs:subPropertyOf :collateralRelation .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#livedIn
+
+:livedIn rdf:type owl:AsymmetricProperty ,
+                  owl:IrreflexiveProperty ,
+                  owl:ObjectProperty ;
+         
+         rdfs:subPropertyOf :Location ;
+         
+         rdfs:domain :Person ;
+         
+         rdfs:range :Place .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#livedInGeog
+
+:livedInGeog rdf:type owl:AsymmetricProperty ,
+                      owl:IrreflexiveProperty ,
+                      owl:ObjectProperty ;
+             
+             rdfs:range :GeographicArea ;
+             
+             rdfs:subPropertyOf :livedIn .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#livedInRegion
+
+:livedInRegion rdf:type owl:AsymmetricProperty ,
+                        owl:IrreflexiveProperty ,
+                        owl:ObjectProperty ;
+               
+               rdfs:range :Region ;
+               
+               rdfs:subPropertyOf :livedInGeog .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#livedInSettlement
+
+:livedInSettlement rdf:type owl:AsymmetricProperty ,
+                            owl:IrreflexiveProperty ,
+                            owl:ObjectProperty ;
+                   
+                   rdfs:range :Settlement ;
+                   
+                   rdfs:subPropertyOf :livedInRegion .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#marriedTo
+
+:marriedTo rdf:type owl:IrreflexiveProperty ,
+                    owl:ObjectProperty ,
+                    owl:SymmetricProperty ;
+           
+           rdfs:label "marriedTo"@en ;
+           
+           rdfs:subPropertyOf :FamilyRelations ;
+           
+           rdfs:range :Person ;
+           
+           rdfs:domain :Person .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#motherOf
+
+:motherOf rdf:type owl:AsymmetricProperty ,
+                   owl:IrreflexiveProperty ,
+                   owl:ObjectProperty ;
+          
+          rdfs:label "motherOf"@en ;
+          
+          rdfs:range :Person ;
+          
+          rdfs:domain :Person ,
+                      :female ;
+          
+          rdfs:subPropertyOf :parentOf ;
+          
+          rdfs:domain :transgendered .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#nephewOf
+
+:nephewOf rdf:type owl:AsymmetricProperty ,
+                   owl:IrreflexiveProperty ,
+                   owl:ObjectProperty ;
+          
+          rdfs:label "nephewOf"@en ;
+          
+          rdfs:domain :Person ;
+          
+          rdfs:range :Person ;
+          
+          rdfs:subPropertyOf :juniorCollateralRelationshipTo ;
+          
+          rdfs:domain :male ,
+                      :transgendered .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#nickname
+
+:nickname rdf:type owl:ObjectProperty ;
+          
+          rdfs:label "nickname"@en ;
+          
+          rdfs:subPropertyOf :Name ;
+          
+          rdfs:domain :Person .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#nieceOf
+
+:nieceOf rdf:type owl:AsymmetricProperty ,
+                  owl:IrreflexiveProperty ,
+                  owl:ObjectProperty ;
+         
+         rdfs:label "nieceOf"@en ;
+         
+         rdfs:range :Person ;
+         
+         rdfs:domain :Person ,
+                     :female ;
+         
+         rdfs:subPropertyOf :juniorCollateralRelationshipTo ;
+         
+         rdfs:domain :transgendered .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#numberOfChildren
+
+:numberOfChildren rdf:type owl:AsymmetricProperty ,
+                           owl:IrreflexiveProperty ,
+                           owl:ObjectProperty ;
+                  
+                  rdfs:label "numberOfChildren"@en ;
+                  
+                  rdfs:subPropertyOf :FamilyRelations ;
+                  
+                  rdfs:domain :Person .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#parentOf
+
+:parentOf rdf:type owl:AsymmetricProperty ,
+                   owl:IrreflexiveProperty ,
+                   owl:ObjectProperty ;
+          
+          rdfs:label "parentOf"@en ;
+          
+          rdfs:subPropertyOf :FamilyRelations ;
+          
+          rdfs:domain :Person ;
+          
+          rdfs:range :Person .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#politicalInfluence
+
+:politicalInfluence rdf:type owl:AsymmetricProperty ,
+                             owl:IrreflexiveProperty ,
+                             owl:ObjectProperty ;
+                    
+                    rdfs:label "politicalInfluence"@en ;
+                    
+                    rdfs:subPropertyOf :Influence .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaAdvertisingTo
+
+:relatedViaAdvertisingTo rdf:type owl:ObjectProperty ,
+                                  owl:SymmetricProperty ;
+                         
+                         rdfs:domain :Person ;
+                         
+                         rdfs:range :Person ;
+                         
+                         rdfs:domain :Work ;
+                         
+                         rdfs:range :Work ;
+                         
+                         rdfs:subPropertyOf :relatedViaPublishingTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaArchivalLocationTo
+
+:relatedViaArchivalLocationTo rdf:type owl:ObjectProperty ,
+                                       owl:SymmetricProperty ;
+                              
+                              rdfs:domain :Person ;
+                              
+                              rdfs:range :Person ;
+                              
+                              rdfs:subPropertyOf :RelatedViaMaterialityTo ;
+                              
+                              rdfs:domain :Work ;
+                              
+                              rdfs:range :Work .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaAttitudesTo
+
+:relatedViaAttitudesTo rdf:type owl:ObjectProperty ,
+                                owl:SymmetricProperty ;
+                       
+                       rdfs:range :Person ;
+                       
+                       rdfs:domain :Person ;
+                       
+                       rdfs:range :Work ;
+                       
+                       rdfs:domain :Work ;
+                       
+                       rdfs:subPropertyOf :relatedViaWritingConditionsTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaAuthorshipTo
+
+:relatedViaAuthorshipTo rdf:type owl:ObjectProperty ,
+                                 owl:SymmetricProperty ;
+                        
+                        rdfs:domain :Person ;
+                        
+                        rdfs:range :Person ;
+                        
+                        rdfs:domain :Work ;
+                        
+                        rdfs:range :Work ;
+                        
+                        rdfs:subPropertyOf :writingRelationships .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaAwardsRecognitionTo
+
+:relatedViaAwardsRecognitionTo rdf:type owl:ObjectProperty ,
+                                        owl:SymmetricProperty ;
+                               
+                               rdfs:range :Person ;
+                               
+                               rdfs:domain :Person ,
+                                           :Work ;
+                               
+                               rdfs:range :Work ;
+                               
+                               rdfs:subPropertyOf :relatedViaReceptionTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaBestKnownWorkTo
+
+:relatedViaBestKnownWorkTo rdf:type owl:ObjectProperty ,
+                                    owl:SymmetricProperty ;
+                           
+                           rdfs:range :Person ;
+                           
+                           rdfs:domain :Person ;
+                           
+                           rdfs:range :Work ;
+                           
+                           rdfs:domain :Work ;
+                           
+                           rdfs:subPropertyOf :relatedViaReputationTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaCharacterNameTo
+
+:relatedViaCharacterNameTo rdf:type owl:ObjectProperty ,
+                                    owl:SymmetricProperty ;
+                           
+                           rdfs:range :Person ;
+                           
+                           rdfs:domain :Person ,
+                                       :Work ;
+                           
+                           rdfs:range :Work ;
+                           
+                           rdfs:subPropertyOf :relatedViaCharacterizationTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaCharacterTypeRoleTo
+
+:relatedViaCharacterTypeRoleTo rdf:type owl:ObjectProperty ,
+                                        owl:SymmetricProperty ;
+                               
+                               rdfs:range :Person ;
+                               
+                               rdfs:domain :Person ;
+                               
+                               rdfs:range :Work ;
+                               
+                               rdfs:domain :Work ;
+                               
+                               rdfs:subPropertyOf :relatedViaCharacterizationTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaCharacterizationTo
+
+:relatedViaCharacterizationTo rdf:type owl:ObjectProperty ,
+                                       owl:SymmetricProperty ;
+                              
+                              rdfs:range :Person ;
+                              
+                              rdfs:domain :Person ,
+                                          :Work ;
+                              
+                              rdfs:range :Work ;
+                              
+                              rdfs:subPropertyOf :relatedViaTextualFeaturesTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaCirculationTo
+
+:relatedViaCirculationTo rdf:type owl:ObjectProperty ;
+                         
+                         rdfs:domain :Person ;
+                         
+                         rdfs:range :Person ,
+                                    :Work ;
+                         
+                         rdfs:domain :Work ;
+                         
+                         rdfs:subPropertyOf :relatedViaPublishingTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaContractTo
+
+:relatedViaContractTo rdf:type owl:ObjectProperty ,
+                               owl:SymmetricProperty ;
+                      
+                      rdfs:range :Person ;
+                      
+                      rdfs:domain :Person ,
+                                  :Work ;
+                      
+                      rdfs:range :Work ;
+                      
+                      rdfs:subPropertyOf :relatedViaPublishingTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaCopyrightTo
+
+:relatedViaCopyrightTo rdf:type owl:ObjectProperty ,
+                                owl:SymmetricProperty ;
+                       
+                       rdfs:range :Person ;
+                       
+                       rdfs:domain :Person ,
+                                   :Work ;
+                       
+                       rdfs:range :Work ;
+                       
+                       rdfs:subPropertyOf :relatedViaPublishingTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaDedicationTo
+
+:relatedViaDedicationTo rdf:type owl:ObjectProperty ,
+                                 owl:SymmetricProperty ;
+                        
+                        rdfs:domain :Person ;
+                        
+                        rdfs:range :Person ;
+                        
+                        rdfs:domain :Work ;
+                        
+                        rdfs:range :Work ;
+                        
+                        rdfs:subPropertyOf :relatedViaPublishingTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaDestructionOfWorkTo
+
+:relatedViaDestructionOfWorkTo rdf:type owl:ObjectProperty ,
+                                        owl:SymmetricProperty ;
+                               
+                               rdfs:range :Person ;
+                               
+                               rdfs:domain :Person ;
+                               
+                               rdfs:subPropertyOf :RelatedViaMaterialityTo ;
+                               
+                               rdfs:domain :Work ;
+                               
+                               rdfs:range :Work .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaEditionsTo
+
+:relatedViaEditionsTo rdf:type owl:ObjectProperty ,
+                               owl:SymmetricProperty ;
+                      
+                      rdfs:range :Person ;
+                      
+                      rdfs:domain :Person ;
+                      
+                      rdfs:range :Work ;
+                      
+                      rdfs:domain :Work ;
+                      
+                      rdfs:subPropertyOf :relatedViaPublishingTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaFictionalizationTo
+
+:relatedViaFictionalizationTo rdf:type owl:ObjectProperty ,
+                                       owl:SymmetricProperty ;
+                              
+                              rdfs:range :Person ;
+                              
+                              rdfs:domain :Person ,
+                                          :Work ;
+                              
+                              rdfs:range :Work ;
+                              
+                              rdfs:subPropertyOf :relatedViaIntertextualityOrInfluenceTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaGenreIssueTo
+
+:relatedViaGenreIssueTo rdf:type owl:ObjectProperty ,
+                                 owl:SymmetricProperty ;
+                        
+                        rdfs:range :Person ;
+                        
+                        rdfs:domain :Person ,
+                                    :Work ;
+                        
+                        rdfs:range :Work ;
+                        
+                        rdfs:subPropertyOf :relatedViaGenreTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaGenreTo
+
+:relatedViaGenreTo rdf:type owl:ObjectProperty ,
+                            owl:SymmetricProperty ;
+                   
+                   rdfs:domain :Person ;
+                   
+                   rdfs:range :Person ,
+                              :Work ;
+                   
+                   rdfs:domain :Work ;
+                   
+                   rdfs:subPropertyOf :relatedViaTextualFeaturesTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaIntertextualityOrInfluenceTo
+
+:relatedViaIntertextualityOrInfluenceTo rdf:type owl:ObjectProperty ,
+                                                 owl:SymmetricProperty ;
+                                        
+                                        rdfs:range :Person ;
+                                        
+                                        rdfs:domain :Person ;
+                                        
+                                        rdfs:range :Work ;
+                                        
+                                        rdfs:domain :Work ;
+                                        
+                                        rdfs:subPropertyOf :relatedViaTextualFeaturesTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaIntertextualityTo
+
+:relatedViaIntertextualityTo rdf:type owl:ObjectProperty ,
+                                      owl:SymmetricProperty ;
+                             
+                             rdfs:domain :Person ;
+                             
+                             rdfs:range :Person ,
+                                        :Work ;
+                             
+                             rdfs:domain :Work ;
+                             
+                             rdfs:subPropertyOf :relatedViaIntertextualityOrInfluenceTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaLandmarkTextTo
+
+:relatedViaLandmarkTextTo rdf:type owl:ObjectProperty ,
+                                   owl:SymmetricProperty ;
+                          
+                          rdfs:range :Person ;
+                          
+                          rdfs:domain :Person ;
+                          
+                          rdfs:range :Work ;
+                          
+                          rdfs:domain :Work ;
+                          
+                          rdfs:subPropertyOf :relatedViaBestKnownWorkTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaLiteraryMovementsTo
+
+:relatedViaLiteraryMovementsTo rdf:type owl:ObjectProperty ,
+                                        owl:SymmetricProperty ;
+                               
+                               rdfs:range :Person ;
+                               
+                               rdfs:domain :Person ;
+                               
+                               rdfs:range :Work ;
+                               
+                               rdfs:domain :Work ;
+                               
+                               rdfs:subPropertyOf :writingRelationships .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaLiteraryProductionTo
+
+:relatedViaLiteraryProductionTo rdf:type owl:ObjectProperty ,
+                                         owl:SymmetricProperty ;
+                                
+                                rdfs:range :Person ;
+                                
+                                rdfs:domain :Person ;
+                                
+                                rdfs:range :Work ;
+                                
+                                rdfs:domain :Work ;
+                                
+                                rdfs:subPropertyOf :writingRelationships .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaLiteraryResponsesTo
+
+:relatedViaLiteraryResponsesTo rdf:type owl:ObjectProperty ,
+                                        owl:SymmetricProperty ;
+                               
+                               rdfs:range :Person ;
+                               
+                               rdfs:domain :Person ;
+                               
+                               rdfs:range :Work ;
+                               
+                               rdfs:domain :Work ;
+                               
+                               rdfs:subPropertyOf :relatedViaReceptionTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaLiterarySchoolsTo
+
+:relatedViaLiterarySchoolsTo rdf:type owl:ObjectProperty ,
+                                      owl:SymmetricProperty ;
+                             
+                             rdfs:range :Person ;
+                             
+                             rdfs:domain :Person ;
+                             
+                             rdfs:range :Work ;
+                             
+                             rdfs:domain :Work ;
+                             
+                             rdfs:subPropertyOf :relatedViaLiteraryMovementsTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaManuscriptHistoryTo
+
+:relatedViaManuscriptHistoryTo rdf:type owl:ObjectProperty ,
+                                        owl:SymmetricProperty ;
+                               
+                               rdfs:domain :Person ;
+                               
+                               rdfs:range :Person ;
+                               
+                               rdfs:subPropertyOf :RelatedViaMaterialityTo ;
+                               
+                               rdfs:domain :Work ;
+                               
+                               rdfs:range :Work .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaMaterialConditionsTo
+
+:relatedViaMaterialConditionsTo rdf:type owl:ObjectProperty ,
+                                         owl:SymmetricProperty ;
+                                
+                                rdfs:range :Person ;
+                                
+                                rdfs:domain :Person ;
+                                
+                                rdfs:range :Work ;
+                                
+                                rdfs:domain :Work ;
+                                
+                                rdfs:subPropertyOf :relatedViaWritingConditionsTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaMotifTo
+
+:relatedViaMotifTo rdf:type owl:ObjectProperty ,
+                            owl:SymmetricProperty ;
+                   
+                   rdfs:range :Person ;
+                   
+                   rdfs:domain :Person ;
+                   
+                   rdfs:range :Work ;
+                   
+                   rdfs:domain :Work ;
+                   
+                   rdfs:subPropertyOf :relatedViaTechniqueTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaMotivesTo
+
+:relatedViaMotivesTo rdf:type owl:ObjectProperty ,
+                              owl:SymmetricProperty ;
+                     
+                     rdfs:domain :Person ;
+                     
+                     rdfs:range :Person ;
+                     
+                     rdfs:domain :Work ;
+                     
+                     rdfs:range :Work ;
+                     
+                     rdfs:subPropertyOf :relatedViaWritingConditionsTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaNonBookMediaTo
+
+:relatedViaNonBookMediaTo rdf:type owl:ObjectProperty ,
+                                   owl:SymmetricProperty ;
+                          
+                          rdfs:domain :Person ;
+                          
+                          rdfs:range :Person ;
+                          
+                          rdfs:subPropertyOf :RelatedViaMaterialityTo ;
+                          
+                          rdfs:range :Work ;
+                          
+                          rdfs:domain :Work .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaNonSurvivalTo
+
+:relatedViaNonSurvivalTo rdf:type owl:ObjectProperty ,
+                                  owl:SymmetricProperty ;
+                         
+                         rdfs:domain :Person ;
+                         
+                         rdfs:range :Person ;
+                         
+                         rdfs:subPropertyOf :RelatedViaMaterialityTo ;
+                         
+                         rdfs:domain :Work ;
+                         
+                         rdfs:range :Work .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaPRaritiesFeaturesDecorationsTo
+
+:relatedViaPRaritiesFeaturesDecorationsTo rdf:type owl:ObjectProperty ,
+                                                   owl:SymmetricProperty ;
+                                          
+                                          rdfs:domain :Person ;
+                                          
+                                          rdfs:range :Person ;
+                                          
+                                          rdfs:subPropertyOf :RelatedViaMaterialityTo ;
+                                          
+                                          rdfs:range :Work ;
+                                          
+                                          rdfs:domain :Work .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaPenaltiesTo
+
+:relatedViaPenaltiesTo rdf:type owl:ObjectProperty ,
+                                owl:SymmetricProperty ;
+                       
+                       rdfs:range :Person ;
+                       
+                       rdfs:domain :Person ,
+                                   :Work ;
+                       
+                       rdfs:range :Work ;
+                       
+                       rdfs:subPropertyOf :relatedViaReceptionTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaPerformanceTo
+
+:relatedViaPerformanceTo rdf:type owl:ObjectProperty ,
+                                  owl:SymmetricProperty ;
+                         
+                         rdfs:domain :Person ;
+                         
+                         rdfs:range :Person ;
+                         
+                         rdfs:domain :Work ;
+                         
+                         rdfs:range :Work ;
+                         
+                         rdfs:subPropertyOf :writingRelationships .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaPeriodicalPublicationTo
+
+:relatedViaPeriodicalPublicationTo rdf:type owl:ObjectProperty ,
+                                            owl:SymmetricProperty ;
+                                   
+                                   rdfs:range :Person ;
+                                   
+                                   rdfs:domain :Person ;
+                                   
+                                   rdfs:range :Work ;
+                                   
+                                   rdfs:domain :Work ;
+                                   
+                                   rdfs:subPropertyOf :writingRelationships .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaPlotTo
+
+:relatedViaPlotTo rdf:type owl:ObjectProperty ,
+                           owl:SymmetricProperty ;
+                  
+                  rdfs:domain :Person ;
+                  
+                  rdfs:range :Person ;
+                  
+                  rdfs:domain :Work ;
+                  
+                  rdfs:range :Work ;
+                  
+                  rdfs:subPropertyOf :relatedViaTextualFeaturesTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaPressRunTo
+
+:relatedViaPressRunTo rdf:type owl:ObjectProperty ,
+                               owl:SymmetricProperty ;
+                      
+                      rdfs:domain :Person ;
+                      
+                      rdfs:range :Person ,
+                                 :Work ;
+                      
+                      rdfs:domain :Work ;
+                      
+                      rdfs:subPropertyOf :relatedViaPublishingTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaPublishingTo
+
+:relatedViaPublishingTo rdf:type owl:ObjectProperty ,
+                                 owl:SymmetricProperty ;
+                        
+                        rdfs:range :Person ;
+                        
+                        rdfs:domain :Person ;
+                        
+                        rdfs:range :Work ;
+                        
+                        rdfs:domain :Work ;
+                        
+                        rdfs:subPropertyOf :relatedViaLiteraryProductionTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaReceptionTo
+
+:relatedViaReceptionTo rdf:type owl:ObjectProperty ,
+                                owl:SymmetricProperty ;
+                       
+                       rdfs:range :Person ;
+                       
+                       rdfs:domain :Person ;
+                       
+                       rdfs:range :Work ;
+                       
+                       rdfs:domain :Work ;
+                       
+                       rdfs:subPropertyOf :writingRelationships .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaRecognitionNameTo
+
+:relatedViaRecognitionNameTo rdf:type owl:ObjectProperty ,
+                                      owl:SymmetricProperty ;
+                             
+                             rdfs:range :Person ;
+                             
+                             rdfs:domain :Person ;
+                             
+                             rdfs:range :Work ;
+                             
+                             rdfs:domain :Work ;
+                             
+                             rdfs:subPropertyOf :relatedViaReceptionTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaReputationTo
+
+:relatedViaReputationTo rdf:type owl:ObjectProperty ,
+                                 owl:SymmetricProperty ;
+                        
+                        rdfs:range :Person ;
+                        
+                        rdfs:domain :Person ;
+                        
+                        rdfs:subPropertyOf :RelatedViaMaterialityTo ;
+                        
+                        rdfs:range :Work ;
+                        
+                        rdfs:domain :Work .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaSerializationTo
+
+:relatedViaSerializationTo rdf:type owl:ObjectProperty ,
+                                    owl:SymmetricProperty ;
+                           
+                           rdfs:domain :Person ;
+                           
+                           rdfs:range :Person ;
+                           
+                           rdfs:domain :Work ;
+                           
+                           rdfs:range :Work ;
+                           
+                           rdfs:subPropertyOf :writingRelationships .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaSettingDateTo
+
+:relatedViaSettingDateTo rdf:type owl:ObjectProperty ,
+                                  owl:SymmetricProperty ;
+                         
+                         rdfs:domain :Person ;
+                         
+                         rdfs:range :Person ;
+                         
+                         rdfs:domain :Work ;
+                         
+                         rdfs:range :Work ;
+                         
+                         rdfs:subPropertyOf :relatedViaSettingTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaSettingPlaceTo
+
+:relatedViaSettingPlaceTo rdf:type owl:ObjectProperty ,
+                                   owl:SymmetricProperty ;
+                          
+                          rdfs:range :Person ;
+                          
+                          rdfs:domain :Person ;
+                          
+                          rdfs:range :Work ;
+                          
+                          rdfs:domain :Work ;
+                          
+                          rdfs:subPropertyOf :relatedViaSettingTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaSettingTo
+
+:relatedViaSettingTo rdf:type owl:ObjectProperty ,
+                              owl:SymmetricProperty ;
+                     
+                     rdfs:range :Person ;
+                     
+                     rdfs:domain :Person ;
+                     
+                     rdfs:range :Work ;
+                     
+                     rdfs:domain :Work ;
+                     
+                     rdfs:subPropertyOf :relatedViaTextualFeaturesTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaSubmissionsRejectionsTo
+
+:relatedViaSubmissionsRejectionsTo rdf:type owl:ObjectProperty ,
+                                            owl:SymmetricProperty ;
+                                   
+                                   rdfs:domain :Person ;
+                                   
+                                   rdfs:range :Person ;
+                                   
+                                   rdfs:domain :Work ;
+                                   
+                                   rdfs:range :Work ;
+                                   
+                                   rdfs:subPropertyOf :relatedViaPublishingTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaTechniqueTo
+
+:relatedViaTechniqueTo rdf:type owl:ObjectProperty ,
+                                owl:SymmetricProperty ;
+                       
+                       rdfs:range :Person ;
+                       
+                       rdfs:domain :Person ;
+                       
+                       rdfs:range :Work ;
+                       
+                       rdfs:domain :Work ;
+                       
+                       rdfs:subPropertyOf :relatedViaTextualFeaturesTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaTechniquesTo
+
+:relatedViaTechniquesTo rdf:type owl:ObjectProperty ,
+                                 owl:SymmetricProperty ;
+                        
+                        rdfs:range :Person ;
+                        
+                        rdfs:domain :Person ,
+                                    :Work ;
+                        
+                        rdfs:range :Work ;
+                        
+                        rdfs:subPropertyOf :relatedViaTechniqueTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaTextualFeaturesTo
+
+:relatedViaTextualFeaturesTo rdf:type owl:ObjectProperty ,
+                                      owl:SymmetricProperty ;
+                             
+                             rdfs:range :Person ;
+                             
+                             rdfs:domain :Person ;
+                             
+                             rdfs:range :Work ;
+                             
+                             rdfs:domain :Work ;
+                             
+                             rdfs:subPropertyOf :writingRelationships .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaToneOrStyleTo
+
+:relatedViaToneOrStyleTo rdf:type owl:ObjectProperty ,
+                                  owl:SymmetricProperty ;
+                         
+                         rdfs:domain :Person ;
+                         
+                         rdfs:range :Person ,
+                                    :Work ;
+                         
+                         rdfs:domain :Work ;
+                         
+                         rdfs:subPropertyOf :relatedViaTechniqueTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaVoiceOrNarrationTo
+
+:relatedViaVoiceOrNarrationTo rdf:type owl:ObjectProperty ,
+                                       owl:SymmetricProperty ;
+                              
+                              rdfs:range :Person ;
+                              
+                              rdfs:domain :Person ,
+                                          :Work ;
+                              
+                              rdfs:range :Work ;
+                              
+                              rdfs:subPropertyOf :relatedViaTechniqueTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#relatedViaWritingConditionsTo
+
+:relatedViaWritingConditionsTo rdf:type owl:ObjectProperty ,
+                                        owl:SymmetricProperty ;
+                               
+                               rdfs:range :Person ;
+                               
+                               rdfs:domain :Person ;
+                               
+                               rdfs:range :Work ;
+                               
+                               rdfs:domain :Work ;
+                               
+                               rdfs:subPropertyOf :writingRelationships .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#religiousInfluence
+
+:religiousInfluence rdf:type owl:AsymmetricProperty ,
+                             owl:IrreflexiveProperty ,
+                             owl:ObjectProperty ;
+                    
+                    rdfs:label "religiousInfluence"@en ;
+                    
+                    rdfs:subPropertyOf :Influence .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#seniorCollateralRelationshipTo
+
+:seniorCollateralRelationshipTo rdf:type owl:AsymmetricProperty ,
+                                         owl:IrreflexiveProperty ,
+                                         owl:ObjectProperty ;
+                                
+                                rdfs:label "seniorCollateralRelationshipTo"@en ;
+                                
+                                rdfs:range :Person ;
+                                
+                                rdfs:domain :Person ;
+                                
+                                rdfs:subPropertyOf :collateralRelation ;
+                                
+                                owl:inverseOf :juniorCollateralRelationshipTo .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#siblingOf
+
+:siblingOf rdf:type owl:IrreflexiveProperty ,
+                    owl:ObjectProperty ,
+                    owl:SymmetricProperty ;
+           
+           rdfs:label "siblingOf"@en ;
+           
+           rdfs:subPropertyOf :FamilyRelations ;
+           
+           rdfs:domain :Person ;
+           
+           rdfs:range :Person .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#sisterOf
+
+:sisterOf rdf:type owl:IrreflexiveProperty ,
+                   owl:ObjectProperty ;
+          
+          rdfs:label "sisterOf"@en ;
+          
+          rdfs:range :Person ;
+          
+          rdfs:domain :Person ,
+                      :female ;
+          
+          rdfs:subPropertyOf :siblingOf ;
+          
+          rdfs:domain :transgendered .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#sonOf
+
+:sonOf rdf:type owl:AsymmetricProperty ,
+                owl:IrreflexiveProperty ,
+                owl:ObjectProperty ;
+       
+       rdfs:label "sonOf"@en ;
+       
+       rdfs:domain :Person ;
+       
+       rdfs:subPropertyOf :childOf ;
+       
+       rdfs:domain :male ,
+                   :transgendered .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#spouseOf
+
+:spouseOf rdf:type owl:IrreflexiveProperty ,
+                   owl:ObjectProperty ,
+                   owl:SymmetricProperty ;
+          
+          rdfs:label "spouseOf"@en ;
+          
+          rdfs:subPropertyOf :FamilyRelations ;
+          
+          rdfs:domain :Person ;
+          
+          rdfs:range :Person .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#standardName
+
+:standardName rdf:type owl:ObjectProperty ;
+              
+              rdfs:label "standardName"@en ;
+              
+              rdfs:subPropertyOf :Name ;
+              
+              rdfs:domain :Person .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#surname
+
+:surname rdf:type owl:ObjectProperty ;
+         
+         rdfs:label "surname"@en ;
+         
+         rdfs:subPropertyOf :Name ;
+         
+         rdfs:domain :Person .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#uncleOf
+
+:uncleOf rdf:type owl:AsymmetricProperty ,
+                  owl:IrreflexiveProperty ,
+                  owl:ObjectProperty ;
+         
+         rdfs:label "uncleOf"@en ;
+         
+         rdfs:domain :Person ,
+                     :male ;
+         
+         rdfs:subPropertyOf :seniorCollateralRelationshipTo ;
+         
+         rdfs:domain :transgendered .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#wifeOf
+
+:wifeOf rdf:type owl:AsymmetricProperty ,
+                 owl:IrreflexiveProperty ,
+                 owl:ObjectProperty ;
+        
+        rdfs:label "wifeOf"@en ;
+        
+        rdfs:range :Person ;
+        
+        rdfs:domain :Person ,
+                    :female ;
+        
+        rdfs:subPropertyOf :spouseOf ;
+        
+        rdfs:domain :transgendered .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#writingRelationships
+
+:writingRelationships rdf:type owl:ObjectProperty ;
+                      
+                      rdfs:subPropertyOf :Relationships .
 
 
 
@@ -824,108 +1955,134 @@ rdfs:label rdf:type owl:AnnotationProperty .
 #################################################################
 
 
-###  http://draftOrlandoOntology.org/GeographicArea
+###  http://draftOrlandoOntology.org/Draft3#GeographicArea
 
-<http://draftOrlandoOntology.org/GeographicArea> rdf:type owl:Class ;
-                                                 
-                                                 rdfs:label " geographic area"@en ;
-                                                 
-                                                 rdfs:subClassOf <http://draftOrlandoOntology.org/Place> .
-
-
-
-###  http://draftOrlandoOntology.org/Person
-
-<http://draftOrlandoOntology.org/Person> rdf:type owl:Class ;
-                                         
-                                         rdfs:label " person"@en .
+:GeographicArea rdf:type owl:Class ;
+                
+                rdfs:label "GeographicArea"@en ;
+                
+                rdfs:subClassOf :Place .
 
 
 
-###  http://draftOrlandoOntology.org/Place
+###  http://draftOrlandoOntology.org/Draft3#Organization
 
-<http://draftOrlandoOntology.org/Place> rdf:type owl:Class ;
-                                        
-                                        rdfs:label " place"@en .
+:Organization rdf:type owl:Class .
 
 
 
-###  http://draftOrlandoOntology.org/Region
+###  http://draftOrlandoOntology.org/Draft3#Person
 
-<http://draftOrlandoOntology.org/Region> rdf:type owl:Class ;
-                                         
-                                         rdfs:label " region"@en ;
-                                         
-                                         rdfs:subClassOf <http://draftOrlandoOntology.org/GeographicArea> .
+:Person rdf:type owl:Class ;
+        
+        rdfs:label "Person"@en .
 
 
 
-###  http://draftOrlandoOntology.org/Settlement
+###  http://draftOrlandoOntology.org/Draft3#Place
 
-<http://draftOrlandoOntology.org/Settlement> rdf:type owl:Class ;
-                                             
-                                             rdfs:label " settlement"@en ;
-                                             
-                                             rdfs:subClassOf <http://draftOrlandoOntology.org/Region> .
+:Place rdf:type owl:Class ;
+       
+       rdfs:label "Place"@en .
 
 
 
-###  http://draftOrlandoOntology.org/Sex
+###  http://draftOrlandoOntology.org/Draft3#Region
 
-<http://draftOrlandoOntology.org/Sex> rdf:type owl:Class ;
-                                      
-                                      rdfs:label " sex"@en .
-
-
-
-###  http://draftOrlandoOntology.org/Work
-
-<http://draftOrlandoOntology.org/Work> rdf:type owl:Class ;
-                                       
-                                       rdfs:label " work"@en .
+:Region rdf:type owl:Class ;
+        
+        rdfs:label "Region"@en ;
+        
+        rdfs:subClassOf :GeographicArea .
 
 
 
-###  http://draftOrlandoOntology.org/female
+###  http://draftOrlandoOntology.org/Draft3#Settlement
 
-<http://draftOrlandoOntology.org/female> rdf:type owl:Class ;
-                                         
-                                         rdfs:label "female"@en ;
-                                         
-                                         rdfs:subClassOf <http://draftOrlandoOntology.org/Sex> .
-
-
-
-###  http://draftOrlandoOntology.org/male
-
-<http://draftOrlandoOntology.org/male> rdf:type owl:Class ;
-                                       
-                                       rdfs:label "male"@en ;
-                                       
-                                       rdfs:subClassOf <http://draftOrlandoOntology.org/Sex> .
+:Settlement rdf:type owl:Class ;
+            
+            rdfs:label "Settlement"@en ;
+            
+            rdfs:subClassOf :Region .
 
 
 
-###  http://draftOrlandoOntology.org/transgendered
+###  http://draftOrlandoOntology.org/Draft3#Sex
 
-<http://draftOrlandoOntology.org/transgendered> rdf:type owl:Class ;
-                                                
-                                                rdfs:label "transgendered"@en ;
-                                                
-                                                rdfs:subClassOf <http://draftOrlandoOntology.org/Sex> .
+:Sex rdf:type owl:Class ;
+     
+     rdfs:label "Sex"@en .
 
 
 
-###  http://draftOrlandoOntology.org/unknown
+###  http://draftOrlandoOntology.org/Draft3#Work
 
-<http://draftOrlandoOntology.org/unknown> rdf:type owl:Class ;
-                                          
-                                          rdfs:label "unknown"@en ;
-                                          
-                                          rdfs:subClassOf <http://draftOrlandoOntology.org/Sex> .
+:Work rdf:type owl:Class ;
+      
+      rdfs:label "Work"@en .
 
 
 
+###  http://draftOrlandoOntology.org/Draft3#female
 
-###  Generated by the OWL API (version 3.1.0.20069) http://owlapi.sourceforge.net
+:female rdf:type owl:Class ;
+        
+        rdfs:label "female"@en ;
+        
+        rdfs:subClassOf :Sex .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#male
+
+:male rdf:type owl:Class ;
+      
+      rdfs:label "male"@en ;
+      
+      rdfs:subClassOf :Sex .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#transgendered
+
+:transgendered rdf:type owl:Class ;
+               
+               rdfs:label "transgendered"@en ;
+               
+               rdfs:subClassOf :Sex .
+
+
+
+###  http://draftOrlandoOntology.org/Draft3#unknown
+
+:unknown rdf:type owl:Class ;
+         
+         rdfs:label "unknown"@en ;
+         
+         rdfs:subClassOf :Sex .
+
+
+
+
+
+#################################################################
+#
+#    General axioms
+#
+#################################################################
+
+
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( :Organization
+                :Person
+                :Place
+                :Sex
+                :Work
+              )
+] .
+
+
+
+
+###  Generated by the OWL API (version 3.5.0) http://owlapi.sourceforge.net
 
