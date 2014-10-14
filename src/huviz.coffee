@@ -2245,7 +2245,6 @@ class Huviz
     else
       cooked_value = target.value
     if cooked_value?
-      console.log "update_graph_settings",target.type, target.name, cooked_value
       @[target.name] = cooked_value
     if update
       @update_fisheye()
