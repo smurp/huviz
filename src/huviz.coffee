@@ -85,7 +85,7 @@
 #  51) TASK: make predicate picker height adjustable
 #  52) BUG: until clicking abstract predicates does the right thing
 #           it should do nothing
-# 
+#  53) PERF: should_show_label should not have search_regex in inner loop
 #asyncLoop = require('asynchronizer').asyncLoop
 CommandController = require('gclui').CommandController
 Edge = require('edge').Edge
@@ -212,7 +212,6 @@ class Huviz
   link: undefined
   
   lariat: undefined
-  label_all_graphed_nodes: false
   verbose: true
   verbosity: 0
   TEMP: 5
@@ -242,6 +241,7 @@ class Huviz
   charge: -193
   gravity: 0.025
   swayfrac: .2
+  label_graphed: true
   label_show_range: null # @link_distance * 1.1
   graph_radius: 100
   shelf_radius: 0.9
@@ -950,9 +950,9 @@ class Huviz
   should_show_label: (node) ->
     (node.labelled or
         node.focused_edge or
+        (@label_graphed and node.state is @graphed_set) or
         dist_lt(@last_mouse_pos, node, @label_show_range) or
-        node.name.match(@search_regex) or
-        @label_all_graphed_nodes and node.graphed?)
+        node.name.match(@search_regex)) # FIXME make this a flag that gets updated ONCE when the regex changes not something deep in loop!!!
   draw_labels: ->
     if @use_svg
       label.attr "style", (d) ->
@@ -1755,9 +1755,10 @@ class Huviz
     @show_links_to_node node
     @update_showing_links node
 
-  toggle_label_display: ->
-    @label_all_graphed_nodes = not @label_all_graphed_nodes
-    @tick()
+  ## Never called
+  # toggle_label_display: ->
+  #   @label_graphed = not @label_graphed
+  #   @tick()
 
   toggle_display_tech: (ctrl, tech) ->
     val = undefined
@@ -2236,9 +2237,16 @@ class Huviz
     
   update_graph_settings: (target, update) =>
     update = not update? and true or update
-    asNum = parseFloat(target.value)
-    cooked_value = ('' + asNum) isnt 'NaN' and asNum or target.value
-    @[target.name] = cooked_value
+    if target.type is "checkbox"
+      cooked_value = target.checked
+    else if target.type is "range" # must massage into something useful
+      asNum = parseFloat(target.value)
+      cooked_value = ('' + asNum) isnt 'NaN' and asNum or target.value
+    else
+      cooked_value = target.value
+    if cooked_value?
+      console.log "update_graph_settings",target.type, target.name, cooked_value
+      @[target.name] = cooked_value
     if update
       @update_fisheye()
       @updateWindow()
