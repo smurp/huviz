@@ -41,16 +41,12 @@
 #      a simple flower, suggesting either that the shelf is exerting
 #      force or that an inappropriate combination of charge and link
 #      distance is occuring.
-#  13) Sometimes lines are drawn over one another, this seems to occur
-#      when two edges with the same contextId (ie xml structural id) exist
 #  14) TASK: it takes time for clicks on the predicate picker to finish;
 #      showing a busy cursor or a special state for the picked div
 #      would help the user have faith.
 #      (Investigate possible inefficiencies, too.)
 #      AKA: fix bad-layout-until-drag-and-drop bug
 #  15) TASK: collapse edges to one-per-color (width for number?)
-#  16) TASK: click edge to show snippet
-#  44) TASK: print edge snippets separately
 #  17) TASK: incorporate ontology to drive predicate nesting
 #  46) TASK: impute node type based on predicates via ontology
 #  18) TASK: drop a node on another node to draw their mutual edges only
@@ -69,7 +65,6 @@
 #      Taxon.update_state() because it never seems to be needed
 #  32) TASK: make a settings controller for picked_mag
 #  33) TASK: make a factory for the settings (so they're software generated)
-#  34) TASK: make a settings controller for whether pinning is enabled
 #  35) TASK: get rid of jquery
 #  36) TASK: figure out UX to trigger snippet display and
 #            figure out UX for print / redact if still useful
@@ -86,6 +81,7 @@
 #  52) BUG: until clicking abstract predicates does the right thing
 #           it should do nothing
 #  53) PERF: should_show_label should not have search_regex in inner loop
+# 
 #asyncLoop = require('asynchronizer').asyncLoop
 CommandController = require('gclui').CommandController
 Edge = require('edge').Edge
@@ -2244,13 +2240,24 @@ class Huviz
       cooked_value = ('' + asNum) isnt 'NaN' and asNum or target.value
     else
       cooked_value = target.value
+    old_value = @[target.name]
     if cooked_value?
       @[target.name] = cooked_value
+    custom_handler_name = "on_change_" + target.name
+    if this[custom_handler_name]
+      this[custom_handler_name](target, old_value, cooked_value)
     if update
       @update_fisheye()
       @updateWindow()
       @tick()
     d3.select(target).attr("title", cooked_value)
+
+  # on_change handlers for the various settings which need them
+  on_change_nodes_pinnable: (target, old_val, new_val) ->
+    if not new_val
+      for node in @graphed_set
+        node.fixed = false
+        
   xpath_query: (xpath) ->
     document.evaluate(xpath, document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
   init_from_graph_controls: ->
