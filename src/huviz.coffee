@@ -247,6 +247,7 @@ class Huviz
   picked_mag:  1.2
   focus_radius: null # label_show_range
   drag_dist_threshold: 5
+  snippet_size: 300
   dragging: false
   last_status: undefined
 
@@ -1944,6 +1945,7 @@ class Huviz
     # @clear_snippets()
     context_no = 0
     for context in edge.contexts
+      console.log "context.id",context.id
       context_no++
       me = this
       make_callback = (context_no, edge, context) ->
@@ -1951,6 +1953,7 @@ class Huviz
           snippet_text = me.remove_tags(data.response)
           snippet_id = context.id
           snippet_js_key = me.get_snippet_js_key snippet_id
+          console.log "snippet_js_key", snippet_js_key
           if not me.currently_printed_snippets[snippet_js_key]?
             me.currently_printed_snippets[snippet_js_key] = []
           me.currently_printed_snippets[snippet_js_key].push(edge)
@@ -1964,7 +1967,7 @@ class Huviz
             snippet_text: snippet_text
             no: context_no
             snippet_js_key: snippet_js_key
-
+      #if not @currently_printed_snippets[@get_snippet_js_key(context.id)]?
       @get_snippet context.id, make_callback(context_no, edge, context)
     
   # The Verbs PRINT and REDACT show and hide snippets respectively
@@ -2093,15 +2096,18 @@ class Huviz
       snip_div.html(msg)
       my_position = @get_next_snippet_position()
       dialog_args =
-        maxHeight: 300
+        maxHeight: @snippet_size
         title: obj.edge.source.name
         position:
           my: my_position
           at: "left top"
           of: window
         close: (event, ui) =>
+          console.log "close",event.target.id, event
           delete @snippet_positions_filled[my_position]
-      $(snip_div).dialog(dialog_args)
+      dlg = $(snip_div).dialog(dialog_args)
+      dlg.parent().parent().attr("id",obj.snippet_js_key)
+      #console.log "DLG:",dlg
 
   snippet_positions_filled: {}    
   get_next_snippet_position: ->
@@ -2111,7 +2117,7 @@ class Huviz
     left_full = false
     top_full = false
     hinc = 0
-    vinc = 300
+    vinc = @snippet_size
     hoff = 0
     voff = 0
     retval = "left+#{hoff} top+#{voff}"
@@ -2121,7 +2127,7 @@ class Huviz
       retval = "left+#{hoff} top+#{voff}"
       if not left_full and voff + vinc + vinc > height
         left_full = true
-        hinc = 300
+        hinc = @snippet_size
         hoff = 0
         voff = 0
         vinc = 0
@@ -2464,7 +2470,7 @@ class Orlando extends OntologicallyGrounded
             —
             <span style="background-color:#{m.edge.target.color}">#{m.edge.target.name}</span>
           </div>
-          <div id="#{m.context_id}">
+          <div>
             <div>
               <b>Text: #{m.no}</b> <i>#{m.context_id}</i>
             </div>
