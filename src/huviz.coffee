@@ -2093,12 +2093,54 @@ class Huviz
     if @snippet_box
       snip_div = @snippet_box.append('div').attr('class','snippet')
       snip_div.html(msg)
+      my_position = @get_next_snippet_spot()
+      console.log "putting snippet at:",my_position
       dialog_args =
         maxHeight: 300
         title: obj.edge.source.name
-        #close: (event, ui) ->  console.log "close", event
+        position:
+          my: my_position
+          at: "left top"
+          of: window
+        close: (event, ui) =>
+          console.log "close", my_position
+          delete @snippet_spots_filled[my_position]
       $(snip_div).dialog(dialog_args)
+      #$(snip_div).addAttribute("snippet_spot",my_position)
 
+  # snippet placement logic:
+  #   There are various hard-coded snippet spots which get re-used when the
+  #   dialogs in them are closed.  If all the hard-coded ones are in use
+  #   then additional dialogs are arrayed with slight overlaps on top
+  #   of the last one, working to the right.
+  snippet_spots_defined: [
+    "left+0 top+0",
+    "left top+300",
+    "left top+600",
+    "left+300 top",
+    "left+600 top"]
+
+  snippet_spots_filled: {}
+
+  get_next_snippet_spot: ->
+    num_defined = @snippet_spots_defined.length
+    for i in [0...num_defined]
+      position = @snippet_spots_defined[i]
+      if not @snippet_spots_filled[position]?
+        @snippet_spots_filled[position] = true
+        return position
+    hinc = 20
+    vinc = 20
+    hoff = 0
+    voff = 0
+    retval = "left+#{hoff} top+#{voff}"
+    while @snippet_spots_filled[retval]?
+      hoff = hinc + hoff
+      voff = vinc + voff
+      retval = "left+#{hoff} top+#{voff}"
+    @snippet_spots_filled[retval] = true
+    return retval
+  
   run_verb_on_object: (verb,subject) ->
     cmd = new gcl.GraphCommand
       verbs: [verb]
