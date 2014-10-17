@@ -72,8 +72,6 @@
 #  39) TASK: make understandable
 #  40) TASK: support search
 #  41) TASK: link to new backend
-#  42) TASK: display each snippet once
-#  45) TASK: improve layout
 #  48) BUG: discipline the behaviour of abstract predicates
 #           ie they should have collapse/expand triangles ala Finder
 #  49) BUG: recolor based on non-abstract leaves in predicate hierarchy
@@ -81,6 +79,14 @@
 #  52) BUG: until clicking abstract predicates does the right thing
 #           it should do nothing
 #  53) PERF: should_show_label should not have search_regex in inner loop
+#  55) TASK: clicking an edge for a snippet already shown should add that
+#            triple line to the snippet box and bring the box forward
+#            (ideally using css animation to flash the triple and scroll to it)
+#  56) TASK: improve layout of the snippet box so the subj is on the first line
+#            and subsequent lines show (indented) predicate-object pairs for
+#            each triple which cites the snippet
+#  57) TASK: hover over node on shelf shows edges to graphed and shelved nodes
+#  58) TASK: hide abstract predicates containing nothing visible
 # 
 #asyncLoop = require('asynchronizer').asyncLoop
 CommandController = require('gclui').CommandController
