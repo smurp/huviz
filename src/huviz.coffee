@@ -81,6 +81,7 @@
 #  52) BUG: until clicking abstract predicates does the right thing
 #           it should do nothing
 #  53) PERF: should_show_label should not have search_regex in inner loop
+#  54) TASK: make snippet font size setting
 # 
 #asyncLoop = require('asynchronizer').asyncLoop
 CommandController = require('gclui').CommandController
@@ -1945,15 +1946,19 @@ class Huviz
     # @clear_snippets()
     context_no = 0
     for context in edge.contexts
-      console.log "context.id",context.id
+      snippet_js_key = @get_snippet_js_key(context.id)
       context_no++
+      if @currently_printed_snippets[snippet_js_key]?
+        # FIXME add the Subj--Pred--Obj line to the snippet for this edge
+        #   also bring such snippets to the top
+        console.log "  skipping because",@currently_printed_snippets[snippet_js_key]
+        continue
       me = this
       make_callback = (context_no, edge, context) ->
         (err,data) ->
           snippet_text = me.remove_tags(data.response)
           snippet_id = context.id
           snippet_js_key = me.get_snippet_js_key snippet_id
-          console.log "snippet_js_key", snippet_js_key
           if not me.currently_printed_snippets[snippet_js_key]?
             me.currently_printed_snippets[snippet_js_key] = []
           me.currently_printed_snippets[snippet_js_key].push(edge)
@@ -1966,8 +1971,7 @@ class Huviz
             context_id: context.id
             snippet_text: snippet_text
             no: context_no
-            snippet_js_key: snippet_js_key
-      #if not @currently_printed_snippets[@get_snippet_js_key(context.id)]?
+            snippet_js_key: snippet_js_key      
       @get_snippet context.id, make_callback(context_no, edge, context)
     
   # The Verbs PRINT and REDACT show and hide snippets respectively
@@ -2103,11 +2107,10 @@ class Huviz
           at: "left top"
           of: window
         close: (event, ui) =>
-          console.log "close",event.target.id, event
           delete @snippet_positions_filled[my_position]
+          delete @currently_printed_snippets[event.target.id]
       dlg = $(snip_div).dialog(dialog_args)
-      dlg.parent().parent().attr("id",obj.snippet_js_key)
-      #console.log "DLG:",dlg
+      dlg[0][0].setAttribute("id",obj.snippet_js_key)
 
   snippet_positions_filled: {}    
   get_next_snippet_position: ->
@@ -2472,7 +2475,7 @@ class Orlando extends OntologicallyGrounded
           </div>
           <div>
             <div>
-              <b>Text: #{m.no}</b> <i>#{m.context_id}</i>
+              <i>#{m.context_id}</i>
             </div>
             <div contenteditable style="cursor:text">#{m.snippet_text}</div>
           </div>
