@@ -2490,7 +2490,7 @@ class Orlando extends OntologicallyGrounded
         ## unconfuse emacs Coffee-mode: " """ ' '  "                      
       super(obj, msg_or_obj) # fail back to super
 
-class OntoViz extends Huviz
+class OntoViz extends OntologicallyGrounded
   constructor: ->
     super()
     #@gclui.taxon_picker.add('everything',null,'Everything!')
