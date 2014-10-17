@@ -81,6 +81,22 @@
         </label>
       </div>
       <div>
+        <label title="the size of the snippet text">
+          snippet body (em)
+  	  <input name="snippet_body_em" type="range" 
+                 value=".7" min=".2" max="4" step=".1"
+                 onchange="HVZ.update_graph_settings(this)">
+        </label>
+      </div>
+      <div>
+        <label title="the size of the snippet triples">
+          snippet triple (em)
+  	  <input name="snippet_triple_em" type="range" 
+                 value=".5" min=".2" max="4" step=".1"
+                 onchange="HVZ.update_graph_settings(this)">
+        </label>
+      </div>
+      <div>
         <label title="the repulsive charge between nodes">
           charge (-)
 	  <input name="charge" type="range"

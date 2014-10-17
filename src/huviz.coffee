@@ -230,7 +230,9 @@ class Huviz
 
   edge_width: 1.8
   focused_mag: 1.9
-  label_em: .7  
+  label_em: .7
+  snippet_body_em: .7
+  snippet_triple_em: .5
   line_length_min: 4
   link_distance: 100
   peeking_line_thicker: 4
@@ -2463,7 +2465,7 @@ class Orlando extends OntologicallyGrounded
         [msg_or_obj, m] = ["", msg_or_obj]  # swap them
         msg_or_obj = """
         <div id="#{obj.snippet_js_key}">
-          <div>
+          <div style="font-size:#{@snippet_triple_em}em">
             <span class="writername" style="background-color:#{m.edge.source.color}">
               <a target="SRC"
                  href="#{m.edge.source.id}">#{m.edge.source.name}</a>
@@ -2477,7 +2479,7 @@ class Orlando extends OntologicallyGrounded
             <div>
               <i>#{m.context_id}</i>
             </div>
-            <div contenteditable style="cursor:text">#{m.snippet_text}</div>
+            <div contenteditable style="cursor:text;font-size:#{@snippet_body_em}em">#{m.snippet_text}</div>
           </div>
         </div>
 
