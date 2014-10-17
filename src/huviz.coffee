@@ -37,7 +37,7 @@
 #
 # ISSUES:
 #   4) TASK: Suppress all but the 6-letter id of writers in the cmd cli
-#  12) Graph layout of a single writer and peripheral nodes is not
+#  12) BUG: Graph layout of a single writer and peripheral nodes is not
 #      a simple flower, suggesting either that the shelf is exerting
 #      force or that an inappropriate combination of charge and link
 #      distance is occuring.
@@ -2204,6 +2204,7 @@ class Huviz
     console.info @state_msg_box
         
   constructor: ->
+    @subPropertyOf = {}
     @off_center = false # FIXME expose this or make the amount a slider
     #@toggle_logging()
     @create_state_msg_box()
