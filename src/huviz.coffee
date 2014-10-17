@@ -81,7 +81,6 @@
 #  52) BUG: until clicking abstract predicates does the right thing
 #           it should do nothing
 #  53) PERF: should_show_label should not have search_regex in inner loop
-#  54) TASK: make snippet font size setting
 # 
 #asyncLoop = require('asynchronizer').asyncLoop
 CommandController = require('gclui').CommandController
@@ -2103,7 +2102,7 @@ class Huviz
       my_position = @get_next_snippet_position()
       dialog_args =
         maxHeight: @snippet_size
-        title: obj.edge.source.name
+        title: obj.context_id
         position:
           my: my_position
           at: "left top"
@@ -2476,9 +2475,6 @@ class Orlando extends OntologicallyGrounded
             <span style="background-color:#{m.edge.target.color}">#{m.edge.target.name}</span>
           </div>
           <div>
-            <div>
-              <i>#{m.context_id}</i>
-            </div>
             <div contenteditable style="cursor:text;font-size:#{@snippet_body_em}em">#{m.snippet_text}</div>
           </div>
         </div>
