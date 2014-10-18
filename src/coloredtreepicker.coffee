@@ -21,18 +21,23 @@ class ColoredTreePicker extends TreePicker
   recolor: ->
     recursor =
       count: Object.keys(@id_to_elem).length - @get_abstract_count()
-      branch: @elem[0][0][0][0]
       i: 0
     retval = {}
     console.log "RECOLOR"
-    @recolor_recurse(retval, recursor)
-  recolor_recurse: (retval, recursor) ->
-    console.log "recursor.branch",recursor.branch
-    for something in d3.select(recursor.branch).selectAll(".contents .container .contents")
-      for kid in something
-        console.log "  kid:",kid
-    for id,elem of @id_to_elem
-      @recolor_node(retval, recursor, id, elem)
+    @recolor_recurse(retval, recursor, @elem[0][0][0][0], "")
+  recolor_recurse: (retval, recursor, branch, indent) ->
+    console.log indent+"-recolor_recurse(",branch,")"
+    d3_branch = d3.select(branch)
+    for something in d3_branch.selectAll(".contents")
+      #console.log indent+ "  something =",something
+      for elem in something
+      #if true
+        @recolor_recurse(retval, recursor, elem, indent + " |")
+        #@recolor_node(retval, recursor, elem.getAttribute("id"), elem)
+        #console.log "  kid:",elem.getAttribute("id"),elem
+    @recolor_node(retval, recursor, d3_branch.attr("id"), d3_branch)
+    #for id,elem of @id_to_elem
+    #  @recolor_node(retval, recursor, id, elem)
     retval
   recolor_node: (retval, recursor, id, elem) ->
     if @is_abstract(id)
