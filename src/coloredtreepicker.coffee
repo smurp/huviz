@@ -28,8 +28,9 @@ class ColoredTreePicker extends TreePicker
     @recolor_recurse(retval, recursor)
   recolor_recurse: (retval, recursor) ->
     console.log "recursor.branch",recursor.branch
-    for kid in d3.select(recursor.branch).select(".contents .container")
-      console.log "  kid:",kid
+    for something in d3.select(recursor.branch).selectAll(".contents .container .contents")
+      for kid in something
+        console.log "  kid:",kid
     for id,elem of @id_to_elem
       @recolor_node(retval, recursor, id, elem)
     retval
