@@ -14,16 +14,22 @@ class ColoredTreePicker extends TreePicker
   constructor: (elem,root) ->
     super(elem,root)
     @id_to_colors = {}
+    #console.log "ColorTreePicker(): root =",root
   add: (id,parent_id,name,listener) ->
     super(id,parent_id,name,listener)
     @id_to_colors = @recolor()
   recolor: ->
     recursor =
       count: Object.keys(@id_to_elem).length - @get_abstract_count()
+      branch: @elem[0][0][0][0]
       i: 0
     retval = {}
+    console.log "RECOLOR"
     @recolor_recurse(retval, recursor)
   recolor_recurse: (retval, recursor) ->
+    console.log "recursor.branch",recursor.branch
+    for kid in d3.select(recursor.branch).select(".contents .container")
+      console.log "  kid:",kid
     for id,elem of @id_to_elem
       @recolor_node(retval, recursor, id, elem)
     retval
