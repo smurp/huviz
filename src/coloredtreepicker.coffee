@@ -26,18 +26,14 @@ class ColoredTreePicker extends TreePicker
     console.log "RECOLOR"
     @recolor_recurse(retval, recursor, @elem[0][0][0][0], "")
   recolor_recurse: (retval, recursor, branch, indent) ->
-    console.log indent+"-recolor_recurse(",branch,")"
     d3_branch = d3.select(branch)
-    for something in d3_branch.selectAll(".contents")
+    branch_id = d3_branch.attr("id")
+    console.log indent+"-recolor_recurse(",branch_id,")"    
+    for something in d3_branch.selectAll(".contents") # FIXME devise selector for children
       #console.log indent+ "  something =",something
       for elem in something
-      #if true
         @recolor_recurse(retval, recursor, elem, indent + " |")
-        #@recolor_node(retval, recursor, elem.getAttribute("id"), elem)
-        #console.log "  kid:",elem.getAttribute("id"),elem
-    @recolor_node(retval, recursor, d3_branch.attr("id"), d3_branch)
-    #for id,elem of @id_to_elem
-    #  @recolor_node(retval, recursor, id, elem)
+    @recolor_node(retval, recursor, branch_id, d3_branch)
     retval
   recolor_node: (retval, recursor, id, elem) ->
     if @is_abstract(id)
