@@ -9,7 +9,7 @@ L_notshowing = 0.93
 L_showing = 0.75
 L_emphasizing = 0.5
 S_all = 0.5
-verbose = false
+verbose = true
 
 class ColoredTreePicker extends TreePicker
   constructor: (elem,root) ->
@@ -27,18 +27,33 @@ class ColoredTreePicker extends TreePicker
       i: 0
     retval = {}
     console.log "RECOLOR" if verbose
-    @recolor_recurse(retval, recursor, @elem[0][0][0][0], "")
-  recolor_recurse: (retval, recursor, branch, indent) ->
-    d3_branch = d3.select(branch)
-    branch_id = d3_branch.attr("id")
-    console.log indent+"-recolor_recurse(",branch_id,")" if verbose
-    for something in d3_branch.selectAll(".contents") # FIXME devise selector for children
-      #console.log indent+ "  something =",something
-      for elem in something
-        @recolor_recurse(retval, recursor, elem, indent + " |")
-    @recolor_node(retval, recursor, branch_id, d3_branch)
+    branch = @elem[0][0][0][0].children[0]
+    @recolor_recurse_DOM(retval, recursor, branch, "")
+  recolor_recurse_DOM: (retval, recursor, branch, indent) ->
+    #console.log indent+"branch:",branch
+    branch_id = branch.getAttribute("id")
+    class_str = branch.getAttribute("class")
+    console.log indent+"-recolor_recurse(",branch_id,class_str,")",branch if verbose
+    if branch_id
+      @recolor_node(retval, recursor, branch_id, branch, indent) # should this go after recursion so color range can be picked up?
+    #if branch.getAttribute("class").indexOf("container") > -1
+    if branch.children.length > 0
+    #if true
+      contents = branch.children
+      #contents = branch.children[1] # this should be class-based not positional
+      for elem in contents
+        if elem? #.getAttribute("id")?
+          class_str = elem.getAttribute("class")
+          is_contents = class_str.indexOf("contents") > -1
+          is_container = class_str.indexOf("container") > -1
+          if is_contents or is_container
+            @recolor_recurse_DOM(retval, recursor, elem, indent + " |")
     retval
-  recolor_node: (retval, recursor, id, elem) ->
+  container_regex: new RegExp("container")
+  contents_regex: new RegExp("contents")
+  recolor_node: (retval, recursor, id, elem_raw, indent) ->
+
+    elem = d3.select(elem_raw)
     if @is_abstract(id)
       retval[id] =
         notshowing:  hsl2rgb(0, 0, L_notshowing)
@@ -52,6 +67,7 @@ class ColoredTreePicker extends TreePicker
         notshowing:  hsl2rgb(hue, S_all, L_notshowing)
         showing:     hsl2rgb(hue, S_all, L_showing)
         emphasizing: hsl2rgb(hue, S_all, L_emphasizing)
+    console.log(indent + " - - - recolor_node("+id+")",retval[id].notshowing) if verbose
     elem.style("background-color",retval[id].notshowing)
 
   get_color_forId_byName: (id, state_name) ->
