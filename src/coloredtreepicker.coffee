@@ -9,7 +9,7 @@ L_notshowing = 0.93
 L_showing = 0.75
 L_emphasizing = 0.5
 S_all = 0.5
-verbose = true
+verbose = false
 
 class ColoredTreePicker extends TreePicker
   constructor: (elem,root) ->
@@ -26,33 +26,28 @@ class ColoredTreePicker extends TreePicker
       count: Object.keys(@id_to_elem).length - @get_abstract_count()
       i: 0
     retval = {}
-    console.log "RECOLOR" if verbose
+    if verbose
+      console.log "RECOLOR" 
     branch = @elem[0][0][0][0].children[0]
     @recolor_recurse_DOM(retval, recursor, branch, "")
   recolor_recurse_DOM: (retval, recursor, branch, indent) ->
-    #console.log indent+"branch:",branch
     branch_id = branch.getAttribute("id")
     class_str = branch.getAttribute("class")
-    console.log indent+"-recolor_recurse(",branch_id,class_str,")",branch if verbose
+    if verbose
+      console.log indent+"-recolor_recurse(",branch_id,class_str,")",branch 
     if branch_id
       @recolor_node(retval, recursor, branch_id, branch, indent) # should this go after recursion so color range can be picked up?
-    #if branch.getAttribute("class").indexOf("container") > -1
     if branch.children.length > 0
-    #if true
-      contents = branch.children
-      #contents = branch.children[1] # this should be class-based not positional
-      for elem in contents
-        if elem? #.getAttribute("id")?
+      for elem in branch.children
+        if elem?
           class_str = elem.getAttribute("class")
-          is_contents = class_str.indexOf("contents") > -1
-          is_container = class_str.indexOf("container") > -1
-          if is_contents or is_container
-            @recolor_recurse_DOM(retval, recursor, elem, indent + " |")
+          if class_str.indexOf("treepicker-label") > -1
+            continue
+          @recolor_recurse_DOM(retval, recursor, elem, indent + " |")
     retval
   container_regex: new RegExp("container")
   contents_regex: new RegExp("contents")
   recolor_node: (retval, recursor, id, elem_raw, indent) ->
-
     elem = d3.select(elem_raw)
     if @is_abstract(id)
       retval[id] =
@@ -67,7 +62,8 @@ class ColoredTreePicker extends TreePicker
         notshowing:  hsl2rgb(hue, S_all, L_notshowing)
         showing:     hsl2rgb(hue, S_all, L_showing)
         emphasizing: hsl2rgb(hue, S_all, L_emphasizing)
-    console.log(indent + " - - - recolor_node("+id+")",retval[id].notshowing) if verbose
+    if verbose
+      console.log(indent + " - - - recolor_node("+id+")",retval[id].notshowing)
     elem.style("background-color",retval[id].notshowing)
 
   get_color_forId_byName: (id, state_name) ->
