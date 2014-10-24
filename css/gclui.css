@@ -75,9 +75,9 @@ p {
 .picked_branch {
     background-color: tan;
 }
-.Xscrolling {
+.scrolling {
     overflow-y: scroll;
-    max-height: 10em;
+    max-height: 12em;
 }
 /* display: inline-block and white-space: nowrap */
 .hidden {
