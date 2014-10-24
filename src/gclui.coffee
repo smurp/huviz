@@ -146,12 +146,12 @@ class CommandController
 
   recolor_edges_and_predicates_eventually: ->
     if @recolor_edges_and_predicates_eventually_id?
-      console.log "defer edges_and_predicates",@recolor_edges_and_predicates_eventually_id
+      # console.log "defer edges_and_predicates",@recolor_edges_and_predicates_eventually_id
       clearTimeout(@recolor_edges_and_predicates_eventually_id)
     @recolor_edges_and_predicates_eventually_id = setTimeout(@recolor_edges_and_predicates, 300)
 
   recolor_edges_and_predicates: (evt) =>
-    console.log "recolor_edges_and_predicates()"
+    # console.log "recolor_edges_and_predicates()"
     @predicate_picker.recolor_now()
     @recolor_edges() # FIXME should only really be run after the predicate set has settled for some amount of time
           
@@ -214,6 +214,7 @@ class CommandController
 
   add_newnodeclass: (class_id,parent,class_name) =>
     @taxon_picker.add(class_id,parent,class_name,@onnodeclasspicked)
+    @taxon_picker.recolor_now()
     @huviz.recolor_nodes()
 
   onChangeEnglish: (evt) =>

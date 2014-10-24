@@ -9,6 +9,7 @@ L_notshowing = 0.93
 L_showing = 0.75
 L_emphasizing = 0.5
 S_all = 0.5
+verbose = false
 
 class ColoredTreePicker extends TreePicker
   constructor: (elem,root) ->
@@ -17,18 +18,20 @@ class ColoredTreePicker extends TreePicker
     #console.log "ColorTreePicker(): root =",root
   add: (id,parent_id,name,listener) ->
     super(id,parent_id,name,listener)
+    # FIXME @recolor_now() unless handled externally
+  recolor_now: =>
     @id_to_colors = @recolor()
   recolor: ->
     recursor =
       count: Object.keys(@id_to_elem).length - @get_abstract_count()
       i: 0
     retval = {}
-    console.log "RECOLOR"
+    console.log "RECOLOR" if verbose
     @recolor_recurse(retval, recursor, @elem[0][0][0][0], "")
   recolor_recurse: (retval, recursor, branch, indent) ->
     d3_branch = d3.select(branch)
     branch_id = d3_branch.attr("id")
-    console.log indent+"-recolor_recurse(",branch_id,")"    
+    console.log indent+"-recolor_recurse(",branch_id,")" if verbose
     for something in d3_branch.selectAll(".contents") # FIXME devise selector for children
       #console.log indent+ "  something =",something
       for elem in something
