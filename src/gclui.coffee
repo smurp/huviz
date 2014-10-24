@@ -142,9 +142,17 @@ class CommandController
       pred_lid = e.detail.pred_lid
       pred_name = pred_lid.match(/([\w\d\_\-]+)$/g)[0]      
       @add_newpredicate(pred_lid,parent_lid,pred_name)
-      @recolor_predicates(e)
+      @recolor_edges_and_predicates_eventually(e)
 
-  recolor_predicates: (evt) ->
+  recolor_edges_and_predicates_eventually: ->
+    if @recolor_edges_and_predicates_eventually_id?
+      console.log "defer edges_and_predicates",@recolor_edges_and_predicates_eventually_id
+      clearTimeout(@recolor_edges_and_predicates_eventually_id)
+    @recolor_edges_and_predicates_eventually_id = setTimeout(@recolor_edges_and_predicates, 300)
+
+  recolor_edges_and_predicates: (evt) =>
+    console.log "recolor_edges_and_predicates()"
+    @predicate_picker.recolor_now()
     @recolor_edges() # FIXME should only really be run after the predicate set has settled for some amount of time
           
   build_predicatepicker: ->
