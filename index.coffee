@@ -17,6 +17,8 @@ pkg = stitch.createPackage(
     __dirname + '/js/sortedset.js',
     __dirname + '/js/hsv.js',
     __dirname + '/js/hsl.js',
+    __dirname + '/lib/jquery.js',
+    __dirname + '/lib/jquery-ui.min.js',
     __dirname + '/lib/d3.v3.min.js', # before fisheye
     __dirname + '/lib/fisheye.js',
     #__dirname + '/lib/jq.min.js',
