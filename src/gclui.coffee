@@ -171,8 +171,9 @@ class CommandController
     # FIXME Why is show_tree being called four times per node?
     @predicate_picker.show_tree(@predicate_hierarchy,@predicatebox,@onpredicateclicked)
 
+  predicates_to_ignore: ["anything", "comment", "first", "rest"] # first and rest are produced by GreenTurtle regarding the AllDisjointClasses list
   add_newpredicate: (pred_lid, parent_lid, pred_name) =>
-    if pred_lid is 'anything'
+    if pred_lid in @predicates_to_ignore
       return
     @predicate_picker.add(pred_lid, parent_lid, pred_name, @onpredicateclicked)
 

@@ -87,6 +87,7 @@
 #            each triple which cites the snippet
 #  57) TASK: hover over node on shelf shows edges to graphed and shelved nodes
 #  58) TASK: hide abstract predicates containing nothing visible
+#  59) TASK: wrap set_picker (or shrink the font) so it is not too wide
 # 
 #asyncLoop = require('asynchronizer').asyncLoop
 CommandController = require('gclui').CommandController
@@ -379,11 +380,10 @@ class Huviz
       # We can only know that the users intention is to drag
       # a node once sufficient motion has started, when there
       # is a focused_node
-      console.log "state_name == '" + @focused_node.state.state_name + "' and picked? == " + @focused_node.picked?
-      console.log "START_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
+      #console.log "state_name == '" + @focused_node.state.state_name + "' and picked? == " + @focused_node.picked?
+      #console.log "START_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
       @dragging = @focused_node
       if @dragging.state isnt @graphed_set
-        console.log "graphed_set.acquire()"
         @graphed_set.acquire(@dragging)
     if @dragging
       @force.resume() # why?
@@ -843,40 +843,47 @@ class Huviz
       ).attr "y2", (d) ->
         d.target.fisheye.y
 
+  shown_messages: []
+  show_message_once: (msg) ->
+    if @shown_messages.indexOf(msg) is -1
+      @shown_messages.push(msg)
+      console.log msg
 
   draw_edges_from: (node) ->
-    num_edges = node.links_from.length
+    num_edges = node.links_to.length
+    #@show_message_once "draw_edges_from(#{node.id}) "+ num_edges    
     return unless num_edges
 
     draw_n_n = {}
     for e in node.links_shown
-      return unless e.source is node # show only links_from
+      msg = ""
+      if e.source is node
+        continue
       if e.source.embryo
-        console.log "source",e.source.name,"is embryo",e.source.id
-        return
+        msg += "source #{e.source.name} is embryo #{e.source.id}; "
+        msg += e.id + " "
       if e.target.embryo
-        console.log "target",e.target.name,"is embryo",e.target.id
-        return
+        msg += "target #{e.target.name} is embryo #{e.target.id}"
+      if msg isnt ""
+        #@show_message_once(msg)        
+        continue
       n_n = e.source.lid + " " + e.target.lid
       if not draw_n_n[n_n]?
         draw_n_n[n_n] = []
       draw_n_n[n_n].push(e)
+      #@show_message_once("will draw edge() n_n:#{n_n} e.id:#{e.id}")
 
-    #dump_and_throw = n_n.match(/barban/) and false
     edge_width = @edge_width
     for n_n, edges_between of draw_n_n
       sway = 1
       for e in edges_between
-        #if dump_and_throw
-        #  console.info "dump_and_throw",e
         if e.focused? and e.focused
           line_width = @edge_width * @peeking_line_thicker
         else
           line_width = edge_width
+        #@show_message_once("will draw line() n_n:#{n_n} e.id:#{e.id}")
         @draw_curvedline e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, sway, e.color, e.contexts.length, line_width, e
         sway++
-      #if dump_and_throw
-      #  throw "give that a gander"
 
   draw_edges: ->
     if @use_canvas
@@ -957,7 +964,7 @@ class Huviz
         node.focused_edge or
         (@label_graphed and node.state is @graphed_set) or
         dist_lt(@last_mouse_pos, node, @label_show_range) or
-        node.name.match(@search_regex)) # FIXME make this a flag that gets updated ONCE when the regex changes not something deep in loop!!!
+        (node.name? and node.name.match(@search_regex))) # FIXME make this a flag that gets updated ONCE when the regex changes not something deep in loop!!!
   draw_labels: ->
     if @use_svg
       label.attr "style", (d) ->
@@ -1044,7 +1051,6 @@ class Huviz
 
   msg_history: ""
   show_state_msg: (txt) ->
-    #console.warn(txt)
     if false
       @msg_history += " " + txt
       txt = @msg_history
@@ -1053,7 +1059,6 @@ class Huviz
     $("body").css "cursor", "wait"
 
   hide_state_msg: () ->
-    #@show_state_msg(' * ')
     @state_msg_box.hide()
     $("body").css "cursor", "default"
 
@@ -1302,6 +1307,8 @@ class Huviz
     node.type = type_lid
     return true
 
+  report_every: 100 # if 1 then more data shown
+  
   parseAndShowTTLStreamer: (data, textStatus) =>
     # modelled on parseAndShowNQStreamer
     parse_start_time = new Date()
@@ -1310,6 +1317,7 @@ class Huviz
       @G = new GreenerTurtle().parse(data, "text/turtle")
       console.log "GreenTurtle"
     quad_count = 0
+    every = @report_every
     for subj_uri,frame of @G.subjects
       #console.log "frame:",frame
       #console.log frame.predicates
@@ -1318,8 +1326,12 @@ class Huviz
           # this is the right place to convert the ids (URIs) to CURIES
           #   Or should it be QNames?
           #      http://www.w3.org/TR/curie/#s_intro
-          if quad_count % 100 is 0
-            @show_state_msg("parsed quad " + quad_count)
+          if every is 1
+            @show_state_msg "<LI>#{frame.id} <LI>#{pred.id} <LI>#{obj.value}"
+            console.log "===========================\n  #",quad_count,"  subj:",frame.id,"\n  pred:",pred.id, "\n  obj.value:",obj.value
+          else
+            if quad_count % every is 0
+              @show_state_msg("parsed quad " + quad_count)
           quad_count++
           @add_quad
             s: frame.id
@@ -1443,11 +1455,12 @@ class Huviz
       return
     else if url.match(/.json/)
       the_parser = @parseAndShowJSON
-      #the_parser = @DUMPER
-      
+
     $.ajax
       url: url
-      success: the_parser
+      success: (data, textStatus) =>
+        the_parser(data, textStatus)
+        @hide_state_msg()
       error: (jqxhr, textStatus, errorThrown) ->
         console.log url, errorThrown
         $("#status").text errorThrown + " while fetching " + url
@@ -1995,7 +2008,6 @@ class Huviz
     dirty = false
     doit = (edge,i,frOrTo) =>
       if edge.predicate.lid is predicate_lid
-        console.log "  show_edge_regarding",frOrTo,predicate_lid
         if not edge.shown?
           @show_link edge
           dirty = true
@@ -2014,7 +2026,6 @@ class Huviz
     dirty = false
     doit = (edge,i,frOrTo) =>
       if edge.predicate.lid is predicate_lid
-        console.log "  suppress_edge_regarding",predicate_lid,node.id
         dirty = true
         @unshow_link edge
     node.links_from.forEach (edge,i) =>
@@ -2431,6 +2442,18 @@ class OntologicallyGrounded extends Huviz
             super_property_lid = uri_to_js_id(pred.objects[0].value)
             @subPropertyOf[subj_lid] = super_property_lid
             # console.log "subPropertyOf(" + subj_lid + ", " + super_property_lid + ")"
+        #
+        # [ rdf:type owl:AllDisjointClasses ;
+        #   owl:members ( :Organization
+        #                 :Person
+        #                 :Place
+        #                 :Sex
+        #                 :Work
+        #               )
+        # ] .
+        # 
+        # If there exists (_:1, rdfs:type, owl:AllDisjointClasses)
+        # Then create a root level class for every rdfs:first in rdfs:members
   
 class Orlando extends OntologicallyGrounded
   # These are the Orlando specific methods layered on Huviz.
@@ -2490,11 +2513,7 @@ class Orlando extends OntologicallyGrounded
         ## unconfuse emacs Coffee-mode: " """ ' '  "                      
       super(obj, msg_or_obj) # fail back to super
 
-class OntoViz extends OntologicallyGrounded
-  constructor: ->
-    super()
-    #@gclui.taxon_picker.add('everything',null,'Everything!')
-
+class OntoViz extends Huviz #OntologicallyGrounded
   HHH: # hardcoded hierarchy hints, kv pairs of child to parent
     ObjectProperty: 'everything'
     Class: 'everything'
