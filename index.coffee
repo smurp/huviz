@@ -2,10 +2,15 @@
 #require("coffee-script")
 stitch  = require("stitch")
 express = require("express")
-argv    = process.argv.slice(2)
+eco = require("eco")
+argv = process.argv.slice(2)
 
 ss = require('./js/sortedset')
 oink = ss.SortedSet()
+
+IS_LOCAL = ('--is_local' in argv)
+SKIP_ORLANDO = ('--skip_orlando' in argv)
+SKIP_POETESSES = ('--skip_poetesses' in argv)
 
 pkg = stitch.createPackage(
   # Specify the paths you want Stitch to automatically bundle up
@@ -17,11 +22,11 @@ pkg = stitch.createPackage(
     __dirname + '/js/sortedset.js',
     __dirname + '/js/hsv.js',
     __dirname + '/js/hsl.js',
-    __dirname + '/lib/jquery.js',
-    __dirname + '/lib/jquery-ui.min.js',
-    __dirname + '/lib/d3.v3.min.js', # before fisheye
-    __dirname + '/lib/fisheye.js',
+    #__dirname + '/lib/jquery.js',
+    #__dirname + '/lib/jquery-ui.min.js',
+    #__dirname + '/lib/d3.v3.min.js', # before fisheye
     #__dirname + '/lib/jq.min.js',
+    __dirname + '/lib/fisheye.js',
     __dirname + '/lib/green_turtle.js'
     __dirname + '/js/quadParser.js'    
   ]
@@ -36,10 +41,19 @@ just_huviz = stitch.createPackage(
   ]
 )
 
+fs = require('fs')
+
+# https://github.com/sstephenson/eco
+localOrCDN = (templatePath, isLocal) ->
+  template = fs.readFileSync __dirname + templatePath, "utf-8"
+  respondDude = (req, res) =>
+    res.send(eco.render(template, {isLocal: isLocal}))
+  return respondDude
+
 libxmljs = require "libxmljs"       # https://github.com/polotek/libxmljs
 # https://github.com/polotek/libxmljs/wiki/Document
 #   NOTE attribute names and tag names are CASE SENSITIVE!!!!?!!???
-fs = require('fs')
+
 createSnippetServer = (xmlFileName, uppercase) ->
   if not uppercase? or uppercase
     id_in_case = "ID"
@@ -109,14 +123,16 @@ app.configure ->
   app.use express.static(__dirname + '/node_modules')
   app.get "/application.js", pkg.createServer()
   app.get "/just_huviz.js", just_huviz.createServer()
+  app.get "/huvis.html", localOrCDN("/views/huvis.html.eco", IS_LOCAL)
+  app.get "/orlonto.html", localOrCDN("/views/orlonto.html.eco", IS_LOCAL)  
 
 # http://regexpal.com/
 port = argv[0] or process.env.PORT or 9999
-if not ('--skip_orlando' in argv)
+if not SKIP_ORLANDO
   app.get "/snippet/orlando/:id([A-Za-z0-9-_]+)/",
       createSnippetServer("orlando_all_entries_2013-03-04.xml", true)
 
-if not ('--skip_poetesses' in argv)
+if not SKIP_POETESSES
   app.get "/snippet/poetesses/:id([A-Za-z0-9-_]+)/",
       createSnippetServer("poetesses_decomposed.xml", false)
 

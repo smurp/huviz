@@ -9,6 +9,15 @@
     <link href="/css/gclui.css" rel="stylesheet" type="text/css">
     <link href="/css/help.css" rel="stylesheet" type="text/css">
     <link href="/css/jquery-ui.css" rel="stylesheet"/>
+  <% if @isLocal: %>
+    <script src="/lib/jquery.js"></script>
+    <script src="/lib/d3.v3.min.js"></script>
+    <script src="/lib/jquery-ui.min.js"></script>
+  <% else: %>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="//d3js.org/d3.v3.js" charset="utf-8"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
+  <% end %>  
   </head>
   <body>
     <div id="snippet_box">
@@ -62,6 +71,22 @@
           label size (em)
   	  <input name="label_em" type="range" 
                  value=".9" min=".2" max="4" step=".1"
+                 onchange="HVZ.update_graph_settings(this)">
+        </label>
+      </div>
+      <div>
+        <label title="the size of the snippet text">
+          snippet body (em)
+  	  <input name="snippet_body_em" type="range" 
+                 value=".7" min=".2" max="4" step=".1"
+                 onchange="HVZ.update_graph_settings(this)">
+        </label>
+      </div>
+      <div>
+        <label title="the size of the snippet triples">
+          snippet triple (em)
+  	  <input name="snippet_triple_em" type="range" 
+                 value=".5" min=".2" max="4" step=".1"
                  onchange="HVZ.update_graph_settings(this)">
         </label>
       </div>
@@ -137,6 +162,20 @@
                  onchange="HVZ.update_graph_settings(this)">
         </label>
       </div>
+      <div>
+        <label title="whether graphed nodes are always labelled">
+          label graphed nodes
+	  <input name="label_graphed" type="checkbox" checked="checked"
+                 onchange="HVZ.update_graph_settings(this)">
+        </label>
+      </div>
+      <div>
+        <label title="whether repositioning already graphed nodes pins them at the new spot">
+          nodes pinnable
+	  <input name="nodes_pinnable" type="checkbox" checked="checked"
+                 onchange="HVZ.update_graph_settings(this)">
+        </label>
+      </div>
     </div>
 
     <div id="huvis_controls">
@@ -147,7 +186,30 @@
               name="data_set" class="file_picker"
               onchange="HVZ.load_file(this)" 
               title="data sets are in order of increasing complexity">
-            <option title="the Orlando ontology">/data/orlando_ontology.ttl</option>
+	    <option value=""> -- pick -- </option>
+            <option title="R.M. Ballantyne -- all attributes -- 14 nodes; 60 edges; 17 predicates">/data/ballrm.nq</option>
+            <option title="Maria Abdy -- all attributes -- 68 nodes; 308 edges; 37 predicates">/data/abdyma.nq</option>
+            <option title="William Shakespeare -- basic relational predicates -- 41 nodes; 46 edges; 21 predicates ">/data/shakwi.nq</option>
+            <option title="Brontes -- all attributes -- 423 node; 666 edges; 43 predicates">/data/brontes.nq</option>
+            <option title="Margaret Atwood -- all attributes -- 444 nodes; 2325 edges; 41 predicates">/data/atwoma.nq</option>
+            <option title="Early Writers:  573 nodes; edges 835; predicates 52">/data/early_writers.nq</option>
+            <option title="The Poetesses -- all attributes -- 1735 nodes; 1646 edges; 11 predicates">/data/poetesses.nq</option>
+            <option title="Relations -- all writers -- basic relational predicates -- DANGER! -- 6897 nodes; edges 11761; predicates 10">/data/relations.nq</option>
+
+	    <!--
+            <option>/data/test_1.nq</option>
+            <option>/data/test_40.nq</option>
+
+
+            <option>/data/test_100.nq</option>
+            <option>/data/test_40.ttl</option>
+            <option>/data/test_1.ttl</option>
+            <option>/data/test_20.ttl</option>
+            <option>/data/all.ttl</option>
+            <option>/data/all.nq</option>
+            <option>/data/test_20.nq</option>
+            <option>/data/orlando_ontology.ttl</option>
+	    -->
           </select>
         </label> <span class="little-hint">hover!</span>
       </div>
@@ -164,6 +226,68 @@
     <script src="/application.js?23234"></script>
     <script>
       var gcl = require('graphcommandlanguage');
+      var testsuite = function(HVZ){
+        ts = new gcl.GCLTestSuite(
+            HVZ.gclc,[
+             // initially no links are displayed
+             {desc: "initial empty graph",
+              expectations: [ 
+                 ["this.graph_ctrl.nodes.length",7],
+                 ["this.graph_ctrl.links_set.length",0]
+                ]
+              },
+             {desc: "choosing writer",
+              script: "choose 'w:abdyma'",
+              expectations: [
+                 ["this.graph_ctrl.nodes.length",7],
+                 ["this.graph_ctrl.unlinked_set.length",0],
+                 ["this.graph_ctrl.links_set.length",6],
+                ]
+              },
+             {desc: "discarding writer should empty graph",
+              script: "discard 'w:abdyma'",
+              expectations: [
+                 ["this.graph_ctrl.nodes.length",7],
+                 ["this.graph_ctrl.unlinked_set.length",6],
+                 ["this.graph_ctrl.discarded_set.length",1],
+                 ["this.graph_ctrl.links_set.length",0],
+                ]
+              },
+             {desc: "choose AnglicanChurch; expect no effect",
+              script:"choose '_:E'",
+              expectations: [
+                 ["this.graph_ctrl.discarded_set.length",1],
+                 ["this.graph_ctrl.discarded_set[0].links_shown.length",0]
+                ]
+             },
+             {desc: "choose from discards should graph",
+              script:"choose 'w:abdyma'",
+              expectations: [
+                 ["this.graph_ctrl.discarded_set.length",0],
+                 ["this.graph_ctrl.graphed_set.length",7],
+                 ["this.graph_ctrl.unlinked_set.length",0]
+                ]
+             },
+             {desc: "discard AnglicanChurch; expect it to be",
+              script:"discard '_:E'",
+              expectations: [
+                 ["this.graph_ctrl.discarded_set.length",1],
+                 ["this.graph_ctrl.discarded_set[0].links_shown.length",0]
+                ]
+             },
+             {desc: "choose AnglicanChurch; expect it to be graphed",
+              script:"choose '_:E'",
+              expectations: [
+                 ["this.graph_ctrl.discarded_set.length",0],
+                 ["this.graph_ctrl.nodes.get({'id':'_:E'}).links_shown.length",1]
+                ]
+             }
+            ]
+          )
+        //ts.verbose = true;
+        alert('about to run this puppy');
+        ts.run();
+      };
       if (location.hash.match(/testsuite/)){
         window.addEventListener('showgraph',testsuite);
       }
@@ -176,16 +300,10 @@
       var HVZ;
       window.addEventListener('load',function(){
         huviz = require('huviz');
-        HVZ = new huviz.OntoViz();
-        //HVZ.load_file();
+        HVZ = new huviz.Orlando();
+        HVZ.set_ontology("/data/orlando_ontology.ttl");
         HVZ.boot_sequence();
       });
-
-      /*
-      window.addEventListener('newsubject',function(e){
-        alert("new subject: "+e.detail.sid)
-      });
-      */
 
     </script>
   </body>

@@ -89,6 +89,7 @@
 #  58) TASK: hide abstract predicates containing nothing visible
 #  59) TASK: wrap set_picker (or shrink the font) so it is not too wide
 # 
+gcl = require('graphcommandlanguage');
 #asyncLoop = require('asynchronizer').asyncLoop
 CommandController = require('gclui').CommandController
 Edge = require('edge').Edge
