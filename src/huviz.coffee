@@ -1255,11 +1255,10 @@ class Huviz
         @develop(obj_n)
 
     else
-      #if @same_as(pid,rdf_type)
-      #  subj_n.type = quad.o.value
-      if subj_n.embryo and is_one_of(pid,NAME_SYNS)
-        subj_n.name = quad.o.value.replace(/^\s+|\s+$/g, '')
-        @develop(subj_n) # might be ready now
+      if is_one_of(pid,NAME_SYNS)
+        subj_n.name = quad.o.value.replace(/^\s+|\s+$/g, '')        
+        if subj_n.embryo
+          @develop(subj_n) # might be ready now
       else
         subj.predicates[pid].objects.push(quad.o.value)
 
