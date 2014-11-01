@@ -2537,6 +2537,14 @@ class OntoViz extends Huviz #OntologicallyGrounded
     console.log "try_to_set_node_type",node.id,"=====",node.type
     return true
 
+  # first, rest and members are produced by GreenTurtle regarding the AllDisjointClasses list
+  predicates_to_ignore: ["anything", "comment", "first", "rest", "members"]
+  init_gclc: ->
+    super()
+    for pid in @predicates_to_ignore
+      alert "ignoring " + pid
+      @gclui.ignore_predicate pid
+      
 class Socrata extends Huviz
   ###
   # Inspired by https://data.edmonton.ca/

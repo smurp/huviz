@@ -137,12 +137,13 @@ class CommandController
 
   handle_newpredicate: (e) =>
     pred_uri = e.detail.pred_uri
-    unless pred_uri in @predicates_ignored
-      parent_lid = e.detail.parent_lid
-      pred_lid = e.detail.pred_lid
-      pred_name = pred_lid.match(/([\w\d\_\-]+)$/g)[0]      
-      @add_newpredicate(pred_lid,parent_lid,pred_name)
-      @recolor_edges_and_predicates_eventually(e)
+    parent_lid = e.detail.parent_lid
+    pred_lid = e.detail.pred_lid
+    unless pred_uri in @predicates_ignored # FIXME merge with predicates_to_ignore
+      unless pred_lid in @predicates_ignored # FIXME merge with predicates_to_ignore
+        pred_name = pred_lid.match(/([\w\d\_\-]+)$/g)[0]      
+        @add_newpredicate(pred_lid,parent_lid,pred_name)
+        @recolor_edges_and_predicates_eventually(e)
 
   recolor_edges_and_predicates_eventually: ->
     if @recolor_edges_and_predicates_eventually_id?
@@ -171,10 +172,9 @@ class CommandController
     # FIXME Why is show_tree being called four times per node?
     @predicate_picker.show_tree(@predicate_hierarchy,@predicatebox,@onpredicateclicked)
 
-  predicates_to_ignore: ["anything", "comment", "first", "rest", "members"] # first, rest and members are produced by GreenTurtle regarding the AllDisjointClasses list
   add_newpredicate: (pred_lid, parent_lid, pred_name) =>
-    if pred_lid in @predicates_to_ignore
-      return
+    #if pred_lid in @predicates_to_ignore
+    #  return
     @predicate_picker.add(pred_lid, parent_lid, pred_name, @onpredicateclicked)
 
   onpredicateclicked: (pred_id,selected,elem) =>
