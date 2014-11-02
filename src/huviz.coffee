@@ -16,6 +16,11 @@
 #
 #  Commands on nodes
 #     choose/shelve     -- graph or remove from graph
+#     choose - add to graph and show all edges
+#     unchoose - hide all edges except those to 'chosen' nodes
+#                this will shelve (or hide if previously hidden)
+#                those nodes which end up no longer being connected
+#                to anything
 #     discard/retrieve    -- throw away or recover
 #     label/unlabel       -- shows labels or hides them
 #     substantiate/redact -- shows source text or hides it
@@ -88,6 +93,11 @@
 #  57) TASK: hover over node on shelf shows edges to graphed and shelved nodes
 #  58) TASK: hide abstract predicates containing nothing visible
 #  59) TASK: wrap set_picker (or shrink the font) so it is not too wide
+#  60) BUG: nodes are sometimes still 'chosen' while no longer 'graphed'
+#  61) TASK: make a settings controller for edge label (em) (or mag?)
+#  62) TASK: add counts to predicate picker
+#  63) TASK: add counts to taxon picker
+#  64) TASK: add git commit id to the ui: `git log --format="%H" -n 1`
 # 
 gcl = require('graphcommandlanguage');
 #asyncLoop = require('asynchronizer').asyncLoop
@@ -1255,10 +1265,9 @@ class Huviz
         @develop(obj_n)
 
     else
-      if is_one_of(pid,NAME_SYNS)
+      if subj_n.embryo and is_one_of(pid,NAME_SYNS)
         subj_n.name = quad.o.value.replace(/^\s+|\s+$/g, '')        
-        if subj_n.embryo
-          @develop(subj_n) # might be ready now
+        @develop(subj_n) # might be ready now
       else
         subj.predicates[pid].objects.push(quad.o.value)
 
@@ -2542,7 +2551,6 @@ class OntoViz extends Huviz #OntologicallyGrounded
   init_gclc: ->
     super()
     for pid in @predicates_to_ignore
-      alert "ignoring " + pid
       @gclui.ignore_predicate pid
       
 class Socrata extends Huviz

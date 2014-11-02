@@ -278,7 +278,10 @@ class CommandController
     #   abstract   - the element represents an abstract superclass, presumably containing concrete node classes
 
   verb_sets: [ # mutually exclusive within each set
+      pick: 'pick'
+      unpick: 'unpick'
       choose: 'choose'
+      #unchoose: 'unchoose' # should 'unchoose' be implemented? yes!
       shelve: 'shelve'
       hide:   'hide'
     ,
