@@ -13,7 +13,9 @@ knownOpts =
   skip_poetesses: Boolean
   git_commit_hash: [String, null]
   port: [Stream, Number]
-nopts = nopt(knownOpts, {}, process.argv, 2)
+shortHands =
+  faststart: ["--skip_orlando", "--skip_poetesses"]
+nopts = nopt(knownOpts, shortHands, process.argv, 2)
 console.log nopts
 
 pkg = stitch.createPackage(
