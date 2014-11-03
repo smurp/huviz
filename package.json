@@ -15,7 +15,7 @@
     "nopt": "~3.0.0"
   },
   "scripts":{
-    "start": "node_modules/coffee-script/bin/coffee -w index.coffee --git_commit_hash `git log --format=\"%h\" -n 1`"
+    "start": "node_modules/coffee-script/bin/coffee -w index.coffee 9998 --git_commit_hash `git log --format=\"%h\" -n 1`"
   },
   "stashed-dependencies":{
     "rdfquads":"smurp/rdfquads",
