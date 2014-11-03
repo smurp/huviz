@@ -2103,15 +2103,18 @@ class Huviz
       @gclc.prefixes[abbr] = prefix
 
   init_gclc: ->
-    if gcl
-      @gclc = new GraphCommandLanguageCtrl(this)
-      @gclui = new CommandController(this,d3.select("#gclui")[0][0],@hierarchy)
-      window.addEventListener 'showgraph', @register_gclc_prefixes
-      window.addEventListener 'newpredicate', @gclui.handle_newpredicate
-      TYPE_SYNS.forEach (pred_id,i) =>
-        @gclui.ignore_predicate pred_id
-      NAME_SYNS.forEach (pred_id,i) =>
-        @gclui.ignore_predicate pred_id
+    @gclc = new GraphCommandLanguageCtrl(this)
+    @gclui = new CommandController(this,d3.select("#gclui")[0][0],@hierarchy)
+    window.addEventListener 'showgraph', @register_gclc_prefixes
+    window.addEventListener 'newpredicate', @gclui.handle_newpredicate
+    TYPE_SYNS.forEach (pred_id,i) =>
+      @gclui.ignore_predicate pred_id
+    NAME_SYNS.forEach (pred_id,i) =>
+      @gclui.ignore_predicate pred_id
+    for pid in @predicates_to_ignore
+      @gclui.ignore_predicate pid
+
+  predicates_to_ignore: ["anything"]        
 
   init_snippet_box: ->
     if d3.select('#snippet_box')[0].length > 0
@@ -2552,10 +2555,6 @@ class OntoViz extends Huviz #OntologicallyGrounded
 
   # first, rest and members are produced by GreenTurtle regarding the AllDisjointClasses list
   predicates_to_ignore: ["anything", "comment", "first", "rest", "members"]
-  init_gclc: ->
-    super()
-    for pid in @predicates_to_ignore
-      @gclui.ignore_predicate pid
       
 class Socrata extends Huviz
   ###
