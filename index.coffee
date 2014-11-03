@@ -3,15 +3,8 @@
 stitch  = require("stitch")
 express = require("express")
 eco = require("eco")
-argv = process.argv.slice(2)
 
-ss = require('./js/sortedset')
-oink = ss.SortedSet()
-
-IS_LOCAL = ('--is_local' in argv)
-SKIP_ORLANDO = ('--skip_orlando' in argv)
-SKIP_POETESSES = ('--skip_poetesses' in argv)
-
+# https://github.com/npm/nopt
 nopt = require("nopt")
 Stream = require("stream").Stream
 knownOpts =
@@ -137,8 +130,10 @@ app.configure ->
   app.get "/huvis.html", localOrCDN("/views/huvis.html.eco", nopts.is_local)
   app.get "/orlonto.html", localOrCDN("/views/orlonto.html.eco", nopts.is_local)
 
+
+port = nopts.port or nopts.argv.remain[0] or process.env.PORT or 9999
+
 # http://regexpal.com/
-port = nopts.port or process.env.PORT or 9999
 if not nopts.skip_orlando
   app.get "/snippet/orlando/:id([A-Za-z0-9-_]+)/",
       createSnippetServer("orlando_all_entries_2013-03-04.xml", true)
