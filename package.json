@@ -11,10 +11,11 @@
     "express": "~2.5.0",
     "eco": "1.1.0-rc-1",
     "async": "~0.2.9",
-    "libxmljs": "~0.9.0"
+    "libxmljs": "~0.9.0",
+    "nopt": "~3.0.0"
   },
   "scripts":{
-    "start": "node_modules/coffee-script/bin/coffee -w index.coffee"
+    "start": "node_modules/coffee-script/bin/coffee -w index.coffee --git_commit_hash `git log --format=\"%h\" -n 1`"
   },
   "stashed-dependencies":{
     "rdfquads":"smurp/rdfquads",

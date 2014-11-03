@@ -30,8 +30,15 @@
        <li><a href="#tabs-history" title="The history of commands">History</a></li>
        <li><a href="#tabs-hide" title="Shrink this menu for maximum room to play.">Hide</a></li>
     </ul>
-    <div id="tabs-help" class="scrolling_tab">
-      <h1>HuViz</h1>
+    <div id="tabs-help" class="scrolling_tab"> 
+      <h1>
+        HuViz 
+        <% if @git_commit_hash: %>
+          <sup class="git_commit_hash">
+            <a target="huviz_version" href="https://github.com/smurp/huviz/commit/<%= @git_commit_hash %>"><%= @git_commit_hash %></a>
+          </sup>
+        <% end %>
+      </h1>
       <h2>Orlando RDF Explorer</h2>
       <p>This interface is intended to help you explore the
         information and relationships encoded in

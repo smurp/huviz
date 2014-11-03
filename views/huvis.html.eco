@@ -9,7 +9,7 @@
     <link href="/css/gclui.css" rel="stylesheet" type="text/css">
     <link href="/css/help.css" rel="stylesheet" type="text/css">
     <link href="/css/jquery-ui.css" rel="stylesheet"/>
-  <% if @isLocal: %>
+  <% if @is_local: %>
     <script src="/lib/jquery.js"></script>
     <script src="/lib/d3.v3.min.js"></script>
     <script src="/lib/jquery-ui.min.js"></script>
@@ -31,7 +31,14 @@
        <li><a href="#tabs-hide" title="Shrink this menu for maximum room to play.">Hide</a></li>
     </ul>
     <div id="tabs-help" class="scrolling_tab">
-      <h1>HuViz</h1>
+      <h1>
+        HuViz 
+        <% if @git_commit_hash: %>
+          <sup class="git_commit_hash">
+            <a target="huviz_version" href="https://github.com/smurp/huviz/commit/<%= @git_commit_hash %>"><%= @git_commit_hash %></a>
+          </sup>
+        <% end %>
+      </h1>
       <h2>Orlando RDF Explorer</h2>
       <p>This interface is intended to help you explore the
         information and relationships encoded in

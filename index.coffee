@@ -12,6 +12,17 @@ IS_LOCAL = ('--is_local' in argv)
 SKIP_ORLANDO = ('--skip_orlando' in argv)
 SKIP_POETESSES = ('--skip_poetesses' in argv)
 
+nopt = require("nopt")
+Stream = require("stream").Stream
+knownOpts =
+  is_local: Boolean
+  skip_orlando: Boolean
+  skip_poetesses: Boolean
+  git_commit_hash: [String, null]
+  port: [Stream, Number]
+nopts = nopt(knownOpts, {}, process.argv, 2)
+console.log nopts
+
 pkg = stitch.createPackage(
   # Specify the paths you want Stitch to automatically bundle up
   paths: [ __dirname + "/src" ]
@@ -47,7 +58,7 @@ fs = require('fs')
 localOrCDN = (templatePath, isLocal) ->
   template = fs.readFileSync __dirname + templatePath, "utf-8"
   respondDude = (req, res) =>
-    res.send(eco.render(template, {isLocal: isLocal}))
+    res.send(eco.render(template, nopts))
   return respondDude
 
 libxmljs = require "libxmljs"       # https://github.com/polotek/libxmljs
@@ -123,16 +134,16 @@ app.configure ->
   app.use express.static(__dirname + '/node_modules')
   app.get "/application.js", pkg.createServer()
   app.get "/just_huviz.js", just_huviz.createServer()
-  app.get "/huvis.html", localOrCDN("/views/huvis.html.eco", IS_LOCAL)
-  app.get "/orlonto.html", localOrCDN("/views/orlonto.html.eco", IS_LOCAL)  
+  app.get "/huvis.html", localOrCDN("/views/huvis.html.eco", nopts.is_local)
+  app.get "/orlonto.html", localOrCDN("/views/orlonto.html.eco", nopts.is_local)
 
 # http://regexpal.com/
-port = argv[0] or process.env.PORT or 9999
-if not SKIP_ORLANDO
+port = nopts.port or process.env.PORT or 9999
+if not nopts.skip_orlando
   app.get "/snippet/orlando/:id([A-Za-z0-9-_]+)/",
       createSnippetServer("orlando_all_entries_2013-03-04.xml", true)
 
-if not SKIP_POETESSES
+if not nopts.skip_poetesses
   app.get "/snippet/poetesses/:id([A-Za-z0-9-_]+)/",
       createSnippetServer("poetesses_decomposed.xml", false)
 

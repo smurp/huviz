@@ -106,3 +106,7 @@ body, html {
   border: 0px;
   border-radius: 20px;
 }
+.git_commit_hash {
+  font-size: 20%;
+  color: grey;
+}
