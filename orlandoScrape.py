@@ -29,11 +29,12 @@ Shawn Murphy with:
 Copyright CC BY-SA 3.0  See: http://creativecommons.org/licenses/by-sa/3.0/
 
 """
-STATE_OBVIOUS_PEOPLE_TOO = True # include assertions like:  <someon> a <Person>.
+STATE_OBVIOUS_PEOPLE_TOO = True # include assertions like:  <someone> a <Person>.
 LOCAL_IDENTIFIERS = True  # False causes use of external ontologies
 LOCAL_IDENTIFIERS = False  # False causes use of external ontologies
 # False is bugged, groups are appearing as w:XXXX
 
+# imports from the rdf library allow for efficient handling of data it nt and quad format.
 import rdflib.plugins.serializers.nt
 import rdflib.plugins.serializers.nquads
 from rdflib.plugins.serializers.nt import _xmlcharref_encode, _quoteLiteral
@@ -61,9 +62,9 @@ import sys
 reload(sys) # http://demongin.org/blog/808/
 sys.setdefaultencoding('utf-8')
 
-import re
-import codecs
-import json
+import re       # The regular expressions module
+import codecs   # The module for dealing with various file formatting types
+import json     # The module for efficient input/output from/to JSON
 
 BASE2 = "01"
 BASE10 = "0123456789"
@@ -192,7 +193,7 @@ predicate_to_type = {'childOf':XFN['parent'],
                      'religiousInfluence':WP['Religious_denomination'],
                      'connectionToOrganization':ORL['connectionToOrganization']
                      }
-use_ontology = False # False mean use above mappings, True means use ORL[key]
+use_ontology = False # False means use above mappings, True means use ORL[key]
 
 if LOCAL_IDENTIFIERS:
     for k in predicate_to_type.keys():
@@ -449,6 +450,9 @@ class RDFEmitter(FormatEmitter):
                         else:
                             self.store.add(quad_or_triple) # a triple
 
+# The following classes create a set of "emitters" that allow the data scraped from Orlando to be output
+# into various formats
+
 class TurtleEmitter(RDFEmitter):
     # http://rdflib.readthedocs.org/en/latest/_modules/rdflib/plugins/serializers/turtle.html
     def concludeOutfile(self):
@@ -496,7 +500,7 @@ class TrigEmitter(ContextEmitter):
             self.store.serialize(
                 format="trig"))
     
-if __name__ == "__main__":
+if __name__ == "__main__": # Prevents this program from running if called by another program
     only_predicates = 'standardName,dateOfBirth,dateOfDeath'.split(',')
     only_predicates.extend(predicate_to_type.keys())
     defaults = dict(
