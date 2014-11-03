@@ -6,14 +6,15 @@ class Node
   name: null
   s: null                # TODO(smurp) rename Node.s to Node.subject, should be optional
   type: null
-  constructor: (@id) ->
+  constructor: (@id, use_lid_as_node_name) ->
     #console.log "new Node(",@id,")"
     @links_from = []
     @links_to = []
     @links_shown = []
     # FIXME use the as-yet-unimplemented unique-id-generator
     @lid = @id.match(/([\w\d\_\-]+)$/g)[0]
-    @name = @lid # provide default name
+    if use_lid_as_node_name
+      @name = @lid # provide default name
   set_name: (@name) ->
   set_subject: (@s) ->
   point: (point) ->

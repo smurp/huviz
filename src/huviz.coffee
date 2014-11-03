@@ -855,10 +855,12 @@ class Huviz
         d.target.fisheye.y
 
   shown_messages: []
-  show_message_once: (msg) ->
+  show_message_once: (msg, alert_too) ->
     if @shown_messages.indexOf(msg) is -1
       @shown_messages.push(msg)
       console.log msg
+      if alert_too
+        alert msg
 
   draw_edges_from: (node) ->
     num_edges = node.links_to.length
@@ -1268,8 +1270,8 @@ class Huviz
       if subj_n.embryo and is_one_of(pid,NAME_SYNS)
         subj_n.name = quad.o.value.replace(/^\s+|\s+$/g, '')        
         @develop(subj_n) # might be ready now
-      else
-        subj.predicates[pid].objects.push(quad.o.value)
+      #else  # TODO(smurp) assess the utility of this cache of literal values
+      #  subj.predicates[pid].objects.push(quad.o.value)
 
     ###
     try
@@ -1687,7 +1689,7 @@ class Huviz
       obj_n = @embryonic_set.get_by('id',obj_id)
     if not obj_n?
       # at this point the node is embryonic, all we know is its uri!
-      obj_n = new Node(obj_id)
+      obj_n = new Node(obj_id, @use_lid_as_node_name)
       if not obj_n.id?
         alert "new Node('"+sid+"') has no id"
       #@nodes.add(obj_n)
@@ -2532,6 +2534,8 @@ class OntoViz extends Huviz #OntologicallyGrounded
     RDF_type: "classes"
     OWL_ObjectProperty: "properties"
     OWL_Class: "classes"
+
+  use_lid_as_node_name: true
   
   DEPRECATED_try_to_set_node_type: (node,type) ->
     # FIXME incorporate into ontoviz_type_to_hier_map
