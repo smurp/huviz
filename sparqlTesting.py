@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 #Simple script to send a SPARQL query to our SPARQL endpoint on our Mulgara triplestore and output the result
 #Modified from the example on p. 209 of Learning SPARQL, O'Reilly, Bob DuCharme
 
