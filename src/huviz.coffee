@@ -129,6 +129,7 @@ FOAF_Group  = "http://xmlns.com/foaf/0.1/Group"
 FOAF_Person = "http://xmlns.com/foaf/0.1/Person"
 FOAF_name   = "http://xmlns.com/foaf/0.1/name"
 OWL_Class   = "http://www.w3.org/2002/07/owl#Class"
+OWL_Thing   = "http://www.w3.org/2002/07/owl#Thing"
 OWL_ObjectProperty = "http://www.w3.org/2002/07/owl#ObjectProperty"
 RDF_literal = "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"
 RDF_object  = "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
@@ -2204,8 +2205,6 @@ class Huviz
     # on a GraphCommand
     return {id: thing.id, lid: thing.lid}
 
-  populate_taxonomy: () ->
-    
   toggle_logging: () ->
     if not console.log_real?
       console.log_real = console.log
@@ -2236,7 +2235,6 @@ class Huviz
     @init_sets()    #   because these are the first two lines of reset_graph
 
     @init_gclc()   
-    @populate_taxonomy() # FIXME remove this because it is empty!
     @init_snippet_box()  # FIXME not sure this does much useful anymore
     @mousedown_point = false
     @discard_point = [@cx,@cy] # FIXME refactor so updateWindow handles this
@@ -2475,11 +2473,6 @@ class Orlando extends OntologicallyGrounded
     #e = new AbstractTaxon('everything')
     #@taxonomy['everything'] = e
 
-  populate_taxonomy: ->
-  # use the hints or the HHH to build a hierarchy of AbstractTaxons and Taxons
-  #  for nom in ['writers','people','others','orgs']
-  #    @add_to_taxonomy(nom)
-
   get_taxon_to_initially_pick: () ->
     return 'writer'
 
@@ -2497,8 +2490,6 @@ class Orlando extends OntologicallyGrounded
     Group: 'Thing'
     Person: 'human'
     
-  hints: { 'owl:thing': ['Thing', {human: ['human', {writer: ['Writers'], Person: ['Person']}], Group: ['Group']}]}
-
   push_snippet: (msg_or_obj) ->
     obj = msg_or_obj
     if @snippet_box
