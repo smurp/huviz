@@ -2608,13 +2608,13 @@ class Socrata extends Huviz
         
   parseAndShowJSON: (data) =>
     console.log("parseAndShowJSON",data)
-    #g = @DEFAULT_CONTEXT
+    g = @DEFAULT_CONTEXT
 
     #  https://data.edmonton.ca/api/views/sthd-gad4/rows.json
 
     for dataset in data
       #dataset_uri = "https://data.edmonton.ca/api/views/#{dataset.id}/"
-      console.log dataset_uri
+      console.log @dataset_uri
       q = 
         g: g
         s: dataset_uri
@@ -2660,5 +2660,6 @@ if not is_one_of(2,[3,2,4])
 (exports ? this).Huviz = Huviz
 (exports ? this).Orlando = Orlando
 (exports ? this).OntoViz = OntoViz
+#(exports ? this).Socrata = Socrata
 (exports ? this).Edge = Edge
 

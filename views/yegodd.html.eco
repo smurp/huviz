@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Huvis Graph Visualization</title>
+    <title>YEG Open Data Visualization</title>
     <link href="/css/huvis.css" rel="stylesheet" type="text/css">
     <link href="/css/huvis_controls.css" rel="stylesheet" type="text/css">
     <link href="/css/lariat.css" rel="stylesheet" type="text/css">
@@ -30,7 +30,7 @@
        <li><a href="#tabs-history" title="The history of commands">History</a></li>
        <li><a href="#tabs-hide" title="Shrink this menu for maximum room to play.">Hide</a></li>
     </ul>
-    <div id="tabs-help" class="scrolling_tab"> 
+    <div id="tabs-help" class="scrolling_tab">
       <h1>
         HuViz 
         <% if @git_commit_hash: %>
@@ -193,7 +193,8 @@
               name="data_set" class="file_picker"
               onchange="HVZ.load_file(this)" 
               title="data sets are in order of increasing complexity">
-            <option title="the Orlando ontology">/data/orlando_ontology.ttl</option>
+
+            <option title="yegodd">/data/yegodd.json</option>
           </select>
         </label> <span class="little-hint">hover!</span>
       </div>
@@ -209,12 +210,6 @@
     <script>window.exports = {};</script>
     <script src="/application.js?23234"></script>
     <script>
-     /*
-      var gcl = require('graphcommandlanguage');
-      if (location.hash.match(/testsuite/)){
-        window.addEventListener('showgraph',testsuite);
-      }
-      */
       document.addEventListener('touchmove', function(e) {
         e.preventDefault();
       }, false);
@@ -222,7 +217,8 @@
       var HVZ;
       window.addEventListener('load',function(){
         huviz = require('huviz');
-        HVZ = new huviz.OntoViz();
+        HVZ = new huviz.Socrata();
+        //HVZ.set_ontology("/data/orlando_ontology.ttl");
         HVZ.boot_sequence();
       });
 
