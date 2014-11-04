@@ -116,7 +116,7 @@ class GraphCommand
         #nodes.push(node)
     if @classes
       for class_name in @classes
-        if class_name is 'everything'
+        if class_name is 'Thing'
           the_set = @graph_ctrl.nodes
         else
           the_set = @graph_ctrl.taxonomy[class_name]?.get_instances()
@@ -263,10 +263,10 @@ class GraphCommand
     return cmd
     
     # "choose,label 'abdyma'"
-    # "label everything"
+    # "label Thing"
     # "choose like 'Maria'"
     # "choose organizations like 'church'"
-    # "choose everything like 'mary'"
+    # "choose Thing like 'mary'"
     # "discard organizations like 'mary'"
     # "choose writers like 'Margaret' regarding family"
     #    /(\w+)(,\s*\w+) '(\w+)'/

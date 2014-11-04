@@ -64,12 +64,12 @@ class CommandController
       evt.done = true
 
   pick_the_initial_set: =>
-    @onnodeclasspicked 'everything',true
+    @onnodeclasspicked 'Thing',true
     if @huviz.is_big_data()
       # FIXME this is very clunky (and slow)
-      @onnodeclasspicked 'everything',false
+      @onnodeclasspicked 'Thing',false
       @onnodeclasspicked @huviz.get_taxon_to_initially_pick(),true
-    @huviz.taxonomy['everything'].update_english()
+    @huviz.taxonomy['Thing'].update_english()
 
   init_editor_data: ->
     # operations common to the constructor and reset_editor
@@ -210,7 +210,7 @@ class CommandController
       "Faint color: no nodes are picked -- click to pick all\n" +
       "Stripey color: some nodes are picked -- click to pick all\n")
 
-    @taxon_picker = new ColoredTreePicker(@nodeclassbox,'everything')
+    @taxon_picker = new ColoredTreePicker(@nodeclassbox,'Thing')
     @taxon_picker.show_tree(@hierarchy,@nodeclassbox,@onnodeclasspicked)
 
   add_newnodeclass: (class_id,parent,class_name) =>
@@ -227,7 +227,7 @@ class CommandController
     #   Mixed —> On
     #   On —> Off
     #   Off —> On
-    # When we pick "everything" we mean:
+    # When we pick "Thing" we mean:
     #    all nodes except the embryonic and the discarded
     #    OR rather, the hidden, the graphed and the unlinked
     #console.info("onnodeclasspicked('" + id + ", " + selected + "')")
@@ -241,7 +241,7 @@ class CommandController
       state = taxon.get_state()
       @huviz.hide_state_msg()
     else
-      throw "Uhh, there should be a root Taxon 'everything' by this point"
+      throw "Uhh, there should be a root Taxon 'Thing' by this point"
     #console.debug "id:",id,"state:",state,taxon
     if state in ['mixed','unshowing']
       if not (id in @node_classes_chosen)
@@ -261,7 +261,7 @@ class CommandController
       cmd.object_phrase = @object_phrase
     @huviz.gclc.run(cmd)
 
-    @huviz.taxonomy['everything'].update_english()
+    @huviz.taxonomy['Thing'].update_english()
     @update_command()
 
   deselect_node_class: (node_class) ->

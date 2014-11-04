@@ -205,9 +205,7 @@ class Huviz
   edges_by_id: {}
   edge_count: 0
   snippet_db: {}
-  #class_set: SortedSet().sort_on("id").named("all")
   class_index: {}
-  #hierarchy: {'everything': ['EveryThing', {}]}
   hierarchy: {}
   default_color: "brown"
   DEFAULT_CONTEXT: 'http://universal.org/'
@@ -1406,7 +1404,7 @@ class Huviz
   choose_everything: ->
     cmd = new gcl.GraphCommand
       verbs: ['choose']
-      classes: ['everything']
+      classes: ['Thing']
     @gclc.run cmd
     @gclui.push_command cmd
     @tick()
@@ -2494,12 +2492,12 @@ class Orlando extends OntologicallyGrounded
     return @shelved_set
 
   HHH: # hardcoded hierarchy hints, kv pairs of child to parent
-    human: 'everything'
+    human: 'Thing'
     writer: 'human'
-    Group: 'everything'
+    Group: 'Thing'
     Person: 'human'
     
-  hints: { 'everything': ['Everything', {human: ['human', {writer: ['Writers'], Person: ['Person']}], Group: ['Group']}]}
+  hints: { 'owl:thing': ['Thing', {human: ['human', {writer: ['Writers'], Person: ['Person']}], Group: ['Group']}]}
 
   push_snippet: (msg_or_obj) ->
     obj = msg_or_obj
@@ -2529,9 +2527,9 @@ class Orlando extends OntologicallyGrounded
 
 class OntoViz extends Huviz #OntologicallyGrounded
   HHH: # hardcoded hierarchy hints, kv pairs of child to parent
-    ObjectProperty: 'everything'
-    Class: 'everything'
-    SymmetricProperty: 'everything'
+    ObjectProperty: 'Thing'
+    Class: 'Thing'
+    SymmetricProperty: 'Thing'
 
   ontoviz_type_to_hier_map:
     RDF_type: "classes"

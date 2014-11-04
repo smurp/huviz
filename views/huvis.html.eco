@@ -54,7 +54,7 @@
       <ul>
         <li>Go to <a class="open_tab" href="#2">Commands</a> and pick a <i>data set</i>.</li>
         <li>Click the verb <i>choose</i>,
-            notice the command you've built -- <code>choose everything.</code> --
+            notice the command you've built -- <code>choose Thing.</code> --
             then press <button disabled>Do it</button>.</li>
         <li>Go to <a class="open_tab" href="#1">Settings</a> to adjust the sizes of things</li>
         <li>Try hovering over nodes and edges to see their labels</li>
