@@ -437,8 +437,8 @@ class Huviz
         @run_verb_on_object 'shelve', @dragging
         # @unpick(@dragging) # this might be confusing
       else if @dragging.links_shown.length == 0
+        @pick(@dragging) # TODO reconsider whether picking should be implicit in choosing or only using drag-and-drop
         @run_verb_on_object 'choose', @dragging
-        @pick(@dragging)
       else if @nodes_pinnable
         @dragging.fixed = not @dragging.fixed
       @dragging = false
@@ -2210,7 +2210,7 @@ class Huviz
     #alert "starting wait"
 
   after_running_command: ->
-    #alert "done waiting"
+    #console.log "after_running_command"
     toggle_suspend_updates(false)
     $("body").css "cursor", "default"
     $("body").css "background-color", "white" # FIXME remove once it works!
