@@ -98,6 +98,8 @@
 #  62) TASK: add counts to predicate picker
 #  63) TASK: add counts to taxon picker
 #  64) TASK: add git commit id to the ui: `git log --format="%H" -n 1`
+#  65) BUG: hidden nodes are not fully ignore on the shelf so shelved nodes
+#           are not always the focused node
 # 
 gcl = require('graphcommandlanguage');
 #asyncLoop = require('asynchronizer').asyncLoop
@@ -1859,7 +1861,7 @@ class Huviz
   choose: (chosen) =>
     # There is a flag .chosen in addition to the state 'linked'
     # because linked means it is in the graph
-    #@pick chosen
+    #@pick chosen  # NO, chosen does not imply picked
     @chosen_set.add chosen
     @graphed_set.acquire chosen # do it early so add_link shows them otherwise choosing from discards just puts them on the shelf
     @show_links_from_node chosen
@@ -1874,6 +1876,24 @@ class Huviz
     @update_state chosen
     shownness = @update_showing_links chosen
     chosen
+
+  unchoose: (unchosen) =>
+    # To unchoose a node is to remove the chosen flag and unshow the edges
+    # to any nodes which are not themselves chosen.  If that means that
+    # this 'unchosen' node is now no longer graphed, so be it.
+    #
+    #   remove the node from the chosen set
+    #     loop thru all links_shown
+    #       if neither end of the link is chosen then
+    #         unshow the link
+    @chosen_set.remove unchosen
+    for link in unchosen.links_shown by -1
+      if link?
+        if not (link.target.chosen? or link.source.chosen?)
+          @unshow_link(link)
+      else
+        console.log "there is a null in the .links_shown of",unchosen
+    @update_state unchosen
 
   hide: (hidee) =>
     @chosen_set.remove hidee

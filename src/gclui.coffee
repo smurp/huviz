@@ -280,8 +280,9 @@ class CommandController
   verb_sets: [ # mutually exclusive within each set
       pick: 'pick'
       unpick: 'unpick'
+    ,
       choose: 'choose'
-      #unchoose: 'unchoose' # should 'unchoose' be implemented? yes!
+      unchoose: 'unchoose'
       shelve: 'shelve'
       hide:   'hide'
     ,
@@ -294,10 +295,11 @@ class CommandController
     #  print: 'print'
     #  redact: 'redact'
     #  peek: 'peek'
-    ,  # FIXME the edge related commands must be reviewed
-      show: 'reveal'
-      suppress: 'suppress'
-      specify: 'specify'
+
+    #,  # FIXME the edge related commands must be reviewed
+    #  show: 'reveal'
+    #  suppress: 'suppress'
+    #  specify: 'specify'
       #emphasize: 'emphasize'
     ]
 
