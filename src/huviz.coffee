@@ -100,6 +100,7 @@
 #  64) TASK: add git commit id to the ui: `git log --format="%H" -n 1`
 #  65) BUG: hidden nodes are not fully ignore on the shelf so shelved nodes
 #           are not always the focused node
+#  66) BUG: #load+/data/ballrm.nq fails to populate the predicate picker
 # 
 gcl = require('graphcommandlanguage');
 #asyncLoop = require('asynchronizer').asyncLoop
@@ -1030,10 +1031,16 @@ class Huviz
     @ctx.clearRect 0, 0, @canvas.width, @canvas.height
   blank_screen: ->
     @clear_canvas()  if @use_canvas or @use_webgl
+
+  auto_change_verb: ->
+    if @focused_node
+      @gclui.auto_change_verb_if_warranted(@focused_node)
+
   tick: =>
     # return if @focused_node   # <== policy: freeze screen when selected
     @ctx.lineWidth = @edge_width # TODO(smurp) just edges should get this treatment
     @find_focused_node_or_edge()
+    @auto_change_verb()
     @update_snippet() # continuously update the snippet based on the currently focused_edge
     @blank_screen()
     @draw_dropzones()

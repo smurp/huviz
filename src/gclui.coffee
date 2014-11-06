@@ -286,17 +286,17 @@ class CommandController
     #   abstract   - the element represents an abstract superclass, presumably containing concrete node classes
 
   verb_sets: [ # mutually exclusive within each set
-      pick: 'pick'
-      unpick: 'unpick'
-    ,
       choose: 'choose'
       unchoose: 'unchoose'
     ,
-      shelve: 'shelve'
-      hide:   'hide'
+      pick: 'pick'
+      unpick: 'unpick'
     ,
       label:   'label'
       unlabel: 'unlabel'
+    ,  
+      shelve: 'shelve'
+      hide:   'hide'
     ,
       discard: 'discard'
       undiscard: 'retrieve'
@@ -311,6 +311,39 @@ class CommandController
     #  specify: 'specify'
       #emphasize: 'emphasize'
     ]
+
+  auto_change_verb_tests:
+    pick: (node) ->
+      if node.picked?
+        return 'unpick'
+    unpick: (node) ->
+      if not node.picked?
+        return 'pick'
+    choose: (node) ->
+      if node.chosen?
+        return 'unchoose'
+    unchoose: (node) ->
+      if not node.chosen?
+        return 'choose'
+    label: (node) ->
+      if node.labelled
+        return 'unlabel'
+    unlabel: (node) ->
+      if not node.labelled
+        return 'label'
+
+  is_immediate_mode: ->
+    @engaged_verbs.length is 1 # should also test for empty object
+
+  auto_change_verb_if_warranted: (node) ->
+    if @is_immediate_mode()
+      verb = @engaged_verbs[0]
+      test = @auto_change_verb_tests[verb]
+      if test
+        next_verb = test(node)
+        if next_verb
+          alert next_verb          
+          @engage_verb(next_verb)
 
   verbs_requiring_regarding:
     ['show','suppress','emphasize','deemphasize']
@@ -441,6 +474,7 @@ class CommandController
   engaged_verbs: []
   engage_verb: (verb_id) ->
     overrides = @get_verbs_overridden_by(verb_id)
+    @verb_control[verb_id].classed('engaged',true)
     for vid in @engaged_verbs
       if vid in overrides
         @disengage_verb(vid)
@@ -472,7 +506,7 @@ class CommandController
 
   build_setpicker: () ->
     # FIXME populate @the_sets from @huviz.pickable_sets
-    @the_sets = {'nodes': ['Every', {'picked_set': ['Picked'], 'chosen_set': ['Chosen'], 'graphed_set': ['Graphed'], 'shelved_set': ['Shelved'], 'hidden_set': ['Hidden'], 'discarded_set': ['Discarded'], 'labelled_set': ['Labelled']}]}
+    @the_sets = {'nodes': ['All ', {'picked_set': ['Picked'], 'chosen_set': ['Chosen'], 'graphed_set': ['Graphed'], 'shelved_set': ['Shelved'], 'hidden_set': ['Hidden'], 'discarded_set': ['Discarded'], 'labelled_set': ['Labelled']}]}
     @set_picker_box = @comdiv.append('div')
         .classed('container',true)
         .attr('id', 'sets')
