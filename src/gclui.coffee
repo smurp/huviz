@@ -342,7 +342,6 @@ class CommandController
       if test
         next_verb = test(node)
         if next_verb
-          alert next_verb          
           @engage_verb(next_verb)
 
   verbs_requiring_regarding:
