@@ -476,8 +476,7 @@ class CommandController
     @set_picker_box = @comdiv.append('div')
         .classed('container',true)
         .attr('id', 'sets')
-    lateral = false
-    @set_picker = new TreePicker(@set_picker_box,'all',lateral)
+    @set_picker = new TreePicker(@set_picker_box,'all',['treepicker-vertical'])
     @set_picker.show_tree(@the_sets, @set_picker_box, @on_set_picked)
     @populate_all_set_docs()
 

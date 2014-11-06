@@ -14,8 +14,9 @@ Build and control a hierarchic menu of arbitrarily nested divs looking like:
 ###
   
 class TreePicker
-  constructor: (elem, root, lateral) ->
-    @lateral = (lateral? and lateral) or false
+  constructor: (elem, root, extra_classes) ->
+    if extra_classes?
+      @extra_classes = extra_classes
     @elem = d3.select(elem)
     @id_to_elem = {root:elem}
     @id_to_elem[root] = elem
@@ -64,8 +65,9 @@ class TreePicker
       contents_of_me.append("p").attr("class", "treepicker-label").text(label)
       if rest.length > 1
         my_contents = @get_or_create_container(contents_of_me)
-        if top and @lateral
-          my_contents.classed("lateral", true)
+        if top and @extra_classes
+          for css_class in @extra_classes
+            my_contents.classed(css_class, true)
         @show_tree(rest[1],my_contents,listener,false)
   set_branch_pickedness: (id,bool) ->
     if @id_to_elem[id]?

@@ -102,3 +102,13 @@ p {
   color: grey;
   text-align: center;
 }
+.treepicker-vertical .payload {
+  display: inline;
+  margin-left: 2px;
+}
+.treepicker-vertical .payload:before {
+  content: '(';
+}
+.treepicker-vertical .payload:after {
+  content: ')';
+}
