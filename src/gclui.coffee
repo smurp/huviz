@@ -31,24 +31,31 @@ class CommandController
     @cmdlist = d3.select("#tabs-history").append('div').attr('class','commandlist')
     @title_bar_controls()
     @oldcommands = @cmdlist.append('div').attr('class','commandhistory')
+
+    @control_label("Current Command")
     @nextcommandbox = @comdiv.append('div')
 
+    @control_label("Choose Verb")
     @verbdiv = @comdiv.append('div').attr('class','verbs')
     @add_clear_both(@comdiv)
 
-
+    @control_label("Pick Nodes")
     @build_setpicker()
-    @add_clear_both(@comdiv)    
+    #@add_clear_both(@comdiv)    
 
     @build_nodeclasspicker()    
     @likediv = @comdiv.append('div')
     @add_clear_both(@comdiv)
-    
+
+    @control_label("Edges of the Picked Nodes")
     @build_predicatepicker()
     @init_editor_data()
     @build_form()
     @update_command()
     @install_listeners()
+
+  control_label: (txt) ->
+    @comdiv.append('div').classed("control_label",true).text(txt)
 
   install_listeners: () ->
     window.addEventListener 'changePredicate', @predicate_picker.onChangeState
@@ -204,6 +211,7 @@ class CommandController
     @nodeclassbox = @comdiv.append('div')
         .classed('container',true)
         .attr('id',id)
+    @nodeclassbox.attr('style','vertical-align:top')
     @nodeclassbox.attr(
       'title',
       "Medium color: all nodes are picked -- click to pick none\n" +
@@ -283,6 +291,7 @@ class CommandController
     ,
       choose: 'choose'
       unchoose: 'unchoose'
+    ,
       shelve: 'shelve'
       hide:   'hide'
     ,
@@ -307,9 +316,10 @@ class CommandController
     ['show','suppress','emphasize','deemphasize']
     
   verbs_override: # when overriding ones are selected, others are deselected
-    choose: ['discard','unchoose']
-    discard: ['choose','retrieve','hide']
-    hide: ['discard','undiscard','label']
+    choose: ['discard', 'unchoose', 'shelve', 'hide']
+    shelve: ['unchoose', 'choose', 'hide', 'discard', 'retrieve']
+    discard: ['choose', 'retrieve', 'hide', 'unchoose', 'unpick', 'pick']
+    hide: ['discard', 'undiscard', 'label', 'choose' ,'unchoose', 'pick', 'unpick']
 
   verb_descriptions:
     choose: "Put nodes in the graph."
@@ -462,11 +472,12 @@ class CommandController
 
   build_setpicker: () ->
     # FIXME populate @the_sets from @huviz.pickable_sets
-    @the_sets = {'nodes': ['Nodes', {'picked_set': ['Picked'], 'chosen_set': ['Chosen'], 'graphed_set': ['Graphed'], 'shelved_set': ['Shelved'], 'hidden_set': ['Hidden'], 'discarded_set': ['Discarded'], 'labelled_set': ['Labelled']}]}
+    @the_sets = {'nodes': ['Every', {'picked_set': ['Picked'], 'chosen_set': ['Chosen'], 'graphed_set': ['Graphed'], 'shelved_set': ['Shelved'], 'hidden_set': ['Hidden'], 'discarded_set': ['Discarded'], 'labelled_set': ['Labelled']}]}
     @set_picker_box = @comdiv.append('div')
         .classed('container',true)
         .attr('id', 'sets')
-    @set_picker = new TreePicker(@set_picker_box,'all',true)
+    lateral = false
+    @set_picker = new TreePicker(@set_picker_box,'all',lateral)
     @set_picker.show_tree(@the_sets, @set_picker_box, @on_set_picked)
     @populate_all_set_docs()
 
