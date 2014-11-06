@@ -37,5 +37,5 @@ class Edge
     @predicate.unpick(this)
   pick: () ->
     @predicate.pick(this)
-
+  
 (exports ? this).Edge = Edge

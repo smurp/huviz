@@ -1350,7 +1350,7 @@ class Huviz
             console.log "===========================\n  #",quad_count,"  subj:",frame.id,"\n  pred:",pred.id, "\n  obj.value:",obj.value
           else
             if quad_count % every is 0
-              @show_state_msg("parsed quad " + quad_count)
+              @show_state_msg("parsed relation " + quad_count)
           quad_count++
           @add_quad
             s: frame.id
@@ -1434,7 +1434,7 @@ class Huviz
       if e.data.event is 'line'
         quad_count++
         if quad_count % 100 is 0
-          @show_state_msg("parsed quad " + quad_count)
+          @show_state_msg("parsed relation " + quad_count)
         q = parseQuadLine(e.data.line)
         if q
           q.s = q.s.raw
