@@ -177,6 +177,13 @@
         </label>
       </div>
       <div>
+        <label title="whether edges have their snippet count shown as (#)">
+          snippet count on edge labels
+	  <input name="snippet_count_on_edge_labels" type="checkbox"
+                 onchange="HVZ.update_graph_settings(this)">
+        </label>
+      </div>
+      <div>
         <label title="whether repositioning already graphed nodes pins them at the new spot">
           nodes pinnable
 	  <input name="nodes_pinnable" type="checkbox" checked="checked"

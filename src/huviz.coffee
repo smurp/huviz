@@ -260,6 +260,7 @@ class Huviz
   gravity: 0.025
   swayfrac: .2
   label_graphed: true
+  snippet_count_on_edge_labels: true
   label_show_range: null # @link_distance * 1.1
   graph_radius: 100
   shelf_radius: 0.9
@@ -1061,10 +1062,15 @@ class Huviz
 
   draw_edge_label: (edge) ->
     ctx = @ctx
+    label = edge.predicate.lid
+    if @snippet_count_on_edge_labels
+      if edge.contexts?
+        if edge.contexts.length
+          label += " (#{edge.contexts.length})"
     ctx.fillStyle = "white"
-    ctx.fillText " " + edge.predicate.lid, edge.handle.x + 1, edge.handle.y + 1
+    ctx.fillText " " + label, edge.handle.x + 1, edge.handle.y + 1
     ctx.fillStyle = edge.color
-    ctx.fillText " " + edge.predicate.lid, edge.handle.x, edge.handle.y
+    ctx.fillText " " + label, edge.handle.x, edge.handle.y
 
   update_snippet: ->
     if @show_snippets_constantly and @focused_edge? and @focused_edge isnt @printed_edge
@@ -2555,6 +2561,7 @@ class OntoViz extends Huviz #OntologicallyGrounded
     OWL_Class: "classes"
 
   use_lid_as_node_name: true
+  snippet_count_on_edge_labels: false
   
   DEPRECATED_try_to_set_node_type: (node,type) ->
     # FIXME incorporate into ontoviz_type_to_hier_map
