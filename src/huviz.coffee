@@ -61,7 +61,9 @@
 #  72) TASK: consolidate type and taxon links from node?
 #  73) TASK: drive taxon_picker with ontology
 #  74) TASK: recover from loading crashes with Cancel button on show_state_msg
-#
+#  76) TASK: consider renaming graphed_set to connected_set and verbs choose/unchoose to graph/ungraph
+#  77) TASK: eliminate 'Do it' button by immediately executing complete commands
+#  78) TASK: distinguish chosen nodes with a center dot (different shape?)
 #
 # Eventual Tasks:
 #  74) TASK: restore test suite
@@ -437,7 +439,7 @@ class Huviz
       @move_node_to_point @dragging, point
       if @in_discard_dropzone(@dragging)
         @run_verb_on_object 'discard', @dragging
-      else if @in_disconnect_dropzone(@dragging)
+      else if @in_disconnect_dropzone(@dragging)  # TODO rename to shelve_dropzone
         @run_verb_on_object 'shelve', @dragging
         # @unselect(@dragging) # this might be confusing
       else if @dragging.links_shown.length == 0
