@@ -64,6 +64,7 @@
 #  76) TASK: consider renaming graphed_set to connected_set and verbs choose/unchoose to graph/ungraph
 #  77) TASK: eliminate 'Do it' button by immediately executing complete commands
 #  78) TASK: distinguish chosen nodes with a center dot (different shape?)
+#  79) TASK: support dragging of edges to shelf or discard bin
 #
 # Eventual Tasks:
 #  74) TASK: restore test suite
@@ -443,7 +444,7 @@ class Huviz
         @run_verb_on_object 'shelve', @dragging
         # @unselect(@dragging) # this might be confusing
       else if @dragging.links_shown.length == 0
-        @select(@dragging) # TODO reconsider whether selecting should be implicit in choosing or only using drag-and-drop
+        #@select(@dragging) # TODO reconsider whether selecting should be implicit in choosing or only using drag-and-drop
         @run_verb_on_object 'choose', @dragging
       else if @nodes_pinnable
         @dragging.fixed = not @dragging.fixed
