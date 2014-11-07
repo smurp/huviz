@@ -203,6 +203,9 @@
             <option title="the Orlando ontology">/data/orlando_ontology.ttl</option>
           </select>
         </label> <span class="little-hint">hover!</span>
+        <button type="button" onchange="HVZ.reset_data(this)">
+          reset
+        </button>
       </div>
 
       <div id="gclui"></div>

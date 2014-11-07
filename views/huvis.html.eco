@@ -225,7 +225,12 @@
             <option>/data/orlando_ontology.ttl</option>
 	    -->
           </select>
-        </label> <span class="little-hint">hover!</span>
+        </label> 
+        <span>
+          <button id="reset_btn" style="display:none" type="button" onclick="HVZ.reset_data(this)">
+            reset
+          </button>
+        </span>
       </div>
 
       <div id="gclui"></div>

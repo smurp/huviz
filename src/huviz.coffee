@@ -692,7 +692,24 @@ class Huviz
         parent.register(taxon)
       @gclui.add_newnodeclass(taxon_id,parent_lid) # FIXME should this be an event on the Taxon constructor?
     @taxonomy[taxon_id]
-    
+
+
+  do: (args) ->
+    cmd = new gcl.GraphCommand args
+    @gclc.run cmd
+
+  reset_data: ->
+    # TODO fix gclc.run so it can handle empty sets
+    if @discarded_set.length
+      @do({verbs: ['shelve'], sets: [@discarded_set]})
+    if @graphed_set.length
+      @do({verbs: ['shelve'], sets: [@graphed_set]})
+    if @hidden_set.length
+      @do({verbs: ['shelve'], sets: [@hidden_set]})
+    if @picked_set.length
+      @do({verbs: ['unpick'], sets: [@picked_set]})
+    @gclui.pick_the_initial_set()
+
   reset_graph: ->
     @G = {} # is this deprecated?
     @init_sets()
@@ -2380,6 +2397,7 @@ class Huviz
       @update_graph_settings(elem, false)
 
   load_file: ->
+    $("#reset_btn").show()
     @show_state_msg("loading...")
     @init_from_graph_controls()
     @reset_graph()
