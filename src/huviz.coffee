@@ -40,20 +40,36 @@
 #     c) there might be applications for actuators other than verbs
 #     d) there might be update operations against gclui apart from actuators
 #
-# ISSUES:
+# Immediate Priorities:
+#  46) TASK: impute node type based on predicates via ontology
+#  40) TASK: support search
+#  27) TASK: make selecting 'anything' (abstract predicates) do the right things
+#  52) BUG: until clicking abstract predicates does the right thing
+#           it should do nothing
+#  53) PERF: should_show_label should not have search_regex in inner loop
+#  58) TASK: hide abstract predicates containing nothing visible
+#  60) BUG: nodes are sometimes still 'chosen' while no longer 'graphed'
+#  62) TASK: add counts to predicate picker
+#  63) TASK: add counts to taxon picker
+#  65) BUG: hidden nodes are not fully ignore on the shelf so shelved nodes
+#           are not always the focused node
+#  68) TASK: optimize update_english
+#  69) TASK: figure out ideal root for predicate hierarchy -- owl:Property?
+#  70) TASK: make owl:Thing implicit root class
+#            ie: have Taxons be subClassOf owl:Thing unless replaced
+#  71) BUG: must-drag-something-first-for-good-layout -- already fixed?
+#  72) TASK: consolidate type and taxon links from node?
+#  73) TASK: drive taxon_picker with ontology
+#  74) TASK: recover from loading crashes with Cancel button on show_state_msg
+#
+#
+# Eventual Tasks:
 #   4) TASK: Suppress all but the 6-letter id of writers in the cmd cli
-#  12) BUG: Graph layout of a single writer and peripheral nodes is not
-#      a simple flower, suggesting either that the shelf is exerting
-#      force or that an inappropriate combination of charge and link
-#      distance is occuring.
 #  14) TASK: it takes time for clicks on the predicate picker to finish;
 #      showing a busy cursor or a special state for the selected div
 #      would help the user have faith.
 #      (Investigate possible inefficiencies, too.)
 #      AKA: fix bad-layout-until-drag-and-drop bug
-#  15) TASK: collapse edges to one-per-color (width for number?)
-#  17) TASK: incorporate ontology to drive predicate nesting
-#  46) TASK: impute node type based on predicates via ontology
 #  18) TASK: drop a node on another node to draw their mutual edges only
 #  19) TASK: progressive documentation (context sensitive tips and intros)
 #  22) TASK: summarize selected_set succinctly in english version of cmd
@@ -65,25 +81,16 @@
 #      prevent starting operations when slow stuff is underway
 #      AKA: show waiting cursor during verb execution
 #  26) boot script should perhaps be "choose writer." or some reasonable set
-#  27) make selecting 'anything' (abstract predicates) do the right things
 #  30) TASK: Stop passing (node, change, old_node_status, new_node_status) to
 #      Taxon.update_state() because it never seems to be needed
 #  32) TASK: make a settings controller for selected_mag
 #  33) TASK: make a factory for the settings (so they're software generated)
 #  35) TASK: get rid of jquery
-#  36) TASK: figure out UX to trigger snippet display and
-#            figure out UX for print / redact if still useful
 #  37) TASK: fix Bronte names, ie unicode
-#  39) TASK: make understandable
-#  40) TASK: support search
 #  41) TASK: link to new backend
 #  48) BUG: discipline the behaviour of abstract predicates
 #           ie they should have collapse/expand triangles ala Finder
-#  49) BUG: recolor based on non-abstract leaves in predicate hierarchy
 #  51) TASK: make predicate picker height adjustable
-#  52) BUG: until clicking abstract predicates does the right thing
-#           it should do nothing
-#  53) PERF: should_show_label should not have search_regex in inner loop
 #  55) TASK: clicking an edge for a snippet already shown should add that
 #            triple line to the snippet box and bring the box forward
 #            (ideally using css animation to flash the triple and scroll to it)
@@ -91,15 +98,9 @@
 #            and subsequent lines show (indented) predicate-object pairs for
 #            each triple which cites the snippet
 #  57) TASK: hover over node on shelf shows edges to graphed and shelved nodes
-#  58) TASK: hide abstract predicates containing nothing visible
-#  60) BUG: nodes are sometimes still 'chosen' while no longer 'graphed'
 #  61) TASK: make a settings controller for edge label (em) (or mag?)
-#  62) TASK: add counts to predicate picker
-#  63) TASK: add counts to taxon picker
-#  64) TASK: add git commit id to the ui: `git log --format="%H" -n 1`
-#  65) BUG: hidden nodes are not fully ignore on the shelf so shelved nodes
-#           are not always the focused node
 #  66) BUG: #load+/data/ballrm.nq fails to populate the predicate picker
+#  67) TASK: add verbs pin/unpin (using polar coords to record placement)
 # 
 gcl = require('graphcommandlanguage');
 #asyncLoop = require('asynchronizer').asyncLoop
