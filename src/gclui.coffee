@@ -64,13 +64,13 @@ class CommandController
 
   on_dataset_loaded: (evt) =>
     if not evt.done?
-      @pick_the_initial_set()
+      @select_the_initial_set()
       @recolor_edges()
 
       # FIXME is there a standards-based way to prevent this happening three times?
       evt.done = true
 
-  pick_the_initial_set: =>
+  select_the_initial_set: =>
     @onnodeclasspicked 'Thing',true
     if @huviz.is_big_data()
       # FIXME this is very clunky (and slow)
@@ -504,7 +504,7 @@ class CommandController
     @huviz.update_all_counts()
 
   build_setpicker: () ->
-    # FIXME populate @the_sets from @huviz.pickable_sets
+    # FIXME populate @the_sets from @huviz.selectable_sets
     @the_sets = {'nodes': ['All ', {'selected_set': ['Selected'], 'chosen_set': ['Chosen'], 'graphed_set': ['Graphed'], 'shelved_set': ['Shelved'], 'hidden_set': ['Hidden'], 'discarded_set': ['Discarded'], 'labelled_set': ['Labelled']}]}
     @set_picker_box = @comdiv.append('div')
         .classed('container',true)
@@ -514,7 +514,7 @@ class CommandController
     @populate_all_set_docs()
 
   populate_all_set_docs: () ->
-    for id, a_set of @huviz.pickable_sets
+    for id, a_set of @huviz.selectable_sets
       if a_set.docs?
         @set_picker.set_title(id, a_set.docs)
 
