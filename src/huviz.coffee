@@ -64,6 +64,8 @@
 #
 #
 # Eventual Tasks:
+#  74) TASK: restore test suite
+#  75) TASK: implement real script parser
 #   4) TASK: Suppress all but the 6-letter id of writers in the cmd cli
 #  14) TASK: it takes time for clicks on the predicate picker to finish;
 #      showing a busy cursor or a special state for the selected div
