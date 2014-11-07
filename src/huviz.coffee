@@ -47,7 +47,7 @@
 #      force or that an inappropriate combination of charge and link
 #      distance is occuring.
 #  14) TASK: it takes time for clicks on the predicate picker to finish;
-#      showing a busy cursor or a special state for the picked div
+#      showing a busy cursor or a special state for the selected div
 #      would help the user have faith.
 #      (Investigate possible inefficiencies, too.)
 #      AKA: fix bad-layout-until-drag-and-drop bug
@@ -56,7 +56,7 @@
 #  46) TASK: impute node type based on predicates via ontology
 #  18) TASK: drop a node on another node to draw their mutual edges only
 #  19) TASK: progressive documentation (context sensitive tips and intros)
-#  22) TASK: summarize picked_set succinctly in english version of cmd
+#  22) TASK: summarize selected_set succinctly in english version of cmd
 #            eg  writers but atwoma
 #       Current command shows redundant mix of nodeclasses and node ids
 #  23) TASK: discipline consequence of clicking a picker div:
@@ -65,10 +65,10 @@
 #      prevent starting operations when slow stuff is underway
 #      AKA: show waiting cursor during verb execution
 #  26) boot script should perhaps be "choose writer." or some reasonable set
-#  27) make picking 'anything' (abstract predicates) do the right things
+#  27) make selecting 'anything' (abstract predicates) do the right things
 #  30) TASK: Stop passing (node, change, old_node_status, new_node_status) to
 #      Taxon.update_state() because it never seems to be needed
-#  32) TASK: make a settings controller for picked_mag
+#  32) TASK: make a settings controller for selected_mag
 #  33) TASK: make a factory for the settings (so they're software generated)
 #  35) TASK: get rid of jquery
 #  36) TASK: figure out UX to trigger snippet display and
@@ -92,7 +92,6 @@
 #            each triple which cites the snippet
 #  57) TASK: hover over node on shelf shows edges to graphed and shelved nodes
 #  58) TASK: hide abstract predicates containing nothing visible
-#  59) TASK: wrap set_picker (or shrink the font) so it is not too wide
 #  60) BUG: nodes are sometimes still 'chosen' while no longer 'graphed'
 #  61) TASK: make a settings controller for edge label (em) (or mag?)
 #  62) TASK: add counts to predicate picker
@@ -267,7 +266,7 @@ class Huviz
   discard_radius: 200
   fisheye_radius: 100 #null # label_show_range * 5
   fisheye_zoom: 4.0
-  picked_mag:  1.2
+  selected_mag:  1.2
   focus_radius: null # label_show_range
   drag_dist_threshold: 5
   snippet_size: 300
@@ -394,7 +393,7 @@ class Huviz
       # We can only know that the users intention is to drag
       # a node once sufficient motion has started, when there
       # is a focused_node
-      #console.log "state_name == '" + @focused_node.state.state_name + "' and picked? == " + @focused_node.picked?
+      #console.log "state_name == '" + @focused_node.state.state_name + "' and selected? == " + @focused_node.selected?
       #console.log "START_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
       @dragging = @focused_node
       if @dragging.state isnt @graphed_set
@@ -437,9 +436,9 @@ class Huviz
         @run_verb_on_object 'discard', @dragging
       else if @in_disconnect_dropzone(@dragging)
         @run_verb_on_object 'shelve', @dragging
-        # @unpick(@dragging) # this might be confusing
+        # @unselect(@dragging) # this might be confusing
       else if @dragging.links_shown.length == 0
-        @pick(@dragging) # TODO reconsider whether picking should be implicit in choosing or only using drag-and-drop
+        @select(@dragging) # TODO reconsider whether selecting should be implicit in choosing or only using drag-and-drop
         @run_verb_on_object 'choose', @dragging
       else if @nodes_pinnable
         @dragging.fixed = not @dragging.fixed
@@ -454,7 +453,7 @@ class Huviz
     # this is the node being clicked
     if @focused_node # and @focused_node.state is @graphed_set
       @perform_current_command(@focused_node)
-      #@toggle_picked(@focused_node)
+      #@toggle_selected(@focused_node)
       @tick()
       return
 
@@ -494,7 +493,7 @@ class Huviz
       @hide_state_msg()
       @gclui.push_command cmd
     else
-      @toggle_picked(node)
+      @toggle_selected(node)
 
   #///////////////////////////////////////////////////////////////////////////
   # resize-svg-when-window-is-resized-in-d3-js
@@ -632,10 +631,10 @@ class Huviz
 
     @chosen_set = SortedSet().named("chosen").isFlag().sort_on("id")
     @chosen_set.docs = "Nodes which the user has individually 'chosen' to graph by clicking or dragging them."
-    @chosen_set.comment = "This concept should perhaps be retired now that picked_set is being maintainted."
+    @chosen_set.comment = "This concept should perhaps be retired now that selected_set is being maintainted."
 
-    @picked_set = SortedSet().named("picked").isFlag().sort_on("id")
-    @picked_set.docs = "Nodes which have been 'picked' using the class picker ie which are highlighted."
+    @selected_set = SortedSet().named("selected").isFlag().sort_on("id")
+    @selected_set.docs = "Nodes which have been 'selected' using the class picker ie which are highlighted."
 
     @shelved_set  = SortedSet().sort_on("name").named("shelved").isState()
     @shelved_set.docs = "Nodes which are on the surrounding 'shelf'."
@@ -659,10 +658,10 @@ class Huviz
     @context_set   = SortedSet().named("context").isFlag().sort_on("id")
     @context_set.docs = "The set of quad contexts."
 
-    @pickable_sets =
+    @selectable_sets =
       nodes: @nodes
       chosen_set: @chosen_set
-      picked_set: @picked_set
+      selected_set: @selected_set
       shelved_set: @shelved_set
       discarded_set: @discarded_set
       hidden_set: @hidden_set
@@ -672,7 +671,7 @@ class Huviz
     @create_taxonomy()
 
   update_all_counts: ->
-    for name, a_set of @pickable_sets
+    for name, a_set of @selectable_sets
       @gclui.on_set_count_update(name, a_set.length)
 
   create_taxonomy: ->
@@ -706,9 +705,9 @@ class Huviz
       @do({verbs: ['shelve'], sets: [@graphed_set]})
     if @hidden_set.length
       @do({verbs: ['shelve'], sets: [@hidden_set]})
-    if @picked_set.length
-      @do({verbs: ['unpick'], sets: [@picked_set]})
-    @gclui.pick_the_initial_set()
+    if @selected_set.length
+      @do({verbs: ['unselect'], sets: [@selected_set]})
+    @gclui.select_the_initial_set()
 
   reset_graph: ->
     @G = {} # is this deprecated?
@@ -748,7 +747,7 @@ class Huviz
       policy_picker.append("option").attr("value", policy_name).text policy_name
 
   calc_node_radius: (d) ->
-    @node_radius * (not d.picked? and 1 or @picked_mag)
+    @node_radius * (not d.selected? and 1 or @selected_mag)
     #@node_radius_policy d
   names_in_edges: (set) ->
     out = []
@@ -1863,7 +1862,7 @@ class Huviz
     @unlink goner
     @discarded_set.acquire goner
     shown = @update_showing_links goner
-    @unpick goner
+    @unselect goner
     #@update_state goner
     goner
 
@@ -1891,7 +1890,7 @@ class Huviz
   choose: (chosen) =>
     # There is a flag .chosen in addition to the state 'linked'
     # because linked means it is in the graph
-    #@pick chosen  # NO, chosen does not imply picked
+    #@select chosen  # NO, chosen does not imply selected
     @chosen_set.add chosen
     @graphed_set.acquire chosen # do it early so add_link shows them otherwise choosing from discards just puts them on the shelf
     @show_links_from_node chosen
@@ -1928,30 +1927,30 @@ class Huviz
   hide: (hidee) =>
     @chosen_set.remove hidee
     @hidden_set.acquire hidee
-    @picked_set.remove hidee
-    hidee.unpick()
+    @selected_set.remove hidee
+    hidee.unselect()
     @hide_node_links hidee
     @update_state hidee
     shownness = @update_showing_links hidee
 
 
   #
-  # The verbs PICK and UNPICK perhaps don't need to be exposed on the UI
-  # but they perform the function of manipulating the @picked_set
-  pick: (node) =>
-    if not node.picked?
-      @picked_set.add(node)
-      node.pick()
+  # The verbs SELECT and UNSELECT perhaps don't need to be exposed on the UI
+  # but they perform the function of manipulating the @selected_set
+  select: (node) =>
+    if not node.selected?
+      @selected_set.add(node)
+      node.select()
       @recolor_node(node)
 
-  unpick: (node) =>
-    if node.picked?
-      @picked_set.remove(node)
-      node.unpick()
+  unselect: (node) =>
+    if node.selected?
+      @selected_set.remove(node)
+      node.unselect()
       @recolor_node(node)
 
   recolor_node: (node) ->
-    state = node.picked? and "emphasizing" or "showing"
+    state = node.selected? and "emphasizing" or "showing"
     node.color = @gclui.taxon_picker.get_color_forId_byName(node.type,state)
 
   recolor_nodes: () ->
@@ -1959,11 +1958,11 @@ class Huviz
     for node in @nodes
       @recolor_node(node)
 
-  toggle_picked: (node) ->
-    if node.picked?
-      @unpick(node)
+  toggle_selected: (node) ->
+    if node.selected?
+      @unselect(node)
     else
-      @pick(node)
+      @select(node)
 
   get_snippet_url: (snippet_id) ->
     if snippet_id.match(/http\:/)
@@ -2006,7 +2005,7 @@ class Huviz
   remove_tags: (xml) ->
     xml.replace(XML_TAG_REGEX, " ").replace(MANY_SPACES_REGEX, " ")
 
-  # peek selects a node so that subsequent mouse motions pick not nodes but edges of this node
+  # peek selects a node so that subsequent mouse motions select not nodes but edges of this node
   peek: (node) =>
     was_already_peeking = false
     if @peeking_node?
@@ -2476,7 +2475,7 @@ class Huviz
   get_default_set_by_type: (node) ->
     return @shelved_set
 
-  get_taxon_to_initially_pick: () ->
+  get_taxon_to_initially_select: () ->
     return 'writer'
 
 class OntologicallyGrounded extends Huviz
@@ -2524,7 +2523,7 @@ class Orlando extends OntologicallyGrounded
     #e = new AbstractTaxon('everything')
     #@taxonomy['everything'] = e
 
-  get_taxon_to_initially_pick: () ->
+  get_taxon_to_initially_select: () ->
     return 'writer'
 
   get_default_set_by_type: (node) ->

@@ -27,20 +27,20 @@ class Node
       @px = point[0]
       @py = point[1]
     [@px,@py]
-  pick: () ->
+  select: () ->
     for edge in this.links_from
-      edge.pick()
+      edge.select()
     for edge in this.links_to
-      edge.pick()
-    @taxon.update_node(this,{pick:true})
-  unpick: () ->
+      edge.select()
+    @taxon.update_node(this,{select:true})
+  unselect: () ->
     for edge in this.links_from
-      edge.unpick()
+      edge.unselect()
     for edge in this.links_to
-      edge.unpick()
-    @taxon.update_node(this,{pick:false})
+      edge.unselect()
+    @taxon.update_node(this,{select:false})
   discard: () ->
-    # should we unpick first if node.state is picked?
+    # should we unselect first if node.state is selected?
     @taxon.update_node(this,{discard:true})
   # FIXME possibly useful, a record of which assertions a node is the context for
   # register_context_for: (edge) ->

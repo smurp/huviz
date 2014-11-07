@@ -13,29 +13,29 @@ class Edge
   register_context: (context) ->
     @contexts.push(context)
     # context.register_context_for(this) # FIXME to see all assertions in a context
-  isPicked: () ->
-    return @source.picked? or @target.picked?
+  isSelected: () ->
+    return @source.selected? or @target.selected?
   show: () ->
     @predicate.shown_edges.acquire(this)
-    if @isPicked()
-      @predicate.pick(this)
+    if @isSelected()
+      @predicate.select(this)
     else
       @predicate.unshown_edges.remove(this)
-      @predicate.unpick(this)
+      @predicate.unselect(this)
     @predicate.update_edge(this,{show:true})
   unshow: () ->
-    if @isPicked()
+    if @isSelected()
       @predicate.unshown_edges.acquire(this)
-      @predicate.pick(this)
+      @predicate.select(this)
     else
       @predicate.unshown_edges.acquire(this)
-      @predicate.unpicked_edges.acquire(this)
+      @predicate.unselected_edges.acquire(this)
     @predicate.update_edge(this,{show:false})      
-  an_end_is_picked: () ->
-    return this.target.picked? or this.source.picked?
-  unpick: () ->
-    @predicate.unpick(this)
-  pick: () ->
-    @predicate.pick(this)
+  an_end_is_selected: () ->
+    return this.target.selected? or this.source.selected?
+  unselect: () ->
+    @predicate.unselect(this)
+  select: () ->
+    @predicate.select(this)
   
 (exports ? this).Edge = Edge

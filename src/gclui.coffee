@@ -39,7 +39,7 @@ class CommandController
     @verbdiv = @comdiv.append('div').attr('class','verbs')
     @add_clear_both(@comdiv)
 
-    @control_label("Pick Nodes")
+    @control_label("Select Nodes")
     @build_setpicker()
     #@add_clear_both(@comdiv)    
 
@@ -47,7 +47,7 @@ class CommandController
     @likediv = @comdiv.append('div')
     @add_clear_both(@comdiv)
 
-    @control_label("Edges of the Picked Nodes")
+    @control_label("Edges of the Selected Nodes")
     @build_predicatepicker()
     @init_editor_data()
     @build_form()
@@ -86,7 +86,7 @@ class CommandController
         
   reset_editor: ->
     @disengage_all_verbs()
-    @deselect_all_node_classes()
+    @unselect_all_node_classes()
     @init_editor_data()
     @clear_like()
     @update_command()
@@ -170,7 +170,7 @@ class CommandController
                        "Medium color: all edges shown -- click to show none\n" +
                        "Faint color: no edges are shown -- click to show all\n" +
                        "Stripey color: some edges shown -- click to show all\n" +
-                       "Hidden: no edges among the picked nodes")
+                       "Hidden: no edges among the selected nodes")
     
     @predicatebox.attr('class','scrolling')
     @predicates_ignored = []
@@ -193,7 +193,7 @@ class CommandController
     cmd = new gcl.GraphCommand
       verbs: [verb]
       regarding: [pred_id]
-      sets: [@huviz.picked_set]
+      sets: [@huviz.selected_set]
       
     @prepare_command cmd
     @huviz.gclc.run(@command)
@@ -214,9 +214,9 @@ class CommandController
     @nodeclassbox.attr('style','vertical-align:top')
     @nodeclassbox.attr(
       'title',
-      "Medium color: all nodes are picked -- click to pick none\n" +
-      "Faint color: no nodes are picked -- click to pick all\n" +
-      "Stripey color: some nodes are picked -- click to pick all\n")
+      "Medium color: all nodes are selected -- click to select none\n" +
+      "Faint color: no nodes are selected -- click to select all\n" +
+      "Stripey color: some nodes are selected -- click to select all\n")
 
     @taxon_picker = new ColoredTreePicker(@nodeclassbox,'Thing')
     @taxon_picker.show_tree(@hierarchy,@nodeclassbox,@onnodeclasspicked)
@@ -235,7 +235,7 @@ class CommandController
     #   Mixed —> On
     #   On —> Off
     #   Off —> On
-    # When we pick "Thing" we mean:
+    # When we select "Thing" we mean:
     #    all nodes except the embryonic and the discarded
     #    OR rather, the hidden, the graphed and the unlinked
     #console.info("onnodeclasspicked('" + id + ", " + selected + "')")
@@ -254,14 +254,14 @@ class CommandController
     if state in ['mixed','unshowing']
       if not (id in @node_classes_chosen)
         @node_classes_chosen.push(id)
-      # PICK all members of the currently chosen classes
+      # SELECT all members of the currently chosen classes
       cmd = new gcl.GraphCommand
-        verbs: ['pick']
+        verbs: ['select']
         classes: (class_name for class_name in @node_classes_chosen)
     else if state is 'showing'
-      @deselect_node_class(id)
+      @unselect_node_class(id)
       cmd = new gcl.GraphCommand
-        verbs: ['unpick']
+        verbs: ['unselect']
         classes: [id]
     else if state is "hidden"
       throw "Uhh, how is it possible for state to equal 'hidden' at this point?"
@@ -272,25 +272,25 @@ class CommandController
     @huviz.taxonomy['Thing'].update_english()
     @update_command()
 
-  deselect_node_class: (node_class) ->
+  unselect_node_class: (node_class) ->
     @node_classes_chosen = @node_classes_chosen.filter (eye_dee) ->
       eye_dee isnt node_class
 
 
     # # Elements may be in one of these states:
     #   hidden     - TBD: not sure when hidden is appropriate
-    #   notshowing - a light color indicating nothing of that type is picked
-    #   showing    - a medium color indicating all things of that type are picked
+    #   notshowing - a light color indicating nothing of that type is selected
+    #   showing    - a medium color indicating all things of that type are selected
     #   emphasized - mark the class of the focused_node
-    #   mixed      - some instances of the node class are picked, but not all
+    #   mixed      - some instances of the node class are selected, but not all
     #   abstract   - the element represents an abstract superclass, presumably containing concrete node classes
 
   verb_sets: [ # mutually exclusive within each set
       choose: 'choose'
       unchoose: 'unchoose'
     ,
-      pick: 'pick'
-      unpick: 'unpick'
+      select: 'select'
+      unselect: 'unselect'
     ,
       label:   'label'
       unlabel: 'unlabel'
@@ -313,12 +313,12 @@ class CommandController
     ]
 
   auto_change_verb_tests:
-    pick: (node) ->
-      if node.picked?
-        return 'unpick'
-    unpick: (node) ->
-      if not node.picked?
-        return 'pick'
+    select: (node) ->
+      if node.selected?
+        return 'unselect'
+    unselect: (node) ->
+      if not node.selected?
+        return 'select'
     choose: (node) ->
       if node.chosen?
         return 'unchoose'
@@ -347,11 +347,11 @@ class CommandController
   verbs_requiring_regarding:
     ['show','suppress','emphasize','deemphasize']
     
-  verbs_override: # when overriding ones are selected, others are deselected
+  verbs_override: # when overriding ones are selected, others are unselected
     choose: ['discard', 'unchoose', 'shelve', 'hide']
     shelve: ['unchoose', 'choose', 'hide', 'discard', 'retrieve']
-    discard: ['choose', 'retrieve', 'hide', 'unchoose', 'unpick', 'pick']
-    hide: ['discard', 'undiscard', 'label', 'choose' ,'unchoose', 'pick', 'unpick']
+    discard: ['choose', 'retrieve', 'hide', 'unchoose', 'unselect', 'select']
+    hide: ['discard', 'undiscard', 'label', 'choose' ,'unchoose', 'select', 'unselect']
 
   verb_descriptions:
     choose: "Put nodes in the graph."
@@ -407,9 +407,9 @@ class CommandController
   disengage_all_verbs: ->
     for vid in @engaged_verbs
       @disengage_verb(vid)
-  deselect_all_node_classes: ->
+  unselect_all_node_classes: ->
     for nid in @node_classes_chosen
-      @deselect_node_class(nid)
+      @unselect_node_class(nid)
       @taxon_picker.set_branch_pickedness(nid,false)
   clear_like: ->
     @like_input[0][0].value = ""
@@ -437,8 +437,8 @@ class CommandController
     else
       if @node_classes_chosen.length > 0
         args.classes = (class_name for class_name in @node_classes_chosen)
-      if @huviz.picked_set.length > 0      
-        args.subjects = (s for s in @huviz.picked_set)
+      if @huviz.selected_set.length > 0      
+        args.subjects = (s for s in @huviz.selected_set)
     like_str = (@like_input[0][0].value or "").trim()
     if like_str
       args.like = like_str
@@ -505,7 +505,7 @@ class CommandController
 
   build_setpicker: () ->
     # FIXME populate @the_sets from @huviz.pickable_sets
-    @the_sets = {'nodes': ['All ', {'picked_set': ['Picked'], 'chosen_set': ['Chosen'], 'graphed_set': ['Graphed'], 'shelved_set': ['Shelved'], 'hidden_set': ['Hidden'], 'discarded_set': ['Discarded'], 'labelled_set': ['Labelled']}]}
+    @the_sets = {'nodes': ['All ', {'selected_set': ['Selected'], 'chosen_set': ['Chosen'], 'graphed_set': ['Graphed'], 'shelved_set': ['Shelved'], 'hidden_set': ['Hidden'], 'discarded_set': ['Discarded'], 'labelled_set': ['Labelled']}]}
     @set_picker_box = @comdiv.append('div')
         .classed('container',true)
         .attr('id', 'sets')
