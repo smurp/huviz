@@ -133,6 +133,8 @@ app.configure ->
   app.get "/yegodd.html", localOrCDN("/views/yegodd.html.eco", nopts.is_local)
   app.get "/", localOrCDN("/views/huvis.html.eco", nopts.is_local)  
 
+# override in an installed instance with:
+#   npm config set huviz:port 80
 default_port = process.env.npm_package_config_port
 console.log "default_port",default_port
 port = nopts.port or nopts.argv.remain[0] or process.env.PORT or default_port
