@@ -204,10 +204,12 @@
             <option title="Orlando ontology" value="/data/orlando_ontology.ttl">OrlOnto - Draft3</option>
             <option title="Orlando Ontology" value="/data/OrlandoOntology-SexesUnderPerson.ttl">OrlOnto - Sexes Under Person</option>
           </select>
-        </label> <span class="little-hint">hover!</span>
-        <button type="button" onchange="HVZ.reset_data(this)">
-          reset
-        </button>
+        </label>
+        <span>
+          <button id="reset_btn" style="display:none" type="button" onclick="HVZ.reset_data(this)">
+            reset
+          </button>
+        </span>
       </div>
 
       <div id="gclui"></div>
