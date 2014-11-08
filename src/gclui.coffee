@@ -77,6 +77,7 @@ class CommandController
       @onnodeclasspicked 'Thing',false
       @onnodeclasspicked @huviz.get_taxon_to_initially_pick(),true
     @huviz.taxonomy['Thing'].update_english()
+    @gclui.engage_verb('choose')
 
   init_editor_data: ->
     # operations common to the constructor and reset_editor

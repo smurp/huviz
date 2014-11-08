@@ -70,6 +70,7 @@
 #  84) TASK: add an unchosen_set containing the graphed but not chosen nodes
 #
 # Eventual Tasks:
+#  85) TASK: move SVG, Canvas and WebGL renderers to own Renderer subclasses
 #  74) TASK: restore test suite
 #  75) TASK: implement real script parser
 #   4) TASK: Suppress all but the 6-letter id of writers in the cmd cli
@@ -725,15 +726,15 @@ class Huviz
     @init_sets()
     @init_gclc()
     @force.nodes @nodes
+
+    # TODO move this SVG code to own renderer
     d3.select(".link").remove()
     d3.select(".node").remove()
     d3.select(".lariat").remove()
-    
-    #nodes = force.nodes();
-    #links = force.links();
     @node = @svg.selectAll(".node")
-    @link = @svg.selectAll(".link")
+    @link = @svg.selectAll(".link") # looks bogus, see @link assignment below
     @lariat = @svg.selectAll(".lariat")
+    
     @link = @link.data(@links_set)
     @link.exit().remove()
     @node = @node.data(@nodes)

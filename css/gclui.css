@@ -112,3 +112,6 @@ p {
 .treepicker-vertical .payload:after {
   content: ')';
 }
+#sets {
+  margin-right: 2px;
+}
