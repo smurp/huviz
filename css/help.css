@@ -39,6 +39,9 @@
 .git-branch-is-alpha {
   background-color:Thistle;
 }
+.git-branch-is- { /* ie some other git branch */
+  background-color:LightGray;
+}
 .current-git-branch:before {
   content: '✔';
   color: DarkGreen;
