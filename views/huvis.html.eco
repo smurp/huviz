@@ -57,9 +57,13 @@
             notice the command you've built -- <code>choose Thing.</code> --
             then press <button disabled>Do it</button>.</li>
         <li>Go to <a class="open_tab" href="#1">Settings</a> to adjust the sizes of things</li>
-        <li>Try hovering over nodes and edges to see their labels</li>
+        <li>Hover over nodes and edges to see their labels</li>
         <li>Click edges to see the snippets of text which inspired them.</li>
-        <li>Drag nodes to and from the green shelf and the red discard pile</li>
+        <li>Drag nodes to and from the green shelf, the central graph and the red discard pile</li>
+        <li>Chosen nodes are marked with a black perimeter. They are the nodes that you've expressed interest in by 'choosing' them to be in the graph. 'Unchosen' nodes are in the graph because they've been drawn in by chosen nodes.</li>
+        <li>The verb 'choose' causes all the nodes linked to the chosen node to be drawn into the graph (except the discarded ones)</li>
+        <li>The verb 'unchoose' causes the shelving of all the unchosen 
+            nodes which have an edge shown to the chosen node.</li>
       </ul>
     </div>
     <div id="tabs-history" class="scrolling_tab">

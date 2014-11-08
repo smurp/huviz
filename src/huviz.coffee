@@ -63,8 +63,12 @@
 #  74) TASK: recover from loading crashes with Cancel button on show_state_msg
 #  76) TASK: consider renaming graphed_set to connected_set and verbs choose/unchoose to graph/ungraph
 #  77) TASK: eliminate 'Do it' button by immediately executing complete commands
-#  78) TASK: distinguish chosen nodes with a center dot (different shape?)
 #  79) TASK: support dragging of edges to shelf or discard bin
+#  80) TASK: offset edge label from dot like node labels are
+#  81) TASK: coordinate mouse cursor with the current immediate verb
+#  82) TASK: set initial verb to 'choose'
+#  83) BUG: choose should not unpin
+#  84) TASK: add an unchosen_set containing the graphed but not chosen nodes
 #
 # Eventual Tasks:
 #  74) TASK: restore test suite
@@ -459,13 +463,12 @@ class Huviz
     # this is the node being clicked
     if @focused_node # and @focused_node.state is @graphed_set
       @perform_current_command(@focused_node)
-      #@toggle_selected(@focused_node)
       @tick()
       return
 
     if @focused_edge
       # FIXME do the edge equivalent of @perform_current_command
-      #@update_snippet()
+      #@update_snippet() # useful when hover-shows-snippet
       @print_edge @focused_edge
       return
 
@@ -992,9 +995,14 @@ class Huviz
       @graphed_set.forEach (d, i) =>
         d.fisheye = @fisheye(d)
         if @use_canvas
+          node_radius = @calc_node_radius(d)
+          stroke_color = d.color or 'yellow'
+          fill_color = d.color or 'black'
+          if d.chosen?
+            stroke_color = 'black'
           @draw_circle(d.fisheye.x, d.fisheye.y,
-                       @calc_node_radius(d),
-                       d.color or "yellow", d.color or "black")
+                       node_radius,
+                       stroke_color, fill_color)
         if @use_webgl
           @mv_node(d.gl, d.fisheye.x, d.fisheye.y)
   should_show_label: (node) ->
