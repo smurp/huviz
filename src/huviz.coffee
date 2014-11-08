@@ -64,7 +64,6 @@
 #  76) TASK: consider renaming graphed_set to connected_set and verbs choose/unchoose to graph/ungraph
 #  77) TASK: eliminate 'Do it' button by immediately executing complete commands
 #  79) TASK: support dragging of edges to shelf or discard bin
-#  80) TASK: offset edge label from dot like node labels are
 #  81) TASK: coordinate mouse cursor with the current immediate verb
 #  82) TASK: set initial verb to 'choose'
 #  83) BUG: choose should not unpin
@@ -282,6 +281,9 @@ class Huviz
   snippet_size: 300
   dragging: false
   last_status: undefined
+  edge_x_offset: 5
+  shadow_offset: 1
+  shadow_color: 'DarkGray'
 
   my_graph: 
     predicates: {}
@@ -1025,7 +1027,6 @@ class Huviz
       focused_font_size = @label_em * @focused_mag
       focused_font = "#{focused_font_size}em sans-serif"
       unfocused_font = "#{@label_em}em sans-serif"
-      #console.log focused_font,unfocused_font
       label_node = (node) =>        
         return unless @should_show_label(node)
         ctx = @ctx
@@ -1035,7 +1036,7 @@ class Huviz
         else
           ctx.fillStyle = "black"
           ctx.font = unfocused_font
-        return unless node.fisheye? # FIXME why is this even happening?          
+        return unless node.fisheye? # FIXME why is this even happening?
         if not @graphed_set.has(node) and @draw_lariat_labels_rotated
           # Flip label rather than write upside down
           #   var flip = (node.rad > Math.PI) ? -1 : 1;
@@ -1097,10 +1098,10 @@ class Huviz
       if edge.contexts?
         if edge.contexts.length
           label += " (#{edge.contexts.length})"
-    ctx.fillStyle = "white"
-    ctx.fillText " " + label, edge.handle.x + 1, edge.handle.y + 1
+    ctx.fillStyle = @shadow_color
+    ctx.fillText " " + label, edge.handle.x + @edge_x_offset + @shadow_offset, edge.handle.y + @shadow_offset
     ctx.fillStyle = edge.color
-    ctx.fillText " " + label, edge.handle.x, edge.handle.y
+    ctx.fillText " " + label, edge.handle.x + @edge_x_offset, edge.handle.y
 
   update_snippet: ->
     if @show_snippets_constantly and @focused_edge? and @focused_edge isnt @printed_edge
