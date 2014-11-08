@@ -135,6 +135,8 @@ app.configure ->
 
 # override in an installed instance with:
 #   npm config set huviz:port 80
+# remove with
+#   npm config delete huviz:port
 default_port = process.env.npm_package_config_port
 console.log "default_port",default_port
 port = nopts.port or nopts.argv.remain[0] or process.env.PORT or default_port
