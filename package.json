@@ -5,6 +5,8 @@
     "type":"git",
     "url" :"http://github.com/smurp/huviz.git"
   },
+  "config": {"port": "9998"
+  },
   "dependencies": { 
     "coffee-script": "~1.7.1",
     "stitch": "~0.3.3",
@@ -15,7 +17,7 @@
     "nopt": "~3.0.0"
   },
   "scripts":{
-    "start": "node_modules/coffee-script/bin/coffee -w index.coffee 9998 --git_commit_hash `git log --format=\"%h\" -n 1`"
+    "start": "coffee -w index.coffee --git_commit_hash `git log --format=\"%h\" -n 1`"
   },
   "stashed-dependencies":{
     "rdfquads":"smurp/rdfquads",
