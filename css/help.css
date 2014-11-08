@@ -9,6 +9,9 @@
   margin-top: 0px;
   margin-bottom: 0px;
 }
+.huviz-versions {
+  text-align: center;
+}
 #tabs-help h3 {
   margin-bottom: 0px;
 }
@@ -26,4 +29,17 @@
 }
 .little-hint {
   font-size: 60%;
+}
+.git-branch-is-master {
+  background-color:PaleGreen;
+}
+.git-branch-is-beta {
+  background-color:Gold;
+}
+.git-branch-is-alpha {
+  background-color:Thistle;
+}
+.current-git-branch:before {
+  content: '✔';
+  color: DarkGreen;
 }

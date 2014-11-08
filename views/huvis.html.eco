@@ -31,7 +31,7 @@
        <li><a href="#tabs-hide" title="Shrink this menu for maximum room to play.">Hide</a></li>
     </ul>
     <div id="tabs-help" class="scrolling_tab">
-      <h1>
+      <h1 class="git-branch-is-<%= @git_branch_name %>">
         HuViz 
         <% if @git_commit_hash: %>
           <sup class="git_commit_hash">
@@ -40,6 +40,17 @@
         <% end %>
       </h1>
       <h2>Orlando RDF Explorer</h2>
+      <div class="huviz-versions">
+        <a href="http://orlando.dev.semandra.com" 
+           class="git-branch-is-master <% if @git_branch_name is 'master':%>current-git-branch<% end %>">production</a>
+        <a href="http://beta.orlando.dev.semandra.com" 
+           class="git-branch-is-beta  <% if @git_branch_name is 'beta':%>current-git-branch<% end %>">beta</a>
+        <a href="http://alpha.orlando.dev.semandra.com" 
+           class="git-branch-is-alpha  <% if @git_branch_name is 'alpha':%>current-git-branch<% end %>">alpha</a>
+      </div>
+      <div>
+        <a href="/orlonto.html">ontology</a>
+      </div>
       <p>This interface is intended to help you explore the
         information and relationships encoded in
         the <a href="http://www.artsrn.ualberta.ca/orlando/" target="_blank">Orlando</a> 
