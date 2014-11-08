@@ -42,12 +42,12 @@
 #
 # Immediate Priorities:
 #  46) TASK: impute node type based on predicates via ontology
+#  58) TASK: hide abstract predicates containing nothing visible 
 #  40) TASK: support search
 #  27) TASK: make selecting 'anything' (abstract predicates) do the right things
 #  52) BUG: until clicking abstract predicates does the right thing
 #           it should do nothing
 #  53) PERF: should_show_label should not have search_regex in inner loop
-#  58) TASK: hide abstract predicates containing nothing visible
 #  60) BUG: nodes are sometimes still 'chosen' while no longer 'graphed'
 #  62) TASK: add counts to predicate picker
 #  63) TASK: add counts to taxon picker
