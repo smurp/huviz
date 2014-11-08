@@ -200,7 +200,9 @@
               name="data_set" class="file_picker"
               onchange="HVZ.load_file(this)" 
               title="data sets are in order of increasing complexity">
-            <option title="the Orlando ontology">/data/orlando_ontology.ttl</option>
+	    <option value=""> -- pick -- </option>
+            <option title="Orlando ontology" value="/data/orlando_ontology.ttl">OrlOnto - Draft3</option>
+            <option title="Orlando Ontology" value="/data/OrlandoOntology-SexesUnderPerson.ttl">OrlOnto - Sexes Under Person</option>
           </select>
         </label> <span class="little-hint">hover!</span>
         <button type="button" onchange="HVZ.reset_data(this)">
