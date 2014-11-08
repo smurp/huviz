@@ -129,9 +129,9 @@ app.configure ->
   app.use express.static(__dirname + '/node_modules')
   app.get "/application.js", pkg.createServer()
   app.get "/just_huviz.js", just_huviz.createServer()
-  app.get "/huvis.html", localOrCDN("/views/huvis.html.eco", nopts.is_local)
   app.get "/orlonto.html", localOrCDN("/views/orlonto.html.eco", nopts.is_local)
   app.get "/yegodd.html", localOrCDN("/views/yegodd.html.eco", nopts.is_local)
+  app.get "/", localOrCDN("/views/huvis.html.eco", nopts.is_local)  
 
 port = nopts.port or nopts.argv.remain[0] or process.env.PORT or 9999
 
