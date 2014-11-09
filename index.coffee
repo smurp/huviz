@@ -151,5 +151,5 @@ if not nopts.skip_poetesses
   app.get "/snippet/poetesses/:id([A-Za-z0-9-_]+)/",
       createSnippetServer("poetesses_decomposed.xml", false)
 
-console.log "Starting server on port: #{port}"
-app.listen port
+console.log "Starting server on port: #{port} localhost"
+app.listen port, 'localhost'
