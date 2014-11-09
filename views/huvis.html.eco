@@ -40,7 +40,7 @@
         <% end %>
       </h1>
       <h2>Orlando RDF Explorer</h2>
-      <div class="huviz-versions" style="display:none">
+      <div class="huviz-versions">
         <a href="http://orlando.dev.semandra.com" 
            class="git-branch-is-master <% if @git_branch_name is 'master':%>current-git-branch<% end %>">production</a>
         <a href="http://beta.orlando.dev.semandra.com" 
