@@ -48,9 +48,6 @@
         <a href="http://alpha.orlando.dev.semandra.com" 
            class="git-branch-is-alpha  <% if @git_branch_name is 'alpha':%>current-git-branch<% end %>">alpha</a>
       </div>
-      <div>
-        <a href="/orlonto.html">ontology</a>
-      </div>
       <p>This interface is intended to help you explore the
         information and relationships encoded in
         the <a href="http://www.artsrn.ualberta.ca/orlando/" target="_blank">Orlando</a> 
@@ -60,6 +57,8 @@
         that assert things like 
         <span class='eg-subject'>Writer</span> <span class='eg-verb'>hasSex</span> <span class='eg-object'>FEMALE</span>
         or <span class='eg-subject'>Writer</span> <span class='eg-verb'>livedInPlace</span> <span class='eg-object'>London</span>.
+        HuViz is also able to display the <a href="/orlonto.html">Orlando Ontology</a>,
+        the formal definition of the things and relationships depicted here.
       </p>
       <h3>Quick Start</h3>
       <ul>
