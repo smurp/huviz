@@ -700,8 +700,9 @@ class Huviz
       else
         taxon = new Taxon(taxon_id)
       @taxonomy[taxon_id] = taxon
-      parent_lid = @HHH[taxon_id] #or 'Thing'
-      parent_lid = 'Thing' unless parent_lid?
+      parent_lid = @ontology.subClassOf[taxon_id] or @HHH[taxon_id] or 'Thing'
+      console.log "get_or_create_taxon(#{taxon_id}) has parent_lid: #{parent_lid}"
+      console.log @ontology.subClassOf#[taxon_id]
       if parent_lid?
         parent = @get_or_create_taxon(parent_lid, true)
         parent.register(taxon)
@@ -2550,8 +2551,6 @@ class OntologicallyGrounded extends Huviz
     # predicate_picker and the taxon_picker.  Also to support
     # imputing 'type' (and hence Taxon) to nodes.
     ontology = @ontology
-    @get_or_create_taxon('Thing')
-    #console.log "@taxonomy",@taxonomy
     if GreenerTurtle? and @turtle_parser is 'GreenerTurtle'
       @raw_ontology = new GreenerTurtle().parse(data, "text/turtle")
       for subj_uri, frame of @raw_ontology.subjects
@@ -2574,7 +2573,7 @@ class OntologicallyGrounded extends Huviz
             if not (obj_lid in ontology.range)
               ontology.range[subj_lid].push(obj_lid)
           else if pred_lid is 'subClassOf'
-            ontology.subClassOf[pred_lid] = obj_lid
+            ontology.subClassOf[subj_lid] = obj_lid
           else if pred_lid is 'subPropertyOf'
             ontology.subPropertyOf[subj_lid] = obj_lid
 
