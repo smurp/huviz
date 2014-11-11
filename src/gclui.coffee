@@ -71,7 +71,7 @@ class CommandController
       evt.done = true
 
   select_the_initial_set: =>
-    #@onnodeclasspicked 'Thing',true
+    @onnodeclasspicked 'Thing',true
     if false #@huviz.is_big_data()
       # FIXME this is very clunky (and slow)
       @onnodeclasspicked 'Thing',false

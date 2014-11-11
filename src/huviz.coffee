@@ -41,6 +41,8 @@
 #     d) there might be update operations against gclui apart from actuators
 #
 # Immediate Priorities:
+#  86) BUG: try_to_set_node_type: only permit subtypes to override supertypes
+#  87) BUG: solve node.type vs node.taxon sync problem (see orlonto)
 #  46) TASK: impute node type based on predicates via ontology
 #  58) TASK: hide abstract predicates containing nothing visible 
 #  40) TASK: support search
@@ -701,10 +703,8 @@ class Huviz
         taxon = new Taxon(taxon_id)
       @taxonomy[taxon_id] = taxon
       parent_lid = @ontology.subClassOf[taxon_id] or @HHH[taxon_id] or 'Thing'
-      console.log "get_or_create_taxon(#{taxon_id}) has parent_lid: #{parent_lid}"
-      console.log @ontology.subClassOf#[taxon_id]
       if parent_lid?
-        parent = @get_or_create_taxon(parent_lid, true)
+        parent = @get_or_create_taxon(parent_lid, false)
         parent.register(taxon)
       @gclui.add_newnodeclass(taxon_id,parent_lid) # FIXME should this be an event on the Taxon constructor?
     @taxonomy[taxon_id]
@@ -1337,8 +1337,6 @@ class Huviz
     @last_quad = quad
 
   infer_edge_end_types: (edge) ->
-    #console.log "INFERRING BASED ON: #{edge.id}",@ontology
-    # infer type of target based on the range of the predicate
     edge.source.type = 'Thing' unless edge.source.type?
     edge.target.type = 'Thing' unless edge.target.type?
     ranges = @ontology.range[edge.predicate.lid]
@@ -1349,9 +1347,8 @@ class Huviz
     # infer type of source based on the domain of the predicate
     domain_lid = @ontology.domain[edge.predicate.lid]
     if domain_lid?
-      console.log "INFERRING BASED ON: edge_id:(#{edge.id}) domain_lid:(#{domain_lid})",@ontology
+      #console.log "INFERRING BASED ON: edge_id:(#{edge.id}) domain_lid:(#{domain_lid})",@ontology
       @try_to_set_node_type(edge.source,domain_lid)
-
 
   make_Edge_id: (subj_n, obj_n, pred_n) ->
     return (a.lid for a in [subj_n, pred_n, obj_n]).join(' ')
@@ -1385,11 +1382,13 @@ class Huviz
     #if not is_one_of(type_uri,@class_list)
     #  @class_list.push type_uri
     #  @hierarchy['everything'][1][type_lid] = [type_lid]
+    ###
     if node.type?
       if node.type isnt type_lid
         console.warn "#{node.lid} already #{node.type} now: #{type_lid} "
     else
       console.info "  try_to_set_node_type",node.lid,"isa",type_lid
+    ###
     node.type = type_lid
     return true
 
@@ -2605,12 +2604,6 @@ class Orlando extends OntologicallyGrounded
         return @hidden_set
     return @shelved_set
 
-  xHHH: # hardcoded hierarchy hints, kv pairs of child to parent
-    human: 'Thing'
-    writer: 'human'
-    Group: 'Thing'
-    Person: 'human'
-
   HHH: {}
     
   push_snippet: (msg_or_obj) ->
@@ -2640,10 +2633,12 @@ class Orlando extends OntologicallyGrounded
       super(obj, msg_or_obj) # fail back to super
 
 class OntoViz extends Huviz #OntologicallyGrounded
-  HHH: # hardcoded hierarchy hints, kv pairs of child to parent
+  HHH: # hardcoded hierarchy hints, kv pairs of subClass to superClass
     ObjectProperty: 'Thing'
     Class: 'Thing'
-    SymmetricProperty: 'Thing'
+    SymmetricProperty: 'ObjectProperty'
+    IrreflexiveProperty: 'ObjectProperty'
+    AsymmetricProperty: 'ObjectProperty'
 
   ontoviz_type_to_hier_map:
     RDF_type: "classes"
