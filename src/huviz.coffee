@@ -152,7 +152,11 @@ TYPE_SYNS   = [RDF_type,RDF_a,'rdf:type']
 NAME_SYNS   = [FOAF_name,RDFS_label,'name']
 
 uri_to_js_id = (uri) ->
-  uri.match(/([\w\d\_\-]+)$/g)[0]
+  try
+    return uri.match(/([\w\d\_\-]+)$/g)[0]
+  catch e
+    console.error "uri_to_js_id failed for [#{uri}]"
+    return null
 
 XML_TAG_REGEX = /(<([^>]+)>)/ig
 MANY_SPACES_REGEX = /\s{2,}/g
@@ -679,14 +683,13 @@ class Huviz
       hidden_set: @hidden_set
       graphed_set: @graphed_set
       labelled_set: @labelled_set
-            
-    @create_taxonomy()
 
   update_all_counts: ->
     for name, a_set of @selectable_sets
       @gclui.on_set_count_update(name, a_set.length)
 
   create_taxonomy: ->
+    # The taxonomy is intertwined with the taxon_picker
     @taxonomy = {}  # make driven by the hierarchy
 
   get_or_create_taxon: (taxon_id,abstract) ->
@@ -1237,8 +1240,8 @@ class Huviz
     # to its earliest (possibly abstract) parent starting with the earliest
     pred_lid = uri_to_js_id(pid)
     if not @my_graph.predicates[pred_lid]?
-      if @subPropertyOf[pred_lid]?
-        parent_lid = @subPropertyOf[pred_lid]
+      if @ontology.subPropertyOf[pred_lid]?
+        parent_lid = @ontology.subPropertyOf[pred_lid]
       else
         parent_lid = "anything"
       @my_graph.predicates[pred_lid] = []
@@ -1307,6 +1310,7 @@ class Huviz
           @develop(subj_n) # might be ready now
       else
         edge = @get_or_create_Edge(subj_n,obj_n,pred_n,cntx_n)
+        @infer_edge_end_types(edge)
         edge.register_context(cntx_n)
         edge.color = @gclui.predicate_picker.get_color_forId_byName(pred_n.lid,'showing')
         edge_e = @add_edge(edge)
@@ -1329,6 +1333,20 @@ class Huviz
       @fire_nextsubject_event @last_quad,quad
     ###
     @last_quad = quad
+
+  infer_edge_end_types: (edge) ->
+    #console.log "INFERRING BASED ON: #{edge.id}",@ontology
+    # infer type of target based on the range of the predicate
+    range_lid = @ontology.range[edge.predicate.lid]
+    if range_lid?
+      console.log "INFERRING BASED ON: edge_id:(#{edge.id}) range_lid:(#{range_lid})",@ontology
+      @try_to_set_node_type(edge.target,range_lid)
+
+    # infer type of source based on the domain of the predicate
+    domain_lid = @ontology.domain[edge.predicate.lid]
+    if domain_lid?
+      @try_to_set_node_type(edge.source,domain_lid)
+
 
   make_Edge_id: (subj_n, obj_n, pred_n) ->
     return (a.lid for a in [subj_n, pred_n, obj_n]).join(' ')
@@ -1356,11 +1374,15 @@ class Huviz
     edge
 
   try_to_set_node_type: (node,type_uri) ->
-    #console.info "try_to_set_node_type",type_uri,@class_list
+    #if type_uri.match(/^http.*/)
+    #  alert "#{type_uri} is an uri rather than an lid"
     type_lid = uri_to_js_id(type_uri) # should ensure uniqueness
+    console.info "try_to_set_node_type",node.lid,type_lid,@class_list    
     #if not is_one_of(type_uri,@class_list)
     #  @class_list.push type_uri
     #  @hierarchy['everything'][1][type_lid] = [type_lid]
+    if node.type?
+      console.log "#{node.lid} already #{node.type} now: #{type_lid} "
     node.type = type_lid
     return true
 
@@ -2289,9 +2311,17 @@ class Huviz
     @state_msg_box = $("#state_msg_box")
     @hide_state_msg()
     console.info @state_msg_box
-        
+
+  init_ontology: ->
+    @create_taxonomy()
+    @ontology =
+      subClassOf: {}
+      subPropertyOf: {}
+      domain: {}
+      range: {}
+                
   constructor: ->
-    @subPropertyOf = {}
+    @init_ontology()
     @off_center = false # FIXME expose this or make the amount a slider
     #@toggle_logging()
     @create_state_msg_box()
@@ -2498,7 +2528,7 @@ class OntologicallyGrounded extends Huviz
   # If OntologicallyGrounded then there is an associated ontology which informs
   # the TaxonPicker and the PredicatePicker
   set_ontology: (ontology_uri) ->
-    @subPropertyOf = {} # this should exist on Huviz, not just down here
+    @init_ontology()
     @read_ontology(ontology_uri)
 
   read_ontology: (ontology_uri) ->
@@ -2509,14 +2539,38 @@ class OntologicallyGrounded extends Huviz
         @show_state_msg(errorThrown + " while fetching ontology " + url)
 
   parseTTLOntology: (data, textStatus) =>
+    # detect (? rdfs:subClassOf ?) and (? ? owl:Class)
+    # Analyze the ontology to enable proper structuring of the
+    # predicate_picker and the taxon_picker.  Also to support
+    # imputing 'type' (and hence Taxon) to nodes.
+    ontology = @ontology
+    @get_or_create_taxon('Thing')
+    console.log "@taxonomy",@taxonomy
     if GreenerTurtle? and @turtle_parser is 'GreenerTurtle'
       @raw_ontology = new GreenerTurtle().parse(data, "text/turtle")
       for subj_uri, frame of @raw_ontology.subjects
         subj_lid = uri_to_js_id(subj_uri)
         for pred_id, pred of frame.predicates
-          if pred_id.match(/\#subPropertyOf$/g)
-            super_property_lid = uri_to_js_id(pred.objects[0].value)
-            @subPropertyOf[subj_lid] = super_property_lid
+          pred_lid = uri_to_js_id(pred_id)
+          obj_raw = pred.objects[0].value          
+
+          if pred_lid in ['comment', 'label']
+            #console.error "  skipping",subj_lid, pred_lid #, pred
+            continue
+          obj_lid = uri_to_js_id(obj_raw)            
+          if obj_lid in ['Person']
+            continue
+
+          if pred_lid in ['range','domain']
+            console.log pred_lid, subj_lid, obj_lid
+          if pred_lid is 'domain'
+            ontology.domain[pred_lid] = obj_lid
+          else if pred_lid is 'range'
+            ontology.range[pred_lid] = obj_lid
+          else if pred_lid is 'subClassOf'
+            ontology.subClassOf[pred_lid] = obj_lid
+          else if pred_lid is 'subPropertyOf'
+            ontology.subPropertyOf[subj_lid] = obj_lid
             # console.log "subPropertyOf(" + subj_lid + ", " + super_property_lid + ")"
         #
         # [ rdf:type owl:AllDisjointClasses ;
@@ -2534,10 +2588,6 @@ class OntologicallyGrounded extends Huviz
 class Orlando extends OntologicallyGrounded
   # These are the Orlando specific methods layered on Huviz.
   # These ought to be made more data-driven.
-  create_taxonomy: ->
-    @taxonomy = {}  # make driven by the hierarchy
-    #e = new AbstractTaxon('everything')
-    #@taxonomy['everything'] = e
 
   get_taxon_to_initially_select: () ->
     return 'writer'

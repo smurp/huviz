@@ -169,7 +169,10 @@ class GraphCommand
       for meth in @get_predicate_methods()
         err = (err_arg) ->
           if err_arg?
-            console.log "err =",err_arg
+            console.error "err =",err_arg
+            if not err_arg?
+              throw "err_arg is null"
+            throw err_arg
           else
             console.log "DONE .execute()"
         iter = (node) =>
@@ -192,6 +195,7 @@ class GraphCommand
         err = (err_arg) ->
           if err
             console.log "err =",err_arg
+            throw err_arg
           else
             console.log "DONE .execute()"
         iter = (node) =>

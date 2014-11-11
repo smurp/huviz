@@ -334,7 +334,8 @@
       window.addEventListener('load',function(){
         huviz = require('huviz');
         HVZ = new huviz.Orlando();
-        HVZ.set_ontology("/data/orlando_ontology.ttl");
+        //HVZ.set_ontology("/data/orlando_ontology.ttl");
+        HVZ.set_ontology("/data/OrlandoOntology-SexesUnderPerson.ttl");
         HVZ.boot_sequence();
       });
 

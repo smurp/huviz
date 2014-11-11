@@ -1,6 +1,5 @@
 
 BASE_ARGS = \
-	--state_the_obvious \
 	--use_onto \
 	--progress
 

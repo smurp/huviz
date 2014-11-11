@@ -72,12 +72,12 @@ class CommandController
 
   select_the_initial_set: =>
     @onnodeclasspicked 'Thing',true
-    if @huviz.is_big_data()
+    if false #@huviz.is_big_data()
       # FIXME this is very clunky (and slow)
       @onnodeclasspicked 'Thing',false
       @onnodeclasspicked @huviz.get_taxon_to_initially_pick(),true
     @huviz.taxonomy['Thing'].update_english()
-    @gclui.engage_verb('choose')
+    #@engage_verb('choose')
 
   init_editor_data: ->
     # operations common to the constructor and reset_editor
@@ -250,7 +250,7 @@ class CommandController
       state = taxon.get_state()
       @huviz.hide_state_msg()
     else
-      throw "Uhh, there should be a root Taxon 'Thing' by this point"
+      throw "Uhh, there should be a root Taxon 'Thing' by this point: " + id
     #console.debug "id:",id,"state:",state,taxon
     if state in ['mixed','unshowing']
       if not (id in @node_classes_chosen)
