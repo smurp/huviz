@@ -700,7 +700,8 @@ class Huviz
       else
         taxon = new Taxon(taxon_id)
       @taxonomy[taxon_id] = taxon
-      parent_lid = @HHH[taxon_id]
+      parent_lid = @HHH[taxon_id] #or 'Thing'
+      parent_lid = 'Thing' unless parent_lid?
       if parent_lid?
         parent = @get_or_create_taxon(parent_lid, true)
         parent.register(taxon)
@@ -1337,14 +1338,17 @@ class Huviz
   infer_edge_end_types: (edge) ->
     #console.log "INFERRING BASED ON: #{edge.id}",@ontology
     # infer type of target based on the range of the predicate
-    range_lid = @ontology.range[edge.predicate.lid]
-    if range_lid?
-      console.log "INFERRING BASED ON: edge_id:(#{edge.id}) range_lid:(#{range_lid})",@ontology
-      @try_to_set_node_type(edge.target,range_lid)
+    edge.source.type = 'Thing' unless edge.source.type?
+    edge.target.type = 'Thing' unless edge.target.type?
+    ranges = @ontology.range[edge.predicate.lid]
+    if ranges?
+      #console.log "INFERRING BASED ON: edge_id:(#{edge.id}) first range_lid:(#{ranges[0]})",@ontology
+      @try_to_set_node_type(edge.target,ranges[0])
 
     # infer type of source based on the domain of the predicate
     domain_lid = @ontology.domain[edge.predicate.lid]
     if domain_lid?
+      console.log "INFERRING BASED ON: edge_id:(#{edge.id}) domain_lid:(#{domain_lid})",@ontology
       @try_to_set_node_type(edge.source,domain_lid)
 
 
@@ -1377,12 +1381,14 @@ class Huviz
     #if type_uri.match(/^http.*/)
     #  alert "#{type_uri} is an uri rather than an lid"
     type_lid = uri_to_js_id(type_uri) # should ensure uniqueness
-    console.info "try_to_set_node_type",node.lid,type_lid,@class_list    
     #if not is_one_of(type_uri,@class_list)
     #  @class_list.push type_uri
     #  @hierarchy['everything'][1][type_lid] = [type_lid]
     if node.type?
-      console.log "#{node.lid} already #{node.type} now: #{type_lid} "
+      if node.type isnt type_lid
+        console.warn "#{node.lid} already #{node.type} now: #{type_lid} "
+    else
+      console.info "  try_to_set_node_type",node.lid,"isa",type_lid
     node.type = type_lid
     return true
 
@@ -2528,7 +2534,7 @@ class OntologicallyGrounded extends Huviz
   # If OntologicallyGrounded then there is an associated ontology which informs
   # the TaxonPicker and the PredicatePicker
   set_ontology: (ontology_uri) ->
-    @init_ontology()
+    #@init_ontology()
     @read_ontology(ontology_uri)
 
   read_ontology: (ontology_uri) ->
@@ -2545,7 +2551,7 @@ class OntologicallyGrounded extends Huviz
     # imputing 'type' (and hence Taxon) to nodes.
     ontology = @ontology
     @get_or_create_taxon('Thing')
-    console.log "@taxonomy",@taxonomy
+    #console.log "@taxonomy",@taxonomy
     if GreenerTurtle? and @turtle_parser is 'GreenerTurtle'
       @raw_ontology = new GreenerTurtle().parse(data, "text/turtle")
       for subj_uri, frame of @raw_ontology.subjects
@@ -2557,21 +2563,21 @@ class OntologicallyGrounded extends Huviz
           if pred_lid in ['comment', 'label']
             #console.error "  skipping",subj_lid, pred_lid #, pred
             continue
-          obj_lid = uri_to_js_id(obj_raw)            
-          if obj_lid in ['Person']
-            continue
-
-          if pred_lid in ['range','domain']
-            console.log pred_lid, subj_lid, obj_lid
+          obj_lid = uri_to_js_id(obj_raw)
+          #if pred_lid in ['range','domain']
+          #  console.log pred_lid, subj_lid, obj_lid
           if pred_lid is 'domain'
-            ontology.domain[pred_lid] = obj_lid
+            ontology.domain[subj_lid] = obj_lid
           else if pred_lid is 'range'
-            ontology.range[pred_lid] = obj_lid
+            if not ontology.range[subj_lid]?
+              ontology.range[subj_lid] = []
+            if not (obj_lid in ontology.range)
+              ontology.range[subj_lid].push(obj_lid)
           else if pred_lid is 'subClassOf'
             ontology.subClassOf[pred_lid] = obj_lid
           else if pred_lid is 'subPropertyOf'
             ontology.subPropertyOf[subj_lid] = obj_lid
-            # console.log "subPropertyOf(" + subj_lid + ", " + super_property_lid + ")"
+
         #
         # [ rdf:type owl:AllDisjointClasses ;
         #   owl:members ( :Organization
@@ -2600,11 +2606,13 @@ class Orlando extends OntologicallyGrounded
         return @hidden_set
     return @shelved_set
 
-  HHH: # hardcoded hierarchy hints, kv pairs of child to parent
+  xHHH: # hardcoded hierarchy hints, kv pairs of child to parent
     human: 'Thing'
     writer: 'human'
     Group: 'Thing'
     Person: 'human'
+
+  HHH: {}
     
   push_snippet: (msg_or_obj) ->
     obj = msg_or_obj
