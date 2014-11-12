@@ -20,8 +20,31 @@ class Taxon extends TaxonBase
     @discarded_nodes = SortedSet().named('discarded').isState('_tp').sort_on("id")
     @lid = @id # FIXME @lid should be local @id should be uri, no?
     @state = 'unshowing'
-  get_instances: () ->
-    return @instances
+    @subs = []
+    @super_class = null
+  register_superclass: (super_class) ->
+    if super_class is this
+      return
+    if @super_class?
+      @super_class.remove_subclass(this)
+    @super_class = super_class
+    @super_class.register_subclass(this)
+  remove_subclass: (sub_class) ->
+    idx = @subs.indexOf(sub_class)
+    if idx > -1
+      @subs.splice(idx, 1)
+  register_subclass: (sub_class) ->
+    @subs.push(sub_class)
+  get_instances: (hier) ->
+    if hier
+      retval = []
+      for inst in @get_instances(false)
+        retval.push(inst)
+      for sub in @subs
+        for inst in sub.get_instances(true)
+          retval.push(inst)
+    else
+      return @instances
   register: (node) ->
     # This is slightly redundant given that @add makes a bidirectional link too
     # but the .taxon on node gives it access to the methods on the taxon

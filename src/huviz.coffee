@@ -41,6 +41,7 @@
 #     d) there might be update operations against gclui apart from actuators
 #
 # Immediate Priorities:
+#  88) BUG: Taxon with no direct (nor selected indirect) children crashes when clicked
 #  86) BUG: try_to_set_node_type: only permit subtypes to override supertypes
 #  87) BUG: solve node.type vs node.taxon sync problem (see orlonto)
 #  46) TASK: impute node type based on predicates via ontology
@@ -705,7 +706,7 @@ class Huviz
       parent_lid = @ontology.subClassOf[taxon_id] or @HHH[taxon_id] or 'Thing'
       if parent_lid?
         parent = @get_or_create_taxon(parent_lid, false)
-        parent.register(taxon)
+        taxon.register_superclass(parent)
       @gclui.add_newnodeclass(taxon_id,parent_lid) # FIXME should this be an event on the Taxon constructor?
     @taxonomy[taxon_id]
 
@@ -1984,8 +1985,13 @@ class Huviz
   select: (node) =>
     if not node.selected?
       @selected_set.add(node)
-      node.select()
-      @recolor_node(node)
+      if node.select?
+        node.select()
+        @recolor_node(node)
+      else
+        msg = "#{node.__proto__.constructor.name} #{node.id} lacks .select()"
+        throw msg
+        console.error msg,node
 
   unselect: (node) =>
     if node.selected?
