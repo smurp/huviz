@@ -114,4 +114,8 @@ p {
 }
 #sets {
   margin-right: 2px;
+  max-width: 36%;
+}
+#classes {
+  max-width: 60%;
 }
