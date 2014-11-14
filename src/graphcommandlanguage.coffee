@@ -1,16 +1,15 @@
 angliciser = require('angliciser').angliciser
 class GCLTest
-  constructor: (@runner,@spec) ->
-    #console.log "GCLTest.constructor() spec:",@spec
-    @graph_ctrl = @runner.gclc.graph_ctrl
+  constructor: (@runner, @spec) ->
+    console.log "GCLTest",this
+
   perform: ->
-    #console.log "GCLTest.perform() @spec:",@spec
-    #console.log "@spec.script:",@spec.script
     if @spec.script
       #console.log "==================",@spec.script
       @runner.gclc.run(@spec.script)
     # should the expections be checked in a callback?
     for exp in (@spec.expectations ? [] )
+      console.log "exp",exp
       try
         got = eval(exp[0])
       catch e
@@ -37,17 +36,21 @@ class GCLTestSuite
   #      }
   #     ])
   ###
-  constructor: (@gclc,@suite) ->
+  constructor: (@graph_ctrl, @suite) ->
+    console.log "GCLTestSuite() arguments",arguments
     @break_quickly = true
+  emit: (txt,id) ->
+    $("#testsuite-results").append("div").attr("id",id).text(txt)
   run: ->
     pass_count = 0
     errors = []
     fails = []
     num = 0
+    @emit("RUNNING","running")
     for spec in @suite
       num++
       passed = false
-      #console.log "spec:",spec
+      console.log "spec:",spec
       test = new GCLTest(this,spec)
       try
         retval = test.perform()

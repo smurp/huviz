@@ -132,6 +132,7 @@ app.configure ->
   app.get "/just_huviz.js", just_huviz.createServer()
   app.get "/orlonto.html", localOrCDN("/views/orlonto.html.eco", nopts.is_local)
   app.get "/yegodd.html", localOrCDN("/views/yegodd.html.eco", nopts.is_local)
+  app.get "/tests", localOrCDN("/views/tests.html.eco", nopts.is_local)
   app.get "/", localOrCDN("/views/huvis.html.eco", nopts.is_local)
 
 # override in an installed instance with:

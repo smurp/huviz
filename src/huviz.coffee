@@ -1517,7 +1517,7 @@ class Huviz
         msg = "finished_splitting "+uri
         @show_state_msg("done loading")
         document.dispatchEvent(new CustomEvent("dataset-loaded", {detail: uri}))
-
+        @fire_fileloaded_event()
         #@choose_everything()
         #@fire_nextsubject_event @last_quad,null
       else
@@ -1546,6 +1546,7 @@ class Huviz
       url: url
       success: (data, textStatus) =>
         the_parser(data, textStatus)
+        @fire_fileloaded_event()
         @hide_state_msg()
       error: (jqxhr, textStatus, errorThrown) ->
         console.log url, errorThrown
@@ -2188,6 +2189,7 @@ class Huviz
     )
 
   showGraph: (g) ->
+    alert "showGraph called"
     @make_nodes g
     @fire_showgraph_event() if window.CustomEvent?
     @restart()
@@ -2452,6 +2454,17 @@ class Huviz
     console.log "initializing from #{elems.length} settings"
     for elem in elems # so we can modify them in a loop
       @update_graph_settings(elem, false)
+
+  fire_fileloaded_event: ->
+    alert "fire_fileloaded_event"
+    window.dispatchEvent(
+      new CustomEvent 'fileloaded',
+        detail:
+          message: "file loaded"
+          time: new Date()
+        bubbles: true
+        cancelable: true
+    )
 
   load_file: ->
     $("#reset_btn").show()
