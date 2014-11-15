@@ -3,11 +3,11 @@
   <head>
     <title>HuVis Test Suite</title>
     <link href="/css/huvis.css" rel="stylesheet" type="text/css">
-    <link href="/css/huvis_controls.css" rel="stylesheet" type="text/css">
+    <link href="/css/Xhuvis_controls.css" rel="stylesheet" type="text/css">
     <link href="/css/lariat.css" rel="stylesheet" type="text/css">
     <link href="/css/CRRT.css" rel="stylesheet" type="text/css">
     <link href="/css/gclui.css" rel="stylesheet" type="text/css">
-    <link href="/css/help.css" rel="stylesheet" type="text/css">
+    <link href="/css/Xhelp.css" rel="stylesheet" type="text/css">
     <link href="/css/jquery-ui.css" rel="stylesheet"/>
     <link href="/mocha/mocha.css" rel="stylesheet"/>
     <script>
@@ -29,7 +29,7 @@
         <div id="mocha"></div>
       </div>
     </div>
-  <section role="controls" id="tabs">
+  <section role="controls" id="tabs" style="display:none">
     <ul style="font-size:80%">
        <li><a href="#tabs-help" title="Introduction and Usage">Help</a></li>
        <li><a href="#tabs-options" title="Fine tune sizes, lengths and thicknesses.">Settings</a></li>
@@ -220,17 +220,26 @@
     <div id="vis" class="underneath" style="z-index:-3"></div>
     <div id="viscanvas" class="underneath"></div>
     <pre id="status"></pre>
-    <div id="state_msg_box"></div>
+    <div id="state_msg_box" style="display:none"></div>
     
 
+
+<!--
     <script>window.exports = {};</script>
     <script src="/application.js?23234"></script>
-    <Xscript src="/node_modules/chai/chai.js"></Xscript>
-    <Xscript src="/node_modules/mocha/mocha.js"></Xscript>
+-->
+    <script src="/mocha/mocha.js"></script>
+    <script src="/chai/chai.js"></script>
+    <script src="/js/cow.js"></script>
+
+    <script>mocha.setup('bdd')</script>
+    <script src="/js/cow_test.js"></script>
+    <script>mocha.run();</script>
 
     <script>
       //var chai = require('chai');
       //var mocha = require('mocha');
+    if false {
       var gcl = require('graphcommandlanguage');
       var testsuite = function(HVZ){
         ts = new gcl.GCLTestSuite(
@@ -294,9 +303,9 @@
         console.log('about to run this puppy');
         //ts.run();
         //TH = require("TestHuviz")
-        mocha = require("mocha");
-        mocha.globals(['jQuery']);
-        mocha.run();
+        //mocha = require("mocha");
+        //mocha.globals(['jQuery']);
+        //mocha.run();
         console.log('ran this puppy');
       };
       // if (location.hash.match(/testsuite/)){
@@ -309,14 +318,14 @@
       }, false);
 
       var HVZ;
-      window.addEventListener('load',function(){
+      window.addEventListener('Xload',function(){
         huviz = require('huviz');
         HVZ = new huviz.Orlando();
         HVZ.set_ontology("/data/OrlandoOntology-SexesUnderPerson.ttl");
         HVZ.boot_sequence();
         //testsuite(HVZ);
       });
-
+    };
     </script>
   </body>
 </html>

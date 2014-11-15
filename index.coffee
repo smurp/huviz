@@ -47,8 +47,8 @@ pkg = stitch.createPackage(
     __dirname + '/lib/green_turtle.js'
     __dirname + '/js/quadParser.js'
 
-    __dirname + '/node_modules/chai/lib/chai.js',
-    __dirname + '/node_modules/mocha/lib/mocha.js'        
+    #__dirname + '/node_modules/chai/lib/chai.js',
+    #__dirname + '/node_modules/mocha/lib/mocha.js'        
   ]
 )
 app = express.createServer()
@@ -136,13 +136,13 @@ app.configure ->
   app.use app.router
   #app.use express.static(__dirname + "/public")
   app.use express.static(__dirname)
-  #app.use express.static(__dirname + '/js')
+  app.use express.static(__dirname + '/js')
   app.use express.static(__dirname + '/lib')
   app.use express.static(__dirname + '/data')
   app.use express.static(__dirname + '/docs')
   app.use express.static(__dirname + '/node_modules')
-  #app.use '/mocha', express.static(__dirname + '/node_modules/mocha')
-  #app.use '/chai', express.static(__dirname + '/node_modules/chai')
+  app.use '/mocha', express.static(__dirname + '/node_modules/mocha')
+  app.use '/chai', express.static(__dirname + '/node_modules/chai')
   app.get "/application.js", pkg.createServer()
   app.get "/tests.js", tests.createServer()
   app.get "/just_huviz.js", just_huviz.createServer()
