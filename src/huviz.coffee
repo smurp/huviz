@@ -2456,7 +2456,6 @@ class Huviz
       @update_graph_settings(elem, false)
 
   fire_fileloaded_event: ->
-    alert "fire_fileloaded_event"
     window.dispatchEvent(
       new CustomEvent 'fileloaded',
         detail:

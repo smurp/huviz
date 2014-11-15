@@ -19,9 +19,19 @@ shortHands =
 nopts = nopt(knownOpts, shortHands, process.argv, 2)
 console.log nopts
 
+tests = stitch.createPackage(
+  paths: [ __dirname + "/tests"]
+  dependencies: [
+    __dirname + '/node_modules/chai/lib/chai.js',
+    __dirname + '/node_modules/mocha/lib/mocha.js'    
+  ]
+)
+
 pkg = stitch.createPackage(
   # Specify the paths you want Stitch to automatically bundle up
-  paths: [ __dirname + "/src" ]
+  paths: [ __dirname + "/src"
+    #, __dirname + "/tests"
+  ]
 
   # Specify your base libraries
   dependencies: [
@@ -35,7 +45,10 @@ pkg = stitch.createPackage(
     #__dirname + '/lib/jq.min.js',
     __dirname + '/lib/fisheye.js',
     __dirname + '/lib/green_turtle.js'
-    __dirname + '/js/quadParser.js'    
+    __dirname + '/js/quadParser.js'
+
+    __dirname + '/node_modules/chai/lib/chai.js',
+    __dirname + '/node_modules/mocha/lib/mocha.js'        
   ]
 )
 app = express.createServer()
@@ -128,7 +141,10 @@ app.configure ->
   app.use express.static(__dirname + '/data')
   app.use express.static(__dirname + '/docs')
   app.use express.static(__dirname + '/node_modules')
+  #app.use '/mocha', express.static(__dirname + '/node_modules/mocha')
+  #app.use '/chai', express.static(__dirname + '/node_modules/chai')
   app.get "/application.js", pkg.createServer()
+  app.get "/tests.js", tests.createServer()
   app.get "/just_huviz.js", just_huviz.createServer()
   app.get "/orlonto.html", localOrCDN("/views/orlonto.html.eco", nopts.is_local)
   app.get "/yegodd.html", localOrCDN("/views/yegodd.html.eco", nopts.is_local)
