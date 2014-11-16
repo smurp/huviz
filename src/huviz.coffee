@@ -123,7 +123,7 @@ GreenerTurtle = require('greenerturtle').GreenerTurtle
 Node = require('node').Node
 Predicate = require('predicate').Predicate
 console.log("require",require)
-SortedSet = require('sortedset').SortedSet
+#SortedSet = require('sortedset').SortedSet
 TaxonAbstract = require('taxonabstract').TaxonAbstract
 Taxon = require('taxon').Taxon
 

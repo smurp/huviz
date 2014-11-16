@@ -240,7 +240,6 @@
 
     <script src="/js/cow_test.js"></script>
 
-    <script>mocha.run();</script>
 
     <script>
       //var chai = require('chai');
@@ -251,6 +250,7 @@
         //ts.verbose = true;
         console.log('about to run this puppy');
         console.log(mocha);
+        mocha.run();
         console.log('ran this puppy');
       };
       // if (location.hash.match(/testsuite/)){
@@ -269,7 +269,7 @@
         HVZ = new huviz.Orlando();
         HVZ.set_ontology("/data/OrlandoOntology-SexesUnderPerson.ttl");
         HVZ.boot_sequence();
-        testsuite(HVZ);
+        //testsuite(HVZ);
       });
     </script>
   </body>
