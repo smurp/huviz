@@ -46,8 +46,12 @@
   
   http://stackoverflow.com/a/17866143/1234699  
     provided guidance on how to 'subclass' Array
-  
+
+    "use strict";  
+
  */
+(function(exports) {
+
 var SortedSet = function(){
     var array = [];
     array.push.apply(array,arguments);
@@ -271,4 +275,6 @@ var SortedSets_tests = function(verbose){
     expect("a_d.add(c)",0);
 };
 //SortedSets_tests(true);
-exports.SortedSet = SortedSet
+//(typeof exports !== "undefined" && exports !== null ? exports : this).SortedSet = SortedSet;
+
+})(this);
