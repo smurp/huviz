@@ -274,6 +274,5 @@ var SortedSets_tests = function(verbose){
     expect("a_d.binary_search(d)",2);
     expect("a_d.add(c)",0);
 };
-SortedSets_tests(true);
 (typeof exports !== "undefined" && exports !== null ? exports : this).SortedSet = SortedSet;
 })(this);

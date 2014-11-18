@@ -196,9 +196,8 @@
               name="data_set" class="file_picker"
               onchange="HVZ.load_file(this)" 
               title="data sets are in order of increasing complexity">
-            <option title="Maria Abdy -- all attributes -- 68 nodes; 308 edges; 37 predicates">/data/abdyma.nq</option>
             <option title="R.M. Ballantyne -- all attributes -- 14 nodes; 60 edges; 17 predicates">/data/ballrm.nq</option>
-
+            <option title="Maria Abdy -- all attributes -- 68 nodes; 308 edges; 37 predicates">/data/abdyma.nq</option>
             <option title="William Shakespeare -- basic relational predicates -- 41 nodes; 46 edges; 21 predicates ">/data/shakwi.nq</option>
             <option title="Brontes -- all attributes -- 423 node; 666 edges; 43 predicates">/data/brontes.nq</option>
             <option title="Margaret Atwood -- all attributes -- 444 nodes; 2325 edges; 41 predicates">/data/atwoma.nq</option>
@@ -221,56 +220,22 @@
     <div id="viscanvas" class="underneath"></div>
     <pre id="status"></pre>
     <div id="state_msg_box" style="display:none"></div>
-    
-
-    <script>
-      console.log("exports:",window.exports, "require:",window.require, "mocha:", window.mocha);
-    </script>
 
     <script src="/application.js?23234"></script>
     <script src="/chai/chai.js"></script>
     <script src="/mocha/mocha.js"></script>
-
-    <script src="/js/cow.js"></script>
     <script>
-      console.log("exports:",window.exports, "require:",window.require, "mocha:", window.mocha);
-    </script>
-
-    <script>mocha.setup('bdd')</script>
-
-    <script src="/js/cow_test.js"></script>
-
-
-    <script>
-      //var chai = require('chai');
-      //var mocha = require('mocha');
-      var gcl = require('graphcommandlanguage');
-      var testsuite = function(HVZ){
-
-        //ts.verbose = true;
-        console.log('about to run this puppy');
-        console.log(mocha);
+      mocha.setup('bdd');
+      window.addEventListener('load',function(){
         mocha.run();
-        console.log('ran this puppy');
-      };
-      // if (location.hash.match(/testsuite/)){
-        window.addEventListener('fileloaded',testsuite);
-      // }
-      //window.addEventListener('showgraph',function(){   });
+      });
+    </script>
+    <script src="/js/huviz_test.js"></script>
 
+    <script>
       document.addEventListener('touchmove', function(e) {
         e.preventDefault();
       }, false);
-
-      var HVZ;
-      window.addEventListener('load',function(){
-        huviz = require('huviz');
-        console.log("huviz",huviz);
-        HVZ = new huviz.Orlando();
-        HVZ.set_ontology("/data/OrlandoOntology-SexesUnderPerson.ttl");
-        HVZ.boot_sequence();
-        //testsuite(HVZ);
-      });
     </script>
   </body>
 </html>

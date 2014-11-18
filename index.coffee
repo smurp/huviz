@@ -44,11 +44,13 @@ pkg = stitch.createPackage(
     #__dirname + '/lib/d3.v3.min.js', # before fisheye
     #__dirname + '/lib/jq.min.js',
     __dirname + '/lib/fisheye.js',
-    __dirname + '/lib/green_turtle.js'
-    __dirname + '/js/quadParser.js'
+    __dirname + '/lib/green_turtle.js',
+    __dirname + '/js/quadParser.js',
+    #__dirname + '/node_modules/chai/chai.js',
+    #__dirname + '/node_modules/mocha/mocha.js',
+    #__dirname + '/js/cow.js',
+    #__dirname + '/js/cow_test.js'
 
-    #__dirname + '/node_modules/chai/lib/chai.js',
-    #__dirname + '/node_modules/mocha/lib/mocha.js'        
   ]
 )
 app = express.createServer()
@@ -56,9 +58,7 @@ app = express.createServer()
 # a package for code2flow to visualize
 just_huviz = stitch.createPackage(
   paths: [ __dirname + "/src" ]
-  dependencies: [
-    __dirname + '/js/sortedset.js',
-  ]
+  #dependencies: [  __dirname + '/js/sortedset.js' ]
 )
 
 fs = require('fs')

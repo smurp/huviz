@@ -331,7 +331,6 @@ class GraphCommandLanguageCtrl
     cmd.prefixes = @prefixes
     cmd.execute(@graph_ctrl)
 
-
   execute: () =>
     if @commands.length > 0 and typeof @commands[0] is 'string' and @commands[0].match(/^load /)
       console.log("initial execute", @commands)

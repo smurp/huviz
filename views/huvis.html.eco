@@ -9,6 +9,9 @@
     <link href="/css/gclui.css" rel="stylesheet" type="text/css">
     <link href="/css/help.css" rel="stylesheet" type="text/css">
     <link href="/css/jquery-ui.css" rel="stylesheet"/>
+    <script>
+      window.module = {};
+    </script>
   <% if @is_local: %>
     <script src="/lib/jquery.js"></script>
     <script src="/lib/d3.v3.min.js"></script>
@@ -255,90 +258,23 @@
     <pre id="status"></pre>
     <div id="state_msg_box"></div>
 
-    <script>window.exports = {};</script>
     <script src="/application.js?23234"></script>
     <script>
-      var gcl = require('graphcommandlanguage');
-      var testsuite = function(HVZ){
-        ts = new gcl.GCLTestSuite(
-            HVZ.gclc,[
-             // initially no links are displayed
-             {desc: "initial empty graph",
-              expectations: [ 
-                 ["this.graph_ctrl.nodes.length",7],
-                 ["this.graph_ctrl.links_set.length",0]
-                ]
-              },
-             {desc: "choosing writer",
-              script: "choose 'w:abdyma'",
-              expectations: [
-                 ["this.graph_ctrl.nodes.length",7],
-                 ["this.graph_ctrl.unlinked_set.length",0],
-                 ["this.graph_ctrl.links_set.length",6],
-                ]
-              },
-             {desc: "discarding writer should empty graph",
-              script: "discard 'w:abdyma'",
-              expectations: [
-                 ["this.graph_ctrl.nodes.length",7],
-                 ["this.graph_ctrl.unlinked_set.length",6],
-                 ["this.graph_ctrl.discarded_set.length",1],
-                 ["this.graph_ctrl.links_set.length",0],
-                ]
-              },
-             {desc: "choose AnglicanChurch; expect no effect",
-              script:"choose '_:E'",
-              expectations: [
-                 ["this.graph_ctrl.discarded_set.length",1],
-                 ["this.graph_ctrl.discarded_set[0].links_shown.length",0]
-                ]
-             },
-             {desc: "choose from discards should graph",
-              script:"choose 'w:abdyma'",
-              expectations: [
-                 ["this.graph_ctrl.discarded_set.length",0],
-                 ["this.graph_ctrl.graphed_set.length",7],
-                 ["this.graph_ctrl.unlinked_set.length",0]
-                ]
-             },
-             {desc: "discard AnglicanChurch; expect it to be",
-              script:"discard '_:E'",
-              expectations: [
-                 ["this.graph_ctrl.discarded_set.length",1],
-                 ["this.graph_ctrl.discarded_set[0].links_shown.length",0]
-                ]
-             },
-             {desc: "choose AnglicanChurch; expect it to be graphed",
-              script:"choose '_:E'",
-              expectations: [
-                 ["this.graph_ctrl.discarded_set.length",0],
-                 ["this.graph_ctrl.nodes.get({'id':'_:E'}).links_shown.length",1]
-                ]
-             }
-            ]
-          )
-        //ts.verbose = true;
-        alert('about to run this puppy');
-        ts.run();
-      };
-      if (location.hash.match(/testsuite/)){
-        window.addEventListener('showgraph',testsuite);
-      }
-      //window.addEventListener('showgraph',function(){   });
-
+      var HVZ;
       document.addEventListener('touchmove', function(e) {
         e.preventDefault();
       }, false);
+      document.addEventListener('dataset-loaded', function(e) {
+        HVZ.choose_everything();
+      }, false);
 
-      var HVZ;
       window.addEventListener('load',function(){
         huviz = require('huviz');
         HVZ = new huviz.Orlando();
-        //HVZ.set_ontology("/data/orlando_ontology.ttl");
-        HVZ.set_ontology("/data/OrlandoOntology-SexesUnderPerson.ttl");
+        HVZ.set_ontology("/data/orlando_ontology.ttl");
+        //HVZ.set_ontology("/data/OrlandoOntology-SexesUnderPerson.ttl");
         HVZ.boot_sequence();
       });
-
     </script>
   </body>
 </html>
