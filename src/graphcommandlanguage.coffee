@@ -75,6 +75,39 @@ class GCLTestSuite
       console.log "err#"+err[0],err[1]
           
 class GraphCommand
+    # "choose,label 'abdyma'"
+    # "label Thing"
+    # "choose like 'Maria'"
+    # "choose organizations like 'church'"
+    # "choose Thing like 'mary'"
+    # "discard organizations like 'mary'"
+    # "choose writers like 'Margaret' regarding family"
+    #    /(\w+)(,\s*\w+) '(\w+)'/
+
+  # Expect args: verbs, subjects, classes, constraints, regarding
+  #   verbs: a list of verb names eg: ['choose','label'] REQUIRED
+  #   subjects: a list of subj_ids eg: ['_:AE','http://a.com/abdyma']
+  #   classes: a list of classes: ['writers','orgs']
+  #   sets: a list of the huviz sets to act on eg: [@huviz.graphed_set]
+  #   constraints: like TODO(smurp) document GraphCommand constraints
+  #   regarding: a list of pred_ids eg: ['orl:child','orl:denom']
+  #       really [ orl:connectionToOrganization,
+  #                http://vocab.sindice.com/xfn#child ] 
+  # Every command must have at least one verb and any kind of subject, so
+  #   at least one of: subjects, classes or sets
+  # Optional parameters are:
+  #   constraints and regarding
+  constructor: (args_or_str) ->
+    @prefixes = {}    
+    if typeof args_or_str == 'string'
+      args = @parse(args_or_str)
+    else
+      args = args_or_str
+    for argn,argv of args
+      @[argn] = argv
+    if not @str?
+      @update_str()
+  
   get_node: (node_spec) ->
     id = node_spec.id
     term = id
@@ -268,39 +301,6 @@ class GraphCommand
       subj = parts[1].replace(/\'/g,"") 
       cmd.subjects = [{'id': subj}]
     return cmd
-    
-    # "choose,label 'abdyma'"
-    # "label Thing"
-    # "choose like 'Maria'"
-    # "choose organizations like 'church'"
-    # "choose Thing like 'mary'"
-    # "discard organizations like 'mary'"
-    # "choose writers like 'Margaret' regarding family"
-    #    /(\w+)(,\s*\w+) '(\w+)'/
-
-  # Expect args: verbs, subjects, classes, constraints, regarding
-  #   verbs: a list of verb names eg: ['choose','label'] REQUIRED
-  #   subjects: a list of subj_ids eg: ['_:AE','http://a.com/abdyma']
-  #   classes: a list of classes: ['writers','orgs']
-  #   sets: a list of the huviz sets to act on eg: [@huviz.graphed_set]
-  #   constraints: like TODO(smurp) document GraphCommand constraints
-  #   regarding: a list of pred_ids eg: ['orl:child','orl:denom']
-  #       really [ orl:connectionToOrganization,
-  #                http://vocab.sindice.com/xfn#child ] 
-  # Every command must have at least one verb and any kind of subject, so
-  #   at least one of: subjects, classes or sets
-  # Optional parameters are:
-  #   constraints and regarding
-  constructor: (args_or_str) ->
-    @prefixes = {}    
-    if typeof args_or_str == 'string'
-      args = @parse(args_or_str)
-    else
-      args = args_or_str
-    for argn,argv of args
-      @[argn] = argv
-    if not @str?
-      @update_str()
   toString: () ->
     return @str
   as_msg: () ->
