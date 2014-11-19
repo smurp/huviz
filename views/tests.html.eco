@@ -56,6 +56,8 @@
            class="git-branch-is-beta  <% if @git_branch_name is 'beta':%>current-git-branch<% end %>">beta</a>
         <a href="http://alpha.orlando.dev.semandra.com/tests" 
            class="git-branch-is-alpha  <% if @git_branch_name is 'alpha':%>current-git-branch<% end %>">alpha</a>
+        <a href="/tests">tests</a>
+        <a href="/orlonto.html">ontology</a>
       </div>
       <p>This interface provides access to a suite of tests of HuViz.</p>
 

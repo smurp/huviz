@@ -51,6 +51,7 @@
         <a href="http://alpha.orlando.dev.semandra.com" 
            class="git-branch-is-alpha  <% if @git_branch_name is 'alpha':%>current-git-branch<% end %>">alpha</a>
         <a href="/tests">tests</a>
+        <a href="/orlonto.html">ontology</a>
       </div>
       <p>This interface is intended to help you explore the
         information and relationships encoded in

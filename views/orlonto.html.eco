@@ -39,28 +39,18 @@
           </sup>
         <% end %>
       </h1>
-      <h2>Orlando RDF Explorer</h2>
-      <p>This interface is intended to help you explore the
-        information and relationships encoded in
-        the <a href="http://www.artsrn.ualberta.ca/orlando/" target="_blank">Orlando</a> 
-        text database of British Women Writers. 
-        In particular, HuViz helps explore semantic information expressed in 
-        <a hef="http://www.artsrn.ualberta.ca/orlando/">RDF triples</a> 
-        that assert things like 
-        <span class='eg-subject'>Writer</span> <span class='eg-verb'>hasSex</span> <span class='eg-object'>FEMALE</span>
-        or <span class='eg-subject'>Writer</span> <span class='eg-verb'>livedInPlace</span> <span class='eg-object'>London</span>.
-      </p>
-      <h3>Quick Start</h3>
-      <ul>
-        <li>Go to <a class="open_tab" href="#2">Commands</a> and pick a <i>data set</i>.</li>
-        <li>Click the verb <i>choose</i>,
-            notice the command you've built -- <code>choose Thing.</code> --
-            then press <button disabled>Do it</button>.</li>
-        <li>Go to <a class="open_tab" href="#1">Settings</a> to adjust the sizes of things</li>
-        <li>Try hovering over nodes and edges to see their labels</li>
-        <li>Click edges to see the snippets of text which inspired them.</li>
-        <li>Drag nodes to and from the green shelf and the red discard pile</li>
-      </ul>
+      <h2>Orlando Ontology Explorer</h2>
+      <div class="huviz-versions">
+        <a href="http://orlando.dev.semandra.com" 
+           class="git-branch-is-master <% if @git_branch_name is 'master':%>current-git-branch<% end %>">production</a>
+        <a href="http://beta.orlando.dev.semandra.com" 
+           class="git-branch-is-beta  <% if @git_branch_name is 'beta':%>current-git-branch<% end %>">beta</a>
+        <a href="http://alpha.orlando.dev.semandra.com" 
+           class="git-branch-is-alpha  <% if @git_branch_name is 'alpha':%>current-git-branch<% end %>">alpha</a>
+        <a href="/tests">tests</a>
+        <a href="/orlonto.html">ontology</a>
+      </div>
+      <p>This is a visualization of the ontology used by the Orlando project.</p>
     </div>
     <div id="tabs-history" class="scrolling_tab">
     </div>
@@ -220,7 +210,6 @@
     <pre id="status"></pre>
     <div id="state_msg_box"></div>
 
-    <script>window.exports = {};</script>
     <script src="/application.js?23234"></script>
     <script>
      /*
