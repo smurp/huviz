@@ -4,3 +4,10 @@
 #mocha {
   margin: 0px;
 }
+#mocha .test.pass.fast .duration {
+  display: inline;
+  color: black;
+}
+#mocha h2 {
+  text-align: left;
+}

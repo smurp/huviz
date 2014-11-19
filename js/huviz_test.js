@@ -29,6 +29,12 @@ describe("HuViz Tests", function() {
       done();
     });
 
+    it("'unselect Thing.' should dim all node colors ", function(done) {
+      HVZ.do({"verbs": ["unselect"], "sets": [HVZ.graphed_set]});
+      expect(HVZ.selected_set.length).to.equal(0);
+      done();
+    });
+
     it("'shelve Thing.' should remove everything from the graph ", function(done) {
       HVZ.do({"verbs": ["shelve"], "sets": [HVZ.graphed_set]});
       expect(HVZ.graphed_set.length).to.equal(0);
