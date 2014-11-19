@@ -10,6 +10,7 @@
     <link href="/css/Xhelp.css" rel="stylesheet" type="text/css">
     <link href="/css/jquery-ui.css" rel="stylesheet"/>
     <link href="/mocha/mocha.css" rel="stylesheet"/>
+    <link href="/css/huviz_test.css" rel="stylesheet"/>
     <script>
       window.module = {};
     </script>
@@ -25,8 +26,9 @@
   </head>
   <body>
     <div id="snippet_box">
-      <div id="test_report">
-        <div id="mocha"></div>
+      <div id="mocha_box">
+        <div id="mocha">
+        </div>
       </div>
     </div>
   <section role="controls" id="tabs" style="display:none">
@@ -225,6 +227,13 @@
     <script src="/chai/chai.js"></script>
     <script src="/mocha/mocha.js"></script>
     <script>
+      var mocha_box_args = {
+        "title":"test suite", 
+        "maxHeight": 500,
+        "minWidth": 600,
+        "position": {"at": "left top", "of": window}
+      };
+      dlg = $("#mocha_box").dialog(mocha_box_args);
       mocha.setup('bdd');
       window.addEventListener('load',function(){
         mocha.run();

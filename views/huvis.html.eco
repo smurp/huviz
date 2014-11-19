@@ -260,6 +260,7 @@
 
     <script src="/application.js?23234"></script>
     <script>
+      dlg = $("#snippet_box").dialog({"title":"doofus", "position": {"at": "left top", "of": window}});
       var HVZ;
       document.addEventListener('touchmove', function(e) {
         e.preventDefault();
@@ -268,7 +269,7 @@
         HVZ.choose_everything();
       }, false);
 
-      window.addEventListener('load',function(){
+      window.addEventListener('load',function(){        
         huviz = require('huviz');
         HVZ = new huviz.Orlando();
         HVZ.set_ontology("/data/orlando_ontology.ttl");
