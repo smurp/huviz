@@ -230,7 +230,7 @@
       var mocha_box_args = {
         "title":"test suite", 
         "maxHeight": 500,
-        "minWidth": 600,
+        "minWidth": 450,
         "position": {"at": "left top", "of": window}
       };
       dlg = $("#mocha_box").dialog(mocha_box_args);
