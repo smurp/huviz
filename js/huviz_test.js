@@ -1,6 +1,6 @@
 var expect = chai.expect;
 
-var pause_msec = 2;
+var pause_msec = 3;
 var say = function(msg, done) {
   console.log("STARTING",msg);
   //alert(msg);
@@ -17,12 +17,13 @@ describe("HuViz Tests", function() {
 
   before(function bootHuviz(done) {
     window.HVZ = new huviz.Orlando();
-    window.HVZ.set_ontology("/data/OrlandoOntology-SexesUnderPerson.ttl");
+    HVZ.set_ontology("/data/OrlandoOntology-SexesUnderPerson.ttl");
     document.addEventListener('dataset-loaded', function(e) {
       console.log("dataset-loaded",arguments);
       done();
     }, false);
-    window.HVZ.boot_sequence();
+    HVZ.boot_sequence();
+    HVZ.goto_tab(2);
   })
 
   describe("basic operations", function() {
@@ -58,6 +59,27 @@ describe("HuViz Tests", function() {
       expect(HVZ.graphed_set.length).to.equal(number_of_nodes);
     });
 
+    it("'select Thing.' should deepen all node colors ", function(done) {
+      say("select Thing.",done);
+      HVZ.do({"verbs": ["select"], "sets": [HVZ.graphed_set]});
+      expect(HVZ.selected_set.length).to.equal(number_of_nodes);
+    });
+
+    it("Clicking Thing should toggle selection of all nodes", function(done) {
+      say("toggle Thing taxon",done);
+      HVZ.pick_taxon('Thing');
+      expect(HVZ.selected_set.length).to.equal(0);
+      HVZ.pick_taxon('Thing');
+      expect(HVZ.selected_set.length).to.equal(number_of_nodes);
+    });
+
+    it("Clicking Person should toggle selection of the Person node", function(done) {
+      say("toggle Person taxon",done);
+      HVZ.pick_taxon('Person');
+      expect(HVZ.selected_set.length).to.equal(number_of_nodes - 1);
+      HVZ.pick_taxon('Person');
+      expect(HVZ.selected_set.length).to.equal(number_of_nodes);
+    });
     /*
     it("reset_graph() should blank everything", function(done) {
       say("reset_graph()",done);

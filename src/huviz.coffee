@@ -712,6 +712,8 @@ class Huviz
       @gclui.add_newnodeclass(taxon_id,parent_lid) # FIXME should this be an event on the Taxon constructor?
     @taxonomy[taxon_id]
 
+  pick_taxon: (taxon_id) ->
+    $("#"+taxon_id).click()
 
   do: (args) ->
     cmd = new gcl.GraphCommand args
@@ -2286,7 +2288,6 @@ class Huviz
     @gclui.push_command cmd
 
   before_running_command: ->
-    return
     # FIXME fix non-display of cursor and color changes
     $("body").css "cursor", "wait"
     $("body").css "background-color", "red" # FIXME remove once it works!
@@ -2294,7 +2295,6 @@ class Huviz
     #alert "starting wait"
 
   after_running_command: ->
-    return
     #console.log "after_running_command"
     toggle_suspend_updates(false)
     $("body").css "cursor", "default"
@@ -2399,13 +2399,14 @@ class Huviz
     window.addEventListener "resize", @updateWindow
     $("#tabs").tabs
       active: 0
-    $('.open_tab').click (event) ->
+    $('.open_tab').click (event) =>
       tab_idx = parseInt($(event.target).attr('href').replace("#",""))
-      console.log tab_idx
-      $('#tabs').tabs
-        active: tab_idx
+      @goto_tab(tab_idx)
       return false
 
+  goto_tab: (tab_idx) ->
+    $('#tabs').tabs
+      active: tab_idx
 
   update_fisheye: ->
     @label_show_range = @link_distance * 1.1
