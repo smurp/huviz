@@ -212,12 +212,6 @@
 
     <script src="/application.js?23234"></script>
     <script>
-     /*
-      var gcl = require('graphcommandlanguage');
-      if (location.hash.match(/testsuite/)){
-        window.addEventListener('showgraph',testsuite);
-      }
-      */
       document.addEventListener('touchmove', function(e) {
         e.preventDefault();
       }, false);

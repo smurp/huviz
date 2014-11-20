@@ -2286,6 +2286,7 @@ class Huviz
     @gclui.push_command cmd
 
   before_running_command: ->
+    return
     # FIXME fix non-display of cursor and color changes
     $("body").css "cursor", "wait"
     $("body").css "background-color", "red" # FIXME remove once it works!
@@ -2293,6 +2294,7 @@ class Huviz
     #alert "starting wait"
 
   after_running_command: ->
+    return
     #console.log "after_running_command"
     toggle_suspend_updates(false)
     $("body").css "cursor", "default"
