@@ -51,7 +51,6 @@ class TreePicker
     top = not top? or top
     for node_id,rest of tree
       label = rest[0]
-      #console.log "appending",node_id,"to",i_am_in
       contents_of_me = @add_alphabetically(i_am_in, node_id, label)
       @id_to_elem[node_id] = contents_of_me
       picker = this
@@ -67,15 +66,11 @@ class TreePicker
         my_contents = @get_or_create_container(contents_of_me)
         if top and @extra_classes
           for css_class in @extra_classes
-            my_contents.classed(css_class, true)
+            my_contents.classed(css_class, true)        
         @show_tree(rest[1],my_contents,listener,false)
-      if @needs_expander
-        @get_or_create_expander(contents_of_me)        
   set_branch_pickedness: (id,bool) ->
     if @id_to_elem[id]?
       @id_to_elem[id].classed('picked_branch',bool)
-    #else
-    #  console.log "  not found among:",(id for id in @id_to_elem)
   set_all_hiddenness: (bool) ->
     top = @get_top()
     @set_branch_hiddenness(top,false)
@@ -85,9 +80,6 @@ class TreePicker
   set_branch_hiddenness: (id,bool) ->
     if @id_to_elem[id]?
       @id_to_elem[id].classed('hidden',bool)
-    #else
-    #  console.log "  not found among:",(id for id in @id_to_elem)
-      
   set_branch_mixedness: (id, bool) ->
     # Calling set_branch_mixedness(id, true) means there exist
     #      nodes showing edges for this predicate AND
@@ -110,6 +102,8 @@ class TreePicker
     branch[new_id] = [name or new_id]      
     parent = @id_to_elem[parent_id] or @elem
     container = d3.select(@get_or_create_container(parent)[0][0])
+    if @needs_expander
+      @get_or_create_expander(parent)
     @show_tree(branch,container,listener)
   collapser_str: "▼" # 0x25bc
   expander_str: "▶" # 0x25b6

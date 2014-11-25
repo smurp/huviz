@@ -90,6 +90,12 @@ describe("HuViz Tests", function() {
       expect($("#Thing div.container:first").attr("style")).to.equal("");
       expect($("#Thing span.expander:first").text()).to.equal(HVZ.gclui.taxon_picker.collapser_str);
     });
+
+    it("Leaf taxons should not have expanders", function(done) {
+      say("leaf taxon should not have an expander",done);
+      expect($("#Person span.expander:first").length).to.equal(0);
+    });
+
   });
 });
 
