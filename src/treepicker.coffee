@@ -14,7 +14,7 @@ Build and control a hierarchic menu of arbitrarily nested divs looking like:
 ###
   
 class TreePicker
-  constructor: (elem, root, extra_classes) ->
+  constructor: (elem, root, extra_classes, @needs_expander) ->
     if extra_classes?
       @extra_classes = extra_classes
     @elem = d3.select(elem)
@@ -69,6 +69,8 @@ class TreePicker
           for css_class in @extra_classes
             my_contents.classed(css_class, true)
         @show_tree(rest[1],my_contents,listener,false)
+      if @needs_expander
+        @get_or_create_expander(contents_of_me)        
   set_branch_pickedness: (id,bool) ->
     if @id_to_elem[id]?
       @id_to_elem[id].classed('picked_branch',bool)
@@ -109,6 +111,21 @@ class TreePicker
     parent = @id_to_elem[parent_id] or @elem
     container = d3.select(@get_or_create_container(parent)[0][0])
     @show_tree(branch,container,listener)
+  get_or_create_expander: (thing) ->
+    if thing? and thing
+      r = thing.select(".expander")
+      if r[0][0] isnt null
+        return r
+      exp = thing.select(".treepicker-label").append('span').classed("expander", true).text("▼")
+      picker = this
+      exp.on 'click', () =>
+        d3.event.stopPropagation()
+        if exp.text() is "▼"
+          exp.text("▶")  #    ▶ 0x25b6
+          thing.select(".container").attr("style", "display:none")
+        else
+          exp.text("▼")  #    ▼ 0x25bc
+          thing.select(".container").attr("style","")
   get_or_create_payload: (thing) ->
     if thing? and thing
       r = thing.select(".payload")

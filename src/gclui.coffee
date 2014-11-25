@@ -175,7 +175,7 @@ class CommandController
     
     @predicatebox.attr('class','scrolling')
     @predicates_ignored = []
-    @predicate_picker = new ColoredTreePicker(@predicatebox,'anything')
+    @predicate_picker = new ColoredTreePicker(@predicatebox,'anything',[],true)
     @predicate_hierarchy = {'anything':['anything']}
     # FIXME Why is show_tree being called four times per node?
     @predicate_picker.show_tree(@predicate_hierarchy,@predicatebox,@onpredicateclicked)
@@ -207,6 +207,41 @@ class CommandController
         pred_n_js_id = edge.predicate.id
         edge.color = @predicate_picker.get_color_forId_byName(pred_n_js_id,'showing')
 
+  ###
+  #     Collapsing and expanding taxons whether abstract or just instanceless.
+  #
+  #     ▼ 0x25bc
+  #     ▶ 0x25b6
+  #
+  #     Expanded                   Collapsed
+  #     +-----------------+        +-----------------+
+  #     | parent        ▼ |        | parent        ▶ |
+  #     |   +------------+|        +-----------------+
+  #     |   | child 1    ||
+  #     |   +------------+|
+  #     |   | child 2    ||
+  #     |   +------------+|
+  #     +-----------------+
+  #
+  #     Clicking an expanded parent should cycle thru selection and deselection
+  #     of only its direct instances, if there are any.
+  #
+  #     Clicking a collapsed parent should cycle thru selection and deselection
+  #     of its direct instances as well as those of all its children.
+  #
+  #     The coloring of expanded parents cycles thru the three states:
+  #       Mixed - some of the direct instances are selected
+  #       On - all of the direct instances are selected
+  #       Off - none of the direct instances are selected
+  #   
+  #     The coloring of a collapsed parent cycles thru the three states:
+  #       Mixed - some descendant instances are selected (direct or indirect)
+  #       On - all descendant instances are selected (direct or indirect)
+  #       Off - no descendant instances are selected (direct or indirect)
+  #
+  #     Indirect instances are the instances of subclasses.
+  ###
+
   build_nodeclasspicker: ->
     id = 'classes'
     @nodeclassbox = @comdiv.append('div')
@@ -219,7 +254,7 @@ class CommandController
       "Faint color: no nodes are selected -- click to select all\n" +
       "Stripey color: some nodes are selected -- click to select all\n")
 
-    @taxon_picker = new ColoredTreePicker(@nodeclassbox,'Thing')
+    @taxon_picker = new ColoredTreePicker(@nodeclassbox,'Thing',[],true)
     @taxon_picker.show_tree(@hierarchy,@nodeclassbox,@onnodeclasspicked)
 
   add_newnodeclass: (class_id,parent,class_name) =>

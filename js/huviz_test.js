@@ -80,13 +80,14 @@ describe("HuViz Tests", function() {
       HVZ.pick_taxon('Person');
       expect(HVZ.selected_set.length).to.equal(number_of_nodes);
     });
-    /*
-    it("reset_graph() should blank everything", function(done) {
-      say("reset_graph()",done);
-      HVZ.reset_graph();
-      expect(HVZ.graphed_set.length).to.equal(0);
+
+    it("Toggling a taxon expander should hide and show its subclassess", function(done) {
+      say("toggle a taxon expander",done);
+      $("#Thing span.expander:first").trigger("click");      
+      expect($("#Thing div.container:first").attr("style")).to.equal("display:none");
+      $("#Thing span.expander:first").trigger("click");
+      expect($("#Thing div.container:first").attr("style")).to.equal("");
     });
-    */
   });
 });
 

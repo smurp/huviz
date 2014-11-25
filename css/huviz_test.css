@@ -11,3 +11,6 @@
 #mocha h2 {
   text-align: left;
 }
+#mocha .test pre {
+  font-size: 40%;
+}
