@@ -14,6 +14,7 @@ describe("HuViz Tests", function() {
   this.timeout(0);
   huviz = require('huviz');
   var number_of_nodes = 15;
+  var test_title;
 
   before(function bootHuviz(done) {
     window.HVZ = new huviz.Orlando();
@@ -24,49 +25,53 @@ describe("HuViz Tests", function() {
     }, false);
     HVZ.boot_sequence();
     HVZ.goto_tab(2);
-  })
+  });
+
+  beforeEach(function() {
+    test_title = this.currentTest.title;
+  });
 
   describe("basic operations", function() {
     it("initially everything should be shelved and nothing graphed", function(done) {
-      say("initial.",done);
+      say(test_title, done);
       expect(HVZ.graphed_set.length).to.equal(0);
       expect(HVZ.shelved_set.length).to.equal(HVZ.nodes.length);
     });
 
     it("'choose shelved.' should result in non-zero graphed_set.length ", function(done) {
-      say("choose shelved.",done);
+      say(test_title, done);
       HVZ.do({"verbs": ["choose"], "sets": [HVZ.shelved_set]});
       expect(HVZ.graphed_set.length).to.not.equal(0);
       expect(HVZ.graphed_set.length).to.equal(number_of_nodes);
     });
 
     it("'unselect Thing.' should dim all node colors ", function(done) {
-      say("unselect Thing.",done);
+      say(test_title, done);
       HVZ.do({"verbs": ["unselect"], "sets": [HVZ.graphed_set]});
       expect(HVZ.selected_set.length).to.equal(0);
     });
 
     it("'shelve Thing.' should remove everything from the graph ", function(done) {
-      say("shelve graphed.",done);
+      say(test_title, done);
       HVZ.do({"verbs": ["shelve"], "sets": [HVZ.graphed_set]});
       expect(HVZ.graphed_set.length).to.equal(0);
       expect(HVZ.shelved_set.length).to.equal(number_of_nodes);
     });
 
     it("choose_everything() should graph all nodes", function(done) {
-      say("choose_everything()",done);
+      say(test_title, done);
       HVZ.choose_everything();
       expect(HVZ.graphed_set.length).to.equal(number_of_nodes);
     });
 
     it("'select Thing.' should deepen all node colors ", function(done) {
-      say("select Thing.",done);
+      say(test_title, done);
       HVZ.do({"verbs": ["select"], "sets": [HVZ.graphed_set]});
       expect(HVZ.selected_set.length).to.equal(number_of_nodes);
     });
 
     it("Clicking Thing should toggle selection of all nodes", function(done) {
-      say("toggle Thing taxon",done);
+      say(test_title, done);
       HVZ.pick_taxon('Thing');
       expect(HVZ.selected_set.length).to.equal(0);
       HVZ.pick_taxon('Thing');
@@ -74,7 +79,7 @@ describe("HuViz Tests", function() {
     });
 
     it("Clicking Person should toggle selection of the Person node", function(done) {
-      say("toggle Person taxon",done);
+      say(test_title, done);
       HVZ.pick_taxon('Person');
       expect(HVZ.selected_set.length).to.equal(number_of_nodes - 1);
       HVZ.pick_taxon('Person');
@@ -82,7 +87,7 @@ describe("HuViz Tests", function() {
     });
 
     it("Toggling a taxon expander should hide and show its subclassess", function(done) {
-      say("toggle a taxon expander",done);
+      say(test_title, done);
       $("#Thing span.expander:first").trigger("click");
       expect($("#Thing div.container:first").attr("style")).to.equal("display:none");
       expect($("#Thing span.expander:first").text()).to.equal(HVZ.gclui.taxon_picker.expander_str);
@@ -92,8 +97,14 @@ describe("HuViz Tests", function() {
     });
 
     it("Leaf taxons should not have expanders", function(done) {
-      say("leaf taxon should not have an expander",done);
+      say(test_title, done);
       expect($("#Person span.expander:first").length).to.equal(0);
+    });
+
+    it("Toggling an expanded taxon should affect only its instances", function(done) {
+      say(test_title, done);
+      //say("expanded taxon toggling should affect only its instances",done);
+      1/0;
     });
 
   });
