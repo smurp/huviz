@@ -111,20 +111,22 @@ class TreePicker
     parent = @id_to_elem[parent_id] or @elem
     container = d3.select(@get_or_create_container(parent)[0][0])
     @show_tree(branch,container,listener)
+  collapser_str: "▼" # 0x25bc
+  expander_str: "▶" # 0x25b6
   get_or_create_expander: (thing) ->
     if thing? and thing
       r = thing.select(".expander")
       if r[0][0] isnt null
         return r
-      exp = thing.select(".treepicker-label").append('span').classed("expander", true).text("▼")
+      exp = thing.select(".treepicker-label").append('span').classed("expander", true).text(@collapser_str)
       picker = this
       exp.on 'click', () =>
         d3.event.stopPropagation()
-        if exp.text() is "▼"
-          exp.text("▶")  #    ▶ 0x25b6
+        if exp.text() is @collapser_str
+          exp.text(@expander_str)
           thing.select(".container").attr("style", "display:none")
         else
-          exp.text("▼")  #    ▼ 0x25bc
+          exp.text(@collapser_str) 
           thing.select(".container").attr("style","")
   get_or_create_payload: (thing) ->
     if thing? and thing
