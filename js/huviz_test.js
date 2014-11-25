@@ -103,8 +103,19 @@ describe("HuViz Tests", function() {
 
     it("Toggling an expanded taxon should affect only its instances", function(done) {
       say(test_title, done);
-      //say("expanded taxon toggling should affect only its instances",done);
-      1/0;
+      expect(HVZ.selected_set.length).to.equal(number_of_nodes);
+      $("#GeographicArea").trigger("click"); // 1 GeographicArea
+      expect(HVZ.selected_set.length).to.equal(number_of_nodes - 1);
+      $("#GeographicArea").trigger("click");
+      expect(HVZ.selected_set.length).to.equal(number_of_nodes);
+      $("#Region").trigger("click"); // 2 Regions
+      expect(HVZ.selected_set.length).to.equal(number_of_nodes - 2);
+      $("#Settlement").trigger("click"); // 2 Settlements
+      expect(HVZ.selected_set.length).to.equal(number_of_nodes - 4);
+      $("#GeographicArea").trigger("click");
+      expect(HVZ.selected_set.length).to.equal(number_of_nodes - 5);
+      $("#GeographicArea").trigger("click");
+      expect(HVZ.selected_set.length).to.equal(number_of_nodes - 4);
     });
 
   });
