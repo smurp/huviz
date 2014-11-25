@@ -31,7 +31,7 @@ describe("HuViz Tests", function() {
     test_title = this.currentTest.title;
   });
 
-  describe("basic operations", function() {
+  describe("operations on classes", function() {
     it("initially everything should be shelved and nothing graphed", function(done) {
       say(test_title, done);
       expect(HVZ.graphed_set.length).to.equal(0);
@@ -45,44 +45,31 @@ describe("HuViz Tests", function() {
       expect(HVZ.graphed_set.length).to.equal(number_of_nodes);
     });
 
-    it("'unselect Thing.' should dim all node colors ", function(done) {
+    it("'unselect graphed.' should dim all node colors ", function(done) {
       say(test_title, done);
       HVZ.do({"verbs": ["unselect"], "sets": [HVZ.graphed_set]});
       expect(HVZ.selected_set.length).to.equal(0);
     });
 
-    it("'shelve Thing.' should remove everything from the graph ", function(done) {
+    it("'shelve graphed.' should remove everything from the graph ", function(done) {
       say(test_title, done);
+      expect(HVZ.graphed_set.length).to.equal(number_of_nodes);
+      //$("#verb-shelve").trigger("click");
+      //$("#graphed_set").trigger("click");
+      //$("#doit_button").trigger("click");
       HVZ.do({"verbs": ["shelve"], "sets": [HVZ.graphed_set]});
       expect(HVZ.graphed_set.length).to.equal(0);
       expect(HVZ.shelved_set.length).to.equal(number_of_nodes);
     });
 
-    it("choose_everything() should graph all nodes", function(done) {
+    it("'select shelved.' should select all nodes ", function(done) {
       say(test_title, done);
-      HVZ.choose_everything();
-      expect(HVZ.graphed_set.length).to.equal(number_of_nodes);
-    });
-
-    it("'select Thing.' should deepen all node colors ", function(done) {
-      say(test_title, done);
-      HVZ.do({"verbs": ["select"], "sets": [HVZ.graphed_set]});
-      expect(HVZ.selected_set.length).to.equal(number_of_nodes);
-    });
-
-    it("Clicking Thing should toggle selection of all nodes", function(done) {
-      say(test_title, done);
-      HVZ.pick_taxon('Thing');
       expect(HVZ.selected_set.length).to.equal(0);
-      HVZ.pick_taxon('Thing');
-      expect(HVZ.selected_set.length).to.equal(number_of_nodes);
-    });
-
-    it("Clicking Person should toggle selection of the Person node", function(done) {
-      say(test_title, done);
-      HVZ.pick_taxon('Person');
-      expect(HVZ.selected_set.length).to.equal(number_of_nodes - 1);
-      HVZ.pick_taxon('Person');
+      expect(HVZ.shelved_set.length).to.equal(number_of_nodes);
+      //$("#shelved_set").trigger("click");
+      //$("#verb-select").trigger("click");
+      //$("#doit_button").trigger("click");
+      HVZ.do({"verbs": ["select"], "sets": [HVZ.shelved_set]});
       expect(HVZ.selected_set.length).to.equal(number_of_nodes);
     });
 
@@ -101,6 +88,15 @@ describe("HuViz Tests", function() {
       expect($("#Person span.expander:first").length).to.equal(0);
     });
 
+    it("Clicking Person should toggle selection of the Person node", function(done) {
+      say(test_title, done);
+      HVZ.pick_taxon('Person');
+      expect(HVZ.selected_set.length).to.equal(number_of_nodes - 1);
+      HVZ.pick_taxon('Person');
+      expect(HVZ.selected_set.length).to.equal(number_of_nodes);
+    });
+
+
     it("Toggling an expanded taxon should affect only its instances", function(done) {
       say(test_title, done);
       expect(HVZ.selected_set.length).to.equal(number_of_nodes);
@@ -116,8 +112,30 @@ describe("HuViz Tests", function() {
       expect(HVZ.selected_set.length).to.equal(number_of_nodes - 5);
       $("#GeographicArea").trigger("click");
       expect(HVZ.selected_set.length).to.equal(number_of_nodes - 4);
+      $("#Region").trigger("click");
+      $("#Settlement").trigger("click");
+      expect(HVZ.selected_set.length).to.equal(number_of_nodes);
+    });
+
+    it("Clicking Thing while collapsed should toggle selection of all nodes", function(done) {
+      say(test_title, done);
+      expect(HVZ.selected_set.length).to.equal(number_of_nodes);
+      $("#Thing span.expander:first").trigger("click");
+      $("#Thing").trigger("click");
+      expect(HVZ.selected_set.length).to.equal(0);
+      $("#Thing").trigger("click");
+      expect(HVZ.selected_set.length).to.equal(number_of_nodes);
+      $("#Thing span.expander:first").trigger("click");
     });
 
   });
 });
-
+/*
+describe("More Tests", function() {
+  describe("advanced operations", function() {
+    it("what a lark", function() {
+      expect(0).to.equal(0);
+    });
+  });
+});
+*/

@@ -267,7 +267,7 @@
         e.preventDefault();
       }, false);
       document.addEventListener('dataset-loaded', function(e) {
-        HVZ.choose_everything();
+        //HVZ.choose_everything();
       }, false);
 
       window.addEventListener('load',function(){        

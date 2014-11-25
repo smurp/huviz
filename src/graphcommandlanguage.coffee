@@ -152,10 +152,7 @@ class GraphCommand
         #nodes.push(node)
     if @classes
       for class_name in @classes
-        if class_name is 'Thing'
-          the_set = @graph_ctrl.nodes
-        else
-          the_set = @graph_ctrl.taxonomy[class_name]?.get_instances()
+        the_set = @graph_ctrl.taxonomy[class_name]?.get_instances()
         if like_regex and the_set?
           for n in the_set
             if n.name.match(like_regex)
@@ -216,7 +213,8 @@ class GraphCommand
             retval = meth.call(@graph_ctrl,node,pred)
           @graph_ctrl.tick()
         #async.eachSeries nodes,iter,err
-        async.each nodes,iter,err
+        if nodes?
+          async.each nodes,iter,err
         #@graph_ctrl.tick()
         
     else if @verbs[0] is 'load' # FIXME not very general, but it appears to be the sole exception
@@ -231,14 +229,15 @@ class GraphCommand
         err = (err_arg) ->
           if err
             console.log "err =",err_arg
-            throw err_arg
+            #throw err_arg
           else
             console.log "DONE .execute()"
         iter = (node) =>
           retval = meth.call(@graph_ctrl,node)        
           @graph_ctrl.tick() # TODO(smurp) move this out, or call every Nth node
         #async.eachSeries nodes,iter,err
-        async.each nodes,iter,err
+        if nodes?
+          async.each nodes,iter,err
         #@graph_ctrl.tick()
     @graph_ctrl.hide_state_msg()
     @graph_ctrl.force.start()

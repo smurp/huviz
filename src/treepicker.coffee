@@ -11,6 +11,10 @@ Build and control a hierarchic menu of arbitrarily nested divs looking like:
   |     |       +-----+||
   |     +--------------+|
   +---------------------+
+
+  Collapsed is different from hidden.  Hidden is to be used when there are
+  no instances of the (say) predicates in a branch.  Collapsed is the opposite
+  of expanded.
 ###
   
 class TreePicker

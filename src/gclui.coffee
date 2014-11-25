@@ -433,7 +433,8 @@ class CommandController
     @doit_butt = @nextcommand.append('span').append("input").
            attr("style","float:right").
            attr("type","submit").
-           attr('value','Do it')
+           attr('value','Do it').
+           attr('id','doit_button')
     @doit_butt.on 'click', () =>
       if @update_command()
         @huviz.gclc.run(@command)
@@ -522,7 +523,7 @@ class CommandController
   build_verb_picker: (id,label,alternatives) ->
     vbctl = alternatives.append('div').attr("class","verb")
     if @verb_descriptions[id]
-      vbctl.attr("title",@verb_descriptions[id])
+      vbctl.attr("title",@verb_descriptions[id]).attr("id", "verb-"+id)
     @verb_control[id] = vbctl
     vbctl.text(label)
     that = @
