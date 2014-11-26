@@ -257,8 +257,8 @@ class CommandController
     @taxon_picker = new ColoredTreePicker(@nodeclassbox,'Thing',[],true)
     @taxon_picker.show_tree(@hierarchy,@nodeclassbox,@onnodeclasspicked)
 
-  add_newnodeclass: (class_id,parent,class_name) =>
-    @taxon_picker.add(class_id,parent,class_name,@onnodeclasspicked)
+  add_newnodeclass: (class_id,parent_lid,class_name,taxon) =>
+    @taxon_picker.add(class_id,parent_lid,class_name,@onnodeclasspicked)
     @taxon_picker.recolor_now()
     @huviz.recolor_nodes()
 
@@ -278,6 +278,11 @@ class CommandController
     @huviz.show_state_msg("toggling " + selected)
 
     @taxon_picker.color_by_selected(id,selected)
+    hier = @taxon_picker.id_is_collapsed[id]
+    alert("#{id} hier: #{hier}")
+    if hier
+      alert(id)
+      console.log("crawl taxon.kids to propagate new state for",id)
     taxon = @huviz.taxonomy[id]
     if taxon?
       #console.clear()
@@ -311,7 +316,6 @@ class CommandController
   unselect_node_class: (node_class) ->
     @node_classes_chosen = @node_classes_chosen.filter (eye_dee) ->
       eye_dee isnt node_class
-
 
     # # Elements may be in one of these states:
     #   hidden     - TBD: not sure when hidden is appropriate

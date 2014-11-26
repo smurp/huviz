@@ -26,6 +26,7 @@ class TreePicker
     @id_to_elem[root] = elem
     @ids_in_arrival_order = [root]
     @id_is_abstract = {}
+    @id_is_collapsed = {}
     @set_abstract(root)
     @set_abstract('root') # FIXME duplication?!?
   set_abstract: (id) ->
@@ -107,24 +108,33 @@ class TreePicker
     parent = @id_to_elem[parent_id] or @elem
     container = d3.select(@get_or_create_container(parent)[0][0])
     if @needs_expander
-      @get_or_create_expander(parent)
+      @get_or_create_expander(parent,parent_id)
+    else:
+      @id_is_collapsed[parent_id] = false
     @show_tree(branch,container,listener)
   collapser_str: "▼" # 0x25bc
   expander_str: "▶" # 0x25b6
-  get_or_create_expander: (thing) ->
+  get_or_create_expander: (thing, id) ->
     if thing? and thing
       r = thing.select(".expander")
       if r[0][0] isnt null
         return r
-      exp = thing.select(".treepicker-label").append('span').classed("expander", true).text(@collapser_str)
+      exp = thing.select(".treepicker-label").
+          append('span').
+          classed("expander", true).
+          text(@collapser_str)
+      @id_is_collapsed[id] = false
       picker = this
       exp.on 'click', () =>
+        #id = exp[0][0].parentNode.parentNode.getAttribute("id")
         d3.event.stopPropagation()
         if exp.text() is @collapser_str
           exp.text(@expander_str)
+          @id_is_collapsed[id] = false
           thing.select(".container").attr("style", "display:none")
         else
-          exp.text(@collapser_str) 
+          exp.text(@collapser_str)
+          @id_is_collapsed[id] = true
           thing.select(".container").attr("style","")
   get_or_create_payload: (thing) ->
     if thing? and thing

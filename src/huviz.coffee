@@ -709,7 +709,7 @@ class Huviz
       if parent_lid?
         parent = @get_or_create_taxon(parent_lid, false)
         taxon.register_superclass(parent)
-      @gclui.add_newnodeclass(taxon_id,parent_lid) # FIXME should this be an event on the Taxon constructor?
+      @gclui.add_newnodeclass(taxon_id,parent_lid,undefined,taxon) # FIXME should this be an event on the Taxon constructor?
     @taxonomy[taxon_id]
 
   pick_taxon: (taxon_id) ->

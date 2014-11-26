@@ -96,7 +96,6 @@ describe("HuViz Tests", function() {
       expect(HVZ.selected_set.length).to.equal(number_of_nodes);
     });
 
-
     it("Toggling an expanded taxon should affect only its instances", function(done) {
       say(test_title, done);
       expect(HVZ.selected_set.length).to.equal(number_of_nodes);
