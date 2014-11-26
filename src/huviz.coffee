@@ -713,8 +713,8 @@ class Huviz
       @gclui.add_newnodeclass(taxon_id,parent_lid,undefined,taxon) # FIXME should this be an event on the Taxon constructor?
     @taxonomy[taxon_id]
 
-  pick_taxon: (taxon_id) ->
-    $("#"+taxon_id).click()
+  pick_taxon: (taxon_id) ->  # should be called click_taxon
+    $("##{taxon_id}").click()
 
   do: (args) ->
     cmd = new gcl.GraphCommand args
@@ -2209,7 +2209,8 @@ class Huviz
 
   init_gclc: ->
     @gclc = new GraphCommandLanguageCtrl(this)
-    @gclui = new CommandController(this,d3.select("#gclui")[0][0],@hierarchy)
+    if not @gclui?
+      @gclui = new CommandController(this,d3.select("#gclui")[0][0],@hierarchy)
     window.addEventListener 'showgraph', @register_gclc_prefixes
     window.addEventListener 'newpredicate', @gclui.handle_newpredicate
     TYPE_SYNS.forEach (pred_id,i) =>
@@ -2345,10 +2346,6 @@ class Huviz
     #@toggle_logging()
     @create_state_msg_box()
     document.addEventListener 'nextsubject', @onnextsubject
-    #@reset_graph() # FIXME should it be a goal to make this first?
-    @init_sets()    #   because these are the first two lines of reset_graph
-
-    @init_gclc()   
     @init_snippet_box()  # FIXME not sure this does much useful anymore
     @mousedown_point = false
     @discard_point = [@cx,@cy] # FIXME refactor so updateWindow handles this
