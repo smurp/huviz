@@ -112,6 +112,9 @@ p {
 .treepicker-vertical .payload:after {
   content: ')';
 }
+.treepicker-collapsed {
+  display:none;
+}
 #sets {
   margin-right: 2px;
   max-width: 36%;

@@ -76,10 +76,10 @@ describe("HuViz Tests", function() {
     it("Toggling a taxon expander should hide and show its subclassess", function(done) {
       say(test_title, done);
       $("#Thing span.expander:first").trigger("click");
-      expect($("#Thing div.container:first").attr("style")).to.equal("display:none");
+      expect($("#Thing div.container:first").hasClass("treepicker-collapsed")).to.be.ok();
       expect($("#Thing span.expander:first").text()).to.equal(HVZ.gclui.taxon_picker.expander_str);
       $("#Thing span.expander:first").trigger("click");
-      expect($("#Thing div.container:first").attr("style")).to.equal("");
+      expect($("#Thing div.container:first").hasClass("treepicker-collapsed")).to.not.be.ok();
       expect($("#Thing span.expander:first").text()).to.equal(HVZ.gclui.taxon_picker.collapser_str);
     });
 

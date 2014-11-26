@@ -134,18 +134,30 @@ class TreePicker
       @id_is_collapsed[id] = false
       picker = this
       exp.on 'click', () =>
+        d3.event.stopPropagation()
         id2 = exp[0][0].parentNode.parentNode.getAttribute("id")
         if id2 isnt id
           throw("#{id} <> #{id2}")
-        d3.event.stopPropagation()
-        if exp.text() is @collapser_str
-          exp.text(@expander_str)
-          @id_is_collapsed[id] = true
-          thing.select(".container").attr("style", "display:none")
+        if @id_is_collapsed[id]
+          @expand_by_id(id)
         else
-          exp.text(@collapser_str)
-          @id_is_collapsed[id] = false
-          thing.select(".container").attr("style","")
+          @collapse_by_id(id)
+  collapse_by_id: (id) ->
+    console.warn("collapse_by_id")
+    @id_is_collapsed[id] = true
+    elem = @id_to_elem[id]
+    # elem.select(".container").attr("style", "display:none") # should add css class treepicker-collapsed
+    elem.select(".container").classed("treepicker-collapsed",true)
+    exp = elem.select(".expander")
+    exp.text(@expander_str)
+  expand_by_id: (id) ->
+    console.warn("expand_by_id")
+    @id_is_collapsed[id] = false
+    elem = @id_to_elem[id]
+    #elem.select(".container").attr("style", "") # should remove css class treepicker-collapsed
+    elem.select(".container").classed("treepicker-collapsed",false)
+    exp = elem.select(".expander")
+    exp.text(@collapser_str)
   get_or_create_payload: (thing) ->
     if thing? and thing
       r = thing.select(".payload")
