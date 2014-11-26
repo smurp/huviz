@@ -143,18 +143,14 @@ class TreePicker
         else
           @collapse_by_id(id)
   collapse_by_id: (id) ->
-    console.warn("collapse_by_id")
     @id_is_collapsed[id] = true
     elem = @id_to_elem[id]
-    # elem.select(".container").attr("style", "display:none") # should add css class treepicker-collapsed
     elem.select(".container").classed("treepicker-collapsed",true)
     exp = elem.select(".expander")
     exp.text(@expander_str)
   expand_by_id: (id) ->
-    console.warn("expand_by_id")
     @id_is_collapsed[id] = false
     elem = @id_to_elem[id]
-    #elem.select(".container").attr("style", "") # should remove css class treepicker-collapsed
     elem.select(".container").classed("treepicker-collapsed",false)
     exp = elem.select(".expander")
     exp.text(@collapser_str)
