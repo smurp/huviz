@@ -71,11 +71,11 @@ class CommandController
       evt.done = true
 
   select_the_initial_set: =>
-    @onnodeclasspicked 'Thing',true
+    @on_taxon_picked 'Thing',true
     if false #@huviz.is_big_data()
       # FIXME this is very clunky (and slow)
-      @onnodeclasspicked 'Thing',false
-      @onnodeclasspicked @huviz.get_taxon_to_initially_pick(),true
+      @on_taxon_picked 'Thing',false
+      @on_taxon_picked @huviz.get_taxon_to_initially_pick(),true
     @huviz.taxonomy['Thing'].update_english()
     #@engage_verb('choose')
 
@@ -256,10 +256,10 @@ class CommandController
 
     # http://en.wikipedia.org/wiki/Taxon
     @taxon_picker = new ColoredTreePicker(@nodeclassbox,'Thing',[],true)
-    @taxon_picker.show_tree(@hierarchy,@nodeclassbox,@onnodeclasspicked)
+    @taxon_picker.show_tree(@hierarchy,@nodeclassbox,@on_taxon_picked)
 
   add_newnodeclass: (class_id,parent_lid,class_name,taxon) =>
-    @taxon_picker.add(class_id,parent_lid,class_name,@onnodeclasspicked)
+    @taxon_picker.add(class_id,parent_lid,class_name,@on_taxon_picked)
     @taxon_picker.recolor_now()
     @huviz.recolor_nodes()
 
@@ -267,7 +267,7 @@ class CommandController
     @object_phrase = evt.detail.english
     @update_command()
 
-  onnodeclasspicked: (id, selected, elem, propagate) =>
+  on_taxon_picked: (id, selected, elem, propagate) =>
     # FIXME implement the tristate behaviour:
     #   Mixed —> On
     #   On —> Off
@@ -279,7 +279,7 @@ class CommandController
     #   * the colors of child nodes on the treepicker
     #   * the color of the clicked node on the treepicker
     #      - should be stripey if subclass coloring is mixed
-    #console.info("onnodeclasspicked('" + id + ", " + selected + "')")
+    #console.info("on_taxon_picked('" + id + ", " + selected + "')")
     @huviz.show_state_msg("toggling " + selected)
     taxon = @huviz.taxonomy[id]
     if taxon?
@@ -295,11 +295,11 @@ class CommandController
     console.log("#{id} propagate: #{propagate}")
     if propagate
       console.log("crawl taxon.kids to propagate new state for",id)
-      @onnodeclasspicked(id, selected, elem, false)
+      @on_taxon_picked(id, selected, elem, false)
       if taxon.kids?
         for kid in taxon.kids
           kid_elem = @taxon_picker.id_to_elem[id]
-          @onnodeclasspicked(kid.id, selected, kid_elem, true)
+          @on_taxon_picked(kid.id, selected, kid_elem, true)
       return
     
     @taxon_picker.color_by_selected(id,selected)
