@@ -121,13 +121,14 @@ describe("HuViz Tests", function() {
       expect(HVZ.gclui.taxon_picker.id_is_collapsed["Thing"]).to.not.be.ok();
       expect(HVZ.selected_set.length).to.equal(number_of_nodes);
       $("#Settlement").trigger("click"); // 2 Settlements
-      //HVZ.gclui.taxon_picker.id_to_elem["Settlement"].on("click")();
+      expect($("#Settlement").hasClass("treepicker-mixed")).to.be.not.ok();
+      expect($("#Settlement").hasClass("treepicker-picked")).to.be.not.ok();
       expect(HVZ.selected_set.length).to.equal(number_of_nodes - 2);
-      //$("#Thing").hasClass("treepicker-mixed"); // rename to mixed?
       $("#Thing span.expander:first").trigger("click"); // collapse
-      expect(HVZ.gclui.taxon_picker.id_is_collapsed["Thing"]).to.be.ok();
+      expect($("#Thing").hasClass("treepicker-mixed")).to.be.ok(); // actual expectation
+      //
+      //expect(HVZ.gclui.taxon_picker.id_is_collapsed["Thing"]).to.be.ok();
       //$("#Thing").hasClass("both_show_and_unshown"); // rename to mixed?
-
       //$("#Thing").trigger("click"); 
       //expect(HVZ.selected_set.length).to.equal(number_of_nodes);
       //$("#Thing span.expander:first").trigger("click");
@@ -145,6 +146,13 @@ describe("HuViz Tests", function() {
       $("#Thing span.expander:first").trigger("click");
     });
     */
+
+    /*
+      Tests to perform (aka bugs to fix!)
+      ===================================
+      Selecting an individual node should update the set_picker Selected count
+      Clicking taxons should always update their colors
+     */
   });
 });
 /*
