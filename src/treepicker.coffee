@@ -58,6 +58,8 @@ class TreePicker
       label = rest[0]
       contents_of_me = @add_alphabetically(i_am_in, node_id, label)
       @id_to_elem[node_id] = contents_of_me
+      msg = "show_tree() just did @id_to_elem[#{node_id}] = contents_of_me"
+      console.info(msg)
       picker = this
       contents_of_me.on 'click', () ->
         d3.event.stopPropagation()
@@ -74,7 +76,12 @@ class TreePicker
             my_contents.classed(css_class, true)        
         @show_tree(rest[1],my_contents,listener,false)
   set_branch_pickedness: (id,bool) ->
-    @id_to_elem[id]?classed('treepicker-picked',bool)
+    if @id_to_elem[id]?
+      @id_to_elem[id].classed('treepicker-picked',bool)
+    else
+      msg = "during set_branch_pickedness(#{id}, #{bool}) #{id} is missing from @id_to_elem"
+      console.warn msg, @id_to_elem
+
   set_all_hiddenness: (bool) ->
     top = @get_top()
     @set_branch_hiddenness(top,false)
@@ -88,7 +95,8 @@ class TreePicker
     # Calling set_branch_mixedness(id, true) means there exist
     #      nodes showing edges for this predicate AND
     #      nodes not showing edges for this predicate
-    @id_to_elem[id]?classed('treepicker-mixed',bool)
+    if @id_to_elem[id]?
+      @id_to_elem[id].classed('treepicker-mixed',bool)
     #d3.select(@id_to_elem[id])?classed('treepicker-mixed',bool)
     #console.log("set_branch_mixedness()",arguments,@id_to_elem[id]?classed('treepicker-mixed'))
   get_or_create_container: (contents) ->
@@ -147,7 +155,7 @@ class TreePicker
   set_payload: (id, value) ->
     elem = @id_to_elem[id]
     if not elem? and elem isnt null
-      console.log "set_payload could not find " + id
+      console.warn "set_payload could not find " + id
     payload = @get_or_create_payload(elem)
     if payload?
       if value?

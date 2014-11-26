@@ -129,7 +129,7 @@ class ColoredTreePicker extends TreePicker
       @set_branch_pickedness(target_id, false)
     if new_state is "mixed" # rename partiallyShowing
       @set_branch_mixedness(target_id, true)
-      #@set_branch_pickedness(target_id,false) # this turns off stripeyness
+      #@set_branch_pickedness(target_id,false)
     else
       @set_branch_mixedness(target_id, false)
   
