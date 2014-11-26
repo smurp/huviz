@@ -74,6 +74,7 @@
 #
 # Eventual Tasks:
 #  85) TASK: move SVG, Canvas and WebGL renderers to own Renderer subclasses
+#  86) TASK: rename *nodeclass* to *taxon*
 #  74) TASK: restore test suite
 #  75) TASK: implement real script parser
 #   4) TASK: Suppress all but the 6-letter id of writers in the cmd cli

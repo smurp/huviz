@@ -116,6 +116,24 @@ describe("HuViz Tests", function() {
       expect(HVZ.selected_set.length).to.equal(number_of_nodes);
     });
 
+    it("Collapsing a taxon with mixed children should color it stripey", function(done) {
+      say(test_title, done);
+      expect(HVZ.gclui.taxon_picker.id_is_collapsed["Thing"]).to.not.be.ok();
+      expect(HVZ.selected_set.length).to.equal(number_of_nodes);
+      $("#Settlement").trigger("click"); // 2 Settlements
+      //HVZ.gclui.taxon_picker.id_to_elem["Settlement"].on("click")();
+      expect(HVZ.selected_set.length).to.equal(number_of_nodes - 2);
+      //$("#Thing").hasClass("treepicker-mixed"); // rename to mixed?
+      $("#Thing span.expander:first").trigger("click"); // collapse
+      expect(HVZ.gclui.taxon_picker.id_is_collapsed["Thing"]).to.be.ok();
+      //$("#Thing").hasClass("both_show_and_unshown"); // rename to mixed?
+
+      //$("#Thing").trigger("click"); 
+      //expect(HVZ.selected_set.length).to.equal(number_of_nodes);
+      //$("#Thing span.expander:first").trigger("click");
+    });
+
+    /*
     it("Clicking Thing while collapsed should toggle selection of all nodes", function(done) {
       say(test_title, done);
       expect(HVZ.selected_set.length).to.equal(number_of_nodes);
@@ -126,7 +144,7 @@ describe("HuViz Tests", function() {
       expect(HVZ.selected_set.length).to.equal(number_of_nodes);
       $("#Thing span.expander:first").trigger("click");
     });
-
+    */
   });
 });
 /*

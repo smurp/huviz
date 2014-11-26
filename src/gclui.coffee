@@ -254,6 +254,7 @@ class CommandController
       "Faint color: no nodes are selected -- click to select all\n" +
       "Stripey color: some nodes are selected -- click to select all\n")
 
+    # http://en.wikipedia.org/wiki/Taxon
     @taxon_picker = new ColoredTreePicker(@nodeclassbox,'Thing',[],true)
     @taxon_picker.show_tree(@hierarchy,@nodeclassbox,@onnodeclasspicked)
 
@@ -265,8 +266,8 @@ class CommandController
   onChangeEnglish: (evt) =>
     @object_phrase = evt.detail.english
     @update_command()
-    
-  onnodeclasspicked: (id,selected,elem) =>
+
+  onnodeclasspicked: (id, selected, elem, propagate) =>
     # FIXME implement the tristate behaviour:
     #   Mixed —> On
     #   On —> Off
@@ -274,15 +275,12 @@ class CommandController
     # When we select "Thing" we mean:
     #    all nodes except the embryonic and the discarded
     #    OR rather, the hidden, the graphed and the unlinked
+    # When propagate we need to update the treepicker and the selected_set.
+    #   * the colors of child nodes on the treepicker
+    #   * the color of the clicked node on the treepicker
+    #      - should be stripey if subclass coloring is mixed
     #console.info("onnodeclasspicked('" + id + ", " + selected + "')")
     @huviz.show_state_msg("toggling " + selected)
-
-    @taxon_picker.color_by_selected(id,selected)
-    hier = @taxon_picker.id_is_collapsed[id]
-    alert("#{id} hier: #{hier}")
-    if hier
-      alert(id)
-      console.log("crawl taxon.kids to propagate new state for",id)
     taxon = @huviz.taxonomy[id]
     if taxon?
       #console.clear()
@@ -291,6 +289,20 @@ class CommandController
       @huviz.hide_state_msg()
     else
       throw "Uhh, there should be a root Taxon 'Thing' by this point: " + id
+    
+    if not propagate?
+      propagate = @taxon_picker.id_is_collapsed[id]
+    console.log("#{id} propagate: #{propagate}")
+    if propagate
+      console.log("crawl taxon.kids to propagate new state for",id)
+      @onnodeclasspicked(id, selected, elem, false)
+      if taxon.kids?
+        for kid in taxon.kids
+          kid_elem = @taxon_picker.id_to_elem[id]
+          @onnodeclasspicked(kid.id, selected, kid_elem, true)
+      return
+    
+    @taxon_picker.color_by_selected(id,selected)
     #console.debug "id:",id,"state:",state,taxon
     if state in ['mixed','unshowing']
       if not (id in @node_classes_chosen)

@@ -62,7 +62,7 @@ class TreePicker
       contents_of_me.on 'click', () ->
         d3.event.stopPropagation()
         elem = d3.select(this)
-        new_state = not elem.classed('picked_branch')
+        new_state = not elem.classed('treepicker-picked')
         picker.set_branch_pickedness(this.id,new_state)
         if listener  # TODO(shawn) replace with custom event?
           listener.call(this,this.id,new_state,elem)
@@ -74,8 +74,7 @@ class TreePicker
             my_contents.classed(css_class, true)        
         @show_tree(rest[1],my_contents,listener,false)
   set_branch_pickedness: (id,bool) ->
-    if @id_to_elem[id]?
-      @id_to_elem[id].classed('picked_branch',bool)
+    @id_to_elem[id]?classed('treepicker-picked',bool)
   set_all_hiddenness: (bool) ->
     top = @get_top()
     @set_branch_hiddenness(top,false)
@@ -89,7 +88,9 @@ class TreePicker
     # Calling set_branch_mixedness(id, true) means there exist
     #      nodes showing edges for this predicate AND
     #      nodes not showing edges for this predicate
-    @id_to_elem[id].classed('both_show_and_unshown',bool)    
+    @id_to_elem[id]?classed('treepicker-mixed',bool)
+    #d3.select(@id_to_elem[id])?classed('treepicker-mixed',bool)
+    #console.log("set_branch_mixedness()",arguments,@id_to_elem[id]?classed('treepicker-mixed'))
   get_or_create_container: (contents) ->
     r = contents.select(".container")
     if r[0][0] isnt null
@@ -100,7 +101,8 @@ class TreePicker
   add: (new_id,parent_id,name,listener) ->
     @ids_in_arrival_order.push(new_id)
     parent_id = parent_id? and parent_id or @get_top()
-    new_id = @uri_to_js_id(new_id)    
+    new_id = @uri_to_js_id(new_id)
+    @id_is_collapsed[new_id] = false
     parent_id = @uri_to_js_id(parent_id)
     name = name? and name or new_id
     branch = {}
@@ -109,8 +111,6 @@ class TreePicker
     container = d3.select(@get_or_create_container(parent)[0][0])
     if @needs_expander
       @get_or_create_expander(parent,parent_id)
-    else:
-      @id_is_collapsed[parent_id] = false
     @show_tree(branch,container,listener)
   collapser_str: "▼" # 0x25bc
   expander_str: "▶" # 0x25b6
@@ -126,15 +126,17 @@ class TreePicker
       @id_is_collapsed[id] = false
       picker = this
       exp.on 'click', () =>
-        #id = exp[0][0].parentNode.parentNode.getAttribute("id")
+        id2 = exp[0][0].parentNode.parentNode.getAttribute("id")
+        if id2 isnt id
+          throw("#{id} <> #{id2}")
         d3.event.stopPropagation()
         if exp.text() is @collapser_str
           exp.text(@expander_str)
-          @id_is_collapsed[id] = false
+          @id_is_collapsed[id] = true
           thing.select(".container").attr("style", "display:none")
         else
           exp.text(@collapser_str)
-          @id_is_collapsed[id] = true
+          @id_is_collapsed[id] = false
           thing.select(".container").attr("style","")
   get_or_create_payload: (thing) ->
     if thing? and thing

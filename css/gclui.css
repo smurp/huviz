@@ -72,7 +72,7 @@ p {
     padding: .1em;
     overflow:auto;
 }
-.picked_branch {
+.treepicker-picked {
     background-color: tan;
 }
 .scrolling {
@@ -83,8 +83,8 @@ p {
 .hidden {
     display: none;
 }
-.both_shown_and_unshown {
-    font-style: italic;
+.treepicker-mixed {
+  font-style: italic;
 }
 .close_snippet:before {
   margin-right: .2em;
