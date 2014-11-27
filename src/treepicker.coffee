@@ -27,6 +27,10 @@ class TreePicker
     @ids_in_arrival_order = [root]
     @id_is_abstract = {}
     @id_is_collapsed = {}
+    @id_to_state =
+      true: {}
+      false: {}
+    @id_to_parent = {}
     @set_abstract(root)
     @set_abstract('root') # FIXME duplication?!?
   set_abstract: (id) ->
@@ -111,7 +115,8 @@ class TreePicker
     parent_id = parent_id? and parent_id or @get_top()
     new_id = @uri_to_js_id(new_id)
     @id_is_collapsed[new_id] = false
-    parent_id = @uri_to_js_id(parent_id)
+    parent_id = @uri_to_js_id(parent_id) 
+    @id_to_parent[new_id] = parent_id    
     name = name? and name or new_id
     branch = {}
     branch[new_id] = [name or new_id]      
@@ -174,5 +179,32 @@ class TreePicker
     elem = @id_to_elem[id]
     if elem?
       elem.attr("title", title)
+  set_state_by_id: (id, state) ->
+    @id_to_state[true][id] = state # the direct state
+    indirect_state = @id_to_state[false][id]
+    if state isnt indirect_state
+      @id_to_state[false][id] = "mixed"
+    @update_parent_indirect_state(id)
+  update_parent_indirect_state: (id) ->
+    # Update the indirect_state of the parents up the tree
+    parent_id = @id_to_parent[id]
+    if parent_id? and parent_id isnt id
+      child_indirect_state = @id_to_state[false][id]
+      parent_indirect_state = @id_to_state[false][parent_id]
+      if child_indirect_state isnt parent_indirect_state
+        @id_to_state[false][parent_id] = "mixed"
+      @update_parent_indirect_state(parent_id)
+  get_state_by_id: (id, direct_only) ->
+    if not direct_only?
+      direct_only = true
+    return @id_to_state[direct_only][id]
       
+      # In ballrm.nq Place has direct_state = undefined because Place has
+      # no direct instances so it never has an explicit state set.
+      # Should there be a special state for such cases?
+      # It would be useful to be able to style such nodes to communicate
+      # that they are unpopulated / can't really be selected, etc.
+      # Perhaps they could be italicized because they deserve a color since
+      # they might have indirect children.
+
 (exports ? this).TreePicker = TreePicker

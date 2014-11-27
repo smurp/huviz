@@ -119,6 +119,7 @@ class ColoredTreePicker extends TreePicker
     new_state = evt.detail.new_state
     target_id = evt.detail.target_id
     #console.debug target_id,new_state,evt.detail.predicate
+    @set_state_by_id(target_id,new_state)
     if new_state is "hidden" # rename noneToShow
       @set_branch_hiddenness(target_id, true)
     else
@@ -132,5 +133,31 @@ class ColoredTreePicker extends TreePicker
       #@set_branch_pickedness(target_id,false)
     else
       @set_branch_mixedness(target_id, false)
-  
+  collapse_by_id: (id) ->
+    super(id)
+    # recolor this node to summarize direct and indirect instances
+    @color_node_by_id(id, false)
+  expand_by_id: (id) ->
+    super(id)
+    # recolor this node to summarize just direct instances
+    @color_node_by_id(id, true)
+  color_node_by_id: (id, direct_only) ->
+    # What is weird about this is that instead of an external event
+    # telling us what the state should be, we are wanting to discover
+    # the hierarchic state (ie if direct_only is false).
+    # Since the ColorTreePicker is the View in MVC we do not want it
+    # to have to call out to the Model (eg the Taxon) to gain access
+    # to the hieraric state.
+    # Hence we are tempted to maintain a proxy for the state by id
+    # and also knowledge of the hierarchy so we can figure out the
+    # hierarchic state.
+    state = @get_state_by_id(id, direct_only)
+    if state is "mixed"
+      @set_branch_mixedness(id, true)
+    else if state is "showing"
+      @color_by_selected(id,true)
+    else if state is "unshowing"
+      @color_by_selected(id,true)
+    else
+      console.warn("color_node_by_id()",arguments,"is confused by", {state: state})
 (exports ? this).ColoredTreePicker = ColoredTreePicker

@@ -120,7 +120,7 @@ describe("HuViz Tests", function() {
       say(test_title, done);
       expect(HVZ.gclui.taxon_picker.id_is_collapsed["Thing"]).to.not.be.ok();
       expect(HVZ.selected_set.length).to.equal(number_of_nodes);
-      $("#Settlement").trigger("click"); // 2 Settlements
+      $("#Settlement").trigger("click"); // the 2 Settlements are now deselected
       expect($("#Settlement").hasClass("treepicker-mixed")).to.be.not.ok();
       expect($("#Settlement").hasClass("treepicker-picked")).to.be.not.ok();
       expect(HVZ.selected_set.length).to.equal(number_of_nodes - 2);
@@ -134,9 +134,24 @@ describe("HuViz Tests", function() {
       //$("#Thing span.expander:first").trigger("click");
     });
 
-    /*
+    it("Clicking a taxon with mixed children should select all children", function(done) {
+      say(test_title, done);
+      expect("to be written").to.not.be.ok();
+    });
+
+    it("Instance-less mid-tree taxons should behave properly", function(done) {
+      say(test_title, done);
+      expect("to be written").to.not.be.ok();
+    });
+
+    it("Selecting an individual node should update the Selected count", function(done) {
+      say(test_title, done);
+      expect("to be written").to.not.be.ok();
+    });
+
     it("Clicking Thing while collapsed should toggle selection of all nodes", function(done) {
       say(test_title, done);
+      expect("to be written").to.not.be.ok();
       expect(HVZ.selected_set.length).to.equal(number_of_nodes);
       $("#Thing span.expander:first").trigger("click");
       $("#Thing").trigger("click");
@@ -145,14 +160,7 @@ describe("HuViz Tests", function() {
       expect(HVZ.selected_set.length).to.equal(number_of_nodes);
       $("#Thing span.expander:first").trigger("click");
     });
-    */
 
-    /*
-      Tests to perform (aka bugs to fix!)
-      ===================================
-      Selecting an individual node should update the set_picker Selected count
-      Clicking taxons should always update their colors
-     */
   });
 });
 /*
