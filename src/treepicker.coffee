@@ -31,6 +31,7 @@ class TreePicker
       true: {}
       false: {}
     @id_to_parent = {}
+    @id_to_children = {}
     @set_abstract(root)
     @set_abstract('root') # FIXME duplication?!?
   set_abstract: (id) ->
@@ -63,13 +64,13 @@ class TreePicker
       contents_of_me = @add_alphabetically(i_am_in, node_id, label)
       @id_to_elem[node_id] = contents_of_me
       msg = "show_tree() just did @id_to_elem[#{node_id}] = contents_of_me"
-      console.info(msg)
+      #console.info(msg)
       picker = this
       contents_of_me.on 'click', () ->
         d3.event.stopPropagation()
         elem = d3.select(this)
-        new_state = not elem.classed('treepicker-picked')
-        picker.set_branch_pickedness(this.id,new_state)
+        new_state = not elem.classed('treepicker-showing')
+        #picker.set_branch_pickedness(this.id,new_state)
         if listener  # TODO(shawn) replace with custom event?
           listener.call(this,this.id,new_state,elem)
       contents_of_me.append("p").attr("class", "treepicker-label").text(label)
@@ -80,11 +81,13 @@ class TreePicker
             my_contents.classed(css_class, true)        
         @show_tree(rest[1],my_contents,listener,false)
   set_branch_pickedness: (id,bool) ->
-    if @id_to_elem[id]?
-      @id_to_elem[id].classed('treepicker-picked',bool)
-    else
-      msg = "during set_branch_pickedness(#{id}, #{bool}) #{id} is missing from @id_to_elem"
-      console.warn msg, @id_to_elem
+    # NOW HANDLED BY set_direct_state
+    # 
+    #     if @id_to_elem[id]?
+    #       @id_to_elem[id].classed('treepicker-picked',bool)
+    #     else
+    #       msg = "during set_branch_pickedness(#{id}, #{bool}) #{id} is missing from @id_to_elem"
+    #       console.warn msg, @id_to_elem
 
   set_all_hiddenness: (bool) ->
     top = @get_top()
@@ -93,16 +96,17 @@ class TreePicker
       if id isnt top and id isnt 'anything' and id isnt 'root'
         @set_branch_hiddenness(id,bool)
   set_branch_hiddenness: (id,bool) ->
-    if @id_to_elem[id]?
-      @id_to_elem[id].classed('hidden',bool)
+    # NOW HANDLED BY set_direct_state()
+    #   if @id_to_elem[id]?
+    #     @id_to_elem[id].classed('hidden',bool)
   set_branch_mixedness: (id, bool) ->
     # Calling set_branch_mixedness(id, true) means there exist
     #      nodes showing edges for this predicate AND
     #      nodes not showing edges for this predicate
-    if @id_to_elem[id]?
-      @id_to_elem[id].classed('treepicker-mixed',bool)
-    #d3.select(@id_to_elem[id])?classed('treepicker-mixed',bool)
-    #console.log("set_branch_mixedness()",arguments,@id_to_elem[id]?classed('treepicker-mixed'))
+
+    # the following is NOW HANDLED BY set_direct_state()
+    #   if @id_to_elem[id]?
+    #     @id_to_elem[id].classed('treepicker-mixed',bool)
   get_or_create_container: (contents) ->
     r = contents.select(".container")
     if r[0][0] isnt null
@@ -116,7 +120,10 @@ class TreePicker
     new_id = @uri_to_js_id(new_id)
     @id_is_collapsed[new_id] = false
     parent_id = @uri_to_js_id(parent_id) 
-    @id_to_parent[new_id] = parent_id    
+    @id_to_parent[new_id] = parent_id
+    if not @id_to_children[parent_id]?
+      @id_to_children[parent_id] = []
+    @id_to_children[parent_id].push(new_id)
     name = name? and name or new_id
     branch = {}
     branch[new_id] = [name or new_id]      
@@ -142,11 +149,11 @@ class TreePicker
         d3.event.stopPropagation()
         id2 = exp[0][0].parentNode.parentNode.getAttribute("id")
         if id2 isnt id
-          throw("#{id} <> #{id2}")
-        if @id_is_collapsed[id]
-          @expand_by_id(id)
+          console.error("expander.click() #{id} <> #{id2}")
+        if @id_is_collapsed[id2]
+          @expand_by_id(id2)
         else
-          @collapse_by_id(id)
+          @collapse_by_id(id2)
   collapse_by_id: (id) ->
     @id_is_collapsed[id] = true
     elem = @id_to_elem[id]
@@ -179,20 +186,41 @@ class TreePicker
     elem = @id_to_elem[id]
     if elem?
       elem.attr("title", title)
+  set_direct_state: (id, state) ->
+    old_state = @id_to_state[true][id]
+    @id_to_state[true][id] = state
+    if old_state?
+      @id_to_elem[id].classed("treepicker-#{old_state}",false)
+    if state?
+      @id_to_elem[id].classed("treepicker-#{state}",true)
+  set_indirect_state: (id, state) ->
+    old_state = @id_to_state[false][id]
+    @id_to_state[false][id] = state
+    if old_state?
+      @id_to_elem[id].classed("treepicker-indirect-#{old_state}",false)
+    if state?
+      @id_to_elem[id].classed("treepicker-indirect-#{state}",true)
   set_state_by_id: (id, state) ->
-    @id_to_state[true][id] = state # the direct state
+    @set_direct_state(id,state)
     indirect_state = @id_to_state[false][id]
-    if state isnt indirect_state
-      @id_to_state[false][id] = "mixed"
+    if not @is_leaf(id)
+      if state isnt indirect_state
+        @set_indirect_state(id, "mixed")
+      else
+        @set_indirect_state(id, state)
     @update_parent_indirect_state(id)
+  is_leaf: (id) ->
+    return (not @id_to_children[id]?) or @id_to_children[id].length is 0
   update_parent_indirect_state: (id) ->
     # Update the indirect_state of the parents up the tree
     parent_id = @id_to_parent[id]
     if parent_id? and parent_id isnt id
       child_indirect_state = @id_to_state[false][id]
       parent_indirect_state = @id_to_state[false][parent_id]
+      if not parent_indirect_state?
+        console.warn("update_parent_indirect_state()", {parent_id: parent_id, parent_indirect_state: parent_indirect_state})
       if child_indirect_state isnt parent_indirect_state
-        @id_to_state[false][parent_id] = "mixed"
+        @set_indirect_state(parent_id, "mixed")
       @update_parent_indirect_state(parent_id)
   get_state_by_id: (id, direct_only) ->
     if not direct_only?
@@ -206,5 +234,7 @@ class TreePicker
       # that they are unpopulated / can't really be selected, etc.
       # Perhaps they could be italicized because they deserve a color since
       # they might have indirect children.
-
+  onChangeState: (evt) =>
+    @set_state_by_id(evt.detail.target_id, evt.detail.new_state)
+    
 (exports ? this).TreePicker = TreePicker

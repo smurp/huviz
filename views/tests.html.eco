@@ -231,7 +231,7 @@
     <script>
       var mocha_box_args = {
         "title":"test suite", 
-        "maxHeight": 500,
+        "maxHeight": 800,
         "minWidth": 500,
         "position": {"at": "left top", "of": window}
       };

@@ -72,7 +72,7 @@ p {
     padding: .1em;
     overflow:auto;
 }
-.treepicker-picked {
+.treepicker-showing {
     background-color: tan;
 }
 .scrolling {
@@ -80,11 +80,27 @@ p {
     max-height: 12em;
 }
 /* display: inline-block and white-space: nowrap */
-.hidden {
+.treepicker-hidden {
     display: none;
 }
 .treepicker-mixed {
   font-style: italic;
+}
+/* 
+  This is not working in Chrome (does it work anywhere else?)
+  The goal is to select the treepicker-label directly associated with a
+  div classed treepicker-indirect-mixed.
+
+  These do not work either:
+     .treepicker-indirect-mixed.treepicker-label:first
+     .treepicker-indirect-mixed .treepicker-label:first
+     .treepicker-indirect-mixed ~ p
+     .treepicker-indirect-mixed ~ p.treepicker-label 
+     .treepicker-indirect-mixed + p
+     .treepicker-indirect-mixed + p.treepicker-label
+*/
+.treepicker-indirect-mixed .treepicker-label:first {
+  font-weight: bold;
 }
 .close_snippet:before {
   margin-right: .2em;

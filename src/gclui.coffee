@@ -71,7 +71,7 @@ class CommandController
       evt.done = true
 
   select_the_initial_set: =>
-    @on_taxon_picked 'Thing',true
+    @on_taxon_picked 'Thing',true,undefined,true
     if false #@huviz.is_big_data()
       # FIXME this is very clunky (and slow)
       @on_taxon_picked 'Thing',false
@@ -177,6 +177,8 @@ class CommandController
     @predicates_ignored = []
     @predicate_picker = new ColoredTreePicker(@predicatebox,'anything',[],true)
     @predicate_hierarchy = {'anything':['anything']}
+    @predicate_hierarchy = {}
+    
     # FIXME Why is show_tree being called four times per node?
     @predicate_picker.show_tree(@predicate_hierarchy,@predicatebox,@onpredicateclicked)
 
@@ -574,9 +576,11 @@ class CommandController
   on_set_picked: (set_id, picking) =>
     @clear_set_picker()
     if picking
+      @set_picker.set_state_by_id(set_id, "showing")
       @chosen_set = @huviz[set_id]
       @chosen_set_id = set_id
     else  # FIXME @chosen_set OR @chosen_set_id but why both?
+      @set_picker.set_state_by_id(set_id, "unshowing")
       delete @chosen_set
       delete @chosen_set_id
     @update_command()

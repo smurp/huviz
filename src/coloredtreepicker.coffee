@@ -116,10 +116,9 @@ class ColoredTreePicker extends TreePicker
     #else
     @color_by_selected(id, selectedness)
   onChangeState: (evt) =>
+    super(evt)
     new_state = evt.detail.new_state
     target_id = evt.detail.target_id
-    #console.debug target_id,new_state,evt.detail.predicate
-    @set_state_by_id(target_id,new_state)
     if new_state is "hidden" # rename noneToShow
       @set_branch_hiddenness(target_id, true)
     else
