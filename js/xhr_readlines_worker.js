@@ -62,7 +62,7 @@ function linearize(streamoid) {
 }
 
 self.addEventListener('message',function(e){
-   console.log("e.data.uri: "+e.data.uri);
+   //console.log("e.data.uri: "+e.data.uri);
    load(e.data.uri, function(xhr) {
 	   //console.log("raw",xhr.responseText.length);
 	   linearize({data:xhr.responseText,idx:0});
