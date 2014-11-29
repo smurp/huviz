@@ -288,8 +288,8 @@ class CommandController
     
     if not propagate?
       propagate = @taxon_picker.id_is_collapsed[id]
-    console.log("#{id} propagate: #{propagate}")
-    if propagate
+    console.warn("#{id} propagate: #{propagate} PROPAGATION IS DISABLED AND SHOULD BE REMOVED")
+    if propagate and false
       console.log("crawl taxon.kids to propagate new state for",id)
       @on_taxon_picked(id, selected, elem, false)
       if taxon.kids?

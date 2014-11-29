@@ -68,12 +68,26 @@ class TreePicker
       #console.info(msg)
       picker = this
       contents_of_me.on 'click', () ->
+        callee = arguments.callee
         d3.event.stopPropagation()
         elem = d3.select(this)
-        new_state = not elem.classed('treepicker-showing')
+        showing = not elem.classed('treepicker-showing')
         #picker.set_branch_pickedness(this.id,new_state)
-        if listener  # TODO(shawn) replace with custom event?
-          listener.call(this,this.id,new_state,elem)
+        #
+        # OMG WTF FTW
+        #
+        # Puzzle: trickle the picking down here or in the listener?
+        #   Here
+        #     pros
+        #     cons
+        #
+        #   Listener
+        #     pros
+        #     cons
+        new_state = showing and "showing" or "unshowing"
+        id = this.id
+        propagate = picker.id_is_collapsed[id]
+        picker.effect_click(id, new_state, propagate, listener)
       contents_of_me.append("p").attr("class", "treepicker-label").text(label)
       if rest.length > 1
         my_contents = @get_or_create_container(contents_of_me)
@@ -81,6 +95,19 @@ class TreePicker
           for css_class in @extra_classes
             my_contents.classed(css_class, true)        
         @show_tree(rest[1],my_contents,listener,false)
+
+  effect_click: (id, new_state, propagate, listener) ->
+    console.log("#{@get_my_id()}.effect_click", arguments)
+    if listener?  # TODO(shawn) replace with custom event?
+       elem = @id_to_elem[id]
+       listener.call(this, id, new_state is 'showing', elem) # now this==picker not the event
+    if propagate
+      kids = @id_to_children[id]
+      if kids?
+        for child_id in kids
+          if child_id isnt id
+            @effect_click(child_id, new_state, propagate, listener)
+
   set_branch_pickedness: (id,bool) ->
     # NOW HANDLED BY set_direct_state
     # 
