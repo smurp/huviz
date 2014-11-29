@@ -116,46 +116,48 @@ describe("HuViz Tests", function() {
       expect(HVZ.selected_set.length).to.equal(number_of_nodes);
     });
 
-    /*
-    it("Collapsing a taxon with showing children keeps it showing colored", function(done) {
-      //say(test_title, done);
+    it("Collapsing a taxon with showing children keeps it showing color", function(done) {
+      say(test_title, done);
       // Confirm Assumptions
       expect(HVZ.gclui.taxon_picker.id_is_collapsed["GeographicArea"]).to.equal(false, "GeographicArea not expanded");
       expect(HVZ.gclui.taxon_picker.id_is_collapsed["Region"]).to.equal(false, "Region not expanded");
       expect(HVZ.gclui.taxon_picker.id_is_collapsed["Settlement"]).to.equal(false, "Settlement not expanded");
       expect(HVZ.selected_set.length).to.equal(number_of_nodes);
-      expect($("#GeographicArea").hasClass("treepicker-mixed")).to.equal(false, "collapsed GeographicArea not solid colored");
-      expect($("#GeographicArea").hasClass("treepicker-picked")).to.equal(true, "collapsed GeographicArea not solid colored");
+      expect($("#GeographicArea").hasClass("treepicker-mixed")).to.equal(false, "collapsed GeographicArea should not be stripey");
+      expect($("#GeographicArea").hasClass("treepicker-showing")).to.equal(true, "collapsed GeographicArea not solid colored");
       // Perform Test
       $("#GeographicArea span.expander:first").trigger("click"); // collapse
       expect($("#GeographicArea").hasClass("treepicker-mixed")).to.equal(false, "collapsed GeographicArea appears mixed");
+      expect($("#GeographicArea").attr("style")).to.not.contain("linear-gradient", "collapsed GeographicArea is stripey");
+      expect($("#GeographicArea").hasClass("treepicker-indirect-mixed")).to.equal(false, "collapsed GeographicArea appears indirect-mixed");
       // Cleanup
       $("#GeographicArea span.expander:first").trigger("click"); // expand
-      done();
     });
 
 
-    it("Collapsing a taxon with mixed children should color it stripey", function(done) {
+    it("Toggling indirectly mixed taxon collapse should toggle stripeyness", function(done) {
       say(test_title, done);
-      // Assumptions
+      // Confirm Assumptions
       expect(HVZ.gclui.taxon_picker.id_is_collapsed["Thing"]).to.not.be.ok();
       expect(HVZ.selected_set.length).to.equal(number_of_nodes);
+      // Setup
       $("#Settlement").trigger("click"); // the 2 Settlements are now deselected
       expect($("#Settlement").hasClass("treepicker-mixed")).to.be.not.ok();
       expect($("#Settlement").hasClass("treepicker-picked")).to.be.not.ok();
       expect(HVZ.selected_set.length).to.equal(number_of_nodes - 2);
       $("#Thing span.expander:first").trigger("click"); // collapse
-      expect($("#Thing").hasClass("treepicker-mixed")).to.equal(true, "Thing not stripey");
-      //
-      //expect(HVZ.gclui.taxon_picker.id_is_collapsed["Thing"]).to.be.ok();
-      //$("#Thing").hasClass("both_show_and_unshown"); // rename to mixed?
-      //$("#Thing").trigger("click"); 
-      //expect(HVZ.selected_set.length).to.equal(number_of_nodes);
-      //$("#Thing span.expander:first").trigger("click");
+      // Tests
+      expect($("#Thing").attr("style")).to.contain("linear-gradient", "Thing not stripey");
+      expect(HVZ.gclui.taxon_picker.id_is_collapsed["Thing"]).to.equal(true, "Thing not collapsed");
+      // Cleanup
+      $("#Thing span.expander:first").trigger("click"); // expand
+      $("#Settlement").trigger("click"); // re-select the 2 Settlements
+      expect(HVZ.selected_set.length).to.equal(number_of_nodes);
+      expect($("#Thing").attr("style")).to.not.contain("linear-gradient", "Thing should not still be stripey");
     });
 
 
-    it("Clicking a taxon with mixed children should select all children", function(done) {
+    it("Clicking a collapsed taxon with mixed children should select all children", function(done) {
       say(test_title, done);
       // Assumptions
       expect($("#Thing").hasClass("treepicker-mixed")).to.be.ok(); // actual expectation
@@ -165,6 +167,7 @@ describe("HuViz Tests", function() {
       expect(HVZ.selected_set.length).to.equal(number_of_nodes);
     });
 
+    /*
     it("Instance-less mid-tree taxons should behave properly", function(done) {
       say(test_title, done);
       expect("to be written").to.not.be.ok();

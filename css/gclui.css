@@ -85,6 +85,7 @@ p {
 }
 .treepicker-mixed {
   font-style: italic;
+  text-decoration:line-through;
 }
 /* 
   This is not working in Chrome (does it work anywhere else?)

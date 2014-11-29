@@ -18,11 +18,10 @@ Build and control a hierarchic menu of arbitrarily nested divs looking like:
 ###
   
 class TreePicker
-  constructor: (elem, root, extra_classes, @needs_expander) ->
+  constructor: (@elem, root, extra_classes, @needs_expander) ->
     if extra_classes?
       @extra_classes = extra_classes
-    @elem = d3.select(elem)
-    @id_to_elem = {root:elem}
+    @id_to_elem = {root:elem} # FIXME remove root
     @id_to_elem[root] = elem
     @ids_in_arrival_order = [root]
     @id_is_abstract = {}
@@ -34,6 +33,8 @@ class TreePicker
     @id_to_children = {}
     @set_abstract(root)
     @set_abstract('root') # FIXME duplication?!?
+  get_my_id: () ->
+    @elem.attr("id")
   set_abstract: (id) ->
     @id_is_abstract[id] = true
   get_abstract_count: ->
@@ -194,6 +195,7 @@ class TreePicker
     if state?
       @id_to_elem[id].classed("treepicker-#{state}",true)
   set_indirect_state: (id, state) ->
+    console.info("#{@get_my_id()}.set_indirect_state()", arguments)
     old_state = @id_to_state[false][id]
     @id_to_state[false][id] = state
     if old_state?
@@ -202,26 +204,45 @@ class TreePicker
       @id_to_elem[id].classed("treepicker-indirect-#{state}",true)
   set_state_by_id: (id, state) ->
     @set_direct_state(id,state)
-    indirect_state = @id_to_state[false][id]
-    if not @is_leaf(id)
-      if state isnt indirect_state
-        @set_indirect_state(id, "mixed")
-      else
-        @set_indirect_state(id, state)
+    if @is_leaf(id)
+      indirect_state = state
+    else
+      indirect_state = @id_to_state[false][id]
+    if state isnt indirect_state
+      @set_indirect_state(id, "mixed")
+    else
+      @set_indirect_state(id, indirect_state)
     @update_parent_indirect_state(id)
   is_leaf: (id) ->
     return (not @id_to_children[id]?) or @id_to_children[id].length is 0
   update_parent_indirect_state: (id) ->
     # Update the indirect_state of the parents up the tree
     parent_id = @id_to_parent[id]
+    child_is_leaf = @is_leaf(id)
     if parent_id? and parent_id isnt id
       child_indirect_state = @id_to_state[false][id]
-      parent_indirect_state = @id_to_state[false][parent_id]
-      if not parent_indirect_state?
-        console.warn("update_parent_indirect_state()", {parent_id: parent_id, parent_indirect_state: parent_indirect_state})
+      parent_indirect_state = @id_to_state[false][parent_id]      
+      #if not parent_indirect_state?
+        # console.warn("#{my_id}.update_parent_indirect_state()", {parent_id: parent_id, parent_indirect_state: parent_indirect_state, child_indirect_state: child_indirect_state})
+        # use the parent's direct state as a default
+        # new_parent_indirect_state = @id_to_state[true][parent_id]
       if child_indirect_state isnt parent_indirect_state
-        @set_indirect_state(parent_id, "mixed")
-      @update_parent_indirect_state(parent_id)
+        new_parent_indirect_state = @calc_new_indirect_state(parent_id)
+      if new_parent_indirect_state isnt parent_indirect_state
+        @set_indirect_state(parent_id, new_parent_indirect_state)
+        # a change has happened, so propagate rootward
+        @update_parent_indirect_state(parent_id)
+  calc_new_indirect_state: (id) ->
+    # If every time a node has its direct state change it tells its
+    # parent to check whether the parents direct children share that
+    # parents direct state then everybodys indirect state can be maintained.
+    new_indirect_state = @id_to_state[false][id]
+    for child_id in @id_to_children[id]
+      if @id_to_state[false][child_id] isnt new_indirect_state
+        new_indirect_state = "mixed"
+        break
+    return new_indirect_state
+
   get_state_by_id: (id, direct_only) ->
     if not direct_only?
       direct_only = true
