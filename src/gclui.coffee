@@ -71,12 +71,7 @@ class CommandController
       evt.done = true
 
   select_the_initial_set: =>
-    @on_taxon_picked 'Thing',true,undefined,true
-    if false #@huviz.is_big_data()
-      # FIXME this is very clunky (and slow)
-      @on_taxon_picked 'Thing',false
-      @on_taxon_picked @huviz.get_taxon_to_initially_pick(),true
-    @huviz.taxonomy['Thing'].update_english()
+    @huviz.pick_taxon("Thing", true)
     #@engage_verb('choose')
 
   init_editor_data: ->
@@ -280,7 +275,7 @@ class CommandController
     #   * the colors of child nodes on the treepicker
     #   * the color of the clicked node on the treepicker
     #      - should be stripey if subclass coloring is mixed
-    #console.info("on_taxon_picked('" + id + ", " + selected + "')")
+    console.info("on_taxon_picked()",arguments)
     @huviz.show_state_msg("toggling " + selected)
     taxon = @huviz.taxonomy[id]
     if taxon?

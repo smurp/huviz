@@ -196,6 +196,9 @@ class TreePicker
       @id_to_elem[id].classed("treepicker-#{state}",true)
   set_indirect_state: (id, state) ->
     console.info("#{@get_my_id()}.set_indirect_state()", arguments)
+    if not state?
+      console.error("#{@get_my_id()}.set_indirect_state()",
+                    arguments, "state should never be",undefined)
     old_state = @id_to_state[false][id]
     @id_to_state[false][id] = state
     if old_state?

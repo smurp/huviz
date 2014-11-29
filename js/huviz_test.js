@@ -90,9 +90,9 @@ describe("HuViz Tests", function() {
 
     it("Clicking Person should toggle selection of the Person node", function(done) {
       say(test_title, done);
-      HVZ.pick_taxon('Person');
+      HVZ.pick_taxon('Person',false);
       expect(HVZ.selected_set.length).to.equal(number_of_nodes - 1);
-      HVZ.pick_taxon('Person');
+      HVZ.pick_taxon('Person',false);
       expect(HVZ.selected_set.length).to.equal(number_of_nodes);
     });
 
@@ -119,17 +119,27 @@ describe("HuViz Tests", function() {
     it("Collapsing a taxon with showing children keeps it showing color", function(done) {
       say(test_title, done);
       // Confirm Assumptions
-      expect(HVZ.gclui.taxon_picker.id_is_collapsed["GeographicArea"]).to.equal(false, "GeographicArea not expanded");
-      expect(HVZ.gclui.taxon_picker.id_is_collapsed["Region"]).to.equal(false, "Region not expanded");
-      expect(HVZ.gclui.taxon_picker.id_is_collapsed["Settlement"]).to.equal(false, "Settlement not expanded");
+      expect(HVZ.gclui.taxon_picker.id_is_collapsed["GeographicArea"]).
+            to.equal(false, "GeographicArea not expanded");
+      expect(HVZ.gclui.taxon_picker.id_is_collapsed["Region"]).
+            to.equal(false, "Region not expanded");
+      expect(HVZ.gclui.taxon_picker.id_is_collapsed["Settlement"]).
+            to.equal(false, "Settlement not expanded");
       expect(HVZ.selected_set.length).to.equal(number_of_nodes);
-      expect($("#GeographicArea").hasClass("treepicker-mixed")).to.equal(false, "collapsed GeographicArea should not be stripey");
-      expect($("#GeographicArea").hasClass("treepicker-showing")).to.equal(true, "collapsed GeographicArea not solid colored");
+      expect($("#GeographicArea").hasClass("treepicker-mixed")).
+            to.equal(false, "collapsed GeographicArea should not be stripey");
+      expect($("#GeographicArea").hasClass("treepicker-showing")).
+            to.equal(true, "collapsed GeographicArea not solid colored");
       // Perform Test
       $("#GeographicArea span.expander:first").trigger("click"); // collapse
-      expect($("#GeographicArea").hasClass("treepicker-mixed")).to.equal(false, "collapsed GeographicArea appears mixed");
-      expect($("#GeographicArea").attr("style")).to.not.contain("linear-gradient", "collapsed GeographicArea is stripey");
-      expect($("#GeographicArea").hasClass("treepicker-indirect-mixed")).to.equal(false, "collapsed GeographicArea appears indirect-mixed");
+      expect($("#GeographicArea").hasClass("treepicker-mixed")).
+            to.equal(false, "collapsed GeographicArea appears mixed");
+      expect($("#GeographicArea").attr("style")).
+            to.not.contain("linear-gradient", 
+                           "collapsed GeographicArea is stripey");
+      expect($("#GeographicArea").hasClass("treepicker-indirect-mixed")).
+            to.equal(false, 
+                     "collapsed GeographicArea appears indirect-mixed");
       // Cleanup
       $("#GeographicArea span.expander:first").trigger("click"); // expand
     });
@@ -159,15 +169,26 @@ describe("HuViz Tests", function() {
 
     it("Clicking a collapsed taxon with mixed children should select all children", function(done) {
       say(test_title, done);
-      // Assumptions
-      expect($("#Thing").hasClass("treepicker-mixed")).to.be.ok(); // actual expectation
-      expect($("#Thing div.container:first").hasClass("treepicker-collapsed")).to.be.ok(); // collapse
-      // OK, we've established that Thing is collapsed and has mixed children
-      $("#Thing").trigger("click"); 
+      // Confirm Assumption
+      //     that GeographicArea is expanded with all children selected
+      expect($("#GeographicArea").hasClass("treepicker-mixed")).
+            to.equal(false, 
+                     "failed assumption that GeographicArea is initially not mixed");
+      expect($("#GeographicArea div.container:first").
+              hasClass("treepicker-collapsed")).
+            to.equal(false, 
+                     "failed assumption that GeographicArea starts expanded");
       expect(HVZ.selected_set.length).to.equal(number_of_nodes);
+      // Tests
+      $("#Settlement").trigger("click"); // the 2 Settlements are now deselected
+      expect(HVZ.selected_set.length).to.equal(number_of_nodes - 2);
+      $("#GeographicArea span.expander:first").trigger("click"); // collapse
+      expect($("#GeographicArea").attr("style")).
+            to.contain("linear-gradient", "GeographicArea should be stripey");
+      $("#GeographicArea").trigger("click");
+      expect(HVZ.selected_set.length).to.equal(number_of_nodes, "clicking GeographicArea should select all nodes");
     });
 
-    /*
     it("Instance-less mid-tree taxons should behave properly", function(done) {
       say(test_title, done);
       expect("to be written").to.not.be.ok();
@@ -178,6 +199,7 @@ describe("HuViz Tests", function() {
       expect("to be written").to.not.be.ok();
     });
 
+    /*
     it("Clicking Thing while collapsed should toggle selection of all nodes", function(done) {
       say(test_title, done);
       expect("to be written").to.not.be.ok();

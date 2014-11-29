@@ -713,8 +713,15 @@ class Huviz
       @gclui.add_newnodeclass(taxon_id,parent_lid,undefined,taxon) # FIXME should this be an event on the Taxon constructor?
     @taxonomy[taxon_id]
 
-  pick_taxon: (taxon_id) ->  # should be called click_taxon
-    $("##{taxon_id}").click()
+  pick_taxon: (id, hier) ->
+    # TODO rename to click_taxon OR change so it positively picks the taxon
+    # TODO preserve the state of collapsedness?
+    hier = hier? ? hier : true # default to true
+    if hier
+      @gclui.taxon_picker.collapse_by_id(id)
+    $("##{id}").trigger("click")
+    if hier
+      @gclui.taxon_picker.expand_by_id(id)
 
   do: (args) ->
     cmd = new gcl.GraphCommand args
@@ -2548,9 +2555,6 @@ class Huviz
   get_default_set_by_type: (node) ->
     return @shelved_set
 
-  get_taxon_to_initially_select: () ->
-    return 'writer'
-
 class OntologicallyGrounded extends Huviz
   # If OntologicallyGrounded then there is an associated ontology which informs
   # the TaxonPicker and the PredicatePicker
@@ -2613,9 +2617,6 @@ class OntologicallyGrounded extends Huviz
 class Orlando extends OntologicallyGrounded
   # These are the Orlando specific methods layered on Huviz.
   # These ought to be made more data-driven.
-
-  get_taxon_to_initially_select: () ->
-    return 'writer'
 
   get_default_set_by_type: (node) ->
     if @is_big_data()
