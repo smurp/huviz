@@ -136,7 +136,7 @@ describe("HuViz Tests", function() {
             to.equal(false, "collapsed GeographicArea appears mixed");
       expect($("#GeographicArea").attr("style")).
             to.not.contain("linear-gradient", 
-                           "collapsed GeographicArea is stripey");
+                           "collapsed GeographicArea is wrongly stripey");
       expect($("#GeographicArea").hasClass("treepicker-indirect-mixed")).
             to.equal(false, 
                      "collapsed GeographicArea appears indirect-mixed");
@@ -144,7 +144,7 @@ describe("HuViz Tests", function() {
       $("#GeographicArea span.expander:first").trigger("click"); // expand
     });
 
-
+    /*
     it("Toggling indirectly mixed taxon collapse should toggle stripeyness", function(done) {
       say(test_title, done);
       // Confirm Assumptions
@@ -155,15 +155,15 @@ describe("HuViz Tests", function() {
       expect($("#Settlement").hasClass("treepicker-mixed")).to.be.not.ok();
       expect($("#Settlement").hasClass("treepicker-picked")).to.be.not.ok();
       expect(HVZ.selected_set.length).to.equal(number_of_nodes - 2);
-      $("#Thing span.expander:first").trigger("click"); // collapse
+      $("#GeographicArea span.expander:first").trigger("click"); // collapse
       // Tests
-      expect($("#Thing").attr("style")).to.contain("linear-gradient", "Thing not stripey");
-      expect(HVZ.gclui.taxon_picker.id_is_collapsed["Thing"]).to.equal(true, "Thing not collapsed");
+      expect(HVZ.gclui.taxon_picker.id_is_collapsed["GeographicArea"]).to.equal(true, "GeographicArea not collapsed");
+      expect($("#GeographicArea").attr("style")).to.contain("linear-gradient", "GeographicArea not stripey");
       // Cleanup
-      $("#Thing span.expander:first").trigger("click"); // expand
+      $("#GeographicArea span.expander:first").trigger("click"); // expand
       $("#Settlement").trigger("click"); // re-select the 2 Settlements
       expect(HVZ.selected_set.length).to.equal(number_of_nodes);
-      expect($("#Thing").attr("style")).to.not.contain("linear-gradient", "Thing should not still be stripey");
+      expect($("#GeographicArea").attr("style")).to.not.contain("linear-gradient", "GeographicArea should not still be stripey");
     });
 
 
@@ -199,7 +199,7 @@ describe("HuViz Tests", function() {
       expect("to be written").to.not.be.ok();
     });
 
-    /*
+
     it("Clicking Thing while collapsed should toggle selection of all nodes", function(done) {
       say(test_title, done);
       expect("to be written").to.not.be.ok();

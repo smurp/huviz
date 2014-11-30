@@ -68,22 +68,9 @@ class TreePicker
       #console.info(msg)
       picker = this
       contents_of_me.on 'click', () ->
-        callee = arguments.callee
         d3.event.stopPropagation()
         elem = d3.select(this)
         showing = not elem.classed('treepicker-showing')
-        #picker.set_branch_pickedness(this.id,new_state)
-        #
-        # OMG WTF FTW
-        #
-        # Puzzle: trickle the picking down here or in the listener?
-        #   Here
-        #     pros
-        #     cons
-        #
-        #   Listener
-        #     pros
-        #     cons
         new_state = showing and "showing" or "unshowing"
         id = this.id
         propagate = picker.id_is_collapsed[id]
@@ -98,6 +85,8 @@ class TreePicker
 
   effect_click: (id, new_state, propagate, listener) ->
     console.log("#{@get_my_id()}.effect_click", arguments)
+    showing = new_state is "showing"
+    #@set_branch_pickedness(id,showing)
     if listener?  # TODO(shawn) replace with custom event?
        elem = @id_to_elem[id]
        listener.call(this, id, new_state is 'showing', elem) # now this==picker not the event
@@ -152,6 +141,8 @@ class TreePicker
     if not @id_to_children[parent_id]?
       @id_to_children[parent_id] = []
     @id_to_children[parent_id].push(new_id)
+    #@id_to_state[true][new_id] = "empty" # default meaning "no instances"
+    #@id_to_state[false][new_id] = "empty" # default meaning "no instances"
     name = name? and name or new_id
     branch = {}
     branch[new_id] = [name or new_id]      
@@ -224,6 +215,8 @@ class TreePicker
   set_indirect_state: (id, state) ->
     console.info("#{@get_my_id()}.set_indirect_state()", arguments)
     if not state?
+      #if @get_my_id() is "classes"
+      #  throw "#{@get_my_id()}.set_indirect_state() id=" + id + " state=" + state
       console.error("#{@get_my_id()}.set_indirect_state()",
                     arguments, "state should never be",undefined)
     old_state = @id_to_state[false][id]
@@ -251,11 +244,12 @@ class TreePicker
     child_is_leaf = @is_leaf(id)
     if parent_id? and parent_id isnt id
       child_indirect_state = @id_to_state[false][id]
-      parent_indirect_state = @id_to_state[false][parent_id]      
+      parent_indirect_state = @id_to_state[false][parent_id]
       #if not parent_indirect_state?
         # console.warn("#{my_id}.update_parent_indirect_state()", {parent_id: parent_id, parent_indirect_state: parent_indirect_state, child_indirect_state: child_indirect_state})
         # use the parent's direct state as a default
         # new_parent_indirect_state = @id_to_state[true][parent_id]
+      new_parent_indirect_state = parent_indirect_state
       if child_indirect_state isnt parent_indirect_state
         new_parent_indirect_state = @calc_new_indirect_state(parent_id)
       if new_parent_indirect_state isnt parent_indirect_state

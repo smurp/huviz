@@ -1,9 +1,21 @@
 
 TreePicker = require('treepicker').TreePicker
 
-# FIXME Add support for 'abstract' nodes in the tree, nodes which do not represent pickable things.
-#       Color them with a gradient, using intensity for mixedness and the hue for taxonomic range.
-
+# The states:
+#   showing    everything is "shown"
+#   mixed      some things are shown
+#   unshowing  though there are things, none are shown
+#   empty      a mid-level branch which itself has no direct instances
+#              (motivated by the taxon_picker which often has levels
+#               in its hierarchy which themselves have no direct instances)
+#   hidden     a leaf or whole branch which (at the moment) has no instances
+#              (motivated by the predicate_picker which needs to hide
+#               whole branches which currently contain nothing)
+#
+# Non-leaf levels in a treepicker can have indirect states different
+# from their direct states.  The direct state relates to the direct instances.
+# The indirect state spans the direct state of a level and all its children.
+# Leaf levels should always have equal direct and indirect states.
 
 L_notshowing = 0.93
 L_showing = 0.75
@@ -119,7 +131,7 @@ class ColoredTreePicker extends TreePicker
     super(evt)
     new_state = evt.detail.new_state
     target_id = evt.detail.target_id
-    if new_state is "hidden" # rename noneToShow
+    if new_state is "hidden" # means the whole branch has no instances, which is different from "empty" which meains no direct instances
       @set_branch_hiddenness(target_id, true)
     else
       @set_branch_hiddenness(target_id, false)

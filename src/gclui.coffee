@@ -285,7 +285,8 @@ class CommandController
       @huviz.hide_state_msg()
     else
       throw "Uhh, there should be a root Taxon 'Thing' by this point: " + id
-    
+
+    console.log("on_taxon_state() state:",state)
     if not propagate?
       propagate = @taxon_picker.id_is_collapsed[id]
     console.warn("#{id} propagate: #{propagate} PROPAGATION IS DISABLED AND SHOULD BE REMOVED")
