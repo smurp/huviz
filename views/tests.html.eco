@@ -11,6 +11,7 @@
     <link href="/css/jquery-ui.css" rel="stylesheet"/>
     <link href="/mocha/mocha.css" rel="stylesheet"/>
     <link href="/css/huviz_test.css" rel="stylesheet"/>
+    <link href="/css/debugging.css" rel="stylesheet"/>
     <script>
       window.module = {};
     </script>

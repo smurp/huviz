@@ -1,0 +1,37 @@
+.treepicker-mixed > .treepicker-label:after {
+  position: relative;
+  top: 0.5em;
+  font-size: 50%;
+  content: "Ⓜ";
+  content: "m;
+}
+.treepicker-unshowing > .treepicker-label:after {
+  position: relative;
+  top: 0.5em;
+  font-size: 50%;
+  content: "u";
+}
+.treepicker-showing > .treepicker-label:after {
+  position: relative;
+  top: 0.5em;
+  font-size: 50%;
+  content: "s"
+}
+.treepicker-indirect-mixed > .treepicker-label:before {
+  position: relative;
+  top: -0.5em;
+  font-size: 50%;
+  content: "M";
+}
+.treepicker-indirect-showing > .treepicker-label:before {
+  position: relative;
+  top: -0.5em;
+  font-size: 50%;
+  content: "S";
+}
+.treepicker-indirect-unshowing > .treepicker-label:before {
+  position: relative;
+  top: -0.5em;
+  font-size: 50%;
+  content: "U";
+}
