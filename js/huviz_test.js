@@ -16,6 +16,7 @@ describe("HuViz Tests", function() {
   var number_of_nodes = 15;
   var test_title;
 
+  // http://stackoverflow.com/questions/23947688/how-to-access-describe-and-it-messages-in-mocha
   before(function bootHuviz(done) {
     window.HVZ = new huviz.Orlando();
     HVZ.set_ontology("/data/OrlandoOntology-SexesUnderPerson.ttl");
@@ -25,6 +26,9 @@ describe("HuViz Tests", function() {
     }, false);
     HVZ.boot_sequence();
     HVZ.goto_tab(2);
+    //$('.file_picker:first').val("/data/ballrm.nq").change(); // no Places
+    //$('.file_picker:first').val("/data/abdyma.nq").change(); // one embryo
+    $('.file_picker:first').val("/data/shakwi.nq").change();
   });
 
   beforeEach(function() {
@@ -42,7 +46,7 @@ describe("HuViz Tests", function() {
       say(test_title, done);
       HVZ.do({"verbs": ["choose"], "sets": [HVZ.shelved_set]});
       expect(HVZ.graphed_set.length).to.not.equal(0);
-      expect(HVZ.graphed_set.length).to.equal(number_of_nodes);
+      expect(HVZ.graphed_set.length).to.equal(HVZ.nodes.length);
     });
 
     it("'unselect graphed.' should dim all node colors ", function(done) {
@@ -53,24 +57,24 @@ describe("HuViz Tests", function() {
 
     it("'shelve graphed.' should remove everything from the graph ", function(done) {
       say(test_title, done);
-      expect(HVZ.graphed_set.length).to.equal(number_of_nodes);
+      expect(HVZ.graphed_set.length).to.equal(HVZ.nodes.length);
       //$("#verb-shelve").trigger("click");
       //$("#graphed_set").trigger("click");
       //$("#doit_button").trigger("click");
       HVZ.do({"verbs": ["shelve"], "sets": [HVZ.graphed_set]});
       expect(HVZ.graphed_set.length).to.equal(0);
-      expect(HVZ.shelved_set.length).to.equal(number_of_nodes);
+      expect(HVZ.shelved_set.length).to.equal(HVZ.nodes.length);
     });
 
     it("'select shelved.' should select all nodes ", function(done) {
       say(test_title, done);
       expect(HVZ.selected_set.length).to.equal(0);
-      expect(HVZ.shelved_set.length).to.equal(number_of_nodes);
+      expect(HVZ.shelved_set.length).to.equal(HVZ.nodes.length);
       //$("#shelved_set").trigger("click");
       //$("#verb-select").trigger("click");
       //$("#doit_button").trigger("click");
       HVZ.do({"verbs": ["select"], "sets": [HVZ.shelved_set]});
-      expect(HVZ.selected_set.length).to.equal(number_of_nodes);
+      expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
     });
 
     it("Toggling a taxon expander should hide and show its subclassess", function(done) {
@@ -91,29 +95,52 @@ describe("HuViz Tests", function() {
     it("Clicking Person should toggle selection of the Person node", function(done) {
       say(test_title, done);
       HVZ.pick_taxon('Person',false);
-      expect(HVZ.selected_set.length).to.equal(number_of_nodes - 1);
+      expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length - 1);
       HVZ.pick_taxon('Person',false);
-      expect(HVZ.selected_set.length).to.equal(number_of_nodes);
+      expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
     });
 
     it("Toggling an expanded taxon should affect only its instances", function(done) {
       say(test_title, done);
-      expect(HVZ.selected_set.length).to.equal(number_of_nodes);
-      $("#GeographicArea").trigger("click"); // 1 GeographicArea
-      expect(HVZ.selected_set.length).to.equal(number_of_nodes - 1);
-      $("#GeographicArea").trigger("click");
-      expect(HVZ.selected_set.length).to.equal(number_of_nodes);
-      $("#Region").trigger("click"); // 2 Regions
-      expect(HVZ.selected_set.length).to.equal(number_of_nodes - 2);
-      $("#Settlement").trigger("click"); // 2 Settlements
-      expect(HVZ.selected_set.length).to.equal(number_of_nodes - 4);
-      $("#GeographicArea").trigger("click");
-      expect(HVZ.selected_set.length).to.equal(number_of_nodes - 5);
-      $("#GeographicArea").trigger("click");
-      expect(HVZ.selected_set.length).to.equal(number_of_nodes - 4);
+      expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
+      num_GeographicArea = HVZ.taxonomy.GeographicArea.instances.length
+      num_removed = num_GeographicArea
+      $("#GeographicArea").trigger("click"); // unshow GeographicArea
+      expect(HVZ.selected_set.length).to.equal(
+          HVZ.nodes.length - num_removed,
+          "Clicking GeographicArea should remove only them (#{num_removed})");
+      $("#GeographicArea").trigger("click"); // show GeographicArea again
+      num_removed -= num_GeographicArea
+      expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
+      num_Region = HVZ.taxonomy.Region.instances.length
+      num_removed += num_Region
+      $("#Region").trigger("click"); // unshow Regions
+      expect(HVZ.selected_set.length).to.equal(
+          HVZ.nodes.length - num_removed,
+          "Clicking Region should remove only them (#{num_Region})");
+      num_Settlement = HVZ.taxonomy.Settlement.instances.length
+      num_removed += num_Settlement
+      $("#Settlement").trigger("click"); // unshow Settlements
+      expect(HVZ.selected_set.length).to.equal(
+          HVZ.nodes.length - num_removed,
+          "Clicking Settlement (#{num_Settlement}) should remove them too");
+      $("#GeographicArea").trigger("click");  // unshow GeographicArea
+      num_removed += num_GeographicArea
+      expect(HVZ.selected_set.length).to.equal(
+          HVZ.nodes.length - num_removed,
+          "Clilcking GeographicArea should now remove them (#{num_GeographicArea}) too");
+      $("#GeographicArea").trigger("click");  // show GeographicArea
+      num_removed -= num_GeographicArea
+      expect(HVZ.selected_set.length).to.equal(
+          HVZ.nodes.length - num_removed,
+          "Clilcking GeographicArea should now restore them (#{num_GeographicArea})");
       $("#Region").trigger("click");
+      num_removed -= num_Region
       $("#Settlement").trigger("click");
-      expect(HVZ.selected_set.length).to.equal(number_of_nodes);
+      num_removed -= num_Settlement
+      expect(HVZ.selected_set.length).to.equal(
+          HVZ.nodes.length,
+          "All nodes should now be restored");
     });
 
     it("Collapsing a taxon with showing children keeps it showing color", function(done) {
@@ -125,7 +152,7 @@ describe("HuViz Tests", function() {
             to.equal(false, "Region not expanded");
       expect(HVZ.gclui.taxon_picker.id_is_collapsed["Settlement"]).
             to.equal(false, "Settlement not expanded");
-      expect(HVZ.selected_set.length).to.equal(number_of_nodes);
+      expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
       expect($("#GeographicArea").hasClass("treepicker-mixed")).
             to.equal(false, "collapsed GeographicArea should not be stripey");
       expect($("#GeographicArea").hasClass("treepicker-showing")).
@@ -149,12 +176,12 @@ describe("HuViz Tests", function() {
       say(test_title, done);
       // Confirm Assumptions
       expect(HVZ.gclui.taxon_picker.id_is_collapsed["Thing"]).to.not.be.ok();
-      expect(HVZ.selected_set.length).to.equal(number_of_nodes);
+      expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
       // Setup
       $("#Settlement").trigger("click"); // the 2 Settlements are now deselected
       expect($("#Settlement").hasClass("treepicker-mixed")).to.be.not.ok();
       expect($("#Settlement").hasClass("treepicker-picked")).to.be.not.ok();
-      expect(HVZ.selected_set.length).to.equal(number_of_nodes - 2);
+      expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length - 2);
       $("#GeographicArea span.expander:first").trigger("click"); // collapse
       // Tests
       expect(HVZ.gclui.taxon_picker.id_is_collapsed["GeographicArea"]).to.equal(true, "GeographicArea not collapsed");
@@ -162,7 +189,7 @@ describe("HuViz Tests", function() {
       // Cleanup
       $("#GeographicArea span.expander:first").trigger("click"); // expand
       $("#Settlement").trigger("click"); // re-select the 2 Settlements
-      expect(HVZ.selected_set.length).to.equal(number_of_nodes);
+      expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
       expect($("#GeographicArea").attr("style")).to.not.contain("linear-gradient", "GeographicArea should not still be stripey");
     });
 
@@ -178,15 +205,15 @@ describe("HuViz Tests", function() {
               hasClass("treepicker-collapsed")).
             to.equal(false, 
                      "failed assumption that GeographicArea starts expanded");
-      expect(HVZ.selected_set.length).to.equal(number_of_nodes);
+      expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
       // Tests
       $("#Settlement").trigger("click"); // the 2 Settlements are now deselected
-      expect(HVZ.selected_set.length).to.equal(number_of_nodes - 2);
+      expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length - 2);
       $("#GeographicArea span.expander:first").trigger("click"); // collapse
       expect($("#GeographicArea").attr("style")).
             to.contain("linear-gradient", "GeographicArea should be stripey");
       $("#GeographicArea").trigger("click");
-      expect(HVZ.selected_set.length).to.equal(number_of_nodes, "clicking GeographicArea should select all nodes");
+      expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length, "clicking GeographicArea should select all nodes");
     });
 
     it("Instance-less mid-tree taxons should behave properly", function(done) {
@@ -203,12 +230,12 @@ describe("HuViz Tests", function() {
     it("Clicking Thing while collapsed should toggle selection of all nodes", function(done) {
       say(test_title, done);
       expect("to be written").to.not.be.ok();
-      expect(HVZ.selected_set.length).to.equal(number_of_nodes);
+      expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
       $("#Thing span.expander:first").trigger("click");
       $("#Thing").trigger("click");
       expect(HVZ.selected_set.length).to.equal(0);
       $("#Thing").trigger("click");
-      expect(HVZ.selected_set.length).to.equal(number_of_nodes);
+      expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
       $("#Thing span.expander:first").trigger("click");
     });
 
