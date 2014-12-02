@@ -6,6 +6,7 @@ eco = require("eco")
 # https://github.com/npm/nopt
 nopt = require("nopt")
 Stream = require("stream").Stream
+fs = require('fs')
 knownOpts =
   is_local: Boolean
   skip_orlando: Boolean
@@ -18,7 +19,7 @@ shortHands =
 nopts = nopt(knownOpts, shortHands, process.argv, 2)
 console.log nopts
 
-
+# https://github.com/sstephenson/stitch
 pkg = stitch.createPackage(
   # Specify the paths you want Stitch to automatically bundle up
   paths: [ __dirname + "/src" ]
@@ -41,7 +42,12 @@ just_huviz = stitch.createPackage(
   paths: [ __dirname + "/src" ]
 )
 
-fs = require('fs')
+just_huviz.compile (err, source) ->
+  fname = "lib/just_huviz.js"
+  fs.writeFile fname, source, (err) ->
+    if err
+      throw err
+    console.log("Compiled #{fname}")
 
 # https://github.com/sstephenson/eco
 localOrCDN = (templatePath, isLocal) ->
