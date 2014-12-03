@@ -1,19 +1,19 @@
 .treepicker-mixed > .treepicker-label:after {
   position: relative;
-  top: 0.5em;
+  top: -0.5em;
   font-size: 50%;
   content: "Ⓜ";
   content: "m;
 }
 .treepicker-unshowing > .treepicker-label:after {
   position: relative;
-  top: 0.5em;
+  top: -0.5em;
   font-size: 50%;
   content: "u";
 }
 .treepicker-showing > .treepicker-label:after {
   position: relative;
-  top: 0.5em;
+  top: -0.5em;
   font-size: 50%;
   content: "s"
 }
