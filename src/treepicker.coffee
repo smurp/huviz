@@ -70,11 +70,12 @@ class TreePicker
       contents_of_me.on 'click', () ->
         d3.event.stopPropagation()
         elem = d3.select(this)
-        showing = not elem.classed('treepicker-showing')
-        new_state = showing and "showing" or "unshowing"
+        old_showing = not elem.classed('treepicker-showing')
+        new_state = old_showing and "showing" or "unshowing" # note inversion!
         id = this.id
-        propagate = picker.id_is_collapsed[id]
-        picker.effect_click(id, new_state, propagate, listener)
+        #           if picker.id_to_state[    # What was I considering?
+        send_leafward = picker.id_is_collapsed[id]
+        picker.effect_click(id, new_state, send_leafward, listener)
       contents_of_me.append("p").attr("class", "treepicker-label").text(label)
       if rest.length > 1
         my_contents = @get_or_create_container(contents_of_me)
@@ -83,19 +84,19 @@ class TreePicker
             my_contents.classed(css_class, true)        
         @show_tree(rest[1],my_contents,listener,false)
 
-  effect_click: (id, new_state, propagate, listener) ->
-    console.log("#{@get_my_id()}.effect_click", arguments)
+  effect_click: (id, new_state, send_leafward, listener) ->
+    console.log("#{@get_my_id()}.effect_click()", arguments)
     showing = new_state is "showing"
     #@set_branch_pickedness(id,showing)
-    if listener?  # TODO(shawn) replace with custom event?
-       elem = @id_to_elem[id]
-       listener.call(this, id, new_state is 'showing', elem) # now this==picker not the event
-    if propagate
+    if send_leafward
       kids = @id_to_children[id]
       if kids?
         for child_id in kids
           if child_id isnt id
-            @effect_click(child_id, new_state, propagate, listener)
+            @effect_click(child_id, new_state, send_leafward, listener)
+    if listener?  # TODO(shawn) replace with custom event?
+       elem = @id_to_elem[id]
+       listener.call(this, id, new_state is 'showing', elem) # now this==picker not the event
 
   set_branch_pickedness: (id,bool) ->
     # NOW HANDLED BY set_direct_state
@@ -176,13 +177,15 @@ class TreePicker
   collapse_by_id: (id) ->
     @id_is_collapsed[id] = true
     elem = @id_to_elem[id]
-    elem.select(".container").classed("treepicker-collapsed",true)
+    elem.classed("treepicker-collapse", true)
+    elem.select(".container").classed("treepicker-collapsed",true) # REMOVE
     exp = elem.select(".expander")
     exp.text(@expander_str)
   expand_by_id: (id) ->
     @id_is_collapsed[id] = false
     elem = @id_to_elem[id]
-    elem.select(".container").classed("treepicker-collapsed",false)
+    elem.classed("treepicker-collapse", false)
+    elem.select(".container").classed("treepicker-collapsed",false) # REMOVE
     exp = elem.select(".expander")
     exp.text(@collapser_str)
   get_or_create_payload: (thing) ->
@@ -206,6 +209,7 @@ class TreePicker
     if elem?
       elem.attr("title", title)
   set_direct_state: (id, state) ->
+    console.info("#{@get_my_id()}.set_direct_state()", arguments)
     old_state = @id_to_state[true][id]
     @id_to_state[true][id] = state
     if old_state?
@@ -226,12 +230,15 @@ class TreePicker
     if state?
       @id_to_elem[id].classed("treepicker-indirect-#{state}",true)
   set_state_by_id: (id, state) ->
+    console.info("#{@get_my_id()}.set_state_by_id()", arguments)
     @set_direct_state(id,state)
     if @is_leaf(id)
       indirect_state = state
     else
       indirect_state = @id_to_state[false][id]
-    if state isnt indirect_state
+    if not indirect_state?
+      @set_indirect_state(id, state)
+    else if state isnt indirect_state
       @set_indirect_state(id, "mixed")
     else
       @set_indirect_state(id, indirect_state)
@@ -239,6 +246,7 @@ class TreePicker
   is_leaf: (id) ->
     return (not @id_to_children[id]?) or @id_to_children[id].length is 0
   update_parent_indirect_state: (id) ->
+    console.info("#{@get_my_id()}.update_parent_indirect_state()", arguments)
     # Update the indirect_state of the parents up the tree
     parent_id = @id_to_parent[id]
     child_is_leaf = @is_leaf(id)
@@ -255,7 +263,8 @@ class TreePicker
       if new_parent_indirect_state isnt parent_indirect_state
         @set_indirect_state(parent_id, new_parent_indirect_state)
         # a change has happened, so propagate rootward
-        @update_parent_indirect_state(parent_id)
+      # console.info("#{@get_my_id()}.update_parent_indirect_state()", {parent_id: parent_id, parent_indirect_state: parent_indirect_state, child_indirect_state: child_indirect_state, new_parent_indirect_state: new_parent_indirect_state})
+      @update_parent_indirect_state(parent_id)
   calc_new_indirect_state: (id) ->
     # If every time a node has its direct state change it tells its
     # parent to check whether the parents direct children share that
