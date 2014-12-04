@@ -182,7 +182,6 @@ class CommandController
     @predicate_picker.add(pred_lid, parent_lid, pred_name, @onpredicateclicked)
 
   onpredicateclicked: (pred_id,selected,elem) =>
-    #@predicate_picker.color_by_selected(pred_id,selected)
     if selected
       verb = 'show'
     else
@@ -299,8 +298,6 @@ class CommandController
           @on_taxon_picked(kid.id, selected, kid_elem, true)
       return
     
-    #@taxon_picker.color_by_selected(id,selected)
-    #console.debug "id:",id,"state:",state,taxon
     if state in ['mixed','unshowing']
       if not (id in @node_classes_chosen)
         @node_classes_chosen.push(id)
