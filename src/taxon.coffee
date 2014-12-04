@@ -72,7 +72,7 @@ class Taxon extends TaxonBase
     @state = settheory
     return @state
   recalc_state_using_set_theory: (node, change, old_node_state, new_node_state) ->
-    if @selected_nodes.length + @unselected_nodes is 0
+    if @selected_nodes.length + @unselected_nodes.length is 0
       return "hidden"
     if @selected_nodes.length > 0 and @unselected_nodes.length > 0
       return "mixed"
