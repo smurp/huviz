@@ -2,7 +2,6 @@
   position: relative;
   top: -0.5em;
   font-size: 50%;
-  content: "Ⓜ";
   content: "m;
 }
 .treepicker-unshowing > .treepicker-label:after {
