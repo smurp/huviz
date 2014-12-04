@@ -97,34 +97,6 @@ class TreePicker
     if listener?  # TODO(shawn) replace with custom event?
        elem = @id_to_elem[id]
        listener.call(this, id, new_state is 'showing', elem) # now this==picker not the event
-
-  set_branch_pickedness: (id,bool) ->
-    # NOW HANDLED BY set_direct_state
-    # 
-    #     if @id_to_elem[id]?
-    #       @id_to_elem[id].classed('treepicker-picked',bool)
-    #     else
-    #       msg = "during set_branch_pickedness(#{id}, #{bool}) #{id} is missing from @id_to_elem"
-    #       console.warn msg, @id_to_elem
-
-  set_all_hiddenness: (bool) ->
-    top = @get_top()
-    @set_branch_hiddenness(top,false)
-    for id,elem of @id_to_elem
-      if id isnt top and id isnt 'anything' and id isnt 'root'
-        @set_branch_hiddenness(id,bool)
-  set_branch_hiddenness: (id,bool) ->
-    # NOW HANDLED BY set_direct_state()
-    #   if @id_to_elem[id]?
-    #     @id_to_elem[id].classed('hidden',bool)
-  set_branch_mixedness: (id, bool) ->
-    # Calling set_branch_mixedness(id, true) means there exist
-    #      nodes showing edges for this predicate AND
-    #      nodes not showing edges for this predicate
-
-    # the following is NOW HANDLED BY set_direct_state()
-    #   if @id_to_elem[id]?
-    #     @id_to_elem[id].classed('treepicker-mixed',bool)
   get_or_create_container: (contents) ->
     r = contents.select(".container")
     if r[0][0] isnt null
@@ -178,14 +150,12 @@ class TreePicker
     @id_is_collapsed[id] = true
     elem = @id_to_elem[id]
     elem.classed("treepicker-collapse", true)
-    elem.select(".container").classed("treepicker-collapsed",true) # REMOVE
     exp = elem.select(".expander")
     exp.text(@expander_str)
   expand_by_id: (id) ->
     @id_is_collapsed[id] = false
     elem = @id_to_elem[id]
     elem.classed("treepicker-collapse", false)
-    elem.select(".container").classed("treepicker-collapsed",false) # REMOVE
     exp = elem.select(".expander")
     exp.text(@collapser_str)
   get_or_create_payload: (thing) ->
@@ -290,5 +260,5 @@ class TreePicker
       # they might have indirect children.
   onChangeState: (evt) =>
     @set_state_by_id(evt.detail.target_id, evt.detail.new_state)
-    
+          
 (exports ? this).TreePicker = TreePicker

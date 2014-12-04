@@ -112,7 +112,7 @@ p {
 .treepicker-vertical .payload:after {
   content: ')';
 }
-.treepicker-collapsed {
+.treepicker-collapse > .container {
   display:none;
 }
 #sets {

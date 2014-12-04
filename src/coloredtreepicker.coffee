@@ -33,6 +33,36 @@ class ColoredTreePicker extends TreePicker
     # FIXME @recolor_now() unless handled externally
   recolor_now: =>
     @id_to_colors = @recolor()
+    @update_css()
+  get_my_style_id: () ->
+    return "#{@get_my_id()}_colors"
+  update_css: ->
+    if not @style_sheet?
+      @style_sheet = d3.select("body").
+        append("style").attr("id", @get_my_style_id())
+    styles = "  ##{@get_my_id()} {}"
+    for id,colors of @id_to_colors
+      nc = colors.notshowing
+      sc = colors.showing
+      styles += """
+      
+        ##{id}.treepicker-showing {
+           background-color:#{sc};
+        }
+        ##{id}.treepicker-unshowing {
+           background-color:#{nc};
+        }
+        ##{id}.treepicker-mixed,
+        ##{id}.treepicker-indirect-mixed.treepicker-collapse {
+          background: linear-gradient(45deg, #{nc}, #{sc}, #{nc}, #{sc}, #{nc}, #{sc}, #{nc}, #{sc});
+          background-color: transparent;
+        }
+      """
+    @style_sheet.html(styles)
+    if @style_sheet.html().length isnt styles.length
+      console.error("style_sheet_length error:", @style_sheet.html().length, "<>", styles.length)
+    else
+      console.info("style_sheet_length good:",@style_sheet.html().length, "==", styles.length)    
   recolor: ->
     recursor =
       count: Object.keys(@id_to_elem).length - @get_abstract_count()
@@ -76,7 +106,7 @@ class ColoredTreePicker extends TreePicker
         emphasizing: hsl2rgb(hue, S_all, L_emphasizing)
     if verbose
       console.log(indent + " - - - recolor_node("+id+")",retval[id].notshowing)
-    elem.style("background-color",retval[id].notshowing)
+    #elem.style("background-color",retval[id].notshowing)
 
   get_color_forId_byName: (id, state_name) ->
     id = @uri_to_js_id(id)
@@ -85,90 +115,5 @@ class ColoredTreePicker extends TreePicker
       return colors[state_name]
     else
       msg = "get_color_forId_byName(" + id + ") failed because @id_to_colors[id] not found"
-  color_by_selected: (id, selected) ->
-    elem = @id_to_elem[id]
-    state_name = selected and 'showing' or 'notshowing'
-    if elem?
-      colors = @id_to_colors[id]
-      if colors?
-        elem.style("background","").style('background-color',colors[state_name])
-      else
-        if @id_is_abstract[id]? and not @id_is_abstract[id]
-          msg = "id_to_colors has no colors for " + id
-          console.debug msg
-  set_branch_mixedness: (id, bool) ->
-    #  when a div represents a mixed branch then color with a gradient of the two representative colors
-    #    https://developer.mozilla.org/en-US/docs/Web/CSS/linear-gradient
-    super(id,bool)
-    if bool
-      if @is_abstract(id) and false
-        msg =  "set_branch_mixedness(" +id + "): " + bool + " for abstract"
-        # FIXME these colors should come from first and last child of this abstraction
-        sc = 'red'
-        nc = 'green'
-      else
-        # these colors show the range from showing to notshowing for this predicate
-        id2clr = @id_to_colors[id]
-        if id2clr?
-          sc = id2clr.showing
-          nc = id2clr.notshowing
-      if sc?
-        @id_to_elem[id].
-           style("background": "linear-gradient(45deg, #{nc}, #{sc}, #{nc}, #{sc}, #{nc}, #{sc}, #{nc}, #{sc})").
-           style("background-color", "")
-    else
-      @id_to_elem[id]?style("")
-  set_branch_pickedness: (id,bool) ->
-    super(id, bool)
-    #@color_by_selected(id, bool)
-    @render(id,bool)
-  render: (id,selectedness) ->
-    #if @is_abstract(id)
-    #  @set_branch_mixedness(id, selectedness)
-    #else
-    @color_by_selected(id, selectedness)
-  onChangeState: (evt) =>
-    super(evt)
-    new_state = evt.detail.new_state
-    target_id = evt.detail.target_id
-    if new_state is "hidden" # means the whole branch has no instances, which is different from "empty" which meains no direct instances
-      @set_branch_hiddenness(target_id, true)
-    else
-      @set_branch_hiddenness(target_id, false)
-    if new_state is "showing" # rename allShowing
-      @set_branch_pickedness(target_id, true)
-    if new_state is "unshowing" # rename noneShowing
-      @set_branch_pickedness(target_id, false)
-    if new_state is "mixed" # rename partiallyShowing
-      @set_branch_mixedness(target_id, true)
-      #@set_branch_pickedness(target_id,false)
-    else
-      @set_branch_mixedness(target_id, false)
-  collapse_by_id: (id) ->
-    super(id)
-    # recolor this node to summarize direct and indirect instances
-    @color_node_by_id(id, false)
-  expand_by_id: (id) ->
-    super(id)
-    # recolor this node to summarize just direct instances
-    @color_node_by_id(id, true)
-  color_node_by_id: (id, direct_only) ->
-    # What is weird about this is that instead of an external event
-    # telling us what the state should be, we are wanting to discover
-    # the hierarchic state (ie if direct_only is false).
-    # Since the ColorTreePicker is the View in MVC we do not want it
-    # to have to call out to the Model (eg the Taxon) to gain access
-    # to the hieraric state.
-    # Hence we are tempted to maintain a proxy for the state by id
-    # and also knowledge of the hierarchy so we can figure out the
-    # hierarchic state.
-    state = @get_state_by_id(id, direct_only)
-    if state is "mixed"
-      @set_branch_mixedness(id, true)
-    else if state is "showing"
-      @color_by_selected(id,true)
-    else if state is "unshowing"
-      @color_by_selected(id,true)
-    else
-      console.warn("color_node_by_id()",arguments,"is confused by", {state: state})
+    
 (exports ? this).ColoredTreePicker = ColoredTreePicker

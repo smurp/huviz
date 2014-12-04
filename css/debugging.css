@@ -34,3 +34,7 @@
   font-size: 50%;
   content: "U";
 }
+.treepicker-collapse > .treepicker-label {
+  /* struck-through labels are collapsed */
+  text-decoration: line-through; 
+}
