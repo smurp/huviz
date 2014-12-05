@@ -21,9 +21,14 @@ class TaxonBase
           new_state: @state
         bubbles: true
         cancelable: true
+      # Since we are not distinguishing between direct_state and indirect_state
+      # (as we are, correctly, in TreePicker) then perhaps there should not
+      # be rootward propagation of state, though this will presumably affect
+      # the predicate selectedness situation.  So we will disable it, but warn.
       if @mom?
-        @mom.update_state()
-      window.dispatchEvent evt # could pass to picker, this is async
+        console.warn("TaxonBase.update_state() has rootward propagation disabled")
+        #@mom.update_state()
+      # window.dispatchEvent evt # could pass to picker, this is async
     @update_english()
 
   update_english: () ->
@@ -47,7 +52,7 @@ class TaxonBase
         english: @english_from(in_and_out)
       bubbles: true
       cancelable: true
-    window.dispatchEvent evt
+    # window.dispatchEvent evt
   english_from: (in_and_out) -> 
     english = angliciser(in_and_out.include)
     if in_and_out.exclude.length
