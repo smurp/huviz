@@ -241,8 +241,12 @@ class TreePicker
     # parents direct state then everybodys indirect state can be maintained.
     new_indirect_state = @id_to_state[false][id]
     for child_id in @id_to_children[id]
-      if @id_to_state[false][child_id] isnt new_indirect_state
-        new_indirect_state = "mixed"
+      child_indirect_state = @id_to_state[false][child_id]
+      if child_indirect_state isnt new_indirect_state
+        if not new_indirect_state?
+          new_indirect_state = child_indirect_state
+        else
+          new_indirect_state = "mixed"
         break
     return new_indirect_state
 
@@ -260,5 +264,5 @@ class TreePicker
       # they might have indirect children.
   onChangeState: (evt) =>
     @set_state_by_id(evt.detail.target_id, evt.detail.new_state)
-          
+
 (exports ? this).TreePicker = TreePicker

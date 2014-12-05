@@ -28,7 +28,7 @@ describe("HuViz Tests", function() {
     HVZ.goto_tab(2);
     //$('.file_picker:first').val("/data/ballrm.nq").change(); // no Places
     //$('.file_picker:first').val("/data/abdyma.nq").change(); // one embryo
-    $('.file_picker:first').val("/data/shakwi.nq").change();
+    $('.file_picker:first').val("/data/shakwi.nq").change(); // hence simplest
   });
 
   beforeEach(function() {
@@ -40,8 +40,11 @@ describe("HuViz Tests", function() {
       say(test_title, done);
       expect(HVZ.graphed_set.length).to.equal(0);
       expect(HVZ.shelved_set.length).to.equal(HVZ.nodes.length);
+      expect($("#Thing").hasClass("treepicker-indirect-mixed")).
+            to.equal(false, "Thing should not be treepicker-indirect-mixed");
     });
 
+    /*
     it("'choose shelved.' should result in non-zero graphed_set.length ", function(done) {
       say(test_title, done);
       HVZ.do({"verbs": ["choose"], "sets": [HVZ.shelved_set]});
@@ -171,7 +174,8 @@ describe("HuViz Tests", function() {
       $("#GeographicArea span.expander:first").trigger("click"); // expand
     });
 
-    /*
+
+    /// COME BACK TO HERE
     it("Toggling indirectly mixed taxon collapse should toggle stripeyness", function(done) {
       say(test_title, done);
       // Confirm Assumptions
