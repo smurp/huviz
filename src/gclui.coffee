@@ -65,8 +65,7 @@ class CommandController
   on_dataset_loaded: (evt) =>
     if not evt.done?
       @select_the_initial_set()
-      @recolor_edges()
-
+      @huviz.hide_state_msg()
       # FIXME is there a standards-based way to prevent this happening three times?
       evt.done = true
 
@@ -193,7 +192,7 @@ class CommandController
       
     @prepare_command cmd
     @huviz.gclc.run(@command)
-
+    
   recolor_edges: (evt) =>
     count = 0
     for node in @huviz.nodes
