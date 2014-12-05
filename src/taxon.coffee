@@ -86,7 +86,7 @@ class Taxon extends TaxonBase
     if @state is 'showing'
       in_and_out.include.push @lid
     else if @state is 'unshowing'
-      # uh what?
+      console.warn("uh what?")
     else if @state is 'mixed'
       if @selected_nodes.length < @unselected_nodes.length
         for n in @selected_nodes
