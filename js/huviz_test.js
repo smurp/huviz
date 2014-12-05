@@ -44,7 +44,38 @@ describe("HuViz Tests", function() {
             to.equal(false, "Thing should not be treepicker-indirect-mixed");
     });
 
-    /*
+    it("Toggling a taxon should toggle indirect-mixed on its supers", function(done) {
+      say(test_title, done);
+      // Confirm Assumptions about starting conditions
+      expect($("#Thing").hasClass("treepicker-indirect-mixed")).
+            to.equal(false, "Thing should not be treepicker-indirect-mixed");
+      expect($("#Settlement").hasClass("treepicker-showing")).
+            to.equal(true, "Settlement not showing as it initially should");
+      // Perform tests
+      $("#Settlement").trigger("click"); // unshow
+      expect($("#Settlement").hasClass("treepicker-unshowing")).
+            to.equal(true, "Settlement not unshowing as it should");
+      expect($("#Thing").hasClass("treepicker-indirect-mixed")).
+            to.equal(true, "Thing should be treepicker-indirect-mixed when it has unshowing children");
+      $("#Settlement").trigger("click"); // show again
+      // confirm back to normal
+      expect($("#Settlement").hasClass("treepicker-showing")).
+            to.equal(true, "Settlement should be 'showing' again");
+      expect($("#Thing").hasClass("treepicker-indirect-mixed")).
+            to.equal(false, "Thing should no longer be treepicker-indirect-mixed");
+    });
+
+    it("Clicking collapsed Thing should toggle selection of all nodes", function(done) {
+      say(test_title, done);
+      expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
+      $("#Thing span.expander:first").trigger("click");
+      $("#Thing").trigger("click");
+      expect(HVZ.selected_set.length).to.equal(0);
+      $("#Thing").trigger("click");
+      expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
+      $("#Thing span.expander:first").trigger("click");
+    });
+
     it("'choose shelved.' should result in non-zero graphed_set.length ", function(done) {
       say(test_title, done);
       HVZ.do({"verbs": ["choose"], "sets": [HVZ.shelved_set]});
@@ -174,8 +205,6 @@ describe("HuViz Tests", function() {
       $("#GeographicArea span.expander:first").trigger("click"); // expand
     });
 
-
-    /// COME BACK TO HERE
     it("Toggling indirectly mixed taxon collapse should toggle stripeyness", function(done) {
       say(test_title, done);
       // Confirm Assumptions
@@ -196,7 +225,6 @@ describe("HuViz Tests", function() {
       expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
       expect($("#GeographicArea").attr("style")).to.not.contain("linear-gradient", "GeographicArea should not still be stripey");
     });
-
 
     it("Clicking a collapsed taxon with mixed children should select all children", function(done) {
       say(test_title, done);
@@ -220,6 +248,8 @@ describe("HuViz Tests", function() {
       expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length, "clicking GeographicArea should select all nodes");
     });
 
+    /*
+
     it("Instance-less mid-tree taxons should behave properly", function(done) {
       say(test_title, done);
       expect("to be written").to.not.be.ok();
@@ -230,18 +260,6 @@ describe("HuViz Tests", function() {
       expect("to be written").to.not.be.ok();
     });
 
-
-    it("Clicking Thing while collapsed should toggle selection of all nodes", function(done) {
-      say(test_title, done);
-      expect("to be written").to.not.be.ok();
-      expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
-      $("#Thing span.expander:first").trigger("click");
-      $("#Thing").trigger("click");
-      expect(HVZ.selected_set.length).to.equal(0);
-      $("#Thing").trigger("click");
-      expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
-      $("#Thing span.expander:first").trigger("click");
-    });
 
     */
   });
