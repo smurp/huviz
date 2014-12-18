@@ -9,6 +9,7 @@
     <link href="/css/gclui.css" rel="stylesheet" type="text/css">
     <link href="/css/help.css" rel="stylesheet" type="text/css">
     <link href="/css/jquery-ui.css" rel="stylesheet"/>
+    <link href="/css/debugging.css" rel="stylesheet"/>
     <script>
       window.module = {};
     </script>
@@ -220,6 +221,7 @@
               onchange="HVZ.load_file(this)" 
               title="data sets are in order of increasing complexity">
 	    <option value=""> -- pick -- </option>
+            <option title="google/cayley testdata.nq">/data/testdata.nq</option>
             <option title="R.M. Ballantyne -- all attributes -- 14 nodes; 60 edges; 17 predicates">/data/ballrm.nq</option>
             <option title="Maria Abdy -- all attributes -- 68 nodes; 308 edges; 37 predicates">/data/abdyma.nq</option>
             <option title="William Shakespeare -- basic relational predicates -- 41 nodes; 46 edges; 21 predicates ">/data/shakwi.nq</option>

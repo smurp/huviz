@@ -1,6 +1,6 @@
 {
   "name": "huviz",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "repository": {
     "type":"git",
     "url" :"http://github.com/smurp/huviz.git"
@@ -23,13 +23,5 @@
   },
   "scripts":{
     "start": "coffee -w index.coffee --git_commit_hash `git log --format=\"%h\" -n 1` --git_branch_name `git rev-parse --abbrev-ref HEAD`"
-  },
-  "stashed-dependencies":{
-    "rdfquads":"smurp/rdfquads",
-    "node-n3":"smurp/node-n3",
-    "stream": "Jxck/stream",
-    "events": "Jxck/events",
-    "stream": "git://github.com/Jxck/stream.git#master",
-    "events": "git://github.com/Jxck/events.git#master"
   }
 }
