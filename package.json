@@ -17,11 +17,14 @@
     "nopt": "~3.0.0"
   },
   "devDependencies": {
-    "coffeelint": "~1.0.2",
-    "chai": "*",
-    "mocha": "*"
+    "coffeelint": "~1.7.1",
+    "grunt-mocha-test": "~0.12.4",
+    "chai": "~1.10.0",
+    "mocha": "~2.0.1"
   },
   "scripts":{
     "start": "coffee -w index.coffee --git_commit_hash `git log --format=\"%h\" -n 1` --git_branch_name `git rev-parse --abbrev-ref HEAD`"
   }
 }
+
+
