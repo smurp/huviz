@@ -10,9 +10,9 @@
     <link href="/css/help.css" rel="stylesheet" type="text/css">
     <link href="/css/jquery-ui.css" rel="stylesheet"/>
   <% if @is_local: %>
-    <script src="/lib/jquery.js"></script>
-    <script src="/lib/d3.v3.min.js"></script>
-    <script src="/lib/jquery-ui.min.js"></script>
+    <script src="/vendor/jquery.js"></script>
+    <script src="/vendor/d3.v3.min.js"></script>
+    <script src="/vendor/jquery-ui.min.js"></script>
   <% else: %>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script src="//d3js.org/d3.v3.js" charset="utf-8"></script>
@@ -210,7 +210,7 @@
     <pre id="status"></pre>
     <div id="state_msg_box"></div>
 
-    <script src="/application.js?23234"></script>
+    <script src="/lib/huviz.js?23234"></script>
     <script>
       document.addEventListener('touchmove', function(e) {
         e.preventDefault();
