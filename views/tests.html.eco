@@ -227,7 +227,7 @@
     <pre id="status"></pre>
     <div id="state_msg_box" style="display:none"></div>
 
-    <script src="/application.js?23234"></script>
+    <script src="/application.js?2323"></script>
     <script src="/chai/chai.js"></script>
     <script src="/mocha/mocha.js"></script>
     <script>

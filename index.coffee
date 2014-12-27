@@ -1,5 +1,4 @@
 
-stitch  = require("stitch")
 express = require("express")
 eco = require("eco")
 
@@ -19,35 +18,7 @@ shortHands =
 nopts = nopt(knownOpts, shortHands, process.argv, 2)
 console.log nopts
 
-# https://github.com/sstephenson/stitch
-pkg = stitch.createPackage(
-  # Specify the paths you want Stitch to automatically bundle up
-  paths: [ __dirname + "/src" ]
-
-  # Specify your base libraries
-  dependencies: [
-    __dirname + '/node_modules/async/lib/async.js',
-    __dirname + '/js/sortedset.js',
-    __dirname + '/js/hsv.js',
-    __dirname + '/js/hsl.js',
-    __dirname + '/lib/fisheye.js', # after d3
-    __dirname + '/lib/green_turtle.js',
-    __dirname + '/js/quadParser.js',
-  ]
-)
 app = express.createServer()
-
-# a package for code2flow to visualize
-just_huviz = stitch.createPackage(
-  paths: [ __dirname + "/src" ]
-)
-
-just_huviz.compile (err, source) ->
-  fname = "lib/just_huviz.js"
-  fs.writeFile fname, source, (err) ->
-    if err
-      throw err
-    console.log("Compiled #{fname}")
 
 # https://github.com/sstephenson/eco
 localOrCDN = (templatePath, isLocal) ->
@@ -129,8 +100,7 @@ app.configure ->
   app.use express.static(__dirname + '/node_modules')
   app.use '/mocha', express.static(__dirname + '/node_modules/mocha')
   app.use '/chai', express.static(__dirname + '/node_modules/chai')
-  app.get "/application.js", pkg.createServer()
-  app.get "/just_huviz.js", just_huviz.createServer()
+  app.get "/application.js", express.static(__dirname)
   app.get "/orlonto.html", localOrCDN("/views/orlonto.html.eco", nopts.is_local)
   app.get "/yegodd.html", localOrCDN("/views/yegodd.html.eco", nopts.is_local)
   app.get "/tests", localOrCDN("/views/tests.html.eco", nopts.is_local)
