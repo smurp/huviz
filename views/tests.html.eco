@@ -15,6 +15,7 @@
     <script>
       window.module = {};
     </script>
+    <script src="/node_modules/async/lib/async.js"></script>
   <% if @is_local: %>
     <script src="/vendor/jquery.js"></script>
     <script src="/vendor/d3.v3.min.js"></script>

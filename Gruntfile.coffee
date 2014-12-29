@@ -3,7 +3,7 @@ module.exports = (grunt) ->
     stitch:
       options:
         paths: ['src']
-        dependencies: ['node_modules/async/lib/async.js', 'js/sortedSet.js', 'js/hsv.js', 'js/hsl.js', 'vendor/fisheye.js', 'vendor/green_turtle.js', 'js/quadParser.js']
+        dependencies: ['js/sortedSet.js', 'js/hsv.js', 'js/hsl.js', 'vendor/fisheye.js', 'vendor/green_turtle.js', 'js/quadParser.js']
         dest: 'lib/huviz.js'
     watch:
       scripts:

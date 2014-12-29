@@ -9,6 +9,7 @@
     <link href="/css/gclui.css" rel="stylesheet" type="text/css">
     <link href="/css/help.css" rel="stylesheet" type="text/css">
     <link href="/css/jquery-ui.css" rel="stylesheet"/>
+    <script src="/node_modules/async/lib/async.js"></script>
   <% if @is_local: %>
     <script src="/vendor/jquery.js"></script>
     <script src="/vendor/d3.v3.min.js"></script>
