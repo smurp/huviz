@@ -1506,7 +1506,7 @@ class Huviz
     owl_type_map =
       uri:     RDF_object
       literal: RDF_literal
-    worker = new Worker('lib/xhr_readlines_worker.js')
+    worker = new Worker('/huviz/xhr_readlines_worker.js')
     quad_count = 0
     worker.addEventListener 'message', (e) =>
       msg = null

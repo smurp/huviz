@@ -263,7 +263,7 @@
     <pre id="status"></pre>
     <div id="state_msg_box"></div>
 
-    <script src="/lib/huviz.js?23234"></script>
+    <script src="/huviz/huviz.js?23234"></script>
     <script>
       var HVZ;
       document.addEventListener('touchmove', function(e) {

@@ -92,7 +92,8 @@ app.configure ->
   app.set "views", __dirname + "/views"
   app.use app.router
   app.use express.static(__dirname)
-  app.use express.static(__dirname + '/lib')
+  app.use("/huviz", express.static(__dirname + '/lib'))
+  #app.use express.static(__dirname + '/lib')
   app.use express.static(__dirname + '/data')
   app.use express.static(__dirname + '/docs')
   app.use express.static(__dirname + '/node_modules')
