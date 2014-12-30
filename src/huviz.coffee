@@ -2375,6 +2375,8 @@ class Huviz
               attr("height", @height).
               attr("position", "absolute")
     @svg.append("rect").attr("width", @width).attr "height", @height
+    if not d3.select("#viscanvas")?
+      d3.select("body").append("div").attr("id", "viscanvas")
     @viscanvas = d3.select("#viscanvas").
       append("canvas").
       attr("width", @width).
