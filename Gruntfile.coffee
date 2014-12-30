@@ -16,8 +16,8 @@ module.exports = (grunt) ->
         npm: false
         github:
           repo: 'smurp/huviz'
-          usernameVar: 'GITHUB_USERNAME'
-          passwordVar: 'GITHUB_PASSWORD'
+          #usernameVar: 'GITHUB_USERNAME'
+          #passwordVar: 'GITHUB_PASSWORD'
   grunt.loadNpmTasks('grunt-stitch')
   grunt.loadNpmTasks('grunt-release')
   grunt.loadNpmTasks('grunt-contrib-watch')
