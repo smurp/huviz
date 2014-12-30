@@ -1490,7 +1490,8 @@ class Huviz
     $("body").css "cursor", "default"
     $("#status").text ""
 
-  choose_everything: ->
+  choose_everything: =>
+    console.log "choose_everything()"
     cmd = new gcl.GraphCommand
       verbs: ['choose']
       classes: ['Thing']
@@ -2480,14 +2481,17 @@ class Huviz
   load_file: ->
     @load_file_from_uri(@get_dataset_uri())
 
-  load_file_from_uri: (@data_uri) ->
+  load_file_from_uri: (@data_uri, callback) ->
     $("#reset_btn").show()
     @show_state_msg("loading...")
     @init_from_graph_controls()
     @reset_graph()
     @show_state_msg @data_uri
     @fetchAndShow @data_uri  unless @G.subjects
-    @init_webgl()  if @use_webgl
+    #@init_webgl()  if @use_webgl
+    if callback?
+      console.log "calling back"
+      callback()
 
   get_dataset_uri: () ->
     # FIXME goodbye jquery
