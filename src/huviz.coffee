@@ -2485,7 +2485,6 @@ class Huviz
     @show_state_msg("loading...")
     @init_from_graph_controls()
     @reset_graph()
-    @data_uri = @get_dataset_uri()
     @show_state_msg @data_uri
     @fetchAndShow @data_uri  unless @G.subjects
     @init_webgl()  if @use_webgl
