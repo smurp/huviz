@@ -25,6 +25,8 @@ ColoredTreePicker = require('coloredtreepicker').ColoredTreePicker
 class CommandController
   constructor: (@huviz,@container,@hierarchy) ->
     document.addEventListener 'dataset-loaded', @on_dataset_loaded
+    if @container is null
+      @container = d3.select("body").append("div").attr("id", "gclui")[0][0]
     d3.select(@container).html("")
     #@init_indices()
     @comdiv = d3.select(@container).append("div")
@@ -91,6 +93,7 @@ class CommandController
     target.append('div').attr('style','clear:both') 
 
   title_bar_controls: ->
+    return
     @show_comdiv_button = d3.select(@container).
          append('div').classed('show_comdiv_button',true)
     @show_comdiv_button.classed('display_none',true)
