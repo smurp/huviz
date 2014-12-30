@@ -11,6 +11,14 @@ module.exports = (grunt) ->
         tasks: ['stitch']
         options:
           spawn: false
-  grunt.loadNpmTasks('grunt-stitch');  
-  grunt.loadNpmTasks('grunt-contrib-watch');
+    release:
+      options:
+        npm: false
+        github:
+          repo: 'smurp/huviz'
+          usernameVar: 'GITHUB_USERNAME'
+          passwordVar: 'GITHUB_PASSWORD'
+  grunt.loadNpmTasks('grunt-stitch')
+  grunt.loadNpmTasks('grunt-release')
+  grunt.loadNpmTasks('grunt-contrib-watch')
   grunt.registerTask 'default', ['stitch']
