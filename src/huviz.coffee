@@ -2478,6 +2478,9 @@ class Huviz
     )
 
   load_file: ->
+    @load_file_from_uri(@get_dataset_uri())
+
+  load_file_from_uri: (@data_uri) ->
     $("#reset_btn").show()
     @show_state_msg("loading...")
     @init_from_graph_controls()
