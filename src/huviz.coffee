@@ -521,8 +521,8 @@ class Huviz
   # resize-svg-when-window-is-resized-in-d3-js
   #   http://stackoverflow.com/questions/16265123/
   updateWindow: =>
-    @get_window_width()
-    @get_window_height()
+    @get_container_width()
+    @get_container_height()
     @update_graph_radius()
     @update_graph_center()    
     @update_discard_zone()
@@ -1571,16 +1571,15 @@ class Huviz
     @show_links_from_node d
     @hide_links_from_node d
 
-  # Should be refactored to be get_container_width
-  get_window_width: (pad) ->
+  get_container_width: (pad) ->
     pad = pad or hpad
-    @width = (window.innerWidth or document.documentElement.clientWidth or document.clientWidth) - pad
+    @width = (@container.clientWidth or window.innerWidth or document.documentElement.clientWidth or document.clientWidth) - pad
     #console.log "get_window_width()",window.innerWidth,document.documentElement.clientWidth,document.clientWidth,"==>",@width
 
   # Should be refactored to be get_container_height
-  get_window_height: (pad) ->
+  get_container_height: (pad) ->
     pad = pad or hpad
-    @height = (window.innerHeight or document.documentElement.clientHeight or document.clientHeight) - pad
+    @height = (@container.clientHeight or window.innerHeight or document.documentElement.clientHeight or document.clientHeight) - pad
     #console.log "get_window_height()",window.innerHeight,document.documentElement.clientHeight,document.clientHeight,"==>",@height
     
   update_graph_radius: ->
@@ -2378,6 +2377,7 @@ class Huviz
     @svg.append("rect").attr("width", @width).attr "height", @height
     if not d3.select("#viscanvas")[0][0]
       d3.select("body").append("div").attr("id", "viscanvas")
+    @container = d3.select("#viscanvas").node().parentNode;
     @viscanvas = d3.select("#viscanvas").
       append("canvas").
       attr("width", @width).
