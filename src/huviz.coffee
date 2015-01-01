@@ -1548,7 +1548,7 @@ class Huviz
     if url.match(/.ttl/)
       #the_parser = @parseAndShowTurtle
       the_parser = @parseAndShowTTLStreamer
-    else if url.match(/.nq/)
+    else if url.match(/.(nq|nt)/)
       the_parser = @parseAndShowNQ
       @parseAndShowNQStreamer(url)
       return
