@@ -1545,15 +1545,17 @@ class Huviz
 
   fetchAndShow: (url) ->
     @show_state_msg("fetching " + url)
+    the_parser = @parseAndShowNQ
     if url.match(/.ttl/)
-      #the_parser = @parseAndShowTurtle
       the_parser = @parseAndShowTTLStreamer
     else if url.match(/.(nq|nt)/)
       the_parser = @parseAndShowNQ
-      @parseAndShowNQStreamer(url)
-      return
     else if url.match(/.json/)
       the_parser = @parseAndShowJSON
+
+    if the_parser is @parseAndShowNQ
+      @parseAndShowNQStreamer(url)
+      return
 
     $.ajax
       url: url
@@ -2377,8 +2379,9 @@ class Huviz
     @svg.append("rect").attr("width", @width).attr "height", @height
     if not d3.select("#viscanvas")[0][0]
       d3.select("body").append("div").attr("id", "viscanvas")
-    @container = d3.select("#viscanvas").node().parentNode;
-    @viscanvas = d3.select("#viscanvas").
+    @container = d3.select("#viscanvas").node().parentNode
+    
+    @viscanvas = d3.select("#viscanvas").html("").
       append("canvas").
       attr("width", @width).
       attr("height", @height)
