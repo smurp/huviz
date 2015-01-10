@@ -6,6 +6,7 @@ eco = require("eco")
 nopt = require("nopt")
 Stream = require("stream").Stream
 fs = require('fs')
+cooked_argv = (a for a in process.argv)
 knownOpts =
   is_local: Boolean
   skip_orlando: Boolean
@@ -15,8 +16,17 @@ knownOpts =
   port: [Stream, Number]
 shortHands =
   faststart: ["--skip_orlando", "--skip_poetesses"]
-nopts = nopt(knownOpts, shortHands, process.argv, 2)
-console.log nopts
+
+switch process.env.NODE_ENV
+  when 'development'
+    cooked_argv.push("--faststart")
+    console.log cooked_argv
+
+nopts = nopt(knownOpts, shortHands, cooked_argv, 2)
+
+switch process.env.NODE_ENV
+  when 'development'
+    console.log nopts
 
 app = express.createServer()
 
@@ -104,12 +114,6 @@ app.configure ->
   app.get "/tests", localOrCDN("/views/tests.html.eco", nopts.is_local)
   app.get "/", localOrCDN("/views/huvis.html.eco", nopts.is_local)
 
-# override in an installed instance with:
-#   npm config set huviz:port 80
-# remove with
-#   npm config delete huviz:port
-default_port = process.env.npm_package_config_port
-console.log "default_port",default_port
 port = nopts.port or nopts.argv.remain[0] or process.env.PORT or default_port
 
 # http://regexpal.com/

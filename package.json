@@ -19,7 +19,9 @@
   },
   "devDependencies": {
     "coffeelint": "~1.7.1",
+    "grunt-contrib-coffee": "~0.12.0",
     "grunt-contrib-watch": "~0.6.1",
+    "grunt-express-server": "~0.4.19",
     "grunt-mocha-test": "~0.12.4",
     "grunt-release": "0.9.0",
     "grunt-stitch": "0.1.0",
@@ -27,6 +29,6 @@
     "mocha": "~2.0.1"
   },
   "scripts": {
-    "start": "coffee -w index.coffee --git_commit_hash `git log --format=\"%h\" -n 1` --git_branch_name `git rev-parse --abbrev-ref HEAD`"
+    "start": "node server.js --git_commit_hash `git log --format=\"%h\" -n 1` --git_branch_name `git rev-parse --abbrev-ref HEAD`"
   }
 }

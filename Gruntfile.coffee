@@ -1,5 +1,20 @@
 module.exports = (grunt) ->
   grunt.initConfig
+    coffee:
+      compile:
+        files:
+          'server.js': 'server.coffee'
+    express:
+      options:
+        port: 9997
+        delay: 300
+        script: "server.js"
+      dev:
+        options:
+          node_env: "development"          
+      prod:
+        options:
+          node_env: "production"
     stitch:
       options:
         paths: ['src']
@@ -7,9 +22,12 @@ module.exports = (grunt) ->
         dest: 'lib/huviz.js'
     watch:
       scripts:
-        files: ['src/*.coffee', 'js/*.js', 'Gruntfile.coffee']        
-        tasks: ['stitch']
+        files: ['src/*.coffee', 'js/*.js', 'Gruntfile.coffee', 'server.coffee', 'views/*.html']
+        tasks: ['coffee', 'stitch', 'express:dev']
         options:
+          debounceDelay: 250
+          livereload:
+            port: 35730
           spawn: false
     release:
       options:
@@ -18,7 +36,10 @@ module.exports = (grunt) ->
           repo: 'smurp/huviz'
           #usernameVar: 'GITHUB_USERNAME'
           #passwordVar: 'GITHUB_PASSWORD'
-  grunt.loadNpmTasks('grunt-stitch')
-  grunt.loadNpmTasks('grunt-release')
-  grunt.loadNpmTasks('grunt-contrib-watch')
-  grunt.registerTask 'default', ['stitch']
+  grunt.loadNpmTasks 'grunt-contrib-coffee'
+  grunt.loadNpmTasks 'grunt-contrib-watch'
+  grunt.loadNpmTasks 'grunt-express-server'
+  grunt.loadNpmTasks 'grunt-release'
+  grunt.loadNpmTasks 'grunt-stitch'
+  grunt.registerTask 'default', ['express:prod']
+  grunt.registerTask 'dev', ['watch']
