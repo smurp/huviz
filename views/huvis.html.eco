@@ -183,6 +183,14 @@
         </label>
       </div>
       <div>
+        <label title="how ">
+          line edge weight
+	  <input name="line_edge_weight" type="range"
+                 value=".2" min="0" max="2" step=".01"
+                 onchange="HVZ.update_graph_settings(this)">
+        </label>
+      </div>
+      <div>
         <label title="how much curvature lines have">
           sway fraction
 	  <input name="swayfrac" type="range"

@@ -943,6 +943,7 @@ class Huviz
           line_width = @edge_width * @peeking_line_thicker
         else
           line_width = edge_width
+        line_width = line_width + (@line_edge_weight * e.contexts.length)
         #@show_message_once("will draw line() n_n:#{n_n} e.id:#{e.id}")
         @draw_curvedline e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, sway, e.color, e.contexts.length, line_width, e
         sway++
