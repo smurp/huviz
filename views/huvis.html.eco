@@ -9,7 +9,9 @@
     <link href="/css/gclui.css" rel="stylesheet" type="text/css">
     <link href="/css/help.css" rel="stylesheet" type="text/css">
     <link href="/css/jquery-ui.css" rel="stylesheet"/>
+  <% if @is_local: %>
     <link href="/css/debugging.css" rel="stylesheet"/>
+  <% end %>
     <script>
       window.module = {};
     </script>
@@ -22,7 +24,7 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script src="//d3js.org/d3.v3.js" charset="utf-8"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
-  <% end %>  
+  <% end %>
   </head>
   <body>
     <div id="snippet_box">
