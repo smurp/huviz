@@ -159,15 +159,15 @@
         <label title="how thick the lines are">
           line thickness
 	  <input name="edge_width" type="range"
-                 value="1" min="0.2" max="10" step=".2"
+                 value="0.2" min="0.2" max="10" step=".2"
                  onchange="HVZ.update_graph_settings(this)">
         </label>
       </div>
       <div>
-        <label title="how ">
+        <label title="how much thicker lines become to indicate the number of snippets">
           line edge weight
 	  <input name="line_edge_weight" type="range"
-                 value=".2" min="0" max="2" step=".01"
+                 value=".45" min="0" max="1" step=".01"
                  onchange="HVZ.update_graph_settings(this)">
         </label>
       </div>

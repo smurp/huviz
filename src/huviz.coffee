@@ -2457,19 +2457,10 @@ class Huviz
       for node in @graphed_set
         node.fixed = false
         
-  xpath_query: (xpath) ->
-    document.evaluate(xpath, document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
   init_from_graph_controls: ->
     # Perform update_graph_settings for everything in the form
-    # so the HTML can be used as configuration file    
-    iterator = @xpath_query("//div[@class='graph_controls']//input")
-    elems = []
-    elem = iterator.iterateNext()
-    while (elem) # materialize the iterator
-      elems.push elem
-      elem = iterator.iterateNext()
-    console.log "initializing from #{elems.length} settings"
-    for elem in elems # so we can modify them in a loop
+    # so the HTML can be used as configuration file
+    for elem in $(".graph_controls input") # so we can modify them in a loop
       @update_graph_settings(elem, false)
 
   fire_fileloaded_event: ->
