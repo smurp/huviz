@@ -50,7 +50,7 @@
     "use strict";  
 
  */
-(function() {
+//(function() {
 
 var SortedSet = function(){
     var array = [];
@@ -274,5 +274,5 @@ var SortedSets_tests = function(verbose){
     expect("a_d.binary_search(d)",2);
     expect("a_d.add(c)",0);
 };
-(typeof exports !== "undefined" && exports !== null ? exports : this).SortedSet = SortedSet;
-})(this);
+//(typeof exports !== "undefined" && exports !== null ? exports : this).SortedSet = SortedSet;
+//})(this);
