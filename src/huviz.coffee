@@ -743,6 +743,7 @@ class Huviz
     @init_sets()
     @init_gclc()
     @force.nodes @nodes
+    @force.links @links_set    
 
     # TODO move this SVG code to own renderer
     d3.select(".link").remove()
@@ -942,6 +943,7 @@ class Huviz
           line_width = @edge_width * @peeking_line_thicker
         else
           line_width = edge_width
+        line_width = line_width + (@line_edge_weight * e.contexts.length)
         #@show_message_once("will draw line() n_n:#{n_n} e.id:#{e.id}")
         @draw_curvedline e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, sway, e.color, e.contexts.length, line_width, e
         sway++
@@ -2455,19 +2457,10 @@ class Huviz
       for node in @graphed_set
         node.fixed = false
         
-  xpath_query: (xpath) ->
-    document.evaluate(xpath, document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
   init_from_graph_controls: ->
     # Perform update_graph_settings for everything in the form
-    # so the HTML can be used as configuration file    
-    iterator = @xpath_query("//div[@class='graph_controls']//input")
-    elems = []
-    elem = iterator.iterateNext()
-    while (elem) # materialize the iterator
-      elems.push elem
-      elem = iterator.iterateNext()
-    console.log "initializing from #{elems.length} settings"
-    for elem in elems # so we can modify them in a loop
+    # so the HTML can be used as configuration file
+    for elem in $(".graph_controls input") # so we can modify them in a loop
       @update_graph_settings(elem, false)
 
   fire_fileloaded_event: ->

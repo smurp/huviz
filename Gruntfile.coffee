@@ -22,7 +22,7 @@ module.exports = (grunt) ->
         dest: 'lib/huviz.js'
     watch:
       scripts:
-        files: ['src/*.coffee', 'js/*.js', 'Gruntfile.coffee', 'server.coffee', 'views/*.html']
+        files: ['src/*.coffee', 'js/*.js', 'Gruntfile.coffee', 'server.coffee', 'views/*.eco']
         tasks: ['coffee', 'stitch', 'express:dev']
         options:
           debounceDelay: 250
