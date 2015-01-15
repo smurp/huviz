@@ -744,6 +744,7 @@ class Huviz
     @init_sets()
     @init_gclc()
     @force.nodes @nodes
+    @force.links @links_set    
 
     # TODO move this SVG code to own renderer
     d3.select(".link").remove()
