@@ -66,8 +66,10 @@ class CommandController
 
   setListenFor_changeTaxon: (doit) ->
     if doit
+      console.warn "listening for 'changeTaxon'"
       window.addEventListener 'changeTaxon', @taxon_picker.onChangeState
     else
+      console.warn "un-listening for 'changeTaxon'"
       window.removeEventListener 'changeTaxon', @taxon_picker.onChangeState
 
   on_dataset_loaded: (evt) =>
@@ -258,7 +260,7 @@ class CommandController
       "Stripey color: some nodes are selected -- click to select all\n")
 
     # http://en.wikipedia.org/wiki/Taxon
-    @taxon_picker = new ColoredTreePicker(@nodeclassbox,'Thing',[],true,@)
+    @taxon_picker = new ColoredTreePicker(@nodeclassbox,'Thing',[],true) #,@)
     @taxon_picker.show_tree(@hierarchy,@nodeclassbox,@on_taxon_picked)
 
   add_newnodeclass: (class_id,parent_lid,class_name,taxon) =>

@@ -24,8 +24,8 @@ S_all = 0.5
 verbose = false
 
 class ColoredTreePicker extends TreePicker
-  constructor: (elem,root,extra_classes,@needs_expander) ->
-    super(elem,root,extra_classes,@needs_expander)
+  constructor: ->
+    super
     @id_to_colors = {}
     #console.log "ColorTreePicker(): root =",root
   add: (id,parent_id,name,listener) ->

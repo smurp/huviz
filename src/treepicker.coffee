@@ -19,6 +19,7 @@ Build and control a hierarchic menu of arbitrarily nested divs looking like:
   
 class TreePicker
   constructor: (@elem, root, extra_classes, @needs_expander, @gclui) ->
+    console.log "@gclui:",@get_my_id(),@gclui
     if extra_classes?
       @extra_classes = extra_classes
     @id_to_elem = {root:elem} # FIXME remove root
@@ -75,11 +76,12 @@ class TreePicker
         id = this.id
         #           if picker.id_to_state[    # What was I considering?
         send_leafward = picker.id_is_collapsed[id]
-        if @gclui?        
-          @gclui.setListenFor_changeTaxon(false)    
+        console.log "WE ARE HERE <------------------------",picker.gclui?
+        if picker.gclui?
+          picker.gclui.setListenFor_changeTaxon(false)    
         picker.effect_click(id, new_state, send_leafward, listener)
-        if @gclui?
-          @gclui.setListenFor_changeTaxon(true)
+        if picker.gclui?
+          picker.gclui.setListenFor_changeTaxon(true)
       contents_of_me.append("p").attr("class", "treepicker-label").text(label)
       if rest.length > 1
         my_contents = @get_or_create_container(contents_of_me)
