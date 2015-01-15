@@ -38,7 +38,14 @@ describe("HuViz Tests", function() {
 
   beforeEach(function() {
     test_title = this.currentTest.title;
-    console.clear();
+    //console.clear();
+  });
+
+  describe("graph controls", function() {
+    it("the default controls should exist and have the right values", function(done) {
+      say(test_title, done);
+      expect($("input[name='label_em']")).to.exist();
+    });
   });
 
   describe("operations on classes", function() {
@@ -64,7 +71,7 @@ describe("HuViz Tests", function() {
             to.equal(true, "Settlement not unshowing as it should");
       expect($("#Thing").hasClass("treepicker-indirect-mixed")).
             to.equal(true, "Thing should be treepicker-indirect-mixed when it has unshowing children");
-      console.clear();
+      //console.clear();
   /*
       // CONTINUE ON TO SHOW THE PROBLEM, OR STOP HERE JUST BEFORE IT...
       $("#Settlement").trigger("click"); // show again

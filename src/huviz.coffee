@@ -2351,6 +2351,7 @@ class Huviz
       range: {}
                 
   constructor: ->
+    @init_graph_controls_from_json()
     @init_ontology()
     @off_center = false # FIXME expose this or make the amount a slider
     #@toggle_logging()
@@ -2429,7 +2430,213 @@ class Huviz
       radius(@fisheye_radius).
       distortion(@fisheye_zoom)
     @force.linkDistance(@link_distance).gravity(@gravity)
+
+  default_graph_controls: [
+      focused_mag:
+        text: "focused node mag"
+        input:
+          value: 1.4
+          min: 1
+          max: 3          
+          step: .1
+          type: 'range'
+        label:
+          title: "the amount bigger than a normal label the currently selected one is"
+    ,
+      label_em:
+        text: "label size (em)"      
+        label:
+          title: "the size of the font"
+        input:
+          value: .9
+          min: .2
+          max: 4
+          step: .1
+          type: 'range'
+    ,
+      snippet_body_em:
+        text: "snippet body (em)"
+        label:
+          title: "the size of the snippet text"
+        input:
+          value: .7
+          min: .2
+          max: 4
+          step: .1
+          type: "range"
+    ,
+      snippet_triple_em:
+        text: "snippet triple (em)"
+        label:
+          title: "the size of the snippet triples"
+        input:
+          value: .5
+          min: .2
+          max: 4
+          step: .1
+          type: "range"
+    ,
+      charge:
+        text: "charge (-)"
+        label:
+          title: "the repulsive charge betweeen nodes"
+        input:
+          value: -183
+          min: -200
+          max: -1
+          step: 1
+          type: "range"
+    ,
+      gravity:
+        text: "gravity"
+        label:
+          title: "the attractive force keeping nodes centered"
+        input:
+          value: 0.2
+          min: 0
+          max: 1
+          step: 0.025
+          type: "range"
+    ,
+      shelf_radius:
+        text: "shelf radius"
+        label:
+          title: "how big the shelf is"
+        input:
+          value: 0.9
+          min: 0.1
+          max: 3
+          step: 0.05
+          type: "range"
+    ,
+      fisheye_zoom:
+        text: "fisheye radius"
+        label:
+          title: "how much magnification happens"
+        input:
+          value: 6.0
+          min: 1
+          max: 20
+          step: 0.2
+          type: "range"
+    ,
+      fisheye_radius:
+        text: "fisheye radius"
+        label:
+          title: "how big the fisheye is"      
+        input:
+          value: 100
+          min: 40
+          max: 2000
+          step: 20
+          type: "range"
+    ,
+      node_radius:
+        text: "node radius"
+        label:
+          title: "how fat the nodes are"
+        input:
+          value: 3
+          min: .2
+          max: 8
+          step: 0.1
+          type: "range"
+    ,
+      link_distance:
+        text: "link distance"
+        label:
+          title: "how long the lines are"
+        input:
+          value: 125
+          min: 5
+          max: 200
+          step: 2
+          type: "range"
+    ,
+      edge_width:
+        text: "line thickness"
+        label:
+          title: "how thick the lines are"
+        input:
+          value: 0.2
+          min: 0.2
+          max: 10
+          step: .2
+          type: "range"
+    ,
+      line_edge_weight:
+        text: "line edge weight"
+        label:
+          title: "how much thicker lines become to indicate the number of snippets"
+        input:
+          value: 0.45
+          min: 0
+          max: 1
+          step: 0.01
+          type: "range"
+    ,
+      swayfrac:
+        text: "sway fraction"
+        label:
+          title: "how much curvature lines have"
+        input:
+          value: 0.22
+          min: 0.001
+          max: 0.4
+          step: 0.01
+          type: "range"
+    ,
+      label_graphed:
+        text: "label graphed nodes"
+        label:
+          title: "whether graphed nodes are always labelled"
+        input:
+          checked: "checked"
+          type: "checkbox"
+    ,
+      snippet_count_on_edge_labels:
+        text: "snippet count on edge labels"
+        label:
+          title: "whether edges have their snippet count shown as (#)"
+        input:
+          checked: "checked"
+          type: "checkbox"
+    ,
+      nodes_pinnable:
+        text: "nodes pinnable"
+        label:
+          title: "whether repositioning already graphed nodes pins them at the new spot"
+        input:
+          checked: "checked"
+          type: "checkbox"
+    ]
     
+  init_graph_controls_from_json: ->
+    selector_for_graph_controls = '#tabs-options'
+    @graph_controls = d3.select(selector_for_graph_controls)
+    console.log "graph_controls", @graph_controls
+    for control_spec in @default_graph_controls
+      for control_name, control of control_spec
+        label = @graph_controls.append('label')
+        console.log "label:",label
+        if control.text?
+          label.text(control.text)
+        if control.label?
+          label.attr(control.label)
+        input = label.append('input')
+        input.attr("name", control_name)
+        ##onchange="HVZ.update_graph_settings(this)"
+        if control.input?
+          #input.attr(control.input)
+          #console.log control.input
+          for k,v of control.input
+            input.attr(k,v)
+            #console.log k
+            console.log "  ",v,input.attr(k)
+        console.log control_name, control
+        console.log("label with input",label)
+        input.attr("onchange", "HVZ.update_graph_settings(this)")
+
   update_graph_settings: (target, update) =>
     update = not update? and true or update
     if target.type is "checkbox"
