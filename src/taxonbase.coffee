@@ -6,6 +6,7 @@ class TaxonBase
       @state = @recalc_state()
     return @state
   update_state: (node, change, old_node_state, new_node_state) ->
+    console.log("TaxonBase.update_state()",arguments)
     #if @constructor.suspend_updates
     #if window.suspend_updates
     #  console.warn "suspending update_state"
@@ -28,6 +29,7 @@ class TaxonBase
       if @mom?
         console.warn("TaxonBase.update_state() should have more sophisticated rootward propagation")
         @mom.update_state()
+      console.log evt
       window.dispatchEvent evt # could pass to picker, this is async
     @update_english()
 

@@ -119,7 +119,6 @@ gcl = require('graphcommandlanguage');
 #asyncLoop = require('asynchronizer').asyncLoop
 CommandController = require('gclui').CommandController
 # SortedSet = require('sortedset').SortedSet
-# SortedSet = exports.SortedSet
 Edge = require('edge').Edge
 GraphCommandLanguageCtrl = require('graphcommandlanguage').GraphCommandLanguageCtrl
 GreenerTurtle = require('greenerturtle').GreenerTurtle

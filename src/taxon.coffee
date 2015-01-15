@@ -46,9 +46,9 @@ class Taxon extends TaxonBase
     else
       return @instances
   register: (node) ->
-    # This is slightly redundant given that @add makes a bidirectional link too
-    # but the .taxon on node gives it access to the methods on the taxon
-    # perhaps taxon should be a super of SortedSet rather than a facade.
+    # Slightly redundant given that @add makes a bidirectional link too
+    # but the .taxon on node gives it access to the methods on the taxon.
+    # Perhaps taxon should be a super of SortedSet rather than a facade.
     # Should Taxon delegate to SortedSet?
     node.taxon = this
     @add(node)
@@ -86,7 +86,7 @@ class Taxon extends TaxonBase
     if @state is 'showing'
       in_and_out.include.push @lid
     else if @state is 'unshowing'
-      console.warn("uh what?")
+      console.warn("Taxon.recalc_english() id: #{@id} state: unshowing")
     else if @state is 'mixed'
       if @selected_nodes.length < @unselected_nodes.length
         for n in @selected_nodes

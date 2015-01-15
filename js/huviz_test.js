@@ -38,6 +38,7 @@ describe("HuViz Tests", function() {
 
   beforeEach(function() {
     test_title = this.currentTest.title;
+    console.clear();
   });
 
   describe("operations on classes", function() {

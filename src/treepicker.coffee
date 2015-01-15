@@ -18,7 +18,7 @@ Build and control a hierarchic menu of arbitrarily nested divs looking like:
 ###
   
 class TreePicker
-  constructor: (@elem, root, extra_classes, @needs_expander) ->
+  constructor: (@elem, root, extra_classes, @needs_expander, @gclui) ->
     if extra_classes?
       @extra_classes = extra_classes
     @id_to_elem = {root:elem} # FIXME remove root
@@ -75,7 +75,11 @@ class TreePicker
         id = this.id
         #           if picker.id_to_state[    # What was I considering?
         send_leafward = picker.id_is_collapsed[id]
+        if @gclui?        
+          @gclui.setListenFor_changeTaxon(false)    
         picker.effect_click(id, new_state, send_leafward, listener)
+        if @gclui?
+          @gclui.setListenFor_changeTaxon(true)
       contents_of_me.append("p").attr("class", "treepicker-label").text(label)
       if rest.length > 1
         my_contents = @get_or_create_container(contents_of_me)
@@ -233,6 +237,8 @@ class TreePicker
       if new_parent_indirect_state isnt parent_indirect_state
         @set_indirect_state(parent_id, new_parent_indirect_state)
         # a change has happened, so propagate rootward
+      else
+        console.info("#{@get_my_id()}.update_parent_indirect_state()",id, "still state:", new_parent_indirect_state)
       # console.info("#{@get_my_id()}.update_parent_indirect_state()", {parent_id: parent_id, parent_indirect_state: parent_indirect_state, child_indirect_state: child_indirect_state, new_parent_indirect_state: new_parent_indirect_state})
       @update_parent_indirect_state(parent_id)
   calc_new_indirect_state: (id) ->

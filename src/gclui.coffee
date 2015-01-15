@@ -61,8 +61,14 @@ class CommandController
 
   install_listeners: () ->
     window.addEventListener 'changePredicate', @predicate_picker.onChangeState
-    window.addEventListener 'changeTaxon', @taxon_picker.onChangeState
+    @setListenFor_changeTaxon(true)
     window.addEventListener 'changeEnglish', @onChangeEnglish
+
+  setListenFor_changeTaxon: (doit) ->
+    if doit
+      window.addEventListener 'changeTaxon', @taxon_picker.onChangeState
+    else
+      window.removeEventListener 'changeTaxon', @taxon_picker.onChangeState
 
   on_dataset_loaded: (evt) =>
     if not evt.done?
@@ -252,7 +258,7 @@ class CommandController
       "Stripey color: some nodes are selected -- click to select all\n")
 
     # http://en.wikipedia.org/wiki/Taxon
-    @taxon_picker = new ColoredTreePicker(@nodeclassbox,'Thing',[],true)
+    @taxon_picker = new ColoredTreePicker(@nodeclassbox,'Thing',[],true,@)
     @taxon_picker.show_tree(@hierarchy,@nodeclassbox,@on_taxon_picked)
 
   add_newnodeclass: (class_id,parent_lid,class_name,taxon) =>
@@ -287,7 +293,7 @@ class CommandController
     else
       throw "Uhh, there should be a root Taxon 'Thing' by this point: " + id
 
-    console.log("on_taxon_state() state:",state)
+    console.info("... on_taxon_picked()",arguments,"state:",state)
     if not propagate?
       propagate = @taxon_picker.id_is_collapsed[id]
     console.warn("#{id} propagate: #{propagate} PROPAGATION IS DISABLED AND SHOULD BE REMOVED")
