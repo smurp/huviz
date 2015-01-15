@@ -176,14 +176,14 @@ class CommandController
     @predicate_hierarchy = {'anything':['anything']}
     
     # FIXME Why is show_tree being called four times per node?
-    @predicate_picker.show_tree(@predicate_hierarchy,@predicatebox,@onpredicateclicked)
+    @predicate_picker.show_tree(@predicate_hierarchy,@predicatebox,@on_predicate_clicked)
 
   add_newpredicate: (pred_lid, parent_lid, pred_name) =>
     #if pred_lid in @predicates_to_ignore
     #  return
-    @predicate_picker.add(pred_lid, parent_lid, pred_name, @onpredicateclicked)
+    @predicate_picker.add(pred_lid, parent_lid, pred_name, @on_predicate_clicked)
 
-  onpredicateclicked: (pred_id,selected,elem) =>
+  on_predicate_clicked: (pred_id,selected,elem) =>
     if selected
       verb = 'show'
     else
@@ -195,7 +195,7 @@ class CommandController
       
     @prepare_command cmd
     @huviz.gclc.run(@command)
-    
+
   recolor_edges: (evt) =>
     count = 0
     for node in @huviz.nodes
