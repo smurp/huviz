@@ -2450,8 +2450,8 @@ class Huviz
         text: "selected node mag"
         input:
           value: 1.2
-          min: 1
-          max: 3
+          min: 0.5
+          max: 4
           step: .1
           type: 'range'
         label:
@@ -2463,9 +2463,9 @@ class Huviz
           title: "the size of the font"
         input:
           value: .9
-          min: .2
+          min: .1
           max: 4
-          step: .1
+          step: .05
           type: 'range'
     ,
       snippet_body_em:
@@ -2496,7 +2496,7 @@ class Huviz
           title: "the repulsive charge betweeen nodes"
         input:
           value: -183
-          min: -200
+          min: -600
           max: -1
           step: 1
           type: "range"
