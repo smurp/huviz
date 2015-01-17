@@ -265,25 +265,26 @@ class Huviz
   cx: 0
   cy: 0
 
-  edge_width: 1.8
-  focused_mag: 1.9
-  label_em: .7
   snippet_body_em: .7
   snippet_triple_em: .5
   line_length_min: 4
-  link_distance: 100
+
+  # TODO figure out how to replace with the default_graph_control
+  link_distance: 100  
+  fisheye_zoom: 4.0
+
+  
   peeking_line_thicker: 4
   show_snippets_constantly: false
   charge: -193
   gravity: 0.025
-  swayfrac: .2
   label_graphed: true
   snippet_count_on_edge_labels: true
   label_show_range: null # @link_distance * 1.1
   discard_radius: 200
   fisheye_radius: 100 #null # label_show_range * 5
-  fisheye_zoom: 4.0
-  selected_mag:  1.2
+
+  
   focus_radius: null # label_show_range
   drag_dist_threshold: 5
   snippet_size: 300
@@ -2431,9 +2432,11 @@ class Huviz
       distortion(@fisheye_zoom)
     @force.linkDistance(@link_distance).gravity(@gravity)
 
+  # TODO add controls
+  #   selected_border_thickness
   default_graph_controls: [
       focused_mag:
-        text: "focused node mag"
+        text: "focused label mag"
         input:
           value: 1.4
           min: 1
@@ -2441,7 +2444,18 @@ class Huviz
           step: .1
           type: 'range'
         label:
-          title: "the amount bigger than a normal label the currently selected one is"
+          title: "the amount bigger than a normal label the currently focused one is"
+    ,
+      selected_mag:
+        text: "selected node mag"
+        input:
+          value: 1.2
+          min: 1
+          max: 3
+          step: .1
+          type: 'range'
+        label:
+          title: "the amount bigger than a normal node the currently selected ones are"
     ,
       label_em:
         text: "label size (em)"      
@@ -2510,7 +2524,7 @@ class Huviz
           type: "range"
     ,
       fisheye_zoom:
-        text: "fisheye radius"
+        text: "fisheye zoom"
         label:
           title: "how much magnification happens"
         input:
@@ -2622,11 +2636,9 @@ class Huviz
   init_graph_controls_from_json: =>
     #@dump_current_settings("before init_graph_controls_from_json")
     @graph_controls = d3.select(@selector_for_graph_controls)
-
     for control_spec in @default_graph_controls
       for control_name, control of control_spec
         label = @graph_controls.append('label')
-        # console.log "label:",label
         if control.text?
           label.text(control.text)
         if control.label?
@@ -2637,17 +2649,16 @@ class Huviz
           for k,v of control.input
             if k is 'value'
               old_val = @[control_name]
-              #console.log "setting #{control_name} to #{v}(#{typeof v}) was #{old_val}(#{typeof old_val})"
               @change_setting_to_from(control_name, v, old_val)              
-              #@[control_name] = input.value        
             input.attr(k,v)
-        input.on("change", @update_graph_settings)
+        input.on("change", @update_graph_settings) # TODO implement one or the other
         input.on("input", @update_graph_settings)
     return
 
   update_graph_settings: (target, update) =>
     target = target? and target or d3.event.target
     update = not update? and true or update
+    update = not update
     if target.type is "checkbox"
       cooked_value = target.checked
     else if target.type is "range" # must massage into something useful
@@ -2658,12 +2669,11 @@ class Huviz
     old_value = @[target.name]
     @change_setting_to_from(target.name, cooked_value, old_value)
     d3.select(target).attr("title", cooked_value)    
-    if update
+    if update  # TODO be more discriminating, not all settings require update
+               #   ones that do: charge, gravity, fisheye_zoom, fisheye_radius
       @update_fisheye()
       @updateWindow()
-      @tick()
-    else
-      @tick()
+    @tick()
 
   change_setting_to_from: (setting_name, new_value, old_value, skip_custom_handler) =>
     skip_custom_handler = skip_custom_handler? and skip_custom_handler or false
