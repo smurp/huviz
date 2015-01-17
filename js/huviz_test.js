@@ -45,10 +45,18 @@ describe("HuViz Tests", function() {
     it("the default controls should exist and have the right values", function(done) {
       say(test_title, done);
       expect($("input[name='label_em']")).to.exist();
+      expect($("input[name='label_em']").attr('value')).to.equal('0.9');
     });
   });
 
   describe("operations on classes", function() {
+    it("the default controls should exist and have the right values", function(done) {
+      say(test_title, done);
+      expect($("input[name='label_em']")).to.exist();
+      expect($("input[name='label_em']").attr('value')).to.equal('0.9');
+    });
+
+
     it("initially everything should be shelved and nothing graphed", function(done) {
       say(test_title, done);
       expect(HVZ.graphed_set.length).to.equal(0);

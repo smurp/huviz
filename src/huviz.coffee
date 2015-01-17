@@ -280,8 +280,6 @@ class Huviz
   label_graphed: true
   snippet_count_on_edge_labels: true
   label_show_range: null # @link_distance * 1.1
-  graph_radius: 100
-  shelf_radius: 0.9
   discard_radius: 200
   fisheye_radius: 100 #null # label_show_range * 5
   fisheye_zoom: 4.0
@@ -739,9 +737,11 @@ class Huviz
     @gclui.select_the_initial_set()
 
   reset_graph: ->
+    @dump_current_settings("at top of reset_graph()")
     @G = {} # is this deprecated?
     @init_sets()
     @init_gclc()
+
     @force.nodes @nodes
     @force.links @links_set    
 
@@ -2351,7 +2351,6 @@ class Huviz
       range: {}
                 
   constructor: ->
-    @init_graph_controls_from_json()
     @init_ontology()
     @off_center = false # FIXME expose this or make the amount a slider
     #@toggle_logging()
@@ -2389,9 +2388,10 @@ class Huviz
       attr("height", @height)
     @canvas = @viscanvas[0][0]
     @mouse_receiver = @viscanvas
-    @updateWindow()
-    @ctx = @canvas.getContext("2d")
+    @init_graph_controls_from_json()    
     @reset_graph()
+    @updateWindow()
+    @ctx = @canvas.getContext("2d")    
     @cursor = @svg.append("circle").
                   attr("r", @label_show_range).
                   attr("transform", "translate(" + @cx + "," + @cy + ")").
@@ -2503,7 +2503,7 @@ class Huviz
         label:
           title: "how big the shelf is"
         input:
-          value: 0.9
+          value: 0.8
           min: 0.1
           max: 3
           step: 0.05
@@ -2582,7 +2582,7 @@ class Huviz
         input:
           value: 0.22
           min: 0.001
-          max: 0.4
+          max: 0.6
           step: 0.01
           type: "range"
     ,
@@ -2610,34 +2610,43 @@ class Huviz
           checked: "checked"
           type: "checkbox"
     ]
-    
-  init_graph_controls_from_json: ->
-    selector_for_graph_controls = '#tabs-options'
-    @graph_controls = d3.select(selector_for_graph_controls)
-    console.log "graph_controls", @graph_controls
+
+  dump_current_settings: (post) ->
+    console.log "dump_current_settings()"
+    console.log "======================="
+    for control_spec in @default_graph_controls
+      for control_name, control of control_spec
+        console.log "#{control_name} is",@[control_name],typeof @[control_name],post or ""
+
+  selector_for_graph_controls: '#tabs-options'
+  init_graph_controls_from_json: =>
+    #@dump_current_settings("before init_graph_controls_from_json")
+    @graph_controls = d3.select(@selector_for_graph_controls)
+
     for control_spec in @default_graph_controls
       for control_name, control of control_spec
         label = @graph_controls.append('label')
-        console.log "label:",label
+        # console.log "label:",label
         if control.text?
           label.text(control.text)
         if control.label?
           label.attr(control.label)
         input = label.append('input')
         input.attr("name", control_name)
-        ##onchange="HVZ.update_graph_settings(this)"
         if control.input?
-          #input.attr(control.input)
-          #console.log control.input
           for k,v of control.input
+            if k is 'value'
+              old_val = @[control_name]
+              #console.log "setting #{control_name} to #{v}(#{typeof v}) was #{old_val}(#{typeof old_val})"
+              @change_setting_to_from(control_name, v, old_val)              
+              #@[control_name] = input.value        
             input.attr(k,v)
-            #console.log k
-            console.log "  ",v,input.attr(k)
-        console.log control_name, control
-        console.log("label with input",label)
-        input.attr("onchange", "HVZ.update_graph_settings(this)")
+        input.on("change", @update_graph_settings)
+        input.on("input", @update_graph_settings)
+    return
 
   update_graph_settings: (target, update) =>
+    target = target? and target or d3.event.target
     update = not update? and true or update
     if target.type is "checkbox"
       cooked_value = target.checked
@@ -2647,24 +2656,41 @@ class Huviz
     else
       cooked_value = target.value
     old_value = @[target.name]
-    if cooked_value?
-      @[target.name] = cooked_value
-    custom_handler_name = "on_change_" + target.name
-    if this[custom_handler_name]
-      this[custom_handler_name](target, old_value, cooked_value)
+    @change_setting_to_from(target.name, cooked_value, old_value)
+    d3.select(target).attr("title", cooked_value)    
     if update
       @update_fisheye()
       @updateWindow()
       @tick()
-    d3.select(target).attr("title", cooked_value)
+    else
+      @tick()
+
+  change_setting_to_from: (setting_name, new_value, old_value, skip_custom_handler) =>
+    skip_custom_handler = skip_custom_handler? and skip_custom_handler or false
+    console.log "change_setting_to_from(#{setting_name})",arguments
+    custom_handler_name = "on_change_" + setting_name
+    custom_handler = @[custom_handler_name]
+    if custom_handler? and not skip_custom_handler
+      console.log "change_setting_to_from() setting: #{setting_name} to:#{new_value}(#{typeof new_value}) from:#{old_value}(#{typeof old_value})"
+      custom_handler.apply(@, [new_value, old_value])
+    else
+      console.log "change_setting_to_from() setting: #{setting_name} to:#{new_value}(#{typeof new_value}) from:#{old_value}(#{typeof old_value})"
+      this[setting_name] = new_value
 
   # on_change handlers for the various settings which need them
-  on_change_nodes_pinnable: (target, old_val, new_val) ->
+  on_change_nodes_pinnable: (new_val, old_val) ->
     if not new_val
       for node in @graphed_set
         node.fixed = false
+
+  on_change_shelf_radius: (new_val, old_val) ->
+    @change_setting_to_from('shelf_radius', new_val, old_val, true)
+    @update_graph_radius()
+    @updateWindow()
         
   init_from_graph_controls: ->
+    alert "init_from_graph_controls() is deprecated"
+    #@dump_current_settings("at top of init_from_graph_controls()")
     # Perform update_graph_settings for everything in the form
     # so the HTML can be used as configuration file
     for elem in $(".graph_controls input") # so we can modify them in a loop
@@ -2686,7 +2712,8 @@ class Huviz
   load_file_from_uri: (@data_uri, callback) ->
     $("#reset_btn").show()
     @show_state_msg("loading...")
-    @init_from_graph_controls()
+    #@init_from_graph_controls()
+    #@dump_current_settings("after init_from_graph_controls()")
     @reset_graph()
     @show_state_msg @data_uri
     @fetchAndShow @data_uri  unless @G.subjects
@@ -2709,7 +2736,7 @@ class Huviz
     # If there is a script after the hash, run it.
     # Otherwise load the default dataset defined by the page.
     # Or load nothing if there is no default.
-    @init_from_graph_controls()
+    #@init_from_graph_controls()
     # $(".graph_controls").sortable() # FIXME make graph_controls sortable
     @reset_graph()
     script = @get_script_from_hash()
