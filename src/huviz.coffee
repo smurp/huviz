@@ -738,7 +738,7 @@ class Huviz
     @gclui.select_the_initial_set()
 
   reset_graph: ->
-    @dump_current_settings("at top of reset_graph()")
+    #@dump_current_settings("at top of reset_graph()")
     @G = {} # is this deprecated?
     @init_sets()
     @init_gclc()
@@ -2677,14 +2677,13 @@ class Huviz
 
   change_setting_to_from: (setting_name, new_value, old_value, skip_custom_handler) =>
     skip_custom_handler = skip_custom_handler? and skip_custom_handler or false
-    console.log "change_setting_to_from(#{setting_name})",arguments
     custom_handler_name = "on_change_" + setting_name
     custom_handler = @[custom_handler_name]
     if custom_handler? and not skip_custom_handler
-      console.log "change_setting_to_from() setting: #{setting_name} to:#{new_value}(#{typeof new_value}) from:#{old_value}(#{typeof old_value})"
+      #console.log "change_setting_to_from() custom setting: #{setting_name} to:#{new_value}(#{typeof new_value}) from:#{old_value}(#{typeof old_value})"
       custom_handler.apply(@, [new_value, old_value])
     else
-      console.log "change_setting_to_from() setting: #{setting_name} to:#{new_value}(#{typeof new_value}) from:#{old_value}(#{typeof old_value})"
+      #console.log "change_setting_to_from() setting: #{setting_name} to:#{new_value}(#{typeof new_value}) from:#{old_value}(#{typeof old_value})"
       this[setting_name] = new_value
 
   # on_change handlers for the various settings which need them
@@ -2700,7 +2699,6 @@ class Huviz
         
   init_from_graph_controls: ->
     alert "init_from_graph_controls() is deprecated"
-    #@dump_current_settings("at top of init_from_graph_controls()")
     # Perform update_graph_settings for everything in the form
     # so the HTML can be used as configuration file
     for elem in $(".graph_controls input") # so we can modify them in a loop

@@ -76,7 +76,6 @@ class TreePicker
         id = this.id
         #           if picker.id_to_state[    # What was I considering?
         send_leafward = picker.id_is_collapsed[id]
-        console.log "WE ARE HERE <------------------------",picker.gclui?
         if picker.gclui?
           picker.gclui.setListenFor_changeTaxon(false)    
         picker.effect_click(id, new_state, send_leafward, listener)
