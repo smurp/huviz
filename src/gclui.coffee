@@ -321,12 +321,12 @@ class CommandController
         verbs: ['unselect']
         classes: [id]
     else if state is "hidden"
-      throw "Uhh, how is it possible for state to equal 'hidden' at this point?"
-    if @object_phrase? and @object_phrase isnt ""
-      cmd.object_phrase = @object_phrase
-    @huviz.gclc.run(cmd)
-
-    @huviz.taxonomy['Thing'].update_english()
+      console.error "Uhh, how is it possible for #{id}.state to equal 'hidden' at this point?"
+    if cmd?
+      if @object_phrase? and @object_phrase isnt ""
+        cmd.object_phrase = @object_phrase
+      @huviz.gclc.run(cmd)
+      @huviz.taxonomy['Thing'].update_english()
     @update_command()
 
   unselect_node_class: (node_class) ->
