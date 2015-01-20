@@ -80,7 +80,7 @@ describe("HuViz Tests", function() {
       expect($("#Thing").hasClass("treepicker-indirect-mixed")).
             to.equal(true, "Thing should be treepicker-indirect-mixed when it has unshowing children");
       //console.clear();
-  /*
+
       // CONTINUE ON TO SHOW THE PROBLEM, OR STOP HERE JUST BEFORE IT...
       $("#Settlement").trigger("click"); // show again
       // confirm back to normal
@@ -88,6 +88,7 @@ describe("HuViz Tests", function() {
             to.equal(true, "Settlement should be 'showing' again");
       expect($("#Thing").hasClass("treepicker-indirect-mixed")).
             to.equal(false, "Thing should no longer be treepicker-indirect-mixed when everything is selected");
+  /*
    */
     });
 

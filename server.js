@@ -38,6 +38,7 @@
   switch (process.env.NODE_ENV) {
     case 'development':
       cooked_argv.push("--faststart");
+      cooked_argv.push("--is_local");
       console.log(cooked_argv);
   }
 
@@ -134,6 +135,7 @@
     app.use("/huviz", express["static"](__dirname + '/lib'));
     app.use(express["static"](__dirname + '/data'));
     app.use(express["static"](__dirname + '/docs'));
+    app.use(express["static"](__dirname + '/vendor'));
     app.use(express["static"](__dirname + '/node_modules'));
     app.use('/mocha', express["static"](__dirname + '/node_modules/mocha'));
     app.use('/chai', express["static"](__dirname + '/node_modules/chai'));
