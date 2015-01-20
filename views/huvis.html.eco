@@ -19,7 +19,7 @@
     <script src="/vendor/green_turtle.js"></script>
   <% if @is_local: %>
     <script src="/vendor/jquery.js"></script>
-    <script src="/vendor/d3.js"></script>
+    <script src="/vendor/d3.v3.min.js"></script>
     <script src="/vendor/jquery-ui.min.js"></script>
   <% else: %>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
