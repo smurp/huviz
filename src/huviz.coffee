@@ -2636,9 +2636,11 @@ class Huviz
   init_graph_controls_from_json: =>
     #@dump_current_settings("before init_graph_controls_from_json")
     @graph_controls = d3.select(@selector_for_graph_controls)
+    #$(@graph_controls).sortable().disableSelection() # TODO fix dropping
     for control_spec in @default_graph_controls
       for control_name, control of control_spec
-        label = @graph_controls.append('label')
+        graph_control = @graph_controls.append('div').attr('class', 'graph_control')
+        label = graph_control.append('label')
         if control.text?
           label.text(control.text)
         if control.label?
