@@ -274,9 +274,9 @@ describe("HuViz Tests", function() {
       expect($("#GeographicArea").attr("style")).
             to.not.contain("linear-gradient", 
                            "collapsed GeographicArea is wrongly stripey");
-      expect($("#GeographicArea").hasClass("treepicker-indirect-mixed")).
-            to.equal(false, 
-                     "collapsed GeographicArea appears indirect-mixed");
+      expect($("#GeographicArea").hasClass("treepicker-indirect-mixed"), 
+             "collapsed GeographicArea appears indirect-mixed").
+            to.equal(false);
       // Cleanup
       $("#GeographicArea span.expander:first").trigger("click"); // expand
     });
@@ -286,22 +286,31 @@ describe("HuViz Tests", function() {
       // Confirm Assumptions
       expect(HVZ.gclui.taxon_picker.id_is_collapsed["Thing"]).to.not.be.ok();
       expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
+
       // Setup
       $("#Settlement").trigger("click"); // the 2 Settlements are now deselected
       expect($("#Settlement").hasClass("treepicker-mixed")).to.be.not.ok();
       expect($("#Settlement").hasClass("treepicker-picked")).to.be.not.ok();
-      expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length - 2);
+      actual = HVZ.selected_set.length
+      expected = HVZ.nodes.length - HVZ.taxonomy.Settlement.instances.length
+      expect(actual,
+  	     "expected selected_set.length == nodes - Settlements")
+            .to.equal(expected);
       $("#GeographicArea span.expander:first").trigger("click"); // collapse
       // Tests
-      expect(HVZ.gclui.taxon_picker.id_is_collapsed["GeographicArea"]).to.equal(true, "GeographicArea not collapsed");
-      expect($("#GeographicArea").attr("style")).to.contain("linear-gradient", "GeographicArea not stripey");
+      expect(HVZ.gclui.taxon_picker.id_is_collapsed["GeographicArea"], 
+             "GeographicArea not collapsed").to.equal(true);
+      expect($("#GeographicArea").hasClass("treepicker-indirect-mixed"),
+             "GeographicArea not stripey").to.be.ok();
       // Cleanup
       $("#GeographicArea span.expander:first").trigger("click"); // expand
       $("#Settlement").trigger("click"); // re-select the 2 Settlements
       expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
-      expect($("#GeographicArea").attr("style")).to.not.contain("linear-gradient", "GeographicArea should not still be stripey");
+      expect($("#GeographicArea").hasClass("treepicker-indirect-mixed"),
+             "GeographicArea is wrongly stripey").to.not.be.ok();
     });
 
+  /*
     it("Clicking a collapsed taxon with mixed children should select all children", function(done) {
       say(test_title, done);
       // Confirm Assumption
@@ -323,6 +332,7 @@ describe("HuViz Tests", function() {
       $("#GeographicArea").trigger("click");
       expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length, "clicking GeographicArea should select all nodes");
     });
+  */
   };
 
     /*
