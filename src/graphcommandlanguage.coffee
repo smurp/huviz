@@ -310,7 +310,7 @@ class GraphCommandLanguageCtrl
     @prefixes = {}
   run: (script) ->
     @graph_ctrl.before_running_command(this)
-    console.log("script: ",script)
+    console.debug("script: ",script)
     if not script?
       console.error "script must be defined"
       return
