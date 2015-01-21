@@ -26,9 +26,11 @@ class TaxonBase
       # (as we are, correctly, in TreePicker) then perhaps there should not
       # be rootward propagation of state, though this will presumably affect
       # the predicate selectedness situation.  So we will disable it, but warn.
-      if @mom?
+      if @super_class?
+      #if @mom? #@super_class?        
         console.warn("TaxonBase.update_state() should have more sophisticated rootward propagation")
-        @mom.update_state()
+        @super_class.update_state()
+        #@mom.update_state()
       console.log evt
       window.dispatchEvent evt # could pass to picker, this is async
     @update_english()

@@ -73,7 +73,8 @@ class Taxon extends TaxonBase
     return @state
   recalc_state_using_set_theory: (node, change, old_node_state, new_node_state) ->
     if @selected_nodes.length + @unselected_nodes.length is 0
-      return "hidden"
+      console.warn "recalc_state_using_set_theory() ==> 'unshowing' instead of 'hidden'", arguments
+      return "unshowing" #"hidden"
     if @selected_nodes.length > 0 and @unselected_nodes.length > 0
       return "mixed"
     if @unselected_nodes.length is 0

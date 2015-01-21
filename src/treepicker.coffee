@@ -246,7 +246,7 @@ class TreePicker
     # If every time a node has its direct state change it tells its
     # parent to check whether the parents direct children share that
     # parents direct state then everybodys indirect state can be maintained.
-    new_indirect_state = @id_to_state[false][id]
+    old_indirect_state = @id_to_state[false][id]
     for child_id in @id_to_children[id]
       child_indirect_state = @id_to_state[false][child_id]
       if child_indirect_state isnt new_indirect_state
@@ -255,6 +255,9 @@ class TreePicker
         else
           new_indirect_state = "mixed"
         break
+    old_direct_state = @id_to_state[true][id]
+    if old_direct_state? and new_indirect_state isnt old_direct_state
+      new_indirect_state = "mixed"
     return new_indirect_state
 
   get_state_by_id: (id, direct_only) ->

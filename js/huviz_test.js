@@ -65,31 +65,40 @@ describe("HuViz Tests", function() {
             to.equal(false, "Thing should not be treepicker-indirect-mixed");
     });
 
-    it("Toggling a taxon should toggle indirect-mixed on its supers", function(done) {
+
+    it("unselecting a taxon should cause indirect-mixed on its supers", function(done) {
       say(test_title, done);
       // Confirm Assumptions about starting conditions
-      expect($("#Thing").hasClass("treepicker-indirect-mixed")).
-            to.equal(false, "Thing should not be treepicker-indirect-mixed");
+      expect($("#Place").hasClass("treepicker-indirect-mixed")).
+            to.equal(false, "Place should not be treepicker-indirect-mixed");
       expect($("#Settlement").hasClass("treepicker-showing")).
             to.equal(true, "Settlement not showing as it initially should");
       // Perform tests
-
       $("#Settlement").trigger("click"); // unshow
       expect($("#Settlement").hasClass("treepicker-unshowing")).
             to.equal(true, "Settlement not unshowing as it should");
-      expect($("#Thing").hasClass("treepicker-indirect-mixed")).
-            to.equal(true, "Thing should be treepicker-indirect-mixed when it has unshowing children");
-      //console.clear();
+      expect($("#Place").hasClass("treepicker-indirect-mixed")).
+            to.equal(true, "Place should be treepicker-indirect-mixed when it has unshowing children");
+    });
 
-      // CONTINUE ON TO SHOW THE PROBLEM, OR STOP HERE JUST BEFORE IT...
+    it("reselecting a taxon should remove indirect-mixed from its supers", function(done) {
+      say(test_title, done);
+      // Confirm Assumptions about starting conditions
+      expect($("#Place").hasClass("treepicker-indirect-mixed"), 
+             "Place should be treepicker-indirect-mixed").
+            to.equal(true);
+      expect($("#Settlement").hasClass("treepicker-unshowing"), 
+             "Settlement should not be selected").
+	  to.equal(true);
+      // Perform tests
       $("#Settlement").trigger("click"); // show again
       // confirm back to normal
-      expect($("#Settlement").hasClass("treepicker-showing")).
-            to.equal(true, "Settlement should be 'showing' again");
-      expect($("#Thing").hasClass("treepicker-indirect-mixed")).
-            to.equal(false, "Thing should no longer be treepicker-indirect-mixed when everything is selected");
-  /*
-   */
+      expect($("#Settlement").hasClass("treepicker-showing"),
+             "Settlement should be 'showing' again").
+            to.equal(true);
+      expect($("#Place").hasClass("treepicker-indirect-mixed"), 
+             "Place should no longer be treepicker-indirect-mixed when everything is selected").
+            to.equal(false);
     });
 
   if (false) {
