@@ -467,7 +467,7 @@ class CommandController
   unselect_all_node_classes: ->
     for nid in @node_classes_chosen
       @unselect_node_class(nid)
-      @taxon_picker.set_branch_pickedness(nid,false)
+      @taxon_picker.set_direct_state(nid, 'unshowing')
   clear_like: ->
     @like_input[0][0].value = ""
   old_commands: []
@@ -592,7 +592,7 @@ class CommandController
 
   clear_set_picker: () ->
     if @chosen_set_id?
-      @set_picker.set_branch_pickedness(@chosen_set_id, false)
+      @set_picker.set_direct_state(@chosen_set_id, 'unshowing')
       delete @chosen_set_id
         
 (exports ? this).CommandController = CommandController
