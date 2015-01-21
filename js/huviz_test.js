@@ -61,9 +61,11 @@ describe("HuViz Tests", function() {
       say(test_title, done);
       expect(HVZ.graphed_set.length).to.equal(0);
       expect(HVZ.shelved_set.length).to.equal(HVZ.nodes.length);
-      expect($("#Thing").hasClass("treepicker-indirect-mixed")).
-            to.equal(false, "Thing should not be treepicker-indirect-mixed");
+      expect($("#Thing").hasClass("treepicker-indirect-mixed"), 
+             "Thing should not be treepicker-indirect-mixed").
+            to.equal(false);
     });
+
 
     it("unselecting a taxon should cause indirect-mixed on its supers", function(done) {
       say(test_title, done);
@@ -118,7 +120,6 @@ describe("HuViz Tests", function() {
             to.equal(true);
     });
 
-    /*
     it("reselecting a taxon should remove indirect-mixed on up to Thing", function(done) {
       say(test_title, done);
       // Confirm Assumptions about starting conditions
@@ -138,9 +139,8 @@ describe("HuViz Tests", function() {
              "Thing should no longer be treepicker-indirect-mixed when everything is selected").
             to.equal(false);
     });
-    */
 
-  if (false) {
+  if (true) {
     it("Clicking collapsed Thing should toggle selection of all nodes", function(done) {
       say(test_title, done);
       expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);

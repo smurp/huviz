@@ -118,7 +118,8 @@ class TreePicker
     @id_to_parent[new_id] = parent_id
     if not @id_to_children[parent_id]?
       @id_to_children[parent_id] = []
-    @id_to_children[parent_id].push(new_id)
+    if new_id isnt parent_id      
+      @id_to_children[parent_id].push(new_id)
     #@id_to_state[true][new_id] = "empty" # default meaning "no instances"
     #@id_to_state[false][new_id] = "empty" # default meaning "no instances"
     name = name? and name or new_id
@@ -247,6 +248,7 @@ class TreePicker
     # parent to check whether the parents direct children share that
     # parents direct state then everybodys indirect state can be maintained.
     old_indirect_state = @id_to_state[false][id]
+    old_direct_state = @id_to_state[true][id]
     for child_id in @id_to_children[id]
       child_indirect_state = @id_to_state[false][child_id]
       if child_indirect_state isnt new_indirect_state
@@ -254,8 +256,9 @@ class TreePicker
           new_indirect_state = child_indirect_state
         else
           new_indirect_state = "mixed"
-        break
-    old_direct_state = @id_to_state[true][id]
+      if new_indirect_state is 'mixed'
+        # once we are mixed there is no going back, so break
+        break 
     if old_direct_state? and new_indirect_state isnt old_direct_state
       new_indirect_state = "mixed"
     return new_indirect_state
