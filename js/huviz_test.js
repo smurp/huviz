@@ -348,12 +348,27 @@ describe("HuViz Tests", function() {
       $(branch_sel + " span.expander:first").trigger("click"); // expand
     });
 
-    it("instance-less mid-tree taxons should behave properly", function(done) {
+    it("selecting an individual node should update the Selected count", function(done) {
       say(test_title, done);
-      expect('this').to.be.true();
+      london = HVZ.nodes.get_by('id', 'BJ')
+      expect(london, "London was not found").to.be.ok();
+      HVZ.toggle_selected(london);
+      actual = HVZ.selected_set.length
+      one_less = HVZ.nodes.length - 1
+      expect(HVZ.selected_set.length, "failed to deselect London").
+	  to.equal(one_less);
+      expect($('#selected_set .payload').text(),
+  	     "failed to update the picker payload").
+            to.equal("" + one_less);
+      HVZ.toggle_selected(london);
+      expect(HVZ.selected_set.length, "failed to reselect London").
+	  to.equal(HVZ.nodes.length);
+      expect($('#selected_set .payload').text(),
+  	     "failed to update the picker payload").
+            to.equal("" + HVZ.nodes.length);
     });
 
-    it("selecting an individual node should update the Selected count", function(done) {
+    it("instance-less mid-tree taxons should behave properly", function(done) {
       say(test_title, done);
       expect('this').to.be.true();
     });
