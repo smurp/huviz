@@ -2031,6 +2031,7 @@ class Huviz
     else
       @select(node)
     @update_all_counts()
+    @tick()
 
   get_snippet_url: (snippet_id) ->
     if snippet_id.match(/http\:/)

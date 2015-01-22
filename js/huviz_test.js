@@ -380,6 +380,7 @@ describe("HuViz Tests", function() {
 
   });
 
+  /*
   describe("operations on predicates", function() {
     it("initially everything should be shelved and nothing graphed", function(done) {
       say(test_title, done);
@@ -390,4 +391,5 @@ describe("HuViz Tests", function() {
             to.equal(false);
     });
   });
+  */
 });
