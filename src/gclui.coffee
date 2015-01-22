@@ -272,8 +272,12 @@ class CommandController
     @object_phrase = evt.detail.english
     @update_command()
 
-  on_taxon_picked: (id, selected, elem, propagate) =>
-    # FIXME implement the tristate behaviour:
+  on_taxon_picked: (id, selected, elem, propagate_DEPRECATED) =>
+    # TODO
+    #   remove propagate argument
+    #   pass in new_state rather than selected
+
+    # this supposedly implements the tristate behaviour:
     #   Mixed —> On
     #   On —> Off
     #   Off —> On
@@ -284,44 +288,33 @@ class CommandController
     #   * the colors of child nodes on the treepicker
     #   * the color of the clicked node on the treepicker
     #      - should be stripey if subclass coloring is mixed
-    console.info("on_taxon_picked()",arguments)
-    @huviz.show_state_msg("toggling " + selected)
+
+    new_state = selected and 'showing' or 'unshowing'
     taxon = @huviz.taxonomy[id]
     if taxon?
-      #console.clear()
-      @huviz.show_state_msg("get_state()")
-      state = taxon.get_state()
-      @huviz.hide_state_msg()
+      old_state = taxon.get_state()
     else
       throw "Uhh, there should be a root Taxon 'Thing' by this point: " + id
 
-    console.info("... on_taxon_picked()",arguments,"state:",state)
-    if not propagate?
-      propagate = @taxon_picker.id_is_collapsed[id]
-    console.warn("#{id} propagate: #{propagate} PROPAGATION IS DISABLED AND SHOULD BE REMOVED")
-    if propagate and false
-      console.log("crawl taxon.kids to propagate new state for",id)
-      @on_taxon_picked(id, selected, elem, false)
-      if taxon.kids?
-        for kid in taxon.kids
-          kid_elem = @taxon_picker.id_to_elem[id]
-          @on_taxon_picked(kid.id, selected, kid_elem, true)
-      return
-    
-    if state in ['mixed','unshowing']
-      if not (id in @node_classes_chosen)
-        @node_classes_chosen.push(id)
-      # SELECT all members of the currently chosen classes
-      cmd = new gcl.GraphCommand
-        verbs: ['select']
-        classes: (class_name for class_name in @node_classes_chosen)
-    else if state is 'showing'
+    console.info("on_taxon_picked() id: #{id}, new_state: #{new_state}, old_state: #{old_state}")
+    if new_state is 'showing'
+      if old_state in ['mixed','unshowing']
+        if not (id in @node_classes_chosen)
+          @node_classes_chosen.push(id)
+        # SELECT all members of the currently chosen classes
+        cmd = new gcl.GraphCommand
+          verbs: ['select']
+          classes: (class_name for class_name in @node_classes_chosen)
+      else
+        console.log "there should be nothing to do because #{old_state} == #{new_state}"
+        
+    else if new_state is 'unshowing'
       @unselect_node_class(id)
       cmd = new gcl.GraphCommand
         verbs: ['unselect']
         classes: [id]
-    else if state is "hidden"
-      console.error "Uhh, how is it possible for #{id}.state to equal 'hidden' at this point?"
+    else if old_state is "hidden"
+      console.error "Uhh, how is it possible for #{id}.old_state to equal 'hidden' at this point?"
     if cmd?
       if @object_phrase? and @object_phrase isnt ""
         cmd.object_phrase = @object_phrase
@@ -330,6 +323,7 @@ class CommandController
     @update_command()
 
   unselect_node_class: (node_class) ->
+    # removes node_class from @node_classes_chosen
     @node_classes_chosen = @node_classes_chosen.filter (eye_dee) ->
       eye_dee isnt node_class
 

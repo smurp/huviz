@@ -71,15 +71,33 @@ class TreePicker
       contents_of_me.on 'click', () ->
         d3.event.stopPropagation()
         elem = d3.select(this)
-        old_showing = not elem.classed('treepicker-showing')
-        new_state = old_showing and "showing" or "unshowing" # note inversion!
+        is_treepicker_collapsed = elem.classed('treepicker-collapse')
+        is_treepicker_showing = elem.classed('treepicker-showing')
+        is_treepicker_indirect_mixed = elem.classed('treepicker-indirect-mixed')
+        if is_treepicker_collapsed
+          send_leafward = true
+          suspend_listener = true
+          if is_treepicker_indirect_mixed
+            new_state = 'showing'
+          else
+            if is_treepicker_showing
+              new_state = 'unshowing'
+            else
+              new_state = 'showing'
+        else
+          if is_treepicker_showing
+            new_state = 'unshowing'
+          else
+            new_state = 'showing'
+          send_leafward = false
+          suspend_listener = false
+        #if suspend_listener
+        #  listener = undefined
         id = this.id
-        #           if picker.id_to_state[    # What was I considering?
-        send_leafward = picker.id_is_collapsed[id]
-        if picker.gclui?
-          picker.gclui.setListenFor_changeTaxon(false)    
+        if picker.gclui? and suspend_listener
+          picker.gclui.setListenFor_changeTaxon(false)
         picker.effect_click(id, new_state, send_leafward, listener)
-        if picker.gclui?
+        if picker.gclui? and suspend_listener
           picker.gclui.setListenFor_changeTaxon(true)
       contents_of_me.append("p").attr("class", "treepicker-label").text(label)
       if rest.length > 1

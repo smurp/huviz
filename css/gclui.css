@@ -113,7 +113,8 @@ p {
   content: ')';
 }
 .treepicker-collapse > .container {
-  display:none;
+  /* for debugging, comment the following line disable collapsing */
+  display:none; /* */ 
 }
 #sets {
   margin-right: 2px;
