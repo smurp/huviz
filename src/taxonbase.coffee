@@ -44,8 +44,8 @@ class TaxonBase
     #else
     #  console.warn "running update_english"
 
-    if @mom?
-      @mom.update_english()
+    if @super_class?
+      @super_class.update_english()
       return
     # called upon state change, english must change too
     in_and_out =

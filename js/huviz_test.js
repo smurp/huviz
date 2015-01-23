@@ -5,6 +5,9 @@ var expect = chai.expect;
 //   http://rzrsharp.net/2012/08/01/client-side-testing-insanity.html
 // though this is likely irrelevant.
 
+//  This looks like a great post, should check for good ideas:
+//  http://www.redotheweb.com/2013/01/15/functional-testing-for-nodejs-using-mocha-and-zombie-js.html
+
 var pause_msec = 3;
 var say = function(msg, done) {
   console.log("STARTING",msg);
@@ -14,9 +17,12 @@ var say = function(msg, done) {
     done();
   }, pause_msec);
 };
-
+var get_command_english = function() {
+  return $(".nextcommand > span:first").text();
+};
 describe("HuViz Tests", function() {
   this.timeout(0);
+  //this.bail(true); // tell mocha to stop on first failure
   huviz = require('huviz');
   var number_of_nodes = 15;
   var test_title;
@@ -65,9 +71,39 @@ describe("HuViz Tests", function() {
             to.equal(false);
     });
 
+    it("the current selection should show in the nextcommand box", function(done) {
+      say(test_title, done);
+      // verify initial state
+      expect(HVZ.graphed_set.length).to.equal(0);
+      expect(HVZ.shelved_set.length).to.equal(HVZ.nodes.length);
+      expected = "____ Thing ."; // note four _
+      expect(get_command_english()).to.equal(expected);
+
+      // deselect everything using the taxon_picker
+      $("#Thing span.expander:first").trigger("click"); // collapse
+      $("#Thing").trigger("click");
+      expect(HVZ.selected_set.length).to.equal(0);
+      // confirm that the object of the commands is blank
+      expect(get_command_english()).to.equal("____ ____ .");
+      expect(HVZ.selected_set.length).to.equal(0);
+
+      // a single class selected should be simple
+      $("#Thing span.expander:first").trigger("click"); // collapse
+      $("#Person").trigger("click");
+      expect(get_command_english()).to.equal("____ Person .");
+      
+      // expand everything again
+      HVZ.pick_taxon("Thing", true);
+      HVZ.gclui.taxon_picker.expand_by_id('Thing');
+      //HVZ.gclui.taxon_picker.collapse_by_id('Region');
+      //expect(undefined).to.be.ok();
+    });
 
     it("unselecting a taxon should cause indirect-mixed on its supers", function(done) {
       say(test_title, done);
+      HVZ.pick_taxon("Thing", true);
+      HVZ.gclui.taxon_picker.expand_by_id('Thing');
+
       // Confirm Assumptions about starting conditions
       expect($("#Place").hasClass("treepicker-indirect-mixed")).
             to.equal(false, "Place should not be treepicker-indirect-mixed");
@@ -80,7 +116,6 @@ describe("HuViz Tests", function() {
       expect($("#Place").hasClass("treepicker-indirect-mixed")).
             to.equal(true, "Place should be treepicker-indirect-mixed when it has unshowing children");
     });
-
 
     it("reselecting a taxon should remove indirect-mixed from its supers", function(done) {
       say(test_title, done);
@@ -101,8 +136,6 @@ describe("HuViz Tests", function() {
              "Place should no longer be treepicker-indirect-mixed when everything is selected").
             to.equal(false);
     });
-
-
 
     it("unselecting a taxon should cause indirect-mixed on up to Thing", function(done) {
       say(test_title, done);
@@ -407,17 +440,11 @@ describe("HuViz Tests", function() {
       toggle_selection_of("I", 4, "Thames"); 
       toggle_selection_of("B", 3, "England");
     });
-    /*
-    it("instance-less mid-tree taxons should behave properly", function(done) {
-      say(test_title, done);
-      expect('this').to.be.true();
-    });
 
-    it("'choose Thing' should leave all taxa colored 'showing'", function(done) {
-      say(test_title, done);
-      expect('this').to.be.true();
-    });
-    */
+    it("instance-less mid-tree taxons should behave properly");
+
+    it("'choose Thing' should leave all taxa colored 'showing'");
+
   });
 
   /*

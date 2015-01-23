@@ -242,8 +242,9 @@ class GraphCommand
     @graph_ctrl.hide_state_msg()
     @graph_ctrl.force.start()
 
+  missing: '____'
   update_str: ->
-    missing = '____'
+    missing = @missing
     cmd_str = ""
     ready = true
     regarding_required = false
