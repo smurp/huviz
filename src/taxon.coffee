@@ -92,6 +92,7 @@ class Taxon extends TaxonBase
       return "unshowing"
     else
       throw "Taxon[#{@id}].recalc_state should not fall thru, #selected:#{@selected_nodes.length} #unselected:#{@unselected_nodes.length}"
+    return
   recalc_english: (in_and_out) ->
     if @state is 'showing'
       in_and_out.include.push @lid
@@ -105,5 +106,6 @@ class Taxon extends TaxonBase
         in_and_out.include.push @id
         for n in @unselected_nodes
           in_and_out.exclude.push n.lid
+    return
 
 (exports ? this).Taxon = Taxon

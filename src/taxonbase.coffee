@@ -10,7 +10,7 @@ class TaxonBase
       alert "Taxon id:#{@id} has no indirect_state"
     return @indirect_state
   update_state: ->
-    console.log("TaxonBase.update_state()",arguments)
+    #console.log("TaxonBase.update_state()",arguments) 
     old_state = @state
     old_indirect_state = @indirect_state
     @recalc_states()
@@ -30,13 +30,13 @@ class TaxonBase
       # be rootward propagation of state, though this will presumably affect
       # the predicate selectedness situation.  So we will disable it, but warn.
       if @super_class?
-        console.warn("TaxonBase.update_state() should have more sophisticated rootward propagation")
         @super_class.update_state()
       console.log evt
       window.dispatchEvent evt # could pass to picker, this is async
     @update_english()
 
   update_english: () ->
+    #console.log "#{@id}.update_english()"
     #if @constructor.suspend_updates
     if window.suspend_updates
       console.warn "Suspending update_english"
