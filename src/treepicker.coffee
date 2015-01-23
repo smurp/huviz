@@ -1,4 +1,3 @@
-
 ###
 Build and control a hierarchic menu of arbitrarily nested divs looking like:
   +---------------------+
@@ -95,6 +94,7 @@ class TreePicker
         #  listener = undefined
         id = this.id
         if picker.gclui? and suspend_listener
+          alert "suspending onChangeTaxon listener"
           picker.gclui.setListenFor_changeTaxon(false)
         picker.effect_click(id, new_state, send_leafward, listener)
         if picker.gclui? and suspend_listener
@@ -109,8 +109,6 @@ class TreePicker
 
   effect_click: (id, new_state, send_leafward, listener) ->
     console.log("#{@get_my_id()}.effect_click()", arguments)
-    showing = new_state is "showing"
-    #@set_branch_pickedness(id,showing)
     if send_leafward
       kids = @id_to_children[id]
       if kids?
@@ -231,12 +229,18 @@ class TreePicker
     else
       indirect_state = @id_to_state[false][id]
     if not indirect_state?
-      @set_indirect_state(id, state)
+      new_indirect_state = state
     else if state isnt indirect_state
-      @set_indirect_state(id, "mixed")
+      new_indirect_state = "mixed"
     else
-      @set_indirect_state(id, indirect_state)
+      new_indirect_state = indirect_state
+    @set_indirect_state(id, new_indirect_state)
     @update_parent_indirect_state(id)
+  set_both_states_by_id: (id, direct_state, indirect_state) ->
+    console.info("#{@get_my_id()}.set_both_states_by_id()", arguments)
+    @set_direct_state(id, direct_state)
+    @set_indirect_state(id, indirect_state)
+    # the responsibility for knowing that parent state should change is Taxons
   is_leaf: (id) ->
     return (not @id_to_children[id]?) or @id_to_children[id].length is 0
   update_parent_indirect_state: (id) ->
@@ -294,6 +298,10 @@ class TreePicker
       # Perhaps they could be italicized because they deserve a color since
       # they might have indirect children.
   onChangeState: (evt) =>
-    @set_state_by_id(evt.detail.target_id, evt.detail.new_state)
+    det = evt.detail
+    if det.new_indirect_state?
+      @set_both_states_by_id(det.target_id, det.new_state, det.new_indirect_state)
+    else
+      @set_state_by_id(evt.detail.target_id, evt.detail.new_state)
 
 (exports ? this).TreePicker = TreePicker

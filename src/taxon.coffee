@@ -20,6 +20,7 @@ class Taxon extends TaxonBase
     @discarded_nodes = SortedSet().named('discarded').isState('_tp').sort_on("id")
     @lid = @id # FIXME @lid should be local @id should be uri, no?
     @state = 'unshowing'
+    @indirect_state = 'unshowing'
     @subs = []
     @super_class = null
   register_superclass: (super_class) ->
@@ -66,14 +67,22 @@ class Taxon extends TaxonBase
     if change.discard?
       @discarded_nodes.acquire(node)
     new_node_state = node._tp
-    @update_state(node, change, old_node_state, new_node_state)
-  recalc_state: (node, change, old_node_state, new_node_state) ->
-    settheory = @recalc_state_using_set_theory(node, change, old_node_state, new_node_state)
-    @state = settheory
-    return @state
-  recalc_state_using_set_theory: (node, change, old_node_state, new_node_state) ->
+    @update_state()
+  recalc_states: ->
+    @state = @recalc_direct_state()
+    @indirect_state = @recalc_indirect_state()
+  recalc_indirect_state: () ->
+    if @subs.length is 0
+      return @state
+    if @state is 'mixed'
+      return 'mixed'
+    consensus = @state # variable for legibility and performance
+    for kid in @subs
+      if kid.get_indirect_state() isnt consensus
+        return "mixed"
+    return consensus
+  recalc_direct_state: ->
     if @selected_nodes.length + @unselected_nodes.length is 0
-      console.warn "recalc_state_using_set_theory() ==> 'unshowing' instead of 'hidden'", arguments
       return "unshowing" #"hidden"
     if @selected_nodes.length > 0 and @unselected_nodes.length > 0
       return "mixed"

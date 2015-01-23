@@ -314,10 +314,8 @@ describe("HuViz Tests", function() {
              "GeographicArea is wrongly stripey").to.not.be.ok();
     });
 
-
     it("clicking collapsed taxons with mixed kids should select them all", function(done) {
       say(test_title, done);
-      branch_id = "Region"
       branch_id = "Place"
       branch_sel = "#" + branch_id
       // Confirm Assumption
@@ -353,8 +351,7 @@ describe("HuViz Tests", function() {
       london = HVZ.nodes.get_by('id', 'BJ')
       expect(london, "London was not found").to.be.ok();
       HVZ.toggle_selected(london);
-      actual = HVZ.selected_set.length
-      one_less = HVZ.nodes.length - 1
+      one_less = HVZ.nodes.length - 1;
       expect(HVZ.selected_set.length, "failed to deselect London").
 	  to.equal(one_less);
       expect($('#selected_set .payload').text(),
@@ -368,6 +365,49 @@ describe("HuViz Tests", function() {
             to.equal("" + HVZ.nodes.length);
     });
 
+    it("toggling node selection should toggle indirect-mixed up to Thing", function(done) {
+      say(test_title, done);
+      
+      var toggle_selection_of = function(an_id, classes_above, node_name) {
+        console.group(node_name);
+        a_node = HVZ.nodes.get_by('id', an_id)
+        expect(a_node, node_name + " was not found").to.be.ok();
+        expect($("#classes .treepicker-indirect-mixed").length,
+               "there should be no indirect-mixed").to.equal(0);
+
+        //HVZ.toggle_selected(a_node);
+        HVZ.perform_current_command(a_node);
+        expect($("#classes .treepicker-indirect-mixed").length,
+               "there should be " + classes_above + " indirect-mixed").
+              to.equal(classes_above);
+
+        one_less = HVZ.nodes.length - 1;
+        expect(HVZ.selected_set.length, "failed to deselect " + node_name).
+	    to.equal(one_less);
+        expect($('#selected_set .payload').text(),
+               "failed to update the picker payload").
+              to.equal("" + one_less);
+
+        window.breakpoint = true;
+        //HVZ.toggle_selected(a_node);
+        HVZ.perform_current_command(a_node);
+        expect($("#classes .treepicker-indirect-mixed").length,
+               "there should be no indirect-mixed once " + 
+               node_name + " reselected").
+              to.equal(0);
+        expect(HVZ.selected_set.length, "failed to reselect " + node_name).
+              to.equal(HVZ.nodes.length);
+        expect($('#selected_set .payload').text(),
+               "failed to update the picker payload").
+              to.equal("" + HVZ.nodes.length);
+        window.breakpoint = false;
+        console.groupEnd();
+      };
+      toggle_selection_of("BJ", 5, "London");
+      toggle_selection_of("I", 4, "Thames"); 
+      toggle_selection_of("B", 3, "England");
+    });
+    /*
     it("instance-less mid-tree taxons should behave properly", function(done) {
       say(test_title, done);
       expect('this').to.be.true();
@@ -377,7 +417,7 @@ describe("HuViz Tests", function() {
       say(test_title, done);
       expect('this').to.be.true();
     });
-
+    */
   });
 
   /*

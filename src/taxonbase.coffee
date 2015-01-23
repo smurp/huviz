@@ -3,23 +3,26 @@ class TaxonBase
   suspend_updates: false
   get_state: () ->
     if not @state?
-      @state = @recalc_state()
+      alert "Taxon id:#{@id} has no direct state"
     return @state
-  update_state: (node, change, old_node_state, new_node_state) ->
+  get_indirect_state: ->
+    if not @indirect_state?
+      alert "Taxon id:#{@id} has no indirect_state"
+    return @indirect_state
+  update_state: ->
     console.log("TaxonBase.update_state()",arguments)
-    #if @constructor.suspend_updates
-    #if window.suspend_updates
-    #  console.warn "suspending update_state"
-    #  return
     old_state = @state
-    @recalc_state(node, change, old_node_state, new_node_state)
-    if old_state isnt @state
+    old_indirect_state = @indirect_state
+    @recalc_states()
+    if old_state isnt @state or old_indirect_state isnt @indirect_state
       evt = new CustomEvent 'changeTaxon',
         detail:
           target_id: this.id
           taxon: this
           old_state: old_state
           new_state: @state
+          old_indirect_state: old_indirect_state
+          new_indirect_state: @indirect_state
         bubbles: true
         cancelable: true
       # Since we are not distinguishing between direct_state and indirect_state
@@ -27,10 +30,8 @@ class TaxonBase
       # be rootward propagation of state, though this will presumably affect
       # the predicate selectedness situation.  So we will disable it, but warn.
       if @super_class?
-      #if @mom? #@super_class?        
         console.warn("TaxonBase.update_state() should have more sophisticated rootward propagation")
         @super_class.update_state()
-        #@mom.update_state()
       console.log evt
       window.dispatchEvent evt # could pass to picker, this is async
     @update_english()
