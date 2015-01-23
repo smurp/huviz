@@ -296,7 +296,7 @@ class CommandController
     else
       throw "Uhh, there should be a root Taxon 'Thing' by this point: " + id
 
-    console.info("on_taxon_picked() id: #{id}, new_state: #{new_state}, old_state: #{old_state}")
+    #console.info("on_taxon_picked() id: #{id}, new_state: #{new_state}, old_state: #{old_state}")
     if new_state is 'showing'
       if old_state in ['mixed','unshowing']
         if not (id in @node_classes_chosen)

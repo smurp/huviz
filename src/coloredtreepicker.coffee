@@ -59,10 +59,12 @@ class ColoredTreePicker extends TreePicker
         }
       """
     @style_sheet.html(styles)
-    if @style_sheet.html().length isnt styles.length
-      console.error("style_sheet_length error:", @style_sheet.html().length, "<>", styles.length)
-    else
-      console.info("style_sheet_length good:",@style_sheet.html().length, "==", styles.length)    
+    if false # cross-check the stylesheets to ensure proper loading
+      if @style_sheet.html().length isnt styles.length
+        console.error("style_sheet_length error:", @style_sheet.html().length, "<>", styles.length)
+      else
+        console.info("style_sheet_length good:",@style_sheet.html().length, "==", styles.length)
+    return
   recolor: ->
     recursor =
       count: Object.keys(@id_to_elem).length - @get_abstract_count()

@@ -15,7 +15,8 @@
     "eco": "1.1.0-rc-1",
     "async": "~0.2.9",
     "libxmljs": "~0.9.0",
-    "nopt": "~3.0.0"
+    "nopt": "~3.0.0",
+    "jsoutline": git://github.com/smurp/jsoutline.git"
   },
   "devDependencies": {
     "coffeelint": "~1.7.1",

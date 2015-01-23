@@ -96,8 +96,8 @@ class Taxon extends TaxonBase
   recalc_english: (in_and_out) ->
     if @state is 'showing'
       in_and_out.include.push @lid
-    else if @state is 'unshowing'
-      console.warn("Taxon.recalc_english() id: #{@id} state: unshowing")
+    #else if @state is 'unshowing'
+    #  console.warn("Taxon.recalc_english() id: #{@id} state: unshowing")
     else if @state is 'mixed'
       if @selected_nodes.length < @unselected_nodes.length
         for n in @selected_nodes

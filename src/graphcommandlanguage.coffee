@@ -311,7 +311,7 @@ class GraphCommandLanguageCtrl
     @prefixes = {}
   run: (script) ->
     @graph_ctrl.before_running_command(this)
-    console.debug("script: ",script)
+    #console.debug("script: ",script)
     if not script?
       console.error "script must be defined"
       return
@@ -333,7 +333,7 @@ class GraphCommandLanguageCtrl
 
   execute: () =>
     if @commands.length > 0 and typeof @commands[0] is 'string' and @commands[0].match(/^load /)
-      console.log("initial execute", @commands)
+      #console.log("initial execute", @commands)
       @run_one(@commands.shift())
       #setTimeout @execute, 2000
       run_once = () =>

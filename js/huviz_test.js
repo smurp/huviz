@@ -17,13 +17,31 @@ var say = function(msg, done) {
     done();
   }, pause_msec);
 };
+
+
+var setup_jsoutline = function() {
+  window.huviz = require('huviz');
+  console.groupCollapsed("setting up jsoutline.traceAll(Orlando)");
+  jsoutline.traceAll(huviz.Orlando, true, ["tick","draw_circle","calc_node_radius","should_show_label","show_the_edges","draw_edge_labels","should_show_label","draw_nodes_in_set","draw_discards","draw_edge_labels","should_show_label","draw_discards","find_focused_node_or_edge","adjust_cursor","blank_screen","update_snippet","clear_canvas","draw_dropzones","show_last_mouse_pos","auto_change_verb","show_node_links","get_charge","hide_state_msg","show_state_msg","draw_labels","draw_nodes","apply_fisheye","draw_shelf","update_all_counts","position_nodes","draw_edges","recolor_node","uri_to_js_id"]);
+  console.groupEnd();
+  console.groupCollapsed("setting up jsoutline.traceAll(TreePicker)")
+  window.treepicker = require('treepicker');
+  jsoutline.traceAll(treepicker.TreePicker, true, ["set_payload","get_or_create_payload","uri_to_js_id"]);
+  console.groupEnd();
+  console.groupCollapsed("setting up jsoutline.traceAll(ColoredTreePicker)")
+  window.coloredtreepicker = require('coloredtreepicker');
+  jsoutline.traceAll(coloredtreepicker.ColoredTreePicker,true, ["set_payload","get_or_create_payload"]);
+  console.groupEnd()
+  jsoutline.squelch = true;
+};
+setup_jsoutline();
+
 var get_command_english = function() {
   return $(".nextcommand > span:first").text();
 };
 describe("HuViz Tests", function() {
   this.timeout(0);
-  //this.bail(true); // tell mocha to stop on first failure
-  huviz = require('huviz');
+  this.bail(true); // tell mocha to stop on first failure
   var number_of_nodes = 15;
   var test_title;
 
@@ -72,7 +90,7 @@ describe("HuViz Tests", function() {
     });
 
     it("the current selection should show in the nextcommand box", function(done) {
-      say(test_title, done);
+	    say(test_title, done);
       // verify initial state
       expect(HVZ.graphed_set.length).to.equal(0);
       expect(HVZ.shelved_set.length).to.equal(HVZ.nodes.length);
@@ -89,7 +107,11 @@ describe("HuViz Tests", function() {
 
       // a single class selected should be simple
       $("#Thing span.expander:first").trigger("click"); // collapse
+      jsoutline.squelch = false
       $("#Person").trigger("click");
+      jsoutline.squelch = true;
+      //jsoutline.untraceAll()
+    
       expect(get_command_english()).to.equal("____ Person .");
       
       // expand everything again

@@ -18,7 +18,6 @@ Build and control a hierarchic menu of arbitrarily nested divs looking like:
   
 class TreePicker
   constructor: (@elem, root, extra_classes, @needs_expander, @gclui) ->
-    console.log "@gclui:",@get_my_id(),@gclui
     if extra_classes?
       @extra_classes = extra_classes
     @id_to_elem = {root:elem} # FIXME remove root
@@ -108,7 +107,7 @@ class TreePicker
         @show_tree(rest[1],my_contents,listener,false)
 
   effect_click: (id, new_state, send_leafward, listener) ->
-    console.log("#{@get_my_id()}.effect_click()", arguments)
+    #console.log("#{@get_my_id()}.effect_click()", arguments)
     if send_leafward
       kids = @id_to_children[id]
       if kids?
@@ -201,7 +200,7 @@ class TreePicker
     if elem?
       elem.attr("title", title)
   set_direct_state: (id, state) ->
-    console.info("#{@get_my_id()}.set_direct_state()", arguments)
+    #console.info("#{@get_my_id()}.set_direct_state()", arguments)
     old_state = @id_to_state[true][id]
     @id_to_state[true][id] = state
     if old_state?
@@ -209,7 +208,7 @@ class TreePicker
     if state?
       @id_to_elem[id].classed("treepicker-#{state}",true)
   set_indirect_state: (id, state) ->
-    console.info("#{@get_my_id()}.set_indirect_state()", arguments)
+    #console.info("#{@get_my_id()}.set_indirect_state()", arguments)
     if not state?
       #if @get_my_id() is "classes"
       #  throw "#{@get_my_id()}.set_indirect_state() id=" + id + " state=" + state
@@ -222,7 +221,7 @@ class TreePicker
     if state?
       @id_to_elem[id].classed("treepicker-indirect-#{state}",true)
   set_state_by_id: (id, state) ->
-    console.info("#{@get_my_id()}.set_state_by_id()", arguments)
+    #console.info("#{@get_my_id()}.set_state_by_id()", arguments)
     @set_direct_state(id,state)
     if @is_leaf(id)
       indirect_state = state
@@ -237,14 +236,14 @@ class TreePicker
     @set_indirect_state(id, new_indirect_state)
     @update_parent_indirect_state(id)
   set_both_states_by_id: (id, direct_state, indirect_state) ->
-    console.info("#{@get_my_id()}.set_both_states_by_id()", arguments)
+    #console.info("#{@get_my_id()}.set_both_states_by_id()", arguments)
     @set_direct_state(id, direct_state)
     @set_indirect_state(id, indirect_state)
     # the responsibility for knowing that parent state should change is Taxons
   is_leaf: (id) ->
     return (not @id_to_children[id]?) or @id_to_children[id].length is 0
   update_parent_indirect_state: (id) ->
-    console.info("#{@get_my_id()}.update_parent_indirect_state()", arguments)
+    #console.info("#{@get_my_id()}.update_parent_indirect_state()", arguments)
     # Update the indirect_state of the parents up the tree
     parent_id = @id_to_parent[id]
     child_is_leaf = @is_leaf(id)
@@ -261,8 +260,8 @@ class TreePicker
       if new_parent_indirect_state isnt parent_indirect_state
         @set_indirect_state(parent_id, new_parent_indirect_state)
         # a change has happened, so propagate rootward
-      else
-        console.info("#{@get_my_id()}.update_parent_indirect_state()",id, "still state:", new_parent_indirect_state)
+      #else
+      #  console.info("#{@get_my_id()}.update_parent_indirect_state()",id, "still state:", new_parent_indirect_state)
       # console.info("#{@get_my_id()}.update_parent_indirect_state()", {parent_id: parent_id, parent_indirect_state: parent_indirect_state, child_indirect_state: child_indirect_state, new_parent_indirect_state: new_parent_indirect_state})
       @update_parent_indirect_state(parent_id)
   calc_new_indirect_state: (id) ->

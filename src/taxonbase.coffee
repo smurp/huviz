@@ -10,7 +10,6 @@ class TaxonBase
       alert "Taxon id:#{@id} has no indirect_state"
     return @indirect_state
   update_state: ->
-    #console.log("TaxonBase.update_state()",arguments) 
     old_state = @state
     old_indirect_state = @indirect_state
     @recalc_states()
@@ -25,24 +24,15 @@ class TaxonBase
           new_indirect_state: @indirect_state
         bubbles: true
         cancelable: true
-      # Since we are not distinguishing between direct_state and indirect_state
-      # (as we are, correctly, in TreePicker) then perhaps there should not
-      # be rootward propagation of state, though this will presumably affect
-      # the predicate selectedness situation.  So we will disable it, but warn.
       if @super_class?
         @super_class.update_state()
-      console.log evt
       window.dispatchEvent evt # could pass to picker, this is async
     @update_english()
 
   update_english: () ->
-    #console.log "#{@id}.update_english()"
-    #if @constructor.suspend_updates
     if window.suspend_updates
       console.warn "Suspending update_english"
       return
-    #else
-    #  console.warn "running update_english"
 
     if @super_class?
       @super_class.update_english()
@@ -62,7 +52,6 @@ class TaxonBase
     english = angliciser(in_and_out.include)
     if in_and_out.exclude.length
       english += " but not " + angliciser(in_and_out.exclude, " or ")
-    #console.debug "#{JSON.stringify(in_and_out)} ==> #{english}"
     return english
  
 (exports ? this).TaxonBase = TaxonBase
