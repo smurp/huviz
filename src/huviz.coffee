@@ -696,6 +696,14 @@ class Huviz
     # The taxonomy is intertwined with the taxon_picker
     @taxonomy = {}  # make driven by the hierarchy
 
+  summarize_taxonomy: ->
+    out = ""
+    tree = {}
+    for id, taxon of @taxonomy
+      out += "#{id}: #{taxon.state}\n"
+      tree[id] = taxon.state
+    return tree
+
   get_or_create_taxon: (taxon_id,abstract) ->
     if not @taxonomy[taxon_id]?
       if abstract
