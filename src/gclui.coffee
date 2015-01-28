@@ -184,15 +184,16 @@ class CommandController
     @predicate_hierarchy = {'anything':['anything']}
     
     # FIXME Why is show_tree being called four times per node?
-    @predicate_picker.show_tree(@predicate_hierarchy,@predicatebox,@on_predicate_clicked)
+    @predicate_picker.click_listener = @on_predicate_clicked
+    @predicate_picker.show_tree(@predicate_hierarchy,@predicatebox)
 
   add_newpredicate: (pred_lid, parent_lid, pred_name) =>
     #if pred_lid in @predicates_to_ignore
     #  return
     @predicate_picker.add(pred_lid, parent_lid, pred_name, @on_predicate_clicked)
 
-  on_predicate_clicked: (pred_id,selected,elem) =>
-    if selected
+  on_predicate_clicked: (pred_id,new_state,elem) =>
+    if new_state is 'showing'
       verb = 'show'
     else
       verb = 'suppress'
@@ -261,7 +262,8 @@ class CommandController
 
     # http://en.wikipedia.org/wiki/Taxon
     @taxon_picker = new ColoredTreePicker(@nodeclassbox,'Thing',[],true) #,@)
-    @taxon_picker.show_tree(@hierarchy,@nodeclassbox,@on_taxon_picked)
+    @taxon_picker.click_listener = @on_taxon_picked
+    @taxon_picker.show_tree(@hierarchy,@nodeclassbox)
 
   add_newnodeclass: (class_id,parent_lid,class_name,taxon) =>
     @taxon_picker.add(class_id,parent_lid,class_name,@on_taxon_picked)
@@ -272,7 +274,7 @@ class CommandController
     @object_phrase = evt.detail.english
     @update_command()
 
-  on_taxon_picked: (id, selected, elem, propagate_DEPRECATED) =>
+  on_taxon_picked: (id, new_state, elem, propagate_DEPRECATED) =>
     # TODO
     #   remove propagate argument
     #   pass in new_state rather than selected
@@ -289,7 +291,6 @@ class CommandController
     #   * the color of the clicked node on the treepicker
     #      - should be stripey if subclass coloring is mixed
 
-    new_state = selected and 'showing' or 'unshowing'
     taxon = @huviz.taxonomy[id]
     if taxon?
       old_state = taxon.get_state()
@@ -306,7 +307,7 @@ class CommandController
           verbs: ['select']
           classes: (class_name for class_name in @node_classes_chosen)
       else
-        console.log "there should be nothing to do because #{old_state} == #{new_state}"
+        console.error "there should be nothing to do because #{id}.#{old_state} == #{new_state}"
         
     else if new_state is 'unshowing'
       @unselect_node_class(id)
@@ -319,7 +320,7 @@ class CommandController
       if @object_phrase? and @object_phrase isnt ""
         cmd.object_phrase = @object_phrase
       @huviz.gclc.run(cmd)
-      @huviz.taxonomy['Thing'].update_english()
+      @huviz.regenerate_english()
     @update_command()
 
   unselect_node_class: (node_class) ->
@@ -561,7 +562,8 @@ class CommandController
         .classed('container',true)
         .attr('id', 'sets')
     @set_picker = new TreePicker(@set_picker_box,'all',['treepicker-vertical'])
-    @set_picker.show_tree(@the_sets, @set_picker_box, @on_set_picked)
+    @set_picker.click_listener = @on_set_picked
+    @set_picker.show_tree(@the_sets, @set_picker_box)
     @populate_all_set_docs()
 
   populate_all_set_docs: () ->

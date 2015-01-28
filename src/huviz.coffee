@@ -691,6 +691,7 @@ class Huviz
   update_all_counts: ->
     for name, a_set of @selectable_sets
       @gclui.on_set_count_update(name, a_set.length)
+    return
 
   create_taxonomy: ->
     # The taxonomy is intertwined with the taxon_picker
@@ -704,6 +705,14 @@ class Huviz
       tree[id] = taxon.state
     return tree
 
+  regenerate_english: ->
+    root = 'Thing'
+    if @taxonomy[root]? # TODO this should be the ROOT, not literally Thing
+      @taxonomy[root].update_english()
+    else
+      console.log "not regenerating english because no taxonomy[#{root}]"
+    return
+ 
   get_or_create_taxon: (taxon_id,abstract) ->
     if not @taxonomy[taxon_id]?
       if abstract
@@ -2325,6 +2334,8 @@ class Huviz
     #@restart()
     #@taxonomy['everything'].update_english()
     @update_all_counts()
+    @regenerate_english()
+    return
 
   get_handle: (thing) ->
     # A handle is like a weak reference, saveable, serializable
@@ -3049,4 +3060,3 @@ if not is_one_of(2,[3,2,4])
 (exports ? this).OntoViz = OntoViz
 #(exports ? this).Socrata = Socrata
 (exports ? this).Edge = Edge
-

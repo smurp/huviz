@@ -56,6 +56,7 @@ class TreePicker
     i_am_in.insert('div', before). # insert just appends if before is undef
         attr('class','contents').
         attr('id',node_id)
+
   show_tree: (tree,i_am_in,listener,top) ->
     # http://stackoverflow.com/questions/14511872
     top = not top? or top
@@ -66,12 +67,36 @@ class TreePicker
       msg = "show_tree() just did @id_to_elem[#{node_id}] = contents_of_me"
       #console.info(msg)
       picker = this
-      contents_of_me.on 'click', () ->
+      contents_of_me.on 'click', @click_handler
+      contents_of_me.append("p").attr("class", "treepicker-label").text(label)
+      if rest.length > 1
+        my_contents = @get_or_create_container(contents_of_me)
+        if top and @extra_classes
+          for css_class in @extra_classes
+            my_contents.classed(css_class, true)        
+        @show_tree(rest[1],my_contents,listener,false)
+
+  click_handler: () =>
+        listener = @click_listener
+        picker = this
+        elem = d3.select(d3.event.target)
+        #elem = d3.select(d3.event.currentTarget)
+        #if not elem.node().id
+        #  alert("deferring to #{elem.node().parentElement.id}")
+        #  return true
         d3.event.stopPropagation()
-        elem = d3.select(this)
+
+        # TODO figure out why the target elem is sometimes the treepicker-label not the 
+        this_id = elem.node().id
+        parent_id = elem.node().parentElement.id
+        id = this_id or parent_id
+        if not this_id
+          elem = d3.select(elem.node().parentElement)
+          
         is_treepicker_collapsed = elem.classed('treepicker-collapse')
         is_treepicker_showing = elem.classed('treepicker-showing')
         is_treepicker_indirect_mixed = elem.classed('treepicker-indirect-mixed')
+
         if is_treepicker_collapsed
           send_leafward = true
           suspend_listener = true
@@ -89,22 +114,13 @@ class TreePicker
             new_state = 'showing'
           send_leafward = false
           suspend_listener = false
-        #if suspend_listener
-        #  listener = undefined
-        id = this.id
+
         if picker.gclui? and suspend_listener
           alert "suspending onChangeTaxon listener"
           picker.gclui.setListenFor_changeTaxon(false)
         picker.effect_click(id, new_state, send_leafward, listener)
         if picker.gclui? and suspend_listener
           picker.gclui.setListenFor_changeTaxon(true)
-      contents_of_me.append("p").attr("class", "treepicker-label").text(label)
-      if rest.length > 1
-        my_contents = @get_or_create_container(contents_of_me)
-        if top and @extra_classes
-          for css_class in @extra_classes
-            my_contents.classed(css_class, true)        
-        @show_tree(rest[1],my_contents,listener,false)
 
   effect_click: (id, new_state, send_leafward, listener) ->
     #console.log("#{@get_my_id()}.effect_click()", arguments)
@@ -116,7 +132,7 @@ class TreePicker
             @effect_click(child_id, new_state, send_leafward, listener)
     if listener?  # TODO(shawn) replace with custom event?
        elem = @id_to_elem[id]
-       listener.call(this, id, new_state is 'showing', elem) # now this==picker not the event
+       listener.call(this, id, new_state, elem) # now this==picker not the event
   get_or_create_container: (contents) ->
     r = contents.select(".container")
     if r[0][0] isnt null
