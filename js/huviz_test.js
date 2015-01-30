@@ -90,6 +90,21 @@ describe("HuViz Tests", function() {
       expect($("#Thing").hasClass("treepicker-indirect-mixed"), 
              "Thing should not be treepicker-indirect-mixed").
             to.equal(false);
+
+      expect(HVZ.graphed_set.length).to.equal(0);
+      expect(HVZ.shelved_set.length).to.equal(HVZ.nodes.length);
+
+      var taxon_name = "Thing";
+      expect($("#classes .treepicker-indirect-mixed").length,
+             "there should be no indirect-mixed once " +
+             taxon_name + " reselected").
+            to.equal(0);
+
+      var predicate_name = "anything";
+      expect($("#predicates .treepicker-indirect-mixed").length,
+             "there should be no indirect-mixed predicates when nothing is graphed").
+            to.equal(0);
+
       jsoutline.squelch = false;
       jsoutline.collapsed = false;
       //expect(undefined).to.be.ok();
@@ -507,7 +522,7 @@ describe("HuViz Tests", function() {
 
   describe("operations on predicates", function() {
 
-    it("initially everything should be shelved and nothing graphed", function(done) {
+    it("everything should start shelved and un-graphed", function(done) {
       say(test_title, done);
       expect(HVZ.graphed_set.length).to.equal(0);
       expect(HVZ.shelved_set.length).to.equal(HVZ.nodes.length);
