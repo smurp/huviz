@@ -2048,6 +2048,7 @@ class Huviz
     else
       @select(node)
     @update_all_counts()
+    @regenerate_english()
     @tick()
 
   get_snippet_url: (snippet_id) ->

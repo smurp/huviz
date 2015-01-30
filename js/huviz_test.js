@@ -117,9 +117,44 @@ describe("HuViz Tests", function() {
       expect(get_command_english()).to.equal("____ Person .");
       
       // expand everything again
-      HVZ.gclui.taxon_picker.expand_by_id('Thing');
+      $("#Thing span.expander:first").trigger("click"); // collapse so we can...
+      $("#Thing").trigger("click");  // selecte every Thing again
+      $("#Thing span.expander:first").trigger("click"); // and then expand again
+      expected = "____ every Thing ."; // note four _
+      expect(get_command_english()).to.equal(expected);
+      expect(HVZ.gclui.taxon_picker.id_is_collapsed["Thing"]).to.equal(false);
     });
 
+    it("node selections should affect the english WIP not minimized", function(done) {
+      say(test_title, done);
+      // verify initial state
+      expect(HVZ.graphed_set.length).to.equal(0);
+      expect(HVZ.shelved_set.length).to.equal(HVZ.nodes.length);
+      expected = "____ every Thing ."; // note four _
+      expect(get_command_english()).to.equal(expected);
+
+      window.breakpoint = true;
+      london = HVZ.nodes.get_by('id', 'BJ')
+      HVZ.toggle_selected(london);
+      expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length - 1);
+      // the object of the nextcommand should reflect the deselectedness of london
+
+      expect(HVZ.gclui.taxon_picker.id_is_collapsed["Thing"]).to.equal(false);
+      // TODO this tests for fully minimized english
+      // expect(get_command_english()).to.equal("____ every Thing but not BJ .");
+      expect(get_command_english()).to.contain("but not BJ");
+      expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length - 1);
+
+      // a single class selected should be simple
+      $("#Thing span.expander:first").trigger("click"); // collapse
+      //$("#Thing").trigger("click");
+      expect(get_command_english()).to.contain("but not BJ");
+      
+      // expand everything again
+      $("#Thing span.expander:first").trigger("click"); // collapse so we can...
+      $("#Thing").trigger("click");  // selecte every Thing again
+      $("#Thing span.expander:first").trigger("click"); // and then expand again
+    });
 
     it("unselecting a taxon should cause indirect-mixed on its supers", function(done) {
       say(test_title, done);

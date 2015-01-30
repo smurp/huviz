@@ -101,6 +101,8 @@ class Taxon extends TaxonBase
       in_and_out.include.push phrase
     else
       if @indirect_state is 'mixed'
+        if @state is 'showing'
+          in_and_out.include.push @lid
         if @state is 'mixed'
           if @selected_nodes.length < @unselected_nodes.length
             for n in @selected_nodes
@@ -109,8 +111,6 @@ class Taxon extends TaxonBase
             in_and_out.include.push @id
             for n in @unselected_nodes
               in_and_out.exclude.push n.lid
-        else if @state is 'showing'
-          in_and_out.include.push @lid
         for sub in @subs
           sub.recalc_english(in_and_out)
     return
