@@ -38,7 +38,7 @@ class Predicate
     for e in @all_edges  # FIXME why can @selected_edges not be trusted?
       if e.an_end_is_selected()
         @selected_edges.acquire(e)
-    
+        
   update_state: (edge,change) ->
     # FIXME fold the subroutines into this method for a single pass
     # FIXME make use of the edge and change hints in the single pass

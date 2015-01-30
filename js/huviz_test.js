@@ -584,6 +584,61 @@ describe("HuViz Tests", function() {
             to.equal(0);
     });
 
+    it("selecting a predicate should cause indirect-mixed on its supers", function(done) {
+      say(test_title, done);
+
+      //expect(undefined, "force quit").to.be.ok();
+
+      // Confirm assumption that there are no indirect-mixed initially
+      expect($("#predicates .treepicker-indirect-mixed").length,
+             "there should be no indirect-mixed predicates when nothing is graphed").
+            to.equal(0);
+
+      a_leaf_predicate_sel = "#connectionWithAddress";
+
+      // graph some leaf predicate
+      $(a_leaf_predicate_sel).trigger("click");  
+      expect(HVZ.graphed_set.length,
+             "something should be graphed after selecting a leaf predicate").
+            to.not.equal(0);
+      
+      var num_parent = 6;
+      // confirm that there are now indirect-mixed
+      expect($("#predicates .treepicker-indirect-mixed").length,
+             "all " + num_parent + " parents of " + a_leaf_predicate_sel +
+             "should be indirect-mixed when it is picked").
+	    to.equal(num_parent);
+
+      /*
+
+      // clean up
+      $(a_leaf_predicate_sel).trigger("click");  // ungraph them again
+      expect(HVZ.graphed_set.length, 
+             "nothing should be graphed after toggling a leaf predicate").
+            to.equal(0);
+      expect($("#predicates .treepicker-indirect-mixed").length,
+             "there should be no indirect-mixed predicates when nothing is graphed").
+            to.equal(0);
+
+
+
+      HVZ.pick_taxon("Thing", true);
+      HVZ.gclui.taxon_picker.expand_by_id('Thing');
+
+      // Confirm Assumptions about starting conditions
+      expect($("#Place").hasClass("treepicker-indirect-mixed")).
+            to.equal(false, "Place should not be treepicker-indirect-mixed");
+      expect($("#Settlement").hasClass("treepicker-showing")).
+            to.equal(true, "Settlement not showing as it initially should");
+      // Perform tests
+      $("#Settlement").trigger("click"); // unshow
+      expect($("#Settlement").hasClass("treepicker-unshowing")).
+            to.equal(true, "Settlement not unshowing as it should");
+      expect($("#Place").hasClass("treepicker-indirect-mixed")).
+            to.equal(true, "Place should be treepicker-indirect-mixed when it has unshowing children");
+      */
+    });
+
     it("when nothing is graphed, clicking collapsed anything should graph everything");
 
     it("when everything is graphed, clicking collapsed anything should ungraph everything");
