@@ -23,18 +23,20 @@ var setup_jsoutline = function() {
   console.group("jsoutline setup");
   window.treepicker = require('treepicker');
   window.coloredtreepicker = require('coloredtreepicker');
+  window.taxon = require('taxon');
   window.gclui = require('gclui');
-  jsoutline.traceAll(huviz.Orlando, true, ["tick","draw_circle","calc_node_radius","should_show_label","show_the_edges","draw_edge_labels","should_show_label","draw_nodes_in_set","draw_discards","draw_edge_labels","should_show_label","draw_discards","find_focused_node_or_edge","adjust_cursor","blank_screen","update_snippet","clear_canvas","draw_dropzones","show_last_mouse_pos","auto_change_verb","show_node_links","get_charge","hide_state_msg","show_state_msg","draw_labels","draw_nodes","apply_fisheye","draw_shelf","update_all_counts","position_nodes","draw_edges","recolor_node","uri_to_js_id", "default_graph_controls", "mousemove"]);
+  jsoutline.traceAll(huviz.Orlando, true, ["tick","draw_circle","calc_node_radius","should_show_label","show_the_edges","draw_edge_labels","should_show_label","draw_nodes_in_set","draw_discards","draw_edge_labels","should_show_label","draw_discards","find_focused_node_or_edge","adjust_cursor","blank_screen","update_snippet","clear_canvas","draw_dropzones","show_last_mouse_pos","auto_change_verb","show_node_links","get_charge","hide_state_msg","show_state_msg","draw_labels","draw_nodes","apply_fisheye","draw_shelf","position_nodes","draw_edges","recolor_node","uri_to_js_id", "default_graph_controls", "mousemove"]);
   jsoutline.traceAll(treepicker.TreePicker, true, ["set_payload","get_or_create_payload","uri_to_js_id"]);
   jsoutline.traceAll(coloredtreepicker.ColoredTreePicker,true, ["set_payload","get_or_create_payload"]);
-  jsoutline.traceAll(gclui.CommandController, true, ["auto_change_verb_if_warranted","is_immediate_mode"]);
+  jsoutline.traceAll(gclui.CommandController, true, ["auto_change_verb_if_warranted","is_immediate_mode","on_set_count_update"]);
+  jsoutline.traceAll(taxon.Taxon, true);
   window.graphcommandlanguage = require('graphcommandlanguage')
   jsoutline.traceAll(graphcommandlanguage.GraphCommand, true, []);
   jsoutline.squelch = true;
   jsoutline.collapsed = true;
   console.groupEnd();
 };
-setup_jsoutline();
+//setup_jsoutline();
 
 var get_command_english = function() {
   return $(".nextcommand > span:first").text();
@@ -93,12 +95,12 @@ describe("HuViz Tests", function() {
       //expect(undefined).to.be.ok();
     });
 
-    it("WIP the current selection should show in the nextcommand box", function(done) {
+    it("the current selection should show in the nextcommand box", function(done) {
       say(test_title, done);
       // verify initial state
       expect(HVZ.graphed_set.length).to.equal(0);
       expect(HVZ.shelved_set.length).to.equal(HVZ.nodes.length);
-      expected = "____ Thing ."; // note four _
+      expected = "____ every Thing ."; // note four _
       expect(get_command_english()).to.equal(expected);
 
       // deselect everything using the taxon_picker
@@ -111,21 +113,11 @@ describe("HuViz Tests", function() {
 
       // a single class selected should be simple
       $("#Thing span.expander:first").trigger("click"); // collapse
-      jsoutline.squelch = false
-      $("#Person").trigger("click");
-      jsoutline.squelch = true;
-      //jsoutline.untraceAll()
-    
-      //
-      //  THIS SHOULD BE UNCOMMENTED TO RESTORE THIS TESTS USEFULNESS
-      //
-      //expect(get_command_english()).to.equal("____ Person .");
+      $("#Person").trigger("click");    
+      expect(get_command_english()).to.equal("____ Person .");
       
       // expand everything again
-      //HVZ.pick_taxon("Thing", true);
       HVZ.gclui.taxon_picker.expand_by_id('Thing');
-      //HVZ.gclui.taxon_picker.collapse_by_id('Region');
-      //expect(undefined).to.be.ok();
     });
 
 
@@ -454,7 +446,6 @@ describe("HuViz Tests", function() {
                "failed to update the picker payload").
               to.equal("" + one_less);
 
-        window.breakpoint = true;
         //HVZ.toggle_selected(a_node);
         HVZ.perform_current_command(a_node);
         expect($("#classes .treepicker-indirect-mixed").length,
@@ -466,7 +457,6 @@ describe("HuViz Tests", function() {
         expect($('#selected_set .payload').text(),
                "failed to update the picker payload").
               to.equal("" + HVZ.nodes.length);
-        window.breakpoint = false;
         console.groupEnd();
       };
       toggle_selection_of("BJ", 5, "London");

@@ -27,17 +27,14 @@ class TaxonBase
       if @super_class?
         @super_class.update_state()
       window.dispatchEvent evt # could pass to picker, this is async
-    @update_english()
+    #@update_english()
 
   update_english: () ->
-    if window.suspend_updates
-      console.warn "Suspending update_english"
-      return
-
+    if @id isnt "Thing"
+      console.error "update_english(#{@lid}) should only be called on Thing"
     if @super_class?
       @super_class.update_english()
       return
-    # called upon state change, english must change too
     in_and_out =
       include: []
       exclude: []

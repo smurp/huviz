@@ -94,18 +94,25 @@ class Taxon extends TaxonBase
       throw "Taxon[#{@id}].recalc_state should not fall thru, #selected:#{@selected_nodes.length} #unselected:#{@unselected_nodes.length}"
     return
   recalc_english: (in_and_out) ->
-    if @state is 'showing'
-      in_and_out.include.push @lid
-    #else if @state is 'unshowing'
-    #  console.warn("Taxon.recalc_english() id: #{@id} state: unshowing")
-    else if @state is 'mixed'
-      if @selected_nodes.length < @unselected_nodes.length
-        for n in @selected_nodes
-          in_and_out.include.push n.lid
-      else
-        in_and_out.include.push @id
-        for n in @unselected_nodes
-          in_and_out.exclude.push n.lid
+    if @indirect_state is 'showing'
+      phrase = @lid
+      if @subs.length > 0
+        phrase = "every " + phrase      
+      in_and_out.include.push phrase
+    else
+      if @indirect_state is 'mixed'
+        if @state is 'mixed'
+          if @selected_nodes.length < @unselected_nodes.length
+            for n in @selected_nodes
+              in_and_out.include.push n.lid
+          else
+            in_and_out.include.push @id
+            for n in @unselected_nodes
+              in_and_out.exclude.push n.lid
+        else if @state is 'showing'
+          in_and_out.include.push @lid
+        for sub in @subs
+          sub.recalc_english(in_and_out)
     return
 
 (exports ? this).Taxon = Taxon

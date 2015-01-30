@@ -2324,15 +2324,12 @@ class Huviz
     $("body").css "cursor", "wait"
     $("body").css "background-color", "red" # FIXME remove once it works!
     #toggle_suspend_updates(true)
-    #alert "starting wait"
 
   after_running_command: ->
-    #console.log "after_running_command"
     #toggle_suspend_updates(false)
     $("body").css "cursor", "default"
     $("body").css "background-color", "white" # FIXME remove once it works!
     #@restart()
-    #@taxonomy['everything'].update_english()
     @update_all_counts()
     @regenerate_english()
     return
