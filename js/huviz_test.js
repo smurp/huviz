@@ -100,13 +100,54 @@ describe("HuViz Tests", function() {
              taxon_name + " reselected").
             to.equal(0);
 
-      var predicate_name = "anything";
       expect($("#predicates .treepicker-indirect-mixed").length,
              "there should be no indirect-mixed predicates when nothing is graphed").
             to.equal(0);
 
       jsoutline.squelch = false;
       jsoutline.collapsed = false;
+
+    });
+
+    it("toggling a leaf predicate should leave the root predicate unmixed", function(done) {
+      say(test_title, done);
+
+      a_leaf_predicate_sel = "#connectionWithAddress";
+      $(a_leaf_predicate_sel).trigger("click");  // graph some leaf predicates
+      expect(HVZ.graphed_set.length,
+             "something should be graphed after selecting a leaf predicate").
+            to.not.equal(0);
+      $(a_leaf_predicate_sel).trigger("click");  // ungraph them again
+
+      expect(HVZ.graphed_set.length, 
+             "nothing should be graphed after toggling a leaf predicate").
+            to.equal(0);
+
+      expect($("#predicates .treepicker-indirect-mixed").length,
+             "there should be no indirect-mixed predicates when nothing is graphed").
+            to.equal(0);
+
+    });
+
+    it("toggling a branch predicate should leave the root predicate unmixed", function(done) {
+      say(test_title, done);
+
+      a_branch_predicate_sel = "#connectionWithRegion";
+      a_branch_predicate_sel = "#connectionWithSettlement";
+      $(a_branch_predicate_sel).trigger("click");  // graph some branch predicates
+      expect(HVZ.graphed_set.length,
+             "something should be graphed after selecting a branch predicate").
+            to.not.equal(0);
+      $(a_branch_predicate_sel).trigger("click");  // ungraph them again
+
+      expect(HVZ.graphed_set.length,
+             "nothing should be graphed after toggling branch " + 
+             a_branch_predicate_sel).to.equal(0);
+
+      expect($("#predicates .treepicker-indirect-mixed").length,
+             "there should be no indirect-mixed predicates when nothing is graphed").
+            to.equal(0);
+
       //expect(undefined).to.be.ok();
     });
 
@@ -133,11 +174,16 @@ describe("HuViz Tests", function() {
       
       // expand everything again
       $("#Thing span.expander:first").trigger("click"); // collapse so we can...
-      $("#Thing").trigger("click");  // selecte every Thing again
+      $("#Thing").trigger("click");  // select every Thing again
       $("#Thing span.expander:first").trigger("click"); // and then expand again
       expected = "____ every Thing ."; // note four _
       expect(get_command_english()).to.equal(expected);
       expect(HVZ.gclui.taxon_picker.id_is_collapsed["Thing"]).to.equal(false);
+
+      // nothing graphed so no predicates should be mixed
+      expect($("#predicates .treepicker-indirect-mixed").length,
+             "there should be no indirect-mixed predicates when nothing is graphed").
+            to.equal(0);
     });
 
     it("node selections should affect the english WIP not minimized", function(done) {
@@ -533,7 +579,6 @@ describe("HuViz Tests", function() {
              taxon_name + " reselected").
             to.equal(0);
 
-      var predicate_name = "anything";
       expect($("#predicates .treepicker-indirect-mixed").length,
              "there should be no indirect-mixed predicates when nothing is graphed").
             to.equal(0);

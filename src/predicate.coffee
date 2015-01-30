@@ -10,6 +10,7 @@ class Predicate
     @unselected_edges = SortedSet().sort_on("id").named("unselected").isState('_p')
     @all_edges = SortedSet().sort_on("id").named("predicate")
     @state = "hidden"
+    @indirect_state = 'unshowing'
     this
   update_edge: (edge,change) ->
     if change.show?
@@ -49,6 +50,7 @@ class Predicate
     #   are strictly some of the selected edges shown?
     #   are there no selected edges?
     old_state = @state
+    old_indirect_state = @indirect_state
     #console.warn "selected_edges.length",@selected_edges.length
     @update_selected_edges()
     if @selected_edges.length is 0
@@ -70,6 +72,8 @@ class Predicate
             predicate: this
             old_state: old_state
             new_state: @state
+            old_indirect_state: old_indirect_state
+            new_indirect_state: @indirect_state
           bubbles: true
           cancelable: true
       window.dispatchEvent evt
