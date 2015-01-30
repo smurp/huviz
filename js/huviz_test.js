@@ -503,6 +503,14 @@ describe("HuViz Tests", function() {
 
     it("'choose Thing' should leave all taxa colored 'showing'");
 
+    it("when nothing is graphed, clicking collapsed anything should graph everything");
+
+    it("when everything is graphed, clicking collapsed anything should ungraph everything");
+
+    it("when nothing is graphed there should be no treepicker-mixed predicates");
+
+    it("abstract predicates with all kids unselected should be unselected too");
+
   });
 
   /*
