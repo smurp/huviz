@@ -503,6 +503,27 @@ describe("HuViz Tests", function() {
 
     it("'choose Thing' should leave all taxa colored 'showing'");
 
+  });
+
+  describe("operations on predicates", function() {
+
+    it("initially everything should be shelved and nothing graphed", function(done) {
+      say(test_title, done);
+      expect(HVZ.graphed_set.length).to.equal(0);
+      expect(HVZ.shelved_set.length).to.equal(HVZ.nodes.length);
+
+      var taxon_name = "Thing";
+      expect($("#classes .treepicker-indirect-mixed").length,
+             "there should be no indirect-mixed once " +
+             taxon_name + " reselected").
+            to.equal(0);
+
+      var predicate_name = "anything";
+      expect($("#predicates .treepicker-indirect-mixed").length,
+             "there should be no indirect-mixed predicates when nothing is graphed").
+            to.equal(0);
+    });
+
     it("when nothing is graphed, clicking collapsed anything should graph everything");
 
     it("when everything is graphed, clicking collapsed anything should ungraph everything");
@@ -513,16 +534,4 @@ describe("HuViz Tests", function() {
 
   });
 
-  /*
-  describe("operations on predicates", function() {
-    it("initially everything should be shelved and nothing graphed", function(done) {
-      say(test_title, done);
-      expect(HVZ.graphed_set.length).to.equal(0);
-      expect(HVZ.shelved_set.length).to.equal(HVZ.nodes.length);
-      expect($("#Thing").hasClass("treepicker-indirect-mixed"), 
-             "Thing should not be treepicker-indirect-mixed").
-            to.equal(false);
-    });
-  });
-  */
 });
