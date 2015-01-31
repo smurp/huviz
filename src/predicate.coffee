@@ -5,12 +5,13 @@ class Predicate extends TreeCtrl
     super()
     @lid = @id.match(/([\w\d\_\-]+)$/g)[0] # lid means local id
     @all_edges = SortedSet().sort_on("id").named("predicate")
+    # TODO check for .acquire() bugs re isState('_s') vs isState('_p')
     @selected_instances = SortedSet().sort_on("id").named("selected").isState('_p')
+    @unselected_instances = SortedSet().sort_on("id").named("unselected").isState('_p')    
     # shown edges are those which are shown and linked to a selected source or target
     @shown_instances = SortedSet().sort_on("id").named("shown").isState("_s")
     # unshown edges are those which are unshown and linked to a selected source or target    
     @unshown_instances = SortedSet().sort_on("id").named("unshown").isState("_s")
-    @unselected_instances = SortedSet().sort_on("id").named("unselected").isState('_p')
     @change_map =
       unselect: @unselected_instances
       select: @selected_instances

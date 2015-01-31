@@ -58,7 +58,11 @@ class TreeCtrl
     old_state = @state
     old_indirect_state = @indirect_state
     @recalc_states()
-    if old_state isnt @state or old_indirect_state isnt @indirect_state    
+    
+    if old_state isnt @state or old_indirect_state isnt @indirect_state
+      if window.suspend_updates
+        return
+
       evt = new CustomEvent @custom_event_name,
           detail:
             target_id: this.lid
@@ -69,8 +73,8 @@ class TreeCtrl
             new_indirect_state: @indirect_state
           bubbles: true
           cancelable: true
+      window.dispatchEvent evt
       if @super_class?
         @super_class.update_state()
-      window.dispatchEvent evt
 
 (exports ? this).TreeCtrl = TreeCtrl

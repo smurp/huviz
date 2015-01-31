@@ -311,7 +311,9 @@ class CommandController
     if cmd?
       if @object_phrase? and @object_phrase isnt ""
         cmd.object_phrase = @object_phrase
+      window.suspend_updates = false
       @huviz.gclc.run(cmd)
+      window.suspend_updates = false      
       @huviz.regenerate_english()
     @update_command()
 
