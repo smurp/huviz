@@ -311,14 +311,6 @@ class Huviz
   lariat_center: [0,0]
   last_mouse_pos: [ 0, 0]
 
-  predicates =
-    name: 'edges'
-    children: [
-      {name: 'a'},
-      {name: 'b'},
-      {name: 'c'},      
-      ]
-
   change_sort_order: (array, cmp) ->
     array.__current_sort_order = cmp
     array.sort array.__current_sort_order
