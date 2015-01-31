@@ -3,20 +3,12 @@ TreeCtrl = require('treectrl').TreeCtrl
 
 class TaxonBase extends TreeCtrl
   suspend_updates: false
-  get_state: () ->
-    if not @state?
-      alert "Taxon id:#{@id} has no direct state"
-    return @state
-  get_indirect_state: ->
-    if not @indirect_state?
-      alert "Taxon id:#{@id} has no indirect_state"
-    return @indirect_state
   update_state: ->
     old_state = @state
     old_indirect_state = @indirect_state
     @recalc_states()
     if old_state isnt @state or old_indirect_state isnt @indirect_state
-      evt = new CustomEvent 'changeTaxon',
+      evt = new CustomEvent @custom_event_name,
         detail:
           target_id: this.id
           taxon: this

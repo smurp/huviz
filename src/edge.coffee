@@ -9,28 +9,28 @@ class Edge
     @contexts = []
     this
   register: () ->
-    @predicate.add_edge(this)
+    @predicate.add_inst(this)
   register_context: (context) ->
     @contexts.push(context)
     # context.register_context_for(this) # FIXME to see all assertions in a context
   isSelected: () ->
     return @source.selected? or @target.selected?
   show: () ->
-    @predicate.shown_edges.acquire(this)
+    @predicate.shown_inst.acquire(this)
     if @isSelected()
       @predicate.select(this)
     else
-      @predicate.unshown_edges.remove(this)
+      @predicate.unshown_inst.remove(this)
       @predicate.unselect(this)
-    @predicate.update_edge(this,{show:true})
+    @predicate.update(this,{show:true})
   unshow: () ->
     if @isSelected()
-      @predicate.unshown_edges.acquire(this)
+      @predicate.unshown_inst.acquire(this)
       @predicate.select(this)
     else
-      @predicate.unshown_edges.acquire(this)
-      @predicate.unselected_edges.acquire(this)
-    @predicate.update_edge(this,{show:false})      
+      @predicate.unshown_inst.acquire(this)
+      @predicate.unselected_inst.acquire(this)
+    @predicate.update(this,{show:false})      
   an_end_is_selected: () ->
     return this.target.selected? or this.source.selected?
   unselect: () ->

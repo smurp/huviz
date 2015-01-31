@@ -7,7 +7,14 @@ class TreeCtrl
     @indirect_state = 'unshowing'
     @subs = []
     @super_class = null
-    
+  get_state: () ->
+    if not @state?
+      alert "#{@id} has no direct state"
+    return @state
+  get_indirect_state: ->
+    if not @indirect_state?
+      alert "#{@id} has no indirect_state"
+    return @indirect_state
   register_superclass: (super_class) ->
     if super_class is this
       return
@@ -34,5 +41,11 @@ class TreeCtrl
       if kid.get_indirect_state() isnt consensus
         return "mixed"
     return consensus
+  select: (inst) ->
+    @update(inst,{select: true})
+    @update_state()
+  unselect: (inst) ->
+    @update(inst, {select: false})
+    @update_state()
 
 (exports ? this).TreeCtrl = TreeCtrl

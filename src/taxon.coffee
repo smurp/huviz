@@ -19,6 +19,8 @@ class Taxon extends TaxonBase
     @unselected_nodes = SortedSet().named('unselected').isState('_tp').sort_on("id")
     @discarded_nodes = SortedSet().named('discarded').isState('_tp').sort_on("id")
     @lid = @id # FIXME @lid should be local @id should be uri, no?
+
+  custom_event_name: 'changeTaxon'
   get_instances: (hier) ->
     if hier
       retval = []
@@ -38,10 +40,9 @@ class Taxon extends TaxonBase
     @add(node)
   add: (node) ->
     @instances.add(node)
-  update_node: (node,change) ->
+  update_node: (node, change) ->
     # like Predicates, fully selected onselect?
     # should hidden and/or discarded taxons be invisible?
-    old_node_state = node._tp
     if change.select?
       if change.select
         @selected_nodes.acquire(node)
@@ -49,7 +50,6 @@ class Taxon extends TaxonBase
         @unselected_nodes.acquire(node)
     if change.discard?
       @discarded_nodes.acquire(node)
-    new_node_state = node._tp
     @update_state()
   recalc_direct_state: ->
     if @selected_nodes.length + @unselected_nodes.length is 0

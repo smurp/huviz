@@ -5,42 +5,34 @@ class Predicate extends TreeCtrl
     super()
     @lid = @id.match(/([\w\d\_\-]+)$/g)[0] # lid means local id
     # pshown edges are those which are shown and linked to a selected source or target
-    @shown_edges = SortedSet().sort_on("id").named("shown").isState("_s")
+    @shown_inst = SortedSet().sort_on("id").named("shown").isState("_s")
     # punshown edges are those which are unshown and linked to a selected source or target
-    @unshown_edges = SortedSet().sort_on("id").named("unshown").isState("_s")
-    #@all_edges = [] # FIXME not a SortedSet because edge.predicate already exists
-    @selected_edges = SortedSet().sort_on("id").named("selected").isState('_p')
-    @unselected_edges = SortedSet().sort_on("id").named("unselected").isState('_p')
+    @unshown_inst = SortedSet().sort_on("id").named("unshown").isState("_s")
+    @selected_inst = SortedSet().sort_on("id").named("selected").isState('_p')
+    @unselected_inst = SortedSet().sort_on("id").named("unselected").isState('_p')
     @all_edges = SortedSet().sort_on("id").named("predicate")
-    @state = "hidden"
-    @indirect_state = 'unshowing'
     this
-  update_edge: (edge,change) ->
+  custom_event_name: 'changePredicate'    
+  update: (edge, change) ->
     if change.show?
       if change.show
-        @shown_edges.acquire(edge)
+        @shown_inst.acquire(edge)
       else
-        @unshown_edges.acquire(edge)
+        @unshown_inst.acquire(edge)
     if change.select?
       if change.select
-        @selected_edges.acquire(edge)
+        @selected_inst.acquire(edge)
       else
-        @unselected_edges.acquire(edge)
+        @unselected_inst.acquire(edge)
     @update_state(edge,change)
-  select: (edge) ->
-    @update_edge(edge,{select:true})
+  add_inst: (inst) ->
+    @all_edges.add(inst)
     @update_state()
-  unselect: (edge) ->
-    @update_edge(edge,{select:false})
-    @update_state()
-  add_edge: (edge) ->
-    @all_edges.add(edge)
-    @update_state()
-  update_selected_edges: () ->
-    before_count = @selected_edges.length
-    for e in @all_edges  # FIXME why can @selected_edges not be trusted?
+  update_selected_inst: () ->
+    before_count = @selected_inst.length
+    for e in @all_edges  # FIXME why can @selected_inst not be trusted?
       if e.an_end_is_selected()
-        @selected_edges.acquire(e)  
+        @selected_inst.acquire(e)  
   update_state: (edge,change) ->
     # FIXME fold the subroutines into this method for a single pass
     # FIXME make use of the edge and change hints in the single pass
@@ -53,11 +45,11 @@ class Predicate extends TreeCtrl
     #   are there no selected edges?
     old_state = @state
     old_indirect_state = @indirect_state
-    #console.warn "selected_edges.length",@selected_edges.length
-    @update_selected_edges()
+    #console.warn "selected_inst.length",@selected_inst.length
+    @update_selected_inst()
     @recalc_states()    
     if old_state isnt @state
-      evt = new CustomEvent 'changePredicate',
+      evt = new CustomEvent @custom_event_name,
           detail:
             target_id: this.lid
             predicate: this
@@ -70,33 +62,33 @@ class Predicate extends TreeCtrl
       window.dispatchEvent evt
 
   recalc_direct_state: ->
-    if @selected_edges.length is 0
+    if @selected_inst.length is 0
       @state = "hidden" # FIXME maybe "noneToShow"
-    else if @only_some_selected_edges_are_shown()
+    else if @only_some_selected_inst_are_shown()
       @state = "mixed" # FIXME maybe "partialShowing"?
-    else if @selected_edges.length > 0 and @all_selected_edges_are_shown()
+    else if @selected_inst.length > 0 and @all_selected_inst_are_shown()
       @state = "showing" # FIXME maybe "allShowing"?
-    else if @no_selected_edges_are_shown()
+    else if @no_selected_inst_are_shown()
       @state = "unshowing" # FIXME maybe "noneShowing"?      
     else
       console.info "Predicate.update_state() should not fall thru",this
       throw "Predicate.update_state() should not fall thru (#{@lid})"
       
-  no_selected_edges_are_shown: () ->
-    for e in @selected_edges
+  no_selected_inst_are_shown: () ->
+    for e in @selected_inst
       if e.shown?
         return false
     return true
-  all_selected_edges_are_shown: () ->
-    for e in @selected_edges
+  all_selected_inst_are_shown: () ->
+    for e in @selected_inst
       if not e.shown?
         return false
     return true
-  only_some_selected_edges_are_shown: () ->
+  only_some_selected_inst_are_shown: () ->
     some = false
     only = false
     shown_count = 0
-    for e in @selected_edges
+    for e in @selected_inst
       #continue unless e.an_end_is_selected()
       if e.shown?
         some = true
