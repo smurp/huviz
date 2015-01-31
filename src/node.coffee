@@ -1,13 +1,5 @@
 class Node
-  linked: false          # TODO(smurp) probably vestigal
-  #links_from_found: true # TODO(smurp) deprecated because links*_found early
-  #links_to_found: true   # TODO(smurp) deprecated becasue links*_found early
-  showing_links: "none"
-  name: null
-  s: null                # TODO(smurp) rename Node.s to Node.subject, should be optional
-  type: null
   constructor: (@id, use_lid_as_node_name) ->
-    #console.log "new Node(",@id,")"
     @links_from = []
     @links_to = []
     @links_shown = []
@@ -15,6 +7,11 @@ class Node
     @lid = @id.match(/([\w\d\_\-]+)$/g)[0]
     if use_lid_as_node_name
       @name = @lid # provide default name
+  linked: false          # TODO(smurp) probably vestigal
+  showing_links: "none"
+  name: null
+  s: null                # TODO(smurp) rename Node.s to Node.subject, should be optional
+  type: null
   set_name: (@name) ->
   set_subject: (@s) ->
   point: (point) ->

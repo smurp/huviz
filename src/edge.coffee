@@ -1,13 +1,12 @@
 class Edge
-  color: "lightgrey"
   constructor: (@source,@target,@predicate) ->
     # FIXME if everything already has .lid then remove the test "not a.lid?"
     @id = (not a.lid? and a.id or a.lid for a in [@source, @predicate, @target]).join(' ')
-    #@id = (a.id for a in [@source, @predicate, @target, @context]).join(' ')
     @lid = @id
     @register()
     @contexts = []
     this
+  color: "lightgrey"    
   register: () ->
     @predicate.add_inst(this)
   register_context: (context) ->

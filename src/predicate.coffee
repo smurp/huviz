@@ -39,6 +39,9 @@ class Predicate extends TreeCtrl
     #   are there no selected edges?
     @update_selected_instances()
     super()
+
+  Xrecalc_indirect_state: ->
+    super()
   recalc_direct_state: ->
     if @selected_instances.length is 0
       return "hidden" # FIXME maybe "noneToShow"
