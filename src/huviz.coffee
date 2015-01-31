@@ -319,14 +319,6 @@ class Huviz
       {name: 'c'},      
       ]
 
-  ensure_predicate: (p_name) ->
-    for pobj in predicates.children
-      if pobj.name is p_name
-        break
-    predicates.children.push
-      name: p_name
-      children: []
-
   change_sort_order: (array, cmp) ->
     array.__current_sort_order = cmp
     array.sort array.__current_sort_order
