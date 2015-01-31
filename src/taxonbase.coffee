@@ -1,5 +1,7 @@
 angliciser = require('angliciser').angliciser
-class TaxonBase
+TreeCtrl = require('treectrl').TreeCtrl
+
+class TaxonBase extends TreeCtrl
   suspend_updates: false
   get_state: () ->
     if not @state?

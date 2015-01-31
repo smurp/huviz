@@ -609,6 +609,7 @@ describe("HuViz Tests", function() {
              "should be indirect-mixed when it is picked").
 	    to.equal(num_parent);
 
+
       /*
 
       // clean up

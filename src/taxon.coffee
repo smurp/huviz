@@ -19,23 +19,6 @@ class Taxon extends TaxonBase
     @unselected_nodes = SortedSet().named('unselected').isState('_tp').sort_on("id")
     @discarded_nodes = SortedSet().named('discarded').isState('_tp').sort_on("id")
     @lid = @id # FIXME @lid should be local @id should be uri, no?
-    @state = 'unshowing'
-    @indirect_state = 'unshowing'
-    @subs = []
-    @super_class = null
-  register_superclass: (super_class) ->
-    if super_class is this
-      return
-    if @super_class?
-      @super_class.remove_subclass(this)
-    @super_class = super_class
-    @super_class.register_subclass(this)
-  remove_subclass: (sub_class) ->
-    idx = @subs.indexOf(sub_class)
-    if idx > -1
-      @subs.splice(idx, 1)
-  register_subclass: (sub_class) ->
-    @subs.push(sub_class)
   get_instances: (hier) ->
     if hier
       retval = []
@@ -68,19 +51,6 @@ class Taxon extends TaxonBase
       @discarded_nodes.acquire(node)
     new_node_state = node._tp
     @update_state()
-  recalc_states: ->
-    @state = @recalc_direct_state()
-    @indirect_state = @recalc_indirect_state()
-  recalc_indirect_state: () ->
-    if @subs.length is 0
-      return @state
-    if @state is 'mixed'
-      return 'mixed'
-    consensus = @state # variable for legibility and performance
-    for kid in @subs
-      if kid.get_indirect_state() isnt consensus
-        return "mixed"
-    return consensus
   recalc_direct_state: ->
     if @selected_nodes.length + @unselected_nodes.length is 0
       return "unshowing" #"hidden"

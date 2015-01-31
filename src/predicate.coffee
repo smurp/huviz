@@ -1,5 +1,8 @@
-class Predicate
+TreeCtrl = require('treectrl').TreeCtrl
+
+class Predicate extends TreeCtrl
   constructor: (@id) ->
+    super()
     @lid = @id.match(/([\w\d\_\-]+)$/g)[0] # lid means local id
     # pshown edges are those which are shown and linked to a selected source or target
     @shown_edges = SortedSet().sort_on("id").named("shown").isState("_s")
@@ -37,8 +40,7 @@ class Predicate
     before_count = @selected_edges.length
     for e in @all_edges  # FIXME why can @selected_edges not be trusted?
       if e.an_end_is_selected()
-        @selected_edges.acquire(e)
-        
+        @selected_edges.acquire(e)  
   update_state: (edge,change) ->
     # FIXME fold the subroutines into this method for a single pass
     # FIXME make use of the edge and change hints in the single pass
@@ -53,18 +55,7 @@ class Predicate
     old_indirect_state = @indirect_state
     #console.warn "selected_edges.length",@selected_edges.length
     @update_selected_edges()
-    if @selected_edges.length is 0
-      @state = "hidden" # FIXME maybe "noneToShow"
-    else if @only_some_selected_edges_are_shown()
-      @state = "mixed" # FIXME maybe "partialShowing"?
-    else if @selected_edges.length > 0 and @all_selected_edges_are_shown()
-      @state = "showing" # FIXME maybe "allShowing"?
-    else if @no_selected_edges_are_shown()
-      @state = "unshowing" # FIXME maybe "noneShowing"?      
-    else
-      console.info "Predicate.update_state() should not fall thru",this
-      throw "Predicate.update_state() should not fall thru (#{@lid})"
-    #console.debug this.lid,old_state,"==>",@state
+    @recalc_states()    
     if old_state isnt @state
       evt = new CustomEvent 'changePredicate',
           detail:
@@ -77,6 +68,20 @@ class Predicate
           bubbles: true
           cancelable: true
       window.dispatchEvent evt
+
+  recalc_direct_state: ->
+    if @selected_edges.length is 0
+      @state = "hidden" # FIXME maybe "noneToShow"
+    else if @only_some_selected_edges_are_shown()
+      @state = "mixed" # FIXME maybe "partialShowing"?
+    else if @selected_edges.length > 0 and @all_selected_edges_are_shown()
+      @state = "showing" # FIXME maybe "allShowing"?
+    else if @no_selected_edges_are_shown()
+      @state = "unshowing" # FIXME maybe "noneShowing"?      
+    else
+      console.info "Predicate.update_state() should not fall thru",this
+      throw "Predicate.update_state() should not fall thru (#{@lid})"
+      
   no_selected_edges_are_shown: () ->
     for e in @selected_edges
       if e.shown?
