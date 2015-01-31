@@ -5,6 +5,7 @@ class Taxon extends TaxonBase
   # Taxon actually contains Nodes directly, unlike TaxonAbstract (what a doof!)
   constructor: (@id) ->
     super()
+    @lid = @id # FIXME @lid should be local @id should be uri, no?
     # FIXME try again to conver Taxon into a subclass of SortedSet
     #   Motivations
     #     1) remove redundancy of .register() and .add()
@@ -15,10 +16,13 @@ class Taxon extends TaxonBase
     @instances = SortedSet().named(@id).isState('_isa').sort_on("id") # FIXME state?
     # _tp is for 'taxon-pickedness' and has value selected, unselected or discarded
     #   (should probably be _ts for 'taxon-state'
+    @discarded_instances = SortedSet().named('discarded').isState('_tp').sort_on("id")
     @selected_instances = SortedSet().named('selected').isState('_tp').sort_on("id")
     @unselected_instances = SortedSet().named('unselected').isState('_tp').sort_on("id")
-    @discarded_instances = SortedSet().named('discarded').isState('_tp').sort_on("id")
-    @lid = @id # FIXME @lid should be local @id should be uri, no?
+    @change_map =
+      discard: @discarded_instances
+      select: @selected_instances
+      unselect: @unselected_instances
 
   custom_event_name: 'changeTaxon'
   get_instances: (hier) ->
@@ -40,17 +44,6 @@ class Taxon extends TaxonBase
     @add(node)
   add: (node) ->
     @instances.add(node)
-  update_node: (node, change) ->
-    # like Predicates, fully selected onselect?
-    # should hidden and/or discarded taxons be invisible?
-    if change.select?
-      if change.select
-        @selected_instances.acquire(node)
-      else
-        @unselected_instances.acquire(node)
-    if change.discard?
-      @discarded_instances.acquire(node)
-    @update_state()
   recalc_direct_state: ->
     if @selected_instances.length + @unselected_instances.length is 0
       return "unshowing" #"hidden"

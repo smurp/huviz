@@ -74,5 +74,8 @@ class TreeCtrl
       if @super_class?
         @super_class.update_state()
       window.dispatchEvent evt
+  update: (inst, change) ->
+    @change_map[change].acquire(inst)
+    @update_state()
 
 (exports ? this).TreeCtrl = TreeCtrl

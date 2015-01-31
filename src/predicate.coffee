@@ -4,13 +4,13 @@ class Predicate extends TreeCtrl
   constructor: (@id) ->
     super()
     @lid = @id.match(/([\w\d\_\-]+)$/g)[0] # lid means local id
-    # pshown edges are those which are shown and linked to a selected source or target
-    @shown_instances = SortedSet().sort_on("id").named("shown").isState("_s")
-    # punshown edges are those which are unshown and linked to a selected source or target
-    @unshown_instances = SortedSet().sort_on("id").named("unshown").isState("_s")
-    @selected_instances = SortedSet().sort_on("id").named("selected").isState('_p')
-    @unselected_instances = SortedSet().sort_on("id").named("unselected").isState('_p')
     @all_edges = SortedSet().sort_on("id").named("predicate")
+    @selected_instances = SortedSet().sort_on("id").named("selected").isState('_p')
+    # shown edges are those which are shown and linked to a selected source or target
+    @shown_instances = SortedSet().sort_on("id").named("shown").isState("_s")
+    # unshown edges are those which are unshown and linked to a selected source or target    
+    @unshown_instances = SortedSet().sort_on("id").named("unshown").isState("_s")
+    @unselected_instances = SortedSet().sort_on("id").named("unselected").isState('_p')
     this
   custom_event_name: 'changePredicate'    
   update: (inst, change) ->
@@ -24,7 +24,7 @@ class Predicate extends TreeCtrl
         @selected_instances.acquire(inst)
       else
         @unselected_instances.acquire(inst)
-    @update_state(inst, change)
+    @update_state()
   add_inst: (inst) ->
     @all_edges.add(inst)
     @update_state()

@@ -32,16 +32,16 @@ class Node
       edge.select()
     for edge in this.links_to
       edge.select()
-    @taxon.update_node(this,{select:true})
+    @taxon.update(this, 'select')
   unselect: () ->
     for edge in this.links_from
       edge.unselect()
     for edge in this.links_to
       edge.unselect()
-    @taxon.update_node(this,{select:false})
+    @taxon.update(this, 'unselect')
   discard: () ->
     # should we unselect first if node.state is selected?
-    @taxon.update_node(this,{discard:true})
+    @taxon.update(this, 'discard')
   # FIXME possibly useful, a record of which assertions a node is the context for
   # register_context_for: (edge) ->
   #   @is_context_for.push(edge)

@@ -1305,7 +1305,6 @@ class Huviz
   object_value_types: {}
   unique_pids: {}
   add_quad: (quad) ->
-    #console.log(quad)
     sid = quad.s
     pid = @make_qname(quad.p)
     ctxid = quad.g || @DEFAULT_CONTEXT
@@ -1350,23 +1349,10 @@ class Huviz
         edge.color = @gclui.predicate_picker.get_color_forId_byName(pred_n.lid,'showing')
         edge_e = @add_edge(edge)
         @develop(obj_n)
-
     else
       if subj_n.embryo and is_one_of(pid,NAME_SYNS)
         subj_n.name = quad.o.value.replace(/^\s+|\s+$/g, '')        
         @develop(subj_n) # might be ready now
-      #else  # TODO(smurp) assess the utility of this cache of literal values
-      #  subj.predicates[pid].objects.push(quad.o.value)
-
-    ###
-    try
-      last_sid = @last_quad.s
-    catch e
-      last_sid = ""       
-    if last_sid and last_sid isnt quad.s
-      #if @last_quad
-      @fire_nextsubject_event @last_quad,quad
-    ###
     @last_quad = quad
 
   infer_edge_end_types: (edge) ->
