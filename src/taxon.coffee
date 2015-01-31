@@ -15,9 +15,9 @@ class Taxon extends TaxonBase
     @instances = SortedSet().named(@id).isState('_isa').sort_on("id") # FIXME state?
     # _tp is for 'taxon-pickedness' and has value selected, unselected or discarded
     #   (should probably be _ts for 'taxon-state'
-    @selected_nodes = SortedSet().named('selected').isState('_tp').sort_on("id")
-    @unselected_nodes = SortedSet().named('unselected').isState('_tp').sort_on("id")
-    @discarded_nodes = SortedSet().named('discarded').isState('_tp').sort_on("id")
+    @selected_instances = SortedSet().named('selected').isState('_tp').sort_on("id")
+    @unselected_instances = SortedSet().named('unselected').isState('_tp').sort_on("id")
+    @discarded_instances = SortedSet().named('discarded').isState('_tp').sort_on("id")
     @lid = @id # FIXME @lid should be local @id should be uri, no?
 
   custom_event_name: 'changeTaxon'
@@ -45,23 +45,23 @@ class Taxon extends TaxonBase
     # should hidden and/or discarded taxons be invisible?
     if change.select?
       if change.select
-        @selected_nodes.acquire(node)
+        @selected_instances.acquire(node)
       else
-        @unselected_nodes.acquire(node)
+        @unselected_instances.acquire(node)
     if change.discard?
-      @discarded_nodes.acquire(node)
+      @discarded_instances.acquire(node)
     @update_state()
   recalc_direct_state: ->
-    if @selected_nodes.length + @unselected_nodes.length is 0
+    if @selected_instances.length + @unselected_instances.length is 0
       return "unshowing" #"hidden"
-    if @selected_nodes.length > 0 and @unselected_nodes.length > 0
+    if @selected_instances.length > 0 and @unselected_instances.length > 0
       return "mixed"
-    if @unselected_nodes.length is 0
+    if @unselected_instances.length is 0
       return "showing"
-    if @selected_nodes.length is 0
+    if @selected_instances.length is 0
       return "unshowing"
     else
-      throw "Taxon[#{@id}].recalc_state should not fall thru, #selected:#{@selected_nodes.length} #unselected:#{@unselected_nodes.length}"
+      throw "Taxon[#{@id}].recalc_state should not fall thru, #selected:#{@selected_instances.length} #unselected:#{@unselected_instances.length}"
     return
   recalc_english: (in_and_out) ->
     if @indirect_state is 'showing'
@@ -74,12 +74,12 @@ class Taxon extends TaxonBase
         if @state is 'showing'
           in_and_out.include.push @lid
         if @state is 'mixed'
-          if @selected_nodes.length < @unselected_nodes.length
-            for n in @selected_nodes
+          if @selected_instances.length < @unselected_instances.length
+            for n in @selected_instances
               in_and_out.include.push n.lid
           else
             in_and_out.include.push @id
-            for n in @unselected_nodes
+            for n in @unselected_instances
               in_and_out.exclude.push n.lid
         for sub in @subs
           sub.recalc_english(in_and_out)

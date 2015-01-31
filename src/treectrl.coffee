@@ -48,4 +48,32 @@ class TreeCtrl
     @update(inst, {select: false})
     @update_state()
 
+  update_state: ->
+    # FIXME fold the subroutines into this method for a single pass
+    # FIXME make use of the edge and change hints in the single pass
+    # terminology:
+    #   selected edge:  an edge (shown or not) to or from a node in the selected_set
+    # roughly: all_shown, none_shown, mixed, hidden
+    #   are all the selected edges shown?
+    #   are none of the selected edges shown?
+    #   are strictly some of the selected edges shown?
+    #   are there no selected edges?
+    old_state = @state
+    old_indirect_state = @indirect_state
+    @recalc_states()
+    if old_state isnt @state or old_indirect_state isnt @indirect_state    
+      evt = new CustomEvent @custom_event_name,
+          detail:
+            target_id: this.lid
+            target: this
+            old_state: old_state
+            new_state: @state
+            old_indirect_state: old_indirect_state
+            new_indirect_state: @indirect_state
+          bubbles: true
+          cancelable: true
+      if @super_class?
+        @super_class.update_state()
+      window.dispatchEvent evt
+
 (exports ? this).TreeCtrl = TreeCtrl

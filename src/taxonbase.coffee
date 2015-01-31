@@ -3,25 +3,6 @@ TreeCtrl = require('treectrl').TreeCtrl
 
 class TaxonBase extends TreeCtrl
   suspend_updates: false
-  update_state: ->
-    old_state = @state
-    old_indirect_state = @indirect_state
-    @recalc_states()
-    if old_state isnt @state or old_indirect_state isnt @indirect_state
-      evt = new CustomEvent @custom_event_name,
-        detail:
-          target_id: this.id
-          taxon: this
-          old_state: old_state
-          new_state: @state
-          old_indirect_state: old_indirect_state
-          new_indirect_state: @indirect_state
-        bubbles: true
-        cancelable: true
-      if @super_class?
-        @super_class.update_state()
-      window.dispatchEvent evt # could pass to picker, this is async
-    #@update_english()
 
   update_english: () ->
     if @id isnt "Thing"

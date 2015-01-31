@@ -5,35 +5,35 @@ class Predicate extends TreeCtrl
     super()
     @lid = @id.match(/([\w\d\_\-]+)$/g)[0] # lid means local id
     # pshown edges are those which are shown and linked to a selected source or target
-    @shown_inst = SortedSet().sort_on("id").named("shown").isState("_s")
+    @shown_instances = SortedSet().sort_on("id").named("shown").isState("_s")
     # punshown edges are those which are unshown and linked to a selected source or target
-    @unshown_inst = SortedSet().sort_on("id").named("unshown").isState("_s")
-    @selected_inst = SortedSet().sort_on("id").named("selected").isState('_p')
-    @unselected_inst = SortedSet().sort_on("id").named("unselected").isState('_p')
+    @unshown_instances = SortedSet().sort_on("id").named("unshown").isState("_s")
+    @selected_instances = SortedSet().sort_on("id").named("selected").isState('_p')
+    @unselected_instances = SortedSet().sort_on("id").named("unselected").isState('_p')
     @all_edges = SortedSet().sort_on("id").named("predicate")
     this
   custom_event_name: 'changePredicate'    
-  update: (edge, change) ->
+  update: (inst, change) ->
     if change.show?
       if change.show
-        @shown_inst.acquire(edge)
+        @shown_instances.acquire(inst)
       else
-        @unshown_inst.acquire(edge)
+        @unshown_instances.acquire(inst)
     if change.select?
       if change.select
-        @selected_inst.acquire(edge)
+        @selected_instances.acquire(inst)
       else
-        @unselected_inst.acquire(edge)
-    @update_state(edge,change)
+        @unselected_instances.acquire(inst)
+    @update_state(inst, change)
   add_inst: (inst) ->
     @all_edges.add(inst)
     @update_state()
-  update_selected_inst: () ->
-    before_count = @selected_inst.length
-    for e in @all_edges  # FIXME why can @selected_inst not be trusted?
+  update_selected_instances: () ->
+    before_count = @selected_instances.length
+    for e in @all_edges  # FIXME why can @selected_instances not be trusted?
       if e.an_end_is_selected()
-        @selected_inst.acquire(e)  
-  update_state: (edge,change) ->
+        @selected_instances.acquire(e)  
+  update_state: ->
     # FIXME fold the subroutines into this method for a single pass
     # FIXME make use of the edge and change hints in the single pass
     # terminology:
@@ -43,52 +43,37 @@ class Predicate extends TreeCtrl
     #   are none of the selected edges shown?
     #   are strictly some of the selected edges shown?
     #   are there no selected edges?
-    old_state = @state
-    old_indirect_state = @indirect_state
-    #console.warn "selected_inst.length",@selected_inst.length
-    @update_selected_inst()
-    @recalc_states()    
-    if old_state isnt @state
-      evt = new CustomEvent @custom_event_name,
-          detail:
-            target_id: this.lid
-            predicate: this
-            old_state: old_state
-            new_state: @state
-            old_indirect_state: old_indirect_state
-            new_indirect_state: @indirect_state
-          bubbles: true
-          cancelable: true
-      window.dispatchEvent evt
+    @update_selected_instances()
+    super()
 
   recalc_direct_state: ->
-    if @selected_inst.length is 0
+    if @selected_instances.length is 0
       @state = "hidden" # FIXME maybe "noneToShow"
-    else if @only_some_selected_inst_are_shown()
+    else if @only_some_selected_instances_are_shown()
       @state = "mixed" # FIXME maybe "partialShowing"?
-    else if @selected_inst.length > 0 and @all_selected_inst_are_shown()
+    else if @selected_instances.length > 0 and @all_selected_instances_are_shown()
       @state = "showing" # FIXME maybe "allShowing"?
-    else if @no_selected_inst_are_shown()
+    else if @no_selected_instances_are_shown()
       @state = "unshowing" # FIXME maybe "noneShowing"?      
     else
       console.info "Predicate.update_state() should not fall thru",this
       throw "Predicate.update_state() should not fall thru (#{@lid})"
       
-  no_selected_inst_are_shown: () ->
-    for e in @selected_inst
+  no_selected_instances_are_shown: () ->
+    for e in @selected_instances
       if e.shown?
         return false
     return true
-  all_selected_inst_are_shown: () ->
-    for e in @selected_inst
+  all_selected_instances_are_shown: () ->
+    for e in @selected_instances
       if not e.shown?
         return false
     return true
-  only_some_selected_inst_are_shown: () ->
+  only_some_selected_instances_are_shown: () ->
     some = false
     only = false
     shown_count = 0
-    for e in @selected_inst
+    for e in @selected_instances
       #continue unless e.an_end_is_selected()
       if e.shown?
         some = true
