@@ -61,16 +61,8 @@ class CommandController
 
   install_listeners: () ->
     window.addEventListener 'changePredicate', @predicate_picker.onChangeState
-    @setListenFor_changeTaxon(true)
+    window.addEventListener 'changeTaxon', @taxon_picker.onChangeState    
     window.addEventListener 'changeEnglish', @onChangeEnglish
-
-  setListenFor_changeTaxon: (doit) ->
-    if doit
-      console.warn "listening for 'changeTaxon'"
-      window.addEventListener 'changeTaxon', @taxon_picker.onChangeState
-    else
-      console.warn "un-listening for 'changeTaxon'"
-      window.removeEventListener 'changeTaxon', @taxon_picker.onChangeState
 
   on_dataset_loaded: (evt) =>
     if not evt.done?
@@ -261,7 +253,7 @@ class CommandController
       "Stripey color: some nodes are selected -- click to select all\n")
 
     # http://en.wikipedia.org/wiki/Taxon
-    @taxon_picker = new ColoredTreePicker(@nodeclassbox,'Thing',[],true) #,@)
+    @taxon_picker = new ColoredTreePicker(@nodeclassbox,'Thing',[],true)
     @taxon_picker.click_listener = @on_taxon_picked
     @taxon_picker.show_tree(@hierarchy,@nodeclassbox)
 
