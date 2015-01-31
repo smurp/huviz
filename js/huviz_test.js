@@ -617,6 +617,8 @@ describe("HuViz Tests", function() {
             to.equal(0);
     });
 
+    it("abstract predicates should be white");
+
     it("when nothing is graphed, clicking collapsed anything should graph everything");
 
     it("when everything is graphed, clicking collapsed anything should ungraph everything");

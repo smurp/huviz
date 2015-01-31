@@ -323,12 +323,15 @@ class CommandController
       eye_dee isnt node_class
 
     # # Elements may be in one of these states:
-    #   hidden     - TBD: not sure when hidden is appropriate
-    #   notshowing - a light color indicating nothing of that type is selected
-    #   showing    - a medium color indicating all things of that type are selected
-    #   emphasized - mark the class of the focused_node
     #   mixed      - some instances of the node class are selected, but not all
+    #   unshowing  - a light color indicating nothing of that type is selected
+    #   showing    - a medium color indicating all things of that type are selected
     #   abstract   - the element represents an abstract superclass, presumably containing concrete node classes
+    # 
+    #   hidden     - TBD: not sure when hidden is appropriate
+    #   emphasized - TBD: mark the class of the focused_node
+
+
 
   verb_sets: [ # mutually exclusive within each set
       choose: 'choose'

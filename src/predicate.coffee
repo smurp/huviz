@@ -44,13 +44,13 @@ class Predicate extends TreeCtrl
     super()
   recalc_direct_state: ->
     if @selected_instances.length is 0
-      return "unshowing" # FIXME maybe "noneToShow"
+      return "unshowing" # FIXME maybe "abstract"
     else if @only_some_selected_instances_are_shown()
-      return "mixed" # FIXME maybe "partialShowing"?
+      return "mixed"
     else if @selected_instances.length > 0 and @all_selected_instances_are_shown()
-      return "showing" # FIXME maybe "allShowing"?
+      return "showing"
     else if @no_selected_instances_are_shown()
-      return "unshowing" # FIXME maybe "noneShowing"?      
+      return "unshowing"
     else
       console.info "Predicate.update_state() should not fall thru",this
       throw "Predicate.update_state() should not fall thru (#{@lid})"

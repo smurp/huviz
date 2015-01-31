@@ -1,5 +1,18 @@
 ###
 TreeCtrl controls TreePicker states: showing, unshowing, mixed for direct and indirect.
+
+ Elements may be in one of these states:
+   mixed      - some instances of the node class are selected, but not all
+   unshowing  - there are instances but none are selected
+   showing    - there are instances and all are selected
+   abstract   - there are no instances (but presumably there are subs)
+
+ What about these theoretical states? 
+   hidden     - TBD: not sure when hidden is appropriate
+                perhaps abstract predicate subtrees should be hidden
+                ie "there is nothing interesting here, move along"
+   emphasized - TBD: mark the class of the focused_node
+
 ###
 class TreeCtrl
   constructor: ->
