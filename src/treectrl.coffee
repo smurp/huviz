@@ -41,13 +41,11 @@ class TreeCtrl
       if kid.get_indirect_state() isnt consensus
         return "mixed"
     return consensus
-  select: (inst) ->
-    @update(inst,{select: true})
-    @update_state()
-  unselect: (inst) ->
-    @update(inst, {select: false})
-    @update_state()
-  update_state: ->
+  update_state: (inst, change) ->
+    if inst?
+      @change_map[change].acquire(inst)
+    else
+      alert("update_state should be called with (inst, change)")
     # FIXME fold the subroutines into this method for a single pass
     # FIXME make use of the edge and change hints in the single pass
     # terminology:
@@ -74,8 +72,5 @@ class TreeCtrl
       if @super_class?
         @super_class.update_state()
       window.dispatchEvent evt
-  update: (inst, change) ->
-    @change_map[change].acquire(inst)
-    @update_state()
 
 (exports ? this).TreeCtrl = TreeCtrl

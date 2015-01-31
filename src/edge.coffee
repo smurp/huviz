@@ -16,26 +16,14 @@ class Edge
   isSelected: () ->
     return @source.selected? or @target.selected?
   show: () ->
-    @predicate.shown_instances.acquire(this)
-    if @isSelected()
-      @predicate.select(this)
-    else
-      @predicate.unshown_instances.remove(this)
-      @predicate.unselect(this)
-    @predicate.update(this,{show:true})
+    @predicate.update_state(this, 'show')
   unshow: () ->
-    if @isSelected()
-      @predicate.unshown_instances.acquire(this)
-      @predicate.select(this)
-    else
-      @predicate.unshown_instances.acquire(this)
-      @predicate.unselected_instances.acquire(this)
-    @predicate.update(this,{show:false})      
+    @predicate.update_state(this, 'unshow')
   an_end_is_selected: () ->
     return this.target.selected? or this.source.selected?
   unselect: () ->
-    @predicate.unselect(this)
+    @predicate.update_state(this, 'unselect')
   select: () ->
-    @predicate.select(this)
+    @predicate.update_state(this, 'select')    
   
 (exports ? this).Edge = Edge

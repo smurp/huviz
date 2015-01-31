@@ -11,20 +11,13 @@ class Predicate extends TreeCtrl
     # unshown edges are those which are unshown and linked to a selected source or target    
     @unshown_instances = SortedSet().sort_on("id").named("unshown").isState("_s")
     @unselected_instances = SortedSet().sort_on("id").named("unselected").isState('_p')
+    @change_map =
+      unselect: @unselected_instances
+      select: @selected_instances
+      unshow: @unshown_instances
+      show: @shown_instances
     this
   custom_event_name: 'changePredicate'    
-  update: (inst, change) ->
-    if change.show?
-      if change.show
-        @shown_instances.acquire(inst)
-      else
-        @unshown_instances.acquire(inst)
-    if change.select?
-      if change.select
-        @selected_instances.acquire(inst)
-      else
-        @unselected_instances.acquire(inst)
-    @update_state()
   add_inst: (inst) ->
     @all_edges.add(inst)
     @update_state()
