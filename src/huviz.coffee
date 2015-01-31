@@ -1226,19 +1226,6 @@ class Huviz
     array.splice c, 1  if c > -1
     array
 
-  DEPRECATED_add_to: (itm, set) ->
-    return add_to_array(itm, set, cmp_on_id)  if isArray(set)
-    throw new Error "add_to() requires itm to have an .id"  if typeof itm.id is "undefined"
-    found = set[itm.id]
-    set[itm.id] = itm  unless found
-    set[itm.id]
-
-  DEPRECATED_remove_from: (doomed, set) ->
-    throw new Error "remove_from() requires doomed to have an .id"  if typeof doomed.id is "undefined"
-    return remove_from_array(doomed, set)  if isArray(set)
-    delete set[doomed.id]  if set[doomed.id]
-    set
-
   my_graph:
     subjects: {}
     predicates: {}
@@ -1744,13 +1731,20 @@ class Huviz
     @force.links @links_set
     @restart()
 
+  attach_predicate_to_its_parent: (a_pred) ->
+    parent_id = @ontology.subPropertyOf[a_pred.lid] or 'anything'
+    if parent_id?
+      parent_pred = @get_or_create_predicate_by_id(parent_id)
+      a_pred.register_superclass(parent_pred)
+    return
+    
   get_or_create_predicate_by_id: (sid) ->
     obj_id = @make_qname(sid)
     obj_n = @predicate_set.get_by('id',obj_id)
     if not obj_n?
       obj_n = new Predicate(obj_id)
-      #obj_n = {id:obj_id, lid:obj_id.match(/([\w\d\_\-]+)$/g)[0]} # lid means local id
       @predicate_set.add(obj_n)
+      @attach_predicate_to_its_parent(obj_n)
     obj_n
 
   get_or_create_context_by_id: (sid) ->
