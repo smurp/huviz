@@ -41,6 +41,7 @@
 #     d) there might be update operations against gclui apart from actuators
 #
 # Immediate Priorities:
+#  89) TASK: remove TaxonAbstract
 #  88) BUG: Taxon with no direct (nor selected indirect) children crashes when clicked
 #  86) BUG: try_to_set_node_type: only permit subtypes to override supertypes
 #  87) BUG: solve node.type vs node.taxon sync problem (see orlonto)

@@ -47,7 +47,6 @@ class TreeCtrl
   unselect: (inst) ->
     @update(inst, {select: false})
     @update_state()
-
   update_state: ->
     # FIXME fold the subroutines into this method for a single pass
     # FIXME make use of the edge and change hints in the single pass

@@ -45,20 +45,18 @@ class Predicate extends TreeCtrl
     #   are there no selected edges?
     @update_selected_instances()
     super()
-
   recalc_direct_state: ->
     if @selected_instances.length is 0
-      @state = "hidden" # FIXME maybe "noneToShow"
+      return "hidden" # FIXME maybe "noneToShow"
     else if @only_some_selected_instances_are_shown()
-      @state = "mixed" # FIXME maybe "partialShowing"?
+      return "mixed" # FIXME maybe "partialShowing"?
     else if @selected_instances.length > 0 and @all_selected_instances_are_shown()
-      @state = "showing" # FIXME maybe "allShowing"?
+      return "showing" # FIXME maybe "allShowing"?
     else if @no_selected_instances_are_shown()
-      @state = "unshowing" # FIXME maybe "noneShowing"?      
+      return "unshowing" # FIXME maybe "noneShowing"?      
     else
       console.info "Predicate.update_state() should not fall thru",this
       throw "Predicate.update_state() should not fall thru (#{@lid})"
-      
   no_selected_instances_are_shown: () ->
     for e in @selected_instances
       if e.shown?
