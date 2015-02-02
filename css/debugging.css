@@ -1,3 +1,9 @@
+.treepicker-empty > .treepicker-label:after {
+  position: relative;
+  top: -0.5em;
+  font-size: 50%;
+  content: "e;
+}
 .treepicker-mixed > .treepicker-label:after {
   position: relative;
   top: -0.5em;
@@ -15,6 +21,12 @@
   top: -0.5em;
   font-size: 50%;
   content: "s"
+}
+.treepicker-indirect-empty > .treepicker-label:before {
+  position: relative;
+  top: -0.5em;
+  font-size: 50%;
+  content: "E";
 }
 .treepicker-indirect-mixed > .treepicker-label:before {
   position: relative;

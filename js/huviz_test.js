@@ -617,7 +617,11 @@ describe("HuViz Tests", function() {
             to.equal(0);
     });
 
-    it("abstract predicates should be white");
+    it("when no taxa are selected there should be no predicates colored");
+
+    it("when no taxa are selected only the predicate anything should be visible");
+
+    it("empty predicates should be white");
 
     it("when nothing is graphed, clicking collapsed anything should graph everything");
 
@@ -625,7 +629,7 @@ describe("HuViz Tests", function() {
 
     it("when nothing is graphed there should be no treepicker-mixed predicates");
 
-    it("abstract predicates with all kids unselected should be unselected too");
+    it("empty predicates with all kids unselected should be unselected too");
 
   });
 

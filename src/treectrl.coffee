@@ -6,12 +6,28 @@ TreeCtrl controls TreePicker states: showing, unshowing, mixed for direct and in
    unshowing  - there are instances but none are selected
    showing    - there are instances and all are selected
    abstract   - there are no instances (but presumably there are subs)
+   (empty)    - is empty a better name for taxon with no direct members?
+                Perhaps 'empty' is a legal direct-state and 'abstract' is only
+                sensible as an indirect-state? Do these distinctions make
+                sense in both the Taxon context and the Predicate context?
 
- What about these theoretical states? 
+ What about these theoretical states?
    hidden     - TBD: not sure when hidden is appropriate
                 perhaps abstract predicate subtrees should be hidden
                 ie "there is nothing interesting here, move along"
    emphasized - TBD: mark the class of the focused_node
+   
+
+ Are these states only meaningful in the MVC View context and not the
+ Model context? -- where the model context is Taxon and/or Predicate
+ while the View context is the TreePicker.  Likewise 'collapse' is
+ concept related to the View.  OK so we have View verbs such as:
+ * hide
+ * emphasize
+ * collapse
+ * pick (click?)
+ and Model verbs such as:
+
 
 ###
 class TreeCtrl
@@ -44,6 +60,7 @@ class TreeCtrl
   recalc_states: ->
     @state = @recalc_direct_state()
     @indirect_state = @recalc_indirect_state()
+    return
   recalc_indirect_state: () ->
     if @subs.length is 0
       return @state
@@ -51,8 +68,12 @@ class TreeCtrl
       return 'mixed'
     consensus = @state # variable for legibility and performance
     for kid in @subs
-      if kid.get_indirect_state() isnt consensus
-        return "mixed"
+      kid_ind_stt = kid.get_indirect_state()
+      #if kid_ind_stt is 'empty'
+      #  debugger
+      if kid_ind_stt isnt consensus
+        if kid_ind_stt isnt 'empty'
+          return "mixed"
     return consensus
   update_state: (inst, change) ->
     if inst?
@@ -71,7 +92,8 @@ class TreeCtrl
     old_state = @state
     old_indirect_state = @indirect_state
     @recalc_states()
-    
+    if old_indirect_state isnt @indirect_state and old_indirect_state is 'abstract'
+      console.log @lid, "was abstract"
     if old_state isnt @state or old_indirect_state isnt @indirect_state
       if window.suspend_updates
         return

@@ -61,7 +61,7 @@ class CommandController
 
   install_listeners: () ->
     window.addEventListener 'changePredicate', @predicate_picker.onChangeState
-    window.addEventListener 'changeTaxon', @taxon_picker.onChangeState    
+    window.addEventListener 'changeTaxon', @taxon_picker.onChangeState
     window.addEventListener 'changeEnglish', @onChangeEnglish
 
   on_dataset_loaded: (evt) =>
