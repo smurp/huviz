@@ -587,7 +587,7 @@ describe("HuViz Tests", function() {
 
     it("toggling a predicate should toggle indirect-mixed on its supers", function(done) {
       say(test_title, done);
-      //halt();
+      //halt(); 
       window.breakpoint = true;
       // Confirm assumption that there are no indirect-mixed initially
       expect($("#predicates .treepicker-indirect-mixed").length,
