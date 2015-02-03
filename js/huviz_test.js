@@ -47,6 +47,10 @@ describe("HuViz Tests", function() {
   var number_of_nodes = 15;
   var test_title;
 
+  function halt() {
+    expect(undefined, "halting intentionally").to.be.ok();
+  }
+
   // http://stackoverflow.com/questions/23947688/how-to-access-describe-and-it-messages-in-mocha
   before(function bootHuviz(done) {
     console.groupCollapsed("test suite setup");
@@ -147,8 +151,6 @@ describe("HuViz Tests", function() {
       expect($("#predicates .treepicker-indirect-mixed").length,
              "there should be no indirect-mixed predicates when nothing is graphed").
             to.equal(0);
-
-      //expect(undefined).to.be.ok();
     });
 
     it("the current selection should show in the nextcommand box", function(done) {
@@ -194,7 +196,6 @@ describe("HuViz Tests", function() {
       expected = "____ every Thing ."; // note four _
       expect(get_command_english()).to.equal(expected);
 
-      window.breakpoint = true;
       london = HVZ.nodes.get_by('id', 'BJ')
       HVZ.toggle_selected(london);
       expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length - 1);
@@ -586,7 +587,8 @@ describe("HuViz Tests", function() {
 
     it("toggling a predicate should toggle indirect-mixed on its supers", function(done) {
       say(test_title, done);
-
+      //halt();
+      window.breakpoint = true;
       // Confirm assumption that there are no indirect-mixed initially
       expect($("#predicates .treepicker-indirect-mixed").length,
              "there should be no indirect-mixed predicates when nothing is graphed").
@@ -617,7 +619,27 @@ describe("HuViz Tests", function() {
             to.equal(0);
     });
 
-    it("when no taxa are selected there should be no predicates colored");
+    it("when no taxa are selected there should be no predicates colored", function(done) {
+      say(test_title, done);
+      expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
+      // deselect all nodes by collapsing Thing and clicking it
+      $("#Thing span.expander:first").trigger("click");
+      $("#Thing").trigger("click");
+
+      // do the test
+      expect($("#predicates .treepicker-mixed").length,
+             "there should be no treepicker-mixed predicates when nothing is selected").
+            to.equal(0);
+      expect($("#predicates .treepicker-unshowing").length,
+             "there should be no treepicker-unshowing predicates when nothing is selected").
+            to.equal(0);
+      return;
+      // cleanup
+      expect(HVZ.selected_set.length).to.equal(0);
+      $("#Thing").trigger("click");
+      expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
+      $("#Thing span.expander:first").trigger("click");
+    });
 
     it("when no taxa are selected only the predicate anything should be visible");
 

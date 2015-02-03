@@ -81,7 +81,12 @@ p {
 }
 /* display: inline-block and white-space: nowrap */
 .treepicker-hidden {
-    display: none;
+  /* for debugging, comment the following line disable collapsing */
+  display:none;
+  
+  /*
+  text-decoration: strikethrough;
+   */
 }
 .treepicker-mixed {
   font-style: italic;

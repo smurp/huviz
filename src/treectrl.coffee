@@ -69,10 +69,11 @@ class TreeCtrl
     consensus = @state # variable for legibility and performance
     for kid in @subs
       kid_ind_stt = kid.get_indirect_state()
-      #if kid_ind_stt is 'empty'
       #  debugger
       if kid_ind_stt isnt consensus
-        if kid_ind_stt isnt 'empty'
+        if consensus in ['empty', 'hidden']
+          consensus = kid_ind_stt
+        else if kid_ind_stt not in ['empty', 'hidden']
           return "mixed"
     return consensus
   update_state: (inst, change) ->

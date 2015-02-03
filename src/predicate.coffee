@@ -44,8 +44,11 @@ class Predicate extends TreeCtrl
     super()
   recalc_direct_state: ->
     if @selected_instances.length is 0
-      #return "empty" # FIXME maybe "abstract"
-      return "unshowing" # FIXME maybe "abstract"
+      return "empty"       
+      return "unshowing"      
+      return "hidden"      
+
+      return "abstract"      
     else if @only_some_selected_instances_are_shown()
       return "mixed"
     else if @selected_instances.length > 0 and @all_selected_instances_are_shown()
