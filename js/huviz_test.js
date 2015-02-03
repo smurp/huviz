@@ -135,7 +135,6 @@ describe("HuViz Tests", function() {
 
     it("toggling a branch predicate should leave the root predicate unmixed", function(done) {
       say(test_title, done);
-
       a_branch_predicate_sel = "#connectionWithRegion";
       a_branch_predicate_sel = "#connectionWithSettlement";
       $(a_branch_predicate_sel).trigger("click");  // graph some branch predicates
@@ -571,6 +570,7 @@ describe("HuViz Tests", function() {
 
     it("everything should start shelved and un-graphed", function(done) {
       say(test_title, done);
+      window.breakpoint = true;
       expect(HVZ.graphed_set.length).to.equal(0);
       expect(HVZ.shelved_set.length).to.equal(HVZ.nodes.length);
 
@@ -585,10 +585,49 @@ describe("HuViz Tests", function() {
             to.equal(0);
     });
 
+
+    it("with nothing graphed, clicking collapsed anything should graph all", function(done) {
+      say(test_title, done);
+      // confirm assumption that nothing is graphed and everything selected
+      expect(HVZ.graphed_set.length).to.equal(0);
+      expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
+
+      // click collapsed 'anything' predicate
+      $("#anything span.expander:first").trigger("click"); // collapse
+      $("#anything").trigger("click");
+
+      // confirm that everything is graphed
+      expect(HVZ.graphed_set.length, 
+             "after clicking collapsed 'anything' everything should be graphed").
+            to.equal(HVZ.nodes.length);
+      expect(HVZ.shelved_set.length).to.equal(0);
+      //      halt();
+    });
+
+    it("with everything graphed, clicking collapsed anything should ungraph all", function(done) {
+      say(test_title, done);
+      // confirm assumptions
+      expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
+
+      // click collapsed 'anything' predicate when everything is selected
+      $("#anything").trigger("click");
+      
+      // confirm that everything is now ungraphed
+      expect(HVZ.graphed_set.length, 
+             "after clicking collapsed 'anything' everything should be ungraphed").
+            to.equal(0);
+      expect(HVZ.shelved_set.length).to.equal(HVZ.nodes.length);
+
+      // uncollapse 'anything'
+      $("#anything span.expander:first").trigger("click"); // collapse
+
+    });
+
+
     it("toggling a predicate should toggle indirect-mixed on its supers", function(done) {
       say(test_title, done);
       //halt(); 
-      window.breakpoint = true;
+
       // Confirm assumption that there are no indirect-mixed initially
       expect($("#predicates .treepicker-indirect-mixed").length,
              "there should be no indirect-mixed predicates when nothing is graphed").
@@ -606,7 +645,7 @@ describe("HuViz Tests", function() {
       // confirm that there are now indirect-mixed
       expect($("#predicates .treepicker-indirect-mixed").length,
              "all " + num_parent + " parents of " + a_leaf_predicate_sel +
-             "should be indirect-mixed when it is picked").
+             " should be indirect-mixed when it is picked").
 	    to.equal(num_parent);
 
       // clean up
@@ -644,10 +683,6 @@ describe("HuViz Tests", function() {
     it("when no taxa are selected only the predicate anything should be visible");
 
     it("empty predicates should be white");
-
-    it("when nothing is graphed, clicking collapsed anything should graph everything");
-
-    it("when everything is graphed, clicking collapsed anything should ungraph everything");
 
     it("when nothing is graphed there should be no treepicker-mixed predicates");
 

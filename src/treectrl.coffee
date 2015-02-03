@@ -34,6 +34,8 @@ class TreeCtrl
   constructor: ->
     @state = 'unshowing'
     @indirect_state = 'unshowing'
+    @state = 'empty'
+    @indirect_state = 'empty'
     @subs = []
     @super_class = null
   get_state: () ->

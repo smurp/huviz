@@ -291,7 +291,7 @@ class CommandController
 
     #console.info("on_taxon_picked() id: #{id}, new_state: #{new_state}, old_state: #{old_state}")
     if new_state is 'showing'
-      if old_state in ['mixed','unshowing']
+      if old_state in ['mixed', 'unshowing', 'empty']
         if not (id in @node_classes_chosen)
           @node_classes_chosen.push(id)
         # SELECT all members of the currently chosen classes

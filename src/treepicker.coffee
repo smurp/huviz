@@ -95,25 +95,19 @@ class TreePicker
           
         is_treepicker_collapsed = elem.classed('treepicker-collapse')
         is_treepicker_showing = elem.classed('treepicker-showing')
-        is_treepicker_indirect_mixed = elem.classed('treepicker-indirect-mixed')
+        is_treepicker_indirect_showing = elem.classed('treepicker-indirect-showing')
 
+        # If the state is not 'showing' then make it so, otherwise 'unshowing'.
+        # if it is not currently showing.
+        send_leafward = is_treepicker_collapsed
+        new_state = 'showing'
         if is_treepicker_collapsed
-          send_leafward = true
-          suspend_listener = true
-          if is_treepicker_indirect_mixed
-            new_state = 'showing'
-          else
-            if is_treepicker_showing
-              new_state = 'unshowing'
-            else
-              new_state = 'showing'
+          if is_treepicker_indirect_showing
+            new_state = 'unshowing'
         else
           if is_treepicker_showing
             new_state = 'unshowing'
-          else
-            new_state = 'showing'
-          send_leafward = false
-          suspend_listener = false
+        
         picker.effect_click(id, new_state, send_leafward, listener)
 
   effect_click: (id, new_state, send_leafward, listener) ->
