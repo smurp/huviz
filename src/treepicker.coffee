@@ -1,17 +1,21 @@
 ###
 Build and control a hierarchic menu of arbitrarily nested divs looking like:
-  +-----------------------+
-  |      +---------------+|
-  |      |        +-----+||
-  | All▼ |People▼ |Men  |||
-  |      |        +-----+||
-  |      |        +-----+||
-  |      |        |Women|||
-  |      |        +-----+||
-  |      +---------------+|
-  +-----------------------+
-  The user can toggle between collapsed and expanded using the triangles.
-  On the other hand, branches in the tree which are empty are hidden.
+
+    +-----------------------+
+    |      +---------------+|
+    |      |        +-----+||
+    | All▼ |People▼ |Men  |||
+    |      |        +-----+||
+    |      |        +-----+||
+    |      |        |Women|||
+    |      |        +-----+||
+    |      +---------------+|
+    +-----------------------+
+    
+* The user can toggle between collapsed and expanded using the triangles.
+* On the other hand, branches in the tree which are empty are hidden.
+* Clicking uncollapsed branches cycles just their selectedness.
+* Clicking collapsed branches cycles the selectedness of them and their children.
 ###
   
 class TreePicker
