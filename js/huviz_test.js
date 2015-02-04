@@ -89,6 +89,7 @@ describe("HuViz Tests", function() {
 
 
   describe("operations on classes", function() {
+
     it("initially everything should be shelved and nothing graphed", function(done) {
       say(test_title, done);
       expect(HVZ.graphed_set.length).to.equal(0);
@@ -660,6 +661,8 @@ describe("HuViz Tests", function() {
       $("#Thing span.expander:first").trigger("click"); // expand Thing
     });
 
+
+    it("collapsed empty predicates' coloring should indicate showing, unshowing or mixed");
 
     it("empty predicates should be white");
 

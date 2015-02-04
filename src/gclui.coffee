@@ -170,7 +170,7 @@ class CommandController
                        "Stripey color: some edges shown -- click to show all\n" +
                        "Hidden: no edges among the selected nodes")
     
-    #@predicatebox.attr('class','scrolling')
+    @predicatebox.attr('class','scrolling')
     @predicates_ignored = []
     @predicate_picker = new ColoredTreePicker(@predicatebox,'anything',[],true)
     @predicate_hierarchy = {'anything':['anything']}

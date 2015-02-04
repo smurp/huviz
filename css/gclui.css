@@ -77,7 +77,7 @@ p {
 }
 .scrolling {
     overflow-y: scroll;
-    max-height: 12em;
+    max-height: 20em;
 }
 /* display: inline-block and white-space: nowrap */
 .treepicker-hidden {
