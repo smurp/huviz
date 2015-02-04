@@ -27,7 +27,6 @@ class ColoredTreePicker extends TreePicker
   constructor: ->
     super
     @id_to_colors = {}
-    #console.log "ColorTreePicker(): root =",root
   add: (id,parent_id,name,listener) ->
     super(id,parent_id,name,listener)
     # FIXME @recolor_now() unless handled externally

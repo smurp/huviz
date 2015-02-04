@@ -113,7 +113,6 @@ class TreePicker
         picker.effect_click(id, new_state, send_leafward, listener)
 
   effect_click: (id, new_state, send_leafward, listener) ->
-    #console.log("#{@get_my_id()}.effect_click()", arguments)
     if send_leafward
       kids = @id_to_children[id]
       if kids?
@@ -206,7 +205,6 @@ class TreePicker
     if elem?
       elem.attr("title", title)
   set_direct_state: (id, state, old_state) ->
-    #console.info("#{@get_my_id()}.set_direct_state()", arguments)
     if not old_state?
       old_state = @id_to_state[true][id]
     @id_to_state[true][id] = state
@@ -215,7 +213,6 @@ class TreePicker
     if state?
       @id_to_elem[id].classed("treepicker-#{state}",true)
   set_indirect_state: (id, state, old_state) ->
-    #console.info("#{@get_my_id()}.set_indirect_state()", arguments)
     if not state?
       #if @get_my_id() is "classes"
       #  throw "#{@get_my_id()}.set_indirect_state() id=" + id + " state=" + state
@@ -230,7 +227,6 @@ class TreePicker
       @id_to_elem[id].classed("treepicker-indirect-#{state}",true)
   DEPRECATED_set_state_by_id: (id, state, old_state) ->
     alert("deprecated")
-    #console.info("#{@get_my_id()}.set_state_by_id()", arguments)
     @set_direct_state(id, state, old_state)
     if @is_leaf(id)
       indirect_state = state
@@ -245,14 +241,12 @@ class TreePicker
     @set_indirect_state(id, new_indirect_state)
     @update_parent_indirect_state(id)
   set_both_states_by_id: (id, direct_state, indirect_state, old_state, old_indirect_state) ->
-    #console.info("#{@get_my_id()}.set_both_states_by_id()", arguments)
     @set_direct_state(id, direct_state, old_state)
     @set_indirect_state(id, indirect_state, old_indirect_state)
     # the responsibility for knowing that parent state should change is Taxons
   is_leaf: (id) ->
     return (not @id_to_children[id]?) or @id_to_children[id].length is 0
   update_parent_indirect_state: (id) ->
-    #console.info("#{@get_my_id()}.update_parent_indirect_state()", arguments)
     # Update the indirect_state of the parents up the tree
     parent_id = @id_to_parent[id]
     child_is_leaf = @is_leaf(id)
