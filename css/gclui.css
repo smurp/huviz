@@ -82,11 +82,23 @@ p {
 /* display: inline-block and white-space: nowrap */
 .treepicker-hidden {
   /* for debugging, comment the following line disable collapsing */
-  display:none;
+  //display:none;
   
   /*
   text-decoration: strikethrough;
    */
+}
+.treepicker-indirect-empty {
+  /* for debugging, comment the following line to disable hiding */
+  display: none;
+  //text-decoration: strikethrough;
+}
+#anything.treepicker-indirect-empty.treepicker-empty {
+  background-color: white;
+  display: block;
+}
+#anything.treepicker-indirect-empty.treepicker-empty .expander {
+  display: none;
 }
 .treepicker-mixed {
   font-style: italic;

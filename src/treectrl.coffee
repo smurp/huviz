@@ -32,8 +32,6 @@ TreeCtrl controls TreePicker states: showing, unshowing, mixed for direct and in
 ###
 class TreeCtrl
   constructor: ->
-    @state = 'unshowing'
-    @indirect_state = 'unshowing'
     @state = 'empty'
     @indirect_state = 'empty'
     @subs = []
@@ -81,8 +79,6 @@ class TreeCtrl
   update_state: (inst, change) ->
     if inst?
       @change_map[change].acquire(inst)
-    else
-      alert("update_state should be called with (inst, change)")
     # FIXME fold the subroutines into this method for a single pass
     # FIXME make use of the edge and change hints in the single pass
     # terminology:

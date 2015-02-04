@@ -2,7 +2,7 @@ TreeCtrl = require('treectrl').TreeCtrl
 
 class Predicate extends TreeCtrl
   constructor: (@id) ->
-    super()
+    super
     @lid = @id.match(/([\w\d\_\-]+)$/g)[0] # lid means local id
     @all_edges = SortedSet().sort_on("id").named("predicate")
     # TODO check for .acquire() bugs re isState('_s') vs isState('_p')
@@ -27,7 +27,7 @@ class Predicate extends TreeCtrl
     for e in @all_edges  # FIXME why can @selected_instances not be trusted?
       if e.an_end_is_selected()
         @selected_instances.acquire(e)  
-  update_state: ->
+  update_state: (inst, change) ->
     # FIXME fold the subroutines into this method for a single pass
     # FIXME make use of the edge and change hints in the single pass
     # terminology:
@@ -38,17 +38,11 @@ class Predicate extends TreeCtrl
     #   are strictly some of the selected edges shown?
     #   are there no selected edges?
     @update_selected_instances()
-    super()
+    super(inst, change)
 
-  Xrecalc_indirect_state: ->
-    super()
   recalc_direct_state: ->
     if @selected_instances.length is 0
-      return "empty"       
-      return "unshowing"      
-      return "hidden"      
-
-      return "abstract"      
+      return "empty"
     else if @only_some_selected_instances_are_shown()
       return "mixed"
     else if @selected_instances.length > 0 and @all_selected_instances_are_shown()
