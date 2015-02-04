@@ -585,7 +585,6 @@ describe("HuViz Tests", function() {
             to.equal(0);
     });
 
-
     it("with nothing graphed, clicking collapsed anything should graph all", function(done) {
       say(test_title, done);
       // confirm assumption that nothing is graphed and everything selected
@@ -618,9 +617,8 @@ describe("HuViz Tests", function() {
             to.equal(0);
       expect(HVZ.shelved_set.length).to.equal(HVZ.nodes.length);
 
-      // uncollapse 'anything'
-      $("#anything span.expander:first").trigger("click"); // collapse
-
+      // expand 'anything'
+      $("#anything span.expander:first").trigger("click");
     });
 
 

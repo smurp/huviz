@@ -205,30 +205,33 @@ class TreePicker
     elem = @id_to_elem[id]
     if elem?
       elem.attr("title", title)
-  set_direct_state: (id, state) ->
+  set_direct_state: (id, state, old_state) ->
     #console.info("#{@get_my_id()}.set_direct_state()", arguments)
-    old_state = @id_to_state[true][id]
+    if not old_state?
+      old_state = @id_to_state[true][id]
     @id_to_state[true][id] = state
     if old_state?
       @id_to_elem[id].classed("treepicker-#{old_state}",false)
     if state?
       @id_to_elem[id].classed("treepicker-#{state}",true)
-  set_indirect_state: (id, state) ->
+  set_indirect_state: (id, state, old_state) ->
     #console.info("#{@get_my_id()}.set_indirect_state()", arguments)
     if not state?
       #if @get_my_id() is "classes"
       #  throw "#{@get_my_id()}.set_indirect_state() id=" + id + " state=" + state
       console.error("#{@get_my_id()}.set_indirect_state()",
                     arguments, "state should never be",undefined)
-    old_state = @id_to_state[false][id]
-    @id_to_state[false][id] = state
+    if not old_state?
+      old_state = @id_to_state[false][id]
+    @id_to_state[false][id] = state  # false means indirect
     if old_state?
       @id_to_elem[id].classed("treepicker-indirect-#{old_state}",false)
     if state?
       @id_to_elem[id].classed("treepicker-indirect-#{state}",true)
-  set_state_by_id: (id, state) ->
+  DEPRECATED_set_state_by_id: (id, state, old_state) ->
+    alert("deprecated")
     #console.info("#{@get_my_id()}.set_state_by_id()", arguments)
-    @set_direct_state(id,state)
+    @set_direct_state(id, state, old_state)
     if @is_leaf(id)
       indirect_state = state
     else
@@ -241,10 +244,10 @@ class TreePicker
       new_indirect_state = indirect_state
     @set_indirect_state(id, new_indirect_state)
     @update_parent_indirect_state(id)
-  set_both_states_by_id: (id, direct_state, indirect_state) ->
+  set_both_states_by_id: (id, direct_state, indirect_state, old_state, old_indirect_state) ->
     #console.info("#{@get_my_id()}.set_both_states_by_id()", arguments)
-    @set_direct_state(id, direct_state)
-    @set_indirect_state(id, indirect_state)
+    @set_direct_state(id, direct_state, old_state)
+    @set_indirect_state(id, indirect_state, old_indirect_state)
     # the responsibility for knowing that parent state should change is Taxons
   is_leaf: (id) ->
     return (not @id_to_children[id]?) or @id_to_children[id].length is 0
@@ -305,8 +308,8 @@ class TreePicker
   onChangeState: (evt) =>
     det = evt.detail
     if det.new_indirect_state?
-      @set_both_states_by_id(det.target_id, det.new_state, det.new_indirect_state)
+      @set_both_states_by_id(det.target_id, det.new_state, det.new_indirect_state, det.old_state, det.old_indirect_state)
     else
-      @set_state_by_id(evt.detail.target_id, evt.detail.new_state)
+      @set_state_by_id(det.target_id, det.new_state, det.old_state)
 
 (exports ? this).TreePicker = TreePicker
