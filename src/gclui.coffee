@@ -83,7 +83,6 @@ class CommandController
         
   reset_editor: ->
     @disengage_all_verbs()
-    @unselect_all_node_classes()
     @init_editor_data()
     @clear_like()
     @update_command()
@@ -535,7 +534,8 @@ class CommandController
   build_verb_picker: (id,label,alternatives) ->
     vbctl = alternatives.append('div').attr("class","verb")
     if @verb_descriptions[id]
-      vbctl.attr("title",@verb_descriptions[id]).attr("id", "verb-"+id)
+      vbctl.attr("title",@verb_descriptions[id])
+    vbctl.attr("id", "verb-"+id)
     @verb_control[id] = vbctl
     vbctl.text(label)
     that = @
