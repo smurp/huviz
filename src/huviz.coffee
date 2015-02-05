@@ -1934,11 +1934,11 @@ class Huviz
   choose: (chosen) =>
     # There is a flag .chosen in addition to the state 'linked'
     # because linked means it is in the graph
-    #@select chosen  # NO, chosen does not imply selected
     @chosen_set.add chosen
     @graphed_set.acquire chosen # do it early so add_link shows them otherwise choosing from discards just puts them on the shelf
     @show_links_from_node chosen
     @show_links_to_node chosen
+    ###
     if chosen.links_shown
       @graphed_set.acquire chosen  # FIXME this duplication (see above) is fishy
       chosen.showing_links = "all"
@@ -1946,6 +1946,7 @@ class Huviz
       # FIXME after this weird side effect, at the least we should not go on
       console.error(chosen.lid,"was found to have no links_shown so: @unlink_set.acquire(chosen)", chosen)
       @shelved_set.acquire chosen
+    ###
     @update_state chosen
     shownness = @update_showing_links chosen
     chosen
