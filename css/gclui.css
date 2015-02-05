@@ -75,10 +75,6 @@ p {
 .treepicker-showing {
     background-color: tan;
 }
-.scrolling {
-    overflow-y: scroll;
-    max-height: 20em;
-}
 /* display: inline-block and white-space: nowrap */
 .treepicker-hidden {
   /* for debugging, comment the following line disable collapsing */

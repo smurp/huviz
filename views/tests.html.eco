@@ -12,6 +12,12 @@
     <link href="/mocha/mocha.css" rel="stylesheet"/>
     <link href="/css/huviz_test.css" rel="stylesheet"/>
     <link href="/css/debugging.css" rel="stylesheet"/>
+    <style>
+      #predicates {
+        overflow-y: scroll;
+        max-height: 20em;
+      }
+    </style>
     <script>
       window.module = {};
     </script>
@@ -53,6 +59,7 @@
         <% end %>
       </h1>
       <h2>HuViz Test Suite</h2>
+      <h6>(currently works best in Google Chrome)</h6>
       <div class="huviz-versions">
         <a href="http://orlando.dev.semandra.com/tests" 
            class="git-branch-is-master <% if @git_branch_name is 'master':%>current-git-branch<% end %>">production</a>

@@ -9,6 +9,12 @@
     <link href="/css/gclui.css" rel="stylesheet" type="text/css">
     <link href="/css/help.css" rel="stylesheet" type="text/css">
     <link href="/css/jquery-ui.css" rel="stylesheet"/>
+    <style>
+      #predicates {
+        overflow-y: scroll;
+        max-height: 20em;
+      }
+    </style>
   <% if @is_local: %>
     <link href="/css/debugging.css" rel="stylesheet"/>
   <% end %>
@@ -48,6 +54,7 @@
         <% end %>
       </h1>
       <h2>Orlando RDF Explorer</h2>
+      <h6>(currently works best in Google Chrome)</h6>
       <div class="huviz-versions">
         <a href="http://orlando.dev.semandra.com" 
            class="git-branch-is-master <% if @git_branch_name is 'master':%>current-git-branch<% end %>">production</a>
