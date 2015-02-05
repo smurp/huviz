@@ -565,7 +565,29 @@ describe("HuViz Tests", function() {
 
     it("instance-less mid-tree taxons should behave properly");
 
-    it("'choose Thing' should leave all taxa colored 'showing'");
+    it("'choose every Thing' should leave all taxa colored 'showing'", function(done) {
+      say(test_title, done);
+      // confirm initial conditions
+      expect(get_command_english()).to.equal("____ every Thing .");
+
+      // do "choose every Thing ."
+      $("#verb-choose").trigger("click");
+      expect(get_command_english()).to.equal("choose every Thing .");
+      $("#doit_button").trigger("click");
+
+      // confirm the resultant display
+      expect($("#classes .treepicker-unshowing").length,
+             "after 'choose every Thing' no taxon should be marked unshowing, ie look unselected").
+            to.equal(0);
+
+      // restore ungraphed state by doing "unchoose every Thing ."
+      $("#verb-unchoose").trigger("click");
+      expect(get_command_english()).to.equal("unchoose every Thing .");
+      $("#doit_button").trigger("click");
+      
+    });
+
+
 
   });
 
@@ -661,10 +683,9 @@ describe("HuViz Tests", function() {
       $("#Thing span.expander:first").trigger("click"); // expand Thing
     });
 
-
     it("collapsed empty predicates' coloring should indicate showing, unshowing or mixed");
 
-    it("empty predicates should be white");
+    it("empty predicates should be white when expanded");
 
     it("empty predicates with all kids unselected should be unselected too");
 
