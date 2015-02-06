@@ -17,7 +17,7 @@ window.toggle_suspend_updates = (val) ->
     window.suspend_updates = val
   #console.warn "suspend_updates",window.suspend_updates
   return window.suspend_updates
-  
+
 TaxonBase = require("taxonbase").TaxonBase
 gcl = require('graphcommandlanguage')
 TreePicker = require('treepicker').TreePicker
@@ -43,9 +43,9 @@ class CommandController
 
     @control_label("Select Nodes")
     @build_setpicker()
-    #@add_clear_both(@comdiv)    
+    #@add_clear_both(@comdiv)
 
-    @build_nodeclasspicker()    
+    @build_nodeclasspicker()
     @likediv = @comdiv.append('div')
     @add_clear_both(@comdiv)
 
@@ -80,7 +80,7 @@ class CommandController
     @shown_edges_by_predicate = {}
     @unshown_edges_by_predicate = {}
     @node_classes_chosen = [] # new SortedSet()
-        
+
   reset_editor: ->
     @disengage_all_verbs()
     @init_editor_data()
@@ -89,7 +89,7 @@ class CommandController
 
   add_clear_both: (target) ->
     # keep taxonomydiv from being to the right of the verbdiv
-    target.append('div').attr('style','clear:both') 
+    target.append('div').attr('style','clear:both')
 
   title_bar_controls: ->
     return
@@ -98,7 +98,7 @@ class CommandController
     @show_comdiv_button.classed('display_none',true)
     #@comdiv.classed('display_none',true)
     @cmdlistbar = @cmdlist.append('div').attr('class','cmdlistbar')
-    @cmdlist.append('div').attr('style','clear:both')    
+    @cmdlist.append('div').attr('style','clear:both')
     @cmdlistbarcontent = @cmdlistbar.append('div').
          attr('class','cmdlisttitlebarcontent')
     @cmdlistbarcontent.append('div').attr('class','cmdlisttitle')
@@ -124,7 +124,7 @@ class CommandController
     @show_comdiv_button.on 'click', () =>
       @show_comdiv_button.classed('display_none',true)
       @comdiv.classed('display_none',false)
-      
+
     @toggle_comdiv_button.on 'click', () =>
       shown = not @toggle_comdiv_button.classed('hide_comdiv')
       "setting toggle_comdiv:"+shown
@@ -132,7 +132,7 @@ class CommandController
       #@toggle_comdiv_button.classed('show_comdiv',not shown)
       @comdiv.classed('display_none',not shown)
       @show_comdiv_button.classed('display_none',false)
-      
+
     @toggle_commands_button = @cmdlistbar.append('div').
         attr('class','close_commands')
 
@@ -145,7 +145,7 @@ class CommandController
     pred_lid = e.detail.pred_lid
     unless pred_uri in @predicates_ignored # FIXME merge with predicates_to_ignore
       unless pred_lid in @predicates_ignored # FIXME merge with predicates_to_ignore
-        pred_name = pred_lid.match(/([\w\d\_\-]+)$/g)[0]      
+        pred_name = pred_lid.match(/([\w\d\_\-]+)$/g)[0]
         @add_newpredicate(pred_lid,parent_lid,pred_name)
         @recolor_edges_and_predicates_eventually(e)
 
@@ -159,7 +159,7 @@ class CommandController
     # console.log "recolor_edges_and_predicates()"
     @predicate_picker.recolor_now()
     @recolor_edges() # FIXME should only really be run after the predicate set has settled for some amount of time
-          
+
   build_predicatepicker: ->
     id = 'predicates'
     @predicatebox = @comdiv.append('div').classed('container',true).attr('id',id)
@@ -168,12 +168,12 @@ class CommandController
                        "Faint color: no edges are shown -- click to show all\n" +
                        "Stripey color: some edges shown -- click to show all\n" +
                        "Hidden: no edges among the selected nodes")
-    
+
     #@predicatebox.attr('class','scrolling')
     @predicates_ignored = []
     @predicate_picker = new ColoredTreePicker(@predicatebox,'anything',[],true)
     @predicate_hierarchy = {'anything':['anything']}
-    
+
     # FIXME Why is show_tree being called four times per node?
     @predicate_picker.click_listener = @on_predicate_clicked
     @predicate_picker.show_tree(@predicate_hierarchy,@predicatebox)
@@ -192,7 +192,7 @@ class CommandController
       verbs: [verb]
       regarding: [pred_id]
       sets: [@huviz.selected_set]
-      
+
     @prepare_command cmd
     @huviz.gclc.run(@command)
 
@@ -230,7 +230,7 @@ class CommandController
   #       Mixed - some of the direct instances are selected
   #       On - all of the direct instances are selected
   #       Off - none of the direct instances are selected
-  #   
+  #
   #     The coloring of a collapsed parent cycles thru the three states:
   #       Mixed - some descendant instances are selected (direct or indirect)
   #       On - all descendant instances are selected (direct or indirect)
@@ -299,7 +299,7 @@ class CommandController
           classes: (class_name for class_name in @node_classes_chosen)
       else
         console.error "there should be nothing to do because #{id}.#{old_state} == #{new_state}"
-        
+
     else if new_state is 'unshowing'
       @unselect_node_class(id)
       cmd = new gcl.GraphCommand
@@ -312,7 +312,7 @@ class CommandController
         cmd.object_phrase = @object_phrase
       window.suspend_updates = false
       @huviz.gclc.run(cmd)
-      window.suspend_updates = false      
+      window.suspend_updates = false
       @huviz.regenerate_english()
     @update_command()
 
@@ -326,7 +326,7 @@ class CommandController
     #   unshowing  - a light color indicating nothing of that type is selected
     #   showing    - a medium color indicating all things of that type are selected
     #   abstract   - the element represents an abstract superclass, presumably containing concrete node classes
-    # 
+    #
     #   hidden     - TBD: not sure when hidden is appropriate
     #   emphasized - TBD: mark the class of the focused_node
 
@@ -341,7 +341,7 @@ class CommandController
     ,
       label:   'label'
       unlabel: 'unlabel'
-    ,  
+    ,
       shelve: 'shelve'
       hide:   'hide'
     ,
@@ -393,7 +393,7 @@ class CommandController
 
   verbs_requiring_regarding:
     ['show','suppress','emphasize','deemphasize']
-    
+
   verbs_override: # when overriding ones are selected, others are unselected
     choose: ['discard', 'unchoose', 'shelve', 'hide']
     shelve: ['unchoose', 'choose', 'hide', 'discard', 'retrieve']
@@ -435,7 +435,7 @@ class CommandController
     @nextcommand = @nextcommandbox.append('div').
         attr('class','nextcommand command')
     @nextcommandstr = @nextcommand.append('span')
-    @build_submit()        
+    @build_submit()
   build_like: () ->
     @likediv.text('like:')
     @like_input = @likediv.append('input')
@@ -485,7 +485,7 @@ class CommandController
     else
       if @node_classes_chosen.length > 0
         args.classes = (class_name for class_name in @node_classes_chosen)
-      if @huviz.selected_set.length > 0      
+      if @huviz.selected_set.length > 0
         args.subjects = (s for s in @huviz.selected_set)
     like_str = (@like_input[0][0].value or "").trim()
     if like_str
@@ -547,7 +547,7 @@ class CommandController
         that.engage_verb(id)
       else
         that.disengage_verb(id)
-      that.update_command()    
+      that.update_command()
   run_script: (script) ->
     @huviz.gclc.run(script)
     @huviz.update_all_counts()
@@ -587,5 +587,5 @@ class CommandController
     if @chosen_set_id?
       @set_picker.set_direct_state(@chosen_set_id, 'unshowing')
       delete @chosen_set_id
-        
+
 (exports ? this).CommandController = CommandController
