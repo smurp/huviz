@@ -11,13 +11,13 @@ Build and control a hierarchic menu of arbitrarily nested divs looking like:
     |      |        +-----+||
     |      +---------------+|
     +-----------------------+
-    
+
 * The user can toggle between collapsed and expanded using the triangles.
 * On the other hand, branches in the tree which are empty are hidden.
 * Clicking uncollapsed branches cycles just their selectedness.
 * Clicking collapsed branches cycles the selectedness of them and their children.
 ###
-  
+
 class TreePicker
   constructor: (@elem, root, extra_classes, @needs_expander) ->
     if extra_classes?
@@ -58,7 +58,6 @@ class TreePicker
     i_am_in.insert('div', before). # insert just appends if before is undef
         attr('class','contents').
         attr('id',node_id)
-
   show_tree: (tree,i_am_in,listener,top) ->
     # http://stackoverflow.com/questions/14511872
     top = not top? or top
@@ -75,9 +74,8 @@ class TreePicker
         my_contents = @get_or_create_container(contents_of_me)
         if top and @extra_classes
           for css_class in @extra_classes
-            my_contents.classed(css_class, true)        
+            my_contents.classed(css_class, true)
         @show_tree(rest[1],my_contents,listener,false)
-
   click_handler: () =>
         listener = @click_listener
         picker = this
@@ -88,13 +86,13 @@ class TreePicker
         #  return true
         d3.event.stopPropagation()
 
-        # TODO figure out why the target elem is sometimes the treepicker-label not the 
+        # TODO figure out why the target elem is sometimes the treepicker-label not the
         this_id = elem.node().id
         parent_id = elem.node().parentElement.id
         id = this_id or parent_id
         if not this_id
           elem = d3.select(elem.node().parentElement)
-          
+
         is_treepicker_collapsed = elem.classed('treepicker-collapse')
         is_treepicker_showing = elem.classed('treepicker-showing')
         is_treepicker_indirect_showing = elem.classed('treepicker-indirect-showing')
@@ -109,9 +107,7 @@ class TreePicker
         else
           if is_treepicker_showing
             new_state = 'unshowing'
-        
         picker.effect_click(id, new_state, send_leafward, listener)
-
   effect_click: (id, new_state, send_leafward, listener) ->
     if send_leafward
       kids = @id_to_children[id]
@@ -134,17 +130,17 @@ class TreePicker
     parent_id = parent_id? and parent_id or @get_top()
     new_id = @uri_to_js_id(new_id)
     @id_is_collapsed[new_id] = false
-    parent_id = @uri_to_js_id(parent_id) 
+    parent_id = @uri_to_js_id(parent_id)
     @id_to_parent[new_id] = parent_id
     if not @id_to_children[parent_id]?
       @id_to_children[parent_id] = []
-    if new_id isnt parent_id      
+    if new_id isnt parent_id
       @id_to_children[parent_id].push(new_id)
     #@id_to_state[true][new_id] = "empty" # default meaning "no instances"
     #@id_to_state[false][new_id] = "empty" # default meaning "no instances"
     name = name? and name or new_id
     branch = {}
-    branch[new_id] = [name or new_id]      
+    branch[new_id] = [name or new_id]
     parent = @id_to_elem[parent_id] or @elem
     container = d3.select(@get_or_create_container(parent)[0][0])
     if @needs_expander
@@ -282,7 +278,7 @@ class TreePicker
           new_indirect_state = "mixed"
       if new_indirect_state is 'mixed'
         # once we are mixed there is no going back, so break
-        break 
+        break
     if old_direct_state? and new_indirect_state isnt old_direct_state
       new_indirect_state = "mixed"
     return new_indirect_state
@@ -291,7 +287,7 @@ class TreePicker
     if not direct_only?
       direct_only = true
     return @id_to_state[direct_only][id]
-      
+
       # In ballrm.nq Place has direct_state = undefined because Place has
       # no direct instances so it never has an explicit state set.
       # Should there be a special state for such cases?
