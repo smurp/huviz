@@ -30,8 +30,8 @@
 #   emphasize: (node,predicate,color) =>
 #   deemphasize: (node,predicate,color) =>
 #   pin/unpin
-# 
-# THOUGHT: perhaps there is a distinction to be made between verbs 
+#
+# THOUGHT: perhaps there is a distinction to be made between verbs
 #   and 'actuators' where verbs are the things that people issue
 #   while actuators (actions?) are the one-or-more things per-verb that
 #   constitute the implementation of the verb.  The motivations are:
@@ -42,15 +42,12 @@
 #
 # Immediate Priorities:
 #  89) TASK: remove TaxonAbstract
-#  88) BUG: Taxon with no direct (nor selected indirect) children crashes when clicked
+#  88) BUG: Taxon with no direct (nor selected indirect) children crashes
+#           when clicked
 #  86) BUG: try_to_set_node_type: only permit subtypes to override supertypes
 #  87) BUG: solve node.type vs node.taxon sync problem (see orlonto)
 #  46) TASK: impute node type based on predicates via ontology
-#  58) TASK: hide abstract predicates containing nothing visible 
 #  40) TASK: support search
-#  27) TASK: make selecting 'anything' (abstract predicates) do the right things
-#  52) BUG: until clicking abstract predicates does the right thing
-#           it should do nothing
 #  53) PERF: should_show_label should not have search_regex in inner loop
 #  60) BUG: nodes are sometimes still 'chosen' while no longer 'graphed'
 #  62) TASK: add counts to predicate picker
@@ -61,12 +58,11 @@
 #  69) TASK: figure out ideal root for predicate hierarchy -- owl:Property?
 #  70) TASK: make owl:Thing implicit root class
 #            ie: have Taxons be subClassOf owl:Thing unless replaced
-#  71) BUG: must-drag-something-first-for-good-layout -- already fixed?
 #  72) TASK: consolidate type and taxon links from node?
-#  73) TASK: drive taxon_picker with ontology
 #  74) TASK: recover from loading crashes with Cancel button on show_state_msg
-#  76) TASK: consider renaming graphed_set to connected_set and verbs choose/unchoose to graph/ungraph
-#  77) TASK: eliminate 'Do it' button by immediately executing complete commands
+#  76) TASK: consider renaming graphed_set to connected_set and verbs
+#            choose/unchoose to graph/ungraph
+#  77) TASK: retire 'Do it' button by immediately executing complete commands
 #  79) TASK: support dragging of edges to shelf or discard bin
 #  81) TASK: coordinate mouse cursor with the current immediate verb
 #  82) TASK: set initial verb to 'choose'
@@ -115,7 +111,7 @@
 #  61) TASK: make a settings controller for edge label (em) (or mag?)
 #  66) BUG: #load+/data/ballrm.nq fails to populate the predicate picker
 #  67) TASK: add verbs pin/unpin (using polar coords to record placement)
-# 
+#
 gcl = require('graphcommandlanguage');
 #asyncLoop = require('asynchronizer').asyncLoop
 CommandController = require('gclui').CommandController
@@ -179,8 +175,8 @@ id_escape = (an_id) ->
   retval = retval.replace(new RegExp('\\?','g'),'_')
   retval = retval.replace(new RegExp('\=','g'),'_')
   retval = retval.replace(new RegExp('\\.','g'),'_')
-  retval = retval.replace(new RegExp('\\#','g'),'_')      
-  retval  
+  retval = retval.replace(new RegExp('\\#','g'),'_')
+  retval
 
 if true
   node_radius_policies =
@@ -192,7 +188,7 @@ if true
       else
         if d.showing_links is "all"
           d.radius = Math.max(@node_radius,
-            2 + Math.log(d.links_shown.length))  
+            2 + Math.log(d.links_shown.length))
       d.radius
     "equal dots": (d) ->
       @node_radius
@@ -220,8 +216,8 @@ if true
 
   is_one_of = (itm,array) ->
     array.indexOf(itm) > -1
-    
-  
+
+
 class Huviz
   class_list: [] # FIXME remove
   HHH: {}
@@ -245,7 +241,7 @@ class Huviz
   links_set: undefined
   node: undefined
   link: undefined
-  
+
   lariat: undefined
   verbose: true
   verbosity: 0
@@ -271,10 +267,10 @@ class Huviz
   line_length_min: 4
 
   # TODO figure out how to replace with the default_graph_control
-  link_distance: 100  
+  link_distance: 100
   fisheye_zoom: 4.0
 
-  
+
   peeking_line_thicker: 4
   show_snippets_constantly: false
   charge: -193
@@ -285,7 +281,7 @@ class Huviz
   discard_radius: 200
   fisheye_radius: 100 #null # label_show_range * 5
 
-  
+
   focus_radius: null # label_show_range
   drag_dist_threshold: 5
   snippet_size: 300
@@ -295,7 +291,7 @@ class Huviz
   shadow_offset: 1
   shadow_color: 'DarkGray'
 
-  my_graph: 
+  my_graph:
     predicates: {}
     subjects: {}
     objects: {}
@@ -340,7 +336,7 @@ class Huviz
     while seeking
       mid = bot + Math.floor((top - bot) / 2)
       c = cmp(sorted_array[mid], sought)
-      
+
       #console.log(" c =",c);
       return mid  if c is 0
       if c < 0 # ie sorted_array[mid] < sought
@@ -421,16 +417,16 @@ class Huviz
           else
             edge.focused = false
     @tick()
-    
+
   mousedown: =>
     #console.log 'mousedown'
-    d3_event = @mouse_receiver[0][0]    
+    d3_event = @mouse_receiver[0][0]
     @mousedown_point = d3.mouse(d3_event)
     @last_mouse_pos = @mousedown_point
 
   mouseup: =>
     #console.log 'mouseup', @dragging or "not", "dragging"
-    d3_event = @mouse_receiver[0][0]    
+    d3_event = @mouse_receiver[0][0]
     @mousedown_point = false
     point = d3.mouse(d3_event)
 
@@ -477,12 +473,12 @@ class Huviz
     if @focused_node
       unless @focused_node.state is @graphed_set
         @run_verb_on_object 'choose',@focused_node
-        #@run_verb_on_object 'print',@focused_node        
+        #@run_verb_on_object 'print',@focused_node
       else if @focused_node.showing_links is "all"
         #@run_verb_on_object 'shelve',@focused_node
         @run_verb_on_object 'print',@focused_node
       else
-        @run_verb_on_object 'choose',@focused_node        
+        @run_verb_on_object 'choose',@focused_node
 
       # TODO(smurp) are these still needed?
       @force.links @links_set
@@ -507,7 +503,7 @@ class Huviz
     @get_container_width()
     @get_container_height()
     @update_graph_radius()
-    @update_graph_center()    
+    @update_graph_center()
     @update_discard_zone()
     @update_lariat_zone()
     if @svg
@@ -521,7 +517,7 @@ class Huviz
     @restart()
 
   #///////////////////////////////////////////////////////////////////////////
-  # 
+  #
   #   http://bl.ocks.org/mbostock/929623
   get_charge: (d) =>
     graphed = d.state == @graphed_set
@@ -595,7 +591,7 @@ class Huviz
       y: yhndl
     @draw_circle xhndl,yhndl,(line_width/2),clr # draw a circle at the midpoint of the line
     #@draw_line(xmid,ymid,xctrl,yctrl,clr) # show mid to ctrl
-    
+
   draw_disconnect_dropzone: ->
     @ctx.save()
     @ctx.lineWidth = @graph_radius * 0.1
@@ -646,16 +642,16 @@ class Huviz
 
     @discarded_set = SortedSet().sort_on("name").named("discarded").isState()
     @discarded_set.docs = "Nodes which have been discarded so they will not be included in graphs." +
-    
+
     @hidden_set    = SortedSet().sort_on("id").named("hidden").isState()
     @hidden_set.docs = "Nodes which are invisible but can be pulled into graphs by other nodes."
-    
+
     @graphed_set   = SortedSet().sort_on("id").named("graphed").isState()
     @graphed_set.docs = "Nodes which are included in the central graph."
 
     @links_set     = SortedSet().sort_on("id").named("shown").isFlag()
     @links_set.docs = "Links which are shown."
-    
+
     @labelled_set  = SortedSet().named("labelled").isFlag().sort_on("id")
     @labelled_set.docs = "Nodes which have their labels permanently shown."
 
@@ -697,7 +693,7 @@ class Huviz
     else
       console.log "not regenerating english because no taxonomy[#{root}]"
     return
- 
+
   get_or_create_taxon: (taxon_id,abstract) ->
     if not @taxonomy[taxon_id]?
       if abstract
@@ -746,7 +742,7 @@ class Huviz
     @init_gclc()
 
     @force.nodes @nodes
-    @force.links @links_set    
+    @force.links @links_set
 
     # TODO move this SVG code to own renderer
     d3.select(".link").remove()
@@ -755,7 +751,7 @@ class Huviz
     @node = @svg.selectAll(".node")
     @link = @svg.selectAll(".link") # looks bogus, see @link assignment below
     @lariat = @svg.selectAll(".lariat")
-    
+
     @link = @link.data(@links_set)
     @link.exit().remove()
     @node = @node.data(@nodes)
@@ -793,7 +789,7 @@ class Huviz
     #    if (! DUMP){
     #      if (node.s.id != '_:E') return;
     #    }
-    #    
+    #
     console.log "================================================="
     console.log node.name
     console.log "  x,y:", node.x, node.y
@@ -856,7 +852,7 @@ class Huviz
           d3.select(svg_node).classed "focused_node", true
         #@dump_details new_focused_node
 
-    unless @focused_edge is new_focused_edge    
+    unless @focused_edge is new_focused_edge
       if @focused_edge? #and @focused_edge isnt new_focused_edge
         @focused_edge.focused = false
         delete @focused_edge.source.focused_edge
@@ -866,8 +862,8 @@ class Huviz
         new_focused_edge.focused = true
         new_focused_edge.source.focused_edge = true
         new_focused_edge.target.focused_edge = true
-        
-          
+
+
     @focused_node = new_focused_node # possibly null
     @focused_edge = new_focused_edge
     @adjust_cursor()
@@ -876,7 +872,7 @@ class Huviz
     all: 'not-allowed'
     some: 'all-scroll'
     none: 'pointer'
-    
+
   adjust_cursor: ->
     # http://css-tricks.com/almanac/properties/c/cursor/
     if @focused_node
@@ -916,7 +912,7 @@ class Huviz
 
   draw_edges_from: (node) ->
     num_edges = node.links_to.length
-    #@show_message_once "draw_edges_from(#{node.id}) "+ num_edges    
+    #@show_message_once "draw_edges_from(#{node.id}) "+ num_edges
     return unless num_edges
 
     draw_n_n = {}
@@ -930,7 +926,7 @@ class Huviz
       if e.target.embryo
         msg += "target #{e.target.name} is embryo #{e.target.id}"
       if msg isnt ""
-        #@show_message_once(msg)        
+        #@show_message_once(msg)
         continue
       n_n = e.source.lid + " " + e.target.lid
       if not draw_n_n[n_n]?
@@ -955,7 +951,7 @@ class Huviz
     if @use_canvas
       @graphed_set.forEach (node, i) =>
         @draw_edges_from(node)
-      
+
       #@links_set.forEach (e, i) =>
       #  sway = i * 2
       #  #@draw_line e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, e.color
@@ -970,13 +966,13 @@ class Huviz
         #e.target.fisheye = @fisheye(e.target)  unless e.target.fisheye
         @add_webgl_line e  unless e.gl
         l = e.gl
-        
+
         #
         #	  if (e.source.fisheye.x != e.target.fisheye.x &&
         #	      e.source.fisheye.y != e.target.fisheye.y){
         #	      alert(e.id + " edge has a length");
         #	  }
-        #	  
+        #
         @mv_line l, e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y
         @dump_line l
 
@@ -1005,7 +1001,7 @@ class Huviz
                      @calc_node_radius(node),
                      node.color or "yellow", node.color or "black")
       if @use_webgl
-        @mv_node node.gl, node.fisheye.x, node.fisheye.y  
+        @mv_node node.gl, node.fisheye.x, node.fisheye.y
 
   draw_discards: ->
     @draw_nodes_in_set @discarded_set, @discard_radius, @discard_center
@@ -1050,10 +1046,10 @@ class Huviz
       focused_font_size = @label_em * @focused_mag
       focused_font = "#{focused_font_size}em sans-serif"
       unfocused_font = "#{@label_em}em sans-serif"
-      label_node = (node) =>        
+      label_node = (node) =>
         return unless @should_show_label(node)
         ctx = @ctx
-        if node.focused_node or node.focused_edge? 
+        if node.focused_node or node.focused_edge?
           ctx.fillStyle = node.color
           ctx.font = focused_font
         else
@@ -1074,7 +1070,7 @@ class Huviz
           ctx.translate node.fisheye.x, node.fisheye.y
           ctx.rotate -1 * radians + Math.PI / 2
           ctx.textAlign = textAlign
-          ctx.fillText "  " + node.name, 0, 0          
+          ctx.fillText "  " + node.name, 0, 0
           ctx.restore()
         else
           ctx.fillText "  " + node.name, node.fisheye.x, node.fisheye.y
@@ -1108,7 +1104,7 @@ class Huviz
     @draw_shelf()
     @draw_discards()
     @draw_labels()
-    @draw_edge_labels()    
+    @draw_edge_labels()
 
   draw_edge_labels: ->
     if @focused_edge?
@@ -1144,7 +1140,7 @@ class Huviz
     $("body").css "cursor", "default"
 
   svg_restart: ->
-    # console.log "svg_restart()"    
+    # console.log "svg_restart()"
     @link = @link.data(@links_set)
     @link.enter().
       insert("line", ".node").
@@ -1156,7 +1152,7 @@ class Huviz
     @node = @node.data(@nodes)
 
     @node.exit().remove()
-    
+
     nodeEnter = @node.enter().
       append("g").
       attr("class", "lariat node").
@@ -1165,7 +1161,7 @@ class Huviz
       attr("r", calc_node_radius).
       style "fill", (d) ->
         d.color
-    
+
     nodeEnter.append("text").
       attr("class", "label").
       attr("style", "").
@@ -1294,7 +1290,7 @@ class Huviz
       @my_graph.subjects[sid] = subj
     else
       subj = @my_graph.subjects[sid]
-          
+
     @ensure_predicate_lineage pid
 
     subj_n = @get_or_create_node_by_id(sid)
@@ -1322,7 +1318,7 @@ class Huviz
         @develop(obj_n)
     else
       if subj_n.embryo and is_one_of(pid,NAME_SYNS)
-        subj_n.name = quad.o.value.replace(/^\s+|\s+$/g, '')        
+        subj_n.name = quad.o.value.replace(/^\s+|\s+$/g, '')
         @develop(subj_n) # might be ready now
     @last_quad = quad
 
@@ -1350,7 +1346,7 @@ class Huviz
       @edge_count++
       edge = new Edge(subj_n,obj_n,pred_n)
       @edges_by_id[edge_id] = edge
-    return edge    
+    return edge
 
   add_edge: (edge) ->
     if edge.id.match /Universal$/
@@ -1383,7 +1379,7 @@ class Huviz
     return true
 
   report_every: 100 # if 1 then more data shown
-  
+
   parseAndShowTTLStreamer: (data, textStatus) =>
     # modelled on parseAndShowNQStreamer
     parse_start_time = new Date()
@@ -1416,17 +1412,17 @@ class Huviz
     @dump_stats()
 
   dump_stats: ->
-    console.log "object_value_types:",@object_value_types    
+    console.log "object_value_types:",@object_value_types
     console.log "unique_pids:",@unique_pids
-    
+
   parseAndShowTurtle: (data, textStatus) =>
     msg = "data was " + data.length + " bytes"
     parse_start_time = new Date()
-    
+
     if GreenerTurtle? and @turtle_parser is 'GreenerTurtle'
       @G = new GreenerTurtle().parse(data, "text/turtle")
       console.log "GreenTurtle"
-      
+
     else if @turtle_parser is 'N3'
       console.log "N3"
       #N3 = require('N3')
@@ -1451,7 +1447,7 @@ class Huviz
       #console.log "Predicates",(key for key,value of my_graph.predicates).length,my_graph.predicates
       #console.log "Subjects",my_graph.subjects.length,my_graph.subjects
       #console.log "Objects",my_graph.objects.length,my_graph.objects
-          
+
     parse_end_time = new Date()
     parse_time = (parse_end_time - parse_start_time) / 1000
     siz = @roughSizeOfObject(@G)
@@ -1497,7 +1493,7 @@ class Huviz
           q.s = q.s.raw
           q.p = q.p.raw
           q.g = q.g.raw
-          q.o = 
+          q.o =
             type:  owl_type_map[q.o.type]
             value: @remove_framing_quotes(q.o.toString())
           @add_quad q
@@ -1560,7 +1556,7 @@ class Huviz
     pad = pad or hpad
     @height = (@container.clientHeight or window.innerHeight or document.documentElement.clientHeight or document.clientHeight) - pad
     #console.log "get_window_height()",window.innerHeight,document.documentElement.clientHeight,document.clientHeight,"==>",@height
-    
+
   update_graph_radius: ->
     @graph_region_radius = Math.floor(Math.min(@width / 2, @height / 2))
     @graph_radius = @graph_region_radius * @shelf_radius
@@ -1616,7 +1612,7 @@ class Huviz
     old_status = n.showing_links
     if n.links_shown.length is 0
       n.showing_links = "none"
-    else      
+    else
       if n.links_from.length + n.links_to.length > n.links_shown.length
         n.showing_links = "some"
       else
@@ -1631,7 +1627,7 @@ class Huviz
     ss = edge.source.state
     ts = edge.target.state
     d = @discarded_set
-    e = @embryonic_set 
+    e = @embryonic_set
     not (ss is d or ts is d or ss is e or ts is e)
 
   add_link: (e) ->
@@ -1737,7 +1733,7 @@ class Huviz
       parent_pred = @get_or_create_predicate_by_id(parent_id)
       a_pred.register_superclass(parent_pred)
     return
-    
+
   get_or_create_predicate_by_id: (sid) ->
     obj_id = @make_qname(sid)
     obj_n = @predicate_set.get_by('id',obj_id)
@@ -1795,8 +1791,8 @@ class Huviz
     @recolor_node(node)
     @tick()
     return node
-      
-  get_or_create_node: (subject, start_point, linked) ->      
+
+  get_or_create_node: (subject, start_point, linked) ->
     linked = false
     @get_or_make_node subject,start_point,linked
 
@@ -1895,11 +1891,11 @@ class Huviz
     @shelved_set.acquire unlinkee
     @update_showing_links unlinkee
     @update_state unlinkee
-    
+
   #
-  #  The DISCARDED are those nodes which the user has 
+  #  The DISCARDED are those nodes which the user has
   #  explicitly asked to not have drawn into the graph.
-  #  The user expresses this by dropping them in the 
+  #  The user expresses this by dropping them in the
   #  discard_dropzone.
   #
   discard: (goner) ->
@@ -1921,7 +1917,7 @@ class Huviz
   #  explicitly asked to have the links shown for.
   #  This is different from those nodes which find themselves
   #  linked into the graph because another node has been chosen.
-  # 
+  #
   shelve: (goner) =>
     @chosen_set.remove goner
     @hide_node_links goner
@@ -2031,7 +2027,7 @@ class Huviz
     else
       which = "orlando"
     return "/snippet/#{which}/#{snippet_id}/"
-    
+
   get_snippet_js_key: (snippet_id) ->
     # This is in case snippet_ids can not be trusted as javascript
     # property ids because they might have leading '-' or something.
@@ -2103,15 +2099,15 @@ class Huviz
             context_id: context.id
             snippet_text: snippet_text
             no: context_no
-            snippet_js_key: snippet_js_key      
+            snippet_js_key: snippet_js_key
       @get_snippet context.id, make_callback(context_no, edge, context)
-    
+
   # The Verbs PRINT and REDACT show and hide snippets respectively
   print: (node) =>
     @clear_snippets()
     for edge in node.links_shown
       @print_edge edge
-    
+
   redact: (node) =>
     node.links_shown.forEach (edge,i) =>
       @remove_snippet edge.id
@@ -2133,7 +2129,7 @@ class Huviz
       @update_state(node)
       @update_showing_links(node)
       @force.alpha(0.1)
-    
+
   suppress_edge_regarding: (node, predicate_lid) =>
     dirty = false
     doit = (edge,i,frOrTo) =>
@@ -2147,7 +2143,7 @@ class Huviz
     # FIXME(shawn) Looping through links_shown should suffice, try it again
     #node.links_shown.forEach (edge,i) =>
     #  doit(edge,'shown')
-      
+
     if dirty
       @update_state(node)
       @update_showing_links(node)
@@ -2217,7 +2213,7 @@ class Huviz
     for pid in @predicates_to_ignore
       @gclui.ignore_predicate pid
 
-  predicates_to_ignore: ["anything"]        
+  predicates_to_ignore: ["anything"]
 
   init_snippet_box: ->
     if d3.select('#snippet_box')[0].length > 0
@@ -2247,7 +2243,7 @@ class Huviz
       dlg = $(snip_div).dialog(dialog_args)
       dlg[0][0].setAttribute("id",obj.snippet_js_key)
 
-  snippet_positions_filled: {}    
+  snippet_positions_filled: {}
   get_next_snippet_position: ->
     # Fill the left edge, then the top edge, then diagonally from top-left
     height = @height
@@ -2277,7 +2273,7 @@ class Huviz
         voff = 0
     @snippet_positions_filled[retval] = true
     return retval
-  
+
   run_verb_on_object: (verb,subject) ->
     cmd = new gcl.GraphCommand
       verbs: [verb]
@@ -2311,7 +2307,7 @@ class Huviz
   toggle_logging: () ->
     if not console.log_real?
       console.log_real = console.log
-      
+
     new_state = console.log is console.log_real
     @set_logging(new_state)
 
@@ -2319,7 +2315,7 @@ class Huviz
     if new_state
       console.log = console.log_real
       return true
-    else  
+    else
       console.log = () ->
       return false
 
@@ -2335,7 +2331,7 @@ class Huviz
       subPropertyOf: {}
       domain: {}
       range: {}
-                
+
   constructor: ->
     @init_ontology()
     @off_center = false # FIXME expose this or make the amount a slider
@@ -2367,17 +2363,17 @@ class Huviz
     if not d3.select("#viscanvas")[0][0]
       d3.select("body").append("div").attr("id", "viscanvas")
     @container = d3.select("#viscanvas").node().parentNode
-    
+
     @viscanvas = d3.select("#viscanvas").html("").
       append("canvas").
       attr("width", @width).
       attr("height", @height)
     @canvas = @viscanvas[0][0]
     @mouse_receiver = @viscanvas
-    @init_graph_controls_from_json()    
+    @init_graph_controls_from_json()
     @reset_graph()
     @updateWindow()
-    @ctx = @canvas.getContext("2d")    
+    @ctx = @canvas.getContext("2d")
     @cursor = @svg.append("circle").
                   attr("r", @label_show_range).
                   attr("transform", "translate(" + @cx + "," + @cy + ")").
@@ -2425,7 +2421,7 @@ class Huviz
         input:
           value: 1.4
           min: 1
-          max: 3          
+          max: 3
           step: .1
           type: 'range'
         label:
@@ -2443,7 +2439,7 @@ class Huviz
           title: "the amount bigger than a normal node the currently selected ones are"
     ,
       label_em:
-        text: "label size (em)"      
+        text: "label size (em)"
         label:
           title: "the size of the font"
         input:
@@ -2522,7 +2518,7 @@ class Huviz
       fisheye_radius:
         text: "fisheye radius"
         label:
-          title: "how big the fisheye is"      
+          title: "how big the fisheye is"
         input:
           value: 100
           min: 40
@@ -2636,7 +2632,7 @@ class Huviz
           for k,v of control.input
             if k is 'value'
               old_val = @[control_name]
-              @change_setting_to_from(control_name, v, old_val)              
+              @change_setting_to_from(control_name, v, old_val)
             input.attr(k,v)
         input.on("change", @update_graph_settings) # TODO implement one or the other
         input.on("input", @update_graph_settings)
@@ -2655,7 +2651,7 @@ class Huviz
       cooked_value = target.value
     old_value = @[target.name]
     @change_setting_to_from(target.name, cooked_value, old_value)
-    d3.select(target).attr("title", cooked_value)    
+    d3.select(target).attr("title", cooked_value)
     if update  # TODO be more discriminating, not all settings require update
                #   ones that do: charge, gravity, fisheye_zoom, fisheye_radius
       @update_fisheye()
@@ -2683,7 +2679,7 @@ class Huviz
     @change_setting_to_from('shelf_radius', new_val, old_val, true)
     @update_graph_radius()
     @updateWindow()
-        
+
   init_from_graph_controls: ->
     alert "init_from_graph_controls() is deprecated"
     # Perform update_graph_settings for everything in the form
@@ -2749,7 +2745,7 @@ class Huviz
   is_ready: (node) ->
     # This should really be performed on NODES not subjects, meaning nodes should
     # have FOAF_name and type assigned to them during add_quad()
-    # 
+    #
     # Determine whether there is enough known about a subject to create a node for it
     # Does it have an .id and a .type and a .name?
     return node.id? and node.type? and node.name?
@@ -2759,8 +2755,8 @@ class Huviz
     type_id = node.type # FIXME one of type or taxon_id gotta go, bye 'type'
     if type_id
       #console.log "assign_type",type_id,"to",node.id,"within",within,type_id
-      @get_or_create_taxon(type_id).register(node) 
-      
+      @get_or_create_taxon(type_id).register(node)
+
     else
       throw "there must be a .type before hatch can even be called:"+node.id+ " "+type_id
       #console.log "assign_types failed, missing .type on",node.id,"within",within,type_id
@@ -2813,7 +2809,7 @@ class OntologicallyGrounded extends Huviz
         subj_lid = uri_to_js_id(subj_uri)
         for pred_id, pred of frame.predicates
           pred_lid = uri_to_js_id(pred_id)
-          obj_raw = pred.objects[0].value          
+          obj_raw = pred.objects[0].value
 
           if pred_lid in ['comment', 'label']
             #console.error "  skipping",subj_lid, pred_lid #, pred
@@ -2842,10 +2838,10 @@ class OntologicallyGrounded extends Huviz
         #                 :Work
         #               )
         # ] .
-        # 
+        #
         # If there exists (_:1, rdfs:type, owl:AllDisjointClasses)
         # Then create a root level class for every rdfs:first in rdfs:members
-  
+
 class Orlando extends OntologicallyGrounded
   # These are the Orlando specific methods layered on Huviz.
   # These ought to be made more data-driven.
@@ -2859,7 +2855,7 @@ class Orlando extends OntologicallyGrounded
     return @shelved_set
 
   HHH: {}
-    
+
   push_snippet: (msg_or_obj) ->
     obj = msg_or_obj
     if @snippet_box
@@ -2883,7 +2879,7 @@ class Orlando extends OntologicallyGrounded
         </div>
 
         """
-        ## unconfuse emacs Coffee-mode: " """ ' '  "                      
+        ## unconfuse emacs Coffee-mode: " """ ' '  "
       super(obj, msg_or_obj) # fail back to super
 
 class OntoViz extends Huviz #OntologicallyGrounded
@@ -2901,10 +2897,10 @@ class OntoViz extends Huviz #OntologicallyGrounded
 
   use_lid_as_node_name: true
   snippet_count_on_edge_labels: false
-  
+
   DEPRECATED_try_to_set_node_type: (node,type) ->
     # FIXME incorporate into ontoviz_type_to_hier_map
-    # 
+    #
     if type.match(/Property$/)
       node.type = 'properties'
     else if type.match(/Class$/)
@@ -2917,7 +2913,7 @@ class OntoViz extends Huviz #OntologicallyGrounded
 
   # first, rest and members are produced by GreenTurtle regarding the AllDisjointClasses list
   predicates_to_ignore: ["anything", "comment", "first", "rest", "members"]
-      
+
 class Socrata extends Huviz
   ###
   # Inspired by https://data.edmonton.ca/
@@ -2957,7 +2953,7 @@ class Socrata extends Huviz
       p: pred_uri
       o:
         type: RDF_literal
-        value: literal 
+        value: literal
 
   assert_relation: (subj_uri,pred_uri,obj_uri) ->
     console.log "assert_relation", arguments
@@ -2967,7 +2963,7 @@ class Socrata extends Huviz
       o:
         type: RDF_object
         value: obj_uri
-        
+
   parseAndShowJSON: (data) =>
     console.log("parseAndShowJSON",data)
     g = @DEFAULT_CONTEXT
@@ -2977,7 +2973,7 @@ class Socrata extends Huviz
     for dataset in data
       #dataset_uri = "https://data.edmonton.ca/api/views/#{dataset.id}/"
       console.log @dataset_uri
-      q = 
+      q =
         g: g
         s: dataset_uri
         p: RDF_a
@@ -2995,7 +2991,7 @@ class Socrata extends Huviz
           p: k
           o:
             type:  RDF_literal
-            value: v          
+            value: v
         if k == 'category'
           cat_id = @ensure_category(v)
           @assert_instanceOf dataset_uri,OWL_Class
@@ -3004,7 +3000,7 @@ class Socrata extends Huviz
           assert_propertyValue dataset_uri, RDFS_label, v
           continue
         continue
-        
+
         if typeof v == 'object'
           continue
         if k is 'name'
@@ -3012,11 +3008,11 @@ class Socrata extends Huviz
         #console.log k,typeof v
         @add_quad q
         #console.log q
-        
+
 
 if not is_one_of(2,[3,2,4])
   alert "is_one_of() fails"
-  
+
 #(typeof exports is 'undefined' and window or exports).Huviz = Huviz
 
 (exports ? this).Huviz = Huviz
