@@ -92,11 +92,9 @@ class TreePicker
         id = this_id or parent_id
         if not this_id
           elem = d3.select(elem.node().parentElement)
-
         is_treepicker_collapsed = elem.classed('treepicker-collapse')
         is_treepicker_showing = elem.classed('treepicker-showing')
         is_treepicker_indirect_showing = elem.classed('treepicker-indirect-showing')
-
         # If the state is not 'showing' then make it so, otherwise 'unshowing'.
         # if it is not currently showing.
         send_leafward = is_treepicker_collapsed
@@ -282,12 +280,10 @@ class TreePicker
     if old_direct_state? and new_indirect_state isnt old_direct_state
       new_indirect_state = "mixed"
     return new_indirect_state
-
   get_state_by_id: (id, direct_only) ->
     if not direct_only?
       direct_only = true
     return @id_to_state[direct_only][id]
-
       # In ballrm.nq Place has direct_state = undefined because Place has
       # no direct instances so it never has an explicit state set.
       # Should there be a special state for such cases?
