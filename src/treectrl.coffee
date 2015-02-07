@@ -16,7 +16,7 @@ TreeCtrl controls TreePicker states: showing, unshowing, mixed for direct and in
                 perhaps abstract predicate subtrees should be hidden
                 ie "there is nothing interesting here, move along"
    emphasized - TBD: mark the class of the focused_node
-   
+
 
  Are these states only meaningful in the MVC View context and not the
  Model context? -- where the model context is Taxon and/or Predicate
@@ -66,7 +66,7 @@ class TreeCtrl
       return @state
     if @state is 'mixed'
       return 'mixed'
-    consensus = @state # variable for legibility and performance
+    consensus = @get_state() # variable for legibility and performance
     for kid in @subs
       kid_ind_stt = kid.get_indirect_state()
       #  debugger
