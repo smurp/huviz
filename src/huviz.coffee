@@ -112,6 +112,7 @@
 #  66) BUG: #load+/data/ballrm.nq fails to populate the predicate picker
 #  67) TASK: add verbs pin/unpin (using polar coords to record placement)
 #
+uniquer = require("uniquer").uniquer
 gcl = require('graphcommandlanguage');
 #asyncLoop = require('asynchronizer').asyncLoop
 CommandController = require('gclui').CommandController
@@ -152,14 +153,6 @@ RDF_a       = 'a'
 RDFS_label  = "http://www.w3.org/2000/01/rdf-schema#label"
 TYPE_SYNS   = [RDF_type,RDF_a,'rdf:type']
 NAME_SYNS   = [FOAF_name,RDFS_label,'name']
-
-uri_to_js_id = (uri) ->
-  try
-    return uri.match(/([\w\d\_\-]+)$/g)[0]
-  catch e
-    console.error "uri_to_js_id failed for [#{uri}]"
-    return null
-
 XML_TAG_REGEX = /(<([^>]+)>)/ig
 MANY_SPACES_REGEX = /\s{2,}/g
 UNDEFINED = undefined
@@ -1240,7 +1233,7 @@ class Huviz
   ensure_predicate_lineage: (pid) ->
     # Ensure that fire_newpredicate_event is run for pid all the way back
     # to its earliest (possibly abstract) parent starting with the earliest
-    pred_lid = uri_to_js_id(pid)
+    pred_lid = uniquer(pid)
     if not @my_graph.predicates[pred_lid]?
       if @ontology.subPropertyOf[pred_lid]?
         parent_lid = @ontology.subPropertyOf[pred_lid]
@@ -1275,7 +1268,7 @@ class Huviz
     sid = quad.s
     pid = @make_qname(quad.p)
     ctxid = quad.g || @DEFAULT_CONTEXT
-    subj_lid = uri_to_js_id(sid)
+    subj_lid = uniquer(sid)
     @object_value_types[quad.o.type] = 1
     @unique_pids[pid] = 1
 
@@ -1364,7 +1357,7 @@ class Huviz
   try_to_set_node_type: (node,type_uri) ->
     #if type_uri.match(/^http.*/)
     #  alert "#{type_uri} is an uri rather than an lid"
-    type_lid = uri_to_js_id(type_uri) # should ensure uniqueness
+    type_lid = uniquer(type_uri) # should ensure uniqueness
     #if not is_one_of(type_uri,@class_list)
     #  @class_list.push type_uri
     #  @hierarchy['everything'][1][type_lid] = [type_lid]
@@ -1776,7 +1769,7 @@ class Huviz
   hatch: (node) ->
     # Take a node from being 'embryonic' to being a fully graphable node
     #console.log node.id+" "+node.name+" is being hatched!"
-    node.lid = uri_to_js_id(node.id) # FIXME ensure uniqueness
+    node.lid = uniquer(node.id) # FIXME ensure uniqueness
     @embryonic_set.remove(node)
     new_set = @get_default_set_by_type(node)
     if new_set?
@@ -2806,15 +2799,15 @@ class OntologicallyGrounded extends Huviz
     if GreenerTurtle? and @turtle_parser is 'GreenerTurtle'
       @raw_ontology = new GreenerTurtle().parse(data, "text/turtle")
       for subj_uri, frame of @raw_ontology.subjects
-        subj_lid = uri_to_js_id(subj_uri)
+        subj_lid = uniquer(subj_uri)
         for pred_id, pred of frame.predicates
-          pred_lid = uri_to_js_id(pred_id)
+          pred_lid = uniquer(pred_id)
           obj_raw = pred.objects[0].value
 
           if pred_lid in ['comment', 'label']
             #console.error "  skipping",subj_lid, pred_lid #, pred
             continue
-          obj_lid = uri_to_js_id(obj_raw)
+          obj_lid = uniquer(obj_raw)
           #if pred_lid in ['range','domain']
           #  console.log pred_lid, subj_lid, obj_lid
           if pred_lid is 'domain'

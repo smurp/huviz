@@ -11,7 +11,7 @@ module.exports = (grunt) ->
         script: "server.js"
       dev:
         options:
-          node_env: "development"          
+          node_env: "development"
       prod:
         options:
           node_env: "production"

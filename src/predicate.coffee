@@ -1,16 +1,17 @@
 TreeCtrl = require('treectrl').TreeCtrl
+uniquer = require("uniquer").uniquer
 
 class Predicate extends TreeCtrl
   constructor: (@id) ->
     super
-    @lid = @id.match(/([\w\d\_\-]+)$/g)[0] # lid means local id
+    @lid = uniquer(@id) # lid means local_id
     @all_edges = SortedSet().sort_on("id").named("predicate")
     # TODO check for .acquire() bugs re isState('_s') vs isState('_p')
     @selected_instances = SortedSet().sort_on("id").named("selected").isState('_p')
-    @unselected_instances = SortedSet().sort_on("id").named("unselected").isState('_p')    
+    @unselected_instances = SortedSet().sort_on("id").named("unselected").isState('_p')
     # shown edges are those which are shown and linked to a selected source or target
     @shown_instances = SortedSet().sort_on("id").named("shown").isState("_s")
-    # unshown edges are those which are unshown and linked to a selected source or target    
+    # unshown edges are those which are unshown and linked to a selected source or target
     @unshown_instances = SortedSet().sort_on("id").named("unshown").isState("_s")
     @change_map =
       unselect: @unselected_instances
@@ -18,7 +19,7 @@ class Predicate extends TreeCtrl
       unshow: @unshown_instances
       show: @shown_instances
     this
-  custom_event_name: 'changePredicate'    
+  custom_event_name: 'changePredicate'
   add_inst: (inst) ->
     @all_edges.add(inst)
     @update_state()
@@ -26,7 +27,7 @@ class Predicate extends TreeCtrl
     before_count = @selected_instances.length
     for e in @all_edges  # FIXME why can @selected_instances not be trusted?
       if e.an_end_is_selected()
-        @selected_instances.acquire(e)  
+        @selected_instances.acquire(e)
   update_state: (inst, change) ->
     # FIXME fold the subroutines into this method for a single pass
     # FIXME make use of the edge and change hints in the single pass

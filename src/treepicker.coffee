@@ -18,6 +18,8 @@ Build and control a hierarchic menu of arbitrarily nested divs looking like:
 * Clicking collapsed branches cycles the selectedness of them and their children.
 ###
 
+uniquer = require("uniquer").uniquer
+
 class TreePicker
   constructor: (@elem, root, extra_classes, @needs_expander) ->
     if extra_classes?
@@ -44,7 +46,7 @@ class TreePicker
     tmp = @id_is_abstract[id]
     tmp? and tmp
   uri_to_js_id: (uri) ->
-    uri.match(/([\w\d\_\-]+)$/g)[0]
+    uniquer(uri)
   add_alphabetically: (i_am_in, node_id, label) ->
     label_lower = label.toLowerCase()
     container = i_am_in[0][0]

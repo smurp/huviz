@@ -1,10 +1,12 @@
+uniquer = require("uniquer").uniquer
+
 class Node
   constructor: (@id, use_lid_as_node_name) ->
     @links_from = []
     @links_to = []
     @links_shown = []
     # FIXME use the as-yet-unimplemented unique-id-generator
-    @lid = @id.match(/([\w\d\_\-]+)$/g)[0]
+    @lid = uniquer(@id)
     if use_lid_as_node_name
       @name = @lid # provide default name
   linked: false          # TODO(smurp) probably vestigal
@@ -35,7 +37,7 @@ class Node
       edge.unselect()
     for edge in this.links_to
       edge.unselect()
-    @taxon.update_state(this, 'unselect')      
+    @taxon.update_state(this, 'unselect')
   discard: () ->
     # should we unselect first if node.state is selected?
     @taxon.update_state(this, 'discard')
