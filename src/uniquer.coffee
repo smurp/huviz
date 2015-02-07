@@ -7,7 +7,8 @@ uniquer = (str) ->
     retval = retval.replace(/[\.\;\/]/g, '_')
     retval = retval.replace(/^\_*/g, '') # leading _
     retval = retval.replace(/\_*$/g, '') # trailing _
-    console.info("uniquer('#{str}') = '#{retval}'")
+    if console? and console.info?
+      console.info("uniquer('#{str}') = '#{retval}'")
   return retval
 
 (exports ? this).uniquer = uniquer
