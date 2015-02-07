@@ -1,4 +1,13 @@
 uniquer = (str) ->
-  str.match(/([\w\d\_\-]+)$/g)[0]
+  m = str.match(/([\w\d\_\-]+)$/g)
+  if m
+    retval = m[0]
+  else
+    retval = str.replace(/http(s)?\:/, '').replace(/\//, "__")
+    retval = retval.replace(/[\.\;\/]/g, '_')
+    retval = retval.replace(/^\_*/g, '') # leading _
+    retval = retval.replace(/\_*$/g, '') # trailing _
+    console.info("uniquer('#{str}') = '#{retval}'")
+  return retval
 
 (exports ? this).uniquer = uniquer
