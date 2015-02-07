@@ -124,11 +124,12 @@ class ColoredTreePicker extends TreePicker
       if @should_be_colored_by_kid_summary(id)
         @style_with_kid_color_summary(id)
   should_be_colored_by_kid_summary: (id) ->
-    return not @is_leaf(id) and (@id_to_state[true][id] is 'empty') #@id_is_abstract[id]
+    return not @is_leaf(id) and @id_is_collapsed[id]
   collapse_by_id: (id) ->
+    super(id)
     if @should_be_colored_by_kid_summary(id)
       @style_with_kid_color_summary(id)
-    super(id)
+    #super(id)
   expand_by_id: (id) ->
     if @should_be_colored_by_kid_summary(id)
       @id_to_elem[id].attr("style", "") # clear style set by set_gradient_style

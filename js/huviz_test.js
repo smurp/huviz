@@ -153,7 +153,6 @@ describe("HuViz Tests", function() {
 
     it("toggling a branch predicate should leave the root predicate unmixed", function(done) {
       say(test_title, done);
-      a_branch_predicate_sel = "#connectionWithRegion";
       a_branch_predicate_sel = "#connectionWithSettlement";
       $(a_branch_predicate_sel).trigger("click");  // graph some branch predicates
       expect(HVZ.graphed_set.length,
@@ -448,8 +447,8 @@ describe("HuViz Tests", function() {
       expect($("#GeographicArea").hasClass("treepicker-mixed")).
             to.equal(false, "collapsed GeographicArea appears mixed");
       expect($("#GeographicArea").attr("style")).
-            to.not.contain("linear-gradient",
-                           "collapsed GeographicArea is wrongly stripey");
+            to.contain("linear-gradient",
+                       "collapsed GeographicArea should be stripey");
       expect($("#GeographicArea").hasClass("treepicker-indirect-mixed"),
              "collapsed GeographicArea appears indirect-mixed").
             to.equal(false);
@@ -697,7 +696,7 @@ describe("HuViz Tests", function() {
     });
 
 
-    it("collapsed picker nodes should summarize their kids coloring as stripes WIP non-empty divs eg connectionWithPlace", function(done) {
+    it("collapsed picker nodes should summarize their kids' colors", function(done) {
       say(test_title, done);
 
       var verify_gradient_when_collapsed = function(id, has_gradient) {
@@ -706,18 +705,20 @@ describe("HuViz Tests", function() {
         $(sel + " span.expander:first").trigger("click"); // collapse node
         if (has_gradient) {
           expect($(sel).attr("style"),
-                 id + " is directly empty so should summarize kids color").
+                 id + " has kids so should summarize their colors").
                 to.contain("linear-gradient");
         } else {
+          // should never get here because there should be no expander to click
           expect($(sel).attr("style"),
-                 id + " is not directly empty so should not be stripey").
-                to.not.contain("linear-gradient");
+                 id + " has no kids so should not be stripey").
+                to.not.be.ok();
         }
         $(sel + " span.expander:first").trigger("click"); // expand node
       };
-      verify_gradient_when_collapsed('anything', true); // is directly empty
-      verify_gradient_when_collapsed('Location', true); // is directly empty
-      verify_gradient_when_collapsed('Thing', false); // not directly empty
+      verify_gradient_when_collapsed('anything', true); // has kids
+      verify_gradient_when_collapsed('Location', true); // has kids
+      verify_gradient_when_collapsed('Thing', true); // has kids
+      verify_gradient_when_collapsed('connectionWithPlace', true); // has kids
     });
 
     it("empty predicates should be white when expanded");
