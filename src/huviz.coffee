@@ -546,7 +546,7 @@ class Huviz
     @ctx.stroke()  if strclr
     @ctx.fill()  if filclr
   draw_line: (x1, y1, x2, y2, clr) ->
-    @ctx.strokeStyle = clr or red
+    @ctx.strokeStyle = clr or 'red'
     @ctx.beginPath()
     @ctx.moveTo x1, y1
     @ctx.lineTo x2, y2
@@ -576,7 +576,7 @@ class Huviz
     ymid = y1 + (y2-y1)/2
     xctrl = xmid + Math.sin(ctrl_angle) * sway
     yctrl = ymid + Math.cos(ctrl_angle) * sway
-    @ctx.strokeStyle = clr or red
+    @ctx.strokeStyle = clr or 'red'
     @ctx.beginPath()
     @ctx.lineWidth = line_width
     @ctx.moveTo x1, y1
