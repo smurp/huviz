@@ -184,7 +184,8 @@ class TreePicker
     exp.text(@collapser_str)
   get_or_create_payload: (thing) ->
     if thing? and thing
-      r = thing.select(".payload")
+      thing_id = thing[0][0].id
+      r = thing.select("##{thing_id} > .treepicker-label > .payload")
       if r[0][0] isnt null
         return r
       thing.select(".treepicker-label").append('div').classed("payload", true)
