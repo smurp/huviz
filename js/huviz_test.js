@@ -723,6 +723,8 @@ describe("HuViz Tests", function() {
 
     it("empty predicates should be white when expanded");
 
+    it("Relationships should behave properly when collapsed and toggled");
+
     it("toggling a predicate should toggle indirect-mixed on its supers", function(done) {
       say(test_title, done);
       //halt();
