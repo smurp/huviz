@@ -18,6 +18,21 @@ var say = function(msg, done) {
   }, pause_msec);
 };
 
+// http://stackoverflow.com/a/324533/1234699
+var getStyle = function(className) {
+    var classes = document.styleSheets[0].rules || document.styleSheets[0].cssRules;
+    for (var x = 0; x < classes.length; x++) {
+        if (classes[x].selectorText == className) {
+            if (classes[x].cssText) {
+              return classes[x].cssText;
+            }
+            (classes[x].cssText) ?
+                 alert(classes[x].cssText) :
+                 alert(classes[x].style.cssText);
+        }
+    }
+};
+
 window.huviz = require('huviz');
 var setup_jsoutline = function() {
   console.group("jsoutline setup");
@@ -94,7 +109,7 @@ describe("HuViz Tests", function() {
       say(test_title, done);
       expect(HVZ.graphed_set.length).to.equal(0);
       expect(HVZ.shelved_set.length).to.equal(HVZ.nodes.length);
-      expect($("#Thing").hasClass("treepicker-indirect-mixed"), 
+      expect($("#Thing").hasClass("treepicker-indirect-mixed"),
              "Thing should not be treepicker-indirect-mixed").
             to.equal(false);
 
@@ -126,7 +141,7 @@ describe("HuViz Tests", function() {
             to.not.equal(0);
       $(a_leaf_predicate_sel).trigger("click");  // ungraph them again
 
-      expect(HVZ.graphed_set.length, 
+      expect(HVZ.graphed_set.length,
              "nothing should be graphed after toggling a leaf predicate").
             to.equal(0);
 
@@ -147,7 +162,7 @@ describe("HuViz Tests", function() {
       $(a_branch_predicate_sel).trigger("click");  // ungraph them again
 
       expect(HVZ.graphed_set.length,
-             "nothing should be graphed after toggling branch " + 
+             "nothing should be graphed after toggling branch " +
              a_branch_predicate_sel).to.equal(0);
 
       expect($("#predicates .treepicker-indirect-mixed").length,
@@ -173,9 +188,9 @@ describe("HuViz Tests", function() {
 
       // a single class selected should be simple
       $("#Thing span.expander:first").trigger("click"); // collapse
-      $("#Person").trigger("click");    
+      $("#Person").trigger("click");
       expect(get_command_english()).to.equal("____ Person .");
-      
+
       // expand everything again
       $("#Thing span.expander:first").trigger("click"); // collapse so we can...
       $("#Thing").trigger("click");  // select every Thing again
@@ -213,7 +228,7 @@ describe("HuViz Tests", function() {
       $("#Thing span.expander:first").trigger("click"); // collapse
       //$("#Thing").trigger("click");
       expect(get_command_english()).to.contain("but not BJ");
-      
+
       // expand everything again
       $("#Thing span.expander:first").trigger("click"); // collapse so we can...
       $("#Thing").trigger("click");  // selecte every Thing again
@@ -241,13 +256,13 @@ describe("HuViz Tests", function() {
     it("reselecting a taxon should remove indirect-mixed from its supers", function(done) {
       say(test_title, done);
       // Confirm Assumptions about starting conditions
-      expect($("#Place").hasClass("treepicker-indirect-mixed"), 
+      expect($("#Place").hasClass("treepicker-indirect-mixed"),
              "Place should be treepicker-indirect-mixed").
             to.equal(true);
-      expect($("#Settlement").hasClass("treepicker-unshowing"), 
+      expect($("#Settlement").hasClass("treepicker-unshowing"),
              "Settlement should be un-selected").
 	  to.equal(true);
-      expect($("#Settlement").hasClass("treepicker-showing"), 
+      expect($("#Settlement").hasClass("treepicker-showing"),
              "Settlement should not be selected").
 	  to.equal(false);
       // Perform tests
@@ -256,7 +271,7 @@ describe("HuViz Tests", function() {
       expect($("#Settlement").hasClass("treepicker-showing"),
              "Settlement should be 'showing' again").
             to.equal(true);
-      expect($("#Place").hasClass("treepicker-indirect-mixed"), 
+      expect($("#Place").hasClass("treepicker-indirect-mixed"),
              "Place should no longer be treepicker-indirect-mixed when everything is selected").
             to.equal(false);
     });
@@ -264,7 +279,7 @@ describe("HuViz Tests", function() {
     it("unselecting a taxon should cause indirect-mixed on up to Thing", function(done) {
       say(test_title, done);
       // Confirm Assumptions about starting conditions
-      expect($("#Thing").hasClass("treepicker-indirect-mixed"), 
+      expect($("#Thing").hasClass("treepicker-indirect-mixed"),
              "Thing should not be 'indirect-showing' not 'indirect-mixed'").
             to.equal(false);
       expect($("#Person").hasClass("treepicker-showing"),
@@ -274,7 +289,7 @@ describe("HuViz Tests", function() {
       $("#Settlement").trigger("click"); // unshow
       expect($("#Settlement").hasClass("treepicker-unshowing")).
             to.equal(true, "Settlement not unshowing as it should");
-      expect($("#Thing").hasClass("treepicker-indirect-mixed"), 
+      expect($("#Thing").hasClass("treepicker-indirect-mixed"),
              "Thing should be treepicker-indirect-mixed when it has unshowing children").
             to.equal(true);
     });
@@ -284,10 +299,10 @@ describe("HuViz Tests", function() {
     it("reselecting a taxon should remove indirect-mixed on up to Thing", function(done) {
       say(test_title, done);
       // Confirm Assumptions about starting conditions
-      expect($("#Thing").hasClass("treepicker-indirect-mixed"), 
+      expect($("#Thing").hasClass("treepicker-indirect-mixed"),
              "Thing should be treepicker-indirect-mixed").
             to.equal(true);
-      expect($("#Settlement").hasClass("treepicker-unshowing"), 
+      expect($("#Settlement").hasClass("treepicker-unshowing"),
              "Settlement should not be selected").
 	  to.equal(true);
       // Perform tests
@@ -296,7 +311,7 @@ describe("HuViz Tests", function() {
       expect($("#Settlement").hasClass("treepicker-showing"),
              "Settlement should be 'showing' again").
             to.equal(true);
-      expect($("#Thing").hasClass("treepicker-indirect-mixed"), 
+      expect($("#Thing").hasClass("treepicker-indirect-mixed"),
              "Thing should no longer be treepicker-indirect-mixed when everything is selected").
             to.equal(false);
     });
@@ -433,9 +448,9 @@ describe("HuViz Tests", function() {
       expect($("#GeographicArea").hasClass("treepicker-mixed")).
             to.equal(false, "collapsed GeographicArea appears mixed");
       expect($("#GeographicArea").attr("style")).
-            to.not.contain("linear-gradient", 
+            to.not.contain("linear-gradient",
                            "collapsed GeographicArea is wrongly stripey");
-      expect($("#GeographicArea").hasClass("treepicker-indirect-mixed"), 
+      expect($("#GeographicArea").hasClass("treepicker-indirect-mixed"),
              "collapsed GeographicArea appears indirect-mixed").
             to.equal(false);
       // Cleanup
@@ -459,7 +474,7 @@ describe("HuViz Tests", function() {
             .to.equal(expected);
       $("#GeographicArea span.expander:first").trigger("click"); // collapse
       // Tests
-      expect(HVZ.gclui.taxon_picker.id_is_collapsed["GeographicArea"], 
+      expect(HVZ.gclui.taxon_picker.id_is_collapsed["GeographicArea"],
              "GeographicArea not collapsed").to.equal(true);
       expect($("#GeographicArea").hasClass("treepicker-indirect-mixed"),
              "GeographicArea not stripey").to.be.ok();
@@ -481,7 +496,7 @@ describe("HuViz Tests", function() {
              "failed assumption that Region is initially not mixed").
             to.equal(false);
       expect($(branch_sel + " div.container:first").
-              hasClass("treepicker-collapsed"), 
+              hasClass("treepicker-collapsed"),
              "failed assumption that " + branch_id + " starts expanded").
             to.equal(false);
       expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
@@ -492,12 +507,12 @@ describe("HuViz Tests", function() {
       expect(actual).to.equal(expected);
       console.log("clicking expanded " + branch_id + " to collapse it");
       $(branch_sel + " span.expander:first").trigger("click"); // collapse
-      expect($(branch_sel).hasClass("treepicker-indirect-mixed"), 
+      expect($(branch_sel).hasClass("treepicker-indirect-mixed"),
              branch_id + " should be stripey").
             to.be.ok()
       console.log("clicking the mixed and collapsed " + branch_id + " to select all children");
       $(branch_sel).trigger("click"); // make all taxons 'showing'
-      expect(HVZ.selected_set.length, 
+      expect(HVZ.selected_set.length,
              "clicking " + branch_id + " should select all nodes").
             to.equal(HVZ.nodes.length);
       $(branch_sel + " span.expander:first").trigger("click"); // expand
@@ -524,7 +539,7 @@ describe("HuViz Tests", function() {
 
     it("toggling node selection should toggle indirect-mixed up to Thing", function(done) {
       say(test_title, done);
-      
+
       var toggle_selection_of = function(an_id, classes_above, node_name) {
         console.group(node_name);
         a_node = HVZ.nodes.get_by('id', an_id)
@@ -548,7 +563,7 @@ describe("HuViz Tests", function() {
         //HVZ.toggle_selected(a_node);
         HVZ.perform_current_command(a_node);
         expect($("#classes .treepicker-indirect-mixed").length,
-               "there should be no indirect-mixed once " + 
+               "there should be no indirect-mixed once " +
                node_name + " reselected").
               to.equal(0);
         expect(HVZ.selected_set.length, "failed to reselect " + node_name).
@@ -559,11 +574,9 @@ describe("HuViz Tests", function() {
         console.groupEnd();
       };
       toggle_selection_of("BJ", 5, "London");
-      toggle_selection_of("I", 4, "Thames"); 
+      toggle_selection_of("I", 4, "Thames");
       toggle_selection_of("B", 3, "England");
     });
-
-    it("instance-less mid-tree taxons should behave properly");
 
     it("'choose every Thing' should leave all taxa colored 'showing'", function(done) {
       say(test_title, done);
@@ -584,10 +597,10 @@ describe("HuViz Tests", function() {
       $("#verb-unchoose").trigger("click");
       expect(get_command_english()).to.equal("unchoose every Thing .");
       $("#doit_button").trigger("click");
-      
+
     });
 
-
+    it("instance-less mid-tree taxons should behave properly");
 
   });
 
@@ -623,7 +636,7 @@ describe("HuViz Tests", function() {
       $("#anything").trigger("click");
 
       // confirm that everything is graphed
-      expect(HVZ.graphed_set.length, 
+      expect(HVZ.graphed_set.length,
              "after clicking collapsed 'anything' everything should be graphed").
             to.equal(HVZ.nodes.length);
       expect(HVZ.shelved_set.length).to.equal(0);
@@ -637,9 +650,9 @@ describe("HuViz Tests", function() {
 
       // click collapsed 'anything' predicate when everything is selected
       $("#anything").trigger("click");
-      
+
       // confirm that everything is now ungraphed
-      expect(HVZ.graphed_set.length, 
+      expect(HVZ.graphed_set.length,
              "after clicking collapsed 'anything' everything should be ungraphed").
             to.equal(0);
       expect(HVZ.shelved_set.length).to.equal(HVZ.nodes.length);
@@ -652,14 +665,14 @@ describe("HuViz Tests", function() {
       say(test_title, done);
       // confirm assumptions
       expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
-      
+
       // unselect all Taxa
       $("#Thing span.expander:first").trigger("click"); // collapse Thing
       $("#Thing").trigger("click"); // select every Thing
       // make the unselectedness of every Thing visible (not important, just handy)
       $("#Thing span.expander:first").trigger("click"); // expand Thing
       expect(HVZ.selected_set.length, "nothing should be selected").to.equal(0);
-      
+
       // confirm that 'anything' is the only visible predicate
       // TODO figure out how to test for 'anything' being the only visible predicate
 
@@ -683,7 +696,14 @@ describe("HuViz Tests", function() {
       $("#Thing span.expander:first").trigger("click"); // expand Thing
     });
 
-    it("collapsed empty predicates' coloring should indicate showing, unshowing or mixed");
+
+    it("collapsed empty predicates' coloring should indicate showing, unshowing or mixed WIP failing for Location and Thing", function(done) {
+      say(test_title, done);
+      expect($("div#anything").attr("style")).to.not.be.ok();
+      $("#anything span.expander:first").trigger("click"); // collapse anything
+      expect($("div#anything").attr("style")).to.contain("linear-gradient");
+      $("#anything span.expander:first").trigger("click"); // expand anything
+    });
 
     it("empty predicates should be white when expanded");
 
@@ -691,7 +711,7 @@ describe("HuViz Tests", function() {
 
     it("toggling a predicate should toggle indirect-mixed on its supers", function(done) {
       say(test_title, done);
-      //halt(); 
+      //halt();
 
       // Confirm assumption that there are no indirect-mixed initially
       expect($("#predicates .treepicker-indirect-mixed").length,
@@ -701,11 +721,11 @@ describe("HuViz Tests", function() {
       a_leaf_predicate_sel = "#connectionWithAddress";
 
       // graph some leaf predicate
-      $(a_leaf_predicate_sel).trigger("click");  
+      $(a_leaf_predicate_sel).trigger("click");
       expect(HVZ.graphed_set.length,
              "something should be graphed after selecting a leaf predicate").
             to.not.equal(0);
-      
+
       var num_parent = 6;
       // confirm that there are now indirect-mixed
       expect($("#predicates .treepicker-indirect-mixed").length,
@@ -715,7 +735,7 @@ describe("HuViz Tests", function() {
 
       // clean up
       $(a_leaf_predicate_sel).trigger("click");  // ungraph them again
-      expect(HVZ.graphed_set.length, 
+      expect(HVZ.graphed_set.length,
              "nothing should be graphed after toggling a leaf predicate").
             to.equal(0);
       expect($("#predicates .treepicker-indirect-mixed").length,

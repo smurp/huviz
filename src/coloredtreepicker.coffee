@@ -17,7 +17,7 @@ TreePicker = require('treepicker').TreePicker
 # The indirect state spans the direct state of a level and all its children.
 # Leaf levels should always have equal direct and indirect states.
 
-L_notshowing = 0.93
+L_unshowing = 0.93
 L_showing = 0.75
 L_emphasizing = 0.5
 S_all = 0.5
@@ -41,10 +41,10 @@ class ColoredTreePicker extends TreePicker
         append("style").attr("id", @get_my_style_id())
     styles = "  ##{@get_my_id()} {}"
     for id,colors of @id_to_colors
-      nc = colors.notshowing
+      nc = colors.unshowing
       sc = colors.showing
       styles += """
-      
+
         ##{id}.treepicker-showing {
            background-color:#{sc};
         }
@@ -70,14 +70,14 @@ class ColoredTreePicker extends TreePicker
       i: 0
     retval = {}
     if verbose
-      console.log "RECOLOR" 
+      console.log "RECOLOR"
     branch = @elem[0][0].children[0]
     @recolor_recurse_DOM(retval, recursor, branch, "")
   recolor_recurse_DOM: (retval, recursor, branch, indent) ->
     branch_id = branch.getAttribute("id")
     class_str = branch.getAttribute("class")
     if verbose
-      console.log indent+"-recolor_recurse(",branch_id,class_str,")",branch 
+      console.log indent+"-recolor_recurse(",branch_id,class_str,")",branch
     if branch_id
       @recolor_node(retval, recursor, branch_id, branch, indent) # should this go after recursion so color range can be picked up?
     if branch.children.length > 0
@@ -94,27 +94,57 @@ class ColoredTreePicker extends TreePicker
     elem = d3.select(elem_raw)
     if @is_abstract(id)
       retval[id] =
-        notshowing:  hsl2rgb(0, 0, L_notshowing)
+        unshowing:  hsl2rgb(0, 0, L_unshowing)
         showing:     hsl2rgb(0, 0, L_showing)
         emphasizing: hsl2rgb(0, 0, L_emphasizing)
     else
       # https://en.wikipedia.org/wiki/HSL_and_HSV#HSL
-      recursor.i++        
+      recursor.i++
       hue = recursor.i/recursor.count * 360
       retval[id] =
-        notshowing:  hsl2rgb(hue, S_all, L_notshowing)
+        unshowing:   hsl2rgb(hue, S_all, L_unshowing)
         showing:     hsl2rgb(hue, S_all, L_showing)
         emphasizing: hsl2rgb(hue, S_all, L_emphasizing)
     if verbose
-      console.log(indent + " - - - recolor_node("+id+")",retval[id].notshowing)
-    #elem.style("background-color",retval[id].notshowing)
-
+      console.log(indent + " - - - recolor_node("+id+")",retval[id].unshowing)
+  get_current_color_forId: (id) ->
+    state = @id_to_state[true][id]
+    return @get_color_forId_byName(id, state)
   get_color_forId_byName: (id, state_name) ->
     id = @uri_to_js_id(id)
     colors = @id_to_colors[id]
     if colors?
       return colors[state_name]
-    else
-      msg = "get_color_forId_byName(" + id + ") failed because @id_to_colors[id] not found"
-    
+    #else
+    #  msg = "get_color_forId_byName(" + id + ") failed because @id_to_colors[id] not found"
+    #  return 'pink'
+  collapse_by_id: (id) ->
+    if not @is_leaf(id) and @id_is_abstract[id]
+      @style_with_kid_color_summary(id)
+    super(id)
+  expand_by_id: (id) ->
+    if not @is_leaf(id)
+      @id_to_elem[id].attr("style", "") # clear style set by set_gradient_style
+    super(id)
+  summarize_kid_colors: (id, color_list) ->
+    color_list = color_list or []
+    kids = @id_to_children[id]
+    if not @is_abstract[id]
+      color = @get_current_color_forId(id)
+      if color?
+        color_list.push(color)
+    if kids?
+      for kid_id in kids
+        @summarize_kid_colors(kid_id, color_list)
+    return color_list
+  style_with_kid_color_summary: (id) ->
+    color_list = @summarize_kid_colors(id)
+    if color_list.length
+      @set_gradient_style(id,color_list)
+  set_gradient_style: (id, kid_colors) ->
+    colors = kid_colors.join(', ')
+    style = "background-color: transparent;"
+    style += " background: linear-gradient(45deg, #{colors})"
+    @id_to_elem[id].attr("style", style)
+
 (exports ? this).ColoredTreePicker = ColoredTreePicker

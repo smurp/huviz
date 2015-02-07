@@ -106,6 +106,8 @@ class TreePicker
           if is_treepicker_showing
             new_state = 'unshowing'
         picker.effect_click(id, new_state, send_leafward, listener)
+        if is_treepicker_collapsed and @id_is_abstract[id]
+          @style_with_kid_color_summary(id)
   effect_click: (id, new_state, send_leafward, listener) ->
     if send_leafward
       kids = @id_to_children[id]
