@@ -697,17 +697,30 @@ describe("HuViz Tests", function() {
     });
 
 
-    it("collapsed empty predicates' coloring should indicate showing, unshowing or mixed WIP failing for Location and Thing", function(done) {
+    it("collapsed picker nodes should summarize their kids coloring as stripes WIP non-empty divs eg connectionWithPlace", function(done) {
       say(test_title, done);
-      expect($("div#anything").attr("style")).to.not.be.ok();
-      $("#anything span.expander:first").trigger("click"); // collapse anything
-      expect($("div#anything").attr("style")).to.contain("linear-gradient");
-      $("#anything span.expander:first").trigger("click"); // expand anything
+
+      var verify_gradient_when_collapsed = function(id, has_gradient) {
+        var sel = "#" + id;
+        expect($(sel).attr("style")).to.not.be.ok();
+        $(sel + " span.expander:first").trigger("click"); // collapse node
+        if (has_gradient) {
+          expect($(sel).attr("style"),
+                 id + " is directly empty so should summarize kids color").
+                to.contain("linear-gradient");
+        } else {
+          expect($(sel).attr("style"),
+                 id + " is not directly empty so should not be stripey").
+                to.not.contain("linear-gradient");
+        }
+        $(sel + " span.expander:first").trigger("click"); // expand node
+      };
+      verify_gradient_when_collapsed('anything', true); // is directly empty
+      verify_gradient_when_collapsed('Location', true); // is directly empty
+      verify_gradient_when_collapsed('Thing', false); // not directly empty
     });
 
     it("empty predicates should be white when expanded");
-
-    it("empty predicates with all kids unselected should be unselected too");
 
     it("toggling a predicate should toggle indirect-mixed on its supers", function(done) {
       say(test_title, done);

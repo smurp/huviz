@@ -118,12 +118,19 @@ class ColoredTreePicker extends TreePicker
     #else
     #  msg = "get_color_forId_byName(" + id + ") failed because @id_to_colors[id] not found"
     #  return 'pink'
+  click_handler: () =>
+    id = super()
+    if @should_be_colored_by_kid_summary?
+      if @should_be_colored_by_kid_summary(id)
+        @style_with_kid_color_summary(id)
+  should_be_colored_by_kid_summary: (id) ->
+    return not @is_leaf(id) and (@id_to_state[true][id] is 'empty') #@id_is_abstract[id]
   collapse_by_id: (id) ->
-    if not @is_leaf(id) and @id_is_abstract[id]
+    if @should_be_colored_by_kid_summary(id)
       @style_with_kid_color_summary(id)
     super(id)
   expand_by_id: (id) ->
-    if not @is_leaf(id)
+    if @should_be_colored_by_kid_summary(id)
       @id_to_elem[id].attr("style", "") # clear style set by set_gradient_style
     super(id)
   summarize_kid_colors: (id, color_list) ->
