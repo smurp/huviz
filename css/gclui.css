@@ -33,8 +33,8 @@
 .commandlist {
   overflow-y: auto;
   /* -webkit-border-top-right-radius: 20px 300px; */
-  /* background-color: #81cbbc;  hairline blue */  
-  background-color: blue; /* hairline blue */  
+  /* background-color: #81cbbc;  hairline blue */
+  background-color: blue; /* hairline blue */
 }
 .nextcommand {
   color: black;
@@ -79,7 +79,7 @@ p {
 .treepicker-hidden {
   /* for debugging, comment the following line disable collapsing */
   //display:none;
-  
+
   /*
   text-decoration: strikethrough;
    */
@@ -115,19 +115,19 @@ p {
   color: grey;
   text-align: center;
 }
-.treepicker-vertical .payload {
+.container .payload {
   display: inline;
   margin-left: 2px;
 }
-.treepicker-vertical .payload:before {
+.container .payload:before {
   content: '(';
 }
-.treepicker-vertical .payload:after {
+.container .payload:after {
   content: ')';
 }
 .treepicker-collapse > .container {
   /* for debugging, comment the following line disable collapsing */
-  display:none; /* */ 
+  display:none; /* */
 }
 #sets {
   margin-right: 2px;
