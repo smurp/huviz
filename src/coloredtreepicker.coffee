@@ -147,6 +147,8 @@ class ColoredTreePicker extends TreePicker
     return color_list
   style_with_kid_color_summary: (id) ->
     color_list = @summarize_kid_colors(id)
+    if color_list.length is 1
+      color_list.push(color_list[0])
     if color_list.length
       @set_gradient_style(id,color_list)
   set_gradient_style: (id, kid_colors) ->
