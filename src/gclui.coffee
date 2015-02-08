@@ -583,6 +583,12 @@ class CommandController
   on_set_count_update: (set_id, count) =>
     @set_picker.set_payload(set_id, count)
 
+  on_taxon_count_update: (taxon_id, count) ->
+    @taxon_picker.set_payload(taxon_id, count)
+
+  on_predicate_count_update: (pred_lid, count) ->
+    @predicate_picker.set_payload(pred_lid, count)
+
   clear_set_picker: () ->
     if @chosen_set_id?
       @set_picker.set_direct_state(@chosen_set_id, 'unshowing')

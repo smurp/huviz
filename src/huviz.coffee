@@ -663,9 +663,25 @@ class Huviz
       labelled_set: @labelled_set
 
   update_all_counts: ->
+    @update_set_counts()
+    @update_taxon_counts()
+    @update_predicate_counts()
+
+  update_set_counts: ->
     for name, a_set of @selectable_sets
       @gclui.on_set_count_update(name, a_set.length)
-    return
+
+  update_taxon_counts: ->
+    for lid, taxon of @taxonomy
+      count = taxon.instances.length
+      @gclui.on_taxon_count_update(lid, count)
+
+  update_predicate_counts: ->
+    for predicate in @predicate_set
+      selcnt = predicate.selected_instances.length
+      shwcnt = predicate.shown_instances.length
+      msg = "#{shwcnt}/#{selcnt}"
+      @gclui.on_predicate_count_update(predicate.lid, msg)
 
   create_taxonomy: ->
     # The taxonomy is intertwined with the taxon_picker
