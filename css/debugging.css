@@ -2,13 +2,13 @@
   position: relative;
   top: -0.5em;
   font-size: 50%;
-  content: "e;
+  content: "e";
 }
 .treepicker-mixed > .treepicker-label:after {
   position: relative;
   top: -0.5em;
   font-size: 50%;
-  content: "m;
+  content: "m";
 }
 .treepicker-unshowing > .treepicker-label:after {
   position: relative;
@@ -48,5 +48,5 @@
 }
 .treepicker-collapse > .treepicker-label {
   /* struck-through labels are collapsed */
-  text-decoration: line-through; 
+  text-decoration: line-through;
 }
