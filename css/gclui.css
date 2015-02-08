@@ -84,6 +84,9 @@ p {
   text-decoration: strikethrough;
    */
 }
+.treepicker-empty {
+  background-color: white;
+}
 .treepicker-indirect-empty {
   /* for debugging, comment the following line to disable hiding */
   display: none;
