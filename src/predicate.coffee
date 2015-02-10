@@ -40,41 +40,12 @@ class Predicate extends TreeCtrl
     #   are there no selected edges?
     @update_selected_instances()
     super(inst, change)
-
-  recalc_direct_state: ->
-    if @selected_instances.length is 0
-      return "empty"
-    else if @only_some_selected_instances_are_shown()
-      return "mixed"
-    else if @selected_instances.length > 0 and @all_selected_instances_are_shown()
-      return "showing"
-    else if @no_selected_instances_are_shown()
-      return "unshowing"
-    else
-      console.info "Predicate.update_state() should not fall thru",this
-      throw "Predicate.update_state() should not fall thru (#{@lid})"
-  no_selected_instances_are_shown: () ->
+  recalc_direct_stats: ->
+    return [@count_shown_selected(), @selected_instances.length]
+  count_shown_selected: ->
+    count = 0
     for e in @selected_instances
-      if e.shown?
-        return false
-    return true
-  all_selected_instances_are_shown: () ->
-    for e in @selected_instances
-      if not e.shown?
-        return false
-    return true
-  only_some_selected_instances_are_shown: () ->
-    some = false
-    only = false
-    shown_count = 0
-    for e in @selected_instances
-      #continue unless e.an_end_is_selected()
-      if e.shown?
-        some = true
-      if not e.shown? # AKA e._s?.id isnt 'shown'
-        only = true
-      if only and some
-        return true
-    return false
+      count++ if e.shown?
+    return count
 
 (exports ? this).Predicate = Predicate

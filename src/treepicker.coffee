@@ -34,6 +34,8 @@ class TreePicker
       false: {}
     @id_to_parent = {}
     @id_to_children = {}
+    @id_to_payload_collapsed = {}
+    @id_to_payload_expanded = {}
     @set_abstract(root)
     @set_abstract('root') # FIXME duplication?!?
   get_my_id: () ->
@@ -176,12 +178,14 @@ class TreePicker
     elem.classed("treepicker-collapse", true)
     exp = elem.select(".expander")
     exp.text(@expander_str)
+    @update_payload_by_id(id)
   expand_by_id: (id) ->
     @id_is_collapsed[id] = false
     elem = @id_to_elem[id]
     elem.classed("treepicker-collapse", false)
     exp = elem.select(".expander")
     exp.text(@collapser_str)
+    @update_payload_by_id(id)
   get_or_create_payload: (thing) ->
     if thing? and thing
       thing_id = thing[0][0].id
@@ -302,5 +306,25 @@ class TreePicker
       @set_both_states_by_id(det.target_id, det.new_state, det.new_indirect_state, det.old_state, det.old_indirect_state)
     else
       @set_state_by_id(det.target_id, det.new_state, det.old_state)
+    @cache_payload(det)
+  cache_payload: (det) ->
+    update = false
+    if det.collapsed_payload?
+      update = true
+      @id_to_payload_collapsed[det.target_id] = det.collapsed_payload
+    if det.payload?
+      update = true
+      @id_to_payload_expanded[det.target_id] = det.payload
+    if update
+      @update_payload_by_id(det.target_id)
+  update_payload_by_id: (id) ->
+    if @id_is_collapsed[id]
+      payload = @id_to_payload_collapsed[id]
+      if payload?
+        @set_payload(id, payload)
+    else
+      payload =  @id_to_payload_expanded[id]
+      if payload?
+        @set_payload(id, payload)
 
 (exports ? this).TreePicker = TreePicker

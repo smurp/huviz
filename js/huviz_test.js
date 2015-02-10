@@ -40,7 +40,7 @@ var setup_jsoutline = function() {
   window.coloredtreepicker = require('coloredtreepicker');
   window.taxon = require('taxon');
   window.gclui = require('gclui');
-  jsoutline.traceAll(huviz.Orlando, true, ["tick","draw_circle","calc_node_radius","should_show_label","show_the_edges","draw_edge_labels","should_show_label","draw_nodes_in_set","draw_discards","draw_edge_labels","should_show_label","draw_discards","find_focused_node_or_edge","adjust_cursor","blank_screen","update_snippet","clear_canvas","draw_dropzones","show_last_mouse_pos","auto_change_verb","show_node_links","get_charge","hide_state_msg","show_state_msg","draw_labels","draw_nodes","apply_fisheye","draw_shelf","position_nodes","draw_edges","recolor_node","uri_to_js_id", "default_graph_controls", "mousemove"]);
+  jsoutline.traceAll(huviz.Orlando, true, ["tick","draw_circle","calc_node_radius","should_show_label","show_the_edges","draw_edge_labels","should_show_label","draw_nodes_in_set","draw_discards","draw_edge_labels","should_show_label","draw_discards","find_focused_node_or_edge","adjust_cursor","blank_screen","update_snippet","clear_canvas","draw_dropzones","show_last_mouse_pos","auto_change_verb","show_node_links","get_charge","hide_state_msg","show_state_msg","draw_labels","draw_nodes","apply_fisheye","draw_shelf","position_nodes","draw_edges","recolor_node","uri_to_js_id", "default_graph_controls", "mousemove", "draw_edges_from", "draw_curved_line"]);
   jsoutline.traceAll(treepicker.TreePicker, true, ["set_payload","get_or_create_payload","uri_to_js_id"]);
   jsoutline.traceAll(coloredtreepicker.ColoredTreePicker,true, ["set_payload","get_or_create_payload"]);
   jsoutline.traceAll(gclui.CommandController, true, ["auto_change_verb_if_warranted","is_immediate_mode","on_set_count_update"]);
@@ -523,12 +523,13 @@ describe("HuViz Tests", function() {
       expect(london, "London was not found").to.be.ok();
       HVZ.toggle_selected(london);
       one_less = HVZ.nodes.length - 1;
-      expect(HVZ.selected_set.length, "failed to deselect London").
-	  to.equal(one_less);
+      expect(HVZ.selected_set.length,
+             "failed to deselect London").
+	          to.equal(one_less);
       expect($('#selected_set .payload').text(),
   	     "failed to update the picker payload").
             to.equal("" + one_less);
-      HVZ.toggle_selected(london);
+            HVZ.toggle_selected(london);
       expect(HVZ.selected_set.length, "failed to reselect London").
 	  to.equal(HVZ.nodes.length);
       expect($('#selected_set .payload').text(),
@@ -721,9 +722,24 @@ describe("HuViz Tests", function() {
       verify_gradient_when_collapsed('connectionWithPlace', true); // has kids
     });
 
-    it("empty predicates should be white when expanded");
+    it("empty predicates should have a payload of '0/0' when expanded", function(done) {
+      say(test_title, done);
+      expect($('#anything > .treepicker-label > .payload').text()).
+            to.equal("0/0");
+    });
 
-    it("Relationships should behave properly when collapsed and toggled");
+    it("predicates' payload should summarize their children when collapsed", function(done) {
+      say(test_title, done);
+      var expect_collapsed_predicate_payload = function(pred_id, payload) {
+        var sel = "#"+ pred_id;
+        $(sel + " span.expander:first").trigger("click"); // collapse
+        expect($(sel + " > .treepicker-label > .payload").text()).
+              to.equal(payload);
+        $(sel + " span.expander:first").trigger("click");
+      }
+      expect_collapsed_predicate_payload("anything", "0/46");
+      expect_collapsed_predicate_payload("Location", "0/19");
+    });
 
     it("toggling a predicate should toggle indirect-mixed on its supers", function(done) {
       say(test_title, done);
@@ -736,6 +752,9 @@ describe("HuViz Tests", function() {
 
       a_leaf_predicate_sel = "#connectionWithAddress";
 
+      window.breakpoint = true;
+      jsoutline.squelch = true;
+      jsoutline.collapsed = false;
       // graph some leaf predicate
       $(a_leaf_predicate_sel).trigger("click");
       expect(HVZ.graphed_set.length,
@@ -748,6 +767,8 @@ describe("HuViz Tests", function() {
              "all " + num_parent + " parents of " + a_leaf_predicate_sel +
              " should be indirect-mixed when it is picked").
 	    to.equal(num_parent);
+      window.breakpoint = false;
+      jsoutline.squelch = true;
 
       // clean up
       $(a_leaf_predicate_sel).trigger("click");  // ungraph them again
@@ -758,6 +779,10 @@ describe("HuViz Tests", function() {
              "there should be no indirect-mixed predicates when nothing is graphed").
             to.equal(0);
     });
+
+    it("empty predicates should be white when expanded");
+    it("Relationships should behave properly when collapsed and toggled");
+
 
   });
 

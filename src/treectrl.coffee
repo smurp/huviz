@@ -36,6 +36,7 @@ class TreeCtrl
     @indirect_state = 'empty'
     @subs = []
     @super_class = null
+    @direct_stats = [0, 0]
   get_state: () ->
     if not @state?
       alert "#{@id} has no direct state"
@@ -58,14 +59,17 @@ class TreeCtrl
   register_subclass: (sub_class) ->
     @subs.push(sub_class)
   recalc_states: ->
-    @state = @recalc_direct_state()
-    @indirect_state = @recalc_indirect_state()
+    @direct_stats = @recalc_direct_stats() # eg [3, 60]
+    @indirect_stats = @recalc_indirect_stats([0, 0])
+    @state = @recalc_direct_state()   # eg empty|unshowing|mixed|showing
+    @indirect_state = @recalc_indirect_state() # same as above
     return
   recalc_indirect_state: () ->
+    #return @translate_stats_to_state @indirect_state
     if @subs.length is 0
-      return @state
+      return @state      # eg 0/0
     if @state is 'mixed'
-      return 'mixed'
+      return 'mixed'     # eg 3/6
     consensus = @get_state() # variable for legibility and performance
     for kid in @subs
       kid_ind_stt = kid.get_indirect_state()
@@ -91,12 +95,12 @@ class TreeCtrl
     old_state = @state
     old_indirect_state = @indirect_state
     @recalc_states()
-    if old_indirect_state isnt @indirect_state and old_indirect_state is 'abstract'
-      console.log @lid, "was abstract"
-    if old_state isnt @state or old_indirect_state isnt @indirect_state
+    updating_stats = true # TODO make this settable by user
+    if updating_stats or
+        old_state isnt @state or
+        old_indirect_state isnt @indirect_state
       if window.suspend_updates
         return
-
       evt = new CustomEvent @custom_event_name,
           detail:
             target_id: this.lid
@@ -105,10 +109,35 @@ class TreeCtrl
             new_state: @state
             old_indirect_state: old_indirect_state
             new_indirect_state: @indirect_state
+            payload: @get_payload_string()
+            collapsed_payload: @get_collapsed_payload_string()
           bubbles: true
           cancelable: true
       window.dispatchEvent evt
       if @super_class?
         @super_class.update_state()
+  format_stats: (stats) ->
+    return "#{stats[0]}/#{stats[1]}"
+  translate_stats_to_state: (stats) ->
+    if stats[1] is 0
+      return "empty"
+    if stats[0] is 0
+      return "unshowing"
+    if stats[0] is stats[1]
+      return "showing"
+    return "mixed"
+  recalc_direct_state: ->
+    return @translate_stats_to_state(@direct_stats)
+  get_payload_string: ->
+    return @format_stats(@direct_stats)
+  get_collapsed_payload_string: ->
+    return @format_stats(@indirect_stats)
+  recalc_indirect_stats: (stats) ->
+    stats[0] += @direct_stats[0]
+    stats[1] += @direct_stats[1]
+    if @subs.length > 0
+      for sub in @subs
+        sub.recalc_indirect_stats(stats)
+    return stats
 
 (exports ? this).TreeCtrl = TreeCtrl

@@ -13,7 +13,7 @@
     <link href="/css/huviz_test.css" rel="stylesheet"/>
     <link href="/css/debugging.css" rel="stylesheet"/>
     <style>
-      #predicates {
+      #XXXXpredicates {
         overflow-y: scroll;
         max-height: 20em;
       }
@@ -32,7 +32,7 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script src="//d3js.org/d3.v3.js" charset="utf-8"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
-  <% end %>  
+  <% end %>
   </head>
   <body>
     <div id="snippet_box">
@@ -51,7 +51,7 @@
     </ul>
     <div id="tabs-help" class="scrolling_tab">
       <h1 class="git-branch-is-<%= @git_branch_name %>">
-        HuViz 
+        HuViz
         <% if @git_commit_hash: %>
           <sup class="git_commit_hash">
             <a target="huviz_version" href="https://github.com/smurp/huviz/commit/<%= @git_commit_hash %>"><%= @git_commit_hash %></a>
@@ -61,11 +61,11 @@
       <h2>HuViz Test Suite</h2>
       <h6>(currently works best in Google Chrome)</h6>
       <div class="huviz-versions">
-        <a href="http://orlando.dev.semandra.com/tests" 
+        <a href="http://orlando.dev.semandra.com/tests"
            class="git-branch-is-master <% if @git_branch_name is 'master':%>current-git-branch<% end %>">production</a>
-        <a href="http://beta.orlando.dev.semandra.com/tests" 
+        <a href="http://beta.orlando.dev.semandra.com/tests"
            class="git-branch-is-beta  <% if @git_branch_name is 'beta':%>current-git-branch<% end %>">beta</a>
-        <a href="http://alpha.orlando.dev.semandra.com/tests" 
+        <a href="http://alpha.orlando.dev.semandra.com/tests"
            class="git-branch-is-alpha  <% if @git_branch_name is 'alpha':%>current-git-branch<% end %>">alpha</a>
         <a href="/tests">tests</a>
         <a href="/orlonto.html">ontology</a>
@@ -81,9 +81,9 @@
       <div>
         <label title="which file to load">
           data set
-          <select 
+          <select
               name="data_set" class="file_picker"
-              onchange="HVZ.load_file(this)" 
+              onchange="HVZ.load_file(this)"
               title="data sets are in order of increasing complexity">
    	    <option value=""> -- pick -- </option>
             <option title="R.M. Ballantyne -- all attributes -- 14 nodes; 60 edges; 17 predicates">/data/ballrm.nq</option>
@@ -95,7 +95,7 @@
             <option title="The Poetesses -- all attributes -- 1735 nodes; 1646 edges; 11 predicates">/data/poetesses.nq</option>
             <option title="Relations -- all writers -- basic relational predicates -- DANGER! -- 6897 nodes; edges 11761; predicates 10">/data/relations.nq</option>
           </select>
-        </label> 
+        </label>
         <span>
           <button id="reset_btn" style="display:none" type="button" onclick="HVZ.reset_data(this)">
             reset
@@ -116,7 +116,7 @@
     <script src="/mocha/mocha.js"></script>
     <script>
       var mocha_box_args = {
-        "title":"test suite", 
+        "title":"test suite",
         "maxHeight": 800,
         "minWidth": 500,
         "position": {"at": "left top", "of": window}
@@ -137,4 +137,3 @@
     </script>
   </body>
 </html>
-

@@ -1,5 +1,5 @@
 TaxonBase = require('taxonbase').TaxonBase
-  
+
 class Taxon extends TaxonBase
   # as Predicate is to Edge, Taxon is to Node, ie: type or class or whatever
   # Taxon actually contains Nodes directly, unlike TaxonAbstract (what a doof!)
@@ -23,7 +23,6 @@ class Taxon extends TaxonBase
       discard: @discarded_instances
       select: @selected_instances
       unselect: @unselected_instances
-
   custom_event_name: 'changeTaxon'
   get_instances: (hier) ->
     if hier
@@ -44,23 +43,13 @@ class Taxon extends TaxonBase
     @add(node)
   add: (node) ->
     @instances.add(node)
-  recalc_direct_state: ->
-    if @selected_instances.length + @unselected_instances.length is 0
-      return "unshowing" #"hidden"
-    if @selected_instances.length > 0 and @unselected_instances.length > 0
-      return "mixed"
-    if @unselected_instances.length is 0
-      return "showing"
-    if @selected_instances.length is 0
-      return "unshowing"
-    else
-      throw "Taxon[#{@id}].recalc_state should not fall thru, #selected:#{@selected_instances.length} #unselected:#{@unselected_instances.length}"
-    return
+  recalc_direct_stats: ->
+    return [@selected_instances.length, @instances.length]
   recalc_english: (in_and_out) ->
     if @indirect_state is 'showing'
       phrase = @lid
       if @subs.length > 0
-        phrase = "every " + phrase      
+        phrase = "every " + phrase
       in_and_out.include.push phrase
     else
       if @indirect_state is 'mixed'
