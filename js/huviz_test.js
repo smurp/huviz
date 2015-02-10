@@ -696,6 +696,17 @@ describe("HuViz Tests", function() {
       $("#Thing span.expander:first").trigger("click"); // expand Thing
     });
 
+    it("non-empty predicates should not have payload '0/0' after kid click", function(done) {
+      say(test_title, done);
+      window.breakpoint = true;
+      $("#connectionWithAddress").trigger("click"); // select leaf
+      expect($('#connectionWithSettlement > .treepicker-label > .payload').
+              text()).
+            to.not.equal("0/0");
+      window.breakpoint = false;
+      $("#connectionWithAddress").trigger("click"); // de-select leaf
+    });
+
 
     it("collapsed picker nodes should summarize their kids' colors", function(done) {
       say(test_title, done);
@@ -740,6 +751,9 @@ describe("HuViz Tests", function() {
       expect_collapsed_predicate_payload("anything", "0/46");
       expect_collapsed_predicate_payload("Location", "0/19");
     });
+
+
+
 
     it("toggling a predicate should toggle indirect-mixed on its supers", function(done) {
       say(test_title, done);
