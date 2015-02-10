@@ -62,7 +62,7 @@ class GCLTestSuite
           passed = true
           pass_count++
       catch e
-        errors.push([num,e])      
+        errors.push([num,e])
         #throw e
       if not passed and @break_quickly
         break
@@ -73,7 +73,7 @@ class GCLTestSuite
       console.log "test#"+fail[0],fail[1]
     for err in errors
       console.log "err#"+err[0],err[1]
-          
+
 class GraphCommand
     # "choose,label 'abdyma'"
     # "label Thing"
@@ -92,13 +92,13 @@ class GraphCommand
   #   constraints: like TODO(smurp) document GraphCommand constraints
   #   regarding: a list of pred_ids eg: ['orl:child','orl:denom']
   #       really [ orl:connectionToOrganization,
-  #                http://vocab.sindice.com/xfn#child ] 
+  #                http://vocab.sindice.com/xfn#child ]
   # Every command must have at least one verb and any kind of subject, so
   #   at least one of: subjects, classes or sets
   # Optional parameters are:
   #   constraints and regarding
   constructor: (args_or_str) ->
-    @prefixes = {}    
+    @prefixes = {}
     if typeof args_or_str == 'string'
       args = @parse(args_or_str)
     else
@@ -107,13 +107,12 @@ class GraphCommand
       @[argn] = argv
     if not @str?
       @update_str()
-  
   get_node: (node_spec) ->
     id = node_spec.id
     term = id
     tried = []
     node = @graph_ctrl.nodes.get({'id':term})
-    tried.push(term)    
+    tried.push(term)
     id_parts = id.split(':')
     if id_parts.length > 1
       abbr = id_parts[0]
@@ -129,11 +128,10 @@ class GraphCommand
           term = prefix+id
           tried.push(term)
           node = @graph_ctrl.nodes.get({'id':term})
-      
     if not node
       msg = "node with id = #{term} not found among #{@graph_ctrl.nodes.length} nodes: #{tried}"
       #console.warn msg
-    return node    
+    return node
   get_nodes: () ->
     result_set = SortedSet().sort_on("id")
     like_regex = null
@@ -166,7 +164,7 @@ class GraphCommand
           if not like_regex? or node.name.match(like_regex)
             result_set.add(node)
     return result_set
-  get_methods: () ->  
+  get_methods: () ->
     methods = []
     for verb in @verbs
       method = @graph_ctrl[verb]
@@ -187,15 +185,13 @@ class GraphCommand
       else
         msg = "method '"+verb+"' not found"
         console.log msg
-    return methods    
-
+    return methods
   regarding_required: () ->
     return @regarding? and @regarding.length > 0
-
   execute: (@graph_ctrl) ->
     @graph_ctrl.show_state_msg(@as_msg())
     @graph_ctrl.force.stop()
-    reg_req = @regarding_required()    
+    reg_req = @regarding_required()
     nodes = @get_nodes()
     console.log @str,"on",nodes.length,"nodes"
     if reg_req
@@ -216,11 +212,9 @@ class GraphCommand
         if nodes?
           async.each nodes,iter,err
         #@graph_ctrl.tick()
-        
     else if @verbs[0] is 'load' # FIXME not very general, but it appears to be the sole exception
       @graph_ctrl.load(@data_uri)
       console.log("load data_uri has returned")
-      
     else
       for meth in @get_methods()
         # console.log "meth",meth
@@ -233,7 +227,7 @@ class GraphCommand
           else
             console.log "DONE .execute()"
         iter = (node) =>
-          retval = meth.call(@graph_ctrl,node)        
+          retval = meth.call(@graph_ctrl,node)
           @graph_ctrl.tick() # TODO(smurp) move this out, or call every Nth node
         #async.eachSeries nodes,iter,err
         if nodes?
@@ -241,7 +235,6 @@ class GraphCommand
         #@graph_ctrl.tick()
     @graph_ctrl.hide_state_msg()
     @graph_ctrl.force.start()
-
   missing: '____'
   update_str: ->
     missing = @missing
@@ -263,7 +256,7 @@ class GraphCommand
       @object_phrase = more
     if @object_phrase?
       obj_phrase = @object_phrase
-    else 
+    else
       if @classes
         obj_phrase += angliciser(@classes)
       if @subjects
@@ -298,14 +291,14 @@ class GraphCommand
     if verb is 'load'
       cmd.data_uri = parts[1]
     else
-      subj = parts[1].replace(/\'/g,"") 
+      subj = parts[1].replace(/\'/g,"")
       cmd.subjects = [{'id': subj}]
     return cmd
   toString: () ->
     return @str
   as_msg: () ->
     return @str
-      
+
 class GraphCommandLanguageCtrl
   constructor: (@graph_ctrl) ->
     @prefixes = {}
@@ -330,7 +323,6 @@ class GraphCommandLanguageCtrl
     cmd = new GraphCommand(cmd_spec)
     cmd.prefixes = @prefixes
     cmd.execute(@graph_ctrl)
-
   execute: () =>
     if @commands.length > 0 and typeof @commands[0] is 'string' and @commands[0].match(/^load /)
       #console.log("initial execute", @commands)
@@ -344,7 +336,7 @@ class GraphCommandLanguageCtrl
     for cmd_spec in @commands
       if cmd_spec # ie not blank
         @run_one(cmd_spec)
-    
+
 (exports ? this).GraphCommandLanguageCtrl = GraphCommandLanguageCtrl
 (exports ? this).GraphCommand = GraphCommand
 (exports ? this).GCLTest = GCLTest
