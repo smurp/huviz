@@ -16,7 +16,7 @@
       }
     </style>
   <% if @is_local: %>
-    <link href="/css/debugging.css" rel="stylesheet"/>
+    <XXlink href="/css/debugging.css" rel="stylesheet"/>
   <% end %>
     <script>
       window.module = {};
@@ -46,7 +46,7 @@
     </ul>
     <div id="tabs-help" class="scrolling_tab">
       <h1 class="git-branch-is-<%= @git_branch_name %>">
-        HuViz 
+        HuViz
         <% if @git_commit_hash: %>
           <sup class="git_commit_hash">
             <a target="huviz_version" href="https://github.com/smurp/huviz/commit/<%= @git_commit_hash %>"><%= @git_commit_hash %></a>
@@ -56,22 +56,22 @@
       <h2>Orlando RDF Explorer</h2>
       <h6>(currently works best in Google Chrome)</h6>
       <div class="huviz-versions">
-        <a href="http://orlando.dev.semandra.com" 
+        <a href="http://orlando.dev.semandra.com"
            class="git-branch-is-master <% if @git_branch_name is 'master':%>current-git-branch<% end %>">production</a>
-        <a href="http://beta.orlando.dev.semandra.com" 
+        <a href="http://beta.orlando.dev.semandra.com"
            class="git-branch-is-beta  <% if @git_branch_name is 'beta':%>current-git-branch<% end %>">beta</a>
-        <a href="http://alpha.orlando.dev.semandra.com" 
+        <a href="http://alpha.orlando.dev.semandra.com"
            class="git-branch-is-alpha  <% if @git_branch_name is 'alpha':%>current-git-branch<% end %>">alpha</a>
         <a href="/tests">tests</a>
         <a href="/orlonto.html">ontology</a>
       </div>
       <p>This interface is intended to help you explore the
         information and relationships encoded in
-        the <a href="http://www.artsrn.ualberta.ca/orlando/" target="_blank">Orlando</a> 
-        text database of British Women Writers. 
-        In particular, HuViz helps explore semantic information expressed in 
-        <a hef="http://www.artsrn.ualberta.ca/orlando/">RDF triples</a> 
-        that assert things like 
+        the <a href="http://www.artsrn.ualberta.ca/orlando/" target="_blank">Orlando</a>
+        text database of British Women Writers.
+        In particular, HuViz helps explore semantic information expressed in
+        <a hef="http://www.artsrn.ualberta.ca/orlando/">RDF triples</a>
+        that assert things like
         <span class='eg-subject'>Writer</span> <span class='eg-verb'>hasSex</span> <span class='eg-object'>FEMALE</span>
         or <span class='eg-subject'>Writer</span> <span class='eg-verb'>livedInPlace</span> <span class='eg-object'>London</span>.
         HuViz is also able to display the <a href="/orlonto.html">Orlando Ontology</a>,
@@ -89,7 +89,7 @@
         <li>Drag nodes to and from the green shelf, the central graph and the red discard pile</li>
         <li>Chosen nodes are marked with a black perimeter. They are the nodes that you've expressed interest in by 'choosing' them to be in the graph. 'Unchosen' nodes are in the graph because they've been drawn in by chosen nodes.</li>
         <li>The verb 'choose' causes all the nodes linked to the chosen node to be drawn into the graph (except the discarded ones)</li>
-        <li>The verb 'unchoose' causes the shelving of all the unchosen 
+        <li>The verb 'unchoose' causes the shelving of all the unchosen
             nodes which have an edge shown to the chosen node.</li>
       </ul>
     </div>
@@ -101,9 +101,9 @@
       <div>
         <label title="which file to load">
           data set
-          <select 
+          <select
               name="data_set" class="file_picker"
-              onchange="HVZ.load_file(this)" 
+              onchange="HVZ.load_file(this)"
               title="data sets are in order of increasing complexity">
 	    <option value=""> -- pick -- </option>
             <option title="R.M. Ballantyne -- all attributes -- 14 nodes; 60 edges; 17 predicates">/data/ballrm.nq</option>
@@ -130,7 +130,7 @@
             <option>/data/orlando_ontology.ttl</option>
 	    -->
           </select>
-        </label> 
+        </label>
         <span>
           <button id="reset_btn" style="display:none" type="button" onclick="HVZ.reset_data(this)">
             reset
@@ -156,7 +156,7 @@
         //HVZ.choose_everything();
       }, false);
 
-      window.addEventListener('load',function(){        
+      window.addEventListener('load',function(){
         huviz = require('huviz');
         HVZ = new huviz.Orlando();
         HVZ.set_ontology("/data/orlando_ontology.ttl");
@@ -166,4 +166,3 @@
     </script>
   </body>
 </html>
-
