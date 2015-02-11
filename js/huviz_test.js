@@ -610,7 +610,6 @@ describe("HuViz Tests", function() {
 
     it("everything should start shelved and un-graphed", function(done) {
       say(test_title, done);
-      window.breakpoint = true;
       expect(HVZ.graphed_set.length).to.equal(0);
       expect(HVZ.shelved_set.length).to.equal(HVZ.nodes.length);
 
@@ -698,7 +697,13 @@ describe("HuViz Tests", function() {
 
     it("non-empty predicates should not have payload '0/0' after kid click", function(done) {
       say(test_title, done);
+      $("#Thing span.expander:first").trigger("click"); // collapse Thing
+      $("#Thing").trigger("click"); // unselect every Thing
       window.breakpoint = true;
+      console.clear();
+      $("#Thing").trigger("click"); // select every Thing
+
+
       $("#connectionWithAddress").trigger("click"); // select leaf
       expect($('#connectionWithSettlement > .treepicker-label > .payload').
               text()).
@@ -741,15 +746,22 @@ describe("HuViz Tests", function() {
 
     it("predicates' payload should summarize their children when collapsed", function(done) {
       say(test_title, done);
-      var expect_collapsed_predicate_payload = function(pred_id, payload) {
+      var expect_predicate_payload = function(pred_id, collapsed, expanded) {
         var sel = "#"+ pred_id;
         $(sel + " span.expander:first").trigger("click"); // collapse
-        expect($(sel + " > .treepicker-label > .payload").text()).
-              to.equal(payload);
-        $(sel + " span.expander:first").trigger("click");
+        expect($(sel + " > .treepicker-label > .payload").text(),
+               sel + "collapsed payload wrong").
+              to.equal(collapsed);
+
+        $(sel + " span.expander:first").trigger("click"); // expand
+        expect($(sel + " > .treepicker-label > .payload").text(),
+               sel + " expanded payload wrong").
+              to.equal(expanded);
+
       }
-      expect_collapsed_predicate_payload("anything", "0/46");
-      expect_collapsed_predicate_payload("Location", "0/19");
+      expect_predicate_payload("anything", "0/46", "0/0"); // empty
+      expect_predicate_payload("Location", "0/19", "0/0"); // empty
+      //expect_predicate_payload("connectionWithPlace", "0/13", "0/1"); // 1
     });
 
 
