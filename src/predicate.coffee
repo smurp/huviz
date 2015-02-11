@@ -7,8 +7,12 @@ class Predicate extends TreeCtrl
     @lid = uniquer(@id) # lid means local_id
     @all_edges = SortedSet().sort_on("id").named("predicate")
     # TODO check for .acquire() bugs re isState('_s') vs isState('_p')
+    # An Edge is either selected or unselected, so they are mutually exclusive.
+    # Hence .isState("_p") is common and unique to them.
     @selected_instances = SortedSet().sort_on("id").named("selected").isState('_p')
     @unselected_instances = SortedSet().sort_on("id").named("unselected").isState('_p')
+    # An Edge is either shown or unshown, they are mutually exclusive.
+    # Hence .isState("_s") is common and unique to them.
     # shown edges are those which are shown and linked to a selected source or target
     @shown_instances = SortedSet().sort_on("id").named("shown").isState("_s")
     # unshown edges are those which are unshown and linked to a selected source or target
