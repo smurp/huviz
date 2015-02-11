@@ -761,7 +761,7 @@ describe("HuViz Tests", function() {
       }
       expect_predicate_payload("anything", "0/46", "0/0"); // empty
       expect_predicate_payload("Location", "0/19", "0/0"); // empty
-      //expect_predicate_payload("connectionWithPlace", "0/13", "0/1"); // 1
+      expect_predicate_payload("connectionWithPlace", "0/13", "0/1"); // 1
     });
 
 
