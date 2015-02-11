@@ -699,21 +699,6 @@ describe("HuViz Tests", function() {
       $("#Thing span.expander:first").trigger("click"); // expand Thing
     });
 
-    it("non-empty predicates should not have payload '0/0' after kid click", function(done) {
-      say(test_title, done);
-      $("#Thing span.expander:first").trigger("click"); // collapse Thing
-      $("#Thing").trigger("click"); // unselect every Thing
-      window.breakpoint = true;
-      console.clear();
-      $("#Thing").trigger("click"); // select every Thing
-
-
-      $("#connectionWithAddress").trigger("click"); // select leaf
-      expect(get_payload("connectionWithSettlement")).to.not.equal("0/0");
-      window.breakpoint = false;
-      $("#connectionWithAddress").trigger("click"); // de-select leaf
-    });
-
 
     it("collapsed picker nodes should summarize their kids' colors", function(done) {
       say(test_title, done);
@@ -747,12 +732,12 @@ describe("HuViz Tests", function() {
         // check collapsed payload
         var sel = "#"+ pred_id;
         $(sel + " span.expander:first").trigger("click"); // collapse
-        expect(get_payload(sel),
+        expect(get_payload(pred_id),
                sel + "collapsed payload wrong").
               to.equal(collapsed);
         // check expanded payload
         $(sel + " span.expander:first").trigger("click"); // expand
-        expect(get_payload(sel),
+        expect(get_payload(pred_id),
                sel + " expanded payload wrong").
               to.equal(expanded);
       }
@@ -799,6 +784,23 @@ describe("HuViz Tests", function() {
              "there should be no indirect-mixed predicates when nothing is graphed").
             to.equal(0);
     });
+
+
+    it("non-empty predicates should not have payload '0/0' after kid click", function(done) {
+      say(test_title, done);
+      $("#Thing span.expander:first").trigger("click"); // collapse Thing
+      $("#Thing").trigger("click"); // unselect every Thing
+      window.breakpoint = true;
+      console.clear();
+      $("#Thing").trigger("click"); // select every Thing
+
+
+      $("#connectionWithAddress").trigger("click"); // select leaf
+      expect(get_payload("connectionWithSettlement")).to.not.equal("0/0");
+      window.breakpoint = false;
+      $("#connectionWithAddress").trigger("click"); // de-select leaf
+    });
+
 
     it("empty predicates should be white when expanded");
     it("Relationships should behave properly when collapsed and toggled");
