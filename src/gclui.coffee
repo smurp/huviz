@@ -23,7 +23,7 @@ gcl = require('graphcommandlanguage')
 TreePicker = require('treepicker').TreePicker
 ColoredTreePicker = require('coloredtreepicker').ColoredTreePicker
 class CommandController
-  constructor: (@huviz,@container,@hierarchy) ->
+  constructor: (@huviz, @container, @hierarchy) ->
     document.addEventListener 'dataset-loaded', @on_dataset_loaded
     if @container is null
       @container = d3.select("body").append("div").attr("id", "gclui")[0][0]
@@ -183,7 +183,7 @@ class CommandController
     #  return
     @predicate_picker.add(pred_lid, parent_lid, pred_name, @on_predicate_clicked)
 
-  on_predicate_clicked: (pred_id,new_state,elem) =>
+  on_predicate_clicked: (pred_id, new_state, elem) =>
     if new_state is 'showing'
       verb = 'show'
     else
@@ -312,8 +312,6 @@ class CommandController
         cmd.object_phrase = @object_phrase
       window.suspend_updates = false
       @huviz.gclc.run(cmd)
-      window.suspend_updates = false
-      @huviz.regenerate_english()
     @update_command()
 
   unselect_node_class: (node_class) ->
@@ -329,7 +327,6 @@ class CommandController
     #
     #   hidden     - TBD: not sure when hidden is appropriate
     #   emphasized - TBD: mark the class of the focused_node
-
 
 
   verb_sets: [ # mutually exclusive within each set
@@ -568,14 +565,15 @@ class CommandController
       if a_set.docs?
         @set_picker.set_title(id, a_set.docs)
 
-  on_set_picked: (set_id, picking) =>
+  on_set_picked: (set_id, new_state) =>
     @clear_set_picker()
-    if picking
-      @set_picker.set_state_by_id(set_id, "showing")
+    @set_picker.set_direct_state(set_id, new_state)
+
+    #@set_picker.set_state_by_id(set_id, new_state)
+    if new_state is 'showing'
       @chosen_set = @huviz[set_id]
       @chosen_set_id = set_id
-    else  # FIXME @chosen_set OR @chosen_set_id but why both?
-      @set_picker.set_state_by_id(set_id, "unshowing")
+    else
       delete @chosen_set
       delete @chosen_set_id
     @update_command()
