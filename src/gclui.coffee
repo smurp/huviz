@@ -30,7 +30,6 @@ class CommandController
     #@init_indices()
     @comdiv = d3.select(@container).append("div")
     @cmdlist = d3.select("#tabs-history").append('div').attr('class','commandlist')
-    @title_bar_controls()
     @oldcommands = @cmdlist.append('div').attr('class','commandhistory')
 
     @control_label("Current Command")
@@ -82,50 +81,6 @@ class CommandController
   add_clear_both: (target) ->
     # keep taxonomydiv from being to the right of the verbdiv
     target.append('div').attr('style','clear:both')
-  title_bar_controls: ->
-    return
-    @show_comdiv_button = d3.select(@container).
-         append('div').classed('show_comdiv_button',true)
-    @show_comdiv_button.classed('display_none',true)
-    #@comdiv.classed('display_none',true)
-    @cmdlistbar = @cmdlist.append('div').attr('class','cmdlistbar')
-    @cmdlist.append('div').attr('style','clear:both')
-    @cmdlistbarcontent = @cmdlistbar.append('div').
-         attr('class','cmdlisttitlebarcontent')
-    @cmdlistbarcontent.append('div').attr('class','cmdlisttitle')
-    @toggle_comdiv_button = @cmdlistbar.append('div').
-        attr('class','hide_comdiv')
-    @toggle_history_button = @cmdlistbar.append('div').
-        attr('class','hide_history')
-    @cmdlist.append('div').style('clear:both')
-
-    @toggle_history_button.on 'click', () =>
-      shown = not @toggle_history_button.classed('hide_history')
-      @toggle_history_button.classed('hide_history',shown)
-      @toggle_history_button.classed('show_history',not shown)
-      @oldcommands.classed('display_none',not shown)
-
-    @clear_history_button = d3.select("#tab-history").
-        append('input').
-        attr("type","submit").
-        attr('value','Clear')
-    @clear_history_button.on 'click', () =>
-      @oldcommands.html("")
-
-    @show_comdiv_button.on 'click', () =>
-      @show_comdiv_button.classed('display_none',true)
-      @comdiv.classed('display_none',false)
-
-    @toggle_comdiv_button.on 'click', () =>
-      shown = not @toggle_comdiv_button.classed('hide_comdiv')
-      "setting toggle_comdiv:"+shown
-      #@toggle_comdiv_button.classed('hide_comdiv',shown)
-      #@toggle_comdiv_button.classed('show_comdiv',not shown)
-      @comdiv.classed('display_none',not shown)
-      @show_comdiv_button.classed('display_none',false)
-
-    @toggle_commands_button = @cmdlistbar.append('div').
-        attr('class','close_commands')
   ignore_predicate: (pred_id) ->
     @predicates_ignored.push(pred_id)
   handle_newpredicate: (e) =>
@@ -154,7 +109,6 @@ class CommandController
                        "Faint color: no edges are shown -- click to show all\n" +
                        "Stripey color: some edges shown -- click to show all\n" +
                        "Hidden: no edges among the selected nodes")
-
     #@predicatebox.attr('class','scrolling')
     @predicates_ignored = []
     @predicate_picker = new ColoredTreePicker(@predicatebox,'anything',[],true)
@@ -253,7 +207,6 @@ class CommandController
       old_state = taxon.get_state()
     else
       throw "Uhh, there should be a root Taxon 'Thing' by this point: " + id
-
     if new_state is 'showing'
       if old_state in ['mixed', 'unshowing', 'empty']
         if not (id in @node_classes_chosen)
@@ -314,7 +267,6 @@ class CommandController
     #  specify: 'specify'
       #emphasize: 'emphasize'
     ]
-
   auto_change_verb_tests:
     select: (node) ->
       if node.selected?
