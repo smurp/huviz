@@ -514,13 +514,17 @@ class Huviz
       cmd = new gcl.GraphCommand
         verbs: @gclui.engaged_verbs
         subjects: [node]
-      @show_state_msg(cmd.as_msg())
-      @gclc.run cmd
-      @hide_state_msg()
-      @gclui.push_command cmd
+      @run_command(cmd)
     else
       @toggle_selected(node)
     @clean_up_all_dirt()
+
+  run_command: (cmd) ->
+    @show_state_msg(cmd.as_msg())
+    alert(cmd.as_msg())
+    @gclc.run cmd
+    @hide_state_msg()
+    @gclui.push_command cmd
 
   #///////////////////////////////////////////////////////////////////////////
   # resize-svg-when-window-is-resized-in-d3-js

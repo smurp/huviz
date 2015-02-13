@@ -179,16 +179,16 @@ class CommandController
       "Stripey color: some nodes are selected -- click to select all\n")
     # http://en.wikipedia.org/wiki/Taxon
     @taxon_picker = new ColoredTreePicker(@taxon_box,'Thing',[],true)
-    @taxon_picker.click_listener = @on_taxon_picked
+    @taxon_picker.click_listener = @on_taxon_clicked
     @taxon_picker.show_tree(@hierarchy,@taxon_box)
   add_new_taxon: (class_id,parent_lid,class_name,taxon) =>
-    @taxon_picker.add(class_id,parent_lid,class_name,@on_taxon_picked)
+    @taxon_picker.add(class_id,parent_lid,class_name,@on_taxon_clicked)
     @taxon_picker.recolor_now()
     @huviz.recolor_nodes()
   onChangeEnglish: (evt) =>
     @object_phrase = evt.detail.english
     @update_command()
-  on_taxon_picked: (id, new_state, elem) =>
+  on_taxon_clicked: (id, new_state, elem) =>
     # this supposedly implements the tristate behaviour:
     #   Mixed —> On
     #   On —> Off
@@ -222,7 +222,7 @@ class CommandController
       if @object_phrase? and @object_phrase isnt ""
         cmd.object_phrase = @object_phrase
       window.suspend_updates = false
-      @huviz.gclc.run(cmd)
+      @huviz.run_command(cmd)
     @update_command()
   unselect_node_class: (node_class) ->
     # removes node_class from @node_classes_chosen
@@ -344,10 +344,9 @@ class CommandController
            attr('id','doit_button')
     @doit_butt.on 'click', () =>
       if @update_command()
-        @huviz.gclc.run(@command)
-        @push_command(@command)
+        @huviz.run_command(@command)
         @reset_editor()
-        @huviz.update_all_counts()
+        @huviz.update_all_counts()  # TODO Try to remove this, should be auto
   disengage_all_verbs: ->
     for vid in @engaged_verbs
       @disengage_verb(vid)
