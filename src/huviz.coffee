@@ -48,8 +48,8 @@
 #  79) TASK: support dragging of edges to shelf or discard bin
 #  94) TASK: show_msg() during command.run to inform user and prevent clicks
 #  95) TASK: get /orlonto.html working smoothly again
-#  96) TASK: highlight 'select' when it is the default verb;
-#            replacing toggle_selected in perform_current_command
+#  96) TASK: highlight 'select' when it is the default verb and therefore...
+#            remove toggle_selected from perform_current_command
 #  90) BUG: english is no longer minimal
 #  91) BUG: mocha async being misused re done(), so the passes count is wrong
 #  86) BUG: try_to_set_node_type: only permit subtypes to override supertypes
