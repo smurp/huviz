@@ -41,12 +41,20 @@
 #     d) there might be update operations against gclui apart from actuators
 #
 # Immediate Priorities:
-#  91) BUG: mocha aync being misused re done(), so the passes count is wrong
+#  40) TASK: support search
+#  93) BUG: toggling a predicate should toggle indirect-mixed on its supers
+#  92) BUG: non-empty predicates should not have payload '0/0' after kid click
+#  77) TASK: retire 'Do it' button by immediately executing complete commands
+#  79) TASK: support dragging of edges to shelf or discard bin
+#  94) TASK: show_msg() during command.run to inform user and prevent clicks
+#  95) TASK: get /orlonto.html working smoothly again
+#  96) TASK: highlight 'select' when it is the default verb;
+#            replacing toggle_selected in perform_current_command
 #  90) BUG: english is no longer minimal
+#  91) BUG: mocha async being misused re done(), so the passes count is wrong
 #  86) BUG: try_to_set_node_type: only permit subtypes to override supertypes
 #  87) BUG: solve node.type vs node.taxon sync problem (see orlonto)
 #  46) TASK: impute node type based on predicates via ontology
-#  40) TASK: support search
 #  53) PERF: should_show_label should not have search_regex in inner loop
 #  60) BUG: nodes are sometimes still 'chosen' while no longer 'graphed'
 #  65) BUG: hidden nodes are not fully ignore on the shelf so shelved nodes
@@ -59,8 +67,6 @@
 #  74) TASK: recover from loading crashes with Cancel button on show_state_msg
 #  76) TASK: consider renaming graphed_set to connected_set and verbs
 #            choose/unchoose to graph/ungraph
-#  77) TASK: retire 'Do it' button by immediately executing complete commands
-#  79) TASK: support dragging of edges to shelf or discard bin
 #  81) TASK: coordinate mouse cursor with the current immediate verb
 #  82) TASK: set initial verb to 'choose'
 #  83) BUG: choose should not unpin
