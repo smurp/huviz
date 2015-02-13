@@ -45,7 +45,7 @@ class CommandController
     @build_setpicker()
     #@add_clear_both(@comdiv)
 
-    @build_nodeclasspicker()
+    @build_taxon_picker()
     @likediv = @comdiv.append('div')
     @add_clear_both(@comdiv)
 
@@ -239,24 +239,24 @@ class CommandController
   #     Indirect instances are the instances of subclasses.
   ###
 
-  build_nodeclasspicker: ->
+  build_taxon_picker: ->
     id = 'classes'
-    @nodeclassbox = @comdiv.append('div')
+    @taxon_box = @comdiv.append('div')
         .classed('container',true)
         .attr('id',id)
-    @nodeclassbox.attr('style','vertical-align:top')
-    @nodeclassbox.attr(
+    @taxon_box.attr('style','vertical-align:top')
+    @taxon_box.attr(
       'title',
       "Medium color: all nodes are selected -- click to select none\n" +
       "Faint color: no nodes are selected -- click to select all\n" +
       "Stripey color: some nodes are selected -- click to select all\n")
 
     # http://en.wikipedia.org/wiki/Taxon
-    @taxon_picker = new ColoredTreePicker(@nodeclassbox,'Thing',[],true)
+    @taxon_picker = new ColoredTreePicker(@taxon_box,'Thing',[],true)
     @taxon_picker.click_listener = @on_taxon_picked
-    @taxon_picker.show_tree(@hierarchy,@nodeclassbox)
+    @taxon_picker.show_tree(@hierarchy,@taxon_box)
 
-  add_newnodeclass: (class_id,parent_lid,class_name,taxon) =>
+  add_new_taxon: (class_id,parent_lid,class_name,taxon) =>
     @taxon_picker.add(class_id,parent_lid,class_name,@on_taxon_picked)
     @taxon_picker.recolor_now()
     @huviz.recolor_nodes()

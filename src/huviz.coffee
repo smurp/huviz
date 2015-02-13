@@ -50,8 +50,6 @@
 #  40) TASK: support search
 #  53) PERF: should_show_label should not have search_regex in inner loop
 #  60) BUG: nodes are sometimes still 'chosen' while no longer 'graphed'
-#  62) TASK: add counts to predicate picker
-#  63) TASK: add counts to taxon picker
 #  65) BUG: hidden nodes are not fully ignore on the shelf so shelved nodes
 #           are not always the focused node
 #  68) TASK: optimize update_english
@@ -71,8 +69,6 @@
 #
 # Eventual Tasks:
 #  85) TASK: move SVG, Canvas and WebGL renderers to own Renderer subclasses
-#  86) TASK: rename *nodeclass* to *taxon*
-#  74) TASK: restore test suite
 #  75) TASK: implement real script parser
 #   4) TASK: Suppress all but the 6-letter id of writers in the cmd cli
 #  14) TASK: it takes time for clicks on the predicate picker to finish;
@@ -736,7 +732,7 @@ class Huviz
       if parent_lid?
         parent = @get_or_create_taxon(parent_lid, false)
         taxon.register_superclass(parent)
-      @gclui.add_newnodeclass(taxon_id,parent_lid,undefined,taxon) # FIXME should this be an event on the Taxon constructor?
+      @gclui.add_new_taxon(taxon_id,parent_lid,undefined,taxon) # FIXME should this be an event on the Taxon constructor?
     @taxonomy[taxon_id]
 
   pick_taxon: (id, hier) ->
