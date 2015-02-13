@@ -54,42 +54,34 @@ class CommandController
     @build_form()
     @update_command()
     @install_listeners()
-
   control_label: (txt) ->
     @comdiv.append('div').classed("control_label",true).text(txt)
-
   install_listeners: () ->
     window.addEventListener 'changePredicate', @predicate_picker.onChangeState
     window.addEventListener 'changeTaxon', @taxon_picker.onChangeState
     window.addEventListener 'changeEnglish', @onChangeEnglish
-
   on_dataset_loaded: (evt) =>
     if not evt.done?
       @select_the_initial_set()
       @huviz.hide_state_msg()
       # FIXME is there a standards-based way to prevent this happening three times?
       evt.done = true
-
   select_the_initial_set: =>
     @huviz.pick_taxon("Thing", true)
     #@engage_verb('choose')
-
   init_editor_data: ->
     # operations common to the constructor and reset_editor
     @shown_edges_by_predicate = {}
     @unshown_edges_by_predicate = {}
     @node_classes_chosen = [] # new SortedSet()
-
   reset_editor: ->
     @disengage_all_verbs()
     @init_editor_data()
     @clear_like()
     @update_command()
-
   add_clear_both: (target) ->
     # keep taxonomydiv from being to the right of the verbdiv
     target.append('div').attr('style','clear:both')
-
   title_bar_controls: ->
     return
     @show_comdiv_button = d3.select(@container).
@@ -134,10 +126,8 @@ class CommandController
 
     @toggle_commands_button = @cmdlistbar.append('div').
         attr('class','close_commands')
-
   ignore_predicate: (pred_id) ->
     @predicates_ignored.push(pred_id)
-
   handle_newpredicate: (e) =>
     pred_uri = e.detail.pred_uri
     parent_lid = e.detail.parent_lid
@@ -147,18 +137,15 @@ class CommandController
         pred_name = pred_lid.match(/([\w\d\_\-]+)$/g)[0]
         @add_newpredicate(pred_lid,parent_lid,pred_name)
         @recolor_edges_and_predicates_eventually(e)
-
   recolor_edges_and_predicates_eventually: ->
     if @recolor_edges_and_predicates_eventually_id?
       # console.log "defer edges_and_predicates",@recolor_edges_and_predicates_eventually_id
       clearTimeout(@recolor_edges_and_predicates_eventually_id)
     @recolor_edges_and_predicates_eventually_id = setTimeout(@recolor_edges_and_predicates, 300)
-
   recolor_edges_and_predicates: (evt) =>
     # console.log "recolor_edges_and_predicates()"
     @predicate_picker.recolor_now()
     @recolor_edges() # FIXME should only really be run after the predicate set has settled for some amount of time
-
   build_predicatepicker: ->
     id = 'predicates'
     @predicatebox = @comdiv.append('div').classed('container',true).attr('id',id)
@@ -172,16 +159,13 @@ class CommandController
     @predicates_ignored = []
     @predicate_picker = new ColoredTreePicker(@predicatebox,'anything',[],true)
     @predicate_hierarchy = {'anything':['anything']}
-
     # FIXME Why is show_tree being called four times per node?
     @predicate_picker.click_listener = @on_predicate_clicked
     @predicate_picker.show_tree(@predicate_hierarchy,@predicatebox)
-
   add_newpredicate: (pred_lid, parent_lid, pred_name) =>
     #if pred_lid in @predicates_to_ignore
     #  return
     @predicate_picker.add(pred_lid, parent_lid, pred_name, @on_predicate_clicked)
-
   on_predicate_clicked: (pred_id, new_state, elem) =>
     if new_state is 'showing'
       verb = 'show'
@@ -191,10 +175,8 @@ class CommandController
       verbs: [verb]
       regarding: [pred_id]
       sets: [@huviz.selected_set]
-
     @prepare_command cmd
     @huviz.gclc.run(@command)
-
   recolor_edges: (evt) =>
     count = 0
     for node in @huviz.nodes
@@ -202,7 +184,6 @@ class CommandController
         count++
         pred_n_js_id = edge.predicate.id
         edge.color = @predicate_picker.get_color_forId_byName(pred_n_js_id,'showing')
-
   ###
   #     Collapsing and expanding taxons whether abstract or just instanceless.
   #
@@ -237,7 +218,6 @@ class CommandController
   #
   #     Indirect instances are the instances of subclasses.
   ###
-
   build_taxon_picker: ->
     id = 'classes'
     @taxon_box = @comdiv.append('div')
@@ -249,21 +229,17 @@ class CommandController
       "Medium color: all nodes are selected -- click to select none\n" +
       "Faint color: no nodes are selected -- click to select all\n" +
       "Stripey color: some nodes are selected -- click to select all\n")
-
     # http://en.wikipedia.org/wiki/Taxon
     @taxon_picker = new ColoredTreePicker(@taxon_box,'Thing',[],true)
     @taxon_picker.click_listener = @on_taxon_picked
     @taxon_picker.show_tree(@hierarchy,@taxon_box)
-
   add_new_taxon: (class_id,parent_lid,class_name,taxon) =>
     @taxon_picker.add(class_id,parent_lid,class_name,@on_taxon_picked)
     @taxon_picker.recolor_now()
     @huviz.recolor_nodes()
-
   onChangeEnglish: (evt) =>
     @object_phrase = evt.detail.english
     @update_command()
-
   on_taxon_picked: (id, new_state, elem) =>
     # this supposedly implements the tristate behaviour:
     #   Mixed —> On
@@ -301,12 +277,10 @@ class CommandController
       window.suspend_updates = false
       @huviz.gclc.run(cmd)
     @update_command()
-
   unselect_node_class: (node_class) ->
     # removes node_class from @node_classes_chosen
     @node_classes_chosen = @node_classes_chosen.filter (eye_dee) ->
       eye_dee isnt node_class
-
     # # Elements may be in one of these states:
     #   mixed      - some instances of the node class are selected, but not all
     #   unshowing  - a light color indicating nothing of that type is selected
@@ -315,8 +289,6 @@ class CommandController
     #
     #   hidden     - TBD: not sure when hidden is appropriate
     #   emphasized - TBD: mark the class of the focused_node
-
-
   verb_sets: [ # mutually exclusive within each set
       choose: 'choose'
       unchoose: 'unchoose'
@@ -336,7 +308,6 @@ class CommandController
     #  print: 'print'
     #  redact: 'redact'
     #  peek: 'peek'
-
     #,  # FIXME the edge related commands must be reviewed
     #  show: 'reveal'
     #  suppress: 'suppress'
@@ -363,10 +334,8 @@ class CommandController
     unlabel: (node) ->
       if not node.labelled
         return 'label'
-
   is_immediate_mode: ->
     @engaged_verbs.length is 1 # should also test for empty object
-
   auto_change_verb_if_warranted: (node) ->
     if @is_immediate_mode()
       verb = @engaged_verbs[0]
@@ -375,16 +344,13 @@ class CommandController
         next_verb = test(node)
         if next_verb
           @engage_verb(next_verb)
-
   verbs_requiring_regarding:
     ['show','suppress','emphasize','deemphasize']
-
   verbs_override: # when overriding ones are selected, others are unselected
     choose: ['discard', 'unchoose', 'shelve', 'hide']
     shelve: ['unchoose', 'choose', 'hide', 'discard', 'retrieve']
     discard: ['choose', 'retrieve', 'hide', 'unchoose', 'unselect', 'select']
     hide: ['discard', 'undiscard', 'label', 'choose' ,'unchoose', 'select', 'unselect']
-
   verb_descriptions:
     choose: "Put nodes in the graph."
     shelve: "Remove nodes from the graph and put them on the shelf
@@ -413,7 +379,6 @@ class CommandController
               the constantly updating set of edges indicated from nodes
               of the classes indicated."
     load: "Load knowledge from the given uri."
-
   build_form: () ->
     @build_verb_form()
     @build_like()
@@ -536,7 +501,6 @@ class CommandController
   run_script: (script) ->
     @huviz.gclc.run(script)
     @huviz.update_all_counts()
-
   build_setpicker: () ->
     # FIXME populate @the_sets from @huviz.selectable_sets
     @the_sets = {'nodes': ['All ', {'selected_set': ['Selected'], 'chosen_set': ['Chosen'], 'graphed_set': ['Graphed'], 'shelved_set': ['Shelved'], 'hidden_set': ['Hidden'], 'discarded_set': ['Discarded'], 'labelled_set': ['Labelled']}]}
@@ -547,17 +511,13 @@ class CommandController
     @set_picker.click_listener = @on_set_picked
     @set_picker.show_tree(@the_sets, @set_picker_box)
     @populate_all_set_docs()
-
   populate_all_set_docs: () ->
     for id, a_set of @huviz.selectable_sets
       if a_set.docs?
         @set_picker.set_title(id, a_set.docs)
-
   on_set_picked: (set_id, new_state) =>
     @clear_set_picker()
     @set_picker.set_direct_state(set_id, new_state)
-
-    #@set_picker.set_state_by_id(set_id, new_state)
     if new_state is 'showing'
       @chosen_set = @huviz[set_id]
       @chosen_set_id = set_id
@@ -565,16 +525,12 @@ class CommandController
       delete @chosen_set
       delete @chosen_set_id
     @update_command()
-
   on_set_count_update: (set_id, count) =>
     @set_picker.set_payload(set_id, count)
-
   on_taxon_count_update: (taxon_id, count) ->
     @taxon_picker.set_payload(taxon_id, count)
-
   on_predicate_count_update: (pred_lid, count) ->
     @predicate_picker.set_payload(pred_lid, count)
-
   clear_set_picker: () ->
     if @chosen_set_id?
       @set_picker.set_direct_state(@chosen_set_id, 'unshowing')
