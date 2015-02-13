@@ -265,11 +265,7 @@ class CommandController
     @object_phrase = evt.detail.english
     @update_command()
 
-  on_taxon_picked: (id, new_state, elem, propagate_DEPRECATED) =>
-    # TODO
-    #   remove propagate argument
-    #   pass in new_state rather than selected
-
+  on_taxon_picked: (id, new_state, elem) =>
     # this supposedly implements the tristate behaviour:
     #   Mixed —> On
     #   On —> Off
@@ -277,18 +273,12 @@ class CommandController
     # When we select "Thing" we mean:
     #    all nodes except the embryonic and the discarded
     #    OR rather, the hidden, the graphed and the unlinked
-    # When propagate we need to update the treepicker and the selected_set.
-    #   * the colors of child nodes on the treepicker
-    #   * the color of the clicked node on the treepicker
-    #      - should be stripey if subclass coloring is mixed
-
     taxon = @huviz.taxonomy[id]
     if taxon?
       old_state = taxon.get_state()
     else
       throw "Uhh, there should be a root Taxon 'Thing' by this point: " + id
 
-    #console.info("on_taxon_picked() id: #{id}, new_state: #{new_state}, old_state: #{old_state}")
     if new_state is 'showing'
       if old_state in ['mixed', 'unshowing', 'empty']
         if not (id in @node_classes_chosen)
@@ -299,7 +289,6 @@ class CommandController
           classes: (class_name for class_name in @node_classes_chosen)
       else
         console.error "there should be nothing to do because #{id}.#{old_state} == #{new_state}"
-
     else if new_state is 'unshowing'
       @unselect_node_class(id)
       cmd = new gcl.GraphCommand
