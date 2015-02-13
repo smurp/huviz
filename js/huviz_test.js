@@ -194,7 +194,7 @@ describe("HuViz Tests", function() {
             to.equal(0);
     });
 
-    it("toggling a branch predicate should leave the root predicate unmixed", function(done) {
+    it("toggling branch predicates should leave the root predicate unmixed", function(done) {
       say(test_title, done);
       a_branch_predicate = "connectionWithSettlement";
       HVZ.click_predicate(a_branch_predicate); // graph some branch predicates
