@@ -1,8 +1,11 @@
-TaxonBase = require('taxonbase').TaxonBase
+angliciser = require('angliciser').angliciser
+TreeCtrl = require('treectrl').TreeCtrl
 
-class Taxon extends TaxonBase
+class Taxon extends TreeCtrl
   # as Predicate is to Edge, Taxon is to Node, ie: type or class or whatever
   # Taxon actually contains Nodes directly, unlike TaxonAbstract (what a doof!)
+  suspend_updates: false
+  custom_event_name: 'changeTaxon'
   constructor: (@id) ->
     super()
     @lid = @id # FIXME @lid should be local @id should be uri, no?
@@ -23,7 +26,6 @@ class Taxon extends TaxonBase
       discard: @discarded_instances
       select: @selected_instances
       unselect: @unselected_instances
-  custom_event_name: 'changeTaxon'
   get_instances: (hier) ->
     if hier
       retval = []
@@ -66,5 +68,23 @@ class Taxon extends TaxonBase
         for sub in @subs
           sub.recalc_english(in_and_out)
     return
+  update_english: () ->
+    if @id isnt "Thing"
+      console.error "update_english(#{@lid}) should only be called on Thing"
+    in_and_out =
+      include: []
+      exclude: []
+    @recalc_english(in_and_out)
+    evt = new CustomEvent 'changeEnglish',
+      detail:
+        english: @english_from(in_and_out)
+      bubbles: true
+      cancelable: true
+    window.dispatchEvent evt
+  english_from: (in_and_out) ->
+    english = angliciser(in_and_out.include)
+    if in_and_out.exclude.length
+      english += " but not " + angliciser(in_and_out.exclude, " or ")
+    return english
 
 (exports ? this).Taxon = Taxon
