@@ -37,6 +37,7 @@ class TreeCtrl
     @subs = []
     @super_class = null
     @direct_stats = [0, 0]
+    @dirty = false
   get_state: () ->
     if not @state?
       alert "#{@id} has no direct state"
@@ -80,9 +81,19 @@ class TreeCtrl
         else if kid_ind_stt not in ['empty', 'hidden']
           return "mixed"
     return consensus
+  set_dirty: () ->
+    @dirty = true
+    if @super_class?
+      @super_class.set_dirty()
   update_state: (inst, change) ->
     if inst?
       @change_map[change].acquire(inst)
+    @set_dirty()
+    #@fire_changeEvent_if_needed()
+  clean_up_dirt: ->
+    if not @dirty
+      return
+    @dirty = false
     # FIXME fold the subroutines into this method for a single pass
     # FIXME make use of the edge and change hints in the single pass
     # terminology:
@@ -94,7 +105,10 @@ class TreeCtrl
     #   are there no selected edges?
     old_state = @state
     old_indirect_state = @indirect_state
-    @recalc_states()
+
+    for kid in @subs
+      kid.clean_up_dirt()
+    @recalc_states()      
     updating_stats = true # TODO make this settable by user
     if updating_stats or
         old_state isnt @state or
@@ -114,8 +128,8 @@ class TreeCtrl
           bubbles: true
           cancelable: true
       window.dispatchEvent evt
-      if @super_class?
-        @super_class.update_state()
+      #if @super_class?
+      #  @super_class.fire_changeEvent_if_needed()
   format_stats: (stats) ->
     return "#{stats[0]}/#{stats[1]}"
   translate_stats_to_state: (stats) ->

@@ -378,9 +378,45 @@ class Huviz
     node.x = point[0]
     node.y = point[1]
 
+  click_node: (node_or_id) ->
+    # motivated by testing
+    if typeof node_or_id is 'string'
+      node = @nodes.get_by('id', node_or_id)
+    else
+      node = node_or_id
+    @focused_node = node
+    evt = new MouseEvent "mouseup",
+      screenX: node.x
+      screenY: node.y
+    @canvas.dispatchEvent(evt)
+    return @
+
+  click_verb: (id) ->
+    $("#verb-#{id}").trigger("click")
+    return @
+
+  click_set: (id) ->
+    $("##{id}_set").trigger("click")
+    return @
+
+  click_predicate: (id) ->
+    $("##{id}").trigger("click")
+    return @
+
+  click_taxon: (id) ->
+    $("##{id}").trigger("click")
+    return @
+
+  toggle_expander: (id) ->
+    $("##{id} span.expander:first").trigger("click");
+    return @
+
+  doit: ->
+    $("#doit_button").trigger("click")
+    return @
+
   mousemove: =>
     d3_event = @mouse_receiver[0][0]
-    #console.log('mousemove',this,d3_event)
     @last_mouse_pos = d3.mouse(d3_event)
     # || focused_node.state == discarded_set
     if not @dragging and @mousedown_point and @focused_node and
@@ -412,13 +448,11 @@ class Huviz
     @tick()
 
   mousedown: =>
-    #console.log 'mousedown'
     d3_event = @mouse_receiver[0][0]
     @mousedown_point = d3.mouse(d3_event)
     @last_mouse_pos = @mousedown_point
 
   mouseup: =>
-    #console.log 'mouseup', @dragging or "not", "dragging"
     d3_event = @mouse_receiver[0][0]
     @mousedown_point = false
     point = d3.mouse(d3_event)
@@ -488,6 +522,7 @@ class Huviz
       @gclui.push_command cmd
     else
       @toggle_selected(node)
+    @clean_up_all_dirt()
 
   #///////////////////////////////////////////////////////////////////////////
   # resize-svg-when-window-is-resized-in-d3-js
@@ -857,7 +892,6 @@ class Huviz
         new_focused_edge.focused = true
         new_focused_edge.source.focused_edge = true
         new_focused_edge.target.focused_edge = true
-
 
     @focused_node = new_focused_node # possibly null
     @focused_edge = new_focused_edge
@@ -1738,6 +1772,17 @@ class Huviz
       @attach_predicate_to_its_parent(obj_n)
     obj_n
 
+  clean_up_dirty_predicates: ->
+    @predicate_set.get_by('id', 'anything').clean_up_dirt()
+
+  clean_up_dirty_taxons: ->
+    @taxonomy.Thing.clean_up_dirt()
+
+  clean_up_all_dirt: ->
+    @clean_up_dirty_taxons()
+    @clean_up_dirty_predicates()
+    @regenerate_english()
+
   get_or_create_context_by_id: (sid) ->
     obj_id = @make_qname(sid)
     obj_n = @context_set.get_by('id',obj_id)
@@ -2289,8 +2334,9 @@ class Huviz
     $("body").css "background-color", "white" # FIXME remove once it works!
     #@restart()
     @update_all_counts()
-    @regenerate_english()
-    return
+    @clean_up_all_dirt()
+    #@regenerate_english()
+    #return
 
   get_handle: (thing) ->
     # A handle is like a weak reference, saveable, serializable
