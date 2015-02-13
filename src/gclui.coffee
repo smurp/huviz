@@ -27,32 +27,26 @@ class CommandController
     if @container is null
       @container = d3.select("body").append("div").attr("id", "gclui")[0][0]
     d3.select(@container).html("")
-    #@init_indices()
     @comdiv = d3.select(@container).append("div")
     @cmdlist = d3.select("#tabs-history").append('div').attr('class','commandlist')
     @oldcommands = @cmdlist.append('div').attr('class','commandhistory')
-
     @control_label("Current Command")
     @nextcommandbox = @comdiv.append('div')
-
     @control_label("Choose Verb")
     @verbdiv = @comdiv.append('div').attr('class','verbs')
     @add_clear_both(@comdiv)
-
     @control_label("Select Nodes")
     @build_setpicker()
-    #@add_clear_both(@comdiv)
-
     @build_taxon_picker()
     @likediv = @comdiv.append('div')
     @add_clear_both(@comdiv)
-
     @control_label("Edges of the Selected Nodes")
     @build_predicatepicker()
     @init_editor_data()
     @build_form()
     @update_command()
     @install_listeners()
+    @immediate_execution_mode = false
   control_label: (txt) ->
     @comdiv.append('div').classed("control_label",true).text(txt)
   install_listeners: () ->
@@ -395,7 +389,9 @@ class CommandController
     @command = new gcl.GraphCommand(args)
   update_command: () =>
     @huviz.show_state_msg("update_command")
-    @prepare_command @build_command()
+    ready = @prepare_command @build_command()
+    if ready and @immediate_execution_mode
+      @command.execute(@huviz)
     @huviz.hide_state_msg()
   prepare_command: (cmd) ->
     @command = cmd
