@@ -18,7 +18,6 @@ window.toggle_suspend_updates = (val) ->
   #console.warn "suspend_updates",window.suspend_updates
   return window.suspend_updates
 
-TaxonBase = require("taxonbase").TaxonBase
 gcl = require('graphcommandlanguage')
 TreePicker = require('treepicker').TreePicker
 ColoredTreePicker = require('coloredtreepicker').ColoredTreePicker

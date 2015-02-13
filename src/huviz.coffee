@@ -43,7 +43,6 @@
 # Immediate Priorities:
 #  91) BUG: mocha aync being misused re done(), so the passes count is wrong
 #  90) BUG: english is no longer minimal
-#  89) TASK: remove TaxonAbstract
 #  86) BUG: try_to_set_node_type: only permit subtypes to override supertypes
 #  87) BUG: solve node.type vs node.taxon sync problem (see orlonto)
 #  46) TASK: impute node type based on predicates via ontology
@@ -116,7 +115,6 @@ GraphCommandLanguageCtrl = require('graphcommandlanguage').GraphCommandLanguageC
 GreenerTurtle = require('greenerturtle').GreenerTurtle
 Node = require('node').Node
 Predicate = require('predicate').Predicate
-TaxonAbstract = require('taxonabstract').TaxonAbstract
 Taxon = require('taxon').Taxon
 
 wpad = undefined
@@ -718,17 +716,13 @@ class Huviz
       console.log "not regenerating english because no taxonomy[#{root}]"
     return
 
-  get_or_create_taxon: (taxon_id,abstract) ->
+  get_or_create_taxon: (taxon_id) ->
     if not @taxonomy[taxon_id]?
-      if abstract
-        taxon = new TaxonAbstract(taxon_id)
-        @gclui.taxon_picker.set_abstract(taxon_id) # OMG
-      else
-        taxon = new Taxon(taxon_id)
+      taxon = new Taxon(taxon_id)
       @taxonomy[taxon_id] = taxon
       parent_lid = @ontology.subClassOf[taxon_id] or @HHH[taxon_id] or 'Thing'
       if parent_lid?
-        parent = @get_or_create_taxon(parent_lid, false)
+        parent = @get_or_create_taxon(parent_lid)
         taxon.register_superclass(parent)
       @gclui.add_new_taxon(taxon_id,parent_lid,undefined,taxon) # FIXME should this be an event on the Taxon constructor?
     @taxonomy[taxon_id]
