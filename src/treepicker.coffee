@@ -81,37 +81,37 @@ class TreePicker
             my_contents.classed(css_class, true)
         @show_tree(rest[1],my_contents,listener,false)
   click_handler: () =>
-        listener = @click_listener
-        picker = this
-        elem = d3.select(d3.event.target)
-        #elem = d3.select(d3.event.currentTarget)
-        #if not elem.node().id
-        #  alert("deferring to #{elem.node().parentElement.id}")
-        #  return true
-        d3.event.stopPropagation()
+    listener = @click_listener
+    picker = this
+    elem = d3.select(d3.event.target)
+    #elem = d3.select(d3.event.currentTarget)
+    #if not elem.node().id
+    #  alert("deferring to #{elem.node().parentElement.id}")
+    #  return true
+    d3.event.stopPropagation()
 
-        # TODO figure out why the target elem is sometimes the treepicker-label not the
-        this_id = elem.node().id
-        parent_id = elem.node().parentElement.id
-        id = this_id or parent_id
-        if not this_id
-          elem = d3.select(elem.node().parentElement)
-        is_treepicker_collapsed = elem.classed('treepicker-collapse')
-        is_treepicker_showing = elem.classed('treepicker-showing')
-        is_treepicker_indirect_showing = elem.classed('treepicker-indirect-showing')
-        # If the state is not 'showing' then make it so, otherwise 'unshowing'.
-        # if it is not currently showing.
-        send_leafward = is_treepicker_collapsed
-        new_state = 'showing'
-        if is_treepicker_collapsed
-          if is_treepicker_indirect_showing
-            new_state = 'unshowing'
-        else
-          if is_treepicker_showing
-            new_state = 'unshowing'
-        picker.effect_click(id, new_state, send_leafward, listener)
-        # This is hacky but ColorTreePicker.click_handler() needs the id too
-        return id
+    # TODO figure out why the target elem is sometimes the treepicker-label not the
+    this_id = elem.node().id
+    parent_id = elem.node().parentElement.id
+    id = this_id or parent_id
+    if not this_id
+      elem = d3.select(elem.node().parentElement)
+    is_treepicker_collapsed = elem.classed('treepicker-collapse')
+    is_treepicker_showing = elem.classed('treepicker-showing')
+    is_treepicker_indirect_showing = elem.classed('treepicker-indirect-showing')
+    # If the state is not 'showing' then make it so, otherwise 'unshowing'.
+    # if it is not currently showing.
+    send_leafward = is_treepicker_collapsed
+    new_state = 'showing'
+    if is_treepicker_collapsed
+      if is_treepicker_indirect_showing
+        new_state = 'unshowing'
+    else
+      if is_treepicker_showing
+        new_state = 'unshowing'
+    picker.effect_click(id, new_state, send_leafward, listener)
+    # This is hacky but ColorTreePicker.click_handler() needs the id too
+    return id
   effect_click: (id, new_state, send_leafward, listener) ->
     if send_leafward
       kids = @id_to_children[id]
@@ -232,21 +232,6 @@ class TreePicker
       @id_to_elem[id].classed("treepicker-indirect-#{old_state}",false)
     if state?
       @id_to_elem[id].classed("treepicker-indirect-#{state}",true)
-  DEPRECATED_set_state_by_id: (id, state, old_state) ->
-    alert("deprecated")
-    @set_direct_state(id, state, old_state)
-    if @is_leaf(id)
-      indirect_state = state
-    else
-      indirect_state = @id_to_state[false][id]
-    if not indirect_state?
-      new_indirect_state = state
-    else if state isnt indirect_state
-      new_indirect_state = "mixed"
-    else
-      new_indirect_state = indirect_state
-    @set_indirect_state(id, new_indirect_state)
-    @update_parent_indirect_state(id)
   set_both_states_by_id: (id, direct_state, indirect_state, old_state, old_indirect_state) ->
     @set_direct_state(id, direct_state, old_state)
     @set_indirect_state(id, indirect_state, old_indirect_state)

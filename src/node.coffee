@@ -5,7 +5,6 @@ class Node
     @links_from = []
     @links_to = []
     @links_shown = []
-    # FIXME use the as-yet-unimplemented unique-id-generator
     @lid = uniquer(@id)
     if use_lid_as_node_name
       @name = @lid # provide default name

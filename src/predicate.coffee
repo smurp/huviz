@@ -33,15 +33,6 @@ class Predicate extends TreeCtrl
       if e.an_end_is_selected()
         @selected_instances.acquire(e)
   update_state: (inst, change) ->
-    # FIXME fold the subroutines into this method for a single pass
-    # FIXME make use of the edge and change hints in the single pass
-    # terminology:
-    #   selected edge:  an edge (shown or not) to or from a node in the selected_set
-    # roughly: all_shown, none_shown, mixed, hidden
-    #   are all the selected edges shown?
-    #   are none of the selected edges shown?
-    #   are strictly some of the selected edges shown?
-    #   are there no selected edges?
     @update_selected_instances()
     super(inst, change)
   recalc_direct_stats: ->
