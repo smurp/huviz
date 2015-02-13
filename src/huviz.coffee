@@ -42,6 +42,7 @@
 #
 # Immediate Priorities:
 #  40) TASK: support search
+#  97) TASK: integrate blanket for code coverage http://goo.gl/tH4Ghk
 #  93) BUG: toggling a predicate should toggle indirect-mixed on its supers
 #  92) BUG: non-empty predicates should not have payload '0/0' after kid click
 #  77) TASK: retire 'Do it' button by immediately executing complete commands
@@ -521,7 +522,7 @@ class Huviz
 
   run_command: (cmd) ->
     @show_state_msg(cmd.as_msg())
-    alert(cmd.as_msg())
+    #alert(cmd.as_msg())
     @gclc.run cmd
     @hide_state_msg()
     @gclui.push_command cmd
@@ -2312,13 +2313,11 @@ class Huviz
     @snippet_positions_filled[retval] = true
     return retval
 
-  run_verb_on_object: (verb,subject) ->
+  run_verb_on_object: (verb, subject) ->
     cmd = new gcl.GraphCommand
       verbs: [verb]
       subjects: [@get_handle subject]
-    @show_state_msg(cmd.as_msg())
-    @gclc.run cmd
-    @gclui.push_command cmd
+    @run_command(cmd)
 
   before_running_command: ->
     # FIXME fix non-display of cursor and color changes
@@ -2330,11 +2329,8 @@ class Huviz
     #toggle_suspend_updates(false)
     $("body").css "cursor", "default"
     $("body").css "background-color", "white" # FIXME remove once it works!
-    #@restart()
     @update_all_counts()
     @clean_up_all_dirt()
-    #@regenerate_english()
-    #return
 
   get_handle: (thing) ->
     # A handle is like a weak reference, saveable, serializable
@@ -2346,7 +2342,6 @@ class Huviz
   toggle_logging: () ->
     if not console.log_real?
       console.log_real = console.log
-
     new_state = console.log is console.log_real
     @set_logging(new_state)
 

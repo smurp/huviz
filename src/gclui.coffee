@@ -124,7 +124,7 @@ class CommandController
       regarding: [pred_id]
       sets: [@huviz.selected_set]
     @prepare_command cmd
-    @huviz.gclc.run(@command)
+    @huviz.run_command(@command)
   recolor_edges: (evt) =>
     count = 0
     for node in @huviz.nodes
