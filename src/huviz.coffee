@@ -94,8 +94,6 @@
 #  35) TASK: get rid of jquery
 #  37) TASK: fix Bronte names, ie unicode
 #  41) TASK: link to new backend
-#  48) BUG: discipline the behaviour of abstract predicates
-#           ie they should have collapse/expand triangles ala Finder
 #  51) TASK: make predicate picker height adjustable
 #  55) TASK: clicking an edge for a snippet already shown should add that
 #            triple line to the snippet box and bring the box forward
