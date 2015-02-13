@@ -186,6 +186,10 @@ class TreePicker
     exp = elem.select(".expander")
     exp.text(@collapser_str)
     @update_payload_by_id(id)
+  expand_all: ->
+    for id, collapsed of @id_is_collapsed
+      if collapsed
+        @expand_by_id(id)
   get_or_create_payload: (thing) ->
     if thing? and thing
       thing_id = thing[0][0].id
