@@ -41,6 +41,7 @@
 #     d) there might be update operations against gclui apart from actuators
 #
 # Immediate Priorities:
+#  91) BUG: mocha aync being misused re done(), so the passes count is wrong
 #  90) BUG: english is no longer minimal
 #  89) TASK: remove TaxonAbstract
 #  86) BUG: try_to_set_node_type: only permit subtypes to override supertypes
