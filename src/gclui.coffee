@@ -285,11 +285,14 @@ class CommandController
   auto_change_verb_if_warranted: (node) ->
     if @is_immediate_mode()
       verb = @engaged_verbs[0]
+      @huviz.set_cursor_for_verb(verb)
       test = @auto_change_verb_tests[verb]
       if test
         next_verb = test(node)
         if next_verb
           @engage_verb(next_verb)
+    else
+      @huviz.set_cursor_for_verb()
   verbs_requiring_regarding:
     ['show','suppress','emphasize','deemphasize']
   verbs_override: # when overriding ones are selected, others are unselected
@@ -325,6 +328,17 @@ class CommandController
               the constantly updating set of edges indicated from nodes
               of the classes indicated."
     load: "Load knowledge from the given uri."
+  verb_cursors:
+    choose: "←"
+    unchoose: "⇠"
+    shelve: "↺"
+    label: "☭"
+    unlabel: "☢"
+    discard: "☣"
+    undiscard: "☯"
+    hide: "☠"
+    select: "☘"
+    unselect: "☺"
   build_form: () ->
     @build_verb_form()
     @build_like()

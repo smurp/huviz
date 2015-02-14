@@ -41,6 +41,10 @@
 #     d) there might be update operations against gclui apart from actuators
 #
 # Immediate Priorities:
+#  98) TASK: make TextCursor generate bitmap renderings on-the-fly, cache them
+#            then show them using cursor url technique.  This will solve
+#            the speed problem.
+#  99) TASK: fine-tune gclui.verb_cursors
 #  40) TASK: support search
 #  97) TASK: integrate blanket for code coverage http://goo.gl/tH4Ghk
 #  93) BUG: toggling a predicate should toggle indirect-mixed on its supers
@@ -123,6 +127,7 @@ GreenerTurtle = require('greenerturtle').GreenerTurtle
 Node = require('node').Node
 Predicate = require('predicate').Predicate
 Taxon = require('taxon').Taxon
+TextCursor = require('textcursor').TextCursor
 
 wpad = undefined
 hpad = 10
@@ -909,6 +914,20 @@ class Huviz
       next = 'default'
     $("body").css "cursor", next
 
+  set_cursor_for_verb: (verb) ->
+    if not @use_fancy_cursor
+      return
+    if verb?
+      text = "#{@gclui.verb_cursors[verb]} #{verb}"
+      $("body").css "cursor", "none"
+      @text_cursor.set_text(text)
+    else
+      $("body").css "cursor", "default"
+
+  auto_change_verb: ->
+    if @focused_node
+      @gclui.auto_change_verb_if_warranted(@focused_node)
+
   position_nodes: ->
     n_nodes = @nodes.length or 0
     @nodes.forEach (node, i) =>
@@ -1110,10 +1129,6 @@ class Huviz
     @ctx.clearRect 0, 0, @canvas.width, @canvas.height
   blank_screen: ->
     @clear_canvas()  if @use_canvas or @use_webgl
-
-  auto_change_verb: ->
-    if @focused_node
-      @gclui.auto_change_verb_if_warranted(@focused_node)
 
   tick: =>
     # return if @focused_node   # <== policy: freeze screen when selected
@@ -2397,7 +2412,8 @@ class Huviz
     if not d3.select("#viscanvas")[0][0]
       d3.select("body").append("div").attr("id", "viscanvas")
     @container = d3.select("#viscanvas").node().parentNode
-
+    if @use_fancy_cursor
+      @text_cursor = new TextCursor($("#vis"), "<----")
     @viscanvas = d3.select("#viscanvas").html("").
       append("canvas").
       attr("width", @width).
@@ -2638,6 +2654,15 @@ class Huviz
         input:
           checked: "checked"
           type: "checkbox"
+    ,
+      use_fancy_cursor:
+        style: "display:none"
+        text: "use fancy cursor"
+        label:
+          title: "use custom cursor"
+        input:
+          #checked: "checked"
+          type: "checkbox"
     ]
 
   dump_current_settings: (post) ->
@@ -2660,6 +2685,8 @@ class Huviz
           label.text(control.text)
         if control.label?
           label.attr(control.label)
+        if control.style?
+           graph_control.attr("style", control.style)
         input = label.append('input')
         input.attr("name", control_name)
         if control.input?
