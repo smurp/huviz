@@ -266,19 +266,14 @@ class Huviz
   # TODO figure out how to replace with the default_graph_control
   link_distance: 100
   fisheye_zoom: 4.0
-
-
   peeking_line_thicker: 4
   show_snippets_constantly: false
   charge: -193
   gravity: 0.025
-  label_graphed: true
   snippet_count_on_edge_labels: true
   label_show_range: null # @link_distance * 1.1
   discard_radius: 200
   fisheye_radius: 100 #null # label_show_range * 5
-
-
   focus_radius: null # label_show_range
   drag_dist_threshold: 5
   snippet_size: 300
@@ -2633,10 +2628,11 @@ class Huviz
     ,
       label_graphed:
         text: "label graphed nodes"
+        style: "display:none"
         label:
           title: "whether graphed nodes are always labelled"
         input:
-          checked: "checked"
+          #checked: "checked"
           type: "checkbox"
     ,
       snippet_count_on_edge_labels:
