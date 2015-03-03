@@ -39,7 +39,6 @@ class CommandController
     @build_taxon_picker("Classes")
     @likediv = @comdiv.append('div')
     @add_clear_both(@comdiv)
-    #@control_label("Edges of the Selected Nodes")
     @build_predicatepicker("Edges of the Selected Nodes")
     @init_editor_data()
     @build_form()
@@ -62,7 +61,10 @@ class CommandController
       # FIXME is there a standards-based way to prevent this happening three times?
       evt.done = true
   select_the_initial_set: =>
+    # TODO initialize the taxon coloring without cycling all
     @huviz.pick_taxon("Thing", true)
+    @huviz.pick_taxon("Thing", false)
+    return
     #@engage_verb('choose')
   init_editor_data: ->
     # operations common to the constructor and reset_editor
@@ -94,7 +96,6 @@ class CommandController
       clearTimeout(@recolor_edges_and_predicates_eventually_id)
     @recolor_edges_and_predicates_eventually_id = setTimeout(@recolor_edges_and_predicates, 300)
   recolor_edges_and_predicates: (evt) =>
-    # console.log "recolor_edges_and_predicates()"
     @predicate_picker.recolor_now()
     @recolor_edges() # FIXME should only really be run after the predicate set has settled for some amount of time
   build_predicatepicker: (label) ->
