@@ -20,21 +20,21 @@
 }
 #huvis_controls {
   //position: absolute;
-  //bottom: .2em; 
-  //left: .2em; 
-  //z-index: 2; 
-  //float: left;   
+  //bottom: .2em;
+  //left: .2em;
+  //z-index: 2;
+  //float: left;
 }
 
 .search_box {
-  height:1.3em; 
-  min-width:7em; 
-  background-color:lightgrey; 
+  height:1.3em;
+  min-width:7em;
+  background-color:lightgrey;
   //position:absolute;
-  //top:3.5em; 
-  //left:.2em; 
-  //z-index:2; 
-  float:left; 
+  //top:3.5em;
+  //left:.2em;
+  //z-index:2;
+  float:left;
   border-width:1
   cursor: text;
 }
@@ -82,7 +82,7 @@
   font-size: 90%;
   //z-index:2;
 
-  overflow: scroll; 
+  overflow: scroll;
   width: 3px;
   height: 30%;
 }

@@ -32,23 +32,25 @@ class CommandController
     @oldcommands = @cmdlist.append('div').attr('class','commandhistory')
     @control_label("Current Command")
     @nextcommandbox = @comdiv.append('div')
-    @control_label("Choose Verb")
+    @control_label("Verbs")
     @verbdiv = @comdiv.append('div').attr('class','verbs')
     @add_clear_both(@comdiv)
-    @control_label("Select Nodes")
-    @build_setpicker()
-    @build_taxon_picker()
+    @build_setpicker("Sets")
+    @build_taxon_picker("Classes")
     @likediv = @comdiv.append('div')
     @add_clear_both(@comdiv)
-    @control_label("Edges of the Selected Nodes")
-    @build_predicatepicker()
+    #@control_label("Edges of the Selected Nodes")
+    @build_predicatepicker("Edges of the Selected Nodes")
     @init_editor_data()
     @build_form()
     @update_command()
     @install_listeners()
     @immediate_execution_mode = false
-  control_label: (txt) ->
-    @comdiv.append('div').classed("control_label",true).text(txt)
+  control_label: (txt, what) ->
+    what = what or @comdiv
+    outer = what.append('div')
+    outer.append('div').classed("control_label",true).text(txt)
+    return outer
   install_listeners: () ->
     window.addEventListener 'changePredicate', @predicate_picker.onChangeState
     window.addEventListener 'changeTaxon', @taxon_picker.onChangeState
@@ -95,9 +97,10 @@ class CommandController
     # console.log "recolor_edges_and_predicates()"
     @predicate_picker.recolor_now()
     @recolor_edges() # FIXME should only really be run after the predicate set has settled for some amount of time
-  build_predicatepicker: ->
+  build_predicatepicker: (label) ->
     id = 'predicates'
-    @predicatebox = @comdiv.append('div').classed('container',true).attr('id',id)
+    where = label? and @control_label(label) or @comdiv
+    @predicatebox = where.append('div').classed('container',true).attr('id',id)
     @predicatebox.attr('title',
                        "Medium color: all edges shown -- click to show none\n" +
                        "Faint color: no edges are shown -- click to show all\n" +
@@ -166,9 +169,10 @@ class CommandController
   #
   #     Indirect instances are the instances of subclasses.
   ###
-  build_taxon_picker: ->
+  build_taxon_picker: (label) ->
     id = 'classes'
-    @taxon_box = @comdiv.append('div')
+    where = label? and @control_label(label) or @comdiv
+    @taxon_box = where.append('div')
         .classed('container',true)
         .attr('id',id)
     @taxon_box.attr('style','vertical-align:top')
@@ -462,10 +466,11 @@ class CommandController
   run_script: (script) ->
     @huviz.gclc.run(script)
     @huviz.update_all_counts()
-  build_setpicker: () ->
+  build_setpicker: (label) ->
     # FIXME populate @the_sets from @huviz.selectable_sets
+    where = label? and @control_label(label) or @comdiv
     @the_sets = {'nodes': ['All ', {'selected_set': ['Selected'], 'chosen_set': ['Chosen'], 'graphed_set': ['Graphed'], 'shelved_set': ['Shelved'], 'hidden_set': ['Hidden'], 'discarded_set': ['Discarded'], 'labelled_set': ['Labelled']}]}
-    @set_picker_box = @comdiv.append('div')
+    @set_picker_box = where.append('div')
         .classed('container',true)
         .attr('id', 'sets')
     @set_picker = new TreePicker(@set_picker_box,'all',['treepicker-vertical'])
