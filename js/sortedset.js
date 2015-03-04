@@ -1,8 +1,8 @@
 /*
   SortedSet
-  
+
   SortedSet is a javascript Array which stays sorted and permits only
-  once instance of each itm to be added.  
+  once instance of each itm to be added.
 
   It adds these methods:
     add(itm)
@@ -15,10 +15,10 @@
     binary_search(sought[,ret_ins_idx])
     clear() # empty the set
 
-  SortedSet also supports the notion of items belonging to mutually exclusive 
+  SortedSet also supports the notion of items belonging to mutually exclusive
   sets, represented as "being in mutually exclusive states".
     isState(state_name) # makes the sortedset act in mutual exclusion with others
-  If an item is "in a state" then its .state property contains a link to 
+  If an item is "in a state" then its .state property contains a link to
   the sortedset "it is currently in".
 
   If one wants to record membership on items by attaching flags to them
@@ -29,7 +29,7 @@
   alive = new SortedSet().isState('alive')
   sick = new SortedSet().isFlag('sick')
   amputee = new SortedSet().isFlag('amputee')
-  
+
   alice = {'id':'alice'};
   alive.add(alice);
   amputee.add(alice)
@@ -43,11 +43,11 @@
   written: 2013-11-15
   funder:  TM&V -- The Text Mining and Visualization project
   Copyright CC BY-SA 3.0  See: http://creativecommons.org/licenses/by-sa/3.0/
-  
-  http://stackoverflow.com/a/17866143/1234699  
+
+  http://stackoverflow.com/a/17866143/1234699
     provided guidance on how to 'subclass' Array
 
-    "use strict";  
+    "use strict";
 
  */
 //(function() {
@@ -80,7 +80,7 @@ var SortedSet = function(){
 	// Calling isState() on a SortedSet() prepares it so that
 	// when add() is called then the SortedSet is registered on
 	// the itm.state property.  This means that if the item
-	// is moved to a different SortedSet then it's state can 
+	// is moved to a different SortedSet then it's state can
 	// be tested and altered.  This enforces mutually exlusive item
 	// membership among the sets which all have isState() asserted.
 	array.state_property = state_property || 'state';
@@ -89,29 +89,33 @@ var SortedSet = function(){
     array.isFlag = function(flag_property){
 	// Calling isFlag() on a SortedSet() prepares it so that
 	// when add() is called then the SortedSet is registered on
-	// the itm[flag_property].  When the item is removed from 
+	// the itm[flag_property].  When the item is removed from
 	// the isFlagged SortedSet then that flag_property is deleted.
 	// The default value for the name of the flag_property is
 	// simply the name of SortedSet().  The motivation of course
-        // is for many flags to be able to be set on each node, unlike 
+        // is for many flags to be able to be set on each node, unlike
         // states, which are mutually exclusive.
-	array.flag_property = flag_property || array.id; // array.state_name
-	return array;
-    };        
-    array.named = function(name){
-	//array.state_name = name;
-	array.id = name; // 
-	return array;
+	    array.flag_property = flag_property || array.id; // array.state_name
+	    return array;
+    };
+    array.named = function(name, label){
+	    //array.state_name = name;
+	    array.id = name;
+      if (label) array.label = label;
+	    return array;
+    };
+    array.get_label = function() {
+      return array.label || array.id;
     };
     array.sort_on('id');
     array.toggle = function(itm){
         // Objective:
         //   add() or remove() as needed
         if (array.has(itm)) {
-	    array.remove(itm);
-	} else {
-	    array.add(itm);
-	}
+	        array.remove(itm);
+	      } else {
+	        array.add(itm);
+	      }
     };
     array.add = function(itm){
 	// Objective:
@@ -198,7 +202,7 @@ var SortedSet = function(){
 	    } else {
 		top = mid;
 	    }
-	    if (bot == top){ 
+	    if (bot == top){
 		if (ret_ins_idx) return {idx:bot};
 		return -1;
 	    };
@@ -214,7 +218,7 @@ var SortedSets_tests = function(verbose){
 	if (a < b) return -1;
 	return 1;
     }
-    var 
+    var
     a = {id:1},
     b = {id:2},
     c = {id:0},
@@ -223,7 +227,7 @@ var SortedSets_tests = function(verbose){
     a_d = SortedSet(a,d).sort_on('id'),
     ints = SortedSet(0,1,2,3,4,5,6,7,8,10).sort_on(n),
     even = SortedSet(0,2,4,6,8,10).sort_on(n);
-    
+
     function expect(stmt,want){
 	var got = eval(stmt);
 	if (verbose) console.log(stmt,"==>",got);

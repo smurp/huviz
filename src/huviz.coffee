@@ -41,6 +41,8 @@
 #     d) there might be update operations against gclui apart from actuators
 #
 # Immediate Priorities:
+# 101) TASK: possibly remove nodes from pinned_set when removed from graphed_set
+# 100) BUG: nodes should only be pinnable if they are graphed
 #  98) TASK: make TextCursor generate bitmap renderings on-the-fly, cache them
 #            then show them using cursor url technique.  This will solve
 #            the speed problem.
@@ -120,7 +122,6 @@ uniquer = require("uniquer").uniquer
 gcl = require('graphcommandlanguage');
 #asyncLoop = require('asynchronizer').asyncLoop
 CommandController = require('gclui').CommandController
-# SortedSet = require('sortedset').SortedSet
 Edge = require('edge').Edge
 GraphCommandLanguageCtrl = require('graphcommandlanguage').GraphCommandLanguageCtrl
 GreenerTurtle = require('greenerturtle').GreenerTurtle
@@ -469,14 +470,18 @@ class Huviz
         #@select(@dragging) # TODO reconsider whether selecting should be implicit in choosing or only using drag-and-drop
         @run_verb_on_object 'choose', @dragging
       else if @nodes_pinnable
-        @dragging.fixed = not @dragging.fixed
+        if @dragging.fixed
+          @run_verb_on_object 'unpin', @dragging
+        else
+          @run_verb_on_object 'pin', @dragging
       @dragging = false
       return
 
     # if this was a click on a pinned node then unpin it
     if @nodes_pinnable and @focused_node and
         @focused_node.fixed and @focused_node.state is @graphed_set
-      @focused_node.fixed = false
+      @run_verb_on_object 'unpin', @focused_node
+      return # prevent perform_current_command from running opposite verb
 
     # this is the node being clicked
     if @focused_node # and @focused_node.state is @graphed_set
@@ -654,7 +659,6 @@ class Huviz
     #	 discarded: in the discard zone, findable but ignored by show_links_*
     #	 hidden: findable, but not displayed anywhere
     #              	 (when found, will become shelved)
-    #  FIXME consider adding the pinned_set
     @nodes = SortedSet().sort_on("id").named("All")
     @nodes.docs = "All Nodes are in this set, regardless of state"
 
@@ -680,6 +684,9 @@ class Huviz
     @graphed_set   = SortedSet().sort_on("id").named("graphed").isState()
     @graphed_set.docs = "Nodes which are included in the central graph."
 
+    @pinned_set = SortedSet().sort_on("id").named('fixed', 'pinned').isFlag()
+    @pinned_set.docs = "Nodes which are pinned to the canvas"
+
     @links_set     = SortedSet().sort_on("id").named("shown").isFlag()
     @links_set.docs = "Links which are shown."
 
@@ -699,8 +706,10 @@ class Huviz
       hidden_set: @hidden_set
       graphed_set: @graphed_set
       labelled_set: @labelled_set
+      pinned_set: @pinned_set
 
   update_all_counts: ->
+    console.log "update_all_counts"
     @update_set_counts()
 
   update_set_counts: ->
@@ -1933,6 +1942,12 @@ class Huviz
     @labelled_set.remove anonymized
     @tick()
 
+  pin: (node) ->
+    @pinned_set.add node
+
+  unpin: (node) ->
+    @pinned_set.remove node
+
   unlink: (unlinkee) ->
     # FIXME discover whether unlink is still needed
     @hide_links_from_node unlinkee
@@ -2644,6 +2659,7 @@ class Huviz
           type: "checkbox"
     ,
       nodes_pinnable:
+        style: "display:none"
         text: "nodes pinnable"
         label:
           title: "whether repositioning already graphed nodes pins them at the new spot"

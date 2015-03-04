@@ -256,6 +256,9 @@ class CommandController
     ,
       discard: 'discard'
       undiscard: 'retrieve'
+    ,
+      pin: "pin"
+      unpin: "unpin"
     #,
     #  print: 'print'
     #  redact: 'redact'
@@ -285,6 +288,12 @@ class CommandController
     unlabel: (node) ->
       if not node.labelled
         return 'label'
+    unpin: (node) ->
+      if not node.fixed
+        return 'pin'
+    pin: (node) ->
+      if node.fixed
+        return 'unpin'
   is_immediate_mode: ->
     @engaged_verbs.length is 1 # should also test for empty object
   auto_change_verb_if_warranted: (node) ->
@@ -333,6 +342,8 @@ class CommandController
               the constantly updating set of edges indicated from nodes
               of the classes indicated."
     load: "Load knowledge from the given uri."
+    pin: "Make a node immobile"
+    unpin: "Make a node mobile again"
   verb_cursors:
     choose: "←"
     unchoose: "⇠"
@@ -344,6 +355,8 @@ class CommandController
     hide: "☠"
     select: "☘"
     unselect: "☺"
+    pin: "p"
+    unpin: "u"
   build_form: () ->
     @build_verb_form()
     @build_like()
@@ -470,7 +483,17 @@ class CommandController
   build_setpicker: (label) ->
     # FIXME populate @the_sets from @huviz.selectable_sets
     where = label? and @control_label(label) or @comdiv
-    @the_sets = {'nodes': ['All ', {'selected_set': ['Selected'], 'chosen_set': ['Chosen'], 'graphed_set': ['Graphed'], 'shelved_set': ['Shelved'], 'hidden_set': ['Hidden'], 'discarded_set': ['Discarded'], 'labelled_set': ['Labelled']}]}
+    @the_sets =
+      'nodes': ['All ',
+              selected_set: ['Selected']
+              chosen_set: ['Chosen']
+              graphed_set: ['Graphed']
+              shelved_set: ['Shelved']
+              hidden_set: ['Hidden']
+              discarded_set: ['Discarded']
+              labelled_set: ['Labelled']
+              pinned_set: ['Pinned']
+              ]
     @set_picker_box = where.append('div')
         .classed('container',true)
         .attr('id', 'sets')

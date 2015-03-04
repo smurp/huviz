@@ -252,7 +252,7 @@ class GraphCommand
       @str += @data_uri + " ."
       return
     if @sets?
-      more = angliciser((s.id for s in @sets))
+      more = angliciser((s.get_label() for s in @sets))
       @object_phrase = more
     if @object_phrase?
       obj_phrase = @object_phrase
