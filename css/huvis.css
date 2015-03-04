@@ -39,7 +39,10 @@ rect {
 }
 
 .underneath {
-  position: absolute; 
-  top: 0; 
+  position: absolute;
+  top: 0;
   left: 0;
+}
+.verbs {
+  font-size: x-small;
 }

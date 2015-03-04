@@ -41,6 +41,8 @@
 #     d) there might be update operations against gclui apart from actuators
 #
 # Immediate Priorities:
+# 103) BUG: fix layout of Verbs so they fit on one row again (or two?)
+# 102) BUG: put Classes beside Sets again
 # 101) TASK: possibly remove nodes from pinned_set when removed from graphed_set
 # 100) BUG: nodes should only be pinnable if they are graphed
 #  98) TASK: make TextCursor generate bitmap renderings on-the-fly, cache them
