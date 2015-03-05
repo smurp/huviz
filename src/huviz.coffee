@@ -2027,6 +2027,7 @@ class Huviz
     #     loop thru all links_shown
     #       if neither end of the link is chosen then
     #         unshow the link
+    # @unpin unchosen # TODO figure out why this does not cleanse pin
     @chosen_set.remove unchosen
     for link in unchosen.links_shown by -1
       if link?
