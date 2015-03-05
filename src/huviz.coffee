@@ -44,7 +44,6 @@
 # 103) BUG: fix layout of Verbs so they fit on one row again (or two?)
 # 102) BUG: put Classes beside Sets again
 # 101) TASK: possibly remove nodes from pinned_set when removed from graphed_set
-# 100) BUG: nodes should only be pinnable if they are graphed
 #  98) TASK: make TextCursor generate bitmap renderings on-the-fly, cache them
 #            then show them using cursor url technique.  This will solve
 #            the speed problem.
@@ -1945,10 +1944,16 @@ class Huviz
     @tick()
 
   pin: (node) ->
-    @pinned_set.add node
+    if node.state is @graphed_set
+      @pinned_set.add node
+      return true
+    return false
 
   unpin: (node) ->
-    @pinned_set.remove node
+    if node.fixed
+      @pinned_set.remove node
+      return true
+    return false
 
   unlink: (unlinkee) ->
     # FIXME discover whether unlink is still needed
