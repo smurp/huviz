@@ -47,6 +47,7 @@
 #  98) TASK: make TextCursor generate bitmap renderings on-the-fly, cache them
 #            then show them using cursor url technique.  This will solve
 #            the speed problem.
+#      http://stackoverflow.com/questions/923885/capture-html-canvas-as-gif-jpg-png-pdf
 #  99) TASK: fine-tune gclui.verb_cursors
 #  40) TASK: support search
 #  97) TASK: integrate blanket for code coverage http://goo.gl/tH4Ghk
@@ -710,7 +711,6 @@ class Huviz
       pinned_set: @pinned_set
 
   update_all_counts: ->
-    console.log "update_all_counts"
     @update_set_counts()
 
   update_set_counts: ->
@@ -911,6 +911,14 @@ class Huviz
     some: 'all-scroll'
     none: 'pointer'
 
+  install_update_pointer_togglers: ->
+    d3.select("#huvis_controls").on "mouseover", () =>
+      @update_pointer = false
+      $("body").css "cursor", "default"
+      console.log "update_pointer: #{@update_pointer}"
+    d3.select("#huvis_controls").on "mouseleave", () =>
+      @update_pointer = true
+      console.log "update_pointer: #{@update_pointer}"
   adjust_cursor: ->
     # http://css-tricks.com/almanac/properties/c/cursor/
     if @focused_node
@@ -920,7 +928,7 @@ class Huviz
     $("body").css "cursor", next
 
   set_cursor_for_verb: (verb) ->
-    if not @use_fancy_cursor
+    if not @use_fancy_cursor or not @update_pointer
       return
     if verb?
       text = "#{@gclui.verb_cursors[verb]} #{verb}"
@@ -2430,6 +2438,8 @@ class Huviz
     if not d3.select("#viscanvas")[0][0]
       d3.select("body").append("div").attr("id", "viscanvas")
     @container = d3.select("#viscanvas").node().parentNode
+    @install_update_pointer_togglers()
+    @init_graph_controls_from_json()
     if @use_fancy_cursor
       @text_cursor = new TextCursor($("#vis"), "<----")
     @viscanvas = d3.select("#viscanvas").html("").
@@ -2438,7 +2448,6 @@ class Huviz
       attr("height", @height)
     @canvas = @viscanvas[0][0]
     @mouse_receiver = @viscanvas
-    @init_graph_controls_from_json()
     @reset_graph()
     @updateWindow()
     @ctx = @canvas.getContext("2d")
@@ -2676,12 +2685,12 @@ class Huviz
           type: "checkbox"
     ,
       use_fancy_cursor:
-        style: "display:none"
+        #style: "display:none"
         text: "use fancy cursor"
         label:
           title: "use custom cursor"
         input:
-          #checked: "checked"
+          checked: "checked"
           type: "checkbox"
     ]
 
@@ -2694,7 +2703,6 @@ class Huviz
 
   selector_for_graph_controls: '#tabs-options'
   init_graph_controls_from_json: =>
-    #@dump_current_settings("before init_graph_controls_from_json")
     @graph_controls = d3.select(@selector_for_graph_controls)
     #$(@graph_controls).sortable().disableSelection() # TODO fix dropping
     for control_spec in @default_graph_controls
@@ -2715,6 +2723,10 @@ class Huviz
               old_val = @[control_name]
               @change_setting_to_from(control_name, v, old_val)
             input.attr(k,v)
+        if control.input.type is 'checkbox'
+          value = control.input.checked?
+          #console.log "control:",control_name,"value:",value, control
+          @change_setting_to_from(control_name, value, undefined) #@[control_name].checked)
         input.on("change", @update_graph_settings) # TODO implement one or the other
         input.on("input", @update_graph_settings)
     return
@@ -2753,8 +2765,9 @@ class Huviz
   # on_change handlers for the various settings which need them
   on_change_nodes_pinnable: (new_val, old_val) ->
     if not new_val
-      for node in @graphed_set
-        node.fixed = false
+      if @graphed_set
+        for node in @graphed_set
+          node.fixed = false
 
   on_change_shelf_radius: (new_val, old_val) ->
     @change_setting_to_from('shelf_radius', new_val, old_val, true)
