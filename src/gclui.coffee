@@ -300,15 +300,17 @@ class CommandController
     return @huviz.selected_set.length is 0 and not @chosen_set?
   auto_change_verb_if_warranted: (node) ->
     if @is_immediate_mode()
-      verb = @engaged_verbs[0]
-      @huviz.set_cursor_for_verb(verb)
-      test = @auto_change_verb_tests[verb]
-      if test
-        next_verb = test(node)
-        if next_verb
-          @engage_verb(next_verb)
-    else
-      @huviz.set_cursor_for_verb()
+      # If there is only one verb, then do auto_change
+      if @engaged_verbs.length is 1
+        verb = @engaged_verbs[0]
+        test = @auto_change_verb_tests[verb]
+        if test
+          next_verb = test(node)
+          if next_verb
+            @engage_verb(next_verb)
+      @huviz.set_cursor_for_verbs(@engaged_verbs)
+    else # no verbs are engaged
+      @huviz.set_cursor_for_verbs([])
   verbs_requiring_regarding:
     ['show','suppress','emphasize','deemphasize']
   verbs_override: # when overriding ones are selected, others are unselected

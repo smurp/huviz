@@ -118,6 +118,7 @@
 #  66) BUG: #load+/data/ballrm.nq fails to populate the predicate picker
 #  67) TASK: add verbs pin/unpin (using polar coords to record placement)
 #
+angliciser = require('angliciser').angliciser
 uniquer = require("uniquer").uniquer
 gcl = require('graphcommandlanguage');
 #asyncLoop = require('asynchronizer').asyncLoop
@@ -925,12 +926,17 @@ class Huviz
       next = 'default'
     $("body").css "cursor", next
 
-  set_cursor_for_verb: (verb) ->
+  set_cursor_for_verbs: (verbs) ->
     if not @use_fancy_cursor or not @update_pointer
       return
-    if verb?
-      text = "#{@gclui.verb_cursors[verb]} #{verb}"
+    if verbs.length > 0
+      pointer = ""
+      label = ""
+      for verb in verbs
+        pointer += "#{@gclui.verb_cursors[verb]}"
+      label = angliciser(verbs)
       $("body").css "cursor", "none"
+      text = "#{pointer} #{label}"
       @text_cursor.set_text(text)
     else
       $("body").css "cursor", "default"
