@@ -70,7 +70,7 @@ class CommandController
     # operations common to the constructor and reset_editor
     @shown_edges_by_predicate = {}
     @unshown_edges_by_predicate = {}
-    @node_classes_chosen = [] # new SortedSet()
+    @taxons_chosen = [] # new SortedSet()
   reset_editor: ->
     @disengage_all_verbs()
     @init_editor_data()
@@ -208,12 +208,12 @@ class CommandController
       throw "Uhh, there should be a root Taxon 'Thing' by this point: " + id
     if new_state is 'showing'
       if old_state in ['mixed', 'unshowing', 'empty']
-        if not (id in @node_classes_chosen)
-          @node_classes_chosen.push(id)
+        if not (id in @taxons_chosen)
+          @taxons_chosen.push(id)
         # SELECT all members of the currently chosen classes
         cmd = new gcl.GraphCommand
           verbs: ['select']
-          classes: (class_name for class_name in @node_classes_chosen)
+          classes: (class_name for class_name in @taxons_chosen)
       else
         console.error "there should be nothing to do because #{id}.#{old_state} == #{new_state}"
     else if new_state is 'unshowing'
@@ -230,8 +230,8 @@ class CommandController
       @huviz.run_command(cmd)
     @update_command()
   unselect_node_class: (node_class) ->
-    # removes node_class from @node_classes_chosen
-    @node_classes_chosen = @node_classes_chosen.filter (eye_dee) ->
+    # removes node_class from @taxons_chosen
+    @taxons_chosen = @taxons_chosen.filter (eye_dee) ->
       eye_dee isnt node_class
     # # Elements may be in one of these states:
     #   mixed      - some instances of the node class are selected, but not all
@@ -295,7 +295,9 @@ class CommandController
       if node.fixed
         return 'unpin'
   is_immediate_mode: ->
-    @engaged_verbs.length is 1 # should also test for empty object
+    return @engaged_verbs.length > 0 and @is_command_object_empty
+  is_command_object_empty: ->
+    return @huviz.selected_set.length is 0 and not @chosen_set?
   auto_change_verb_if_warranted: (node) ->
     if @is_immediate_mode()
       verb = @engaged_verbs[0]
@@ -383,7 +385,7 @@ class CommandController
     for vid in @engaged_verbs
       @disengage_verb(vid)
   unselect_all_node_classes: ->
-    for nid in @node_classes_chosen
+    for nid in @taxons_chosen
       @unselect_node_class(nid)
       @taxon_picker.set_direct_state(nid, 'unshowing')
   clear_like: ->
@@ -410,8 +412,8 @@ class CommandController
     if @chosen_set_id
       args.sets = [@chosen_set]
     else
-      if @node_classes_chosen.length > 0
-        args.classes = (class_name for class_name in @node_classes_chosen)
+      if @taxons_chosen.length > 0
+        args.classes = (class_name for class_name in @taxons_chosen)
       if @huviz.selected_set.length > 0
         args.subjects = (s for s in @huviz.selected_set)
     like_str = (@like_input[0][0].value or "").trim()

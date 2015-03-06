@@ -41,20 +41,19 @@
 #     d) there might be update operations against gclui apart from actuators
 #
 # Immediate Priorities:
-# 103) BUG: fix layout of Verbs so they fit on one row again (or two?)
 # 102) BUG: put Classes beside Sets again
-# 101) TASK: possibly remove nodes from pinned_set when removed from graphed_set
+#  77) TASK: retire 'Do it' button by immediately executing complete commands
 #  98) TASK: make TextCursor generate bitmap renderings on-the-fly, cache them
 #            then show them using cursor url technique.  This will solve
 #            the speed problem.
 #      http://stackoverflow.com/questions/923885/capture-html-canvas-as-gif-jpg-png-pdf
 #  99) TASK: fine-tune gclui.verb_cursors
-#  40) TASK: support search
+#  40) TASK: support search better, show matches continuously
+# 101) TASK: possibly remove nodes from pinned_set when removed from graphed_set
+#  79) TASK: support dragging of edges to shelf or discard bin
 #  97) TASK: integrate blanket for code coverage http://goo.gl/tH4Ghk
 #  93) BUG: toggling a predicate should toggle indirect-mixed on its supers
 #  92) BUG: non-empty predicates should not have payload '0/0' after kid click
-#  77) TASK: retire 'Do it' button by immediately executing complete commands
-#  79) TASK: support dragging of edges to shelf or discard bin
 #  94) TASK: show_msg() during command.run to inform user and prevent clicks
 #  95) TASK: get /orlonto.html working smoothly again
 #  96) TASK: highlight 'select' when it is the default verb and therefore...
@@ -76,7 +75,6 @@
 #  74) TASK: recover from loading crashes with Cancel button on show_state_msg
 #  76) TASK: consider renaming graphed_set to connected_set and verbs
 #            choose/unchoose to graph/ungraph
-#  81) TASK: coordinate mouse cursor with the current immediate verb
 #  82) TASK: set initial verb to 'choose'
 #  83) BUG: choose should not unpin
 #  84) TASK: add an unchosen_set containing the graphed but not chosen nodes
