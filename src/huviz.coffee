@@ -45,17 +45,11 @@
 # 107) TASK: minimize hits on TextCursor by only calling it when verbs change
 #            not whenever @focused_node changes
 #  77) TASK: retire 'Do it' button by immediately executing complete commands
-#  98) TASK: make TextCursor generate bitmap renderings on-the-fly, cache them
-#            then show them using cursor url technique.  This will solve
-#            the speed problem.
-#      http://stackoverflow.com/questions/923885/capture-html-canvas-as-gif-jpg-png-pdf
 #  99) TASK: fine-tune gclui.verb_cursors unicode 'icons'
 # 104) TASK: remove no-longer-needed text_cursor calls
 # 105) TASK: move @last_cursor_text logic to TextCursor itself
 # 106) TASK: show the TextCursor hotspot somehow (speechbubble maybe?)
 # 108) TASK: show the unicode verb_cursor unicode icons in the verb buttons?
-# 109) TASK: update text_cursor.set_text() as 'shelve|discard|choose|pin|unpin'
-#            appropriately while dragging a node
 # 110) TASK: update text_cursor.set_text() as 'show source' when over an edge
 #            that has associated snippet
 # 111) TASK: auto_select_verb() should enforce select/unselect if nothing else
