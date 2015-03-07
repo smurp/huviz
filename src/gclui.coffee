@@ -480,6 +480,8 @@ class CommandController
         that.engage_verb(id)
       else
         that.disengage_verb(id)
+      if not that.engaged_verbs? or that.engaged_verbs.length is 0
+        that.huviz.set_cursor_for_verbs([])
       that.update_command()
   run_script: (script) ->
     @huviz.gclc.run(script)

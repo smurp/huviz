@@ -42,12 +42,20 @@
 #
 # Immediate Priorities:
 # 102) BUG: put Classes beside Sets again
+# 107) TASK: minimize hits on TextCursor by only calling it when verbs change
+#            not whenever @focused_node changes
 #  77) TASK: retire 'Do it' button by immediately executing complete commands
 #  98) TASK: make TextCursor generate bitmap renderings on-the-fly, cache them
 #            then show them using cursor url technique.  This will solve
 #            the speed problem.
 #      http://stackoverflow.com/questions/923885/capture-html-canvas-as-gif-jpg-png-pdf
-#  99) TASK: fine-tune gclui.verb_cursors
+#  99) TASK: fine-tune gclui.verb_cursors unicode 'icons'
+# 104) TASK: remove no-longer-needed text_cursor calls
+# 105) TASK: move @last_cursor_text logic to TextCursor itself
+# 106) TASK: show the TextCursor hotspot somehow (speechbubble maybe?)
+# 108) TASK: show the unicode verb_cursor unicode icons in the verb buttons?
+# 109) TASK: update text_cursor.set_text() as 'shelve|discard|choose|pin|unpin'
+#            appropriately while dragging a node
 #  40) TASK: support search better, show matches continuously
 # 101) TASK: possibly remove nodes from pinned_set when removed from graphed_set
 #  79) TASK: support dragging of edges to shelf or discard bin
@@ -433,7 +441,6 @@ class Huviz
     if @dragging
       @force.resume() # why?
       @move_node_to_point @dragging, @last_mouse_pos
-    #@cursor.attr "transform", "translate(" + @last_mouse_pos + ")"
     if @peeking_node?
       #console.log "PEEKING at node: " + @peeking_node.id
       if @focused_node? and @focused_node isnt @peeking_node
@@ -903,43 +910,58 @@ class Huviz
 
     @focused_node = new_focused_node # possibly null
     @focused_edge = new_focused_edge
-    @adjust_cursor()
+    #@adjust_cursor()
 
-  showing_links_to_cursor_map:
+  DEPRECATED_showing_links_to_cursor_map:
     all: 'not-allowed'
     some: 'all-scroll'
     none: 'pointer'
 
   install_update_pointer_togglers: ->
+    console.warn("the update_pointer_togglers are being called too often")
     d3.select("#huvis_controls").on "mouseover", () =>
       @update_pointer = false
-      $("body").css "cursor", "default"
-      console.log "update_pointer: #{@update_pointer}"
-    d3.select("#huvis_controls").on "mouseleave", () =>
+      @text_cursor.pause("default")
+      #console.log "update_pointer: #{@update_pointer}"
+    d3.select("#huvis_controls").on "mouseout", () =>
       @update_pointer = true
-      console.log "update_pointer: #{@update_pointer}"
-  adjust_cursor: ->
+      @text_cursor.continue()
+      #console.log "update_pointer: #{@update_pointer}"
+
+  DEPRECATED_adjust_cursor: ->
     # http://css-tricks.com/almanac/properties/c/cursor/
     if @focused_node
       next = @showing_links_to_cursor_map[@focused_node.showing_links]
     else
       next = 'default'
-    $("body").css "cursor", next
+    @text_cursor.set_cursor(next)
 
   set_cursor_for_verbs: (verbs) ->
-    if not @use_fancy_cursor or not @update_pointer
+    if not @use_fancy_cursor
       return
+    one_line = false
     if verbs.length > 0
-      pointer = ""
-      label = ""
-      for verb in verbs
-        pointer += "#{@gclui.verb_cursors[verb]}"
-      label = angliciser(verbs)
-      $("body").css "cursor", "none"
-      text = "#{pointer} #{label}"
-      @text_cursor.set_text(text)
+      if one_line
+        pointer = ""
+        label = ""
+        for verb in verbs
+          pointer += "#{@gclui.verb_cursors[verb]}"
+        label = angliciser(verbs)
+        text = "#{pointer} #{label}"
+      else
+        text = ""
+        for verb, i in verbs
+          if i > 0
+            text += "\n"
+          text += "#{@gclui.verb_cursors[verb]} #{verb}"
+      #@text_cursor.set_text(text)
+    #if not @update_pointer or verbs.length is 0
     else
-      $("body").css "cursor", "default"
+      text = ""
+    #console.log "text:", text, @last_cursor_text
+    if @last_cursor_text isnt text
+      @text_cursor.set_text(text)
+      @last_cursor_text = text
 
   auto_change_verb: ->
     if @focused_node
@@ -1193,11 +1215,12 @@ class Huviz
       txt = @msg_history
     @state_msg_box.show()
     @state_msg_box.html("<br><br>" + txt)  # FIXME: OMG CSS PDQ
-    $("body").css "cursor", "wait"
+    @text_cursor.set_cursor("wait")
 
   hide_state_msg: () ->
     @state_msg_box.hide()
-    $("body").css "cursor", "default"
+    @text_cursor.continue()
+    #@text_cursor.set_cursor("default")
 
   svg_restart: ->
     # console.log "svg_restart()"
@@ -1520,7 +1543,7 @@ class Huviz
     show_time = (show_end_time - show_start_time) / 1000
     msg += " and " + show_time + " sec to show"
     console.log msg  if @verbosity >= @COARSE
-    $("body").css "cursor", "default"
+    @text_cursor.set_cursor("default")
     $("#status").text ""
 
   choose_everything: =>
@@ -2366,13 +2389,13 @@ class Huviz
 
   before_running_command: ->
     # FIXME fix non-display of cursor and color changes
-    $("body").css "cursor", "wait"
+    @text_cursor.set_cursor("wait")
     $("body").css "background-color", "red" # FIXME remove once it works!
     #toggle_suspend_updates(true)
 
   after_running_command: ->
     #toggle_suspend_updates(false)
-    $("body").css "cursor", "default"
+    @text_cursor.set_cursor("default")
     $("body").css "background-color", "white" # FIXME remove once it works!
     @update_all_counts()
     @clean_up_all_dirt()
@@ -2415,7 +2438,7 @@ class Huviz
     @init_ontology()
     @off_center = false # FIXME expose this or make the amount a slider
     #@toggle_logging()
-    @create_state_msg_box()
+
     document.addEventListener 'nextsubject', @onnextsubject
     @init_snippet_box()  # FIXME not sure this does much useful anymore
     @mousedown_point = false
@@ -2442,10 +2465,11 @@ class Huviz
     if not d3.select("#viscanvas")[0][0]
       d3.select("body").append("div").attr("id", "viscanvas")
     @container = d3.select("#viscanvas").node().parentNode
-    @install_update_pointer_togglers()
     @init_graph_controls_from_json()
     if @use_fancy_cursor
-      @text_cursor = new TextCursor($("#vis"), "<----")
+      @text_cursor = new TextCursor("#viscanvas", "")
+      @install_update_pointer_togglers()
+    @create_state_msg_box()
     @viscanvas = d3.select("#viscanvas").html("").
       append("canvas").
       attr("width", @width).
@@ -2455,18 +2479,12 @@ class Huviz
     @reset_graph()
     @updateWindow()
     @ctx = @canvas.getContext("2d")
-    @cursor = @svg.append("circle").
-                  attr("r", @label_show_range).
-                  attr("transform", "translate(" + @cx + "," + @cy + ")").
-                  attr("class", "cursor")
-    the_Huviz = this
     @mouse_receiver
       .on("mousemove", @mousemove)
       .on("mousedown", @mousedown)
       .on("mouseup", @mouseup)
       #.on("mouseout", @mouseup) # FIXME what *should* happen on mouseout?
     @restart()
-
     @set_search_regex("")
     search_input = document.getElementById('search')
     if search_input
@@ -2689,7 +2707,7 @@ class Huviz
           type: "checkbox"
     ,
       use_fancy_cursor:
-        #style: "display:none"
+        style: "display:none"
         text: "use fancy cursor"
         label:
           title: "use custom cursor"
