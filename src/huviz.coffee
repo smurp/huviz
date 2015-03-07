@@ -56,6 +56,10 @@
 # 108) TASK: show the unicode verb_cursor unicode icons in the verb buttons?
 # 109) TASK: update text_cursor.set_text() as 'shelve|discard|choose|pin|unpin'
 #            appropriately while dragging a node
+# 110) TASK: update text_cursor.set_text() as 'show source' when over an edge
+#            that has associated snippet
+# 111) TASK: auto_select_verb() should enforce select/unselect if nothing else
+#            OR at least they should not ACT AS IF they are the verb invisibly
 #  40) TASK: support search better, show matches continuously
 # 101) TASK: possibly remove nodes from pinned_set when removed from graphed_set
 #  79) TASK: support dragging of edges to shelf or discard bin
@@ -441,6 +445,17 @@ class Huviz
     if @dragging
       @force.resume() # why?
       @move_node_to_point @dragging, @last_mouse_pos
+      if @dragging.links_shown.length is 0
+        action = "choose"
+      else if @dragging.fixed
+        action = "unpin"
+      else
+        action = "pin"
+      if @in_disconnect_dropzone(@dragging)
+        action = "shelve"
+      else if @in_discard_dropzone(@dragging)
+        action = "discard"
+      @text_cursor.set_text("drop to #{action}")
     if @peeking_node?
       #console.log "PEEKING at node: " + @peeking_node.id
       if @focused_node? and @focused_node isnt @peeking_node
@@ -475,7 +490,6 @@ class Huviz
         @run_verb_on_object 'shelve', @dragging
         # @unselect(@dragging) # this might be confusing
       else if @dragging.links_shown.length == 0
-        #@select(@dragging) # TODO reconsider whether selecting should be implicit in choosing or only using drag-and-drop
         @run_verb_on_object 'choose', @dragging
       else if @nodes_pinnable
         if @dragging.fixed
@@ -483,6 +497,7 @@ class Huviz
         else
           @run_verb_on_object 'pin', @dragging
       @dragging = false
+      @text_cursor.set_text("")
       return
 
     # if this was a click on a pinned node then unpin it
@@ -512,9 +527,7 @@ class Huviz
     if @focused_node
       unless @focused_node.state is @graphed_set
         @run_verb_on_object 'choose',@focused_node
-        #@run_verb_on_object 'print',@focused_node
       else if @focused_node.showing_links is "all"
-        #@run_verb_on_object 'shelve',@focused_node
         @run_verb_on_object 'print',@focused_node
       else
         @run_verb_on_object 'choose',@focused_node
@@ -1766,6 +1779,7 @@ class Huviz
   update_state: (node) ->
     if node.state is @graphed_set and node.links_shown.length is 0
       @shelved_set.acquire node
+      @unpin(node)
       #console.debug("update_state() had to @shelved_set.acquire(#{node.name})",node)
     if node.state isnt @graphed_set and node.links_shown.length > 0
       #console.debug("update_state() had to @graphed_set.acquire(#{node.name})",node)
@@ -2005,6 +2019,7 @@ class Huviz
   #  discard_dropzone.
   #
   discard: (goner) ->
+    @unpin(goner)
     @unlink goner
     @discarded_set.acquire goner
     shown = @update_showing_links goner
@@ -2025,6 +2040,7 @@ class Huviz
   #  linked into the graph because another node has been chosen.
   #
   shelve: (goner) =>
+    @unpin(goner)
     @chosen_set.remove goner
     @hide_node_links goner
     @shelved_set.acquire goner
@@ -2072,15 +2088,15 @@ class Huviz
         console.log "there is a null in the .links_shown of",unchosen
     @update_state unchosen
 
-  hide: (hidee) =>
-    @chosen_set.remove hidee
-    @hidden_set.acquire hidee
-    @selected_set.remove hidee
-    hidee.unselect()
-    @hide_node_links hidee
-    @update_state hidee
-    shownness = @update_showing_links hidee
-
+  hide: (goner) =>
+    @unpin(goner)
+    @chosen_set.remove(goner)
+    @hidden_set.acquire(goner)
+    @selected_set.remove(goner)
+    goner.unselect()
+    @hide_node_links(goner)
+    @update_state(goner)
+    shownness = @update_showing_links(goner)
 
   #
   # The verbs SELECT and UNSELECT perhaps don't need to be exposed on the UI
