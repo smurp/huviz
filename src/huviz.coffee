@@ -2651,7 +2651,7 @@ class Huviz
         label:
           title: "how long the lines are"
         input:
-          value: 125
+          value: 29
           min: 5
           max: 200
           step: 2
