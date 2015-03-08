@@ -907,7 +907,14 @@ class Huviz
         new_focused_edge.target.focused_edge = true
 
     @focused_node = new_focused_node # possibly null
+    last_focused_edge = @focused_edge
     @focused_edge = new_focused_edge
+    edge_changed = @focused_edge isnt last_focused_edge
+    if edge_changed
+      if @focused_edge?
+        @text_cursor.pause("", "show edge sources")
+      else
+        @text_cursor.continue()
     #@adjust_cursor()
 
   DEPRECATED_showing_links_to_cursor_map:

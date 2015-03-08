@@ -38,7 +38,6 @@ class TextCursor
     @paused = true
   continue: ->
     @paused = false
-    console.log("continuing with", @last_text)
     @set_text(@last_text)
   set_cursor: (cursor) ->
     #console.log("set_cursor(#{@elem})", cursor)
