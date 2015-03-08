@@ -437,7 +437,10 @@ class CommandController
       @doit_butt.attr('disabled','disabled')
     return @command.ready
   ready_to_perform: () ->
-    @engaged_verbs.length > 0 and not @object_phrase
+    permit_multi_select = false
+    not @object_phrase and (@engaged_verbs.length > 0) or
+        (permit_multi_select and
+         (@engaged_verbs.length is 1 and @engaged_verbs[0] is 'select'))
   build_verb_form: () ->
     for vset in @verb_sets
       alternatives = @verbdiv.append('div').attr('class','alternates')
