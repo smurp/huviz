@@ -45,17 +45,14 @@
 # 107) TASK: minimize hits on TextCursor by only calling it when verbs change
 #            not whenever @focused_node changes
 #  77) TASK: retire 'Do it' button by immediately executing complete commands
-#  99) TASK: fine-tune gclui.verb_cursors unicode 'icons'
 # 104) TASK: remove no-longer-needed text_cursor calls
 # 105) TASK: move @last_cursor_text logic to TextCursor itself
-# 106) TASK: show the TextCursor hotspot somehow (speechbubble maybe?)
-# 108) TASK: show the unicode verb_cursor unicode icons in the verb buttons?
+# 108) TASK: eliminate the verb icons (they aren't helping)
 # 110) TASK: update text_cursor.set_text() as 'show source' when over an edge
 #            that has associated snippet
 # 111) TASK: auto_select_verb() should enforce select/unselect if nothing else
 #            OR at least they should not ACT AS IF they are the verb invisibly
 #  40) TASK: support search better, show matches continuously
-# 101) TASK: possibly remove nodes from pinned_set when removed from graphed_set
 #  79) TASK: support dragging of edges to shelf or discard bin
 #  97) TASK: integrate blanket for code coverage http://goo.gl/tH4Ghk
 #  93) BUG: toggling a predicate should toggle indirect-mixed on its supers
@@ -946,26 +943,10 @@ class Huviz
   set_cursor_for_verbs: (verbs) ->
     if not @use_fancy_cursor
       return
-    one_line = false
     if verbs.length > 0
-      if one_line
-        pointer = ""
-        label = ""
-        for verb in verbs
-          pointer += "#{@gclui.verb_cursors[verb]}"
-        label = angliciser(verbs)
-        text = "#{pointer} #{label}"
-      else
-        text = ""
-        for verb, i in verbs
-          if i > 0
-            text += "\n"
-          text += "#{@gclui.verb_cursors[verb]} #{verb}"
-      #@text_cursor.set_text(text)
-    #if not @update_pointer or verbs.length is 0
+      text = verbs.join("\n")
     else
       text = ""
-    #console.log "text:", text, @last_cursor_text
     if @last_cursor_text isnt text
       @text_cursor.set_text(text)
       @last_cursor_text = text
