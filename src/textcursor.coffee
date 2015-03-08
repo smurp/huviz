@@ -15,7 +15,7 @@ class TextCursor
     @last_text = ""
   font_height: ->
     return @height * @scale
-  set_text: (text) ->
+  set_text: (text, temp) ->
     #console.log("set_text(#{text.replace("\n", "\\n")})")
     if text
       if not @cache[text]?
@@ -25,14 +25,20 @@ class TextCursor
       cursor = "url(#{url}) #{@pointer_height} 0, default"
     else
       cursor = "default"
-    @last_text = text
+    if not temp?
+      @last_text = text
     if not @paused
       @set_cursor(cursor)
-  pause: (cursor) ->
+  pause: (cursor, text) ->
+    @paused = false # so @set_cursor will run if set_text called
+    if text?
+      @set_text(text, true)
+    else
+      @set_cursor(cursor)
     @paused = true
-    @set_cursor(cursor)
   continue: ->
     @paused = false
+    console.log("continuing with", @last_text)
     @set_text(@last_text)
   set_cursor: (cursor) ->
     #console.log("set_cursor(#{@elem})", cursor)

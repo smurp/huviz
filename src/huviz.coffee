@@ -446,7 +446,7 @@ class Huviz
         action = "shelve"
       else if @in_discard_dropzone(@dragging)
         action = "discard"
-      @text_cursor.set_text("drop to #{action}")
+      @text_cursor.pause("", "drop to #{action}")
     if @peeking_node?
       #console.log "PEEKING at node: " + @peeking_node.id
       if @focused_node? and @focused_node isnt @peeking_node
@@ -488,7 +488,7 @@ class Huviz
         else
           @run_verb_on_object 'pin', @dragging
       @dragging = false
-      @text_cursor.set_text("")
+      @text_cursor.continue()
       return
 
     # if this was a click on a pinned node then unpin it
