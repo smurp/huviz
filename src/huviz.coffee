@@ -491,12 +491,6 @@ class Huviz
       @text_cursor.continue()
       return
 
-    # if this was a click on a pinned node then unpin it
-    if @nodes_pinnable and @focused_node and
-        @focused_node.fixed and @focused_node.state is @graphed_set
-      @run_verb_on_object 'unpin', @focused_node
-      return # prevent perform_current_command from running opposite verb
-
     # this is the node being clicked
     if @focused_node # and @focused_node.state is @graphed_set
       @perform_current_command(@focused_node)
