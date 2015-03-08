@@ -1,5 +1,8 @@
 class TextCursor
-  fillStyle: "black"
+  fontFillStyle: "black"
+  bgFillStyle: "Yellow"
+  bgGlobalAlpha: 0.6
+  borderStrokeStyle: "black"
   face: "sans-serif"
   width: 128
   height: 32
@@ -50,7 +53,7 @@ class TextCursor
     top = 10
 
     @ctx.translate 0, @font_height()
-    @ctx.fillStyle = @fillStyle
+    @ctx.fillStyle = @fontFillStyle
     @ctx.font = "#{@font_height()}px #{@face}"
     @ctx.textAlign = 'left'
     lines = text.split("\n")
@@ -58,12 +61,15 @@ class TextCursor
     for line,i in lines
       if line
         voffset = @font_height() * i + top
-        #console.log("line":line, "i:",i, "voffset:",voffset)
         max_width = Math.max(@ctx.measureText(line).width, max_width)
-        @ctx.fillText line, top, voffset
-    @ctx.translate 0, @font_height() * -1
     height = @font_height() * lines.length + inset
-    @draw_bubble(inset, top, max_width + inset * 4, height, @pointer_height, @font_height()/2)
+    @draw_bubble(inset, top,
+                 max_width + inset * 4, height,
+                 @pointer_height, @font_height()/2)
+    for line,i in lines
+      if line
+        voffset = @font_height() * i + top
+        @ctx.fillText line, top, voffset
     url = @canvas.toDataURL("image/png")
     #url = "http://www.smurp.com/smurp_headon.jpg"
     #$("<img>", {src: url}).appendTo("#gclui")
@@ -77,9 +83,9 @@ class TextCursor
     ###
     r = x + w
     b = y + h
+    @ctx.save()
+    @ctx.translate 0, @font_height() * -1
     @ctx.beginPath()
-    @ctx.strokeStyle = "black"
-    @ctx.lineWidth = 1
     @ctx.moveTo(x + radius, y)
     @ctx.lineTo(x + radius / 2, y - pointer_height)
     @ctx.lineTo(x + radius * 2, y)
@@ -91,7 +97,18 @@ class TextCursor
     @ctx.quadraticCurveTo(x, b, x, b - radius)
     @ctx.lineTo(x, y + radius)
     @ctx.quadraticCurveTo(x, y, x + radius, y)
+    @ctx.closePath()
+    if @bgGlobalAlpha?
+      @ctx.save()
+      @ctx.globalAlpha = @bgGlobalAlpha
+      if @bgFillStyle?
+        @ctx.fillStyle = @bgFillStyle
+        @ctx.fill()
+      @ctx.restore()
+    @ctx.lineWidth = 1
+    @ctx.strokeStyle = @borderStrokeStyle
     @ctx.stroke()
+    @ctx.restore()
 
 
 (exports ? this).TextCursor = TextCursor
