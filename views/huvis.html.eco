@@ -98,7 +98,7 @@
     <div id="tabs-options" class="graph_controls">
     </div>
     <div id="huvis_controls">
-      <div>
+      <div class="unselectable">
         <label title="which file to load">
           data set
           <select
