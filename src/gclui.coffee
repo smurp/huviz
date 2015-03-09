@@ -44,7 +44,6 @@ class CommandController
     @build_form()
     @update_command()
     @install_listeners()
-    @immediate_execution_mode = false
   control_label: (txt, what) ->
     what = what or @comdiv
     outer = what.append('div')
@@ -228,7 +227,13 @@ class CommandController
         cmd.object_phrase = @object_phrase
       window.suspend_updates = false
       @huviz.run_command(cmd)
-    @update_command()
+    else
+      if new_state is 'showing'
+        because =
+          taxon_added: id
+          cleanup: () =>
+            @on_taxon_clicked(id, 'unshowing', elem)
+    @update_command(because)
   unselect_node_class: (node_class) ->
     # removes node_class from @taxons_chosen
     @taxons_chosen = @taxons_chosen.filter (eye_dee) ->
@@ -307,7 +312,7 @@ class CommandController
         if test
           next_verb = test(node)
           if next_verb
-            @engage_verb(next_verb)
+            @engage_verb(next_verb, verb is @transient_verb_engaged)
       @huviz.set_cursor_for_verbs(@engaged_verbs)
     else # no verbs are engaged
       @huviz.set_cursor_for_verbs([])
@@ -374,7 +379,7 @@ class CommandController
     @like_input.on 'input',@update_command
   build_submit: () ->
     @doit_butt = @nextcommand.append('span').append("input").
-           attr("style","float:right").
+           attr("style","float:right;display:none;").
            attr("type","submit").
            attr('value','Do it').
            attr('id','doit_button')
@@ -383,7 +388,7 @@ class CommandController
         @huviz.run_command(@command)
         @reset_editor()
         @huviz.update_all_counts()  # TODO Try to remove this, should be auto
-  disengage_all_verbs: ->
+  disengage_all_verbs: =>
     for vid in @engaged_verbs
       @disengage_verb(vid)
   unselect_all_node_classes: ->
@@ -406,11 +411,12 @@ class CommandController
     cmd_ui.text(cmd.str)
   build_command: ->
     args = {}
-    # if @subjects.length > 0
-    #   args.subjects = (s for s in @subjects)
     args.object_phrase = @object_phrase
     if @engaged_verbs.length > 0
-      args.verbs = (v for v in @engaged_verbs)
+      args.verbs = []
+      for v in @engaged_verbs
+        if v isnt @transient_verb_engaged
+          args.verbs.push v
     if @chosen_set_id
       args.sets = [@chosen_set]
     else
@@ -422,11 +428,15 @@ class CommandController
     if like_str
       args.like = like_str
     @command = new gcl.GraphCommand(args)
-  update_command: () =>
+  update_command: (because) =>
+    because = because or {}
     @huviz.show_state_msg("update_command")
     ready = @prepare_command @build_command()
-    if ready and @immediate_execution_mode
+    if ready and @huviz.doit_asap
       @command.execute(@huviz)
+      if because.cleanup
+        because.cleanup()
+        @update_command()
     @huviz.hide_state_msg()
   prepare_command: (cmd) ->
     @command = cmd
@@ -437,10 +447,11 @@ class CommandController
       @doit_butt.attr('disabled','disabled')
     return @command.ready
   ready_to_perform: () ->
-    permit_multi_select = false
-    not @object_phrase and (@engaged_verbs.length > 0) or
-        (permit_multi_select and
-         (@engaged_verbs.length is 1 and @engaged_verbs[0] is 'select'))
+    permit_multi_select = true
+    (@transient_verb_engaged is 'unselect') or
+      (not @object_phrase and (@engaged_verbs.length > 0)) or
+      (permit_multi_select and
+       (@engaged_verbs.length is 1 and @engaged_verbs[0] is 'select'))
   build_verb_form: () ->
     for vset in @verb_sets
       alternatives = @verbdiv.append('div').attr('class','alternates')
@@ -455,7 +466,37 @@ class CommandController
             override.push(vid)
     return override
   engaged_verbs: []
-  engage_verb: (verb_id) ->
+
+  ###
+  The "Do it" button is not needed if the following hold...
+
+  If there is an object_phrase then the instant a verb is picked the command
+  should run.
+
+  If there are verbs picked then the instant there is an object_phrase the
+  command should run and the object_phrase cleared. (what about selected_set?)
+
+  Note that this covers immediate execution of transient verbs select/unselect
+
+  ###
+  are_non_transient_verbs: ->
+    len_transient = @transient_verb_engaged? and 1 or 0
+    @engaged_verbs.length > len_transient
+
+  engage_transient_verb_if_needed: (verb) ->
+    if @engaged_verbs.length is 0 and not @are_non_transient_verbs()
+      @engage_verb(verb, true)
+
+  disengage_transient_verb_if_needed: ->
+    if @transient_verb_engaged
+      @disengage_verb(@transient_verb_engaged)
+      @huviz.set_cursor_for_verbs(@engaged_verbs)
+      @update_command()
+
+  engage_verb: (verb_id, transient) ->
+    if transient
+      @transient_verb_engaged = verb_id
+      @verb_control[verb_id].classed('transient', true)
     overrides = @get_verbs_overridden_by(verb_id)
     @verb_control[verb_id].classed('engaged',true)
     for vid in @engaged_verbs
@@ -463,9 +504,12 @@ class CommandController
         @disengage_verb(vid)
     if not (verb_id in @engaged_verbs)
       @engaged_verbs.push(verb_id)
-  disengage_verb: (verb_id) ->
+  disengage_verb: (verb_id, transient) ->
     @engaged_verbs = @engaged_verbs.filter (verb) -> verb isnt verb_id
     @verb_control[verb_id].classed('engaged',false)
+    if verb_id is @transient_verb_engaged
+      @transient_verb_engaged = false
+      @verb_control[verb_id].classed('transient', false)
   verb_control: {}
   build_verb_picker: (id,label,alternatives) ->
     vbctl = alternatives.append('div').attr("class","verb")
@@ -481,11 +525,14 @@ class CommandController
       elem.classed('engaged',newstate)
       if newstate
         that.engage_verb(id)
+        because =
+          verb_added: id
+          cleanup: that.disengage_all_verbs
       else
         that.disengage_verb(id)
       if not that.engaged_verbs? or that.engaged_verbs.length is 0
         that.huviz.set_cursor_for_verbs([])
-      that.update_command()
+      that.update_command(because)
   run_script: (script) ->
     @huviz.gclc.run(script)
     @huviz.update_all_counts()
@@ -520,10 +567,16 @@ class CommandController
     if new_state is 'showing'
       @chosen_set = @huviz[set_id]
       @chosen_set_id = set_id
+      because =
+        set_added: set_id
+        cleanup: @disengage_all_sets # the method to call to clear
     else
+      @disengage_all_sets()
+    @update_command(because)
+  disengage_all_sets: =>
+    if @chosen_set_id
       delete @chosen_set
       delete @chosen_set_id
-    @update_command()
   on_set_count_update: (set_id, count) =>
     @set_picker.set_payload(set_id, count)
   on_taxon_count_update: (taxon_id, count) ->

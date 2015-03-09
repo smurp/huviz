@@ -41,6 +41,8 @@
 #     d) there might be update operations against gclui apart from actuators
 #
 # Immediate Priorities:
+# 112) TASK: reset button should clear verbs and transient verb
+# 113) TASK: why is CP "Poetry" in abdyma.nq not shelved?
 # 102) BUG: put Classes beside Sets again
 # 107) TASK: minimize hits on TextCursor by only calling it when verbs change
 #            not whenever @focused_node changes
@@ -527,8 +529,8 @@ class Huviz
         verbs: @gclui.engaged_verbs
         subjects: [node]
       @run_command(cmd)
-    else
-      @toggle_selected(node)
+    #else
+    #  @toggle_selected(node)
     @clean_up_all_dirt()
 
   run_command: (cmd) ->
@@ -852,7 +854,7 @@ class Huviz
     new_focused_node = undefined
     new_focused_edge = undefined
     new_focused_idx = undefined
-    focus_threshold = @focus_radius * 3
+    focus_threshold = 100 #@focus_radius * 3
     closest = @width
     closest_point = undefined
 
@@ -882,7 +884,8 @@ class Huviz
       new_focused_node = undefined
 
     if closest_point?
-      @draw_circle closest_point.x, closest_point.y, @node_radius * 3, "red"  if @draw_circle_around_focused
+      if @draw_circle_around_focused
+        @draw_circle closest_point.x, closest_point.y, @node_radius * 3, "red"
 
     unless @focused_node is new_focused_node
       if @focused_node
@@ -906,7 +909,15 @@ class Huviz
         new_focused_edge.source.focused_edge = true
         new_focused_edge.target.focused_edge = true
 
+    last_focused_node = @focused_node
     @focused_node = new_focused_node # possibly null
+    node_changed = @focused_node isnt last_focused_node
+    if node_changed
+      if @focused_node? and @focused_node
+        @gclui.engage_transient_verb_if_needed("select")
+      else
+        @gclui.disengage_transient_verb_if_needed()
+
     last_focused_edge = @focused_edge
     @focused_edge = new_focused_edge
     edge_changed = @focused_edge isnt last_focused_edge
@@ -1204,7 +1215,7 @@ class Huviz
       txt = @msg_history
     @state_msg_box.show()
     @state_msg_box.html("<br><br>" + txt)  # FIXME: OMG CSS PDQ
-    @text_cursor.set_cursor("wait")
+    @text_cursor.pause("wait")
 
   hide_state_msg: () ->
     @state_msg_box.hide()
@@ -2521,7 +2532,7 @@ class Huviz
       selected_mag:
         text: "selected node mag"
         input:
-          value: 1.2
+          value: 1.5
           min: 0.5
           max: 4
           step: .1
@@ -2706,6 +2717,16 @@ class Huviz
         input:
           checked: "checked"
           type: "checkbox"
+    ,
+      doit_asap:
+        style: "display:none"
+        text: "DoIt ASAP"
+        label:
+          title: "execute commands as soon as they are complete"
+        input:
+          checked: "checked"
+          type: "checkbox"
+
     ]
 
   dump_current_settings: (post) ->
