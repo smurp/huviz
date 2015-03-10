@@ -41,6 +41,7 @@
 #     d) there might be update operations against gclui apart from actuators
 #
 # Immediate Priorities:
+# 120) BUG: hidden nodes are hidden but are also detectable via TextCursor
 # 118) TASK: add setting for "'chosen' border thickness (px)"
 # 116) BUG: stop truncating verbs lists longer than 2 in TextCursor: use grid
 # 115) TASK: add ColorTreepicker [+] and [-] boxes for 'show' and 'unshow'
@@ -257,7 +258,7 @@ class Huviz
   line_length_min: 4
 
   # TODO figure out how to replace with the default_graph_control
-  link_distance: 100
+  link_distance: 29
   fisheye_zoom: 4.0
   peeking_line_thicker: 4
   show_snippets_constantly: false
