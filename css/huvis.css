@@ -46,3 +46,6 @@ rect {
 .verbs {
   font-size: x-small;
 }
+.transient {
+  font-style: italic;
+}

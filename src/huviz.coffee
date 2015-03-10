@@ -42,7 +42,6 @@
 #
 # Immediate Priorities:
 # 118) TASK: add setting for "'chosen' border thickness (px)"
-# 117) TASK: add css style for 'transient' verbs so they're different in picker
 # 116) BUG: stop truncating verbs lists longer than 2 in TextCursor: use grid
 # 115) TASK: add ColorTreepicker [+] and [-] boxes for 'show' and 'unshow'
 # 114) TASK: make text_cursor show detailed stuff when in Commands and Settings
