@@ -41,19 +41,19 @@
 #     d) there might be update operations against gclui apart from actuators
 #
 # Immediate Priorities:
+# 118) TASK: add setting for "'chosen' border thickness (px)"
+# 117) TASK: add css style for 'transient' verbs so they're different in picker
+# 116) BUG: stop truncating verbs lists longer than 2 in TextCursor: use grid
+# 115) TASK: add ColorTreepicker [+] and [-] boxes for 'show' and 'unshow'
+# 114) TASK: make text_cursor show detailed stuff when in Commands and Settings
+# 113) TASK: what is the weird stuff happening when there are selected nodes?
 # 112) TASK: reset button should clear verbs and transient verb
 # 113) TASK: why is CP "Poetry" in abdyma.nq not shelved?
 # 102) BUG: put Classes beside Sets again
 # 107) TASK: minimize hits on TextCursor by only calling it when verbs change
 #            not whenever @focused_node changes
-#  77) TASK: retire 'Do it' button by immediately executing complete commands
 # 104) TASK: remove no-longer-needed text_cursor calls
 # 105) TASK: move @last_cursor_text logic to TextCursor itself
-# 108) TASK: eliminate the verb icons (they aren't helping)
-# 110) TASK: update text_cursor.set_text() as 'show source' when over an edge
-#            that has associated snippet
-# 111) TASK: auto_select_verb() should enforce select/unselect if nothing else
-#            OR at least they should not ACT AS IF they are the verb invisibly
 #  40) TASK: support search better, show matches continuously
 #  79) TASK: support dragging of edges to shelf or discard bin
 #  97) TASK: integrate blanket for code coverage http://goo.gl/tH4Ghk
@@ -61,16 +61,13 @@
 #  92) BUG: non-empty predicates should not have payload '0/0' after kid click
 #  94) TASK: show_msg() during command.run to inform user and prevent clicks
 #  95) TASK: get /orlonto.html working smoothly again
-#  96) TASK: highlight 'select' when it is the default verb and therefore...
-#            remove toggle_selected from perform_current_command
 #  90) BUG: english is no longer minimal
 #  91) BUG: mocha async being misused re done(), so the passes count is wrong
 #  86) BUG: try_to_set_node_type: only permit subtypes to override supertypes
 #  87) BUG: solve node.type vs node.taxon sync problem (see orlonto)
 #  46) TASK: impute node type based on predicates via ontology
 #  53) PERF: should_show_label should not have search_regex in inner loop
-#  60) BUG: nodes are sometimes still 'chosen' while no longer 'graphed'
-#  65) BUG: hidden nodes are not fully ignore on the shelf so shelved nodes
+#  65) BUG: hidden nodes are not fully ignored on the shelf so shelved nodes
 #           are not always the focused node
 #  68) TASK: optimize update_english
 #  69) TASK: figure out ideal root for predicate hierarchy -- owl:Property?
@@ -80,8 +77,6 @@
 #  74) TASK: recover from loading crashes with Cancel button on show_state_msg
 #  76) TASK: consider renaming graphed_set to connected_set and verbs
 #            choose/unchoose to graph/ungraph
-#  82) TASK: set initial verb to 'choose'
-#  83) BUG: choose should not unpin
 #  84) TASK: add an unchosen_set containing the graphed but not chosen nodes
 #
 # Eventual Tasks:
@@ -95,19 +90,12 @@
 #      AKA: fix bad-layout-until-drag-and-drop bug
 #  18) TASK: drop a node on another node to draw their mutual edges only
 #  19) TASK: progressive documentation (context sensitive tips and intros)
-#  22) TASK: summarize selected_set succinctly in english version of cmd
-#            eg  writers but atwoma
-#       Current command shows redundant mix of nodeclasses and node ids
-#  23) TASK: discipline consequence of clicking a picker div:
-#            strict cycle:  someShown -> allShown -> noneShown
 #  25) TASK: debug wait cursor when slow operations are happening, maybe
 #      prevent starting operations when slow stuff is underway
 #      AKA: show waiting cursor during verb execution
 #  26) boot script should perhaps be "choose writer." or some reasonable set
 #  30) TASK: Stop passing (node, change, old_node_status, new_node_status) to
 #      Taxon.update_state() because it never seems to be needed
-#  32) TASK: make a settings controller for selected_mag
-#  33) TASK: make a factory for the settings (so they're software generated)
 #  35) TASK: get rid of jquery
 #  37) TASK: fix Bronte names, ie unicode
 #  41) TASK: link to new backend
