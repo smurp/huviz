@@ -46,7 +46,6 @@
 # 115) TASK: add ColorTreepicker [+] and [-] boxes for 'show' and 'unshow'
 # 114) TASK: make text_cursor show detailed stuff when in Commands and Settings
 # 113) TASK: what is the weird stuff happening when there are selected nodes?
-# 112) TASK: reset button should clear verbs and transient verb
 # 113) TASK: why is CP "Poetry" in abdyma.nq not shelved?
 # 102) BUG: put Classes beside Sets again
 # 107) TASK: minimize hits on TextCursor by only calling it when verbs change
@@ -765,6 +764,7 @@ class Huviz
       @do({verbs: ['shelve'], sets: [@hidden_set]})
     if @selected_set.length
       @do({verbs: ['unselect'], sets: [@selected_set]})
+    @gclui.reset_editor()
     @gclui.select_the_initial_set()
 
   reset_graph: ->

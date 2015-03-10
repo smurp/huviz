@@ -72,6 +72,7 @@ class CommandController
     @taxons_chosen = [] # new SortedSet()
   reset_editor: ->
     @disengage_all_verbs()
+    @disengage_all_sets()
     @init_editor_data()
     @clear_like()
     @update_command()
@@ -575,8 +576,7 @@ class CommandController
     @update_command(because)
   disengage_all_sets: =>
     if @chosen_set_id
-      delete @chosen_set
-      delete @chosen_set_id
+      @on_set_picked(@chosen_set_id, "unshowing")
   on_set_count_update: (set_id, count) =>
     @set_picker.set_payload(set_id, count)
   on_taxon_count_update: (taxon_id, count) ->
