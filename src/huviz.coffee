@@ -2566,7 +2566,7 @@ class Huviz
         label:
           title: "the repulsive charge betweeen nodes"
         input:
-          value: -183
+          value: -200
           min: -600
           max: -1
           step: 1
