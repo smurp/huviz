@@ -5,35 +5,49 @@ BASE_ARGS = \
 
 ARGS = 	--all_predicates ${BASE_ARGS}
 
+TMPFILE := $(shell mktemp /tmp/XXXXXXXXXXXXXX).nq
+
 all: ballrm abdyma atwoma poetesses brontes
 
 ballrm:
-	./orlandoScrape.py --outfile data/ballrm.nq --ids ballrm ${ARGS}
+	./orlandoScrape.py --outfile ${TMPFILE} --ids ballrm ${ARGS} 
+	sort < ${TMPFILE} > data/ballrm.nq
+	rm ${TMPFILE}
 
 abdyma:
-	./orlandoScrape.py --outfile data/abdyma.nq --ids abdyma ${ARGS}
+	./orlandoScrape.py --outfile ${TMPFILE} --ids abdyma ${ARGS}
+	sort < ${TMPFILE} > data/abdyma.nq
+	rm ${TMPFILE}
 
 atwoma:
-	./orlandoScrape.py --outfile data/atwoma.nq \
-		--ids atwoma  ${ARGS}
+	./orlandoScrape.py --outfile ${TMPFILE} --ids atwoma  ${ARGS}
+	sort < ${TMPFILE} > data/atwoma.nq
+	rm ${TMPFILE}
 
 poetesses:
-	./orlandoscrape.py --outfile data/poetesses.nq \
+	./orlandoscrape.py --outfile ${TMPFILE} \
 		--ids `bin/get_poetesses_ids.sh` ${BASE_ARGS}
+	sort < ${TMPFILE} > data/poetesses.nq
+	rm ${TMPFILE}
 
 brontes:
-	./orlandoscrape.py --outfile data/brontes.nq \
-		--id bronem,bronch,bronan ${ARGS}
+	./orlandoscrape.py --outfile ${TMPFILE} --id bronem,bronch,bronan ${ARGS}
+	sort < ${TMPFILE} > data/brontes.nq
+	rm ${TMPFILE}
 
 shakwi:
-	./orlandoscrape.py --outfile data/shakwi.nq \
-		--id shakwi ${ARGS}
+	./orlandoscrape.py --outfile ${TMPFILE} --id shakwi ${ARGS}
+	sort < ${TMPFILE} > data/shakwi.nq
+	rm ${TMPFILE}
 
 relations:  # commented out religiousInfluence and connectionToOrganization
-	./orlandoscrape.py --outfile data/relations.nq \
-		${BASE_ARGS}
+	./orlandoscrape.py --outfile ${TMPFILE} ${BASE_ARGS}
+	sort < ${TMPFILE} > data/relations.nq
+	rm ${TMPFILE}
 
 early_writers: 
-	./orlandoScrape.py --outfile data/early_writers.nq \
+	./orlandoScrape.py --outfile ${TMPFILE} \
 		--id boccgi,chauge,chripi,dant__,helo__,hildbi,julino,kempma,maloth,margna,marifr,petr__ \
 		${ARGS}
+	sort < ${TMPFILE} > data/early_writers.nq
+	rm ${TMPFILE}
