@@ -8,3 +8,4 @@ pyparsing==1.5.7
 rdflib==4.0.1
 six==1.4.1
 wsgiref==0.1.2
+lxml-xpath2-functions==0.0.3

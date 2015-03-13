@@ -66,6 +66,17 @@ import re       # The regular expressions module
 import codecs   # The module for dealing with various file formatting types
 import json     # The module for efficient input/output from/to JSON
 
+from lxml import etree
+from io import StringIO, BytesIO
+import xpath2_functions
+xpath2_functions.register_functions(etree)
+
+#Open two input files and two output files (one for matches and one for non-matches)
+#xpathTests = codecs.open('orlando2RDFxpath3.txt', encoding='utf-8', mode='r')
+# orlandoRAW = codecs.open('orlando_term_poetess_2013-01-04.xml', encoding='utf-8', mode='r')
+#orlandoRDF = codecs.open('orlandoHUMAN_xpath-out-TESTING.txt', encoding='utf-8', mode='w')
+
+
 BASE2 = "01"
 BASE10 = "0123456789"
 BASE26 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -110,7 +121,7 @@ def convert_base(src,srctable,desttable):
         res = desttable[r] + res
     return res
 
-def regexTestLoad(regexTests,options):
+def regexTestLoad(regexTests, options):
     arrayCounter=0
     regexArray = {}
     for line in regexTests:
@@ -127,6 +138,57 @@ def regexTestLoad(regexTests,options):
         arrayCounter+=1
     return regexArray
 
+# Loads the core extraction commands to be tested from the passed in external file
+def xpathTestLoad(xpathTests, addXpaths, options):
+    arrayCounter = 0
+    xpathArray = {}
+    for line in xpathTests:
+        #print line
+        #print line[0], type(line[0])
+        line = line.replace('\n','')
+        linesplit = line.split('|')
+        if int(line[0]) == 1:
+            xpathArray[arrayCounter] = linesplit
+            n = 2
+            arrayDepth = len(xpathArray[arrayCounter])
+            while n < arrayDepth:
+               xpathArray[arrayCounter][n] = etree.XPath(xpathArray[arrayCounter][n], smart_strings=False)
+               n += 1
+            del xpathArray[arrayCounter][0]
+            arrayCounter += 1
+        else:
+            for path in addXpaths:
+                path = path.replace('&',linesplit[2])
+                xpathArray[arrayCounter] = [linesplit[0],linesplit[1]+path.split('|')[0]] + path.split('|')[1:]
+                # print xpathArray[arrayCounter]
+                n = 2
+                arrayDepth = len(xpathArray[arrayCounter])
+                while n < arrayDepth:
+                    xpathArray[arrayCounter][n] = etree.XPath(xpathArray[arrayCounter][n], smart_strings=False)
+                    n += 1
+                del xpathArray[arrayCounter][0]
+                arrayCounter += 1
+    return xpathArray
+
+def xpathAddition():  # returns all the specialized search terms to be included for each and every tag captured by xpothTestLoad
+    addXpaths = []
+    #  The & used in each line is a target for search and replace work to be done later.
+    addXpaths.append("|//&|//descendant-or-self::*[not(self::BIBCIT)]/text()")
+    addXpaths.append("ConnectionToOrganization|//&/descendant::ORGNAME[not(@STANDARD=./ancestor::ENTRY/descendant::STANDARD/text())]/@STANDARD")
+    addXpaths.append("ConnectionToOrganization|//&/descendant::ORGNAME[not(@STANDARD=./ancestor::ENTRY/descendant::STANDARD/text())]|//descendant-or-self::*[not(self::BIBCIT)]/text()")
+    addXpaths.append("ConnectionToPerson|//&/descendant::NAME[not(@STANDARD=./ancestor::ENTRY/descendant::STANDARD/text())]/@STANDARD")
+    addXpaths.append("ConnectionToPerson|//&/descendant::NAME[not(@STANDARD=./ancestor::ENTRY/descendant::STANDARD/text())]|//descendant-or-self::*[not(self::BIBCIT)]/text()")
+    addXpaths.append("ConnectionToGeog|//&/descendant::GEOG/@REG")
+    addXpaths.append("ConnectionToGeog|//&/descendant::GEOG|//descendant-or-self::*[not(self::BIBCIT)]/text()")
+    addXpaths.append("ConnectionToRegion|//&/descendant::REGION/@REG")
+    addXpaths.append("ConnectionToRegion|//&/descendant::REGION|//descendant-or-self::*[not(self::BIBCIT)]/text()")
+    addXpaths.append("ConnectionToSettlement|//&/descendant::SETTLEMENT/@REG")
+    addXpaths.append("ConnectionToSettlement|//&/descendant::SETTLEMENT|//descendant-or-self::*[not(self::BIBCIT)]/text()")
+    addXpaths.append("ConnectionToAddress|//&/descendant::ADDRESS/@REG")
+    addXpaths.append("ConnectionToAddress|//&/descendant::ADDRESS|//descendant-or-self::*[not(self::BIBCIT)]/text()")
+    addXpaths.append("ConnectionToDate|//&/descendant::DATE/@VALUE")
+    addXpaths.append("ConnectionToDate|//&/descendant::DATE|//descendant-or-self::*[not(self::BIBCIT)]/text()")
+    return addXpaths
 
 def stripExtraXML(match):
     cleanLine=[]
@@ -200,14 +262,19 @@ if LOCAL_IDENTIFIERS:
         predicate_to_type[k] = LOCAL[k]
 
 class FormatEmitter(object):
-    def __init__(self,options):
+    def __init__(self, options):
         self.contexts = {}
         self.options = options
         if hasattr(options,'outfile'):
             self.outfile = codecs.open(options.outfile, encoding='utf-8', mode='w')
         self.entries = []
+        if options.rules == 'regexes':
+            self.ruleRecursion = self.regexRecursion
+        elif options.rules == 'xpaths':
+            self.ruleRecursion = self.xPathRecursion
 
-    def extractionCycle(self, orlandoRAW, regexArray, NameTest, mainSubject, options):
+    def extractionCycle(self, orlandoRAW, ruleArray, NameTest, mainSubject):
+        options = self.options
         entryDict=dict()
         commacheck3=False #controls the insertion of commas at the end of the objects
         count = 0
@@ -222,7 +289,7 @@ class FormatEmitter(object):
                 count += 1
                 if options.verbose or options.progress:
                     print mainSubject
-                for tripleCheck in regexArray:
+                for tripleCheck in ruleArray:
                     if options.capture_context:
                         structID=""
                         for IDcheck in structIDregex:
@@ -232,22 +299,21 @@ class FormatEmitter(object):
                                 if options.verbose:
                                     print structID,entryDict.keys()
                                 searchText=result[1]
-                                self.regexRecursion(searchText,regexArray,tripleCheck,
-                                               1,mainSubject,entryDict,structID)
+                                self.ruleRecursion(searchText,ruleArray,tripleCheck,
+                                                   1,mainSubject,entryDict,structID)
                     else:
-                        self.regexRecursion(line,regexArray,tripleCheck,1,mainSubject,entryDict,None)
+                        self.ruleRecursion(line,ruleArray,tripleCheck,1,mainSubject,entryDict,None)
                 options.emitter.stash(entryDict,commacheck3,options)
                 commacheck3=True
             entryDict = dict()
             if options.limit and count >= options.limit:
                 break
 
-    def regexRecursion(self,searchText,regexArray,tripleCheck,recursionDepthPlusOne,mainSubject,entryDict,structID):
+    def regexRecursion(self, searchText, regexArray, tripleCheck, recursionDepthPlusOne, mainSubject, entryDict, structID):
         #Start with the lowest level structural IDs.  Find everything that matches them and pull out the structID
         #If we can match all the way to the end then great, done.
         #If we can't match all the way to the end then we move up a structural ID level and start again
         #If we run out of structural ID levels then it is a failed search
-
         tripleTest = regexArray[tripleCheck][recursionDepthPlusOne]
         resultTripleTest = tripleTest.findall(searchText)
         if resultTripleTest:
@@ -259,7 +325,60 @@ class FormatEmitter(object):
                 for match in resultTripleTest:
                     self.regexRecursion(match,regexArray,tripleCheck,recursionDepthPlusOne+1,mainSubject,entryDict,structID)
 
+    
+    def xPathRecursion(self, searchText, xpathArray, tripleCheck, recursionDepthPlus, mainSubject, entryDict, structID):
+        """This is the function that processes all the xPath components of each search line"""
+        if isinstance(searchText, etree._Element):
+            searchText = etree.tounicode(searchText)
+            # This is a total hack.  I don't know why but matches always had trailing text after the last XML tag
+            # this led to "lxml.etree.XMLSyntaxError: Extra content at the end of the document" errors
+            # wrapping this code in these <junk></junk> tags stops that from happenin
+            #searchText = "<junk>%s</junk>" % searchText
+            #print "searchText", searchText
+            #print "searchText type", type(searchText)
+        #print xpathArray[tripleCheck], recursionDepthPlus
+        searchText = "<junk>%s</junk>" % searchText
+        #print "searchText", searchText
+        tripleTest = xpathArray[tripleCheck][recursionDepthPlus]
+        #print "tripleTest", tripleTest
+        searchText = StringIO(searchText)
+        searchText = etree.parse(searchText)
+        #print "type tripleTest: ", type(tripleTest)
+        #print "searchText: ", str(searchText)
+        resultTripleTest = tripleTest(searchText)
+        #print "resultTripleTest", resultTripleTest
+        if "*[not(self::BIBCIT)]" in str(tripleTest):
+            #print "JOINING TEXT"
+            #Spacing is a problem after joining XML nodes.  This cleans it up a bit.
+            resultTripleTest = ' '.join((' '.join(resultTripleTest)).split())
+            resultTripleTest = resultTripleTest.replace(' .','.')
+            resultTripleTest = resultTripleTest.replace(' ,',',')
+            resultTripleTest = resultTripleTest.replace(" '" ,"'")
+            resultTripleTest = resultTripleTest.replace(' "','"')
+            #resultTripleTest = " ".join(resultTripleTest)
+            #print resultTripleTest
+        if resultTripleTest:
+            if recursionDepthPlus >= len(xpathArray[tripleCheck])-1:
+                #print "resultTripleTest Type", type(resultTripleTest)
+                if isinstance(resultTripleTest, list):
+                    for match in resultTripleTest:
+                        """
+                        print "match", match
+                        print "matchType", type(match)
+                        stripMatch=stripExtraXML(match)
+                        print "stripMatch", stripMatch
+                        print "stripMatchType", type(stripMatch)
+                        """
+                        self.fillDict(entryDict, xpathArray, tripleCheck, mainSubject, match, structID)
+                else:
+                    self.fillDict(entryDict, xpathArray, tripleCheck, mainSubject, resultTripleTest, structID)
+            else:
+                for match in resultTripleTest:
+                    #print "match", match
+                    self.xPathRecursion(match, xpathArray, tripleCheck, recursionDepthPlus+1, mainSubject, entryDict, None)
+
     def fillDict(self, entryDict, regexArray, tripleCheck, mainSubject, stripMatch, structID):
+        options = self.options
         predicate = regexArray[tripleCheck][0]
         if options.only_predicates and not (predicate in options.only_predicates):
             return
@@ -301,15 +420,21 @@ class FormatEmitter(object):
         self.entries.append(entryDict)
     def go(self):
         options = self.options
-        regexTests = codecs.open(options.regexes, encoding='utf-8', mode='r')
         sys.stderr.write("begin\n")
         self.prepOutfile()
-        regexArray = regexTestLoad(regexTests,options)
+        ruleArray = None
+        ruleFile = getattr(options, options.rules)
+        ruleTests = codecs.open(ruleFile, encoding='utf-8', mode='r')
+        if options.rules == "regexes":
+            ruleArray = regexTestLoad(ruleTests, options)
+        elif options.rules == "xpaths":
+            ruleArray = xpathTestLoad(ruleTests, xpathAddition(), options)
+        #print "ruleArray", ruleArray, "options", options
         NameTest = re.compile('<ENTRY.+?ID="([\w, ]+)".*>',re.I)
         sys.stderr.write("extraction starts\n")
         with codecs.open(options.infile, encoding='utf-8', mode='r') as orlandoRAW: 
             mainSubject=None
-            self.extractionCycle(orlandoRAW, regexArray, NameTest, mainSubject, options)
+            self.extractionCycle(orlandoRAW, ruleArray, NameTest, mainSubject)
         sys.stderr.write("extraction ends\n")
         self.concludeOutfile()
         sys.stderr.write("end\n")
@@ -399,10 +524,11 @@ class RDFEmitter(FormatEmitter):
             bogus_relations = {}
 
         for entry in self.entries:
-            standardNames = entry.get('standardName',[])
+            standardNames = entry.get('standardName',entry.get('hasStandardName',[]))
             standardName = standardNames and standardNames[0]['sn'] or None
             if standardName == None:
                 print "skipping entry without a standardName"
+                print entry
                 continue
 
             writer = self.get_entity(
@@ -476,7 +602,7 @@ class N3Emitter(RDFEmitter):
                 format="n3"))
 
 class ContextEmitter(RDFEmitter):
-    def __init__(self,options):
+    def __init__(self, options):
         super(ContextEmitter, self).__init__(options)
         self.store = ConjunctiveGraph()
         self.universal = Graph(self.store.store,LOCAL['Universal']) # really only needed by ContextEmitter
@@ -506,6 +632,8 @@ if __name__ == "__main__": # Prevents this program from running if called by ano
     defaults = dict(
         human = False,
         regexes = 'orlando2RDFregex4.txt',
+        xpaths = 'orlando2RDFxpath3.txt',
+        rules = 'regexes',
         infile = 'orlando_all_entries_2013-03-04.xml',
         only_predicates = only_predicates,
         outfile = 'orlando_all_entries_2013-03-04.json')
@@ -527,6 +655,14 @@ if __name__ == "__main__": # Prevents this program from running if called by ano
                       default = defaults['regexes'],
                       help = "regex tests filename, default: "+\
                           defaults['regexes'])
+    parser.add_option("--xpaths",
+                      default = defaults['xpaths'],
+                      help = "xpaths tests filename, default: "+\
+                          defaults['xpaths'])
+    parser.add_option("--rules",
+                      default = defaults['rules'],
+                      help = "use 'xpaths' or 'regexes', default: "+\
+                          defaults['rules'])
     parser.add_option("--infile",
                       default = defaults['infile'],
                       help = "input filename, default:"+\
