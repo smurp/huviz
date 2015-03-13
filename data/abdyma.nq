@@ -1,377 +1,395 @@
 
-<B> <http://xmlns.com/foaf/0.1/name> "English" <Universal> .
-<BA> <http://xmlns.com/foaf/0.1/name> "1867-07-19" <Universal> .
-<BB> <http://xmlns.com/foaf/0.1/name> "ONLY" <Universal> .
-<BC> <http://xmlns.com/foaf/0.1/name> "PROFESSIONAL" <Universal> .
-<BD> <http://xmlns.com/foaf/0.1/name> "professional" <Universal> .
-<BE> <http://xmlns.com/foaf/0.1/name> "Rejected Addresses" <Universal> .
-<BF> <http://xmlns.com/foaf/0.1/name> "New Monthly Magazine" <Universal> .
-<BG> <http://xmlns.com/foaf/0.1/name> "Metropolitan" <Universal> .
-<BH> <http://xmlns.com/foaf/0.1/name> "The Keepsake" <Universal> .
-<BI> <http://xmlns.com/foaf/0.1/name> "Literary Souvenir" <Universal> .
-<BJ> <http://xmlns.com/foaf/0.1/name> "Forget-Me-Not" <Universal> .
-<BK> <http://xmlns.com/foaf/0.1/name> "The Juvenile Forget-Me-Not" <Universal> .
-<BL> <http://xmlns.com/foaf/0.1/name> "Ackermann's Juvenile Forget-Me-Not" <Universal> .
-<BM> <http://xmlns.com/foaf/0.1/name> "Book of Beauty" <Universal> .
-<BN> <http://xmlns.com/foaf/0.1/name> "Friendship's Offering" <Universal> .
-<BO> <http://xmlns.com/foaf/0.1/name> "A New Year's Gift" <Universal> .
-<BP> <http://xmlns.com/foaf/0.1/name> "My Very Particular Friend" <Universal> .
-<BQ> <http://xmlns.com/foaf/0.1/name> "Comic Offering" <Universal> .
-<BR> <http://xmlns.com/foaf/0.1/name> "Poetry" <Universal> .
-<BS> <http://xmlns.com/foaf/0.1/name> "Feminist Companion" <Universal> .
-<BT> <http://xmlns.com/foaf/0.1/name> "The Poetess" <Universal> .
-<BU> <http://xmlns.com/foaf/0.1/name> "The Dream of the Poetess" <Universal> .
-<BV> <http://xmlns.com/foaf/0.1/name> "A Match of Affection" <Universal> .
-<BW> <http://xmlns.com/foaf/0.1/name> "The Chaperon's Complaint" <Universal> .
-<BX> <http://xmlns.com/foaf/0.1/name> "A Governess Wanted" <Universal> .
-<BY> <http://xmlns.com/foaf/0.1/name> "An Appeal on Behalf of Governesses" <Universal> .
-<BZ> <http://xmlns.com/foaf/0.1/name> "The Writer of the People" <Universal> .
-<C> <http://xmlns.com/foaf/0.1/name> "Abdy, Albert Channing" <Universal> .
-<CA> <http://xmlns.com/foaf/0.1/name> "1" <Universal> .
-<CB> <http://xmlns.com/foaf/0.1/name> "1797-02-25" <Universal> .
-<CC> <http://xmlns.com/foaf/0.1/name> "Smith, Maria,, 1773 - 1829" <Universal> .
-<CD> <http://xmlns.com/foaf/0.1/name> "England" <Universal> .
-<CE> <http://xmlns.com/foaf/0.1/name> "Beauty" <Universal> .
-<CF> <http://xmlns.com/foaf/0.1/name> "marriage market" <Universal> .
-<CG> <http://xmlns.com/foaf/0.1/name> "Governess" <Universal> .
-<CH> <http://xmlns.com/foaf/0.1/name> "plight of governesses" <Universal> .
-<CI> <http://xmlns.com/foaf/0.1/name> "Russell Square" <Universal> .
-<CJ> <http://xmlns.com/foaf/0.1/name> "science" <Universal> .
-<CK> <http://xmlns.com/foaf/0.1/name> "7 Upper Marine Terrace" <Universal> .
-<CL> <http://xmlns.com/foaf/0.1/name> "Margate" <Universal> .
-<CM> <http://xmlns.com/foaf/0.1/name> "Broadstairs" <Universal> .
-<CN> <http://xmlns.com/foaf/0.1/name> ".2: 178Interested in science, she was frustrated by how few of its mysteries she could comprehend.1Marriage1821Maria Smith married John Channing Abdy, the rector of a  Southwark" <Universal> .
-<CO> <http://xmlns.com/foaf/0.1/name> "Maria" <Universal> .
-<CP> <http://xmlns.com/foaf/0.1/name> " Poetry" <Universal> .
-<D> <http://xmlns.com/foaf/0.1/name> "Smith" <Universal> .
-<E> <http://xmlns.com/foaf/0.1/name> "Southwark" <Universal> .
-<F> <http://xmlns.com/foaf/0.1/name> "London" <Universal> .
-<G> <http://xmlns.com/foaf/0.1/name> "Isle of Thanet" <Universal> .
-<H> <http://xmlns.com/foaf/0.1/name> "Middlesex" <Universal> .
-<I> <http://xmlns.com/foaf/0.1/name> "Surrey" <Universal> .
-<J> <http://xmlns.com/foaf/0.1/name> "Kent" <Universal> .
-<K> <http://xmlns.com/foaf/0.1/name> "; she was an only child.2: 178Early YearsAs a member of the English professional classes and an adherent of the established Anglican church, she was presumably white and relatively privileged, but little is known of her life. Her mother's family were Dissenters.MA's mother, Maria Smith, bore this name both before and after her marriage.Richard Smith, her father, was a solicitor.MA's maternal uncles, James and Horace Smith, who were influential in her early life, wrote Rejected Addresses, 1812.She grew up in the area of Russell Square.2: 178Interested in science, she was frustrated by how few of its mysteries she could comprehend.1Marriage1821Maria Smith married John Channing Abdy, the rector of a  Southwark church (variously given as St John's or St George the Martyr's).12: 178MA's husband died in 1845.Their only child, Albert Channing, was born by 3 July 1829. He grew up to become a clergyman.2: 178Death19 July 1867MA died at 7 Upper Marine Terrace in Margate.2: 178The cause was pronounced decay of nature2: 178 by the doctor present at her death. She was buried in St. Peter's Churchyard, on the Isle of Thanet" <Universal> .
-<L> <http://xmlns.com/foaf/0.1/name> ".2: 178The cause was pronounced decay of nature2: 178 by the doctor present at her death. She was buried in St. Peter's Churchyard, on the Isle of Thanet" <Universal> .
-<M> <http://xmlns.com/foaf/0.1/name> "presumably white" <Universal> .
-<N> <http://xmlns.com/foaf/0.1/name> "writer" <Universal> .
-<O> <http://xmlns.com/foaf/0.1/name> "Anglican Church" <Universal> .
-<P> <http://xmlns.com/foaf/0.1/name> "Dissenters" <Universal> .
-<Q> <http://xmlns.com/foaf/0.1/name> "British Library" <Universal> .
-<R> <http://xmlns.com/foaf/0.1/name> "Smith, Richard" <Universal> .
-<S> <http://xmlns.com/foaf/0.1/name> "Smith, Horace" <Universal> .
-<T> <http://xmlns.com/foaf/0.1/name> "Hemans, Felicia" <Universal> .
-<U> <http://xmlns.com/foaf/0.1/name> "Ackermann, Rudolph" <Universal> .
-<V> <http://xmlns.com/foaf/0.1/name> "POETRY" <Universal> .
-<W> <http://xmlns.com/foaf/0.1/name> "RELIGIOUS" <Universal> .
-<X> <http://xmlns.com/foaf/0.1/name> "PERIODICAL" <Universal> .
-<Y> <http://xmlns.com/foaf/0.1/name> "DEVOTIONAL" <Universal> .
-<Z> <http://xmlns.com/foaf/0.1/name> "SKETCH" <Universal> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#archivallocationConnectionToOrganization> <Q> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#archivallocationConnectionToOrganization> <Q> <w--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#archivallocationConnectionToOrganization> <Q> <w--abdyma--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#birthPosition> <BB> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#birthPosition> <BB> <b--abdyma--0--DIV1--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#bornInRegion> <H> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#bornInRegion> <H> <b--abdyma--0--DIV1--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#bornInSettlement> <F> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#bornInSettlement> <F> <b--abdyma--0--DIV1--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#childOf> <CC> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#childOf> <CC> <b--abdyma--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#childOf> <R> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#childOf> <R> <b--abdyma--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToOrganization> <O> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToOrganization> <O> <b--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToOrganization> <O> <b--abdyma--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToOrganization> <O> <b--abdyma--0--P--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToOrganization> <P> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToOrganization> <P> <b--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToOrganization> <P> <b--abdyma--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToOrganization> <P> <b--abdyma--0--P--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToOrganization> <Q> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToOrganization> <Q> <w--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToOrganization> <Q> <w--abdyma--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToOrganization> <Q> <w--abdyma--0--P--6> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <C> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <C> <b--abdyma--0--DIV1--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <C> <b--abdyma--0--DIV2--10> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <C> <b--abdyma--0--P--8> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <C> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <C> <w--abdyma--0--DIV1--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <C> <w--abdyma--0--DIV2--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <C> <w--abdyma--0--P--11> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <R> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <R> <b--abdyma--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <R> <b--abdyma--0--DIV2--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <R> <b--abdyma--0--P--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <S> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <S> <b--abdyma--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <S> <b--abdyma--0--DIV2--6> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <S> <b--abdyma--0--P--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <S> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <S> <w--abdyma--0--DIV1--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <S> <w--abdyma--0--DIV2--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <S> <w--abdyma--0--P--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <T> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <T> <w--abdyma--0--P--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <U> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <U> <w--abdyma--0--DIV1--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <U> <w--abdyma--0--DIV2--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <U> <w--abdyma--0--P--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithAddress> <CK> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithAddress> <CK> <b--abdyma--0--DIV1--8> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithAddress> <CK> <b--abdyma--0--DIV2--11> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithJob> <I> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithJob> <I> <b--abdyma--0--DIV1--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithJob> <I> <b--abdyma--0--DIV2--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithJob> <J> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithJob> <N> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithJob> <N> <b--abdyma--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithJob> <N> <b--abdyma--0--DIV2--6> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithJob> <N> <b--abdyma--0--P--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithPlace> <CI> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithPlace> <CI> <b--abdyma--0--DIV1--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithPlace> <CI> <b--abdyma--0--DIV2--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithPlace> <CI> <b--abdyma--0--P--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <G> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <G> <b--abdyma--0--DIV1--8> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <G> <b--abdyma--0--DIV2--11> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <G> <b--abdyma--0--P--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <H> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <H> <b--abdyma--0--DIV1--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <H> <b--abdyma--0--DIV1--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <H> <b--abdyma--0--DIV2--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <H> <b--abdyma--0--DIV2--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <H> <b--abdyma--0--P--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <I> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <I> <b--abdyma--0--DIV1--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <I> <b--abdyma--0--DIV2--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <J> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <J> <b--abdyma--0--DIV1--8> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <J> <b--abdyma--0--DIV2--11> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <J> <b--abdyma--0--P--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <K> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <L> <b--abdyma--0--DIV1--8> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <L> <b--abdyma--0--DIV2--11> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <CL> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <CL> <b--abdyma--0--DIV1--8> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <CL> <b--abdyma--0--DIV2--11> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <CM> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <CM> <b--abdyma--0--DIV1--8> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <CM> <b--abdyma--0--DIV2--11> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <CM> <b--abdyma--0--P--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <CN> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <E> <b--abdyma--0--DIV1--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <E> <b--abdyma--0--DIV2--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <F> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <F> <b--abdyma--0--DIV1--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <F> <b--abdyma--0--DIV1--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <F> <b--abdyma--0--DIV1--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <F> <b--abdyma--0--DIV2--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <F> <b--abdyma--0--DIV2--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <F> <b--abdyma--0--DIV2--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <F> <b--abdyma--0--P--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BE> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BE> <b--abdyma--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BE> <b--abdyma--0--DIV2--6> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BE> <b--abdyma--0--P--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BF> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BF> <w--abdyma--0--DIV1--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BF> <w--abdyma--0--DIV2--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BF> <w--abdyma--0--P--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BG> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BG> <w--abdyma--0--DIV1--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BG> <w--abdyma--0--DIV2--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BG> <w--abdyma--0--P--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BH> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BH> <w--abdyma--0--DIV1--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BH> <w--abdyma--0--DIV2--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BH> <w--abdyma--0--P--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BI> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BI> <w--abdyma--0--DIV1--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BI> <w--abdyma--0--DIV2--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BI> <w--abdyma--0--P--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BJ> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BJ> <w--abdyma--0--DIV1--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BJ> <w--abdyma--0--DIV2--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BJ> <w--abdyma--0--P--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BK> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BK> <w--abdyma--0--DIV1--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BK> <w--abdyma--0--DIV2--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BK> <w--abdyma--0--P--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BL> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BL> <w--abdyma--0--DIV1--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BL> <w--abdyma--0--DIV2--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BL> <w--abdyma--0--P--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BM> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BM> <w--abdyma--0--DIV1--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BM> <w--abdyma--0--DIV2--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BM> <w--abdyma--0--P--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BN> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BN> <w--abdyma--0--DIV1--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BN> <w--abdyma--0--DIV2--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BN> <w--abdyma--0--P--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BO> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BO> <w--abdyma--0--DIV1--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BO> <w--abdyma--0--DIV2--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BO> <w--abdyma--0--P--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BP> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BP> <w--abdyma--0--DIV1--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BP> <w--abdyma--0--DIV2--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BP> <w--abdyma--0--P--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BQ> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BQ> <w--abdyma--0--DIV1--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BQ> <w--abdyma--0--DIV2--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BQ> <w--abdyma--0--P--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BR> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BR> <w--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BR> <w--abdyma--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BR> <w--abdyma--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BR> <w--abdyma--0--DIV2--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BR> <w--abdyma--0--P--10> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BS> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BS> <w--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BS> <w--abdyma--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BS> <w--abdyma--0--P--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BT> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BT> <w--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BT> <w--abdyma--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BT> <w--abdyma--0--P--8> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BU> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BU> <w--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BU> <w--abdyma--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BU> <w--abdyma--0--P--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BV> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BV> <w--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BV> <w--abdyma--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BV> <w--abdyma--0--P--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BW> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BW> <w--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BW> <w--abdyma--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BW> <w--abdyma--0--P--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BX> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BX> <w--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BX> <w--abdyma--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BX> <w--abdyma--0--P--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BY> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BY> <w--abdyma--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BY> <w--abdyma--0--DIV2--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BZ> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BZ> <w--abdyma--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BZ> <w--abdyma--0--DIV2--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#connectionWithWork> <BZ> <w--abdyma--0--P--10> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#culturalInfluence> <M> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#culturalInfluence> <M> <b--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#dateOfBirth> <CB> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#dateOfBirth> <CB> <b--abdyma--0--DIV1--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#dateOfDeath> <BA> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#dateOfDeath> <BA> <b--abdyma--0--DIV1--8> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#diedInGeog> <CD> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#diedInGeog> <CD> <b--abdyma--0--DIV1--8> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#diedInRegion> <G> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#diedInRegion> <G> <b--abdyma--0--DIV1--8> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#diedInRegion> <J> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#diedInRegion> <J> <b--abdyma--0--DIV1--8> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#givenName> <CO> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#givenName> <CO> <b--abdyma--0--DIV1--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#givenName> <CO> <b--abdyma--0--DIV2--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#livedInGeog> <CD> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#livedInGeog> <CD> <b--abdyma--0--DIV1--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#livedInRegion> <H> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#livedInRegion> <H> <b--abdyma--0--DIV1--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#livedInRegion> <J> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#livedInSettlement> <E> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#livedInSettlement> <F> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#manuscriptHistoryConnectionToPerson> <C> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#manuscriptHistoryConnectionToPerson> <C> <w--abdyma--0--DIV1--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#manuscriptHistoryConnectionToPerson> <C> <w--abdyma--0--DIV2--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#numberOfChildren> <CA> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#numberOfChildren> <CA> <b--abdyma--0--DIV1--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#numberOfChildren> <CA> <b--abdyma--0--DIV2--10> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#numberOfChildren> <CA> <b--abdyma--0--P--8> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#ofNationality> <B> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#ofNationality> <B> <b--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#parentOf> <C> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#parentOf> <C> <b--abdyma--0--DIV1--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#parentOf> <C> <b--abdyma--0--DIV2--10> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#parentOf> <C> <b--abdyma--0--P--8> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#politicalInfluence> <BC> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#politicalInfluence> <BC> <b--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#politicalInfluence> <BD> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#politicalInfluence> <BD> <b--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#religiousInfluence> <O> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#religiousInfluence> <O> <b--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#religiousInfluence> <P> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#religiousInfluence> <P> <b--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#studied> <CJ> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#studied> <CJ> <b--abdyma--0--DIV1--6> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#surname> <D> <b--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#surname> <D> <b--abdyma--0--DIV1--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#surname> <D> <b--abdyma--0--DIV2--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#textualfeaturestoText> <BT> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#textualfeaturestoText> <BT> <w--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#textualfeaturestoText> <BT> <w--abdyma--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#textualfeaturestoText> <BU> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#textualfeaturestoText> <BU> <w--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#textualfeaturestoText> <BU> <w--abdyma--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#textualfeaturestoText> <BV> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#textualfeaturestoText> <BV> <w--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#textualfeaturestoText> <BV> <w--abdyma--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#textualfeaturestoText> <BW> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#textualfeaturestoText> <BW> <w--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#textualfeaturestoText> <BW> <w--abdyma--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#textualfeaturestoText> <BX> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#textualfeaturestoText> <BX> <w--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#textualfeaturestoText> <BX> <w--abdyma--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#toneStyleConnectionToText> <BV> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#toneStyleConnectionToText> <BV> <w--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#toneStyleConnectionToText> <BV> <w--abdyma--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#toneStyleConnectionToText> <BW> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#toneStyleConnectionToText> <BW> <w--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#toneStyleConnectionToText> <BW> <w--abdyma--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wrote> <CP> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wrote> <CP> <w--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wrote> <CP> <w--abdyma--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteInGenre> <V> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteInGenre> <V> <w--abdyma--0--DIV1--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteInGenre> <V> <w--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteInGenre> <V> <w--abdyma--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteInGenre> <V> <w--abdyma--0--DIV2--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteInGenre> <V> <w--abdyma--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteInGenre> <V> <w--abdyma--0--DIV2--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteInGenre> <V> <w--abdyma--0--P--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteInGenre> <V> <w--abdyma--0--P--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteInGenre> <V> <w--abdyma--0--P--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteInGenre> <W> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteInGenre> <W> <w--abdyma--0--DIV1--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteInGenre> <W> <w--abdyma--0--DIV2--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteInGenre> <W> <w--abdyma--0--P--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteInGenre> <W> <w--abdyma--0--P--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteInGenre> <X> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteInGenre> <X> <w--abdyma--0--DIV1--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteInGenre> <X> <w--abdyma--0--DIV2--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteInGenre> <X> <w--abdyma--0--P--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteInGenre> <Y> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteInGenre> <Y> <w--abdyma--0--DIV1--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteInGenre> <Y> <w--abdyma--0--DIV2--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteInGenre> <Y> <w--abdyma--0--P--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteInGenre> <Z> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteInGenre> <Z> <w--abdyma--0--DIV1--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteInGenre> <Z> <w--abdyma--0--DIV2--2> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteInGenre> <Z> <w--abdyma--0--P--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteOnTopic> <CE> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteOnTopic> <CE> <w--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteOnTopic> <CE> <w--abdyma--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteOnTopic> <CE> <w--abdyma--0--P--8> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteOnTopic> <CF> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteOnTopic> <CF> <w--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteOnTopic> <CF> <w--abdyma--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteOnTopic> <CF> <w--abdyma--0--P--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteOnTopic> <CG> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteOnTopic> <CG> <w--abdyma--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteOnTopic> <CG> <w--abdyma--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteOnTopic> <CG> <w--abdyma--0--P--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteOnTopic> <CH> <w--abdyma--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteOnTopic> <CH> <w--abdyma--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteOnTopic> <CH> <w--abdyma--0--DIV2--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#wroteOnTopic> <CH> <w--abdyma--0--P--10> .
+<B> <http://xmlns.com/foaf/0.1/name> "The British Library has two editions which include personal notes to friends." <Universal> .
+<BA> <http://xmlns.com/foaf/0.1/name> "James" <Universal> .
+<BB> <http://xmlns.com/foaf/0.1/name> "Horace Smith" <Universal> .
+<BC> <http://xmlns.com/foaf/0.1/name> "25 February 1797 Maria Smith (later MA ) was born in London ; she was an only child." <Universal> .
+<BD> <http://xmlns.com/foaf/0.1/name> "English" <Universal> .
+<BE> <http://xmlns.com/foaf/0.1/name> "Interested in science, she was frustrated by how few of its mysteries she could comprehend." <Universal> .
+<BF> <http://xmlns.com/foaf/0.1/name> "This popular poem is one of MA's humorous pieces, which according to critic Paula R. Feldman were her most imaginative and successful compositions. Although some of her devotional verse has been viewed as monotonous, her comic pieces were witty and perceptive, and were possibly influenced by the writing style of her uncles, James and Horace Smith." <Universal> .
+<BG> <http://xmlns.com/foaf/0.1/name> "In the late nineteenth century MA's poems were praised for their religious spirit and grace of style. More recently the Feminist Companion found them witty and sharply observant with an intriguing strain of distinct but very gentle feminism." <Universal> .
+<BH> <http://xmlns.com/foaf/0.1/name> "After a century of neglect, several of her pieces have recently been included in late-twentieth-century anthologies of Romantic poets." <Universal> .
+<BI> <http://xmlns.com/foaf/0.1/name> "MA's mother, Maria Smith, bore this name both before and after her marriage. Richard Smith, her father, was a solicitor. MA's maternal uncles, James and Horace Smith, who were influential in her early life, wrote Rejected Addresses, 1812." <Universal> .
+<BJ> <http://xmlns.com/foaf/0.1/name> "1821 Maria Smith married John Channing Abdy, the rector of a Southwark church (variously given as St John's or St George the Martyr's). MA's husband died in 1845. Their only child, Albert Channing, was born by 3 July 1829. He grew up to become a clergyman." <Universal> .
+<BK> <http://xmlns.com/foaf/0.1/name> "This popular poem is one of MA's humorous pieces, which according to critic Paula R. Feldman were her most imaginative and successful" <Universal> .
+<BL> <http://xmlns.com/foaf/0.1/name> "More recently the Feminist Companion found them witty and sharply observant with an intriguing strain of distinct but very gentle feminism." <Universal> .
+<BM> <http://xmlns.com/foaf/0.1/name> "USA" <Universal> .
+<BN> <http://xmlns.com/foaf/0.1/name> "presumably white and relatively privileged, but little is known of her life. Her mother's family were" <Universal> .
+<BO> <http://xmlns.com/foaf/0.1/name> "solicitor." <Universal> .
+<BP> <http://xmlns.com/foaf/0.1/name> "wrote" <Universal> .
+<BQ> <http://xmlns.com/foaf/0.1/name> "rector of a" <Universal> .
+<BR> <http://xmlns.com/foaf/0.1/name> "clergyman." <Universal> .
+<BS> <http://xmlns.com/foaf/0.1/name> "writer" <Universal> .
+<BT> <http://xmlns.com/foaf/0.1/name> "M. A." <Universal> .
+<BU> <http://xmlns.com/foaf/0.1/name> "1835--" <Universal> .
+<BV> <http://xmlns.com/foaf/0.1/name> "1835 and onwards), the" <Universal> .
+<BW> <http://xmlns.com/foaf/0.1/name> "England" <Universal> .
+<BX> <http://xmlns.com/foaf/0.1/name> "MA ) was born in" <Universal> .
+<BY> <http://xmlns.com/foaf/0.1/name> "Maria Smith" <Universal> .
+<BZ> <http://xmlns.com/foaf/0.1/name> "science, she was" <Universal> .
+<C> <http://xmlns.com/foaf/0.1/name> "MA's husband, the Reverend John Channing, encouraged her to submit poems to the New Monthly Magazine. These appeared under her initials. She also contributed to the" <Universal> .
+<CA> <http://xmlns.com/foaf/0.1/name> "MA's mother, Maria Smith, bore this name both before and after her marriage." <Universal> .
+<CB> <http://xmlns.com/foaf/0.1/name> "Richard Smith, her father, was a solicitor." <Universal> .
+<CC> <http://xmlns.com/foaf/0.1/name> "MA's maternal uncles, James and Horace Smith, who were influential in her early life, wrote Rejected Addresses, 1812." <Universal> .
+<CD> <http://xmlns.com/foaf/0.1/name> "1821 Maria Smith married John Channing Abdy, the rector of a Southwark church (variously given as St John's or St George the Martyr's). MA's husband died in 1845." <Universal> .
+<CE> <http://xmlns.com/foaf/0.1/name> "Their only child, Albert Channing, was born by 3 July 1829. He grew up to become a clergyman." <Universal> .
+<CF> <http://xmlns.com/foaf/0.1/name> "Abdy, the Rev. John Channing" <Universal> .
+<CG> <http://xmlns.com/foaf/0.1/name> "John Channing Abdy" <Universal> .
+<CH> <http://xmlns.com/foaf/0.1/name> "MA, as Mrs. Abdy, printed for private circulation the first volume in her eight-volume series Poetry." <Universal> .
+<CI> <http://xmlns.com/foaf/0.1/name> "19 July 1867 MA died at 7 Upper Marine Terrace in Margate. The cause was pronounced decay of nature by the doctor present at her death. She was buried in St. Peter's Churchyard, on the Isle of Thanet in Kent." <Universal> .
+<CJ> <http://xmlns.com/foaf/0.1/name> "Other poems in the series attest to MA's desire to further the cause of the oppressed." <Universal> .
+<CK> <http://xmlns.com/foaf/0.1/name> "Southwark" <Universal> .
+<CL> <http://xmlns.com/foaf/0.1/name> "Maria Smith married" <Universal> .
+<CM> <http://xmlns.com/foaf/0.1/name> "John Channing Abdy, the" <Universal> .
+<CN> <http://xmlns.com/foaf/0.1/name> "MA's husband died in" <Universal> .
+<CO> <http://xmlns.com/foaf/0.1/name> "7 Upper Marine Terrace in" <Universal> .
+<CP> <http://xmlns.com/foaf/0.1/name> "Kent" <Universal> .
+<CQ> <http://xmlns.com/foaf/0.1/name> "Isle of Thanet" <Universal> .
+<CR> <http://xmlns.com/foaf/0.1/name> "Smith, Richard" <Universal> .
+<CS> <http://xmlns.com/foaf/0.1/name> "Richard Smith" <Universal> .
+<CT> <http://xmlns.com/foaf/0.1/name> "1797-02-25" <Universal> .
+<CU> <http://xmlns.com/foaf/0.1/name> "25 February 1797" <Universal> .
+<CV> <http://xmlns.com/foaf/0.1/name> "and her work appeared in a number of annuals : The Keepsake ( 1835 and onwards), the Literary Souvenir, the Forget-Me-Not, The Juvenile Forget-Me-Not, Ackermann's Juvenile Forget-Me-Not. the Book of Beauty, Friendship's Offering, and A New Year's Gift." <Universal> .
+<CW> <http://xmlns.com/foaf/0.1/name> "These appeared under her initials." <Universal> .
+<CX> <http://xmlns.com/foaf/0.1/name> "1821--" <Universal> .
+<CY> <http://xmlns.com/foaf/0.1/name> "1845--" <Universal> .
+<CZ> <http://xmlns.com/foaf/0.1/name> "1821" <Universal> .
+<D> <http://xmlns.com/foaf/0.1/name> "compositions. Although some of her devotional verse has been viewed as monotonous, her comic pieces were witty and perceptive, and were possibly influenced by the writing style of her uncles, James and Horace Smith." <Universal> .
+<DA> <http://xmlns.com/foaf/0.1/name> "1845." <Universal> .
+<DB> <http://xmlns.com/foaf/0.1/name> "Middlesex" <Universal> .
+<DC> <http://xmlns.com/foaf/0.1/name> "MA's books and papers were inherited by her son, Albert Channing." <Universal> .
+<DD> <http://xmlns.com/foaf/0.1/name> "She grew up in the area of Russell Square." <Universal> .
+<DE> <http://xmlns.com/foaf/0.1/name> "Abdy, Albert Channing" <Universal> .
+<DF> <http://xmlns.com/foaf/0.1/name> "MA's books and papers were inherited by her son," <Universal> .
+<DG> <http://xmlns.com/foaf/0.1/name> "Albert Channing." <Universal> .
+<DH> <http://xmlns.com/foaf/0.1/name> "MA produced a prize-winning poem, An Appeal on Behalf of Governesses." <Universal> .
+<DI> <http://xmlns.com/foaf/0.1/name> "MA's husband, the Reverend" <Universal> .
+<DJ> <http://xmlns.com/foaf/0.1/name> "John Channing, encouraged her to submit" <Universal> .
+<DK> <http://xmlns.com/foaf/0.1/name> "James and" <Universal> .
+<DL> <http://xmlns.com/foaf/0.1/name> "Horace Smith." <Universal> .
+<DM> <http://xmlns.com/foaf/0.1/name> "Ackermann, Rudolph" <Universal> .
+<DN> <http://xmlns.com/foaf/0.1/name> "Ackermann's Juvenile Forget-Me-Not" <Universal> .
+<DO> <http://xmlns.com/foaf/0.1/name> "Surrey" <Universal> .
+<DP> <http://xmlns.com/foaf/0.1/name> "1867-07-19" <Universal> .
+<DQ> <http://xmlns.com/foaf/0.1/name> "19 July 1867" <Universal> .
+<DR> <http://xmlns.com/foaf/0.1/name> "MA's husband, the Reverend John Channing, encouraged her to submit poems to the New Monthly Magazine. These appeared under her initials. She also contributed to the Metropolitan (edited by Thomas Campbell )," <Universal> .
+<DS> <http://xmlns.com/foaf/0.1/name> "Albert Channing" <Universal> .
+<DT> <http://xmlns.com/foaf/0.1/name> "1" <Universal> .
+<DU> <http://xmlns.com/foaf/0.1/name> "Smith" <Universal> .
+<DV> <http://xmlns.com/foaf/0.1/name> "Abdy" <Universal> .
+<DW> <http://xmlns.com/foaf/0.1/name> "MA died at" <Universal> .
+<DX> <http://xmlns.com/foaf/0.1/name> "Campbell, Thomas,, 1777 - 1844" <Universal> .
+<DY> <http://xmlns.com/foaf/0.1/name> "Thomas Campbell )," <Universal> .
+<DZ> <http://xmlns.com/foaf/0.1/name> "MA's desire to further the cause of the oppressed." <Universal> .
+<E> <http://xmlns.com/foaf/0.1/name> "Between 1838 and 1862 seven more volumes were privately printed, under the same title." <Universal> .
+<EA> <http://xmlns.com/foaf/0.1/name> "MA, whose work spans the Romantic and Victorian periods, was a poet who wrote wittily on religious and secular topics, and was an early champion of the governess. With Felicia Hemans, she was the one of the two most prolific British contributors to annuals in the USA." <Universal> .
+<EB> <http://xmlns.com/foaf/0.1/name> "Smith, Maria,, 1773 - 1829" <Universal> .
+<EC> <http://xmlns.com/foaf/0.1/name> "Anglican church, she was" <Universal> .
+<ED> <http://xmlns.com/foaf/0.1/name> "Dissenters." <Universal> .
+<EE> <http://xmlns.com/foaf/0.1/name> "Anglican Church" <Universal> .
+<EF> <http://xmlns.com/foaf/0.1/name> "Dissenters" <Universal> .
+<EG> <http://xmlns.com/foaf/0.1/name> "Anglican" <Universal> .
+<EH> <http://xmlns.com/foaf/0.1/name> "Maria" <Universal> .
+<EI> <http://xmlns.com/foaf/0.1/name> "SELF-TAUGHT" <Universal> .
+<EJ> <http://xmlns.com/foaf/0.1/name> "ONLY" <Universal> .
+<EK> <http://xmlns.com/foaf/0.1/name> "professional classes and an adherent of the established" <Universal> .
+<EL> <http://xmlns.com/foaf/0.1/name> "PROFESSIONAL" <Universal> .
+<EM> <http://xmlns.com/foaf/0.1/name> "British Library" <Universal> .
+<EN> <http://xmlns.com/foaf/0.1/name> "British Library has two editions which include personal notes to friends." <Universal> .
+<F> <http://xmlns.com/foaf/0.1/name> "In the late nineteenth century MA's poems were praised for their religious spirit and grace of style." <Universal> .
+<G> <http://xmlns.com/foaf/0.1/name> "MA was writing rhymes at the age of nine, demonstrating a talent for literature at an early age." <Universal> .
+<H> <http://xmlns.com/foaf/0.1/name> "MA produced a prize-winning" <Universal> .
+<I> <http://xmlns.com/foaf/0.1/name> "Mira" <Universal> .
+<J> <http://xmlns.com/foaf/0.1/name> "Broadstairs" <Universal> .
+<K> <http://xmlns.com/foaf/0.1/name> "Margate" <Universal> .
+<L> <http://xmlns.com/foaf/0.1/name> ", on the" <Universal> .
+<M> <http://xmlns.com/foaf/0.1/name> "Maria Smith Abdy M. A. Mira" <Universal> .
+<N> <http://xmlns.com/foaf/0.1/name> "decay of nature by the doctor present at her death. She was buried in" <Universal> .
+<O> <http://xmlns.com/foaf/0.1/name> "MA, as" <Universal> .
+<P> <http://xmlns.com/foaf/0.1/name> "London" <Universal> .
+<Q> <http://xmlns.com/foaf/0.1/name> "Hemans, Felicia" <Universal> .
+<R> <http://xmlns.com/foaf/0.1/name> "MA, whose work spans the Romantic and Victorian periods, was a" <Universal> .
+<S> <http://xmlns.com/foaf/0.1/name> "Felicia Hemans, she was the one of the two most prolific British contributors to annuals in the" <Universal> .
+<T> <http://xmlns.com/foaf/0.1/name> "Feldman, Paula R." <Universal> .
+<U> <http://xmlns.com/foaf/0.1/name> "MA's humorous pieces, which according to critic" <Universal> .
+<V> <http://xmlns.com/foaf/0.1/name> "Paula R. Feldman were" <Universal> .
+<W> <http://xmlns.com/foaf/0.1/name> "MA's" <Universal> .
+<X> <http://xmlns.com/foaf/0.1/name> "Smith, James,, 1775 - 1839" <Universal> .
+<Y> <http://xmlns.com/foaf/0.1/name> "Smith, Horace" <Universal> .
+<Z> <http://xmlns.com/foaf/0.1/name> "MA" <Universal> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#bestKnownWork> <CH> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#bestKnownWorkConnectionToPerson> <O> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#birth> <BC> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#birthConnectionToDate> <CT> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#birthConnectionToDate> <CT> <b--abdyma--0--DIV1--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#birthConnectionToDate> <CU> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#birthConnectionToGeog> <BW> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#birthConnectionToGeog> <BW> <b--abdyma--0--DIV1--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#birthConnectionToPerson> <BX> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#birthConnectionToRegion> <DB> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#birthConnectionToRegion> <DB> <b--abdyma--0--DIV1--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#birthConnectionToSettlement> <P> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#death> <CI> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#deathConnectionToAddress> <CO> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#deathConnectionToDate> <DP> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#deathConnectionToDate> <DP> <b--abdyma--0--DIV1--8> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#deathConnectionToDate> <DQ> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#deathConnectionToGeog> <BW> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#deathConnectionToGeog> <BW> <b--abdyma--0--DIV1--8> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#deathConnectionToPerson> <DW> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#deathConnectionToRegion> <CP> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#deathConnectionToRegion> <CP> <b--abdyma--0--DIV1--8> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#deathConnectionToRegion> <CP> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#deathConnectionToRegion> <CQ> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#deathConnectionToSettlement> <J> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#deathConnectionToSettlement> <J> <b--abdyma--0--DIV1--8> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#deathConnectionToSettlement> <K> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#deathConnectionToSettlement> <L> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasAnthologization> <BH> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasAnthologization> <CV> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasAnthologizationConnectionToDate> <BU> <w--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasAnthologizationConnectionToDate> <BU> <w--abdyma--0--DIV1--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasAnthologizationConnectionToDate> <BU> <w--abdyma--0--DIV2--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasAnthologizationConnectionToDate> <BU> <w--abdyma--0--P--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasAnthologizationConnectionToDate> <BV> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasAnthologizationConnectionToPerson> <DM> <w--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasAnthologizationConnectionToPerson> <DM> <w--abdyma--0--DIV1--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasAnthologizationConnectionToPerson> <DM> <w--abdyma--0--DIV2--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasAnthologizationConnectionToPerson> <DM> <w--abdyma--0--P--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasAnthologizationConnectionToPerson> <DN> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasArchivalLocation> <B> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasArchivalLocationConnectionToOrganization> <EM> <w--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasArchivalLocationConnectionToOrganization> <EM> <w--abdyma--0--DIV1--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasArchivalLocationConnectionToOrganization> <EM> <w--abdyma--0--DIV2--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasArchivalLocationConnectionToOrganization> <EM> <w--abdyma--0--P--6> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasArchivalLocationConnectionToOrganization> <EN> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasAreaOfStudy> <BZ> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasAuthorshipDiscussion> <CH> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasAuthorshipDiscussion> <CW> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasAuthorshipDiscussionConnectionToPerson> <O> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasBirthName> <BY> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasCauseOfDeath> <N> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasClass> <EK> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasClass> <EL> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasClass> <EL> <b--abdyma--0--DIV1--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasClass> <EL> <b--abdyma--0--DIV2--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasClass> <EL> <b--abdyma--0--P--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <EC> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <ED> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <EE> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <EE> <b--abdyma--0--DIV1--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <EE> <b--abdyma--0--DIV2--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <EE> <b--abdyma--0--P--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <EF> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <EF> <b--abdyma--0--DIV1--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <EF> <b--abdyma--0--DIV2--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <EF> <b--abdyma--0--P--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <EF> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <EG> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasEditions> <E> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasEducation> <BE> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasEducationMode> <EI> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasEducationMode> <EI> <b--abdyma--0--DIV1--6> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasFamilialInfluence> <C> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasFamilialInfluence> <D> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasFamily> <BI> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasFamily> <BJ> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasFamilyMember> <CA> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasFamilyMember> <CB> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasFamilyMember> <CC> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasFamilyMember> <CD> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasFamilyMember> <CE> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasFather> <CR> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasFather> <CR> <b--abdyma--0--DIV1--4> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasFather> <CS> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasFather> <CS> <b--abdyma--0--DIV1--4> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasFirstLiteraryActivity> <G> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasFirstLiteraryActivityConnectionToPerson> <G> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasGenericRange> <EA> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasGenericRangeConnectionToGeog> <BM> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasGenericRangeConnectionToPerson> <Q> <w--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasGenericRangeConnectionToPerson> <Q> <w--abdyma--0--P--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasGenericRangeConnectionToPerson> <R> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasGenericRangeConnectionToPerson> <S> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasGivenName> <EH> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasHusband> <BY> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasHusband> <BY> <b--abdyma--0--DIV1--7> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasHusband> <CF> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasHusband> <CF> <b--abdyma--0--DIV1--7> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasHusband> <CG> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasHusband> <CG> <b--abdyma--0--DIV1--7> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasHusband> <Z> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasHusband> <Z> <b--abdyma--0--DIV1--7> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasInfluence> <C> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasInfluence> <D> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasInfluenceConnectionToPerson> <CF> <w--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasInfluenceConnectionToPerson> <CF> <w--abdyma--0--DIV1--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasInfluenceConnectionToPerson> <CF> <w--abdyma--0--DIV2--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasInfluenceConnectionToPerson> <CF> <w--abdyma--0--P--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasInfluenceConnectionToPerson> <DI> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasInfluenceConnectionToPerson> <DJ> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasInfluenceConnectionToPerson> <DK> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasInfluenceConnectionToPerson> <DL> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasInfluenceConnectionToPerson> <X> <w--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasInfluenceConnectionToPerson> <X> <w--abdyma--0--DIV1--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasInfluenceConnectionToPerson> <X> <w--abdyma--0--DIV2--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasInfluenceConnectionToPerson> <X> <w--abdyma--0--P--5> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasInfluenceConnectionToPerson> <Y> <w--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasInfluenceConnectionToPerson> <Y> <w--abdyma--0--DIV1--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasInfluenceConnectionToPerson> <Y> <w--abdyma--0--DIV2--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasInfluenceConnectionToPerson> <Y> <w--abdyma--0--P--5> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasJob> <BO> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasJob> <BP> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasJob> <BQ> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasJob> <BR> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasJob> <BS> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasJob> <BS> <b--abdyma--0--DIV1--4> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasJob> <BS> <b--abdyma--0--DIV2--6> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasJob> <BS> <b--abdyma--0--P--4> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasLiteraryInfluence> <D> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasManuscriptHistory> <DC> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasManuscriptHistoryConnectionToPerson> <DE> <w--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasManuscriptHistoryConnectionToPerson> <DE> <w--abdyma--0--DIV1--5> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasManuscriptHistoryConnectionToPerson> <DE> <w--abdyma--0--DIV2--5> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasManuscriptHistoryConnectionToPerson> <DE> <w--abdyma--0--P--11> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasManuscriptHistoryConnectionToPerson> <DF> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasManuscriptHistoryConnectionToPerson> <DG> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasMarriedName> <DV> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasModeOfPub> <CH> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasModeOfPub> <E> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasModeOfPubConnectionToPerson> <O> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasModeOfPubPrivatelyPrinted> <CH> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasModeOfPubPrivatelyPrinted> <E> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasModeOfPubPrivatelyPrintedConnectionToPerson> <O> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasMother> <BY> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasMother> <BY> <b--abdyma--0--DIV1--4> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasMother> <EB> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasMother> <EB> <b--abdyma--0--DIV1--4> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasMother> <Z> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasMother> <Z> <b--abdyma--0--DIV1--4> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasMotive> <CJ> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasMotiveConnectionToPerson> <DZ> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasName> <M> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasNationality> <BD> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasNickname> <I> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasNumberOfChildren> <DT> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasNumberOfChildren> <DT> <b--abdyma--0--DIV1--7> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasNumberOfChildren> <DT> <b--abdyma--0--DIV2--10> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasNumberOfChildren> <DT> <b--abdyma--0--P--8> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasPeriodicalPublication> <DR> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasPeriodicalPublicationConnectionToPerson> <CF> <w--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasPeriodicalPublicationConnectionToPerson> <CF> <w--abdyma--0--DIV1--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasPeriodicalPublicationConnectionToPerson> <CF> <w--abdyma--0--DIV2--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasPeriodicalPublicationConnectionToPerson> <CF> <w--abdyma--0--P--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasPeriodicalPublicationConnectionToPerson> <DI> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasPeriodicalPublicationConnectionToPerson> <DJ> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasPeriodicalPublicationConnectionToPerson> <DX> <w--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasPeriodicalPublicationConnectionToPerson> <DX> <w--abdyma--0--DIV1--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasPeriodicalPublicationConnectionToPerson> <DX> <w--abdyma--0--DIV2--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasPeriodicalPublicationConnectionToPerson> <DX> <w--abdyma--0--P--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasPeriodicalPublicationConnectionToPerson> <DY> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasPseudonym> <BT> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasRaceColour> <BN> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasReception> <BF> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasReception> <BG> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasReception> <BH> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasReceptionConnectionToPerson> <DK> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasReceptionConnectionToPerson> <DL> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasReceptionConnectionToPerson> <T> <w--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasReceptionConnectionToPerson> <T> <w--abdyma--0--DIV1--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasReceptionConnectionToPerson> <T> <w--abdyma--0--DIV2--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasReceptionConnectionToPerson> <U> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasReceptionConnectionToPerson> <V> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasReceptionConnectionToPerson> <W> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasReceptionConnectionToPerson> <X> <w--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasReceptionConnectionToPerson> <X> <w--abdyma--0--DIV1--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasReceptionConnectionToPerson> <X> <w--abdyma--0--DIV2--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasReceptionConnectionToPerson> <Y> <w--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasReceptionConnectionToPerson> <Y> <w--abdyma--0--DIV1--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasReceptionConnectionToPerson> <Y> <w--abdyma--0--DIV2--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasRecognitions> <DH> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasRecognitionsConnectionToPerson> <H> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponse> <BH> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponse> <BK> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponse> <BL> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponse> <F> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseConnectionToPerson> <T> <w--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseConnectionToPerson> <T> <w--abdyma--0--DIV1--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseConnectionToPerson> <T> <w--abdyma--0--DIV2--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseConnectionToPerson> <T> <w--abdyma--0--P--5> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseConnectionToPerson> <U> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseConnectionToPerson> <V> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseConnectionToPerson> <W> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseFormal> <BH> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseFormal> <BK> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseFormal> <BL> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseFormal> <F> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseFormalConnectionToPerson> <T> <w--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseFormalConnectionToPerson> <T> <w--abdyma--0--DIV1--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseFormalConnectionToPerson> <T> <w--abdyma--0--DIV2--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseFormalConnectionToPerson> <T> <w--abdyma--0--P--5> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseFormalConnectionToPerson> <U> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseFormalConnectionToPerson> <V> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseFormalConnectionToPerson> <W> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseGendered> <BL> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseInitial> <F> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseInitialConnectionToPerson> <W> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseNonGendered> <BK> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseNonGendered> <F> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseNonGenderedConnectionToPerson> <T> <w--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseNonGenderedConnectionToPerson> <T> <w--abdyma--0--DIV1--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseNonGenderedConnectionToPerson> <T> <w--abdyma--0--DIV2--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseNonGenderedConnectionToPerson> <T> <w--abdyma--0--P--5> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseNonGenderedConnectionToPerson> <U> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseNonGenderedConnectionToPerson> <V> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseNonGenderedConnectionToPerson> <W> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseRecent> <BK> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseRecent> <BL> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseRecentConnectionToPerson> <T> <w--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseRecentConnectionToPerson> <T> <w--abdyma--0--DIV1--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseRecentConnectionToPerson> <T> <w--abdyma--0--DIV2--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseRecentConnectionToPerson> <T> <w--abdyma--0--P--5> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseRecentConnectionToPerson> <U> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasResponseRecentConnectionToPerson> <V> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasSon> <DE> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasSon> <DE> <b--abdyma--0--DIV1--7> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasSon> <DS> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasSon> <DS> <b--abdyma--0--DIV1--7> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasSurname> <DU> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasUncle> <BA> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasUncle> <BA> <b--abdyma--0--DIV1--4> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasUncle> <BB> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasUncle> <BB> <b--abdyma--0--DIV1--4> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasUncle> <X> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasUncle> <X> <b--abdyma--0--DIV1--4> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasUncle> <Y> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasUncle> <Y> <b--abdyma--0--DIV1--4> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasUncle> <Z> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasUncle> <Z> <b--abdyma--0--DIV1--4> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasbirthPosition> <EJ> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasbirthPosition> <EJ> <b--abdyma--0--DIV1--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#hasbirthPosition> <EJ> <b--abdyma--0--DIV2--2> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#lived> <DD> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#livedConnectionToGeog> <BW> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#livedConnectionToGeog> <BW> <b--abdyma--0--DIV1--5> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#livedConnectionToRegion> <DB> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#livedConnectionToRegion> <DB> <b--abdyma--0--DIV1--5> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#livedConnectionToSettlement> <P> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#livedConnectionToSettlement> <P> <b--abdyma--0--DIV1--5> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#marriage> <CD> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#marriageConnectionToDate> <CX> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#marriageConnectionToDate> <CX> <b--abdyma--0--DIV1--7> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#marriageConnectionToDate> <CY> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#marriageConnectionToDate> <CY> <b--abdyma--0--DIV1--7> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#marriageConnectionToDate> <CZ> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#marriageConnectionToDate> <DA> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#marriageConnectionToGeog> <BW> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#marriageConnectionToGeog> <BW> <b--abdyma--0--DIV1--7> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#marriageConnectionToPerson> <CF> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#marriageConnectionToPerson> <CF> <b--abdyma--0--DIV1--7> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#marriageConnectionToPerson> <CL> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#marriageConnectionToPerson> <CM> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#marriageConnectionToPerson> <CN> _:N9e85a0dd374346d0973c169f3c94b66e .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#marriageConnectionToRegion> <DO> <b--abdyma--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#marriageConnectionToRegion> <DO> <b--abdyma--0--DIV1--7> .
+<http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://draftOrlandoOntology.org/Draft1#marriageConnectionToSettlement> <CK> _:N9e85a0dd374346d0973c169f3c94b66e .
 <http://orlando.cambridge.org/public/svPeople?person_id=abdyma> <http://xmlns.com/foaf/0.1/name> "Abdy, Maria" <Universal> .

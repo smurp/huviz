@@ -328,6 +328,7 @@ class FormatEmitter(object):
     
     def xPathRecursion(self, searchText, xpathArray, tripleCheck, recursionDepthPlus, mainSubject, entryDict, structID):
         """This is the function that processes all the xPath components of each search line"""
+        search_text = searchText
         if isinstance(searchText, etree._Element):
             searchText = etree.tounicode(searchText)
             # This is a total hack.  I don't know why but matches always had trailing text after the last XML tag
@@ -358,6 +359,9 @@ class FormatEmitter(object):
             #resultTripleTest = " ".join(resultTripleTest)
             #print resultTripleTest
         if resultTripleTest:
+            #print "searchText", searchText
+            if self.options.verbose:
+              print search_text
             if recursionDepthPlus >= len(xpathArray[tripleCheck])-1:
                 #print "resultTripleTest Type", type(resultTripleTest)
                 if isinstance(resultTripleTest, list):
@@ -369,6 +373,9 @@ class FormatEmitter(object):
                         print "stripMatch", stripMatch
                         print "stripMatchType", type(stripMatch)
                         """
+
+                        if self.options.verbose:
+                            print "    ",match
                         self.fillDict(entryDict, xpathArray, tripleCheck, mainSubject, match, structID)
                 else:
                     self.fillDict(entryDict, xpathArray, tripleCheck, mainSubject, resultTripleTest, structID)
@@ -721,6 +728,7 @@ if __name__ == "__main__": # Prevents this program from running if called by ano
        %prog 
           The default operation is equivalent to:
               ./orlandoScrape.py \\
+                 --rules regexes \\
                  --infile orlando_all_entries_2013-03-04.xml \\
                  --outfile orlando_all_entries_2013-03-04.json \\
                  --regexes orlando2RDFregex4.txt \\

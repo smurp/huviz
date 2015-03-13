@@ -1,7 +1,7 @@
 
 BASE_ARGS = \
 	--use_onto \
-	--progress
+	--progress 
 
 ARGS = 	--all_predicates ${BASE_ARGS}
 
@@ -15,7 +15,7 @@ ballrm:
 	rm ${TMPFILE}
 
 abdyma:
-	./orlandoScrape.py --outfile ${TMPFILE} --ids abdyma ${ARGS}
+	./orlandoScrape.py --outfile ${TMPFILE} --ids abdyma ${ARGS} --rules xpaths
 	sort < ${TMPFILE} > data/abdyma.nq
 	rm ${TMPFILE}
 
