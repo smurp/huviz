@@ -81,7 +81,6 @@ class TreePicker
             my_contents.classed(css_class, true)
         @show_tree(rest[1],my_contents,listener,false)
   click_handler: () =>
-    listener = @click_listener
     picker = this
     elem = d3.select(d3.event.target)
     #elem = d3.select(d3.event.currentTarget)
@@ -96,12 +95,20 @@ class TreePicker
     id = this_id or parent_id
     if not this_id
       elem = d3.select(elem.node().parentElement)
+    #picker.effect_click(id, new_state, send_leafward, listener)
+    picker.handle_click(id) #, send_leafward)
+    # This is hacky but ColorTreePicker.click_handler() needs the id too
+    return id
+  handle_click: (id) =>
+    #next_state = 
+    @go_to_next_state(id, @get_next_state(id))
+  get_next_state: (id) ->
+    elem = @id_to_elem[id]
     is_treepicker_collapsed = elem.classed('treepicker-collapse')
     is_treepicker_showing = elem.classed('treepicker-showing')
     is_treepicker_indirect_showing = elem.classed('treepicker-indirect-showing')
     # If the state is not 'showing' then make it so, otherwise 'unshowing'.
     # if it is not currently showing.
-    send_leafward = is_treepicker_collapsed
     new_state = 'showing'
     if is_treepicker_collapsed
       if is_treepicker_indirect_showing
@@ -109,9 +116,11 @@ class TreePicker
     else
       if is_treepicker_showing
         new_state = 'unshowing'
-    picker.effect_click(id, new_state, send_leafward, listener)
-    # This is hacky but ColorTreePicker.click_handler() needs the id too
-    return id
+    return new_state
+  go_to_next_state: (id, new_state) ->
+    listener = @click_listener
+    send_leafward = @id_is_collapsed[id]
+    @effect_click(id, new_state, send_leafward, listener)
   effect_click: (id, new_state, send_leafward, listener) ->
     if send_leafward
       kids = @id_to_children[id]

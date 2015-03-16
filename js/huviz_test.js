@@ -537,8 +537,7 @@ describe("HuViz Tests", function() {
         expect($("#classes .treepicker-indirect-mixed").length,
                "there should be no indirect-mixed").to.equal(0);
 
-        //HVZ.toggle_selected(a_node);
-        HVZ.perform_current_command(a_node);
+        HVZ.run_verb_on_object("unselect", a_node)
         expect($("#classes .treepicker-indirect-mixed").length,
                "there should be " + classes_above + " indirect-mixed").
               to.equal(classes_above);
@@ -550,8 +549,7 @@ describe("HuViz Tests", function() {
                "failed to update the picker payload").
               to.equal("" + one_less);
 
-        //HVZ.toggle_selected(a_node);
-        HVZ.perform_current_command(a_node);
+        HVZ.run_verb_on_object("select", a_node)
         expect($("#classes .treepicker-indirect-mixed").length,
                "there should be no indirect-mixed once " +
                node_name + " reselected").
@@ -574,9 +572,10 @@ describe("HuViz Tests", function() {
       expect(get_command_english()).to.equal("____ every Thing .");
 
       // do "choose every Thing ."
-      $("#verb-choose").trigger("click");
-      expect(get_command_english()).to.equal("choose every Thing .");
-      $("#doit_button").trigger("click");
+      //$("#verb-choose").trigger("click");
+      HVZ.click_verb('choose');
+      //expect(get_command_english()).to.equal("choose every Thing .");
+      //$("#doit_button").trigger("click");
 
       // confirm the resultant display
       expect($("#classes .treepicker-unshowing").length,
@@ -584,9 +583,13 @@ describe("HuViz Tests", function() {
             to.equal(0);
 
       // restore ungraphed state by doing "unchoose every Thing ."
-      $("#verb-unchoose").trigger("click");
-      expect(get_command_english()).to.equal("unchoose every Thing .");
-      $("#doit_button").trigger("click");
+      //$("#verb-unchoose").trigger("click");
+      HVZ.click_verb('unchoose');
+      //expect(get_command_english()).to.equal("unchoose every Thing .");
+      //$("#doit_button").trigger("click");
+      expect($("#classes .treepicker-unshowing").length,
+             "after 'unchoose every Thing' no taxon should be marked unshowing, ie look unselected").
+            to.equal(0);
 
     });
 
@@ -628,8 +631,13 @@ describe("HuViz Tests", function() {
     it("with everything graphed, clicking collapsed anything should ungraph all", function(done) {
       say(test_title, done);
       HVZ.toggle_expander("anything"); // collapse
-      HVZ.click_predicate("anything"); // graph all
-      HVZ.click_predicate("anything"); // ungraph all
+      HVZ.click_verb('choose'); // graph everything so we can test whether ungraphing works
+      expect(HVZ.graphed_set.length,
+             "after 'choose every Thing' everything should be graphed").
+            to.equal(HVZ.nodes.length);
+      expect(HVZ.shelved_set.length).to.equal(0);
+
+      HVZ.click_predicat´e("anything"); // ungraph everything
 
       // confirm that everything is now ungraphed
       expect(HVZ.graphed_set.length,

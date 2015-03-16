@@ -394,7 +394,7 @@ class Huviz
     return @
 
   click_predicate: (id) ->
-    $("##{id}").trigger("click")
+    @gclui.predicate_picker.handle_click(id)
     return @
 
   click_taxon: (id) ->
