@@ -373,6 +373,7 @@ class Huviz
 
   click_node: (node_or_id) ->
     # motivated by testing
+    console.warn("click_node() is deprecated")
     if typeof node_or_id is 'string'
       node = @nodes.get_by('id', node_or_id)
     else

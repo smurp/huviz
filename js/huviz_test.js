@@ -251,8 +251,7 @@ describe("HuViz Tests", function() {
       expect(get_command_english()).to.equal(expected);
 
       london = HVZ.nodes.get_by('id', 'BJ')
-      HVZ.click_node(london);
-      //HVZ.clean_up_all_dirt();
+      HVZ.run_verb_on_object('unselect', london)
       expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length - 1);
       // the object of the nextcommand should reflect the deselectedness of london
 
