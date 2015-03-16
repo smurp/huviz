@@ -435,6 +435,7 @@ class CommandController
     ready = @prepare_command @build_command()
     if ready and @huviz.doit_asap
       @command.execute(@huviz)
+      @huviz.update_all_counts()
       if because.cleanup
         because.cleanup()
         @update_command()
