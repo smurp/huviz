@@ -637,7 +637,7 @@ describe("HuViz Tests", function() {
             to.equal(HVZ.nodes.length);
       expect(HVZ.shelved_set.length).to.equal(0);
 
-      HVZ.click_predicat´e("anything"); // ungraph everything
+      HVZ.click_predicate("anything"); // ungraph everything
 
       // confirm that everything is now ungraphed
       expect(HVZ.graphed_set.length,
