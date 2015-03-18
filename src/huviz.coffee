@@ -149,8 +149,8 @@ RDF_object  = "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
 RDF_type    = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 RDF_a       = 'a'
 RDFS_label  = "http://www.w3.org/2000/01/rdf-schema#label"
-TYPE_SYNS   = [RDF_type,RDF_a,'rdf:type']
-NAME_SYNS   = [FOAF_name,RDFS_label,'name']
+TYPE_SYNS   = [RDF_type, RDF_a, 'rdfs:type', 'rdf:type']
+NAME_SYNS   = [FOAF_name, RDFS_label, 'rdfs:label', 'name']
 XML_TAG_REGEX = /(<([^>]+)>)/ig
 MANY_SPACES_REGEX = /\s{2,}/g
 UNDEFINED = undefined
@@ -1377,7 +1377,7 @@ class Huviz
       obj_n = @get_or_create_node_by_id(quad.o.value)
       # We have a node for the object of the quad and this quad is relational
       # so there should be links made between this node and that node
-      is_type = is_one_of(pid,TYPE_SYNS)
+      is_type = is_one_of(pid, TYPE_SYNS)
       if is_type
         if @try_to_set_node_type(subj_n,quad.o.value)
           @develop(subj_n) # might be ready now
@@ -1433,7 +1433,7 @@ class Huviz
     @add_to edge,edge.target.links_to
     edge
 
-  try_to_set_node_type: (node,type_uri) ->
+  try_to_set_node_type: (node, type_uri) ->
     #if type_uri.match(/^http.*/)
     #  alert "#{type_uri} is an uri rather than an lid"
     type_lid = uniquer(type_uri) # should ensure uniqueness
