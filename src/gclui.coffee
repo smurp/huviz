@@ -73,6 +73,7 @@ class CommandController
   reset_editor: ->
     @disengage_all_verbs()
     @disengage_all_sets()
+    @clear_all_sets()
     @init_editor_data()
     @clear_like()
     @update_command()
@@ -578,6 +579,17 @@ class CommandController
   disengage_all_sets: =>
     if @chosen_set_id
       @on_set_picked(@chosen_set_id, "unshowing")
+  clear_all_sets: =>
+    skip_sets = ['shelved_set']
+    for set_key, set_label of @the_sets.nodes[1]
+      if set_key in skip_sets
+        continue
+      the_set = @huviz[set_key]
+      cleanup_verb = the_set.cleanup_verb
+      @huviz.run_command new gcl.GraphCommand
+        verbs: [cleanup_verb]
+        sets: [the_set]
+    return
   on_set_count_update: (set_id, count) =>
     @set_picker.set_payload(set_id, count)
   on_taxon_count_update: (taxon_id, count) ->

@@ -145,6 +145,17 @@ describe("HuViz Tests", function() {
       expect($("input[name='label_em']")).to.exist();
       expect($("input[name='label_em']").attr('value')).to.equal('0.9');
     });
+
+
+    it("clicking reset should restore the neutral condition", function(done) {
+      say(test_title, done);
+      HVZ.click_verb("label").click_set("shelved");
+      expect(HVZ.labelled_set.length,
+             "everything should be labelled by now").to.not.equal(0);
+      $("#reset_btn").click()
+      expect(HVZ.labelled_set.length,
+             "nothing should be labelled after reset").to.equal(0);
+    });
   });
 
 
@@ -173,7 +184,6 @@ describe("HuViz Tests", function() {
 
       jsoutline.squelch = false;
       jsoutline.collapsed = false;
-
     });
 
     it("toggling a leaf predicate should leave the root predicate unmixed", function(done) {
