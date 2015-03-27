@@ -1824,10 +1824,13 @@ class Huviz
     obj_n
 
   clean_up_dirty_predicates: ->
-    @predicate_set.get_by('id', 'anything').clean_up_dirt()
+    pred = @predicate_set.get_by('id', 'anything')
+    if pred?
+      pred.clean_up_dirt()
 
   clean_up_dirty_taxons: ->
-    @taxonomy.Thing.clean_up_dirt()
+    if @taxonomy.Thing?
+      @taxonomy.Thing.clean_up_dirt()
 
   clean_up_all_dirt: ->
     @clean_up_dirty_taxons()
@@ -2846,6 +2849,7 @@ class Huviz
     script = location.hash
     script = (not script? or script is "#") and "" or script.replace(/^#/,"")
     script = script.replace(/\+/g," ")
+    console.log "script", script
     return script
 
   boot_sequence: ->

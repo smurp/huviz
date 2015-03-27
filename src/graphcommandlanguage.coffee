@@ -151,13 +151,14 @@ class GraphCommand
     if @classes
       for class_name in @classes
         the_set = @graph_ctrl.taxonomy[class_name]?.get_instances()
-        if like_regex and the_set?
-          for n in the_set
-            if n.name.match(like_regex)
+        if the_set?
+          if like_regex
+            for n in the_set
+              if n.name.match(like_regex)
+                result_set.add n
+          else # a redundant loop, kept shallow for speed when no like
+            for n in the_set
               result_set.add n
-        else # a redundant loop, kept shallow for speed when no like
-          for n in the_set
-            result_set.add n
     if @sets
       for a_set in @sets
         for node in a_set
@@ -317,6 +318,8 @@ class GraphCommandLanguageCtrl
     else # an object we presume
       @commands = [script]
     retval = @execute()
+    #console.log "commands:"
+    #console.log @commands
     @graph_ctrl.after_running_command(this)
     retval
   run_one: (cmd_spec) ->
