@@ -1459,7 +1459,7 @@ class Huviz
 
   report_every: 100 # if 1 then more data shown
 
-  parseAndShowTTLStreamer: (data, textStatus) =>
+  parseAndShowTTLStreamer: (data, textStatus, callback) =>
     # modelled on parseAndShowNQStreamer
     parse_start_time = new Date()
     context = "http://universal"
@@ -1489,6 +1489,8 @@ class Huviz
             o: obj # keys: type,value[,language]
             g: context
     @dump_stats()
+    if callback
+      callback()
 
   dump_stats: ->
     console.log "object_value_types:",@object_value_types
@@ -1552,7 +1554,7 @@ class Huviz
     @tick()
 
   remove_framing_quotes: (s) -> s.replace(/^\"/,"").replace(/\"$/,"")
-  parseAndShowNQStreamer: (uri) ->
+  parseAndShowNQStreamer: (uri, callback) ->
     # turning a blob (data) into a stream
     #   http://stackoverflow.com/questions/4288759/asynchronous-for-cycle-in-javascript
     #   http://www.dustindiaz.com/async-method-queues/
@@ -1583,6 +1585,8 @@ class Huviz
         @show_state_msg("done loading")
         document.dispatchEvent(new CustomEvent("dataset-loaded", {detail: uri}))
         @fire_fileloaded_event()
+        if callback
+          callback()
         #@choose_everything()
         #@fire_nextsubject_event @last_quad,null
       else
@@ -1595,7 +1599,7 @@ class Huviz
   DUMPER: (data) =>
     console.log data
 
-  fetchAndShow: (url) ->
+  fetchAndShow: (url, callback) ->
     @show_state_msg("fetching " + url)
     the_parser = @parseAndShowNQ
     if url.match(/.ttl/)
@@ -1606,15 +1610,17 @@ class Huviz
       the_parser = @parseAndShowJSON
 
     if the_parser is @parseAndShowNQ
-      @parseAndShowNQStreamer(url)
+      @parseAndShowNQStreamer(url, callback)
       return
 
     $.ajax
       url: url
       success: (data, textStatus) =>
-        the_parser(data, textStatus)
+        the_parser(data, textStatus, callback)
         @fire_fileloaded_event()
         @hide_state_msg()
+        #if callback
+        #  callback()
       error: (jqxhr, textStatus, errorThrown) ->
         console.log url, errorThrown
         $("#status").text errorThrown + " while fetching " + url
@@ -2835,11 +2841,12 @@ class Huviz
     #@dump_current_settings("after init_from_graph_controls()")
     @reset_graph()
     @show_state_msg @data_uri
-    @fetchAndShow @data_uri  unless @G.subjects
+    unless @G.subjects
+      @fetchAndShow @data_uri, callback
     #@init_webgl()  if @use_webgl
-    if callback?
-      console.log "calling back"
-      callback()
+    #if callback?
+    #  console.log "calling back"
+    #  callback()
 
   get_dataset_uri: () ->
     # FIXME goodbye jquery
@@ -2852,15 +2859,19 @@ class Huviz
     console.log "script", script
     return script
 
-  boot_sequence: ->
+  boot_sequence: (script) ->
+    # If we are passed an empty string that means there was an outer
+    # script but there was nothing for us and DO NOT examine the hash for more.
     # If there is a script after the hash, run it.
     # Otherwise load the default dataset defined by the page.
     # Or load nothing if there is no default.
     #@init_from_graph_controls()
     # $(".graph_controls").sortable() # FIXME make graph_controls sortable
     @reset_graph()
-    script = @get_script_from_hash()
-    if script
+    if not script?
+      script = @get_script_from_hash()
+    if script? and script.length
+      console.log "boot_sequence('#{script}')"
       @gclui.run_script(script)
     else
       data_uri = @get_dataset_uri()
