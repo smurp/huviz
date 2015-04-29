@@ -35,10 +35,11 @@ class CommandController
     @control_label("Verbs")
     @verbdiv = @comdiv.append('div').attr('class','verbs')
     @add_clear_both(@comdiv)
-    @build_set_picker("Sets")
-    @build_taxon_picker("Classes")
-    @likediv = @comdiv.append('div')
-    @add_clear_both(@comdiv)
+    @node_pickers = @comdiv.append('div')
+    @set_picker_box_parent = @build_set_picker("Sets",@node_pickers)
+    @taxon_picker_box_parent = @build_taxon_picker("Classes",@node_pickers)
+    @add_clear_both(@comdiv)    
+    @likediv = @taxon_picker_box_parent.append('div')
     @build_predicate_picker("Edges of the Selected Nodes")
     @init_editor_data()
     @build_form()
@@ -171,9 +172,9 @@ class CommandController
   #
   #     Indirect instances are the instances of subclasses.
   ###
-  build_taxon_picker: (label) ->
+  build_taxon_picker: (label, where) ->
     id = 'classes'
-    where = label? and @control_label(label) or @comdiv
+    where = label? and @control_label(label, where) or @comdiv
     @taxon_box = where.append('div')
         .classed('container',true)
         .attr('id',id)
@@ -187,6 +188,8 @@ class CommandController
     @taxon_picker = new ColoredTreePicker(@taxon_box,'Thing',[],true)
     @taxon_picker.click_listener = @on_taxon_clicked
     @taxon_picker.show_tree(@hierarchy,@taxon_box)
+    where.classed("taxon_picker_box_parent", true)
+    return where
   add_new_taxon: (class_id,parent_lid,class_name,taxon) =>
     @taxon_picker.add(class_id,parent_lid,class_name,@on_taxon_clicked)
     @taxon_picker.recolor_now()
@@ -539,9 +542,9 @@ class CommandController
   run_script: (script) ->
     @huviz.gclc.run(script)
     @huviz.update_all_counts()
-  build_set_picker: (label) ->
+  build_set_picker: (label, where) ->
     # FIXME populate @the_sets from @huviz.selectable_sets
-    where = label? and @control_label(label) or @comdiv
+    where = label? and @control_label(label, where) or @comdiv
     @the_sets =
       'nodes': ['All ',
               selected_set: ['Selected']
@@ -560,6 +563,8 @@ class CommandController
     @set_picker.click_listener = @on_set_picked
     @set_picker.show_tree(@the_sets, @set_picker_box)
     @populate_all_set_docs()
+    where.classed("set_picker_box_parent",true)
+    return where
   populate_all_set_docs: () ->
     for id, a_set of @huviz.selectable_sets
       if a_set.docs?
