@@ -379,7 +379,7 @@ class CommandController
     @nextcommandstr = @nextcommand.append('span')
     @build_submit()
   build_like: () ->
-    @likediv.text('like:')
+    @likediv.text('like:').classed("control_label", true)
     @like_input = @likediv.append('input')
     @like_input.on 'input',@update_command
   build_submit: () ->

@@ -15,13 +15,12 @@
   user-select: none;
 }
 .graph_controls label { /* slide them to the right */
-  float:right;
-  clear:both;
+  float: right;
+  clear: both;
 }
 #huvis_controls {
   padding: 1em 0.4em;
 }
-
 .search_box {
   height:1.3em;
   min-width:7em;

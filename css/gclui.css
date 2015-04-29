@@ -5,6 +5,8 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  max-height: 550px;
+  overflow-y: scroll;
 }
 .alternates {
   float:left;
@@ -142,4 +144,7 @@ p {
 .taxon_picker_box_parent {
   float: right;
   width: 66%
+}
+#tabs {
+  //max-height: 80%;
 }
