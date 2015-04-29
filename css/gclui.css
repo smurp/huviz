@@ -136,10 +136,10 @@ p {
   margin-right: 2px;    
 }
 .set_picker_box_parent {
-    float: left;
-    width: 30%;
+  float: left;
+  width: 32%;
 }
 .taxon_picker_box_parent {
-    float: right;
-    width: 60%
+  float: right;
+  width: 66%
 }

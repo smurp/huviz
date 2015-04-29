@@ -1,6 +1,6 @@
 #tabs {
   position: fixed;
-  width: 320px;
+  width: 368px;
   right: 0px;
   font-size: 80%;
   z-index: 3;
@@ -19,11 +19,7 @@
   clear:both;
 }
 #huvis_controls {
-  //position: absolute;
-  //bottom: .2em;
-  //left: .2em;
-  //z-index: 2;
-  //float: left;
+  padding: 1em 0.4em;
 }
 
 .search_box {
