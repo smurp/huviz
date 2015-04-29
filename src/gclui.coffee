@@ -35,11 +35,11 @@ class CommandController
     @control_label("Verbs")
     @verbdiv = @comdiv.append('div').attr('class','verbs')
     @add_clear_both(@comdiv)
-    @build_setpicker("Sets")
+    @build_set_picker("Sets")
     @build_taxon_picker("Classes")
     @likediv = @comdiv.append('div')
     @add_clear_both(@comdiv)
-    @build_predicatepicker("Edges of the Selected Nodes")
+    @build_predicate_picker("Edges of the Selected Nodes")
     @init_editor_data()
     @build_form()
     @update_command()
@@ -99,7 +99,7 @@ class CommandController
   recolor_edges_and_predicates: (evt) =>
     @predicate_picker.recolor_now()
     @recolor_edges() # FIXME should only really be run after the predicate set has settled for some amount of time
-  build_predicatepicker: (label) ->
+  build_predicate_picker: (label) ->
     id = 'predicates'
     where = label? and @control_label(label) or @comdiv
     @predicatebox = where.append('div').classed('container',true).attr('id',id)
@@ -539,7 +539,7 @@ class CommandController
   run_script: (script) ->
     @huviz.gclc.run(script)
     @huviz.update_all_counts()
-  build_setpicker: (label) ->
+  build_set_picker: (label) ->
     # FIXME populate @the_sets from @huviz.selectable_sets
     where = label? and @control_label(label) or @comdiv
     @the_sets =
