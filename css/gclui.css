@@ -5,6 +5,8 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  max-height: 32em;
+  overflow-y: scroll;
 }
 .alternates {
   float:left;
@@ -133,9 +135,16 @@ p {
   display:none; /* */
 }
 #sets {
-  margin-right: 2px;
-  max-width: 36%;
+  margin-right: 2px;    
 }
-#classes {
-  max-width: 60%;
+.set_picker_box_parent {
+  float: left;
+  width: 32%;
+}
+.taxon_picker_box_parent {
+  float: right;
+  width: 66%
+}
+#tabs {
+  //max-height: 80%;
 }

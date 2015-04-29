@@ -35,11 +35,12 @@ class CommandController
     @control_label("Verbs")
     @verbdiv = @comdiv.append('div').attr('class','verbs')
     @add_clear_both(@comdiv)
-    @build_setpicker("Sets")
-    @build_taxon_picker("Classes")
-    @likediv = @comdiv.append('div')
-    @add_clear_both(@comdiv)
-    @build_predicatepicker("Edges of the Selected Nodes")
+    @node_pickers = @comdiv.append('div')
+    @set_picker_box_parent = @build_set_picker("Sets",@node_pickers)
+    @taxon_picker_box_parent = @build_taxon_picker("Classes",@node_pickers)
+    @add_clear_both(@comdiv)    
+    @likediv = @taxon_picker_box_parent.append('div')
+    @build_predicate_picker("Edges of the Selected Nodes")
     @init_editor_data()
     @build_form()
     @update_command()
@@ -73,6 +74,7 @@ class CommandController
   reset_editor: ->
     @disengage_all_verbs()
     @disengage_all_sets()
+    @clear_all_sets()
     @init_editor_data()
     @clear_like()
     @update_command()
@@ -98,7 +100,7 @@ class CommandController
   recolor_edges_and_predicates: (evt) =>
     @predicate_picker.recolor_now()
     @recolor_edges() # FIXME should only really be run after the predicate set has settled for some amount of time
-  build_predicatepicker: (label) ->
+  build_predicate_picker: (label) ->
     id = 'predicates'
     where = label? and @control_label(label) or @comdiv
     @predicatebox = where.append('div').classed('container',true).attr('id',id)
@@ -170,9 +172,9 @@ class CommandController
   #
   #     Indirect instances are the instances of subclasses.
   ###
-  build_taxon_picker: (label) ->
+  build_taxon_picker: (label, where) ->
     id = 'classes'
-    where = label? and @control_label(label) or @comdiv
+    where = label? and @control_label(label, where) or @comdiv
     @taxon_box = where.append('div')
         .classed('container',true)
         .attr('id',id)
@@ -186,6 +188,8 @@ class CommandController
     @taxon_picker = new ColoredTreePicker(@taxon_box,'Thing',[],true)
     @taxon_picker.click_listener = @on_taxon_clicked
     @taxon_picker.show_tree(@hierarchy,@taxon_box)
+    where.classed("taxon_picker_box_parent", true)
+    return where
   add_new_taxon: (class_id,parent_lid,class_name,taxon) =>
     @taxon_picker.add(class_id,parent_lid,class_name,@on_taxon_clicked)
     @taxon_picker.recolor_now()
@@ -375,7 +379,7 @@ class CommandController
     @nextcommandstr = @nextcommand.append('span')
     @build_submit()
   build_like: () ->
-    @likediv.text('like:')
+    @likediv.text('like:').classed("control_label", true)
     @like_input = @likediv.append('input')
     @like_input.on 'input',@update_command
   build_submit: () ->
@@ -538,9 +542,9 @@ class CommandController
   run_script: (script) ->
     @huviz.gclc.run(script)
     @huviz.update_all_counts()
-  build_setpicker: (label) ->
+  build_set_picker: (label, where) ->
     # FIXME populate @the_sets from @huviz.selectable_sets
-    where = label? and @control_label(label) or @comdiv
+    where = label? and @control_label(label, where) or @comdiv
     @the_sets =
       'nodes': ['All ',
               selected_set: ['Selected']
@@ -559,6 +563,8 @@ class CommandController
     @set_picker.click_listener = @on_set_picked
     @set_picker.show_tree(@the_sets, @set_picker_box)
     @populate_all_set_docs()
+    where.classed("set_picker_box_parent",true)
+    return where
   populate_all_set_docs: () ->
     for id, a_set of @huviz.selectable_sets
       if a_set.docs?
@@ -578,6 +584,17 @@ class CommandController
   disengage_all_sets: =>
     if @chosen_set_id
       @on_set_picked(@chosen_set_id, "unshowing")
+  clear_all_sets: =>
+    skip_sets = ['shelved_set']
+    for set_key, set_label of @the_sets.nodes[1]
+      if set_key in skip_sets
+        continue
+      the_set = @huviz[set_key]
+      cleanup_verb = the_set.cleanup_verb
+      @huviz.run_command new gcl.GraphCommand
+        verbs: [cleanup_verb]
+        sets: [the_set]
+    return
   on_set_count_update: (set_id, count) =>
     @set_picker.set_payload(set_id, count)
   on_taxon_count_update: (taxon_id, count) ->

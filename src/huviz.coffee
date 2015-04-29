@@ -664,30 +664,37 @@ class Huviz
     @chosen_set = SortedSet().named("chosen").isFlag().sort_on("id")
     @chosen_set.docs = "Nodes which the user has individually 'chosen' to graph by clicking or dragging them."
     @chosen_set.comment = "This concept should perhaps be retired now that selected_set is being maintainted."
+    @chosen_set.cleanup_verb = 'shelve'
 
     @selected_set = SortedSet().named("selected").isFlag().sort_on("id")
     @selected_set.docs = "Nodes which have been 'selected' using the class picker ie which are highlighted."
+    @selected_set.cleanup_verb = "unselect"
 
     @shelved_set  = SortedSet().sort_on("name").named("shelved").isState()
     @shelved_set.docs = "Nodes which are on the surrounding 'shelf'."
 
     @discarded_set = SortedSet().sort_on("name").named("discarded").isState()
     @discarded_set.docs = "Nodes which have been discarded so they will not be included in graphs." +
+    @discarded_set.cleanup_verb = "shelve"
 
     @hidden_set    = SortedSet().sort_on("id").named("hidden").isState()
     @hidden_set.docs = "Nodes which are invisible but can be pulled into graphs by other nodes."
+    @hidden_set.cleanup_verb = "shelve"
 
     @graphed_set   = SortedSet().sort_on("id").named("graphed").isState()
     @graphed_set.docs = "Nodes which are included in the central graph."
+    @graphed_set.cleanup_verb = "unchoose"
 
     @pinned_set = SortedSet().sort_on("id").named('fixed', 'pinned').isFlag()
     @pinned_set.docs = "Nodes which are pinned to the canvas"
+    @pinned_set.cleanup_verb = "unpin"
 
     @links_set     = SortedSet().sort_on("id").named("shown").isFlag()
     @links_set.docs = "Links which are shown."
 
     @labelled_set  = SortedSet().named("labelled").isFlag().sort_on("id")
     @labelled_set.docs = "Nodes which have their labels permanently shown."
+    @labelled_set.cleanup_verb = "unlabel"
 
     @predicate_set = SortedSet().named("predicate").isFlag().sort_on("id")
     @context_set   = SortedSet().named("context").isFlag().sort_on("id")
@@ -1452,7 +1459,7 @@ class Huviz
 
   report_every: 100 # if 1 then more data shown
 
-  parseAndShowTTLStreamer: (data, textStatus) =>
+  parseAndShowTTLStreamer: (data, textStatus, callback) =>
     # modelled on parseAndShowNQStreamer
     parse_start_time = new Date()
     context = "http://universal"
@@ -1482,6 +1489,8 @@ class Huviz
             o: obj # keys: type,value[,language]
             g: context
     @dump_stats()
+    if callback
+      callback()
 
   dump_stats: ->
     console.log "object_value_types:",@object_value_types
@@ -1545,7 +1554,7 @@ class Huviz
     @tick()
 
   remove_framing_quotes: (s) -> s.replace(/^\"/,"").replace(/\"$/,"")
-  parseAndShowNQStreamer: (uri) ->
+  parseAndShowNQStreamer: (uri, callback) ->
     # turning a blob (data) into a stream
     #   http://stackoverflow.com/questions/4288759/asynchronous-for-cycle-in-javascript
     #   http://www.dustindiaz.com/async-method-queues/
@@ -1576,6 +1585,8 @@ class Huviz
         @show_state_msg("done loading")
         document.dispatchEvent(new CustomEvent("dataset-loaded", {detail: uri}))
         @fire_fileloaded_event()
+        if callback
+          callback()
         #@choose_everything()
         #@fire_nextsubject_event @last_quad,null
       else
@@ -1588,7 +1599,7 @@ class Huviz
   DUMPER: (data) =>
     console.log data
 
-  fetchAndShow: (url) ->
+  fetchAndShow: (url, callback) ->
     @show_state_msg("fetching " + url)
     the_parser = @parseAndShowNQ
     if url.match(/.ttl/)
@@ -1599,15 +1610,17 @@ class Huviz
       the_parser = @parseAndShowJSON
 
     if the_parser is @parseAndShowNQ
-      @parseAndShowNQStreamer(url)
+      @parseAndShowNQStreamer(url, callback)
       return
 
     $.ajax
       url: url
       success: (data, textStatus) =>
-        the_parser(data, textStatus)
+        the_parser(data, textStatus, callback)
         @fire_fileloaded_event()
         @hide_state_msg()
+        #if callback
+        #  callback()
       error: (jqxhr, textStatus, errorThrown) ->
         console.log url, errorThrown
         $("#status").text errorThrown + " while fetching " + url
@@ -1817,10 +1830,13 @@ class Huviz
     obj_n
 
   clean_up_dirty_predicates: ->
-    @predicate_set.get_by('id', 'anything').clean_up_dirt()
+    pred = @predicate_set.get_by('id', 'anything')
+    if pred?
+      pred.clean_up_dirt()
 
   clean_up_dirty_taxons: ->
-    @taxonomy.Thing.clean_up_dirt()
+    if @taxonomy.Thing?
+      @taxonomy.Thing.clean_up_dirt()
 
   clean_up_all_dirt: ->
     @clean_up_dirty_taxons()
@@ -2825,11 +2841,12 @@ class Huviz
     #@dump_current_settings("after init_from_graph_controls()")
     @reset_graph()
     @show_state_msg @data_uri
-    @fetchAndShow @data_uri  unless @G.subjects
+    unless @G.subjects
+      @fetchAndShow @data_uri, callback
     #@init_webgl()  if @use_webgl
-    if callback?
-      console.log "calling back"
-      callback()
+    #if callback?
+    #  console.log "calling back"
+    #  callback()
 
   get_dataset_uri: () ->
     # FIXME goodbye jquery
@@ -2839,17 +2856,22 @@ class Huviz
     script = location.hash
     script = (not script? or script is "#") and "" or script.replace(/^#/,"")
     script = script.replace(/\+/g," ")
+    console.log "script", script
     return script
 
-  boot_sequence: ->
+  boot_sequence: (script) ->
+    # If we are passed an empty string that means there was an outer
+    # script but there was nothing for us and DO NOT examine the hash for more.
     # If there is a script after the hash, run it.
     # Otherwise load the default dataset defined by the page.
     # Or load nothing if there is no default.
     #@init_from_graph_controls()
     # $(".graph_controls").sortable() # FIXME make graph_controls sortable
     @reset_graph()
-    script = @get_script_from_hash()
-    if script
+    if not script?
+      script = @get_script_from_hash()
+    if script? and script.length
+      console.log "boot_sequence('#{script}')"
       @gclui.run_script(script)
     else
       data_uri = @get_dataset_uri()
