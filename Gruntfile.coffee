@@ -27,7 +27,7 @@ module.exports = (grunt) ->
         options:
           debounceDelay: 250
           livereload:
-            port: 35730
+            port: 35731
           spawn: false
     release:
       options:
