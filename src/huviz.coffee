@@ -2318,7 +2318,7 @@ class Huviz
   init_gclc: ->
     @gclc = new GraphCommandLanguageCtrl(this)
     if not @gclui?
-      @gclui = new CommandController(this,d3.select("#gclui")[0][0],@hierarchy)
+      @gclui = new CommandController(this,d3.select(@args.gclui_sel)[0][0],@hierarchy)
     window.addEventListener 'showgraph', @register_gclc_prefixes
     window.addEventListener 'newpredicate', @gclui.handle_newpredicate
     TYPE_SYNS.forEach (pred_id,i) =>
@@ -2442,7 +2442,14 @@ class Huviz
       domain: {}
       range: {}
 
-  constructor: ->
+  constructor: (args) -> # Huviz
+    args ?=
+      viscanvas_sel: "#viscanvas"
+      gclui_sel: "#gclui"
+      graph_controls_sel: '#tabs-options'
+    @args = args
+    if @args.selector_for_graph_controls?
+      @selector_for_graph_controls = @args.selector_for_graph_controls
     @init_ontology()
     @off_center = false # FIXME expose this or make the amount a slider
     #@toggle_logging()
@@ -2470,15 +2477,15 @@ class Huviz
               attr("height", @height).
               attr("position", "absolute")
     @svg.append("rect").attr("width", @width).attr "height", @height
-    if not d3.select("#viscanvas")[0][0]
+    if not d3.select(@args.viscanvas_sel)[0][0]
       d3.select("body").append("div").attr("id", "viscanvas")
-    @container = d3.select("#viscanvas").node().parentNode
+    @container = d3.select(@args.viscanvas_sel).node().parentNode
     @init_graph_controls_from_json()
     if @use_fancy_cursor
-      @text_cursor = new TextCursor("#viscanvas", "")
+      @text_cursor = new TextCursor(@args.viscanvas_sel, "")
       @install_update_pointer_togglers()
     @create_state_msg_box()
-    @viscanvas = d3.select("#viscanvas").html("").
+    @viscanvas = d3.select(@args.viscanvas_sel).html("").
       append("canvas").
       attr("width", @width).
       attr("height", @height)
@@ -2741,9 +2748,8 @@ class Huviz
       for control_name, control of control_spec
         console.log "#{control_name} is",@[control_name],typeof @[control_name],post or ""
 
-  selector_for_graph_controls: '#tabs-options'
   init_graph_controls_from_json: =>
-    @graph_controls = d3.select(@selector_for_graph_controls)
+    @graph_controls = d3.select(@args.graph_controls_sel)
     #$(@graph_controls).sortable().disableSelection() # TODO fix dropping
     for control_spec in @default_graph_controls
       for control_name, control of control_spec
