@@ -2506,6 +2506,7 @@ class Huviz
       search_input.addEventListener("input", @update_searchterm)
     #$(".search_box").on "input", @update_searchterm
     window.addEventListener "resize", @updateWindow
+    $(@viscanvas).bind("_splitpaneparentresize", @updateWindow)
     $("#tabs").tabs
       active: 0
     $('.open_tab').click (event) =>
