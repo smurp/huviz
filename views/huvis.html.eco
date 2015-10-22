@@ -110,10 +110,14 @@
             <option title="Maria Abdy -- all attributes -- 68 nodes; 308 edges; 37 predicates">/data/abdyma.nq</option>
             <option title="William Shakespeare -- basic relational predicates -- 41 nodes; 46 edges; 21 predicates ">/data/shakwi.nq</option>
             <option title="Brontes -- all attributes -- 423 node; 666 edges; 43 predicates">/data/brontes.nq</option>
-            <option title="Margaret Atwood -- all attributes -- 444 nodes; 2325 edges; 41 predicates">/data/atwoma.nq</option>
+
             <option title="Early Writers:  573 nodes; edges 835; predicates 52">/data/early_writers.nq</option>
+	    <!--
+            <option title="Margaret Atwood -- all attributes -- 444 nodes; 2325 edges; 41 predicates">/data/atwoma.nq</option>
             <option title="The Poetesses -- all attributes -- 1735 nodes; 1646 edges; 11 predicates">/data/poetesses.nq</option>
             <option title="Relations -- all writers -- basic relational predicates -- DANGER! -- 6897 nodes; edges 11761; predicates 10">/data/relations.nq</option>
+	    -->
+
 
 	    <!--
             <option>/data/test_1.nq</option>
@@ -159,8 +163,10 @@
       window.addEventListener('load',function(){
         huviz = require('huviz');
         HVZ = new huviz.Orlando();
-        HVZ.set_ontology("/data/orlando_ontology.ttl");
+        //HVZ.set_ontology("/data/orlando_ontology.ttl");
         //HVZ.set_ontology("/data/OrlandoOntology-SexesUnderPerson.ttl");
+        //HVZ.set_ontology("/data/OrlandoOntology.ttl");
+        HVZ.set_ontology("/data/OrlandoOntologyPull5.ttl"); 
         HVZ.boot_sequence();
       });
     </script>
