@@ -1,78 +1,92 @@
 
-<B> <http://xmlns.com/foaf/0.1/name> "Italy" <Universal> .
-<C> <http://xmlns.com/foaf/0.1/name> "1894-02-08" <Universal> .
-<D> <http://xmlns.com/foaf/0.1/name> "Edinburgh" <Universal> .
-<E> <http://xmlns.com/foaf/0.1/name> "Midlothian" <Universal> .
-<F> <http://xmlns.com/foaf/0.1/name> "Latium" <Universal> .
-<G> <http://xmlns.com/foaf/0.1/name> "M\u00E9ni\u00E8re's disease" <Universal> .
-<H> <http://xmlns.com/foaf/0.1/name> "clerical" <Universal> .
-<I> <http://xmlns.com/foaf/0.1/name> "fur trader" <Universal> .
-<J> <http://xmlns.com/foaf/0.1/name> "illustrator" <Universal> .
-<K> <http://xmlns.com/foaf/0.1/name> "1825-04-24" <Universal> .
-<L> <http://xmlns.com/foaf/0.1/name> "Hudson Bay Company" <Universal> .
-<M> <http://xmlns.com/foaf/0.1/name> "Rome" <Universal> .
-<N> <http://xmlns.com/foaf/0.1/name> "managing trading posts" <Universal> .
-<O> <http://xmlns.com/foaf/0.1/name> "children's writer" <Universal> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#bornInRegion> <E> <b--ballrm--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#bornInRegion> <E> <b--ballrm--0--DIV1--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#bornInSettlement> <D> <b--ballrm--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#bornInSettlement> <D> <b--ballrm--0--DIV1--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#connectionToOrganization> <L> <b--ballrm--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#connectionToOrganization> <L> <b--ballrm--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#connectionToOrganization> <L> <b--ballrm--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#connectionToOrganization> <L> <b--ballrm--0--P--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <L> <b--ballrm--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <L> <b--ballrm--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <L> <b--ballrm--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <L> <b--ballrm--0--P--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#connectionWithJob> <H> <b--ballrm--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#connectionWithJob> <H> <b--ballrm--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#connectionWithJob> <H> <b--ballrm--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#connectionWithJob> <H> <b--ballrm--0--P--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#connectionWithJob> <I> <b--ballrm--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#connectionWithJob> <I> <b--ballrm--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#connectionWithJob> <I> <b--ballrm--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#connectionWithJob> <I> <b--ballrm--0--P--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#connectionWithJob> <J> <b--ballrm--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#connectionWithJob> <J> <b--ballrm--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#connectionWithJob> <J> <b--ballrm--0--DIV2--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#connectionWithJob> <J> <b--ballrm--0--P--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <E> <b--ballrm--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <E> <b--ballrm--0--DIV1--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <F> <b--ballrm--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <F> <b--ballrm--0--DIV1--6> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <F> <b--ballrm--0--DIV2--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <D> <b--ballrm--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <D> <b--ballrm--0--DIV1--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <M> <b--ballrm--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <M> <b--ballrm--0--DIV1--6> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <M> <b--ballrm--0--DIV2--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#contributionToDeath> <G> <b--ballrm--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#contributionToDeath> <G> <b--ballrm--0--DIV1--6> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#dateOfBirth> <K> <b--ballrm--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#dateOfBirth> <K> <b--ballrm--0--DIV1--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#dateOfDeath> <C> <b--ballrm--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#dateOfDeath> <C> <b--ballrm--0--DIV1--6> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#diedInGeog> <B> <b--ballrm--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#diedInGeog> <B> <b--ballrm--0--DIV1--6> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#diedInRegion> <F> <b--ballrm--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#diedInRegion> <F> <b--ballrm--0--DIV1--6> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#livedInGeog> <B> <b--ballrm--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#livedInRegion> <F> <b--ballrm--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#occupation> <H> <b--ballrm--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#occupation> <H> <b--ballrm--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#occupation> <I> <b--ballrm--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#occupation> <I> <b--ballrm--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#occupation> <J> <b--ballrm--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#occupation> <J> <b--ballrm--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#occupation> <O> <b--ballrm--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#occupation> <O> <b--ballrm--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#workedAs> <H> <b--ballrm--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#workedAs> <H> <b--ballrm--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#workedAs> <I> <b--ballrm--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#workedAs> <I> <b--ballrm--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#workedAs> <J> <b--ballrm--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#workedAs> <J> <b--ballrm--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#workedAs> <N> <b--ballrm--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#workedAs> <N> <b--ballrm--0--DIV1--4> .
+<B> <http://xmlns.com/foaf/0.1/name> "1825-04-24" <Universal> .
+<BA> <http://xmlns.com/foaf/0.1/name> "apprentice clerk for the" <Universal> .
+<BB> <http://xmlns.com/foaf/0.1/name> "trading furs and" <Universal> .
+<BC> <http://xmlns.com/foaf/0.1/name> "managing trading posts. The letters he wrote to his mother during this time were eventually published. After the success of his first volume, he continued to" <Universal> .
+<BD> <http://xmlns.com/foaf/0.1/name> "write, producing several books of adventure fiction for boys. He also" <Universal> .
+<BE> <http://xmlns.com/foaf/0.1/name> "illustrated some of his own works." <Universal> .
+<BF> <http://xmlns.com/foaf/0.1/name> "clerical" <Universal> .
+<BG> <http://xmlns.com/foaf/0.1/name> "fur trader" <Universal> .
+<BH> <http://xmlns.com/foaf/0.1/name> "children's writer" <Universal> .
+<BI> <http://xmlns.com/foaf/0.1/name> "illustrator" <Universal> .
+<C> <http://xmlns.com/foaf/0.1/name> "24 April 1825" <Universal> .
+<D> <http://xmlns.com/foaf/0.1/name> "RMB worked in" <Universal> .
+<E> <http://xmlns.com/foaf/0.1/name> "RMB, novelist and writer of boys' stories, died in" <Universal> .
+<F> <http://xmlns.com/foaf/0.1/name> "Italy" <Universal> .
+<G> <http://xmlns.com/foaf/0.1/name> "Rome" <Universal> .
+<H> <http://xmlns.com/foaf/0.1/name> "RMB, novelist and writer of boys' stories, was born at" <Universal> .
+<I> <http://xmlns.com/foaf/0.1/name> "M\u00E9ni\u00E8re's disease." <Universal> .
+<J> <http://xmlns.com/foaf/0.1/name> "8 February 1894 RMB, novelist and writer of boys' stories, died in Rome. He had been suffering from M\u00E9ni\u00E8re's disease." <Universal> .
+<K> <http://xmlns.com/foaf/0.1/name> "Canada" <Universal> .
+<L> <http://xmlns.com/foaf/0.1/name> "RMB" <Universal> .
+<M> <http://xmlns.com/foaf/0.1/name> "Hudson Bay Company" <Universal> .
+<N> <http://xmlns.com/foaf/0.1/name> "Hudson Bay Company, but he soon found himself" <Universal> .
+<O> <http://xmlns.com/foaf/0.1/name> "Edinburgh" <Universal> .
+<P> <http://xmlns.com/foaf/0.1/name> "Midlothian" <Universal> .
+<Q> <http://xmlns.com/foaf/0.1/name> "Initially RMB worked in Canada as an apprentice clerk for the Hudson Bay Company, but he soon found himself trading furs and managing trading posts. The letters he wrote to his mother during this time were eventually published. After the success of his first volume, he continued to write, producing several books of adventure fiction for boys. He also illustrated some of his own works." <Universal> .
+<R> <http://xmlns.com/foaf/0.1/name> "RMB married in 1866, when he was past forty. By 1883 his wife had given birth to six children." <Universal> .
+<S> <http://xmlns.com/foaf/0.1/name> "At the age of sixteen, RMB left Scotland for Canada, where he remained for six years." <Universal> .
+<T> <http://xmlns.com/foaf/0.1/name> "Latium" <Universal> .
+<U> <http://xmlns.com/foaf/0.1/name> "Scotland" <Universal> .
+<V> <http://xmlns.com/foaf/0.1/name> "24 April 1825 RMB, novelist and writer of boys' stories, was born at Edinburgh." <Universal> .
+<W> <http://xmlns.com/foaf/0.1/name> "1894-02-08" <Universal> .
+<X> <http://xmlns.com/foaf/0.1/name> "8 February 1894" <Universal> .
+<Y> <http://xmlns.com/foaf/0.1/name> "He had almost no formal education." <Universal> .
+<Z> <http://xmlns.com/foaf/0.1/name> "RMB left Scotland for" <Universal> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#birth> <V> _:Neac029a401bd47c9bb38c58addb55721 .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#birthConnectionToDate> <B> <b--ballrm--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#birthConnectionToDate> <B> <b--ballrm--0--DIV1--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#birthConnectionToDate> <C> _:Neac029a401bd47c9bb38c58addb55721 .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#birthConnectionToGeog> <U> <b--ballrm--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#birthConnectionToGeog> <U> <b--ballrm--0--DIV1--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#birthConnectionToPerson> <H> _:Neac029a401bd47c9bb38c58addb55721 .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#birthConnectionToRegion> <P> <b--ballrm--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#birthConnectionToRegion> <P> <b--ballrm--0--DIV1--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#birthConnectionToSettlement> <O> _:Neac029a401bd47c9bb38c58addb55721 .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#death> <J> _:Neac029a401bd47c9bb38c58addb55721 .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#deathConnectionToDate> <W> <b--ballrm--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#deathConnectionToDate> <W> <b--ballrm--0--DIV1--6> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#deathConnectionToDate> <X> _:Neac029a401bd47c9bb38c58addb55721 .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#deathConnectionToGeog> <F> <b--ballrm--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#deathConnectionToGeog> <F> <b--ballrm--0--DIV1--6> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#deathConnectionToPerson> <E> _:Neac029a401bd47c9bb38c58addb55721 .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#deathConnectionToRegion> <T> <b--ballrm--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#deathConnectionToRegion> <T> <b--ballrm--0--DIV1--6> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#deathConnectionToSettlement> <G> _:Neac029a401bd47c9bb38c58addb55721 .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasCauseOfDeath> <I> _:Neac029a401bd47c9bb38c58addb55721 .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasEducation> <Y> _:Neac029a401bd47c9bb38c58addb55721 .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasFamily> <R> _:Neac029a401bd47c9bb38c58addb55721 .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasFamilyMember> <R> _:Neac029a401bd47c9bb38c58addb55721 .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasJob> <BA> _:Neac029a401bd47c9bb38c58addb55721 .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasJob> <BB> _:Neac029a401bd47c9bb38c58addb55721 .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasJob> <BC> _:Neac029a401bd47c9bb38c58addb55721 .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasJob> <BD> _:Neac029a401bd47c9bb38c58addb55721 .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasJob> <BE> _:Neac029a401bd47c9bb38c58addb55721 .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasJob> <BF> <b--ballrm--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasJob> <BF> <b--ballrm--0--DIV1--4> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasJob> <BF> <b--ballrm--0--DIV2--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasJob> <BF> <b--ballrm--0--P--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasJob> <BG> <b--ballrm--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasJob> <BG> <b--ballrm--0--DIV1--4> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasJob> <BG> <b--ballrm--0--DIV2--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasJob> <BG> <b--ballrm--0--P--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasJob> <BH> <b--ballrm--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasJob> <BH> <b--ballrm--0--DIV1--4> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasJob> <BH> <b--ballrm--0--DIV2--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasJob> <BH> <b--ballrm--0--P--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasJob> <BI> <b--ballrm--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasJob> <BI> <b--ballrm--0--DIV1--4> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasJob> <BI> <b--ballrm--0--DIV2--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasJob> <BI> <b--ballrm--0--P--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasOccupation> <Q> _:Neac029a401bd47c9bb38c58addb55721 .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToGeog> <K> _:Neac029a401bd47c9bb38c58addb55721 .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToOrganization> <M> <b--ballrm--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToOrganization> <M> <b--ballrm--0--DIV1--4> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToOrganization> <N> _:Neac029a401bd47c9bb38c58addb55721 .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToPerson> <D> _:Neac029a401bd47c9bb38c58addb55721 .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasWife> <L> <b--ballrm--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#hasWife> <L> <b--ballrm--0--DIV1--5> .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#lived> <S> _:Neac029a401bd47c9bb38c58addb55721 .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#livedConnectionToGeog> <K> _:Neac029a401bd47c9bb38c58addb55721 .
+<http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://draftOrlandoOntology.org/Draft1#livedConnectionToPerson> <Z> _:Neac029a401bd47c9bb38c58addb55721 .
 <http://orlando.cambridge.org/public/svPeople?person_id=ballrm> <http://xmlns.com/foaf/0.1/name> "Ballantyne, R. M." <Universal> .

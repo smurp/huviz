@@ -24,7 +24,7 @@ AND
 Shawn Murphy with:
  1. Text Mining & Visualization for Literary History
  2. Semandra.com
- <shawn@semandra.com> http://smurp.com
+ <smurp@smurp.com> http://smurp.com
 
 Copyright CC BY-SA 3.0  See: http://creativecommons.org/licenses/by-sa/3.0/
 
@@ -143,7 +143,7 @@ def xpathTestLoad(xpathTests, addXpaths, options):
     arrayCounter = 0
     xpathArray = {}
     for line in xpathTests:
-        #print line
+        #print line        
         #print line[0], type(line[0])
         line = line.replace('\n','')
         linesplit = line.split('|')
@@ -279,6 +279,7 @@ class FormatEmitter(object):
         commacheck3=False #controls the insertion of commas at the end of the objects
         count = 0
         for line in orlandoRAW:
+            #print "len(line)",len(line)            
             LineTest = NameTest.search(line)
             #print LineTest
             if LineTest:
@@ -328,22 +329,34 @@ class FormatEmitter(object):
     
     def xPathRecursion(self, searchText, xpathArray, tripleCheck, recursionDepthPlus, mainSubject, entryDict, structID):
         """This is the function that processes all the xPath components of each search line"""
+        #print "xPathRecursion() recursionDepthPlus:", recursionDepthPlus, "structID:",structID
         search_text = searchText
         if isinstance(searchText, etree._Element):
             searchText = etree.tounicode(searchText)
             # This is a total hack.  I don't know why but matches always had trailing text after the last XML tag
             # this led to "lxml.etree.XMLSyntaxError: Extra content at the end of the document" errors
             # wrapping this code in these <junk></junk> tags stops that from happenin
-            #searchText = "<junk>%s</junk>" % searchText
-            #print "searchText", searchText
+            
+            #print "searchText:", searchText
             #print "searchText type", type(searchText)
-        #print xpathArray[tripleCheck], recursionDepthPlus
-        searchText = "<junk>%s</junk>" % searchText
-        #print "searchText", searchText
+        #searchText = "<junk>%s</junk>" % searchText
+        searchText = "<P>%s</P>" % searchText
+        
         tripleTest = xpathArray[tripleCheck][recursionDepthPlus]
         #print "tripleTest", tripleTest
+        searchTextOrig = searchText        
         searchText = StringIO(searchText)
-        searchText = etree.parse(searchText)
+        try:
+            searchText = etree.parse(searchText)
+        except etree.XMLSyntaxError,e:
+            print e
+            col = str(e).split()[-1]
+            int_col = int(col)
+            if int_col:
+                start = max(0,int_col - 140)
+                print " ",searchTextOrig[start:int_col]
+            return
+        
         #print "type tripleTest: ", type(tripleTest)
         #print "searchText: ", str(searchText)
         resultTripleTest = tripleTest(searchText)
@@ -358,8 +371,8 @@ class FormatEmitter(object):
             resultTripleTest = resultTripleTest.replace(' "','"')
             #resultTripleTest = " ".join(resultTripleTest)
             #print resultTripleTest
+        #print "  searchText", searchText, recursionDepthPlus            
         if resultTripleTest:
-            #print "searchText", searchText
             if self.options.verbose:
               print search_text
             if recursionDepthPlus >= len(xpathArray[tripleCheck])-1:
@@ -436,7 +449,7 @@ class FormatEmitter(object):
             ruleArray = regexTestLoad(ruleTests, options)
         elif options.rules == "xpaths":
             ruleArray = xpathTestLoad(ruleTests, xpathAddition(), options)
-        #print "ruleArray", ruleArray, "options", options
+        #print "ruleArray", ruleArray #, "options", options
         NameTest = re.compile('<ENTRY.+?ID="([\w, ]+)".*>',re.I)
         sys.stderr.write("extraction starts\n")
         with codecs.open(options.infile, encoding='utf-8', mode='r') as orlandoRAW: 
@@ -641,6 +654,7 @@ if __name__ == "__main__": # Prevents this program from running if called by ano
         regexes = 'orlando2RDFregex4.txt',
         xpaths = 'orlando2RDFxpath3.txt',
         rules = 'regexes',
+        #infile = 'orlando_all_entries_2013-03-04_FORMATTED.xml',
         infile = 'orlando_all_entries_2013-03-04.xml',
         only_predicates = only_predicates,
         outfile = 'orlando_all_entries_2013-03-04.json')

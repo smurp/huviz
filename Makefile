@@ -1,27 +1,38 @@
 
 BASE_ARGS = \
 	--use_onto \
-	--progress 
+        --xpath orlando2RDFxpath3.txt --rules xpaths \
+	--progress
+#        --verbose
+
+#--infile orlando_all_entries_2013-03-04_FORMATTED.xml \
 
 ARGS = 	--all_predicates ${BASE_ARGS}
 
 TMPFILE := $(shell mktemp /tmp/XXXXXXXXXXXXXX).nq
 
-all: ballrm abdyma atwoma poetesses brontes
+all: ballrm abdyma shakwi balfcl brontes
 
-ballrm:
-	./orlandoScrape.py --outfile ${TMPFILE} --ids ballrm ${ARGS} 
-	sort < ${TMPFILE} > data/ballrm.nq
-	rm ${TMPFILE}
+broken: atwoma relations poetesses brontes
 
 abdyma:
-	./orlandoScrape.py --outfile ${TMPFILE} --ids abdyma ${ARGS} --rules xpaths
+	./orlandoScrape.py --outfile ${TMPFILE} --ids abdyma ${ARGS}
 	sort < ${TMPFILE} > data/abdyma.nq
 	rm ${TMPFILE}
 
 atwoma:
 	./orlandoScrape.py --outfile ${TMPFILE} --ids atwoma  ${ARGS}
 	sort < ${TMPFILE} > data/atwoma.nq
+	rm ${TMPFILE}
+
+balfcl:
+	./orlandoScrape.py --outfile ${TMPFILE} --ids balfcl ${ARGS}
+	sort < ${TMPFILE} > data/balfcl.nq
+	rm ${TMPFILE}
+
+ballrm:
+	./orlandoScrape.py --outfile ${TMPFILE} --ids ballrm ${ARGS}
+	sort < ${TMPFILE} > data/ballrm.nq
 	rm ${TMPFILE}
 
 poetesses:

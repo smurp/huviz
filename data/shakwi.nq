@@ -1,232 +1,260 @@
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#bornInRegion> <H> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithJob> <S> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithAddress> <X> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BG> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToOrganization> <BM> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithPlace> <R> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#numberOfChildren> <U> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#dateOfDeath> <C> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <L> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BF> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BE> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <J> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#studied> <Q> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BC> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <E> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <K> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#studied> <O> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#occupation> <T> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToOrganization> <BO> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BA> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <Z> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#workedAs> <T> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <BL> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <N> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#dateOfDeath> <D> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#bornInSettlement> <E> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BH> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithAddress> <W> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToOrganization> <BN> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#studied> <P> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#diedInRegion> <H> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <I> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <H> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <BJ> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#dateOfBirth> <F> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#dateOfBirth> <G> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#educationMode> <V> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BI> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <Y> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BB> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#diedInSettlement> <N> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithJob> <T> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <BK> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#diedInGeog> <B> <b--shakwi--0--DIV0--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BD> <b--shakwi--0--DIV0--1> .
-<P> <http://xmlns.com/foaf/0.1/name> "rhetoric" <Universal> .
-<BJ> <http://xmlns.com/foaf/0.1/name> "London" <Universal> .
-<T> <http://xmlns.com/foaf/0.1/name> "acting" <Universal> .
-<W> <http://xmlns.com/foaf/0.1/name> "Henley Street" <Universal> .
-<BK> <http://xmlns.com/foaf/0.1/name> "Southwark" <Universal> .
-<BI> <http://xmlns.com/foaf/0.1/name> "Cervantes, Miguel de" <Universal> .
-<J> <http://xmlns.com/foaf/0.1/name> "Middlesex" <Universal> .
-<BM> <http://xmlns.com/foaf/0.1/name> "Anglican Church" <Universal> .
-<S> <http://xmlns.com/foaf/0.1/name> "Anglican" <Universal> .
-<BF> <http://xmlns.com/foaf/0.1/name> "Hunsdon, Henry Carey,,, first Baron" <Universal> .
-<BL> <http://xmlns.com/foaf/0.1/name> ", which drew a wealthier class of patron.Blackfriars had been built by Richard Burbage in 1596. Apart from the composition of the audience, the biggest difference between it and the public theatres was that here candlelight could replace or supplement daylight. The company continued to act at the Globe as well.Love and MoneySpeculations about Shakespeare's love-life stem from his sonnets, many of which read like (though they may not necessarily be) documents of impassioned self-expression. They seem to show him passionately in love with a younger man and sexually enthralled by a woman whom he despises.In 1613 WS made another substantial property investment, this time in London instead of in Stratford, close to the Blackfriars Theatre. He sold his share in the Globe some time after the building burned down in June this year.Death23 April 1616WS, poet and playwright, died on St George's day at New Place in Stratford" <Universal> .
-<Z> <http://xmlns.com/foaf/0.1/name> "Wilson, Richard" <Universal> .
-<B> <http://xmlns.com/foaf/0.1/name> "England" <Universal> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://xmlns.com/foaf/0.1/name> "Shakespeare, William" <Universal> .
-<O> <http://xmlns.com/foaf/0.1/name> "Latin" <Universal> .
-<Y> <http://xmlns.com/foaf/0.1/name> "Wood, Michael" <Universal> .
-<BD> <http://xmlns.com/foaf/0.1/name> "Greenblatt, Stephen" <Universal> .
-<BC> <http://xmlns.com/foaf/0.1/name> "Shakespeare, Anne" <Universal> .
-<K> <http://xmlns.com/foaf/0.1/name> " was white-washed over in accordance with new Protestant practice; the father of WS was then bailiff of the town.7Scholars speculating on Shakespeare's religion have read this as a symbol either of destruction of the old, concealment of the old, compromise, or (the view of James Shapiro) the layered nature of Elizabethan belief.7Education, MarriageAt Stratford grammar school WS would have been educated, free, in Latin and rhetoric, reading a wide range of literature. He also had opportunities before leaving home of attending plays put on by travelling companies.27 November 1582WS, aged eighteen, took out a licence to marry Anne Hathaway, who was already pregnant by him.Her name was given wrongly in the licence, which has given rise to various lines of speculation; however, there seems no good reason to doubt that Shakespeare intended from this date to marry the woman whom he did marry. Germaine Greer finds some bitter fun in tracing the progressive traducing of Anne Shakespeare by successive scholars to reach Stephen Greenblatt's belief that the prospect of sharing a grave with her filled her husband with horror and disgust. The couple had three children: a daughter, Susanna, followed by twins, Hamnet and Judith. Hamnet died young in August 1596.5-9The date of Shakespeare's move from Stratford to London is not known. He was well enough established in the capital to have his writing fiercely attacked (by Robert Greene) some time before September 1592.After he became successful he made regular visits to Stratford and followed in his father's footsteps by buying property in the town.Acting CareerShakespeare is believed to have worked as an actor from soon after his arrival in London, still in his early twenties. He joined a company of players whose name varied with successive patrons.28 December 1598The Theatre in London, home of WS's acting company, was dismantled preparatory to being transported south of the river" <Universal> .
-<C> <http://xmlns.com/foaf/0.1/name> "1616-04-23" <Universal> .
-<F> <http://xmlns.com/foaf/0.1/name> "1564-04-23" <Universal> .
-<BH> <http://xmlns.com/foaf/0.1/name> "Burbage, Richard" <Universal> .
-<U> <http://xmlns.com/foaf/0.1/name> "3" <Universal> .
-<BG> <http://xmlns.com/foaf/0.1/name> "Lanyer, Aemilia" <Universal> .
-<L> <http://xmlns.com/foaf/0.1/name> ", on the south bank of the Thames" <Universal> .
-<R> <http://xmlns.com/foaf/0.1/name> "Blackfriars Theatre" <Universal> .
-<BB> <http://xmlns.com/foaf/0.1/name> "Shapiro, James" <Universal> .
-<H> <http://xmlns.com/foaf/0.1/name> "Warwickshire" <Universal> .
-<I> <http://xmlns.com/foaf/0.1/name> "Thames" <Universal> .
-<G> <http://xmlns.com/foaf/0.1/name> "1564-04-26" <Universal> .
-<M> <http://xmlns.com/foaf/0.1/name> ", home of WS's acting company, was dismantled preparatory to being transported south of the river" <Universal> .
-<N> <http://xmlns.com/foaf/0.1/name> "Stratford" <Universal> .
-<E> <http://xmlns.com/foaf/0.1/name> "Stratford upon Avon" <Universal> .
-<D> <http://xmlns.com/foaf/0.1/name> "1597--" <Universal> .
-<X> <http://xmlns.com/foaf/0.1/name> "New Place" <Universal> .
-<BA> <http://xmlns.com/foaf/0.1/name> "Greer, Germaine" <Universal> .
-<BN> <http://xmlns.com/foaf/0.1/name> "Roman Catholic Church" <Universal> .
-<V> <http://xmlns.com/foaf/0.1/name> "INSTITUTIONAL" <Universal> .
-<BE> <http://xmlns.com/foaf/0.1/name> "Greene, Robert" <Universal> .
-<BO> <http://xmlns.com/foaf/0.1/name> "UNESCO" <Universal> .
-<Q> <http://xmlns.com/foaf/0.1/name> "literature" <Universal> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <E> <b--shakwi--0--DIV2--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <N> <b--shakwi--0--DIV2--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <H> <b--shakwi--0--DIV2--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToOrganization> <BM> <b--shakwi--0--DIV2--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <E> <b--shakwi--0--DIV2--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BA> <b--shakwi--0--DIV2--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <Z> <b--shakwi--0--DIV2--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <N> <b--shakwi--0--DIV2--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToOrganization> <BN> <b--shakwi--0--DIV2--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <H> <b--shakwi--0--DIV2--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <Y> <b--shakwi--0--DIV2--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BB> <b--shakwi--0--DIV2--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BE> <b--shakwi--0--DIV2--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <J> <b--shakwi--0--DIV2--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <E> <b--shakwi--0--DIV2--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <N> <b--shakwi--0--DIV2--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <H> <b--shakwi--0--DIV2--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <BJ> <b--shakwi--0--DIV2--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#numberOfChildren> <U> <b--shakwi--0--DIV2--6> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BC> <b--shakwi--0--DIV2--6> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BA> <b--shakwi--0--DIV2--6> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BD> <b--shakwi--0--DIV2--6> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <E> <b--shakwi--0--DIV2--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithAddress> <W> <b--shakwi--0--DIV2--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <H> <b--shakwi--0--DIV2--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BG> <b--shakwi--0--DIV2--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithPlace> <R> <b--shakwi--0--DIV2--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <L> <b--shakwi--0--DIV2--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BF> <b--shakwi--0--DIV2--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <J> <b--shakwi--0--DIV2--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <M> <b--shakwi--0--DIV2--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BH> <b--shakwi--0--DIV2--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <I> <b--shakwi--0--DIV2--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <BJ> <b--shakwi--0--DIV2--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithJob> <T> <b--shakwi--0--DIV2--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <BK> <b--shakwi--0--DIV2--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <E> <b--shakwi--0--DIV2--8> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <N> <b--shakwi--0--DIV2--8> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <H> <b--shakwi--0--DIV2--8> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithAddress> <X> <b--shakwi--0--DIV1--10> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#dateOfDeath> <C> <b--shakwi--0--DIV1--10> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <E> <b--shakwi--0--DIV1--10> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToOrganization> <BO> <b--shakwi--0--DIV1--10> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <N> <b--shakwi--0--DIV1--10> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#dateOfDeath> <D> <b--shakwi--0--DIV1--10> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#diedInRegion> <H> <b--shakwi--0--DIV1--10> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <H> <b--shakwi--0--DIV1--10> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BI> <b--shakwi--0--DIV1--10> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#diedInSettlement> <N> <b--shakwi--0--DIV1--10> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#diedInGeog> <B> <b--shakwi--0--DIV1--10> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#studied> <Q> <b--shakwi--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <E> <b--shakwi--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#studied> <O> <b--shakwi--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <N> <b--shakwi--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#studied> <P> <b--shakwi--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <H> <b--shakwi--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#educationMode> <V> <b--shakwi--0--DIV1--4> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#numberOfChildren> <U> <b--shakwi--0--DIV1--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BC> <b--shakwi--0--DIV1--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BA> <b--shakwi--0--DIV1--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BD> <b--shakwi--0--DIV1--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BE> <b--shakwi--0--DIV1--6> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <J> <b--shakwi--0--DIV1--6> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <E> <b--shakwi--0--DIV1--6> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <N> <b--shakwi--0--DIV1--6> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <H> <b--shakwi--0--DIV1--6> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <BJ> <b--shakwi--0--DIV1--6> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BG> <b--shakwi--0--DIV1--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithPlace> <R> <b--shakwi--0--DIV1--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <L> <b--shakwi--0--DIV1--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BF> <b--shakwi--0--DIV1--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <J> <b--shakwi--0--DIV1--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#occupation> <T> <b--shakwi--0--DIV1--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <M> <b--shakwi--0--DIV1--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#workedAs> <T> <b--shakwi--0--DIV1--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BH> <b--shakwi--0--DIV1--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <I> <b--shakwi--0--DIV1--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <BJ> <b--shakwi--0--DIV1--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithJob> <T> <b--shakwi--0--DIV1--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <BK> <b--shakwi--0--DIV1--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#bornInRegion> <H> <b--shakwi--0--DIV1--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <E> <b--shakwi--0--DIV1--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#bornInSettlement> <E> <b--shakwi--0--DIV1--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithAddress> <W> <b--shakwi--0--DIV1--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <H> <b--shakwi--0--DIV1--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#dateOfBirth> <F> <b--shakwi--0--DIV1--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#dateOfBirth> <G> <b--shakwi--0--DIV1--1> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToOrganization> <BM> <b--shakwi--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <E> <b--shakwi--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BA> <b--shakwi--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <Z> <b--shakwi--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <N> <b--shakwi--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToOrganization> <BN> <b--shakwi--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <H> <b--shakwi--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <Y> <b--shakwi--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BB> <b--shakwi--0--DIV1--3> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToOrganization> <BO> <b--shakwi--0--P--16> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BI> <b--shakwi--0--P--16> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithPlace> <R> <b--shakwi--0--P--15> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <J> <b--shakwi--0--P--15> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <BJ> <b--shakwi--0--P--15> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <J> <b--shakwi--0--P--13> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BH> <b--shakwi--0--P--13> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <BJ> <b--shakwi--0--P--13> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BG> <b--shakwi--0--P--12> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <L> <b--shakwi--0--P--12> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BF> <b--shakwi--0--P--12> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <J> <b--shakwi--0--P--12> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <I> <b--shakwi--0--P--12> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <BJ> <b--shakwi--0--P--12> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <BK> <b--shakwi--0--P--12> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithJob> <T> <b--shakwi--0--P--11> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithPlace> <R> <b--shakwi--0--DIV1--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <J> <b--shakwi--0--DIV1--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <BJ> <b--shakwi--0--DIV1--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <E> <b--shakwi--0--P--10> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <N> <b--shakwi--0--P--10> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <H> <b--shakwi--0--P--10> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BE> <b--shakwi--0--P--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <J> <b--shakwi--0--P--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <E> <b--shakwi--0--P--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <N> <b--shakwi--0--P--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <H> <b--shakwi--0--P--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <BJ> <b--shakwi--0--P--9> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#numberOfChildren> <U> <b--shakwi--0--P--8> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BA> <b--shakwi--0--P--8> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BD> <b--shakwi--0--P--8> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <E> <b--shakwi--0--P--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <N> <b--shakwi--0--P--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <H> <b--shakwi--0--P--7> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BB> <b--shakwi--0--P--6> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToOrganization> <BM> <b--shakwi--0--P--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BA> <b--shakwi--0--P--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <Z> <b--shakwi--0--P--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToOrganization> <BN> <b--shakwi--0--P--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <Y> <b--shakwi--0--P--5> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithPlace> <R> <b--shakwi--0--DIV2--11> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <J> <b--shakwi--0--DIV2--11> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <BJ> <b--shakwi--0--DIV2--11> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithAddress> <X> <b--shakwi--0--DIV2--12> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <E> <b--shakwi--0--DIV2--12> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToOrganization> <BO> <b--shakwi--0--DIV2--12> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithSettlement> <N> <b--shakwi--0--DIV2--12> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionWithRegion> <H> <b--shakwi--0--DIV2--12> .
-<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#connectionToPerson> <BI> <b--shakwi--0--DIV2--12> .
 
+<B> <http://xmlns.com/foaf/0.1/name> "Stratford upon Avon" <Universal> .
+<BA> <http://xmlns.com/foaf/0.1/name> "UNESCO" <Universal> .
+<BB> <http://xmlns.com/foaf/0.1/name> "United Nations Educational, Scientific and Cultural Organization in 1996 to declare this date" <Universal> .
+<BC> <http://xmlns.com/foaf/0.1/name> "WS, poet and playwright, was born in" <Universal> .
+<BD> <http://xmlns.com/foaf/0.1/name> "1564-04-23" <Universal> .
+<BE> <http://xmlns.com/foaf/0.1/name> "1564-04-26" <Universal> .
+<BF> <http://xmlns.com/foaf/0.1/name> "23 April 1564" <Universal> .
+<BG> <http://xmlns.com/foaf/0.1/name> "26 April ; he eventually died on 23 April, which as the feast of St George, patron saint of England, is in this context a highly symbolic date. For all these reasons the attraction of 23 April as" <Universal> .
+<BH> <http://xmlns.com/foaf/0.1/name> "Latin and" <Universal> .
+<BI> <http://xmlns.com/foaf/0.1/name> "rhetoric, reading a wide range of" <Universal> .
+<BJ> <http://xmlns.com/foaf/0.1/name> "literature. He also had opportunities before leaving home of attending plays put on by travelling companies." <Universal> .
+<BK> <http://xmlns.com/foaf/0.1/name> "Shakespeare, Anne" <Universal> .
+<BL> <http://xmlns.com/foaf/0.1/name> "Greer, Germaine" <Universal> .
+<BM> <http://xmlns.com/foaf/0.1/name> "Greenblatt, Stephen" <Universal> .
+<BN> <http://xmlns.com/foaf/0.1/name> "WS" <Universal> .
+<BO> <http://xmlns.com/foaf/0.1/name> "Anne Hathaway" <Universal> .
+<BP> <http://xmlns.com/foaf/0.1/name> "Germaine Greer" <Universal> .
+<BQ> <http://xmlns.com/foaf/0.1/name> "Stephen Greenblatt" <Universal> .
+<BR> <http://xmlns.com/foaf/0.1/name> "Greene, Robert" <Universal> .
+<BS> <http://xmlns.com/foaf/0.1/name> "Robert Greene ) some time before September 1592." <Universal> .
+<BT> <http://xmlns.com/foaf/0.1/name> "King's Men" <Universal> .
+<BU> <http://xmlns.com/foaf/0.1/name> "Lord Chamberlain's Men, and acted under the aegis of" <Universal> .
+<BV> <http://xmlns.com/foaf/0.1/name> "King's Company of Players, moved their centre of operations to the private" <Universal> .
+<BW> <http://xmlns.com/foaf/0.1/name> "Thames" <Universal> .
+<BX> <http://xmlns.com/foaf/0.1/name> "river" <Universal> .
+<BY> <http://xmlns.com/foaf/0.1/name> "Stratford upon Avon," <Universal> .
+<BZ> <http://xmlns.com/foaf/0.1/name> "Shakespeare is believed to have worked as an actor from soon after his arrival in London, still in his early twenties. He joined a company of players whose name varied with successive patrons. 28 December 1598 The Theatre in London, home of WS's acting company, was dismantled preparatory to being transported south of the river for re-erection as the Globe. From spring 1599 the company acted at the rebuilt Globe in Southwark, on the south bank of the Thames. From 1594 the company was known as the Lord Chamberlain's Men, and acted under the aegis of Lord Hunsdon (lover of the poet Aemilia Lanyer ). After about 1610 Shakespeare's company, now known as the King's Company of Players, moved their centre of operations to the private Blackfriars Theatre, which drew a wealthier class of patron. Blackfriars had been built by Richard Burbage in 1596. Apart from the composition of the audience, the biggest difference between it and the public theatres was that here candlelight could replace or supplement daylight. The company continued to act at the Globe as well." <Universal> .
+<C> <http://xmlns.com/foaf/0.1/name> "Stratford" <Universal> .
+<CA> <http://xmlns.com/foaf/0.1/name> "His mother, born Mary Arden as the youngest child in her family, was an executor for her father and brought landed property to her considerably older husband." <Universal> .
+<CB> <http://xmlns.com/foaf/0.1/name> "William's father, John Shakespeare, was a glover by trade. He made money by buying property in Stratford, and held various civic offices in the town, but while William was in his teens the family finances declined sharply." <Universal> .
+<CC> <http://xmlns.com/foaf/0.1/name> "27 November 1582 WS, aged eighteen, took out a licence to marry Anne Hathaway, who was already pregnant by him. Her name was given wrongly in the licence, which has given rise to various lines of speculation; however, there seems no good reason to doubt that Shakespeare intended from this date to marry the woman whom he did marry. Germaine Greer finds some bitter fun in tracing the progressive traducing of Anne Shakespeare by successive scholars to reach Stephen Greenblatt's belief that the prospect of sharing a grave with her filled her husband with horror and disgust. The couple had three children: a daughter, Susanna, followed by twins, Hamnet and Judith. Hamnet died young in August 1596." <Universal> .
+<CD> <http://xmlns.com/foaf/0.1/name> "passionately in love with a younger man and" <Universal> .
+<CE> <http://xmlns.com/foaf/0.1/name> "sexually enthralled by a woman whom he despises." <Universal> .
+<CF> <http://xmlns.com/foaf/0.1/name> "male homosexual" <Universal> .
+<CG> <http://xmlns.com/foaf/0.1/name> "heterosexual" <Universal> .
+<CH> <http://xmlns.com/foaf/0.1/name> "23 April 1616 WS, poet and playwright, died on St George's day at New Place in Stratford, the fine modern house he had bought with his theatrical earnings in 1597. By tradition this is reckoned to have been his fifty-second birthday. It is also the day on which Miguel de Cervantes died. The concatenation of these dates prompted the United Nations Educational, Scientific and Cultural Organization in 1996 to declare this date World Book and Copyright Day." <Universal> .
+<CI> <http://xmlns.com/foaf/0.1/name> "Church of England or whether he adhered to the minority and persecuted Old Religion of" <Universal> .
+<CJ> <http://xmlns.com/foaf/0.1/name> "Catholicism. Supporters of the Catholic thesis include" <Universal> .
+<CK> <http://xmlns.com/foaf/0.1/name> "Protestant practice; the father of" <Universal> .
+<CL> <http://xmlns.com/foaf/0.1/name> "Anglican" <Universal> .
+<CM> <http://xmlns.com/foaf/0.1/name> "Roman Catholic" <Universal> .
+<CN> <http://xmlns.com/foaf/0.1/name> "Anglican Church" <Universal> .
+<CO> <http://xmlns.com/foaf/0.1/name> "Roman Catholic Church" <Universal> .
+<CP> <http://xmlns.com/foaf/0.1/name> "Church of England" <Universal> .
+<CQ> <http://xmlns.com/foaf/0.1/name> "Catholicism" <Universal> .
+<CR> <http://xmlns.com/foaf/0.1/name> "23 April 1564 WS, poet and playwright, was born in Henley Street, Stratford upon Avon, Warwickshire, supposedly on this date, the feast of St George. The date is virtually a guess. The child was baptised on 26 April ; he eventually died on 23 April, which as the feast of St George, patron saint of England, is in this context a highly symbolic date. For all these reasons the attraction of 23 April as Shakespeare's Birthday has proved irresistible to tradition. The house where he was born is now a tourist site known as Shakespeare's Birthplace. He was the third child to be born and the first to survive in a family that in the end amounted to eight. Most of them lived to grow up, but only one survived longer than William." <Universal> .
+<CS> <http://xmlns.com/foaf/0.1/name> "glover by trade. He made money by buying property in Stratford, and held various civic offices in the town, but while William was in his teens the family finances declined sharply." <Universal> .
+<CT> <http://xmlns.com/foaf/0.1/name> "actor from soon after his arrival in London, still in his early twenties. He joined a company of players whose name varied with successive patrons." <Universal> .
+<CU> <http://xmlns.com/foaf/0.1/name> "acting" <Universal> .
+<CV> <http://xmlns.com/foaf/0.1/name> "1616-04-23" <Universal> .
+<CW> <http://xmlns.com/foaf/0.1/name> "1597--" <Universal> .
+<CX> <http://xmlns.com/foaf/0.1/name> "23 April 1616" <Universal> .
+<CY> <http://xmlns.com/foaf/0.1/name> "1597." <Universal> .
+<CZ> <http://xmlns.com/foaf/0.1/name> "At Stratford grammar school WS would have been educated, free, in Latin and rhetoric, reading a wide range of literature. He also had opportunities before leaving home of attending plays put on by travelling companies." <Universal> .
+<D> <http://xmlns.com/foaf/0.1/name> "Warwickshire" <Universal> .
+<DA> <http://xmlns.com/foaf/0.1/name> "INSTITUTIONAL" <Universal> .
+<DB> <http://xmlns.com/foaf/0.1/name> "His mother, born Mary Arden as the youngest child in her family, was an executor for her father and brought landed property to her considerably older husband. William's father, John Shakespeare, was a glover by trade. He made money by buying property in Stratford, and held various civic offices in the town, but while William was in his teens the family finances declined sharply." <Universal> .
+<DC> <http://xmlns.com/foaf/0.1/name> "In 1613 WS made another substantial property investment, this time in London instead of in Stratford, close to the Blackfriars Theatre. He sold his share in the Globe some time after the building burned down in June this year." <Universal> .
+<DD> <http://xmlns.com/foaf/0.1/name> "Henley Street," <Universal> .
+<DE> <http://xmlns.com/foaf/0.1/name> "After he became successful he made regular visits to Stratford and followed in his father's footsteps by buying property in the town." <Universal> .
+<DF> <http://xmlns.com/foaf/0.1/name> "3" <Universal> .
+<DG> <http://xmlns.com/foaf/0.1/name> "New Place in" <Universal> .
+<DH> <http://xmlns.com/foaf/0.1/name> "Cervantes, Miguel de" <Universal> .
+<DI> <http://xmlns.com/foaf/0.1/name> "WS, poet and playwright, died on St George's day at" <Universal> .
+<DJ> <http://xmlns.com/foaf/0.1/name> "Miguel de Cervantes died. The concatenation of these dates prompted the" <Universal> .
+<E> <http://xmlns.com/foaf/0.1/name> "Middlesex" <Universal> .
+<F> <http://xmlns.com/foaf/0.1/name> "London" <Universal> .
+<G> <http://xmlns.com/foaf/0.1/name> "Southwark" <Universal> .
+<H> <http://xmlns.com/foaf/0.1/name> "The date of Shakespeare's move from Stratford to London is not known. He was well enough established in the capital to have his writing fiercely attacked (by Robert Greene ) some time before September 1592." <Universal> .
+<I> <http://xmlns.com/foaf/0.1/name> "Hunsdon, Henry Carey,,, first Baron" <Universal> .
+<J> <http://xmlns.com/foaf/0.1/name> "Lanyer, Aemilia" <Universal> .
+<K> <http://xmlns.com/foaf/0.1/name> "Burbage, Richard" <Universal> .
+<L> <http://xmlns.com/foaf/0.1/name> "WS's acting company, was dismantled preparatory to being transported south of the" <Universal> .
+<M> <http://xmlns.com/foaf/0.1/name> "Lord Hunsdon (lover of the poet" <Universal> .
+<N> <http://xmlns.com/foaf/0.1/name> "Aemilia Lanyer )." <Universal> .
+<O> <http://xmlns.com/foaf/0.1/name> "Shakespeare's company, now known as the" <Universal> .
+<P> <http://xmlns.com/foaf/0.1/name> "Richard Burbage in" <Universal> .
+<Q> <http://xmlns.com/foaf/0.1/name> "England" <Universal> .
+<R> <http://xmlns.com/foaf/0.1/name> "1598-12-28" <Universal> .
+<S> <http://xmlns.com/foaf/0.1/name> "1594--" <Universal> .
+<T> <http://xmlns.com/foaf/0.1/name> "1610--" <Universal> .
+<U> <http://xmlns.com/foaf/0.1/name> "1596--" <Universal> .
+<V> <http://xmlns.com/foaf/0.1/name> "28 December 1598" <Universal> .
+<W> <http://xmlns.com/foaf/0.1/name> "1594 the company was known as the" <Universal> .
+<X> <http://xmlns.com/foaf/0.1/name> "After about 1610" <Universal> .
+<Y> <http://xmlns.com/foaf/0.1/name> "1596. Apart from the composition of the audience, the biggest difference between it and the public theatres was that here candlelight could replace or supplement daylight. The company continued to act at the" <Universal> .
+<Z> <http://xmlns.com/foaf/0.1/name> "WS made another substantial property investment, this time in London instead of in Stratford, close to the" <Universal> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#birth> <CR> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#birthConnectionToAddress> <DD> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#birthConnectionToDate> <BD> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#birthConnectionToDate> <BD> <b--shakwi--0--DIV1--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#birthConnectionToDate> <BE> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#birthConnectionToDate> <BE> <b--shakwi--0--DIV1--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#birthConnectionToDate> <BF> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#birthConnectionToDate> <BG> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#birthConnectionToGeog> <Q> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#birthConnectionToGeog> <Q> <b--shakwi--0--DIV1--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#birthConnectionToPerson> <BC> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#birthConnectionToRegion> <D> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#birthConnectionToSettlement> <BY> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#death> <CH> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#deathConnectionToAddress> <DG> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#deathConnectionToDate> <CV> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#deathConnectionToDate> <CV> <b--shakwi--0--DIV1--10> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#deathConnectionToDate> <CW> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#deathConnectionToDate> <CW> <b--shakwi--0--DIV1--10> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#deathConnectionToDate> <CX> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#deathConnectionToDate> <CY> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#deathConnectionToGeog> <Q> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#deathConnectionToGeog> <Q> <b--shakwi--0--DIV1--10> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#deathConnectionToOrganization> <BA> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#deathConnectionToOrganization> <BA> <b--shakwi--0--DIV1--10> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#deathConnectionToOrganization> <BB> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#deathConnectionToPerson> <DH> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#deathConnectionToPerson> <DH> <b--shakwi--0--DIV1--10> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#deathConnectionToPerson> <DI> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#deathConnectionToPerson> <DJ> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#deathConnectionToRegion> <D> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#deathConnectionToRegion> <D> <b--shakwi--0--DIV1--10> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#deathConnectionToSettlement> <B> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#deathConnectionToSettlement> <B> <b--shakwi--0--DIV1--10> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#deathConnectionToSettlement> <C> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasAreaOfStudy> <BH> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasAreaOfStudy> <BI> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasAreaOfStudy> <BJ> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <CI> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <CJ> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <CK> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <CL> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <CL> <b--shakwi--0--DIV1--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <CL> <b--shakwi--0--DIV2--4> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <CL> <b--shakwi--0--P--5> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <CM> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <CM> <b--shakwi--0--DIV1--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <CM> <b--shakwi--0--DIV2--4> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <CM> <b--shakwi--0--P--5> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <CN> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <CN> <b--shakwi--0--DIV1--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <CN> <b--shakwi--0--DIV2--4> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <CN> <b--shakwi--0--P--5> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <CO> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <CO> <b--shakwi--0--DIV1--3> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <CO> <b--shakwi--0--DIV2--4> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <CO> <b--shakwi--0--P--5> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <CP> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasDenomination> <CQ> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasEducation> <CZ> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasEducationMode> <DA> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasEducationMode> <DA> <b--shakwi--0--DIV1--4> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasFamily> <CC> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasFamily> <DB> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasFamilyMember> <CA> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasFamilyMember> <CB> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasFamilyMember> <CC> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasJob> <CS> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasJob> <CT> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasJob> <CU> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasJob> <CU> <b--shakwi--0--DIV1--7> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasJob> <CU> <b--shakwi--0--DIV2--9> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasJob> <CU> <b--shakwi--0--P--11> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasNumberOfChildren> <DF> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasNumberOfChildren> <DF> <b--shakwi--0--DIV1--5> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasNumberOfChildren> <DF> <b--shakwi--0--DIV2--6> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasNumberOfChildren> <DF> <b--shakwi--0--P--8> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupation> <BZ> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToDate> <R> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToDate> <R> <b--shakwi--0--DIV1--7> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToDate> <S> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToDate> <S> <b--shakwi--0--DIV1--7> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToDate> <T> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToDate> <T> <b--shakwi--0--DIV1--7> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToDate> <U> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToDate> <U> <b--shakwi--0--DIV1--7> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToDate> <V> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToDate> <W> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToDate> <X> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToDate> <Y> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToGeog> <Q> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToGeog> <Q> <b--shakwi--0--DIV1--7> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToOrganization> <BT> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToOrganization> <BT> <b--shakwi--0--DIV1--7> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToOrganization> <BU> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToOrganization> <BV> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToPerson> <I> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToPerson> <I> <b--shakwi--0--DIV1--7> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToPerson> <J> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToPerson> <J> <b--shakwi--0--DIV1--7> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToPerson> <K> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToPerson> <K> <b--shakwi--0--DIV1--7> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToPerson> <L> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToPerson> <M> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToPerson> <N> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToPerson> <O> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToPerson> <P> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToRegion> <BW> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToRegion> <BW> <b--shakwi--0--DIV1--7> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToRegion> <BW> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToRegion> <BX> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToRegion> <E> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToRegion> <E> <b--shakwi--0--DIV1--7> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToSettlement> <F> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToSettlement> <F> <b--shakwi--0--DIV1--7> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToSettlement> <F> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasOccupationConnectionToSettlement> <G> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasSexualIdentity> <CD> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasSexualIdentity> <CE> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasSexualIdentity> <CF> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasSexualIdentity> <CF> <b--shakwi--0--DIV1--8> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasSexualIdentity> <CF> <b--shakwi--0--DIV2--10> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasSexualIdentity> <CF> <b--shakwi--0--P--14> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasSexualIdentity> <CG> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasSexualIdentity> <CG> <b--shakwi--0--DIV1--8> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasSexualIdentity> <CG> <b--shakwi--0--DIV2--10> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasSexualIdentity> <CG> <b--shakwi--0--P--14> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasWealth> <DC> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasWealthConnectionToGeog> <Q> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasWealthConnectionToGeog> <Q> <b--shakwi--0--DIV1--9> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasWealthConnectionToPerson> <Z> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasWealthConnectionToRegion> <E> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasWealthConnectionToRegion> <E> <b--shakwi--0--DIV1--9> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasWealthConnectionToSettlement> <F> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasWealthConnectionToSettlement> <F> <b--shakwi--0--DIV1--9> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasWife> <BK> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasWife> <BK> <b--shakwi--0--DIV1--5> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasWife> <BL> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasWife> <BL> <b--shakwi--0--DIV1--5> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasWife> <BM> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasWife> <BM> <b--shakwi--0--DIV1--5> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasWife> <BN> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasWife> <BN> <b--shakwi--0--DIV1--5> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasWife> <BO> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasWife> <BO> <b--shakwi--0--DIV1--5> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasWife> <BP> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasWife> <BP> <b--shakwi--0--DIV1--5> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasWife> <BQ> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#hasWife> <BQ> <b--shakwi--0--DIV1--5> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#moved> <H> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#movedConnectionToGeog> <Q> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#movedConnectionToGeog> <Q> <b--shakwi--0--DIV1--6> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#movedConnectionToPerson> <BR> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#movedConnectionToPerson> <BR> <b--shakwi--0--DIV1--6> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#movedConnectionToPerson> <BS> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#movedConnectionToRegion> <D> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#movedConnectionToRegion> <D> <b--shakwi--0--DIV1--6> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#movedConnectionToRegion> <E> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#movedConnectionToRegion> <E> <b--shakwi--0--DIV1--6> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#movedConnectionToSettlement> <B> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#movedConnectionToSettlement> <B> <b--shakwi--0--DIV1--6> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#movedConnectionToSettlement> <C> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#movedConnectionToSettlement> <F> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#visited> <DE> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#visitedConnectionToGeog> <Q> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#visitedConnectionToGeog> <Q> <b--shakwi--0--DIV1--6> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#visitedConnectionToRegion> <D> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#visitedConnectionToRegion> <D> <b--shakwi--0--DIV1--6> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#visitedConnectionToSettlement> <B> <b--shakwi--0--DIV0--1> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#visitedConnectionToSettlement> <B> <b--shakwi--0--DIV1--6> .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://draftOrlandoOntology.org/Draft1#visitedConnectionToSettlement> <C> _:Nc30e272cf4bf4f81a4ef8a87442b695d .
+<http://orlando.cambridge.org/public/svPeople?person_id=shakwi> <http://xmlns.com/foaf/0.1/name> "Shakespeare, William" <Universal> .
