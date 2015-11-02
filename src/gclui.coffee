@@ -540,6 +540,13 @@ class CommandController
         that.huviz.set_cursor_for_verbs([])
       that.update_command(because)
   run_script: (script) ->
+    # We recognize a couple of different visible "space-illustrating characters" as spaces.
+    #   https://en.wikipedia.org/wiki/Whitespace_character
+    #     U+237D  ⍽ SHOULDERED OPEN BOX
+    #     U+2420  ␠  SYMBOL FOR SPACE
+    # The purpose of recognizing these as spaces is to make the scripts using them
+    # more readable in a URL, especially in a FormURLa.
+    script = script.replace(/[\u237D\u2420]/g," ")
     @huviz.gclc.run(script)
     @huviz.update_all_counts()
   build_set_picker: (label, where) ->

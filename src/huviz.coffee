@@ -2862,7 +2862,7 @@ class Huviz
   get_script_from_hash: () ->
     script = location.hash
     script = (not script? or script is "#") and "" or script.replace(/^#/,"")
-    script = script.replace(/\+/g," ").replace(/␠/g," ")
+    script = script.replace(/\+/g," ")
     console.log "script", script
     return script
 
