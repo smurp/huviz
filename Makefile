@@ -25,9 +25,9 @@ atwoma:
 	sort < ${TMPFILE} > data/atwoma.nq
 	rm ${TMPFILE}
 
-balfcl:
-	./orlandoScrape.py --outfile ${TMPFILE} --ids balfcl ${ARGS}
-	sort < ${TMPFILE} > data/balfcl.nq
+byroau:
+	./orlandoScrape.py --outfile ${TMPFILE} --ids byroau ${ARGS}
+	sort < ${TMPFILE} > data/byroau.nq
 	rm ${TMPFILE}
 
 ballrm:
@@ -49,6 +49,11 @@ brontes:
 shakwi:
 	./orlandoscrape.py --outfile ${TMPFILE} --id shakwi ${ARGS}
 	sort < ${TMPFILE} > data/shakwi.nq
+	rm ${TMPFILE}
+
+byroau:
+	./orlandoscrape.py --outfile ${TMPFILE} --id byroau ${ARGS}
+	sort < ${TMPFILE} > data/byroau.nq
 	rm ${TMPFILE}
 
 relations:  # commented out religiousInfluence and connectionToOrganization
