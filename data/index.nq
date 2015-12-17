@@ -1,4 +1,4 @@
-<./abdyma.nq> <nooron:readable> <_:orlando> .
-<./ballrm.nq> <nooron:readable> <_:orlando> .
-<./atwoma.nq> <nooron:readable> <_:orlando> .
-<./shakwi.nq> <nooron:readable> <_:orlando> .
+<./abdyma.nq> <_:type> <nooron:readable> <_:orlando> . # 1_0_x0x_OxO
+<./ballrm.nq> <_:type> <nooron:readable> <_:orlando> . # 1_0_x0x_Ox1
+<./atwoma.nq> <_:type> <nooron:readable> <_:orlando> . # 1_0_x0x_Ox2
+<./shakwi.nq> <_:type> <nooron:readable> <_:orlando> . # 1_0_x0x_Ox3

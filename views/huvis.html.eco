@@ -106,12 +106,25 @@
               onchange="HVZ.load_file(this)"
               title="data sets are in order of increasing complexity">
 	    <option value=""> -- pick -- </option>
-            <option title="R.M. Ballantyne -- all attributes -- 14 nodes; 60 edges; 17 predicates">/data/ballrm.nq</option>
+	    <option value=""> -- Individuals -- </option>
+            <option title="Augusta Ada Byron -- all attributes -- TBD">/data/byroau.nq</option>
             <option title="Maria Abdy -- all attributes -- 68 nodes; 308 edges; 37 predicates">/data/abdyma.nq</option>
+            <option title="R.M. Ballantyne -- all attributes -- 14 nodes; 60 edges; 17 predicates">/data/ballrm.nq</option>
             <option title="William Shakespeare -- basic relational predicates -- 41 nodes; 46 edges; 21 predicates ">/data/shakwi.nq</option>
-            <option title="Brontes -- all attributes -- 423 node; 666 edges; 43 predicates">/data/brontes.nq</option>
-
+ 	    <option value=""> -- Organizations -- </option>
+            <option title="Académie des Femmes -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/academie_des_femmes.nq</option>
+            <option title="African National Contgres -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/african_national_congress.nq</option>
+            <option title="The Bronte Sisters -- all attributes -- 423 node; 666 edges; 43 predicates">/data/brontes.nq</option>
             <option title="Early Writers:  573 nodes; edges 835; predicates 52">/data/early_writers.nq</option>
+	    <option title="Female Anti-Slavery Society -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/female_antislavery_society.nq</option>
+            <option title="Newnham College -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/newnham_college.nq</option>
+	    <option title="Nuns: Middle Ages -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/nuns.nq</option>
+	    <option title="The 1917 Club -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/the_1917_club.nq</option>
+	    <option title="The 17th Century Quakers -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/the_17th_century_quakers.nq</option>
+ 	    <option value=""> -- Periodicals -- </option>
+            <option title="The Yellow Book AND Poet -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/yellow_book_and_poet.nq</option>
+	    
+
 	    <!--
             <option title="Margaret Atwood -- all attributes -- 444 nodes; 2325 edges; 41 predicates">/data/atwoma.nq</option>
             <option title="The Poetesses -- all attributes -- 1735 nodes; 1646 edges; 11 predicates">/data/poetesses.nq</option>
