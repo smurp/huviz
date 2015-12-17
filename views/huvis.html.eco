@@ -122,8 +122,8 @@
 	    <option title="The 1917 Club -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/the_1917_club.nq</option>
 	    <option title="The 17th Century Quakers -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/the_17th_century_quakers.nq</option>
  	    <option value=""> -- Periodicals -- </option>
+            <option title="Tait's Edinburgh Magazine -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/taits_endinburgh_magazine.nq</option>	    
             <option title="The Yellow Book AND Poet -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/yellow_book_and_poet.nq</option>
-	    
 
 	    <!--
             <option title="Margaret Atwood -- all attributes -- 444 nodes; 2325 edges; 41 predicates">/data/atwoma.nq</option>

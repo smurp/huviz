@@ -17,7 +17,7 @@ individuals: ballrm abdyma shakwi balfcl byroau
 
 organizations: academie_des_femmes african_national_congress brontes female_antislavery_society newnham_college nuns the_1917_club the_17th_century_quakers
 
-periodicals: yellow_book_and_poet 
+periodicals: yellow_book_and_poet taits_edinburgh_magazine
 
 broken: atwoma relations poetesses brontes
 
@@ -108,6 +108,12 @@ relations:  # commented out religiousInfluence and connectionToOrganization
 ##############################################################################
 # PERIODICALS
 ##############################################################################
+
+
+taits_edinburgh_magazine:
+	./orlandoscrape.py --outfile ${TMPFILE} --id martha,johnch,ellisa ${ARGS}
+	sort < ${TMPFILE} > data/taits_edinburgh_magazine.nq
+	rm ${TMPFILE}
 
 yellow_book_and_poet:
 	./orlandoscrape.py --outfile ${TMPFILE} --id levyam,watsro,meynal,almala ${ARGS}
