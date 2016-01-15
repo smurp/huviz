@@ -17,6 +17,19 @@
 .verb {
   border:2px solid;
   margin:0.05em;
+  cursor: pointer;
+}
+.contents { /* Boxes in a treepicker are clickable */
+    cursor: pointer;
+}
+.expander { /* Show expanders as clickable even if they are within treepicker-empty */
+  cursor: pointer;
+}
+.treepicker-empty {  /*   If empty then it is not clickable ORDER MATTERS */
+  cursor: default;
+}
+.treepicker-collapse { /* but if it is also collapsed then it IS clickable again! ORDER MATTERS */
+  cursor: pointer;
 }
 .engaged {
   background-color: tan;
