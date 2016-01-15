@@ -11,13 +11,17 @@ ARGS = 	--all_predicates ${BASE_ARGS}
 
 TMPFILE := $(shell mktemp /tmp/XXXXXXXXXXXXXX).nq
 
-all: individuals organizations
+all: individuals organizations periodicals publishing_houses genres
 
 individuals: ballrm abdyma shakwi balfcl byroau
 
 organizations: academie_des_femmes african_national_congress brontes female_antislavery_society newnham_college nuns the_1917_club the_17th_century_quakers
 
 periodicals: yellow_book_and_poet taits_edinburgh_magazine englishwomans_review
+
+publishing_houses: dial_press kelmscott_press minerva_press victoria_press
+
+genres: famous_cookbooks
 
 broken: atwoma relations poetesses brontes
 
@@ -124,3 +128,37 @@ englishwomans_review:
 	./orlandoscrape.py --outfile ${TMPFILE} --id boucje,blache ${ARGS}
 	sort < ${TMPFILE} > data/englishwomans_review.nq
 	rm ${TMPFILE}
+
+##############################################################################
+# PUBLISHING HOUSES
+##############################################################################
+
+dial_press:
+	./orlandoscrape.py --outfile ${TMPFILE} --id fordma,moorma,barndj,jessft ${ARGS}
+	sort < ${TMPFILE} > data/dial_press.nq
+	rm ${TMPFILE}
+
+kelmscott_press:
+	./orlandoscrape.py --outfile ${TMPFILE} --id swanan,wildja,morrwi,gregau ${ARGS}
+	sort < ${TMPFILE} > data/kelmscott_press.nq
+	rm ${TMPFILE}
+
+minerva_press:
+	./orlandoscrape.py --outfile ${TMPFILE} --id rochre,parsel,sleael,craihe,parkem,beauam ${ARGS}
+	sort < ${TMPFILE} > data/minerva_press.nq
+	rm ${TMPFILE}
+
+victoria_press:
+	./orlandoscrape.py --outfile ${TMPFILE} --id faitem,procad,parkbe,haysm2 ${ARGS}
+	sort < ${TMPFILE} > data/victoria_press.nq
+	rm ${TMPFILE}
+
+##############################################################################
+# GENRES
+##############################################################################
+
+famous_cookbooks:
+	./orlandoscrape.py --outfile ${TMPFILE} --id cookan,glasha,pluma2,halesa,johnch ${ARGS}
+	sort < ${TMPFILE} > data/famous_cookbooks.nq
+	rm ${TMPFILE}
+

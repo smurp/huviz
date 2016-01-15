@@ -119,13 +119,20 @@
 	    <option title="Female Anti-Slavery Society -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/female_antislavery_society.nq</option>
             <option title="Newnham College -- all attributes -- ?? nodes; 5300 edges; ?? predicates ✓">/data/newnham_college.nq</option>
 	    <option title="Nuns: Middle Ages -- all attributes -- 116 nodes; ?? edges; ?? predicates ✓">/data/nuns.nq</option>
-	    <option title="The 1917 Club -- all attributes -- ?? nodes; ?? edges; ?? predicates ✓">/data/the_1917_club.nq</option>
+	    <option title="The 1917 Club -- all attributes -- 516 nodes; ?? edges; ?? predicates ✓">/data/the_1917_club.nq</option>
 	    <option title="The 17th Century Quakers -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/the_17th_century_quakers.nq</option>
  	    <option value=""> -- Periodicals -- </option>
             <option title="Tait's Edinburgh Magazine -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/taits_endinburgh_magazine.nq</option>	    
             <option title="The Yellow Book AND Poet -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/yellow_book_and_poet.nq</option>
             <option title="Englishwoman's Review -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/englishwomans_review.nq</option>
-
+ 	    <option value=""> -- Publishing Houses -- </option>	    
+            <option title="Dial Press (modernist) -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/dial_press.nq</option>
+            <option title="Kelmscott Press -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/kelmscott_press.nq</option>
+            <option title="Minerva Press -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/minerva_press.nq</option>
+            <option title="Victoria Press -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/victoria_press.nq</option>
+ 	    <option value=""> -- Genres -- </option>
+            <option title="Famous Cookbooks -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/famous_cookbooks.nq</option>
+	    
 	    <!--
             <option title="Margaret Atwood -- all attributes -- 444 nodes; 2325 edges; 41 predicates">/data/atwoma.nq</option>
             <option title="The Poetesses -- all attributes -- 1735 nodes; 1646 edges; 11 predicates">/data/poetesses.nq</option>
