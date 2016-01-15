@@ -138,11 +138,11 @@
 	    </optgroup>
  	    <optgroup label="Periodicals">
               <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
-		      value="/data/taits_endinburgh_magazine.nq">Tait's Edinburgh Magazine</option>	    
+		      value="/data/englishwomans_review.nq">Englishwoman's Review</option>
+              <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+		      value="/data/taits_endinburgh_magazine.nq">Tait's Edinburgh Magazine</option>
               <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
 		      value="/data/yellow_book_and_poet.nq">The Yellow Book AND Poet</option>
-              <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
-		      value="/data/englishwomans_review.nq">Englishwoman's Review</option>	      
 	    </optgroup>
  	    <optgroup label="Publishing Houses">
               <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
