@@ -41,7 +41,7 @@
        <li><a href="#tabs-help" title="Introduction and Usage">Help</a></li>
        <li><a href="#tabs-options" title="Fine tune sizes, lengths and thicknesses.">Settings</a></li>
        <li><a href="#huvis_controls" title="Power tools for controlling the graph with commands consisting of verbs and nouns.">Commands</a></li>
-       <li><a href="#tabs-history" title="The history of commands">History</a></li>
+       <li><a href="#tabs-script" title="The sequence of commands which have been performed.">Script</a></li>
        <li><a href="#tabs-hide" title="Shrink this menu for maximum room to play.">Hide</a></li>
     </ul>
     <div id="tabs-help" class="scrolling_tab">
@@ -93,7 +93,10 @@
             nodes which have an edge shown to the chosen node.</li>
       </ul>
     </div>
-    <div id="tabs-history" class="scrolling_tab">
+    <div id="tabs-script" class="scrolling_tab">
+      <p>This is the sequence of commands which were performed to produce the current state of the display.
+	<i><b>Coming soon.</b></i>
+      </p>
     </div>
     <div id="tabs-options" class="graph_controls">
     </div>
@@ -117,7 +120,7 @@
 		      value="/data/shakwi.nq">William Shakespeare</option>
 	    </optgroup>
  	    <optgroup label="Organizations">
-              <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+              <option title="all attributes -- ?? nodes; 6200 edges; ?? predicates"
 		      value="/data/academie_des_femmes.nq">Académie des Femmes</option>
               <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
 		      value="/data/african_national_congress.nq">African National Contgres</option>
