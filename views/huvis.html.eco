@@ -215,7 +215,8 @@
         //HVZ.set_ontology("/data/orlando_ontology.ttl");
         //HVZ.set_ontology("/data/OrlandoOntology-SexesUnderPerson.ttl");
         //HVZ.set_ontology("/data/OrlandoOntology.ttl");
-        HVZ.set_ontology("/data/OrlandoOntologyPull5.ttl"); 
+        //HVZ.set_ontology("/data/OrlandoOntologyPull5.ttl");
+        HVZ.set_ontology("http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl");
         HVZ.boot_sequence();
       });
     </script>
