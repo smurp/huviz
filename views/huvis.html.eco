@@ -117,13 +117,14 @@
             <option title="The Bronte Sisters -- all attributes -- 423 node; 666 edges; 43 predicates">/data/brontes.nq</option>
             <option title="Early Writers:  573 nodes; edges 835; predicates 52">/data/early_writers.nq</option>
 	    <option title="Female Anti-Slavery Society -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/female_antislavery_society.nq</option>
-            <option title="Newnham College -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/newnham_college.nq</option>
-	    <option title="Nuns: Middle Ages -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/nuns.nq</option>
-	    <option title="The 1917 Club -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/the_1917_club.nq</option>
+            <option title="Newnham College -- all attributes -- ?? nodes; 5300 edges; ?? predicates ✓">/data/newnham_college.nq</option>
+	    <option title="Nuns: Middle Ages -- all attributes -- 116 nodes; ?? edges; ?? predicates ✓">/data/nuns.nq</option>
+	    <option title="The 1917 Club -- all attributes -- ?? nodes; ?? edges; ?? predicates ✓">/data/the_1917_club.nq</option>
 	    <option title="The 17th Century Quakers -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/the_17th_century_quakers.nq</option>
  	    <option value=""> -- Periodicals -- </option>
             <option title="Tait's Edinburgh Magazine -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/taits_endinburgh_magazine.nq</option>	    
             <option title="The Yellow Book AND Poet -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/yellow_book_and_poet.nq</option>
+            <option title="Englishwoman's Review -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/englishwomans_review.nq</option>
 
 	    <!--
             <option title="Margaret Atwood -- all attributes -- 444 nodes; 2325 edges; 41 predicates">/data/atwoma.nq</option>
