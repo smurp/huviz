@@ -105,34 +105,59 @@
               name="data_set" class="file_picker"
               onchange="HVZ.load_file(this)"
               title="data sets are in order of increasing complexity">
-	    <option value=""> -- pick -- </option>
-	    <option value=""> -- Individuals -- </option>
-            <option title="Augusta Ada Byron -- all attributes -- TBD">/data/byroau.nq</option>
-            <option title="Maria Abdy -- all attributes -- 68 nodes; 308 edges; 37 predicates">/data/abdyma.nq</option>
-            <option title="R.M. Ballantyne -- all attributes -- 14 nodes; 60 edges; 17 predicates">/data/ballrm.nq</option>
-            <option title="William Shakespeare -- basic relational predicates -- 41 nodes; 46 edges; 21 predicates ">/data/shakwi.nq</option>
- 	    <option value=""> -- Organizations -- </option>
-            <option title="Académie des Femmes -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/academie_des_femmes.nq</option>
-            <option title="African National Contgres -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/african_national_congress.nq</option>
-            <option title="The Bronte Sisters -- all attributes -- 423 node; 666 edges; 43 predicates">/data/brontes.nq</option>
-            <option title="Early Writers:  573 nodes; edges 835; predicates 52">/data/early_writers.nq</option>
-	    <option title="Female Anti-Slavery Society -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/female_antislavery_society.nq</option>
-            <option title="Newnham College -- all attributes -- ?? nodes; 5300 edges; ?? predicates ✓">/data/newnham_college.nq</option>
-	    <option title="Nuns: Middle Ages -- all attributes -- 116 nodes; ?? edges; ?? predicates ✓">/data/nuns.nq</option>
-	    <option title="The 1917 Club -- all attributes -- 516 nodes; ?? edges; ?? predicates ✓">/data/the_1917_club.nq</option>
-	    <option title="The 17th Century Quakers -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/the_17th_century_quakers.nq</option>
- 	    <option value=""> -- Periodicals -- </option>
-            <option title="Tait's Edinburgh Magazine -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/taits_endinburgh_magazine.nq</option>	    
-            <option title="The Yellow Book AND Poet -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/yellow_book_and_poet.nq</option>
-            <option title="Englishwoman's Review -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/englishwomans_review.nq</option>
- 	    <option value=""> -- Publishing Houses -- </option>	    
-            <option title="Dial Press (modernist) -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/dial_press.nq</option>
-            <option title="Kelmscott Press -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/kelmscott_press.nq</option>
-            <option title="Minerva Press -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/minerva_press.nq</option>
-            <option title="Victoria Press -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/victoria_press.nq</option>
- 	    <option value=""> -- Genres -- </option>
-            <option title="Famous Cookbooks -- all attributes -- ?? nodes; ?? edges; ?? predicates">/data/famous_cookbooks.nq</option>
-	    
+	    <option value=""> -- Pick a Data Set -- </option>
+	    <optgroup label="Individuals">
+              <option title="all attributes -- TBD"
+		      value="/data/byroau.nq">Augusta Ada Byron</option>
+              <option title="all attributes -- 68 nodes; 308 edges; 37 predicates"
+		      value="/data/abdyma.nq">Maria Abdy</option>
+              <option title="all attributes -- 14 nodes; 60 edges; 17 predicates"
+		      value="/data/ballrm.nq">R.M. Ballantyne</option>
+              <option title="basic relational predicates -- 41 nodes; 46 edges; 21 predicates"
+		      value="/data/shakwi.nq">William Shakespeare</option>
+	    </optgroup>
+ 	    <optgroup label="Organizations">
+              <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+		      value="/data/academie_des_femmes.nq">Académie des Femmes</option>
+              <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+		      value="/data/african_national_congress.nq">African National Contgres</option>
+              <option title="all attributes -- 423 node; 666 edges; 43 predicates"
+		      value="/data/brontes.nq">The Bronte Sisters</option>
+              <option title="all attributes -- 573 nodes; edges 835; predicates 52"
+		      value="/data/early_writers.nq">Early Writers</option>
+	      <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+		      value="/data/female_antislavery_society.nq">Female Anti-Slavery Society</option>
+              <option title="all attributes -- ?? nodes; 5300 edges; ?? predicates ✓"
+		      value="/data/newnham_college.nq">  Newnham College</option>
+	      <option title="all attributes -- 116 nodes; ?? edges; ?? predicates ✓"
+		      value="/data/nuns.nq">  Nuns: Middle Ages</option>
+	      <option title="all attributes -- 516 nodes; ?? edges; ?? predicates ✓"
+		      value="/data/the_1917_club.nq">  The 1917 Club</option>
+	      <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+		      value="/data/the_17th_century_quakers.nq">  The 17th Century Quakers</option>
+	    </optgroup>
+ 	    <optgroup label="Periodicals">
+              <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+		      value="/data/taits_endinburgh_magazine.nq">Tait's Edinburgh Magazine</option>	    
+              <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+		      value="/data/yellow_book_and_poet.nq">The Yellow Book AND Poet</option>
+              <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+		      value="/data/englishwomans_review.nq">Englishwoman's Review</option>	      
+	    </optgroup>
+ 	    <optgroup label="Publishing Houses">
+              <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+		      value="/data/dial_press.nq">Dial Press (modernist)</option>
+              <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+		      value="/data/kelmscott_press.nq">Kelmscott Press</option>
+              <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+		      value="/data/minerva_press.nq">Minerva Press</option>
+              <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+		      value="/data/victoria_press.nq">Victoria Press</option>
+	    </optgroup>
+ 	    <optgroup label="Genres">
+              <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+		      value="/data/famous_cookbooks.nq">Famous Cookbooks</option>
+	    </optgroup>	    
 	    <!--
             <option title="Margaret Atwood -- all attributes -- 444 nodes; 2325 edges; 41 predicates">/data/atwoma.nq</option>
             <option title="The Poetesses -- all attributes -- 1735 nodes; 1646 edges; 11 predicates">/data/poetesses.nq</option>
