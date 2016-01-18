@@ -121,9 +121,11 @@
 	    </optgroup>
  	    <optgroup label="Organizations">
               <option title="all attributes -- ?? nodes; 6200 edges; ?? predicates"
+		      disabled=true
 		      value="/data/academie_des_femmes.nq">Académie des Femmes</option>
               <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
-		      value="/data/african_national_congress.nq">African National Contgres</option>
+		      disabled=true
+		      value="/data/african_national_congress.nq">African National Congres</option>
               <option title="all attributes -- 423 node; 666 edges; 43 predicates"
 		      value="/data/brontes.nq">The Bronte Sisters</option>
               <option title="all attributes -- 573 nodes; edges 835; predicates 52"
@@ -131,30 +133,39 @@
 	      <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
 		      value="/data/female_antislavery_society.nq">Female Anti-Slavery Society</option>
               <option title="all attributes -- ?? nodes; 5300 edges; ?? predicates ✓"
+		      disabled=true
 		      value="/data/newnham_college.nq">  Newnham College</option>
 	      <option title="all attributes -- 116 nodes; ?? edges; ?? predicates ✓"
 		      value="/data/nuns.nq">  Nuns: Middle Ages</option>
-	      <option title="all attributes -- 516 nodes; ?? edges; ?? predicates ✓"
-		      value="/data/the_1917_club.nq">  The 1917 Club</option>
 	      <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+		      disabled=true
 		      value="/data/the_17th_century_quakers.nq">  The 17th Century Quakers</option>
+	      <option title="all attributes -- 516 nodes; ?? edges; ?? predicates ✓"
+		      disabled=true
+		      value="/data/the_1917_club.nq">  The 1917 Club</option>
 	    </optgroup>
  	    <optgroup label="Periodicals">
               <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
 		      value="/data/englishwomans_review.nq">Englishwoman's Review</option>
               <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+		      disabled=true
 		      value="/data/taits_endinburgh_magazine.nq">Tait's Edinburgh Magazine</option>
               <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+		      disabled=true
 		      value="/data/yellow_book_and_poet.nq">The Yellow Book AND Poet</option>
 	    </optgroup>
  	    <optgroup label="Publishing Houses">
               <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+		      disabled=true
 		      value="/data/dial_press.nq">Dial Press (modernist)</option>
               <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+		      disabled=true
 		      value="/data/kelmscott_press.nq">Kelmscott Press</option>
               <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+		      disabled=true
 		      value="/data/minerva_press.nq">Minerva Press</option>
               <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+		      disabled=true
 		      value="/data/victoria_press.nq">Victoria Press</option>
 	    </optgroup>
  	    <optgroup label="Genres">
