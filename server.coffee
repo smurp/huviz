@@ -102,20 +102,19 @@ app.configure ->
   app.use express.logger()
   app.set "views", __dirname + "/views"
   app.use app.router
-  app.use express.static(__dirname)
   app.use("/huviz", express.static(__dirname + '/lib'))
-  #app.use express.static(__dirname + '/lib')
-  app.use express.static(__dirname + '/data')
-  app.use express.static(__dirname + '/docs')
+  app.use('/css', express.static(__dirname + '/css'))
+  app.use('/data', express.static(__dirname + '/data'))
   app.use("/jsoutline", express.static(__dirname + "/node_modules/jsoutline/lib"))
-  app.use express.static(__dirname + '/vendor')  
-  app.use express.static(__dirname + '/node_modules')
-  app.use '/mocha', express.static(__dirname + '/node_modules/mocha')
-  app.use '/chai', express.static(__dirname + '/node_modules/chai')
+  app.use('/vendor', express.static(__dirname + '/vendor'))
+  app.use('/node_modules', express.static(__dirname + '/node_modules'))
+  app.use('/mocha', express.static(__dirname + '/node_modules/mocha'))
+  app.use('/chai', express.static(__dirname + '/node_modules/chai'))
   app.get "/orlonto.html", localOrCDN("/views/orlonto.html.eco", nopts.is_local)
   app.get "/yegodd.html", localOrCDN("/views/yegodd.html.eco", nopts.is_local)
   app.get "/tests", localOrCDN("/views/tests.html.eco", nopts.is_local)
   app.get "/", localOrCDN("/views/huvis.html.eco", nopts.is_local)
+  app.use express.static(__dirname + '/images') # for /favicon.ico
 
 port = nopts.port or nopts.argv.remain[0] or process.env.PORT or default_port
 
