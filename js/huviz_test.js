@@ -74,7 +74,7 @@ describe("HuViz Tests", function() {
   before(function bootHuviz(done) {
     console.groupCollapsed("test suite setup");
     window.HVZ = new huviz.Orlando();
-    HVZ.set_ontology("/data/OrlandoOntology-SexesUnderPerson.ttl");
+      HVZ.set_ontology("http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl");      
     document.addEventListener('dataset-loaded', function(e) {
       console.log("dataset-loaded",arguments);
       done();
