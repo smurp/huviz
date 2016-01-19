@@ -58,9 +58,9 @@
       <div class="huviz-versions">
         <a href="http://huviz.dev.nooron.com"
            class="git-branch-is-master <% if @git_branch_name is 'master':%>current-git-branch<% end %>">production</a>
-        <a href="http://beta..dev.nooron.com"
+        <a href="http://beta.huviz.dev.nooron.com"
            class="git-branch-is-beta  <% if @git_branch_name is 'beta':%>current-git-branch<% end %>">beta</a>
-        <a href="http://alpha.orlando.dev.nooron.com"
+        <a href="http://alpha.huviz.dev.nooron.com"
            class="git-branch-is-alpha  <% if @git_branch_name is 'alpha':%>current-git-branch<% end %>">alpha</a>
         <a href="/tests">tests</a>
         <a href="/orlonto.html">ontology</a>
