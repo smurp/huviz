@@ -134,6 +134,7 @@
     app.use("/huviz", express["static"](__dirname + '/lib'));
     app.use('/css', express["static"](__dirname + '/css'));
     app.use('/data', express["static"](__dirname + '/data'));
+    app.use('/js', express["static"](__dirname + '/js'));
     app.use("/jsoutline", express["static"](__dirname + "/node_modules/jsoutline/lib"));
     app.use('/vendor', express["static"](__dirname + '/vendor'));
     app.use('/node_modules', express["static"](__dirname + '/node_modules'));
