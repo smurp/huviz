@@ -2212,6 +2212,7 @@ class Huviz
             pred_id: edge.predicate.lid
             pred_name: edge.predicate.name
             context_id: context.id
+            dialog_title: edge.source.name
             snippet_text: snippet_text
             no: context_no
             snippet_js_key: snippet_js_key
@@ -2347,7 +2348,7 @@ class Huviz
       my_position = @get_next_snippet_position()
       dialog_args =
         maxHeight: @snippet_size
-        title: obj.context_id
+        title: obj.dialog_title
         position:
           my: my_position
           at: "left top"
