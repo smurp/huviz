@@ -49,3 +49,7 @@ rect {
 .transient {
   font-style: italic;
 }
+.snippet_id {
+  color: grey;
+  float: right;
+}

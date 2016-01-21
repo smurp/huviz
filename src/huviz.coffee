@@ -2199,7 +2199,7 @@ class Huviz
       me = this
       make_callback = (context_no, edge, context) ->
         (err,data) ->
-          snippet_text = me.remove_tags(data.response)
+          snippet_text = me.remove_tags(data.response)+'<br><code class="snippet_id">'+context.id+"</code>"
           snippet_id = context.id
           snippet_js_key = me.get_snippet_js_key snippet_id
           if not me.currently_printed_snippets[snippet_js_key]?
