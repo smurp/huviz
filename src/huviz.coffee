@@ -2914,7 +2914,7 @@ class Huviz
   is_big_data: () ->
     if not @big_data_p?
       #if @nodes.length > 200
-      if @data_uri?.match('poetesses|atwoma|relations')
+      if @data_uri?.match('poetesses|relations')
         @big_data_p = true
       else
         @big_data_p = false

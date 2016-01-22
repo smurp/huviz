@@ -13,7 +13,7 @@ TMPFILE := $(shell mktemp /tmp/XXXXXXXXXXXXXX).nq
 
 all: individuals organizations periodicals publishing_houses genres
 
-individuals: ballrm abdyma shakwi balfcl byroau
+individuals: atwoma ballrm abdyma shakwi byroau
 
 organizations: academie_des_femmes african_national_congress brontes female_antislavery_society newnham_college nuns the_1917_club the_17th_century_quakers
 
