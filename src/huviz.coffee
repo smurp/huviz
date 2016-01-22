@@ -2151,10 +2151,9 @@ class Huviz
   get_snippet: (snippet_id, callback) ->
     snippet_js_key = @get_snippet_js_key(snippet_id)
     snippet_text = @snippet_db[snippet_js_key]
-    #snippet_text = false
     url = @get_snippet_url(snippet_id)
     if snippet_text
-      callback(null, {response:snippet_text})
+      callback(null, {response:snippet_text, already_has_snippet_id:true})
     else
       #url = "http://localhost:9999/snippet/poetesses/b--balfcl--0--P--3/"
       #console.warn(url)
@@ -2199,7 +2198,10 @@ class Huviz
       me = this
       make_callback = (context_no, edge, context) ->
         (err,data) ->
-          snippet_text = me.remove_tags(data.response)+'<br><code class="snippet_id">'+context.id+"</code>"
+          snippet_text = data.response
+          if not data.already_has_snippet_id
+            snippet_text = me.remove_tags(snippet_text)
+            snippet_text += '<br><code class="snippet_id">'+context.id+"</code>"
           snippet_id = context.id
           snippet_js_key = me.get_snippet_js_key snippet_id
           if not me.currently_printed_snippets[snippet_js_key]?
