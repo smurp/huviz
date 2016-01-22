@@ -406,7 +406,6 @@ class FormatEmitter(object):
         if self.ignore_structid_re:
             if structID:
                 if self.ignore_structid_re.search(structID):
-                    print "IGNORING",structID                
                     return
         options = self.options
         predicate = regexArray[tripleCheck][0]
@@ -757,10 +756,10 @@ if __name__ == "__main__": # Prevents this program from running if called by ano
        %prog 
           The default operation is equivalent to:
               ./orlandoScrape.py \\
-                 --rules regexes \\
-                 --infile orlando_all_entries_2013-03-04.xml \\
-                 --outfile orlando_all_entries_2013-03-04.json \\
-                 --regexes orlando2RDFregex4.txt \\
+                 --rules {rules} \\
+                 --infile {infile} \\
+                 --outfile {outfile} \\
+                 --regexes {regexes} \\
                  --only_predicates "standardName,childOf,dateOfBirth,dateOfDeath,parentOf" \\
                  --ignore_structid_regex '{ignore_structid_regex}'
 
