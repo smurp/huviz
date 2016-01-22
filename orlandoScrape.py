@@ -272,6 +272,11 @@ class FormatEmitter(object):
             self.ruleRecursion = self.regexRecursion
         elif options.rules == 'xpaths':
             self.ruleRecursion = self.xPathRecursion
+        if options.ignore_structid_regex:
+            self.ignore_structid_re = re.compile(options.ignore_structid_regex)
+        else:
+            self.ignore_structid_re = False
+        print self.ignore_structid_re
 
     def extractionCycle(self, orlandoRAW, ruleArray, NameTest, mainSubject):
         options = self.options
@@ -398,6 +403,11 @@ class FormatEmitter(object):
                     self.xPathRecursion(match, xpathArray, tripleCheck, recursionDepthPlus+1, mainSubject, entryDict, None)
 
     def fillDict(self, entryDict, regexArray, tripleCheck, mainSubject, stripMatch, structID):
+        if self.ignore_structid_re:
+            if structID:
+                if self.ignore_structid_re.search(structID):
+                    print "IGNORING",structID                
+                    return
         options = self.options
         predicate = regexArray[tripleCheck][0]
         if options.only_predicates and not (predicate in options.only_predicates):
@@ -657,6 +667,7 @@ if __name__ == "__main__": # Prevents this program from running if called by ano
         #infile = 'orlando_all_entries_2013-03-04_FORMATTED.xml',
         infile = 'orlando_all_entries_2013-03-04.xml',
         only_predicates = only_predicates,
+        ignore_structid_regex = '\-DIV0\-\-1$',
         outfile = 'orlando_all_entries_2013-03-04.json')
     
     from optparse import OptionParser
@@ -733,6 +744,10 @@ if __name__ == "__main__": # Prevents this program from running if called by ano
     parser.add_option("--use_onto",
                       action = 'store_true',
                       help = "use the ontology")
+    parser.add_option(
+        "--ignore_structid_regex",
+        default = defaults['ignore_structid_regex'],
+        help = "regex for structIDs to ignore, default: '%(ignore_structid_regex)s' empty to ignore none" % defaults)
     parser.version = __version__
     parser.usage =  """
     e.g.
@@ -746,7 +761,8 @@ if __name__ == "__main__": # Prevents this program from running if called by ano
                  --infile orlando_all_entries_2013-03-04.xml \\
                  --outfile orlando_all_entries_2013-03-04.json \\
                  --regexes orlando2RDFregex4.txt \\
-                 --only_predicates "standardName,childOf,dateOfBirth,dateOfDeath,parentOf"
+                 --only_predicates "standardName,childOf,dateOfBirth,dateOfDeath,parentOf" \\
+                 --ignore_structid_regex '{ignore_structid_regex}'
 
        %pro
           During testing this is nice
@@ -755,7 +771,7 @@ if __name__ == "__main__": # Prevents this program from running if called by ano
        %prog --only_predicates ""
           Run without constraint on the predictes emitted.
       
-    """
+    """.format(**defaults)
     (options,args) = parser.parse_args()
     show_usage = True
     if options.ids:
