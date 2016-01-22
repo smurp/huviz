@@ -23,7 +23,7 @@ publishing_houses: dial_press kelmscott_press minerva_press victoria_press
 
 genres: famous_cookbooks
 
-broken: atwoma relations poetesses brontes
+broken: relations poetesses
 
 abdyma:
 	./orlandoScrape.py --outfile ${TMPFILE} --ids abdyma ${ARGS}
