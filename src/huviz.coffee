@@ -264,6 +264,7 @@ class Huviz
   show_snippets_constantly: false
   charge: -193
   gravity: 0.025
+  truncate_labels_to: 40
   snippet_count_on_edge_labels: true
   label_show_range: null # @link_distance * 1.1
   discard_radius: 200
@@ -1122,7 +1123,7 @@ class Huviz
         else
           "display:none"
     if @use_canvas or @use_webgl
-      #http://stackoverflow.com/questions/3167928/drawing-rotated-text-on-a-html5-canvas
+      # http://stackoverflow.com/questions/3167928/drawing-rotated-text-on-a-html5-canvas
       # http://diveintohtml5.info/canvas.html#text
       # http://stackoverflow.com/a/10337796/1234699
       focused_font_size = @label_em * @focused_mag
@@ -1131,6 +1132,7 @@ class Huviz
       label_node = (node) =>
         return unless @should_show_label(node)
         ctx = @ctx
+        # perhaps scrolling should happen here
         if node.focused_node or node.focused_edge?
           ctx.fillStyle = node.color
           ctx.font = focused_font
@@ -1397,9 +1399,18 @@ class Huviz
         @develop(obj_n)
     else
       if subj_n.embryo and is_one_of(pid,NAME_SYNS)
-        subj_n.name = quad.o.value.replace(/^\s+|\s+$/g, '')
+        @set_node_name(subj_n, quad.o.value)
         @develop(subj_n) # might be ready now
     @last_quad = quad
+
+  set_node_name: (node, name) ->
+    full_name = name.replace(/^\s+|\s+$/g, '')
+    node.full_name = full_name
+    len = @truncate_labels_to
+    if len > 0
+      node.name = full_name.substr(0, len)
+    else
+      node.name = full_name
 
   infer_edge_end_types: (edge) ->
     edge.source.type = 'Thing' unless edge.source.type?
