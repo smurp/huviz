@@ -97,7 +97,7 @@ class GraphCommand
   #   at least one of: subjects, classes or sets
   # Optional parameters are:
   #   constraints and regarding
-  constructor: (args_or_str) ->
+  constructor: (@graph_ctrl, args_or_str) ->
     @prefixes = {}
     if typeof args_or_str == 'string'
       args = @parse(args_or_str)
@@ -189,7 +189,7 @@ class GraphCommand
     return methods
   regarding_required: () ->
     return @regarding? and @regarding.length > 0
-  execute: (@graph_ctrl) ->
+  execute: ->
     @graph_ctrl.show_state_msg(@as_msg())
     @graph_ctrl.force.stop()
     reg_req = @regarding_required()
@@ -236,6 +236,11 @@ class GraphCommand
         #@graph_ctrl.tick()
     @graph_ctrl.hide_state_msg()
     @graph_ctrl.force.start()
+  get_pretty_verbs: ->
+    l = []
+    for verb_id in @verbs
+      l.push(@graph_ctrl.gclui.verb_pretty_name[verb_id])
+    return l
   missing: '____'
   update_str: ->
     missing = @missing
@@ -243,7 +248,7 @@ class GraphCommand
     ready = true
     regarding_required = false
     if @verbs
-      cmd_str = angliciser(@verbs)
+      cmd_str = angliciser(@get_pretty_verbs())
     else
       ready = false
       cmd_str = missing
@@ -323,10 +328,10 @@ class GraphCommandLanguageCtrl
     @graph_ctrl.after_running_command(this)
     retval
   run_one: (cmd_spec) ->
-    cmd = new GraphCommand(cmd_spec)
+    cmd = new GraphCommand(@graph_ctrl, cmd_spec)
     cmd.prefixes = @prefixes
-    cmd.execute(@graph_ctrl)
-  execute: () =>
+    cmd.execute()
+  execute: =>
     if @commands.length > 0 and typeof @commands[0] is 'string' and @commands[0].match(/^load /)
       #console.log("initial execute", @commands)
       @run_one(@commands.shift())

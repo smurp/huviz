@@ -125,7 +125,7 @@ class CommandController
       verb = 'show'
     else
       verb = 'suppress'
-    cmd = new gcl.GraphCommand
+    cmd = new gcl.GraphCommand @huviz,
       verbs: [verb]
       regarding: [pred_id]
       sets: [@huviz.selected_set]
@@ -215,14 +215,14 @@ class CommandController
         if not (id in @taxons_chosen)
           @taxons_chosen.push(id)
         # SELECT all members of the currently chosen classes
-        cmd = new gcl.GraphCommand
+        cmd = new gcl.GraphCommand @huviz,
           verbs: ['select']
           classes: (class_name for class_name in @taxons_chosen)
       else
         console.error "there should be nothing to do because #{id}.#{old_state} == #{new_state}"
     else if new_state is 'unshowing'
       @unselect_node_class(id)
-      cmd = new gcl.GraphCommand
+      cmd = new gcl.GraphCommand @huviz,
         verbs: ['unselect']
         classes: [id]
     else if old_state is "hidden"
@@ -252,23 +252,23 @@ class CommandController
     #   hidden     - TBD: not sure when hidden is appropriate
     #   emphasized - TBD: mark the class of the focused_node
   verb_sets: [ # mutually exclusive within each set
-      choose: 'choose'
-      unchoose: 'unchoose'
+      choose: 'CHOOSE'
+      unchoose: 'UNCHOOSE'
     ,
-      select: 'select'
-      unselect: 'unselect'
+      select: 'SELECT'
+      unselect: 'UNSELECT'
     ,
-      label:   'label'
-      unlabel: 'unlabel'
+      label:   'LABEL'
+      unlabel: 'UNLABEL'
     ,
-      shelve: 'shelve'
-      hide:   'hide'
+      shelve: 'SHELVE'
+      hide:   'HIDE'
     ,
-      discard: 'discard'
-      undiscard: 'retrieve'
+      discard: 'DISCARD'
+      undiscard: 'RETRIEVE'
     ,
-      pin: "pin"
-      unpin: "unpin"
+      pin: "PIN"
+      unpin: "UNPIN"
     #,
     #  print: 'print'
     #  redact: 'redact'
@@ -433,13 +433,13 @@ class CommandController
     like_str = (@like_input[0][0].value or "").trim()
     if like_str
       args.like = like_str
-    @command = new gcl.GraphCommand(args)
+    @command = new gcl.GraphCommand(@huviz, args)
   update_command: (because) =>
     because = because or {}
     @huviz.show_state_msg("update_command")
     ready = @prepare_command @build_command()
     if ready and @huviz.doit_asap
-      @command.execute(@huviz)
+      @command.execute()
       @huviz.update_all_counts()
       if because.cleanup
         because.cleanup()
@@ -460,9 +460,11 @@ class CommandController
       (permit_multi_select and
        (@engaged_verbs.length is 1 and @engaged_verbs[0] is 'select'))
   build_verb_form: () ->
+    @verb_pretty_name = {}
     for vset in @verb_sets
       alternatives = @verbdiv.append('div').attr('class','alternates')
       for id,label of vset
+        @verb_pretty_name[id] = label
         @build_verb_picker(id,label,alternatives)
   get_verbs_overridden_by: (verb_id) ->
     override = @verbs_override[verb_id] || []
@@ -599,9 +601,10 @@ class CommandController
         continue
       the_set = @huviz[set_key]
       cleanup_verb = the_set.cleanup_verb
-      @huviz.run_command new gcl.GraphCommand
+      cmd = new gcl.GraphCommand @huviz,
         verbs: [cleanup_verb]
         sets: [the_set]
+      @huviz.run_command(cmd)        
     return
   on_set_count_update: (set_id, count) =>
     @set_picker.set_payload(set_id, count)

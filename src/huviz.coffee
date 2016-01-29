@@ -514,7 +514,7 @@ class Huviz
 
   perform_current_command: (node) ->
     if @gclui.ready_to_perform()
-      cmd = new gcl.GraphCommand
+      cmd = new gcl.GraphCommand this,
         verbs: @gclui.engaged_verbs
         subjects: [node]
       @run_command(cmd)
@@ -761,8 +761,8 @@ class Huviz
       @gclui.taxon_picker.expand_by_id(id)
 
   do: (args) ->
-    cmd = new gcl.GraphCommand args
-    @gclc.run cmd
+    cmd = new gcl.GraphCommand(this, args)
+    @gclc.run(cmd)
 
   reset_data: ->
     # TODO fix gclc.run so it can handle empty sets
@@ -1557,11 +1557,11 @@ class Huviz
 
   choose_everything: =>
     console.log "choose_everything()"
-    cmd = new gcl.GraphCommand
+    cmd = new gcl.GraphCommand this,
       verbs: ['choose']
       classes: ['Thing']
-    @gclc.run cmd
-    @gclui.push_command cmd
+    @gclc.run(cmd)
+    @gclui.push_command(cmd)
     @tick()
 
   remove_framing_quotes: (s) -> s.replace(/^\"/,"").replace(/\"$/,"")
@@ -2404,7 +2404,7 @@ class Huviz
     return retval
 
   run_verb_on_object: (verb, subject) ->
-    cmd = new gcl.GraphCommand
+    cmd = new gcl.GraphCommand this,
       verbs: [verb]
       subjects: [@get_handle subject]
     @run_command(cmd)
