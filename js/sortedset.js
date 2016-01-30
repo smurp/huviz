@@ -95,8 +95,8 @@ var SortedSet = function(){
 	// simply the name of SortedSet().  The motivation of course
         // is for many flags to be able to be set on each node, unlike
         // states, which are mutually exclusive.
-	    array.flag_property = flag_property || array.id; // array.state_name
-	    return array;
+	array.flag_property = flag_property || array.id; // array.state_name
+	return array;
     };
     array.named = function(name, label){
 	//array.state_name = name;
@@ -108,17 +108,17 @@ var SortedSet = function(){
 	return array;
     };
     array.get_label = function() {
-      return array.label || array.id;
+	return array.label || array.id;
     };
     array.sort_on('id');
     array.toggle = function(itm){
         // Objective:
         //   add() or remove() as needed
         if (array.has(itm)) {
-	        array.remove(itm);
-	      } else {
-	        array.add(itm);
-	      }
+	    array.remove(itm);
+	} else {
+	    array.add(itm);
+	}
     };
     array.add = function(itm){
 	// Objective:
@@ -189,7 +189,9 @@ var SortedSet = function(){
 	ret_ins_idx = ret_ins_idx || false;
 	var seeking = true;
 	if (array.length < 1) {
-	    if (ret_ins_idx) return {idx:0};
+	    if (ret_ins_idx) {
+		return {idx:0};
+	    }
 	    return -1;
 	}
 	var mid;
@@ -206,7 +208,9 @@ var SortedSet = function(){
 		top = mid;
 	    }
 	    if (bot == top){
-		if (ret_ins_idx) return {idx:bot};
+		if (ret_ins_idx){
+		    return {idx:bot};
+		}
 		return -1;
 	    };
 	}
