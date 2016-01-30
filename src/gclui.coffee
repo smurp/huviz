@@ -32,6 +32,7 @@ class CommandController
     @oldcommands = @cmdlist.append('div').attr('class','commandhistory')
     @control_label("Current Command")
     @nextcommandbox = @comdiv.append('div')
+    @make_verb_sets()
     @control_label("Verbs")
     @verbdiv = @comdiv.append('div').attr('class','verbs')
     @add_clear_both(@comdiv)
@@ -251,24 +252,26 @@ class CommandController
     #
     #   hidden     - TBD: not sure when hidden is appropriate
     #   emphasized - TBD: mark the class of the focused_node
-  verb_sets: [ # mutually exclusive within each set
-      choose: 'CHOOSE'
-      unchoose: 'UNCHOOSE'
-    ,
-      select: 'SELECT'
-      unselect: 'UNSELECT'
-    ,
-      label:   'LABEL'
-      unlabel: 'UNLABEL'
-    ,
-      shelve: 'SHELVE'
-      hide:   'HIDE'
-    ,
-      discard: 'DISCARD'
-      undiscard: 'RETRIEVE'
-    ,
-      pin: "PIN"
-      unpin: "UNPIN"
+  make_verb_sets: ->
+    @verb_sets = [ # mutually exclusive within each set
+        choose: @huviz.human_term.choose
+        unchoose: @huviz.human_term.unchoose
+      ,
+        select: @huviz.human_term.select
+        unselect: @huviz.human_term.unselect
+      ,
+        label:  @huviz.human_term.label
+        unlabel: @huviz.human_term.unlabel
+      ,
+        shelve: @huviz.human_term.shelve
+        hide:   @huviz.human_term.hide
+      ,
+        discard: @huviz.human_term.discard
+        undiscard: @huviz.human_term.undiscard
+      ,
+        pin: @huviz.human_term.pin
+        unpin: @huviz.human_term.unpin
+      ]
     #,
     #  print: 'print'
     #  redact: 'redact'
@@ -278,7 +281,7 @@ class CommandController
     #  suppress: 'suppress'
     #  specify: 'specify'
       #emphasize: 'emphasize'
-    ]
+      
   auto_change_verb_tests:
     select: (node) ->
       if node.selected?
@@ -555,7 +558,7 @@ class CommandController
   build_set_picker: (label, where) ->
     # FIXME populate @the_sets from @huviz.selectable_sets
     where = label? and @control_label(label, where) or @comdiv
-    @the_sets =
+    @the_sets = # TODO build this automatically from huviz.selectable_sets
       'nodes': [@huviz.nodes.label,
               selected_set: [@huviz.selected_set.label]
               chosen_set: [@huviz.chosen_set.label]

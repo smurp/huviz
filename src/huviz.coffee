@@ -657,45 +657,45 @@ class Huviz
     #	 hidden: findable, but not displayed anywhere
     #              	 (when found, will become shelved)
 
-    @nodes = SortedSet().sort_on("id").named('All').labelled('ALL')
+    @nodes = SortedSet().sort_on("id").named('All').labelled(@human_term.All)
     @nodes.docs = "#{@nodes.label} Nodes are in this set, regardless of state"
 
     @embryonic_set = SortedSet().sort_on("id").named("embryo").isFlag()
     @embryonic_set.docs = "Nodes which are not yet complete are 'embryonic' and not yet in '#{@nodes.label}'."
 
-    @chosen_set = SortedSet().named("chosen").labelled('CHOSEN').isFlag().sort_on("id")
+    @chosen_set = SortedSet().named("chosen").labelled(@human_term.chosen).isFlag().sub_of(@nodes).sort_on("id")
     @chosen_set.docs = "Nodes which the user has individually '#{@chosen_set.label}' to graph by clicking or dragging them."
     @chosen_set.cleanup_verb = 'shelve'
 
-    @selected_set = SortedSet().named("selected").labelled('SELECTED').isFlag().sort_on("id")
+    @selected_set = SortedSet().named("selected").labelled(@human_term.selected).isFlag().sub_of(@nodes).sort_on("id")
     @selected_set.docs = "Nodes which have been '#{@selected_set.label}' using the class picker, ie which are highlighted."
     @selected_set.cleanup_verb = "unselect"
 
-    @shelved_set  = SortedSet().sort_on("name").named("shelved").labelled('SHELVED').isState()
+    @shelved_set  = SortedSet().sort_on("name").named("shelved").labelled(@human_term.shelved).sub_of(@nodes).isState()
     @shelved_set.docs = "Nodes which are '#{@shelved_set.label}' on the green surrounding 'shelf'."
 
-    @discarded_set = SortedSet().sort_on("name").named("discarded").labelled('DISCARDED').isState()
+    @discarded_set = SortedSet().sort_on("name").named("discarded").labelled(@human_term.discarded).sub_of(@nodes).isState()
     @discarded_set.docs = "Nodes which have been '#{@discarded_set.label}' so they will not be included in graphs."
     @discarded_set.cleanup_verb = "shelve"
 
-    @hidden_set    = SortedSet().sort_on("id").named("hidden").labelled('HIDDEN').isState()
+    @hidden_set    = SortedSet().sort_on("id").named("hidden").labelled(@human_term.hidden).sub_of(@nodes).isState()
     @hidden_set.docs = "Nodes which are '#{@hidden_set.label}' but can be pulled into graphs by other nodes."
     @hidden_set.cleanup_verb = "shelve"
 
-    @graphed_set   = SortedSet().sort_on("id").named("graphed").labelled('GRAPHED').isState()
+    @graphed_set   = SortedSet().sort_on("id").named("graphed").labelled(@human_term.graphed).sub_of(@nodes).isState()
     @graphed_set.docs = "Nodes which are included in the central graph."
     @graphed_set.cleanup_verb = "unchoose"
 
-    @pinned_set = SortedSet().sort_on("id").named('fixed').labelled('PINNED').isFlag()
+    @pinned_set = SortedSet().sort_on("id").named('fixed').labelled(@human_term.fixed).sub_of(@nodes).isFlag()
     @pinned_set.docs = "Nodes which are '#{@pinned_set.label}' to the canvas"
     @pinned_set.cleanup_verb = "unpin"
 
-    @links_set     = SortedSet().sort_on("id").named("shown").isFlag()
-    @links_set.docs = "Links which are shown."
-
-    @labelled_set  = SortedSet().named("labelled").labelled('LABELLED').isFlag().sort_on("id")
+    @labelled_set  = SortedSet().named("labelled").labelled(@human_term.labelled).isFlag().sub_of(@nodes).sort_on("id")
     @labelled_set.docs = "Nodes which have their labels permanently shown."
     @labelled_set.cleanup_verb = "unlabel"
+
+    @links_set     = SortedSet().sort_on("id").named("shown").isFlag()
+    @links_set.docs = "Links which are shown."
 
     @predicate_set = SortedSet().named("predicate").isFlag().sort_on("id")
     @context_set   = SortedSet().named("context").isFlag().sort_on("id")
@@ -2541,6 +2541,29 @@ class Huviz
       radius(@fisheye_radius).
       distortion(@fisheye_zoom)
     @force.linkDistance(@link_distance).gravity(@gravity)
+  
+  human_term:
+    All: 'ALL'
+    chosen: 'CHOSEN'
+    selected: 'SELECTED'
+    shelved: 'SHELVED'
+    discarded: 'DISCARDED'
+    hidden: 'HIDDEN'
+    graphed: 'GRAPHED'
+    fixed: 'PINNED'
+    labelled: 'LABELLED'
+    choose: 'CHOOSE'
+    unchoose: 'UNCHOOSE'
+    select: 'SELECT'
+    unselect: 'UNSELECT'
+    label: 'LABEL'
+    unlabel: 'UNLABEL'
+    shelve: 'SHELVE'
+    hide: 'HIDE'
+    discard: 'DISCARD'
+    undiscard: 'RETRIEVE'
+    pin: 'PIN'
+    unpin: 'UNPIN'
 
   # TODO add controls
   #   selected_border_thickness
@@ -3042,6 +3065,29 @@ class Orlando extends OntologicallyGrounded
         """
         ## unconfuse emacs Coffee-mode: " """ ' '  "
       super(obj, msg_or_obj) # fail back to super
+
+  human_term:
+    All: 'All'
+    chosen: 'Chosen'
+    selected: 'Selected'
+    shelved: 'Shelved'
+    discarded: 'Discarded'
+    hidden: 'Hidden'
+    graphed: 'Graphed'
+    fixed: 'Pinned'
+    labelled: 'Labelled'
+    choose: 'choose'
+    unchoose: 'unchoose'
+    select: 'select'
+    unselect: 'unselect'
+    label: 'label'
+    unlabel: 'unlabel'
+    shelve: 'shelve'
+    hide: 'hide'
+    discard: 'discard'
+    undiscard: 'retrieve'
+    pin: 'pin'
+    unpin: 'unpin'
 
 class OntoViz extends Huviz #OntologicallyGrounded
   HHH: # hardcoded hierarchy hints, kv pairs of subClass to superClass
