@@ -656,44 +656,44 @@ class Huviz
     #	 discarded: in the discard zone, findable but ignored by show_links_*
     #	 hidden: findable, but not displayed anywhere
     #              	 (when found, will become shelved)
-    @nodes = SortedSet().sort_on("id").named("All")
-    @nodes.docs = "All Nodes are in this set, regardless of state"
+
+    @nodes = SortedSet().sort_on("id").named('All').labelled('ALL')
+    @nodes.docs = "#{@nodes.label} Nodes are in this set, regardless of state"
 
     @embryonic_set = SortedSet().sort_on("id").named("embryo").isFlag()
-    @embryonic_set.docs = "Nodes which are not yet complete are 'embryonic' and not yet in 'nodes'."
+    @embryonic_set.docs = "Nodes which are not yet complete are 'embryonic' and not yet in '#{@nodes.label}'."
 
-    @chosen_set = SortedSet().named("chosen").isFlag().sort_on("id")
-    @chosen_set.docs = "Nodes which the user has individually 'chosen' to graph by clicking or dragging them."
-    @chosen_set.comment = "This concept should perhaps be retired now that selected_set is being maintainted."
+    @chosen_set = SortedSet().named("chosen").labelled('CHOSEN').isFlag().sort_on("id")
+    @chosen_set.docs = "Nodes which the user has individually '#{@chosen_set.label}' to graph by clicking or dragging them."
     @chosen_set.cleanup_verb = 'shelve'
 
-    @selected_set = SortedSet().named("selected").isFlag().sort_on("id")
-    @selected_set.docs = "Nodes which have been 'selected' using the class picker ie which are highlighted."
+    @selected_set = SortedSet().named("selected").labelled('SELECTED').isFlag().sort_on("id")
+    @selected_set.docs = "Nodes which have been '#{@selected_set.label}' using the class picker, ie which are highlighted."
     @selected_set.cleanup_verb = "unselect"
 
-    @shelved_set  = SortedSet().sort_on("name").named("shelved").isState()
-    @shelved_set.docs = "Nodes which are on the surrounding 'shelf'."
+    @shelved_set  = SortedSet().sort_on("name").named("shelved").labelled('SHELVED').isState()
+    @shelved_set.docs = "Nodes which are '#{@shelved_set.label}' on the green surrounding 'shelf'."
 
-    @discarded_set = SortedSet().sort_on("name").named("discarded").isState()
-    @discarded_set.docs = "Nodes which have been discarded so they will not be included in graphs." +
+    @discarded_set = SortedSet().sort_on("name").named("discarded").labelled('DISCARDED').isState()
+    @discarded_set.docs = "Nodes which have been '#{@discarded_set.label}' so they will not be included in graphs."
     @discarded_set.cleanup_verb = "shelve"
 
-    @hidden_set    = SortedSet().sort_on("id").named("hidden").isState()
-    @hidden_set.docs = "Nodes which are invisible but can be pulled into graphs by other nodes."
+    @hidden_set    = SortedSet().sort_on("id").named("hidden").labelled('HIDDEN').isState()
+    @hidden_set.docs = "Nodes which are '#{@hidden_set.label}' but can be pulled into graphs by other nodes."
     @hidden_set.cleanup_verb = "shelve"
 
-    @graphed_set   = SortedSet().sort_on("id").named("graphed").isState()
+    @graphed_set   = SortedSet().sort_on("id").named("graphed").labelled('GRAPHED').isState()
     @graphed_set.docs = "Nodes which are included in the central graph."
     @graphed_set.cleanup_verb = "unchoose"
 
-    @pinned_set = SortedSet().sort_on("id").named('fixed', 'pinned').isFlag()
-    @pinned_set.docs = "Nodes which are pinned to the canvas"
+    @pinned_set = SortedSet().sort_on("id").named('fixed').labelled('PINNED').isFlag()
+    @pinned_set.docs = "Nodes which are '#{@pinned_set.label}' to the canvas"
     @pinned_set.cleanup_verb = "unpin"
 
     @links_set     = SortedSet().sort_on("id").named("shown").isFlag()
     @links_set.docs = "Links which are shown."
 
-    @labelled_set  = SortedSet().named("labelled").isFlag().sort_on("id")
+    @labelled_set  = SortedSet().named("labelled").labelled('LABELLED').isFlag().sort_on("id")
     @labelled_set.docs = "Nodes which have their labels permanently shown."
     @labelled_set.cleanup_verb = "unlabel"
 

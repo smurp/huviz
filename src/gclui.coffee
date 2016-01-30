@@ -556,15 +556,15 @@ class CommandController
     # FIXME populate @the_sets from @huviz.selectable_sets
     where = label? and @control_label(label, where) or @comdiv
     @the_sets =
-      'nodes': ['All ',
-              selected_set: ['Selected']
-              chosen_set: ['Chosen']
-              graphed_set: ['Graphed']
-              shelved_set: ['Shelved']
-              hidden_set: ['Hidden']
-              discarded_set: ['Discarded']
-              labelled_set: ['Labelled']
-              pinned_set: ['Pinned']
+      'nodes': [@huviz.nodes.label,
+              selected_set: [@huviz.selected_set.label]
+              chosen_set: [@huviz.chosen_set.label]
+              graphed_set: [@huviz.graphed_set.label]
+              shelved_set: [@huviz.shelved_set.label]
+              hidden_set: [@huviz.hidden_set.label]
+              discarded_set: [@huviz.discarded_set.label]
+              labelled_set: [@huviz.labelled_set.label]
+              pinned_set: [@huviz.pinned_set.label]
               ]
     @set_picker_box = where.append('div')
         .classed('container',true)

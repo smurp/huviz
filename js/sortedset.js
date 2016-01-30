@@ -99,10 +99,13 @@ var SortedSet = function(){
 	    return array;
     };
     array.named = function(name, label){
-	    //array.state_name = name;
-	    array.id = name;
-      if (label) array.label = label;
-	    return array;
+	//array.state_name = name;
+	array.id = name;
+	return array;
+    };
+    array.labelled = function(label) {
+	array.label = label;
+	return array;
     };
     array.get_label = function() {
       return array.label || array.id;
