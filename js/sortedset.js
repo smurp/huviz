@@ -98,8 +98,25 @@ var SortedSet = function(){
 	array.flag_property = flag_property || array.id; // array.state_name
 	return array;
     };
-    array.named = function(name, label){
-	//array.state_name = name;
+
+    /*
+      Maintain a containership heirarchy on the slots 'subsets' and 'superset'
+     */
+    array.subsets = [];
+    array.sub_of = function(superset) {
+	array.superset = superset;
+	superset.has_sub(array);
+	return array;
+    };
+    array.has_sub = function(subset) {
+	array.subsets.push(subset);
+	if (subset.superset != array) {
+	    subset.superset = array;
+	}
+	return array;
+    };
+    
+    array.named = function(name){
 	array.id = name;
 	return array;
     };
