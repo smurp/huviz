@@ -455,8 +455,8 @@ describe("HuViz Tests", function() {
       expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
       expect($("#SpatialThing").hasClass("treepicker-mixed")).
             to.equal(false, "collapsed SpatialThing should not be stripey");
-      expect($("#SpatialThing").hasClass("treepicker-showing")).
-            to.equal(true, "collapsed SpatialThing not solid colored");
+      //expect($("#SpatialThing").hasClass("treepicker-showing")).
+      //       to.equal(true, "collapsed SpatialThing not solid colored");
       // Perform Test
       $("#SpatialThing span.expander:first").trigger("click"); // collapse
       expect($("#SpatialThing").hasClass("treepicker-mixed")).
@@ -703,13 +703,13 @@ describe("HuViz Tests", function() {
         HVZ.toggle_expander(id);
       };
       verify_gradient_when_collapsed('anything', true); // has kids
-      verify_gradient_when_collapsed('Location', true); // has kids
+      verify_gradient_when_collapsed('SpatialThing', true); // has kids
       verify_gradient_when_collapsed('Thing', true); // has kids
-      verify_gradient_when_collapsed('connectionWithPlace', true); // has kids
+      verify_gradient_when_collapsed('hasWealthConnectionToRegion', true); // has kids
     });
 
 
-    it("predicates' payload should summarize their children when collapsed WIP connectionWithPlace", function(done) {
+    it("predicates' payload should summarize their children when collapsed WIP movedConnectionToRegion next-to-leaf-nodes not summarizing correctly", function(done) {
       say(test_title, done);
       var expect_predicate_payload = function(pred_id, collapsed, expanded) {
         // check collapsed payload
@@ -725,9 +725,9 @@ describe("HuViz Tests", function() {
                sel + " expanded payload wrong").
               to.equal(expanded);
       }
-      expect_predicate_payload("anything", "0/46", "0/0"); // empty
-      expect_predicate_payload("Location", "0/19", "0/0"); // empty
-      //expect_predicate_payload("connectionWithPlace", "0/13", "0/1"); // 1
+      expect_predicate_payload("anything", "0/49", "0/0"); // empty
+      expect_predicate_payload("moved", "0/5", "0/0"); // empty
+      expect_predicate_payload("movedConnectionToRegion", "0/3", "0/0"); // 1
     });
 
     it("toggling a predicate should toggle indirect-mixed on its supers", function(done) {
@@ -738,7 +738,7 @@ describe("HuViz Tests", function() {
              "there should be no indirect-mixed predicates when nothing is graphed").
             to.equal(0);
 
-      a_leaf_predicate_sel = "#connectionWithAddress";
+      a_leaf_predicate_sel = "#hasWealthConnectionToSettlement";
 
       window.breakpoint = true;
       jsoutline.squelch = true;
@@ -749,7 +749,7 @@ describe("HuViz Tests", function() {
              "something should be graphed after selecting a leaf predicate").
             to.not.equal(0);
 
-      var num_parent = 6;
+      var num_parent = 4;
       // confirm that there are now indirect-mixed
       expect($("#predicates .treepicker-indirect-mixed").length,
              "all " + num_parent + " parents of " + a_leaf_predicate_sel +
@@ -768,8 +768,8 @@ describe("HuViz Tests", function() {
       $("#Thing").trigger("click"); // select every Thing
       HVZ.toggle_expander("Thing");  // collapse Thing
 
-      HVZ.click_predicate("connectionWithAddress");  // select a leaf
-      expect(get_payload("connectionWithSettlement"),
+      HVZ.click_predicate("hasWealthConnectionToSettlement");  // select a leaf
+      expect(get_payload("hasWealthConnectionToRegion"),
              "a leaf's parent should not be 0/0 if it is non-empty").
             to.not.equal("0/0");
     });
