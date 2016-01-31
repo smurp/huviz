@@ -260,7 +260,7 @@ describe("HuViz Tests", function() {
       expected = "____ every Thing ."; // note four _
       expect(get_command_english()).to.equal(expected);
 
-      london = HVZ.nodes.get_by('id', 'BR')
+      london = HVZ.nodes.get_by('id', 'F')
       HVZ.run_verb_on_object('unselect', london)
       expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length - 1);
       // the object of the nextcommand should reflect the deselectedness of london
@@ -268,12 +268,12 @@ describe("HuViz Tests", function() {
       expect(HVZ.gclui.taxon_picker.id_is_collapsed["Thing"]).to.equal(false);
       // TODO this tests for fully minimized english
       // expect(get_command_english()).to.equal("____ every Thing but not BJ .");
-      expect(get_command_english()).to.contain("but not BR");
+      expect(get_command_english()).to.contain("but not F");
       expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length - 1);
 
       // a single class selected should be simple
       HVZ.toggle_expander("Thing"); // collapse
-      expect(get_command_english()).to.contain("but not BR");
+      expect(get_command_english()).to.contain("but not F");
     });
 
     it("unselecting a taxon should cause indirect-mixed on its supers", function(done) {
@@ -519,7 +519,7 @@ describe("HuViz Tests", function() {
 
     it("selecting an individual node should update the Selected count", function(done) {
       say(test_title, done);
-      london = HVZ.nodes.get_by('id', 'BJ')
+      london = HVZ.nodes.get_by('id', 'F')
       expect(london, "London was not found").to.be.ok();
       HVZ.toggle_selected(london);
       one_less = HVZ.nodes.length - 1;
