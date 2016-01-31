@@ -189,7 +189,7 @@ describe("HuViz Tests", function() {
     it("toggling a leaf predicate should leave the root predicate unmixed", function(done) {
       say(test_title, done);
 
-      a_leaf_pred_id = "connectionWithAddress";
+      a_leaf_pred_id = "deathConnectionToSettlement";
       HVZ.click_predicate(a_leaf_pred_id);  // graph some leaf predicates
       expect(HVZ.graphed_set.length,
              "something should be graphed after selecting a leaf predicate").
@@ -206,7 +206,7 @@ describe("HuViz Tests", function() {
 
     it("toggling branch predicates should leave the root predicate unmixed", function(done) {
       say(test_title, done);
-      a_branch_predicate = "connectionWithSettlement";
+      a_branch_predicate = "deathConnectionToGeog";
       HVZ.click_predicate(a_branch_predicate); // graph some branch predicates
       expect(HVZ.graphed_set.length,
              "something should be graphed after selecting a branch predicate").
