@@ -403,14 +403,14 @@ describe("HuViz Tests", function() {
     it("toggling an expanded taxon should affect only its instances", function(done) {
       say(test_title, done);
       expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
-      num_GeographicArea = HVZ.taxonomy.GeographicArea.instances.length
-      num_removed = num_GeographicArea
-      $("#GeographicArea").trigger("click"); // unshow GeographicArea
+      num_SpatialThing = HVZ.taxonomy.SpatialThing.instances.length
+      num_removed = num_SpatialThing
+      $("#SpatialThing").trigger("click"); // unshow SpatialThing
       expect(HVZ.selected_set.length).to.equal(
           HVZ.nodes.length - num_removed,
-          "Clicking GeographicArea should remove only them (#{num_removed})");
-      $("#GeographicArea").trigger("click"); // show GeographicArea again
-      num_removed -= num_GeographicArea
+          "Clicking SpatialThing should remove only them (#{num_removed})");
+      $("#SpatialThing").trigger("click"); // show SpatialThing again
+      num_removed -= num_SpatialThing
       expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
       num_Region = HVZ.taxonomy.Region.instances.length
       num_removed += num_Region
@@ -424,16 +424,16 @@ describe("HuViz Tests", function() {
       expect(HVZ.selected_set.length).to.equal(
           HVZ.nodes.length - num_removed,
           "Clicking Settlement (#{num_Settlement}) should remove them too");
-      $("#GeographicArea").trigger("click");  // unshow GeographicArea
-      num_removed += num_GeographicArea
+      $("#SpatialThing").trigger("click");  // unshow SpatialThing
+      num_removed += num_SpatialThing
       expect(HVZ.selected_set.length).to.equal(
           HVZ.nodes.length - num_removed,
-          "Clilcking GeographicArea should now remove them (#{num_GeographicArea}) too");
-      $("#GeographicArea").trigger("click");  // show GeographicArea
-      num_removed -= num_GeographicArea
+          "Clilcking SpatialThing should now remove them (#{num_SpatialThing}) too");
+      $("#SpatialThing").trigger("click");  // show SpatialThing
+      num_removed -= num_SpatialThing
       expect(HVZ.selected_set.length).to.equal(
           HVZ.nodes.length - num_removed,
-          "Clilcking GeographicArea should now restore them (#{num_GeographicArea})");
+          "Clilcking SpatialThing should now restore them (#{num_SpatialThing})");
       $("#Region").trigger("click");
       num_removed -= num_Region
       $("#Settlement").trigger("click");
@@ -446,29 +446,29 @@ describe("HuViz Tests", function() {
     it("collapsing a taxon with showing children keeps it showing color", function(done) {
       say(test_title, done);
       // Confirm Assumptions
-      expect(HVZ.gclui.taxon_picker.id_is_collapsed["GeographicArea"]).
-            to.equal(false, "GeographicArea not expanded");
+      expect(HVZ.gclui.taxon_picker.id_is_collapsed["SpatialThing"]).
+            to.equal(false, "SpatialThing not expanded");
       expect(HVZ.gclui.taxon_picker.id_is_collapsed["Region"]).
             to.equal(false, "Region not expanded");
       expect(HVZ.gclui.taxon_picker.id_is_collapsed["Settlement"]).
             to.equal(false, "Settlement not expanded");
       expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
-      expect($("#GeographicArea").hasClass("treepicker-mixed")).
-            to.equal(false, "collapsed GeographicArea should not be stripey");
-      expect($("#GeographicArea").hasClass("treepicker-showing")).
-            to.equal(true, "collapsed GeographicArea not solid colored");
+      expect($("#SpatialThing").hasClass("treepicker-mixed")).
+            to.equal(false, "collapsed SpatialThing should not be stripey");
+      expect($("#SpatialThing").hasClass("treepicker-showing")).
+            to.equal(true, "collapsed SpatialThing not solid colored");
       // Perform Test
-      $("#GeographicArea span.expander:first").trigger("click"); // collapse
-      expect($("#GeographicArea").hasClass("treepicker-mixed")).
-            to.equal(false, "collapsed GeographicArea appears mixed");
-      expect($("#GeographicArea").attr("style")).
+      $("#SpatialThing span.expander:first").trigger("click"); // collapse
+      expect($("#SpatialThing").hasClass("treepicker-mixed")).
+            to.equal(false, "collapsed SpatialThing appears mixed");
+      expect($("#SpatialThing").attr("style")).
             to.contain("linear-gradient",
-                       "collapsed GeographicArea should be stripey");
-      expect($("#GeographicArea").hasClass("treepicker-indirect-mixed"),
-             "collapsed GeographicArea appears indirect-mixed").
+                       "collapsed SpatialThing should be stripey");
+      expect($("#SpatialThing").hasClass("treepicker-indirect-mixed"),
+             "collapsed SpatialThing appears indirect-mixed").
             to.equal(false);
       // Cleanup
-      $("#GeographicArea span.expander:first").trigger("click"); // expand
+      $("#SpatialThing span.expander:first").trigger("click"); // expand
     });
 
     it("toggling indirectly mixed taxon collapse should toggle stripeyness", function(done) {
@@ -482,18 +482,18 @@ describe("HuViz Tests", function() {
       expect(actual,
   	     "expected selected_set.length == nodes - Settlements")
             .to.equal(expected);
-      $("#GeographicArea span.expander:first").trigger("click"); // collapse
+      $("#SpatialThing span.expander:first").trigger("click"); // collapse
       // Tests
-      expect(HVZ.gclui.taxon_picker.id_is_collapsed["GeographicArea"],
-             "GeographicArea not collapsed").to.equal(true);
-      expect($("#GeographicArea").hasClass("treepicker-indirect-mixed"),
-             "GeographicArea not stripey").to.be.ok();
+      expect(HVZ.gclui.taxon_picker.id_is_collapsed["SpatialThing"],
+             "SpatialThing not collapsed").to.equal(true);
+      expect($("#SpatialThing").hasClass("treepicker-indirect-mixed"),
+             "SpatialThing not stripey").to.be.ok();
       // Cleanup
-      $("#GeographicArea span.expander:first").trigger("click"); // expand
+      $("#SpatialThing span.expander:first").trigger("click"); // expand
       $("#Settlement").trigger("click"); // re-select the 2 Settlements
       expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
-      expect($("#GeographicArea").hasClass("treepicker-indirect-mixed"),
-             "GeographicArea is wrongly stripey").to.not.be.ok();
+      expect($("#SpatialThing").hasClass("treepicker-indirect-mixed"),
+             "SpatialThing is wrongly stripey").to.not.be.ok();
     });
 
     it("clicking collapsed taxons with mixed kids should select them all", function(done) {
