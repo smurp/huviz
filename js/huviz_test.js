@@ -572,8 +572,8 @@ describe("HuViz Tests", function() {
               to.equal("" + HVZ.nodes.length);
         console.groupEnd();
       };
-      toggle_selection_of("BJ", 5, "London");
-      toggle_selection_of("I", 4, "Thames");
+      toggle_selection_of("F", 1, "London");
+      toggle_selection_of("BW", 1, "Thames");
       toggle_selection_of("B", 3, "England");
     });
 
