@@ -394,7 +394,8 @@ describe("HuViz Tests", function() {
     it("clicking Person should toggle selection of the Person node", function(done) {
       say(test_title, done);
       HVZ.pick_taxon('Person',false);
-      expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length - 1);
+	expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length -
+						 HVZ.taxonomy.Person.instances.length);
       HVZ.pick_taxon('Person',false);
       expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
     });
