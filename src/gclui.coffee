@@ -651,8 +651,6 @@ class CommandController
     return where
   populate_all_set_docs: () ->
     for id, a_set of @huviz.selectable_sets
-      #if id is 'nodes'
-      #  id = 'nodes_set' 
       if a_set.docs?
         @set_picker.set_title(id, a_set.docs)
   on_set_picked: (set_id, new_state) =>

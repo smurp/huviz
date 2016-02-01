@@ -393,8 +393,7 @@ class Huviz
   click_set: (id) ->
     if id is 'nodes'
       alert("set 'nodes' is deprecated")
-      console.log("TODO rename @nodes to @all_set")
-      # see use of 'nodes' in gclui.handle_like_input too
+      console.error("set 'nodes' is deprecated")
     else
       if not id.endsWith('_set')
         id = id + '_set'
