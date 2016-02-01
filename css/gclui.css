@@ -150,6 +150,10 @@ p {
 #sets {
   margin-right: 2px;    
 }
+#sets.locked {
+  background: darkgray;
+  cursor: inherit;
+}
 .set_picker_box_parent {
   float: left;
   width: 32%;

@@ -1,3 +1,5 @@
+/* -- Mode: Javascript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -- */
+
 var expect = chai.expect;
 
 // It would be great if this code could be written in coffeescript.
@@ -96,7 +98,7 @@ describe("HuViz Tests", function() {
 
   function select_expand_and_ungraph_all() {
     HVZ.gclui.clear_set_picker();
-    HVZ.click_set("nodes").click_set("nodes");
+    HVZ.click_set("all").click_set("all");
     if (HVZ.graphed_set.length ||
         HVZ.selected_set.length != HVZ.nodes.length) {
       if (! HVZ.gclui.taxon_picker.id_is_collapsed.Thing) {
@@ -155,6 +157,38 @@ describe("HuViz Tests", function() {
       $("#reset_btn").click()
       expect(HVZ.labelled_set.length,
              "nothing should be labelled after reset").to.equal(0);
+    });
+  });
+
+
+  describe("liking things", function() {
+    it("liking should select the set ALL", function(done) {
+      say(test_title, done);
+      HVZ.pick_taxon("Thing",true);
+      HVZ.like_string("william");
+      expect(!HVZ.gclui.immediate_execution_mode, "but not enter immediate execution mode");
+      expect(HVZ.gclui.chosen_set_id,
+             "set ALL should be chosen").to.equal('all_set'); // TODO change to all_set
+      $("#reset_btn").click();
+      expect(HVZ.labelled_set.length,
+	     "nothing should be labelled after reset").to.equal(0);
+      expect(HVZ.gclui.liking_all_mode,
+	     "should no longer be in liking_all_mode").to.equal(false);
+    });
+
+    it("emptying like: should restore whatever set was previously picked", function(done) {
+      say(test_title, done);
+      HVZ.pick_taxon("Thing",true);
+      prior_set_id = 'shelved_set';
+      HVZ.click_set(prior_set_id);
+      HVZ.like_string("william");
+      expect(!HVZ.gclui.immediate_execution_mode, "but not enter immediate execution mode");
+      expect(HVZ.gclui.chosen_set_id,
+             "set ALL should be chosen").to.equal('all_set');
+      HVZ.like_string("");
+      expect(HVZ.gclui.chosen_set_id,
+             "set ALL should be #{prior_set_id}").to.equal(prior_set_id); // TODO change to all_set
+	
     });
   });
 
@@ -363,7 +397,7 @@ describe("HuViz Tests", function() {
 
     it("'shelve graphed.' should remove everything from the graph ", function(done) {
       say(test_title, done);
-      HVZ.click_verb("choose").click_set("nodes").doit().click_set("nodes");
+      HVZ.click_verb("choose").click_set("all").doit().click_set("all");
       HVZ.click_verb("shelve").click_set("graphed").doit();
       expect(HVZ.graphed_set.length).to.equal(0);
       expect(HVZ.shelved_set.length).to.equal(HVZ.nodes.length);
@@ -371,7 +405,7 @@ describe("HuViz Tests", function() {
 
     it("'select shelved.' should select all nodes ", function(done) {
       say(test_title, done);
-      HVZ.click_verb("unselect").click_set("nodes").doit().click_set("nodes");
+      HVZ.click_verb("unselect").click_set("all").doit().click_set("all");
       HVZ.click_verb("select").click_set("shelved").doit();
       expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
     });

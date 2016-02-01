@@ -391,7 +391,14 @@ class Huviz
     return @
 
   click_set: (id) ->
-    $("##{id}_set").trigger("click")
+    if id is 'nodes'
+      alert("set 'nodes' is deprecated")
+      console.log("TODO rename @nodes to @all_set")
+      # see use of 'nodes' in gclui.handle_like_input too
+    else
+      if not id.endsWith('_set')
+        id = id + '_set'
+    $("##{id}").trigger("click")
     return @
 
   click_predicate: (id) ->
@@ -400,6 +407,12 @@ class Huviz
 
   click_taxon: (id) ->
     $("##{id}").trigger("click")
+    return @
+
+  like_string: (str) =>
+    # Ideally we'd trigger an actual 'input' event but that is not possible
+    $(".like_input").val(str)
+    @gclui.handle_like_input()
     return @
 
   toggle_expander: (id) ->
@@ -524,8 +537,10 @@ class Huviz
 
   run_command: (cmd) ->
     @show_state_msg(cmd.as_msg())
+    #@gclui.show_working_on()    
     #alert(cmd.as_msg())
     @gclc.run cmd
+    #@gclui.show_working_off()
     @hide_state_msg()
     @gclui.push_command cmd
 
@@ -657,7 +672,8 @@ class Huviz
     #	 hidden: findable, but not displayed anywhere
     #              	 (when found, will become shelved)
 
-    @nodes = SortedSet().sort_on("id").named('All').labelled(@human_term.All)
+    @nodes = SortedSet().sort_on("id").named('all').labelled(@human_term.all)
+    @all_set = @nodes
     @nodes.docs = "#{@nodes.label} Nodes are in this set, regardless of state"
 
     @embryonic_set = SortedSet().sort_on("id").named("embryo").isFlag()
@@ -702,7 +718,7 @@ class Huviz
     @context_set.docs = "The set of quad contexts."
 
     @selectable_sets =
-      nodes: @nodes
+      all_set: @all_set
       chosen_set: @chosen_set
       selected_set: @selected_set
       shelved_set: @shelved_set
@@ -2543,7 +2559,7 @@ class Huviz
     @force.linkDistance(@link_distance).gravity(@gravity)
   
   human_term:
-    All: 'ALL'
+    all: 'ALL'
     chosen: 'CHOSEN'
     selected: 'SELECTED'
     shelved: 'SHELVED'
@@ -3066,8 +3082,8 @@ class Orlando extends OntologicallyGrounded
         ## unconfuse emacs Coffee-mode: " """ ' '  "
       super(obj, msg_or_obj) # fail back to super
 
-  human_term:
-    All: 'All'
+  XXhuman_term:
+    all: 'All'
     chosen: 'Chosen'
     selected: 'Selected'
     shelved: 'Shelved'

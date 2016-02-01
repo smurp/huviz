@@ -112,7 +112,7 @@
     <pre id="status"></pre>
     <div id="state_msg_box" style="display:none"></div>
 
-    <script src="/huviz/huviz.js?2323"></script>
+    <script src="/huviz/huviz.js?20160201"></script>
     <script src="/chai/chai.js"></script>
     <script src="/mocha/mocha.js"></script>
     <script>

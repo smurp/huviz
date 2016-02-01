@@ -134,7 +134,7 @@ class CommandController
     @huviz.run_command(@command)
   recolor_edges: (evt) =>
     count = 0
-    for node in @huviz.nodes
+    for node in @huviz.all_set
       for edge in node.links_from
         count++
         pred_n_js_id = edge.predicate.id
@@ -231,8 +231,10 @@ class CommandController
     if cmd?
       if @object_phrase? and @object_phrase isnt ""
         cmd.object_phrase = @object_phrase
-      window.suspend_updates = false
+      # @show_working_on()
+      window.suspend_updates = false #  window.toggle_suspend_updates(false)
       @huviz.run_command(cmd)
+      # @show_working_off()
     else
       if new_state is 'showing'
         because =
@@ -307,12 +309,14 @@ class CommandController
     pin: (node) ->
       if node.fixed
         return 'unpin'
-  is_immediate_mode: ->
-    return @engaged_verbs.length > 0 and @is_command_object_empty
+  should_be_immediate_mode: ->
+    return not @is_verb_phrase_empty() and @is_command_object_empty() and not @liking_all_mode
   is_command_object_empty: ->
     return @huviz.selected_set.length is 0 and not @chosen_set?
+  is_verb_phrase_empty: ->
+    return not @engaged_verbs.length > 0    
   auto_change_verb_if_warranted: (node) ->
-    if @is_immediate_mode()
+    if @immediate_execution_mode
       # If there is only one verb, then do auto_change
       if @engaged_verbs.length is 1
         verb = @engaged_verbs[0]
@@ -380,15 +384,63 @@ class CommandController
     @nextcommand = @nextcommandbox.append('div').
         attr('class','nextcommand command')
     @nextcommandstr = @nextcommand.append('span')
+    @nextcommand_working = @nextcommand.append('i')
+    @nextcommand_working.style('float:right; color:red')
     @build_submit()
+
+  show_working_on: ->
+    console.log "show_working_on()"
+    @nextcommand_working.attr('class','fa fa-spinner fa-spin fa-2x')
+  show_working_off: ->
+    console.log "show_working_off()"
+    @nextcommand_working.attr('class','')
+    
   build_like: () ->
     @likediv.text('like:').classed("control_label", true)
     @like_input = @likediv.append('input')
+    @like_input.attr('class', 'like_input')
     @like_input.attr('placeholder','node Name')
-    @like_input.on 'input',@update_command
+    @liking_all_mode = false
+    @like_input.on 'input', @handle_like_input
+  handle_like_input: (evt) =>
+    like_value = @like_input[0][0].value
+    # console.log "like_value", like_value
+    like_has_a_value = not not like_value
+    # console.log "like_has_a_value",like_has_a_value
+    if like_has_a_value
+      if @liking_all_mode #
+        TODO = "update the selection based on the like value"
+        #@update_command(evt) # update the impact of the value in the like input
+      else
+        @liking_all_mode = true
+        @chosen_set_before_liking_all = @chosen_set_id
+        @huviz.click_set("all") # ie choose the 'All' set
+        if not @is_verb_phrase_empty()
+          @set_immediate_execution_mode(false)
+    else # like does not have a value
+      if @liking_all_mode # but it DID
+        TODO = "restore the state before liking_all_mode " + \
+        "eg select a different set or disable all set selection"
+        #alert(TODO+" was: #{@chosen_set_before_liking_all}")
+        if @chosen_set_before_liking_all
+          @huviz.click_set(@chosen_set_before_liking_all)
+          @chosen_set_before_liking_all = undefined # forget all about it
+        else
+          @huviz.click_set('all') # this should toggle OFF the selection of 'All'
+        @liking_all_mode = false
+        @set_immediate_execution_mode(true)
+        #@update_command(evt) # does this deal with that moment when it becomes blanked?
+      else # nothing has happened, so
+        TODO = "do nothing ????"
+    @update_command(evt)
+
+    
   build_submit: () ->
+    #@doit_butt = @nextcommand.append('span').append("input")
+    #@doit_butt.attr("style","float:right;").
+
     @doit_butt = @nextcommand.append('span').append("input").
-           attr("style","float:right;display:none;").
+           attr("style","float:right;").
            attr("type","submit").
            attr('value','Do it').
            attr('id','doit_button')
@@ -397,6 +449,24 @@ class CommandController
         @huviz.run_command(@command)
         @reset_editor()
         @huviz.update_all_counts()  # TODO Try to remove this, should be auto
+    @set_immediate_execution_mode(true)
+  enable_doit_button: ->
+    @doit_butt.attr('disabled',null)
+  disable_doit_button: ->
+    @doit_butt.attr('disabled','disabled')        
+  hide_doit_button: ->
+    $(@doit_butt[0][0]).hide()
+  show_doit_button: ->
+    $(@doit_butt[0][0]).show()
+  set_immediate_execution_mode: (which) ->
+    if which
+      @hide_doit_button()
+    else
+      @show_doit_button()
+    @immediate_execution_mode = which
+  update_immediate_execution_mode_as_warranted: ->
+    @set_immediate_execution_mode(@should_be_immediate_execution_mode())
+
   disengage_all_verbs: =>
     for vid in @engaged_verbs
       @disengage_verb(vid)
@@ -405,6 +475,7 @@ class CommandController
       @unselect_node_class(nid)
       @taxon_picker.set_direct_state(nid, 'unshowing')
   clear_like: ->
+    @liking_all_mode = false
     @like_input[0][0].value = ""
   old_commands: []
   push_command: (cmd) ->
@@ -452,9 +523,9 @@ class CommandController
     @command = cmd
     @nextcommandstr.text(@command.str)
     if @command.ready
-      @doit_butt.attr('disabled',null)
+      @enable_doit_button()
     else
-      @doit_butt.attr('disabled','disabled')
+      @disable_doit_button()
     return @command.ready
   ready_to_perform: () ->
     permit_multi_select = true
@@ -559,7 +630,7 @@ class CommandController
     # FIXME populate @the_sets from @huviz.selectable_sets
     where = label? and @control_label(label, where) or @comdiv
     @the_sets = # TODO build this automatically from huviz.selectable_sets
-      'nodes': [@huviz.nodes.label,
+      'all_set': [@huviz.all_set.label,
               selected_set: [@huviz.selected_set.label]
               chosen_set: [@huviz.chosen_set.label]
               graphed_set: [@huviz.graphed_set.label]
@@ -580,6 +651,8 @@ class CommandController
     return where
   populate_all_set_docs: () ->
     for id, a_set of @huviz.selectable_sets
+      #if id is 'nodes'
+      #  id = 'nodes_set' 
       if a_set.docs?
         @set_picker.set_title(id, a_set.docs)
   on_set_picked: (set_id, new_state) =>
@@ -597,9 +670,10 @@ class CommandController
   disengage_all_sets: =>
     if @chosen_set_id
       @on_set_picked(@chosen_set_id, "unshowing")
+    #@chosen_set_id = undefined
   clear_all_sets: =>
     skip_sets = ['shelved_set']
-    for set_key, set_label of @the_sets.nodes[1]
+    for set_key, set_label of @the_sets.all_set[1]
       if set_key in skip_sets
         continue
       the_set = @huviz[set_key]
