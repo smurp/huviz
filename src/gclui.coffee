@@ -444,8 +444,7 @@ class CommandController
     @doit_butt.on 'click', () =>
       if @update_command()
         @huviz.run_command(@command)
-        @reset_editor()
-        @huviz.update_all_counts()  # TODO Try to remove this, should be auto
+        #@huviz.update_all_counts()  # TODO Try to remove this, should be auto
     @set_immediate_execution_mode(true)
   enable_doit_button: ->
     @doit_butt.attr('disabled',null)

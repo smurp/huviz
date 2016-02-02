@@ -1,4 +1,3 @@
-/* -- Mode: Javascript; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -- */
 
 var expect = chai.expect;
 
@@ -192,10 +191,8 @@ describe("HuViz Tests", function() {
 
     it("liking with a verb picked should show the GO button", function(done) {
       say(test_title, done);
-      expect(false);
       HVZ.pick_taxon("Thing",true);
       HVZ.click_verb('label');
-      //debugger;
       HVZ.like_string("thames");
       expect(HVZ.gclui.immediate_execution_mode,
 	     "immediate_execution_mode should be disabled").to.equal(false);
@@ -211,9 +208,49 @@ describe("HuViz Tests", function() {
       HVZ.click_verb('label'); // TODO this cleanup should NOT be required
     });
 
-    it("pressing the GO button should run the current command");
-    it("Reset should clean up after an unpressed GO button");
-});
+    it("pressing the GO button should run the current command", function(){
+      HVZ.pick_taxon("Thing",true);
+      HVZ.click_verb('label');
+      HVZ.like_string("thames");
+      expect($(HVZ.gclui.doit_butt[0][0]).is(':hidden'),
+	     "the GO button should be visible").to.equal(false);
+      expect(!$(HVZ.gclui.doit_butt[0][0]).attr('disabled'),
+	     "the GO button should not be disabled");
+      $("#doit_button").click();
+      expect(HVZ.labelled_set.length,
+	     "and then not clean up after itself").to.equal(1);
+      expect($(HVZ.gclui.doit_butt[0][0]).is(':hidden'),
+	     "the GO button should remain visible after clicking").to.equal(false);
+      expect(!$(HVZ.gclui.doit_butt[0][0]).attr('disabled'),
+	     "the GO button should remain clickable after clicking");
+      console.log("TODO check for command \"LABEL ALL ike 'thames' .\"");
+    });
+
+    it("Reset should clean up after a pressed GO button", function() {
+      $("#reset_btn").click();
+      HVZ.click_verb('label');
+      HVZ.like_string("thames");
+      $("#doit_button").click();
+      expect(HVZ.labelled_set.length,
+	     "Thames should be labelled after doing 'LABEL ALL like 'thames'.")
+	.to.equal(1);
+      $("#reset_btn").click();
+      expect(HVZ.labelled_set.length,
+	     "everything should be cleaned up after Reset").to.equal(0)
+    });
+
+    it("Reset should clean up after an unpressed GO button", function() {
+      $("#reset_btn").click();
+      HVZ.click_verb('label');
+      HVZ.like_string("thames");
+      expect(HVZ.labelled_set.length,
+	     "Thames should be labelled after doing 'LABEL ALL like 'thames'.")
+	.to.equal(0);
+      $("#reset_btn").click();
+      expect(HVZ.labelled_set.length,
+	     "everything should be cleaned up after Reset").to.equal(0)
+    });
+  });
 
 
   describe("operations on classes", function() {
