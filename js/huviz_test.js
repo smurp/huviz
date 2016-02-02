@@ -188,9 +188,32 @@ describe("HuViz Tests", function() {
       HVZ.like_string("");
       expect(HVZ.gclui.chosen_set_id,
              "set ALL should be #{prior_set_id}").to.equal(prior_set_id); // TODO change to all_set
-	
     });
-  });
+
+    it("liking with a verb picked should show the GO button", function(done) {
+      say(test_title, done);
+      expect(false);
+      HVZ.pick_taxon("Thing",true);
+      HVZ.click_verb('label');
+      //debugger;
+      HVZ.like_string("thames");
+      expect(HVZ.gclui.immediate_execution_mode,
+	     "immediate_execution_mode should be disabled").to.equal(false);
+      expect(HVZ.labelled_set.length,
+	       "nothing should be labelled before the GO button is pressed").to.equal(0);
+      expect(HVZ.gclui.chosen_set_id,
+             "set ALL should be chosen").to.equal('all_set');
+      expect($(HVZ.gclui.doit_butt[0][0]).is(':hidden'),
+	     "the GO button should be visiblee").to.equal(false);
+      HVZ.like_string(""); // TODO ensure that gclui.reset() cleans up
+      expect($(HVZ.gclui.doit_butt[0][0]).is(':hidden'),
+	     "the GO button should be hidden").to.equal(true);
+      HVZ.click_verb('label'); // TODO this cleanup should NOT be required
+    });
+
+    it("pressing the GO button should run the current command");
+    it("Reset should clean up after an unpressed GO button");
+});
 
 
   describe("operations on classes", function() {

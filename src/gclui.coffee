@@ -73,11 +73,11 @@ class CommandController
     @unshown_edges_by_predicate = {}
     @taxons_chosen = [] # new SortedSet()
   reset_editor: ->
+    @clear_like()
     @disengage_all_verbs()
     @disengage_all_sets()
     @clear_all_sets()
     @init_editor_data()
-    @clear_like()
     @update_command()
   add_clear_both: (target) ->
     # keep taxonomydiv from being to the right of the verbdiv
@@ -314,7 +314,7 @@ class CommandController
   is_command_object_empty: ->
     return @huviz.selected_set.length is 0 and not @chosen_set?
   is_verb_phrase_empty: ->
-    return not @engaged_verbs.length > 0    
+    return @engaged_verbs.length is 0
   auto_change_verb_if_warranted: (node) ->
     if @immediate_execution_mode
       # If there is only one verb, then do auto_change
@@ -403,10 +403,8 @@ class CommandController
     @liking_all_mode = false
     @like_input.on 'input', @handle_like_input
   handle_like_input: (evt) =>
-    like_value = @like_input[0][0].value
-    # console.log "like_value", like_value
+    like_value = @get_like_string()
     like_has_a_value = not not like_value
-    # console.log "like_has_a_value",like_has_a_value
     if like_has_a_value
       if @liking_all_mode #
         TODO = "update the selection based on the like value"
@@ -414,9 +412,8 @@ class CommandController
       else
         @liking_all_mode = true
         @chosen_set_before_liking_all = @chosen_set_id
+        @set_immediate_execution_mode(@is_verb_phrase_empty())
         @huviz.click_set("all") # ie choose the 'All' set
-        if not @is_verb_phrase_empty()
-          @set_immediate_execution_mode(false)
     else # like does not have a value
       if @liking_all_mode # but it DID
         TODO = "restore the state before liking_all_mode " + \
@@ -442,7 +439,7 @@ class CommandController
     @doit_butt = @nextcommand.append('span').append("input").
            attr("style","float:right;").
            attr("type","submit").
-           attr('value','Do it').
+           attr('value','GO!').
            attr('id','doit_button')
     @doit_butt.on 'click', () =>
       if @update_command()
@@ -475,8 +472,9 @@ class CommandController
       @unselect_node_class(nid)
       @taxon_picker.set_direct_state(nid, 'unshowing')
   clear_like: ->
-    @liking_all_mode = false
-    @like_input[0][0].value = ""
+    @huviz.like_string()
+  get_like_string: ->
+    @like_input[0][0].value
   old_commands: []
   push_command: (cmd) ->
     if @old_commands.length > 0
@@ -512,7 +510,7 @@ class CommandController
     because = because or {}
     @huviz.show_state_msg("update_command")
     ready = @prepare_command @build_command()
-    if ready and @huviz.doit_asap
+    if ready and @huviz.doit_asap and @immediate_execution_mode
       @command.execute()
       @huviz.update_all_counts()
       if because.cleanup
