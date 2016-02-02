@@ -161,95 +161,109 @@ describe("HuViz Tests", function() {
 
 
   describe("liking things", function() {
-    it("liking should select the set ALL", function(done) {
-      say(test_title, done);
-      HVZ.pick_taxon("Thing",true);
-      HVZ.like_string("william");
-      expect(!HVZ.gclui.immediate_execution_mode, "but not enter immediate execution mode");
-      expect(HVZ.gclui.chosen_set_id,
-             "set ALL should be chosen").to.equal('all_set'); // TODO change to all_set
-      $("#reset_btn").click();
-      expect(HVZ.labelled_set.length,
-	     "nothing should be labelled after reset").to.equal(0);
-      expect(HVZ.gclui.liking_all_mode,
-	     "should no longer be in liking_all_mode").to.equal(false);
-    });
+    it("liking should select the set ALL",
+       function(done) {
+	 say(test_title, done);
+	 HVZ.pick_taxon("Thing",true);
+	 HVZ.like_string("william");
+	 expect(!HVZ.gclui.immediate_execution_mode,
+		"but not enter immediate execution mode");
+	 expect(HVZ.gclui.chosen_set_id,
+		"set ALL should be chosen").to.equal('all_set');
+	 $("#reset_btn").click();
+	 expect(HVZ.labelled_set.length,
+		"nothing should be labelled after reset").to.equal(0);
+	 expect(HVZ.gclui.liking_all_mode,
+		"should no longer be in liking_all_mode").to.equal(false);
+       });
 
-    it("emptying like: should restore whatever set was previously picked", function(done) {
-      say(test_title, done);
-      HVZ.pick_taxon("Thing",true);
-      prior_set_id = 'shelved_set';
-      HVZ.click_set(prior_set_id);
-      HVZ.like_string("william");
-      expect(!HVZ.gclui.immediate_execution_mode, "but not enter immediate execution mode");
-      expect(HVZ.gclui.chosen_set_id,
-             "set ALL should be chosen").to.equal('all_set');
-      HVZ.like_string("");
-      expect(HVZ.gclui.chosen_set_id,
-             "set ALL should be #{prior_set_id}").to.equal(prior_set_id); // TODO change to all_set
-    });
+    it("emptying like: should restore whatever set was previously picked",
+       function(done) {
+	 say(test_title, done);
+	 HVZ.pick_taxon("Thing",true);
+	 prior_set_id = 'shelved_set';
+	 HVZ.click_set(prior_set_id);
+	 HVZ.like_string("william");
+	 expect(HVZ.gclui.immediate_execution_mode,
+		"\"___ ALL like 'william'\" should be in immediate execution mode").
+	   to.equal(true);
+	 expect(HVZ.gclui.chosen_set_id,
+		"set ALL should be chosen").to.equal('all_set');
+	 HVZ.like_string("");
+	 expect(HVZ.gclui.chosen_set_id,
+		"set ALL should be #{prior_set_id}").
+	   to.equal(prior_set_id); // TODO change to all_set
+       });
 
-    it("liking with a verb picked should show the GO button", function(done) {
-      say(test_title, done);
-      HVZ.pick_taxon("Thing",true);
-      HVZ.click_verb('label');
-      HVZ.like_string("thames");
-      expect(HVZ.gclui.immediate_execution_mode,
-	     "immediate_execution_mode should be disabled").to.equal(false);
-      expect(HVZ.labelled_set.length,
-	       "nothing should be labelled before the GO button is pressed").to.equal(0);
-      expect(HVZ.gclui.chosen_set_id,
-             "set ALL should be chosen").to.equal('all_set');
-      expect($(HVZ.gclui.doit_butt[0][0]).is(':hidden'),
-	     "the GO button should be visiblee").to.equal(false);
-      HVZ.like_string(""); // TODO ensure that gclui.reset() cleans up
-      expect($(HVZ.gclui.doit_butt[0][0]).is(':hidden'),
-	     "the GO button should be hidden").to.equal(true);
-      HVZ.click_verb('label'); // TODO this cleanup should NOT be required
-    });
+    it("liking with a verb picked should show the GO button",
+       function(done) {
+	 say(test_title, done);
+	 HVZ.pick_taxon("Thing",true);
+	 HVZ.click_verb('label');
+	 HVZ.like_string("thames");
+	 expect(HVZ.gclui.immediate_execution_mode,
+		"immediate_execution_mode should be disabled").
+	   to.equal(false);
+	 expect(HVZ.labelled_set.length,
+		"nothing should be labelled before the GO button is pressed").
+	   to.equal(0);
+	 expect(HVZ.gclui.chosen_set_id,
+		"set ALL should be chosen").to.equal('all_set');
+	 expect($(HVZ.gclui.doit_butt[0][0]).is(':hidden'),
+		"the GO button should be visiblee").to.equal(false);
+	 HVZ.like_string(""); // TODO ensure that gclui.reset() cleans up
+	 expect($(HVZ.gclui.doit_butt[0][0]).is(':hidden'),
+		"the GO button should be hidden").to.equal(true);
+	 HVZ.click_verb('label'); // TODO this cleanup should NOT be required
+       });
 
-    it("pressing the GO button should run the current command", function(){
-      HVZ.pick_taxon("Thing",true);
-      HVZ.click_verb('label');
-      HVZ.like_string("thames");
-      expect($(HVZ.gclui.doit_butt[0][0]).is(':hidden'),
-	     "the GO button should be visible").to.equal(false);
-      expect(!$(HVZ.gclui.doit_butt[0][0]).attr('disabled'),
-	     "the GO button should not be disabled");
-      $("#doit_button").click();
-      expect(HVZ.labelled_set.length,
-	     "and then not clean up after itself").to.equal(1);
-      expect($(HVZ.gclui.doit_butt[0][0]).is(':hidden'),
-	     "the GO button should remain visible after clicking").to.equal(false);
-      expect(!$(HVZ.gclui.doit_butt[0][0]).attr('disabled'),
-	     "the GO button should remain clickable after clicking");
-      console.log("TODO check for command \"LABEL ALL ike 'thames' .\"");
-    });
+    it("pressing the GO button should run the current command",
+       function(){
+	 HVZ.pick_taxon("Thing",true);
+	 HVZ.click_verb('label');
+	 HVZ.like_string("thames");
+	 expect($(HVZ.gclui.doit_butt[0][0]).is(':hidden'),
+		"the GO button should be visible").to.equal(false);
+	 expect(!$(HVZ.gclui.doit_butt[0][0]).attr('disabled'),
+		"the GO button should not be disabled");
+	 $("#doit_button").click();
+	 expect(HVZ.labelled_set.length,
+		"and then not clean up after itself").
+	   to.equal(1);
+	 expect($(HVZ.gclui.doit_butt[0][0]).is(':hidden'),
+		"the GO button should remain visible after clicking").
+	   to.equal(false);
+	 expect(!$(HVZ.gclui.doit_butt[0][0]).attr('disabled'),
+		"the GO button should remain clickable after clicking");
+	 console.log("TODO check for command \"LABEL ALL ike 'thames' .\"");
+       });
 
-    it("Reset should clean up after a pressed GO button", function() {
-      $("#reset_btn").click();
-      HVZ.click_verb('label');
-      HVZ.like_string("thames");
-      $("#doit_button").click();
-      expect(HVZ.labelled_set.length,
-	     "Thames should be labelled after doing 'LABEL ALL like 'thames'.")
-	.to.equal(1);
-      $("#reset_btn").click();
-      expect(HVZ.labelled_set.length,
-	     "everything should be cleaned up after Reset").to.equal(0)
-    });
+    it("Reset should clean up after a pressed GO button",
+       function() {
+	 $("#reset_btn").click();
+	 HVZ.click_verb('label');
+	 HVZ.like_string("thames");
+	 $("#doit_button").click();
+	 expect(HVZ.labelled_set.length,
+		"Thames should be labelled after doing 'LABEL ALL like 'thames'.").
+	   to.equal(1);
+	 $("#reset_btn").click();
+	 expect(HVZ.labelled_set.length,
+		"everything should be cleaned up after Reset").to.equal(0)
+       });
 
-    it("Reset should clean up after an unpressed GO button", function() {
-      $("#reset_btn").click();
-      HVZ.click_verb('label');
-      HVZ.like_string("thames");
-      expect(HVZ.labelled_set.length,
-	     "Thames should be labelled after doing 'LABEL ALL like 'thames'.")
-	.to.equal(0);
-      $("#reset_btn").click();
-      expect(HVZ.labelled_set.length,
-	     "everything should be cleaned up after Reset").to.equal(0)
-    });
+    it("Reset should clean up after an unpressed GO button",
+       function() {
+	 $("#reset_btn").click();
+	 HVZ.click_verb('label');
+	 HVZ.like_string("thames");
+	 expect(HVZ.labelled_set.length,
+		"Thames should be labelled after \"LABEL ALL like 'thames'.\"").
+	   to.equal(0);
+	 $("#reset_btn").click();
+	 expect(HVZ.labelled_set.length,
+		"everything should be cleaned up after Reset").to.equal(0)
+       });
   });
 
 
