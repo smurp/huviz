@@ -247,11 +247,19 @@ class GraphCommand
     cmd_str = ""
     ready = true
     regarding_required = false
+    @verb_phrase = ''
+    @noun_phrase = ''
+    @noun_phrase_ready = false
     if @verbs
       cmd_str = angliciser(@get_pretty_verbs())
+      @verb_phrase_ready = true
+      @verb_phrase = cmd_str
     else
       ready = false
       cmd_str = missing
+      @verb_phrase_ready = false
+      @verb_phrase = @graph_ctrl.human_term.blank_verb
+    @verb_phrase += ' '
     cmd_str += " "
     obj_phrase = ""
     if cmd_str is 'load '
@@ -261,15 +269,20 @@ class GraphCommand
       more = angliciser((s.get_label() for s in @sets))
       @object_phrase = more
     if @object_phrase?
+      @noun_phrase_ready = true      
       obj_phrase = @object_phrase
+      @noun_phrase = obj_phrase      
     else
       if @classes
         obj_phrase += angliciser(@classes)
       if @subjects
         obj_phrase = angliciser((subj.lid for subj in @subjects))
+        @noun_phrase = obj_phrase
     if obj_phrase is ""
       obj_phrase = missing
       ready = false
+      @noun_phrase_ready = false
+      @noun_phrase = @graph_ctrl.human_term.blank_noun
     cmd_str += obj_phrase
     like_str = (@like or "").trim()
     if @verbs
@@ -285,8 +298,11 @@ class GraphCommand
     if like_str
       cmd_str += " like '"+like_str+"'"
     if regarding_phrase
-      cmd_str += " regarding " + regarding_phrase
-    cmd_str += " ."
+      @suffix_phrase = " regarding " + regarding_phrase +  ' .'
+    else
+      @suffix_phrase = ' .'
+    cmd_str += @suffix_phrase       
+    #cmd_str += " ."
     @ready = ready
     @str = cmd_str
   parse: (cmd_str) ->

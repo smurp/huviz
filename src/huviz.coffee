@@ -2579,6 +2579,8 @@ class Huviz
     undiscard: 'RETRIEVE'
     pin: 'PIN'
     unpin: 'UNPIN'
+    blank_verb: 'VERB'
+    blank_noun: 'SET/CLASS'    
 
   # TODO add controls
   #   selected_border_thickness
@@ -3081,7 +3083,7 @@ class Orlando extends OntologicallyGrounded
         ## unconfuse emacs Coffee-mode: " """ ' '  "
       super(obj, msg_or_obj) # fail back to super
 
-  XXhuman_term:
+  human_term:
     all: 'All'
     chosen: 'Chosen'
     selected: 'Selected'
@@ -3103,6 +3105,8 @@ class Orlando extends OntologicallyGrounded
     undiscard: 'retrieve'
     pin: 'pin'
     unpin: 'unpin'
+    blank_verb: 'VERB'
+    blank_noun: 'SET/CLASS'    
 
 class OntoViz extends Huviz #OntologicallyGrounded
   HHH: # hardcoded hierarchy hints, kv pairs of subClass to superClass

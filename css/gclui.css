@@ -165,3 +165,18 @@ p {
 #tabs {
   //max-height: 80%;
 }
+.nextcommand_command {
+  -webkit-touch-callout: initial;
+  -webkit-user-select: initial;
+  -khtml-user-select: initial;
+  -moz-user-select: initial;
+  -ms-user-select: initial;
+  user-select: initial;
+}
+.nextcommand_prompt_ready {
+  color: black;
+}
+.nextcommand_prompt_unready {
+  color: grey;
+  font-style: italic;
+}

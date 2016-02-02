@@ -250,7 +250,8 @@ class CommandController
     #   mixed      - some instances of the node class are selected, but not all
     #   unshowing  - a light color indicating nothing of that type is selected
     #   showing    - a medium color indicating all things of that type are selected
-    #   abstract   - the element represents an abstract superclass, presumably containing concrete node classes
+    #   abstract   - the element represents an abstract superclass,
+    #                presumably containing concrete node classes
     #
     #   hidden     - TBD: not sure when hidden is appropriate
     #   emphasized - TBD: mark the class of the focused_node
@@ -383,7 +384,36 @@ class CommandController
     @build_like()
     @nextcommand = @nextcommandbox.append('div').
         attr('class','nextcommand command')
-    @nextcommandstr = @nextcommand.append('span')
+
+    # Where the full command string to appear as plain text, eg:
+    #    "____ every Thing."
+    #    "shelve every Person."
+    @nextcommandstr = @nextcommand.append('code')
+    $(@nextcommandstr[0][0]).addClass('nextcommand_str')
+
+    if @nextcommand_prompts_visible and @nextcommand_str_visible
+      @nextcommand.append('hr')
+
+    # Where the broken out versions of the command string, with prompts, goes.
+    @nextcommand_prompts = @nextcommand.append('code')
+    @nextcommand_prompts.attr('class', 'nextcommand_prompt')
+    @nextcommand_verb_phrase = @nextcommand_prompts.append('span')
+    @nextcommand_verb_phrase.attr('class','verb_phrase')
+    @nextcommand_noun_phrase = @nextcommand_prompts.append('span')
+    @nextcommand_noun_phrase.attr('class','noun_phrase')
+    @nextcommand_suffix_phrase = @nextcommand_prompts.append('span')
+    @nextcommand_suffix_phrase.attr('class','suffix_phrase')
+
+    if @nextcommand_prompts_visible
+      $(@nextcommand_prompts[0][0]).show()
+    else
+      $(@nextcommand_prompts[0][0]).hide()
+
+    if @nextcommand_str_visible
+      $(@nextcommandstr[0][0]).show()
+    else
+      $(@nextcommandstr[0][0]).hide()
+      
     @nextcommand_working = @nextcommand.append('i')
     @nextcommand_working.style('float:right; color:red')
     @build_submit()
@@ -430,12 +460,8 @@ class CommandController
       else # nothing has happened, so
         TODO = "do nothing ????"
     @update_command(evt)
-
     
   build_submit: () ->
-    #@doit_butt = @nextcommand.append('span').append("input")
-    #@doit_butt.attr("style","float:right;").
-
     @doit_butt = @nextcommand.append('span').append("input").
            attr("style","float:right;").
            attr("type","submit").
@@ -516,9 +542,33 @@ class CommandController
         because.cleanup()
         @update_command()
     @huviz.hide_state_msg()
+  nextcommand_prompts_visible: true
+  nextcommand_str_visible: false
   prepare_command: (cmd) ->
     @command = cmd
-    @nextcommandstr.text(@command.str)
+    if @nextcommand_prompts_visible or true # NEEDED BY huviz_test.js
+      @nextcommand_verb_phrase.text(@command.verb_phrase)
+      if @command.verb_phrase_ready
+        $(@nextcommand_verb_phrase[0][0]).
+          addClass('nextcommand_prompt_ready').
+          removeClass('nextcommand_prompt_unready')
+      else
+        $(@nextcommand_verb_phrase[0][0]).
+          removeClass('nextcommand_prompt_ready').
+          addClass('nextcommand_prompt_unready')
+      @nextcommand_noun_phrase.text(@command.noun_phrase)
+      if @command.noun_phrase_ready      
+        $(@nextcommand_noun_phrase[0][0]).
+          addClass('nextcommand_prompt_ready').
+          removeClass('nextcommand_prompt_unready')        
+      else
+        $(@nextcommand_noun_phrase[0][0]).
+          removeClass('nextcommand_prompt_ready').
+          addClass('nextcommand_prompt_unready')
+      @nextcommand_suffix_phrase.text(@command.suffix_phrase)
+    if @nextcommand_str_visible or true # NEEDED BY huviz_test.js
+      @nextcommandstr.text(@command.str)
+      
     if @command.ready
       @enable_doit_button()
     else

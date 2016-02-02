@@ -54,8 +54,11 @@ var setup_jsoutline = function() {
 };
 //setup_jsoutline();
 
-var get_command_english = function() {
-  return $(".nextcommand > span:first").text();
+var get_nextcommand_str = function() {
+  return $(".nextcommand_str").text();
+};
+var get_nextcommand_prompt = function() {
+  return $(".nextcommand_prompt").text();  
 };
 var get_payload = function(id) {
   return $('#' + id + ' > .treepicker-label > .payload').text();
@@ -337,28 +340,37 @@ describe("HuViz Tests", function() {
        function(done) {
 	 say(test_title, done);
 	 // verify initial state
-	 expected = "____ every Thing ."; // note four _
-	 expect(get_command_english()).to.equal(expected);
+	 expected_str = "____ every Thing ."; // note four _
+	 expect(get_nextcommand_str()).to.equal(expected_str);
+	 expected_prompt = HVZ.human_term.blank_verb + " every Thing .";
+	 expect(get_nextcommand_prompt()).to.equal(expected_prompt);	 
 	 
 	 // deselect everything using the taxon_picker
 	 HVZ.toggle_expander("Thing"); // collapse
 	 HVZ.click_taxon("Thing");
 	 expect(HVZ.selected_set.length).to.equal(0);
 	 // confirm that the object of the commands is blank
-	 expect(get_command_english()).to.equal("____ ____ .");
+	 expect(get_nextcommand_str()).to.equal("____ ____ .");
 	 expect(HVZ.selected_set.length).to.equal(0);
+	 expected_prompt = HVZ.human_term.blank_verb + " " +
+	   HVZ.human_term.blank_noun + ' .';
+	 expect(get_nextcommand_prompt()).to.equal(expected_prompt);
 	 
 	 // a single class selected should be simple
 	 HVZ.toggle_expander("Thing"); // collapse
 	 HVZ.click_taxon("Person");
-	 expect(get_command_english()).to.equal("____ Person .");
+	 expect(get_nextcommand_str()).to.equal("____ Person .");
+	 expect(get_nextcommand_prompt()).
+	   to.equal(HVZ.human_term.blank_verb + " Person .");
 	 
 	 // expand everything again
 	 HVZ.toggle_expander("Thing"); // collapse so we can...
 	 HVZ.click_taxon("Thing");     // select every Thing again
 	 HVZ.toggle_expander("Thing"); // and then expand again
 	 expected = "____ every Thing ."; // note four _
-	 expect(get_command_english()).to.equal(expected);
+	 expect(get_nextcommand_str()).to.equal(expected);
+	 expect(get_nextcommand_prompt()).
+	   to.equal(HVZ.human_term.blank_verb + " every Thing .");	 
 	 expect(HVZ.gclui.taxon_picker.id_is_collapsed["Thing"]).to.equal(false);
 	 
 	 // nothing graphed so no predicates should be mixed
@@ -372,7 +384,7 @@ describe("HuViz Tests", function() {
 	 say(test_title, done);
 	 // verify initial state
 	 expected = "____ every Thing ."; // note four _
-	 expect(get_command_english()).to.equal(expected);
+	 expect(get_nextcommand_str()).to.equal(expected);
 	 
 	 london = HVZ.nodes.get_by('id', 'F')
 	 HVZ.run_verb_on_object('unselect', london)
@@ -381,13 +393,13 @@ describe("HuViz Tests", function() {
 	 
 	 expect(HVZ.gclui.taxon_picker.id_is_collapsed["Thing"]).to.equal(false);
 	 // TODO this tests for fully minimized english
-	 // expect(get_command_english()).to.equal("____ every Thing but not BJ .");
-	 expect(get_command_english()).to.contain("but not F");
+	 // expect(get_nextcommand_str()).to.equal("____ every Thing but not BJ .");
+	 expect(get_nextcommand_str()).to.contain("but not F");
 	 expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length - 1);
 	 
 	 // a single class selected should be simple
 	 HVZ.toggle_expander("Thing"); // collapse
-	 expect(get_command_english()).to.contain("but not F");
+	 expect(get_nextcommand_str()).to.contain("but not F");
        });
     
     it("unselecting a taxon should cause indirect-mixed on its supers",
@@ -731,12 +743,12 @@ describe("HuViz Tests", function() {
        function(done) {
 	 say(test_title, done);
 	 // confirm initial conditions
-	 expect(get_command_english()).to.equal("____ every Thing .");
+	 expect(get_nextcommand_str()).to.equal("____ every Thing .");
 	 
 	 // do "choose every Thing ."
 	 //$("#verb-choose").trigger("click");
 	 HVZ.click_verb('choose');
-	 //expect(get_command_english()).to.equal("choose every Thing .");
+	 //expect(get_nextcommand_str()).to.equal("choose every Thing .");
 	 //$("#doit_button").trigger("click");
 	 
 	 // confirm the resultant display
@@ -748,7 +760,7 @@ describe("HuViz Tests", function() {
 	 // restore ungraphed state by doing "unchoose every Thing ."
 	 //$("#verb-unchoose").trigger("click");
 	 HVZ.click_verb('unchoose');
-	 //expect(get_command_english()).to.equal("unchoose every Thing .");
+	 //expect(get_nextcommand_str()).to.equal("unchoose every Thing .");
 	 //$("#doit_button").trigger("click");
 	 expect($("#classes .treepicker-unshowing").length,
 		"after 'unchoose every Thing' no taxon should be " +
