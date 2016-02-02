@@ -337,20 +337,22 @@ class CommandController
     discard: ['choose', 'retrieve', 'hide', 'unchoose', 'unselect', 'select']
     hide: ['discard', 'undiscard', 'label', 'choose' ,'unchoose', 'select', 'unselect']
   verb_descriptions:
-    choose: "Put nodes in the graph."
+    choose: "Put nodes in the graph and pull other, connected nodes in too,
+             so long as they haven't been discarded."
     shelve: "Remove nodes from the graph and put them on the shelf
              (the circle of nodes around the graph) from which they
              might return if called back into the graph by a neighbor
              being chosen."
-    hide: "Remove nodes from the grpah and don't display them anywhere,
+    hide: "Remove nodes from the graph and don't display them anywhere,
            though they might be called back into the graph when some
            other node calls it back in to show an edge."
     label: "Show the node's labels."
     unlabel: "Stop showing the node's labels."
-    discard: "Put nodes in the discard bin (the small red circle) from
-              which they do not get called back into the graph unless
-              they are retrieved."
-    undiscard: "Retrieve nodes from the discard bin (the small red circle)
+    discard: "Put nodes in the discard bin (the small red circle which appears
+              when you start dragging a node) from which they do not get
+              called back into the graph unless they are first retrieved."
+    undiscard: "Retrieve nodes from the discard bin (the small red circle
+                which appears when you start dragging a node))
                 and put them back on the shelf."
     print: "Print associated snippets."
     redact: "Hide the associated snippets."
