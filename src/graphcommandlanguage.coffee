@@ -295,12 +295,13 @@ class GraphCommand
         regarding_phrase = angliciser(@regarding)
       else
         ready = false
+    @suffix_phrase = ''
     if like_str
-      cmd_str += " like '"+like_str+"'"
+      @suffix_phrase += " like '"+like_str+"'"
     if regarding_phrase
-      @suffix_phrase = " regarding " + regarding_phrase +  ' .'
+      @suffix_phrase += " regarding " + regarding_phrase +  ' .'
     else
-      @suffix_phrase = ' .'
+      @suffix_phrase += ' .'
     cmd_str += @suffix_phrase       
     #cmd_str += " ."
     @ready = ready

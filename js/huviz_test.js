@@ -237,6 +237,13 @@ describe("HuViz Tests", function() {
 	 expect($(HVZ.gclui.doit_butt[0][0]).is(':hidden'),
 		"the GO button should remain visible after clicking").
 	   to.equal(false);
+	 cmd_str = [HVZ.human_term.label,
+		     HVZ.human_term.all,
+		     'like',
+		     "\'thames\'",
+		     "."].join(' ');
+	 expect(get_nextcommand_str()).to.equal(cmd_str);
+	 expect(get_nextcommand_prompt()).to.equal(cmd_str);
 	 expect(!$(HVZ.gclui.doit_butt[0][0]).attr('disabled'),
 		"the GO button should remain clickable after clicking");
 	 console.log("TODO check for command \"LABEL ALL ike 'thames' .\"");
@@ -359,7 +366,8 @@ describe("HuViz Tests", function() {
 	 // a single class selected should be simple
 	 HVZ.toggle_expander("Thing"); // collapse
 	 HVZ.click_taxon("Person");
-	 expect(get_nextcommand_str()).to.equal("____ Person .");
+	 expect(get_nextcommand_str()).
+	   to.equal("____ Person .");
 	 expect(get_nextcommand_prompt()).
 	   to.equal(HVZ.human_term.blank_verb + " Person .");
 	 
@@ -805,7 +813,7 @@ describe("HuViz Tests", function() {
 	 expect(HVZ.shelved_set.length).to.equal(0);
        });
     
-    it("with everything graphed, clicking collapsed anything should ungraph all",
+    it("with All graphed, clicking collapsed anything should ungraph all",
        function(done) {
 	 say(test_title, done);
 	 HVZ.toggle_expander("anything"); // collapse
