@@ -486,6 +486,10 @@ describe("HuViz Tests", function() {
     it("'unselect graphed.' should dim all node colors ",
        function(done) {
 	 say(test_title, done);
+	 HVZ.click_verb("choose").click_set("all").doit();
+	 expect(HVZ.graphed_set.length).to.equal(HVZ.nodes.length);
+	 HVZ.click_verb("select").click_set("graphed").doit();
+	 expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
 	 HVZ.click_verb("unselect").doit();
 	 expect(HVZ.selected_set.length).to.equal(0);
        });
