@@ -264,7 +264,6 @@ class Huviz
   show_snippets_constantly: false
   charge: -193
   gravity: 0.025
-  truncate_labels_to: 40
   snippet_count_on_edge_labels: true
   label_show_range: null # @link_distance * 1.1
   discard_radius: 200
@@ -974,6 +973,7 @@ class Huviz
       if @focused_node
         d3.select(".focused_node").classed "focused_node", false  if @use_svg
         @focused_node.focused_node = false
+        @unscroll_pretty_name(@focused_node)
       if new_focused_node?
         new_focused_node.focused_node = true
         if @use_svg
@@ -1220,6 +1220,7 @@ class Huviz
         ctx = @ctx
         # perhaps scrolling should happen here
         if node.focused_node or node.focused_edge?
+          @scroll_pretty_name(node)
           ctx.fillStyle = node.color
           ctx.font = focused_font
         else
@@ -1240,10 +1241,10 @@ class Huviz
           ctx.translate node.fisheye.x, node.fisheye.y
           ctx.rotate -1 * radians + Math.PI / 2
           ctx.textAlign = textAlign
-          ctx.fillText "  " + node.name, 0, 0
+          ctx.fillText "  " + node.pretty_name, 0, 0 # TODO use .pretty_name
           ctx.restore()
         else
-          ctx.fillText "  " + node.name, node.fisheye.x, node.fisheye.y
+          ctx.fillText "  " + node.pretty_name, node.fisheye.x, node.fisheye.y
       @graphed_set.forEach label_node
       @shelved_set.forEach label_node
       @discarded_set.forEach label_node
@@ -1485,18 +1486,50 @@ class Huviz
         @develop(obj_n)
     else
       if subj_n.embryo and is_one_of(pid,NAME_SYNS)
-        @set_node_name(subj_n, quad.o.value)
+        @set_name(subj_n, quad.o.value.replace(/^\s+|\s+$/g, ''))
         @develop(subj_n) # might be ready now
     @last_quad = quad
 
-  set_node_name: (node, name) ->
-    full_name = name.replace(/^\s+|\s+$/g, '')
-    node.full_name = full_name
+  set_name: (node, full_name) ->
+    node.name ?= full_name  # set it if blank
     len = @truncate_labels_to
+    if not len?
+      alert "len not set"
     if len > 0
-      node.name = full_name.substr(0, len)
+      node.pretty_name = full_name.substr(0, len) # truncate
     else
-      node.name = full_name
+      node.pretty_name = full_name
+    node.scroll_offset = 0
+    return
+
+  scroll_spacer: "   "
+
+  scroll_pretty_name: (node) ->
+    if @truncate_labels_to >= node.name.length
+      limit = node.name.length
+    else
+      limit = @truncate_labels_to
+    should_scroll = limit > 0 and limit < node.name.length
+    if not should_scroll 
+      return
+    if true # node.label_truncated_to
+      spacer = @scroll_spacer
+      if not node.scroll_offset
+        node.scroll_offset = 1
+      else
+        node.scroll_offset += 1
+        if node.scroll_offset > node.name.length + spacer.length #limit
+          node.scroll_offset = 0
+      wrapped = ""
+      while wrapped.length < 3 * limit
+        wrapped +=  node.name + spacer
+      node.pretty_name = wrapped.substr(node.scroll_offset, limit)
+    # if node.pretty_name.length > limit
+    #   alert("TOO BIG")
+    # if node.pretty_name.length < 1
+    #   alert("TOO SMALL")
+  unscroll_pretty_name: (node) ->
+    @set_name(node, node.name)
 
   infer_edge_end_types: (edge) ->
     edge.source.type = 'Thing' unless edge.source.type?
@@ -2858,6 +2891,17 @@ class Huviz
           checked: "checked"
           type: "checkbox"
     ,
+      truncate_labels_to:
+        text: "truncate and scroll"
+        label:
+          title: "truncate and scroll labels longer than this, or zero to disable"
+        input:
+          value: 40
+          min: 0
+          max: 60
+          step: 1
+          type: "range"
+    ,
       doit_asap:
         style: "display:none"
         text: "DoIt ASAP"
@@ -2946,6 +2990,13 @@ class Huviz
   on_change_shelf_radius: (new_val, old_val) ->
     @change_setting_to_from('shelf_radius', new_val, old_val, true)
     @update_graph_radius()
+    @updateWindow()
+
+  on_change_truncate_labels_to: (new_val, old_val) ->
+    @change_setting_to_from('truncate_labels_to', new_val, old_val, true)
+    if @all_set
+      for node in @all_set
+        @unscroll_pretty_name(node)
     @updateWindow()
 
   init_from_graph_controls: ->

@@ -222,7 +222,8 @@ describe("HuViz Tests", function() {
        });
 
     it("pressing the GO button should run the current command",
-       function(){
+       function(done){
+	 say(test_title, done);	 
 	 HVZ.pick_taxon("Thing",true);
 	 HVZ.click_verb('label');
 	 HVZ.like_string("thames");
@@ -250,7 +251,8 @@ describe("HuViz Tests", function() {
        });
 
     it("Reset should clean up after a pressed GO button",
-       function() {
+       function(done) {
+	 say(test_title, done);
 	 $("#reset_btn").click();
 	 HVZ.click_verb('label');
 	 HVZ.like_string("thames");
@@ -264,7 +266,8 @@ describe("HuViz Tests", function() {
        });
 
     it("Reset should clean up after an unpressed GO button",
-       function() {
+       function(done) {
+	 say(test_title, done);
 	 $("#reset_btn").click();
 	 HVZ.click_verb('label');
 	 HVZ.like_string("thames");
@@ -955,6 +958,115 @@ describe("HuViz Tests", function() {
 
   });
 
+  describe("settings", function() {
+    
+    var zoom = function(node) {
+      for (var i = 0; i < node.name.length * 3; i++) {
+	var before = node.name;
+	HVZ.scroll_label(node);
+	var after = node.pretty_name;
+	console.log("------------");
+	console.log(before);
+	console.log(after);
+      }
+    };
+
+    var scroll_test = function(node) {
+      var limit = HVZ.truncate_labels_to;
+      var short_name_no_scroll = limit >= node.name.length;
+      var zero_limit = limit == 0;
+      var prev = node.name;
+      var repeats_after = prev.length + HVZ.scroll_spacer.length;
+      for (var i = 0; i < node.name.length * 2; i++) {
+	var before_cdr;
+	var before = node.pretty_name;
+	console.log("-------------------------------------",i)
+	console.log("before -------",before);
+	HVZ.scroll_pretty_name(node);
+	var after = node.pretty_name;
+	console.log("after -------- ",after);	
+	if (zero_limit) {
+	  expect(after,"no scrolling needed if limit is 0").to.equal(before);
+	} else {
+	  if (short_name_no_scroll) {
+	    expect(after,
+		   "'" + node.name + "' is shorter than "+
+		   limit+" no need to scroll: '" + after + "'").
+	      to.equal(node.name);
+	  } else {
+	    expect(after.length,
+		   "[" + after+ "] " +
+		   "the scrolled length should equal the limit").
+	      to.equal(limit);
+	    
+	    if (i % repeats_after != 0) {
+	      expect(after,
+		     "scrolling and truncating to " + limit +
+		     " expected by step " + i).
+		to.not.equal(before);
+	      before_cdr = before.substr(1, before.length);
+	      console.log("before_cdr --- ",before_cdr);
+	      expect(after.startsWith(before_cdr),
+		     "the scrolled value [" + after +
+		     "] should start with the prev value, " +
+		     "less the first character [" +
+		     before_cdr + "] on step: " + i ).
+		to.equal(true);
+	    }
+	  }
+	}
+	prev = after;
+      }
+    };
+
+    it("labels shouldn't scroll if the limit is set to 0",
+       function(done) {
+	 say(test_title, done);
+	 HVZ.all_set.sort_on('lid');
+	 HVZ.change_setting_to_from('truncate_labels_to', 0, 40);
+	 var hunsdon = HVZ.all_set.get_by('lid','I');   // name >> 10
+	 var thames = HVZ.all_set.get_by('lid','BW');   // name < 10	 
+	 console.log("Is that you, hunsdon?",hunsdon.name);
+         scroll_test(hunsdon);	 
+	 console.log("Is that you, thames? ",thames.name);
+         scroll_test(thames);	 
+       });
+        
+    it("labels shouldn't scroll if they're shorter (or equal to) the limit",
+       function(done) {
+	 say(test_title, done);	 
+	 HVZ.all_set.sort_on('lid');
+	 var bill = HVZ.all_set.get_by('lid','shakwi'); // name = 20
+	 var thames = HVZ.all_set.get_by('lid','BW');   // name < 10	 
+	 var bill_name_len = bill.name.length;
+	 HVZ.change_setting_to_from('truncate_labels_to', bill_name_len, 40);
+	 scroll_test(bill);
+	 console.log("Is that you, thames? ",thames.name);	 
+         scroll_test(thames);
+       });
+
+    it("labels should scroll if they're longer than the limit",
+       function(done) {
+	 say(test_title, done);
+	 HVZ.all_set.sort_on('lid');
+	 var bill = HVZ.all_set.get_by('lid','shakwi'); // name = 20
+	 var thames = HVZ.all_set.get_by('lid','BW');   // name < 20	 
+	 var hunsdon = HVZ.all_set.get_by('lid','I');   // name >> 20	 
+	 var bill_name_len = bill.name.length;
+	 HVZ.change_setting_to_from('truncate_labels_to', bill_name_len, 40);
+
+	 console.log("------------------------------");
+	 console.log("Is that you, bill?   ", bill.name);
+	 console.log("Is that you, hunsdon?", hunsdon.name);
+	 console.log("------------------------------");
+         scroll_test(bill);
+         scroll_test(hunsdon);
+	 console.log("------------------------------");
+
+       });
+    
+  });
+  
   describe("operations on verbs", function() {});
 
   describe("operations on set_picker", function() {});

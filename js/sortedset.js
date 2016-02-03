@@ -232,6 +232,12 @@ var SortedSet = function(){
 	    };
 	}
     }
+    array.dump = function() {
+      for (var i = 0; i < array.length; i++) {
+	var node = array[i];
+	console.log(node.lid, node.name);
+      }
+    }
     return array;
 };
 
