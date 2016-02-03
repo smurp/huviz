@@ -2865,6 +2865,17 @@ class Huviz
           #checked: "checked"
           type: "checkbox"
     ,
+      truncate_labels_to:
+        text: "truncate and scroll"
+        label:
+          title: "truncate and scroll labels longer than this, or zero to disable"
+        input:
+          value: 40
+          min: 0
+          max: 60
+          step: 1
+          type: "range"
+    ,
       snippet_count_on_edge_labels:
         text: "snippet count on edge labels"
         label:
@@ -2890,17 +2901,6 @@ class Huviz
         input:
           checked: "checked"
           type: "checkbox"
-    ,
-      truncate_labels_to:
-        text: "truncate and scroll"
-        label:
-          title: "truncate and scroll labels longer than this, or zero to disable"
-        input:
-          value: 40
-          min: 0
-          max: 60
-          step: 1
-          type: "range"
     ,
       doit_asap:
         style: "display:none"
