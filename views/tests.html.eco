@@ -9,7 +9,7 @@
     <link href="/css/CRRT.css" rel="stylesheet" type="text/css">
     <link href="/css/gclui.css" rel="stylesheet" type="text/css">
     <link href="/css/help.css" rel="stylesheet" type="text/css">
-    <link href="/css/jquery-ui.css" rel="stylesheet"/>
+    <link href="/jquery-ui-css/jquery-ui.css" rel="stylesheet"/>
     <link href="/mocha/mocha.css" rel="stylesheet"/>
     <link href="/css/huviz_test.css" rel="stylesheet"/>
     <link href="/css/debugging.css" rel="stylesheet"/>

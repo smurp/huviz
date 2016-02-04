@@ -10,7 +10,7 @@
     <link href="/css/CRRT.css" rel="stylesheet" type="text/css">
     <link href="/css/gclui.css" rel="stylesheet" type="text/css">
     <link href="/css/help.css" rel="stylesheet" type="text/css">
-    <link href="/css/jquery-ui.css" rel="stylesheet"/>
+    <link href="/jquery-ui-css/jquery-ui.css" rel="stylesheet"/>
     <style>
       #predicates {
         overflow-y: scroll;
@@ -38,8 +38,7 @@
   <% end %>
   </head>
   <body>
-    <div id="snippet_box">
-    </div>
+    <div id="snippet_box"></div>
   <section role="controls" id="tabs">
     <ul style="font-size:80%">
        <li><a href="#tabs-help" title="Introduction and Usage">Help</a></li>

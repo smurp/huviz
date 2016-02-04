@@ -9,14 +9,15 @@
     "port": "9998"
   },
   "dependencies": {
-    "coffee-script": "~1.7.1",
-    "stitch": "~0.3.3",
-    "express": "~2.5.0",
-    "eco": "1.1.0-rc-1",
     "async": "~0.2.9",
+    "coffee-script": "~1.7.1",
+    "eco": "1.1.0-rc-1",
+    "express": "~2.5.0",
+    "jquery-ui": "^1.10.5",
+    "jsoutline": "git://github.com/smurp/jsoutline.git",
     "libxmljs": "~0.14.2",
     "nopt": "~3.0.0",
-    "jsoutline": "git://github.com/smurp/jsoutline.git"
+    "stitch": "~0.3.3"
   },
   "devDependencies": {
     "coffeelint": "~1.7.1",
