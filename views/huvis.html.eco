@@ -18,7 +18,9 @@
       }
     </style>
   <% if @is_local: %>
+    <!--
     <XXlink href="/css/debugging.css" rel="stylesheet"/>
+      -->
   <% end %>
     <script>
       window.module = {};

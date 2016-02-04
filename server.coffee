@@ -15,7 +15,8 @@ knownOpts =
   git_branch_name: [String, null]
   port: [Stream, Number]
 shortHands =
-  faststart: ["--skip_orlando", "--skip_poetesses"]
+  #faststart: ["--skip_orlando", "--skip_poetesses"]
+  faststart: []
 
 switch process.env.NODE_ENV
   when 'development'

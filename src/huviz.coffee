@@ -2290,10 +2290,11 @@ class Huviz
       d3.xhr(url, callback)
     return "got it"
 
-  clear_snippets: () ->
+  clear_snippets: () =>
     @currently_printed_snippets = {}
-    if @snippet_box
-      @snippet_box.html("")
+    @snippet_positions_filled = {}
+    $('.snippet_dialog_box').remove()
+    return
 
   remove_tags: (xml) ->
     xml.replace(XML_TAG_REGEX, " ").replace(MANY_SPACES_REGEX, " ")
@@ -2477,6 +2478,7 @@ class Huviz
     if @snippet_box
       snip_div = @snippet_box.append('div').attr('class','snippet')
       snip_div.html(msg)
+      $(snip_div[0][0]).addClass("snippet_dialog_box")
       my_position = @get_next_snippet_position()
       dialog_args =
         maxHeight: @snippet_size
@@ -2486,10 +2488,21 @@ class Huviz
           at: "left top"
           of: window
         close: (event, ui) =>
+          event.stopPropagation()
           delete @snippet_positions_filled[my_position]
           delete @currently_printed_snippets[event.target.id]
+          return
+
       dlg = $(snip_div).dialog(dialog_args)
-      dlg[0][0].setAttribute("id",obj.snippet_js_key)
+      elem = dlg[0][0]
+      elem.setAttribute("id",obj.snippet_js_key)
+      bomb_parent = $(elem).parent().
+        select(".ui-dialog-titlebar").children().first()
+      close_all_button = bomb_parent.
+        append('<i class="fa fa-bomb close_all_snippets_button" title="Close All"></i>')
+      close_all_button.on 'click', @clear_snippets #(evt) =>
+      #  @clear_snippets(evt) 
+      return
 
   snippet_positions_filled: {}
   get_next_snippet_position: ->

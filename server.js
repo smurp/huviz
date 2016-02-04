@@ -32,7 +32,7 @@
   };
 
   shortHands = {
-    faststart: ["--skip_orlando", "--skip_poetesses"]
+    faststart: []
   };
 
   switch (process.env.NODE_ENV) {

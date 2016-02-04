@@ -180,3 +180,10 @@ p {
   color: grey;
   font-style: italic;
 }
+.close_all_snippets_button {
+    //border:.5px solid;
+    border-radius: 4px;
+    background-color: lightgrey;
+    padding-right: 2px;
+    cursor: pointer;
+}
