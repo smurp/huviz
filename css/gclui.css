@@ -187,3 +187,9 @@ p {
     padding-right: 2px;
     cursor: pointer;
 }
+.graph_control input {
+    cursor: inherit;
+}
+.graph_control label {
+    cursor: inherit;
+}

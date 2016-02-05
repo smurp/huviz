@@ -311,7 +311,9 @@ class CommandController
       if node.fixed
         return 'unpin'
   should_be_immediate_mode: ->
-    return not @is_verb_phrase_empty() and @is_command_object_empty() and not @liking_all_mode
+    return not @is_verb_phrase_empty() and \
+      @is_command_object_empty() and \
+      not @liking_all_mode
   is_command_object_empty: ->
     return @huviz.selected_set.length is 0 and not @chosen_set?
   is_verb_phrase_empty: ->
@@ -432,7 +434,7 @@ class CommandController
     @like_input = @likediv.append('input')
     @like_input.attr('class', 'like_input')
     @like_input.attr('placeholder','node Name')
-    @liking_all_mode = false
+    @liking_all_mode = false # rename to @liking_mode
     @like_input.on 'input', @handle_like_input
   handle_like_input: (evt) =>
     like_value = @get_like_string()
@@ -538,11 +540,18 @@ class CommandController
     @huviz.show_state_msg("update_command")
     ready = @prepare_command @build_command()
     if ready and @huviz.doit_asap and @immediate_execution_mode
+      @show_working_on()
+      if @huviz.slow_it_down
+        start = Date.now()
+        while Date.now() < start + (@huviz.slow_it_down * 1000)
+          console.log(Math.round((Date.now() - start) / 1000))
+        #alert "About to execute:\n  "+@command.str
       @command.execute()
       @huviz.update_all_counts()
       if because.cleanup
         because.cleanup()
         @update_command()
+      @show_working_off()
     @huviz.hide_state_msg()
   nextcommand_prompts_visible: true
   nextcommand_str_visible: false
@@ -703,7 +712,7 @@ class CommandController
       if a_set.docs?
         @set_picker.set_title(id, a_set.docs)
   on_set_picked: (set_id, new_state) =>
-    @clear_set_picker()
+    @clear_set_picker() # TODO consider in relation to liking_all_mode
     @set_picker.set_direct_state(set_id, new_state)
     if new_state is 'showing'
       @chosen_set = @huviz[set_id]

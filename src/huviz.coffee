@@ -2889,6 +2889,18 @@ class Huviz
           step: 1
           type: "range"
     ,
+      slow_it_down:
+        #style: "display:none"
+        text: "Slow it down (sec)"
+        label:
+          title: "execute commands with wait states to simulate long operations"
+        input:
+          value: 0
+          min: 0
+          max: 10
+          step: 0.1
+          type: "range"
+    ,
       snippet_count_on_edge_labels:
         text: "snippet count on edge labels"
         label:
@@ -2914,6 +2926,7 @@ class Huviz
         input:
           checked: "checked"
           type: "checkbox"
+
     ,
       doit_asap:
         style: "display:none"
@@ -2921,9 +2934,8 @@ class Huviz
         label:
           title: "execute commands as soon as they are complete"
         input:
-          checked: "checked"
+          checked: "checked" # default to 'on'
           type: "checkbox"
-
     ]
 
   dump_current_settings: (post) ->
@@ -2934,11 +2946,15 @@ class Huviz
         console.log "#{control_name} is",@[control_name],typeof @[control_name],post or ""
 
   init_graph_controls_from_json: =>
+    #@graph_controls_cursor = new TextCursor(@args.graph_controls_sel, "")
+    @graph_controls_cursor = new TextCursor(".graph_control input", "")
+    if @graph_controls_cursor
+      $("input").on("mouseover", @update_graph_controls_cursor)
     @graph_controls = d3.select(@args.graph_controls_sel)
     #$(@graph_controls).sortable().disableSelection() # TODO fix dropping
     for control_spec in @default_graph_controls
       for control_name, control of control_spec
-        graph_control = @graph_controls.append('div').attr('class', 'graph_control')
+        graph_control = @graph_controls.append('span').attr('class', 'graph_control')
         label = graph_control.append('label')
         if control.text?
           label.text(control.text)
@@ -2961,6 +2977,11 @@ class Huviz
         input.on("change", @update_graph_settings) # TODO implement one or the other
         input.on("input", @update_graph_settings)
     return
+
+  update_graph_controls_cursor: (evt) =>
+    cursor_text = (evt.target.value).toString()
+    console.log cursor_text
+    @graph_controls_cursor.set_text(cursor_text)
 
   update_graph_settings: (target, update) =>
     target = target? and target or d3.event.target
@@ -2986,6 +3007,11 @@ class Huviz
     skip_custom_handler = skip_custom_handler? and skip_custom_handler or false
     custom_handler_name = "on_change_" + setting_name
     custom_handler = @[custom_handler_name]
+    if @graph_controls_cursor
+      cursor_text = (new_value).toString()
+      console.log cursor_text
+      @graph_controls_cursor.set_text(cursor_text)
+    
     if custom_handler? and not skip_custom_handler
       #console.log "change_setting_to_from() custom setting: #{setting_name} to:#{new_value}(#{typeof new_value}) from:#{old_value}(#{typeof old_value})"
       custom_handler.apply(@, [new_value, old_value])
