@@ -66,10 +66,27 @@
           <select 
               name="data_set" class="file_picker"
               onchange="HVZ.load_file(this)" 
-              title="data sets are in order of increasing complexity">
-	    <option value=""> -- pick -- </option>
-            <option title="Orlando ontology" value="/data/orlando_ontology.ttl">OrlOnto - Draft3</option>
-            <option title="Orlando Ontology" value="/data/OrlandoOntology-SexesUnderPerson.ttl">OrlOnto - Sexes Under Person</option>
+            title="data sets are in order of increasing complexity">
+	    <option value=""> -- Pick a Data Set -- </option>	    
+	    <optgroup label="Ontologies">
+              <option
+		title="Orlando ontology"
+		value="/data/orlando_ontology.ttl">
+		OrlOnto - Draft3</option>
+              <option
+		title="Orlando Ontology"
+		value="/data/OrlandoOntology-SexesUnderPerson.ttl">
+		OrlOnto - Sexes Under Person</option>
+              <option
+		title="Huviz Command State Machine"
+		value="/data/huviz_command_states.ttl">
+		Huviz Command State Machine</option>
+	    </optgroup>
+	    <optgroup label="Other">
+	      <option
+		title="documents the state machine for processing Huviz Commands"
+		value="/data/huviz_command_states.ttl">Huviz Command States</option>
+	    </optgroup>	    
           </select>
         </label>
         <span>
