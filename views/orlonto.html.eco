@@ -76,10 +76,6 @@
 		title="Orlando Ontology"
 		value="/data/OrlandoOntology-SexesUnderPerson.ttl">
 		OrlOnto - Sexes Under Person</option>
-              <option
-		title="Huviz Command State Machine"
-		value="/data/huviz_command_states.ttl">
-		Huviz Command State Machine</option>
 	    </optgroup>
 	    <optgroup label="Other">
 	      <option
