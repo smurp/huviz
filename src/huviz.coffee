@@ -1038,10 +1038,7 @@ class Huviz
   set_cursor_for_verbs: (verbs) ->
     if not @use_fancy_cursor
       return
-    if verbs.length > 0
-      text = verbs.join("\n")
-    else
-      text = ""
+    text = [@human_term[verb] for verb in verbs].join("\n")
     if @last_cursor_text isnt text
       @text_cursor.set_text(text)
       @last_cursor_text = text
