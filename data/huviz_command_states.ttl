@@ -3,29 +3,30 @@
 @prefix hsm: <http://huviz.nooron.com/_/state_machine/> .
 @prefix fsm: <http://people.cs.aau.dk/~dolog/fsm/fsm.owl#> .
 
-hsm:EmptyCommand
+hsm:EmptyCommand rdfs:type hsm:State .
+hsm:EmptyCommand hsm:clickNoun hsm:AwaitingVerb .
 	# rdfs:type fsm:State;
-	hsm:clickNoun hsm:AwaitingVerb .
+
 hsm:EmptyCommand hsm:clickVerb hsm:AwaitingNoun .
 # TODO figure out how to express that clickVerb is a Transition
 #   hsm:clickVerb rdfs:type fsm:Transition . 
-hsm:EmptyCommand hsm:showCommand "___ ___ ." .
+# hsm:EmptyCommand hsm:showCommand "___ ___ ." .
 hsm:EmptyCommand hsm:likeNoun hsm:AwaitingVerbLikingNoun .    
 hsm:AwaitingVerb
 	#rdf:type fsm:State;
 	hsm:clickVerb hsm:RunningVerbOnNoun.
-hsm:AwaitingVerb hsm:showCommand "___ SomeSetOrClass ." .
+# hsm:AwaitingVerb hsm:showCommand "___ SomeSetOrClass ." .
 hsm:AwaitingNoun hsm:clickNoun hsm:RunningNounOnVerb .
-hsm:AwaitingNoun hsm:showCommand "SomeVerb ___ ." .
+# hsm:AwaitingNoun hsm:showCommand "SomeVerb ___ ." .
 hsm:AwaitingVerbLikingNoun hsm:clickVerb hsm:ReadyVerbLikingNoun .
-hsm:AwaitingVerbLikingNoun hsm:showCommand "___ SomeSetOrClass like 'some pattern' ." .
+# hsm:AwaitingVerbLikingNoun hsm:showCommand "___ SomeSetOrClass like 'some pattern' ." .
 hsm:AwaitingVerbLikingNoun hsm:clickNoun hsm:AwaitVerbLikingNoun .
 hsm:AwaitingVerbLikingNoun hsm:clickVerb hsm:AwaitVerbLikingNoun .
 hsm:ReadyVerbLikingNoun hsm:pressGo hsm:RunningVerbLikingNoun.
 hsm:RunningVerbLikingNoun hsm:finishRun hsm:RunningVerbLikingNoun .
-hsm:RunningVerbLikingNoun hsm:showCommand "SomeVerb SomeSetOrClass like 'some pattern' ." .
+# hsm:RunningVerbLikingNoun hsm:showCommand "SomeVerb SomeSetOrClass like 'some pattern' ." .
 hsm:RunningVerbOnNoun hsm:finishRun hsm:AwaitingVerb .
-hsm:RunningVerbOnNoun hsm:showCommand "someVerb someSetOrClass ." .
+# hsm:RunningVerbOnNoun hsm:showCommand "someVerb someSetOrClass ." .
 hsm:RunningNounOnVerb hsm:finishRun hsm:AwaitingNoun .
-hsm:RunningNounOnVerb hsm:showCommand "someVerb someSetOrClass ." .
+# hsm:RunningNounOnVerb hsm:showCommand "someVerb someSetOrClass ." .
     
