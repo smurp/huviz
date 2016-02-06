@@ -2287,7 +2287,9 @@ class Huviz
       d3.xhr(url, callback)
     return "got it"
 
-  clear_snippets: () =>
+  clear_snippets: (evt) =>
+    if evt? and evt.target? and not $(evt.target).hasClass('close_all_snippets_button')
+      return false
     @currently_printed_snippets = {}
     @snippet_positions_filled = {}
     $('.snippet_dialog_box').remove()
@@ -2497,8 +2499,7 @@ class Huviz
         select(".ui-dialog-titlebar").children().first()
       close_all_button = bomb_parent.
         append('<i class="fa fa-bomb close_all_snippets_button" title="Close All"></i>')
-      close_all_button.on 'click', @clear_snippets #(evt) =>
-      #  @clear_snippets(evt) 
+      close_all_button.on 'click', @clear_snippets
       return
 
   snippet_positions_filled: {}
@@ -2772,7 +2773,7 @@ class Huviz
         label:
           title: "the attractive force keeping nodes centered"
         input:
-          value: 0.2
+          value: 0.25
           min: 0
           max: 1
           step: 0.025
@@ -2947,6 +2948,8 @@ class Huviz
     @graph_controls_cursor = new TextCursor(".graph_control input", "")
     if @graph_controls_cursor
       $("input").on("mouseover", @update_graph_controls_cursor)
+      #$("input").on("mouseenter", @update_graph_controls_cursor)
+      #$("input").on("mousemove", @update_graph_controls_cursor)
     @graph_controls = d3.select(@args.graph_controls_sel)
     #$(@graph_controls).sortable().disableSelection() # TODO fix dropping
     for control_spec in @default_graph_controls
@@ -2977,7 +2980,10 @@ class Huviz
 
   update_graph_controls_cursor: (evt) =>
     cursor_text = (evt.target.value).toString()
-    console.log cursor_text
+    if !cursor_text
+      console.debug cursor_text
+    else
+      console.log cursor_text
     @graph_controls_cursor.set_text(cursor_text)
 
   update_graph_settings: (target, update) =>
