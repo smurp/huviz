@@ -955,15 +955,51 @@ describe("HuViz Tests", function() {
 
     it("empty predicates should be white when expanded");
     it("relationships should behave properly when collapsed and toggled");
-    it("engaging Verb then Noun should execute then disengage Noun");
-    it("engaging Noun then Verb should execute then disengage Verb");
-    it("previously hidden nodes should not be colored 'selected' when release backed to the shelf");
-
   });
 
-  describe("settings", function() {
+  describe("command life-cycle", function() {
+    it("engaging Verb then Set should execute then disengage Set",
+       function(done) {
+	 say(test_title, done);
+	 HVZ.pick_taxon('Thing',false);
+	 expect(!HVZ.gclui.chosen_set_id,
+		"expect no set to be chosen at outset").
+	   to.equal(true);
+	 expect(HVZ.gclui.is_verb_phrase_empty(),
+		"expect no verb to be engaged").
+	   to.equal(true);
+	 HVZ.click_verb("label").click_set("all").doit();
+	 expect(HVZ.gclui.engaged_verbs[0]).to.equal('label');
+	 expect(!HVZ.gclui.chosen_set_id,
+		"expect set to be disengaged after immediate execution").
+	   to.equal(true);
+       });
     
-    var zoom = function(node) {
+    xit("engaging Noun then Verb should execute then disengage Verb",
+       function(done) {
+	 say(test_title, done);
+	 HVZ.click_set("shelved").click_verb("label").doit();
+	 console.log("MT?",HVZ.gclui.is_verb_phrase_empty());
+	 expect(HVZ.gclui.is_verb_phrase_empty(),
+		"expect verb to be disengaged after immediate execution").
+	   to.equal(true);
+	 expect(false, "test not really working...").to.be.ok();
+       });
+
+    xit("previously hidden nodes should not be colored 'selected' when release backed to the shelf",
+       function(done) {
+	 say(test_title, done);
+	 /*
+	 HVZ.click_verb("hide").click_set("Region").doit();
+	 HVZ.click_verb("choose").click_set("Person").doit();
+	 HVZ.click_verb("unchoose").click_set("Person").doit();
+	 expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
+	 */
+       });
+  });
+  
+  describe("settings", function() {
+     var zoom = function(node) {
       for (var i = 0; i < node.name.length * 3; i++) {
 	var before = node.name;
 	HVZ.scroll_label(node);
