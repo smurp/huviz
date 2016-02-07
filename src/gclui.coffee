@@ -231,16 +231,15 @@ class CommandController
     if cmd?
       if @object_phrase? and @object_phrase isnt ""
         cmd.object_phrase = @object_phrase
-      # @show_working_on()
-      window.suspend_updates = false #  window.toggle_suspend_updates(false)
+      @show_working_on()
+      #window.suspend_updates = false #  window.toggle_suspend_updates(false)
       @huviz.run_command(cmd)
-      # @show_working_off()
-    else
-      if new_state is 'showing'
-        because =
-          taxon_added: id
-          cleanup: () =>
-            @on_taxon_clicked(id, 'unshowing', elem)
+      @show_working_off()
+    if new_state is 'showing'
+      because =
+        taxon_added: id
+        cleanup: () =>
+          @on_taxon_clicked(id, 'unshowing', elem)
     @update_command(because)
   unselect_node_class: (node_class) ->
     # removes node_class from @taxons_chosen

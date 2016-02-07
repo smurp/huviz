@@ -100,6 +100,7 @@ describe("HuViz Tests", function() {
 
   function select_expand_and_ungraph_all() {
     HVZ.gclui.clear_set_picker();
+    HVZ.gclui.disengage_all_verbs();
     HVZ.click_set("all").click_set("all");
     if (HVZ.graphed_set.length ||
         HVZ.selected_set.length != HVZ.nodes.length) {
@@ -792,7 +793,8 @@ describe("HuViz Tests", function() {
 	 say(test_title, done);
 	 expect(HVZ.graphed_set.length).to.equal(0);
 	 expect(HVZ.shelved_set.length).to.equal(HVZ.nodes.length);
-	 
+	 expect(get_nextcommand_str()).
+	   to.equal("____ every Thing .");
 	 var taxon_name = "Thing";
 	 expect($("#classes .treepicker-indirect-mixed").length,
 		"there should be no indirect-mixed once " +
@@ -961,7 +963,9 @@ describe("HuViz Tests", function() {
     it("engaging Verb then Set should execute then disengage Set",
        function(done) {
 	 say(test_title, done);
+	 expect(get_nextcommand_str()).to.equal("____ every Thing .");
 	 HVZ.pick_taxon('Thing',false);
+	 expect(get_nextcommand_str()).to.equal("____ ____ .");
 	 expect(!HVZ.gclui.chosen_set_id,
 		"expect no set to be chosen at outset").
 	   to.equal(true);
@@ -969,33 +973,89 @@ describe("HuViz Tests", function() {
 		"expect no verb to be engaged").
 	   to.equal(true);
 	 HVZ.click_verb("label").click_set("all").doit();
+	 expect(get_nextcommand_str()).
+	   to.equal("Label ____ .");
+	 expect(HVZ.gclui.engaged_verbs[0]).to.equal('label');
+	 expect(!HVZ.gclui.chosen_set_id,
+		"expect set to be disengaged after immediate execution").
+	   to.equal(true);
+       });
+
+    it("engaging Verb then Class should execute then disengage Class",
+       function(done) {
+	 say(test_title, done);
+	 HVZ.pick_taxon('Thing',false);
+	 expect(get_nextcommand_str()).to.equal("____ ____ .");
+	 expect(!HVZ.gclui.chosen_set_id,
+		"expect no set to be chosen at outset").
+	   to.equal(true);
+	 expect(!HVZ.gclui.chosen_set_id,
+		"expect no set to be chosen at outset").
+	   to.equal(true);
+	 expect(HVZ.gclui.is_verb_phrase_empty(),
+		"expect no verb to be engaged").
+	   to.equal(true);
+	 HVZ.click_verb("label").click_taxon("Thing").doit();
+	 expect(get_nextcommand_str()).
+	   to.equal("Label ____ .");
 	 expect(HVZ.gclui.engaged_verbs[0]).to.equal('label');
 	 expect(!HVZ.gclui.chosen_set_id,
 		"expect set to be disengaged after immediate execution").
 	   to.equal(true);
        });
     
-    xit("engaging Noun then Verb should execute then disengage Verb",
+    it("engaging Set then Verb should execute then disengage Verb",
        function(done) {
 	 say(test_title, done);
+	 HVZ.pick_taxon('Thing',false);
+	 expect(get_nextcommand_str()).to.equal("____ ____ .");
 	 HVZ.click_set("shelved").click_verb("label").doit();
 	 console.log("MT?",HVZ.gclui.is_verb_phrase_empty());
 	 expect(HVZ.gclui.is_verb_phrase_empty(),
 		"expect verb to be disengaged after immediate execution").
 	   to.equal(true);
-	 expect(false, "test not really working...").to.be.ok();
+	 expect(get_nextcommand_str()).
+	   to.equal("____ Shelved .");
        });
 
-    xit("previously hidden nodes should not be colored 'selected' when release backed to the shelf",
+    it("engaging Class then Verb should execute then disengage Verb",
        function(done) {
 	 say(test_title, done);
-	 /*
+	 HVZ.pick_taxon('Thing',false);
+	 expect(get_nextcommand_str()).to.equal("____ ____ .");
+	 HVZ.click_taxon("Region").click_verb("label").doit();
+	 expect(HVZ.gclui.is_verb_phrase_empty(),
+		"expect verb to be disengaged after immediate execution").
+	   to.equal(true);
+	 expect(get_nextcommand_str()).to.equal("____ Region .");
+	 //expect(false, "test not really working...").to.be.ok();
+       });
+
+    xit("previously hidden nodes should not be colored 'selected' when release backed to the shelf WIP it looks right but the test shows failure -- timing?",
+       function(done) {
+	 say(test_title, done);
+	 HVZ.pick_taxon('Thing',false);
+	 expect(get_nextcommand_str()).to.equal("____ ____ .");
 	 HVZ.click_verb("hide").click_set("Region").doit();
 	 HVZ.click_verb("choose").click_set("Person").doit();
 	 HVZ.click_verb("unchoose").click_set("Person").doit();
-	 expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
-	 */
+	 HVZ.click_verb("unchoose");
+	 expect(HVZ.selected_set.length).to.equal(0);
+	 var node;
+	 for (var idx = 0; idx < HVZ.taxonomy['Region'].instances.length; idx++) {
+	   node = HVZ.taxonomy['Region'].instances[idx];
+	   expect(node, "node should exist").to.be.ok();
+	   expect(node.color,
+		  "should have the 'unshowing' color for Region, a " +
+		  "light red WEIRD the color looks right but the rgb " +
+		  "value is wrong").
+	     to.equal('rgb(246, 228, 228)');
+	 }
+	 expect("the_color_of_the_region_nodes").to.equal('something');
        });
+
+    xit("'spinner' icon should show when a command is executing");
+    xit("clicking a set when another is engaged should engage the clicked one");
   });
   
   describe("settings", function() {
