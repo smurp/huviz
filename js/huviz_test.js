@@ -954,7 +954,10 @@ describe("HuViz Tests", function() {
        });
 
     it("empty predicates should be white when expanded");
-    it("Relationships should behave properly when collapsed and toggled");
+    it("relationships should behave properly when collapsed and toggled");
+    it("engaging Verb then Noun should execute then disengage Noun");
+    it("engaging Noun then Verb should execute then disengage Verb");
+    it("previously hidden nodes should not be colored 'selected' when release backed to the shelf");
 
   });
 
