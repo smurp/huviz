@@ -2328,6 +2328,7 @@ class Huviz
       me = this
       make_callback = (context_no, edge, context) ->
         (err,data) ->
+          data = data or {response: ""}
           snippet_text = data.response
           if not data.already_has_snippet_id
             snippet_text = me.remove_tags(snippet_text)
