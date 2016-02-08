@@ -45,8 +45,10 @@ Disengage the verb **Discard** by clicking it once.
 
 9) Now click the verb **Shelve** and then click **London** and note the effect:
 * **Activated (2)** and **Graphed (3)**
-* this is different from what happened when
-
+* this is different from **Deactivate** because it _forces_ the item to the shelf rather than merely release it so that it _might_ go back to the shelf if it isn't being held there by some other **Activated** ndde
+* note that **Abdy, Maria** _stays_ in the graph because she is being held there by a different **Activated** node
 
 
 # Retrieve #
+
+**Retrieve** does the job of pulling things from the **Discarded** set -- ie the red 'discard bin' in the bottom right corner -- and placing them back on the shelf.  Experiment with running the command **Shelve Region .** to see it put any **Graphed** or **Hidden** instance of the class **Region** back on the shelf while it takes the command **Retrieve Region .** to pull nodes out of the discard bin.
