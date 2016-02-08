@@ -51,4 +51,4 @@ Disengage the verb **Discard** by clicking it once.
 
 # Retrieve #
 
-**Retrieve** does the job of pulling things from the **Discarded** set -- ie the red 'discard bin' in the bottom right corner -- and placing them back on the shelf.  Experiment with running the command **Shelve Region .** to see it put any **Graphed** or **Hidden** instance of the class **Region** back on the shelf while it takes the command **Retrieve Region .** to pull nodes out of the discard bin.
+**Retrieve** does the job of pulling things from the **Discarded** set -- ie the red 'discard bin' in the bottom right corner -- and placing them back on the shelf.  After doing **Hide** on one **Region**, **Activate** on one and **Discard** on another one; experiment with running the command **Shelve Region** to see it put any **Graphed** or **Hidden** instance of the class **Region** back on the shelf while it takes the command **Retrieve Region** to pull nodes out of the discard bin.
