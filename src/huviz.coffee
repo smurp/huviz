@@ -2147,9 +2147,10 @@ class Huviz
     goner
 
   undiscard: (prodigal) ->  # TODO(smurp) rename command to 'retrieve' ????
-    @shelved_set.acquire prodigal
-    @update_showing_links prodigal
-    @update_state prodigal
+    if @discarded_set.has(prodigal)
+      @shelved_set.acquire prodigal
+      @update_showing_links prodigal
+      @update_state prodigal
     prodigal
 
   #
