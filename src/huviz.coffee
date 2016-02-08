@@ -2671,6 +2671,15 @@ class Huviz
       radius(@fisheye_radius).
       distortion(@fisheye_zoom)
     @force.linkDistance(@link_distance).gravity(@gravity)
+
+  replace_human_term_spans: (optional_class) ->
+    optional_class = optional_class or 'a_human_term'
+    if console and console.info
+      console.info("doing addClass('#{optional_class}') on all occurrences of CSS class human_term__*")
+    for canonical, human of @human_term
+      selector = '.human_term__' + canonical
+      console.log("replacing '#{canonical}' with '#{human}' in #{selector}")
+      $(selector).text(human).addClass(optional_class) #.style('color','red')
   
   human_term:
     all: 'ALL'
@@ -3012,7 +3021,7 @@ class Huviz
     custom_handler = @[custom_handler_name]
     if @graph_controls_cursor
       cursor_text = (new_value).toString()
-      console.log cursor_text
+      console.info("#{setting_name}: #{cursor_text}")
       @graph_controls_cursor.set_text(cursor_text)
     
     if custom_handler? and not skip_custom_handler

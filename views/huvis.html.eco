@@ -27,6 +27,7 @@
     </script>
     <script src="/node_modules/async/lib/async.js"></script>
     <script src="/vendor/green_turtle.js"></script>
+    <script src="/marked/marked.min.js"></script>
   <% if @is_local: %>
     <script src="/vendor/jquery.js"></script>
     <script src="/vendor/d3.v3.min.js"></script>
@@ -41,7 +42,7 @@
     <div id="snippet_box"></div>
   <section role="controls" id="tabs">
     <ul style="font-size:80%">
-       <li><a href="#tabs-help" title="Introduction and Usage">Help</a></li>
+       <li><a href="#tabs-help" title="Introduction and Usage">Intro</a></li>
        <li><a href="#tabs-options" title="Fine tune sizes, lengths and thicknesses.">Settings</a></li>
        <li><a href="#huvis_controls" title="Power tools for controlling the graph with commands consisting of verbs and nouns.">Commands</a></li>
        <li><a href="#tabs-script" title="The sequence of commands which have been performed.">Script</a></li>
@@ -80,20 +81,73 @@
         HuViz is also able to display the <a href="/orlonto.html">Orlando Ontology</a>,
         the formal definition of the things and relationships depicted here.
       </p>
+      <div id="external_docs"></div>
+      <style>
+	.a_human_term {
+	  font-style: oblique;
+          color: red;
+	}
+      </style>
       <h3>Quick Start</h3>
       <ul>
-        <li>Go to <a class="open_tab" href="#2">Commands</a> and pick a <i>data set</i>.</li>
-        <li>Click the verb <i>choose</i>,
-            notice the command you've built -- <code>choose Thing.</code> --
-            then press <button disabled>Do it</button>.</li>
-        <li>Go to <a class="open_tab" href="#1">Settings</a> to adjust the sizes of things</li>
-        <li>Hover over nodes and edges to see their labels</li>
-        <li>Click edges to see the snippets of text which inspired them.</li>
-        <li>Drag nodes to and from the green shelf, the central graph and the red discard pile</li>
-        <li>Chosen nodes are marked with a black perimeter. They are the nodes that you've expressed interest in by 'choosing' them to be in the graph. 'Unchosen' nodes are in the graph because they've been drawn in by chosen nodes.</li>
-        <li>The verb 'choose' causes all the nodes linked to the chosen node to be drawn into the graph (except the discarded ones)</li>
-        <li>The verb 'unchoose' causes the shelving of all the unchosen
-            nodes which have an edge shown to the chosen node.</li>
+        <li>Go to <a class="open_tab" href="#2">Commands</a> and pick a <i>data set</i>, for example
+	  <em>Maria Abdy</em>.
+	</li>
+        <li>Drag nodes to and from the central graph, the green shelf and the red discard pile.</li>	
+        <li>
+	  Click the <span class="control_label">Verb</span>
+	    <i class="human_term__choose">choose</i> and
+          click the <span class="control_label">Set</span> 
+	    <i class="human_term__all">all</i>
+	  and see how all the nodes are added to the graph because you've just run the command:
+	    [<code><span class="human_term__choose">Choose</span> <span class="human_term__all">All</span>.</code>]
+	</li>
+        <li>Go to <a class="open_tab" href="#1">Settings</a> to adjust, especially, the
+	  <em>gravity</em>, the <em>charge</em> and the <em>link distance</em>
+	  to control how tightly the nodes fit in the graph.
+	</li>
+        <li>Hover over nodes and edges to see their labels.  Notice that your cursor looks like a little
+	  speech bubble telling you what it will do if you click at that moment.
+	  It will update while you are dragging things too -- over the shelf or discard bin or
+	  while pinning and unpinning.
+	</li>
+        <li>Click edges to see the snippets of text which inspired them.
+	  The cursor's speech bubble will show
+	  <code>show edge sources</code>
+	  when your click will be on an edge.
+	</li>
+        <li><span class="human_term__chosen">Chosen</span> nodes are marked with a black perimeter.
+	  They are the nodes that you've expressed a specific interest in by dragging and dropping them
+	  into the graph or by running the verb <span class="human_term__choose">choose</span> on them.
+	  When a node is <span class="human_term__chosen" style="text-transform:lowercase">chosen</span>
+	  it pulls all the nodes it is connected to into the graph.  It doesn't make them
+          <span class="human_term__chosen">Chosen</span> too, but they are
+	  <span class="human_term__graphed">Graphed</span> and held in the graph by their connections
+	  to <span class="human_term__chosen" style="text-transform:lowercase">chosen</span> nodes.
+	  Once a node which is <span class="human_term__graphed">graphed</span> but not
+	  <span class="human_term__chosen">Chosen</span> looses its last visible connection
+	  to an <span class="human_term__chosen">Chosen</span> node then it automatically leaves the graph.
+	</li>
+        <li>The verb '<span class="human_term__choose">Choose</span>'
+	  causes all the nodes linked to the
+	  <span class="human_term__chosen" style="text-transform:lowercase">chosen</span>
+	  node to be pulled into the graph (except any nodes which have been
+	  <span class="human_term__discarded">discarded</span>)
+	</li>
+        <li>The verb '<span class="human_term__unchoose">unchoose</span>' causes the shelving of all the
+	  unchosen nodes which have an edge shown to the chosen node.
+	</li>
+	<li>Don't worry about
+	  <span class="human_term__discard" style="text-transform:lowercase">discard</span>ing
+	  nodes, they don't go away for ever.  They are just in the round red discard bin
+	  in the bottom right.  You can <span class="human_term__retrieve">retrieve</span>
+	  them manually by dragging and dropping them on the
+	  graph or the shelf OR you can use the verb
+	  <span class="human_term__retrieve">retrieve</span>
+	  on them to bring them out in bunches, for example just the people or the
+	  <span class="human_term__labelled">labelled</span>
+	  ones.
+	</li>
       </ul>
     </div>
     <div id="tabs-script" class="scrolling_tab">
@@ -224,15 +278,44 @@
         //HVZ.choose_everything();
       }, false);
 
+      var getMd = function(url) {
+	  var xhr = new XMLHttpRequest();
+          xhr.open('GET', url, false);
+          xhr.send();
+          var resp =  xhr.responseText;
+	  return resp;
+	};
+	var renderMarkdownFromUrlToId = function(mdUri, id) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', mdUri, true);
+            xhr.onload = function(e) {
+            if (xhr.readyState === 4) {
+              if (xrh.status === 200) {
+                var rendered = marked(xhr.responseText);
+                console.log("rendered",rendered);
+                alert(rendered);
+                document.getElementById(id).innerHTML = rendered;
+              } else {
+                console.log(mdUri, xhr.statusText);
+              }
+            }
+          }
+      };
+      
       window.addEventListener('load',function(){
         huviz = require('huviz');
         HVZ = new huviz.Orlando();
+        HVZ.replace_human_term_spans('ui-widget');
         //HVZ.set_ontology("/data/orlando_ontology.ttl");
         //HVZ.set_ontology("/data/OrlandoOntology-SexesUnderPerson.ttl");
         //HVZ.set_ontology("/data/OrlandoOntology.ttl");
         //HVZ.set_ontology("/data/OrlandoOntologyPull5.ttl");
         HVZ.set_ontology("http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl");
         HVZ.boot_sequence();
+
+        //renderMarkdownFromUrlToId("/docs/tutorial.md", "external_docs");
+	//document.getElementById("external_docs").innerHTML = marked(getMd("/docs/tutorial.md"));
+
       });
     </script>
   </body>

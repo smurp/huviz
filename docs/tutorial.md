@@ -1,5 +1,5 @@
-
-# Deactivate #
+## Tutorial ##
+### Deactivate ###
 **Deactivate** (or 'unchoose' originally and internally to the code) does the job of marking the node no longer specifically and on its own account appearing in the graph.  
 
 There are two reasons why a node might be in the central graph:
@@ -34,7 +34,7 @@ Disengage the verb **Discard** by clicking it once.
 * the previously **Hidden** **Thing** nodes are on the shelf now having forgotten that they'd previously been hidden. *I'm not sure whether I like this behaviour.  An argument could be made for them going back to being hidden because they were never explicitly shelved, they were merely released from the graph when the node that kept them **Graphed** was no longer **Activated**.*
 
 
-# Shelve #
+### Shelve ###
 **Shelve** does the job of sending a node to the shelf, regardless of which set it happens to be in: **Hidden**, **Graphed** or **Discarded**.  Those three *location sets* are the mutually exclusive answers to the question *Where is the node?*  The other **Sets** (**Pinned**, **Activated**, **Labelled** and **Selected**) are essentially flags which are more or less compatible with the *location sets*.  For example, something can be labelled whether it is discarded or graphed. Something can be pinned or activated so long as it is graphed.  Something can be selected regardless of any other set it is in.  Some verbs strip flags off things as they must to keep it all working right.
 
 7) Now drag **England** into the graph.  Note the effects:
@@ -49,6 +49,6 @@ Disengage the verb **Discard** by clicking it once.
 * note that **Abdy, Maria** _stays_ in the graph because she is being held there by a different **Activated** node
 
 
-# Retrieve #
+### Retrieve ###
 
 **Retrieve** does the job of pulling things from the **Discarded** set -- ie the red 'discard bin' in the bottom right corner -- and placing them back on the shelf.  After doing **Hide** on one **Region**, **Activate** on one and **Discard** on another one; experiment with running the command **Shelve Region** to see it put any **Graphed** or **Hidden** instance of the class **Region** back on the shelf while it takes the command **Retrieve Region** to pull nodes out of the discard bin.

@@ -117,6 +117,8 @@ app.configure ->
   app.use('/node_modules', express.static(__dirname + '/node_modules'))
   app.use('/mocha', express.static(__dirname + '/node_modules/mocha'))
   app.use('/chai', express.static(__dirname + '/node_modules/chai'))
+  app.use('/marked', express.static(__dirname + '/node_modules/marked'))
+  app.use('/docs', express.static(__dirname + '/docs'))  
   app.get "/orlonto.html", localOrCDN("/views/orlonto.html.eco", nopts.is_local)
   app.get "/yegodd.html", localOrCDN("/views/yegodd.html.eco", nopts.is_local)
   app.get "/tests", localOrCDN("/views/tests.html.eco", nopts.is_local)
