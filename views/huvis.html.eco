@@ -83,10 +83,6 @@
       </p>
       <div id="external_docs"></div>
       <style>
-	.a_human_term {
-	  font-style: oblique;
-          color: red;
-	}
       </style>
       <h3>Quick Start</h3>
       <ul>
@@ -95,12 +91,28 @@
 	</li>
         <li>Drag nodes to and from the central graph, the green shelf and the red discard pile.</li>	
         <li>
+	  Engage
+	  the <span class="control_label">Verb</span>
+	  <i class="human_term__choose">choose</i>
+	  and then engage
+	  the <span class="control_label">Class</span>
+	  <i class="human_term__all">Region</i>
+	  and see how several of the nodes are added to the graph because you've just run the command:
+	    [<code>
+	      <span class="human_term__choose" style="font-weight:normal">Choose</span>
+	      <span class="taxon">Region</span>.
+	    </code>].
+	</li>
+        <li>
 	  Click the <span class="control_label">Verb</span>
 	    <i class="human_term__choose">choose</i> and
-          click the <span class="control_label">Set</span> 
-	    <i class="human_term__all">all</i>
-	  and see how all the nodes are added to the graph because you've just run the command:
-	    [<code><span class="human_term__choose">Choose</span> <span class="human_term__all">All</span>.</code>]
+          click the <span class="control_label">Class</span>
+	    <i class="human_term__all">Region</i>
+	  and see how some of the nodes are added to the graph because you've just run the command:
+	    [<code style="all:unset;">
+	      <span class="human_term__choose">Choose</span>
+	      <span class="taxon">Region</span>.
+	    </code>].
 	</li>
         <li>Go to <a class="open_tab" href="#1">Settings</a> to adjust, especially, the
 	  <em>gravity</em>, the <em>charge</em> and the <em>link distance</em>
@@ -112,8 +124,8 @@
 	  while pinning and unpinning.
 	</li>
         <li>Click edges to see the snippets of text which inspired them.
-	  The cursor's speech bubble will show
-	  <code>show edge sources</code>
+	  The cursor's speech bubble will read
+	  <code class="speech_bubble">show edge sources</code>
 	  when your click will be on an edge.
 	</li>
         <li><span class="human_term__chosen">Chosen</span> nodes are marked with a black perimeter.
@@ -128,13 +140,13 @@
 	  <span class="human_term__chosen">Chosen</span> looses its last visible connection
 	  to an <span class="human_term__chosen">Chosen</span> node then it automatically leaves the graph.
 	</li>
-        <li>The verb '<span class="human_term__choose">Choose</span>'
+        <li>The verb <span class="human_term__choose">Choose</span>
 	  causes all the nodes linked to the
 	  <span class="human_term__chosen" style="text-transform:lowercase">chosen</span>
 	  node to be pulled into the graph (except any nodes which have been
 	  <span class="human_term__discarded">discarded</span>)
 	</li>
-        <li>The verb '<span class="human_term__unchoose">unchoose</span>' causes the shelving of all the
+        <li>The verb <span class="human_term__unchoose">unchoose</span> causes the shelving of all the
 	  unchosen nodes which have an edge shown to the chosen node.
 	</li>
 	<li>Don't worry about
@@ -143,9 +155,9 @@
 	  in the bottom right.  You can <span class="human_term__retrieve">retrieve</span>
 	  them manually by dragging and dropping them on the
 	  graph or the shelf OR you can use the verb
-	  <span class="human_term__retrieve">retrieve</span>
+	  <span class="human_term__undiscard">retrieve</span>
 	  on them to bring them out in bunches, for example just the people or the
-	  <span class="human_term__labelled">labelled</span>
+	  <span class="human_term__labelled" style="text-transform:lowercase">labelled</span>
 	  ones.
 	</li>
       </ul>

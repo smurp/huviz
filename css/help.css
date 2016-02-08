@@ -47,3 +47,18 @@
   content: '✔';
   color: DarkGreen;
 }
+.speech_bubble {
+  background-color:amber;
+  border-radius:.5em;
+  border-style: solid;
+  border-color: black;
+  border-width: 1px;
+  padding: 1px;
+}
+.a_human_term { /* the style applied by default by Huviz.replace_human_term_spans() */
+  font-style: oblique;
+}
+#tabs-help .ui-widget {
+  font-weight: 600;
+  //background-color: red;
+}
