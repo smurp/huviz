@@ -1031,6 +1031,40 @@ describe("HuViz Tests", function() {
 	 //expect(false, "test not really working...").to.be.ok();
        });
 
+    it("retrieving should only affect nodes which are discarded.",
+       function(done) {
+	 say(test_title, done);
+	 HVZ.pick_taxon('Thing',false);
+	 expect(get_nextcommand_str()).to.equal("____ ____ .");
+	 HVZ.click_verb('label');
+	 HVZ.like_string("church").doit(); // ie "Anglican Church" and "Roman Catholic Church"
+	 expect(get_nextcommand_str()).to.equal("Label All like 'church' .");
+	 HVZ.gclui.disengage_command();
+	 expect(get_nextcommand_str()).to.equal("____ ____ .");	 
+	 
+	 HVZ.click_verb('hide');
+	 HVZ.like_string("anglican").doit();
+	 expect(get_nextcommand_str()).to.equal("Hide All like 'anglican' .");
+	 HVZ.gclui.disengage_command();
+	 expect(get_nextcommand_str()).to.equal("____ ____ .");	 
+	 
+	 HVZ.click_verb('discard');
+	 HVZ.like_string("roman catholic church").doit();
+	 expect(get_nextcommand_str()).to.equal("Discard All like 'roman catholic church' .");
+	 HVZ.gclui.disengage_command();
+	 expect(get_nextcommand_str()).to.equal("____ ____ .");	 
+	 
+	 HVZ.click_verb('undiscard');
+	 HVZ.like_string("church").doit();
+	 expect(get_nextcommand_str()).to.equal("Retrieve All like 'church' .");
+	 HVZ.gclui.disengage_command();
+	 expect(get_nextcommand_str()).to.equal("____ ____ .");
+
+	 expect(HVZ.hidden_set.length,
+		"hidden undiscarded things should not be affected by undiscard").
+           to.equal(2);
+       });
+    
     xit("previously hidden nodes should not be colored 'selected' when release backed to the shelf WIP it looks right but the test shows failure -- timing?",
        function(done) {
 	 say(test_title, done);
@@ -1056,7 +1090,6 @@ describe("HuViz Tests", function() {
 
     xit("'spinner' icon should show when a command is executing");
     xit("clicking a set when another is engaged should engage the clicked one");
-    xit("retrieving should only affect nodes which are discarded.");    
   });
   
   describe("settings", function() {

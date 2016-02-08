@@ -79,6 +79,16 @@ class CommandController
     @clear_all_sets()
     @init_editor_data()
     @update_command()
+  disengage_command: ->
+    @clear_like()
+    @disengage_all_verbs()
+    @disengage_all_sets()
+    @update_command()
+  disengage_all: ->
+    @clear_like()
+    @disengage_all_sets()    
+    @disengage_all_verbs()
+    @update_command()    
   add_clear_both: (target) ->
     # keep taxonomydiv from being to the right of the verbdiv
     target.append('div').attr('style','clear:both')
@@ -722,7 +732,7 @@ class CommandController
     else
       @disengage_all_sets()
     @update_command(because)
-  disengage_all_sets: =>
+  disengage_all_sets: => # TODO harmonize disengage_all_sets() and clear_all_sets() or document difference
     if @chosen_set_id
       @on_set_picked(@chosen_set_id, "unshowing")
     #@chosen_set_id = undefined
