@@ -1056,6 +1056,7 @@ describe("HuViz Tests", function() {
 
     xit("'spinner' icon should show when a command is executing");
     xit("clicking a set when another is engaged should engage the clicked one");
+    xit("retrieving should only affect nodes which are discarded.");    
   });
   
   describe("settings", function() {
