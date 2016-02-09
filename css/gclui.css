@@ -181,15 +181,22 @@ p {
   font-style: italic;
 }
 .close_all_snippets_button {
-    //border:.5px solid;
-    border-radius: 4px;
-    background-color: lightgrey;
-    padding-right: 2px;
     cursor: pointer;
+    width:15px;
+    height:15px;
+    background-image:url('/close_all.png');
+    background-size:16px;
 }
 .graph_control input {
     cursor: inherit;
 }
 .graph_control label {
     cursor: inherit;
+}
+.ui-widget-content .ui-icon {
+    background-image:url('/close_box.png');
+    background-position:initial;
+    background-size:16px;
+    border-style: none;
+    background-color:initial;
 }

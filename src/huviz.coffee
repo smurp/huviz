@@ -2500,7 +2500,9 @@ class Huviz
       bomb_parent = $(elem).parent().
         select(".ui-dialog-titlebar").children().first()
       close_all_button = bomb_parent.
-        append('<i class="fa fa-bomb close_all_snippets_button" title="Close All"></i>')
+        append('<button type="button" class="ui-button ui-widget" role="button" title="Close All""><img class="close_all_snippets_button" src="close_all.png" title="Close All"></button>')
+        #append('<span class="close_all_snippets_button" title="Close All"></span>')        
+        #append('<img class="close_all_snippets_button" src="close_all.png" title="Close All">')
       close_all_button.on 'click', @clear_snippets
       return
 

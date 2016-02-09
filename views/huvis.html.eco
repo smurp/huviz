@@ -4,13 +4,13 @@
     <title>Huvis Graph Visualization</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
     <link rel="icon" href="/favicon.ico?v=4" type="image/x-icon" />
+    <link href="/jquery-ui-css/jquery-ui.css" rel="stylesheet"/>    
     <link href="/css/huvis.css" rel="stylesheet" type="text/css">
     <link href="/css/huvis_controls.css" rel="stylesheet" type="text/css">
     <link href="/css/lariat.css" rel="stylesheet" type="text/css">
     <link href="/css/CRRT.css" rel="stylesheet" type="text/css">
     <link href="/css/gclui.css" rel="stylesheet" type="text/css">
     <link href="/css/help.css" rel="stylesheet" type="text/css">
-    <link href="/jquery-ui-css/jquery-ui.css" rel="stylesheet"/>
     <style>
       #predicates {
         overflow-y: scroll;
