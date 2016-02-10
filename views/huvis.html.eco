@@ -69,15 +69,20 @@
         <a href="/tests">tests</a>
         <a href="/orlonto.html">ontology</a>
       </div>
-      <p>This interface is intended to help you explore the
+      <p>
+	This interface is intended to help you explore the
         information and relationships encoded in
         the <a href="http://www.artsrn.ualberta.ca/orlando/" target="_blank">Orlando</a>
         text database of British Women Writers.
         In particular, HuViz helps explore semantic information expressed in
         <a hef="http://www.artsrn.ualberta.ca/orlando/">RDF triples</a>
         that assert things like
-        <span class='eg-subject'>Writer</span> <span class='eg-verb'>hasSex</span> <span class='eg-object'>FEMALE</span>
-        or <span class='eg-subject'>Writer</span> <span class='eg-verb'>livedInPlace</span> <span class='eg-object'>London</span>.
+            <span class='eg-subject'>Writer</span>
+	    <span class='eg-verb'>hasSex</span>
+	    <span class='eg-object'>FEMALE</span>
+        or <span class='eg-subject'>Writer</span>
+	   <span class='eg-verb'>livedInPlace</span>
+	   <span class='eg-object'>London</span>.
         HuViz is also able to display the <a href="/orlonto.html">Orlando Ontology</a>,
         the formal definition of the things and relationships depicted here.
       </p>
@@ -85,82 +90,112 @@
       <style>
       </style>
       <h3>Quick Start</h3>
-      <ul>
-        <li>Go to <a class="open_tab" href="#2">Commands</a> and pick a <i>data set</i>, for example
-	  <em>Maria Abdy</em>.
-	</li>
-        <li>Drag nodes to and from the central graph, the green shelf and the red discard pile.</li>	
-        <li>
-	  Engage
-	  the <span class="control_label">Verb</span>
-	  <i class="human_term__choose">choose</i>
-	  and then engage
-	  the <span class="control_label">Class</span>
-	  <i class="human_term__all">Region</i>
-	  and see how several of the nodes are added to the graph because you've just run the command:
-	    [<code>
-	      <span class="human_term__choose" style="font-weight:normal">Choose</span>
-	      <span class="taxon">Region</span>.
-	    </code>].
-	</li>
-        <li>
-	  Click the <span class="control_label">Verb</span>
-	    <i class="human_term__choose">choose</i> and
-          click the <span class="control_label">Class</span>
-	    <i class="human_term__all">Region</i>
-	  and see how some of the nodes are added to the graph because you've just run the command:
-	    [<code style="all:unset;">
-	      <span class="human_term__choose">Choose</span>
-	      <span class="taxon">Region</span>.
-	    </code>].
-	</li>
-        <li>Go to <a class="open_tab" href="#1">Settings</a> to adjust, especially, the
-	  <em>gravity</em>, the <em>charge</em> and the <em>link distance</em>
-	  to control how tightly the nodes fit in the graph.
-	</li>
-        <li>Hover over nodes and edges to see their labels.  Notice that your cursor looks like a little
-	  speech bubble telling you what it will do if you click at that moment.
-	  It will update while you are dragging things too -- over the shelf or discard bin or
-	  while pinning and unpinning.
-	</li>
-        <li>Click edges to see the snippets of text which inspired them.
-	  The cursor's speech bubble will read
-	  <code class="speech_bubble">show edge sources</code>
-	  when your click will be on an edge.
-	</li>
-        <li><span class="human_term__chosen">Chosen</span> nodes are marked with a black perimeter.
-	  They are the nodes that you've expressed a specific interest in by dragging and dropping them
-	  into the graph or by running the verb <span class="human_term__choose">choose</span> on them.
-	  When a node is <span class="human_term__chosen" style="text-transform:lowercase">chosen</span>
-	  it pulls all the nodes it is connected to into the graph.  It doesn't make them
-          <span class="human_term__chosen">Chosen</span> too, but they are
-	  <span class="human_term__graphed">Graphed</span> and held in the graph by their connections
-	  to <span class="human_term__chosen" style="text-transform:lowercase">chosen</span> nodes.
-	  Once a node which is <span class="human_term__graphed">graphed</span> but not
-	  <span class="human_term__chosen">Chosen</span> looses its last visible connection
-	  to an <span class="human_term__chosen">Chosen</span> node then it automatically leaves the graph.
-	</li>
-        <li>The verb <span class="human_term__choose">Choose</span>
-	  causes all the nodes linked to the
-	  <span class="human_term__chosen" style="text-transform:lowercase">chosen</span>
-	  node to be pulled into the graph (except any nodes which have been
-	  <span class="human_term__discarded">discarded</span>)
-	</li>
-        <li>The verb <span class="human_term__unchoose">unchoose</span> causes the shelving of all the
-	  unchosen nodes which have an edge shown to the chosen node.
-	</li>
-	<li>Don't worry about
-	  <span class="human_term__discard" style="text-transform:lowercase">discard</span>ing
-	  nodes, they don't go away for ever.  They are just in the round red discard bin
-	  in the bottom right.  You can <span class="human_term__retrieve">retrieve</span>
-	  them manually by dragging and dropping them on the
-	  graph or the shelf OR you can use the verb
-	  <span class="human_term__undiscard">retrieve</span>
-	  on them to bring them out in bunches, for example just the people or the
-	  <span class="human_term__labelled" style="text-transform:lowercase">labelled</span>
-	  ones.
-	</li>
-      </ul>
+      <p>Click <button>reset</button> (top right of the Commands Tab) at any time
+	to rease changes and restore to default.</p>
+      <p>
+	There are two ways to execute commands in HuViz:
+	<ol>
+	  <li>Directly in the Graph using the "drag and drop" technique</li>
+	  <li>By choosing a combination of a Verb + Set or Class or Selection in the Commands Tab.</li>
+	</ol>
+      </p>
+      <dl>
+	<dt>Load Data Set</dt>
+        <dd>
+	  <ul>
+	    <li>
+	      Go to <a class="open_tab" href="#2">Commands</a> and pick a <i>data set</i>, for example
+	      <em>Maria Abdy</em>.
+	    </li>
+	  </ul>
+	</dd>
+	<dt>Graph Nodes</dt>
+	<dd>
+	  <ul>
+	    <li>
+	      Next, experiment in the graph by dragging nodes between the three main areas:
+	      the Central Graph, the green Shelf and the red Discard Bin.
+	    </li>
+	    <li>
+	      Notice how nodes in the central graph will link together to form networks.
+	      <span class="human_term__chosen">Chosen</span> nodes, identified by the black outline,
+	      are nodes that have beeen dragging into the centre.  Any node that is directly connected to an
+	      <span class="human_term__chosen">Chosen</span> node will automatically be pulled into the graph.
+	      Together, these nodes will link to form a network.
+	    </li>
+	    <li>
+	      To <span class="human_term__choose">Choose</span> a node in the "Commands" tab:
+	      <ol>
+		<li>Click the <span class="control_label">Verb</span>
+		  <span class="human_term__choose">Choose</span></li>
+		<li>Click the <span class="control_label">Class</span>
+		  (such as <span class="taxon">Organization</span> or <span class="taxon">Person</span>)
+		</li>
+	      </ol>
+	    </li>
+	    <li>
+	      Return nodes to the green Shelf from the central graph by clicking and dragging OR
+	      engaging the <span class="control_label">Verb</span>
+	      <span class="human_term__shelve">Shelve</span>
+	      from the "Commands" tab.
+	    </li>
+	  </ul>
+	</dd>
+	<dt>View Connections</dt>
+	<dd>
+	  <ul>
+	    <li>
+	      Hover over nodes and edges to see their labels.  Notice that a tiny speech bubble appears.
+	      The bubble notifies the user what will happen if the cursor is clicked (or released if dragging).
+	      The bubble updates automatically based on the location of hte cursor and which Verbs
+	      have been engaged.
+	    </li>
+	    <li>
+	      The Edge label describes the type and number of connections between two nodes (Ex: hasMother(1)).
+	      Click on the Edge to open the <strong>Snippet Windows</strong> and explore the relationship
+	      between the nodes in more detail.
+	    </li>
+	  </ul>
+	</dd>
+
+	<dt>Adjust Appearance</dt>
+	<dd>
+	  <ul>
+	    <li>
+	      Click on the <strong>Settings Tab</strong> to adjust the physical appearance of the graph.
+	      Play with the <em>gravity</em>, <em>charge</em> and <em>link distance</em> to control how
+	      tightly the nodes fit together.
+	    </li>
+	  </ul>
+	</dd>
+
+	<dt>Using the Discard Bin</dt>
+	<dd>
+	  <ul>
+	    <li>
+	      Drag nodes to the red Discard Bin at the bottom right to temporarily keep them
+	      from being pulled into the Central Graph.
+	    </li>
+	    <li>
+	      <span class="human_term__retrieve">Retrieve</span>
+	      <span class="human_term__discarded">Discarded</span> nodes manually by dragging
+	      them back to the Central Graph or Shelf.
+	    </li>
+	    <li>
+	      To <span class="human_term__retrieve">Retrieve</span> only certain nodes using the
+	      <strong>Commands Tab</strong> by:
+	      <ol>
+		<li>
+		  Click the <span class="control_label">Verb</span>
+		  <span class="human_term__retrieve">Retrieve</span>
+		</li>
+		<li>
+		  Click the <span class="control_label">Class</span> type
+		</li>
+	      </ol>
+	    </li>
+	</dd>
+      </dl>
     </div>
     <div id="tabs-script" class="scrolling_tab">
       <p>This is the sequence of commands which were performed to produce the current state of the display.
