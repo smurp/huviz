@@ -239,33 +239,42 @@
         //renderMarkdownFromUrlToId("/docs/tutorial.md", "external_docs");
 	//document.getElementById("external_docs").innerHTML = marked(getMd("/docs/tutorial.md"));
 
-      window.open_help_dialog = function() {
-        if (!(open_help_dialog && open_help_dialog.help_dialog)) {
-          open_help_dialog.help_dialog = $('.help_content').show().dialog();
-          open_help_dialog.help_dialog.dialog({
-            position: {my: "left bottom", at: "left bottom", of: "html"},
-            title: "Help",
-            //dialogClass: "no-close",
-            width: $("html").width()*0.24,
-            height: $("html").height()*0.24,
-            
-            beforeClose: function(evt, ui) {
-              $(evt.target).parent().hide();
-              return false;
-            }
-          });
-          open_help_dialog.help_dialog.dialog("open");
-          /*
-            Make the "Help" tab show the help_dialog again
-          */
-          $('[href="#tabs-help"]').click(function(){
-            $(open_help_dialog.help_dialog).parent().show();
-          });
-        }
-      };
-      $(".open_huviz_help").on('click', open_help_dialog);
-      open_help_dialog();
-      var getMd = function(url) {
+	window.open_help_dialog = function() {
+	  if (!(open_help_dialog && open_help_dialog.help_dialog)) {
+	    open_help_dialog.help_dialog = $('.help_content').show().dialog();
+	    open_help_dialog.help_dialog.dialog({
+	      position: {my: "left bottom", at: "left bottom", of: "html"},
+	      title: "Help",
+	      width: $("html").width()*0.24,
+	      height: $("html").height()*0.24,
+	      beforeClose: function(evt, ui) {
+		$(evt.target).parent().hide();
+		return false;
+	      }
+	    });
+	    open_help_dialog.help_dialog.dialog("open");
+	    $('#tabs').on("tabsbeforeactivate", function(evt, ui) {
+	      // http://api.jqueryui.com/tabs/#event-beforeActivate
+              if (ui.newTab.text() == 'Help') {
+                if ($(open_help_dialog.help_dialog).parent().is(":Visible")) {
+                  $(open_help_dialog.help_dialog.parent()).addClass("help_flash");
+                  setTimeout(function() {
+                    $(open_help_dialog.help_dialog.parent()).removeClass("help_flash");
+                    },500);
+                } else {
+                  $(open_help_dialog.help_dialog).parent().show();
+                }
+		return false; // suppress normal behaviour of the Help tab
+	      }
+	      return true; // non-Help tabs work normally
+	    });
+	  }
+	};
+        $(".open_huviz_help").on('click', open_help_dialog);
+        open_help_dialog();
+      
+      /*
+        var getMd = function(url) {
 	  var xhr = new XMLHttpRequest();
           xhr.open('GET', url, false);
           xhr.send();
@@ -286,8 +295,8 @@
                 console.log(mdUri, xhr.statusText);
               }
             }
-          }
-      };
+        }
+      */
       
       });
     </script>

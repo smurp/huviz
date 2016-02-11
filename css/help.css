@@ -85,7 +85,6 @@
 }
 .help_content dt {
     font-style: oblique;
-    //text-decoration: underline;
     margin:0em;
     padding:0em;
     border:0em;
@@ -111,4 +110,7 @@
     margin-top: 0.15em;
     padding-left: 2em;
 }
-
+.help_flash .ui-dialog-titlebar {
+    border-color: red !important;
+    border-width: .5em !important;
+}
