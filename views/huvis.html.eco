@@ -42,13 +42,18 @@
     <div id="snippet_box"></div>
   <section role="controls" id="tabs">
     <ul style="font-size:80%">
-       <li><a href="#tabs-help" title="Introduction and Usage">Intro</a></li>
+       <li><a href="#tabs-intro" title="Introduction and Usage">Intro</a></li>
        <li><a href="#tabs-options" title="Fine tune sizes, lengths and thicknesses.">Settings</a></li>
        <li><a href="#huvis_controls" title="Power tools for controlling the graph with commands consisting of verbs and nouns.">Commands</a></li>
-       <li><a href="#tabs-script" title="The sequence of commands which have been performed.">Script</a></li>
+       <!--
+       <li style="display:none">
+	 <a href="#tabs-script" title="The sequence of commands which have been performed.">Script</a>
+       </li>
+       -->
+       <li><a href="#tabs-help" class="open_huviz_help" title="">Help</a></li>       
        <li><a href="#tabs-hide" title="Shrink this menu for maximum room to play.">‾‾‾</a></li>
     </ul>
-    <div id="tabs-help" class="scrolling_tab">
+    <div id="tabs-intro" class="scrolling_tab">
       <h1 class="git-branch-is-<%= @git_branch_name %>">
         HuViz
         <% if @git_commit_hash: %>
@@ -87,121 +92,15 @@
         the formal definition of the things and relationships depicted here.
       </p>
       <div id="external_docs"></div>
-      <style>
-      </style>
-      <h3>Quick Start</h3>
-      <p>Click <button>reset</button> (top right of the Commands Tab) at any time
-	to rease changes and restore to default.</p>
-      <p>
-	There are two ways to execute commands in HuViz:
-	<ol>
-	  <li>Directly in the Graph using the "drag and drop" technique</li>
-	  <li>By choosing a combination of a Verb + Set or Class or Selection in the Commands Tab.</li>
-	</ol>
-      </p>
-      <dl>
-	<dt>Load Data Set</dt>
-        <dd>
-	  <ul>
-	    <li>
-	      Go to <a class="open_tab" href="#2">Commands</a> and pick a <i>data set</i>, for example
-	      <em>Maria Abdy</em>.
-	    </li>
-	  </ul>
-	</dd>
-	<dt>Graph Nodes</dt>
-	<dd>
-	  <ul>
-	    <li>
-	      Next, experiment in the graph by dragging nodes between the three main areas:
-	      the Central Graph, the green Shelf and the red Discard Bin.
-	    </li>
-	    <li>
-	      Notice how nodes in the central graph will link together to form networks.
-	      <span class="human_term__chosen">Chosen</span> nodes, identified by the black outline,
-	      are nodes that have beeen dragging into the centre.  Any node that is directly connected to an
-	      <span class="human_term__chosen">Chosen</span> node will automatically be pulled into the graph.
-	      Together, these nodes will link to form a network.
-	    </li>
-	    <li>
-	      To <span class="human_term__choose">Choose</span> a node in the "Commands" tab:
-	      <ol>
-		<li>Click the <span class="control_label">Verb</span>
-		  <span class="human_term__choose">Choose</span></li>
-		<li>Click the <span class="control_label">Class</span>
-		  (such as <span class="taxon">Organization</span> or <span class="taxon">Person</span>)
-		</li>
-	      </ol>
-	    </li>
-	    <li>
-	      Return nodes to the green Shelf from the central graph by clicking and dragging OR
-	      engaging the <span class="control_label">Verb</span>
-	      <span class="human_term__shelve">Shelve</span>
-	      from the "Commands" tab.
-	    </li>
-	  </ul>
-	</dd>
-	<dt>View Connections</dt>
-	<dd>
-	  <ul>
-	    <li>
-	      Hover over nodes and edges to see their labels.  Notice that a tiny speech bubble appears.
-	      The bubble notifies the user what will happen if the cursor is clicked (or released if dragging).
-	      The bubble updates automatically based on the location of hte cursor and which Verbs
-	      have been engaged.
-	    </li>
-	    <li>
-	      The Edge label describes the type and number of connections between two nodes (Ex: hasMother(1)).
-	      Click on the Edge to open the <strong>Snippet Windows</strong> and explore the relationship
-	      between the nodes in more detail.
-	    </li>
-	  </ul>
-	</dd>
-
-	<dt>Adjust Appearance</dt>
-	<dd>
-	  <ul>
-	    <li>
-	      Click on the <strong>Settings Tab</strong> to adjust the physical appearance of the graph.
-	      Play with the <em>gravity</em>, <em>charge</em> and <em>link distance</em> to control how
-	      tightly the nodes fit together.
-	    </li>
-	  </ul>
-	</dd>
-
-	<dt>Using the Discard Bin</dt>
-	<dd>
-	  <ul>
-	    <li>
-	      Drag nodes to the red Discard Bin at the bottom right to temporarily keep them
-	      from being pulled into the Central Graph.
-	    </li>
-	    <li>
-	      <span class="human_term__retrieve">Retrieve</span>
-	      <span class="human_term__discarded">Discarded</span> nodes manually by dragging
-	      them back to the Central Graph or Shelf.
-	    </li>
-	    <li>
-	      To <span class="human_term__retrieve">Retrieve</span> only certain nodes using the
-	      <strong>Commands Tab</strong> by:
-	      <ol>
-		<li>
-		  Click the <span class="control_label">Verb</span>
-		  <span class="human_term__retrieve">Retrieve</span>
-		</li>
-		<li>
-		  Click the <span class="control_label">Class</span> type
-		</li>
-	      </ol>
-	    </li>
-	</dd>
-      </dl>
     </div>
+    <!--
     <div id="tabs-script" class="scrolling_tab">
       <p>This is the sequence of commands which were performed to produce the current state of the display.
 	<i><b>Coming soon.</b></i>
       </p>
     </div>
+       <li><a href="#tabs-help" class="open_huviz_help" title="">Help</a></li>
+    -->
     <div id="tabs-options" class="graph_controls">
     </div>
     <div id="huvis_controls">
@@ -310,21 +209,62 @@
       <div id="gclui"></div>
     </div>
   </section>
+  
     <div id="vis" class="underneath" style="z-index:-3"></div>
     <div id="viscanvas" class="underneath"></div>
     <pre id="status"></pre>
     <div id="state_msg_box"></div>
 
     <script src="/huviz/huviz.js?23234"></script>
-    <script>
-      var HVZ;
-      document.addEventListener('touchmove', function(e) {
-        e.preventDefault();
-      }, false);
-      document.addEventListener('dataset-loaded', function(e) {
-        //HVZ.choose_everything();
-      }, false);
+    <script type="text/javascript">
+      window.addEventListener('load',function(){
+        //var HVZ;
+        document.addEventListener('touchmove', function(e) {
+          e.preventDefault();
+        }, false);
+        document.addEventListener('dataset-loaded', function(e) {
+          //HVZ.choose_everything();
+        }, false);
 
+        huviz = require('huviz');
+        HVZ = new huviz.Orlando();
+        HVZ.replace_human_term_spans('ui-widget');
+        //HVZ.set_ontology("/data/orlando_ontology.ttl");
+        //HVZ.set_ontology("/data/OrlandoOntology-SexesUnderPerson.ttl");
+        //HVZ.set_ontology("/data/OrlandoOntology.ttl");
+        //HVZ.set_ontology("/data/OrlandoOntologyPull5.ttl");
+        HVZ.set_ontology("http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl");
+        HVZ.boot_sequence();
+
+        //renderMarkdownFromUrlToId("/docs/tutorial.md", "external_docs");
+	//document.getElementById("external_docs").innerHTML = marked(getMd("/docs/tutorial.md"));
+
+      window.open_help_dialog = function() {
+        if (!(open_help_dialog && open_help_dialog.help_dialog)) {
+          open_help_dialog.help_dialog = $('.help_content').show().dialog();
+          open_help_dialog.help_dialog.dialog({
+            position: {my: "left bottom", at: "left bottom", of: "html"},
+            title: "Help",
+            //dialogClass: "no-close",
+            width: $("html").width()*0.24,
+            height: $("html").height()*0.24,
+            
+            beforeClose: function(evt, ui) {
+              $(evt.target).parent().hide();
+              return false;
+            }
+          });
+          open_help_dialog.help_dialog.dialog("open");
+          /*
+            Make the "Help" tab show the help_dialog again
+          */
+          $('[href="#tabs-help"]').click(function(){
+            $(open_help_dialog.help_dialog).parent().show();
+          });
+        }
+      };
+      $(".open_huviz_help").on('click', open_help_dialog);
+      open_help_dialog();
       var getMd = function(url) {
 	  var xhr = new XMLHttpRequest();
           xhr.open('GET', url, false);
@@ -349,21 +289,122 @@
           }
       };
       
-      window.addEventListener('load',function(){
-        huviz = require('huviz');
-        HVZ = new huviz.Orlando();
-        HVZ.replace_human_term_spans('ui-widget');
-        //HVZ.set_ontology("/data/orlando_ontology.ttl");
-        //HVZ.set_ontology("/data/OrlandoOntology-SexesUnderPerson.ttl");
-        //HVZ.set_ontology("/data/OrlandoOntology.ttl");
-        //HVZ.set_ontology("/data/OrlandoOntologyPull5.ttl");
-        HVZ.set_ontology("http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl");
-        HVZ.boot_sequence();
-
-        //renderMarkdownFromUrlToId("/docs/tutorial.md", "external_docs");
-	//document.getElementById("external_docs").innerHTML = marked(getMd("/docs/tutorial.md"));
-
       });
     </script>
+  <div class="help_content" style="display:none">
+    <h3>Quick Start</h3>
+    <p class="reminder">
+      Click <button>reset</button> (top right of the <a class="open_tab" href="#2">Commands tab</a>) at any time
+      to erase changes and restore to default.
+    </p>
+    <dl>
+      <dt>Two Ways to Execute Commands</dt>      
+      <dd>
+	<ol>
+	  <li>Directly in the Graph using the "drag and drop" technique</li>
+	  <li>By choosing a combination of a Verb + Set or Class or Selection in the
+	    <a class="open_tab" href="#2">Commands tab</a>.</li>
+	</ol>	
+      </dd>
+      <dt>Load Data Set</dt>
+      <dd>
+	<ul>
+	  <li>
+	    Go to the <a class="open_tab" href="#2">Commands tab</a> and
+	    <code style="background:lightgrey">Pick a Data Set</code>, for example
+	    <em>Maria Abdy</em>.
+	  </li>
+	</ul>
+      </dd>
+      <dt>Graph Nodes</dt>
+      <dd>
+	<ul>
+	  <li>
+	    Next, experiment in the graph by dragging nodes between the three main areas:
+	    the Central Graph, the green Shelf and the red Discard Bin.
+	  </li>
+	  <li>
+	    Notice how nodes in the central graph will link together to form networks.
+	    <span class="human_term__chosen">Chosen</span> nodes, identified by the black outline,
+	    are nodes that have beeen dragging into the centre.  Any node that is directly connected to an
+	    <span class="human_term__chosen">Chosen</span> node will automatically be pulled into the graph.
+	    Together, these nodes will link to form a network.
+	  </li>
+	  <li>
+	    To <span class="human_term__choose">Choose</span> a node in the
+	    <a class="open_tab" href="#2">Commands tab</a>:
+	    <ol>
+	      <li>Click the <span class="control_label">Verb</span>
+		<span class="human_term__choose">Choose</span></li>
+	      <li>Click the <span class="control_label">Class</span>
+		(such as <span class="taxon">Organization</span> or <span class="taxon">Person</span>)
+	      </li>
+	    </ol>
+	  </li>
+	  <li>
+	    Return nodes to the green Shelf from the central graph by clicking and dragging OR
+	    engaging the <span class="control_label">Verb</span>
+	    <span class="human_term__shelve">Shelve</span>
+	    from the <a class="open_tab" href="#2">Commands tab</a>.
+	  </li>
+	</ul>
+      </dd>
+      <dt>View Connections</dt>
+      <dd>
+	<ul>
+	  <li>
+	    Hover over nodes and edges to see their labels.  Notice that a tiny speech bubble appears.
+	    The bubble notifies the user what will happen if the cursor is clicked (or released if dragging).
+	    The bubble updates automatically based on the location of the cursor and which Verbs
+	    have been engaged.
+	  </li>
+	  <li>
+	    The Edge label describes the type and number of connections between two nodes (Ex: hasMother(1)).
+	    Click on the Edge to open the <strong>Snippet Windows</strong> and explore the relationship
+	    between the nodes in more detail.
+	  </li>
+	</ul>
+      </dd>
+      
+      <dt>Adjust Appearance</dt>
+      <dd>
+	<ul>
+	  <li>
+	    Click on the <a class="open_tab" href="#1">Commands tab</a>
+	    to adjust the physical appearance of the graph.
+	    Play with the <em>gravity</em>, <em>charge</em> and <em>link distance</em> to control how
+	    tightly the nodes fit together.
+	  </li>
+	</ul>
+      </dd>
+      
+      <dt>Using the Discard Bin</dt>
+      <dd>
+	<ul>
+	  <li>
+	    Drag nodes to the red Discard Bin at the bottom right to temporarily keep them
+	    from being pulled into the Central Graph.
+	  </li>
+	  <li>
+	    <span class="human_term__retrieve">Retrieve</span>
+	    <span class="human_term__discarded">Discarded</span> nodes manually by dragging
+	    them back to the Central Graph or Shelf.
+	  </li>
+	  <li>
+	    To <span class="human_term__retrieve">Retrieve</span> only certain nodes using the
+	    <a class="open_tab" href="#2">Commands tab</a>:
+	    <ol>
+	      <li>
+		Click the <span class="control_label">Verb</span>
+		<span class="human_term__retrieve">Retrieve</span>
+	      </li>
+	      <li>
+		Click the <span class="control_label">Class</span> type
+	      </li>
+	    </ol>
+	  </li>
+      </dd>
+    </dl>
+  </div>
   </body>
 </html>
