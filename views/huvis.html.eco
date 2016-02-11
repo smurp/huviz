@@ -239,33 +239,42 @@
         //renderMarkdownFromUrlToId("/docs/tutorial.md", "external_docs");
 	//document.getElementById("external_docs").innerHTML = marked(getMd("/docs/tutorial.md"));
 
-      window.open_help_dialog = function() {
-        if (!(open_help_dialog && open_help_dialog.help_dialog)) {
-          open_help_dialog.help_dialog = $('.help_content').show().dialog();
-          open_help_dialog.help_dialog.dialog({
-            position: {my: "left bottom", at: "left bottom", of: "html"},
-            title: "Help",
-            //dialogClass: "no-close",
-            width: $("html").width()*0.24,
-            height: $("html").height()*0.24,
-            
-            beforeClose: function(evt, ui) {
-              $(evt.target).parent().hide();
-              return false;
-            }
-          });
-          open_help_dialog.help_dialog.dialog("open");
-          /*
-            Make the "Help" tab show the help_dialog again
-          */
-          $('[href="#tabs-help"]').click(function(){
-            $(open_help_dialog.help_dialog).parent().show();
-          });
-        }
-      };
-      $(".open_huviz_help").on('click', open_help_dialog);
-      open_help_dialog();
-      var getMd = function(url) {
+	window.open_help_dialog = function() {
+	  if (!(open_help_dialog && open_help_dialog.help_dialog)) {
+	    open_help_dialog.help_dialog = $('.help_content').show().dialog();
+	    open_help_dialog.help_dialog.dialog({
+	      position: {my: "left bottom", at: "left bottom", of: "html"},
+	      title: "Help",
+	      width: $("html").width()*0.24,
+	      height: $("html").height()*0.24,
+	      beforeClose: function(evt, ui) {
+		$(evt.target).parent().hide();
+		return false;
+	      }
+	    });
+	    open_help_dialog.help_dialog.dialog("open");
+	    $('#tabs').on("tabsbeforeactivate", function(evt, ui) {
+	      // http://api.jqueryui.com/tabs/#event-beforeActivate
+              if (ui.newTab.text() == 'Help') {
+                if ($(open_help_dialog.help_dialog).parent().is(":Visible")) {
+                  $(open_help_dialog.help_dialog.parent()).addClass("help_flash");
+                  setTimeout(function() {
+                    $(open_help_dialog.help_dialog.parent()).removeClass("help_flash");
+                    },500);
+                } else {
+                  $(open_help_dialog.help_dialog).parent().show();
+                }
+		return false; // suppress normal behaviour of the Help tab
+	      }
+	      return true; // non-Help tabs work normally
+	    });
+	  }
+	};
+        $(".open_huviz_help").on('click', open_help_dialog);
+        open_help_dialog();
+      
+      /*
+        var getMd = function(url) {
 	  var xhr = new XMLHttpRequest();
           xhr.open('GET', url, false);
           xhr.send();
@@ -286,16 +295,17 @@
                 console.log(mdUri, xhr.statusText);
               }
             }
-          }
-      };
+        }
+      */
       
       });
     </script>
   <div class="help_content" style="display:none">
     <h3>Quick Start</h3>
     <p class="reminder">
-      Click <button>reset</button> (top right of the <a class="open_tab" href="#2">Commands tab</a>) at any time
-      to erase changes and restore to default.
+      Click <button>reset</button>
+      (top right of the <a class="open_tab" href="#2">Commands tab</a>)
+      at any time to erase changes and restore defaults.
     </p>
     <dl>
       <dt>Two Ways to Execute Commands</dt>      
@@ -320,15 +330,20 @@
       <dd>
 	<ul>
 	  <li>
-	    Next, experiment in the graph by dragging nodes between the three main areas:
-	    the Central Graph, the green Shelf and the red Discard Bin.
+	    Next, experiment in the graph by dragging nodes between
+	    the three main areas: the Central Graph, the green Shelf
+	    and the red Discard Bin.
 	  </li>
 	  <li>
-	    Notice how nodes in the central graph will link together to form networks.
-	    <span class="human_term__chosen">Chosen</span> nodes, identified by the black outline,
-	    are nodes that have beeen dragging into the centre.  Any node that is directly connected to an
-	    <span class="human_term__chosen">Chosen</span> node will automatically be pulled into the graph.
-	    Together, these nodes will link to form a network.
+	    Notice how nodes in the central graph will link together
+	    to form networks.
+	    <span class="human_term__chosen">Chosen</span> nodes,
+	    identified by the black outline, are nodes that have beeen
+	    dragging into the centre.  Any node that is directly
+	    connected to an
+	    <span class="human_term__chosen">Chosen</span> node will
+	    automatically be pulled into the graph.  Together, these
+	    nodes will link to form a network.
 	  </li>
 	  <li>
 	    To <span class="human_term__choose">Choose</span> a node in the
@@ -342,8 +357,9 @@
 	    </ol>
 	  </li>
 	  <li>
-	    Return nodes to the green Shelf from the central graph by clicking and dragging OR
-	    engaging the <span class="control_label">Verb</span>
+	    Return nodes to the green Shelf from the central graph by
+	    clicking and dragging OR engaging
+	    the <span class="control_label">Verb</span>
 	    <span class="human_term__shelve">Shelve</span>
 	    from the <a class="open_tab" href="#2">Commands tab</a>.
 	  </li>
@@ -353,15 +369,19 @@
       <dd>
 	<ul>
 	  <li>
-	    Hover over nodes and edges to see their labels.  Notice that a tiny speech bubble appears.
-	    The bubble notifies the user what will happen if the cursor is clicked (or released if dragging).
-	    The bubble updates automatically based on the location of the cursor and which Verbs
-	    have been engaged.
+	    Hover over nodes and edges to see their labels.  Notice
+	    that a tiny speech bubble appears.  The bubble notifies
+	    the user what will happen if the cursor is clicked (or
+	    released if dragging).  The bubble updates automatically
+	    based on the location of the cursor and which Verbs have
+	    been engaged.
 	  </li>
 	  <li>
-	    The Edge label describes the type and number of connections between two nodes (Ex: hasMother(1)).
-	    Click on the Edge to open the <strong>Snippet Windows</strong> and explore the relationship
-	    between the nodes in more detail.
+	    The Edge label describes the type and number of
+	    connections between two nodes (Ex: hasMother(1)).  Click
+	    on the Edge to open the <strong>Snippet Windows</strong>
+	    and explore the relationship between the nodes in more
+	    detail.
 	  </li>
 	</ul>
       </dd>
@@ -370,10 +390,11 @@
       <dd>
 	<ul>
 	  <li>
-	    Click on the <a class="open_tab" href="#1">Commands tab</a>
-	    to adjust the physical appearance of the graph.
-	    Play with the <em>gravity</em>, <em>charge</em> and <em>link distance</em> to control how
-	    tightly the nodes fit together.
+	    Click on the <a class="open_tab" href="#1">Commands
+	    tab</a> to adjust the physical appearance of the graph.
+	    Play with the <em>gravity</em>, <em>charge</em>
+	    and <em>link distance</em> to control how tightly the
+	    nodes fit together.
 	  </li>
 	</ul>
       </dd>
@@ -382,16 +403,18 @@
       <dd>
 	<ul>
 	  <li>
-	    Drag nodes to the red Discard Bin at the bottom right to temporarily keep them
-	    from being pulled into the Central Graph.
+	    Drag nodes to the red Discard Bin at the bottom right to
+	    temporarily keep them from being pulled into the Central
+	    Graph.
 	  </li>
 	  <li>
 	    <span class="human_term__retrieve">Retrieve</span>
-	    <span class="human_term__discarded">Discarded</span> nodes manually by dragging
-	    them back to the Central Graph or Shelf.
+	    <span class="human_term__discarded">Discarded</span> nodes manually
+	    by dragging them back to the Central Graph or Shelf.
 	  </li>
 	  <li>
-	    To <span class="human_term__retrieve">Retrieve</span> only certain nodes using the
+	    To <span class="human_term__retrieve">Retrieve</span>
+	    only certain nodes using the
 	    <a class="open_tab" href="#2">Commands tab</a>:
 	    <ol>
 	      <li>
@@ -399,7 +422,10 @@
 		<span class="human_term__retrieve">Retrieve</span>
 	      </li>
 	      <li>
-		Click the <span class="control_label">Class</span> type
+		Click the <span class="control_label">Class</span>
+		(eg: <span class="taxon">Person</span> or
+		     <span class="taxon">Place</span>)
+		
 	      </li>
 	    </ol>
 	  </li>
