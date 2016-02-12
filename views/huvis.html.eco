@@ -51,7 +51,10 @@
        </li>
        -->
        <li><a href="#tabs-help" class="open_huviz_help" title="">Help</a></li>       
-       <li><a href="#tabs-hide" title="Shrink this menu for maximum room to play.">‾‾‾</a></li>
+       <li>
+	 <a href="#tabs-hide"
+	    title="Shrink this menu for maximum room to play.">‾‾‾</a>
+       </li>
     </ul>
     <div id="tabs-intro" class="scrolling_tab">
       <h1 class="git-branch-is-<%= @git_branch_name %>">
@@ -101,8 +104,7 @@
     </div>
        <li><a href="#tabs-help" class="open_huviz_help" title="">Help</a></li>
     -->
-    <div id="tabs-options" class="graph_controls">
-    </div>
+    <div id="tabs-options" class="graph_controls"></div>
     <div id="huvis_controls">
       <div class="unselectable">
         <label title="which file to load">
@@ -118,7 +120,7 @@
 		      value="/data/atwoma.nq">Margaret Atwood</option>
               <option title="all attributes -- 68 nodes; 308 edges; 37 predicates"
 		      value="/data/abdyma.nq">Maria Abdy</option>
-              <option title="all attributes -- 14 nodes; 60 edges; 17 predicates"		      
+              <option title="all attributes -- 14 nodes; 60 edges; 17 predicates"
 		      value="/data/ballrm.nq">R.M. Ballantyne</option>
               <option title="basic relational predicates -- 41 nodes; 46 edges; 21 predicates"
 		      value="/data/shakwi.nq">William Shakespeare</option>
@@ -137,26 +139,26 @@
 	      <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
 		      value="/data/female_antislavery_society.nq">Female Anti-Slavery Society</option>
               <option title="all attributes -- ?? nodes; 5300 edges; ?? predicates ✓"
-		      disabled=true
-		      value="/data/newnham_college.nq">Newnham College</option>
+		      value="/data/newnham_college.nq"
+		      disabled=true>Newnham College</option>		      
 	      <option title="all attributes -- 116 nodes; ?? edges; ?? predicates ✓"
 		      value="/data/nuns.nq">  Nuns: Middle Ages</option>
 	      <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
-		      disabled=true
-		      value="/data/the_17th_century_quakers.nq">  The 17th Century Quakers</option>
+		      value="/data/the_17th_century_quakers.nq"
+		      disabled=true>  The 17th Century Quakers</option>
 	      <option title="all attributes -- 516 nodes; ?? edges; ?? predicates ✓"
-		      disabled=true
-		      value="/data/the_1917_club.nq">  The 1917 Club</option>
+		      value="/data/the_1917_club.nq"
+		      disabled=true>  The 1917 Club</option>		      
 	    </optgroup>
  	    <optgroup label="Periodicals">
               <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
 		      value="/data/englishwomans_review.nq">Englishwoman's Review</option>
               <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
-		      disabled=true
-		      value="/data/taits_endinburgh_magazine.nq">Tait's Edinburgh Magazine</option>
+		      value="/data/taits_endinburgh_magazine.nq"
+		      disabled=true>Tait's Edinburgh Magazine</option>
               <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
-		      disabled=true
-		      value="/data/yellow_book_and_poet.nq">The Yellow Book AND Poet</option>
+		      value="/data/yellow_book_and_poet.nq"
+		      disabled=true>The Yellow Book AND Poet</option>
 	    </optgroup>
  	    <optgroup label="Publishing Houses">
               <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
@@ -175,7 +177,7 @@
  	    <optgroup label="Genres">
               <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
 		      value="/data/famous_cookbooks.nq">Famous Cookbooks</option>
-	    </optgroup>	    
+	    </optgroup>
 	    <!--
 
             <option title="The Poetesses -- all attributes -- 1735 nodes; 1646 edges; 11 predicates">/data/poetesses.nq</option>
@@ -200,12 +202,10 @@
           </select>
         </label>
         <span>
-          <button id="reset_btn" style="display:none" type="button" onclick="HVZ.reset_data(this)">
-            reset
-          </button>
+          <button id="reset_btn" style="display:none" type="button"
+		  onclick="HVZ.reset_data(this)">reset</button>
         </span>
       </div>
-
       <div id="gclui"></div>
     </div>
   </section>
@@ -214,7 +214,7 @@
     <div id="viscanvas" class="underneath"></div>
     <pre id="status"></pre>
     <div id="state_msg_box"></div>
-
+    
     <script src="/huviz/huviz.js?23234"></script>
     <script type="text/javascript">
       window.addEventListener('load',function(){
@@ -300,137 +300,135 @@
       
       });
     </script>
-  <div class="help_content" style="display:none">
-    <h3>Quick Start</h3>
-    <p class="reminder">
-      Click <button>reset</button>
-      (top right of the <a class="open_tab" href="#2">Commands tab</a>)
-      at any time to erase changes and restore defaults.
-    </p>
-    <dl>
-      <dt>Two Ways to Execute Commands</dt>      
-      <dd>
-	<ol>
-	  <li>Directly in the Graph using the "drag and drop" technique</li>
-	  <li>By choosing a combination of a Verb + Set or Class or Selection in the
-	    <a class="open_tab" href="#2">Commands tab</a>.</li>
-	</ol>	
-      </dd>
-      <dt>Load Data Set</dt>
-      <dd>
-	<ul>
-	  <li>
-	    Go to the <a class="open_tab" href="#2">Commands tab</a> and
-	    <code style="background:lightgrey">Pick a Data Set</code>, for example
-	    <em>Maria Abdy</em>.
-	  </li>
-	</ul>
-      </dd>
-      <dt>Graph Nodes</dt>
-      <dd>
-	<ul>
-	  <li>
-	    Next, experiment in the graph by dragging nodes between
-	    the three main areas: the Central Graph, the green Shelf
-	    and the red Discard Bin.
-	  </li>
-	  <li>
-	    Notice how nodes in the central graph will link together
-	    to form networks.
-	    <span class="human_term__chosen">Chosen</span> nodes,
-	    identified by the black outline, are nodes that have beeen
-	    dragging into the centre.  Any node that is directly
-	    connected to an
-	    <span class="human_term__chosen">Chosen</span> node will
-	    automatically be pulled into the graph.  Together, these
-	    nodes will link to form a network.
-	  </li>
-	  <li>
-	    To <span class="human_term__choose">Choose</span> a node in the
-	    <a class="open_tab" href="#2">Commands tab</a>:
-	    <ol>
-	      <li>Click the <span class="control_label">Verb</span>
-		<span class="human_term__choose">Choose</span></li>
-	      <li>Click the <span class="control_label">Class</span>
-		(such as <span class="taxon">Organization</span> or <span class="taxon">Person</span>)
-	      </li>
-	    </ol>
-	  </li>
-	  <li>
-	    Return nodes to the green Shelf from the central graph by
-	    clicking and dragging OR engaging
-	    the <span class="control_label">Verb</span>
-	    <span class="human_term__shelve">Shelve</span>
-	    from the <a class="open_tab" href="#2">Commands tab</a>.
-	  </li>
-	</ul>
-      </dd>
-      <dt>View Connections</dt>
-      <dd>
-	<ul>
-	  <li>
-	    Hover over nodes and edges to see their labels.  Notice
-	    that a tiny speech bubble appears.  The bubble notifies
-	    the user what will happen if the cursor is clicked (or
-	    released if dragging).  The bubble updates automatically
-	    based on the location of the cursor and which Verbs have
-	    been engaged.
-	  </li>
-	  <li>
-	    The Edge label describes the type and number of
-	    connections between two nodes (Ex: hasMother(1)).  Click
-	    on the Edge to open the <strong>Snippet Windows</strong>
-	    and explore the relationship between the nodes in more
-	    detail.
-	  </li>
-	</ul>
-      </dd>
-      
-      <dt>Adjust Appearance</dt>
-      <dd>
-	<ul>
-	  <li>
-	    Click on the <a class="open_tab" href="#1">Commands
-	    tab</a> to adjust the physical appearance of the graph.
-	    Play with the <em>gravity</em>, <em>charge</em>
-	    and <em>link distance</em> to control how tightly the
-	    nodes fit together.
-	  </li>
-	</ul>
-      </dd>
-      
-      <dt>Using the Discard Bin</dt>
-      <dd>
-	<ul>
-	  <li>
-	    Drag nodes to the red Discard Bin at the bottom right to
-	    temporarily keep them from being pulled into the Central
-	    Graph.
-	  </li>
-	  <li>
-	    <span class="human_term__retrieve">Retrieve</span>
-	    <span class="human_term__discarded">Discarded</span> nodes manually
-	    by dragging them back to the Central Graph or Shelf.
-	  </li>
-	  <li>
-	    To <span class="human_term__retrieve">Retrieve</span>
-	    only certain nodes using the
-	    <a class="open_tab" href="#2">Commands tab</a>:
-	    <ol>
-	      <li>
-		Click the <span class="control_label">Verb</span>
-		<span class="human_term__retrieve">Retrieve</span>
-	      </li>
-	      <li>
-		Click the <span class="control_label">Class</span>
-		(eg: <span class="taxon">Person</span> or
-		     <span class="taxon">Place</span>)
-		
-	      </li>
-	    </ol>
-	  </li>
-      </dd>
-    </dl>
-  </div>
+    <div class="help_content" style="display:none">
+      <h3>Quick Start</h3>
+      <p class="reminder">
+	Click <button>reset</button>
+	(top right of the <a class="open_tab" href="#2">Commands tab</a>)
+	at any time to erase changes and restore defaults.
+      </p>
+      <dl>
+	<dt>Two Ways to Execute Commands</dt>      
+	<dd>
+	  <ol>
+	    <li>Directly in the Graph using the "drag and drop" technique</li>
+	    <li>By choosing a combination of a Verb + Set or Class or Selection
+	      in the <a class="open_tab" href="#2">Commands tab</a>.</li>
+	  </ol>	
+	</dd>
+	<dt>Load Data Set</dt>
+	<dd>
+	  <ul>
+	    <li>
+	      Go to the <a class="open_tab" href="#2">Commands tab</a> and
+	      <code style="background:lightgrey">Pick a Data Set</code>, for
+	      example <em>Maria Abdy</em>.
+	    </li>
+	  </ul>
+	</dd>
+	<dt>Graph Nodes</dt>
+	<dd>
+	  <ul>
+	    <li>
+	      Next, experiment in the graph by dragging nodes between
+	      the three main areas: the Central Graph, the green Shelf
+	      and the red Discard Bin.
+	    </li>
+	    <li>
+	      Notice how nodes in the central graph will link together
+	      to form networks.
+	      <span class="human_term__chosen">Chosen</span> nodes,
+	      identified by the black outline, are nodes that have beeen
+	      dragging into the centre.  Any node that is directly
+	      connected to an
+	      <span class="human_term__chosen">Chosen</span> node will
+	      automatically be pulled into the graph.  Together, these
+	      nodes will link to form a network.
+	    </li>
+	    <li>
+	      To <span class="human_term__choose">Choose</span> a node in the
+	      <a class="open_tab" href="#2">Commands tab</a>:
+	      <ol>
+		<li>Click the <span class="control_label">Verb</span>
+		  <span class="human_term__choose">Choose</span></li>
+		<li>Click the <span class="control_label">Class</span>
+		  (such as <span class="taxon">Organization</span>
+		  or <span class="taxon">Person</span>)
+		</li>
+	      </ol>
+	    </li>
+	    <li>
+	      Return nodes to the green Shelf from the central graph by
+	      clicking and dragging OR engaging
+	      the <span class="control_label">Verb</span>
+	      <span class="human_term__shelve">Shelve</span>
+	      from the <a class="open_tab" href="#2">Commands tab</a>.
+	    </li>
+	  </ul>
+	</dd>
+	<dt>View Connections</dt>
+	<dd>
+	  <ul>
+	    <li>
+	      Hover over nodes and edges to see their labels.  Notice
+	      that a tiny speech bubble appears.  The bubble notifies
+	      the user what will happen if the cursor is clicked (or
+	      released if dragging).  The bubble updates automatically
+	      based on the location of the cursor and which Verbs have
+	      been engaged.
+	    </li>
+	    <li>
+	      The Edge label describes the type and number of
+	      connections between two nodes (Ex: hasMother(1)).  Click
+	      on the Edge to open the <strong>Snippet Windows</strong>
+	      and explore the relationship between the nodes in more
+	      detail.
+	    </li>
+	  </ul>
+	</dd>
+	<dt>Adjust Appearance</dt>
+	<dd>
+	  <ul>
+	    <li>
+	      Click on the <a class="open_tab" href="#1">Commands tab</a>
+	      to adjust the physical appearance of the graph.
+	      Play with the <em>gravity</em>, <em>charge</em>
+	      and <em>link distance</em> to control how tightly the
+	      nodes fit together.
+	    </li>
+	  </ul>
+	</dd>
+	<dt>Using the Discard Bin</dt>
+	<dd>
+	  <ul>
+	    <li>
+	      Drag nodes to the red Discard Bin at the bottom right to
+	      temporarily keep them from being pulled into the Central
+	      Graph.
+	    </li>
+	    <li>
+	      <span class="human_term__retrieve">Retrieve</span>
+	      <span class="human_term__discarded">Discarded</span> nodes manually
+	      by dragging them back to the Central Graph or Shelf.
+	    </li>
+	    <li>
+	      To <span class="human_term__retrieve">Retrieve</span>
+	      only certain nodes using the
+	      <a class="open_tab" href="#2">Commands tab</a>:
+	      <ol>
+		<li>
+		  Click the <span class="control_label">Verb</span>
+		  <span class="human_term__retrieve">Retrieve</span>
+		</li>
+		<li>
+		  Click the <span class="control_label">Class</span>
+		  (eg: <span class="taxon">Person</span> or
+		  <span class="taxon">Place</span>)
+		</li>
+	      </ol>
+	    </li>
+	</dd>
+      </dl>
+    </div>
   </body>
 </html>
