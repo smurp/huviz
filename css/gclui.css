@@ -197,3 +197,25 @@ p {
     border-style: none;
     background-color:initial;
 }
+.close_hint {
+    background-color: red;
+    color: white;
+    border-radius: .5em;
+    padding: 2px;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+.reminder {
+    border: .2em;
+    font-size: 90%;
+    font-family: "Times New Roman", Times, serif;
+    background-color: #FFFF88;
+    padding: .5em;
+    margin-left: .7em;
+    margin-right: .7em;
+    margin-bottom: .7em;    
+}
+.hints {
+    margin-top: .5em;
+}

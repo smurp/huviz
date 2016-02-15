@@ -29,6 +29,8 @@ class CommandController
     if not @huviz.all_set.length
       $(@container).hide()
     d3.select(@container).html("")
+    @hints = d3.select(@container).append("div").attr("class","hints")
+    $(".hints").append($(".reminders").contents())
     @comdiv = d3.select(@container).append("div")
     @cmdlist = d3.select("#tabs-history").append('div').attr('class','commandlist')
     @oldcommands = @cmdlist.append('div').attr('class','commandhistory')
@@ -60,10 +62,24 @@ class CommandController
   on_dataset_loaded: (evt) =>
     if not evt.done?
       $(@container).show()
+      @show_succession_of_hints()
       @select_the_initial_set()
       @huviz.hide_state_msg()
       # FIXME is there a standards-based way to prevent this happening three times?
       evt.done = true
+  show_succession_of_hints: ->
+    # Show the reminders, give them close buttons which reveal them in series
+    $(".hints.reminders").show()
+    for reminder in $(".hints > .reminder")
+      $(reminder).attr('style','position:relative')
+      $(reminder).append('<i class="fa fa-close close_hint"></i>').
+        on "click", (evt,ui) =>
+          $(evt.target).parent().hide() # hide reminder whose close was clicked
+          if $(evt.target).parent().next() # is there a next another
+            $(evt.target).parent().next().show() # then show it
+          return false # so not all close buttons are pressed at once
+    $(".hints > .reminder").hide()
+    $(".hints > .reminder").first().show()
   select_the_initial_set: =>
     # TODO initialize the taxon coloring without cycling all
     @huviz.pick_taxon("Thing", true)

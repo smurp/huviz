@@ -65,13 +65,6 @@
     font-size: 70%;
     font-family: "Times New Roman", Times, serif;
 }
-.reminder {
-    background-color: #FFFF88;
-    padding: .5em;
-    margin-left: .7em;
-    margin-right: .7em;
-    margin-bottom: .7em;    
-}
 .no-close .ui-dialog-titlebar-close {
     display: none;
 }
@@ -99,7 +92,7 @@
     margin-top:.1em;
 }
 
-.help_content dd > ol {
+.help_content dd > ol, .reminder > ol{
     margin: 0.15em;
     padding-left: 2em;
 }

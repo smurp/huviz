@@ -300,22 +300,22 @@
       
       });
     </script>
+    <div class="reminders" style="display:none">
+      <div class="reminder">
+	Click <button disabled=disabled>reset</button>
+	at any time to erase changes and restore defaults.
+      </div>
+      <div class="reminder">
+	<strong>Two Ways to Execute Commands</strong>
+	<ol>
+	  <li>Directly in the Graph using the "drag and drop" technique</li>
+	  <li>By choosing a combination of a Verb + Set or Class or Selection.</li>
+	</ol>	
+      </div>
+    </div>
     <div class="help_content" style="display:none">
       <h3>Quick Start</h3>
-      <p class="reminder">
-	Click <button>reset</button>
-	(top right of the <a class="open_tab" href="#2">Commands tab</a>)
-	at any time to erase changes and restore defaults.
-      </p>
       <dl>
-	<dt>Two Ways to Execute Commands</dt>      
-	<dd>
-	  <ol>
-	    <li>Directly in the Graph using the "drag and drop" technique</li>
-	    <li>By choosing a combination of a Verb + Set or Class or Selection
-	      in the <a class="open_tab" href="#2">Commands tab</a>.</li>
-	  </ol>	
-	</dd>
 	<dt>Load Data Set</dt>
 	<dd>
 	  <ul>
