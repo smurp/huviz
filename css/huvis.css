@@ -20,7 +20,7 @@ rect {
 .node text {
   font: 7.5px sans-serif;
   pointer-events: none;
-  //text-anchor: middle;
+  /* text-anchor: middle; */
 }
 
 .nearest_node text {

@@ -25,10 +25,6 @@
   height:1.3em;
   min-width:7em;
   background-color:lightgrey;
-  //position:absolute;
-  //top:3.5em;
-  //left:.2em;
-  //z-index:2;
   float:left;
   border-width:1
   cursor: text;
@@ -39,26 +35,14 @@
 }
 #show_links {
   background-color: lightblue;
-  //position:absolute;
-  //top: 5em;
-  //left: 1em;
-  //z-index:2;
   cursor: pointer;
 }
 #hide_links {
   background-color: lightblue;
-  //position:absolute;
-  //top: 6.5em;
-  //left: 1em;
-  //z-index:2;
   cursor: pointer;
 }
 #display_tech {
   background-color: lightblue;
-  //position:absolute;
-  //top: 9em;
-  //left: 1em;
-  //z-index:2;
   cursor: pointer;
 }
 #status {
@@ -75,9 +59,6 @@
   top: .2em;
   left: .2em;
   font-size: 90%;
-  //z-index:2;
-
-  //overflow: scroll;
   width: 3px;
   height: 30%;
 }

@@ -68,12 +68,9 @@
 .reminder {
     background-color: #FFFF88;
     padding: .5em;
-    //font-size: 90%;
     margin-left: .7em;
     margin-right: .7em;
     margin-bottom: .7em;    
-    
-    //transform: rotate(3deg);
 }
 .no-close .ui-dialog-titlebar-close {
     display: none;
