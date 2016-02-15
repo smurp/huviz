@@ -93,8 +93,6 @@ p {
 /* display: inline-block and white-space: nowrap */
 .treepicker-hidden {
   /* for debugging, comment the following line disable collapsing */
-  //display:none;
-
   /*
   text-decoration: strikethrough;
    */
@@ -105,7 +103,6 @@ p {
 .treepicker-indirect-empty {
   /* for debugging, comment the following line to disable hiding */
   display: none;
-  //text-decoration: strikethrough;
 }
 #anything.treepicker-indirect-empty.treepicker-empty {
   background-color: white;
@@ -163,7 +160,7 @@ p {
   width: 66%
 }
 #tabs {
-  //max-height: 80%;
+  /* max-height: 80%; */
 }
 .nextcommand_command {
   -webkit-touch-callout: initial;
