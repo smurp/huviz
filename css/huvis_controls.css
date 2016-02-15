@@ -26,7 +26,7 @@
   min-width:7em;
   background-color:lightgrey;
   float:left;
-  border-width:1
+  border-width:1px;
   cursor: text;
 }
 .search_box:before {
