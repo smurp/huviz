@@ -26,6 +26,8 @@ class CommandController
     document.addEventListener 'dataset-loaded', @on_dataset_loaded
     if @container is null
       @container = d3.select("body").append("div").attr("id", "gclui")[0][0]
+    if not @huviz.all_set.length
+      $(@container).hide()
     d3.select(@container).html("")
     @comdiv = d3.select(@container).append("div")
     @cmdlist = d3.select("#tabs-history").append('div').attr('class','commandlist')
@@ -57,6 +59,7 @@ class CommandController
     window.addEventListener 'changeEnglish', @onChangeEnglish
   on_dataset_loaded: (evt) =>
     if not evt.done?
+      $(@container).show()
       @select_the_initial_set()
       @huviz.hide_state_msg()
       # FIXME is there a standards-based way to prevent this happening three times?
