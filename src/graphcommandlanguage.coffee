@@ -250,7 +250,7 @@ class GraphCommand
     @verb_phrase = ''
     @noun_phrase = ''
     @noun_phrase_ready = false
-    if @verbs
+    if @verbs and @verbs.length
       cmd_str = angliciser(@get_pretty_verbs())
       @verb_phrase_ready = true
       @verb_phrase = cmd_str
