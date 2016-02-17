@@ -3118,8 +3118,8 @@ class Huviz
       if data_uri
         @load(data_uri)
 
-  load: (data_uri) ->
-    @fetchAndShow data_uri  unless @G.subjects
+  load: (data_uri, callback) ->
+    @fetchAndShow(data_uri, callback) unless @G.subjects
     @init_webgl()  if @use_webgl
 
   is_ready: (node) ->
