@@ -104,7 +104,7 @@
     </div>
        <li><a href="#tabs-help" class="open_huviz_help" title="">Help</a></li>
     -->
-    <div id="tabs-options" class="graph_controls"></div>
+    <div id="tabs-options"></div>
     <div id="huvis_controls">
       <div class="unselectable">
         <label title="which file to load">

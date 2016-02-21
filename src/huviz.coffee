@@ -2971,6 +2971,7 @@ class Huviz
       #$("input").on("mouseenter", @update_graph_controls_cursor)
       #$("input").on("mousemove", @update_graph_controls_cursor)
     @graph_controls = d3.select(@args.graph_controls_sel)
+    @graph_controls.classed('graph_controls',true)
     #$(@graph_controls).sortable().disableSelection() # TODO fix dropping
     for control_spec in @default_graph_controls
       for control_name, control of control_spec
