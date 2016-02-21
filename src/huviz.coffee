@@ -2591,10 +2591,13 @@ class Huviz
       range: {}
 
   constructor: (args) -> # Huviz
-    args ?=
-      viscanvas_sel: "#viscanvas"
-      gclui_sel: "#gclui"
-      graph_controls_sel: '#tabs-options'
+    args ?= {}
+    if not args.viscanvas_sel
+      alert("call Huviz({viscanvas_sel:'????'}) so it can find the canvas to draw in")
+    if not args.gclui_sel
+      alert("call Huviz({gclui_sel:'????'}) so it can find the div to put the gclui command pickers in")
+    if not args.graph_controls_sel
+      console.warn("call Huviz({graph_controls_sel:'????'}) so it can put the settings somewhere")
     @args = args
     if @args.selector_for_graph_controls?
       @selector_for_graph_controls = @args.selector_for_graph_controls

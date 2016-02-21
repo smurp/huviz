@@ -77,8 +77,12 @@ describe("HuViz Tests", function() {
   // http://stackoverflow.com/questions/23947688/how-to-access-describe-and-it-messages-in-mocha
   before(function bootHuviz(done) {
     console.groupCollapsed("test suite setup");
-    window.HVZ = new huviz.Orlando();
-      HVZ.set_ontology("http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl");      
+    window.HVZ = new huviz.Orlando({
+          viscanvas_sel: "#viscanvas",
+          gclui_sel: "#gclui",
+          graph_controls_sel: '#tabs-options'
+        });
+    HVZ.set_ontology("http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl");
     document.addEventListener('dataset-loaded', function(e) {
       console.log("dataset-loaded",arguments);
       done();

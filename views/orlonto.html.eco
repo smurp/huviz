@@ -108,7 +108,11 @@
       var HVZ;
       window.addEventListener('load',function(){
         huviz = require('huviz');
-        HVZ = new huviz.OntoViz();
+        HVZ = new huviz.OntoViz({
+          viscanvas_sel: "#viscanvas",
+          gclui_sel: "#gclui",
+          graph_controls_sel: '#tabs-options'
+        });
         HVZ.boot_sequence();
       });
 
