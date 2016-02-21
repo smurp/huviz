@@ -2959,6 +2959,10 @@ class Huviz
       for control_name, control of control_spec
         console.log "#{control_name} is",@[control_name],typeof @[control_name],post or ""
 
+  auto_adjust_settings: ->
+    # Try to tune the gravity, charge and link length to suit the data and the canvas size.
+    return @
+
   init_graph_controls_from_json: =>
     #@graph_controls_cursor = new TextCursor(@args.graph_controls_sel, "")
     @graph_controls_cursor = new TextCursor(".graph_control input", "")
