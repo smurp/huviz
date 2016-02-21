@@ -1616,6 +1616,7 @@ class Huviz
             o: obj # keys: type,value[,language]
             g: context
     @dump_stats()
+    @fire_fileloaded_event('stream')
     if callback
       callback()
 
@@ -1710,8 +1711,7 @@ class Huviz
       else if e.data.event is 'finish'
         msg = "finished_splitting "+uri
         @show_state_msg("done loading")
-        document.dispatchEvent(new CustomEvent("dataset-loaded", {detail: uri}))
-        @fire_fileloaded_event()
+        @fire_fileloaded_event(uri)
         if callback
           callback()
         #@choose_everything()
@@ -1744,7 +1744,7 @@ class Huviz
       url: url
       success: (data, textStatus) =>
         the_parser(data, textStatus, callback)
-        @fire_fileloaded_event()
+        @fire_fileloaded_event(url)
         @hide_state_msg()
         #if callback
         #  callback()
@@ -3068,7 +3068,8 @@ class Huviz
     for elem in $(".graph_controls input") # so we can modify them in a loop
       @update_graph_settings(elem, false)
 
-  fire_fileloaded_event: ->
+  fire_fileloaded_event: (uri) ->
+    document.dispatchEvent(new CustomEvent("dataset-loaded", {detail: uri}))
     window.dispatchEvent(
       new CustomEvent 'fileloaded',
         detail:
