@@ -2593,7 +2593,8 @@ class Huviz
   constructor: (args) -> # Huviz
     args ?= {}
     if not args.viscanvas_sel
-      alert("call Huviz({viscanvas_sel:'????'}) so it can find the canvas to draw in")
+      msg = "call Huviz({viscanvas_sel:'????'}) so it can find the canvas to draw in"
+      console.debug msg
     if not args.gclui_sel
       alert("call Huviz({gclui_sel:'????'}) so it can find the div to put the gclui command pickers in")
     if not args.graph_controls_sel
