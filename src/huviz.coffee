@@ -2478,7 +2478,6 @@ class Huviz
   push_snippet: (obj, msg) ->
     if @snippet_box
       snip_div = @snippet_box.append('div').attr('class','snippet')
-      alert(msg)
       snip_div.html(msg)
       $(snip_div[0][0]).addClass("snippet_dialog_box")
       my_position = @get_next_snippet_position()
