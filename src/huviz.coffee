@@ -2478,6 +2478,7 @@ class Huviz
   push_snippet: (obj, msg) ->
     if @snippet_box
       snip_div = @snippet_box.append('div').attr('class','snippet')
+      alert(msg)
       snip_div.html(msg)
       $(snip_div[0][0]).addClass("snippet_dialog_box")
       my_position = @get_next_snippet_position()
@@ -3256,7 +3257,8 @@ class Orlando extends OntologicallyGrounded
           <div style="font-size:#{@snippet_triple_em}em">
             <span class="writername" style="background-color:#{m.edge.source.color}">
               <a target="SRC"
-                 href="#{m.edge.source.id}">#{m.edge.source.name}</a>
+                 title="see full text at Cambridge"
+                 href="#{m.edge.source.id}"><i class="fa fa-external-link"></i> #{m.edge.source.name}</a>
             </span>
             —
             <span style="background-color:#{m.edge.color}">#{m.pred_id}</span>

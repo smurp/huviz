@@ -16,6 +16,13 @@
         overflow-y: scroll;
         max-height: 20em;
       }
+      .writername {
+        font-weight: bold;
+        font-size: 110%;
+      }
+      .writername a {
+        color: blue;
+      }
     </style>
   <% if @is_local: %>
     <!--
