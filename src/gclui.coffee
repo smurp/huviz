@@ -42,7 +42,7 @@ class CommandController
     @add_clear_both(@comdiv)
     @node_pickers = @comdiv.append('div')
     @set_picker_box_parent = @build_set_picker("Sets",@node_pickers)
-    @taxon_picker_box_parent = @build_taxon_picker("Classes",@node_pickers)
+    @taxon_picker_box_parent = @build_taxon_picker("Class Selector",@node_pickers)
     @add_clear_both(@comdiv)    
     @likediv = @taxon_picker_box_parent.append('div')
     @build_predicate_picker("Edges of the Selected Nodes")
