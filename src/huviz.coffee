@@ -2714,7 +2714,7 @@ class Huviz
     unpin: 'UNPIN'
     unpinned: 'UNPINNED'
     blank_verb: 'VERB'
-    blank_noun: 'SET/CLASS'    
+    blank_noun: 'SET/SELECTION'
 
   # TODO add controls
   #   selected_border_thickness
