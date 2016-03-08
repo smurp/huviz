@@ -3298,7 +3298,7 @@ class Orlando extends OntologicallyGrounded
     unpin: 'Unpin'
     unpinned: 'Unpinned'
     blank_verb: 'VERB'
-    blank_noun: 'SET/CLASS'    
+    blank_noun: 'SET/SELECTION'
 
 class OntoViz extends Huviz #OntologicallyGrounded
   HHH: # hardcoded hierarchy hints, kv pairs of subClass to superClass
