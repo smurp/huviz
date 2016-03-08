@@ -50,10 +50,13 @@ class CommandController
     @build_form()
     @update_command()
     @install_listeners()
-  control_label: (txt, what) ->
+  control_label: (txt, what, title) ->
     what = what or @comdiv
     outer = what.append('div')
-    outer.append('div').classed("control_label",true).text(txt)
+    label = outer.append('div')
+    label.classed("control_label",true).text(txt)
+    if title
+      label.attr('title',title)
     return outer
   install_listeners: () ->
     window.addEventListener 'changePredicate', @predicate_picker.onChangeState
@@ -132,13 +135,13 @@ class CommandController
     @recolor_edges() # FIXME should only really be run after the predicate set has settled for some amount of time
   build_predicate_picker: (label) ->
     id = 'predicates'
-    where = label? and @control_label(label) or @comdiv
+    title =
+      "Medium color: all edges shown -- click to show none\n" +
+      "Faint color: no edges are shown -- click to show all\n" +
+      "Stripey color: some edges shown -- click to show all\n" +
+      "Hidden: no edges among the selected nodes"
+    where = label? and @control_label(label,@comdiv,title) or @comdiv
     @predicatebox = where.append('div').classed('container',true).attr('id',id)
-    @predicatebox.attr('title',
-                       "Medium color: all edges shown -- click to show none\n" +
-                       "Faint color: no edges are shown -- click to show all\n" +
-                       "Stripey color: some edges shown -- click to show all\n" +
-                       "Hidden: no edges among the selected nodes")
     #@predicatebox.attr('class','scrolling')
     @predicates_ignored = []
     @predicate_picker = new ColoredTreePicker(@predicatebox,'anything',[],true)
@@ -204,16 +207,15 @@ class CommandController
   ###
   build_taxon_picker: (label, where) ->
     id = 'classes'
-    where = label? and @control_label(label, where) or @comdiv
+    title =
+      "Medium color: all nodes are selected -- click to select none\n" +
+      "Faint color: no nodes are selected -- click to select all\n" +
+      "Stripey color: some nodes are selected -- click to select all\n"
+    where = label? and @control_label(label, where, title) or @comdiv
     @taxon_box = where.append('div')
         .classed('container',true)
         .attr('id',id)
     @taxon_box.attr('style','vertical-align:top')
-    @taxon_box.attr(
-      'title',
-      "Medium color: all nodes are selected -- click to select none\n" +
-      "Faint color: no nodes are selected -- click to select all\n" +
-      "Stripey color: some nodes are selected -- click to select all\n")
     # http://en.wikipedia.org/wiki/Taxon
     @taxon_picker = new ColoredTreePicker(@taxon_box,'Thing',[],true)
     @taxon_picker.click_listener = @on_taxon_clicked
