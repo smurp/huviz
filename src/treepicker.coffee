@@ -38,8 +38,28 @@ class TreePicker
     @id_to_payload_expanded = {}
     @set_abstract(root)
     @set_abstract('root') # FIXME duplication?!?
+    #
+    #@shield.classed('shield')
+    console.log('shield', @shield)
+    #debugger
   get_my_id: () ->
     @elem.attr("id")
+  shield: ->
+    if not @_shield
+      d3.select(@elem[0][0]).style('position','relative')
+      @_shield = d3.select(@elem[0][0]).insert('div',':first-child')
+      @_shield.classed('shield',true)
+    rect = d3.select(@elem[0][0]).node().getBoundingClientRect()
+    styles =
+      display: 'block'
+      width: "#{rect.width}px"
+      height: "#{rect.height}px"
+    @_shield.style(styles)
+    @
+  unshield: ->
+    @_shield.style
+      display: 'none'
+    @
   set_abstract: (id) ->
     @id_is_abstract[id] = true
   get_abstract_count: ->

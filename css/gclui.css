@@ -37,6 +37,13 @@
 .taxonomydiv {
   margin:0.1em;
 }
+.shield {
+    position: absolute;
+    top:0px;
+    left:0px;
+    background-color:rgba(63,63,63,.5);
+    z-index:5000;
+}
 /*  http://net.tutsplus.com/tutorials/html-css-techniques/lets-create-paper-with-css/ */
 .command {
   margin-top: .1em;

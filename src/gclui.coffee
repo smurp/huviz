@@ -743,12 +743,14 @@ class CommandController
     @clear_set_picker() # TODO consider in relation to liking_all_mode
     @set_picker.set_direct_state(set_id, new_state)
     if new_state is 'showing'
+      @taxon_picker.shield()
       @chosen_set = @huviz[set_id]
       @chosen_set_id = set_id
       because =
         set_added: set_id
         cleanup: @disengage_all_sets # the method to call to clear
     else
+      @taxon_picker.unshield()
       @disengage_all_sets()
     @update_command(because)
   disengage_all_sets: => # TODO harmonize disengage_all_sets() and clear_all_sets() or document difference
