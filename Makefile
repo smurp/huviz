@@ -30,6 +30,9 @@ abdyma:
 	sort < ${TMPFILE} > data/abdyma.nq
 	rm ${TMPFILE}
 
+abdyma_sql:
+	./orlandoScrape.py --outfile abdyma.db --ids abdyma ${ARGS}
+
 atwoma:
 	./orlandoScrape.py --outfile ${TMPFILE} --ids atwoma  ${ARGS}
 	sort < ${TMPFILE} > data/atwoma.nq

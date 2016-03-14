@@ -34,6 +34,8 @@ LOCAL_IDENTIFIERS = True  # False causes use of external ontologies
 LOCAL_IDENTIFIERS = False  # False causes use of external ontologies
 # False is bugged, groups are appearing as w:XXXX
 
+import sqlite3
+
 # imports from the rdf library allow for efficient handling of data it nt and quad format.
 import rdflib.plugins.serializers.nt
 import rdflib.plugins.serializers.nquads
@@ -265,8 +267,7 @@ class FormatEmitter(object):
     def __init__(self, options):
         self.contexts = {}
         self.options = options
-        if hasattr(options,'outfile'):
-            self.outfile = codecs.open(options.outfile, encoding='utf-8', mode='w')
+        self.prepFile(options)
         self.entries = []
         if options.rules == 'regexes':
             self.ruleRecursion = self.regexRecursion
@@ -277,6 +278,10 @@ class FormatEmitter(object):
         else:
             self.ignore_structid_re = False
         print self.ignore_structid_re
+
+    def prepFile(self, options):
+        if hasattr(options,'outfile'):
+            self.outfile = codecs.open(options.outfile, encoding='utf-8', mode='w')
 
     def extractionCycle(self, orlandoRAW, ruleArray, NameTest, mainSubject):
         options = self.options
@@ -483,7 +488,7 @@ class FormatEmitter(object):
         
     def prepOutfile(self):
         pass
-
+    
 class JSONEmitter(FormatEmitter):
     def concludeOutfile(self):
         kwargs = dict(sort_keys=True)
@@ -654,7 +659,46 @@ class TrigEmitter(ContextEmitter):
         self.outfile.write(
             self.store.serialize(
                 format="trig"))
-    
+
+class SqliteEmitter(ContextEmitter):
+    def __init__(self, options):
+        super(SqliteEmitter, self).__init__(options)
+        print "WARNING: the SQLite option is incomplete and non-functional"
+        self.createTables()
+
+    def createTables(self):
+        self.runSqlFile('schema.sql')
+
+    def runSqlFile(self, fname):
+        cursor = self.conn.cursor()
+        statements = open(fname,'r').read().split(';')
+        for statement in statements:
+            statement = statement.strip()
+            if statement:
+                statement += ';'
+                print statement
+                cursor.execute(statement)
+
+    def prepFile(self, options):
+        self.conn = sqlite3.connect(options.outfile)
+
+    def concludeOutfile(self):
+        self.generate_graph()
+        self.dumpEntities()
+
+    def dumpEntities(self):
+        for entity in self.entities:
+            print "##"
+            print repr(entity)
+
+    def dumpEntries(self):
+        for entry in self.entries:
+            print "# ENTRY"
+            for k,v in entry.iteritems():
+                print "##", k
+                print repr(v)
+
+                
 if __name__ == "__main__": # Prevents this program from running if called by another program
     only_predicates = 'standardName,dateOfBirth,dateOfDeath'.split(',')
     only_predicates.extend(predicate_to_type.keys())
@@ -743,6 +787,12 @@ if __name__ == "__main__": # Prevents this program from running if called by ano
     parser.add_option("--use_onto",
                       action = 'store_true',
                       help = "use the ontology")
+# These are meant to work in conjunction with the SqliteEmitter
+#    parser.add_option("--symmetric",
+#                      action = 'store_true',
+#                      help = "also generate triples where the writers are objects")
+#    parser.add_option("--for_object",
+#                      help = "generate triples for literal object")
     parser.add_option(
         "--ignore_structid_regex",
         default = defaults['ignore_structid_regex'],
@@ -810,6 +860,8 @@ if __name__ == "__main__": # Prevents this program from running if called by ano
         options.emitter = N3Emitter(options)
     if options.outfile.endswith('.trig'):
         options.emitter = TrigEmitter(options)
+    if options.outfile.endswith('.db'):
+        options.emitter = SqliteEmitter(options)
     if hasattr(options,'emitter'):
         options.emitter.go()
     elif show_usage:
