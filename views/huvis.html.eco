@@ -238,7 +238,8 @@
           viscanvas_sel: "#viscanvas",
           gclui_sel: "#gclui",
           graph_controls_sel: '#tabs-options',
-          display_hints: false
+          display_hints: false, // here to show how to enable hints 
+          display_reset: false  // here to show how to enable reset button
         });
         HVZ.replace_human_term_spans('ui-widget');
         //HVZ.set_ontology("/data/orlando_ontology.ttl");
@@ -314,10 +315,6 @@
     </script>
     <div class="hint_set" style="display:none">
       <div class="a_hint">
-	Click <button disabled=disabled>reset</button>
-	at any time to erase changes and restore defaults.
-      </div>
-      <div class="a_hint">
 	<strong>Two Ways to Execute Commands</strong>
 	<ol>
 	  <li>Directly in the Graph using the "drag and drop" technique</li>
@@ -337,6 +334,13 @@
 	      example <em>Maria Abdy</em>.
 	    </li>
 	  </ul>
+	</dd>
+	<dt>Two Ways to Execute Commands</dt>
+	<dd>
+	  <ol>
+	    <li>Directly in the Graph using the "drag and drop" technique</li>
+	    <li>By choosing a combination of a Verb + Set or Class or Selection.</li>
+	  </ol>
 	</dd>
 	<dt>Graph Nodes</dt>
 	<dd>
