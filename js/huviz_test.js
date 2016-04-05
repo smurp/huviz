@@ -80,7 +80,8 @@ describe("HuViz Tests", function() {
     window.HVZ = new huviz.Orlando({
           viscanvas_sel: "#viscanvas",
           gclui_sel: "#gclui",
-          graph_controls_sel: '#tabs-options'
+          graph_controls_sel: '#tabs-options',
+          display_reset: true
         });
     HVZ.set_ontology("http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl");
     document.addEventListener('dataset-loaded', function(e) {
