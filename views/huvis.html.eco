@@ -323,6 +323,10 @@
       </div>
     </div>
     <div class="help_content" style="display:none">
+      <div style="position:absolute; top:5px; right:5px">
+        <a href="http://cwrc.ca/HuViz_Documentation/" target="_blank">Manual</a>
+	<i class="fa fa-external-link"></i>
+      </div>      
       <h3>Quick Start</h3>
       <dl>
 	<dt>Load Data Set</dt>
