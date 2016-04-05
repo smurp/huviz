@@ -3087,6 +3087,8 @@ class Huviz
   load_file_from_uri: (@data_uri, callback) ->
     if @args.display_reset
       $("#reset_btn").show()
+    else
+      $("[name=data_set]").prop('disabled', true)
     @show_state_msg("loading...")
     #@init_from_graph_controls()
     #@dump_current_settings("after init_from_graph_controls()")
