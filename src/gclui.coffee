@@ -29,8 +29,9 @@ class CommandController
     if not @huviz.all_set.length
       $(@container).hide()
     d3.select(@container).html("")
-    @hints = d3.select(@container).append("div").attr("class","hints")
-    $(".hints").append($(".reminders").contents())
+    if @huviz.args.display_hints
+      @hints = d3.select(@container).append("div").attr("class","hints")
+      $(".hints").append($(".hint_set").contents())
     @comdiv = d3.select(@container).append("div")
     @cmdlist = d3.select("#tabs-history").append('div').attr('class','commandlist')
     @oldcommands = @cmdlist.append('div').attr('class','commandhistory')
@@ -72,8 +73,8 @@ class CommandController
       evt.done = true
   show_succession_of_hints: ->
     # Show the reminders, give them close buttons which reveal them in series
-    $(".hints.reminders").show()
-    for reminder in $(".hints > .reminder")
+    $(".hints.hint_set").show()
+    for reminder in $(".hints > .a_hint")
       $(reminder).attr('style','position:relative')
       $(reminder).append('<i class="fa fa-close close_hint"></i>').
         on "click", (evt,ui) =>
@@ -81,8 +82,8 @@ class CommandController
           if $(evt.target).parent().next() # is there a next another
             $(evt.target).parent().next().show() # then show it
           return false # so not all close buttons are pressed at once
-    $(".hints > .reminder").hide()
-    $(".hints > .reminder").first().show()
+    $(".hints > .a_hint").hide()
+    $(".hints > .a_hint").first().show()
   select_the_initial_set: =>
     # TODO initialize the taxon coloring without cycling all
     @huviz.pick_taxon("Thing", true)

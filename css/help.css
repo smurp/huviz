@@ -92,7 +92,7 @@
     margin-top:.1em;
 }
 
-.help_content dd > ol, .reminder > ol{
+.help_content dd > ol, .a_hint > ol{
     margin: 0.15em;
     padding-left: 2em;
 }

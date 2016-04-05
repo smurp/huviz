@@ -237,7 +237,8 @@
         HVZ = new huviz.Orlando({
           viscanvas_sel: "#viscanvas",
           gclui_sel: "#gclui",
-          graph_controls_sel: '#tabs-options'
+          graph_controls_sel: '#tabs-options',
+          display_hints: true
         });
         HVZ.replace_human_term_spans('ui-widget');
         //HVZ.set_ontology("/data/orlando_ontology.ttl");
@@ -311,12 +312,12 @@
       
       });
     </script>
-    <div class="reminders" style="display:none">
-      <div class="reminder">
+    <div class="hint_set" style="display:none">
+      <div class="a_hint">
 	Click <button disabled=disabled>reset</button>
 	at any time to erase changes and restore defaults.
       </div>
-      <div class="reminder">
+      <div class="a_hint">
 	<strong>Two Ways to Execute Commands</strong>
 	<ol>
 	  <li>Directly in the Graph using the "drag and drop" technique</li>
