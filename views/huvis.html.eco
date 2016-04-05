@@ -238,7 +238,7 @@
           viscanvas_sel: "#viscanvas",
           gclui_sel: "#gclui",
           graph_controls_sel: '#tabs-options',
-          display_hints: true
+          display_hints: false
         });
         HVZ.replace_human_term_spans('ui-widget');
         //HVZ.set_ontology("/data/orlando_ontology.ttl");
