@@ -1,6 +1,6 @@
 {
   "name": "huviz",
-  "version": "0.17.0",
+  "version": "0.18.0",
   "repository": {
     "type": "git",
     "url": "http://github.com/smurp/huviz.git"
@@ -21,7 +21,7 @@
   },
   "commentedOutDependencies": {
     "libxmljs": "~0.17.1"
-  },  
+  },
   "devDependencies": {
     "coffeelint": "~1.7.1",
     "grunt-contrib-coffee": "~0.12.0",
