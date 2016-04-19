@@ -4,7 +4,7 @@
     <title>Huvis Graph Visualization</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
     <link rel="icon" href="/favicon.ico?v=4" type="image/x-icon" />
-    <link href="/jquery-ui-css/jquery-ui.css" rel="stylesheet"/>    
+    <link href="/jquery-ui-css/jquery-ui.css" rel="stylesheet"/>
     <link href="/css/huvis.css" rel="stylesheet" type="text/css">
     <link href="/css/huvis_controls.css" rel="stylesheet" type="text/css">
     <link href="/css/lariat.css" rel="stylesheet" type="text/css">
@@ -57,7 +57,7 @@
 	 <a href="#tabs-script" title="The sequence of commands which have been performed.">Script</a>
        </li>
        -->
-       <li><a href="#tabs-help" class="open_huviz_help" title="">Help</a></li>       
+       <li><a href="#tabs-help" class="open_huviz_help" title="">Help</a></li>
        <li>
 	 <a href="#tabs-hide"
 	    title="Shrink this menu for maximum room to play.">‾‾‾</a>
@@ -147,7 +147,7 @@
 		      value="/data/female_antislavery_society.nq">Female Anti-Slavery Society</option>
               <option title="all attributes -- ?? nodes; 5300 edges; ?? predicates ✓"
 		      value="/data/newnham_college.nq"
-		      disabled=true>Newnham College</option>		      
+		      disabled=true>Newnham College</option>
 	      <option title="all attributes -- 116 nodes; ?? edges; ?? predicates ✓"
 		      value="/data/nuns.nq">  Nuns: Middle Ages</option>
 	      <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
@@ -155,7 +155,7 @@
 		      disabled=true>  The 17th Century Quakers</option>
 	      <option title="all attributes -- 516 nodes; ?? edges; ?? predicates ✓"
 		      value="/data/the_1917_club.nq"
-		      disabled=true>  The 1917 Club</option>		      
+		      disabled=true>  The 1917 Club</option>
 	    </optgroup>
  	    <optgroup label="Periodicals">
               <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
@@ -216,12 +216,12 @@
       <div id="gclui"></div>
     </div>
   </section>
-  
+
     <div id="vis" class="underneath" style="z-index:-3"></div>
     <div id="viscanvas" class="underneath"></div>
     <pre id="status"></pre>
     <div id="state_msg_box"></div>
-    
+
     <script src="/huviz/huviz.js?23234"></script>
     <script type="text/javascript">
       window.addEventListener('load',function(){
@@ -238,7 +238,7 @@
           viscanvas_sel: "#viscanvas",
           gclui_sel: "#gclui",
           graph_controls_sel: '#tabs-options',
-          display_hints: false, // here to show how to enable hints 
+          display_hints: false, // here to show how to enable hints
           display_reset: false  // here to show how to enable reset button
         });
         HVZ.replace_human_term_spans('ui-widget');
@@ -285,7 +285,7 @@
 	};
         $(".open_huviz_help").on('click', open_help_dialog);
         //open_help_dialog();
-      
+
       /*
         var getMd = function(url) {
 	  var xhr = new XMLHttpRequest();
@@ -310,7 +310,7 @@
             }
         }
       */
-      
+
       });
     </script>
     <div class="hint_set" style="display:none">
@@ -319,14 +319,14 @@
 	<ol>
 	  <li>Directly in the Graph using the "drag and drop" technique</li>
 	  <li>By choosing a combination of a Verb + Set or Class or Selection.</li>
-	</ol>	
+	</ol>
       </div>
     </div>
     <div class="help_content" style="display:none">
       <div style="position:absolute; top:5px; right:5px">
         <a href="http://cwrc.ca/HuViz_Documentation/" target="_blank">Manual</a>
 	<i class="fa fa-external-link"></i>
-      </div>      
+      </div>
       <h3>Quick Start</h3>
       <dl>
 	<dt>Load Data Set</dt>
