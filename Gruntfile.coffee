@@ -25,6 +25,7 @@ module.exports = (grunt) ->
         files: ['src/*.coffee', 'js/*.js', 'Gruntfile.coffee', 'server.coffee', 'views/*.eco']
         tasks: ['coffee', 'stitch', 'express:dev']
         options:
+          atBegin: true
           debounceDelay: 250
           livereload:
             port: 35731

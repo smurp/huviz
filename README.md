@@ -35,6 +35,9 @@ huviz
     # in package.json comment libxmljs back in then do
     npm install
 
+# Running the server during development
+
+    npm run dev
 
 # Running the server
 
