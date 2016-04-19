@@ -2661,6 +2661,7 @@ class Huviz
     $(@viscanvas).bind("_splitpaneparentresize", @updateWindow)
     $("#tabs").tabs
       active: 0
+      collapsible: true
     $('.open_tab').click (event) =>
       tab_idx = parseInt($(event.target).attr('href').replace("#",""))
       @goto_tab(tab_idx)
@@ -2669,6 +2670,7 @@ class Huviz
   goto_tab: (tab_idx) ->
     $('#tabs').tabs
       active: tab_idx
+      collapsible: true
 
   update_fisheye: ->
     @label_show_range = @link_distance * 1.1
