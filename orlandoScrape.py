@@ -9,11 +9,11 @@ This file is now in GitHub at:
 
 1.1.2 Use the structID as the 'context' in n3, nq and trig output
 
-1.1.1 extracts the standard ID from the DIV tag for each section.  
+1.1.1 extracts the standard ID from the DIV tag for each section.
       This will be used for linking back to the original text.
 
  Script by
- 
+
  John Simpson, Postdoctoral Fellow with:
  1. Text Mining & Visualization for Literary History
  2. INKE, Modeling & Prototyping
@@ -112,7 +112,7 @@ def convert_base(src,srctable,desttable):
         i += 1
     if val < 0:
         return 0
-    
+
     r = val % destlen
     res = desttable[r]
     q = int(math.floor(val / destlen))
@@ -131,7 +131,7 @@ def regexTestLoad(regexTests, options):
         parts = line.split('|')
         if options.only_predicates and not parts[0] in options.only_predicates:
             continue
-        regexArray[arrayCounter]=parts  
+        regexArray[arrayCounter]=parts
         arrayDepth = len(regexArray[arrayCounter])
         n=1
         while n < arrayDepth:
@@ -145,7 +145,7 @@ def xpathTestLoad(xpathTests, addXpaths, options):
     arrayCounter = 0
     xpathArray = {}
     for line in xpathTests:
-        #print line        
+        #print line
         #print line[0], type(line[0])
         line = line.replace('\n','')
         linesplit = line.split('|')
@@ -205,8 +205,6 @@ def stripExtraXML(match):
     return(''.join(cleanLine))
  
 
-
-
 # Create the regex needed to extractthe closest structural ID tag
 # during the regexRecursion function.
 structIDregex=[]
@@ -234,8 +232,8 @@ unconstrained = LOCAL['unconstrained']
 
 ID_GENERATOR = LOCAL
 if LOCAL_IDENTIFIERS:
-    #ID_GENERATOR = BNode     # 
-    #ID_GENERATOR = LocalNode # 
+    #ID_GENERATOR = BNode     #
+    #ID_GENERATOR = LocalNode #
     ID_GENERATOR = LOCAL
 def make_node(an_id):
     return ID_GENERATOR[an_id]
@@ -289,7 +287,7 @@ class FormatEmitter(object):
         commacheck3=False #controls the insertion of commas at the end of the objects
         count = 0
         for line in orlandoRAW:
-            #print "len(line)",len(line)            
+            #print "len(line)",len(line)
             LineTest = NameTest.search(line)
             #print LineTest
             if LineTest:
@@ -336,7 +334,7 @@ class FormatEmitter(object):
                 for match in resultTripleTest:
                     self.regexRecursion(match,regexArray,tripleCheck,recursionDepthPlusOne+1,mainSubject,entryDict,structID)
 
-    
+
     def xPathRecursion(self, searchText, xpathArray, tripleCheck, recursionDepthPlus, mainSubject, entryDict, structID):
         """This is the function that processes all the xPath components of each search line"""
         #print "xPathRecursion() recursionDepthPlus:", recursionDepthPlus, "structID:",structID
@@ -351,10 +349,10 @@ class FormatEmitter(object):
             #print "searchText type", type(searchText)
         #searchText = "<junk>%s</junk>" % searchText
         searchText = "<P>%s</P>" % searchText
-        
+
         tripleTest = xpathArray[tripleCheck][recursionDepthPlus]
         #print "tripleTest", tripleTest
-        searchTextOrig = searchText        
+        searchTextOrig = searchText
         searchText = StringIO(searchText)
         try:
             searchText = etree.parse(searchText)
@@ -381,7 +379,7 @@ class FormatEmitter(object):
             resultTripleTest = resultTripleTest.replace(' "','"')
             #resultTripleTest = " ".join(resultTripleTest)
             #print resultTripleTest
-        #print "  searchText", searchText, recursionDepthPlus            
+        #print "  searchText", searchText, recursionDepthPlus
         if resultTripleTest:
             if self.options.verbose:
               print search_text
@@ -466,7 +464,7 @@ class FormatEmitter(object):
         #print "ruleArray", ruleArray #, "options", options
         NameTest = re.compile('<ENTRY.+?ID="([\w, ]+)".*>',re.I)
         sys.stderr.write("extraction starts\n")
-        with codecs.open(options.infile, encoding='utf-8', mode='r') as orlandoRAW: 
+        with codecs.open(options.infile, encoding='utf-8', mode='r') as orlandoRAW:
             mainSubject=None
             self.extractionCycle(orlandoRAW, ruleArray, NameTest, mainSubject)
         sys.stderr.write("extraction ends\n")
@@ -485,10 +483,10 @@ class FormatEmitter(object):
             self.current_id = 0
         self.current_id += 1
         return convert_base(str(self.current_id),BASE10,BASE26)
-        
+
     def prepOutfile(self):
         pass
-    
+
 class JSONEmitter(FormatEmitter):
     def concludeOutfile(self):
         kwargs = dict(sort_keys=True)
@@ -497,7 +495,7 @@ class JSONEmitter(FormatEmitter):
         self.outfile.write(json.dumps(self.entries,**kwargs))
         self.outfile.close()
 
-    
+
 class RDFEmitter(FormatEmitter):
     def __init__(self,options):
         super(RDFEmitter, self).__init__(options)
@@ -530,7 +528,7 @@ class RDFEmitter(FormatEmitter):
             if options.state_the_obvious:
                 if STATE_OBVIOUS_PEOPLE_TOO or typ <> FOAF.Person:
                     # http://www.w3.org/TR/2013/NOTE-n-triples-20130409/#iri-summary
-                    #   "a for the predicate rdf:type" 
+                    #   "a for the predicate rdf:type"
                     #     is OK in Turtle but not N-Triples (or NQuads, likely)
                     tupl = [node,RDF.type,typ]
                     if options.capture_context:
@@ -547,7 +545,7 @@ class RDFEmitter(FormatEmitter):
 
     def get_group(self,name,**kwargs):
         kwargs['typ'] = FOAF.Group
-        return self.get_entity(name,**kwargs)        
+        return self.get_entity(name,**kwargs)
 
     def generate_graph(self):
         bogus_relations = {
@@ -599,7 +597,7 @@ class RDFEmitter(FormatEmitter):
                             # we guess the object is a person since its not a group
                             obj = self.get_person(ctx_sn_d['sn'])
                             if obj == writer: # eliminate self links
-                                continue 
+                                continue
                         quad_or_triple = [writer,pred,obj]
                         if ctx_sn_d.has_key('ctx'):
                             quad_or_triple.append(ctx_sn_d['ctx'])
@@ -698,7 +696,7 @@ class SqliteEmitter(ContextEmitter):
                 print "##", k
                 print repr(v)
 
-                
+
 if __name__ == "__main__": # Prevents this program from running if called by another program
     only_predicates = 'standardName,dateOfBirth,dateOfDeath'.split(',')
     only_predicates.extend(predicate_to_type.keys())
@@ -712,12 +710,12 @@ if __name__ == "__main__": # Prevents this program from running if called by ano
         only_predicates = only_predicates,
         ignore_structid_regex = '\-DIV0\-\-1$',
         outfile = 'orlando_all_entries_2013-03-04.json')
-    
+
     from optparse import OptionParser
     parser = OptionParser()
     parser.add_option("--human",
                       default = defaults['human'],
-                      action = 'store_true',                      
+                      action = 'store_true',
                       help = "output human readable text, good while building regexes")
     parser.add_option("--outfile",
                       default = defaults['outfile'],
@@ -744,7 +742,7 @@ if __name__ == "__main__": # Prevents this program from running if called by ano
                           defaults['infile'])
     parser.add_option("--limit",
                       type = "int",
-                      help = "limit the number of entries processed")    
+                      help = "limit the number of entries processed")
     parser.add_option("-x","--capture_context",
                       default = True,
                       action = 'store_true',
@@ -802,8 +800,8 @@ if __name__ == "__main__": # Prevents this program from running if called by ano
     e.g.
        %prog --doctest
           Perform unit tests on the %prog
-       
-       %prog 
+
+       %prog
           The default operation is equivalent to:
               ./orlandoScrape.py \\
                  --rules {rules} \\
@@ -819,7 +817,7 @@ if __name__ == "__main__": # Prevents this program from running if called by ano
 
        %prog --only_predicates ""
           Run without constraint on the predictes emitted.
-      
+
     """.format(**defaults)
     (options,args) = parser.parse_args()
     show_usage = True
