@@ -35,6 +35,7 @@ LOCAL_IDENTIFIERS = False  # False causes use of external ontologies
 # False is bugged, groups are appearing as w:XXXX
 
 import sqlite3
+import sys
 
 # imports from the rdf library allow for efficient handling of data it nt and quad format.
 import rdflib.plugins.serializers.nt
@@ -328,8 +329,8 @@ class FormatEmitter(object):
         if resultTripleTest:
             if (recursionDepthPlusOne) >= len(regexArray[tripleCheck])-1:
                 for match in resultTripleTest:
-                    stripMatch=stripExtraXML(match)
-                    self.fillDict(entryDict, regexArray, tripleCheck, mainSubject, stripMatch, structID)
+                    objectValue = stripExtraXML(match)
+                    self.fillDict(entryDict, regexArray, tripleCheck, mainSubject, objectValue, structID)
             else:
                 for match in resultTripleTest:
                     self.regexRecursion(match,regexArray,tripleCheck,recursionDepthPlusOne+1,mainSubject,entryDict,structID)
@@ -343,8 +344,8 @@ class FormatEmitter(object):
             searchText = etree.tounicode(searchText)
             # This is a total hack.  I don't know why but matches always had trailing text after the last XML tag
             # this led to "lxml.etree.XMLSyntaxError: Extra content at the end of the document" errors
-            # wrapping this code in these <junk></junk> tags stops that from happenin
-            
+            # wrapping this code in these <junk></junk> tags stops that from happening
+
             #print "searchText:", searchText
             #print "searchText type", type(searchText)
         #searchText = "<junk>%s</junk>" % searchText
@@ -364,7 +365,7 @@ class FormatEmitter(object):
                 start = max(0,int_col - 140)
                 print " ",searchTextOrig[start:int_col]
             return
-        
+
         #print "type tripleTest: ", type(tripleTest)
         #print "searchText: ", str(searchText)
         resultTripleTest = tripleTest(searchText)
@@ -390,9 +391,9 @@ class FormatEmitter(object):
                         """
                         print "match", match
                         print "matchType", type(match)
-                        stripMatch=stripExtraXML(match)
-                        print "stripMatch", stripMatch
-                        print "stripMatchType", type(stripMatch)
+                        objectValue=stripExtraXML(match)
+                        print "objectValue", objectValue
+                        print "objectValueType", type(objectValue)
                         """
 
                         if self.options.verbose:
@@ -405,17 +406,22 @@ class FormatEmitter(object):
                     #print "match", match
                     self.xPathRecursion(match, xpathArray, tripleCheck, recursionDepthPlus+1, mainSubject, entryDict, None)
 
-    def fillDict(self, entryDict, regexArray, tripleCheck, mainSubject, stripMatch, structID):
+    def fillDict(self, entryDict, regexArray, tripleCheck, mainSubject, objectValue, structID):
+        predicate = regexArray[tripleCheck][0]
+
+        if self.options.trace_quads:
+            print >> sys.stderr, "  ",[ mainSubject, predicate, objectValue, structID ]
+
         if self.ignore_structid_re:
             if structID:
                 if self.ignore_structid_re.search(structID):
                     return
-        options = self.options
+
         predicate = regexArray[tripleCheck][0]
-        if options.only_predicates and not (predicate in options.only_predicates):
+        if self.options.only_predicates and not (predicate in self.options.only_predicates):
             return
 
-        ctx_sn = {'sn': stripMatch}
+        ctx_sn = {'sn': objectValue}
         if structID:
             # maintain a cache of contexts keyed by structID
             if not self.contexts.has_key(structID):
@@ -426,7 +432,7 @@ class FormatEmitter(object):
         if predicate not in entryDict:
             entryDict[predicate] = []
 
-        # TODO(smurp): de-dupe by doing equivalent of:  stripMatch not in entryDict[predicate]:
+        # TODO(smurp): de-dupe by doing equivalent of:  objectValue not in entryDict[predicate]:
         entryDict[predicate].append(ctx_sn)
 
     def dump_human(self,entryDict, options):
@@ -443,7 +449,6 @@ class FormatEmitter(object):
                     print "  ",k,repr(v.get('sn')),2
                 else:
                     print "  ",k,repr(v),3
-                    
         print ""
 
     def stash(self,entryDict,commacheck3,options):
@@ -740,6 +745,9 @@ if __name__ == "__main__": # Prevents this program from running if called by ano
                       default = defaults['infile'],
                       help = "input filename, default:"+\
                           defaults['infile'])
+    parser.add_option("--trace_quads",
+                      action = 'store_true',
+                      help = "show quads as they are encountered")
     parser.add_option("--limit",
                       type = "int",
                       help = "limit the number of entries processed")
@@ -753,7 +761,7 @@ if __name__ == "__main__": # Prevents this program from running if called by ano
     parser.add_option(
         "--only_predicates",
         default = ','.join(defaults['only_predicates']),
-        help = "the predicates to keep, default: %(only_predicates)s" % defaults)    
+        help = "the predicates to keep, default: %(only_predicates)s" % defaults)
     parser.add_option("--all_predicates",
                       action = 'store_true',
                       help = "use every predicate available")
