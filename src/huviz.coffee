@@ -135,6 +135,10 @@ dist_lt = (mouse, d, thresh) ->
   y = mouse[1] - d.y
   Math.sqrt(x * x + y * y) < thresh
 
+unescape_unicode = (u) ->
+  # pre-escape any existing quotes so when JSON.parse does not get confused
+  return JSON.parse('"' + u.replace('"', '\\"') + '"')
+
 # http://dublincore.org/documents/dcmi-terms/
 DC_subject  = "http://purl.org/dc/terms/subject"
 
@@ -1704,7 +1708,7 @@ class Huviz
           q.g = q.g.raw
           q.o =
             type:  owl_type_map[q.o.type]
-            value: @remove_framing_quotes(q.o.toString())
+            value: unescape_unicode(@remove_framing_quotes(q.o.toString()))
           @add_quad q
       else if e.data.event is 'start'
         msg = "starting to split "+uri
