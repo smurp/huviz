@@ -79,7 +79,8 @@ class ColoredTreePicker extends TreePicker
     if verbose
       console.log indent+"-recolor_recurse(",branch_id,class_str,")",branch
     if branch_id
-      @recolor_node(retval, recursor, branch_id, branch, indent) # should this go after recursion so color range can be picked up?
+      # should this go after recursion so color range can be picked up?
+      @recolor_node(retval, recursor, branch_id, branch, indent)
     if branch.children.length > 0
       for elem in branch.children
         if elem?

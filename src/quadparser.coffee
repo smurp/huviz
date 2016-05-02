@@ -84,4 +84,7 @@ RdfObject::isLiteral = ->
 quadRegex = /\s*(<[^>]*>|_:[A-Za-z][A-Za-z0-9]*)\s*(<[^>]*>)\s*(".*"?|<[^>]*>|_:[A-Za-z][A-Za-z0-9]*)\s*(<[^>]*>).*\s*\.\s*$/
 isComment = /^\s*\/\//
 
-(exports ? this).QuadParser = QuadParser
+# (exports ? this).QuadParser = QuadParser
+#
+# This coffeescript version has been replaced by the javascript version in js/quadParser.js
+# 

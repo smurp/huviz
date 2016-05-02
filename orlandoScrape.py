@@ -204,7 +204,7 @@ def stripExtraXML(match):
         if character==">":
             keep=True
     return(''.join(cleanLine))
- 
+
 
 # Create the regex needed to extractthe closest structural ID tag
 # during the regexRecursion function.
@@ -225,7 +225,7 @@ WP  = Namespace('http://en.wikipedia.org/wiki/')
 ORL = Namespace('orl:')
 ORLONT = Namespace('http://draftOrlandoOntology.org/Draft1#')
 BLANK = Namespace('http:///')
-LOCAL = Namespace('')
+LOCAL = Namespace('') # '_:' for trig or ttl support WIP '' works with snippets
 BLANK_HACK = False
 BLANK_WRITERS = False # FIXME ideally this would be True so writer ids like _:abdyma
 
@@ -309,10 +309,11 @@ class FormatEmitter(object):
                                 if options.verbose:
                                     print structID,entryDict.keys()
                                 searchText=result[1]
-                                self.ruleRecursion(searchText,ruleArray,tripleCheck,
-                                                   1,mainSubject,entryDict,structID)
+                                self.ruleRecursion(searchText, ruleArray, tripleCheck,
+                                                   1, mainSubject, entryDict, structID)
                     else:
-                        self.ruleRecursion(line,ruleArray,tripleCheck,1,mainSubject,entryDict,None)
+                        self.ruleRecursion(line, ruleArray, tripleCheck,
+                                           1, mainSubject, entryDict, None)
                 options.emitter.stash(entryDict,commacheck3,options)
                 commacheck3=True
             entryDict = dict()
@@ -408,13 +409,21 @@ class FormatEmitter(object):
 
     def fillDict(self, entryDict, regexArray, tripleCheck, mainSubject, objectValue, structID):
         predicate = regexArray[tripleCheck][0]
+        #if objectValue == 'apprentice clerk for the':
+        #    print predicate, objectValue, structID
+            #sys.exit()
 
         if self.options.trace_quads:
             print >> sys.stderr, "  ",[ mainSubject, predicate, objectValue, structID ]
 
+        if structID == None and False:
+            return
+        #else:
+        #    print "structID",structID
         if self.ignore_structid_re:
             if structID:
                 if self.ignore_structid_re.search(structID):
+                    print "skipping", structID
                     return
 
         predicate = regexArray[tripleCheck][0]

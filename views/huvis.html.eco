@@ -118,15 +118,15 @@
               title="data sets are alphabetical">
 	    <option value=""> -- Pick a Data Set -- </option>
 	    <optgroup label="Individuals">
-              <option title="all attributes -- TBD"
+              <option title="all attributes -- 72 ndoes; 142 edges"
 		      value="/data/byroau.nq">Augusta Ada Byron</option>
-              <option title="all attributes -- 444 nodes; 2325 edges; 41 predicates"
+              <option title="all attributes -- 115 nodes; 236 edges"
 		      value="/data/atwoma.nq">Margaret Atwood</option>
-              <option title="all attributes -- 68 nodes; 308 edges; 37 predicates"
+              <option title="all attributes -- 37 nodes; 55 edges"
 		      value="/data/abdyma.nq">Maria Abdy</option>
-              <option title="all attributes -- 14 nodes; 60 edges; 17 predicates"
+              <option title="all attributes -- 13 nodes; 12 edges"
 		      value="/data/ballrm.nq">R.M. Ballantyne</option>
-              <option title="basic relational predicates -- 41 nodes; 46 edges; 21 predicates"
+              <option title="all attributes -- 38 nodes; 49 edges"
 		      value="/data/shakwi.nq">William Shakespeare</option>
 	    </optgroup>
  	    <optgroup label="Organizations">
@@ -136,16 +136,17 @@
               <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
 		      disabled=true
 		      value="/data/african_national_congress.nq">African National Congres</option>
-              <option title="all attributes -- 423 node; 666 edges; 43 predicates"
+              <option title="all attributes -- 244 nodes; 719 edges"
 		      value="/data/brontes.nq">The Bronte Sisters</option>
-              <option title="all attributes -- 573 nodes; edges 835; predicates 52"
+              <option title="all attributes -- 301 nodes; edges 568"
 		      value="/data/early_writers.nq">Early Writers</option>
 	      <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+		      disabled=true
 		      value="/data/female_antislavery_society.nq">Female Anti-Slavery Society</option>
               <option title="all attributes -- ?? nodes; 5300 edges; ?? predicates ✓"
 		      value="/data/newnham_college.nq"
 		      disabled=true>Newnham College</option>
-	      <option title="all attributes -- 116 nodes; ?? edges; ?? predicates ✓"
+	      <option title="all attributes -- 116 nodes; 236 edges"
 		      value="/data/nuns.nq">  Nuns: Middle Ages</option>
 	      <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
 		      value="/data/the_17th_century_quakers.nq"
@@ -155,9 +156,9 @@
 		      disabled=true>  The 1917 Club</option>
 	    </optgroup>
  	    <optgroup label="Periodicals">
-              <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+              <option title="all attributes -- 123 nodes; 193 edges"
 		      value="/data/englishwomans_review.nq">Englishwoman's Review</option>
-              <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+              <option title="all attributes -- ?? nodes; ?? edges"
 		      value="/data/taits_endinburgh_magazine.nq"
 		      disabled=true>Tait's Edinburgh Magazine</option>
               <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
@@ -179,7 +180,7 @@
 		      value="/data/victoria_press.nq">Victoria Press</option>
 	    </optgroup>
  	    <optgroup label="Genres">
-              <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+              <option title="all attributes -- 166 nodes;  392 edges"
 		      value="/data/famous_cookbooks.nq">Famous Cookbooks</option>
 	    </optgroup>
 	    <!--

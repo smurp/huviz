@@ -1620,9 +1620,7 @@ class Huviz
             o: obj # keys: type,value[,language]
             g: context
     @dump_stats()
-    @fire_fileloaded_event('stream')
-    if callback
-      callback()
+    @after_file_loaded('stream', callback)
 
   dump_stats: ->
     console.log "object_value_types:",@object_value_types
@@ -1715,11 +1713,7 @@ class Huviz
       else if e.data.event is 'finish'
         msg = "finished_splitting "+uri
         @show_state_msg("done loading")
-        @fire_fileloaded_event(uri)
-        if callback
-          callback()
-        #@choose_everything()
-        #@fire_nextsubject_event @last_quad,null
+        @after_file_loaded(uri, callback)
       else
         msg = "unrecognized NQ event:"+e.data.event
       if msg?
@@ -1748,10 +1742,8 @@ class Huviz
       url: url
       success: (data, textStatus) =>
         the_parser(data, textStatus, callback)
-        @fire_fileloaded_event(url)
+        #@fire_fileloaded_event(url) ## should call after_file_loaded(url, callback) within the_parser
         @hide_state_msg()
-        #if callback
-        #  callback()
       error: (jqxhr, textStatus, errorThrown) ->
         console.log url, errorThrown
         $("#status").text errorThrown + " while fetching " + url
@@ -3042,7 +3034,6 @@ class Huviz
       cursor_text = (new_value).toString()
       console.info("#{setting_name}: #{cursor_text}")
       @graph_controls_cursor.set_text(cursor_text)
-    
     if custom_handler? and not skip_custom_handler
       #console.log "change_setting_to_from() custom setting: #{setting_name} to:#{new_value}(#{typeof new_value}) from:#{old_value}(#{typeof old_value})"
       custom_handler.apply(@, [new_value, old_value])
@@ -3076,6 +3067,20 @@ class Huviz
     for elem in $(".graph_controls input") # so we can modify them in a loop
       @update_graph_settings(elem, false)
 
+  after_file_loaded: (uri, callback) ->
+    #@show_node_pred_edge_stats()
+    @fire_fileloaded_event(uri)
+    if callback
+      callback()
+
+  show_node_pred_edge_stats: ->
+    pred_count = 0
+    edge_count = 0
+    
+    s = "nodes:#{@nodes.length} predicates:#{pred_count} edges:#{edge_count}"
+    console.log s
+    debugger
+
   fire_fileloaded_event: (uri) ->
     document.dispatchEvent(new CustomEvent("dataset-loaded", {detail: uri}))
     window.dispatchEvent(
@@ -3102,10 +3107,6 @@ class Huviz
     @show_state_msg @data_uri
     unless @G.subjects
       @fetchAndShow @data_uri, callback
-    #@init_webgl()  if @use_webgl
-    #if callback?
-    #  console.log "calling back"
-    #  callback()
 
   get_dataset_uri: () ->
     # FIXME goodbye jquery
