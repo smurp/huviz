@@ -2686,7 +2686,7 @@ class Huviz
       selector = '.human_term__' + canonical
       console.log("replacing '#{canonical}' with '#{human}' in #{selector}")
       $(selector).text(human).addClass(optional_class) #.style('color','red')
-  
+
   human_term:
     all: 'ALL'
     chosen: 'CHOSEN'
@@ -2939,7 +2939,6 @@ class Huviz
         input:
           checked: "checked"
           type: "checkbox"
-
     ,
       doit_asap:
         style: "display:none"
@@ -2948,6 +2947,13 @@ class Huviz
           title: "execute commands as soon as they are complete"
         input:
           checked: "checked" # default to 'on'
+          type: "checkbox"
+    ,
+      show_dangerous_datasets:
+        text: "Show dangerous datasets"
+        label:
+          title: "Show the datasets which are too large or buggy"
+        input:
           type: "checkbox"
     ]
 
@@ -3048,6 +3054,17 @@ class Huviz
         for node in @graphed_set
           node.fixed = false
 
+  on_change_show_dangerous_datasets: (new_val, old_val) ->
+    if new_val
+      $('option.dangerous').show()
+      $('option.dangerous').text (idx, text) ->
+        append = ' (!)'
+        if not text.match(/\(\!\)$/)
+          return text + append
+        return text
+    else
+      $('option.dangerous').hide()
+
   on_change_shelf_radius: (new_val, old_val) ->
     @change_setting_to_from('shelf_radius', new_val, old_val, true)
     @update_graph_radius()
@@ -3076,7 +3093,7 @@ class Huviz
   show_node_pred_edge_stats: ->
     pred_count = 0
     edge_count = 0
-    
+
     s = "nodes:#{@nodes.length} predicates:#{pred_count} edges:#{edge_count}"
     console.log s
     debugger
