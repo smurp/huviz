@@ -3117,6 +3117,7 @@ class Huviz
       $("#reset_btn").show()
     else
       $("[name=data_set]").prop('disabled', true)
+      $("#reload_btn").show()
     @show_state_msg("loading...")
     #@init_from_graph_controls()
     #@dump_current_settings("after init_from_graph_controls()")
