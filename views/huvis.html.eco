@@ -2,7 +2,7 @@
 <html>
   <head>
     <title>Huvis Graph Visualization</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css">
     <link rel="icon" href="/favicon.ico?v=4" type="image/x-icon" />
     <link href="/jquery-ui-css/jquery-ui.css" rel="stylesheet"/>
     <link href="/css/huvis.css" rel="stylesheet" type="text/css">
@@ -57,8 +57,13 @@
 	 <a href="#tabs-script" title="The sequence of commands which have been performed.">Script</a>
        </li>
        -->
-       <li><a href="#tabs-help" class="open_huviz_help" title="">Help</a></li>
+
        <li><a href="#tabs-credit" title="Academic, funding and technical credit.">Credit</a></li>
+       <li class="open_huviz_help">
+	 <a href="#tabs-help" title="show help window">
+	   <i class="fa fa-lg fa-question-circle-o"></i>
+	 </a>
+       </li>
     </ul>
     <div id="tabs-intro" class="scrolling_tab">
       <h1 class="git-branch-is-<%= @git_branch_name %>">
@@ -218,6 +223,7 @@
     <div id="tabs-credit" class="scrolling_tab">
       <p>this is where the credits will go</p>
     </div>
+    <div id="tabs-help" style="height:0px"></div>
   </section>
 
     <div id="vis" class="underneath" style="z-index:-3"></div>
@@ -270,8 +276,8 @@
 	    });
 	    open_help_dialog.help_dialog.dialog("open");
 	    $('#tabs').on("tabsbeforeactivate", function(evt, ui) {
-	      // http://api.jqueryui.com/tabs/#event-beforeActivate
-              if (ui.newTab.text() == 'Help') {
+              // http://api.jqueryui.com/tabs/#event-beforeActivate
+              if (ui.newTab.hasClass('open_huviz_help')) {
                 if ($(open_help_dialog.help_dialog).parent().is(":Visible")) {
                   $(open_help_dialog.help_dialog.parent()).addClass("help_flash");
                   setTimeout(function() {
