@@ -262,7 +262,7 @@
 	      position: {my: "left bottom", at: "left bottom", of: "html"},
 	      title: "Help",
 	      width: $("html").width()*0.24,
-	      height: $("html").height()*0.24,
+	      height: $("html").height()*0.4,
 	      beforeClose: function(evt, ui) {
 		$(evt.target).parent().hide();
 		return false;
