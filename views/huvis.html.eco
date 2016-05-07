@@ -361,7 +361,7 @@
 	      Notice how nodes in the central graph will link together
 	      to form networks.
 	      <span class="human_term__chosen">Chosen</span> nodes,
-	      identified by the black outline, are nodes that have beeen
+	      identified by the black outline, are nodes that have been
 	      dragging into the centre.  Any node that is directly
 	      connected to an
 	      <span class="human_term__chosen">Chosen</span> node will
