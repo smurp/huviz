@@ -44,7 +44,7 @@ class CommandController
     @node_pickers = @comdiv.append('div')
     @set_picker_box_parent = @build_set_picker("Sets",@node_pickers)
     @taxon_picker_box_parent = @build_taxon_picker("Class Selector",@node_pickers)
-    @add_clear_both(@comdiv)    
+    @add_clear_both(@comdiv)
     @likediv = @taxon_picker_box_parent.append('div')
     @build_predicate_picker("Edges of the Selected Nodes")
     @init_editor_data()
@@ -109,9 +109,9 @@ class CommandController
     @update_command()
   disengage_all: ->
     @clear_like()
-    @disengage_all_sets()    
+    @disengage_all_sets()
     @disengage_all_verbs()
-    @update_command()    
+    @update_command()
   add_clear_both: (target) ->
     # keep taxonomydiv from being to the right of the verbdiv
     target.append('div').attr('style','clear:both')
@@ -315,7 +315,7 @@ class CommandController
     #  suppress: 'suppress'
     #  specify: 'specify'
       #emphasize: 'emphasize'
-      
+
   auto_change_verb_tests:
     select: (node) ->
       if node.selected?
@@ -448,7 +448,7 @@ class CommandController
       $(@nextcommandstr[0][0]).show()
     else
       $(@nextcommandstr[0][0]).hide()
-      
+
     @nextcommand_working = @nextcommand.append('i')
     @nextcommand_working.style('float:right; color:red')
     @build_submit()
@@ -459,7 +459,7 @@ class CommandController
   show_working_off: ->
     console.log "show_working_off()"
     @nextcommand_working.attr('class','')
-    
+
   build_like: () ->
     @likediv.text('like:').classed("control_label", true)
     @like_input = @likediv.append('input')
@@ -495,7 +495,7 @@ class CommandController
       else # nothing has happened, so
         TODO = "do nothing ????"
     @update_command(evt)
-    
+
   build_submit: () ->
     @doit_butt = @nextcommand.append('span').append("input").
            attr("style","float:right;").
@@ -510,7 +510,7 @@ class CommandController
   enable_doit_button: ->
     @doit_butt.attr('disabled',null)
   disable_doit_button: ->
-    @doit_butt.attr('disabled','disabled')        
+    @doit_butt.attr('disabled','disabled')
   hide_doit_button: ->
     $(@doit_butt[0][0]).hide()
   show_doit_button: ->
@@ -599,10 +599,10 @@ class CommandController
           removeClass('nextcommand_prompt_ready').
           addClass('nextcommand_prompt_unready')
       @nextcommand_noun_phrase.text(@command.noun_phrase)
-      if @command.noun_phrase_ready      
+      if @command.noun_phrase_ready
         $(@nextcommand_noun_phrase[0][0]).
           addClass('nextcommand_prompt_ready').
-          removeClass('nextcommand_prompt_unready')        
+          removeClass('nextcommand_prompt_unready')
       else
         $(@nextcommand_noun_phrase[0][0]).
           removeClass('nextcommand_prompt_ready').
@@ -610,7 +610,7 @@ class CommandController
       @nextcommand_suffix_phrase.text(@command.suffix_phrase)
     if @nextcommand_str_visible or true # NEEDED BY huviz_test.js
       @nextcommandstr.text(@command.str)
-      
+
     if @command.ready
       @enable_doit_button()
     else
@@ -770,7 +770,7 @@ class CommandController
       cmd = new gcl.GraphCommand @huviz,
         verbs: [cleanup_verb]
         sets: [the_set]
-      @huviz.run_command(cmd)        
+      @huviz.run_command(cmd)
     return
   on_set_count_update: (set_id, count) =>
     @set_picker.set_payload(set_id, count)
