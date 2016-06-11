@@ -1,3 +1,5 @@
+# Usage:
+#   txtcrsr = new TextCursor(".graph_control input", "click input for fun")
 class TextCursor
   fontFillStyle: "black"
   bgFillStyle: "Yellow"
