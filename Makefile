@@ -4,8 +4,9 @@ BASE_ARGS = \
         --xpath orlando2RDFxpath3.txt --rules xpaths \
 	--progress
 #        --verbose
-
-#--infile orlando_all_entries_2013-03-04_FORMATTED.xml \
+#        --infile orlando_all_entries_2013-03-04_FORMATTED.xml \
+#        --infile atwoma.xml \
+#        --infile abdyma.xml \
 
 EXT=nq
 
