@@ -423,7 +423,7 @@ class FormatEmitter(object):
         if self.ignore_structid_re and not pass_thru:
             if structID:
                 if self.ignore_structid_re.search(structID):
-                    print "skipping", structID
+                    #print "skipping", structID
                     return
 
         if self.options.only_predicates and not (predicate in self.options.only_predicates):
