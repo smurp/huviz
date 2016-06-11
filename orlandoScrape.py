@@ -301,13 +301,13 @@ class FormatEmitter(object):
                     print mainSubject
                 for tripleCheck in ruleArray:
                     if options.capture_context:
-                        structID=""
+                        structID = ""
                         for IDcheck in structIDregex:
-                            IDcheckResults=IDcheck.findall(line)
+                            IDcheckResults = IDcheck.findall(line)
                             for result in IDcheckResults:
-                                structID=result[0]
+                                structID = result[0]
                                 if options.verbose:
-                                    print structID,entryDict.keys()
+                                    print structID, entryDict.keys()
                                 searchText=result[1]
                                 self.ruleRecursion(searchText, ruleArray, tripleCheck,
                                                    1, mainSubject, entryDict, structID)
@@ -334,7 +334,7 @@ class FormatEmitter(object):
                     self.fillDict(entryDict, regexArray, tripleCheck, mainSubject, objectValue, structID)
             else:
                 for match in resultTripleTest:
-                    self.regexRecursion(match,regexArray,tripleCheck,recursionDepthPlusOne+1,mainSubject,entryDict,structID)
+                    self.regexRecursion(match, regexArray, tripleCheck, recursionDepthPlusOne+1, mainSubject, entryDict, structID)
 
 
     def xPathRecursion(self, searchText, xpathArray, tripleCheck, recursionDepthPlus, mainSubject, entryDict, structID):
@@ -359,6 +359,7 @@ class FormatEmitter(object):
         try:
             searchText = etree.parse(searchText)
         except etree.XMLSyntaxError,e:
+            print "FAILED searchText = etree.parse(searchText)"
             print e
             col = str(e).split()[-1]
             int_col = int(col)
@@ -399,43 +400,42 @@ class FormatEmitter(object):
 
                         if self.options.verbose:
                             print "    ",match
+                        #print "predicate: fillDict() A", structID
                         self.fillDict(entryDict, xpathArray, tripleCheck, mainSubject, match, structID)
                 else:
+                    #print "predicate: fillDict() B", structID
                     self.fillDict(entryDict, xpathArray, tripleCheck, mainSubject, resultTripleTest, structID)
             else:
                 for match in resultTripleTest:
-                    #print "match", match
-                    self.xPathRecursion(match, xpathArray, tripleCheck, recursionDepthPlus+1, mainSubject, entryDict, None)
+                    #print "structID being ignored", structID
+                    self.xPathRecursion(match, xpathArray, tripleCheck, recursionDepthPlus+1, mainSubject, entryDict, structID)
 
     def fillDict(self, entryDict, regexArray, tripleCheck, mainSubject, objectValue, structID):
+        pass_thru = False
         predicate = regexArray[tripleCheck][0]
-        #if objectValue == 'apprentice clerk for the':
-        #    print predicate, objectValue, structID
-            #sys.exit()
+        if predicate in ['standardName', 'hasStandardName']:
+            # IT IS CRITICAL THAT WE DO NOT SKIP THESE NAME PREDICATES
+            pass_thru = True
 
         if self.options.trace_quads:
             print >> sys.stderr, "  ",[ mainSubject, predicate, objectValue, structID ]
 
-        if structID == None and False:
-            return
-        #else:
-        #    print "structID",structID
-        if self.ignore_structid_re:
+        if self.ignore_structid_re and not pass_thru:
             if structID:
                 if self.ignore_structid_re.search(structID):
                     print "skipping", structID
                     return
 
-        predicate = regexArray[tripleCheck][0]
         if self.options.only_predicates and not (predicate in self.options.only_predicates):
-            return
+            if not pass_thru:
+              return
 
         ctx_sn = {'sn': objectValue}
         if structID:
             # maintain a cache of contexts keyed by structID
             if not self.contexts.has_key(structID):
                 context_uri = LOCAL[structID]
-                self.contexts[structID] = Graph(self.store.store,context_uri)
+                self.contexts[structID] = Graph(self.store.store, context_uri)
             ctx_sn['ctx'] = self.contexts[structID]
 
         if predicate not in entryDict:
@@ -570,11 +570,12 @@ class RDFEmitter(FormatEmitter):
             bogus_relations = {}
 
         for entry in self.entries:
-            standardNames = entry.get('standardName',entry.get('hasStandardName',[]))
+            standardNames = entry.get('standardName', entry.get('hasStandardName', []))
             standardName = standardNames and standardNames[0]['sn'] or None
             if standardName == None:
-                print "skipping entry without a standardName"
-                print entry
+                #print "skipping entry without a standardName", entry.get('ID'), entry.get('hasName')
+                #print "  keys", entry.keys()
+                #print entry
                 continue
 
             writer = self.get_entity(
@@ -599,7 +600,6 @@ class RDFEmitter(FormatEmitter):
                         k = (entry['ID'],predicate)
                         if bogus_relations.has_key(k):
                             values.append(bogus_relations[k])
-
                     for ctx_sn_d in values: # Context_standardName_dict
                         # if ctx_sn_d is a dict, it likely has context on the ctx key
                         if type(ctx_sn_d) <> dict:  # handle uncontextualized objects
