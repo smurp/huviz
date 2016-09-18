@@ -58,7 +58,7 @@ var get_nextcommand_str = function() {
   return $(".nextcommand_str").text();
 };
 var get_nextcommand_prompt = function() {
-  return $(".nextcommand_prompt").text();  
+  return $(".nextcommand_prompt").text();
 };
 var get_payload = function(id) {
   return $('#' + id + ' > .treepicker-label > .payload').text();
@@ -144,11 +144,11 @@ describe("HuViz Tests", function() {
            "select_expand_and_ungraph_all() BROKEN not everything shelved").
       to.equal(HVZ.nodes.length);
   }
-  
+
   afterEach(function() {
     console.groupEnd();
   });
-  
+
   describe("graph controls", function() {
     it("the default controls should exist and have the right values",
        function(done) {
@@ -156,7 +156,7 @@ describe("HuViz Tests", function() {
 	 expect($("input[name='label_em']")).to.exist();
 	 expect($("input[name='label_em']").attr('value')).to.equal('0.9');
        });
-    
+
     it("clicking reset should restore the neutral condition",
        function(done) {
 	 say(test_title, done);
@@ -168,7 +168,7 @@ describe("HuViz Tests", function() {
 		"nothing should be labelled after reset").to.equal(0);
        });
   });
-  
+
 
   describe("liking things", function() {
     it("liking should select the set ALL",
@@ -186,7 +186,7 @@ describe("HuViz Tests", function() {
 	 expect(HVZ.gclui.liking_all_mode,
 		"should no longer be in liking_all_mode").to.equal(false);
        });
-    
+
     it("emptying like: should restore whatever set was previously picked",
        function(done) {
 	 say(test_title, done);
@@ -229,7 +229,7 @@ describe("HuViz Tests", function() {
 
     it("pressing the GO button should run the current command",
        function(done){
-	 say(test_title, done);	 
+	 say(test_title, done);
 	 HVZ.pick_taxon("Thing",true);
 	 HVZ.click_verb('label');
 	 HVZ.like_string("thames");
@@ -297,34 +297,34 @@ describe("HuViz Tests", function() {
 	 expect($("#Thing").hasClass("treepicker-indirect-mixed"),
 		"Thing should not be treepicker-indirect-mixed").
            to.equal(false);
-	 
+
 	 expect(HVZ.graphed_set.length).to.equal(0);
 	 expect(HVZ.shelved_set.length).to.equal(HVZ.nodes.length);
-	 
+
 	 var taxon_name = "Thing";
 	 expect($("#classes .treepicker-indirect-mixed").length,
 		"there should be no indirect-mixed once " +
 		taxon_name + " reselected").
            to.equal(0);
-	 
+
 	 expect($("#predicates .treepicker-indirect-mixed").length,
 		"there should be no indirect-mixed predicates when nothing is graphed").
            to.equal(0);
-	 
+
 	 jsoutline.squelch = false;
 	 jsoutline.collapsed = false;
        });
-    
+
     it("toggling a leaf predicate should leave the root predicate unmixed",
        function(done) {
 	 say(test_title, done);
-	 
+
 	 a_leaf_pred_id = "deathConnectionToSettlement";
 	 HVZ.click_predicate(a_leaf_pred_id);  // graph some leaf predicates
 	 expect(HVZ.graphed_set.length,
 		"something should be graphed after selecting a leaf predicate").
            to.not.equal(0);
-	 
+
 	 HVZ.click_predicate(a_leaf_pred_id);  // ungraph them again
 	 expect(HVZ.graphed_set.length,
 		"nothing should be graphed after toggling a leaf predicate").
@@ -333,7 +333,7 @@ describe("HuViz Tests", function() {
 		"there should be no indirect-mixed predicates when nothing is graphed").
            to.equal(0);
        });
-    
+
     it("toggling branch predicates should leave the root predicate unmixed",
        function(done) {
 	 say(test_title, done);
@@ -342,7 +342,7 @@ describe("HuViz Tests", function() {
 	 expect(HVZ.graphed_set.length,
 		"something should be graphed after selecting a branch predicate").
            to.not.equal(0);
-	 
+
 	 HVZ.click_predicate(a_branch_predicate);        // ungraph them again
 	 expect(HVZ.graphed_set.length,
 		"nothing should be graphed after toggling branch " +
@@ -351,7 +351,7 @@ describe("HuViz Tests", function() {
 		"there should be no indirect-mixed predicates when nothing is graphed").
            to.equal(0);
        });
-    
+
     it("the current selection should show in the nextcommand box",
        function(done) {
 	 say(test_title, done);
@@ -359,8 +359,8 @@ describe("HuViz Tests", function() {
 	 expected_str = "____ every Thing ."; // note four _
 	 expect(get_nextcommand_str()).to.equal(expected_str);
 	 expected_prompt = HVZ.human_term.blank_verb + " every Thing .";
-	 expect(get_nextcommand_prompt()).to.equal(expected_prompt);	 
-	 
+	 expect(get_nextcommand_prompt()).to.equal(expected_prompt);
+
 	 // deselect everything using the taxon_picker
 	 HVZ.toggle_expander("Thing"); // collapse
 	 HVZ.click_taxon("Thing");
@@ -371,7 +371,7 @@ describe("HuViz Tests", function() {
 	 expected_prompt = HVZ.human_term.blank_verb + " " +
 	   HVZ.human_term.blank_noun + ' .';
 	 expect(get_nextcommand_prompt()).to.equal(expected_prompt);
-	 
+
 	 // a single class selected should be simple
 	 HVZ.toggle_expander("Thing"); // collapse
 	 HVZ.click_taxon("Person");
@@ -379,7 +379,7 @@ describe("HuViz Tests", function() {
 	   to.equal("____ Person .");
 	 expect(get_nextcommand_prompt()).
 	   to.equal(HVZ.human_term.blank_verb + " Person .");
-	 
+
 	 // expand everything again
 	 HVZ.toggle_expander("Thing"); // collapse so we can...
 	 HVZ.click_taxon("Thing");     // select every Thing again
@@ -387,42 +387,42 @@ describe("HuViz Tests", function() {
 	 expected = "____ every Thing ."; // note four _
 	 expect(get_nextcommand_str()).to.equal(expected);
 	 expect(get_nextcommand_prompt()).
-	   to.equal(HVZ.human_term.blank_verb + " every Thing .");	 
+	   to.equal(HVZ.human_term.blank_verb + " every Thing .");
 	 expect(HVZ.gclui.taxon_picker.id_is_collapsed["Thing"]).to.equal(false);
-	 
+
 	 // nothing graphed so no predicates should be mixed
 	 expect($("#predicates .treepicker-indirect-mixed").length,
 		"there should be no indirect-mixed predicates when nothing is graphed").
            to.equal(0);
        });
-    
+
     it("node selections should affect the english WIP not minimized",
        function(done) {
 	 say(test_title, done);
 	 // verify initial state
 	 expected = "____ every Thing ."; // note four _
 	 expect(get_nextcommand_str()).to.equal(expected);
-	 
+
 	 london = HVZ.nodes.get_by('id', 'F')
 	 HVZ.run_verb_on_object('unselect', london)
 	 expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length - 1);
 	 // the object of the nextcommand should reflect the deselectedness of london
-	 
+
 	 expect(HVZ.gclui.taxon_picker.id_is_collapsed["Thing"]).to.equal(false);
 	 // TODO this tests for fully minimized english
 	 // expect(get_nextcommand_str()).to.equal("____ every Thing but not BJ .");
 	 expect(get_nextcommand_str()).to.contain("but not F");
 	 expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length - 1);
-	 
+
 	 // a single class selected should be simple
 	 HVZ.toggle_expander("Thing"); // collapse
 	 expect(get_nextcommand_str()).to.contain("but not F");
        });
-    
+
     it("unselecting a taxon should cause indirect-mixed on its supers",
        function(done) {
 	 say(test_title, done);
-	 
+
 	 // Confirm Assumptions about starting conditions
 	 expect($("#Place").hasClass("treepicker-indirect-mixed"),
 		"Place should not be treepicker-indirect-mixed").
@@ -440,7 +440,7 @@ describe("HuViz Tests", function() {
 		"when it has unshowing children").
 	   to.equal(true);
        });
-    
+
     it("reselecting a taxon should remove indirect-mixed from its supers",
        function(done) {
 	 say(test_title, done);
@@ -456,7 +456,7 @@ describe("HuViz Tests", function() {
 		"when everything is selected").
            to.equal(false);
        });
-    
+
     it("unselecting a taxon should cause indirect-mixed on up to Thing",
        function(done) {
 	 say(test_title, done);
@@ -492,7 +492,6 @@ describe("HuViz Tests", function() {
 		"when everything is selected").
            to.equal(false);
        });
-    
 
     it("clicking collapsed Thing should toggle selection of all nodes",
        function(done) {
@@ -511,7 +510,7 @@ describe("HuViz Tests", function() {
 	 expect(HVZ.graphed_set.length).to.not.equal(0);
 	 expect(HVZ.graphed_set.length).to.equal(HVZ.nodes.length);
        });
-    
+
     it("'unselect graphed.' should dim all node colors ",
        function(done) {
 	 say(test_title, done);
@@ -522,7 +521,7 @@ describe("HuViz Tests", function() {
 	 HVZ.click_verb("unselect").doit();
 	 expect(HVZ.selected_set.length).to.equal(0);
        });
-    
+
     it("'shelve graphed.' should remove everything from the graph ",
        function(done) {
 	 say(test_title, done);
@@ -531,7 +530,7 @@ describe("HuViz Tests", function() {
 	 expect(HVZ.graphed_set.length).to.equal(0);
 	 expect(HVZ.shelved_set.length).to.equal(HVZ.nodes.length);
        });
-    
+
     it("'select shelved.' should select all nodes ",
        function(done) {
 	 say(test_title, done);
@@ -539,7 +538,7 @@ describe("HuViz Tests", function() {
 	 HVZ.click_verb("select").click_set("shelved").doit();
 	 expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
        });
-    
+
     it("toggling a taxon expander should hide and show its subclassess",
        function(done) {
 	 say(test_title, done);
@@ -560,7 +559,7 @@ describe("HuViz Tests", function() {
 	 say(test_title, done);
 	 expect($("#Person span.expander:first").length).to.equal(0);
        });
-    
+
     it("clicking Person should toggle selection of the Person node",
        function(done) {
 	 say(test_title, done);
@@ -644,7 +643,7 @@ describe("HuViz Tests", function() {
 	 // Cleanup
 	 $("#SpatialThing span.expander:first").trigger("click"); // expand
        });
-    
+
     it("toggling indirectly mixed taxon collapse should toggle stripeyness",
        function(done) {
 	 say(test_title, done);
@@ -670,7 +669,7 @@ describe("HuViz Tests", function() {
 	 expect($("#SpatialThing").hasClass("treepicker-indirect-mixed"),
 		"SpatialThing is wrongly stripey").to.not.be.ok();
        });
-    
+
     it("clicking collapsed taxons with mixed kids should select them all",
        function(done) {
 	 say(test_title, done);
@@ -715,30 +714,30 @@ describe("HuViz Tests", function() {
   	        "failed to update the picker payload").
            to.equal("" + HVZ.nodes.length);
        });
-    
+
     it("toggling node selection should toggle indirect-mixed up to Thing",
        function(done) {
 	 say(test_title, done);
-	 
+
 	 var toggle_selection_of = function(an_id, classes_above, node_name) {
            console.group(node_name);
            a_node = HVZ.nodes.get_by('id', an_id)
            expect(a_node, node_name + " was not found").to.be.ok();
            expect($("#classes .treepicker-indirect-mixed").length,
 		  "there should be no indirect-mixed").to.equal(0);
-	   
+
            HVZ.run_verb_on_object("unselect", a_node)
            expect($("#classes .treepicker-indirect-mixed").length,
 		  "there should be " + classes_above + " indirect-mixed").
              to.equal(classes_above);
-	   
+
            one_less = HVZ.nodes.length - 1;
            expect(HVZ.selected_set.length, "failed to deselect " + node_name).
 	     to.equal(one_less);
            expect(get_payload('selected_set'),
 		  "failed to update the picker payload").
              to.equal("" + one_less);
-	   
+
            HVZ.run_verb_on_object("select", a_node)
            expect($("#classes .treepicker-indirect-mixed").length,
 		  "there should be no indirect-mixed once " +
@@ -761,19 +760,19 @@ describe("HuViz Tests", function() {
 	 say(test_title, done);
 	 // confirm initial conditions
 	 expect(get_nextcommand_str()).to.equal("____ every Thing .");
-	 
+
 	 // do "choose every Thing ."
 	 //$("#verb-choose").trigger("click");
 	 HVZ.click_verb('choose');
 	 //expect(get_nextcommand_str()).to.equal("choose every Thing .");
 	 //$("#doit_button").trigger("click");
-	 
+
 	 // confirm the resultant display
 	 expect($("#classes .treepicker-unshowing").length,
 		"after 'choose every Thing' no taxon should be " +
 		"marked unshowing, ie look unselected").
            to.equal(0);
-	 
+
 	 // restore ungraphed state by doing "unchoose every Thing ."
 	 //$("#verb-unchoose").trigger("click");
 	 HVZ.click_verb('unchoose');
@@ -784,9 +783,9 @@ describe("HuViz Tests", function() {
 		"marked unshowing, ie look unselected").
            to.equal(0);
        });
-    
+
     it("instance-less mid-tree taxons should behave properly");
-    
+
   });
 
 
@@ -805,24 +804,24 @@ describe("HuViz Tests", function() {
 		"there should be no indirect-mixed once " +
 		taxon_name + " reselected").
            to.equal(0);
-	 
+
 	 expect($("#predicates .treepicker-indirect-mixed").length,
 		"there should be no indirect-mixed predicates when nothing is graphed").
            to.equal(0);
        });
-    
+
     it("with nothing graphed, clicking collapsed anything should graph all",
        function(done) {
 	 say(test_title, done);
 	 HVZ.toggle_expander("anything").click_predicate("anything");
-	 
+
 	 // confirm that everything is graphed
 	 expect(HVZ.graphed_set.length,
 		"after clicking collapsed 'anything' everything should be graphed").
            to.equal(HVZ.nodes.length);
 	 expect(HVZ.shelved_set.length).to.equal(0);
        });
-    
+
     it("with All graphed, clicking collapsed anything should ungraph all",
        function(done) {
 	 say(test_title, done);
@@ -832,26 +831,26 @@ describe("HuViz Tests", function() {
 		"after 'choose every Thing' everything should be graphed").
            to.equal(HVZ.nodes.length);
 	 expect(HVZ.shelved_set.length).to.equal(0);
-	 
+
 	 HVZ.click_predicate("anything"); // ungraph everything
-	 
+
 	 // confirm that everything is now ungraphed
 	 expect(HVZ.graphed_set.length,
 		"after clicking collapsed 'anything' everything should be ungraphed").
            to.equal(0);
 	 expect(HVZ.shelved_set.length).to.equal(HVZ.nodes.length);
        });
-    
+
     it("when no taxa are selected only the predicate anything should be visible",
        function(done) {
 	 say(test_title, done);
-	 
+
 	 HVZ.toggle_expander("Thing");  // collapse Thing
 	 HVZ.click_taxon("Thing");  // unselect every Thing
 	 // make the unselectedness of every Thing visible (not important, just handy)
 	 HVZ.toggle_expander("Thing");  // expand Thing, just for visibility
 	 expect(HVZ.selected_set.length, "nothing should be selected").to.equal(0);
-	 
+
 	 // confirm that 'anything' is the only visible predicate
 	 // TODO figure out how to test for 'anything' being the only visible predicate
 	 expect($("#predicates.treepicker-indirect-mixed").length,
@@ -871,7 +870,7 @@ describe("HuViz Tests", function() {
     it("collapsed picker nodes should summarize their kids' colors",
        function(done) {
 	 say(test_title, done);
-	 
+
 	 var verify_gradient_when_collapsed = function(id, has_gradient) {
            var sel = "#" + id;
            expect($(sel).attr("style")).to.not.be.ok();
@@ -893,7 +892,7 @@ describe("HuViz Tests", function() {
 	 verify_gradient_when_collapsed('Thing', true); // has kids
 	 verify_gradient_when_collapsed('hasWealthConnectionToRegion', true); // has kids
        });
-    
+
     it("predicates' payload should summarize their children when collapsed WIP movedConnectionToRegion next-to-leaf-nodes not summarizing correctly",
        function(done) {
 	 say(test_title, done);
@@ -919,14 +918,14 @@ describe("HuViz Tests", function() {
     it("toggling a predicate should toggle indirect-mixed on its supers",
        function(done) {
 	 say(test_title, done);
-	 
+
 	 // Confirm assumption that there are no indirect-mixed initially
 	 expect($("#predicates .treepicker-indirect-mixed").length,
 		"there should be no indirect-mixed predicates when nothing is graphed").
            to.equal(0);
-	 
+
 	 a_leaf_predicate_sel = "#hasWealthConnectionToSettlement";
-	 
+
 	 window.breakpoint = true;
 	 jsoutline.squelch = true;
 	 jsoutline.collapsed = false;
@@ -935,7 +934,7 @@ describe("HuViz Tests", function() {
 	 expect(HVZ.graphed_set.length,
 		"something should be graphed after selecting a leaf predicate").
            to.not.equal(0);
-	 
+
 	 var num_parent = 4;
 	 // confirm that there are now indirect-mixed
 	 expect($("#predicates .treepicker-indirect-mixed").length,
@@ -943,7 +942,7 @@ describe("HuViz Tests", function() {
 		" should be indirect-mixed when it is picked").
 	   to.equal(num_parent);
 	 window.breakpoint = false;
-	 jsoutline.squelch = true;	 
+	 jsoutline.squelch = true;
        });
 
     it("non-empty predicates should not have payload '0/0' after kid click",
@@ -953,7 +952,7 @@ describe("HuViz Tests", function() {
 	 $("#Thing").trigger("click"); // unselect every Thing
 	 $("#Thing").trigger("click"); // select every Thing
 	 HVZ.toggle_expander("Thing");  // collapse Thing
-	 
+
 	 HVZ.click_predicate("hasWealthConnectionToSettlement");  // select a leaf
 	 expect(get_payload("hasWealthConnectionToRegion"),
 		"a leaf's parent should not be 0/0 if it is non-empty").
@@ -1008,7 +1007,7 @@ describe("HuViz Tests", function() {
 		"expect set to be disengaged after immediate execution").
 	   to.equal(true);
        });
-    
+
     it("engaging Set then Verb should execute then disengage Verb",
        function(done) {
 	 say(test_title, done);
@@ -1045,20 +1044,20 @@ describe("HuViz Tests", function() {
 	 HVZ.like_string("church").doit(); // ie "Anglican Church" and "Roman Catholic Church"
 	 expect(get_nextcommand_str()).to.equal("Label All like 'church' .");
 	 HVZ.gclui.disengage_command();
-	 expect(get_nextcommand_str()).to.equal("____ ____ .");	 
-	 
+	 expect(get_nextcommand_str()).to.equal("____ ____ .");
+
 	 HVZ.click_verb('hide');
 	 HVZ.like_string("anglican").doit();
 	 expect(get_nextcommand_str()).to.equal("Hide All like 'anglican' .");
 	 HVZ.gclui.disengage_command();
-	 expect(get_nextcommand_str()).to.equal("____ ____ .");	 
-	 
+	 expect(get_nextcommand_str()).to.equal("____ ____ .");
+
 	 HVZ.click_verb('discard');
 	 HVZ.like_string("roman catholic church").doit();
 	 expect(get_nextcommand_str()).to.equal("Discard All like 'roman catholic church' .");
 	 HVZ.gclui.disengage_command();
-	 expect(get_nextcommand_str()).to.equal("____ ____ .");	 
-	 
+	 expect(get_nextcommand_str()).to.equal("____ ____ .");
+
 	 HVZ.click_verb('undiscard');
 	 HVZ.like_string("church").doit();
 	 expect(get_nextcommand_str()).to.equal("Retrieve All like 'church' .");
@@ -1069,7 +1068,7 @@ describe("HuViz Tests", function() {
 		"hidden undiscarded things should not be affected by undiscard").
            to.equal(2);
        });
-    
+
     xit("previously hidden nodes should not be colored 'selected' when release backed to the shelf WIP it looks right but the test shows failure -- timing?",
        function(done) {
 	 say(test_title, done);
@@ -1096,7 +1095,7 @@ describe("HuViz Tests", function() {
     xit("'spinner' icon should show when a command is executing");
     xit("clicking a set when another is engaged should engage the clicked one");
   });
-  
+
   describe("settings", function() {
      var zoom = function(node) {
       for (var i = 0; i < node.name.length * 3; i++) {
@@ -1122,7 +1121,7 @@ describe("HuViz Tests", function() {
 	console.log("before -------",before);
 	HVZ.scroll_pretty_name(node);
 	var after = node.pretty_name;
-	console.log("after -------- ",after);	
+	console.log("after -------- ",after);
 	if (zero_limit) {
 	  expect(after,"no scrolling needed if limit is 0").to.equal(before);
 	} else {
@@ -1136,7 +1135,7 @@ describe("HuViz Tests", function() {
 		   "[" + after+ "] " +
 		   "the scrolled length should equal the limit").
 	      to.equal(limit);
-	    
+
 	    if (i % repeats_after != 0) {
 	      expect(after,
 		     "scrolling and truncating to " + limit +
@@ -1163,23 +1162,23 @@ describe("HuViz Tests", function() {
 	 HVZ.all_set.sort_on('lid');
 	 HVZ.change_setting_to_from('truncate_labels_to', 0, 40);
 	 var hunsdon = HVZ.all_set.get_by('lid','I');   // name >> 10
-	 var thames = HVZ.all_set.get_by('lid','BW');   // name < 10	 
+	 var thames = HVZ.all_set.get_by('lid','BW');   // name < 10
 	 console.log("Is that you, hunsdon?",hunsdon.name);
-         scroll_test(hunsdon);	 
+         scroll_test(hunsdon);
 	 console.log("Is that you, thames? ",thames.name);
-         scroll_test(thames);	 
+         scroll_test(thames);
        });
-        
+
     it("labels shouldn't scroll if they're shorter (or equal to) the limit",
        function(done) {
-	 say(test_title, done);	 
+	 say(test_title, done);
 	 HVZ.all_set.sort_on('lid');
 	 var bill = HVZ.all_set.get_by('lid','shakwi'); // name = 20
-	 var thames = HVZ.all_set.get_by('lid','BW');   // name < 10	 
+	 var thames = HVZ.all_set.get_by('lid','BW');   // name < 10
 	 var bill_name_len = bill.name.length;
 	 HVZ.change_setting_to_from('truncate_labels_to', bill_name_len, 40);
 	 scroll_test(bill);
-	 console.log("Is that you, thames? ",thames.name);	 
+	 console.log("Is that you, thames? ",thames.name);
          scroll_test(thames);
        });
 
@@ -1188,8 +1187,8 @@ describe("HuViz Tests", function() {
 	 say(test_title, done);
 	 HVZ.all_set.sort_on('lid');
 	 var bill = HVZ.all_set.get_by('lid','shakwi'); // name = 20
-	 var thames = HVZ.all_set.get_by('lid','BW');   // name < 20	 
-	 var hunsdon = HVZ.all_set.get_by('lid','I');   // name >> 20	 
+	 var thames = HVZ.all_set.get_by('lid','BW');   // name < 20
+	 var hunsdon = HVZ.all_set.get_by('lid','I');   // name >> 20
 	 var bill_name_len = bill.name.length;
 	 HVZ.change_setting_to_from('truncate_labels_to', bill_name_len, 40);
 
@@ -1202,9 +1201,9 @@ describe("HuViz Tests", function() {
 	 console.log("------------------------------");
 
        });
-    
+
   });
-  
+
   describe("operations on verbs", function() {});
 
   describe("operations on set_picker", function() {});
