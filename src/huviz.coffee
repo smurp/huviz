@@ -539,7 +539,7 @@ class Huviz
 
   run_command: (cmd) ->
     @show_state_msg(cmd.as_msg())
-    #@gclui.show_working_on()    
+    #@gclui.show_working_on()
     #alert(cmd.as_msg())
     @gclc.run cmd
     #@gclui.show_working_off()

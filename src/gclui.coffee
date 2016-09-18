@@ -9,6 +9,7 @@
 #
 ###
 window.toggle_suspend_updates = (val) ->
+  console.log "toggle_suspend_updates(#val)"
   if not window.suspend_updates? or not window.suspend_updates
     window.suspend_updates = true
   else
@@ -155,16 +156,18 @@ class CommandController
     #  return
     @predicate_picker.add(pred_lid, parent_lid, pred_name, @on_predicate_clicked)
   on_predicate_clicked: (pred_id, new_state, elem) =>
-    if new_state is 'showing'
-      verb = 'show'
-    else
-      verb = 'suppress'
-    cmd = new gcl.GraphCommand @huviz,
-      verbs: [verb]
-      regarding: [pred_id]
-      sets: [@huviz.selected_set]
-    @prepare_command cmd
-    @huviz.run_command(@command)
+    @start_working()
+    setTimeout () =>
+      if new_state is 'showing'
+        verb = 'show'
+      else
+        verb = 'suppress'
+      cmd = new gcl.GraphCommand @huviz,
+        verbs: [verb]
+        regarding: [pred_id]
+        sets: [@huviz.selected_set]
+      @prepare_command cmd
+      @huviz.run_command(@command)
   recolor_edges: (evt) =>
     count = 0
     for node in @huviz.all_set
@@ -238,6 +241,7 @@ class CommandController
     # When we select "Thing" we mean:
     #    all nodes except the embryonic and the discarded
     #    OR rather, the hidden, the graphed and the unlinked
+    @start_working()
     taxon = @huviz.taxonomy[id]
     if taxon?
       old_state = taxon.get_state()
@@ -263,10 +267,10 @@ class CommandController
     if cmd?
       if @object_phrase? and @object_phrase isnt ""
         cmd.object_phrase = @object_phrase
-      @show_working_on()
+      #@show_working_on()
       #window.suspend_updates = false #  window.toggle_suspend_updates(false)
       @huviz.run_command(cmd)
-      @show_working_off()
+      #@show_working_off()
     if new_state is 'showing'
       because =
         taxon_added: id
@@ -450,15 +454,28 @@ class CommandController
       $(@nextcommandstr[0][0]).hide()
 
     @nextcommand_working = @nextcommand.append('i')
-    @nextcommand_working.style('float:right; color:red')
+    @nextcommand_working.style('float:right; color:red; display:none;')
     @build_submit()
 
+  working_timeout: 500 # msec
+  start_working: ->
+    if @already_working
+      clearTimeout(@already_working)
+      #console.log "already working", @already_working
+    else
+      #console.log "start_working()"
+      @show_working_on()
+    @already_working = setTimeout(@stop_working, @working_timeout)
+  stop_working: =>
+    @show_working_off()
+    @already_working = undefined
   show_working_on: ->
     console.log "show_working_on()"
-    @nextcommand_working.attr('class','fa fa-spinner fa-spin fa-2x')
+    @nextcommand_working.attr('class','fa fa-spinner fa-spin') # PREFERRED fa-2x
   show_working_off: ->
     console.log "show_working_off()"
     @nextcommand_working.attr('class','')
+    @nextcommand.attr('style','background-color:yellow') # PREFERRED
 
   build_like: () ->
     @likediv.text('like:').classed("control_label", true)
@@ -576,7 +593,7 @@ class CommandController
         start = Date.now()
         while Date.now() < start + (@huviz.slow_it_down * 1000)
           console.log(Math.round((Date.now() - start) / 1000))
-        #alert "About to execute:\n  "+@command.str
+        alert "About to execute:\n  "+@command.str
       @command.execute()
       @huviz.update_all_counts()
       if because.cleanup
