@@ -158,8 +158,8 @@ class CommandController
   on_predicate_clicked: (pred_id, new_state, elem) =>
     @start_working()
     setTimeout () => # run asynchronously so @start_working() can get a head start
-      @effect_on_predicate_clicked(pred_id, new_state, elem)
-  effect_on_predicate_clicked: (pred_id, new_state, elem) =>
+      @perform_on_predicate_clicked(pred_id, new_state, elem)
+  perform_on_predicate_clicked: (pred_id, new_state, elem) =>
     if new_state is 'showing'
       verb = 'show'
     else
@@ -244,6 +244,9 @@ class CommandController
     #    all nodes except the embryonic and the discarded
     #    OR rather, the hidden, the graphed and the unlinked
     @start_working()
+    setTimeout () => # run asynchronously so @start_working() can get a head start
+      @perform_on_taxon_clicked(id, new_state, elem)
+  perform_on_taxon_clicked: (id, new_state, elem) =>
     taxon = @huviz.taxonomy[id]
     if taxon?
       old_state = taxon.get_state()
@@ -586,6 +589,7 @@ class CommandController
       args.like = like_str
     @command = new gcl.GraphCommand(@huviz, args)
   update_command: (because) =>
+    console.log "update_command()"
     because = because or {}
     @huviz.show_state_msg("update_command")
     ready = @prepare_command @build_command()
