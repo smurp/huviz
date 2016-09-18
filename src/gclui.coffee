@@ -157,17 +157,19 @@ class CommandController
     @predicate_picker.add(pred_lid, parent_lid, pred_name, @on_predicate_clicked)
   on_predicate_clicked: (pred_id, new_state, elem) =>
     @start_working()
-    setTimeout () =>
-      if new_state is 'showing'
-        verb = 'show'
-      else
-        verb = 'suppress'
-      cmd = new gcl.GraphCommand @huviz,
-        verbs: [verb]
-        regarding: [pred_id]
-        sets: [@huviz.selected_set]
-      @prepare_command cmd
-      @huviz.run_command(@command)
+    setTimeout () => # run asynchronously so @start_working() can get a head start
+      @effect_on_predicate_clicked(pred_id, new_state, elem)
+  effect_on_predicate_clicked: (pred_id, new_state, elem) =>
+    if new_state is 'showing'
+      verb = 'show'
+    else
+      verb = 'suppress'
+    cmd = new gcl.GraphCommand @huviz,
+      verbs: [verb]
+      regarding: [pred_id]
+      sets: [@huviz.selected_set]
+    @prepare_command cmd
+    @huviz.run_command(@command)
   recolor_edges: (evt) =>
     count = 0
     for node in @huviz.all_set
