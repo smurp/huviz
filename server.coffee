@@ -112,8 +112,7 @@ app.configure ->
   # TODO use /jquery-ui/jquery-ui.js instead once "require not found is fixed"
   #   app.use('/jquery-ui',
   #     express.static(__dirname + '/node_modules/jquery-ui'))
-  app.use('/jquery',
-    express.static(__dirname + '/node_modules/components-jquery'))
+  app.use('/jquery', express.static(__dirname + '/node_modules/jquery/dist'))
   app.use('/data', express.static(__dirname + '/data'))
   app.use('/js', express.static(__dirname + '/js'))
   app.use("/jsoutline", express.static(__dirname + "/node_modules/jsoutline/lib"))
