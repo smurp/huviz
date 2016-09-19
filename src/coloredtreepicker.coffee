@@ -121,7 +121,7 @@ class ColoredTreePicker extends TreePicker
     #  return 'pink'
   click_handler: () =>
     id = super()
-    if @should_be_colored_by_kid_summary?
+    if @should_be_colored_by_kid_summary? # TODO document why this is needed OR remove this line
       if @should_be_colored_by_kid_summary(id)
         @style_with_kid_color_summary(id)
   should_be_colored_by_kid_summary: (id) ->

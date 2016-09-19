@@ -109,8 +109,8 @@ describe("HuViz Tests", function() {
     HVZ.click_set("all").click_set("all");
     if (HVZ.graphed_set.length ||
         HVZ.selected_set.length != HVZ.nodes.length) {
-      if (! HVZ.gclui.taxon_picker.id_is_collapsed.Thing) {
-        $("#Thing span.expander:first").trigger("click"); // collapse
+      if (! HVZ.gclui.taxon_picker.id_is_collapsed.Thing) { // if Thing isnt collapsed
+        $("#Thing span.expander:first").trigger("click");   //   collapse it
       }
       HVZ.click_taxon("Thing");
       if (HVZ.selected_set.length != HVZ.nodes.length) {
