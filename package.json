@@ -17,10 +17,10 @@
     "jsoutline": "git://github.com/smurp/jsoutline.git",
     "marked": "^0.3.5",
     "nopt": "~3.0.0",
-    "stitch": "~0.3.3"
+    "stitch": "~0.3.3",
+    "libxmljs": "~0.17.1"
   },
   "commentedOutDependencies": {
-    "libxmljs": "~0.17.1"
   },
   "devDependencies": {
     "coffeelint": "~1.7.1",
