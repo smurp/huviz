@@ -240,7 +240,7 @@ describe("HuViz Tests", function() {
 	 $("#doit_button").click();
 	 expect(HVZ.labelled_set.length,
 		"and then not clean up after itself").
-	   to.equal(1);
+	   to.equal(2);  // depends on shakwi.nq
 	 expect($(HVZ.gclui.doit_butt[0][0]).is(':hidden'),
 		"the GO button should remain visible after clicking").
 	   to.equal(false);
@@ -265,7 +265,7 @@ describe("HuViz Tests", function() {
 	 $("#doit_button").click();
 	 expect(HVZ.labelled_set.length,
 		"Thames should be labelled after doing 'LABEL ALL like 'thames'.").
-	   to.equal(1);
+	   to.equal(2);  // depends on shakwi.nq
 	 $("#reset_btn").click();
 	 expect(HVZ.labelled_set.length,
 		"everything should be cleaned up after Reset").to.equal(0)
@@ -752,7 +752,7 @@ describe("HuViz Tests", function() {
 	 };
 	 toggle_selection_of("F", 1, "London");
 	 toggle_selection_of("BW", 1, "Thames");
-	 toggle_selection_of("B", 3, "England");
+	 toggle_selection_of("B", 4, "England");
        });
 
     it("'choose every Thing' should leave all taxa colored 'showing'",
