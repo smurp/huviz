@@ -139,6 +139,21 @@ unescape_unicode = (u) ->
   # pre-escape any existing quotes so when JSON.parse does not get confused
   return JSON.parse('"' + u.replace('"', '\\"') + '"')
 
+linearize = (msgRecipient, streamoid) ->
+  if streamoid.idx is 0
+    msgRecipient.postMessage({event: 'finish'})
+  else
+    i = streamoid.idx + 1
+    l = 0
+    while (streamoid.data[i] not '\n')
+      l++
+      i++
+    line = streamoid.data.substr(streamoid.idx, l+1).trim()
+    msgRecipient.postMessage({event:'line', line:line})
+    streamoid.idx = i
+    recurse = () -> linearize(msgRecipient, streamoid)
+    setTimeout(recurse, 0)
+
 # http://dublincore.org/documents/dcmi-terms/
 DC_subject  = "http://purl.org/dc/terms/subject"
 
@@ -1590,7 +1605,7 @@ class Huviz
 
   report_every: 100 # if 1 then more data shown
 
-  parseAndShowTTLStreamer: (data, textStatus, callback) =>
+  parseAndShowTTLData: (data, textStatus, callback) =>
     # modelled on parseAndShowNQStreamer
     parse_start_time = new Date()
     context = "http://universal"
@@ -1728,7 +1743,7 @@ class Huviz
     @show_state_msg("fetching " + url)
     the_parser = @parseAndShowNQ
     if url.match(/.ttl/)
-      the_parser = @parseAndShowTTLStreamer
+      the_parser = @parseAndShowTTLData # does not stream
     else if url.match(/.(nq|nt)/)
       the_parser = @parseAndShowNQ
     else if url.match(/.json/)
@@ -2448,6 +2463,8 @@ class Huviz
 
   init_gclc: ->
     @gclc = new GraphCommandLanguageCtrl(this)
+    if not @local_file_loader and @args.local_file_loader__append_to_sel
+      @local_file_loader = new LocalFileLoader(@, @args.local_file_loader__append_to_sel)
     if not @gclui?
       @gclui = new CommandController(this,d3.select(@args.gclui_sel)[0][0],@hierarchy)
     window.addEventListener 'showgraph', @register_gclc_prefixes
@@ -3116,8 +3133,7 @@ class Huviz
     if @args.display_reset
       $("#reset_btn").show()
     else
-      $("[name=data_set]").prop('disabled', true)
-      $("#reload_btn").show()
+      @disable_data_set_selector()
     @show_state_msg("loading...")
     #@init_from_graph_controls()
     #@dump_current_settings("after init_from_graph_controls()")
@@ -3125,6 +3141,21 @@ class Huviz
     @show_state_msg @data_uri
     unless @G.subjects
       @fetchAndShow @data_uri, callback
+
+  disable_data_set_selector: () ->
+    $("[name=data_set]").prop('disabled', true)
+    $("#reload_btn").show()
+
+  read_data_and_show: (filename, data) ->
+    if filename.match(/.ttl$/)
+      the_parser = @parseAndShowTTLData
+    else if filename.match(/.nq$/)
+      the_parser = @parseAndShowNQStreamer
+    else
+      alert("don't know how to parse '#{filename}'")
+      return
+    the_parser(data)
+    @disable_data_set_selector()
 
   get_dataset_uri: () ->
     # FIXME goodbye jquery
@@ -3460,6 +3491,62 @@ if not is_one_of(2,[3,2,4])
   alert "is_one_of() fails"
 
 #(typeof exports is 'undefined' and window or exports).Huviz = Huviz
+
+# inspiration: https://css-tricks.com/drag-and-drop-file-uploading/
+class LocalFileLoader
+  tmpl: """
+	<form class="local_file_form" method="post" action="" enctype="multipart/form-data">
+	  <div class="box__input">
+	    <input class="box__file" type="file" name="files[]" id="file" data-multiple-caption="{count} files selected" multiple />
+	    <label for="file"><span class="box__label">Choose a local file</span></label>
+	    <button class="box__upload_button" type="submit">Upload</button>
+      <div class="box__dragndrop" style="display:none"> Drop a file here</div>
+	  </div>
+	  <div class="box__uploading" style="display:none">Uploading&hellip;</div>
+	  <div class="box__success" style="display:none">Done!</div>
+	  <div class="box__error" style="display:none">Error! <span></span>.</div>
+  </form>
+  """
+  local_file_form_sel: '.local_file_form'
+
+  constructor: (@huviz, @append_to_sel) ->
+    @find_or_append_form()
+    if @supports_file_dnd()
+      @form.show()
+      @form.addClass('supports-dnd')
+      @form.find(".box__dragndrop").show()
+  supports_file_dnd: ->
+    div = document.createElement('div')
+    return true
+    return (div.draggable or div.ondragstart) and ( div.ondrop ) and (window.FormData and window.FileReader)
+  find_or_append_form: ->
+    if not $(@local_file_form_sel).length
+      $(@append_to_sel).append(@tmpl)
+    @form = $(@local_file_form_sel)
+    @form.on 'drag dragstart dragend dragover dragenter dragleave drop', (e) =>
+      console.clear()
+      e.preventDefault()
+      e.stopPropagation()
+    @form.on 'dragover dragenter', () =>
+      @form.addClass('is-dragover')
+      console.log "addClass('is-dragover')"
+    @form.on 'dragleave dragend drop', () =>
+      @form.removeClass('is-dragover')
+    @form.on 'drop', (e) =>
+      droppedFiles = e.originalEvent.dataTransfer.files
+      console.clear()
+      console.log "droppedFiles", droppedFiles
+      if droppedFiles.length
+        @form.find('.box__input').hide()
+        firstFile = droppedFiles[0]
+        @form.find('.box__success').text(firstFile.name)
+        @form.find('.box__success').show()
+        reader = new FileReader()
+        reader.onload = (evt) =>
+          #console.log evt.target.result
+          console.log "evt", evt
+          @huviz.read_data_and_show(firstFile.name, evt.target.result)
+        reader.readAsText(firstFile)
 
 (exports ? this).Huviz = Huviz
 (exports ? this).Orlando = Orlando

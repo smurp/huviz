@@ -222,8 +222,39 @@ p {
     padding: .5em;
     margin-left: .7em;
     margin-right: .7em;
-    margin-bottom: .7em;    
+    margin-bottom: .7em;
 }
 .hints {
     margin-top: .5em;
+}
+//.box__dragndrop,
+.box__uploading,
+.box__success,
+.box__error {
+  display: none;
+}
+
+.local_file_form.is-dragover {
+  background-color: green;
+}
+.local_file_form .box__file {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+.local_file_form .box__upload_button {
+    display: none;
+}
+.local_file_form .box__label {
+    display: none;
+}
+.local_file_form.supports-dnd {
+    outline: 2px dashed black;
+    margin: 3px;
+    outline-offset: -2px;
+    border: 6px;
+    padding: 8px;
 }
