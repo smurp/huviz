@@ -246,6 +246,7 @@
         HVZ = new huviz.Orlando({
           viscanvas_sel: "#viscanvas",
           gclui_sel: "#gclui",
+          local_file_loader__append_to_sel: ".unselectable",
           graph_controls_sel: '#tabs-options',
           display_hints: false, // here to show how to enable hints
           display_reset: false  // here to show how to enable reset button
