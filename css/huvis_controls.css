@@ -100,3 +100,67 @@ body, html {
   user-select: none;
   cursor:default;
 }
+
+/* ---------------- Edit controls ----------------------- */
+
+#edit-controls {
+  display: none;
+}
+
+#edit-controls.loggedIn {
+  display: block;
+}
+
+.cntrl-set {
+  display: inline;
+}
+
+.edit-form {
+  display: none;
+}
+.edit-mode .edit-form {
+  display: inline;
+}
+
+.slider-pair {
+  display:inline-flex;
+  margin-right:.5em;
+}
+
+.slider {
+  float:left;
+  border:.2em;
+  border-width:.1em;
+  border-radius:1em;
+  height:1.4em;
+  width:3.3em;
+  margin:-.1em .3em;
+  display: block;
+  background-color:green;
+}
+.edit-mode .slider {
+  background-color:red;
+}
+
+.knob {
+  background-color:white;
+  border-radius:1em;
+  height:1em;
+  width:1em;
+  position:relative;
+  top:.2em;
+  float:left;
+  left:.2em;
+}
+
+.edit-mode .knob {
+  float:right;
+  right:.2em;
+  left: inherit;
+}
+.cntrl-set .label {
+  font-size: .8em;
+  line-height: 1.7em;
+  color: #000;
+  font-family: sans-serif;
+}
