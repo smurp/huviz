@@ -225,7 +225,6 @@
     </div>
     <div id="tabs-help" style="height:0px"></div>
   </section>
-
     <div id="vis" class="underneath" style="z-index:-3"></div>
     <div id="viscanvas" class="underneath"></div>
     <pre id="status"></pre>
@@ -331,6 +330,9 @@
       	</ol>
       </div>
     </div>
+
+
+
     <div class="help_content" style="display:none">
       <div style="position:absolute; top:5px; right:5px">
         <a href="http://cwrc.ca/HuViz_Documentation/" target="_blank">Manual</a>

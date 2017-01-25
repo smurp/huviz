@@ -109,6 +109,8 @@ body, html {
 
 .edit-controls.loggedIn {
   display: inline;
+  position: fixed;
+  z-index: 3;
 }
 
 .cntrl-set {
