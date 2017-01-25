@@ -331,38 +331,6 @@
       	</ol>
       </div>
     </div>
-    <div id="edit-controls">
-      <div class="cntrl-set slider-pair">
-        <div class="label set-1">VIEW</div>
-        <div class="slider">
-          <div class="knob"></div>
-        </div>
-        <div class="label set-2">EDIT</div>
-      </div>
-      <div class="cntrl-set edit-form">
-        <input placeholder="subject" type="text"/>
-        <input placeholder="predicate" type="text"/>
-        <input placeholder="object" type="text"/>
-
-        <button type="button">Save</button>
-        <button type="button">Clear</button>
-      </div>
-    </div>
-    <script>
-      $(document).ready(function(){
-          loggedIn = true;
-          if (loggedIn==true) {
-            $('#edit-controls').addClass('loggedIn')
-            console.log("loggedIn")
-          };
-          $('#edit-controls').click(function(){
-              $(this).toggleClass("edit-mode");
-          });
-
-      });
-    </script>
-
-
     <div class="help_content" style="display:none">
       <div style="position:absolute; top:5px; right:5px">
         <a href="http://cwrc.ca/HuViz_Documentation/" target="_blank">Manual</a>

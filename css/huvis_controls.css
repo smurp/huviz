@@ -103,12 +103,12 @@ body, html {
 
 /* ---------------- Edit controls ----------------------- */
 
-#edit-controls {
+/*.edit-controls {
   display: none;
-}
+}*/
 
-#edit-controls.loggedIn {
-  display: block;
+.edit-controls.loggedIn {
+  display: inline;
 }
 
 .cntrl-set {
