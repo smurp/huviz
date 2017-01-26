@@ -1608,10 +1608,10 @@ class Huviz
   parseAndShowTTLData: (data, textStatus, callback) =>
     # modelled on parseAndShowNQStreamer
     parse_start_time = new Date()
-    context = "http://universal"
+    context = "http://universal.org"
     if GreenerTurtle? and @turtle_parser is 'GreenerTurtle'
+      console.log "GreenTurtle() started"
       @G = new GreenerTurtle().parse(data, "text/turtle")
-      console.log "GreenTurtle"
     quad_count = 0
     every = @report_every
     for subj_uri,frame of @G.subjects
@@ -3524,7 +3524,7 @@ class LocalFileLoader
       $(@append_to_sel).append(@tmpl)
     @form = $(@local_file_form_sel)
     @form.on 'drag dragstart dragend dragover dragenter dragleave drop', (e) =>
-      console.clear()
+      #console.clear()
       e.preventDefault()
       e.stopPropagation()
     @form.on 'dragover dragenter', () =>
@@ -3534,7 +3534,7 @@ class LocalFileLoader
       @form.removeClass('is-dragover')
     @form.on 'drop', (e) =>
       droppedFiles = e.originalEvent.dataTransfer.files
-      console.clear()
+      #console.clear()
       console.log "droppedFiles", droppedFiles
       if droppedFiles.length
         @form.find('.box__input').hide()
@@ -3545,7 +3545,14 @@ class LocalFileLoader
         reader.onload = (evt) =>
           #console.log evt.target.result
           console.log "evt", evt
-          @huviz.read_data_and_show(firstFile.name, evt.target.result)
+          try
+            @huviz.read_data_and_show(firstFile.name, evt.target.result)
+          catch e
+            msg = e.toString()
+            @form.find('.box__error').show()
+            @form.find('.box__error').text(msg)
+            #alert msg
+
         reader.readAsText(firstFile)
 
 (exports ? this).Huviz = Huviz

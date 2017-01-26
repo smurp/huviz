@@ -234,6 +234,10 @@ p {
   display: none;
 }
 
+.box__error {
+  background-color: red;
+}
+
 .local_file_form.is-dragover {
   background-color: green;
 }
