@@ -227,6 +227,8 @@ if true
   is_one_of = (itm,array) ->
     array.indexOf(itm) > -1
 
+if not is_one_of(2,[3,2,4])
+  alert "is_one_of() fails"
 
 class Huviz
   class_list: [] # FIXME remove
@@ -2461,10 +2463,64 @@ class Huviz
     for abbr,prefix of @G.prefixes
       @gclc.prefixes[abbr] = prefix
 
+  # https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB
+  init_datasetDB: ->
+    indexedDB = window.indexedDB # || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || null
+    if not indexedDB
+      console.log "indexedDB not available"
+    if not @datasetDB and indexedDB
+      @dbName = 'datasetDB'
+      @dbVersion = 2
+      request = indexedDB.open(@dbName, @dbVersion)
+      request.onsuccess = (e) =>
+        db = request.result
+        @datasetDB = db
+        @fill_dataset_menus()
+      request.onerror = (e) =>
+        alert("unable to init #{@dbName}")
+      request.onsuccess = (e) =>
+        @datasetDB = event.target.result
+        @datasetDB.onerror = (e) =>
+          alert "Database error: #{e.target.errorCode}"
+      request.onupgradeneeded = (e) =>
+        db = event.target.result
+        objectStore = db.createObjectStore("datasets", {keyPath: 'uri'})
+        objectStore.transaction.oncomplete = (e) =>
+          @datasetDB = db
+          @fill_dataset_menus()
+
+  add_dataset: (dataset_rec, callback) ->
+    trx = @datasetDB.transaction('datasets', "readwrite")
+    trx.oncomplete = (e) =>
+      alert "#{dataset_rec.uri} added!"
+    trx.onerror = (e) =>
+      console.log(e)
+      alert "add_dataset(#{dataset_rec.uri}) error!!!"
+    store = trx.objectStore('datasets')
+    req = store.put(dataset_rec)
+    req.onsuccess = (e) =>
+      alert "added #{dataset_rec.uri}"
+      callback(e.target.result)
+
+  fill_dataset_menus: ->
+    #@datasetDB.
+    
+  init_dataset_menus: ->
+    if not @dataset_loader and @args.dataset_loader__append_to_sel
+      @dataset_loader = new PickOrProvide(@, @args.dataset_loader__append_to_sel, 'Dataset:', false)
+    if not @ontology_loader and @args.ontology_loader__append_to_sel
+      @ontology_loader = new PickOrProvide(@, @args.ontology_loader__append_to_sel, 'Ontology:', true)
+    if not @big_go_button
+      $(@args.ontology_loader__append_to_sel).append('<button>GO</button>')
+      sel = "#{@args.ontology_loader__append_to_sel} > button"
+      console.log sel
+      @big_go_button = $(sel)
+      #@big_go_button.disable()
+    @init_datasetDB()
+
   init_gclc: ->
     @gclc = new GraphCommandLanguageCtrl(this)
-    if not @local_file_loader and @args.local_file_loader__append_to_sel
-      @local_file_loader = new LocalFileLoader(@, @args.local_file_loader__append_to_sel)
+    @init_dataset_menus()
     if not @gclui?
       @gclui = new CommandController(this,d3.select(@args.gclui_sel)[0][0],@hierarchy)
     window.addEventListener 'showgraph', @register_gclc_prefixes
@@ -2475,6 +2531,13 @@ class Huviz
       @gclui.ignore_predicate pred_id
     for pid in @predicates_to_ignore
       @gclui.ignore_predicate pid
+
+  update_dataset_ontology_loader: ->
+    if not (@dataset_loader and @ontology_loader)
+      console.log "still building loaders..."
+      return
+    if @dataset_loader.value and @ontology_loader.value
+      @big_go_button.enable()
 
   predicates_to_ignore: ["anything"]
 
@@ -2514,7 +2577,7 @@ class Huviz
         select(".ui-dialog-titlebar").children().first()
       close_all_button = bomb_parent.
         append('<button type="button" class="ui-button ui-widget" role="button" title="Close All""><img class="close_all_snippets_button" src="close_all.png" title="Close All"></button>')
-        #append('<span class="close_all_snippets_button" title="Close All"></span>')        
+        #append('<span class="close_all_snippets_button" title="Close All"></span>')
         #append('<img class="close_all_snippets_button" src="close_all.png" title="Close All">')
       close_all_button.on 'click', @clear_snippets
       return
@@ -3486,21 +3549,65 @@ class Socrata extends Huviz
         @add_quad q
         #console.log q
 
+class PickOrProvide
+  tmpl: """
+	<form class="pick_or_provide_form" method="post" action="" enctype="multipart/form-data">
+    <span class="pick_or_provide_label">REPLACE_WITH_LABEL</span>
+    <select name="pick_or_provide">
+	    <option value=""> -- Pick or Provide -- </option>
+	    <option value="provide"> -- provide a new one -- </option>
+	    <option value="pick">pick</option>
 
-if not is_one_of(2,[3,2,4])
-  alert "is_one_of() fails"
+    </select>
+  </form>
+  """
+  uri_file_loader_sel: '.uri_file_loader_form'
 
-#(typeof exports is 'undefined' and window or exports).Huviz = Huviz
+  constructor: (@huviz, @append_to_sel, @label, @isOntology) ->
+    @find_or_append_form()
+    @drag_and_drop_loader = new DragAndDropLoader(@huviz, @append_to_sel, @)
+    @drag_and_drop_loader.form.hide()
+  add_uri: (uri) =>
+    label = uri.split('/').reverse()[0]
+    dataset =
+      uri: uri
+      isOntology: @isOntology
+      time: new Date().toString()
+      isUri: true
+      label: label
+    @huviz.add_dataset(dataset, @add_dataset_option)
+  add_dataset_option: (dataset) ->
+    uri = dataset.uri
+    @pick_or_provide_select.append("<option value=\"#{uri}\">#{label}</option>")
+    @pick_or_provide_select.val(uri)
+  find_or_append_form: ->
+    if not $(@local_file_form_sel).length
+      $(@append_to_sel).append(@tmpl.replace('REPLACE_WITH_LABEL', @label))
+    @form = $("#{@append_to_sel} .pick_or_provide_form")
+    @pick_or_provide_select = @form.find("select[name='pick_or_provide']")
+    @pick_or_provide_select.change (e) =>
+      e.stopPropagation()
+      value = @pick_or_provide_select[0].value
+      #console.log "PickOrProvide:", @, "select:", @pick_or_provide_select[0].value
+      if value is 'provide'
+        @drag_and_drop_loader.form.show()
+        @state = 'awaiting_dnd'
+      else
+        @drag_and_drop_loader.form.hide()
+        @state = 'has_value'
+        @value = value
+      @huviz.update_dataset_ontology_loader()
+    console.log "form", @form
 
 # inspiration: https://css-tricks.com/drag-and-drop-file-uploading/
-class LocalFileLoader
+class DragAndDropLoader
   tmpl: """
 	<form class="local_file_form" method="post" action="" enctype="multipart/form-data">
 	  <div class="box__input">
 	    <input class="box__file" type="file" name="files[]" id="file" data-multiple-caption="{count} files selected" multiple />
 	    <label for="file"><span class="box__label">Choose a local file</span></label>
 	    <button class="box__upload_button" type="submit">Upload</button>
-      <div class="box__dragndrop" style="display:none"> Drop a file here</div>
+      <div class="box__dragndrop" style="display:none"> Drop URL or file here</div>
 	  </div>
 	  <div class="box__uploading" style="display:none">Uploading&hellip;</div>
 	  <div class="box__success" style="display:none">Done!</div>
@@ -3509,7 +3616,7 @@ class LocalFileLoader
   """
   local_file_form_sel: '.local_file_form'
 
-  constructor: (@huviz, @append_to_sel) ->
+  constructor: (@huviz, @append_to_sel, @picker) ->
     @find_or_append_form()
     if @supports_file_dnd()
       @form.show()
@@ -3519,6 +3626,27 @@ class LocalFileLoader
     div = document.createElement('div')
     return true
     return (div.draggable or div.ondragstart) and ( div.ondrop ) and (window.FormData and window.FileReader)
+  load_uri: (firstUri) ->
+    @form.find('.box__success').text(firstUri)
+    @form.find('.box__success').show()
+    @picker.add_uri(firstUri)
+    @form.hide()
+    return true # ie success
+  load_file: (firstFile) ->
+    @form.find('.box__success').text(firstFile.name)
+    @form.find('.box__success').show()
+    reader = new FileReader()
+    reader.onload = (evt) =>
+      #console.log evt.target.result
+      console.log "evt", evt
+      try
+        @huviz.read_data_and_show(firstFile.name, evt.target.result)
+      catch e
+        msg = e.toString()
+        @form.find('.box__error').show()
+        @form.find('.box__error').text(msg)
+    reader.readAsText(firstFile)
+    return true # ie success
   find_or_append_form: ->
     if not $(@local_file_form_sel).length
       $(@append_to_sel).append(@tmpl)
@@ -3533,27 +3661,23 @@ class LocalFileLoader
     @form.on 'dragleave dragend drop', () =>
       @form.removeClass('is-dragover')
     @form.on 'drop', (e) =>
-      droppedFiles = e.originalEvent.dataTransfer.files
-      #console.clear()
-      console.log "droppedFiles", droppedFiles
-      if droppedFiles.length
-        @form.find('.box__input').hide()
-        firstFile = droppedFiles[0]
-        @form.find('.box__success').text(firstFile.name)
-        @form.find('.box__success').show()
-        reader = new FileReader()
-        reader.onload = (evt) =>
-          #console.log evt.target.result
-          console.log "evt", evt
-          try
-            @huviz.read_data_and_show(firstFile.name, evt.target.result)
-          catch e
-            msg = e.toString()
-            @form.find('.box__error').show()
-            @form.find('.box__error').text(msg)
-            #alert msg
+      @form.find('.box__input').hide()
+      droppedUris = e.originalEvent.dataTransfer.getData("text/uri-list").split("\n")
+      console.log("droppedUris",droppedUris)
+      firstUri = droppedUris[0]
+      if firstUri.length
+        if @load_uri(firstUri)
+          return
 
-        reader.readAsText(firstFile)
+      droppedFiles = e.originalEvent.dataTransfer.files
+      console.log("droppedFiles", droppedFiles)
+      if droppedFiles.length
+        firstFile = droppedFiles[0]
+        if @load_file(firstFile)
+          return
+
+      # the drop operation failed to result in loaded data, so show 'drop here' msg
+      @form.find('.box__input').show()
 
 (exports ? this).Huviz = Huviz
 (exports ? this).Orlando = Orlando
