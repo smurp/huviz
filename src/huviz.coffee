@@ -154,6 +154,9 @@ linearize = (msgRecipient, streamoid) ->
     recurse = () -> linearize(msgRecipient, streamoid)
     setTimeout(recurse, 0)
 
+unique_id = () ->
+  'uid_'+Math.random().toString(36).substr(2,10)
+
 # http://dublincore.org/documents/dcmi-terms/
 DC_subject  = "http://purl.org/dc/terms/subject"
 
@@ -2473,50 +2476,118 @@ class Huviz
       @dbVersion = 2
       request = indexedDB.open(@dbName, @dbVersion)
       request.onsuccess = (e) =>
-        db = request.result
-        @datasetDB = db
-        @fill_dataset_menus()
-      request.onerror = (e) =>
-        alert("unable to init #{@dbName}")
-      request.onsuccess = (e) =>
-        @datasetDB = event.target.result
+        @datasetDB = request.result
         @datasetDB.onerror = (e) =>
           alert "Database error: #{e.target.errorCode}"
+        @fill_dataset_menus('onsuccess')
+      request.onerror = (e) =>
+        alert("unable to init #{@dbName}")
       request.onupgradeneeded = (e) =>
         db = event.target.result
         objectStore = db.createObjectStore("datasets", {keyPath: 'uri'})
         objectStore.transaction.oncomplete = (e) =>
           @datasetDB = db
-          @fill_dataset_menus()
+          @fill_dataset_menus('onupgradeneeded')
 
-  add_dataset: (dataset_rec, callback) ->
+  ensure_datasets: (preload) ->
+    proto = preload.defaults or {}
+    for ds_rec in preload.datasets
+      Object.setPrototypeOf(ds_rec, proto)
+      #alert JSON.stringify(ds_rec)
+      @ensure_dataset(ds_rec)
+
+  ensure_dataset: (dataset_rec) ->
+    # ensure the dataset is in the database and the correct loader
+    uri = dataset_rec.uri
+    alert "ensure_dataset(#{JSON.stringify(dataset_rec)})"
+    dataset_rec.time ?= new Date().toString()
+    dataset_rec.title ?= uri
+    dataset_rec.isUri ?= uri.match(/^(http|ftp)/)
+    dataset_rec.label ?= uri.split('/').reverse()[0]
+    if dataset_rec.isOntology
+      if @ontology_loader
+        @ontology_loader.add_dataset(dataset_rec)
+    else
+      if @dataset_loader
+        @dataset_loader.add_dataset(dataset_rec)
+
+  add_dataset_to_db: (dataset_rec, callback) ->
     trx = @datasetDB.transaction('datasets', "readwrite")
     trx.oncomplete = (e) =>
-      alert "#{dataset_rec.uri} added!"
+      console.log "#{dataset_rec.uri} added!"
     trx.onerror = (e) =>
       console.log(e)
       alert "add_dataset(#{dataset_rec.uri}) error!!!"
     store = trx.objectStore('datasets')
     req = store.put(dataset_rec)
     req.onsuccess = (e) =>
-      alert "added #{dataset_rec.uri}"
-      callback(e.target.result)
+      if dataset_rec.uri isnt e.target.result
+        debugger
+      callback(dataset_rec)
 
-  fill_dataset_menus: ->
-    #@datasetDB.
-    
+  remove_dataset_from_db: (dataset_uri, callback) ->
+    trx = @datasetDB.transaction('datasets', "readwrite")
+    trx.oncomplete = (e) =>
+      console.log "#{dataset_uri} deleted"
+    trx.onerror = (e) =>
+      console.log(e)
+      alert "remove_dataset_from_db(#{dataset_uri}) error!!!"
+    store = trx.objectStore('datasets')
+    req = store.delete(dataset_uri)
+    req.onsuccess = (e) =>
+      debugger
+      if callback?
+        callback(dataset_uri)
+    req.onerror = (e) =>
+      console.debug e
+
+
+  fill_dataset_menus: (why) ->
+    #alert "fill_dataset_menus()"
+    # https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB#Using_a_cursor
+    if @args.preload
+      HVZ.ensure_datasets(@args.preload)
+
+    objectStore = @datasetDB.transaction('datasets').objectStore('datasets')
+    count = 0
+
+    make_onsuccess_handler = (why) =>
+      return (event) =>
+        cursor = event.target.result
+        if cursor
+          count++
+          dataset_rec = cursor.value
+          if not dataset_rec.isOntology
+            @dataset_loader.add_dataset_option(dataset_rec)
+          if dataset_rec.isOntology and @ontology_loader
+            @ontology_loader.add_dataset_option(dataset_rec)
+          cursor.continue()
+        else
+          @dataset_loader.val('')
+          @ontology_loader.val('')
+          @update_dataset_ontology_loader()
+          #alert "#{count} entries saved #{why}"
+
+    objectStore.openCursor().onsuccess = make_onsuccess_handler(why)
+
   init_dataset_menus: ->
     if not @dataset_loader and @args.dataset_loader__append_to_sel
-      @dataset_loader = new PickOrProvide(@, @args.dataset_loader__append_to_sel, 'Dataset:', false)
+      @dataset_loader = new PickOrProvide(@, @args.dataset_loader__append_to_sel, 'Dataset', 'DataPP', false)
     if not @ontology_loader and @args.ontology_loader__append_to_sel
-      @ontology_loader = new PickOrProvide(@, @args.ontology_loader__append_to_sel, 'Ontology:', true)
-    if not @big_go_button
-      $(@args.ontology_loader__append_to_sel).append('<button>GO</button>')
-      sel = "#{@args.ontology_loader__append_to_sel} > button"
-      console.log sel
-      @big_go_button = $(sel)
-      #@big_go_button.disable()
+      @ontology_loader = new PickOrProvide(@, @args.ontology_loader__append_to_sel, 'Ontology', 'OntoPP', true)
+      #$(@ontology_loader.form).disable()
+    if @ontology_loader and not @big_go_button
+      @big_go_button_id = unique_id()
+      @big_go_button = $('<button>GO</button>')
+      @big_go_button.attr('id', @big_go_button_id)
+      $(@args.ontology_loader__append_to_sel).append(@big_go_button)
+      @big_go_button.click(@visualize_dataset_using_ontology)
+      @big_go_button.prop('disabled', true)
     @init_datasetDB()
+
+  visualize_dataset_using_ontology: =>
+    @set_ontology(@ontology_loader.value)
+    @load_file_from_uri(@dataset_loader.value) # , () -> alert "woot")
 
   init_gclc: ->
     @gclc = new GraphCommandLanguageCtrl(this)
@@ -2533,11 +2604,14 @@ class Huviz
       @gclui.ignore_predicate pid
 
   update_dataset_ontology_loader: ->
-    if not (@dataset_loader and @ontology_loader)
+    if not (@dataset_loader? and @ontology_loader?)
       console.log "still building loaders..."
       return
-    if @dataset_loader.value and @ontology_loader.value
-      @big_go_button.enable()
+    ds_v = @dataset_loader.value
+    on_v = @ontology_loader.value
+    disable = (not (ds_v and on_v)) or ('provide' in [ds_v, on_v])
+    ds_on = "#{ds_v} AND #{on_v}"
+    @big_go_button.prop('disabled', disable)
 
   predicates_to_ignore: ["anything"]
 
@@ -3551,43 +3625,86 @@ class Socrata extends Huviz
 
 class PickOrProvide
   tmpl: """
-	<form class="pick_or_provide_form" method="post" action="" enctype="multipart/form-data">
+	<form id="UID" class="pick_or_provide_form" method="post" action="" enctype="multipart/form-data">
     <span class="pick_or_provide_label">REPLACE_WITH_LABEL</span>
-    <select name="pick_or_provide">
-	    <option value=""> -- Pick or Provide -- </option>
-	    <option value="provide"> -- provide a new one -- </option>
-	    <option value="pick">pick</option>
-
-    </select>
+    <select name="pick_or_provide"></select>
+    <button type="button" class="delete_option">⌫</button>
   </form>
   """
   uri_file_loader_sel: '.uri_file_loader_form'
 
-  constructor: (@huviz, @append_to_sel, @label, @isOntology) ->
+  constructor: (@huviz, @append_to_sel, @label, @css_class, @isOntology) ->
+    @uniq_id = unique_id()
+    @select_id = unique_id()
+    @pickable_uid = unique_id()
     @find_or_append_form()
     @drag_and_drop_loader = new DragAndDropLoader(@huviz, @append_to_sel, @)
     @drag_and_drop_loader.form.hide()
+    @add_option({label: "-- Pick or Provide --"}, @select_id)
+    @add_group({label: "-- Pick #{@label} --", id: @pickable_uid})
+    @add_option({label: "Provide New #{@label} ...", value: 'provide'}, @select_id)
+    @
+
+  val: (val) ->
+    @pick_or_provide_select.val(val)
+
   add_uri: (uri) =>
-    label = uri.split('/').reverse()[0]
-    dataset =
+    dataset_rec =
       uri: uri
       isOntology: @isOntology
       time: new Date().toString()
       isUri: true
-      label: label
-    @huviz.add_dataset(dataset, @add_dataset_option)
-  add_dataset_option: (dataset) ->
+      title: uri
+      canDelete: true
+    @add_dataset(dataset_rec)
+
+  add_dataset: (dataset_rec) ->
+    uri = dataset_rec.uri
+    #dataset_rec.uri ?= uri.split('/').reverse()[0]
+    @huviz.add_dataset_to_db(dataset_rec, @add_dataset_option)
+
+  add_dataset_option: (dataset) =>
     uri = dataset.uri
-    @pick_or_provide_select.append("<option value=\"#{uri}\">#{label}</option>")
+    dataset.value = dataset.uri
+    @add_option(dataset, @pickable_uid)
     @pick_or_provide_select.val(uri)
+
+  add_group: (grp_rec, which) ->
+    which ?= 'append'
+    optgroup_str = """<optgroup label="#{grp_rec.label}" id="#{grp_rec.id}"></optgroup>"""
+    if which is 'prepend'
+      optgrp = @pick_or_provide_select.prepend(optgroup_str)
+    else
+      optgrp = @pick_or_provide_select.append(optgroup_str)
+
+  add_option: (opt_rec, parent_uid) ->
+    if not opt_rec.label?
+      debugger
+    opt_str = """<option id="#{unique_id()}"></option>"""
+    opt = $(opt_str)
+    $("##{parent_uid}").append(opt)
+    #console.log "add_option()", opt_rec
+    for k in ['value', 'title', 'class', 'id', 'style', 'label']
+      if opt_rec[k]?
+        #alert "#{k} = #{opt_rec[k]}"
+        $(opt).attr(k, opt_rec[k])
+    for k in ['isUri', 'canDelete']
+      if opt_rec[k]?
+        $(opt).data(k, opt_rec[k])
+    $(opt).data('canDelete','true') # FIXME this should be removed after deleting all recs from dev env
+
   find_or_append_form: ->
     if not $(@local_file_form_sel).length
-      $(@append_to_sel).append(@tmpl.replace('REPLACE_WITH_LABEL', @label))
-    @form = $("#{@append_to_sel} .pick_or_provide_form")
+      $(@append_to_sel).append(@tmpl.replace('REPLACE_WITH_LABEL', @label).replace('UID',@uniq_id))
+    @form = $("##{@uniq_id}")
     @pick_or_provide_select = @form.find("select[name='pick_or_provide']")
+    @pick_or_provide_select.attr('id',@select_id)
+    console.debug @css_class,@pick_or_provide_select
     @pick_or_provide_select.change (e) =>
       e.stopPropagation()
       value = @pick_or_provide_select[0].value
+      console.log @pick_or_provide_select.find('option:selected')
+      selected_option = @get_selected_option()
       #console.log "PickOrProvide:", @, "select:", @pick_or_provide_select[0].value
       if value is 'provide'
         @drag_and_drop_loader.form.show()
@@ -3596,8 +3713,31 @@ class PickOrProvide
         @drag_and_drop_loader.form.hide()
         @state = 'has_value'
         @value = value
+      if @value?
+        console.log selected_option.data('canDelete')
+        canDelete = selected_option.data('canDelete') is 'true'
+        @form.find('.delete_option').prop('disabled', not canDelete)
       @huviz.update_dataset_ontology_loader()
+
+    @delete_option_button = @form.find('.delete_option')
+    @delete_option_button.click @delete_selected_option
     console.log "form", @form
+
+  get_selected_option: =>
+    @pick_or_provide_select.find('option:selected') # just one CAN be selected
+
+  delete_selected_option: (e) =>
+    e.stopPropagation()
+    selected_option = @get_selected_option()
+    val = selected_option.attr('value')
+    if val?
+      alert "deleting #{val}"
+      @value = null
+      @delete_option(selected_option)
+
+  delete_option: (opt_elem) ->
+    opt_elem.remove()
+    @huviz.update_dataset_ontology_loader()
 
 # inspiration: https://css-tricks.com/drag-and-drop-file-uploading/
 class DragAndDropLoader
@@ -3614,9 +3754,10 @@ class DragAndDropLoader
 	  <div class="box__error" style="display:none">Error! <span></span>.</div>
   </form>
   """
-  local_file_form_sel: '.local_file_form'
 
   constructor: (@huviz, @append_to_sel, @picker) ->
+    @local_file_form_id = unique_id()
+    @local_file_form_sel = "##{@local_file_form_id}"
     @find_or_append_form()
     if @supports_file_dnd()
       @form.show()
@@ -3648,8 +3789,11 @@ class DragAndDropLoader
     reader.readAsText(firstFile)
     return true # ie success
   find_or_append_form: ->
-    if not $(@local_file_form_sel).length
-      $(@append_to_sel).append(@tmpl)
+    num_dnd_form = $(@local_file_form_sel).length
+    if not num_dnd_form
+      elem = $(@tmpl)
+      $(@append_to_sel).append(elem)
+      elem.attr('id', @local_file_form_id)
     @form = $(@local_file_form_sel)
     @form.on 'drag dragstart dragend dragover dragenter dragleave drop', (e) =>
       #console.clear()

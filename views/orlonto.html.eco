@@ -77,6 +77,11 @@
 		title="Orlando Ontology"
 		value="/data/OrlandoOntology-SexesUnderPerson.ttl">
 		OrlOnto - Sexes Under Person</option>
+              <option
+		title="CWRC Ontology"
+		value="https://raw.githubusercontent.com/cwrc/ontology/master/cwrc.ttl">
+		CWRC Ontology</option>
+
 	    </optgroup>
 	    <optgroup label="Other">
 	      <option

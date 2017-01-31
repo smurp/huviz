@@ -251,15 +251,20 @@
           ontology_loader__append_to_sel: ".unselectable",
           graph_controls_sel: '#tabs-options',
           display_hints: false, // here to show how to enable hints
-          display_reset: false  // here to show how to enable reset button
+          display_reset: false,  // here to show how to enable reset button
+          preload: {
+            datasets: [{uri: "http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl"}],
+            defaults: {isOntology: true, canDelete: true}
+          }
         });
         HVZ.replace_human_term_spans('ui-widget');
+        //HVZ.ontology_loader.add_option()
         //HVZ.set_ontology("/data/orlando_ontology.ttl");
         //HVZ.set_ontology("/data/OrlandoOntology-SexesUnderPerson.ttl");
         //HVZ.set_ontology("/data/OrlandoOntology.ttl");
         //HVZ.set_ontology("/data/OrlandoOntologyPull5.ttl");
-        HVZ.set_ontology("http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl");
-        HVZ.boot_sequence();
+
+        //HVZ.boot_sequence();
 
         //renderMarkdownFromUrlToId("/docs/tutorial.md", "external_docs");
 	//document.getElementById("external_docs").innerHTML = marked(getMd("/docs/tutorial.md"));
