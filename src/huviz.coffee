@@ -2499,7 +2499,7 @@ class Huviz
   ensure_dataset: (dataset_rec) ->
     # ensure the dataset is in the database and the correct loader
     uri = dataset_rec.uri
-    alert "ensure_dataset(#{JSON.stringify(dataset_rec)})"
+    #alert "ensure_dataset(#{JSON.stringify(dataset_rec)})"
     dataset_rec.time ?= new Date().toString()
     dataset_rec.title ?= uri
     dataset_rec.isUri ?= uri.match(/^(http|ftp)/)
@@ -3679,7 +3679,7 @@ class PickOrProvide
 
   add_option: (opt_rec, parent_uid) ->
     if not opt_rec.label?
-      debugger
+      console.log "missing .label on", opt_rec
     opt_str = """<option id="#{unique_id()}"></option>"""
     opt = $(opt_str)
     $("##{parent_uid}").append(opt)
@@ -3703,7 +3703,7 @@ class PickOrProvide
     @pick_or_provide_select.change (e) =>
       e.stopPropagation()
       value = @pick_or_provide_select[0].value
-      console.log @pick_or_provide_select.find('option:selected')
+      #console.log @pick_or_provide_select.find('option:selected')
       selected_option = @get_selected_option()
       #console.log "PickOrProvide:", @, "select:", @pick_or_provide_select[0].value
       if value is 'provide'
@@ -3714,14 +3714,14 @@ class PickOrProvide
         @state = 'has_value'
         @value = value
       if @value?
-        console.log selected_option.data('canDelete')
+        #console.log selected_option.data('canDelete')
         canDelete = selected_option.data('canDelete') is 'true'
         @form.find('.delete_option').prop('disabled', not canDelete)
       @huviz.update_dataset_ontology_loader()
 
     @delete_option_button = @form.find('.delete_option')
     @delete_option_button.click @delete_selected_option
-    console.log "form", @form
+    console.info "form", @form
 
   get_selected_option: =>
     @pick_or_provide_select.find('option:selected') # just one CAN be selected
@@ -3731,7 +3731,7 @@ class PickOrProvide
     selected_option = @get_selected_option()
     val = selected_option.attr('value')
     if val?
-      alert "deleting #{val}"
+      console.info "deleting #{val}"
       @value = null
       @delete_option(selected_option)
 
