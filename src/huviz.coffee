@@ -2490,10 +2490,10 @@ class Huviz
           @fill_dataset_menus('onupgradeneeded')
 
   ensure_datasets: (preload) ->
-    proto = preload.defaults or {}
+    defaults = preload.defaults or {}
     for ds_rec in preload.datasets
-      Object.setPrototypeOf(ds_rec, proto)
-      #alert JSON.stringify(ds_rec)
+      for k of defaults
+        ds_rec[k] ?= defaults[k]
       @ensure_dataset(ds_rec)
 
   ensure_dataset: (dataset_rec) ->
@@ -2502,7 +2502,7 @@ class Huviz
     #alert "ensure_dataset(#{JSON.stringify(dataset_rec)})"
     dataset_rec.time ?= new Date().toString()
     dataset_rec.title ?= uri
-    dataset_rec.isUri ?= uri.match(/^(http|ftp)/)
+    dataset_rec.isUri ?= not not uri.match(/^(http|ftp)/)
     dataset_rec.label ?= uri.split('/').reverse()[0]
     if dataset_rec.isOntology
       if @ontology_loader
@@ -2552,17 +2552,20 @@ class Huviz
     count = 0
 
     make_onsuccess_handler = (why) =>
+      recs = []
       return (event) =>
         cursor = event.target.result
         if cursor
           count++
           dataset_rec = cursor.value
+          recs.push(dataset_rec)
           if not dataset_rec.isOntology
             @dataset_loader.add_dataset_option(dataset_rec)
           if dataset_rec.isOntology and @ontology_loader
             @ontology_loader.add_dataset_option(dataset_rec)
           cursor.continue()
         else
+          console.table(recs)
           @dataset_loader.val('')
           @ontology_loader.val('')
           @update_dataset_ontology_loader()
@@ -3656,6 +3659,7 @@ class PickOrProvide
       isUri: true
       title: uri
       canDelete: true
+      label: uri.split('/').reverse()[0]
     @add_dataset(dataset_rec)
 
   add_dataset: (dataset_rec) ->
