@@ -2535,7 +2535,6 @@ class Huviz
     store = trx.objectStore('datasets')
     req = store.delete(dataset_uri)
     req.onsuccess = (e) =>
-      debugger
       if callback?
         callback(dataset_uri)
     req.onerror = (e) =>
@@ -3735,11 +3734,13 @@ class PickOrProvide
     selected_option = @get_selected_option()
     val = selected_option.attr('value')
     if val?
-      console.info "deleting #{val}"
+      @huviz.remove_dataset_from_db(@value)
       @value = null
       @delete_option(selected_option)
 
   delete_option: (opt_elem) ->
+    uri = opt_elem.attr('value')
+    @huviz.remove_dataset_from_db(uri)
     opt_elem.remove()
     @huviz.update_dataset_ontology_loader()
 
