@@ -2505,7 +2505,7 @@ class Huviz
     dataset_rec.time ?= new Date().toString()
     dataset_rec.title ?= uri
     dataset_rec.isUri ?= not not uri.match(/^(http|ftp)/)
-    dataset_rec.canDelete ?= not not dataset_rec.time? # ie it was added by user
+    dataset_rec.canDelete ?= not not dataset_rec.time? # ie if it has a time then a user added it therefore canDelete
     dataset_rec.label ?= uri.split('/').reverse()[0]
     if dataset_rec.isOntology
       if @ontology_loader
@@ -3653,7 +3653,7 @@ class PickOrProvide
     #@add_group({label: "-- Pick #{@label} --", id: @pickable_uid})
     @add_group({label: "Your Own", id: @your_own_uid}, 'append')
     @add_option({label: "Provide New #{@label} ...", value: 'provide'}, @select_id)
-    @add_option({label: "Pick or Provide..."}, @select_id, 'prepend')
+    @add_option({label: "Pick or Provide...", canDelete: false}, @select_id, 'prepend')
     @
 
   val: (val) ->
@@ -3670,9 +3670,10 @@ class PickOrProvide
     dataset_rec.time ?= new Date().toString()
     dataset_rec.isUri ?= true
     dataset_rec.title ?= dataset_rec.uri
-    dataset_rec.canDelete ?= true
+    dataset_rec.canDelete ?= not not dataset_rec.time?
     dataset_rec.label ?= dataset_rec.uri.split('/').reverse()[0]
     @add_dataset(dataset_rec)
+    @update_state()
 
   add_dataset: (dataset_rec) ->
     uri = dataset_rec.uri
@@ -3719,16 +3720,30 @@ class PickOrProvide
         $("##{parent_uid}").prepend(opt)
     for k in ['value', 'title', 'class', 'id', 'style', 'label']
       if opt_rec[k]?
-        #alert "#{k} = #{opt_rec[k]}"
         $(opt).attr(k, opt_rec[k])
-    
-    console.groupCollapsed("uri: #{opt_rec.uri}")
     for k in ['isUri', 'canDelete']
       if opt_rec[k]?
-        console.debug "setting #{k}: #{opt_rec[k]}"
         $(opt).data(k, opt_rec[k])
-    console.groupEnd()
-    $(opt).data('canDelete','true') # FIXME this should be removed after deleting all recs from dev env
+
+  update_state: ->
+    raw_value = @pick_or_provide_select.val()
+    selected_option = @get_selected_option()
+    #console.log "PickOrProvide:", @, "select:", @pick_or_provide_select[0].value
+    if raw_value is 'provide'
+      @drag_and_drop_loader.form.show()
+      @state = 'awaiting_dnd'
+      @value = undefined
+    else
+      @drag_and_drop_loader.form.hide()
+      @state = 'has_value'
+      @value = raw_value
+    disable_the_delete_button = true
+    if @value?
+      canDelete = selected_option.data('canDelete')
+      disable_the_delete_button = not canDelete
+
+    # disable_the_delete_button = false  # uncomment to always show the delete button -- useful when bad data stored
+    @form.find('.delete_option').prop('disabled', disable_the_delete_button)
 
   find_or_append_form: ->
     if not $(@local_file_form_sel).length
@@ -3739,27 +3754,12 @@ class PickOrProvide
     console.debug @css_class,@pick_or_provide_select
     @pick_or_provide_select.change (e) =>
       e.stopPropagation()
-      value = @pick_or_provide_select[0].value
-      #console.log @pick_or_provide_select.find('option:selected')
-      selected_option = @get_selected_option()
-      #console.log "PickOrProvide:", @, "select:", @pick_or_provide_select[0].value
-      if value is 'provide'
-        @drag_and_drop_loader.form.show()
-        @state = 'awaiting_dnd'
-      else
-        @drag_and_drop_loader.form.hide()
-        @state = 'has_value'
-        @value = value
-      if @value?
-        #console.log selected_option.data('canDelete')
-        console.debug selected_option.data()
-        canDelete = selected_option.data('canDelete') is 'true'
-        console.debug "raw value of canDelete:", selected_option.data('canDelete'), "cooked:", canDelete
-        @form.find('.delete_option').prop('disabled', not canDelete)
+      @update_state()
       @huviz.update_dataset_ontology_loader()
 
     @delete_option_button = @form.find('.delete_option')
     @delete_option_button.click @delete_selected_option
+    @form.find('.delete_option').prop('disabled', true) # disabled initially
     console.info "form", @form
 
   get_selected_option: =>
@@ -3771,8 +3771,9 @@ class PickOrProvide
     val = selected_option.attr('value')
     if val?
       @huviz.remove_dataset_from_db(@value)
-      @value = null
       @delete_option(selected_option)
+      @update_state()
+      #  @value = null
 
   delete_option: (opt_elem) ->
     uri = opt_elem.attr('value')
