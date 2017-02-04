@@ -2479,6 +2479,7 @@ class Huviz
         @datasetDB = request.result
         @datasetDB.onerror = (e) =>
           alert "Database error: #{e.target.errorCode}"
+        #alert "onsuccess"
         @fill_dataset_menus('onsuccess')
       request.onerror = (e) =>
         alert("unable to init #{@dbName}")
@@ -2487,6 +2488,7 @@ class Huviz
         objectStore = db.createObjectStore("datasets", {keyPath: 'uri'})
         objectStore.transaction.oncomplete = (e) =>
           @datasetDB = db
+          # alert "onupgradeneeded"
           @fill_dataset_menus('onupgradeneeded')
 
   ensure_datasets: (preload) ->
@@ -2503,6 +2505,7 @@ class Huviz
     dataset_rec.time ?= new Date().toString()
     dataset_rec.title ?= uri
     dataset_rec.isUri ?= not not uri.match(/^(http|ftp)/)
+    dataset_rec.canDelete ?= not not dataset_rec.time? # ie it was added by user
     dataset_rec.label ?= uri.split('/').reverse()[0]
     if dataset_rec.isOntology
       if @ontology_loader
@@ -2540,12 +2543,12 @@ class Huviz
     req.onerror = (e) =>
       console.debug e
 
-
   fill_dataset_menus: (why) ->
-    #alert "fill_dataset_menus()"
+    # alert "fill_dataset_menus()"
     # https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB#Using_a_cursor
     if @args.preload
-      HVZ.ensure_datasets(@args.preload)
+      for preload_group in @args.preload
+        HVZ.ensure_datasets(preload_group)
 
     objectStore = @datasetDB.transaction('datasets').objectStore('datasets')
     count = 0
@@ -2559,8 +2562,10 @@ class Huviz
           dataset_rec = cursor.value
           recs.push(dataset_rec)
           if not dataset_rec.isOntology
+            # alert "Dataset: add_dataset_option(#{dataset_rec.uri})"
             @dataset_loader.add_dataset_option(dataset_rec)
           if dataset_rec.isOntology and @ontology_loader
+            # alert "Ontology: add_dataset_option(#{dataset_rec.uri})"
             @ontology_loader.add_dataset_option(dataset_rec)
           cursor.continue()
         else
@@ -2606,6 +2611,8 @@ class Huviz
       @gclui.ignore_predicate pid
 
   update_dataset_ontology_loader: ->
+    #alert('update_dataset_ontology_loader')
+    #debugger
     if not (@dataset_loader? and @ontology_loader?)
       console.log "still building loaders..."
       return
@@ -3234,7 +3241,7 @@ class Huviz
     @updateWindow()
 
   init_from_graph_controls: ->
-    alert "init_from_graph_controls() is deprecated"
+    # alert "init_from_graph_controls() is deprecated"
     # Perform update_graph_settings for everything in the form
     # so the HTML can be used as configuration file
     for elem in $(".graph_controls input") # so we can modify them in a loop
@@ -3639,26 +3646,32 @@ class PickOrProvide
     @uniq_id = unique_id()
     @select_id = unique_id()
     @pickable_uid = unique_id()
+    @your_own_uid = unique_id()
     @find_or_append_form()
     @drag_and_drop_loader = new DragAndDropLoader(@huviz, @append_to_sel, @)
     @drag_and_drop_loader.form.hide()
-    @add_option({label: "-- Pick or Provide --"}, @select_id)
-    @add_group({label: "-- Pick #{@label} --", id: @pickable_uid})
+    #@add_group({label: "-- Pick #{@label} --", id: @pickable_uid})
+    @add_group({label: "Your Own", id: @your_own_uid}, 'append')
     @add_option({label: "Provide New #{@label} ...", value: 'provide'}, @select_id)
+    @add_option({label: "Pick or Provide..."}, @select_id, 'prepend')
     @
 
   val: (val) ->
     @pick_or_provide_select.val(val)
 
-  add_uri: (uri) =>
-    dataset_rec =
-      uri: uri
-      isOntology: @isOntology
-      time: new Date().toString()
-      isUri: true
-      title: uri
-      canDelete: true
-      label: uri.split('/').reverse()[0]
+  add_uri: (uri_or_rec) =>
+    if typeof uri_or_rec is 'string'
+      uri = uri_or_rec
+      dataset_rec = {}
+    else
+      dataset_rec = uri_or_rec
+    dataset_rec.uri ?= uri
+    dataset_rec.isOntology ?= @isOntology
+    dataset_rec.time ?= new Date().toString()
+    dataset_rec.isUri ?= true
+    dataset_rec.title ?= dataset_rec.uri
+    dataset_rec.canDelete ?= true
+    dataset_rec.label ?= dataset_rec.uri.split('/').reverse()[0]
     @add_dataset(dataset_rec)
 
   add_dataset: (dataset_rec) ->
@@ -3674,26 +3687,47 @@ class PickOrProvide
 
   add_group: (grp_rec, which) ->
     which ?= 'append'
-    optgroup_str = """<optgroup label="#{grp_rec.label}" id="#{grp_rec.id}"></optgroup>"""
+    optgroup_str = """<optgroup label="#{grp_rec.label}" id="#{grp_rec.id or unique_id()}"></optgroup>"""
     if which is 'prepend'
       optgrp = @pick_or_provide_select.prepend(optgroup_str)
     else
       optgrp = @pick_or_provide_select.append(optgroup_str)
 
-  add_option: (opt_rec, parent_uid) ->
+  add_option: (opt_rec, parent_uid, pre_or_append) ->
+    pre_or_append = 'append'
     if not opt_rec.label?
       console.log "missing .label on", opt_rec
+    if @pick_or_provide_select.find("option[value='#{opt_rec.value}']").length
+      # alert "add_option() #{opt_rec.value} collided"
+      return
     opt_str = """<option id="#{unique_id()}"></option>"""
     opt = $(opt_str)
-    $("##{parent_uid}").append(opt)
-    #console.log "add_option()", opt_rec
+    opt_group_label = opt_rec.opt_group
+    if opt_group_label
+      opt_group = @pick_or_provide_select.find(" optgroup[label='#{opt_group_label}']")
+      console.log opt_group_label, opt_group.length, opt_group
+      if not opt_group.length
+        @add_group({label: opt_group_label}, 'prepend')
+        # opt_group = $('<optgroup></optgroup>')
+        # opt_group.attr('label', opt_group_label)
+        # @pick_or_provide_select.append(opt_group)
+      opt_group.append(opt)
+    else
+      if pre_or_append is 'append'
+        $("##{parent_uid}").append(opt)
+      else
+        $("##{parent_uid}").prepend(opt)
     for k in ['value', 'title', 'class', 'id', 'style', 'label']
       if opt_rec[k]?
         #alert "#{k} = #{opt_rec[k]}"
         $(opt).attr(k, opt_rec[k])
+    
+    console.groupCollapsed("uri: #{opt_rec.uri}")
     for k in ['isUri', 'canDelete']
       if opt_rec[k]?
+        console.debug "setting #{k}: #{opt_rec[k]}"
         $(opt).data(k, opt_rec[k])
+    console.groupEnd()
     $(opt).data('canDelete','true') # FIXME this should be removed after deleting all recs from dev env
 
   find_or_append_form: ->
@@ -3718,7 +3752,9 @@ class PickOrProvide
         @value = value
       if @value?
         #console.log selected_option.data('canDelete')
+        console.debug selected_option.data()
         canDelete = selected_option.data('canDelete') is 'true'
+        console.debug "raw value of canDelete:", selected_option.data('canDelete'), "cooked:", canDelete
         @form.find('.delete_option').prop('disabled', not canDelete)
       @huviz.update_dataset_ontology_loader()
 
@@ -3775,7 +3811,7 @@ class DragAndDropLoader
   load_uri: (firstUri) ->
     @form.find('.box__success').text(firstUri)
     @form.find('.box__success').show()
-    @picker.add_uri(firstUri)
+    @picker.add_uri({uri: firstUri, opt_group: 'Your Own'})
     @form.hide()
     return true # ie success
   load_file: (firstFile) ->
@@ -3816,6 +3852,8 @@ class DragAndDropLoader
       firstUri = droppedUris[0]
       if firstUri.length
         if @load_uri(firstUri)
+          @form.find(".box__success").text('')
+          @huviz.update_dataset_ontology_loader()
           return
 
       droppedFiles = e.originalEvent.dataTransfer.files
@@ -3823,10 +3861,13 @@ class DragAndDropLoader
       if droppedFiles.length
         firstFile = droppedFiles[0]
         if @load_file(firstFile)
+          @form.find(".box__success").text('')
+          @huviz.update_dataset_ontology_loader()
           return
 
       # the drop operation failed to result in loaded data, so show 'drop here' msg
       @form.find('.box__input').show()
+      @huviz.update_dataset_ontology_loader()
 
 (exports ? this).Huviz = Huviz
 (exports ? this).Orlando = Orlando

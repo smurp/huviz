@@ -252,10 +252,17 @@
           graph_controls_sel: '#tabs-options',
           display_hints: false, // here to show how to enable hints
           display_reset: false,  // here to show how to enable reset button
-          preload: {
-            datasets: [{uri: "http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl"}],
-            defaults: {isOntology: true, canDelete: true}
-          }
+          preload: [{
+            datasets: [{uri: "http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl",
+                        label: 'OrlandoOntology',
+                        opt_group: 'Preloaded'}],
+            defaults: {isOntology: true, canDelete: false}
+           },
+           {
+            datasets: [{uri: "/data/abdyma.nq", opt_group: 'Individuals', label: 'Maria Abdy'}],
+            defaults: {isOntology: false, canDelete: false}
+           }
+          ]
         });
         HVZ.replace_human_term_spans('ui-widget');
         //HVZ.ontology_loader.add_option()
