@@ -257,14 +257,20 @@
                         label: 'OrlandoOntology',
                         opt_group: 'Preloaded'}],
             defaults: {isOntology: true, canDelete: false}
-           },
-           {
-            datasets: [{uri: "/data/abdyma.nq", opt_group: 'Individuals', label: 'Maria Abdy'}],
-            defaults: {isOntology: false, canDelete: false}
            }
+
+           ,{
+             datasets: [{uri: "/data/abdyma.nq", label: 'Maria Abdy'}
+                       ,{uri: "/data/shakwi.nq", label: 'William Shakespeare'}
+                     //,{uri: "/data/.nq", label: ''}
+                      ],
+            defaults: {isOntology: false, opt_group: 'Individuals', canDelete: false}
+           }
+
           ]
         });
         HVZ.replace_human_term_spans('ui-widget');
+        HVZ.goto_tab(2);
         //HVZ.ontology_loader.add_option()
         //HVZ.set_ontology("/data/orlando_ontology.ttl");
         //HVZ.set_ontology("/data/OrlandoOntology-SexesUnderPerson.ttl");
