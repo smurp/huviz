@@ -2624,6 +2624,7 @@ class Huviz
     disable = (not (ds_v and on_v)) or ('provide' in [ds_v, on_v])
     ds_on = "#{ds_v} AND #{on_v}"
     @big_go_button.prop('disabled', disable)
+    return
 
   predicates_to_ignore: ["anything"]
 
