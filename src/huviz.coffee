@@ -116,6 +116,8 @@ gcl = require('graphcommandlanguage');
 #asyncLoop = require('asynchronizer').asyncLoop
 CommandController = require('gclui').CommandController
 EditController = require('editui').EditController
+IndexedDBService = require('indexeddbservice').IndexedDBService
+IndexedDBStorageController = require('indexeddbstoragecontroller').IndexedDBStorageController
 Edge = require('edge').Edge
 GraphCommandLanguageCtrl = require('graphcommandlanguage').GraphCommandLanguageCtrl
 GreenerTurtle = require('greenerturtle').GreenerTurtle
@@ -873,6 +875,8 @@ class Huviz
     @init_sets()
     @init_gclc()
     @init_editc()
+    @indexed_dbservice()
+    @init_indexddbstorage()
 
     @force.nodes @nodes
     @force.links @links_set
@@ -2463,6 +2467,12 @@ class Huviz
 
   init_editc: ->
     @editui = new EditController(this)
+
+  indexed_dbservice: ->
+    @indexeddbservice = new IndexedDBService(this)
+
+  init_indexddbstorage: ->
+    @dbsstorage = new IndexedDBStorageController(this)
 
   predicates_to_ignore: ["anything"]
 
