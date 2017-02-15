@@ -2568,14 +2568,17 @@ class Huviz
             # alert "Ontology: add_dataset_option(#{dataset_rec.uri})"
             @ontology_loader.add_dataset_option(dataset_rec)
           cursor.continue()
-        else
+        else # when there are no (or NO MORE) entries, ie FINALLY
           console.table(recs)
           @dataset_loader.val('')
           @ontology_loader.val('')
           @update_dataset_ontology_loader()
+          document.dispatchEvent( # TODO use 'huviz_controls' rather than document
+            new Event('dataset_ontology_loader_ready'));
           #alert "#{count} entries saved #{why}"
 
-    objectStore.openCursor().onsuccess = make_onsuccess_handler(why)
+    if @dataset_loader?
+      objectStore.openCursor().onsuccess = make_onsuccess_handler(why)
 
   init_dataset_menus: ->
     if not @dataset_loader and @args.dataset_loader__append_to_sel
@@ -2610,7 +2613,7 @@ class Huviz
     for pid in @predicates_to_ignore
       @gclui.ignore_predicate pid
 
-  update_dataset_ontology_loader: ->
+  update_dataset_ontology_loader: =>
     #alert('update_dataset_ontology_loader')
     #debugger
     if not (@dataset_loader? and @ontology_loader?)
@@ -3657,7 +3660,11 @@ class PickOrProvide
     @
 
   val: (val) ->
+    console.log("#{@label}.val(#{val})")
     @pick_or_provide_select.val(val)
+    #@pick_or_provide_select.change()
+    #@value = val
+    @refresh()
 
   add_uri: (uri_or_rec) =>
     if typeof uri_or_rec is 'string'
@@ -3680,11 +3687,12 @@ class PickOrProvide
     #dataset_rec.uri ?= uri.split('/').reverse()[0]
     @huviz.add_dataset_to_db(dataset_rec, @add_dataset_option)
 
-  add_dataset_option: (dataset) =>
+  add_dataset_option: (dataset) => # TODO rename to dataset_rec
     uri = dataset.uri
     dataset.value = dataset.uri
     @add_option(dataset, @pickable_uid)
     @pick_or_provide_select.val(uri)
+    @refresh()
 
   add_group: (grp_rec, which) ->
     which ?= 'append'
@@ -3725,9 +3733,11 @@ class PickOrProvide
       if opt_rec[k]?
         $(opt).data(k, opt_rec[k])
 
-  update_state: ->
+  update_state: (callback) ->
     raw_value = @pick_or_provide_select.val()
     selected_option = @get_selected_option()
+    kid_cnt = @pick_or_provide_select.find("option")?length
+    console.log("#{@label}.update_state() raw_value: #{raw_value} kid_cnt: #{kid_cnt}")
     #console.log "PickOrProvide:", @, "select:", @pick_or_provide_select[0].value
     if raw_value is 'provide'
       @drag_and_drop_loader.form.show()
@@ -3744,6 +3754,9 @@ class PickOrProvide
 
     # disable_the_delete_button = false  # uncomment to always show the delete button -- useful when bad data stored
     @form.find('.delete_option').prop('disabled', disable_the_delete_button)
+    if callback?
+      console.log("calling callback")
+      callback()
 
   find_or_append_form: ->
     if not $(@local_file_form_sel).length
@@ -3753,9 +3766,9 @@ class PickOrProvide
     @pick_or_provide_select.attr('id',@select_id)
     console.debug @css_class,@pick_or_provide_select
     @pick_or_provide_select.change (e) =>
-      e.stopPropagation()
-      @update_state()
-      @huviz.update_dataset_ontology_loader()
+      #e.stopPropagation()
+      console.info("#{@label} CHANGE", e)
+      @refresh()
 
     @delete_option_button = @form.find('.delete_option')
     @delete_option_button.click @delete_selected_option
@@ -3780,6 +3793,9 @@ class PickOrProvide
     @huviz.remove_dataset_from_db(uri)
     opt_elem.remove()
     @huviz.update_dataset_ontology_loader()
+
+  refresh: ->
+    @update_state(@huviz.update_dataset_ontology_loader)
 
 # inspiration: https://css-tricks.com/drag-and-drop-file-uploading/
 class DragAndDropLoader
@@ -3854,7 +3870,8 @@ class DragAndDropLoader
       if firstUri.length
         if @load_uri(firstUri)
           @form.find(".box__success").text('')
-          @huviz.update_dataset_ontology_loader()
+          @picker.refresh()
+          @form.hide()
           return
 
       droppedFiles = e.originalEvent.dataTransfer.files
@@ -3863,12 +3880,13 @@ class DragAndDropLoader
         firstFile = droppedFiles[0]
         if @load_file(firstFile)
           @form.find(".box__success").text('')
-          @huviz.update_dataset_ontology_loader()
+          @form.hide()
+          @picker.refresh()
           return
 
       # the drop operation failed to result in loaded data, so show 'drop here' msg
       @form.find('.box__input').show()
-      @huviz.update_dataset_ontology_loader()
+      @picker.refresh()
 
 (exports ? this).Huviz = Huviz
 (exports ? this).Orlando = Orlando

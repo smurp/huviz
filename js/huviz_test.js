@@ -1,4 +1,5 @@
 
+ORLANDO_ONTOLOGY_URI = "http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl"
 var expect = chai.expect;
 
 // It would be great if this code could be written in coffeescript.
@@ -81,18 +82,36 @@ describe("HuViz Tests", function() {
           viscanvas_sel: "#viscanvas",
           gclui_sel: "#gclui",
           graph_controls_sel: '#tabs-options',
-          display_reset: true
-        });
-    HVZ.set_ontology("http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl");
+          //display_reset: true,
+          dataset_loader__append_to_sel: ".unselectable",
+          ontology_loader__append_to_sel: ".unselectable",
+          preload: [{
+            datasets: [{uri: ORLANDO_ONTOLOGY_URI,
+                        label: 'OrlandoOntology',
+                        opt_group: 'Preloaded'}],
+            defaults: {isOntology: true, canDelete: false}
+           }
+           ,{
+             datasets: [{uri: "/data/abdyma.nq", label: 'Maria Abdy'}
+                       ,{uri: "/data/shakwi.nq", label: 'William Shakespeare'}
+                     //,{uri: "/data/.nq", label: ''}
+                      ],
+            defaults: {isOntology: false, opt_group: 'Individuals', canDelete: false}
+           }
+
+          ]
+    });
+    document.addEventListener('dataset_ontology_loader_ready', function() {
+      HVZ.dataset_loader.val("/data/shakwi.nq");
+      HVZ.ontology_loader.val(ORLANDO_ONTOLOGY_URI);
+      HVZ.big_go_button.click()
+    }, false)
     document.addEventListener('dataset-loaded', function(e) {
       console.log("dataset-loaded",arguments);
       done();
     }, false);
-    HVZ.boot_sequence();
+    //HVZ.boot_sequence();
     HVZ.goto_tab(2);
-    //$('.file_picker:first').val("/data/ballrm.nq").change(); // no Places
-    //$('.file_picker:first').val("/data/abdyma.nq").change(); // one embryo
-    $('.file_picker:first').val("/data/shakwi.nq").change(); // hence simplest
     console.groupEnd();
   });
 

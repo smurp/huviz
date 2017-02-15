@@ -79,10 +79,11 @@
     <div id="tabs-options">
     </div>
     <div id="huvis_controls">
-      <div>
+      <div class="unselectable">
         <label title="which file to load">
           <select
               name="data_set" class="file_picker"
+              style="display:none"
               onchange="HVZ.load_file(this)"
               title="data sets are in order of increasing complexity">
    	    <option value=""> -- pick -- </option>
