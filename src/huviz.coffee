@@ -2546,6 +2546,7 @@ class Huviz
   fill_dataset_menus: (why) ->
     # alert "fill_dataset_menus()"
     # https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB#Using_a_cursor
+    console.groupCollapsed("fill_dataset_menus(#{why})")
     if @args.preload
       for preload_group in @args.preload
         HVZ.ensure_datasets(preload_group)
@@ -2573,6 +2574,7 @@ class Huviz
           @dataset_loader.val('')
           @ontology_loader.val('')
           @update_dataset_ontology_loader()
+          console.groupEnd() # closing group called "fill_dataset_menus(why)"
           document.dispatchEvent( # TODO use 'huviz_controls' rather than document
             new Event('dataset_ontology_loader_ready'));
           #alert "#{count} entries saved #{why}"
