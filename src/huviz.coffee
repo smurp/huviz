@@ -845,7 +845,7 @@ class Huviz
     if @taxonomy[root]? # TODO this should be the ROOT, not literally Thing
       @taxonomy[root].update_english()
     else
-      console.log "not regenerating english because no taxonomy[#{root}]"
+      console.log("not regenerating english because no taxonomy[#{root}]")
     return
 
   get_or_create_taxon: (taxon_id) ->
@@ -1096,9 +1096,9 @@ class Huviz
   show_message_once: (msg, alert_too) ->
     if @shown_messages.indexOf(msg) is -1
       @shown_messages.push(msg)
-      console.log msg
+      console.log(msg)
       if alert_too
-        alert msg
+        alert(msg)
 
   draw_edges_from: (node) ->
     num_edges = node.links_to.length
@@ -1580,7 +1580,7 @@ class Huviz
 
   add_edge: (edge) ->
     if edge.id.match /Universal$/
-      console.log "add",edge.id
+      console.log("add", edge.id)
     #@add_link(edge)
     #return edge
     # TODO(smurp) should .links_from and .links_to be SortedSets? Yes. Right?
@@ -1615,7 +1615,7 @@ class Huviz
     parse_start_time = new Date()
     context = "http://universal.org"
     if GreenerTurtle? and @turtle_parser is 'GreenerTurtle'
-      console.log "GreenTurtle() started"
+      console.log("GreenTurtle() started")
       @G = new GreenerTurtle().parse(data, "text/turtle")
     quad_count = 0
     every = @report_every
@@ -1629,7 +1629,7 @@ class Huviz
           #      http://www.w3.org/TR/curie/#s_intro
           if every is 1
             @show_state_msg "<LI>#{frame.id} <LI>#{pred.id} <LI>#{obj.value}"
-            console.log "===========================\n  #",quad_count,"  subj:",frame.id,"\n  pred:",pred.id, "\n  obj.value:",obj.value
+            console.log("===========================\n  #", quad_count, "  subj:", frame.id, "\n  pred:", pred.id, "\n  obj.value:", obj.value)
           else
             if quad_count % every is 0
               @show_state_msg("parsed relation " + quad_count)
@@ -1643,8 +1643,8 @@ class Huviz
     @after_file_loaded('stream', callback)
 
   dump_stats: ->
-    console.log "object_value_types:",@object_value_types
-    console.log "unique_pids:",@unique_pids
+    console.log("object_value_types:", @object_value_types)
+    console.log("unique_pids:", @unique_pids)
 
   parseAndShowTurtle: (data, textStatus) =>
     msg = "data was " + data.length + " bytes"
@@ -1652,22 +1652,22 @@ class Huviz
 
     if GreenerTurtle? and @turtle_parser is 'GreenerTurtle'
       @G = new GreenerTurtle().parse(data, "text/turtle")
-      console.log "GreenTurtle"
+      console.log("GreenTurtle")
 
     else if @turtle_parser is 'N3'
-      console.log "N3"
+      console.log("N3")
       #N3 = require('N3')
-      console.log "n3",N3
+      console.log("n3", N3)
       predicates = {}
       parser = N3.Parser()
       parser.parse data, (err,trip,pref) =>
-        console.log trip
+        console.log(trip)
         if pref
-          console.log pref
+          console.log(pref)
         if trip
-          @add_quad trip
+          @add_quad(trip)
         else
-          console.log err
+          console.log(err)
 
       #console.log "my_graph",@my_graph
       console.log('===================================')
@@ -1684,13 +1684,13 @@ class Huviz
     siz = @roughSizeOfObject(@G)
     msg += " resulting in a graph of " + siz + " bytes"
     msg += " which took " + parse_time + " seconds to parse"
-    console.log msg  if @verbosity >= @COARSE
+    console.log(msg) if @verbosity >= @COARSE
     show_start_time = new Date()
     @showGraph @G
     show_end_time = new Date()
     show_time = (show_end_time - show_start_time) / 1000
     msg += " and " + show_time + " sec to show"
-    console.log msg  if @verbosity >= @COARSE
+    console.log(msg) if @verbosity >= @COARSE
     @text_cursor.set_cursor("default")
     $("#status").text ""
 
@@ -1737,12 +1737,12 @@ class Huviz
       else
         msg = "unrecognized NQ event:"+e.data.event
       if msg?
-        console.log msg
+        console.log(msg)
         #alert msg
     worker.postMessage({uri:uri})
 
   DUMPER: (data) =>
-    console.log data
+    console.log(data)
 
   fetchAndShow: (url, callback) ->
     @show_state_msg("fetching " + url)
@@ -1765,8 +1765,8 @@ class Huviz
         #@fire_fileloaded_event(url) ## should call after_file_loaded(url, callback) within the_parser
         @hide_state_msg()
       error: (jqxhr, textStatus, errorThrown) ->
-        console.log url, errorThrown
-        $("#status").text errorThrown + " while fetching " + url
+        console.log(url, errorThrown)
+        $("#status").text(errorThrown + " while fetching " + url)
 
   # Deal with buggy situations where flashing the links on and off
   # fixes data structures.  Not currently needed.
@@ -1822,10 +1822,10 @@ class Huviz
     pattern = new RegExp(srch, "ig")
     nodes.forEach (node, i) =>
       unless node.name.match(pattern)
-        console.log pattern, "does not match!", node.name  if verbose
+        console.log(pattern, "does not match!", node.name) if verbose
         return
-      console.log func.call(node)  if func
-      @dump_details node if not func or verbose
+      console.log(func.call(node))  if func
+      @dump_details(node) if not func or verbose
 
   get_node_by_id: (node_id, throw_on_fail) ->
     throw_on_fail = throw_on_fail or false
@@ -2182,7 +2182,7 @@ class Huviz
     @shelved_set.acquire goner
     shownness = @update_showing_links goner
     if goner.links_shown.length > 0
-      console.log "shelving failed for",goner
+      console.log("shelving failed for", goner)
     goner
 
   choose: (chosen) =>
@@ -2221,7 +2221,7 @@ class Huviz
         if not (link.target.chosen? or link.source.chosen?)
           @unshow_link(link)
       else
-        console.log "there is a null in the .links_shown of",unchosen
+        console.log("there is a null in the .links_shown of", unchosen)
     @update_state unchosen
 
   hide: (goner) =>
@@ -2340,7 +2340,7 @@ class Huviz
       if @currently_printed_snippets[snippet_js_key]?
         # FIXME add the Subj--Pred--Obj line to the snippet for this edge
         #   also bring such snippets to the top
-        console.log "  skipping because",@currently_printed_snippets[snippet_js_key]
+        console.log("  skipping because",@currently_printed_snippets[snippet_js_key])
         continue
       me = this
       make_callback = (context_no, edge, context) ->
@@ -2470,7 +2470,7 @@ class Huviz
   init_datasetDB: ->
     indexedDB = window.indexedDB # || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || null
     if not indexedDB
-      console.log "indexedDB not available"
+      console.log("indexedDB not available")
     if not @datasetDB and indexedDB
       @dbName = 'datasetDB'
       @dbVersion = 2
@@ -2517,7 +2517,7 @@ class Huviz
   add_dataset_to_db: (dataset_rec, callback) ->
     trx = @datasetDB.transaction('datasets', "readwrite")
     trx.oncomplete = (e) =>
-      console.log "#{dataset_rec.uri} added!"
+      console.log("#{dataset_rec.uri} added!")
     trx.onerror = (e) =>
       console.log(e)
       alert "add_dataset(#{dataset_rec.uri}) error!!!"
@@ -2531,7 +2531,7 @@ class Huviz
   remove_dataset_from_db: (dataset_uri, callback) ->
     trx = @datasetDB.transaction('datasets', "readwrite")
     trx.oncomplete = (e) =>
-      console.log "#{dataset_uri} deleted"
+      console.log("#{dataset_uri} deleted")
     trx.onerror = (e) =>
       console.log(e)
       alert "remove_dataset_from_db(#{dataset_uri}) error!!!"
@@ -2617,7 +2617,7 @@ class Huviz
     #alert('update_dataset_ontology_loader')
     #debugger
     if not (@dataset_loader? and @ontology_loader?)
-      console.log "still building loaders..."
+      console.log("still building loaders...")
       return
     ds_v = @dataset_loader.value
     on_v = @ontology_loader.value
@@ -2636,7 +2636,7 @@ class Huviz
     delete @currently_printed_snippets[key]
     if @snippet_box
       slctr = '#'+id_escape(snippet_id)
-      console.log slctr
+      console.log(slctr)
       @snippet_box.select(slctr).remove()
   push_snippet: (obj, msg) ->
     if @snippet_box
@@ -3125,11 +3125,11 @@ class Huviz
     ]
 
   dump_current_settings: (post) ->
-    console.log "dump_current_settings()"
-    console.log "======================="
+    console.log("dump_current_settings()")
+    console.log("=======================")
     for control_spec in @default_graph_controls
       for control_name, control of control_spec
-        console.log "#{control_name} is",@[control_name],typeof @[control_name],post or ""
+        console.log("#{control_name} is",@[control_name],typeof @[control_name],post or "")
 
   auto_adjust_settings: ->
     # Try to tune the gravity, charge and link length to suit the data and the canvas size.
@@ -3174,9 +3174,9 @@ class Huviz
   update_graph_controls_cursor: (evt) =>
     cursor_text = (evt.target.value).toString()
     if !cursor_text
-      console.debug cursor_text
+      console.debug(cursor_text)
     else
-      console.log cursor_text
+      console.log(cursor_text)
     @graph_controls_cursor.set_text(cursor_text)
 
   update_graph_settings: (target, update) =>
@@ -3262,7 +3262,7 @@ class Huviz
     edge_count = 0
 
     s = "nodes:#{@nodes.length} predicates:#{pred_count} edges:#{edge_count}"
-    console.log s
+    console.log(s)
     debugger
 
   fire_fileloaded_event: (uri) ->
@@ -3315,7 +3315,7 @@ class Huviz
     script = location.hash
     script = (not script? or script is "#") and "" or script.replace(/^#/,"")
     script = script.replace(/\+/g," ")
-    console.log "script", script
+    console.log("script", script)
     return script
 
   boot_sequence: (script) ->
@@ -3330,7 +3330,7 @@ class Huviz
     if not script?
       script = @get_script_from_hash()
     if script? and script.length
-      console.log "boot_sequence('#{script}')"
+      console.log("boot_sequence('#{script}')")
       @gclui.run_script(script)
     else
       data_uri = @get_dataset_uri()
@@ -3533,9 +3533,9 @@ class OntoViz extends Huviz #OntologicallyGrounded
     else if type.match(/Class$/)
       node.type = 'classes'
     else
-      console.log node.id+".type is",type
+      console.log(node.id+".type is", type)
       return false
-    console.log "try_to_set_node_type",node.id,"=====",node.type
+    console.log("try_to_set_node_type", node.id, "=====", node.type)
     return true
 
   # first, rest and members are produced by GreenTurtle regarding the AllDisjointClasses list
@@ -3574,7 +3574,7 @@ class Socrata extends Huviz
         value: clss
 
   assert_propertyValue: (sub_uri,pred_uri,literal) ->
-    console.log "assert_propertyValue",arguments
+    console.log("assert_propertyValue", arguments)
     @add_quad
       s: subj_uri
       p: pred_uri
@@ -3583,7 +3583,7 @@ class Socrata extends Huviz
         value: literal
 
   assert_relation: (subj_uri,pred_uri,obj_uri) ->
-    console.log "assert_relation", arguments
+    console.log("assert_relation", arguments)
     @add_quad
       s: subj_uri
       p: pred_uri
@@ -3599,7 +3599,7 @@ class Socrata extends Huviz
 
     for dataset in data
       #dataset_uri = "https://data.edmonton.ca/api/views/#{dataset.id}/"
-      console.log @dataset_uri
+      console.log(@dataset_uri)
       q =
         g: g
         s: dataset_uri
@@ -3607,8 +3607,8 @@ class Socrata extends Huviz
         o:
           type: RDF_literal
           value: 'dataset'
-      console.log q
-      @add_quad q
+      console.log(q)
+      @add_quad(q)
       for k,v of dataset
         if not is_on_of(k,['category','name','id']) # ,'displayType'
           continue
@@ -3621,7 +3621,7 @@ class Socrata extends Huviz
             value: v
         if k == 'category'
           cat_id = @ensure_category(v)
-          @assert_instanceOf dataset_uri,OWL_Class
+          @assert_instanceOf(dataset_uri, OWL_Class)
           continue
         if k == 'name'
           assert_propertyValue dataset_uri, RDFS_label, v
@@ -3631,9 +3631,9 @@ class Socrata extends Huviz
         if typeof v == 'object'
           continue
         if k is 'name'
-          console.log dataset.id,v
+          console.log(dataset.id, v)
         #console.log k,typeof v
-        @add_quad q
+        @add_quad(q)
         #console.log q
 
 class PickOrProvide
@@ -3706,7 +3706,7 @@ class PickOrProvide
   add_option: (opt_rec, parent_uid, pre_or_append) ->
     pre_or_append = 'append'
     if not opt_rec.label?
-      console.log "missing .label on", opt_rec
+      console.log("missing .label on", opt_rec)
     if @pick_or_provide_select.find("option[value='#{opt_rec.value}']").length
       # alert "add_option() #{opt_rec.value} collided"
       return
@@ -3715,7 +3715,7 @@ class PickOrProvide
     opt_group_label = opt_rec.opt_group
     if opt_group_label
       opt_group = @pick_or_provide_select.find(" optgroup[label='#{opt_group_label}']")
-      console.log opt_group_label, opt_group.length, opt_group
+      console.log(opt_group_label, opt_group.length, opt_group)
       if not opt_group.length
         @add_group({label: opt_group_label}, 'prepend')
         # opt_group = $('<optgroup></optgroup>')
@@ -3838,7 +3838,7 @@ class DragAndDropLoader
     reader = new FileReader()
     reader.onload = (evt) =>
       #console.log evt.target.result
-      console.log "evt", evt
+      console.log("evt", evt)
       try
         @huviz.read_data_and_show(firstFile.name, evt.target.result)
       catch e
@@ -3860,7 +3860,7 @@ class DragAndDropLoader
       e.stopPropagation()
     @form.on 'dragover dragenter', () =>
       @form.addClass('is-dragover')
-      console.log "addClass('is-dragover')"
+      console.log("addClass('is-dragover')")
     @form.on 'dragleave dragend drop', () =>
       @form.removeClass('is-dragover')
     @form.on 'drop', (e) =>
