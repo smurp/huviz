@@ -14,10 +14,12 @@ var pause_msec = 3;
 var say = function(msg, done) {
   console.log("STARTING",msg);
   //alert(msg);
-  setTimeout(function(){
-    console.log("FINISHING",msg);
-    done();
-  }, pause_msec);
+  if (done) {
+    setTimeout(function(){
+      console.log("FINISHING",msg);
+      done();
+    }, pause_msec);
+  }
 };
 
 // http://stackoverflow.com/a/324533/1234699
