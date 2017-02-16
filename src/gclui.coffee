@@ -87,8 +87,8 @@ class CommandController
     $(".hints > .a_hint").first().show()
   select_the_initial_set: =>
     # TODO initialize the taxon coloring without cycling all
-    @huviz.pick_taxon("Thing", true)
-    @huviz.pick_taxon("Thing", false)
+    @huviz.toggle_taxon("Thing", true)
+    @huviz.toggle_taxon("Thing", false)
     return
     #@engage_verb('choose')
   init_editor_data: ->

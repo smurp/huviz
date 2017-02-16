@@ -193,7 +193,7 @@ describe("HuViz Tests", function() {
     it("liking should select the set ALL",
        function(done) {
 	 say(test_title, done);
-	 HVZ.pick_taxon("Thing",true);
+	 HVZ.toggle_taxon("Thing",true);
 	 HVZ.like_string("william");
 	 expect(!HVZ.gclui.immediate_execution_mode,
 		"but not enter immediate execution mode");
@@ -209,7 +209,7 @@ describe("HuViz Tests", function() {
     it("emptying like: should restore whatever set was previously picked",
        function(done) {
 	 say(test_title, done);
-	 HVZ.pick_taxon("Thing",true);
+	 HVZ.toggle_taxon("Thing",true);
 	 prior_set_id = 'shelved_set';
 	 HVZ.click_set(prior_set_id);
 	 HVZ.like_string("william");
@@ -227,7 +227,7 @@ describe("HuViz Tests", function() {
     it("liking with a verb picked should show the GO button",
        function(done) {
 	 say(test_title, done);
-	 HVZ.pick_taxon("Thing",true);
+	 HVZ.toggle_taxon("Thing",true);
 	 HVZ.click_verb('label');
 	 HVZ.like_string("thames");
 	 expect(HVZ.gclui.immediate_execution_mode,
@@ -249,7 +249,7 @@ describe("HuViz Tests", function() {
     it("pressing the GO button should run the current command",
        function(done){
 	 say(test_title, done);
-	 HVZ.pick_taxon("Thing",true);
+	 HVZ.toggle_taxon("Thing",true);
 	 HVZ.click_verb('label');
 	 HVZ.like_string("thames");
 	 expect($(HVZ.gclui.doit_butt[0][0]).is(':hidden'),
@@ -582,11 +582,11 @@ describe("HuViz Tests", function() {
     it("clicking Person should toggle selection of the Person node",
        function(done) {
 	 say(test_title, done);
-	 HVZ.pick_taxon('Person',false);
+	 HVZ.toggle_taxon('Person',false);
 	 expect(HVZ.selected_set.length).
 	   to.equal(HVZ.nodes.length -
 		    HVZ.taxonomy.Person.instances.length);
-	 HVZ.pick_taxon('Person',false);
+	 HVZ.toggle_taxon('Person',false);
 	 expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
        });
 
@@ -987,7 +987,7 @@ describe("HuViz Tests", function() {
        function(done) {
 	 say(test_title, done);
 	 expect(get_nextcommand_str()).to.equal("____ every Thing .");
-	 HVZ.pick_taxon('Thing',false);
+	 HVZ.toggle_taxon('Thing',false);
 	 expect(get_nextcommand_str()).to.equal("____ ____ .");
 	 expect(!HVZ.gclui.chosen_set_id,
 		"expect no set to be chosen at outset").
@@ -1007,7 +1007,7 @@ describe("HuViz Tests", function() {
     it("engaging Verb then Class should execute then disengage Class",
        function(done) {
 	 say(test_title, done);
-	 HVZ.pick_taxon('Thing',false);
+	 HVZ.toggle_taxon('Thing',false);
 	 expect(get_nextcommand_str()).to.equal("____ ____ .");
 	 expect(!HVZ.gclui.chosen_set_id,
 		"expect no set to be chosen at outset").
@@ -1030,7 +1030,7 @@ describe("HuViz Tests", function() {
     it("engaging Set then Verb should execute then disengage Verb",
        function(done) {
 	 say(test_title, done);
-	 HVZ.pick_taxon('Thing',false);
+	 HVZ.toggle_taxon('Thing',false);
 	 expect(get_nextcommand_str()).to.equal("____ ____ .");
 	 HVZ.click_set("shelved").click_verb("label").doit();
 	 console.log("MT?",HVZ.gclui.is_verb_phrase_empty());
@@ -1044,7 +1044,7 @@ describe("HuViz Tests", function() {
     it("engaging Class then Verb should execute then disengage Verb",
        function(done) {
 	 say(test_title, done);
-	 HVZ.pick_taxon('Thing',false);
+	 HVZ.toggle_taxon('Thing',false);
 	 expect(get_nextcommand_str()).to.equal("____ ____ .");
 	 HVZ.click_taxon("Region").click_verb("label").doit();
 	 expect(HVZ.gclui.is_verb_phrase_empty(),
@@ -1057,7 +1057,7 @@ describe("HuViz Tests", function() {
     it("retrieving should only affect nodes which are discarded.",
        function(done) {
 	 say(test_title, done);
-	 HVZ.pick_taxon('Thing',false);
+	 HVZ.toggle_taxon('Thing',false);
 	 expect(get_nextcommand_str()).to.equal("____ ____ .");
 	 HVZ.click_verb('label');
 	 HVZ.like_string("church").doit(); // ie "Anglican Church" and "Roman Catholic Church"
@@ -1091,7 +1091,7 @@ describe("HuViz Tests", function() {
     xit("previously hidden nodes should not be colored 'selected' when release backed to the shelf WIP it looks right but the test shows failure -- timing?",
        function(done) {
 	 say(test_title, done);
-	 HVZ.pick_taxon('Thing',false);
+	 HVZ.toggle_taxon('Thing',false);
 	 expect(get_nextcommand_str()).to.equal("____ ____ .");
 	 HVZ.click_verb("hide").click_set("Region").doit();
 	 HVZ.click_verb("choose").click_set("Person").doit();

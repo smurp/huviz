@@ -859,8 +859,7 @@ class Huviz
       @gclui.add_new_taxon(taxon_id,parent_lid,undefined,taxon) # FIXME should this be an event on the Taxon constructor?
     @taxonomy[taxon_id]
 
-  pick_taxon: (id, hier) ->
-    # TODO rename to click_taxon OR change so it positively picks the taxon
+  toggle_taxon: (id, hier) ->
     # TODO preserve the state of collapsedness?
     hier = hier? ? hier : true # default to true
     if hier
