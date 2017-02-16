@@ -700,7 +700,7 @@ class CommandController
     if not (verb_id in @engaged_verbs)
       @engaged_verbs.push(verb_id)
   disengage_verb: (verb_id, transient) ->
-    @engaged_verbs = @engaged_verbs.filter((verb) -> verb isnt verb_id)
+    @engaged_verbs = @engaged_verbs.filter((verb) -> verb isnt verb_id) # remove verb_id
     @verb_control[verb_id].classed('engaged',false)
     if verb_id is @transient_verb_engaged
       @transient_verb_engaged = false
