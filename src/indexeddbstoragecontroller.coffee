@@ -3,12 +3,13 @@ indexdDBstore = require('indexeddbservice')
 class IndexedDBStorageController
   constructor: (@huviz, @graph_uri) ->
      # preserves the graph_uri for inclusion in the quads when they are saved
-     #console.log(@huviz)
+     console.log("--------------------------")
      #myhuviz = @huviz
      #console.log(myhuviz)
   register: (@huviz) ->
      # called by the HuViz constructor if the `edit_handler` no, no *`storage_controller`*
   assert: (quad) ->
+    console.log("assert in IndexedDBStorageController")
     assrtSave = new indexdDBstore.IndexedDBService @huviz
     assrtSave.add_node_to_db(quad)
     #console.log(@huviz)

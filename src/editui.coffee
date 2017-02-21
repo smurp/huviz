@@ -64,13 +64,19 @@ class EditController
       console.log(this.parentElement.elements[i].name + ": " + this.parentElement.elements[i].value)
       tuple.push this.parentElement.elements[i].value
     assrtSave = new indexdDBstore.IndexedDBStorageController @huviz
+    console.log(assrtSave)
     quad =
       s: tuple[0]
       p: tuple[1]
       o: tuple[2]
-    assrtSave.assert(quad)
+    #assrtSave.assert(quad)
+    #TODO Why does clear_edit_form() not work?
+    saveButton = this.parentElement.getElementsByTagName('button')[0]
+    for i of inputFields
+      this.parentElement.elements[i].value = ''
+    saveButton.disabled = true
 
-  clear_edit_form: ()->
+  clear_edit_form: ()=>
     inputFields = this.parentElement.getElementsByTagName('input')
     saveButton = this.parentElement.getElementsByTagName('button')[0]
     for i of inputFields
