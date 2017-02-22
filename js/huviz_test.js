@@ -149,6 +149,20 @@ describe("HuViz Tests", function() {
     console.groupEnd();
   });
 
+  describe("Edit UI", function() {
+    it("the View/Edit control should exist",
+       function(done) {
+	 say(test_title, done);
+	 expect($(".edit-controls")).to.exist();
+       });
+    it("should toggle form display when clicked",
+       function(done) {
+	 say(test_title, done);
+         $(".edit-controls .slider").trigger('click');
+	 expect($(".edit-controls").attr('edit')).to.equal('yes');
+       });
+  });
+
   describe("graph controls", function() {
     it("the default controls should exist and have the right values",
        function(done) {
