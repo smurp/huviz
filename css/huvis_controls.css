@@ -103,9 +103,9 @@ body, html {
 
 /* ---------------- Edit controls ----------------------- */
 
-/*.edit-controls {
-  display: none;
-}*/
+.edit-controls {
+    bottom:.2em;
+}
 
 .edit-controls.loggedIn {
   display: inline;
