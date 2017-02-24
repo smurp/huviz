@@ -2486,10 +2486,10 @@ class Huviz
     @editui ?= new EditController(this)
 
   indexed_dbservice: ->
-    @indexeddbservice = new IndexedDBService(this)
+    @indexeddbservice ?= new IndexedDBService(this)
 
   init_indexddbstorage: ->
-    @dbsstorage = new IndexedDBStorageController(this)
+    @dbsstorage ?= new IndexedDBStorageController(this)
 
   predicates_to_ignore: ["anything"]
 
