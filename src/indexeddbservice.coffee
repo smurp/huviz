@@ -12,7 +12,7 @@ class IndexedDBService
       @dbVer = 1
       @dbStoreName = "spogis"
       req = indexedDB.open(@dbName, @dbVer) #TODO the name of the dataindex needs to be tied to specific instances
-      console.log(req)                            # 'req' is not in the same state as the samle ('pending') and does not have the proper definitions for onerror, onsuccess...etc.
+      console.log(req)  # 'req' is not in the same state as the samle ('pending') and does not have the proper definitions for onerror, onsuccess...etc.
 
       req.onsuccess = (evt) =>
         console.log("onsuccess #{@dbName}")
