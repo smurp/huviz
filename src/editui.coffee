@@ -38,16 +38,15 @@ class EditController
     toggleEdit.appendChild(formNode)
 
   toggle_edit_form: () ->
+    console.warn("toggle_edit_form() is written as a function not a method")
     toggleEdit = this.parentElement.parentElement
     toggleEditMode = toggleEdit.getAttribute("edit")
     if toggleEditMode is 'no' #toggle switched to edit mode, then create form
       toggleEdit.setAttribute("edit","yes")
       toggleEdit.classList.add("edit-mode")
-      console.log("formFields:",this.formFields)
     if toggleEditMode is'yes' #toggle switched to edit mode, then remove form
       toggleEdit.setAttribute("edit","no")
       toggleEdit.classList.remove("edit-mode")
-      #toggleEdit.lastChild.innerHTML = ''
 
   validate_edit_form: (evt) =>
     form = @controls
