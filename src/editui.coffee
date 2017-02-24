@@ -27,10 +27,7 @@ class EditController
       validateForm[2].addEventListener("input", @validate_edit_form)
       clearForm.addEventListener("click", @clear_edit_form)
       saveForm.addEventListener("click", @save_edit_form)
-      #alert('about to set controls')
       @controls = @formFields
-    #else
-    #  alert('running a second time')
 
   create_edit_form: (toggleEdit) ->
     formNode = document.createElement('form')
@@ -57,30 +54,33 @@ class EditController
     inputFields = form.getElementsByTagName('input')
     saveButton = form.getElementsByTagName('button')[0]
     for i in [0..inputFields.length-1]
-      if form.elements[i].value is ''
+      elem = form.elements[i]
+      if elem.value is ''
         saveButton.disabled = 'disabled'
         break
       else
         saveButton.disabled = false
 
-  save_edit_form: ()->
-    inputFields = this.parentElement.getElementsByTagName('input')
+  save_edit_form: () =>
+    form = @controls
+    inputFields = form.getElementsByTagName('input')
     tuple = []
     for i in [0..inputFields.length-1]
-      console.log(this.parentElement.elements[i].name + ": " + this.parentElement.elements[i].value)
-      tuple.push this.parentElement.elements[i].value
-    assrtSave = new indexdDBstore.IndexedDBStorageController @huviz
+      elem = form.elements[i]
+      console.log(elem.name + ": " + elem.value)
+      tuple.push(elem.value)
+    assrtSave = new indexdDBstore.IndexedDBStorageController(@huviz)
     console.log(assrtSave)
     quad =
       s: tuple[0]
       p: tuple[1]
       o: tuple[2]
-      #alert(JSON.stringify(quad))
+    @latest_quad = quad  # REMOVE ONCE saving to the indexedDB is working
     #assrtSave.assert(quad)
     #TODO Why does clear_edit_form() not work?
-    saveButton = this.parentElement.getElementsByTagName('button')[0]
+    saveButton = form.getElementsByTagName('button')[0]
     for i of inputFields
-      this.parentElement.elements[i].value = ''
+      form.elements[i].value = ''
     saveButton.disabled = true
 
   clear_edit_form: () =>

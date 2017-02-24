@@ -81,7 +81,8 @@ describe("HuViz Tests", function() {
           viscanvas_sel: "#viscanvas",
           gclui_sel: "#gclui",
           graph_controls_sel: '#tabs-options',
-          display_reset: true
+          display_reset: true,
+          editui__dbName: 'nstoreDB_test'
         });
     HVZ.set_ontology("http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl");
     document.addEventListener('dataset-loaded', function(e) {
@@ -184,7 +185,9 @@ describe("HuViz Tests", function() {
          console.warn("validate_edit_form() should be triggered by key-sequence")
          expect($(".edit-controls .saveForm").attr('disabled')).to.not.exist();
 
+         HVZ.editui.latest_quad = {};
          $(".edit-controls .saveForm").click();
+         expect(HVZ.editui.latest_quad.s).to.equal('bob')
        });
   });
 
