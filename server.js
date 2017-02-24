@@ -136,6 +136,8 @@
     app.use('/jquery-ui-css', express["static"](__dirname + '/node_modules/components-jqueryui/themes/smoothness'));
     app.use('/jquery-ui', express["static"](__dirname + '/node_modules/components-jqueryui'));
     app.use('/jquery', express["static"](__dirname + '/node_modules/jquery/dist'));
+    app.use('/jquery-simulate-ext__libs', express["static"](__dirname + '/node_modules/jquery-simulate-ext/libs'));
+    app.use('/jquery-simulate-ext__src', express["static"](__dirname + '/node_modules/jquery-simulate-ext/src'));
     app.use('/data', express["static"](__dirname + '/data'));
     app.use('/js', express["static"](__dirname + '/js'));
     app.use("/jsoutline", express["static"](__dirname + "/node_modules/jsoutline/lib"));

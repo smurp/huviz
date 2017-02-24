@@ -7,8 +7,8 @@ class EditController
     #TODO EditController should be loaded and checked when a dataset is loaded
     @userValid = true #TODO this needs to be hooked into authentication -- remove to huviz.coffee to validate against dataloaded and authentication
     #@userValid = false
+    if @userValid is true and not @controls #document.getElementsByClassName("edit-controls")[0] is undefined
 
-    if @userValid is true and document.getElementsByClassName("edit-controls")[0] is undefined
       con = document.createElement("div")
       con.className = "edit-controls loggedIn"
       con.setAttribute("edit", "no")
@@ -27,6 +27,10 @@ class EditController
       validateForm[2].addEventListener("input", @validate_edit_form)
       clearForm.addEventListener("click", @clear_edit_form)
       saveForm.addEventListener("click", @save_edit_form)
+      #alert('about to set controls')
+      @controls = @formFields
+    #else
+    #  alert('running a second time')
 
   create_edit_form: (toggleEdit) ->
     formNode = document.createElement('form')
@@ -42,17 +46,19 @@ class EditController
     if toggleEditMode is 'no' #toggle switched to edit mode, then create form
       toggleEdit.setAttribute("edit","yes")
       toggleEdit.classList.add("edit-mode")
+      console.log("formFields:",this.formFields)
     if toggleEditMode is'yes' #toggle switched to edit mode, then remove form
       toggleEdit.setAttribute("edit","no")
       toggleEdit.classList.remove("edit-mode")
       #toggleEdit.lastChild.innerHTML = ''
 
-  validate_edit_form: ()->
-    inputFields = this.parentElement.getElementsByTagName('input')
-    saveButton = this.parentElement.getElementsByTagName('button')[0]
+  validate_edit_form: (evt) =>
+    form = @controls
+    inputFields = form.getElementsByTagName('input')
+    saveButton = form.getElementsByTagName('button')[0]
     for i in [0..inputFields.length-1]
-      if this.parentElement.elements[i].value is ''
-        saveButton.disabled = true
+      if form.elements[i].value is ''
+        saveButton.disabled = 'disabled'
         break
       else
         saveButton.disabled = false
@@ -69,6 +75,7 @@ class EditController
       s: tuple[0]
       p: tuple[1]
       o: tuple[2]
+      #alert(JSON.stringify(quad))
     #assrtSave.assert(quad)
     #TODO Why does clear_edit_form() not work?
     saveButton = this.parentElement.getElementsByTagName('button')[0]
@@ -76,11 +83,12 @@ class EditController
       this.parentElement.elements[i].value = ''
     saveButton.disabled = true
 
-  clear_edit_form: ()=>
-    inputFields = this.parentElement.getElementsByTagName('input')
-    saveButton = this.parentElement.getElementsByTagName('button')[0]
+  clear_edit_form: () =>
+    form = @controls
+    inputFields = form.getElementsByTagName('input')
+    saveButton = form.getElementsByTagName('button')[0]
     for i of inputFields
-      this.parentElement.elements[i].value = ''
+      form.elements[i].value = ''
     saveButton.disabled = true
 
   (exports ? this).EditController = EditController

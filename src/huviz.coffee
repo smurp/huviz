@@ -2483,7 +2483,7 @@ class Huviz
       @gclui.ignore_predicate pid
 
   init_editc: ->
-    @editui = new EditController(this)
+    @editui ?= new EditController(this)
 
   indexed_dbservice: ->
     @indexeddbservice = new IndexedDBService(this)

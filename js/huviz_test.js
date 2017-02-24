@@ -160,6 +160,31 @@ describe("HuViz Tests", function() {
 	 say(test_title, done);
          $(".edit-controls .slider").trigger('click');
 	 expect($(".edit-controls").attr('edit')).to.equal('yes');
+         $(".edit-controls .slider").trigger('click');
+	 expect($(".edit-controls").attr('edit')).to.equal('no');
+       });
+    it("should Save properly entered triples WIP no saving yet!",
+       function(done) {
+	 say(test_title, done);
+	 expect($(".edit-controls").attr('edit')).to.equal('no');
+         $(".edit-controls .slider").trigger('click'); // enter edit mode
+         expect($(".edit-controls").attr('edit')).to.equal('yes');
+         expect($(".edit-controls .saveForm").attr('disabled')).to.equal('disabled');
+         $(".edit-controls input[name='subject']").val('bob')
+         $(".edit-controls input[name='predicate']").val('rdf:type')
+         /*
+           The use of .simulate() is motivated by the fact that jquery.trigger()
+           only works with jquery-registered handlers.  The consequence is that
+           .simulate() is needed to properly trigger validate_edit_form(), but
+           even .simulate is not working.
+         */
+         $(".edit-controls input[name='object']").
+           simulate("key-sequence", {sequence: 'foaf:uncles'})
+         HVZ.editui.validate_edit_form(); // This should NOT need to be called directly
+         console.warn("validate_edit_form() should be triggered by key-sequence")
+         expect($(".edit-controls .saveForm").attr('disabled')).to.not.exist();
+
+         $(".edit-controls .saveForm").click();
        });
   });
 
