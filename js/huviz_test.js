@@ -15,9 +15,11 @@ var say = function(msg, done) {
   //alert(msg);
   setTimeout(function(){
     console.log("FINISHING",msg);
-    done();
+    if (done) done();
   }, pause_msec);
 };
+
+EDITUI_DBNAME = 'nstoreDB_test2';
 
 // http://stackoverflow.com/a/324533/1234699
 var getStyle = function(className) {
@@ -64,7 +66,7 @@ var get_payload = function(id) {
   return $('#' + id + ' > .treepicker-label > .payload').text();
 }
 describe("HuViz Tests", function() {
-  this.timeout(0);
+  this.timeout(3000);
   //this.bail(true); // tell mocha to stop on first failure
   var number_of_nodes = 15;
   var test_title;
@@ -82,7 +84,7 @@ describe("HuViz Tests", function() {
           gclui_sel: "#gclui",
           graph_controls_sel: '#tabs-options',
           display_reset: true,
-          editui__dbName: 'nstoreDB_test'
+          editui__dbName: EDITUI_DBNAME
         });
     HVZ.set_ontology("http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl");
     document.addEventListener('dataset-loaded', function(e) {
@@ -151,6 +153,29 @@ describe("HuViz Tests", function() {
   });
 
   describe("Edit UI", function() {
+    after(function(){
+      // ensure VIEW mode is restored
+      if ($(".edit-controls").attr('edit') == 'yes') {
+        $(".edit-controls .slider").trigger('click');
+      }
+      expect($(".edit-controls").attr('edit')).to.equal('no');
+    });
+    it(`the '${EDITUI_DBNAME}' should exist and be emptied at the start WIP no emptying`,
+       function(done) {
+         say(test_title);
+         expect(HVZ.indexeddbservice.dbName).to.equal(EDITUI_DBNAME);
+         let nstoreDB = HVZ.indexeddbservice.nstoreDB;
+         let ntuples_name = HVZ.indexeddbservice.dbStoreName;
+         expect(nstoreDB).to.be.ok();
+         let trx = nstoreDB.transaction(ntuples_name, 'readwrite');
+         trx.onerror = function(e) {throw e}
+         let ntuples_store = trx.objectStore(ntuples_name)
+         let count_req = ntuples_store.count();
+         count_req.onsuccess = function() {
+           expect(count_req.result).to.equal(0);
+           done()
+         }
+       });
     it("the View/Edit control should exist",
        function(done) {
 	 say(test_title, done);

@@ -1,16 +1,17 @@
 #
 class IndexedDBService
   constructor: (@huviz) ->
-    console.log('+++++++++++++++++++++++++++++++++++++++++++++')
+    @initialize_db()
+
+  initialize_db: ->
     indexedDB = window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB
 
     if not indexedDB
-      console.log "indexedDB not available"
+      throw new Error("indexedDB not available")
 
     if not @nstoreDB and indexedDB
       @dbName = @get_dbName()
-      @dbVer = 1
-      @dbStoreName = "spogis"
+      @dbStoreName = "ntuples"
       req = indexedDB.open(@dbName, @dbVer) #TODO the name of the dataindex needs to be tied to specific instances
       console.log(req)  # 'req' is not in the same state as the samle ('pending') and does not have the proper definitions for onerror, onsuccess...etc.
 
@@ -25,8 +26,14 @@ class IndexedDBService
         db = evt.target.result
         console.log("onupgradeneeded #{db.name}")
         console.log(evt)
-        if evt.oldVersion is 0 #Only create a new ObjectStore when initializing for the first time
-          store = db.createObjectStore(@dbStoreName, { keyPath: 'id', autoIncrement: true })
+        if evt.oldVersion is 1
+          if 'spogis' in db.objectStoreNames
+            alert("deleteObjectStore('spogis')")
+            db.deleteObjectStore('spogis')
+        if evt.oldVersion < 3 #Only create a new ObjectStore when initializing for the first time
+          alert("createObjectStore('#{@dbObjectStoreName}')")
+          store = db.createObjectStore(@dbStoreName,
+            { keyPath: 'id', autoIncrement: true })
           console.log (db)
           store.createIndex("s", "s", { unique: false })
           store.createIndex("p", "p", { unique: false })
@@ -38,8 +45,9 @@ class IndexedDBService
             console.log (db)
 
   dbName_default: 'nstoreDB'
+  dbVer: 2
   get_dbName: ->
-    return @huviz.editui_dbName or @dbName_default
+    return @huviz.args.editui__dbName or @dbName_default
 
   add_node_to_db: (quad) ->
     console.log ("add new node to DB")
