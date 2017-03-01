@@ -2489,7 +2489,7 @@ class Huviz
     @indexeddbservice ?= new IndexedDBService(this)
 
   init_indexddbstorage: ->
-    @dbsstorage ?= new IndexedDBStorageController(this)
+    @dbsstorage ?= new IndexedDBStorageController(this, @indexeddbservice)
 
   predicates_to_ignore: ["anything"]
 

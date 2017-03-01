@@ -66,8 +66,8 @@ var get_payload = function(id) {
   return $('#' + id + ' > .treepicker-label > .payload').text();
 }
 describe("HuViz Tests", function() {
-  this.timeout(3000);
-  //this.bail(true); // tell mocha to stop on first failure
+  this.timeout(10000);
+  this.bail(true); // tell mocha to stop on first failure
   var number_of_nodes = 15;
   var test_title;
 
@@ -79,6 +79,28 @@ describe("HuViz Tests", function() {
   // http://stackoverflow.com/questions/23947688/how-to-access-describe-and-it-messages-in-mocha
   before(function bootHuviz(done) {
     console.groupCollapsed("test suite setup");
+    let nest_done = function(next) {
+      return function() { return next; }
+    };
+    let delete_dbs = function(deletable_dbs) {
+      let sel = "#tabs";
+      for (dbname of deletable_dbs) {
+        //done = nest_cb(done);
+        $(sel).append(`<li>queue <b>${dbname}</b> for deletion</li>`);
+        let del_req = window.indexedDB.deleteDatabase(dbname);
+        del_req.onsuccess = function(dbname) {
+          return function(){
+            $(sel).append(`<li><b>${dbname}</b> deleted</li>`);
+          };
+        }(dbname);
+        del_req.onerror = function(evt){
+          let err = evt.result;
+          $(sel).append(`<li><b>${dbname}</b> error: ${err.toString()}</li>`);
+        };
+      }
+    };
+    delete_dbs('dataDB2 datasets nstoreDB_test2'.split(' '));
+
     window.HVZ = new huviz.Orlando({
           viscanvas_sel: "#viscanvas",
           gclui_sel: "#gclui",
@@ -153,6 +175,9 @@ describe("HuViz Tests", function() {
   });
 
   describe("Edit UI", function() {
+    before(function(done) {
+      done();
+    })
     after(function(){
       // ensure VIEW mode is restored
       if ($(".edit-controls").attr('edit') == 'yes') {
@@ -163,18 +188,29 @@ describe("HuViz Tests", function() {
     it(`the '${EDITUI_DBNAME}' should exist and be emptied at the start WIP no emptying`,
        function(done) {
          say(test_title);
+         expect(window.indexedDB).to.be.ok()
          expect(HVZ.indexeddbservice.dbName).to.equal(EDITUI_DBNAME);
-         let nstoreDB = HVZ.indexeddbservice.nstoreDB;
-         let ntuples_name = HVZ.indexeddbservice.dbStoreName;
-         expect(nstoreDB).to.be.ok();
-         let trx = nstoreDB.transaction(ntuples_name, 'readwrite');
-         trx.onerror = function(e) {throw e}
-         let ntuples_store = trx.objectStore(ntuples_name)
-         let count_req = ntuples_store.count();
-         count_req.onsuccess = function() {
-           expect(count_req.result).to.equal(0);
-           done()
+         /*
+         let ensure_db_empty = function() {
+           let nstoreDB = HVZ.indexeddbservice.nstoreDB;
+           let ntuples_name = HVZ.indexeddbservice.dbStoreName;
+           expect(nstoreDB).to.be.ok();
+           let trx = nstoreDB.transaction(ntuples_name, 'readwrite');
+           trx.onerror = function(e) {throw e};
+           let ntuples_store = trx.objectStore(ntuples_name)
+           let count_req = ntuples_store.count();
+           count_req.onsuccess = function() {
+             expect(count_req.result).to.equal(0);
+             done()
+           }
          }
+         */
+         /*
+           let nest_cb = function(cb) {
+             return function(e) { alert("cb called"); cb(e); };
+           }
+         */
+         HVZ.indexeddbservice.initialize_db(done);
        });
     it("the View/Edit control should exist",
        function(done) {
