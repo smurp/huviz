@@ -115,6 +115,9 @@ uniquer = require("uniquer").uniquer
 gcl = require('graphcommandlanguage');
 #asyncLoop = require('asynchronizer').asyncLoop
 CommandController = require('gclui').CommandController
+EditController = require('editui').EditController
+IndexedDBService = require('indexeddbservice').IndexedDBService
+IndexedDBStorageController = require('indexeddbstoragecontroller').IndexedDBStorageController
 Edge = require('edge').Edge
 GraphCommandLanguageCtrl = require('graphcommandlanguage').GraphCommandLanguageCtrl
 GreenerTurtle = require('greenerturtle').GreenerTurtle
@@ -698,14 +701,14 @@ class Huviz
       sort_on("id").
       labelled(@human_term.all)
     @nodes.docs = """#{@nodes.label} nodes are in this set, regardless of state."""
-    @all_set = @nodes    
+    @all_set = @nodes
 
     @embryonic_set = SortedSet().named("embryo").
       sort_on("id").
       isFlag()
     @embryonic_set.docs = "
-      Nodes which are not yet complete are 'embryonic' and not yet 
-      in '#{@all_set.label}'.  Nodes need to have a class and a label to 
+      Nodes which are not yet complete are 'embryonic' and not yet
+      in '#{@all_set.label}'.  Nodes need to have a class and a label to
       no longer be embryonic."
 
     @chosen_set = SortedSet().named("chosen").
@@ -714,10 +717,10 @@ class Huviz
       labelled(@human_term.chosen).
       sub_of(@all_set)
     @chosen_set.docs = "
-      Nodes which the user has specifically '#{@chosen_set.label}' by either 
-      dragging them into the graph from the surrounding green 
-      'shelf'. '#{@chosen_set.label}' nodes can drag other nodes into the 
-      graph if the others are #{@human_term.hidden} or #{@human_term.shelved} but 
+      Nodes which the user has specifically '#{@chosen_set.label}' by either
+      dragging them into the graph from the surrounding green
+      'shelf'. '#{@chosen_set.label}' nodes can drag other nodes into the
+      graph if the others are #{@human_term.hidden} or #{@human_term.shelved} but
       not if they are #{@human_term.discarded}."
     @chosen_set.cleanup_verb = 'shelve'
 
@@ -728,7 +731,7 @@ class Huviz
       sub_of(@all_set)
     @selected_set.cleanup_verb = "unselect"
     @selected_set.docs = "
-      Nodes which have been '#{@selected_set.label}' using the class picker, 
+      Nodes which have been '#{@selected_set.label}' using the class picker,
       ie which are highlighted and a little larger."
 
     @shelved_set = SortedSet().
@@ -738,9 +741,9 @@ class Huviz
       sub_of(@all_set).
       isState()
     @shelved_set.docs = "
-      Nodes which are '#{@shelved_set.label}' on the green surrounding 'shelf', 
-      either because they have been dragged there or released back to there 
-      when the node which pulled them into the graph was 
+      Nodes which are '#{@shelved_set.label}' on the green surrounding 'shelf',
+      either because they have been dragged there or released back to there
+      when the node which pulled them into the graph was
       '#{@human_term.unchosen}."
 
     @discarded_set = SortedSet().named("discarded").
@@ -750,9 +753,9 @@ class Huviz
       isState()
     @discarded_set.cleanup_verb = "shelve" # TODO confirm this
     @discarded_set.docs = "
-      Nodes which have been '#{@discarded_set.label}' by being dragged into 
-      the red 'discard bin' in the bottom right corner.  
-      '#{@discarded_set.label}' nodes are not pulled into the graph when 
+      Nodes which have been '#{@discarded_set.label}' by being dragged into
+      the red 'discard bin' in the bottom right corner.
+      '#{@discarded_set.label}' nodes are not pulled into the graph when
       nodes they are connected to become '#{@chosen_set.label}'."
 
     @hidden_set = SortedSet().named("hidden").
@@ -761,8 +764,8 @@ class Huviz
       sub_of(@all_set).
       isState()
     @hidden_set.docs = "
-      Nodes which are '#{@hidden_set.label}' but can be pulled into 
-      the graph by other nodes when those become 
+      Nodes which are '#{@hidden_set.label}' but can be pulled into
+      the graph by other nodes when those become
       '#{@human_term.chosen}'."
     @hidden_set.cleanup_verb = "shelve"
 
@@ -772,8 +775,8 @@ class Huviz
       sub_of(@all_set).
       isState()
     @graphed_set.docs = "
-      Nodes which are included in the central graph either by having been 
-      '#{@human_term.chosen}' themselves or which are pulled into the 
+      Nodes which are included in the central graph either by having been
+      '#{@human_term.chosen}' themselves or which are pulled into the
       graph by those which have been."
     @graphed_set.cleanup_verb = "unchoose"
 
@@ -783,9 +786,9 @@ class Huviz
       sub_of(@all_set).
       isFlag()
     @pinned_set.docs = "
-      Nodes which are '#{@pinned_set.label}' to the canvas as a result of 
-      being dragged and dropped while already being '#{@human_term.graphed}'. 
-      #{@pinned_set.label} nodes can be #{@human_term.unpinned} by dragging 
+      Nodes which are '#{@pinned_set.label}' to the canvas as a result of
+      being dragged and dropped while already being '#{@human_term.graphed}'.
+      #{@pinned_set.label} nodes can be #{@human_term.unpinned} by dragging
       them from their #{@pinned_set.label} location."
     @pinned_set.cleanup_verb = "unpin"
 
@@ -890,6 +893,9 @@ class Huviz
     @G = {} # is this deprecated?
     @init_sets()
     @init_gclc()
+    @init_editc()
+    @indexed_dbservice()
+    @init_indexddbstorage()
 
     @force.nodes @nodes
     @force.links @links_set
@@ -1530,7 +1536,7 @@ class Huviz
     else
       limit = @truncate_labels_to
     should_scroll = limit > 0 and limit < node.name.length
-    if not should_scroll 
+    if not should_scroll
       return
     if true # node.label_truncated_to
       spacer = @scroll_spacer
@@ -2626,6 +2632,15 @@ class Huviz
     ds_on = "#{ds_v} AND #{on_v}"
     @big_go_button.prop('disabled', disable)
     return
+
+  init_editc: ->
+    @editui ?= new EditController(this)
+
+  indexed_dbservice: ->
+    @indexeddbservice ?= new IndexedDBService(this)
+
+  init_indexddbstorage: ->
+    @dbsstorage ?= new IndexedDBStorageController(this, @indexeddbservice)
 
   predicates_to_ignore: ["anything"]
 

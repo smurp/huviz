@@ -226,7 +226,6 @@
     </div>
     <div id="tabs-help" style="height:0px"></div>
   </section>
-
     <div id="vis" class="underneath" style="z-index:-3"></div>
     <div id="viscanvas" class="underneath"></div>
     <pre id="status"></pre>
@@ -352,37 +351,6 @@
       	</ol>
       </div>
     </div>
-    <div id="edit-controls">
-      <div class="cntrl-set slider-pair">
-        <div class="label set-1">VIEW</div>
-        <div class="slider">
-          <div class="knob"></div>
-        </div>
-        <div class="label set-2">EDIT</div>
-      </div>
-      <div class="cntrl-set edit-form">
-        <input placeholder="subject" type="text"/>
-        <input placeholder="predicate" type="text"/>
-        <input placeholder="object" type="text"/>
-
-        <button type="button">Save</button>
-        <button type="button">Clear</button>
-      </div>
-    </div>
-    <script>
-      $(document).ready(function(){
-          loggedIn = false;
-          if (loggedIn==true) {
-            $('#edit-controls').addClass('loggedIn')
-            console.log("loggedIn")
-          };
-          $('#edit-controls').click(function(){
-              $(this).toggleClass("edit-mode");
-          });
-
-      });
-    </script>
-
 
     <div class="help_content" style="display:none">
       <div style="position:absolute; top:5px; right:5px">

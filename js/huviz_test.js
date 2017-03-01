@@ -13,14 +13,19 @@ var expect = chai.expect;
 var pause_msec = 3;
 var say = function(msg, done) {
   console.log("STARTING",msg);
-  //alert(msg);
   if (done) {
     setTimeout(function(){
       console.log("FINISHING",msg);
       done();
     }, pause_msec);
   }
+  setTimeout(function(){
+    console.log("FINISHING",msg);
+    if (done) done();
+  }, pause_msec);
 };
+
+EDITUI_DBNAME = 'nstoreDB_test2';
 
 // http://stackoverflow.com/a/324533/1234699
 var getStyle = function(className) {
@@ -67,7 +72,7 @@ var get_payload = function(id) {
   return $('#' + id + ' > .treepicker-label > .payload').text();
 }
 describe("HuViz Tests", function() {
-  this.timeout(0);
+  this.timeout(2000);
   //this.bail(true); // tell mocha to stop on first failure
   var number_of_nodes = 15;
   var test_title;
@@ -80,34 +85,56 @@ describe("HuViz Tests", function() {
   // http://stackoverflow.com/questions/23947688/how-to-access-describe-and-it-messages-in-mocha
   before(function bootHuviz(done) {
     console.groupCollapsed("test suite setup");
-    window.HVZ = new huviz.Orlando({
-          viscanvas_sel: "#viscanvas",
-          gclui_sel: "#gclui",
-          graph_controls_sel: '#tabs-options',
-          //display_reset: true,
-          dataset_loader__append_to_sel: ".unselectable",
-          ontology_loader__append_to_sel: ".unselectable",
-          preload: [{
-            datasets: [{uri: ORLANDO_ONTOLOGY_URI,
-                        label: 'OrlandoOntology',
-                        opt_group: 'Preloaded'}],
-            defaults: {isOntology: true, canDelete: false}
-           }
-           ,{
-             datasets: [{uri: "/data/abdyma.nq", label: 'Maria Abdy'}
-                       ,{uri: "/data/shakwi.nq", label: 'William Shakespeare'}
-                     //,{uri: "/data/.nq", label: ''}
-                      ],
-            defaults: {isOntology: false, opt_group: 'Individuals', canDelete: false}
-           }
+    let nest_done = function(next) {
+      return function() { return next; }
+    };
+    let delete_dbs = function(deletable_dbs) {
+      let sel = "#tabs";
+      for (dbname of deletable_dbs) {
+        //done = nest_cb(done);
+        $(sel).append(`<li>queue <b>${dbname}</b> for deletion</li>`);
+        let del_req = window.indexedDB.deleteDatabase(dbname);
+        del_req.onsuccess = function(dbname) {
+          return function(){
+            $(sel).append(`<li><b>${dbname}</b> deleted</li>`);
+          };
+        }(dbname);
+        del_req.onerror = function(evt){
+          let err = evt.result;
+          $(sel).append(`<li><b>${dbname}</b> error: ${err.toString()}</li>`);
+        };
+      }
+    };
+    delete_dbs('dataDB2 datasets nstoreDB_test2'.split(' '));
 
-          ]
+    window.HVZ = new huviz.Orlando({
+      viscanvas_sel: "#viscanvas",
+      gclui_sel: "#gclui",
+      graph_controls_sel: '#tabs-options',
+      //display_reset: true,
+      dataset_loader__append_to_sel: ".unselectable",
+      ontology_loader__append_to_sel: ".unselectable",
+      preload: [{
+        datasets: [{uri: ORLANDO_ONTOLOGY_URI,
+                    label: 'OrlandoOntology',
+                    opt_group: 'Preloaded'}],
+        defaults: {isOntology: true, canDelete: false}
+      },{
+        datasets: [{uri: "/data/abdyma.nq", label: 'Maria Abdy'}
+                   ,{uri: "/data/shakwi.nq", label: 'William Shakespeare'}
+                   //,{uri: "/data/.nq", label: ''}
+                  ],
+        defaults: {isOntology: false, opt_group: 'Individuals', canDelete: false}
+      }],
+      display_reset: true,
+      editui__dbName: EDITUI_DBNAME
     });
     document.addEventListener('dataset_ontology_loader_ready', function() {
       HVZ.dataset_loader.val("/data/shakwi.nq");
       HVZ.ontology_loader.val(ORLANDO_ONTOLOGY_URI);
       HVZ.big_go_button.click()
-    }, false)
+    }, false);
+    // HVZ.set_ontology("http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl");
     document.addEventListener('dataset-loaded', function(e) {
       console.log("dataset-loaded",arguments);
       done();
@@ -170,6 +197,89 @@ describe("HuViz Tests", function() {
     console.groupEnd();
   });
 
+  describe("Edit UI", function() {
+    before(function(done) {
+      done();
+    })
+    after(function(){
+      // ensure VIEW mode is restored
+      if ($(".edit-controls").attr('edit') == 'yes') {
+        $(".edit-controls .slider").trigger('click');
+      }
+      expect($(".edit-controls").attr('edit')).to.equal('no');
+    });
+    it(`the '${EDITUI_DBNAME}' should exist and be emptied at the start WIP no emptying`,
+       function(done) {
+         say(test_title);
+         expect(window.indexedDB).to.be.ok()
+         expect(HVZ.indexeddbservice.dbName).to.equal(EDITUI_DBNAME);
+         /*
+         let ensure_db_empty = function() {
+           let nstoreDB = HVZ.indexeddbservice.nstoreDB;
+           let ntuples_name = HVZ.indexeddbservice.dbStoreName;
+           expect(nstoreDB).to.be.ok();
+           let trx = nstoreDB.transaction(ntuples_name, 'readwrite');
+           trx.onerror = function(e) {throw e};
+           let ntuples_store = trx.objectStore(ntuples_name)
+           let count_req = ntuples_store.count();
+           count_req.onsuccess = function() {
+             expect(count_req.result).to.equal(0);
+             done()
+           }
+         }
+         */
+         /*
+           let nest_cb = function(cb) {
+             return function(e) { alert("cb called"); cb(e); };
+           }
+         */
+         HVZ.indexeddbservice.initialize_db(done);
+       });
+    it("the View/Edit control should exist",
+       function(done) {
+	 say(test_title, done);
+	 expect($(".edit-controls")).to.exist();
+       });
+    it("should toggle form display when clicked",
+       function(done) {
+	 say(test_title, done);
+         $(".edit-controls .slider").trigger('click');
+	 expect($(".edit-controls").attr('edit')).to.equal('yes');
+         $(".edit-controls .slider").trigger('click');
+	 expect($(".edit-controls").attr('edit')).to.equal('no');
+       });
+    it("should Save properly entered triples",
+       function(done) {
+	 say(test_title);
+	 expect($(".edit-controls").attr('edit')).to.equal('no');
+         $(".edit-controls .slider").trigger('click'); // enter edit mode
+         expect($(".edit-controls").attr('edit')).to.equal('yes');
+         expect($(".edit-controls .saveForm").attr('disabled')).to.equal('disabled');
+         $(".edit-controls input[name='subject']").val('bob')
+         $(".edit-controls input[name='predicate']").val('rdf:type')
+         /*
+           The use of .simulate() is motivated by the fact that jquery.trigger()
+           only works with jquery-registered handlers.  The consequence is that
+           .simulate() is needed to properly trigger validate_edit_form(), but
+           even .simulate is not working.
+         */
+         $(".edit-controls input[name='object']").
+           simulate("key-sequence", {sequence: 'foaf:uncles'})
+         HVZ.editui.validate_edit_form(); // This should NOT need to be called directly
+         console.warn("validate_edit_form() should be triggered by key-sequence")
+         expect($(".edit-controls .saveForm").attr('disabled')).to.not.exist();
+
+         HVZ.editui.latest_quad = {};
+         $(".edit-controls .saveForm").click();
+         expect(HVZ.editui.latest_quad.s).to.equal('bob')
+         HVZ.dbsstorage.count(function(val) {
+           expect(val).to.equal(1);
+           console.log('count == 1');
+           done();
+         });
+       });
+  });
+
   describe("graph controls", function() {
     it("the default controls should exist and have the right values",
        function(done) {
@@ -189,7 +299,6 @@ describe("HuViz Tests", function() {
 		"nothing should be labelled after reset").to.equal(0);
        });
   });
-
 
   describe("liking things", function() {
     it("liking should select the set ALL",

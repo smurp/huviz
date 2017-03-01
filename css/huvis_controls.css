@@ -103,12 +103,14 @@ body, html {
 
 /* ---------------- Edit controls ----------------------- */
 
-#edit-controls {
-  display: none;
+.edit-controls {
+    bottom:.2em;
 }
 
-#edit-controls.loggedIn {
-  display: block;
+.edit-controls.loggedIn {
+  display: inline;
+  position: fixed;
+  z-index: 3;
 }
 
 .cntrl-set {
