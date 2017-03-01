@@ -24,5 +24,11 @@ class IndexedDBStorageController
     # saves the quad via IndexedDB to an objectStore called `quadstore`
   get_graphs: ->
      # returns the list of graphs from `quadstore` so PickOrProvide can show them for picking
+  count: (cb) ->
+    trx = @dbs.nstoreDB.transaction(@dbs.dbStoreName, 'readonly')
+    objstor = trx.objectStore(@dbs.dbStoreName)
+    req = objstor.count()
+    req.onsuccess = () ->
+      cb(req.result)
 
 (exports ? this).IndexedDBStorageController = IndexedDBStorageController

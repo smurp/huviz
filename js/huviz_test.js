@@ -225,9 +225,9 @@ describe("HuViz Tests", function() {
          $(".edit-controls .slider").trigger('click');
 	 expect($(".edit-controls").attr('edit')).to.equal('no');
        });
-    it("should Save properly entered triples WIP no saving yet!",
+    it("should Save properly entered triples",
        function(done) {
-	 say(test_title, done);
+	 say(test_title);
 	 expect($(".edit-controls").attr('edit')).to.equal('no');
          $(".edit-controls .slider").trigger('click'); // enter edit mode
          expect($(".edit-controls").attr('edit')).to.equal('yes');
@@ -249,6 +249,11 @@ describe("HuViz Tests", function() {
          HVZ.editui.latest_quad = {};
          $(".edit-controls .saveForm").click();
          expect(HVZ.editui.latest_quad.s).to.equal('bob')
+         HVZ.dbsstorage.count(function(val) {
+           expect(val).to.equal(1);
+           console.log('count == 1');
+           done();
+         });
        });
   });
 

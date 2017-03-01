@@ -26,14 +26,12 @@ class IndexedDBService
       throw new Error("indexedDB not available")
 
     when_done = (db, why, cb, err) =>
-      #alert("database #{@dbName} opened!")
       @nstoreDB = db
       if cb?
         cb(err)
 
     if @nstoreDB?
       msg = "nstoreDB already exists with name #{@dbName}"
-      console.warn(msg)
       when_done(@nstoreDB, msg, callback)
     else
       req = indexedDB.open(@dbName, @dbVer) #TODO the name of the dataindex needs to be tied to specific instances
