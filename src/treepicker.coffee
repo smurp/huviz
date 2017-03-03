@@ -120,7 +120,6 @@ class TreePicker
     # This is hacky but ColorTreePicker.click_handler() needs the id too
     return id
   handle_click: (id) =>
-    #next_state = 
     @go_to_next_state(id, @get_next_state(id))
   get_next_state: (id) ->
     elem = @id_to_elem[id]
