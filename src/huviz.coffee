@@ -2634,7 +2634,10 @@ class Huviz
     return
 
   init_editc: ->
-    @editui ?= new EditController(this)
+    @editui ?= new EditController(@)
+
+  set_edit_mode: (mode) ->
+    @edit_mode = mode
 
   indexed_dbservice: ->
     @indexeddbservice ?= new IndexedDBService(this)
