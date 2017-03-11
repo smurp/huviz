@@ -293,6 +293,7 @@ class Huviz
   gravity: 0.025
   snippet_count_on_edge_labels: true
   label_show_range: null # @link_distance * 1.1
+  focus_threshold: 100
   discard_radius: 200
   fisheye_radius: 100 #null # label_show_range * 5
   focus_radius: null # label_show_range
@@ -399,7 +400,7 @@ class Huviz
     node.y = point[1]
 
   click_node: (node_or_id) ->
-    # motivated by testing
+    # motivated by testing. Should this also be used by normal click handling?
     console.warn("click_node() is deprecated")
     if typeof node_or_id is 'string'
       node = @nodes.get_by('id', node_or_id)
@@ -460,6 +461,9 @@ class Huviz
       #console.log "state_name == '" + @focused_node.state.state_name + "' and selected? == " + @focused_node.selected?
       #console.log "START_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
       @dragging = @focused_node
+      if @edit_mode
+        console.log ("add dragged subject to edit form")
+        @editui.set_subject_node(@dragging)
       if @dragging.state isnt @graphed_set
         @graphed_set.acquire(@dragging)
     if @dragging
@@ -961,17 +965,27 @@ class Huviz
     console.log "  in_sets:", node.in_sets
 
   find_focused_node_or_edge: ->
-    return if @dragging
+
     new_focused_node = undefined
     new_focused_edge = undefined
     new_focused_idx = undefined
-    focus_threshold = 100 #@focus_radius * 3
+    #focus_threshold = 100 #@focus_radius * 3 FIXME Change to setting variable
+    focus_threshold = @focus_threshold
     closest = @width
     closest_point = undefined
+
+    #if @dragging and not @edit_mode
+    #if @dragging and @edit_mode
+      #Called if dragging edit mode - check over and over
+      #console.log("in edit mode")
+      # Nearest node (not dragged) is now selected as 'object node' for form
+      # Call function to insert object node id into form field (like for subject)
+      # Focus and curser should move to form field 'predicate'
 
     # FIXME build a spatial index!!!! OMG
     @nodes.forEach (d, i) =>
       n_dist = distance(d.fisheye or d, @last_mouse_pos)
+      #console.log(d)
       if n_dist < closest
         closest = n_dist
         closest_point = d.fisheye or d
@@ -3022,6 +3036,17 @@ class Huviz
           min: .2
           max: 8
           step: 0.1
+          type: "range"
+    ,
+      focus_threshold:
+        text: "focus threshold"
+        label:
+          title: "how fine is node recognition"
+        input:
+          value: 100
+          min: 15
+          max: 150
+          step: 1
           type: "range"
     ,
       link_distance:
