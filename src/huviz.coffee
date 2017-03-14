@@ -964,7 +964,7 @@ class Huviz
     console.log "  showing_links:", node.showing_links
     console.log "  in_sets:", node.in_sets
 
-  find_focused_node_or_edge: ->
+  find_node_or_edge_closest_to_pointer: ->
 
     new_focused_node = undefined
     new_focused_edge = undefined
@@ -974,13 +974,15 @@ class Huviz
     closest = @width
     closest_point = undefined
 
-    #if @dragging and not @edit_mode
-    #if @dragging and @edit_mode
-      #Called if dragging edit mode - check over and over
-      #console.log("in edit mode")
-      # Nearest node (not dragged) is now selected as 'object node' for form
-      # Call function to insert object node id into form field (like for subject)
-      # Focus and curser should move to form field 'predicate'
+    seeking = false # holds property name of the thing we are seeking: focused_node/object_node
+    if @dragging
+      if not @edit_mode
+        return
+      seeking = "object_node"
+    else
+      seeking = "focused_node"
+    if not seeking
+      return
 
     # FIXME build a spatial index!!!! OMG
     @nodes.forEach (d, i) =>
@@ -989,10 +991,11 @@ class Huviz
       if n_dist < closest
         closest = n_dist
         closest_point = d.fisheye or d
-      if n_dist <= focus_threshold
-        new_focused_node = d
-        focus_threshold = n_dist
-        new_focused_idx = i
+      if not (seeking is 'object_node' and @dragging and @dragging.id is d.id) # @object_node === this['object_node'] === @[seeking]
+        if n_dist <= focus_threshold
+          new_focused_node = d
+          focus_threshold = n_dist
+          new_focused_idx = i
 
     @links_set.forEach (e, i) =>
       if e.handle?
@@ -1012,7 +1015,7 @@ class Huviz
       if @draw_circle_around_focused
         @draw_circle closest_point.x, closest_point.y, @node_radius * 3, "red"
 
-    unless @focused_node is new_focused_node
+    if not (@focused_node is new_focused_node) and seeking is "focused_node"
       if @focused_node
         d3.select(".focused_node").classed "focused_node", false  if @use_svg
         @focused_node.focused_node = false
@@ -1036,14 +1039,20 @@ class Huviz
         new_focused_edge.target.focused_edge = true
 
     last_focused_node = @focused_node
-    @focused_node = new_focused_node # possibly null
-    node_changed = @focused_node isnt last_focused_node
-    if node_changed
-      if @focused_node? and @focused_node
-        @gclui.engage_transient_verb_if_needed("select")
-      else
-        @gclui.disengage_transient_verb_if_needed()
+    @[seeking] = new_focused_node # possibly null
 
+    if seeking is 'object_node'
+      @editui.set_object_node(@object_node)
+
+    if seeking is 'focused_node'
+      node_changed = @focused_node isnt last_focused_node
+      if node_changed
+        if @focused_node? and @focused_node
+          @gclui.engage_transient_verb_if_needed("select")
+        else
+          @gclui.disengage_transient_verb_if_needed()
+
+    # TODO figure out the impact of seeking on @focused_edge handling
     last_focused_edge = @focused_edge
     @focused_edge = new_focused_edge
     edge_changed = @focused_edge isnt last_focused_edge
@@ -1297,7 +1306,7 @@ class Huviz
   tick: =>
     # return if @focused_node   # <== policy: freeze screen when selected
     @ctx.lineWidth = @edge_width # TODO(smurp) just edges should get this treatment
-    @find_focused_node_or_edge()
+    @find_node_or_edge_closest_to_pointer()
     @auto_change_verb()
     @update_snippet() # continuously update the snippet based on the currently focused_edge
     @blank_screen()

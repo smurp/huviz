@@ -29,6 +29,9 @@ class EditController
       clearForm.addEventListener("click", @clear_edit_form)
       saveForm.addEventListener("click", @save_edit_form)
       @controls = @formFields
+      @subject_input = @formFields[0]
+      @predicate_input = @formFields[1]
+      @object_input = @formFields[2]
       #@toggle_edit_form()
 
   create_edit_form: (toggleEdit) ->
@@ -92,5 +95,15 @@ class EditController
     for i of inputFields
       form.elements[i].value = ''
     saveButton.disabled = true
+
+  set_subject_node: (node) ->
+    new_value = node and node.id or ""
+    console.log("setting subject node......" + new_value)
+    @subject_input.setAttribute("value",new_value)
+
+  set_object_node: (node) ->
+    new_value = node and node.id or ""
+    console.log("setting object node......"  + new_value)
+    @object_input.setAttribute("value",new_value)
 
   (exports ? this).EditController = EditController
