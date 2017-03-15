@@ -37,10 +37,43 @@ class EditController
   create_edit_form: (toggleEdit) ->
     formNode = document.createElement('form')
     formNode.classList.add("cntrl-set", "edit-form")
-    formNode.innerHTML = '<input name="subject" placeholder="subject" type="text"/><input name="predicate" placeholder="predicate" type="text"/><input name="object" placeholder="object" type="text"/>'
+    formNode.innerHTML = '<input name="subject" placeholder="subject" type="text"/><input id="predicate" name="predicate" placeholder="predicate" type="text"/><input name="object" placeholder="object" type="text"/>'
     formNode.innerHTML += '<button class="saveForm" type="button" disabled>Save</button>'
     formNode.innerHTML += '<button class="clearForm" type="button">Clear</button>'
+    console.log(toggleEdit)
+    console.log("++++++++++++++++++++++++++++++++++++++++")
     toggleEdit.appendChild(formNode)
+
+    availableTags = [
+      "ActionScript",
+      "AppleScript",
+      "Asp",
+      "BASIC",
+      "C",
+      "C++",
+      "Clojure",
+      "COBOL",
+      "ColdFusion",
+      "Erlang",
+      "Fortran",
+      "Groovy",
+      "Haskell",
+      "Java",
+      "JavaScript",
+      "Lisp",
+      "Perl",
+      "PHP",
+      "Python",
+      "Ruby",
+      "Scala",
+      "Scheme"
+    ]
+    $("#predicate").autocomplete(
+      source:availableTags,
+      position:
+        my: "left bottom"
+        at: "left top"
+    )
 
   toggle_edit_form: () =>
     toggleEditMode = @con.getAttribute("edit")
