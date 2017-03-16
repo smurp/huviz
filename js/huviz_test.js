@@ -122,6 +122,26 @@ async function wait_till_prop__equals__(obj, prop_name, threshold, interval, tim
   return success;
 };
 
+async function wait_till_prop__not_equals__(obj, prop_name, threshold, interval, timeout) {
+  if (! interval) interval = 10;
+  if (! timeout) timeout = 20 * interval + 1;
+  let success = checkUntil(function() {
+    //if (obj.n >= threshold) { alert(`got to ${threshold}`); }
+    let retval = (obj[prop_name] != threshold);
+    if (retval) {
+      let msg = `wait_till_prop__equals__(${prop_name}, ${threshold})`;
+      $('#tabs').append(`<li>${msg}</li>`);
+      console.log(msg);
+    } else {
+      let msg = `wait_till_prop__equals__(${prop_name}, ${threshold}): ${obj[prop_name]}`;
+      $('#tabs').append(`<li>${msg}</li>`);
+      console.log(msg);
+    }
+    return retval;
+  }, interval, timeout);
+  return success;
+};
+
 async function wait_till_prop_n_equals(obj, threshold, interval, timeout) {
   if (! interval) interval = 10;
   if (! timeout) timeout = 20 * interval + 1;
@@ -715,45 +735,47 @@ describe("HuViz Tests", function() {
        });
 
     it("toggling a leaf predicate should leave the root predicate unmixed",
-       function(done) {
-	 say(test_title, done);
-
+       mochaAsync(async () => {
 	 a_leaf_pred_id = "deathConnectionToSettlement";
 	 HVZ.click_predicate(a_leaf_pred_id);  // graph some leaf predicates
+         await wait_till_prop__not_equals__(HVZ.graphed_set, 'length', 0, 30, 2000);
 	 expect(HVZ.graphed_set.length,
 		"something should be graphed after selecting a leaf predicate").
            to.not.equal(0);
 
 	 HVZ.click_predicate(a_leaf_pred_id);  // ungraph them again
+         await wait_till_prop__equals__(HVZ.graphed_set, 'length', 0, 30, 2000);
 	 expect(HVZ.graphed_set.length,
 		"nothing should be graphed after toggling a leaf predicate").
            to.equal(0);
 	 expect($("#predicates .treepicker-indirect-mixed").length,
 		"there should be no indirect-mixed predicates when nothing is graphed").
            to.equal(0);
-       });
+       }));
 
     it("toggling branch predicates should leave the root predicate unmixed",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 a_branch_predicate = "deathConnectionToGeog";
 	 HVZ.click_predicate(a_branch_predicate); // graph some branch predicates
+         await wait_till_prop__not_equals__(HVZ.graphed_set, 'length', 0, 30, 2000);
 	 expect(HVZ.graphed_set.length,
 		"something should be graphed after selecting a branch predicate").
            to.not.equal(0);
 
 	 HVZ.click_predicate(a_branch_predicate);        // ungraph them again
+         await wait_till_prop__equals__(HVZ.graphed_set, 'length', 0, 30, 2000);
 	 expect(HVZ.graphed_set.length,
 		"nothing should be graphed after toggling branch " +
 		a_branch_predicate).to.equal(0);
 	 expect($("#predicates .treepicker-indirect-mixed").length,
 		"there should be no indirect-mixed predicates when nothing is graphed").
            to.equal(0);
-       });
+       }));
+
+    it("the colors should properly change when the collapsed class picker is toggled");
 
     it("the current selection should show in the nextcommand box",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 // verify initial state
 	 expected_str = "____ every Thing ."; // note four _
 	 expect(get_nextcommand_str()).to.equal(expected_str);
@@ -762,7 +784,8 @@ describe("HuViz Tests", function() {
 
 	 // deselect everything using the taxon_picker
 	 HVZ.toggle_expander("Thing"); // collapse
-	 HVZ.click_taxon("Thing");
+	 HVZ.click_taxon("Thing"); // deselect
+         await wait_till_prop__equals__(HVZ.selected_set, 'length', 0, 30, 2000);
 	 expect(HVZ.selected_set.length).to.equal(0);
 	 // confirm that the object of the commands is blank
 	 expect(get_nextcommand_str()).to.equal("____ ____ .");
@@ -772,8 +795,9 @@ describe("HuViz Tests", function() {
 	 expect(get_nextcommand_prompt()).to.equal(expected_prompt);
 
 	 // a single class selected should be simple
-	 HVZ.toggle_expander("Thing"); // collapse
+	 HVZ.toggle_expander("Thing"); // expand
 	 HVZ.click_taxon("Person");
+         await wait_till_prop__not_equals__(HVZ.selected_set, 'length', 0, 30, 2000);
 	 expect(get_nextcommand_str()).
 	   to.equal("____ Person .");
 	 expect(get_nextcommand_prompt()).
@@ -793,7 +817,7 @@ describe("HuViz Tests", function() {
 	 expect($("#predicates .treepicker-indirect-mixed").length,
 		"there should be no indirect-mixed predicates when nothing is graphed").
            to.equal(0);
-       });
+       }));
 
     it("node selections should affect the english WIP not minimized",
        function(done) {
