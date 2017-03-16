@@ -293,6 +293,7 @@ class Huviz
   gravity: 0.025
   snippet_count_on_edge_labels: true
   label_show_range: null # @link_distance * 1.1
+  focus_threshold: 100
   discard_radius: 200
   fisheye_radius: 100 #null # label_show_range * 5
   focus_radius: null # label_show_range
@@ -399,7 +400,7 @@ class Huviz
     node.y = point[1]
 
   click_node: (node_or_id) ->
-    # motivated by testing
+    # motivated by testing. Should this also be used by normal click handling?
     console.warn("click_node() is deprecated")
     if typeof node_or_id is 'string'
       node = @nodes.get_by('id', node_or_id)
@@ -461,6 +462,9 @@ class Huviz
       #console.log "state_name == '" + @focused_node.state.state_name + "' and selected? == " + @focused_node.selected?
       #console.log "START_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
       @dragging = @focused_node
+      if @edit_mode
+        console.log ("add dragged subject to edit form")
+        @editui.set_subject_node(@dragging)
       if @dragging.state isnt @graphed_set
         @graphed_set.acquire(@dragging)
     if @dragging
@@ -963,25 +967,38 @@ class Huviz
     console.log "  showing_links:", node.showing_links
     console.log "  in_sets:", node.in_sets
 
-  find_focused_node_or_edge: ->
-    return if @dragging
+  find_node_or_edge_closest_to_pointer: ->
+
     new_focused_node = undefined
     new_focused_edge = undefined
     new_focused_idx = undefined
-    focus_threshold = 100 #@focus_radius * 3
+    #focus_threshold = 100 #@focus_radius * 3 FIXME Change to setting variable
+    focus_threshold = @focus_threshold
     closest = @width
     closest_point = undefined
+
+    seeking = false # holds property name of the thing we are seeking: focused_node/object_node
+    if @dragging
+      if not @edit_mode
+        return
+      seeking = "object_node"
+    else
+      seeking = "focused_node"
+    if not seeking
+      return
 
     # FIXME build a spatial index!!!! OMG
     @nodes.forEach (d, i) =>
       n_dist = distance(d.fisheye or d, @last_mouse_pos)
+      #console.log(d)
       if n_dist < closest
         closest = n_dist
         closest_point = d.fisheye or d
-      if n_dist <= focus_threshold
-        new_focused_node = d
-        focus_threshold = n_dist
-        new_focused_idx = i
+      if not (seeking is 'object_node' and @dragging and @dragging.id is d.id) # @object_node === this['object_node'] === @[seeking]
+        if n_dist <= focus_threshold
+          new_focused_node = d
+          focus_threshold = n_dist
+          new_focused_idx = i
 
     @links_set.forEach (e, i) =>
       if e.handle?
@@ -1001,7 +1018,7 @@ class Huviz
       if @draw_circle_around_focused
         @draw_circle closest_point.x, closest_point.y, @node_radius * 3, "red"
 
-    unless @focused_node is new_focused_node
+    if not (@focused_node is new_focused_node) and seeking is "focused_node"
       if @focused_node
         d3.select(".focused_node").classed "focused_node", false  if @use_svg
         @focused_node.focused_node = false
@@ -1025,14 +1042,20 @@ class Huviz
         new_focused_edge.target.focused_edge = true
 
     last_focused_node = @focused_node
-    @focused_node = new_focused_node # possibly null
-    node_changed = @focused_node isnt last_focused_node
-    if node_changed
-      if @focused_node? and @focused_node
-        @gclui.engage_transient_verb_if_needed("select")
-      else
-        @gclui.disengage_transient_verb_if_needed()
+    @[seeking] = new_focused_node # possibly null
 
+    if seeking is 'object_node'
+      @editui.set_object_node(@object_node)
+
+    if seeking is 'focused_node'
+      node_changed = @focused_node isnt last_focused_node
+      if node_changed
+        if @focused_node? and @focused_node
+          @gclui.engage_transient_verb_if_needed("select")
+        else
+          @gclui.disengage_transient_verb_if_needed()
+
+    # TODO figure out the impact of seeking on @focused_edge handling
     last_focused_edge = @focused_edge
     @focused_edge = new_focused_edge
     edge_changed = @focused_edge isnt last_focused_edge
@@ -1286,7 +1309,7 @@ class Huviz
   tick: =>
     # return if @focused_node   # <== policy: freeze screen when selected
     @ctx.lineWidth = @edge_width # TODO(smurp) just edges should get this treatment
-    @find_focused_node_or_edge()
+    @find_node_or_edge_closest_to_pointer()
     @auto_change_verb()
     @update_snippet() # continuously update the snippet based on the currently focused_edge
     @blank_screen()
@@ -2637,7 +2660,10 @@ class Huviz
     return
 
   init_editc: ->
-    @editui ?= new EditController(this)
+    @editui ?= new EditController(@)
+
+  set_edit_mode: (mode) ->
+    @edit_mode = mode
 
   indexed_dbservice: ->
     @indexeddbservice ?= new IndexedDBService(this)
@@ -3022,6 +3048,17 @@ class Huviz
           min: .2
           max: 8
           step: 0.1
+          type: "range"
+    ,
+      focus_threshold:
+        text: "focus threshold"
+        label:
+          title: "how fine is node recognition"
+        input:
+          value: 100
+          min: 15
+          max: 150
+          step: 1
           type: "range"
     ,
       link_distance:
