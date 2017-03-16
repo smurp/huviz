@@ -1,5 +1,18 @@
+/*
 
-ORLANDO_ONTOLOGY_URI = "http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl"
+  This suite has some problems:
+    1) the "say(test_title, done)" lines are redundant
+    2)
+
+  Recommended Reading for writing modern tests for HuViz:
+    http://staxmanade.com/2015/11/testing-asyncronous-code-with-mochajs-and-es7-async-await/
+
+*/
+
+
+ORLANDO_ONTOLOGY_URI = "http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl";
+EDITUI_DBNAME = 'nstoreDB_test';
+
 var expect = chai.expect;
 
 // It would be great if this code could be written in coffeescript.
@@ -25,7 +38,126 @@ var say = function(msg, done) {
   }, pause_msec);
 };
 
-EDITUI_DBNAME = 'nstoreDB_test2';
+/*
+ http://staxmanade.com/2015/11/testing-asyncronous-code-with-mochajs-and-es7-async-await/
+
+Purpose:
+  It is challenging to use async/await in Mocha.  This helper make it easier.
+
+Usage:
+  it("Sample async/await mocha test using wrapper", mochaAsync(async () => {
+    var x = await someAsyncMethodToTest();
+    expect(x).to.equal(true);
+  }));
+
+  beforeEach(mochaAsync(async () => {
+    await someLongSetupCode();
+  }));
+
+*/
+function mochaAsync(fn) {
+  return async function(done) {
+    try {
+      await fn();
+      done();
+    } catch (err) {
+      done(err);
+    }
+  };
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// http://stackoverflow.com/a/40230053/1234699
+function checkUntil(conditionFunc, interval_ms, timeout_ms) {
+  var retryCountLimit = 100;
+  var retryCount = 0;
+  if (timeout_ms && timeout_ms > interval_ms) {
+    retryCountLimit = Math.round(timeout_ms/interval_ms);
+  }
+  console.debug(conditionFunc);
+  $('#tabs').append(`<li>checkUntil(COND, ${interval_ms}, ${timeout_ms})</li>`);
+  var promise = new Promise((resolve, reject) => {
+    var timer = setInterval(function () {
+      if (conditionFunc()) {
+        clearInterval(timer);
+        resolve();
+        return;
+      }
+      retryCount++;
+      if (retryCount >= retryCountLimit) {
+        clearInterval(timer);
+        reject(new Error(`retry count: ${retryCount} hit limit: ${retryCountLimit}`));
+      }
+    }, interval_ms);
+    if (timeout_ms) {
+      setTimeout(function(){
+        clearInterval(timer);
+      },timeout_ms);
+    }
+  });
+
+  return promise;
+}
+
+async function wait_till_prop__equals__(obj, prop_name, threshold, interval, timeout) {
+  if (! interval) interval = 10;
+  if (! timeout) timeout = 20 * interval + 1;
+  let success = checkUntil(function() {
+    //if (obj.n >= threshold) { alert(`got to ${threshold}`); }
+    let retval = (obj[prop_name] == threshold);
+    if (retval) {
+      let msg = `wait_till_prop__equals__(${prop_name}, ${threshold})`;
+      $('#tabs').append(`<li>${msg}</li>`);
+      console.log(msg);
+    } else {
+      let msg = `wait_till_prop__equals__(${prop_name}, ${threshold}): ${obj[prop_name]}`;
+      $('#tabs').append(`<li>${msg}</li>`);
+      console.log(msg);
+    }
+    return retval;
+  }, interval, timeout);
+  return success;
+};
+
+async function wait_till_prop_n_equals(obj, threshold, interval, timeout) {
+  if (! interval) interval = 10;
+  if (! timeout) timeout = 20 * interval + 1;
+  let success = checkUntil(function() {
+    if (!obj.n) {
+      obj.n = 0;
+    }
+    obj.n++;
+    console.log("  "+obj.n);
+    //if (obj.n >= threshold) { alert(`got to ${threshold}`); }
+    return (obj.n >= threshold);
+  }, interval, timeout);
+  return success;
+};
+
+async function wait_till_true(cond, every_ms, timeout) {
+  let sucess = await checkUntil(function() {
+    return cond();
+  }, every_ms, timeout);
+};
+
+async function wait_till_all_selected_for(HVZ, every_ms, timeout) {
+  let sucess = await checkUntil(function() {
+    return HVZ.selected_set.length == HVZ.nodes.length;
+  }, every_ms, timeout);
+};
+async function wait_till_none_selected_for(HVZ, every_ms, timeout) {
+  return wait_till_true(() => {return HVZ.selected_set.length == 0;}, every_ms, timeout);
+  /*
+  let sucess = await checkUntil(function() {
+    return HVZ.selected_set.length == 0;
+  }, every_ms, timeout);
+  */
+};
+
+
 
 // http://stackoverflow.com/a/324533/1234699
 var getStyle = function(className) {
@@ -71,9 +203,99 @@ var get_nextcommand_prompt = function() {
 var get_payload = function(id) {
   return $('#' + id + ' > .treepicker-label > .payload').text();
 }
+
+
+describe("Test Enhancements", function() {
+  before(function() {
+    $('body').append('<pre id="timing_test" style="position:fixed; padding:0; margin:0; right:0; bottom:0; width:30%; height:30%; background:GoldenRod">TIMING</pre>')
+  });
+
+  after(function() {
+    $('#timing_test').remove();
+  });
+
+  it("time delays should be possible",
+     function(done) {
+       function show(summut) {
+         $('#timing_test').append(`${summut} `);
+       }
+       async function zoom(cb){
+         $('#timing_test').html('');
+         show('BEFORE');
+         let tocker = setInterval(function(){show('tock')},100);
+         let ticker = setInterval(function(){show('tick')},90);
+         await sleep(300);
+         clearInterval(ticker);
+         clearInterval(tocker);
+         show('AFTER');
+         if (cb) {
+           cb.call();
+         }
+       }
+       zoom(done);
+     });
+
+  it("condition satisfaction should be supported by returning a Promise",
+     function() {
+       let obj = {};
+       let TARGET_VALUE = 8;
+       //async function count_asynchronously_until(target_value) {
+       return wait_till_prop_n_equals(obj, TARGET_VALUE, 100, 5000);
+     });
+
+  it("using checkUntil()",
+     mochaAsync(async () => {
+       let obj = {n: 0};
+       await checkUntil(function(){obj.n++; return obj.n > 5;}, 20, 200);
+       expect(obj.n).to.equal(6);
+       await checkUntil(function(){obj.n++; return obj.n > 10;}, 20, 200);
+       expect(obj.n).to.equal(11);
+     }));
+
+  it("using wait_till_prop__equals__",
+     mochaAsync(async () => {
+       let obj = {n: 0};
+       expect(true).to.equal(true);
+     }));
+
+  xit("condition satisfaction using wait_till_prop__equals__()",
+     mochaAsync(async () => {
+       let obj = {};
+       obj.n = 0;
+       let inc_obj_n = function() {
+         console.log("obj.n:", obj.n);
+         obj.n++;
+       };
+       let interval_id = setInterval(inc_obj_n, 10);
+       let TARGET_VALUE = 8;
+       return wait_till_prop__equals__(obj.n, TARGET_VALUE, 100, 1000);
+     }));
+  
+  xit("condition satisfaction should be supported",
+      function(done) {
+        function show(summut) {
+          $('#timing_test').append(`${summut} `);
+        }
+        async function zoom(cb){
+          $('#timing_test').html('');
+          show('BEFORE');
+          let tocker = setInterval(function(){show('tock')},100);
+          let ticker = setInterval(function(){show('tick')},90);
+          await sleep(300);
+          clearInterval(ticker);
+          clearInterval(tocker);
+          show('AFTER');
+          if (cb) {
+            cb.call();
+          }
+        }
+        zoom(done);
+      });
+});
+
 describe("HuViz Tests", function() {
-  this.timeout(2000);
-  //this.bail(true); // tell mocha to stop on first failure
+  this.timeout(5000);
+  this.bail(true); // tell mocha to stop on first failure
   var number_of_nodes = 15;
   var test_title;
 
@@ -105,7 +327,7 @@ describe("HuViz Tests", function() {
         };
       }
     };
-    delete_dbs('dataDB2 datasets nstoreDB_test2'.split(' '));
+    delete_dbs('dataDB2 datasets nstoreDB_test2 nstoreDB_test'.split(' '));
 
     window.HVZ = new huviz.Orlando({
       viscanvas_sel: "#viscanvas",
@@ -151,9 +373,11 @@ describe("HuViz Tests", function() {
     select_expand_and_ungraph_all();
   });
 
-  function select_expand_and_ungraph_all() {
+  // http://stackoverflow.com/questions/951021/what-is-the-javascript-version-of-sleep/39914235#39914235
+  async function select_expand_and_ungraph_all() {
     HVZ.gclui.clear_set_picker();
-    HVZ.gclui.disengage_all_verbs();
+    ev = HVZ.gclui.engaged_verbs;
+    HVZ.gclui.disengage_all_verbs(); // preliminary
     HVZ.click_set("all").click_set("all");
     if (HVZ.graphed_set.length ||
         HVZ.selected_set.length != HVZ.nodes.length) {
@@ -176,21 +400,44 @@ describe("HuViz Tests", function() {
     if ($("#predicates .treepicker-collapse").length) {
       HVZ.gclui.predicate_picker.expand_all();
     }
+    HVZ.gclui.disengage_all_verbs();
+    expect(HVZ.gclui.engaged_verbs.length,
+           `gclui.engaged_verbs non-empty [${ev.join(',')}]`).
+      to.equal(0);
+    expect($(".verb.engaged").length,
+           "some verb(s) engaged").
+      to.equal(0);
     expect($(".treepicker-collapse").length,
-           "select_expand_and_ungraph_all() BROKEN something is collapsed").
+           "something is collapsed").
       to.equal(0);
     expect($(".treepicker-mixed").length,
-           "select_expand_and_ungraph_all() BROKEN something is mixed").
+           "something is mixed").
       to.equal(0);
+
+    await wait_till_all_selected_for(HVZ, 333, 2001);
+    /*
+    expect(HVZ.gclui.engaged_verbs.length,
+           `gclui.engaged_sets non-empty [${ev.join(',')}]`).
+      to.equal(0);
+    */
+
+    if (HVZ.labelled_set.length) {
+      HVZ.click_set('all').click_verb('unlabel').click_set('all');
+      await wait_till_prop__equals__(HVZ.labelled_set, 'length', 0, 30, 2000);
+    }
+
     expect(HVZ.selected_set.length,
-           "select_expand_and_ungraph_all() BROKEN not everything selected").
+           "not everything selected").
       to.equal(HVZ.nodes.length);
     expect(HVZ.graphed_set.length,
-           "select_expand_and_ungraph_all() BROKEN leaving things graphed").
+           "leaving things graphed").
       to.equal(0);
     expect(HVZ.shelved_set.length,
-           "select_expand_and_ungraph_all() BROKEN not everything shelved").
+           "not everything shelved").
       to.equal(HVZ.nodes.length);
+    expect(HVZ.labelled_set.length,
+           "some things are still labelled").
+      to.equal(0);
   }
 
   afterEach(function() {
@@ -209,44 +456,25 @@ describe("HuViz Tests", function() {
       expect($(".edit-controls").attr('edit')).to.equal('no');
     });
     it(`the '${EDITUI_DBNAME}' should exist and be emptied at the start WIP no emptying`,
-       function(done) {
-         say(test_title);
+       //function(done) {
+       mochaAsync(async () => {
          expect(window.indexedDB).to.be.ok()
+         await checkUntil(() => {return HVZ.indexeddbservice.dbName}, 20, 200)
          expect(HVZ.indexeddbservice.dbName).to.equal(EDITUI_DBNAME);
-         /*
-         let ensure_db_empty = function() {
-           let nstoreDB = HVZ.indexeddbservice.nstoreDB;
-           let ntuples_name = HVZ.indexeddbservice.dbStoreName;
-           expect(nstoreDB).to.be.ok();
-           let trx = nstoreDB.transaction(ntuples_name, 'readwrite');
-           trx.onerror = function(e) {throw e};
-           let ntuples_store = trx.objectStore(ntuples_name)
-           let count_req = ntuples_store.count();
-           count_req.onsuccess = function() {
-             expect(count_req.result).to.equal(0);
-             done()
-           }
-         }
-         */
-         /*
-           let nest_cb = function(cb) {
-             return function(e) { alert("cb called"); cb(e); };
-           }
-         */
-         HVZ.indexeddbservice.initialize_db(done);
-       });
+         HVZ.indexeddbservice.initialize_db();
+         await checkUntil(() => {return HVZ.indexeddbservice.nstoreDB}, 20, 600)
+       }));
     it("the View/Edit control should exist",
-       function(done) {
-	 say(test_title, done);
+       function() {
 	 expect($(".edit-controls")).to.exist();
        });
     it("should toggle form display when clicked",
        function(done) {
-	 say(test_title, done);
          $(".edit-controls .slider").trigger('click');
 	 expect($(".edit-controls").attr('edit')).to.equal('yes');
          $(".edit-controls .slider").trigger('click');
 	 expect($(".edit-controls").attr('edit')).to.equal('no');
+         done();
        });
     it("should Save properly entered triples",
        function(done) {
@@ -281,30 +509,33 @@ describe("HuViz Tests", function() {
   });
 
   describe("graph controls", function() {
+    xit("FAIL IMMEDIATELY, to show the initial state of all tests",
+       function() {
+         halt("__ every Thing.");
+       });
+
     it("the default controls should exist and have the right values",
-       function(done) {
-	 say(test_title, done);
+       function() {
 	 expect($("input[name='label_em']")).to.exist();
 	 expect($("input[name='label_em']").attr('value')).to.equal('0.9');
        });
 
     it("clicking reset should restore the neutral condition",
        function(done) {
-	 say(test_title, done);
 	 HVZ.click_verb("label").click_set("shelved");
 	 expect(HVZ.labelled_set.length,
 		"everything should be labelled by now").to.not.equal(0);
 	 $("#reset_btn").click()
 	 expect(HVZ.labelled_set.length,
 		"nothing should be labelled after reset").to.equal(0);
+         done();
        });
   });
 
   describe("liking things", function() {
     it("liking should select the set ALL",
-       function(done) {
-	 say(test_title, done);
-	 HVZ.toggle_taxon("Thing",true);
+       function() {
+	 HVZ.toggle_taxon("Thing", true);
 	 HVZ.like_string("william");
 	 expect(!HVZ.gclui.immediate_execution_mode,
 		"but not enter immediate execution mode");
@@ -317,30 +548,65 @@ describe("HuViz Tests", function() {
 		"should no longer be in liking_all_mode").to.equal(false);
        });
 
-    it("emptying like: should restore whatever set was previously picked",
-       function(done) {
-	 say(test_title, done);
-	 HVZ.toggle_taxon("Thing",true);
+    xit("emptying 'like' should restore whatever set was previously engaged",
+      mochaAsync(async () => {
+	 HVZ.toggle_taxon("Thing", true);
 	 prior_set_id = 'shelved_set';
 	 HVZ.click_set(prior_set_id);
+         //halt(`${prior_set_id} should be engaged`);
 	 HVZ.like_string("william");
+         //halt(`${prior_set_id} should be engaged and 'william' liked`);
 	 expect(HVZ.gclui.immediate_execution_mode,
-		"\"___ ALL like 'william'\" should be in immediate execution mode").
+		`"___ ALL like 'william'" should be in immediate execution mode`).
+	   to.equal(true);
+	 expect(HVZ.gclui.chosen_set_id,
+		"set ALL should be chosen").to.equal('all_set');
+         HVZ.DEBUG = true;
+	 HVZ.like_string("");
+	 expect(HVZ.gclui.chosen_set_id,
+		`set ALL should be ${prior_set_id}`).
+           to.equal(prior_set_id); // TODO change to all_set
+      }));
+
+    xit("liking some string while all_set is engaged should LEAVE it engaged",
+      mochaAsync(async () => {
+	 HVZ.toggle_taxon("Thing", true);
+	 prior_set_id = 'all_set';
+	 HVZ.click_set(prior_set_id);
+         like_str = 'william';
+	 HVZ.like_string(like_str);
+         //halt(`${prior_set_id} should be engaged and '${like_str}' liked`);
+	 expect(HVZ.gclui.chosen_set_id,
+		`set ALL should be ${prior_set_id}`).
+           to.equal(prior_set_id);
+	 expect(HVZ.gclui.immediate_execution_mode,
+		`"___ ALL like '${like_str}'" should be in immediate execution mode`).
 	   to.equal(true);
 	 expect(HVZ.gclui.chosen_set_id,
 		"set ALL should be chosen").to.equal('all_set');
 	 HVZ.like_string("");
 	 expect(HVZ.gclui.chosen_set_id,
-		"set ALL should be #{prior_set_id}").
-	   to.equal(prior_set_id); // TODO change to all_set
-       });
+		`set ALL should be ${prior_set_id}`).
+           to.equal(prior_set_id); // TODO change to all_set
+         //halt('expecting "__ every Thing. " so FAIL NOW');
+         //done();
+      }));
+
+    it("HVZ.click_set('all').click_verb('unselect').click_set('all') SHOULD WORK");
 
     it("liking with a verb picked should show the GO button",
-       function(done) {
-	 say(test_title, done);
-	 HVZ.toggle_taxon("Thing",true);
+       mochaAsync(async () => {
+	 HVZ.toggle_taxon("Thing", true);
+         await wait_till_none_selected_for(HVZ, 30, 2000);
+         expect(HVZ.selected_set.length, "none should be selected").to.equal(0);
+	 HVZ.toggle_taxon("Thing", true);
 	 HVZ.click_verb('label');
 	 HVZ.like_string("thames");
+         function immediate_execution_mode__OFF(){
+           $('#tabs').append(`<li>awaiting immediate_execution_mode__OFF</li>`);
+           return HVZ.gclui.immediate_execution_mode == false;
+         }
+         await checkUntil(immediate_execution_mode__OFF, 19, 1000); // FIXME is this stopping?
 	 expect(HVZ.gclui.immediate_execution_mode,
 		"immediate_execution_mode should be disabled").
 	   to.equal(false);
@@ -354,15 +620,22 @@ describe("HuViz Tests", function() {
 	 HVZ.like_string(""); // TODO ensure that gclui.reset() cleans up
 	 expect($(HVZ.gclui.doit_butt[0][0]).is(':hidden'),
 		"the GO button should be hidden").to.equal(true);
-	 HVZ.click_verb('label'); // TODO this cleanup should NOT be required
-       });
+         await wait_till_prop__equals__(HVZ.labelled_set, 'length', 0, 30, 1000);
+         expect(HVZ.labelled_set.length, `expecting nothing to be labelled anymore`).to.equal(0);
+       }));
 
     it("pressing the GO button should run the current command",
-       function(done){
-	 say(test_title, done);
-	 HVZ.toggle_taxon("Thing",true);
-	 HVZ.click_verb('label');
-	 HVZ.like_string("thames");
+       mochaAsync(async () => {
+         HVZ.toggle_taxon("Thing", true); // deselect all
+         await wait_till_none_selected_for(HVZ, 30, 2000);
+         expect(HVZ.labelled_set.length,
+                "expecting nothing to be labelled").to.equal(0);
+         /*
+           If a verb is engaged and then a like_string provided then immediate execution mode
+           should be turned OFF -- with the consequence that the GO button should appear.
+           */
+         HVZ.click_verb('label');
+         HVZ.like_string("thames");
 	 expect($(HVZ.gclui.doit_butt[0][0]).is(':hidden'),
 		"the GO button should be visible").to.equal(false);
 	 expect(!$(HVZ.gclui.doit_butt[0][0]).attr('disabled'),
@@ -383,12 +656,10 @@ describe("HuViz Tests", function() {
 	 expect(get_nextcommand_prompt()).to.equal(cmd_str);
 	 expect(!$(HVZ.gclui.doit_butt[0][0]).attr('disabled'),
 		"the GO button should remain clickable after clicking");
-	 console.log("TODO check for command \"LABEL ALL ike 'thames' .\"");
-       });
+       }));
 
     it("Reset should clean up after a pressed GO button",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 $("#reset_btn").click();
 	 HVZ.click_verb('label');
 	 HVZ.like_string("thames");
@@ -399,11 +670,10 @@ describe("HuViz Tests", function() {
 	 $("#reset_btn").click();
 	 expect(HVZ.labelled_set.length,
 		"everything should be cleaned up after Reset").to.equal(0)
-       });
+       }));
 
     it("Reset should clean up after an unpressed GO button",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 $("#reset_btn").click();
 	 HVZ.click_verb('label');
 	 HVZ.like_string("thames");
@@ -413,15 +683,14 @@ describe("HuViz Tests", function() {
 	 $("#reset_btn").click();
 	 expect(HVZ.labelled_set.length,
 		"everything should be cleaned up after Reset").to.equal(0)
-       });
+       }));
   });
 
 
   describe("operations on classes", function() {
 
     it("initially everything should be shelved and nothing graphed",
-       function(done) {
-	 say(test_title, done);
+       function() {
 	 expect(HVZ.graphed_set.length).to.equal(0);
 	 expect(HVZ.shelved_set.length).to.equal(HVZ.nodes.length);
 	 expect($("#Thing").hasClass("treepicker-indirect-mixed"),

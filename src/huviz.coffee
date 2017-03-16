@@ -438,6 +438,7 @@ class Huviz
     # Ideally we'd trigger an actual 'input' event but that is not possible
     $(".like_input").val(str)
     @gclui.handle_like_input()
+    #debugger if @DEBUG and str is ""
     return @
 
   toggle_expander: (id) ->
@@ -862,7 +863,9 @@ class Huviz
       @gclui.add_new_taxon(taxon_id,parent_lid,undefined,taxon) # FIXME should this be an event on the Taxon constructor?
     @taxonomy[taxon_id]
 
-  toggle_taxon: (id, hier) ->
+  toggle_taxon: (id, hier, callback) ->
+    if callback?
+      @gclui.set_taxa_click_storm_callback(callback)
     # TODO preserve the state of collapsedness?
     hier = hier? ? hier : true # default to true
     if hier

@@ -246,7 +246,35 @@ class CommandController
     @start_working()
     setTimeout () => # run asynchronously so @start_working() can get a head start
       @perform_on_taxon_clicked(id, new_state, elem)
+  set_taxa_click_storm_callback: (callback) ->
+    if @taxa_click_storm_callback?
+      throw new Error("taxa_click_storm_callback already defined")
+    else
+      @taxa_click_storm_callback = callback
+  taxa_being_clicked_increment: ->
+    if not @taxa_being_clicked?
+      @taxa_being_clicked = 0
+    @taxa_being_clicked = @taxa_being_clicked + 1
+    return
+  taxa_being_clicked_decrement: ->
+    if not @taxa_being_clicked?
+      throw new Error("taxa_being_clicked_decrement() has apparently been called before taxa_being_clicked_increment()")
+    #@taxa_being_clicked ?= 1
+    console.log("taxa_being_clicked_decrement() before:", @taxa_being_clicked)
+    @taxa_being_clicked--
+    console.log("taxa_being_clicked_decrement() after:", @taxa_being_clicked)
+    if @taxa_being_clicked is 0
+      console.log("taxa click storm complete after length #{@taxa_click_storm_length}")
+      #debugger if @taxa_click_storm_callback?
+      if @taxa_click_storm_callback?
+        @taxa_click_storm_callback.call(document)
+        @taxa_click_storm_callback = null
+      #@taxa_click_storm_length = 0
+    #else
+    #  @taxa_click_storm_length ?= 0
+    #  @taxa_click_storm_length++
   perform_on_taxon_clicked: (id, new_state, elem) =>
+    @taxa_being_clicked_increment()
     taxon = @huviz.taxonomy[id]
     if taxon?
       old_state = taxon.get_state()
@@ -282,6 +310,7 @@ class CommandController
         cleanup: () =>
           @on_taxon_clicked(id, 'unshowing', elem)
     @update_command(because)
+    @taxa_being_clicked_decrement()
   unselect_node_class: (node_class) ->
     # removes node_class from @taxons_chosen
     @taxons_chosen = @taxons_chosen.filter (eye_dee) ->
