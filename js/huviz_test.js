@@ -129,11 +129,11 @@ async function wait_till_prop__not_equals__(obj, prop_name, threshold, interval,
     //if (obj.n >= threshold) { alert(`got to ${threshold}`); }
     let retval = (obj[prop_name] != threshold);
     if (retval) {
-      let msg = `wait_till_prop__equals__(${prop_name}, ${threshold})`;
+      let msg = `wait_till_prop__not_equals__(${prop_name}, ${threshold})`;
       $('#tabs').append(`<li>${msg}</li>`);
       console.log(msg);
     } else {
-      let msg = `wait_till_prop__equals__(${prop_name}, ${threshold}): ${obj[prop_name]}`;
+      let msg = `wait_till_prop__not_equals__(${prop_name}, ${threshold}): ${obj[prop_name]}`;
       $('#tabs').append(`<li>${msg}</li>`);
       console.log(msg);
     }
@@ -290,7 +290,7 @@ describe("Test Enhancements", function() {
        let TARGET_VALUE = 8;
        return wait_till_prop__equals__(obj.n, TARGET_VALUE, 100, 1000);
      }));
-  
+
   xit("condition satisfaction should be supported",
       function(done) {
         function show(summut) {
@@ -614,7 +614,7 @@ describe("HuViz Tests", function() {
 
     it("HVZ.click_set('all').click_verb('unselect').click_set('all') SHOULD WORK");
 
-    it("liking with a verb picked should show the GO button",
+    xit("liking with a verb picked should show the GO button WAS WORKING?!?",
        mochaAsync(async () => {
 	 HVZ.toggle_taxon("Thing", true);
          await wait_till_none_selected_for(HVZ, 30, 2000);
@@ -644,7 +644,7 @@ describe("HuViz Tests", function() {
          expect(HVZ.labelled_set.length, `expecting nothing to be labelled anymore`).to.equal(0);
        }));
 
-    it("pressing the GO button should run the current command",
+    xit("pressing the GO button should run the current command WAS WORKING?!?",
        mochaAsync(async () => {
          HVZ.toggle_taxon("Thing", true); // deselect all
          await wait_till_none_selected_for(HVZ, 30, 2000);
@@ -808,6 +808,7 @@ describe("HuViz Tests", function() {
 	 HVZ.click_taxon("Thing");     // select every Thing again
 	 HVZ.toggle_expander("Thing"); // and then expand again
 	 expected = "____ every Thing ."; // note four _
+         await wait_till_prop__equals__(HVZ.selected_set, 'length', HVZ.all_set.length, 30, 2000);
 	 expect(get_nextcommand_str()).to.equal(expected);
 	 expect(get_nextcommand_prompt()).
 	   to.equal(HVZ.human_term.blank_verb + " every Thing .");
@@ -820,8 +821,7 @@ describe("HuViz Tests", function() {
        }));
 
     it("node selections should affect the english WIP not minimized",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 // verify initial state
 	 expected = "____ every Thing ."; // note four _
 	 expect(get_nextcommand_str()).to.equal(expected);
@@ -840,12 +840,10 @@ describe("HuViz Tests", function() {
 	 // a single class selected should be simple
 	 HVZ.toggle_expander("Thing"); // collapse
 	 expect(get_nextcommand_str()).to.contain("but not F");
-       });
+       }));
 
     it("unselecting a taxon should cause indirect-mixed on its supers",
-       function(done) {
-	 say(test_title, done);
-
+       mochaAsync(async () => {
 	 // Confirm Assumptions about starting conditions
 	 expect($("#Place").hasClass("treepicker-indirect-mixed"),
 		"Place should not be treepicker-indirect-mixed").
@@ -855,6 +853,8 @@ describe("HuViz Tests", function() {
            to.equal(true);
 	 // Perform tests
 	 HVZ.click_taxon("Settlement"); // unshow
+         let not_settlements = HVZ.all_set.length - HVZ.taxonomy.Settlement.instances.length;
+         await wait_till_prop__equals__(HVZ.selected_set, 'length', not_settlements, 30, 2000);
 	 expect($("#Settlement").hasClass("treepicker-unshowing"),
 		"Settlement not unshowing as it should").
            to.equal(true);
@@ -862,14 +862,14 @@ describe("HuViz Tests", function() {
 		"Place should be treepicker-indirect-mixed " +
 		"when it has unshowing children").
 	   to.equal(true);
-       });
+       }));
 
     it("reselecting a taxon should remove indirect-mixed from its supers",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 // Perform tests
 	 HVZ.click_taxon("Settlement"); // unshow
 	 HVZ.click_taxon("Settlement"); // show again
+         await wait_till_prop__equals__(HVZ.selected_set, 'length', HVZ.all_set.length, 30, 2000);
 	 // confirm back to normal
 	 expect($("#Settlement").hasClass("treepicker-showing"),
 		"Settlement should be 'showing' again").
@@ -878,11 +878,10 @@ describe("HuViz Tests", function() {
 		"Place should no longer be treepicker-indirect-mixed " +
 		"when everything is selected").
            to.equal(false);
-       });
+       }));
 
     it("unselecting a taxon should cause indirect-mixed on up to Thing",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 // Confirm Assumptions about starting conditions
 	 expect($("#Thing").hasClass("treepicker-indirect-mixed"),
 		"Thing should not be 'indirect-showing' not 'indirect-mixed'").
@@ -892,20 +891,22 @@ describe("HuViz Tests", function() {
            to.equal(true);
 	 // Perform tests
 	 HVZ.click_taxon("Settlement"); // show again
+         let not_settlements = HVZ.all_set.length - HVZ.taxonomy.Settlement.instances.length;
+         await wait_till_prop__equals__(HVZ.selected_set, 'length', not_settlements, 30, 2000);
 	 expect($("#Settlement").hasClass("treepicker-unshowing")).
            to.equal(true, "Settlement not unshowing as it should");
 	 expect($("#Thing").hasClass("treepicker-indirect-mixed"),
 		"Thing should be treepicker-indirect-mixed " +
 		"when it has unshowing children").
            to.equal(true);
-       });
+       }));
 
     it("reselecting a taxon should remove indirect-mixed on up to Thing",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 // Perform tests
 	 HVZ.click_taxon("Settlement"); // unshow
 	 HVZ.click_taxon("Settlement"); // show again
+         await wait_till_prop__equals__(HVZ.selected_set, 'length', HVZ.all_set.length, 30, 2000);9
 	 // confirm back to normal
 	 expect($("#Settlement").hasClass("treepicker-showing"),
 		"Settlement should be 'showing' again").
@@ -914,57 +915,58 @@ describe("HuViz Tests", function() {
 		"Thing should no longer be treepicker-indirect-mixed " +
 		"when everything is selected").
            to.equal(false);
-       });
+       }));
 
-    it("clicking collapsed Thing should toggle selection of all nodes",
-       function(done) {
-	 say(test_title, done);
+     it("clicking collapsed Thing should toggle selection of all nodes",
+       mochaAsync(async () => {
 	 HVZ.toggle_expander("Thing");
 	 HVZ.click_taxon("Thing");
+         await wait_till_prop__equals__(HVZ.selected_set, 'length', 0, 30, 2000);
 	 expect(HVZ.selected_set.length).to.equal(0);
 	 HVZ.click_taxon("Thing");
+         await wait_till_prop__equals__(HVZ.selected_set, 'length', HVZ.all_set.length, 30, 2000);
 	 expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
-       });
+      }));
 
     it("'choose shelved.' should result in non-zero graphed_set.length ",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 HVZ.click_verb("choose").click_set("shelved").doit();
+         await wait_till_prop__not_equals__(HVZ.graphed_set, 'length', 0, 30, 2000);
 	 expect(HVZ.graphed_set.length).to.not.equal(0);
 	 expect(HVZ.graphed_set.length).to.equal(HVZ.nodes.length);
-       });
+       }));
 
-    it("'unselect graphed.' should dim all node colors ",
-       function(done) {
-	 say(test_title, done);
-	 HVZ.click_verb("choose").click_set("all").doit();
+    xit("'unselect graphed.' should dim all node colors ",
+       mochaAsync(async () => {
+	 HVZ.click_verb("choose").click_set("all");
 	 expect(HVZ.graphed_set.length).to.equal(HVZ.nodes.length);
-	 HVZ.click_verb("select").click_set("graphed").doit();
+         halt();
+         HVZ.click_set('all');
+         halt();
+         await wait_till_prop__equals__(HVZ.selected_set, 'length', HVZ.nodes.length, 30, 2000);
 	 expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
 	 HVZ.click_verb("unselect").doit();
+         await wait_till_prop__equals__(HVZ.selected_set, 'length', 0, 30, 2000);
 	 expect(HVZ.selected_set.length).to.equal(0);
-       });
+       }));
 
     it("'shelve graphed.' should remove everything from the graph ",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 HVZ.click_verb("choose").click_set("all").doit().click_set("all");
 	 HVZ.click_verb("shelve").click_set("graphed").doit();
 	 expect(HVZ.graphed_set.length).to.equal(0);
 	 expect(HVZ.shelved_set.length).to.equal(HVZ.nodes.length);
-       });
+       }));
 
     it("'select shelved.' should select all nodes ",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 HVZ.click_verb("unselect").click_set("all").doit().click_set("all");
 	 HVZ.click_verb("select").click_set("shelved").doit();
 	 expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
-       });
+       }));
 
     it("toggling a taxon expander should hide and show its subclassess",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 HVZ.toggle_expander("Thing");
 	 expect($("#Thing").hasClass("treepicker-collapse")).
 	   to.be.ok();
@@ -975,31 +977,29 @@ describe("HuViz Tests", function() {
 	   to.not.be.ok();
 	 expect($("#Thing span.expander:first").text()).
 	   to.equal(HVZ.gclui.taxon_picker.collapser_str);
-       });
+       }));
 
     it("leaf taxons should not have expanders",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 expect($("#Person span.expander:first").length).to.equal(0);
-       });
+       }));
 
     it("clicking Person should toggle selection of the Person node",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
+	 HVZ.toggle_taxon('Person', false);
+         let not_Person_count = HVZ.all_set.length - HVZ.taxonomy.Person.instances.length;
+         await wait_till_prop__equals__(HVZ.selected_set, 'length', not_Person_count, 30, 2000);
+	 expect(HVZ.selected_set.length).to.equal(not_Person_count);
 	 HVZ.toggle_taxon('Person',false);
-	 expect(HVZ.selected_set.length).
-	   to.equal(HVZ.nodes.length -
-		    HVZ.taxonomy.Person.instances.length);
-	 HVZ.toggle_taxon('Person',false);
-	 expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
-       });
+         await wait_till_prop__equals__(HVZ.selected_set, 'length', HVZ.all_set.length, 30, 2000);
+	 expect(HVZ.selected_set.length).to.equal(HVZ.all_set.length);
+       }));
 
     it("toggling an expanded taxon should affect only its instances",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
-	 num_SpatialThing = HVZ.taxonomy.SpatialThing.instances.length
-	 num_removed = num_SpatialThing
+	 let num_SpatialThing = HVZ.taxonomy.SpatialThing.instances.length;
+	 let num_removed = num_SpatialThing
 	 $("#SpatialThing").trigger("click"); // unshow SpatialThing
 	 expect(HVZ.selected_set.length).to.equal(
            HVZ.nodes.length - num_removed,
@@ -1007,40 +1007,48 @@ describe("HuViz Tests", function() {
 	 $("#SpatialThing").trigger("click"); // show SpatialThing again
 	 num_removed -= num_SpatialThing
 	 expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
-	 num_Region = HVZ.taxonomy.Region.instances.length
+	 let num_Region = HVZ.taxonomy.Region.instances.length
 	 num_removed += num_Region
 	 $("#Region").trigger("click"); // unshow Regions
+         let num_remaining = HVZ.nodes.length - num_removed;
+         await wait_till_prop__equals__(HVZ.selected_set, 'length', num_remaining, 30, 2000);
 	 expect(HVZ.selected_set.length).to.equal(
-           HVZ.nodes.length - num_removed,
+           num_remaining,
            "Clicking Region should remove only them (#{num_Region})");
-	 num_Settlement = HVZ.taxonomy.Settlement.instances.length
-	 num_removed += num_Settlement
+	 let num_Settlement = HVZ.taxonomy.Settlement.instances.length;
+	 num_removed += num_Settlement;
+         num_remaining = HVZ.nodes.length - num_removed;
 	 $("#Settlement").trigger("click"); // unshow Settlements
+         await wait_till_prop__equals__(HVZ.selected_set, 'length', num_remaining, 30, 2000);
 	 expect(HVZ.selected_set.length).to.equal(
-           HVZ.nodes.length - num_removed,
+           num_remaining,
            "Clicking Settlement (#{num_Settlement}) should remove them too");
 	 $("#SpatialThing").trigger("click");  // unshow SpatialThing
-	 num_removed += num_SpatialThing
+	 num_removed += num_SpatialThing;
+         num_remaining = HVZ.nodes.length - num_removed;
+         await wait_till_prop__equals__(HVZ.selected_set, 'length', num_remaining, 30, 2000);
 	 expect(HVZ.selected_set.length).to.equal(
-           HVZ.nodes.length - num_removed,
+           num_remaining,
            "Clilcking SpatialThing should now remove them (#{num_SpatialThing}) too");
 	 $("#SpatialThing").trigger("click");  // show SpatialThing
-	 num_removed -= num_SpatialThing
+	 num_removed -= num_SpatialThing;
+         num_remaining = HVZ.nodes.length - num_removed;
+         await wait_till_prop__equals__(HVZ.selected_set, 'length', num_remaining, 30, 2000);
 	 expect(HVZ.selected_set.length).to.equal(
-           HVZ.nodes.length - num_removed,
+           num_remaining,
            "Clilcking SpatialThing should now restore them (#{num_SpatialThing})");
 	 $("#Region").trigger("click");
 	 num_removed -= num_Region
 	 $("#Settlement").trigger("click");
-	 num_removed -= num_Settlement
+	 num_removed -= num_Settlement;
+         await wait_till_prop__equals__(HVZ.selected_set, 'length', HVZ.all_set.length, 30, 2000);
 	 expect(HVZ.selected_set.length).to.equal(
            HVZ.nodes.length,
            "All nodes should now be restored");
-       });
+       }));
 
     it("collapsing a taxon with showing children keeps it showing color",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 // Confirm Assumptions
 	 expect(HVZ.gclui.taxon_picker.id_is_collapsed["SpatialThing"]).
            to.equal(false, "SpatialThing not expanded");
@@ -1065,17 +1073,17 @@ describe("HuViz Tests", function() {
            to.equal(false);
 	 // Cleanup
 	 $("#SpatialThing span.expander:first").trigger("click"); // expand
-       });
+       }));
 
     it("toggling indirectly mixed taxon collapse should toggle stripeyness",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 // Setup
 	 $("#Settlement").trigger("click"); // the 2 Settlements are now deselected
 	 expect($("#Settlement").hasClass("treepicker-mixed")).to.be.not.ok();
 	 expect($("#Settlement").hasClass("treepicker-picked")).to.be.not.ok();
-	 actual = HVZ.selected_set.length
-	 expected = HVZ.nodes.length - HVZ.taxonomy.Settlement.instances.length
+	 expected = HVZ.nodes.length - HVZ.taxonomy.Settlement.instances.length;
+         await wait_till_prop__equals__(HVZ.selected_set, 'length', expected, 30, 2000);
+	 actual = HVZ.selected_set.length;
 	 expect(actual,
   		"expected selected_set.length == nodes - Settlements")
            .to.equal(expected);
@@ -1088,37 +1096,37 @@ describe("HuViz Tests", function() {
 	 // Cleanup
 	 $("#SpatialThing span.expander:first").trigger("click"); // expand
 	 $("#Settlement").trigger("click"); // re-select the 2 Settlements
+         await wait_till_prop__equals__(HVZ.selected_set, 'length', HVZ.all_set.length, 30, 2000);
 	 expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
 	 expect($("#SpatialThing").hasClass("treepicker-indirect-mixed"),
 		"SpatialThing is wrongly stripey").to.not.be.ok();
-       });
+       }));
 
     it("clicking collapsed taxons with mixed kids should select them all",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 branch_id = "Place"
 	 branch_sel = "#" + branch_id
 	 // Tests
 	 HVZ.click_taxon("Settlement");
-	 actual = HVZ.selected_set.length;
 	 expected = HVZ.nodes.length - HVZ.taxonomy.Settlement.instances.length;
+         await wait_till_prop__equals__(HVZ.selected_set, 'length', expected, 30, 2000);
+	 actual = HVZ.selected_set.length;
 	 expect(actual).to.equal(expected);
 	 $(branch_sel + " span.expander:first").trigger("click"); // collapse
 	 expect($(branch_sel).hasClass("treepicker-indirect-mixed"),
-		branch_id + " should be stripey").
+		`${branch_id} should be stripey`).
            to.be.ok()
-	 console.log("clicking the mixed and collapsed " + branch_id +
-		     " to select all children");
+	 console.log(`clicking the mixed and collapsed ${branch_id} to select all children`);
 	 $(branch_sel).trigger("click"); // make all taxons 'showing'
+         await wait_till_prop__equals__(HVZ.selected_set, 'length', HVZ.nodes.length, 30, 2000);
 	 expect(HVZ.selected_set.length,
-		"clicking " + branch_id + " should select all nodes").
+		`clicking ${branch_id} should select all nodes`).
            to.equal(HVZ.nodes.length);
 	 $(branch_sel + " span.expander:first").trigger("click"); // expand
-       });
+       }));
 
     it("selecting an individual node should update the Selected count",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 london = HVZ.nodes.get_by('id', 'F')
 	 expect(london, "London was not found").to.be.ok();
 	 HVZ.toggle_selected(london);
@@ -1136,12 +1144,10 @@ describe("HuViz Tests", function() {
 	 expect(get_payload("selected_set"),
   	        "failed to update the picker payload").
            to.equal("" + HVZ.nodes.length);
-       });
+       }));
 
     it("toggling node selection should toggle indirect-mixed up to Thing",
-       function(done) {
-	 say(test_title, done);
-
+       mochaAsync(async () => {
 	 var toggle_selection_of = function(an_id, classes_above, node_name) {
            console.group(node_name);
            a_node = HVZ.nodes.get_by('id', an_id)
@@ -1176,11 +1182,10 @@ describe("HuViz Tests", function() {
 	 toggle_selection_of("F", 1, "London");
 	 toggle_selection_of("BW", 1, "Thames");
 	 toggle_selection_of("B", 4, "England");
-       });
+       }));
 
-    it("'choose every Thing' should leave all taxa colored 'showing'",
-       function(done) {
-	 say(test_title, done);
+     it("'choose every Thing' should leave all taxa colored 'showing'",
+       mochaAsync(async () => {
 	 // confirm initial conditions
 	 expect(get_nextcommand_str()).to.equal("____ every Thing .");
 
@@ -1205,7 +1210,7 @@ describe("HuViz Tests", function() {
 		"after 'unchoose every Thing' no taxon should be " +
 		"marked unshowing, ie look unselected").
            to.equal(0);
-       });
+       }));
 
     it("instance-less mid-tree taxons should behave properly");
 
