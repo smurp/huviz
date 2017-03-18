@@ -54,6 +54,9 @@ class EditController
       "Clojure",
       "COBOL",
       "ColdFusion",
+      "DatatypeProperty: literal string",
+      "DatatypeProperty: number",
+      "DatatypeProperty: date",
       "Erlang",
       "Fortran",
       "Groovy",
@@ -98,6 +101,27 @@ class EditController
         break
       else
         saveButton.disabled = false
+    console.log(form.elements[1].value)
+
+    typeDatatypeProperty = true # this is a temp variable to test condition when this is an object property
+    typePropertyType = "DatatypeProperty"
+    placeholder_label = "Object (DatatypeProperty)"
+    if typeDatatypeProperty
+      @set_edit_for_dataProperty()
+      $(form.elements[2]).attr("placeholder", placeholder_label)
+      # TODO - Change behaviour of click.... click node becomes subject but NO drag operations allowed
+      # Disable drag opperations == HOW?? -- Toggle "nodrag"
+    else
+      @dataPropertyNoDrag = false
+
+
+    # if the predicate is of DatatypeProperty then
+    #  0. replace placeholder to reflect data type needed in object
+    #  1. object field will only accpet input according to appropriate type (i.e. literal string, number or date)
+
+  set_edit_for_dataProperty: () =>
+    console.log("set_edit_for_dataProperty")
+    @dataPropertyNoDrag = true
 
   save_edit_form: () =>
     form = @controls
