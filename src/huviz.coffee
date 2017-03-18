@@ -983,6 +983,9 @@ class Huviz
       seeking = "focused_node"
     if not seeking
       return
+    #TODO - Where does this go? If in predicate indicates objectProperty - no drag interaction - click only
+    #if @editui.dataPropertyNoDrag
+      # don't allow dragging, select only
 
     # FIXME build a spatial index!!!! OMG
     @nodes.forEach (d, i) =>
