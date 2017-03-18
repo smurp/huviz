@@ -315,7 +315,7 @@ describe("Test Enhancements", function() {
 
 describe("HuViz Tests", function() {
   this.timeout(5000);
-  this.bail(true); // tell mocha to stop on first failure
+  //this.bail(true); // tell mocha to stop on first failure
   var number_of_nodes = 15;
   var test_title;
 
@@ -868,6 +868,7 @@ describe("HuViz Tests", function() {
        mochaAsync(async () => {
 	 // Perform tests
 	 HVZ.click_taxon("Settlement"); // unshow
+         await wait_till_prop__not_equals__(HVZ.selected_set, 'length', HVZ.all_set.length, 30, 2000);
 	 HVZ.click_taxon("Settlement"); // show again
          await wait_till_prop__equals__(HVZ.selected_set, 'length', HVZ.all_set.length, 30, 2000);
 	 // confirm back to normal
@@ -905,8 +906,9 @@ describe("HuViz Tests", function() {
        mochaAsync(async () => {
 	 // Perform tests
 	 HVZ.click_taxon("Settlement"); // unshow
+         await wait_till_prop__not_equals__(HVZ.selected_set, 'length', HVZ.all_set.length, 30, 2000);
 	 HVZ.click_taxon("Settlement"); // show again
-         await wait_till_prop__equals__(HVZ.selected_set, 'length', HVZ.all_set.length, 30, 2000);9
+         await wait_till_prop__equals__(HVZ.selected_set, 'length', HVZ.all_set.length, 30, 2000);
 	 // confirm back to normal
 	 expect($("#Settlement").hasClass("treepicker-showing"),
 		"Settlement should be 'showing' again").
@@ -1221,8 +1223,7 @@ describe("HuViz Tests", function() {
   describe("operations on predicates", function() {
 
     it("everything should start shelved and un-graphed",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 expect(HVZ.graphed_set.length).to.equal(0);
 	 expect(HVZ.shelved_set.length).to.equal(HVZ.nodes.length);
 	 expect(get_nextcommand_str()).
@@ -1236,23 +1237,21 @@ describe("HuViz Tests", function() {
 	 expect($("#predicates .treepicker-indirect-mixed").length,
 		"there should be no indirect-mixed predicates when nothing is graphed").
            to.equal(0);
-       });
+       }));
 
     it("with nothing graphed, clicking collapsed anything should graph all",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 HVZ.toggle_expander("anything").click_predicate("anything");
-
+         await wait_till_prop__equals__(HVZ.graphed_set, 'length', HVZ.nodes.length, 30, 13000);
 	 // confirm that everything is graphed
 	 expect(HVZ.graphed_set.length,
 		"after clicking collapsed 'anything' everything should be graphed").
            to.equal(HVZ.nodes.length);
 	 expect(HVZ.shelved_set.length).to.equal(0);
-       });
+       }));
 
     it("with All graphed, clicking collapsed anything should ungraph all",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 HVZ.toggle_expander("anything"); // collapse
 	 HVZ.click_verb('choose'); // graph everything so we can test whether ungraphing works
 	 expect(HVZ.graphed_set.length,
@@ -1267,12 +1266,10 @@ describe("HuViz Tests", function() {
 		"after clicking collapsed 'anything' everything should be ungraphed").
            to.equal(0);
 	 expect(HVZ.shelved_set.length).to.equal(HVZ.nodes.length);
-       });
+       }));
 
     it("when no taxa are selected only the predicate anything should be visible",
-       function(done) {
-	 say(test_title, done);
-
+       mochaAsync(async () => {
 	 HVZ.toggle_expander("Thing");  // collapse Thing
 	 HVZ.click_taxon("Thing");  // unselect every Thing
 	 // make the unselectedness of every Thing visible (not important, just handy)
@@ -1293,12 +1290,10 @@ describe("HuViz Tests", function() {
 	 expect($("#predicates.treepicker-indirect-empty").length,
 		"there should be no indirect-mixed predicates when nothing is graphed").
            to.equal(0);
-       });
+       }));
 
     it("collapsed picker nodes should summarize their kids' colors",
-       function(done) {
-	 say(test_title, done);
-
+       mochaAsync(async () => {
 	 var verify_gradient_when_collapsed = function(id, has_gradient) {
            var sel = "#" + id;
            expect($(sel).attr("style")).to.not.be.ok();
@@ -1319,11 +1314,10 @@ describe("HuViz Tests", function() {
 	 verify_gradient_when_collapsed('SpatialThing', true); // has kids
 	 verify_gradient_when_collapsed('Thing', true); // has kids
 	 verify_gradient_when_collapsed('hasWealthConnectionToRegion', true); // has kids
-       });
+       }));
 
     it("predicates' payload should summarize their children when collapsed WIP movedConnectionToRegion next-to-leaf-nodes not summarizing correctly",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 var expect_predicate_payload = function(pred_id, collapsed, expanded) {
            // check collapsed payload
            var sel = "#"+ pred_id;
@@ -1341,12 +1335,10 @@ describe("HuViz Tests", function() {
 	 expect_predicate_payload("anything", "0/49", "0/0"); // empty
 	 expect_predicate_payload("moved", "0/5", "0/0"); // empty
 	 expect_predicate_payload("movedConnectionToRegion", "0/3", "0/0"); // 1
-       });
+       }));
 
     it("toggling a predicate should toggle indirect-mixed on its supers",
-       function(done) {
-	 say(test_title, done);
-
+       mochaAsync(async () => {
 	 // Confirm assumption that there are no indirect-mixed initially
 	 expect($("#predicates .treepicker-indirect-mixed").length,
 		"there should be no indirect-mixed predicates when nothing is graphed").
@@ -1371,11 +1363,10 @@ describe("HuViz Tests", function() {
 	   to.equal(num_parent);
 	 window.breakpoint = false;
 	 jsoutline.squelch = true;
-       });
+       }));
 
     it("non-empty predicates should not have payload '0/0' after kid click",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 HVZ.toggle_expander("Thing");  // collapse Thing
 	 $("#Thing").trigger("click"); // unselect every Thing
 	 $("#Thing").trigger("click"); // select every Thing
@@ -1385,7 +1376,7 @@ describe("HuViz Tests", function() {
 	 expect(get_payload("hasWealthConnectionToRegion"),
 		"a leaf's parent should not be 0/0 if it is non-empty").
            to.not.equal("0/0");
-       });
+       }));
 
     it("empty predicates should be white when expanded");
     it("relationships should behave properly when collapsed and toggled");
@@ -1393,8 +1384,7 @@ describe("HuViz Tests", function() {
 
   describe("command life-cycle", function() {
     it("engaging Verb then Set should execute then disengage Set",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 expect(get_nextcommand_str()).to.equal("____ every Thing .");
 	 HVZ.toggle_taxon('Thing',false);
 	 expect(get_nextcommand_str()).to.equal("____ ____ .");
@@ -1411,11 +1401,10 @@ describe("HuViz Tests", function() {
 	 expect(!HVZ.gclui.chosen_set_id,
 		"expect set to be disengaged after immediate execution").
 	   to.equal(true);
-       });
+       }));
 
     it("engaging Verb then Class should execute then disengage Class",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 HVZ.toggle_taxon('Thing',false);
 	 expect(get_nextcommand_str()).to.equal("____ ____ .");
 	 expect(!HVZ.gclui.chosen_set_id,
@@ -1434,11 +1423,10 @@ describe("HuViz Tests", function() {
 	 expect(!HVZ.gclui.chosen_set_id,
 		"expect set to be disengaged after immediate execution").
 	   to.equal(true);
-       });
+       }));
 
     it("engaging Set then Verb should execute then disengage Verb",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 HVZ.toggle_taxon('Thing',false);
 	 expect(get_nextcommand_str()).to.equal("____ ____ .");
 	 HVZ.click_set("shelved").click_verb("label").doit();
@@ -1448,11 +1436,10 @@ describe("HuViz Tests", function() {
 	   to.equal(true);
 	 expect(get_nextcommand_str()).
 	   to.equal("____ Shelved .");
-       });
+       }));
 
     it("engaging Class then Verb should execute then disengage Verb",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 HVZ.toggle_taxon('Thing',false);
 	 expect(get_nextcommand_str()).to.equal("____ ____ .");
 	 HVZ.click_taxon("Region").click_verb("label").doit();
@@ -1461,11 +1448,10 @@ describe("HuViz Tests", function() {
 	   to.equal(true);
 	 expect(get_nextcommand_str()).to.equal("____ Region .");
 	 //expect(false, "test not really working...").to.be.ok();
-       });
+       }));
 
     it("retrieving should only affect nodes which are discarded.",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 HVZ.toggle_taxon('Thing',false);
 	 expect(get_nextcommand_str()).to.equal("____ ____ .");
 	 HVZ.click_verb('label');
@@ -1495,11 +1481,10 @@ describe("HuViz Tests", function() {
 	 expect(HVZ.hidden_set.length,
 		"hidden undiscarded things should not be affected by undiscard").
            to.equal(2);
-       });
+       }));
 
     xit("previously hidden nodes should not be colored 'selected' when release backed to the shelf WIP it looks right but the test shows failure -- timing?",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 HVZ.toggle_taxon('Thing',false);
 	 expect(get_nextcommand_str()).to.equal("____ ____ .");
 	 HVZ.click_verb("hide").click_set("Region").doit();
@@ -1518,7 +1503,7 @@ describe("HuViz Tests", function() {
 	     to.equal('rgb(246, 228, 228)');
 	 }
 	 expect("the_color_of_the_region_nodes").to.equal('something');
-       });
+        }));
 
     xit("'spinner' icon should show when a command is executing");
     xit("clicking a set when another is engaged should engage the clicked one");
@@ -1585,8 +1570,7 @@ describe("HuViz Tests", function() {
     };
 
     it("labels shouldn't scroll if the limit is set to 0",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 HVZ.all_set.sort_on('lid');
 	 HVZ.change_setting_to_from('truncate_labels_to', 0, 40);
 	 var hunsdon = HVZ.all_set.get_by('lid','I');   // name >> 10
@@ -1595,11 +1579,10 @@ describe("HuViz Tests", function() {
          scroll_test(hunsdon);
 	 console.log("Is that you, thames? ",thames.name);
          scroll_test(thames);
-       });
+       }));
 
     it("labels shouldn't scroll if they're shorter (or equal to) the limit",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 HVZ.all_set.sort_on('lid');
 	 var bill = HVZ.all_set.get_by('lid','shakwi'); // name = 20
 	 var thames = HVZ.all_set.get_by('lid','BW');   // name < 10
@@ -1608,11 +1591,10 @@ describe("HuViz Tests", function() {
 	 scroll_test(bill);
 	 console.log("Is that you, thames? ",thames.name);
          scroll_test(thames);
-       });
+       }));
 
     it("labels should scroll if they're longer than the limit",
-       function(done) {
-	 say(test_title, done);
+       mochaAsync(async () => {
 	 HVZ.all_set.sort_on('lid');
 	 var bill = HVZ.all_set.get_by('lid','shakwi'); // name = 20
 	 var thames = HVZ.all_set.get_by('lid','BW');   // name < 20
@@ -1628,7 +1610,7 @@ describe("HuViz Tests", function() {
          scroll_test(hunsdon);
 	 console.log("------------------------------");
 
-       });
+       }));
 
   });
 
