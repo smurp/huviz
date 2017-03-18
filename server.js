@@ -149,6 +149,8 @@
     app.use('/docs', express["static"](__dirname + '/docs'));
     app.get("/orlonto.html", localOrCDN("/views/orlonto.html.eco", nopts.is_local));
     app.get("/yegodd.html", localOrCDN("/views/yegodd.html.eco", nopts.is_local));
+    app.get("/experiment.html", localOrCDN("/views/experiment.html", nopts.is_local));
+    app.get("/experiment.js", localOrCDN("/views/experiment.js", nopts.is_local));
     app.get("/tests", localOrCDN("/views/tests.html.eco", nopts.is_local));
     app.get("/", localOrCDN("/views/huvis.html.eco", nopts.is_local));
     return app.use(express["static"](__dirname + '/images'));
