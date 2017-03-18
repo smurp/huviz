@@ -479,7 +479,6 @@ describe("HuViz Tests", function() {
       expect($(".edit-controls").attr('edit')).to.equal('no');
     });
     it(`the '${EDITUI_DBNAME}' should exist and be emptied at the start WIP no emptying`,
-       //function(done) {
        mochaAsync(async () => {
          expect(window.indexedDB).to.be.ok()
          await checkUntil(() => {return HVZ.indexeddbservice.dbName}, 20, 200)
@@ -492,13 +491,12 @@ describe("HuViz Tests", function() {
 	 expect($(".edit-controls")).to.exist();
        });
     it("should toggle form display when clicked",
-       function(done) {
+       mochaAsync(async () => {
          $(".edit-controls .slider").trigger('click');
 	 expect($(".edit-controls").attr('edit')).to.equal('yes');
          $(".edit-controls .slider").trigger('click');
 	 expect($(".edit-controls").attr('edit')).to.equal('no');
-         done();
-       });
+       }));
     it("should Save properly entered triples",
        function(done) {
 	 say(test_title);
