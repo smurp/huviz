@@ -70,6 +70,14 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function blurt(str) {
+  if (!$('#blurtbox').length) {
+    $('#tabs').append(`<div id="blurtbox" style="overflow:scroll; height:150px; font-family:monospace"></div>`);
+  }
+  $('#blurtbox').append(`<li>${str}</li>`);
+  $('#blurtbox').scrollTop(1000000);
+}
+
 // http://stackoverflow.com/a/40230053/1234699
 function checkUntil(conditionFunc, interval_ms, timeout_ms) {
   var retryCountLimit = 100;
@@ -78,7 +86,7 @@ function checkUntil(conditionFunc, interval_ms, timeout_ms) {
     retryCountLimit = Math.round(timeout_ms/interval_ms);
   }
   console.debug(conditionFunc);
-  $('#tabs').append(`<li>checkUntil(COND, ${interval_ms}, ${timeout_ms})</li>`);
+  blurt(`checkUntil(COND, ${interval_ms}, ${timeout_ms})`);
   var promise = new Promise((resolve, reject) => {
     var timer = setInterval(function () {
       if (conditionFunc()) {
@@ -110,12 +118,10 @@ async function wait_till_prop__equals__(obj, prop_name, threshold, interval, tim
     let retval = (obj[prop_name] == threshold);
     if (retval) {
       let msg = `wait_till_prop__equals__(${prop_name}, ${threshold})`;
-      $('#tabs').append(`<li>${msg}</li>`);
-      console.log(msg);
+      blurt(`${msg}`);
     } else {
       let msg = `wait_till_prop__equals__(${prop_name}, ${threshold}): ${obj[prop_name]}`;
-      $('#tabs').append(`<li>${msg}</li>`);
-      console.log(msg);
+      blurt(`${msg}`);
     }
     return retval;
   }, interval, timeout);
@@ -130,12 +136,10 @@ async function wait_till_prop__not_equals__(obj, prop_name, threshold, interval,
     let retval = (obj[prop_name] != threshold);
     if (retval) {
       let msg = `wait_till_prop__not_equals__(${prop_name}, ${threshold})`;
-      $('#tabs').append(`<li>${msg}</li>`);
-      console.log(msg);
+      blurt(`${msg}`);
     } else {
       let msg = `wait_till_prop__not_equals__(${prop_name}, ${threshold}): ${obj[prop_name]}`;
-      $('#tabs').append(`<li>${msg}</li>`);
-      console.log(msg);
+      blurt(`${msg}`);
     }
     return retval;
   }, interval, timeout);
@@ -331,19 +335,18 @@ describe("HuViz Tests", function() {
       return function() { return next; }
     };
     let delete_dbs = function(deletable_dbs) {
-      let sel = "#tabs";
       for (dbname of deletable_dbs) {
         //done = nest_cb(done);
-        $(sel).append(`<li>queue <b>${dbname}</b> for deletion</li>`);
+        blurt(`queue <b>${dbname}</b> for deletion`);
         let del_req = window.indexedDB.deleteDatabase(dbname);
         del_req.onsuccess = function(dbname) {
           return function(){
-            $(sel).append(`<li><b>${dbname}</b> deleted</li>`);
+            blurt(`<b>${dbname}</b> deleted`);
           };
         }(dbname);
         del_req.onerror = function(evt){
           let err = evt.result;
-          $(sel).append(`<li><b>${dbname}</b> error: ${err.toString()}</li>`);
+          blurt(`<b>${dbname}</b> error: ${err.toString()}`);
         };
       }
     };
@@ -623,7 +626,7 @@ describe("HuViz Tests", function() {
 	 HVZ.click_verb('label');
 	 HVZ.like_string("thames");
          function immediate_execution_mode__OFF(){
-           $('#tabs').append(`<li>awaiting immediate_execution_mode__OFF</li>`);
+           blurt(`awaiting immediate_execution_mode__OFF`);
            return HVZ.gclui.immediate_execution_mode == false;
          }
          await checkUntil(immediate_execution_mode__OFF, 19, 1000); // FIXME is this stopping?
