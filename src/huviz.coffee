@@ -487,11 +487,10 @@ class Huviz
     else # IE not dragging
       if @edit_mode
         if @editui.object_node or not @editui.subject_node
-          if @editui.dataPropertyNoDrag
+          if @editui.object_datatype_is_literal
             @text_cursor.set_text("click subject node")
           else
             @text_cursor.set_text("drag subject node")
-
     if @peeking_node?
       #console.log "PEEKING at node: " + @peeking_node.id
       if @focused_node? and @focused_node isnt @peeking_node
@@ -534,6 +533,11 @@ class Huviz
           @run_verb_on_object 'pin', @dragging
       @dragging = false
       @text_cursor.continue()
+      return
+
+    if @edit_mode and @focused_node and @editui.object_datatype_is_literal
+      @editui.set_subject_node(@focused_node)
+      @tick()
       return
 
     # this is the node being clicked

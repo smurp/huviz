@@ -532,7 +532,7 @@ describe("HuViz Tests", function() {
            done();
          });
        });
-    xit("ENGAGE THIS TEST to do manual testing of drag and drop editing",
+    it("ENGAGE THIS TEST to do manual testing of drag and drop editing",
        mochaAsync(async () => {
          HVZ.toggle_taxon("Thing", true); // deselect everything
          $(".edit-controls .slider").trigger('click');

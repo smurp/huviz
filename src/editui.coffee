@@ -89,6 +89,7 @@ class EditController
       @con.setAttribute("edit","no")
       @con.classList.remove("edit-mode")
       @huviz.set_edit_mode(false)
+    @adjust_object_datatype()
 
   validate_edit_form: (evt) =>
     form = @controls
@@ -102,30 +103,38 @@ class EditController
       else
         saveButton.disabled = false
     console.log(form.elements[1].value)
+    @adjust_object_datatype()
 
-  adjust_object_type: () ->
+  predicate_is_DatatypeProperty: () ->
+    # The job of figuring this out is best done in a method because:
+    #   * a search up the superclasses of the predicate is needed
+    #   * caching that answer might be needed for efficiency
+    #   * heuristics in case of ambiguity might be required
     #
+    # We can get started on this by just responding to magic values in the predicate.
+    if @predicate_input
+      window.THINGY = @predicate_input
+      # Hey Wolf!! For some reason this is not finding the value in the input...
+      # Wanna take it from here?
+      current_value = @predicate_input.getAttribute('value')
+      return current_value is 'literal'
+    return false
+
+  adjust_object_datatype: () ->
     # This is not being called yet.  Perhaps it should be when the predicate is set.
     # It could also have the job of triggering the change to the object widget.
-    #
-    typeDatatypeProperty = true # this is a temp variable to test condition when this is an object property
-    typePropertyType = "DatatypeProperty"
-    placeholder_label = "Object (DatatypeProperty)"
-    if typeDatatypeProperty
-      @set_edit_for_dataProperty()
-      $(form.elements[2]).attr("placeholder", placeholder_label)
-      # TODO - Change behaviour of click.... click node becomes subject but NO drag operations allowed
-      # Disable drag opperations == HOW?? -- Toggle "nodrag"
+
+    if @predicate_is_DatatypeProperty()
+      @object_datatype_is_literal = true
+      placeholder_label = "a literal value"
     else
-      @dataPropertyNoDrag = false
+      @object_datatype_is_literal = false
+      placeholder_label = "object"
+    @object_input.setAttribute("placeholder", placeholder_label)
 
     # if the predicate is of DatatypeProperty then
     #  0. replace placeholder to reflect data type needed in object
     #  1. object field will only accpet input according to appropriate type (i.e. literal string, number or date)
-
-  set_edit_for_dataProperty: () =>
-    console.log("set_edit_for_dataProperty")
-    @dataPropertyNoDrag = true
 
   save_edit_form: () =>
     form = @controls
