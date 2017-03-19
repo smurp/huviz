@@ -388,6 +388,8 @@ class CommandController
   is_verb_phrase_empty: ->
     return @engaged_verbs.length is 0
   auto_change_verb_if_warranted: (node) ->
+    if @huviz.edit_mode
+      return
     if @immediate_execution_mode
       # If there is only one verb, then do auto_change
       if @engaged_verbs.length is 1

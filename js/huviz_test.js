@@ -471,13 +471,17 @@ describe("HuViz Tests", function() {
     before(function(done) {
       done();
     })
-    after(function(){
+    afterEach(function(){
       // ensure VIEW mode is restored
-      if ($(".edit-controls").attr('edit') == 'yes') {
-        $(".edit-controls .slider").trigger('click');
-      }
-      expect($(".edit-controls").attr('edit')).to.equal('no');
-    });
+      if (HVZ.editui__leave_open) {
+        console.log(`after() is respecting HVZ.editui_leave_open`);
+      } else {
+        if ($(".edit-controls").attr('edit') == 'yes') {
+          console.log(`after() restored the VIEW mode`);
+          $(".edit-controls .slider").trigger('click');
+        }
+        expect($(".edit-controls").attr('edit')).to.equal('no');
+      }});
     it(`the '${EDITUI_DBNAME}' should exist and be emptied at the start WIP no emptying`,
        mochaAsync(async () => {
          expect(window.indexedDB).to.be.ok()
@@ -494,6 +498,7 @@ describe("HuViz Tests", function() {
        mochaAsync(async () => {
          $(".edit-controls .slider").trigger('click');
 	 expect($(".edit-controls").attr('edit')).to.equal('yes');
+         await sleep(100); // just so we can see it
          $(".edit-controls .slider").trigger('click');
 	 expect($(".edit-controls").attr('edit')).to.equal('no');
        }));
@@ -527,6 +532,15 @@ describe("HuViz Tests", function() {
            done();
          });
        });
+    xit("ENGAGE THIS TEST to do manual testing of drag and drop editing",
+       mochaAsync(async () => {
+         HVZ.toggle_taxon("Thing", true); // deselect everything
+         $(".edit-controls .slider").trigger('click');
+         await sleep(1000);
+	 expect($(".edit-controls").attr('edit')).to.equal('yes');
+         HVZ.editui__leave_open = true;
+         halt();
+       }));
   });
 
   describe("graph controls", function() {

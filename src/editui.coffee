@@ -103,6 +103,11 @@ class EditController
         saveButton.disabled = false
     console.log(form.elements[1].value)
 
+  adjust_object_type: () ->
+    #
+    # This is not being called yet.  Perhaps it should be when the predicate is set.
+    # It could also have the job of triggering the change to the object widget.
+    #
     typeDatatypeProperty = true # this is a temp variable to test condition when this is an object property
     typePropertyType = "DatatypeProperty"
     placeholder_label = "Object (DatatypeProperty)"
@@ -113,7 +118,6 @@ class EditController
       # Disable drag opperations == HOW?? -- Toggle "nodrag"
     else
       @dataPropertyNoDrag = false
-
 
     # if the predicate is of DatatypeProperty then
     #  0. replace placeholder to reflect data type needed in object
@@ -154,13 +158,19 @@ class EditController
     saveButton.disabled = true
 
   set_subject_node: (node) ->
+    @subject_node = node
     new_value = node and node.id or ""
     console.log("setting subject node......" + new_value)
     @subject_input.setAttribute("value",new_value)
+    @validate_edit_form()
+    return
 
   set_object_node: (node) ->
+    @object_node = node
     new_value = node and node.id or ""
     console.log("setting object node......"  + new_value)
     @object_input.setAttribute("value",new_value)
+    @validate_edit_form()
+    return
 
   (exports ? this).EditController = EditController

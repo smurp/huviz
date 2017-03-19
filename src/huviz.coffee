@@ -463,24 +463,35 @@ class Huviz
       #console.log "START_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
       @dragging = @focused_node
       if @edit_mode
-        console.log ("add dragged subject to edit form")
-        @editui.set_subject_node(@dragging)
+        if @editui.subject_node isnt @dragging
+          @editui.set_subject_node(@dragging)
       if @dragging.state isnt @graphed_set
         @graphed_set.acquire(@dragging)
     if @dragging
       @force.resume() # why?
       @move_node_to_point @dragging, @last_mouse_pos
-      if @dragging.links_shown.length is 0
-        action = "choose"
-      else if @dragging.fixed
-        action = "unpin"
+      if @edit_mode
+        @text_cursor.pause("", "drop on object node")
       else
-        action = "pin"
-      if @in_disconnect_dropzone(@dragging)
-        action = "shelve"
-      else if @in_discard_dropzone(@dragging)
-        action = "discard"
-      @text_cursor.pause("", "drop to #{action}")
+        if @dragging.links_shown.length is 0
+          action = "choose"
+        else if @dragging.fixed
+          action = "unpin"
+        else
+          action = "pin"
+        if @in_disconnect_dropzone(@dragging)
+          action = "shelve"
+        else if @in_discard_dropzone(@dragging)
+          action = "discard"
+        @text_cursor.pause("", "drop to #{action}")
+    else # IE not dragging
+      if @edit_mode
+        if @editui.object_node or not @editui.subject_node
+          if @editui.dataPropertyNoDrag
+            @text_cursor.set_text("click subject node")
+          else
+            @text_cursor.set_text("drag subject node")
+
     if @peeking_node?
       #console.log "PEEKING at node: " + @peeking_node.id
       if @focused_node? and @focused_node isnt @peeking_node
@@ -1048,7 +1059,8 @@ class Huviz
     @[seeking] = new_focused_node # possibly null
 
     if seeking is 'object_node'
-      @editui.set_object_node(@object_node)
+      if @editui.object_node isnt @object_node
+        @editui.set_object_node(@object_node)
 
     if seeking is 'focused_node'
       node_changed = @focused_node isnt last_focused_node
@@ -1064,7 +1076,10 @@ class Huviz
     edge_changed = @focused_edge isnt last_focused_edge
     if edge_changed
       if @focused_edge?
-        @text_cursor.pause("", "show edge sources")
+        if @edit_mode
+          @text_cursor.pause("", "edit this edge")
+        else
+          @text_cursor.pause("", "show edge sources")
       else
         @text_cursor.continue()
     #@adjust_cursor()
