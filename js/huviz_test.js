@@ -318,7 +318,7 @@ describe("Test Enhancements", function() {
 });
 
 describe("HuViz Tests", function() {
-  this.timeout(5000);
+  this.timeout(35000);
   //this.bail(true); // tell mocha to stop on first failure
   var number_of_nodes = 15;
   var test_title;
@@ -1257,7 +1257,7 @@ describe("HuViz Tests", function() {
     it("with nothing graphed, clicking collapsed anything should graph all",
        mochaAsync(async () => {
 	 HVZ.toggle_expander("anything").click_predicate("anything");
-         await wait_till_prop__equals__(HVZ.graphed_set, 'length', HVZ.nodes.length, 30, 13000);
+         await wait_till_prop__equals__(HVZ.graphed_set, 'length', HVZ.nodes.length, 30, 33000);
 	 // confirm that everything is graphed
 	 expect(HVZ.graphed_set.length,
 		"after clicking collapsed 'anything' everything should be graphed").
@@ -1269,13 +1269,14 @@ describe("HuViz Tests", function() {
        mochaAsync(async () => {
 	 HVZ.toggle_expander("anything"); // collapse
 	 HVZ.click_verb('choose'); // graph everything so we can test whether ungraphing works
+         await wait_till_prop__equals__(HVZ.graphed_set, 'length', HVZ.nodes.length, 30, 3000);
 	 expect(HVZ.graphed_set.length,
 		"after 'choose every Thing' everything should be graphed").
            to.equal(HVZ.nodes.length);
 	 expect(HVZ.shelved_set.length).to.equal(0);
-
-	 HVZ.click_predicate("anything"); // ungraph everything
-
+         halt('the collapsed edge picker should be fully colored and read 104/104');
+	 HVZ.click_predicate("anything"); // clicking collapsed anything should ungraph everything
+         await wait_till_prop__equals__(HVZ.graphed_set, 'length', 0, 30, 3000);
 	 // confirm that everything is now ungraphed
 	 expect(HVZ.graphed_set.length,
 		"after clicking collapsed 'anything' everything should be ungraphed").
@@ -1289,6 +1290,7 @@ describe("HuViz Tests", function() {
 	 HVZ.click_taxon("Thing");  // unselect every Thing
 	 // make the unselectedness of every Thing visible (not important, just handy)
 	 HVZ.toggle_expander("Thing");  // expand Thing, just for visibility
+         await wait_till_prop__equals__(HVZ.selected_set, 'length', 0, 30, 3000);
 	 expect(HVZ.selected_set.length, "nothing should be selected").to.equal(0);
 
 	 // confirm that 'anything' is the only visible predicate
@@ -1315,17 +1317,16 @@ describe("HuViz Tests", function() {
            HVZ.toggle_expander(id);
            if (has_gradient) {
              expect($(sel).attr("style"),
-                    id + " has kids so should summarize their colors").
+                    `${id} has kids so should summarize their colors and not be white`).
                to.contain("linear-gradient");
            } else {
              // should never get here because there should be no expander to click
-             expect($(sel).attr("style"),
-                    id + " has no kids so should not be stripey").
+             expect($(sel).attr("style"), `${id} has no kids so should not be stripey`).
                to.not.be.ok();
            }
            HVZ.toggle_expander(id);
 	 };
-	 verify_gradient_when_collapsed('anything', true); // has kids
+	 verify_gradient_when_collapsed('anything', true); // has kids, ie descendants with colors
 	 verify_gradient_when_collapsed('SpatialThing', true); // has kids
 	 verify_gradient_when_collapsed('Thing', true); // has kids
 	 verify_gradient_when_collapsed('hasWealthConnectionToRegion', true); // has kids
@@ -1338,13 +1339,11 @@ describe("HuViz Tests", function() {
            var sel = "#"+ pred_id;
            HVZ.toggle_expander(pred_id); // collapse
            //$(sel + " span.expander:first").trigger("click"); // collapse
-           expect(get_payload(pred_id),
-		  sel + "collapsed payload wrong").
+           expect(get_payload(pred_id), `${sel} collapsed payload wrong`).
              to.equal(collapsed);
            // check expanded payload
            HVZ.toggle_expander(pred_id); // expand
-           expect(get_payload(pred_id),
-		  sel + " expanded payload wrong").
+           expect(get_payload(pred_id), `${sel} expanded payload wrong`).
              to.equal(expanded);
 	 }
 	 expect_predicate_payload("anything", "0/49", "0/0"); // empty
