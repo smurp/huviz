@@ -8,7 +8,6 @@ class EditController
     @userValid = true #TODO this needs to be hooked into authentication -- remove to huviz.coffee to validate against dataloaded and authentication
     #@userValid = false
     if @userValid is true and not @con #document.getElementsByClassName("edit-controls")[0] is undefined
-
       @con = document.createElement("div")
       @con.className = "edit-controls loggedIn"
       @con.setAttribute("edit", "no")
@@ -40,52 +39,64 @@ class EditController
     formNode.innerHTML = '<input name="subject" placeholder="subject" type="text"/><input id="predicate" name="predicate" placeholder="predicate" type="text"/><input name="object" placeholder="object" type="text"/>'
     formNode.innerHTML += '<button class="saveForm" type="button" disabled>Save</button>'
     formNode.innerHTML += '<button class="clearForm" type="button">Clear</button>'
-    console.log(toggleEdit)
     console.log("++++++++++++++++++++++++++++++++++++++++")
     toggleEdit.appendChild(formNode)
+    @set_predicate_selector()
 
-    availableTags = [
-      "ActionScript",
-      "AppleScript",
-      "Asp",
-      "BASIC",
-      "C",
-      "C++",
-      "Clojure",
-      "COBOL",
-      "ColdFusion",
-      "DatatypeProperty: literal string",
-      "DatatypeProperty: number",
-      "DatatypeProperty: date",
-      "Erlang",
-      "Fortran",
-      "Groovy",
-      "Haskell",
-      "Java",
-      "JavaScript",
-      "Lisp",
-      "Perl",
-      "PHP",
-      "Python",
-      "Ruby",
-      "Scala",
-      "Scheme"
-    ]
-    $("#predicate").autocomplete(
-      source:availableTags,
-      position:
-        my: "left bottom"
-        at: "left top"
-    )
+
+  set_predicate_selector: (availableTags) ->
+      console.log("setting predicate selector in edit form")
+      #console.log(@huviz.predicate_set[0].lid)  # Undefined when this first called.
+      #console.log(@huviz.predicate_set.length)  #
+      if not availableTags
+            availableTags = [
+              "ActionScript",
+              "AppleScript",
+              "Asp",
+              "BASIC",
+              "C",
+              "C++",
+              "Clojure",
+              "COBOL",
+              "ColdFusion",
+              "DatatypeProperty: literal string",
+              "DatatypeProperty: number",
+              "DatatypeProperty: date",
+              "Erlang",
+              "Fortran",
+              "Groovy",
+              "Haskell",
+              "Java",
+              "JavaScript",
+              "Lisp",
+              "Perl",
+              "PHP",
+              "Python",
+              "Ruby",
+              "Scala",
+              "Scheme"
+            ]
+      $("#predicate").autocomplete(
+        source:availableTags,
+        position:
+          my: "left bottom"
+          at: "left top"
+      )
 
   toggle_edit_form: () =>
     toggleEditMode = @con.getAttribute("edit")
     #debugger
-    if toggleEditMode is 'no' #toggle switched to edit mode, then create form
+    if toggleEditMode is 'no' #toggle switched to edit mode, then show form
       @con.setAttribute("edit","yes")
       @con.classList.add("edit-mode")
+      # Add predicates from Ontology for autocomplete box in edit form
+      #pred_array = @huviz.predicate_set
+      predicates = []
+      for predicate in @huviz.predicate_set
+        predicates.push predicate.lid
+      @set_predicate_selector(predicates)
       @huviz.set_edit_mode(true)
-    if toggleEditMode is'yes' #toggle switched to edit mode, then remove form
+    if toggleEditMode is'yes' #toggle switched to normal mode, then hide form
       @con.setAttribute("edit","no")
       @con.classList.remove("edit-mode")
       @huviz.set_edit_mode(false)
