@@ -472,6 +472,7 @@ class Huviz
       @move_node_to_point @dragging, @last_mouse_pos
       if @edit_mode
         @text_cursor.pause("", "drop on object node")
+
       else
         if @dragging.links_shown.length is 0
           action = "choose"
@@ -537,6 +538,7 @@ class Huviz
 
     if @edit_mode and @focused_node and @editui.object_datatype_is_literal
       @editui.set_subject_node(@focused_node)
+      console.log("edit mode and focused note and editui is literal")
       @tick()
       return
 
@@ -1065,6 +1067,18 @@ class Huviz
     if seeking is 'object_node'
       if @editui.object_node isnt @object_node
         @editui.set_object_node(@object_node)
+
+        # Display connecting nodes as dragged
+        obj_type = if @editui.predicate_input.value is 'literal' then RDF_literal else RDF_object
+        q =
+          s: @focused_node.id
+          p: @editui.predicate_input.value || "anything"
+          o:  # keys: type,value[,language]
+            type: obj_type
+            value: @object_node.id
+        if @object_node.id # Only add/show a quad if there is subject and object
+          @add_quad(q)
+          @show_links_from_node @focused_node
 
     if seeking is 'focused_node'
       node_changed = @focused_node isnt last_focused_node
@@ -1622,7 +1636,7 @@ class Huviz
   make_Edge_id: (subj_n, obj_n, pred_n) ->
     return (a.lid for a in [subj_n, pred_n, obj_n]).join(' ')
 
-  get_or_create_Edge: (subj_n, obj_n, pred_n) ->
+  get_or_create_Edge: (subj_n, obj_n, pred_n, cntx_n) ->
     edge_id = @make_Edge_id(subj_n, obj_n, pred_n)
     edge = @edges_by_id[edge_id]
     if not edge?

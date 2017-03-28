@@ -489,7 +489,7 @@ class CommandController
     else
       $(@nextcommandstr[0][0]).hide()
 
-    @nextcommand_working = @nextcommand.append('i')
+    @nextcommand_working = @nextcommand.append('div').attr('class','cmd-spinner')
     @nextcommand_working.style('float:right; color:red; display:none;')
     @build_submit()
 
@@ -508,10 +508,12 @@ class CommandController
   show_working_on: ->
     console.log "show_working_on()"
     @nextcommand_working.attr('class','fa fa-spinner fa-spin') # PREFERRED fa-2x
+    @nextcommand.attr('class','nextcommand command cmd-working')
   show_working_off: ->
     console.log "show_working_off()"
     @nextcommand_working.attr('class','')
-    @nextcommand.attr('style','background-color:yellow') # PREFERRED
+    @nextcommand.attr('class','nextcommand command')
+    #@nextcommand.attr('style','background-color:yellow') # PREFERRED
 
   build_like: () ->
     @likediv.text('like:').classed("control_label", true)
