@@ -191,7 +191,7 @@ class TreePicker
           text(@collapser_str)
       @id_is_collapsed[id] = false
       picker = this
-      exp.on 'click', () =>
+      exp.on 'click', () => # TODO: make this function a method on the class
         d3.event.stopPropagation()
         id2 = exp[0][0].parentNode.parentNode.getAttribute("id")
         if id2 isnt id
@@ -227,8 +227,9 @@ class TreePicker
       thing.select(".treepicker-label").append('div').classed("payload", true)
   set_payload: (id, value) ->
     elem = @id_to_elem[id]
-    if not elem? and elem isnt null
-      console.warn "set_payload could not find " + id
+    if not elem? #and elem isnt null
+      console.warn "set_payload could not find '#{id}'"
+      return
     payload = @get_or_create_payload(elem)
     if payload?
       if value?
