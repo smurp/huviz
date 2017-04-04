@@ -479,6 +479,7 @@ class Huviz
       @move_node_to_point @dragging, @last_mouse_pos
       if @edit_mode
         @text_cursor.pause("", "drop on object node")
+
       else
         if @dragging.links_shown.length is 0
           action = "choose"
@@ -544,6 +545,7 @@ class Huviz
 
     if @edit_mode and @focused_node and @editui.object_datatype_is_literal
       @editui.set_subject_node(@focused_node)
+      console.log("edit mode and focused note and editui is literal")
       @tick()
       return
 
@@ -1079,6 +1081,27 @@ class Huviz
     if seeking is 'object_node'
       if @editui.object_node isnt @object_node
         @editui.set_object_node(@object_node)
+        if @object_node? # Only add/show a quad if there is subject and object
+
+          # Make a quad out of current subject and object (predicate if it is filled)
+          obj_type = if @editui.predicate_input.value is 'literal' then RDF_literal else RDF_object
+          q =
+            s: @focused_node.id
+            p: @editui.predicate_input.value || "anything"
+            o:  # keys: type,value[,language]
+              type: obj_type
+              value: @object_node.id
+          # add new quad if first time through or if it is different than current s,p,o (remove prior edge)
+          if not @edit_quad or @edit_quad.s isnt q.s or @edit_quad.p isnt q.p or @edit_quad.o.value or q.o.value
+            if @edit_quad
+              last_temp_edge = @edit_quad.s + ' ' + @edit_quad.p + ' ' + @edit_quad.o.value
+              delete @edges_by_id[last_temp_edge]
+            @edit_quad = @add_quad(q)
+            console.log ("I've made a new quad")
+            console.log @edges_by_id
+            # Show the edge just added with 'edit' formatting
+            #@show_link() # ????
+
 
     if seeking is 'focused_node'
       node_changed = @focused_node isnt last_focused_node
@@ -1636,12 +1659,14 @@ class Huviz
   make_Edge_id: (subj_n, obj_n, pred_n) ->
     return (a.lid for a in [subj_n, pred_n, obj_n]).join(' ')
 
-  get_or_create_Edge: (subj_n, obj_n, pred_n) ->
+  get_or_create_Edge: (subj_n, obj_n, pred_n, cntx_n) ->
     edge_id = @make_Edge_id(subj_n, obj_n, pred_n)
     edge = @edges_by_id[edge_id]
     if not edge?
       @edge_count++
       edge = new Edge(subj_n,obj_n,pred_n)
+      console.log (edge)
+      if @edit_mode then edge.temp_edit_edge = true
       @edges_by_id[edge_id] = edge
     return edge
 

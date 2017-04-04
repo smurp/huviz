@@ -23,6 +23,6 @@ class Edge
   unselect: () ->
     @predicate.update_state(this, 'unselect')
   select: () ->
-    @predicate.update_state(this, 'select')    
-  
+    @predicate.update_state(this, 'select')
+
 (exports ? this).Edge = Edge

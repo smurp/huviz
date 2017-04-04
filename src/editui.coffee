@@ -31,7 +31,6 @@ class EditController
       @subject_input = @formFields[0]
       @predicate_input = @formFields[1]
       @object_input = @formFields[2]
-      #@toggle_edit_form()
 
   create_edit_form: (toggleEdit) ->
     formNode = document.createElement('form')
@@ -39,45 +38,25 @@ class EditController
     formNode.innerHTML = '<input name="subject" placeholder="subject" type="text"/><input id="predicate" name="predicate" placeholder="predicate" type="text"/><input name="object" placeholder="object" type="text"/>'
     formNode.innerHTML += '<button class="saveForm" type="button" disabled>Save</button>'
     formNode.innerHTML += '<button class="clearForm" type="button">Clear</button>'
-    console.log("++++++++++++++++++++++++++++++++++++++++")
     toggleEdit.appendChild(formNode)
-    @set_predicate_selector()
 
 
-  set_predicate_selector: (availableTags) ->
+  set_predicate_selector: () ->
       console.log("setting predicate selector in edit form")
-      #console.log(@huviz.predicate_set[0].lid)  # Undefined when this first called.
-      #console.log(@huviz.predicate_set.length)  #
-      if not availableTags
-            availableTags = [
-              "ActionScript",
-              "AppleScript",
-              "Asp",
-              "BASIC",
-              "C",
-              "C++",
-              "Clojure",
-              "COBOL",
-              "ColdFusion",
-              "DatatypeProperty: literal string",
-              "DatatypeProperty: number",
-              "DatatypeProperty: date",
-              "Erlang",
-              "Fortran",
-              "Groovy",
-              "Haskell",
-              "Java",
-              "JavaScript",
-              "Lisp",
-              "Perl",
-              "PHP",
-              "Python",
-              "Ruby",
-              "Scala",
-              "Scheme"
-            ]
+      # Add predicates from Ontology for autocomplete box in edit form
+      #pred_array = @huviz.predicate_set
+      availablePredicates = []
+      if @huviz.predicate_set
+        for predicate in @huviz.predicate_set
+          availablePredicates.push predicate.lid
+        availablePredicates.push "literal"
+      else
+        availablePredicates = [
+          "A",
+          "literal"
+        ]
       $("#predicate").autocomplete(
-        source:availableTags,
+        source:availablePredicates,
         position:
           my: "left bottom"
           at: "left top"
@@ -89,18 +68,11 @@ class EditController
     if toggleEditMode is 'no' #toggle switched to edit mode, then show form
       @con.setAttribute("edit","yes")
       @con.classList.add("edit-mode")
-      # Add predicates from Ontology for autocomplete box in edit form
-      #pred_array = @huviz.predicate_set
-      predicates = []
-      for predicate in @huviz.predicate_set
-        predicates.push predicate.lid
-      @set_predicate_selector(predicates)
       @huviz.set_edit_mode(true)
     if toggleEditMode is'yes' #toggle switched to normal mode, then hide form
       @con.setAttribute("edit","no")
       @con.classList.remove("edit-mode")
       @huviz.set_edit_mode(false)
-    @adjust_object_datatype()
 
   validate_edit_form: (evt) =>
     form = @controls
@@ -123,18 +95,15 @@ class EditController
     #   * heuristics in case of ambiguity might be required
     #
     # We can get started on this by just responding to magic values in the predicate.
+    console.log("predicate_is_Datatype has been called")
     if @predicate_input
       window.THINGY = @predicate_input
-      # Hey Wolf!! For some reason this is not finding the value in the input...
-      # Wanna take it from here?
-      current_value = @predicate_input.getAttribute('value')
+      current_value = @predicate_input.value
       return current_value is 'literal'
     return false
 
   adjust_object_datatype: () ->
-    # This is not being called yet.  Perhaps it should be when the predicate is set.
-    # It could also have the job of triggering the change to the object widget.
-
+    @set_predicate_selector()
     if @predicate_is_DatatypeProperty()
       @object_datatype_is_literal = true
       placeholder_label = "a literal value"
