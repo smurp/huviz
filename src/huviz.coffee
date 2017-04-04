@@ -414,7 +414,10 @@ class Huviz
     return @
 
   click_verb: (id) ->
-    $("#verb-#{id}").trigger("click")
+    verbs = $("#verb-#{id}")
+    if not verbs.length
+      throw new Error("verb '#{id}' not found")
+    verbs.trigger("click")
     return @
 
   click_set: (id) ->
@@ -424,7 +427,11 @@ class Huviz
     else
       if not id.endsWith('_set')
         id = id + '_set'
-    $("##{id}").trigger("click")
+    sel = "##{id}"
+    sets = $(sel)
+    if not sets.length
+      throw new Error("set '#{id}' not found using selector: '#{sel}'")
+    sets.trigger("click")
     return @
 
   click_predicate: (id) ->

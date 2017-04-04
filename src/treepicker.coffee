@@ -123,6 +123,8 @@ class TreePicker
     @go_to_next_state(id, @get_next_state(id))
   get_next_state: (id) ->
     elem = @id_to_elem[id]
+    if not elem
+      throw new Error("elem for '#{id}' not found")
     is_treepicker_collapsed = elem.classed('treepicker-collapse')
     is_treepicker_showing = elem.classed('treepicker-showing')
     is_treepicker_indirect_showing = elem.classed('treepicker-indirect-showing')
