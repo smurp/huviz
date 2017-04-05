@@ -414,7 +414,10 @@ class Huviz
     return @
 
   click_verb: (id) ->
-    $("#verb-#{id}").trigger("click")
+    verbs = $("#verb-#{id}")
+    if not verbs.length
+      throw new Error("verb '#{id}' not found")
+    verbs.trigger("click")
     return @
 
   click_set: (id) ->
@@ -424,7 +427,11 @@ class Huviz
     else
       if not id.endsWith('_set')
         id = id + '_set'
-    $("##{id}").trigger("click")
+    sel = "##{id}"
+    sets = $(sel)
+    if not sets.length
+      throw new Error("set '#{id}' not found using selector: '#{sel}'")
+    sets.trigger("click")
     return @
 
   click_predicate: (id) ->
@@ -848,6 +855,13 @@ class Huviz
 
   update_all_counts: ->
     @update_set_counts()
+    #@update_predicate_counts()
+
+  update_predicate_counts: ->
+    console.warn('the unproven method update_predicate_counts() has just been called')
+    for a_set in @predicate_set
+      name = a_set.lid
+      @gclui.on_predicate_count_update(name, a_set.length)
 
   update_set_counts: ->
     for name, a_set of @selectable_sets

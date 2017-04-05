@@ -108,7 +108,7 @@ class TreeCtrl
 
     for kid in @subs
       kid.clean_up_dirt()
-    @recalc_states()      
+    @recalc_states()
     updating_stats = true # TODO make this settable by user
     if updating_stats or
         old_state isnt @state or
