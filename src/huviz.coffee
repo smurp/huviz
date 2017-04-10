@@ -1064,16 +1064,7 @@ class Huviz
           d3.select(svg_node).classed "focused_node", true
         #@dump_details new_focused_node
 
-    unless @focused_edge is new_focused_edge
-      if @focused_edge? #and @focused_edge isnt new_focused_edge
-        @focused_edge.focused = false
-        delete @focused_edge.source.focused_edge
-        delete @focused_edge.target.focused_edge
-      if new_focused_edge?
-        # FIXME add use_svg stanza
-        new_focused_edge.focused = true
-        new_focused_edge.source.focused_edge = true
-        new_focused_edge.target.focused_edge = true
+    @set_focused_edge(new_focused_edge)
 
     last_focused_node = @focused_node
     @[seeking] = new_focused_node # possibly null
@@ -1108,6 +1099,41 @@ class Huviz
     all: 'not-allowed'
     some: 'all-scroll'
     none: 'pointer'
+
+  set_focused_edge: (new_focused_edge) ->
+      if @proposed_edge and @focused_edge # if proposed edge is true and there is a focused edge
+        return
+      unless @focused_edge is new_focused_edge
+
+        if @focused_edge? #and @focused_edge isnt new_focused_edge
+          console.log "deleting focused edge"
+          @focused_edge.focused = false
+          delete @focused_edge.source.focused_edge
+          delete @focused_edge.target.focused_edge
+        if new_focused_edge?
+          console.log "setting focused edge"
+          # FIXME add use_svg stanza
+          new_focused_edge.focused = true
+          new_focused_edge.source.focused_edge = true
+          new_focused_edge.target.focused_edge = true
+
+  @proposed_edge = false #initialization (no proposed edge active)
+  set_proposed_focused_edge: (new_focused_edge) ->
+      console.log "Setting proposed focused edge..."
+      #console.log (new_focused_edge)
+      if new_focused_edge? and @focused_edge # case when there is no new edge but still existing edge
+        console.log "not nfe and fe"
+        @focused_edge.focused = false
+        delete @focused_edge.source.focused_edge
+        delete @focused_edge.target.focused_edge
+      else if new_focused_edge
+        console.log "yes, nfe"
+        @proposed_edge = true
+        @set_focused_edge(new_focused_edge)
+      else
+        @proposed_edge = false
+        console.log("abort")
+        return
 
   install_update_pointer_togglers: ->
     console.warn("the update_pointer_togglers are being called too often")
@@ -1192,11 +1218,11 @@ class Huviz
         draw_n_n[n_n] = []
       draw_n_n[n_n].push(e)
       #@show_message_once("will draw edge() n_n:#{n_n} e.id:#{e.id}")
-
     edge_width = @edge_width
     for n_n, edges_between of draw_n_n
       sway = 1
       for e in edges_between
+        #console.log e
         if e.focused? and e.focused
           line_width = @edge_width * @peeking_line_thicker
         else

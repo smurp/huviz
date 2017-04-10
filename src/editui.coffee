@@ -138,6 +138,7 @@ class EditController
     for i of inputFields
       form.elements[i].value = ''
     saveButton.disabled = true
+    @proposed_edge = false #set to false (no focused edge)
 
   clear_edit_form: () =>
     form = @controls
@@ -145,7 +146,13 @@ class EditController
     saveButton = form.getElementsByTagName('button')[0]
     for i of inputFields
       form.elements[i].value = ''
+    if @proposed_edge
+      console.log @proposed_edge
+      proposed_focused_edge = null
+      @huviz.set_proposed_focused_edge(proposed_focused_edge)
+      @remove_proposed_edge(@proposed_edge) # clear existing edge clear from display
     saveButton.disabled = true
+    # TODO why on calling this function does the ability to drag nodes to fill form disabled?
 
   set_subject_node: (node) ->
     @subject_node = node
@@ -207,27 +214,31 @@ class EditController
     # If there is an existing edge remove it before setting a new proposed edge
     if @proposed_edge?  # There can only be one, so get rid of old proposed edge
       #console.log "I'm getting rid of the old edge now"
-      @remove_and_add_proposed_edge(@proposed_edge, new_q)
+      @remove_proposed_edge(@proposed_edge, new_q)
+      @add_proposed_quad(new_q)
     # Cleared all gates - time to add the new proposed edge
     else
       @add_proposed_quad(new_q)
 
   add_proposed_quad: (q) ->
+    console.log ("I'm making a new quad.... " + q.s + " " + q.p + " " +q.o.value)
     @huviz.add_quad(q)
     # Remember this proposed edge for next time a proposal is made
-    console.log ("I've made a new quad.... " + q.s + " " + q.p + " " +q.o.value)
     #console.log @huviz.edges_by_id
     #console.log @huviz.links_set
     #console.log @graphed_set
     obj_n = @huviz.get_or_create_node_by_id(q.o.value)
     subj_n = @huviz.get_or_create_node_by_id(q.s)
     pred_n = @huviz.get_or_create_predicate_by_id(q.p)
-    new_propsed_edge = @huviz.get_or_create_Edge(subj_n, obj_n, pred_n)
-    @huviz.show_link(new_propsed_edge)
+    new_proposed_edge = @huviz.get_or_create_Edge(subj_n, obj_n, pred_n)
+    @huviz.set_proposed_focused_edge(new_proposed_edge)
+    # Set the two nodes to be selected and have focused edge
+    console.log(new_proposed_edge)
+    @huviz.show_link(new_proposed_edge)
     @proposed_edge = q
     @deleted_last_edge = true
 
-  remove_and_add_proposed_edge: (old_q, new_q) ->
+  remove_proposed_edge: (old_q, new_q) ->
     console.log ("Removing previous proposed edge: " + old_q.s + " " + old_q.p + " " +old_q.o.value)
     obj_n = @huviz.get_or_create_node_by_id(old_q.o.value)
     subj_n = @huviz.get_or_create_node_by_id(old_q.s)
@@ -246,10 +257,11 @@ class EditController
     @deleted_last_edge = true
     #last_edge_index = @huviz.edges_by_id.indexOf(last_proposed_edge)
     #console.log(last_edge_index)
-
     delete @huviz.edges_by_id[old_e]
 
-    @add_proposed_quad(new_q)
+
+
+
 
 
   (exports ? this).EditController = EditController
