@@ -121,16 +121,15 @@ class ColoredTreePicker extends TreePicker
     #  return 'pink'
   click_handler: () =>
     id = super()
-    if @should_be_colored_by_kid_summary? # TODO document why this is needed OR remove this line
-      if @should_be_colored_by_kid_summary(id)
-        @style_with_kid_color_summary(id)
+    @style_with_kid_color_summary_if_needed(id)
+  style_with_kid_color_summary_if_needed: (id) ->
+    if @should_be_colored_by_kid_summary(id)
+      @style_with_kid_color_summary(id)
   should_be_colored_by_kid_summary: (id) ->
     return not @is_leaf(id) and @id_is_collapsed[id]
   collapse_by_id: (id) ->
     super(id)
-    if @should_be_colored_by_kid_summary(id)
-      @style_with_kid_color_summary(id)
-    #super(id)
+    @style_with_kid_color_summary_if_needed(id)
   expand_by_id: (id) ->
     if @should_be_colored_by_kid_summary(id)
       @id_to_elem[id].attr("style", "") # clear style set by set_gradient_style

@@ -297,6 +297,7 @@ class CommandController
         classes: [id]
     else if old_state is "hidden"
       console.error "Uhh, how is it possible for #{id}.old_state to equal 'hidden' at this point?"
+    @taxon_picker.style_with_kid_color_summary_if_needed(id)
     if cmd?
       if @object_phrase? and @object_phrase isnt ""
         cmd.object_phrase = @object_phrase
