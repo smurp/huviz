@@ -2,6 +2,7 @@
 
 indexdDBstore = require('indexeddbstoragecontroller')
 
+
 class EditController
   constructor: (@huviz) ->
     #TODO EditController should be loaded and checked when a dataset is loaded
@@ -27,6 +28,8 @@ class EditController
       validateForm[2].addEventListener("input", @validate_edit_form)
       clearForm.addEventListener("click", @clear_edit_form)
       saveForm.addEventListener("click", @save_edit_form)
+      @proposed_edge = null
+      @deleted_last_edge = true # intialized to allow for first setting
       @controls = @formFields
       @subject_input = @formFields[0]
       @predicate_input = @formFields[1]
@@ -40,9 +43,8 @@ class EditController
     formNode.innerHTML += '<button class="clearForm" type="button">Clear</button>'
     toggleEdit.appendChild(formNode)
 
-
   set_predicate_selector: () ->
-      console.log("setting predicate selector in edit form")
+      #console.log("setting predicate selector in edit form")
       # Add predicates from Ontology for autocomplete box in edit form
       #pred_array = @huviz.predicate_set
       availablePredicates = []
@@ -85,7 +87,6 @@ class EditController
         break
       else
         saveButton.disabled = false
-    console.log(form.elements[1].value)
     @adjust_object_datatype()
 
   predicate_is_DatatypeProperty: () ->
@@ -95,7 +96,7 @@ class EditController
     #   * heuristics in case of ambiguity might be required
     #
     # We can get started on this by just responding to magic values in the predicate.
-    console.log("predicate_is_Datatype has been called")
+    #console.log("predicate_is_Datatype has been called")
     if @predicate_input
       window.THINGY = @predicate_input
       current_value = @predicate_input.value
@@ -137,6 +138,7 @@ class EditController
     for i of inputFields
       form.elements[i].value = ''
     saveButton.disabled = true
+    @proposed_edge = false #set to false (no focused edge)
 
   clear_edit_form: () =>
     form = @controls
@@ -144,7 +146,13 @@ class EditController
     saveButton = form.getElementsByTagName('button')[0]
     for i of inputFields
       form.elements[i].value = ''
+    if @proposed_edge
+      console.log @proposed_edge
+      proposed_focused_edge = null
+      @huviz.set_proposed_focused_edge(proposed_focused_edge)
+      @remove_proposed_edge(@proposed_edge) # clear existing edge clear from display
     saveButton.disabled = true
+    # TODO why on calling this function does the ability to drag nodes to fill form disabled?
 
   set_subject_node: (node) ->
     @subject_node = node
@@ -152,14 +160,108 @@ class EditController
     console.log("setting subject node......" + new_value)
     @subject_input.setAttribute("value",new_value)
     @validate_edit_form()
+    @validate_proposed_edge(new_value, "s")
     return
 
   set_object_node: (node) ->
     @object_node = node
     new_value = node and node.id or ""
     console.log("setting object node......"  + new_value)
-    @object_input.setAttribute("value",new_value)
-    @validate_edit_form()
+    if new_value and @deleted_last_edge   # This should only happen when 1) there is a new value and 2) the last request has been completed
+      @deleted_last_edge = false # reset, because we are now going to process the new edge value
+      @object_input.setAttribute("value",new_value)
+      @validate_edit_form()
+      @validate_proposed_edge()
     return
+
+  validate_proposed_edge: () -> # type = subject or object
+    # What are the proposed subject node, object node and predicate?
+      # Subject and Object fields must have values (IDs of Nodes)
+      # Make a quad out of current subject and object (predicate if it is filled)
+      #subject_id = @editui.subject_input.value
+      RDF_object  = "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
+      RDF_literal = "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"
+
+      subject_id = @subject_input.value
+      object_id = @object_input.value
+      predicate_val = @predicate_input.value
+      #console.log @huviz.RDF_object
+
+      # Only
+      if subject_id and object_id
+        obj_type = if predicate_val is 'literal' then RDF_literal else RDF_object
+        q =
+          s: subject_id
+          p: predicate_val || "anything"
+          o:  # keys: type,value[,language]
+            type: obj_type
+            value: object_id
+          g: "http://" + Date.now()
+        # Don't process any edge proposal if it is just the same as the current proposal
+        console.log (q)
+        console.log (@proposed_edge)
+        # Ignore requests for edges that are identical to the last edge requested
+        if @proposed_edge? and q.o.value is @proposed_edge.o.value
+          console.log "this new proposed edge is just the same as old - get out of here"
+          @deleted_last_edge = true # reset so a new edge can be displayed in object field
+          return
+        console.log "validating proposed edge.... It should be:" + q.s + ' ' + q.p + ' ' +q.o.value
+        @set_proposed_edge(q)
+
+  set_proposed_edge: (new_q) ->
+    console.log "creating a new proposed edge...."
+    #console.log new_q
+    # If there is an existing edge remove it before setting a new proposed edge
+    if @proposed_edge?  # There can only be one, so get rid of old proposed edge
+      #console.log "I'm getting rid of the old edge now"
+      @remove_proposed_edge(@proposed_edge, new_q)
+      @add_proposed_quad(new_q)
+    # Cleared all gates - time to add the new proposed edge
+    else
+      @add_proposed_quad(new_q)
+
+  add_proposed_quad: (q) ->
+    console.log ("I'm making a new quad.... " + q.s + " " + q.p + " " +q.o.value)
+    @huviz.add_quad(q)
+    # Remember this proposed edge for next time a proposal is made
+    #console.log @huviz.edges_by_id
+    #console.log @huviz.links_set
+    #console.log @graphed_set
+    obj_n = @huviz.get_or_create_node_by_id(q.o.value)
+    subj_n = @huviz.get_or_create_node_by_id(q.s)
+    pred_n = @huviz.get_or_create_predicate_by_id(q.p)
+    new_proposed_edge = @huviz.get_or_create_Edge(subj_n, obj_n, pred_n)
+    @huviz.set_proposed_focused_edge(new_proposed_edge)
+    # Set the two nodes to be selected and have focused edge
+    console.log(new_proposed_edge)
+    @huviz.show_link(new_proposed_edge)
+    @proposed_edge = q
+    @deleted_last_edge = true
+
+  remove_proposed_edge: (old_q, new_q) ->
+    console.log ("Removing previous proposed edge: " + old_q.s + " " + old_q.p + " " +old_q.o.value)
+    obj_n = @huviz.get_or_create_node_by_id(old_q.o.value)
+    subj_n = @huviz.get_or_create_node_by_id(old_q.s)
+    pred_n = @huviz.get_or_create_predicate_by_id(old_q.p)
+    #console.log obj_n
+    #console.log subj_n
+    #console.log pred_n
+    # Get the edge to remove
+    last_proposed_edge = @huviz.get_or_create_Edge(subj_n, obj_n, pred_n)
+    console.log last_proposed_edge
+    console.log @graphed_set
+    #console.log last_proposed_edge
+    old_e = old_q.s + " " + old_q.p + " " +old_q.o.value
+    @huviz.remove_link(old_e) # Only active if it sees node
+    @huviz.unshow_link(last_proposed_edge)
+    @deleted_last_edge = true
+    #last_edge_index = @huviz.edges_by_id.indexOf(last_proposed_edge)
+    #console.log(last_edge_index)
+    delete @huviz.edges_by_id[old_e]
+
+
+
+
+
 
   (exports ? this).EditController = EditController

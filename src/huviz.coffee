@@ -549,7 +549,7 @@ class Huviz
       @tick()
       return
 
-    # this is the node being clicked
+    # this is the node being clickedRDF_literal
     if @focused_node # and @focused_node.state is @graphed_set
       @perform_current_command(@focused_node)
       @tick()
@@ -1064,16 +1064,7 @@ class Huviz
           d3.select(svg_node).classed "focused_node", true
         #@dump_details new_focused_node
 
-    unless @focused_edge is new_focused_edge
-      if @focused_edge? #and @focused_edge isnt new_focused_edge
-        @focused_edge.focused = false
-        delete @focused_edge.source.focused_edge
-        delete @focused_edge.target.focused_edge
-      if new_focused_edge?
-        # FIXME add use_svg stanza
-        new_focused_edge.focused = true
-        new_focused_edge.source.focused_edge = true
-        new_focused_edge.target.focused_edge = true
+    @set_focused_edge(new_focused_edge)
 
     last_focused_node = @focused_node
     @[seeking] = new_focused_node # possibly null
@@ -1081,27 +1072,6 @@ class Huviz
     if seeking is 'object_node'
       if @editui.object_node isnt @object_node
         @editui.set_object_node(@object_node)
-        if @object_node? # Only add/show a quad if there is subject and object
-
-          # Make a quad out of current subject and object (predicate if it is filled)
-          obj_type = if @editui.predicate_input.value is 'literal' then RDF_literal else RDF_object
-          q =
-            s: @focused_node.id
-            p: @editui.predicate_input.value || "anything"
-            o:  # keys: type,value[,language]
-              type: obj_type
-              value: @object_node.id
-          # add new quad if first time through or if it is different than current s,p,o (remove prior edge)
-          if not @edit_quad or @edit_quad.s isnt q.s or @edit_quad.p isnt q.p or @edit_quad.o.value or q.o.value
-            if @edit_quad
-              last_temp_edge = @edit_quad.s + ' ' + @edit_quad.p + ' ' + @edit_quad.o.value
-              delete @edges_by_id[last_temp_edge]
-            @edit_quad = @add_quad(q)
-            console.log ("I've made a new quad")
-            console.log @edges_by_id
-            # Show the edge just added with 'edit' formatting
-            #@show_link() # ????
-
 
     if seeking is 'focused_node'
       node_changed = @focused_node isnt last_focused_node
@@ -1129,6 +1099,41 @@ class Huviz
     all: 'not-allowed'
     some: 'all-scroll'
     none: 'pointer'
+
+  set_focused_edge: (new_focused_edge) ->
+      if @proposed_edge and @focused_edge # if proposed edge is true and there is a focused edge
+        return
+      unless @focused_edge is new_focused_edge
+
+        if @focused_edge? #and @focused_edge isnt new_focused_edge
+          console.log "deleting focused edge"
+          @focused_edge.focused = false
+          delete @focused_edge.source.focused_edge
+          delete @focused_edge.target.focused_edge
+        if new_focused_edge?
+          console.log "setting focused edge"
+          # FIXME add use_svg stanza
+          new_focused_edge.focused = true
+          new_focused_edge.source.focused_edge = true
+          new_focused_edge.target.focused_edge = true
+
+  @proposed_edge = false #initialization (no proposed edge active)
+  set_proposed_focused_edge: (new_focused_edge) ->
+      console.log "Setting proposed focused edge..."
+      #console.log (new_focused_edge)
+      if new_focused_edge? and @focused_edge # case when there is no new edge but still existing edge
+        console.log "not nfe and fe"
+        @focused_edge.focused = false
+        delete @focused_edge.source.focused_edge
+        delete @focused_edge.target.focused_edge
+      else if new_focused_edge
+        console.log "yes, nfe"
+        @proposed_edge = true
+        @set_focused_edge(new_focused_edge)
+      else
+        @proposed_edge = false
+        console.log("abort")
+        return
 
   install_update_pointer_togglers: ->
     console.warn("the update_pointer_togglers are being called too often")
@@ -1213,11 +1218,11 @@ class Huviz
         draw_n_n[n_n] = []
       draw_n_n[n_n].push(e)
       #@show_message_once("will draw edge() n_n:#{n_n} e.id:#{e.id}")
-
     edge_width = @edge_width
     for n_n, edges_between of draw_n_n
       sway = 1
       for e in edges_between
+        #console.log e
         if e.focused? and e.focused
           line_width = @edge_width * @peeking_line_thicker
         else
@@ -1551,13 +1556,13 @@ class Huviz
   object_value_types: {}
   unique_pids: {}
   add_quad: (quad) ->
+    console.log "******* I'm calling add_quad *********"
     sid = quad.s
     pid = @make_qname(quad.p)
     ctxid = quad.g || @DEFAULT_CONTEXT
     subj_lid = uniquer(sid)
     @object_value_types[quad.o.type] = 1
     @unique_pids[pid] = 1
-
     newsubj = false
     subj = null
     if not @my_graph.subjects[sid]?
@@ -1660,13 +1665,18 @@ class Huviz
     return (a.lid for a in [subj_n, pred_n, obj_n]).join(' ')
 
   get_or_create_Edge: (subj_n, obj_n, pred_n, cntx_n) ->
+    #console.log "Its GET OR MAKE EDGE TIME time ------------------------"
+    #console.log subj_n
+    #console.log obj_n
+    #console.log pred_n
     edge_id = @make_Edge_id(subj_n, obj_n, pred_n)
+    #console.log(edge_id)
     edge = @edges_by_id[edge_id]
+    #console.log(edge)
     if not edge?
       @edge_count++
       edge = new Edge(subj_n,obj_n,pred_n)
-      console.log (edge)
-      if @edit_mode then edge.temp_edit_edge = true
+      #console.log (edge)
       @edges_by_id[edge_id] = edge
     return edge
 
@@ -1960,10 +1970,14 @@ class Huviz
     @update_state e.target
 
   remove_link: (e) ->
+    console.log @links_set.indexOf(e)
+    console.log (e)
+    console.log @links_set
     return if @links_set.indexOf(e) is -1
     @remove_from e, e.source.links_shown
     @remove_from e, e.target.links_shown
     @links_set.remove e
+    console.log "removing links from: " + e.id
     @update_showing_links e.source
     @update_showing_links e.target
     @update_state e.target
@@ -1971,6 +1985,7 @@ class Huviz
 
   # FIXME it looks like incl_discards is not needed and could be removed
   show_link: (edge, incl_discards) ->
+    console.log edge
     return  if (not incl_discards) and (edge.target.state is @discarded_set or edge.source.state is @discarded_set)
     @add_to edge, edge.source.links_shown
     @add_to edge, edge.target.links_shown
@@ -1984,6 +1999,7 @@ class Huviz
     @remove_from edge,edge.source.links_shown
     @remove_from edge,edge.target.links_shown
     @links_set.remove edge
+    console.log "unshowing links from: " + edge.id
     edge.unshow() # FIXME make unshow call @update_state WHICH ONE? :)
     @update_state edge.source
     @update_state edge.target
