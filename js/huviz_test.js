@@ -66,7 +66,14 @@ function mochaAsync(fn) {
   };
 }
 
-function sleep(ms) {
+function confirm_continue(str) {
+  if (! confirm(str)) {
+    halt();
+  }
+}
+
+function sleep(ms, because) {
+  blurt(`sleep(${ms}${because && ', "' + because + '"'})`);
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
@@ -77,6 +84,7 @@ function blurt(str) {
   $('#blurtbox').append(`<li>${str}</li>`);
   $('#blurtbox').scrollTop(1000000);
 }
+window.blurt = blurt;
 
 // http://stackoverflow.com/a/40230053/1234699
 function checkUntil(conditionFunc, interval_ms, timeout_ms) {
@@ -98,6 +106,9 @@ function checkUntil(conditionFunc, interval_ms, timeout_ms) {
       if (retryCount >= retryCountLimit) {
         clearInterval(timer);
         reject(new Error(`retry count: ${retryCount} hit limit: ${retryCountLimit}`));
+        //reject(`retry count: ${retryCount} hit limit: ${retryCountLimit}`);
+        //throw new Error(`retry count: ${retryCount} hit limit: ${retryCountLimit}`);
+
       }
     }, interval_ms);
     if (timeout_ms) {
@@ -117,7 +128,7 @@ async function wait_till_prop__equals__(obj, prop_name, threshold, interval, tim
     //if (obj.n >= threshold) { alert(`got to ${threshold}`); }
     let retval = (obj[prop_name] == threshold);
     if (retval) {
-      let msg = `wait_till_prop__equals__(${prop_name}, ${threshold})`;
+      let msg = `wait_till_prop__equals__(${prop_name}, ${threshold}) SUCCESS`;
       blurt(`${msg}`);
     } else {
       let msg = `wait_till_prop__equals__(${prop_name}, ${threshold}): ${obj[prop_name]}`;
@@ -389,25 +400,32 @@ describe("HuViz Tests", function() {
     console.groupEnd();
   });
 
-  beforeEach(function() {
+  beforeEach(async function() {
     test_title = this.currentTest.title;
     //console.clear();
     console.groupCollapsed(test_title);
-    select_expand_and_ungraph_all();
+    await select_expand_and_ungraph_all();
   });
 
   // http://stackoverflow.com/questions/951021/what-is-the-javascript-version-of-sleep/39914235#39914235
   async function select_expand_and_ungraph_all() {
     HVZ.gclui.clear_set_picker();
     ev = HVZ.gclui.engaged_verbs;
-    HVZ.gclui.disengage_all_verbs(); // preliminary
-    HVZ.click_set("all").click_set("all");
+    //HVZ.gclui.disengage_all_verbs(); // preliminary
+    /*
+    try {
+      HVZ.click_set("all");
+      HVZ.click_set("all");
+    } catch(e) {
+      console.error(e);
+    }
+    */
     if (HVZ.graphed_set.length ||
         HVZ.selected_set.length != HVZ.nodes.length) {
       if (! HVZ.gclui.taxon_picker.id_is_collapsed.Thing) { // if Thing isnt collapsed
         $("#Thing span.expander:first").trigger("click");   //   collapse it
       }
-      HVZ.click_taxon("Thing");
+      HVZ.click_taxon("Thing"); // should select all nodes
       if (HVZ.selected_set.length != HVZ.nodes.length) {
         HVZ.click_taxon("Thing");
       }
@@ -433,10 +451,19 @@ describe("HuViz Tests", function() {
     expect($(".treepicker-collapse").length,
            "something is collapsed").
       to.equal(0);
+    console.log("should be empty set", $(".treepicker-mixed"));
+    if ($(".treepicker-mixed").length) {
+      //if (confirm("something is mixed!!!  Debug?")) { debugger; }
+      await sleep(3000, "letting treepicker-mixed settle to 0, HACKY");
+    }
+    await wait_till_prop__equals__($(".treepicker-mixed"), 'length', 0, 60, 8000);
     expect($(".treepicker-mixed").length,
            "something is mixed").
       to.equal(0);
-
+    if (HVZ.selected_set.length != HVZ.nodes.length) {
+      HVZ.click_verb('select').click_set('all').click_verb('select');
+      //throw new Error("not everything is selected");
+    }
     await wait_till_all_selected_for(HVZ, 333, 2001);
     /*
     expect(HVZ.gclui.engaged_verbs.length,
@@ -452,6 +479,9 @@ describe("HuViz Tests", function() {
     expect(HVZ.selected_set.length,
            "not everything selected").
       to.equal(HVZ.nodes.length);
+    if (HVZ.graphed_set.length) {
+      HVZ.click_set('all').click_verb('unchoose');
+    }
     expect(HVZ.graphed_set.length,
            "leaving things graphed").
       to.equal(0);
@@ -461,6 +491,11 @@ describe("HuViz Tests", function() {
     expect(HVZ.labelled_set.length,
            "some things are still labelled").
       to.equal(0);
+    //expect();
+    expect($("#Thing").hasClass("treepicker-indirect-showing"), "Thing should be darkly colored").to.equal(true);
+    expect($("#Thing").hasClass("treepicker-showing"), "Thing should be darkly colored, again").to.equal(true);
+    expect($("#Thing").hasClass("treepicker-unshowing"), "Thing should not be lightly colored").to.equal(false);
+    expect($("#Thing").hasClass("treepicker-indirect-mixed"), "Thing should not be stripey").to.equal(false);
   }
 
   afterEach(function() {
@@ -532,7 +567,7 @@ describe("HuViz Tests", function() {
            done();
          });
        });
-    it("ENGAGE THIS TEST to do manual testing of drag and drop editing",
+    xit("ENGAGE THIS TEST to do manual testing of drag and drop editing",
        mochaAsync(async () => {
          HVZ.toggle_taxon("Thing", true); // deselect everything
          $(".edit-controls .slider").trigger('click');
@@ -934,40 +969,83 @@ describe("HuViz Tests", function() {
            to.equal(false);
        }));
 
-     it("clicking collapsed Thing should toggle selection of all nodes",
+    it("clicking collapsed Thing should toggle selection of all nodes",
        mochaAsync(async () => {
 	 HVZ.toggle_expander("Thing");
 	 HVZ.click_taxon("Thing");
          await wait_till_prop__equals__(HVZ.selected_set, 'length', 0, 30, 2000);
 	 expect(HVZ.selected_set.length).to.equal(0);
+         /*
+           BUG WORKAROUND
+           ==============
+           This is a hack to ensure that the coloring of collapsed Thing is correct.
+
+	 HVZ.toggle_expander("Thing");
+       	 HVZ.toggle_expander("Thing");
+
+           BUG WORKAROUND END
+         */
 	 HVZ.click_taxon("Thing");
          await wait_till_prop__equals__(HVZ.selected_set, 'length', HVZ.all_set.length, 30, 2000);
 	 expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
       }));
 
-    it("'choose shelved.' should result in non-zero graphed_set.length ",
+    xit("'choose shelved.' should graph everything (in this dataset)",
        mochaAsync(async () => {
 	 HVZ.click_verb("choose").click_set("shelved").doit();
-         await wait_till_prop__not_equals__(HVZ.graphed_set, 'length', 0, 30, 2000);
+         await wait_till_prop__equals__(HVZ.graphed_set, 'length', HVZ.all_set.length, 30, 2000);
 	 expect(HVZ.graphed_set.length).to.not.equal(0);
 	 expect(HVZ.graphed_set.length).to.equal(HVZ.nodes.length);
        }));
 
-    xit("'unselect graphed.' should dim all node colors ",
+
+    it("'unselect graphed.' should dim all node colors ",
        mochaAsync(async () => {
-	 HVZ.click_verb("choose").click_set("all");
+    	 HVZ.toggle_expander("Thing");
+	 HVZ.click_verb("choose").click_taxon("Thing");
 	 expect(HVZ.graphed_set.length).to.equal(HVZ.nodes.length);
-         halt();
-         HVZ.click_set('all');
-         halt();
-         await wait_till_prop__equals__(HVZ.selected_set, 'length', HVZ.nodes.length, 30, 2000);
-	 expect(HVZ.selected_set.length).to.equal(HVZ.nodes.length);
+         /*
+           BUG WORKAROUND
+           ===============
+           This section SHOULD NOT BE NEEDED.
+           It is here to work around TWO bugs.
+
+           BUG 1
+           -----
+           The current command is: "Activate ____ ."
+           BUT the visibly engaged verb is "Deactivate".
+
+           Clicking "Deactivate" twice rectifies this issue.
+
+           BUG 2
+           -----
+           Neither the taxon_picker nor the predicate_picker are colored properly
+           to show that everything is in the selected_set.
+
+           Clicking "anything" twice rectifies this issue.
+
+         HVZ.click_verb("unchoose"); // this should not be needed
+         HVZ.click_verb("unchoose");
+         HVZ.click_predicate("anything");
+         HVZ.click_predicate("anything");
+         await sleep(200);
+
+           BUG WORKAROUND, DONE
+         */
+
+         expect(get_nextcommand_str()).to.equal("____ every Thing .");  // expected but not met!
+         HVZ.click_set('graphed');
+         await sleep(200);
+         expect(get_nextcommand_str()).to.equal("____ Graphed .");
+         await wait_till_prop__equals__(HVZ.graphed_set, 'length', HVZ.nodes.length, 30, 2000);
+	 expect(HVZ.graphed_set.length).to.equal(HVZ.nodes.length);
+         halt("about to 'unselect Graphed .'");
 	 HVZ.click_verb("unselect").doit();
          await wait_till_prop__equals__(HVZ.selected_set, 'length', 0, 30, 2000);
 	 expect(HVZ.selected_set.length).to.equal(0);
        }));
 
-    it("'shelve graphed.' should remove everything from the graph ",
+    xit("'shelve graphed.' should remove everything from the graph ",
        mochaAsync(async () => {
 	 HVZ.click_verb("choose").click_set("all").doit().click_set("all");
 	 HVZ.click_verb("shelve").click_set("graphed").doit();
@@ -1003,11 +1081,19 @@ describe("HuViz Tests", function() {
 
     it("clicking Person should toggle selection of the Person node",
        mochaAsync(async () => {
-	 HVZ.toggle_taxon('Person', false);
+         await sleep(200);
+         //confirm_continue("about to click Person... Continue?");
+	 HVZ.toggle_expander("Thing");
+         await sleep(200);
+         HVZ.toggle_expander("Thing");
+         await sleep(200);
+         //confirm_continue("all Things should appear selected in taxon_picker... Continue?");
+	 HVZ.click_taxon('Person'); // disengage the peeps
          let not_Person_count = HVZ.all_set.length - HVZ.taxonomy.Person.instances.length;
          await wait_till_prop__equals__(HVZ.selected_set, 'length', not_Person_count, 30, 2000);
+         halt();
 	 expect(HVZ.selected_set.length).to.equal(not_Person_count);
-	 HVZ.toggle_taxon('Person',false);
+	 HVZ.toggle_taxon('Person', false); // reengage the peeps
          await wait_till_prop__equals__(HVZ.selected_set, 'length', HVZ.all_set.length, 30, 2000);
 	 expect(HVZ.selected_set.length).to.equal(HVZ.all_set.length);
        }));
@@ -1201,7 +1287,7 @@ describe("HuViz Tests", function() {
 	 toggle_selection_of("B", 4, "England");
        }));
 
-     it("'choose every Thing' should leave all taxa colored 'showing'",
+    it("'choose every Thing' should leave all taxa colored 'showing'",
        mochaAsync(async () => {
 	 // confirm initial conditions
 	 expect(get_nextcommand_str()).to.equal("____ every Thing .");
@@ -1267,16 +1353,32 @@ describe("HuViz Tests", function() {
 
     it("with All graphed, clicking collapsed anything should ungraph all",
        mochaAsync(async () => {
+         blurt('⬤ at outset');
+         expect(HVZ.graphed_set.length).to.equal(0)
+         expect(HVZ.selected_set.length).to.equal(HVZ.all_set.length)
+
+         blurt('⬤ collapsed anything');
 	 HVZ.toggle_expander("anything"); // collapse
-	 HVZ.click_verb('choose'); // graph everything so we can test whether ungraphing works
+
+         window.STOP_THE_WORLD = true
+	 //HVZ.click_verb('choose'); // graph everything so we can test whether ungraphing works
+         await sleep(5000);
+         blurt('⬤ clicked anything');
+         HVZ.click_predicate('anything');
+
          await wait_till_prop__equals__(HVZ.graphed_set, 'length', HVZ.nodes.length, 30, 3000);
+         blurt('⬤ awaited graphed == nodes');
+
 	 expect(HVZ.graphed_set.length,
 		"after 'choose every Thing' everything should be graphed").
            to.equal(HVZ.nodes.length);
 	 expect(HVZ.shelved_set.length).to.equal(0);
-         halt('the collapsed edge picker should be fully colored and read 104/104');
+         //halt('choose just got clicked and graphed == all AND shelved == 0');
+         //halt('the collapsed edge picker should be fully colored and read 104/104');
 	 HVZ.click_predicate("anything"); // clicking collapsed anything should ungraph everything
          await wait_till_prop__equals__(HVZ.graphed_set, 'length', 0, 30, 3000);
+         blurt('⬤ awaited graphed == 0');
+
 	 // confirm that everything is now ungraphed
 	 expect(HVZ.graphed_set.length,
 		"after clicking collapsed 'anything' everything should be ungraphed").
