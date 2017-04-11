@@ -3528,7 +3528,7 @@ class OntologicallyGrounded extends Huviz
       async: false
       success: @parseTTLOntology
       error: (jqxhr, textStatus, errorThrown) ->
-        @show_state_msg(errorThrown + " while fetching ontology " + url)
+        @show_state_msg(errorThrown + " while fetching ontology " + ontology_uri)
 
   parseTTLOntology: (data, textStatus) =>
     # detect (? rdfs:subClassOf ?) and (? ? owl:Class)
@@ -3871,7 +3871,8 @@ class PickOrProvide
   update_state: (callback) ->
     raw_value = @pick_or_provide_select.val()
     selected_option = @get_selected_option()
-    kid_cnt = @pick_or_provide_select.find("option")?length
+    the_options = @pick_or_provide_select.find("option")
+    kid_cnt = the_options.length
     console.log("#{@label}.update_state() raw_value: #{raw_value} kid_cnt: #{kid_cnt}")
     #console.log "PickOrProvide:", @, "select:", @pick_or_provide_select[0].value
     if raw_value is 'provide'
