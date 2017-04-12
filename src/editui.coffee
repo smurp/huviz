@@ -132,7 +132,7 @@ class EditController
       p: tuple[1]
       o: tuple[2]
     @latest_quad = quad  # REMOVE ONCE saving to the indexedDB is working
-    @huviz.dbsstorage.assert(quad)
+    #@huviz.dbsstorage.assert(quad)
     #assrtSave.assert(quad)
     saveButton = form.getElementsByTagName('button')[0]
     for i of inputFields
