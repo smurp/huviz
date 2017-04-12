@@ -184,6 +184,21 @@ ids_to_show = start_with_http
 
 PEEKING_COLOR = "darkgray"
 
+themeStyles =
+  "light":
+    "pageBg": "white"
+    "labelColor": "black"
+    "shelfColor": "lightgreen"
+    "discardColor": "salmon"
+    "nodeHighlightOutline": "white"
+  "dark":
+    "pageBg": "black"
+    "labelColor": "#ddd"
+    "shelfColor": "#163e00"
+    "discardColor": "#4b0000"
+    "nodeHighlightOutline": "white"
+
+
 id_escape = (an_id) ->
   retval = an_id.replace(/\:/g,'_')
   retval = retval.replace(/\//g,'_')
@@ -320,6 +335,8 @@ class Huviz
   discard_center: [0,0]
   lariat_center: [0,0]
   last_mouse_pos: [ 0, 0]
+
+  renderStyles = themeStyles.light
 
   change_sort_order: (array, cmp) ->
     array.__current_sort_order = cmp
@@ -697,12 +714,12 @@ class Huviz
   draw_disconnect_dropzone: ->
     @ctx.save()
     @ctx.lineWidth = @graph_radius * 0.1
-    @draw_circle @lariat_center[0], @lariat_center[1], @graph_radius, "lightgreen"
+    @draw_circle @lariat_center[0], @lariat_center[1], @graph_radius, renderStyles.shelfColor
     @ctx.restore()
   draw_discard_dropzone: ->
     @ctx.save()
     @ctx.lineWidth = @discard_radius * 0.1
-    @draw_circle @discard_center[0], @discard_center[1], @discard_radius, "", "salmon"
+    @draw_circle @discard_center[0], @discard_center[1], @discard_radius, "", renderStyles.discardColor
     @ctx.restore()
   draw_dropzones: ->
     if @dragging
@@ -1284,7 +1301,7 @@ class Huviz
       if @use_canvas
         @draw_circle(node.fisheye.x, node.fisheye.y,
                      @calc_node_radius(node),
-                     node.color or "yellow", node.color or "black")
+                     node.color or "yellow", node.color or renderStyles.nodeHighlightOutline)
       if @use_webgl
         @mv_node node.gl, node.fisheye.x, node.fisheye.y
 
@@ -1305,7 +1322,7 @@ class Huviz
           stroke_color = d.color or 'yellow'
           fill_color = d.color or 'black'
           if d.chosen?
-            stroke_color = 'black'
+            stroke_color = renderStyles.nodeHighlightOutline
           @draw_circle(d.fisheye.x, d.fisheye.y,
                        node_radius,
                        stroke_color, fill_color)
@@ -1340,7 +1357,7 @@ class Huviz
           ctx.fillStyle = node.color
           ctx.font = focused_font
         else
-          ctx.fillStyle = "black"
+          ctx.fillStyle = renderStyles.labelColor #"white" is default
           ctx.font = unfocused_font
         return unless node.fisheye? # FIXME why is this even happening?
         if not @graphed_set.has(node) and @draw_lariat_labels_rotated
@@ -1400,8 +1417,8 @@ class Huviz
       if edge.contexts?
         if edge.contexts.length
           label += " (#{edge.contexts.length})"
-    ctx.fillStyle = @shadow_color
-    ctx.fillText " " + label, edge.handle.x + @edge_x_offset + @shadow_offset, edge.handle.y + @shadow_offset
+    #ctx.fillStyle = @shadow_color
+    #ctx.fillText " " + label, edge.handle.x + @edge_x_offset + @shadow_offset, edge.handle.y + @shadow_offset
     ctx.fillStyle = edge.color
     ctx.fillText " " + label, edge.handle.x + @edge_x_offset, edge.handle.y
 
@@ -2837,7 +2854,7 @@ class Huviz
   after_running_command: ->
     #toggle_suspend_updates(false)
     @text_cursor.set_cursor("default")
-    $("body").css "background-color", "white" # FIXME remove once it works!
+    $("body").css "background-color", renderStyles.pageBg # FIXME remove once it works!
     @update_all_counts()
     @clean_up_all_dirt()
 
@@ -3255,6 +3272,13 @@ class Huviz
           title: "Show the datasets which are too large or buggy"
         input:
           type: "checkbox"
+    ,
+      theme_colors:
+        text: "Display graph with dark theme"
+        label:
+          title: "Show graph plotted on a black background"
+        input:
+          type: "checkbox"
     ]
 
   dump_current_settings: (post) ->
@@ -3364,6 +3388,18 @@ class Huviz
         return text
     else
       $('option.dangerous').hide()
+
+  on_change_theme_colors: (new_val) ->
+    console.log new_val
+    if new_val
+      renderStyles = themeStyles.dark
+      console.log "switch to dark"
+    else
+      renderStyles = themeStyles.light
+      console.log "switch to light"
+    #@update_graph_settings()
+    $("body").css "background-color", renderStyles.pageBg
+    @updateWindow()
 
   on_change_shelf_radius: (new_val, old_val) ->
     @change_setting_to_from('shelf_radius', new_val, old_val, true)
