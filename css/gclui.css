@@ -5,7 +5,7 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  max-height: 50em;
+  max-height: 32em;
   overflow-y: scroll;
 }
 .alternates {
@@ -15,12 +15,9 @@
   margin:.1em;
 }
 .verb {
-  border: 1px rgb(255, 255, 255) solid;
-  padding: 0.25em 0.3em;
-  margin: 0.05em;
+  border:2px solid;
+  margin:0.05em;
   cursor: pointer;
-  background-color: #eaeaf7;
-  text-align: center;
 }
 .contents { /* Boxes in a treepicker are clickable */
     cursor: pointer;
@@ -44,16 +41,17 @@
     position: absolute;
     top:0px;
     left:0px;
-    background-color:rgba(255,255,255,.7);
+    background-color:rgba(63,63,63,.5);
     z-index:5000;
 }
 /*  http://net.tutsplus.com/tutorials/html-css-techniques/lets-create-paper-with-css/ */
 .command {
   margin-top: .1em;
+  margin-top: .1em;
   padding: .1em;
   color: gray;
-  background-color: #fdfcec; /* legal pad yellow */
-  border: inset 1px;
+  background-color: #fcf59b; /* legal pad yellow */
+  border-style: groove;
 }
 .commandlist {
   overflow-y: auto;
@@ -63,14 +61,8 @@
 }
 .nextcommand {
   color: black;
-}
-.cmd-spinner {
-  float: right;
-  padding: 2px;
-}
-.cmd-working {
-  /*background-color: #fbefc9;*/
-  background-color: #eee;
+  font-weight:bold;
+
 }
 .cmdlistbar {
   color: white;
@@ -94,17 +86,17 @@ p {
 }
 .container {
     display:inline-block;
-    border:1px (255, 255, 255, .5) solid;
+    border:1px solid;
     overflow:hidden;
 }
 .contents {
     font-size: 90%;
-    border:1px rgba(255, 255, 255, .5) solid;
+    border:1px solid;
     padding: .1em;
     overflow:auto;
 }
 .treepicker-showing {
-    background-color: rgb(230, 217, 193);
+    background-color: tan;
 }
 /* display: inline-block and white-space: nowrap */
 .treepicker-hidden {
@@ -120,13 +112,6 @@ p {
   /* for debugging, comment the following line to disable hiding */
   display: none;
 }
-.treepicker-vertical {
-  float: right;
-}
-.treepicker-showing .treepicker-vertical {
-  background-color: rgb(243, 235, 222);
-}
-
 #anything.treepicker-indirect-empty.treepicker-empty {
   background-color: white;
   display: block;
@@ -197,10 +182,6 @@ p {
   color: black;
 }
 .nextcommand_prompt_unready {
-  color: grey;
-  font-style: italic;
-}
-.cmd-working .nextcommand_prompt_ready{
   color: grey;
   font-style: italic;
 }
