@@ -44,25 +44,25 @@ class EditController
     toggleEdit.appendChild(formNode)
 
   set_predicate_selector: () ->
-      #console.log("setting predicate selector in edit form")
-      # Add predicates from Ontology for autocomplete box in edit form
-      #pred_array = @huviz.predicate_set
-      availablePredicates = []
-      if @huviz.predicate_set
-        for predicate in @huviz.predicate_set
-          availablePredicates.push predicate.lid
-        availablePredicates.push "literal"
-      else
-        availablePredicates = [
-          "A",
-          "literal"
-        ]
-      $("#predicate").autocomplete(
-        source:availablePredicates,
-        position:
-          my: "left bottom"
-          at: "left top"
-      )
+    #console.log("setting predicate selector in edit form")
+    # Add predicates from Ontology for autocomplete box in edit form
+    #pred_array = @huviz.predicate_set
+    availablePredicates = []
+    if @huviz.predicate_set
+      for predicate in @huviz.predicate_set
+        availablePredicates.push predicate.lid
+      availablePredicates.push "literal"
+    else
+      availablePredicates = [
+        "A",
+        "literal"
+      ]
+    $("#predicate").autocomplete(
+      source:availablePredicates,
+      position:
+        my: "left bottom"
+        at: "left top"
+    )
 
   toggle_edit_form: () =>
     toggleEditMode = @con.getAttribute("edit")
@@ -167,7 +167,8 @@ class EditController
     @object_node = node
     new_value = node and node.id or ""
     console.log("setting object node......"  + new_value)
-    if new_value and @deleted_last_edge   # This should only happen when 1) there is a new value and 2) the last request has been completed
+    # This should only happen when 1) there is a new value and 2) the last request has been completed
+    if new_value and @deleted_last_edge
       @deleted_last_edge = false # reset, because we are now going to process the new edge value
       @object_input.setAttribute("value",new_value)
       @validate_edit_form()
@@ -176,37 +177,37 @@ class EditController
 
   validate_proposed_edge: () -> # type = subject or object
     # What are the proposed subject node, object node and predicate?
-      # Subject and Object fields must have values (IDs of Nodes)
-      # Make a quad out of current subject and object (predicate if it is filled)
-      #subject_id = @editui.subject_input.value
-      RDF_object  = "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
-      RDF_literal = "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"
+    # Subject and Object fields must have values (IDs of Nodes)
+    # Make a quad out of current subject and object (predicate if it is filled)
+    #subject_id = @editui.subject_input.value
+    RDF_object  = "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
+    RDF_literal = "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"
 
-      subject_id = @subject_input.value
-      object_id = @object_input.value
-      predicate_val = @predicate_input.value
-      #console.log @huviz.RDF_object
+    subject_id = @subject_input.value
+    object_id = @object_input.value
+    predicate_val = @predicate_input.value
+    #console.log @huviz.RDF_object
 
-      # Only
-      if subject_id and object_id
-        obj_type = if predicate_val is 'literal' then RDF_literal else RDF_object
-        q =
-          s: subject_id
-          p: predicate_val || "anything"
-          o:  # keys: type,value[,language]
-            type: obj_type
-            value: object_id
-          g: "http://" + Date.now()
-        # Don't process any edge proposal if it is just the same as the current proposal
-        console.log (q)
-        console.log (@proposed_edge)
-        # Ignore requests for edges that are identical to the last edge requested
-        if @proposed_edge? and q.o.value is @proposed_edge.o.value
-          console.log "this new proposed edge is just the same as old - get out of here"
-          @deleted_last_edge = true # reset so a new edge can be displayed in object field
-          return
-        console.log "validating proposed edge.... It should be:" + q.s + ' ' + q.p + ' ' +q.o.value
-        @set_proposed_edge(q)
+    # Only
+    if subject_id and object_id
+      obj_type = if predicate_val is 'literal' then RDF_literal else RDF_object
+      q =
+        s: subject_id
+        p: predicate_val || "anything"
+        o:  # keys: type,value[,language]
+          type: obj_type
+          value: object_id
+        g: "http://" + Date.now()
+      # Don't process any edge proposal if it is just the same as the current proposal
+      console.log (q)
+      console.log (@proposed_edge)
+      # Ignore requests for edges that are identical to the last edge requested
+      if @proposed_edge? and q.o.value is @proposed_edge.o.value
+        console.log "this new proposed edge is just the same as old - get out of here"
+        @deleted_last_edge = true # reset so a new edge can be displayed in object field
+        return
+      console.log "validating proposed edge.... It should be:" + q.s + ' ' + q.p + ' ' +q.o.value
+      @set_proposed_edge(q)
 
   set_proposed_edge: (new_q) ->
     console.log "creating a new proposed edge...."
