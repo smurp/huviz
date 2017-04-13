@@ -1436,10 +1436,6 @@ class Huviz
     ctx.fillText " " + label, edge.handle.x + @edge_x_offset, edge.handle.y
     #ctx.strokeText(label, edge.handle.x + 2 * @edge_x_offset, edge.handle.y)
 
-
-
-
-
   update_snippet: ->
     if @show_snippets_constantly and @focused_edge? and @focused_edge isnt @printed_edge
       @print_edge @focused_edge
