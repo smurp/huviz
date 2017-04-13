@@ -1356,6 +1356,7 @@ class Huviz
           @scroll_pretty_name(node)
           ctx.fillStyle = node.color
           ctx.font = focused_font
+          #ctx.fillRect(node.fisheye.x, node.fisheye.y, 50, 50)
         else
           ctx.fillStyle = renderStyles.labelColor #"white" is default
           ctx.font = unfocused_font
@@ -1378,6 +1379,8 @@ class Huviz
           ctx.restore()
         else
           ctx.fillText "  " + node.pretty_name, node.fisheye.x, node.fisheye.y
+
+
       @graphed_set.forEach label_node
       @shelved_set.forEach label_node
       @discarded_set.forEach label_node
@@ -1417,10 +1420,25 @@ class Huviz
       if edge.contexts?
         if edge.contexts.length
           label += " (#{edge.contexts.length})"
-    #ctx.fillStyle = @shadow_color
-    #ctx.fillText " " + label, edge.handle.x + @edge_x_offset + @shadow_offset, edge.handle.y + @shadow_offset
+
+    width = ctx.measureText(label).width
+    height = @label_em * @focused_mag * 16
+    #ctx.globalAlpha = 0.7;
+    ctx.fillStyle = '#fff'
+    ctx.fillRect(edge.handle.x + @edge_x_offset, edge.handle.y - height, width + @edge_x_offset, height+@edge_x_offset)
+    #ctx.globalAlpha = 1;
+    ctx.fillStyle = '#666' #@shadow_color
+    ctx.fillText " " + label, edge.handle.x + @edge_x_offset + @shadow_offset, edge.handle.y + @shadow_offset
+    #ctx.strokeStyle = '#666'
     ctx.fillStyle = edge.color
+    #console.log edge.color
+    #ctx.lineWidth = 1
     ctx.fillText " " + label, edge.handle.x + @edge_x_offset, edge.handle.y
+    #ctx.strokeText(label, edge.handle.x + 2 * @edge_x_offset, edge.handle.y)
+
+
+
+
 
   update_snippet: ->
     if @show_snippets_constantly and @focused_edge? and @focused_edge isnt @printed_edge
@@ -2948,6 +2966,7 @@ class Huviz
     @reset_graph()
     @updateWindow()
     @ctx = @canvas.getContext("2d")
+    console.log @ctx
     @mouse_receiver
       .on("mousemove", @mousemove)
       .on("mousedown", @mousedown)
