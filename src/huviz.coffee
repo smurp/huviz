@@ -1380,7 +1380,6 @@ class Huviz
         else
           ctx.fillText "  " + node.pretty_name, node.fisheye.x, node.fisheye.y
 
-
       @graphed_set.forEach label_node
       @shelved_set.forEach label_node
       @discarded_set.forEach label_node
