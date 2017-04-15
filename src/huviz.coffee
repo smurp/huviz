@@ -496,7 +496,6 @@ class Huviz
       @move_node_to_point @dragging, @last_mouse_pos
       if @edit_mode
         @text_cursor.pause("", "drop on object node")
-
       else
         if @dragging.links_shown.length is 0
           action = "choose"
@@ -542,7 +541,6 @@ class Huviz
 
     # if something was being dragged then handle the drop
     if @dragging
-      #console.log "STOPPING_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
       @move_node_to_point @dragging, point
       if @in_discard_dropzone(@dragging)
         @run_verb_on_object 'discard', @dragging
@@ -552,7 +550,9 @@ class Huviz
       else if @dragging.links_shown.length == 0
         @run_verb_on_object 'choose', @dragging
       else if @nodes_pinnable
-        if @dragging.fixed
+        if @editui? and @dragging is @editui.subject_node
+          console.log "not pinning subject_node when dropping"
+        else if @dragging.fixed
           @run_verb_on_object 'unpin', @dragging
         else
           @run_verb_on_object 'pin', @dragging
