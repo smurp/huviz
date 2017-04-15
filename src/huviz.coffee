@@ -1016,53 +1016,48 @@ class Huviz
     console.log "  in_sets:", node.in_sets
 
   find_node_or_edge_closest_to_pointer: ->
-
     new_focused_node = undefined
     new_focused_edge = undefined
     new_focused_idx = undefined
-    #focus_threshold = 100 #@focus_radius * 3 FIXME Change to setting variable
     focus_threshold = @focus_threshold
-    closest = @width
+    closest_dist = @width
     closest_point = undefined
 
-    seeking = false # holds property name of the thing we are seeking: focused_node/object_node
+    seeking = false # holds property name of the thing we are seeking: 'focused_node'/'object_node'/false
     if @dragging
       if not @edit_mode
         return
       seeking = "object_node"
     else
       seeking = "focused_node"
-    if not seeking
-      return
-    #TODO - Where does this go? If in predicate indicates objectProperty - no drag interaction - click only
-    #if @editui.dataPropertyNoDrag
-      # don't allow dragging, select only
 
-    # FIXME build a spatial index!!!! OMG
+    # TODO build a spatial index!!!! OMG
+    # Examine every node to find the closest one within the focus_threshold
     @nodes.forEach (d, i) =>
       n_dist = distance(d.fisheye or d, @last_mouse_pos)
       #console.log(d)
-      if n_dist < closest
-        closest = n_dist
+      if n_dist < closest_dist
+        closest_dist = n_dist
         closest_point = d.fisheye or d
-      if not (seeking is 'object_node' and @dragging and @dragging.id is d.id) # @object_node === this['object_node'] === @[seeking]
+      if not (seeking is 'object_node' and @dragging and @dragging.id is d.id)
         if n_dist <= focus_threshold
           new_focused_node = d
           focus_threshold = n_dist
           new_focused_idx = i
 
+    # Examine the center of every edge and make it the new_focused_edge if close enough and the closest thing
     @links_set.forEach (e, i) =>
       if e.handle?
         e_dist = distance(e.handle, @last_mouse_pos)
-        if e_dist < closest
-          closest = e_dist
+        if e_dist < closest_dist
+          closest_dist = e_dist
           closest_point = e.handle
         if e_dist <= focus_threshold
           new_focused_edge = e
           focus_threshold = e_dist
           new_focused_edge_idx = i
 
-    if new_focused_edge?
+    if new_focused_edge? # the mouse is closer to an edge than a node
       new_focused_node = undefined
 
     if closest_point?
@@ -1083,34 +1078,20 @@ class Huviz
 
     @set_focused_edge(new_focused_edge)
 
-    last_focused_node = @focused_node
-    @[seeking] = new_focused_node # possibly null
-
     if seeking is 'object_node'
-      if @editui.object_node isnt @object_node
-        @editui.set_object_node(@object_node)
+      @editui.set_object_node(new_focused_node)
+
+    if new_focused_edge
+      return
 
     if seeking is 'focused_node'
-      node_changed = @focused_node isnt last_focused_node
+      node_changed = @focused_node isnt new_focused_node
+      @focused_node = new_focused_node # possibly null
       if node_changed
         if @focused_node? and @focused_node
           @gclui.engage_transient_verb_if_needed("select")
         else
           @gclui.disengage_transient_verb_if_needed()
-
-    # TODO figure out the impact of seeking on @focused_edge handling
-    last_focused_edge = @focused_edge
-    @focused_edge = new_focused_edge
-    edge_changed = @focused_edge isnt last_focused_edge
-    if edge_changed
-      if @focused_edge?
-        if @edit_mode
-          @text_cursor.pause("", "edit this edge")
-        else
-          @text_cursor.pause("", "show edge sources")
-      else
-        @text_cursor.continue()
-    #@adjust_cursor()
 
   DEPRECATED_showing_links_to_cursor_map:
     all: 'not-allowed'
@@ -1118,39 +1099,38 @@ class Huviz
     none: 'pointer'
 
   set_focused_edge: (new_focused_edge) ->
-      if @proposed_edge and @focused_edge # if proposed edge is true and there is a focused edge
-        return
-      unless @focused_edge is new_focused_edge
-
-        if @focused_edge? #and @focused_edge isnt new_focused_edge
-          console.log "deleting focused edge"
-          @focused_edge.focused = false
-          delete @focused_edge.source.focused_edge
-          delete @focused_edge.target.focused_edge
-        if new_focused_edge?
-          console.log "setting focused edge"
-          # FIXME add use_svg stanza
-          new_focused_edge.focused = true
-          new_focused_edge.source.focused_edge = true
-          new_focused_edge.target.focused_edge = true
-
-  @proposed_edge = false #initialization (no proposed edge active)
-  set_proposed_focused_edge: (new_focused_edge) ->
-      console.log "Setting proposed focused edge..."
-      #console.log (new_focused_edge)
-      if new_focused_edge? and @focused_edge # case when there is no new edge but still existing edge
-        console.log "not nfe and fe"
+    if @proposed_edge and @focused_edge # TODO why bail now???
+      return
+    unless @focused_edge is new_focused_edge
+      if @focused_edge? #and @focused_edge isnt new_focused_edge
+        console.log "removing focus from previous focused_edge"
         @focused_edge.focused = false
         delete @focused_edge.source.focused_edge
         delete @focused_edge.target.focused_edge
-      else if new_focused_edge
-        console.log "yes, nfe"
-        @proposed_edge = true
-        @set_focused_edge(new_focused_edge)
+      if new_focused_edge?
+        console.log "setting focused edge"
+        # FIXME add use_svg stanza
+        new_focused_edge.focused = true
+        new_focused_edge.source.focused_edge = true
+        new_focused_edge.target.focused_edge = true
+      @focused_edge = new_focused_edge # blank it or set it
+      if @focused_edge?
+        if @edit_mode
+          @text_cursor.pause("", "edit this edge")
+        else
+          @text_cursor.pause("", "show edge sources")
       else
-        @proposed_edge = false
-        console.log("abort")
-        return
+        @text_cursor.continue()
+
+  @proposed_edge = null #initialization (no proposed edge active)
+  set_proposed_edge: (new_proposed_edge) ->
+    console.log "Setting proposed edge...", new_proposed_edge
+    if @proposed_edge?
+      delete @proposed_edge.proposed # remove .proposed flag from old one
+    if new_proposed_edge
+      new_proposed_edge.proposed = true # flag the new one
+    @proposed_edge = new_proposed_edge # might be null
+    @set_focused_edge(new_proposed_edge) # a proposed_edge also becomes focused
 
   install_update_pointer_togglers: ->
     console.warn("the update_pointer_togglers are being called too often")
@@ -1586,7 +1566,7 @@ class Huviz
   object_value_types: {}
   unique_pids: {}
   add_quad: (quad) ->
-    console.log "******* I'm calling add_quad *********"
+    console.log "HuViz.add_quad()", quad
     sid = quad.s
     pid = @make_qname(quad.p)
     ctxid = quad.g || @DEFAULT_CONTEXT
@@ -1606,7 +1586,7 @@ class Huviz
       subj = @my_graph.subjects[sid]
 
     @ensure_predicate_lineage pid
-
+    edge = null
     subj_n = @get_or_create_node_by_id(sid)
     pred_n = @get_or_create_predicate_by_id(pid)
     cntx_n = @get_or_create_context_by_id(ctxid)
@@ -1628,13 +1608,14 @@ class Huviz
         @infer_edge_end_types(edge)
         edge.register_context(cntx_n)
         edge.color = @gclui.predicate_picker.get_color_forId_byName(pred_n.lid,'showing')
-        edge_e = @add_edge(edge)
+        @add_edge(edge)
         @develop(obj_n)
     else
       if subj_n.embryo and is_one_of(pid,NAME_SYNS)
         @set_name(subj_n, quad.o.value.replace(/^\s+|\s+$/g, ''))
         @develop(subj_n) # might be ready now
     @last_quad = quad
+    return edge
 
   set_name: (node, full_name) ->
     node.name ?= full_name  # set it if blank
