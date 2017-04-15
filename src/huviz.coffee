@@ -1016,53 +1016,48 @@ class Huviz
     console.log "  in_sets:", node.in_sets
 
   find_node_or_edge_closest_to_pointer: ->
-
     new_focused_node = undefined
     new_focused_edge = undefined
     new_focused_idx = undefined
-    #focus_threshold = 100 #@focus_radius * 3 FIXME Change to setting variable
     focus_threshold = @focus_threshold
-    closest = @width
+    closest_dist = @width
     closest_point = undefined
 
-    seeking = false # holds property name of the thing we are seeking: focused_node/object_node
+    seeking = false # holds property name of the thing we are seeking: 'focused_node'/'object_node'/false
     if @dragging
       if not @edit_mode
         return
       seeking = "object_node"
     else
       seeking = "focused_node"
-    if not seeking
-      return
-    #TODO - Where does this go? If in predicate indicates objectProperty - no drag interaction - click only
-    #if @editui.dataPropertyNoDrag
-      # don't allow dragging, select only
 
-    # FIXME build a spatial index!!!! OMG
+    # TODO build a spatial index!!!! OMG
+    # Examine every node to find the closest one within the focus_threshold
     @nodes.forEach (d, i) =>
       n_dist = distance(d.fisheye or d, @last_mouse_pos)
       #console.log(d)
-      if n_dist < closest
-        closest = n_dist
+      if n_dist < closest_dist
+        closest_dist = n_dist
         closest_point = d.fisheye or d
-      if not (seeking is 'object_node' and @dragging and @dragging.id is d.id) # @object_node === this['object_node'] === @[seeking]
+      if not (seeking is 'object_node' and @dragging and @dragging.id is d.id)
         if n_dist <= focus_threshold
           new_focused_node = d
           focus_threshold = n_dist
           new_focused_idx = i
 
+    # Examine the center of every edge and make it the new_focused_edge if close enough and the closest thing
     @links_set.forEach (e, i) =>
       if e.handle?
         e_dist = distance(e.handle, @last_mouse_pos)
-        if e_dist < closest
-          closest = e_dist
+        if e_dist < closest_dist
+          closest_dist = e_dist
           closest_point = e.handle
         if e_dist <= focus_threshold
           new_focused_edge = e
           focus_threshold = e_dist
           new_focused_edge_idx = i
 
-    if new_focused_edge?
+    if new_focused_edge? # the mouse is closer to an edge than a node
       new_focused_node = undefined
 
     if closest_point?
@@ -1083,34 +1078,20 @@ class Huviz
 
     @set_focused_edge(new_focused_edge)
 
-    last_focused_node = @focused_node
-    @[seeking] = new_focused_node # possibly null
-
     if seeking is 'object_node'
-      if @editui.object_node isnt @object_node
-        @editui.set_object_node(@object_node)
+      @editui.set_object_node(new_focused_node)
+
+    if new_focused_edge
+      return
 
     if seeking is 'focused_node'
-      node_changed = @focused_node isnt last_focused_node
+      node_changed = @focused_node isnt new_focused_node
+      @focused_node = new_focused_node # possibly null
       if node_changed
         if @focused_node? and @focused_node
           @gclui.engage_transient_verb_if_needed("select")
         else
           @gclui.disengage_transient_verb_if_needed()
-
-    # TODO figure out the impact of seeking on @focused_edge handling
-    last_focused_edge = @focused_edge
-    @focused_edge = new_focused_edge
-    edge_changed = @focused_edge isnt last_focused_edge
-    if edge_changed
-      if @focused_edge?
-        if @edit_mode
-          @text_cursor.pause("", "edit this edge")
-        else
-          @text_cursor.pause("", "show edge sources")
-      else
-        @text_cursor.continue()
-    #@adjust_cursor()
 
   DEPRECATED_showing_links_to_cursor_map:
     all: 'not-allowed'
@@ -1118,37 +1099,38 @@ class Huviz
     none: 'pointer'
 
   set_focused_edge: (new_focused_edge) ->
-      if @proposed_edge and @focused_edge # if proposed edge is true and there is a focused edge
-        return
-      unless @focused_edge is new_focused_edge
-
-        if @focused_edge? #and @focused_edge isnt new_focused_edge
-          @focused_edge.focused = false
-          delete @focused_edge.source.focused_edge
-          delete @focused_edge.target.focused_edge
-        if new_focused_edge?
-          # FIXME add use_svg stanza
-          new_focused_edge.focused = true
-          new_focused_edge.source.focused_edge = true
-          new_focused_edge.target.focused_edge = true
-
-  @proposed_edge = false #initialization (no proposed edge active)
-  set_proposed_focused_edge: (new_focused_edge) ->
-      console.log "Setting proposed focused edge..."
-      #console.log (new_focused_edge)
-      if new_focused_edge? and @focused_edge # case when there is no new edge but still existing edge
-        console.log "not nfe and fe"
+    if @proposed_edge and @focused_edge # TODO why bail now???
+      return
+    unless @focused_edge is new_focused_edge
+      if @focused_edge? #and @focused_edge isnt new_focused_edge
+        console.log "removing focus from previous focused_edge"
         @focused_edge.focused = false
         delete @focused_edge.source.focused_edge
         delete @focused_edge.target.focused_edge
-      else if new_focused_edge
-        console.log "yes, nfe"
-        @proposed_edge = true
-        @set_focused_edge(new_focused_edge)
+      if new_focused_edge?
+        console.log "setting focused edge"
+        # FIXME add use_svg stanza
+        new_focused_edge.focused = true
+        new_focused_edge.source.focused_edge = true
+        new_focused_edge.target.focused_edge = true
+      @focused_edge = new_focused_edge # blank it or set it
+      if @focused_edge?
+        if @edit_mode
+          @text_cursor.pause("", "edit this edge")
+        else
+          @text_cursor.pause("", "show edge sources")
       else
-        @proposed_edge = false
-        console.log("abort")
-        return
+        @text_cursor.continue()
+
+  @proposed_edge = null #initialization (no proposed edge active)
+  set_proposed_edge: (new_proposed_edge) ->
+    console.log "Setting proposed edge...", new_proposed_edge
+    if @proposed_edge?
+      delete @proposed_edge.proposed # remove .proposed flag from old one
+    if new_proposed_edge
+      new_proposed_edge.proposed = true # flag the new one
+    @proposed_edge = new_proposed_edge # might be null
+    @set_focused_edge(new_proposed_edge) # a proposed_edge also becomes focused
 
   install_update_pointer_togglers: ->
     console.warn("the update_pointer_togglers are being called too often")
@@ -1351,13 +1333,10 @@ class Huviz
         ctx = @ctx
         # perhaps scrolling should happen here
         if node.focused_node or node.focused_edge?
-          label = @scroll_pretty_name(node)
-          if node.state.id is "graphed"
-            cart_label = node.pretty_name
-            @draw_cartouche(cart_label, node.fisheye.x, node.fisheye.y)
+          @scroll_pretty_name(node)
           ctx.fillStyle = node.color
           ctx.font = focused_font
-
+          #ctx.fillRect(node.fisheye.x, node.fisheye.y, 50, 50)
         else
           ctx.fillStyle = renderStyles.labelColor #"white" is default
           ctx.font = unfocused_font
@@ -1380,7 +1359,6 @@ class Huviz
           ctx.restore()
         else
           ctx.fillText "  " + node.pretty_name, node.fisheye.x, node.fisheye.y
-
 
       @graphed_set.forEach label_node
       @shelved_set.forEach label_node
@@ -1410,48 +1388,6 @@ class Huviz
     @draw_labels()
     @draw_edge_labels()
 
-  rounded_rectangle: (x, y, w, h, radius, fill, stroke, alpha) ->
-    ###
-    http://stackoverflow.com/questions/1255512/how-to-draw-a-rounded-rectangle-on-html-canvas
-    ###
-    ctx = @ctx
-    ctx.fillStyle = fill
-    r = x + w
-    b = y + h
-    ctx.save()
-    ctx.beginPath()
-    ctx.moveTo(x + radius, y)
-    ctx.lineTo(r - radius, y)
-    ctx.quadraticCurveTo(r, y, r, y + radius)
-    ctx.lineTo(r, y + h - radius)
-    ctx.quadraticCurveTo(r, b, r - radius, b)
-    ctx.lineTo(x + radius, b)
-    ctx.quadraticCurveTo(x, b, x, b - radius)
-    ctx.lineTo(x, y + radius)
-    ctx.quadraticCurveTo(x, y, x + radius, y)
-    ctx.closePath()
-    if alpha
-      ctx.globalAlpha = alpha
-    ctx.fill()
-    ctx.globalAlpha = 1
-    if stroke
-      ctx.strokeStyle = stroke
-      ctx.stroke()
-
-  draw_cartouche: (label, x, y) ->
-    console.log label
-    width = @ctx.measureText(label).width
-    height = @label_em * @focused_mag * 16
-    radius = @edge_x_offset
-    cart_color = renderStyles.pageBg
-    alpha = .8
-    outline = false
-    x = x + @edge_x_offset
-    y = y - height
-    width = width + 2 * @edge_x_offset
-    height = height + @edge_x_offset
-    @rounded_rectangle(x, y, width, height, radius, cart_color, outline, alpha)
-
   draw_edge_labels: ->
     if @focused_edge?
       @draw_edge_label(@focused_edge)
@@ -1466,12 +1402,18 @@ class Huviz
 
     width = ctx.measureText(label).width
     height = @label_em * @focused_mag * 16
-    @draw_cartouche(label, edge.handle.x, edge.handle.y)
-    #ctx.fillStyle = '#666' #@shadow_color
-    #ctx.fillText " " + label, edge.handle.x + @edge_x_offset + @shadow_offset, edge.handle.y + @shadow_offset
+    #ctx.globalAlpha = 0.7;
+    ctx.fillStyle = '#fff'
+    ctx.fillRect(edge.handle.x + @edge_x_offset, edge.handle.y - height, width + @edge_x_offset, height+@edge_x_offset)
+    #ctx.globalAlpha = 1;
+    ctx.fillStyle = '#666' #@shadow_color
+    ctx.fillText " " + label, edge.handle.x + @edge_x_offset + @shadow_offset, edge.handle.y + @shadow_offset
+    #ctx.strokeStyle = '#666'
     ctx.fillStyle = edge.color
+    #console.log edge.color
+    #ctx.lineWidth = 1
     ctx.fillText " " + label, edge.handle.x + @edge_x_offset, edge.handle.y
-
+    #ctx.strokeText(label, edge.handle.x + 2 * @edge_x_offset, edge.handle.y)
 
   update_snippet: ->
     if @show_snippets_constantly and @focused_edge? and @focused_edge isnt @printed_edge
@@ -1624,7 +1566,7 @@ class Huviz
   object_value_types: {}
   unique_pids: {}
   add_quad: (quad) ->
-    console.log "******* I'm calling add_quad *********"
+    console.log "HuViz.add_quad()", quad
     sid = quad.s
     pid = @make_qname(quad.p)
     ctxid = quad.g || @DEFAULT_CONTEXT
@@ -1644,7 +1586,7 @@ class Huviz
       subj = @my_graph.subjects[sid]
 
     @ensure_predicate_lineage pid
-
+    edge = null
     subj_n = @get_or_create_node_by_id(sid)
     pred_n = @get_or_create_predicate_by_id(pid)
     cntx_n = @get_or_create_context_by_id(ctxid)
@@ -1666,13 +1608,14 @@ class Huviz
         @infer_edge_end_types(edge)
         edge.register_context(cntx_n)
         edge.color = @gclui.predicate_picker.get_color_forId_byName(pred_n.lid,'showing')
-        edge_e = @add_edge(edge)
+        @add_edge(edge)
         @develop(obj_n)
     else
       if subj_n.embryo and is_one_of(pid,NAME_SYNS)
         @set_name(subj_n, quad.o.value.replace(/^\s+|\s+$/g, ''))
         @develop(subj_n) # might be ready now
     @last_quad = quad
+    return edge
 
   set_name: (node, full_name) ->
     node.name ?= full_name  # set it if blank
