@@ -496,6 +496,7 @@ class Huviz
       @move_node_to_point @dragging, @last_mouse_pos
       if @edit_mode
         @text_cursor.pause("", "drop on object node")
+
       else
         if @dragging.links_shown.length is 0
           action = "choose"
@@ -541,6 +542,7 @@ class Huviz
 
     # if something was being dragged then handle the drop
     if @dragging
+      #console.log "STOPPING_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
       @move_node_to_point @dragging, point
       if @in_discard_dropzone(@dragging)
         @run_verb_on_object 'discard', @dragging
@@ -550,9 +552,7 @@ class Huviz
       else if @dragging.links_shown.length == 0
         @run_verb_on_object 'choose', @dragging
       else if @nodes_pinnable
-        if @editui? and @dragging is @editui.subject_node
-          console.log "not pinning subject_node when dropping"
-        else if @dragging.fixed
+        if @dragging.fixed
           @run_verb_on_object 'unpin', @dragging
         else
           @run_verb_on_object 'pin', @dragging
@@ -1333,10 +1333,13 @@ class Huviz
         ctx = @ctx
         # perhaps scrolling should happen here
         if node.focused_node or node.focused_edge?
-          @scroll_pretty_name(node)
+          label = @scroll_pretty_name(node)
+          if node.state.id is "graphed"
+            cart_label = node.pretty_name
+            @draw_cartouche(cart_label, node.fisheye.x, node.fisheye.y)
           ctx.fillStyle = node.color
           ctx.font = focused_font
-          #ctx.fillRect(node.fisheye.x, node.fisheye.y, 50, 50)
+
         else
           ctx.fillStyle = renderStyles.labelColor #"white" is default
           ctx.font = unfocused_font
@@ -1388,6 +1391,48 @@ class Huviz
     @draw_labels()
     @draw_edge_labels()
 
+  rounded_rectangle: (x, y, w, h, radius, fill, stroke, alpha) ->
+    ###
+    http://stackoverflow.com/questions/1255512/how-to-draw-a-rounded-rectangle-on-html-canvas
+    ###
+    ctx = @ctx
+    ctx.fillStyle = fill
+    r = x + w
+    b = y + h
+    ctx.save()
+    ctx.beginPath()
+    ctx.moveTo(x + radius, y)
+    ctx.lineTo(r - radius, y)
+    ctx.quadraticCurveTo(r, y, r, y + radius)
+    ctx.lineTo(r, y + h - radius)
+    ctx.quadraticCurveTo(r, b, r - radius, b)
+    ctx.lineTo(x + radius, b)
+    ctx.quadraticCurveTo(x, b, x, b - radius)
+    ctx.lineTo(x, y + radius)
+    ctx.quadraticCurveTo(x, y, x + radius, y)
+    ctx.closePath()
+    if alpha
+      ctx.globalAlpha = alpha
+    ctx.fill()
+    ctx.globalAlpha = 1
+    if stroke
+      ctx.strokeStyle = stroke
+      ctx.stroke()
+
+  draw_cartouche: (label, x, y) ->
+    console.log label
+    width = @ctx.measureText(label).width
+    height = @label_em * @focused_mag * 16
+    radius = @edge_x_offset
+    cart_color = renderStyles.pageBg
+    alpha = .8
+    outline = false
+    x = x + @edge_x_offset
+    y = y - height
+    width = width + 2 * @edge_x_offset
+    height = height + @edge_x_offset
+    @rounded_rectangle(x, y, width, height, radius, cart_color, outline, alpha)
+
   draw_edge_labels: ->
     if @focused_edge?
       @draw_edge_label(@focused_edge)
@@ -1402,18 +1447,11 @@ class Huviz
 
     width = ctx.measureText(label).width
     height = @label_em * @focused_mag * 16
-    #ctx.globalAlpha = 0.7;
-    ctx.fillStyle = '#fff'
-    ctx.fillRect(edge.handle.x + @edge_x_offset, edge.handle.y - height, width + @edge_x_offset, height+@edge_x_offset)
-    #ctx.globalAlpha = 1;
-    ctx.fillStyle = '#666' #@shadow_color
-    ctx.fillText " " + label, edge.handle.x + @edge_x_offset + @shadow_offset, edge.handle.y + @shadow_offset
-    #ctx.strokeStyle = '#666'
+    @draw_cartouche(label, edge.handle.x, edge.handle.y)
+    #ctx.fillStyle = '#666' #@shadow_color
+    #ctx.fillText " " + label, edge.handle.x + @edge_x_offset + @shadow_offset, edge.handle.y + @shadow_offset
     ctx.fillStyle = edge.color
-    #console.log edge.color
-    #ctx.lineWidth = 1
     ctx.fillText " " + label, edge.handle.x + @edge_x_offset, edge.handle.y
-    #ctx.strokeText(label, edge.handle.x + 2 * @edge_x_offset, edge.handle.y)
 
   update_snippet: ->
     if @show_snippets_constantly and @focused_edge? and @focused_edge isnt @printed_edge
@@ -3278,7 +3316,6 @@ class Huviz
 
   dump_current_settings: (post) ->
     console.log("dump_current_settings()")
-    console.log("=======================")
     for control_spec in @default_graph_controls
       for control_name, control of control_spec
         console.log("#{control_name} is",@[control_name],typeof @[control_name],post or "")
