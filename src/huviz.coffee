@@ -1123,12 +1123,10 @@ class Huviz
       unless @focused_edge is new_focused_edge
 
         if @focused_edge? #and @focused_edge isnt new_focused_edge
-          console.log "deleting focused edge"
           @focused_edge.focused = false
           delete @focused_edge.source.focused_edge
           delete @focused_edge.target.focused_edge
         if new_focused_edge?
-          console.log "setting focused edge"
           # FIXME add use_svg stanza
           new_focused_edge.focused = true
           new_focused_edge.source.focused_edge = true
@@ -1353,10 +1351,13 @@ class Huviz
         ctx = @ctx
         # perhaps scrolling should happen here
         if node.focused_node or node.focused_edge?
-          @scroll_pretty_name(node)
+          label = @scroll_pretty_name(node)
+          if node.state.id is "graphed"
+            cart_label = node.pretty_name
+            @draw_cartouche(cart_label, node.fisheye.x, node.fisheye.y)
           ctx.fillStyle = node.color
           ctx.font = focused_font
-          #ctx.fillRect(node.fisheye.x, node.fisheye.y, 50, 50)
+
         else
           ctx.fillStyle = renderStyles.labelColor #"white" is default
           ctx.font = unfocused_font
@@ -1409,6 +1410,48 @@ class Huviz
     @draw_labels()
     @draw_edge_labels()
 
+  rounded_rectangle: (x, y, w, h, radius, fill, stroke, alpha) ->
+    ###
+    http://stackoverflow.com/questions/1255512/how-to-draw-a-rounded-rectangle-on-html-canvas
+    ###
+    ctx = @ctx
+    ctx.fillStyle = fill
+    r = x + w
+    b = y + h
+    ctx.save()
+    ctx.beginPath()
+    ctx.moveTo(x + radius, y)
+    ctx.lineTo(r - radius, y)
+    ctx.quadraticCurveTo(r, y, r, y + radius)
+    ctx.lineTo(r, y + h - radius)
+    ctx.quadraticCurveTo(r, b, r - radius, b)
+    ctx.lineTo(x + radius, b)
+    ctx.quadraticCurveTo(x, b, x, b - radius)
+    ctx.lineTo(x, y + radius)
+    ctx.quadraticCurveTo(x, y, x + radius, y)
+    ctx.closePath()
+    if alpha
+      ctx.globalAlpha = alpha
+    ctx.fill()
+    ctx.globalAlpha = 1
+    if stroke
+      ctx.strokeStyle = stroke
+      ctx.stroke()
+
+  draw_cartouche: (label, x, y) ->
+    console.log label
+    width = @ctx.measureText(label).width
+    height = @label_em * @focused_mag * 16
+    radius = @edge_x_offset
+    cart_color = renderStyles.pageBg
+    alpha = .8
+    outline = false
+    x = x + @edge_x_offset
+    y = y - height
+    width = width + 2 * @edge_x_offset
+    height = height + @edge_x_offset
+    @rounded_rectangle(x, y, width, height, radius, cart_color, outline, alpha)
+
   draw_edge_labels: ->
     if @focused_edge?
       @draw_edge_label(@focused_edge)
@@ -1423,21 +1466,11 @@ class Huviz
 
     width = ctx.measureText(label).width
     height = @label_em * @focused_mag * 16
-    #ctx.globalAlpha = 0.7;
-    ctx.fillStyle = '#fff'
-    ctx.fillRect(edge.handle.x + @edge_x_offset, edge.handle.y - height, width + @edge_x_offset, height+@edge_x_offset)
-    #ctx.globalAlpha = 1;
-    ctx.fillStyle = '#666' #@shadow_color
-    ctx.fillText " " + label, edge.handle.x + @edge_x_offset + @shadow_offset, edge.handle.y + @shadow_offset
-    #ctx.strokeStyle = '#666'
+    @draw_cartouche(label, edge.handle.x, edge.handle.y)
+    #ctx.fillStyle = '#666' #@shadow_color
+    #ctx.fillText " " + label, edge.handle.x + @edge_x_offset + @shadow_offset, edge.handle.y + @shadow_offset
     ctx.fillStyle = edge.color
-    #console.log edge.color
-    #ctx.lineWidth = 1
     ctx.fillText " " + label, edge.handle.x + @edge_x_offset, edge.handle.y
-    #ctx.strokeText(label, edge.handle.x + 2 * @edge_x_offset, edge.handle.y)
-
-
-
 
 
   update_snippet: ->
