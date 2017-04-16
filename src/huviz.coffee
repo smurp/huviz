@@ -1174,7 +1174,6 @@ class Huviz
     if @dragging is node
       @move_node_to_point node, @last_mouse_pos
     if only_move_subject
-      console.log "SKIPPING"
       return
     if not @graphed_set.has(node)  # slower
     #if node.showing_links is 'none' # faster
@@ -1244,11 +1243,6 @@ class Huviz
     if @use_canvas
       @graphed_set.forEach (node, i) =>
         @draw_edges_from(node)
-
-      #@links_set.forEach (e, i) =>
-      #  sway = i * 2
-      #  #@draw_line e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, e.color
-      #  @draw_curvedline e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, sway, e.color
 
     if @use_webgl
       dx = @width * xmult
@@ -1403,9 +1397,7 @@ class Huviz
     @draw_edge_labels()
 
   rounded_rectangle: (x, y, w, h, radius, fill, stroke, alpha) ->
-    ###
-    http://stackoverflow.com/questions/1255512/how-to-draw-a-rounded-rectangle-on-html-canvas
-    ###
+    # http://stackoverflow.com/questions/1255512/how-to-draw-a-rounded-rectangle-on-html-canvas
     ctx = @ctx
     ctx.fillStyle = fill
     r = x + w
@@ -1454,7 +1446,6 @@ class Huviz
       if edge.contexts?
         if edge.contexts.length
           label += " (#{edge.contexts.length})"
-
     width = ctx.measureText(label).width
     height = @label_em * @focused_mag * 16
     @draw_cartouche(label, edge.handle.x, edge.handle.y)
@@ -1514,7 +1505,6 @@ class Huviz
 
     @label = @svg.selectAll(".label")
 
-  #force.nodes(nodes).links(links_set).start();
   canvas_show_text: (txt, x, y) ->
     # console.log "canvas_show_text(" + txt + ")"
     @ctx.fillStyle = "black"
@@ -1735,12 +1725,7 @@ class Huviz
   add_edge: (edge) ->
     if edge.id.match /Universal$/
       console.log("add", edge.id)
-    #@add_link(edge)
-    #return edge
     # TODO(smurp) should .links_from and .links_to be SortedSets? Yes. Right?
-    #   edge.source.links_from.add(edge)
-    #   edge.target.links_to.add(edge)
-    #console.log "add_edge",edge.id
     @add_to edge,edge.source.links_from
     @add_to edge,edge.target.links_to
     edge
@@ -2044,8 +2029,8 @@ class Huviz
 
   # FIXME it looks like incl_discards is not needed and could be removed
   show_link: (edge, incl_discards) ->
-    console.log edge
-    return  if (not incl_discards) and (edge.target.state is @discarded_set or edge.source.state is @discarded_set)
+    if (not incl_discards) and (edge.target.state is @discarded_set or edge.source.state is @discarded_set)
+      return
     @add_to edge, edge.source.links_shown
     @add_to edge, edge.target.links_shown
     @links_set.add edge
@@ -2094,7 +2079,6 @@ class Huviz
       @update_state e.source
       @update_showing_links e.source
       @update_showing_links e.target
-
     @update_state n
     @force.links @links_set
     @restart()
@@ -2174,7 +2158,7 @@ class Huviz
         alert "new Node('"+sid+"') has no id"
       #@nodes.add(obj_n)
       @embryonic_set.add(obj_n)
-    return obj_n
+    obj_n
 
   develop: (node) ->
     # If the node is embryonic and is ready to hatch, then hatch it.
@@ -2200,7 +2184,7 @@ class Huviz
     @nodes.add(node)
     @recolor_node(node)
     @tick()
-    return node
+    node
 
   get_or_create_node: (subject, start_point, linked) ->
     linked = false
@@ -2263,11 +2247,6 @@ class Huviz
     @show_links_from_node node
     @show_links_to_node node
     @update_showing_links node
-
-  ## Never called
-  # toggle_label_display: ->
-  #   @label_graphed = not @label_graphed
-  #   @tick()
 
   toggle_display_tech: (ctrl, tech) ->
     val = undefined
@@ -2401,7 +2380,6 @@ class Huviz
     @update_state(goner)
     shownness = @update_showing_links(goner)
 
-  #
   # The verbs SELECT and UNSELECT perhaps don't need to be exposed on the UI
   # but they perform the function of manipulating the @selected_set
   select: (node) =>
@@ -2668,7 +2646,6 @@ class Huviz
   ensure_dataset: (dataset_rec) ->
     # ensure the dataset is in the database and the correct loader
     uri = dataset_rec.uri
-    #alert "ensure_dataset(#{JSON.stringify(dataset_rec)})"
     dataset_rec.time ?= new Date().toString()
     dataset_rec.title ?= uri
     dataset_rec.isUri ?= not not uri.match(/^(http|ftp)/)
