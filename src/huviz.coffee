@@ -552,7 +552,9 @@ class Huviz
       else if @dragging.links_shown.length == 0
         @run_verb_on_object 'choose', @dragging
       else if @nodes_pinnable
-        if @dragging.fixed
+        if @edit_mode and @dragging is @editui.subject_node and false
+          console.log "not pinning subject_node when dropping"
+        else if @dragging.fixed # aka pinned
           @run_verb_on_object 'unpin', @dragging
         else
           @run_verb_on_object 'pin', @dragging
@@ -1016,12 +1018,12 @@ class Huviz
     console.log "  in_sets:", node.in_sets
 
   find_node_or_edge_closest_to_pointer: ->
-    new_focused_node = undefined
-    new_focused_edge = undefined
-    new_focused_idx = undefined
+    new_focused_node = null
+    new_focused_edge = null
+    new_focused_idx = null
     focus_threshold = @focus_threshold
     closest_dist = @width
-    closest_point = undefined
+    closest_point = null
 
     seeking = false # holds property name of the thing we are seeking: 'focused_node'/'object_node'/false
     if @dragging
@@ -1058,7 +1060,7 @@ class Huviz
           new_focused_edge_idx = i
 
     if new_focused_edge? # the mouse is closer to an edge than a node
-      new_focused_node = undefined
+      new_focused_node = null
 
     if closest_point?
       if @draw_circle_around_focused
@@ -1125,7 +1127,7 @@ class Huviz
   @proposed_edge = null #initialization (no proposed edge active)
   set_proposed_edge: (new_proposed_edge) ->
     console.log "Setting proposed edge...", new_proposed_edge
-    if @proposed_edge?
+    if @proposed_edge
       delete @proposed_edge.proposed # remove .proposed flag from old one
     if new_proposed_edge
       new_proposed_edge.proposed = true # flag the new one
@@ -1164,11 +1166,20 @@ class Huviz
       @gclui.auto_change_verb_if_warranted(@focused_node)
 
   position_nodes: ->
-    n_nodes = @nodes.length or 0
+    only_move_subject = @edit_mode and @dragging and @editui.subject_node
     @nodes.forEach (node, i) =>
-      @move_node_to_point node, @last_mouse_pos if @dragging is node
-      return unless @graphed_set.has(node)
-      node.fisheye = @fisheye(node)
+      @reposition_node(node, only_move_subject)
+
+  reposition_node: (node, only_move_subject) ->
+    if @dragging is node
+      @move_node_to_point node, @last_mouse_pos
+    if only_move_subject
+      console.log "SKIPPING"
+      return
+    if not @graphed_set.has(node)  # slower
+    #if node.showing_links is 'none' # faster
+      return
+    node.fisheye = @fisheye(node)
 
   apply_fisheye: ->
     @links_set.forEach (e) =>
@@ -1384,7 +1395,7 @@ class Huviz
     @draw_dropzones()
     @fisheye.focus @last_mouse_pos
     @show_last_mouse_pos()
-    @position_nodes()
+    @position_nodes() # unless @edit_mode and @dragging and @editui.subject_node
     @apply_fisheye()
     @draw_edges()
     @draw_nodes()
@@ -1423,7 +1434,6 @@ class Huviz
       ctx.stroke()
 
   draw_cartouche: (label, x, y) ->
-    console.log label
     width = @ctx.measureText(label).width
     console.log "label width: " + width
     height = @label_em * @focused_mag * 16
@@ -1719,18 +1729,11 @@ class Huviz
     return (a.lid for a in [subj_n, pred_n, obj_n]).join(' ')
 
   get_or_create_Edge: (subj_n, obj_n, pred_n, cntx_n) ->
-    #console.log "Its GET OR MAKE EDGE TIME time ------------------------"
-    #console.log subj_n
-    #console.log obj_n
-    #console.log pred_n
     edge_id = @make_Edge_id(subj_n, obj_n, pred_n)
-    #console.log(edge_id)
     edge = @edges_by_id[edge_id]
-    #console.log(edge)
     if not edge?
       @edge_count++
       edge = new Edge(subj_n,obj_n,pred_n)
-      #console.log (edge)
       @edges_by_id[edge_id] = edge
     return edge
 
@@ -1746,6 +1749,13 @@ class Huviz
     @add_to edge,edge.source.links_from
     @add_to edge,edge.target.links_to
     edge
+
+  delete_edge: (e) ->
+    @remove_link(e.id)
+    @remove_from e, e.source.links_from
+    @remove_from e, e.target.links_to
+    delete @edges_by_id[e.id]
+    null
 
   try_to_set_node_type: (node, type_uri) ->
     #if type_uri.match(/^http.*/)
@@ -2023,11 +2033,11 @@ class Huviz
     @update_showing_links e.target
     @update_state e.target
 
-  remove_link: (e) ->
-    console.log @links_set.indexOf(e)
-    console.log (e)
-    console.log @links_set
-    return if @links_set.indexOf(e) is -1
+  remove_link: (edge_id) ->
+    e = @links_set.get_by('id', edge_id)
+    if not e?
+      console.log("remove_link(#{edge_id}) not found!")
+      return
     @remove_from e, e.source.links_shown
     @remove_from e, e.target.links_shown
     @links_set.remove e

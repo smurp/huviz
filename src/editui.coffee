@@ -159,30 +159,30 @@ class EditController
       console.log "@proposed_quad:", @proposed_quad
       #@huviz.set_proposed_edge(null)
       @remove_proposed_quad() # clear existing edge clear from display
+    @set_subject_node()
+    @set_object_node()
     saveButton.disabled = true
     # TODO why on calling this function does the ability to drag nodes to fill form disabled?
 
   set_subject_node: (node) ->
+    if @subject_node is node
+      return
     @subject_node = node
     new_value = node and node.id or ""
-    console.log("setting subject node......" + new_value)
+    console.log("set_subject_node() id:'#{new_value}'")
     @subject_input.setAttribute("value",new_value)
     @validate_edit_form()
     @validate_proposed_edge()
-    return
 
   set_object_node: (node) -> # either a node or undefined
     if @object_node is node
       return # ignore if there is no change
-    @object_node = node
+    @object_node = node # might be null
     new_value = node and node.id or ""
     console.log("set_object_node() id:'#{new_value}'")
-    # This should only happen when 1) there is a new value and 2) the last request has been completed
-    if new_value
-      @object_input.setAttribute("value",new_value)
-      @validate_edit_form()
-      @validate_proposed_edge()
-    return
+    @object_input.setAttribute("value",new_value)
+    @validate_edit_form()
+    @validate_proposed_edge()
 
   validate_proposed_edge: () -> # type = subject or object
     console.log('validate_proposed_edge()')
@@ -216,7 +216,6 @@ class EditController
       @set_proposed_quad(q)
 
   quads_match: (a, b) ->
-    #console.table([a.o, b.o])
     return (a.s is b.s) and (a.p is b.p) and (a.o.value is b.o.value)
 
   set_proposed_quad: (new_q) ->
@@ -225,6 +224,7 @@ class EditController
     if @proposed_quad?  # There can only be one, so get rid of old proposed edge
       @remove_proposed_quad()
     @add_proposed_quad(new_q)
+    @huviz.tick() # tell the graph to repaint itself
 
   add_proposed_quad: (q) ->
     console.log ("add_proposed_quad() " + q.s + " " + q.p + " " +q.o.value)
@@ -240,10 +240,11 @@ class EditController
     if old_edge
       edge_id = old_edge.id
       @huviz.set_proposed_edge(null)
-      @huviz.remove_link(edge_id)
-      @huviz.unshow_link(old_edge)
-      delete @huviz.edges_by_id[old_edge]
+      #@huviz.remove_link(edge_id)
+      #@huviz.unshow_link(old_edge)
+      @huviz.delete_edge(old_edge)
+      #delete @huviz.edges_by_id[old_edge]
     @proposed_quad = null
-    @huviz.tick() # tell the graph to repaint itself
+
 
   (exports ? this).EditController = EditController
