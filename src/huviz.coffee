@@ -1336,7 +1336,9 @@ class Huviz
           label = @scroll_pretty_name(node)
           if node.state.id is "graphed"
             cart_label = node.pretty_name
-            @draw_cartouche(cart_label, node.fisheye.x, node.fisheye.y)
+            ctx.measureText(cart_label).width #forces proper label measurement (?)
+            if @cartouches
+              @draw_cartouche(cart_label, node.fisheye.x, node.fisheye.y)
           ctx.fillStyle = node.color
           ctx.font = focused_font
 
@@ -1395,6 +1397,7 @@ class Huviz
     ###
     http://stackoverflow.com/questions/1255512/how-to-draw-a-rounded-rectangle-on-html-canvas
     ###
+    console.log "Width: " + w
     ctx = @ctx
     ctx.fillStyle = fill
     r = x + w
@@ -1422,11 +1425,12 @@ class Huviz
   draw_cartouche: (label, x, y) ->
     console.log label
     width = @ctx.measureText(label).width
+    console.log "label width: " + width
     height = @label_em * @focused_mag * 16
     radius = @edge_x_offset
     cart_color = renderStyles.pageBg
     alpha = .8
-    outline = false
+    outline = true
     x = x + @edge_x_offset
     y = y - height
     width = width + 2 * @edge_x_offset
@@ -1447,7 +1451,8 @@ class Huviz
 
     width = ctx.measureText(label).width
     height = @label_em * @focused_mag * 16
-    @draw_cartouche(label, edge.handle.x, edge.handle.y)
+    if @cartouches
+      @draw_cartouche(label, edge.handle.x, edge.handle.y)
     #ctx.fillStyle = '#666' #@shadow_color
     #ctx.fillText " " + label, edge.handle.x + @edge_x_offset + @shadow_offset, edge.handle.y + @shadow_offset
     ctx.fillStyle = edge.color
@@ -3312,6 +3317,14 @@ class Huviz
           title: "Show graph plotted on a black background"
         input:
           type: "checkbox"
+    ,
+      display_label_cartouches:
+        text: "Background cartouches for labels"
+        label:
+          title: "Remove backgrounds from focused labels"
+        input:
+          type: "checkbox"
+          checked: "checked"
     ]
 
   dump_current_settings: (post) ->
@@ -3422,16 +3435,21 @@ class Huviz
       $('option.dangerous').hide()
 
   on_change_theme_colors: (new_val) ->
-    console.log new_val
     if new_val
       renderStyles = themeStyles.dark
-      console.log "switch to dark"
     else
       renderStyles = themeStyles.light
-      console.log "switch to light"
     #@update_graph_settings()
     $("body").css "background-color", renderStyles.pageBg
     @updateWindow()
+
+  on_change_display_label_cartouches: (new_val) ->
+    if new_val
+      @cartouches = true
+    else
+      @cartouches = false
+    @updateWindow()
+
 
   on_change_shelf_radius: (new_val, old_val) ->
     @change_setting_to_from('shelf_radius', new_val, old_val, true)
