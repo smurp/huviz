@@ -166,3 +166,24 @@ body, html {
   color: #000;
   font-family: sans-serif;
 }
+
+/* ---------------- Edit controls - "theme_black" Theme ----------------------- */
+
+.theme_black .slider {
+  float:left;
+  border:.2em;
+  border-width:.1em;
+  border-radius:1em;
+  height:1.4em;
+  width:3.3em;
+  margin:-.1em .3em;
+  display: block;
+  background-color:darkgreen;
+}
+.theme_black .edit-mode .slider {
+  background-color:darkred;
+}
+
+.theme_black .label {
+  color: #ddd;
+}

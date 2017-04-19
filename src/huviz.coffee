@@ -186,12 +186,14 @@ PEEKING_COLOR = "darkgray"
 
 themeStyles =
   "light":
+    "themeName": "theme_white"
     "pageBg": "white"
     "labelColor": "black"
     "shelfColor": "lightgreen"
     "discardColor": "salmon"
     "nodeHighlightOutline": "white"
   "dark":
+    "themeName": "theme_black"
     "pageBg": "black"
     "labelColor": "#ddd"
     "shelfColor": "#163e00"
@@ -2902,6 +2904,7 @@ class Huviz
     #toggle_suspend_updates(false)
     @text_cursor.set_cursor("default")
     $("body").css "background-color", renderStyles.pageBg # FIXME remove once it works!
+    $("body").addClass renderStyles.themeName
     @update_all_counts()
     @clean_up_all_dirt()
 
@@ -3447,10 +3450,13 @@ class Huviz
   on_change_theme_colors: (new_val) ->
     if new_val
       renderStyles = themeStyles.dark
+      $("body").removeClass themeStyles.light.themeName
     else
       renderStyles = themeStyles.light
+      $("body").removeClass themeStyles.dark.themeName
     #@update_graph_settings()
     $("body").css "background-color", renderStyles.pageBg
+    $("body").addClass renderStyles.themeName
     @updateWindow()
 
   on_change_display_label_cartouches: (new_val) ->
