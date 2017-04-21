@@ -138,10 +138,10 @@ body, html {
   width:3.3em;
   margin:-.1em .3em;
   display: block;
-  background-color:green;
+  background-color:#132aa0;
 }
 .edit-mode .slider {
-  background-color:red;
+  background-color:#f4cb42;
 }
 
 .knob {
@@ -178,10 +178,10 @@ body, html {
   width:3.3em;
   margin:-.1em .3em;
   display: block;
-  background-color:darkgreen;
+  background-color:#132aa0;
 }
 .theme_black .edit-mode .slider {
-  background-color:darkred;
+  background-color:#f4cb42;
 }
 
 .theme_black .label {
