@@ -221,7 +221,7 @@ class EditController
   set_proposed_quad: (new_q) ->
     console.log "set_proposed_quad()"
     # If there is an existing edge remove it before setting a new proposed edge
-    if @proposed_quad?  # There can only be one, so get rid of old proposed edge
+    if @proposed_quad # There can only be one, so get rid of old proposed edge
       @remove_proposed_quad()
     @add_proposed_quad(new_q)
     @huviz.tick() # tell the graph to repaint itself

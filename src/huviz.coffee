@@ -424,7 +424,6 @@ class Huviz
     else
       node = node_or_id
     @set_focused_node(node)
-    #@focused_node = node
     evt = new MouseEvent "mouseup",
       screenX: node.x
       screenY: node.y
@@ -1032,7 +1031,7 @@ class Huviz
     else
       seeking = "focused_node"
 
-    # TODO build a spatial index!!!! OMG
+    # TODO build a spatial index!!!! OMG https://github.com/smurp/huviz/issues/25
     # Examine every node to find the closest one within the focus_threshold
     @nodes.forEach (d, i) =>
       n_dist = distance(d.fisheye or d, @last_mouse_pos)
