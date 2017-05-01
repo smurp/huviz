@@ -138,10 +138,10 @@ body, html {
   width:3.3em;
   margin:-.1em .3em;
   display: block;
-  background-color:green;
+  background-color:#132aa0;
 }
 .edit-mode .slider {
-  background-color:red;
+  background-color:#f4cb42;
 }
 
 .knob {
@@ -165,4 +165,25 @@ body, html {
   line-height: 1.7em;
   color: #000;
   font-family: sans-serif;
+}
+
+/* ---------------- Edit controls - "theme_black" Theme ----------------------- */
+
+.theme_black .slider {
+  float:left;
+  border:.2em;
+  border-width:.1em;
+  border-radius:1em;
+  height:1.4em;
+  width:3.3em;
+  margin:-.1em .3em;
+  display: block;
+  background-color:#132aa0;
+}
+.theme_black .edit-mode .slider {
+  background-color:#f4cb42;
+}
+
+.theme_black .label {
+  color: #ddd;
 }
