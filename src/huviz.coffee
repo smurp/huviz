@@ -1437,12 +1437,11 @@ class Huviz
 
   draw_cartouche: (label, x, y) ->
     width = @ctx.measureText(label).width
-    console.log "label width: " + width
     height = @label_em * @focused_mag * 16
     radius = @edge_x_offset
     cart_color = renderStyles.pageBg
     alpha = .8
-    outline = true
+    outline = false
     x = x + @edge_x_offset
     y = y - height
     width = width + 2 * @edge_x_offset
@@ -1621,7 +1620,7 @@ class Huviz
   object_value_types: {}
   unique_pids: {}
   add_quad: (quad) ->
-    console.log "HuViz.add_quad()", quad
+    #console.log "HuViz.add_quad()", quad
     sid = quad.s
     pid = @make_qname(quad.p)
     ctxid = quad.g || @DEFAULT_CONTEXT
@@ -2718,9 +2717,10 @@ class Huviz
       console.debug e
 
   fill_dataset_menus: (why) ->
-    # alert "fill_dataset_menus()"
+    #alert "fill_dataset_menus()"
     # https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB#Using_a_cursor
     console.groupCollapsed("fill_dataset_menus(#{why})")
+    # Adds preload options to datasetDB table
     if @args.preload
       for preload_group in @args.preload
         HVZ.ensure_datasets(preload_group)
@@ -2756,6 +2756,38 @@ class Huviz
     if @dataset_loader?
       objectStore.openCursor().onsuccess = make_onsuccess_handler(why)
 
+
+  add_remote_datasets: ->
+    console.groupCollapsed("add_remote_datasets")
+    recs = []
+    if @args.preload
+      console.log "== Now @args.preload =="
+      console.log @args.preload # THIS 'sort of' shows three objects, which is both HTML and JSON entries
+      for preload_group in @args.preload
+        # Initiates process of saving preload entries into datasetDB
+        console.log (preload_group) # preload_group are objects that contain ontology, and hardcoded + json individuals
+        @ensure_datasets(preload_group)
+        for data_set in preload_group # Does not iterate through three objects -- just the first two -- Ajax call too slow(?)
+          console.log (data_set)
+          recs.push(data_set)
+          if data_set.isOntology
+            if @ontology_loader
+              console.log "== Now ontology loader =="
+              @ontology_loader.add_dataset_option(data_set)
+              #@ontology_loader.add_dataset(data_set)
+          else
+            if @dataset_loader
+              console.log "== Now dataset loader =="
+              @dataset_loader.add_dataset_option(data_set)
+              #@dataset_loader.add_dataset(data_set)
+      console.table(recs)
+      @dataset_loader.val('')
+      @ontology_loader.val('')
+      @update_dataset_ontology_loader()
+      console.groupEnd() # closing group called "fill_dataset_menus(why)"
+      document.dispatchEvent( # TODO use 'huviz_controls' rather than document
+        new Event('dataset_ontology_loader_ready'));
+
   init_dataset_menus: ->
     if not @dataset_loader and @args.dataset_loader__append_to_sel
       @dataset_loader = new PickOrProvide(@, @args.dataset_loader__append_to_sel, 'Dataset', 'DataPP', false)
@@ -2770,6 +2802,7 @@ class Huviz
       @big_go_button.click(@visualize_dataset_using_ontology)
       @big_go_button.prop('disabled', true)
     @init_datasetDB()
+    #@add_remote_datasets()
 
   visualize_dataset_using_ontology: =>
     @set_ontology(@ontology_loader.value)
@@ -3890,6 +3923,7 @@ class PickOrProvide
     @find_or_append_form()
     @drag_and_drop_loader = new DragAndDropLoader(@huviz, @append_to_sel, @)
     @drag_and_drop_loader.form.hide()
+
     #@add_group({label: "-- Pick #{@label} --", id: @pickable_uid})
     @add_group({label: "Your Own", id: @your_own_uid}, 'append')
     @add_option({label: "Provide New #{@label} ...", value: 'provide'}, @select_id)
@@ -3926,9 +3960,11 @@ class PickOrProvide
 
   add_dataset_option: (dataset) => # TODO rename to dataset_rec
     uri = dataset.uri
+    console.log dataset
     dataset.value = dataset.uri
     @add_option(dataset, @pickable_uid)
     @pick_or_provide_select.val(uri)
+    console.log @pick_or_provide_select
     @refresh()
 
   add_group: (grp_rec, which) ->
@@ -3936,6 +3972,7 @@ class PickOrProvide
     optgroup_str = """<optgroup label="#{grp_rec.label}" id="#{grp_rec.id or unique_id()}"></optgroup>"""
     if which is 'prepend'
       optgrp = @pick_or_provide_select.prepend(optgroup_str)
+      console.log optgrp
     else
       optgrp = @pick_or_provide_select.append(optgroup_str)
 
@@ -3944,7 +3981,7 @@ class PickOrProvide
     if not opt_rec.label?
       console.log("missing .label on", opt_rec)
     if @pick_or_provide_select.find("option[value='#{opt_rec.value}']").length
-      # alert "add_option() #{opt_rec.value} collided"
+      #alert "add_option() #{opt_rec.value} collided"
       return
     opt_str = """<option id="#{unique_id()}"></option>"""
     opt = $(opt_str)
@@ -3976,7 +4013,7 @@ class PickOrProvide
     the_options = @pick_or_provide_select.find("option")
     kid_cnt = the_options.length
     console.log("#{@label}.update_state() raw_value: #{raw_value} kid_cnt: #{kid_cnt}")
-    #console.log "PickOrProvide:", @, "select:", @pick_or_provide_select[0].value
+    console.log "PickOrProvide:", @, "select:", @pick_or_provide_select[0].value
     if raw_value is 'provide'
       @drag_and_drop_loader.form.show()
       @state = 'awaiting_dnd'

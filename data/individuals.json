@@ -1,0 +1,21 @@
+{
+	"datasets": [{
+		"uri": "/data/byroau.nq",
+		"label": "Augusta Ada Byron"
+	  },
+    {
+      "uri": "/data/atwoma.nq",
+  		"label": "Margaret Atwood"
+    },
+    {
+      "uri": "/data/ballrm.nq",
+      "label": "R.M. Ballantyne"
+    }
+],
+	"defaults": {
+		"isOntology": false,
+		"opt_group": "Individuals",
+		"canDelete": false,
+    "ontologyUri": "http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl"
+	}
+}

@@ -243,6 +243,24 @@
         }, false);
 
         huviz = require('huviz');
+        function jsonAjax(handleData) {$.ajax({
+              type: 'GET',
+              url: '/data/individuals.json',
+              //data: { get_param: 'datasets' },
+              async: 'false',
+              datatype: 'json',
+              success: function(data){
+                handleData(data)
+              }
+          });
+        };
+        jsonAjax(function(output){
+          //console.log ("=========================================");
+          console.log (output);
+          HVZ.args.preload.push(output);
+          output={};
+          //console.log (HVZ.args.preload);
+        });
         HVZ = new huviz.Orlando({
           viscanvas_sel: "#viscanvas",
           gclui_sel: "#gclui",
@@ -265,7 +283,6 @@
                       ],
             defaults: {isOntology: false, opt_group: 'Individuals', canDelete: false}
            }
-
           ]
         });
         HVZ.replace_human_term_spans('ui-widget');
