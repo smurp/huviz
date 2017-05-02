@@ -64,7 +64,7 @@
 #  91) BUG: mocha async being misused re done(), so the passes count is wrong
 #  86) BUG: try_to_set_node_type: only permit subtypes to override supertypes
 #  87) BUG: solve node.type vs node.taxon sync problem (see orlonto)
-#  46) TASK: impute node type based on predicates via ontology
+#  46) TASK: impute node type based on predicates via ontology DONE???
 #  53) PERF: should_show_label should not have search_regex in inner loop
 #  65) BUG: hidden nodes are not fully ignored on the shelf so shelved nodes
 #           are not always the focused node
@@ -79,7 +79,7 @@
 #  84) TASK: add an unchosen_set containing the graphed but not chosen nodes
 #
 # Eventual Tasks:
-#  85) TASK: move SVG, Canvas and WebGL renderers to own Renderer subclasses
+#  85) TASK: move SVG, Canvas and WebGL renderers to own pluggable Renderer subclasses
 #  75) TASK: implement real script parser
 #   4) TASK: Suppress all but the 6-letter id of writers in the cmd cli
 #  14) TASK: it takes time for clicks on the predicate picker to finish;
@@ -425,7 +425,7 @@ class Huviz
       node = @nodes.get_by('id', node_or_id)
     else
       node = node_or_id
-    @focused_node = node
+    @set_focused_node(node)
     evt = new MouseEvent "mouseup",
       screenX: node.x
       screenY: node.y
@@ -479,7 +479,6 @@ class Huviz
   mousemove: =>
     d3_event = @mouse_receiver[0][0]
     @last_mouse_pos = d3.mouse(d3_event)
-    # || focused_node.state == discarded_set
     if not @dragging and @mousedown_point and @focused_node and
         distance(@last_mouse_pos, @mousedown_point) > @drag_dist_threshold
       # We can only know that the users intention is to drag
@@ -498,7 +497,6 @@ class Huviz
       @move_node_to_point @dragging, @last_mouse_pos
       if @edit_mode
         @text_cursor.pause("", "drop on object node")
-
       else
         if @dragging.links_shown.length is 0
           action = "choose"
@@ -554,7 +552,7 @@ class Huviz
       else if @dragging.links_shown.length == 0
         @run_verb_on_object 'choose', @dragging
       else if @nodes_pinnable
-        if @edit_mode and @dragging is @editui.subject_node and false
+        if @edit_mode and (@dragging is @editui.subject_node)
           console.log "not pinning subject_node when dropping"
         else if @dragging.fixed # aka pinned
           @run_verb_on_object 'unpin', @dragging
@@ -1027,7 +1025,7 @@ class Huviz
     closest_dist = @width
     closest_point = null
 
-    seeking = false # holds property name of the thing we are seeking: 'focused_node'/'object_node'/false
+    seeking = null # holds property name of the thing we are seeking: 'focused_node'/'object_node'/false
     if @dragging
       if not @edit_mode
         return
@@ -1035,7 +1033,7 @@ class Huviz
     else
       seeking = "focused_node"
 
-    # TODO build a spatial index!!!! OMG
+    # TODO build a spatial index!!!! OMG https://github.com/smurp/huviz/issues/25
     # Examine every node to find the closest one within the focus_threshold
     @nodes.forEach (d, i) =>
       n_dist = distance(d.fisheye or d, @last_mouse_pos)
@@ -1061,50 +1059,48 @@ class Huviz
           focus_threshold = e_dist
           new_focused_edge_idx = i
 
-    if new_focused_edge? # the mouse is closer to an edge than a node
+    if new_focused_edge # the mouse is closer to an edge than a node
       new_focused_node = null
+      seeking = null
 
-    if closest_point?
+    if closest_point
       if @draw_circle_around_focused
-        @draw_circle closest_point.x, closest_point.y, @node_radius * 3, "red"
+        @draw_circle(closest_point.x, closest_point.y, @node_radius * 3, "red")
 
-    if not (@focused_node is new_focused_node) and seeking is "focused_node"
-      if @focused_node
-        d3.select(".focused_node").classed "focused_node", false  if @use_svg
-        @focused_node.focused_node = false
-        @unscroll_pretty_name(@focused_node)
-      if new_focused_node?
-        new_focused_node.focused_node = true
-        if @use_svg
-          svg_node = node[0][new_focused_idx]
-          d3.select(svg_node).classed "focused_node", true
-        #@dump_details new_focused_node
-
+    @set_focused_node(new_focused_node)
     @set_focused_edge(new_focused_edge)
 
     if seeking is 'object_node'
       @editui.set_object_node(new_focused_node)
-
-    if new_focused_edge
-      return
-
-    if seeking is 'focused_node'
-      node_changed = @focused_node isnt new_focused_node
-      @focused_node = new_focused_node # possibly null
-      if node_changed
-        if @focused_node? and @focused_node
-          @gclui.engage_transient_verb_if_needed("select")
-        else
-          @gclui.disengage_transient_verb_if_needed()
 
   DEPRECATED_showing_links_to_cursor_map:
     all: 'not-allowed'
     some: 'all-scroll'
     none: 'pointer'
 
+  set_focused_node: (node) -> # node might be null
+    if @focused_node is node
+      return # no change so skip
+    if @focused_node
+      if @use_svg
+        d3.select(".focused_node").classed "focused_node", false
+      @unscroll_pretty_name(@focused_node)
+      @focused_node.focused_node = false
+    if node
+      if @use_svg
+        svg_node = node[0][new_focused_idx]
+        d3.select(svg_node).classed "focused_node", true
+      node.focused_node = true
+    @focused_node = node
+    if @focused_node
+      @gclui.engage_transient_verb_if_needed("select")
+    else
+      @gclui.disengage_transient_verb_if_needed()
+
   set_focused_edge: (new_focused_edge) ->
     if @proposed_edge and @focused_edge # TODO why bail now???
       return
+    console.log "set_focused_edge(#{new_focused_edge and new_focused_edge.id})"
     unless @focused_edge is new_focused_edge
       if @focused_edge? #and @focused_edge isnt new_focused_edge
         console.log "removing focus from previous focused_edge"
@@ -1112,7 +1108,6 @@ class Huviz
         delete @focused_edge.source.focused_edge
         delete @focused_edge.target.focused_edge
       if new_focused_edge?
-        console.log "setting focused edge"
         # FIXME add use_svg stanza
         new_focused_edge.focused = true
         new_focused_edge.source.focused_edge = true
@@ -1176,7 +1171,6 @@ class Huviz
     if @dragging is node
       @move_node_to_point node, @last_mouse_pos
     if only_move_subject
-      console.log "SKIPPING"
       return
     if not @graphed_set.has(node)  # slower
     #if node.showing_links is 'none' # faster
@@ -1246,11 +1240,6 @@ class Huviz
     if @use_canvas
       @graphed_set.forEach (node, i) =>
         @draw_edges_from(node)
-
-      #@links_set.forEach (e, i) =>
-      #  sway = i * 2
-      #  #@draw_line e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, e.color
-      #  @draw_curvedline e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, sway, e.color
 
     if @use_webgl
       dx = @width * xmult
@@ -1407,10 +1396,7 @@ class Huviz
     @draw_edge_labels()
 
   rounded_rectangle: (x, y, w, h, radius, fill, stroke, alpha) ->
-    ###
-    http://stackoverflow.com/questions/1255512/how-to-draw-a-rounded-rectangle-on-html-canvas
-    ###
-    console.log "Width: " + w
+    # http://stackoverflow.com/questions/1255512/how-to-draw-a-rounded-rectangle-on-html-canvas
     ctx = @ctx
     ctx.fillStyle = fill
     r = x + w
@@ -1459,7 +1445,6 @@ class Huviz
       if edge.contexts?
         if edge.contexts.length
           label += " (#{edge.contexts.length})"
-
     width = ctx.measureText(label).width
     height = @label_em * @focused_mag * 16
     if @cartouches
@@ -1520,7 +1505,6 @@ class Huviz
 
     @label = @svg.selectAll(".label")
 
-  #force.nodes(nodes).links(links_set).start();
   canvas_show_text: (txt, x, y) ->
     # console.log "canvas_show_text(" + txt + ")"
     @ctx.fillStyle = "black"
@@ -1741,12 +1725,7 @@ class Huviz
   add_edge: (edge) ->
     if edge.id.match /Universal$/
       console.log("add", edge.id)
-    #@add_link(edge)
-    #return edge
     # TODO(smurp) should .links_from and .links_to be SortedSets? Yes. Right?
-    #   edge.source.links_from.add(edge)
-    #   edge.target.links_to.add(edge)
-    #console.log "add_edge",edge.id
     @add_to edge,edge.source.links_from
     @add_to edge,edge.target.links_to
     edge
@@ -2050,8 +2029,8 @@ class Huviz
 
   # FIXME it looks like incl_discards is not needed and could be removed
   show_link: (edge, incl_discards) ->
-    console.log edge
-    return  if (not incl_discards) and (edge.target.state is @discarded_set or edge.source.state is @discarded_set)
+    if (not incl_discards) and (edge.target.state is @discarded_set or edge.source.state is @discarded_set)
+      return
     @add_to edge, edge.source.links_shown
     @add_to edge, edge.target.links_shown
     @links_set.add edge
@@ -2100,7 +2079,6 @@ class Huviz
       @update_state e.source
       @update_showing_links e.source
       @update_showing_links e.target
-
     @update_state n
     @force.links @links_set
     @restart()
@@ -2180,7 +2158,7 @@ class Huviz
         alert "new Node('"+sid+"') has no id"
       #@nodes.add(obj_n)
       @embryonic_set.add(obj_n)
-    return obj_n
+    obj_n
 
   develop: (node) ->
     # If the node is embryonic and is ready to hatch, then hatch it.
@@ -2206,7 +2184,7 @@ class Huviz
     @nodes.add(node)
     @recolor_node(node)
     @tick()
-    return node
+    node
 
   get_or_create_node: (subject, start_point, linked) ->
     linked = false
@@ -2269,11 +2247,6 @@ class Huviz
     @show_links_from_node node
     @show_links_to_node node
     @update_showing_links node
-
-  ## Never called
-  # toggle_label_display: ->
-  #   @label_graphed = not @label_graphed
-  #   @tick()
 
   toggle_display_tech: (ctrl, tech) ->
     val = undefined
@@ -2407,7 +2380,6 @@ class Huviz
     @update_state(goner)
     shownness = @update_showing_links(goner)
 
-  #
   # The verbs SELECT and UNSELECT perhaps don't need to be exposed on the UI
   # but they perform the function of manipulating the @selected_set
   select: (node) =>
@@ -2674,7 +2646,6 @@ class Huviz
   ensure_dataset: (dataset_rec) ->
     # ensure the dataset is in the database and the correct loader
     uri = dataset_rec.uri
-    #alert "ensure_dataset(#{JSON.stringify(dataset_rec)})"
     dataset_rec.time ?= new Date().toString()
     dataset_rec.title ?= uri
     dataset_rec.isUri ?= not not uri.match(/^(http|ftp)/)
