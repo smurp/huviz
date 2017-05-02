@@ -1,0 +1,33 @@
+{
+	"datasets": [{
+		"uri": "/data/dial_press.nq",
+		"label": "Dial Press (modernist)",
+		"title": "all attributes -- ?? nodes; ?? edges; ?? predicates",
+		"danger": true
+	  },
+    {
+      "uri": "/data/kelmscott_press.nq",
+  		"label": "Kelmscott Press",
+			"title": "all attributes -- ?? nodes; ?? edges; ?? predicates",
+			"danger": true
+    },
+    {
+      "uri": "/data/minerva_press.nq",
+      "label": "Minerva Press",
+			"title": "all attributes -- ?? nodes; ?? edges; ?? predicates",
+			"danger": true
+    },
+    {
+      "uri": "/data/victoria_press.nq",
+      "label": "Victoria Press",
+			"title": "all attributes -- ?? nodes; ?? edges; ?? predicates",
+			"danger": true
+    }
+],
+	"defaults": {
+		"isOntology": false,
+		"opt_group": "Publishing Houses",
+		"canDelete": false,
+    "ontologyUri": "http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl"
+	}
+}

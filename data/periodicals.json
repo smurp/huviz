@@ -1,0 +1,27 @@
+{
+	"datasets": [{
+		"uri": "/data/englishwomans_review.nq",
+		"label": "Englishwoman's Review",
+		"title": "all attributes -- 123 nodes; 193 edges",
+		"danger": false
+	  },
+    {
+      "uri": "/data/taits_endinburgh_magazine.nq",
+  		"label": "Tait's Edinburgh Magazine",
+			"title": "all attributes -- ?? nodes; ?? edges",
+			"danger": true
+    },
+    {
+      "uri": "/data/yellow_book_and_poet.nq",
+      "label": "The Yellow Book AND Poet",
+			"title": "all attributes -- ?? nodes; ?? edges; ?? predicates",
+			"danger": true
+    }
+],
+	"defaults": {
+		"isOntology": false,
+		"opt_group": "Periodicals",
+		"canDelete": false,
+    "ontologyUri": "http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl"
+	}
+}
