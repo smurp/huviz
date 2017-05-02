@@ -5,7 +5,7 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  max-height: 32em;
+  max-height: 50em;
   overflow-y: scroll;
 }
 .alternates {
