@@ -1,15 +1,16 @@
 {
-	"datasets": [{
-		"uri": "/data/famous_cookbooks.nq",
-		"label": "Famous Cookbooks",
-		"title": "all attributes -- 166 nodes;  392 edges",
-		"danger": false
-	  }
-],
-	"defaults": {
-		"isOntology": false,
-		"opt_group": "Genres",
-		"canDelete": false,
+  "datasets": [
+    {
+      "uri": "/data/famous_cookbooks.nq",
+      "label": "Famous Cookbooks",
+      "title": "all attributes -- 166 nodes;  392 edges",
+      "danger": false
+    }
+  ],
+  "defaults": {
+    "isOntology": false,
+    "opt_group": "Genres",
+    "canDelete": false,
     "ontologyUri": "http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl"
-	}
+  }
 }

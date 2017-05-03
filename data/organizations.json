@@ -1,64 +1,64 @@
 {
-	"datasets": [{
-		  "uri": "/data/academie_des_femmes.nq",
-		  "label": "Académie des Femmes",
-		  "title": "all attributes -- ?? nodes; 6200 edges; ?? predicates",
+  "datasets": [
+    {
+      "uri": "/data/academie_des_femmes.nq",
+      "label": "Académie des Femmes",
+      "title": "all attributes -- ?? nodes; 6200 edges; ?? predicates",
       "danger": true
-	  },
+    },
     {
       "uri": "/data/african_national_congress.nq",
-  		"label": "African National Congres",
-		  "title": "all attributes -- ?? nodes; ?? edges; ?? predicates",
+      "label": "African National Congres",
+      "title": "all attributes -- ?? nodes; ?? edges; ?? predicates",
       "danger": true
     },
     {
       "uri": "/data/brontes.nq",
-  		"label": "The Bronte Sisters",
-		  "title": "all attributes -- 244 nodes; 719 edges",
+      "label": "The Bronte Sisters",
+      "title": "all attributes -- 244 nodes; 719 edges",
       "danger": false
     },
     {
       "uri": "/data/early_writers.nq",
-  		"label": "Early Writers",
-		  "title": "all attributes -- 301 nodes; edges 568",
+      "label": "Early Writers",
+      "title": "all attributes -- 301 nodes; edges 568",
       "danger": false
     },
     {
       "uri": "/data/female_antislavery_society.nq",
-  		"label": "Female Anti-Slavery Society",
-		  "title": "all attributes -- ?? nodes; ?? edges; ?? predicates",
+      "label": "Female Anti-Slavery Society",
+      "title": "all attributes -- ?? nodes; ?? edges; ?? predicates",
       "danger": true
     },
     {
       "uri": "/data/newnham_college.nq",
-  		"label": "Newnham College",
-		  "title": "all attributes -- ?? nodes; 5300 edges; ?? predicates ✓",
+      "label": "Newnham College",
+      "title": "all attributes -- ?? nodes; 5300 edges; ?? predicates ✓",
       "danger": true
     },
     {
       "uri": "/data/nuns.nq",
-  		"label": "Nuns: Middle Ages",
-		  "title": "all attributes -- 116 nodes; 236 edges",
+      "label": "Nuns: Middle Ages",
+      "title": "all attributes -- 116 nodes; 236 edges",
       "danger": false
     },
     {
       "uri": "/data/the_17th_century_quakers.nq",
-  		"label": "The 17th Century Quakers",
-		  "title": "all attributes -- ?? nodes; ?? edges; ?? predicates",
+      "label": "The 17th Century Quakers",
+      "title": "all attributes -- ?? nodes; ?? edges; ?? predicates",
       "danger": true
     },
     {
       "uri": "/data/the_1917_club.nq",
-  		"label": "The 1917 Club",
-		  "title": "all attributes -- 516 nodes; ?? edges; ?? predicates ✓",
+      "label": "The 1917 Club",
+      "title": "all attributes -- 516 nodes; ?? edges; ?? predicates ✓",
       "danger": true
     }
-
-],
-	"defaults": {
-		"isOntology": false,
-		"opt_group": "Organizations",
-		"canDelete": false,
+  ],
+  "defaults": {
+    "isOntology": false,
+    "opt_group": "Organizations",
+    "canDelete": false,
     "ontologyUri": "http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl"
-	}
+  }
 }

@@ -1,8 +1,9 @@
 {
-	"datasets": [{
-		"uri": "http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl",
-		"label": "OrlandoOntology"
-	  },
+  "datasets": [
+    {
+      "uri": "http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl",
+      "label": "OrlandoOntology"
+    },
     {
       "uri": "https://raw.githubusercontent.com/cwrc/ontology/master/cwrc.ttl",
       "label": "CWRC Ontology"
@@ -11,10 +12,10 @@
       "uri": "/data/OrlandoOntology-SexesUnderPerson.ttl",
       "label": "OrlandoOntology-SexesUnderPerson"
     },
-],
-	"defaults": {
-		"isOntology": true,
-		"opt_group": "Preloaded",
-		"canDelete": false,
-	}
+  ],
+  "defaults": {
+    "isOntology": true,
+    "opt_group": "Preloaded",
+    "canDelete": false,
+  }
 }
