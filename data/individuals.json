@@ -1,15 +1,21 @@
 {
 	"datasets": [{
 		"uri": "/data/byroau.nq",
-		"label": "Augusta Ada Byron"
+		"label": "Augusta Ada Byron",
+		"title": "all attributes -- 72 ndoes; 142 edges",
+		"danger": false
 	  },
     {
       "uri": "/data/atwoma.nq",
-  		"label": "Margaret Atwood"
+  		"label": "Margaret Atwood",
+			"title": "all attributes -- 115 nodes; 236 edges",
+			"danger": false
     },
     {
       "uri": "/data/ballrm.nq",
-      "label": "R.M. Ballantyne"
+      "label": "R.M. Ballantyne",
+			"title": "all attributes -- 13 nodes; 12 edges",
+			"danger": false
     }
 ],
 	"defaults": {
