@@ -3,22 +3,22 @@
     {
       "uri": "/data/abdyma.nq",
       "label": "Maria Abdy",
-      "title": "all attributes -- 13 nodes; 12 edges",
+      "title": "all attributes -- 13 nodes; 12 edges"
     },
     {
       "uri": "/data/byroau.nq",
       "label": "Augusta Ada Byron",
-      "title": "all attributes -- 72 ndoes; 142 edges",
+      "title": "all attributes -- 72 ndoes; 142 edges"
     },
     {
       "uri": "/data/atwoma.nq",
       "label": "Margaret Atwood",
-      "title": "all attributes -- 115 nodes; 236 edges",
+      "title": "all attributes -- 115 nodes; 236 edges"
     },
     {
       "uri": "/data/shaqwi.nq",
       "label": "William Shakespeare",
-      "title": "all attributes -- 38 nodes; 49 edges",
+      "title": "all attributes -- 38 nodes; 49 edges"
     },
     {
       "uri": "/data/ballrm.nq",
@@ -30,7 +30,6 @@
     "isOntology": false,
     "opt_group": "Individuals",
     "canDelete": false,
-    "danger": false,
     "ontologyUri": "http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl"
   }
 }

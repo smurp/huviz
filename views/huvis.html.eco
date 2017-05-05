@@ -243,24 +243,6 @@
         }, false);
 
         huviz = require('huviz');
-        function jsonAjax(handleData) {$.ajax({
-              type: 'GET',
-              url: '/data/individuals.json',
-              //data: { get_param: 'datasets' },
-              async: 'false',
-              datatype: 'json',
-              success: function(data){
-                handleData(data)
-              }
-          });
-        };
-        jsonAjax(function(output){
-          //console.log ("=========================================");
-          console.log (output);
-          HVZ.args.preload.push(output);
-          output={};
-          //console.log (HVZ.args.preload);
-        });
         HVZ = new huviz.Orlando({
           viscanvas_sel: "#viscanvas",
           gclui_sel: "#gclui",
@@ -269,20 +251,13 @@
           graph_controls_sel: '#tabs-options',
           display_hints: false, // here to show how to enable hints
           display_reset: false,  // here to show how to enable reset button
-          preload: [{
-            datasets: [{uri: "http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl",
-                        label: 'OrlandoOntology',
-                        opt_group: 'Preloaded'}],
-            defaults: {isOntology: true, canDelete: false}
-           }
-
-           ,{
-             datasets: [{uri: "/data/abdyma.nq", label: 'Maria Abdy'}
-                       ,{uri: "/data/shakwi.nq", label: 'William Shakespeare'}
-                     //,{uri: "/data/.nq", label: ''}
-                      ],
-            defaults: {isOntology: false, opt_group: 'Individuals', canDelete: false}
-           }
+      preload: [
+            '/data/genres.json'
+            , '/data/ontologies.json'
+            , '/data/organizations.json'
+            , '/data/periodicals.json'
+            , '/data/publishing.json'
+            , '/data/individuals.json'
           ]
         });
         HVZ.replace_human_term_spans('ui-widget');

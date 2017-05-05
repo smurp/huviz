@@ -253,6 +253,12 @@ if true
 if not is_one_of(2,[3,2,4])
   alert "is_one_of() fails"
 
+blurt = (str) ->
+  if !$('#blurtbox').length
+    $('#tabs').append('<div id="blurtbox" style="overflow:scroll; height:150px; font-family:monospace"></div>')
+  $('#blurtbox').append("<li>#{str}</li>")
+  $('#blurtbox').scrollTop(10000)
+
 class Huviz
   class_list: [] # FIXME remove
   HHH: {}
@@ -1100,7 +1106,7 @@ class Huviz
   set_focused_edge: (new_focused_edge) ->
     if @proposed_edge and @focused_edge # TODO why bail now???
       return
-    console.log "set_focused_edge(#{new_focused_edge and new_focused_edge.id})"
+    #console.log "set_focused_edge(#{new_focused_edge and new_focused_edge.id})"
     unless @focused_edge is new_focused_edge
       if @focused_edge? #and @focused_edge isnt new_focused_edge
         console.log "removing focus from previous focused_edge"
@@ -2625,7 +2631,7 @@ class Huviz
         @datasetDB.onerror = (e) =>
           alert "Database error: #{e.target.errorCode}"
         #alert "onsuccess"
-        @fill_dataset_menus('onsuccess')
+        @fill_dataset_menus_from_datasetDB('onsuccess')
       request.onerror = (e) =>
         alert("unable to init #{@dbName}")
       request.onupgradeneeded = (e) =>
@@ -2634,16 +2640,18 @@ class Huviz
         objectStore.transaction.oncomplete = (e) =>
           @datasetDB = db
           # alert "onupgradeneeded"
-          @fill_dataset_menus('onupgradeneeded')
+          @fill_dataset_menus_from_datasetDB('onupgradeneeded')
 
-  ensure_datasets: (preload) ->
-    defaults = preload.defaults or {}
-    for ds_rec in preload.datasets
+  ensure_datasets: (preload_group, store_in_db) =>  # note "fat arrow" so this can be an AJAX callback (see preload_datasets)
+    defaults = preload_group.defaults or {}
+    for ds_rec in preload_group.datasets
+      # If this preload_group has defaults apply them to the ds_rec if it is missing that value.
+      # We do not want to do ds_rec.__proto__ = defaults because then defaults are not ownProperty
       for k of defaults
         ds_rec[k] ?= defaults[k]
-      @ensure_dataset(ds_rec)
+      @ensure_dataset(ds_rec, store_in_db)
 
-  ensure_dataset: (dataset_rec) ->
+  ensure_dataset: (dataset_rec, store_in_db) ->
     # ensure the dataset is in the database and the correct loader
     uri = dataset_rec.uri
     dataset_rec.time ?= new Date().toString()
@@ -2653,10 +2661,10 @@ class Huviz
     dataset_rec.label ?= uri.split('/').reverse()[0]
     if dataset_rec.isOntology
       if @ontology_loader
-        @ontology_loader.add_dataset(dataset_rec)
+        @ontology_loader.add_dataset(dataset_rec, store_in_db)
     else
       if @dataset_loader
-        @dataset_loader.add_dataset(dataset_rec)
+        @dataset_loader.add_dataset(dataset_rec, store_in_db)
 
   add_dataset_to_db: (dataset_rec, callback) ->
     trx = @datasetDB.transaction('datasets', "readwrite")
@@ -2687,18 +2695,12 @@ class Huviz
     req.onerror = (e) =>
       console.debug e
 
-  fill_dataset_menus: (why) ->
-    #alert "fill_dataset_menus()"
+  fill_dataset_menus_from_datasetDB: (why) ->
+    #alert "fill_dataset_menus_from_datasetDB()"
     # https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB#Using_a_cursor
-    console.groupCollapsed("fill_dataset_menus(#{why})")
-    # Adds preload options to datasetDB table
-    if @args.preload
-      for preload_group in @args.preload
-        HVZ.ensure_datasets(preload_group)
-
-    objectStore = @datasetDB.transaction('datasets').objectStore('datasets')
+    console.groupCollapsed("fill_dataset_menus_from_datasetDB(#{why})")
+    datasetDB_objectStore = @datasetDB.transaction('datasets').objectStore('datasets')
     count = 0
-
     make_onsuccess_handler = (why) =>
       recs = []
       return (event) =>
@@ -2719,45 +2721,55 @@ class Huviz
           @dataset_loader.val('')
           @ontology_loader.val('')
           @update_dataset_ontology_loader()
-          console.groupEnd() # closing group called "fill_dataset_menus(why)"
+          console.groupEnd() # closing group called "fill_dataset_menus_from_datasetDB(why)"
           document.dispatchEvent( # TODO use 'huviz_controls' rather than document
             new Event('dataset_ontology_loader_ready'));
           #alert "#{count} entries saved #{why}"
 
     if @dataset_loader?
-      objectStore.openCursor().onsuccess = make_onsuccess_handler(why)
+      datasetDB_objectStore.openCursor().onsuccess = make_onsuccess_handler(why)
 
 
-  add_remote_datasets: ->
-    console.groupCollapsed("add_remote_datasets")
-    recs = []
+  preload_datasets: ->
+    # If present args.preload is expected to be a list or urls or objects.
+    # Whether literal object or JSON urls the object structure is expected to be:
+    #   { 'datasets': [
+    #        {
+    #         'uri': "/data/byroau.nq",     // url of dataset .ttl or .nq
+    #         'label': "Augusta Ada Brown", // label of OPTION in SELECT
+    #         'isOntology': false,          // optional, if true it goes in Onto menu
+    #         'opt_group': "Individuals",   // user-defined label for menu subsection
+    #         'canDelete':   false,         // meaningful only for recs in datasetsDB
+    #         'ontologyUri': '/data/orlando.ttl' // url of ontology
+    #         }
+    #                  ],
+    #     'defaults': {}  # optional, may contain default values for the keys above
+    #    }
+    console.groupCollapsed("preload_datasets")
+    # Adds preload options to datasetDB table
     if @args.preload
-      console.log "== Now @args.preload =="
-      console.log @args.preload # THIS 'sort of' shows three objects, which is both HTML and JSON entries
-      for preload_group in @args.preload
-        # Initiates process of saving preload entries into datasetDB
-        console.log (preload_group) # preload_group are objects that contain ontology, and hardcoded + json individuals
-        @ensure_datasets(preload_group)
-        for data_set in preload_group # Does not iterate through three objects -- just the first two -- Ajax call too slow(?)
-          console.log (data_set)
-          recs.push(data_set)
-          if data_set.isOntology
-            if @ontology_loader
-              console.log "== Now ontology loader =="
-              @ontology_loader.add_dataset_option(data_set)
-              #@ontology_loader.add_dataset(data_set)
-          else
-            if @dataset_loader
-              console.log "== Now dataset loader =="
-              @dataset_loader.add_dataset_option(data_set)
-              #@dataset_loader.add_dataset(data_set)
-      console.table(recs)
-      @dataset_loader.val('')
-      @ontology_loader.val('')
-      @update_dataset_ontology_loader()
-      console.groupEnd() # closing group called "fill_dataset_menus(why)"
-      document.dispatchEvent( # TODO use 'huviz_controls' rather than document
-        new Event('dataset_ontology_loader_ready'));
+      for preload_group_or_uri in @args.preload
+        if typeof(preload_group_or_uri) is 'string' # the URL of a preload_group JSON
+          #$.getJSON(preload_group_or_uri, null, @ensure_datasets_from_XHR)
+          $.ajax
+            url: preload_group_or_uri
+            success: (data, textStatus) =>
+              if preload_group_or_uri.match(/publishing/)
+                console.table data.datasets
+                #alert(data.toString())
+              @ensure_datasets_from_XHR(data)
+            error: (jqxhr, textStatus, errorThrown) ->
+              console.error(preload_group_or_uri + " " +textStatus+" "+errorThrown.toString())
+
+        else if typeof(preload_group_or_uri) is 'object' # a preload_group object
+          @ensure_datasets(preload_group_or_uri)
+        else
+          console.error("bad member of @args.preload:", preload_group_or_uri)
+    console.groupEnd() # closing group called "preload_datasets"
+
+  ensure_datasets_from_XHR: (preload_group) =>
+    @ensure_datasets(preload_group, false) # false means DO NOT store_in_db
+    return
 
   init_dataset_menus: ->
     if not @dataset_loader and @args.dataset_loader__append_to_sel
@@ -2773,7 +2785,7 @@ class Huviz
       @big_go_button.click(@visualize_dataset_using_ontology)
       @big_go_button.prop('disabled', true)
     @init_datasetDB()
-    #@add_remote_datasets()
+    @preload_datasets()
 
   visualize_dataset_using_ontology: =>
     @set_ontology(@ontology_loader.value)
@@ -3924,31 +3936,33 @@ class PickOrProvide
     @add_dataset(dataset_rec)
     @update_state()
 
-  add_dataset: (dataset_rec) ->
+  add_dataset: (dataset_rec, store_in_db) ->
     uri = dataset_rec.uri
     #dataset_rec.uri ?= uri.split('/').reverse()[0]
-    @huviz.add_dataset_to_db(dataset_rec, @add_dataset_option)
+    if store_in_db
+      @huviz.add_dataset_to_db(dataset_rec, @add_dataset_option)
+    else
+      @add_dataset_option(dataset_rec)
 
   add_dataset_option: (dataset) => # TODO rename to dataset_rec
     uri = dataset.uri
-    console.log dataset
     dataset.value = dataset.uri
     @add_option(dataset, @pickable_uid)
     @pick_or_provide_select.val(uri)
-    console.log @pick_or_provide_select
+    #console.log @pick_or_provide_select
     @refresh()
 
   add_group: (grp_rec, which) ->
     which ?= 'append'
-    optgroup_str = """<optgroup label="#{grp_rec.label}" id="#{grp_rec.id or unique_id()}"></optgroup>"""
+    optgrp = $("""<optgroup label="#{grp_rec.label}" id="#{grp_rec.id or unique_id()}"></optgroup>""")
     if which is 'prepend'
-      optgrp = @pick_or_provide_select.prepend(optgroup_str)
-      console.log optgrp
+      @pick_or_provide_select.prepend(optgrp)
     else
-      optgrp = @pick_or_provide_select.append(optgroup_str)
+      @pick_or_provide_select.append(optgrp)
+    return optgrp
 
   add_option: (opt_rec, parent_uid, pre_or_append) ->
-    pre_or_append = 'append'
+    pre_or_append ?= 'append'
     if not opt_rec.label?
       console.log("missing .label on", opt_rec)
     if @pick_or_provide_select.find("option[value='#{opt_rec.value}']").length
@@ -3958,15 +3972,18 @@ class PickOrProvide
     opt = $(opt_str)
     opt_group_label = opt_rec.opt_group
     if opt_group_label
-      opt_group = @pick_or_provide_select.find(" optgroup[label='#{opt_group_label}']")
-      console.log(opt_group_label, opt_group.length, opt_group)
+      opt_group = @pick_or_provide_select.find("optgroup[label='#{opt_group_label}']")
+      #console.log(opt_group_label, opt_group.length) #, opt_group[0])
       if not opt_group.length
-        @add_group({label: opt_group_label}, 'prepend')
+        #blurt("adding '#{opt_group_label}'")
+        opt_group = @add_group({label: opt_group_label}, 'prepend')
         # opt_group = $('<optgroup></optgroup>')
         # opt_group.attr('label', opt_group_label)
         # @pick_or_provide_select.append(opt_group)
+      #if not opt_group.length
+      #  blurt('  but it does not yet exist')
       opt_group.append(opt)
-    else
+    else # There is no opt_group_label, so this is a top level entry, ie a group, etc
       if pre_or_append is 'append'
         $("##{parent_uid}").append(opt)
       else
@@ -3977,14 +3994,15 @@ class PickOrProvide
     for k in ['isUri', 'canDelete']
       if opt_rec[k]?
         $(opt).data(k, opt_rec[k])
+    return opt[0]
 
   update_state: (callback) ->
     raw_value = @pick_or_provide_select.val()
     selected_option = @get_selected_option()
     the_options = @pick_or_provide_select.find("option")
     kid_cnt = the_options.length
-    console.log("#{@label}.update_state() raw_value: #{raw_value} kid_cnt: #{kid_cnt}")
-    console.log "PickOrProvide:", @, "select:", @pick_or_provide_select[0].value
+    #console.log("#{@label}.update_state() raw_value: #{raw_value} kid_cnt: #{kid_cnt}")
+    #console.log "PickOrProvide:", "select:", @pick_or_provide_select[0].value
     if raw_value is 'provide'
       @drag_and_drop_loader.form.show()
       @state = 'awaiting_dnd'
@@ -4001,7 +4019,6 @@ class PickOrProvide
     # disable_the_delete_button = false  # uncomment to always show the delete button -- useful when bad data stored
     @form.find('.delete_option').prop('disabled', disable_the_delete_button)
     if callback?
-      console.log("calling callback")
       callback()
 
   find_or_append_form: ->
@@ -4010,7 +4027,7 @@ class PickOrProvide
     @form = $("##{@uniq_id}")
     @pick_or_provide_select = @form.find("select[name='pick_or_provide']")
     @pick_or_provide_select.attr('id',@select_id)
-    console.debug @css_class,@pick_or_provide_select
+    #console.debug @css_class,@pick_or_provide_select
     @pick_or_provide_select.change (e) =>
       #e.stopPropagation()
       console.info("#{@label} CHANGE", e)
@@ -4083,7 +4100,7 @@ class DragAndDropLoader
     reader = new FileReader()
     reader.onload = (evt) =>
       #console.log evt.target.result
-      console.log("evt", evt)
+      #console.log("evt", evt)
       try
         @huviz.read_data_and_show(firstFile.name, evt.target.result)
       catch e
