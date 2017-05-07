@@ -23,6 +23,7 @@
     "isOntology": false,
     "opt_group": "Periodicals",
     "canDelete": false,
+    "ontologyLabel": "Orlando Ontology",
     "ontologyUri": "http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl"
   }
 }

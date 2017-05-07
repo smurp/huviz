@@ -2755,8 +2755,8 @@ class Huviz
             url: preload_group_or_uri
             success: (data, textStatus) =>
               if preload_group_or_uri.match(/publishing/)
-                console.table data.datasets
-                #alert(data.toString())
+                console.log(preload_group_or_uri)
+                console.table(data.datasets)
               @ensure_datasets_from_XHR(data)
             error: (jqxhr, textStatus, errorThrown) ->
               console.error(preload_group_or_uri + " " +textStatus+" "+errorThrown.toString())
