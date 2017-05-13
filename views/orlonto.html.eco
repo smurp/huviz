@@ -113,7 +113,7 @@
       }, false);
 
       var HVZ;
-      window.addEventListener('xload',function(){
+      window.addEventListener('load',function(){
         huviz = require('huviz');
         HVZ = new huviz.OntoViz({
           viscanvas_sel: "#viscanvas",
