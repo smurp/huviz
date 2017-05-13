@@ -81,6 +81,10 @@
 		title="CWRC Ontology"
 		value="https://raw.githubusercontent.com/cwrc/ontology/master/cwrc.ttl">
 		CWRC Ontology</option>
+              <option
+		title="HuvizTest5_sansGenre"
+		value="https://raw.githubusercontent.com/cwrc/ontology/master/HuvizTest5_sansGenre.ttl">
+		HuvizTest5 sans Genre</option>
 
 	    </optgroup>
 	    <optgroup label="Other">
