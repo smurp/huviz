@@ -29,7 +29,6 @@
     "isOntology": false,
     "opt_group": "Publishing Houses",
     "canDelete": false,
-    "ontologyUri": "http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl",
-    "ontologyLabel": "Orlando Ontology"
+    "ontology_label": "Orlando Ontology"
   }
 }

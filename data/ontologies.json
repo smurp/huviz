@@ -5,8 +5,12 @@
       "label": "Orlando Ontology"
     },
     {
-      "uri": "https://raw.githubusercontent.com/cwrc/ontology/master/cwrc.ttl",
+      "uri": "http://sparql.cwrc.ca/ontology/cwrc.ttl",
       "label": "CWRC Ontology"
+    },
+    {
+      "uri": "/data/cwrc_wo_genre.ttl",
+      "label": "CWRC w/o Genres"
     },
     {
       "uri": "/data/OrlandoOntology-SexesUnderPerson.ttl",

@@ -1,0 +1,14 @@
+{
+  "datasets": [
+    {
+      "uri": "https://raw.githubusercontent.com/cwrc/ontology/master/data.ttl",
+      "label": "cwrc/ontology/data.ttl"
+    }
+  ],
+  "defaults": {
+    "isOntology": false,
+    "opt_group": "CWRC Data",
+    "canDelete": false,
+    "ontology_label": "CWRC w/o Genres"
+  }
+}

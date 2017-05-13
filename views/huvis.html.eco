@@ -257,7 +257,8 @@
             , '/data/organizations.json'
             , '/data/periodicals.json'
             , '/data/publishing.json'
-            , '/data/individuals.json'
+            , '/data/individuals.json',
+            , '/data/cwrc_data.json'
           ]
         });
         HVZ.replace_human_term_spans('ui-widget');

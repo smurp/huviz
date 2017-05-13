@@ -59,6 +59,6 @@
     "isOntology": false,
     "opt_group": "Organizations",
     "canDelete": false,
-    "ontologyUri": "http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl"
+    "ontology_label": "Orlando Ontology"
   }
 }

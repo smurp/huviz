@@ -30,7 +30,6 @@
     "isOntology": false,
     "opt_group": "Individuals",
     "canDelete": false,
-    "ontologyLabel": "Orlando Ontology",
-    "ontologyUri": "http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl"
+    "ontology_label": "Orlando Ontology"
   }
 }
