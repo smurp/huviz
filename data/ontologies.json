@@ -10,7 +10,7 @@
     },
     {
       "uri": "/data/cwrc_wo_genre.ttl",
-      "label": "CWRC w/o Genres"
+      "label": "CWRC wo Genres"
     },
     {
       "uri": "/data/OrlandoOntology-SexesUnderPerson.ttl",

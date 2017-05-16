@@ -2717,7 +2717,7 @@ class Huviz
             @ontology_loader.add_dataset_option(dataset_rec)
           cursor.continue()
         else # when there are no (or NO MORE) entries, ie FINALLY
-          console.table(recs)
+          #console.table(recs)
           @dataset_loader.val('')
           @ontology_loader.val('')
           @update_dataset_ontology_loader()
@@ -2752,15 +2752,12 @@ class Huviz
         if typeof(preload_group_or_uri) is 'string' # the URL of a preload_group JSON
           #$.getJSON(preload_group_or_uri, null, @ensure_datasets_from_XHR)
           $.ajax
+            async: false
             url: preload_group_or_uri
             success: (data, textStatus) =>
-              if preload_group_or_uri.match(/publishing/)
-                console.log(preload_group_or_uri)
-                console.table(data.datasets)
               @ensure_datasets_from_XHR(data)
             error: (jqxhr, textStatus, errorThrown) ->
               console.error(preload_group_or_uri + " " +textStatus+" "+errorThrown.toString())
-
         else if typeof(preload_group_or_uri) is 'object' # a preload_group object
           @ensure_datasets(preload_group_or_uri)
         else
@@ -2786,6 +2783,8 @@ class Huviz
       @big_go_button.prop('disabled', true)
     @init_datasetDB()
     @preload_datasets()
+    # TODO remove this nullification of @last_val by fixing logic in select_option()
+    @ontology_loader.last_val = null # clear the last_val so select_option works the first time
 
   visualize_dataset_using_ontology: =>
     @set_ontology(@ontology_loader.value)
@@ -2811,12 +2810,43 @@ class Huviz
     if not (@dataset_loader? and @ontology_loader?)
       console.log("still building loaders...")
       return
+    @set_ontology_from_dataset_if_possible()
+    ugb = () =>
+      @update_go_button()
+    setTimeout(ugb, 200)
+
+  update_go_button: ->
     ds_v = @dataset_loader.value
     on_v = @ontology_loader.value
+    #console.log("DATASET: #{ds_v}\nONTOLOGY: #{on_v}")
     disable = (not (ds_v and on_v)) or ('provide' in [ds_v, on_v])
     ds_on = "#{ds_v} AND #{on_v}"
     @big_go_button.prop('disabled', disable)
     return
+
+  set_ontology_from_dataset_if_possible: ->
+    if @dataset_loader.value # and not @ontology_loader.value
+      option = @dataset_loader.get_selected_option()
+      ontologyUri = option.data('ontologyUri')
+      ontology_label = option.data('ontology_label')
+      if ontologyUri # let the uri (if present) dominate the label
+        @set_ontology_with_uri(ontologyUri)
+      else
+        @set_ontology_with_label(ontology_label)
+    @ontology_loader.update_state()
+
+  set_ontology_with_label: (ontology_label) ->
+    sel = "[label='#{ontology_label}']"
+    # console.log("$('#{sel}')")
+    for ont_opt in $(sel) # FIXME make this re-entrant
+      @ontology_loader.select_option($(ont_opt))
+      return
+    return
+
+  set_ontology_with_uri: (ontologyUri) ->
+    ontology_option = $('option[value="' + ontologyUri + '"]')
+    # console.log("set_ontology_with_uri",ontologyUri, ontology_option)
+    @ontology_loader.select_option(ontology_option)
 
   init_editc: ->
     @editui ?= new EditController(@)
@@ -3906,7 +3936,6 @@ class PickOrProvide
     @find_or_append_form()
     @drag_and_drop_loader = new DragAndDropLoader(@huviz, @append_to_sel, @)
     @drag_and_drop_loader.form.hide()
-
     #@add_group({label: "-- Pick #{@label} --", id: @pickable_uid})
     @add_group({label: "Your Own", id: @your_own_uid}, 'append')
     @add_option({label: "Provide New #{@label} ...", value: 'provide'}, @select_id)
@@ -3919,6 +3948,27 @@ class PickOrProvide
     #@pick_or_provide_select.change()
     #@value = val
     @refresh()
+
+  select_option: (option) ->
+    new_val = option.val()
+    #console.table([{last_val: @last_val, new_val: new_val}])
+    cur_val = @pick_or_provide_select.val()
+    # TODO remove last_val = null in @init_dataset_menus() by fixing logic below
+    #   What is happening is that the AJAX loading of preloads means that
+    #   it is as if each of the new datasets is being selected as it is
+    #   added -- but when the user picks an actual ontology then
+    #   @set_ontology_from_dataset_if_possible() fails if the new_val == @last_val
+    if cur_val isnt @last_val and not @isOntology
+      @last_val = cur_val
+    if @last_val isnt new_val
+      @last_val = new_val
+      if new_val
+        @pick_or_provide_select.val(new_val)
+      else
+        console.warn("TODO should set option to nothing")
+        # @pick_or_provide_select.val()
+      #if confirm("refresh?")
+      #  @refresh()
 
   add_uri: (uri_or_rec) =>
     if typeof uri_or_rec is 'string'
@@ -3991,9 +4041,10 @@ class PickOrProvide
     for k in ['value', 'title', 'class', 'id', 'style', 'label']
       if opt_rec[k]?
         $(opt).attr(k, opt_rec[k])
-    for k in ['isUri', 'canDelete']
+    for k in ['isUri', 'canDelete', 'ontologyUri', 'ontology_label'] # TODO standardize on _
       if opt_rec[k]?
-        $(opt).data(k, opt_rec[k])
+        val = opt_rec[k]
+        $(opt).data(k, val)
     return opt[0]
 
   update_state: (callback) ->
@@ -4030,11 +4081,9 @@ class PickOrProvide
     #console.debug @css_class,@pick_or_provide_select
     @pick_or_provide_select.change (e) =>
       #e.stopPropagation()
-      console.info("#{@label} CHANGE", e)
       @refresh()
-
     @delete_option_button = @form.find('.delete_option')
-    @delete_option_button.click @delete_selected_option
+    @delete_option_button.click(@delete_selected_option)
     @form.find('.delete_option').prop('disabled', true) # disabled initially
     console.info "form", @form
 
