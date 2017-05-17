@@ -259,6 +259,33 @@ blurt = (str) ->
   $('#blurtbox').append("<li>#{str}</li>")
   $('#blurtbox').scrollTop(10000)
 
+orlando_human_term =
+  all: 'All'
+  chosen: 'Activated'
+  unchosen: 'Deactivated'
+  selected: 'Selected'
+  shelved: 'Shelved'
+  discarded: 'Discarded'
+  hidden: 'Hidden'
+  graphed: 'Graphed'
+  fixed: 'Pinned'
+  labelled: 'Labelled'
+  choose: 'Activate'
+  unchoose: 'Deactivate'
+  select: 'Select'
+  unselect: 'Unselect'
+  label: 'Label'
+  unlabel: 'Unlabel'
+  shelve: 'Shelve'
+  hide: 'Hide'
+  discard: 'Discard'
+  undiscard: 'Retrieve'
+  pin: 'Pin'
+  unpin: 'Unpin'
+  unpinned: 'Unpinned'
+  blank_verb: 'VERB'
+  blank_noun: 'SET/SELECTION'
+
 class Huviz
   class_list: [] # FIXME remove
   HHH: {}
@@ -3764,34 +3791,10 @@ class Orlando extends OntologicallyGrounded
         ## unconfuse emacs Coffee-mode: " """ ' '  "
       super(obj, msg_or_obj) # fail back to super
 
-  human_term:
-    all: 'All'
-    chosen: 'Activated'
-    unchosen: 'Deactivated'
-    selected: 'Selected'
-    shelved: 'Shelved'
-    discarded: 'Discarded'
-    hidden: 'Hidden'
-    graphed: 'Graphed'
-    fixed: 'Pinned'
-    labelled: 'Labelled'
-    choose: 'Activate'
-    unchoose: 'Deactivate'
-    select: 'Select'
-    unselect: 'Unselect'
-    label: 'Label'
-    unlabel: 'Unlabel'
-    shelve: 'Shelve'
-    hide: 'Hide'
-    discard: 'Discard'
-    undiscard: 'Retrieve'
-    pin: 'Pin'
-    unpin: 'Unpin'
-    unpinned: 'Unpinned'
-    blank_verb: 'VERB'
-    blank_noun: 'SET/SELECTION'
+  human_term: orlando_human_term
 
 class OntoViz extends Huviz #OntologicallyGrounded
+  human_term: orlando_human_term
   HHH: # hardcoded hierarchy hints, kv pairs of subClass to superClass
     ObjectProperty: 'Thing'
     Class: 'Thing'
