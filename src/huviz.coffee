@@ -2784,7 +2784,7 @@ class Huviz
     @init_datasetDB()
     @preload_datasets()
     # TODO remove this nullification of @last_val by fixing logic in select_option()
-    @ontology_loader.last_val = null # clear the last_val so select_option works the first time
+    @ontology_loader?last_val = null # clear the last_val so select_option works the first time
 
   visualize_dataset_using_ontology: =>
     @set_ontology(@ontology_loader.value)

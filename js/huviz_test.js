@@ -600,6 +600,11 @@ describe("HuViz Tests", function() {
 		"nothing should be labelled after reset").to.equal(0);
          done();
        });
+
+    it("should adjust ontologies when datasets picked",
+       function() {
+         $()
+       });
   });
 
   describe("liking things", function() {
