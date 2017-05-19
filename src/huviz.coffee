@@ -1380,7 +1380,8 @@ class Huviz
         else
           ctx.fillStyle = renderStyles.labelColor #"white" is default
           ctx.font = unfocused_font
-        return unless node.fisheye? # FIXME why is this even happening?
+        if not node.fisheye?
+          return
         if not @graphed_set.has(node) and @draw_lariat_labels_rotated
           # Flip label rather than write upside down
           #   var flip = (node.rad > Math.PI) ? -1 : 1;
@@ -2689,9 +2690,8 @@ class Huviz
     if dataset_rec.isOntology
       if @ontology_loader
         @ontology_loader.add_dataset(dataset_rec, store_in_db)
-    else
-      if @dataset_loader
-        @dataset_loader.add_dataset(dataset_rec, store_in_db)
+    if @dataset_loader
+      @dataset_loader.add_dataset(dataset_rec, store_in_db)
 
   add_dataset_to_db: (dataset_rec, callback) ->
     trx = @datasetDB.transaction('datasets', "readwrite")
