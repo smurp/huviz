@@ -82,9 +82,9 @@
 		value="https://raw.githubusercontent.com/cwrc/ontology/master/cwrc.ttl">
 		CWRC Ontology</option>
               <option
-		title="CWRC Ontology wo Genres"
+		title="CWRC Ontology sans Genres"
 		value="/data/cwrc_wo_genre.ttl">
-		CWRC Ontology wo Genres</option>
+		CWRC Ontology sans Genres</option>
               <option
 		title="HuvizTest5_sansGenre"
 		value="https://raw.githubusercontent.com/cwrc/ontology/master/HuvizTest5_sansGenre.ttl">

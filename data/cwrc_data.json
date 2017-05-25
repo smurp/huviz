@@ -9,6 +9,6 @@
     "isOntology": false,
     "opt_group": "CWRC Data",
     "canDelete": false,
-    "ontology_label": "CWRC wo Genres"
+    "ontology_label": "CWRC Ontology sans Genres"
   }
 }
