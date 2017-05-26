@@ -89,6 +89,10 @@
 		title="HuvizTest5_sansGenre"
 		value="https://raw.githubusercontent.com/cwrc/ontology/master/HuvizTest5_sansGenre.ttl">
 		HuvizTest5 sans Genre</option>
+              <option
+		title="data.ttl"
+		value="https://raw.githubusercontent.com/cwrc/ontology/master/data.ttl">
+		cwrc/ontology/data.ttl</option>
 
 	    </optgroup>
 	    <optgroup label="Other">
