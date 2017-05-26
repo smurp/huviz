@@ -2831,6 +2831,13 @@ class Huviz
     for pid in @predicates_to_ignore
       @gclui.ignore_predicate pid
 
+  disable_dataset_ontology_loader: ->
+    @dataset_loader.disable()
+    @ontology_loader.disable()
+    disable = true
+    @update_go_button(disable)
+    @big_go_button.hide()
+
   update_dataset_ontology_loader: =>
     #alert('update_dataset_ontology_loader')
     #debugger
@@ -2842,12 +2849,13 @@ class Huviz
       @update_go_button()
     setTimeout(ugb, 200)
 
-  update_go_button: ->
-    ds_v = @dataset_loader.value
-    on_v = @ontology_loader.value
-    #console.log("DATASET: #{ds_v}\nONTOLOGY: #{on_v}")
-    disable = (not (ds_v and on_v)) or ('provide' in [ds_v, on_v])
-    ds_on = "#{ds_v} AND #{on_v}"
+  update_go_button: (disable) ->
+    if not disable?
+      ds_v = @dataset_loader.value
+      on_v = @ontology_loader.value
+      #console.log("DATASET: #{ds_v}\nONTOLOGY: #{on_v}")
+      disable = (not (ds_v and on_v)) or ('provide' in [ds_v, on_v])
+      ds_on = "#{ds_v} AND #{on_v}"
     @big_go_button.prop('disabled', disable)
     return
 
@@ -3591,7 +3599,8 @@ class Huviz
     if @args.display_reset
       $("#reset_btn").show()
     else
-      @disable_data_set_selector()
+      #@disable_data_set_selector()
+      @disable_dataset_ontology_loader()
     @show_state_msg("loading...")
     #@init_from_graph_controls()
     #@dump_current_settings("after init_from_graph_controls()")
@@ -3951,6 +3960,14 @@ class PickOrProvide
     #@pick_or_provide_select.change()
     #@value = val
     @refresh()
+
+  disable: ->
+    @pick_or_provide_select.prop('disabled', true)
+    @form.find('.delete_option').hide()
+
+  enable: ->
+    @pick_or_provide_select.prop('disabled', false)
+    @form.find('.delete_option').show()
 
   select_option: (option) ->
     new_val = option.val()
