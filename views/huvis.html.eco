@@ -92,18 +92,20 @@
         In particular, HuViz helps explore semantic information expressed in
         <a href="https://en.wikipedia.org/wiki/Resource_Description_Framework">RDF triples</a>
         that assert things like
-        <ul>
-          <li>
-            <span class='eg-subject'>AmyLevy</span>
-            <span class='eg-verb'>hasNationalitySelfDefined</span>
-            <span class='eg-object'>english</span>
-          </li>
-          <li>
-            <span class='eg-subject'>AmyLevy</span>
-            <span class='eg-verb'>hasEthnicity</span>
-            <span class='eg-object'>jewish</span>.
-          </li>
-        </ul>
+      </p>
+      <ul>
+        <li>
+          <span class='eg-subject'>AmyLevy</span>
+          <span class='eg-verb'>hasNationalitySelfDefined</span>
+          <span class='eg-object'>english</span>
+        </li>
+        <li>
+          <span class='eg-subject'>AmyLevy</span>
+          <span class='eg-verb'>hasEthnicity</span>
+          <span class='eg-object'>jewish</span>.
+        </li>
+      </ul>
+      <p>
         HuViz is also able to display the Orlando Ontology,
         the formal definition of the things and relationships depicted
         here.
@@ -267,15 +269,7 @@
           ]
         });
         HVZ.replace_human_term_spans('ui-widget');
-        HVZ.goto_tab(2);
-        //HVZ.ontology_loader.add_option()
-        //HVZ.set_ontology("/data/orlando_ontology.ttl");
-        //HVZ.set_ontology("/data/OrlandoOntology-SexesUnderPerson.ttl");
-        //HVZ.set_ontology("/data/OrlandoOntology.ttl");
-        //HVZ.set_ontology("/data/OrlandoOntologyPull5.ttl");
-
-        //HVZ.boot_sequence();
-
+        //HVZ.goto_tab(2); // go to the "Commands" tab, comment out to stay on "Intro" tab
         //renderMarkdownFromUrlToId("/docs/tutorial.md", "external_docs");
 	//document.getElementById("external_docs").innerHTML = marked(getMd("/docs/tutorial.md"));
 
