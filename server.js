@@ -39,6 +39,8 @@
     case 'development':
       cooked_argv.push("--faststart");
       cooked_argv.push("--is_local");
+      cooked_argv.push("--git_commit_hash");
+      cooked_argv.push("8e3849b");
       console.log(cooked_argv);
   }
 

@@ -138,4 +138,11 @@
 
     </script>
   </body>
+  <% if @git_commit_hash: %>
+    <sup class="git_commit_hash_watermark">
+      <a class="git_commit_hash_watermark subliminal"
+         target="huviz_version"
+         href="https://github.com/smurp/huviz/commit/<%= @git_commit_hash %>"><%= @git_commit_hash %></a>
+    </sup>
+  <% end %>
 </html>

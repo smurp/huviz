@@ -19,7 +19,8 @@
   clear: both;
 }
 #huvis_controls {
-  padding: 1em 0.4em;
+    padding: 0.4em;
+    padding-bottom: 0.2em;
 }
 .search_box {
   height:1.3em;
@@ -85,6 +86,13 @@ body, html {
 .git_commit_hash {
   font-size: 20%;
   color: grey;
+}
+.git_commit_hash_watermark {
+  font-size: 80%;
+  text-decoration: none;
+  position: absolute;
+  bottom: 1.5em;
+  left:49%
 }
 .control_label {
   margin-top: 2px;
@@ -167,6 +175,7 @@ body, html {
   font-family: sans-serif;
 }
 
+
 /* ---------------- Edit controls - "theme_black" Theme ----------------------- */
 
 .theme_black .slider {
@@ -186,4 +195,19 @@ body, html {
 
 .theme_black .label {
   color: #ddd;
+}
+
+.theme_black .subliminal {
+  color: red;
+}
+
+.theme_black .subliminal {
+    color: #373737;
+}
+
+
+/* a color just adjacent to the background color, for just barely visible text in watermarks */
+
+.subliminal {
+    color: #D7D7D7;
 }

@@ -22,6 +22,8 @@ switch process.env.NODE_ENV
   when 'development'
     cooked_argv.push("--faststart")
     cooked_argv.push("--is_local")
+    cooked_argv.push("--git_commit_hash")
+    cooked_argv.push("8e3849b") # cafeb0b is funnier
     console.log cooked_argv
 
 nopts = nopt(knownOpts, shortHands, cooked_argv, 2)
