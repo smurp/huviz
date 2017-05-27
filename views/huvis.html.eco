@@ -87,21 +87,26 @@
         <a href="/orlonto.html">ontology</a>
       </div>
       <p>
-	This interface is intended to help you explore the
-        information and relationships encoded in
-        the <a href="http://www.artsrn.ualberta.ca/orlando/" target="_blank">Orlando</a>
-        text database of British Women Writers.
+        This interface is intended to help you explore the information and relationships encoded in the
+        <a href="http://www.artsrn.ualberta.ca/orlando/">Orlando text database</a> of British Women Writers.
         In particular, HuViz helps explore semantic information expressed in
-        <a hef="http://www.artsrn.ualberta.ca/orlando/">RDF triples</a>
+        <a href="https://en.wikipedia.org/wiki/Resource_Description_Framework">RDF triples</a>
         that assert things like
-            <span class='eg-subject'>Writer</span>
-	    <span class='eg-verb'>hasSex</span>
-	    <span class='eg-object'>FEMALE</span>
-        or <span class='eg-subject'>Writer</span>
-	   <span class='eg-verb'>livedInPlace</span>
-	   <span class='eg-object'>London</span>.
-        HuViz is also able to display the <a href="/orlonto.html">Orlando Ontology</a>,
-        the formal definition of the things and relationships depicted here.
+        <ul>
+          <li>
+            <span class='eg-subject'>AmyLevy</span>
+            <span class='eg-verb'>hasNationalitySelfDefined</span>
+            <span class='eg-object'>english</span>
+          </li>
+          <li>
+            <span class='eg-subject'>AmyLevy</span>
+            <span class='eg-verb'>hasEthnicity</span>
+            <span class='eg-object'>jewish</span>.
+          </li>
+        </ul>
+        HuViz is also able to display the Orlando Ontology,
+        the formal definition of the things and relationships depicted
+        here.
       </p>
       <div id="external_docs"></div>
     </div>
