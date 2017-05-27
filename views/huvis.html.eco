@@ -36,9 +36,9 @@
     <script src="/vendor/green_turtle.js"></script>
     <script src="/marked/marked.min.js"></script>
   <% if @is_local: %>
-    <script src="/vendor/jquery.js"></script>
+    <script src="/jquery/jquery.js"></script>
     <script src="/vendor/d3.v3.min.js"></script>
-    <script src="/vendor/jquery-ui.min.js"></script>
+    <script src="/jquery-ui/jquery-ui.min.js"></script>
   <% else: %>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script src="//d3js.org/d3.v3.js" charset="utf-8"></script>
@@ -92,18 +92,20 @@
         In particular, HuViz helps explore semantic information expressed in
         <a href="https://en.wikipedia.org/wiki/Resource_Description_Framework">RDF triples</a>
         that assert things like
-        <ul>
-          <li>
-            <span class='eg-subject'>AmyLevy</span>
-            <span class='eg-verb'>hasNationalitySelfDefined</span>
-            <span class='eg-object'>english</span>
-          </li>
-          <li>
-            <span class='eg-subject'>AmyLevy</span>
-            <span class='eg-verb'>hasEthnicity</span>
-            <span class='eg-object'>jewish</span>.
-          </li>
-        </ul>
+      </p>
+      <ul>
+        <li>
+          <span class='eg-subject'>AmyLevy</span>
+          <span class='eg-verb'>hasNationalitySelfDefined</span>
+          <span class='eg-object'>english</span>
+        </li>
+        <li>
+          <span class='eg-subject'>AmyLevy</span>
+          <span class='eg-verb'>hasEthnicity</span>
+          <span class='eg-object'>jewish</span>.
+        </li>
+      </ul>
+      <p>
         HuViz is also able to display the Orlando Ontology,
         the formal definition of the things and relationships depicted
         here.
@@ -123,6 +125,7 @@
       <div class="unselectable">
         <label title="which file to load">
           <select
+              style="display:none"
               name="data_set" class="file_picker"
               onchange="HVZ.load_file(this)"
               title="data sets are alphabetical">
@@ -230,7 +233,6 @@
     </div>
     <div id="tabs-help" style="height:0px"></div>
   </section>
-
     <div id="vis" class="underneath" style="z-index:-3"></div>
     <div id="viscanvas" class="underneath"></div>
     <pre id="status"></pre>
@@ -251,17 +253,23 @@
         HVZ = new huviz.Orlando({
           viscanvas_sel: "#viscanvas",
           gclui_sel: "#gclui",
+          dataset_loader__append_to_sel: ".unselectable",
+          ontology_loader__append_to_sel: ".unselectable",
           graph_controls_sel: '#tabs-options',
           display_hints: false, // here to show how to enable hints
-          display_reset: false  // here to show how to enable reset button
+          display_reset: false,  // here to show how to enable reset button
+      preload: [
+            '/data/genres.json'
+            , '/data/ontologies.json'
+            , '/data/organizations.json'
+            , '/data/periodicals.json'
+            , '/data/publishing.json'
+            , '/data/individuals.json',
+            , '/data/cwrc_data.json'
+          ]
         });
         HVZ.replace_human_term_spans('ui-widget');
-        //HVZ.set_ontology("/data/orlando_ontology.ttl");
-        //HVZ.set_ontology("/data/OrlandoOntology-SexesUnderPerson.ttl");
-        //HVZ.set_ontology("/data/OrlandoOntology.ttl");
-        //HVZ.set_ontology("/data/OrlandoOntologyPull5.ttl");
-        HVZ.set_ontology("http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl");
-        HVZ.boot_sequence();
+        //HVZ.goto_tab(2); // go to the "Commands" tab, comment out to stay on "Intro" tab
 
         //renderMarkdownFromUrlToId("/docs/tutorial.md", "external_docs");
 	//document.getElementById("external_docs").innerHTML = marked(getMd("/docs/tutorial.md"));
@@ -329,13 +337,14 @@
     </script>
     <div class="hint_set" style="display:none">
       <div class="a_hint">
-	<strong>Two Ways to Execute Commands</strong>
-	<ol>
-	  <li>Directly in the Graph using the "drag and drop" technique</li>
-	  <li>By choosing a combination of a Verb + Set or Class or Selection.</li>
-	</ol>
+	      <strong>Two Ways to Execute Commands</strong>
+      	<ol>
+      	  <li>Directly in the Graph using the "drag and drop" technique</li>
+      	  <li>By choosing a combination of a Verb + Set or Class or Selection.</li>
+      	</ol>
       </div>
     </div>
+
     <div class="help_content" style="display:none">
       <div style="position:absolute; top:5px; right:5px">
         <a href="http://cwrc.ca/HuViz_Documentation/" target="_blank">Manual</a>
@@ -464,5 +473,12 @@
 	</dd>
       </dl>
     </div>
+  <% if @git_commit_hash: %>
+    <sup class="git_commit_hash_watermark">
+      <a class="git_commit_hash_watermark subliminal"
+         target="huviz_version"
+         href="https://github.com/smurp/huviz/commit/<%= @git_commit_hash %>"><%= @git_commit_hash %></a>
+    </sup>
+  <% end %>
   </body>
 </html>
