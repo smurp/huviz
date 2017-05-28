@@ -55,20 +55,22 @@
 * Research Associate; Technical Consultant: 2015-present
 
 ## Partners
-![CWRC Logo](/docs/cwrc_logo.png =100x100)
-![Orlando Logo](/docs/orlando_tree_logo.png =100x100)
-![Nooron Logo](/docs/nooron_logo.png =100x100)
+![CWRC Logo](/docs/cwrc_logo.png)
+![Orlando Logo](/docs/orlando_tree_logo.png)
+![Nooron Logo](/docs/nooron_logo.png)
 
-The Canadian Writing Research Collaboratory
+###### The Canadian Writing Research Collaboratory
 http://www.cwrc.ca
 
-The Orlando Project
+###### The Orlando Project
 http://orlando.cambridge.org
 
-Nooron Collaboratory
+###### Nooron Collaboratory
 http://nooron.com
 
 ## Funders
 
-* SSHRC: Text Mining and Visualization in Literary History (PI: Susan Brown);
-* Implementing New Knowledge Environments (PI: Raymond G. Siemens); Linked Modernisms (PI: Stephen Ross); Text Mining the Novel (PI: Andrew Piper)
+* SSHRC: Text Mining and Visualization in Literary History (PI: Susan Brown)
+* Implementing New Knowledge Environments (PI: Raymond G. Siemens)
+* Linked Modernisms (PI: Stephen Ross)
+* Text Mining the Novel (PI: Andrew Piper)
