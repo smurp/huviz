@@ -55,9 +55,9 @@
 * Research Associate; Technical Consultant: 2015-present
 
 ## Partners
-![CWRC Logo](cwrc_logo.png =100x100)
-![Orlando Logo](orlando_tree_logo.png =100x100)
-![Nooron Logo](nooron_logo.png =100x100)
+![CWRC Logo](/docs/cwrc_logo.png =100x100)
+![Orlando Logo](/docs/orlando_tree_logo.png =100x100)
+![Nooron Logo](/docs/nooron_logo.png =100x100)
 
 The Canadian Writing Research Collaboratory
 http://www.cwrc.ca
