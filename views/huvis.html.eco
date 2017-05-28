@@ -272,7 +272,7 @@
         //HVZ.goto_tab(2); // go to the "Commands" tab, comment out to stay on "Intro" tab
 
         //renderMarkdownFromUrlToId("/docs/tutorial.md", "external_docs");
-        renderMarkdownFromUrlToId("/docs/credits.md", "tab-credits");
+        renderMarkdownFromUrlToId("/docs/credits.md", "tabs-credit");
 	//document.getElementById("external_docs").innerHTML = marked(getMd("/docs/tutorial.md"));
 
 	window.open_help_dialog = function() {
