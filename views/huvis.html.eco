@@ -295,8 +295,9 @@
           }
         }
         //renderMarkdownFromUrlToId("/docs/tutorial.md", "external_docs");
-        renderMarkdownFromUrlToId("/docs/credits.md", "tabs-credit");
-	//document.getElementById("external_docs").innerHTML = marked(getMd("/docs/tutorial.md"));
+        //renderMarkdownFromUrlToId("/docs/credits.md", "tabs-credit");
+        //document.getElementById("external_docs").innerHTML = marked(getMd("/docs/tutorial.md"));
+      	document.getElementById("tabs-credit").innerHTML = marked(getMd("/docs/credits.md"));
 
 	window.open_help_dialog = function() {
 	  if (!(open_help_dialog && open_help_dialog.help_dialog)) {
