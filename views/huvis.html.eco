@@ -309,7 +309,6 @@
         $(".open_huviz_help").on('click', open_help_dialog);
         //open_help_dialog();
 
-      /*
         var getMd = function(url) {
 	  var xhr = new XMLHttpRequest();
           xhr.open('GET', url, false);
@@ -331,8 +330,8 @@
                 console.log(mdUri, xhr.statusText);
               }
             }
+          }
         }
-      */
 
       });
     </script>
