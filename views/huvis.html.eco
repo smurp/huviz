@@ -270,6 +270,7 @@
         });
         HVZ.replace_human_term_spans('ui-widget');
         //HVZ.goto_tab(2); // go to the "Commands" tab, comment out to stay on "Intro" tab
+
         var getMd = function(url) {
 	  var xhr = new XMLHttpRequest();
           xhr.open('GET', url, false);
