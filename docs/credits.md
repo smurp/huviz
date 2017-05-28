@@ -59,13 +59,13 @@
 ![Orlando Logo](/docs/orlando_tree_logo.png)
 ![Nooron Logo](/docs/nooron_logo.png)
 
-###### The Canadian Writing Research Collaboratory
+#### The Canadian Writing Research Collaboratory
 http://www.cwrc.ca
 
-###### The Orlando Project
+#### The Orlando Project
 http://orlando.cambridge.org
 
-###### Nooron Collaboratory
+#### Nooron Collaboratory
 http://nooron.com
 
 ## Funders

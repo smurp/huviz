@@ -100,7 +100,9 @@ body, html {
   user-select: none;
   cursor:default;
 }
+
+/* cope with absence of =80x80 in npm marked Markdown support */
 #tabs-credit img {
-  height: 100px;
-  width: 100px;
+  height: 64px;
+  width: 64px;
 }
