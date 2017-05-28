@@ -108,6 +108,7 @@ body, html {
   user-select: none;
   cursor:default;
 }
+<<<<<<< HEAD
 
 /* ---------------- Edit controls ----------------------- */
 
@@ -210,4 +211,9 @@ body, html {
 
 .subliminal {
     color: #D7D7D7;
+}
+
+img#tabs-credit {
+  height: 100px;
+  width: 100px;
 }
