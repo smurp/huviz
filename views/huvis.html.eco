@@ -106,7 +106,7 @@
         </li>
       </ul>
       <p>
-        HuViz is also able to display the Orlando Ontology,
+        HuViz is also able to display the <a href="/orlonto.html">Orlando Ontology</a>,
         the formal definition of the things and relationships depicted
         here.
       </p>
@@ -271,6 +271,7 @@
         HVZ.replace_human_term_spans('ui-widget');
         //HVZ.goto_tab(2); // go to the "Commands" tab, comment out to stay on "Intro" tab
         //renderMarkdownFromUrlToId("/docs/tutorial.md", "external_docs");
+        renderMarkdownFromUrlToId("/docs/credits.md", "tab-credits");
 	//document.getElementById("external_docs").innerHTML = marked(getMd("/docs/tutorial.md"));
 
 	window.open_help_dialog = function() {
