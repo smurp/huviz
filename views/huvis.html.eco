@@ -271,14 +271,14 @@
         HVZ.replace_human_term_spans('ui-widget');
         //HVZ.goto_tab(2); // go to the "Commands" tab, comment out to stay on "Intro" tab
 
-        var getMd = function(url) {
-	  var xhr = new XMLHttpRequest();
+        function getMd(url) {
+          var xhr = new XMLHttpRequest();
           xhr.open('GET', url, false);
           xhr.send();
           var resp =  xhr.responseText;
 	  return resp;
 	};
-	var renderMarkdownFromUrlToId = function(mdUri, id) {
+	function renderMarkdownFromUrlToId(mdUri, id) {
             var xhr = new XMLHttpRequest();
             xhr.open('GET', mdUri, true);
             xhr.onload = function(e) {
@@ -294,7 +294,6 @@
             }
           }
         }
-
         //renderMarkdownFromUrlToId("/docs/tutorial.md", "external_docs");
         renderMarkdownFromUrlToId("/docs/credits.md", "tabs-credit");
 	//document.getElementById("external_docs").innerHTML = marked(getMd("/docs/tutorial.md"));
