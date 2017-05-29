@@ -86,6 +86,13 @@ body, html {
   font-size: 20%;
   color: grey;
 }
+.git_commit_hash_watermark {
+    font-size: 80%;
+    text-decoration: none;
+    position: absolute;
+    bottom: 1.5em;
+    left:49%
+}
 .control_label {
   margin-top: 2px;
   font-weight: bold;
@@ -99,6 +106,13 @@ body, html {
   -ms-user-select: none;
   user-select: none;
   cursor:default;
+}
+
+
+/* a color just adjacent to the background color, for just barely visible text in watermarks */
+
+.subliminal {
+    color: #D7D7D7;
 }
 
 
