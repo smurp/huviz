@@ -4,7 +4,11 @@
     <title>Huvis Graph Visualization</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css">
     <link rel="icon" href="/favicon.ico?v=4" type="image/x-icon" />
-    <link href="/jquery-ui-css/jquery-ui.css" rel="stylesheet"/>
+  <% if @is_local: %>
+    <link href="/css/jquery-ui.css" rel="stylesheet"/>
+  <% else: %>
+    <link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css" rel="stylesheet"/>
+  <% end %>
     <link href="/css/huvis.css" rel="stylesheet" type="text/css">
     <link href="/css/huvis_controls.css" rel="stylesheet" type="text/css">
     <link href="/css/lariat.css" rel="stylesheet" type="text/css">
@@ -36,9 +40,9 @@
     <script src="/vendor/green_turtle.js"></script>
     <script src="/marked/marked.min.js"></script>
   <% if @is_local: %>
-    <script src="/jquery/jquery.js"></script>
+    <script src="/vendor/jquery.js"></script>
     <script src="/vendor/d3.v3.min.js"></script>
-    <script src="/jquery-ui/jquery-ui.min.js"></script>
+    <script src="/vendor/jquery-ui.min.js"></script>
   <% else: %>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script src="//d3js.org/d3.v3.js" charset="utf-8"></script>
@@ -125,7 +129,6 @@
       <div class="unselectable">
         <label title="which file to load">
           <select
-              style="display:none"
               name="data_set" class="file_picker"
               onchange="HVZ.load_file(this)"
               title="data sets are alphabetical">
@@ -253,23 +256,14 @@
         HVZ = new huviz.Orlando({
           viscanvas_sel: "#viscanvas",
           gclui_sel: "#gclui",
-          dataset_loader__append_to_sel: ".unselectable",
-          ontology_loader__append_to_sel: ".unselectable",
           graph_controls_sel: '#tabs-options',
           display_hints: false, // here to show how to enable hints
-          display_reset: false,  // here to show how to enable reset button
-          preload: [
-            '/data/genres.json'
-            , '/data/ontologies.json'
-            , '/data/organizations.json'
-            , '/data/periodicals.json'
-            , '/data/publishing.json'
-            , '/data/individuals.json',
-            , '/data/cwrc_data.json'
-          ]
+          display_reset: false  // here to show how to enable reset button
         });
         HVZ.replace_human_term_spans('ui-widget');
         //HVZ.goto_tab(2); // go to the "Commands" tab, comment out to stay on "Intro" tab
+        HVZ.set_ontology("http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl");
+        HVZ.boot_sequence();
 
         function getMd(url) {
           var xhr = new XMLHttpRequest();
