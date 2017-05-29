@@ -101,6 +101,7 @@ body, html {
   cursor:default;
 }
 
+
 /* ---------------- Edit controls ----------------------- */
 
 .edit-controls {
@@ -186,4 +187,42 @@ body, html {
 
 .theme_black .label {
   color: #ddd;
+}
+
+/* cope with absence of =80x80 in npm marked Markdown support */
+#tabs-credit img {
+  height: 64px;
+  width: 64px;
+}
+
+#tabs-credit h1 {
+    display: block;
+    font-size: 1.3em;
+    padding-before: 0.1em;
+    padding-after: 0.2em;
+    padding-start: 0px;
+    padding-end: 0px;
+    font-weight: medium;
+}
+
+#tabs-credit h2,h3 {
+    text-align: left;
+    display: inline-block;
+    font-size: 1.05em;
+    margin-before: 0.1em;
+    padding-after: 0.1em;
+    margin-start: 0px;
+    margin-end: 0px;
+    font-weight: bold;
+}
+
+#tabs-credit ul {
+    padding: 0px;
+    margin: 0px;
+    margin-left: 1em;
+    margin-botom: .8em;
+}
+
+#tabs-credit li {
+    margin: 5px;
 }
