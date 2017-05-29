@@ -58,23 +58,22 @@
 
 # Partners
 
-![CWRC Logo](/docs/cwrc_logo.png)
-![Orlando Logo](/docs/orlando_tree_logo.png)
-![Nooron Logo](/docs/nooron_logo.png)
+[![CWRC Logo](/docs/cwrc_logo.png)](http://www.cwrc.ca)
+[![Orlando Logo](/docs/orlando_tree_logo.png)](http://orlando.cambridge.org)
+[![Nooron Logo](/docs/nooron_logo.png)](http://nooron.com)
 
 ## The Canadian Writing Research Collaboratory
 
-http://www.cwrc.ca
+* http://www.cwrc.ca
 
 ## The Orlando Project
 
-http://orlando.cambridge.org
+* http://orlando.cambridge.org
 
 ## Nooron Collaboratory
 
-http://nooron.com
+* http://nooron.com
 
-----
 
 # Funders
 
