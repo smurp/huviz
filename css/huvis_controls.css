@@ -86,6 +86,13 @@ body, html {
   font-size: 20%;
   color: grey;
 }
+.git_commit_hash_watermark {
+    font-size: 80%;
+    text-decoration: none;
+    position: absolute;
+    bottom: 1.5em;
+    left:49%
+}
 .control_label {
   margin-top: 2px;
   font-weight: bold;
@@ -100,9 +107,6 @@ body, html {
   user-select: none;
   cursor:default;
 }
-
-
-/* ---------------- Edit controls ----------------------- */
 
 .edit-controls {
     bottom:.2em;
@@ -188,6 +192,14 @@ body, html {
 .theme_black .label {
   color: #ddd;
 }
+
+
+/* a color just adjacent to the background color, for just barely visible text in watermarks */
+
+.subliminal {
+    color: #D7D7D7;
+}
+
 
 /* cope with absence of =80x80 in npm marked Markdown support */
 #tabs-credit img {

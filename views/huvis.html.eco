@@ -262,17 +262,20 @@
           ]
         });
         HVZ.replace_human_term_spans('ui-widget');
-        HVZ.goto_tab(2);
-        //HVZ.ontology_loader.add_option()
-        //HVZ.set_ontology("/data/orlando_ontology.ttl");
-        //HVZ.set_ontology("/data/OrlandoOntology-SexesUnderPerson.ttl");
-        //HVZ.set_ontology("/data/OrlandoOntology.ttl");
-        //HVZ.set_ontology("/data/OrlandoOntologyPull5.ttl");
+        //HVZ.goto_tab(2); // go to the "Commands" tab, comment out to stay on "Intro" tab
 
-        //HVZ.boot_sequence();
+        var getMd = function(url) {
+	  var xhr = new XMLHttpRequest();
+          xhr.open('GET', url, false);
+          xhr.send();
+          var resp =  xhr.responseText;
+	  return resp;
+	};
+
 
         //renderMarkdownFromUrlToId("/docs/tutorial.md", "external_docs");
-	//document.getElementById("external_docs").innerHTML = marked(getMd("/docs/tutorial.md"));
+        //document.getElementById("external_docs").innerHTML = marked(getMd("/docs/tutorial.md"));
+        document.getElementById("tabs-credit").innerHTML = marked(getMd("/docs/credits.md"));
 
 	window.open_help_dialog = function() {
 	  if (!(open_help_dialog && open_help_dialog.help_dialog)) {
@@ -309,13 +312,6 @@
         //open_help_dialog();
 
       /*
-        var getMd = function(url) {
-	  var xhr = new XMLHttpRequest();
-          xhr.open('GET', url, false);
-          xhr.send();
-          var resp =  xhr.responseText;
-	  return resp;
-	};
 	var renderMarkdownFromUrlToId = function(mdUri, id) {
             var xhr = new XMLHttpRequest();
             xhr.open('GET', mdUri, true);
@@ -460,7 +456,7 @@
 	      <a class="open_tab" href="#2">Commands tab</a>:
 	      <ol>
 		<li>
-		  Click the <span class="control_label">Verb</span>
+		  Click the <span class="control_label">V=erb</span>
 		  <span class="human_term__retrieve">Retrieve</span>
 		</li>
 		<li>
@@ -473,5 +469,12 @@
 	</dd>
       </dl>
     </div>
+  <% if @git_commit_hash: %>
+    <sup class="git_commit_hash_watermark">
+      <a class="git_commit_hash_watermark subliminal"
+         target="huviz_version"
+         href="https://github.com/smurp/huviz/commit/<%= @git_commit_hash %>"><%= @git_commit_hash %></a>
+    </sup>
+  <% end %>
   </body>
 </html>
