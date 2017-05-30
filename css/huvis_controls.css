@@ -268,4 +268,9 @@ body, html {
 #tabs-intro ul {
     margin-before: .5em;
     margin-after: .5em;
+    font-family: Courier;
+    font-size: 90%;
+}
+#tabs-intro ul {
+    list-style: none outside none;
 }
