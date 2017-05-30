@@ -213,6 +213,13 @@ body, html {
 }
 
 
+/* a color just adjacent to the background color, for just barely visible text in watermarks */
+
+.subliminal {
+    color: #D7D7D7;
+}
+
+
 /* cope with absence of =80x80 in npm marked Markdown support */
 #tabs-credit img {
   height: 64px;
@@ -249,4 +256,16 @@ body, html {
 
 #tabs-credit li {
     margin: 5px;
+}
+
+
+/* tabs-intro styling */
+
+#tabs-intro p {
+    margin-before: .2em;
+    text-indent: 1.2em;
+}
+#tabs-intro ul {
+    margin-before: .5em;
+    margin-after: .5em;
 }
