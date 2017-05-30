@@ -153,3 +153,15 @@ body, html {
 #tabs-credit li {
     margin: 5px;
 }
+
+
+/* tabs-intro styling */
+
+#tabs-intro p {
+    margin-before: .2em;
+    text-indent: 1.2em;
+}
+#tabs-intro ul {
+    margin-before: .5em;
+    margin-after: .5em;
+}

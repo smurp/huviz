@@ -69,7 +69,7 @@
 	 </a>
        </li>
     </ul>
-    <div id="tabs-intro" class="scrolling_tab">
+    <div id="tabs-intro">
       <h1 class="git-branch-is-<%= @git_branch_name %>">
         HuViz
         <% if @git_commit_hash: %>
@@ -91,28 +91,40 @@
         <a href="/orlonto.html">ontology</a>
       </div>
       <p>
-        This interface is intended to help you explore the information and relationships encoded in the
-        <a href="http://www.artsrn.ualberta.ca/orlando/">Orlando text database</a> of British Women Writers.
-        In particular, HuViz helps explore semantic information expressed in
-        <a href="https://en.wikipedia.org/wiki/Resource_Description_Framework">RDF triples</a>
-        that assert things like
+        The Humanities Visualizer (HuViz) interface allows for the
+        exploration of semantic relationships and ontologies
+        represented using the Resource Description Framework.
+      </p>
+      <p>
+        You can load your own ontology and/or dataset, or you can
+        chose to explore one of the existing datasets available on the
+        Command panel to explore the information and relationships
+        encoded in the textbase
+        <a href="http://www.artsrn.ualberta.ca/orlando/">Orlando: Women's Writing in the British Isles from the Beginnings to the Present</a>.
+        For example, Huviz allows for the exploration in RDF triples that assert things like
       </p>
       <ul>
         <li>
-          <span class='eg-subject'>AmyLevy</span>
-          <span class='eg-verb'>hasNationalitySelfDefined</span>
-          <span class='eg-object'>english</span>
+          <span class='eg-subject'>Virginia Wolf</span>
+          <span class='eg-verb'>hasGender</span>
+          <span class='eg-object'>woman</span>
         </li>
         <li>
-          <span class='eg-subject'>AmyLevy</span>
-          <span class='eg-verb'>hasEthnicity</span>
-          <span class='eg-object'>jewish</span>.
+          <span class='eg-subject'>Virginia Wolf</span>
+          <span class='eg-verb'>hasSister</span>
+          <span class='eg-object'>Vaness Bell</span>
+        </li>
+        <li>
+          <span class='eg-subject'>Virginia Wolf</span>
+          <span class='eg-verb'>inhabits</span>
+          <span class='eg-object'>Lond</span>
         </li>
       </ul>
       <p>
-        HuViz is also able to display the <a href="/orlonto.html">Orlando Ontology</a>,
-        the formal definition of the things and relationships depicted
-        here.
+        In addition to datasets, HuViz is also able to display
+        ontologies, the formal definition of things and
+        relationships. External files need to be in Turtle (.ttl)
+        format.
       </p>
       <div id="external_docs"></div>
     </div>
