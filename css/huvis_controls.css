@@ -87,11 +87,11 @@ body, html {
   color: grey;
 }
 .git_commit_hash_watermark {
-    font-size: 80%;
-    text-decoration: none;
-    position: absolute;
-    bottom: 1.5em;
-    left:49%
+  font-size: 80%;
+  text-decoration: none;
+  position: absolute;
+  bottom: 1.5em;
+  left:49%
 }
 .control_label {
   margin-top: 2px;
@@ -237,4 +237,16 @@ body, html {
 
 #tabs-credit li {
     margin: 5px;
+}
+
+
+/* tabs-intro styling */
+
+#tabs-intro p {
+    margin-before: .2em;
+    text-indent: 1.2em;
+}
+#tabs-intro ul {
+    margin-before: .5em;
+    margin-after: .5em;
 }

@@ -4,7 +4,11 @@
     <title>Huvis Graph Visualization</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css">
     <link rel="icon" href="/favicon.ico?v=4" type="image/x-icon" />
-    <link href="/jquery-ui-css/jquery-ui.css" rel="stylesheet"/>
+  <% if @is_local: %>
+    <link href="/css/jquery-ui.css" rel="stylesheet"/>
+  <% else: %>
+    <link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css" rel="stylesheet"/>
+  <% end %>
     <link href="/css/huvis.css" rel="stylesheet" type="text/css">
     <link href="/css/huvis_controls.css" rel="stylesheet" type="text/css">
     <link href="/css/lariat.css" rel="stylesheet" type="text/css">
@@ -36,9 +40,9 @@
     <script src="/vendor/green_turtle.js"></script>
     <script src="/marked/marked.min.js"></script>
   <% if @is_local: %>
-    <script src="/jquery/jquery.js"></script>
+    <script src="/vendor/jquery.js"></script>
     <script src="/vendor/d3.v3.min.js"></script>
-    <script src="/jquery-ui/jquery-ui.min.js"></script>
+    <script src="/vendor/jquery-ui.min.js"></script>
   <% else: %>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script src="//d3js.org/d3.v3.js" charset="utf-8"></script>
@@ -65,7 +69,7 @@
 	 </a>
        </li>
     </ul>
-    <div id="tabs-intro" class="scrolling_tab">
+    <div id="tabs-intro">
       <h1 class="git-branch-is-<%= @git_branch_name %>">
         HuViz
         <% if @git_commit_hash: %>
@@ -87,21 +91,40 @@
         <a href="/orlonto.html">ontology</a>
       </div>
       <p>
-	This interface is intended to help you explore the
-        information and relationships encoded in
-        the <a href="http://www.artsrn.ualberta.ca/orlando/" target="_blank">Orlando</a>
-        text database of British Women Writers.
-        In particular, HuViz helps explore semantic information expressed in
-        <a hef="http://www.artsrn.ualberta.ca/orlando/">RDF triples</a>
-        that assert things like
-            <span class='eg-subject'>Writer</span>
-	    <span class='eg-verb'>hasSex</span>
-	    <span class='eg-object'>FEMALE</span>
-        or <span class='eg-subject'>Writer</span>
-	   <span class='eg-verb'>livedInPlace</span>
-	   <span class='eg-object'>London</span>.
-        HuViz is also able to display the <a href="/orlonto.html">Orlando Ontology</a>,
-        the formal definition of the things and relationships depicted here.
+        The Humanities Visualizer (HuViz) interface allows for the
+        exploration of semantic relationships and ontologies
+        represented using the Resource Description Framework.
+      </p>
+      <p>
+        You can load your own ontology and/or dataset, or you can
+        chose to explore one of the existing datasets available on the
+        Command panel to explore the information and relationships
+        encoded in the textbase
+        <a href="http://www.artsrn.ualberta.ca/orlando/">Orlando: Women's Writing in the British Isles from the Beginnings to the Present</a>.
+        For example, Huviz allows for the exploration in RDF triples that assert things like
+      </p>
+      <ul>
+        <li>
+          <span class='eg-subject'>Virginia Wolf</span>
+          <span class='eg-verb'>hasGender</span>
+          <span class='eg-object'>woman</span>
+        </li>
+        <li>
+          <span class='eg-subject'>Virginia Wolf</span>
+          <span class='eg-verb'>hasSister</span>
+          <span class='eg-object'>Vaness Bell</span>
+        </li>
+        <li>
+          <span class='eg-subject'>Virginia Wolf</span>
+          <span class='eg-verb'>inhabits</span>
+          <span class='eg-object'>Lond</span>
+        </li>
+      </ul>
+      <p>
+        In addition to datasets, HuViz is also able to display
+        ontologies, the formal definition of things and
+        relationships. External files need to be in Turtle (.ttl)
+        format.
       </p>
       <div id="external_docs"></div>
     </div>
@@ -118,7 +141,6 @@
       <div class="unselectable">
         <label title="which file to load">
           <select
-              style="display:none"
               name="data_set" class="file_picker"
               onchange="HVZ.load_file(this)"
               title="data sets are alphabetical">
@@ -246,10 +268,7 @@
         HVZ = new huviz.Orlando({
           viscanvas_sel: "#viscanvas",
           gclui_sel: "#gclui",
-          dataset_loader__append_to_sel: ".unselectable",
-          ontology_loader__append_to_sel: ".unselectable",
           graph_controls_sel: '#tabs-options',
-          display_hints: false, // here to show how to enable hints
           display_reset: false,  // here to show how to enable reset button
       preload: [
             '/data/genres.json'
@@ -263,6 +282,8 @@
         });
         HVZ.replace_human_term_spans('ui-widget');
         //HVZ.goto_tab(2); // go to the "Commands" tab, comment out to stay on "Intro" tab
+        HVZ.set_ontology("http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl");
+        HVZ.boot_sequence();
 
         var getMd = function(url) {
 	  var xhr = new XMLHttpRequest();
