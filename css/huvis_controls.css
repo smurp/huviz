@@ -209,13 +209,6 @@ body, html {
 }
 
 
-/* a color just adjacent to the background color, for just barely visible text in watermarks */
-
-.subliminal {
-    color: #D7D7D7;
-}
-
-
 /* cope with absence of =80x80 in npm marked Markdown support */
 #tabs-credit img {
   height: 64px;
