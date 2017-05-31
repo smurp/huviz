@@ -193,6 +193,10 @@ body, html {
   color: #ddd;
 }
 
+.theme_black .subliminal {
+    color: #373737;
+}
+
 
 /* a color just adjacent to the background color, for just barely visible text in watermarks */
 
