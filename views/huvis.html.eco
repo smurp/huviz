@@ -65,7 +65,7 @@
 	 </a>
        </li>
     </ul>
-    <div id="tabs-intro" class="scrolling_tab">
+    <div id="tabs-intro">
       <h1 class="git-branch-is-<%= @git_branch_name %>">
         HuViz
         <% if @git_commit_hash: %>
