@@ -70,8 +70,12 @@ var SortedSet = function(){
 	} else {
 	    throw "sort_on() expects a function or a property name";
 	}
-	array.sort(cmp);
+        array._cmp = cmp;
+        array.resort()
 	return array;
+    }
+    array.resort = function() {
+      array.sort(array._cmp);
     }
     array.clear = function(){
 	array.length = 0;
@@ -310,3 +314,6 @@ var SortedSets_tests = function(verbose){
 };
 //(typeof exports !== "undefined" && exports !== null ? exports : this).SortedSet = SortedSet;
 //})(this);
+if (module) {
+  module.exports.SortedSet = SortedSet;
+}
