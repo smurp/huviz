@@ -3,7 +3,7 @@
 var chai = require("chai");
 var expect = chai.expect;
 
-var MultiString = require('../lib/multistring').MultiString;
+var MultiString = require('../js/multistring').MultiString;
 var SortedSet = require('../js/sortedset').SortedSet;
 
 var as_labels = function(acc, obj) {

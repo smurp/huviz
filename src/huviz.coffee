@@ -126,6 +126,8 @@ Predicate = require('predicate').Predicate
 Taxon = require('taxon').Taxon
 TextCursor = require('textcursor').TextCursor
 
+MultiString.set_langpath('en:fr') # TODO make this a setting
+
 wpad = undefined
 hpad = 10
 distance = (p1, p2) ->
@@ -1684,20 +1686,34 @@ class Huviz
         @develop(obj_n)
     else
       if subj_n.embryo and is_one_of(pid,NAME_SYNS)
-        @set_name(subj_n, quad.o.value.replace(/^\s+|\s+$/g, ''))
+        @set_name(
+          subj_n,
+          quad.o.value.replace(/^\s+|\s+$/g, ''),
+          quad.o.language)
         @develop(subj_n) # might be ready now
     @last_quad = quad
     return edge
 
-  set_name: (node, full_name) ->
-    node.name ?= full_name  # set it if blank
+  set_name: (node, full_name, lang) ->
+    if typeof full_name is 'object'
+      # MultiString instances have constructor.name == 'String'
+      # console.log(full_name.constructor.name, full_name)
+      node.name = full_name
+    else
+      if node.name
+        node.name.set_val_lang(full_name, lang)
+        console.log("reusing",node.name)
+        debugger
+      else
+        node.name = new MultiString(full_name, lang)
+    #node.name ?= full_name  # set it if blank
     len = @truncate_labels_to
     if not len?
       alert "len not set"
     if len > 0
-      node.pretty_name = full_name.substr(0, len) # truncate
+      node.pretty_name = node.name.substr(0, len) # truncate
     else
-      node.pretty_name = full_name
+      node.pretty_name = node.name
     node.scroll_offset = 0
     return
 
@@ -3345,7 +3361,7 @@ class Huviz
         label:
           title: "truncate and scroll labels longer than this, or zero to disable"
         input:
-          value: 40
+          value: 0 # 40
           min: 0
           max: 60
           step: 1
@@ -3419,6 +3435,17 @@ class Huviz
         input:
           type: "checkbox"
           checked: "checked"
+    ,
+      language_path:
+        text: "Language Path"
+        label:
+          title: "Preferred languages in order, with : separator"
+        input:
+          type: "text"
+          value: "en:fr:de"
+          size: "15"
+          placeholder: "en:fr:es:de"
+        event_type: "change"
     ]
 
   dump_current_settings: (post) ->
@@ -3463,8 +3490,10 @@ class Huviz
           value = control.input.checked?
           #console.log "control:",control_name,"value:",value, control
           @change_setting_to_from(control_name, value, undefined) #@[control_name].checked)
-        input.on("change", @update_graph_settings) # TODO implement one or the other
-        input.on("input", @update_graph_settings)
+        if control.event_type is 'change'
+          input.on("change", @update_graph_settings) # when focus changes
+        else
+          input.on("input", @update_graph_settings) # continuous updates
     return
 
   update_graph_controls_cursor: (evt) =>
@@ -3477,6 +3506,7 @@ class Huviz
 
   update_graph_settings: (target, update) =>
     target = target? and target or d3.event.target
+    # event_type = d3.event.type
     update = not update? and true or update
     update = not update
     if target.type is "checkbox"
@@ -3547,7 +3577,6 @@ class Huviz
       @cartouches = false
     @updateWindow()
 
-
   on_change_shelf_radius: (new_val, old_val) ->
     @change_setting_to_from('shelf_radius', new_val, old_val, true)
     @update_graph_radius()
@@ -3559,6 +3588,16 @@ class Huviz
       for node in @all_set
         @unscroll_pretty_name(node)
     @updateWindow()
+
+  on_change_language_path: (new_val, old_val) ->
+    if not new_val.match(/^([a-z]{2})(:[a-z]{2})*$/)
+      alert(new_val + " Should be a colon-separated list of 2-letter language codes, such as 'en' or 'fr:en:es'")
+      @change_setting_to_from('language_path', old_val, old_val)
+      return
+    MultiString.set_langpath(new_val)
+    if @shelved_set
+      @shelved_set.resort()
+      @discarded_set.resort()
 
   init_from_graph_controls: ->
     # alert "init_from_graph_controls() is deprecated"

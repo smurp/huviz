@@ -7,9 +7,8 @@ MultiString
      versions of the string and can be reconfigured as to which different
      language version gets returned.
   see:
-    https://stackoverflow.com/a/28188150/1234699
+     https://stackoverflow.com/a/28188150/1234699
 */
-
 
 // Define class MultiString
 function MultiString() {
@@ -25,11 +24,10 @@ function MultiString() {
   }
   Object.defineProperty(
     this, 'length',
-    {get: function () { return this.nolang.length; }});
+    {get: function () { return (this.valueOf()||'').length; }});
 };
 // inherit all properties from native class String
 MultiString.prototype = Object.create(String.prototype);
-
 
 MultiString.prototype.set_val_lang = function(value, lang) {
   //  set a value/lang pair where undefined lang sets nolang value
@@ -65,5 +63,7 @@ MultiString.prototype.behead = function(){
   return this.substr(1);
 }
 
-module.exports.MultiString = MultiString;
+if (module && module.exports) {
+  module.exports.MultiString = MultiString;
+}
 

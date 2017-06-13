@@ -119,7 +119,6 @@ var SortedSet = function(){
 	}
 	return array;
     };
-    
     array.named = function(name){
 	array.id = name;
 	return array;
@@ -314,6 +313,6 @@ var SortedSets_tests = function(verbose){
 };
 //(typeof exports !== "undefined" && exports !== null ? exports : this).SortedSet = SortedSet;
 //})(this);
-if (module) {
+if (module && module.exports) {
   module.exports.SortedSet = SortedSet;
 }
