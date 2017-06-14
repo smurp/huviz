@@ -1685,12 +1685,13 @@ class Huviz
         @add_edge(edge)
         @develop(obj_n)
     else
-      if subj_n.embryo and is_one_of(pid,NAME_SYNS)
+      if is_one_of(pid, NAME_SYNS)
         @set_name(
           subj_n,
           quad.o.value.replace(/^\s+|\s+$/g, ''),
           quad.o.language)
-        @develop(subj_n) # might be ready now
+        if subj_n.embryo
+          @develop(subj_n) # might be ready now
     @last_quad = quad
     return edge
 
@@ -1702,8 +1703,6 @@ class Huviz
     else
       if node.name
         node.name.set_val_lang(full_name, lang)
-        console.log("reusing",node.name)
-        debugger
       else
         node.name = new MultiString(full_name, lang)
     #node.name ?= full_name  # set it if blank

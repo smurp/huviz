@@ -101,7 +101,7 @@ describe("MultiString", function() {
     expect(''+potentate).to.equal(
       "", "set_langpath not causing empty langless value to show");
 
-    let dog = new MultiString('dog', 'en', 'Hund', 'de', 'chein', 'fr');
+    let dog = new MultiString('dog', 'en', 'Hund', 'de', 'chien', 'fr');
     expect(''+dog).to.equal('Hund');
     expect(dog.substr(0,2)).to.equal('Hu', "String methods not found")
 
@@ -113,6 +113,11 @@ describe("MultiString", function() {
     expect(MultiString.langs_in_path[0]).to.equal(
       'en', 'langs_in_path not begin updated')
     expect(''+dog).to.not.equal('dog', "ANY not excluding langs_in_path");
+
+    MultiString.set_langpath('ALL');
+    expect(''+dog).to.equal( // fragile, depends on object order maintenance
+      '"dog"@en, "Hund"@de, "chien"@fr, "woofer"',
+      "ALL not respected");
   })
 });
 

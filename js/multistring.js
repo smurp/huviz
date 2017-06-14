@@ -79,10 +79,30 @@ MultiString.prototype.set_lang_val = function(lang, value) {
 MultiString.prototype.get_ANY_but_langs_in_path = function() {
   let langs_in_path = MultiString.langs_in_path;
   for (let key in this) {
-    if (langs_in_path.indexOf(key) == -1) {
-      return this[key];
+    if (this.hasOwnProperty(key)) {
+      if (langs_in_path.indexOf(key) == -1) {
+        return this[key];
+      }
     }
   };
+};
+
+MultiString.prototype.get_ALL = function() {
+  let retval = '';
+  for (let key in this) {
+    if (key.length == 2) {
+      if (retval) {
+        retval += ', '
+      }
+      retval += `"${this[key]}"@${key}`;
+    } else if (key == 'NOLANG') {
+      if (retval) {
+        retval += ', '
+      }
+      retval += `"${this[key]}"`;
+    }
+  };
+  return retval;
 };
 
 const LANGCODE_RE = /^[a-z]{2}$/
@@ -103,16 +123,13 @@ MultiString.set_langpath = function(langpath){
         langs.push(p);
       } else if (p == 'ANY') {
         langs.push("get_ANY_but_langs_in_path()")
+      } else if (p == 'ALL') {
+        langs.push("get_ALL()")
       } else {
         throw new Error(`<${p}> is not a legal term in LANGPATH`);
       }
     });
   }
-  /*
-  if (!nolang_used) {
-    langs.push('NOLANG');
-  }
-*/
   MultiString.langs_in_path = langs_in_path;
   let body = "return";
   if (langs.length) {
@@ -120,7 +137,6 @@ MultiString.set_langpath = function(langpath){
     body += " || ";
   }
   body += "''";
-  //console.log("body {", body, "}");
   // Compile a new function which follows the langpath for the value
   // so String.prototype methods can get to the value
   MultiString.prototype.toString =
