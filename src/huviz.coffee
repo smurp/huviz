@@ -3441,7 +3441,8 @@ class Huviz
           title: "Preferred languages in order, with : separator."
         input:
           type: "text"
-          value: "en:ANY:NOLANG"
+          # TODO tidy up -- use browser default language then English
+          value: (window.navigator.language.substr(0,2) + ":en:ANY:NOLANG").replace("en:en:","en:")
           size: "16"
           placeholder: "en:es:fr:de:ANY:NOLANG"
         event_type: "change"
