@@ -3782,7 +3782,7 @@ class OntologicallyGrounded extends Huviz
               ontology.range[subj_lid] = []
             if not (obj_lid in ontology.range)
               ontology.range[subj_lid].push(obj_lid)
-          else if pred_lid is 'subClassOf'
+          else if pred_lid in ['subClassOf', 'subClass']
             ontology.subClassOf[subj_lid] = obj_lid
           else if pred_lid is 'subPropertyOf'
             ontology.subPropertyOf[subj_lid] = obj_lid
