@@ -1,4 +1,5 @@
 "use strict";
+
 /*
 MultiString
   purpose:
@@ -8,9 +9,41 @@ MultiString
      language version gets returned.
   see:
      https://stackoverflow.com/a/28188150/1234699
+  features:
+    Expects langpath values which are colon-delimted lists of 2-letter
+    language codes.  The final value in the list can instead be the
+    word ANY, a wildcard meaning that every language not yet represented
+    in the language path would be respected too.
+
+    Note that MultiStrings can also have 'NOLANG' values, that is, values
+    with no associated language.  These are always on the priority list,
+    but at the end, even after ANY is respected.
+
+    If one wants to make referencde to the "NOLANG" value, one can
+    do so explicitly with the term NOLANG in the langpath.
+
+  examples:
+    "en"
+      means that if an English value has been provided it will be
+      respected and that if there is a NOLANG value it will be shown
+      otherwise.  On no account will values in other languages be shown.
+
+    "en:fr"
+      If a MultiString instance has an English value it will be shown,
+      otherwise if a French value is available it will be shown, failing
+      that if a NOLANG value is present, it will be shown.
+
+    "en:ANY"
+      If a MultiString instance has an English value it will be shown,
+      otherwise if value tagged with any other lanugage is available
+      it will be shown (in no particular order) and finally if a
+      "NOLANG" value is present, it will be shown.
+
+    "en:NOLANG:ANY"
+      Show English if available, or the NOLANG value or a value from
+      ANY other language if present -- in that priority order.
 */
 
-// Define class MultiString
 function MultiString() {
   if (arguments.length == 0) {
     this.set_val_lang()
@@ -18,7 +51,6 @@ function MultiString() {
     let i = -1;
     while (arguments[i+=1]) {
       // process value/lang pairs
-      // console.log(`arguments[${i}] is `, arguments[i], typeof(i));
       this.set_val_lang(arguments[i] || '', arguments[i+=1]);
     }
   }
@@ -26,44 +58,83 @@ function MultiString() {
     this, 'length',
     {get: function () { return (this.valueOf()||'').length; }});
 };
+
 // inherit all properties from native class String
 MultiString.prototype = Object.create(String.prototype);
 
 MultiString.prototype.set_val_lang = function(value, lang) {
-  //  set a value/lang pair where undefined lang sets nolang value
+  //  set a value/lang pair where undefined lang sets NOLANG value
   if (lang) {
     this[lang] = value;
   } else {
-    this.nolang = value || '';
+    this.NOLANG = value || '';
   }
 };
 
+MultiString.langs_in_path = []; // default value
 MultiString.prototype.set_lang_val = function(lang, value) {
   this.set_val_lang(value, lang);
 };
 
+MultiString.prototype.get_ANY_but_langs_in_path = function() {
+  let langs_in_path = MultiString.langs_in_path;
+  for (let key in this) {
+    if (langs_in_path.indexOf(key) == -1) {
+      return this[key];
+    }
+  };
+};
+
+const LANGCODE_RE = /^[a-z]{2}$/
+
 MultiString.set_langpath = function(langpath){
   let langs = [];
+  let parts = [];
+  let langs_in_path = [];
+  let nolang_used = false;
   if (langpath) {
-    langs = langpath.split(':');
+    parts = langpath.split(':');
+    parts.forEach(function(p,idx){
+      if (p.match(LANGCODE_RE)) {
+        langs.push(p);
+        langs_in_path.push(p);
+      } else if (p == 'NOLANG') {
+        nolang_used = true;
+        langs.push(p);
+      } else if (p == 'ANY') {
+        langs.push("get_ANY_but_langs_in_path()")
+      } else {
+        throw new Error(`<${p}> is not a legal term in LANGPATH`);
+      }
+    });
   }
-  langs.push('nolang');
-  let body = "return this."+langs.join('|| this.');
-  // compile a new function which follows the langpath for the value
+  /*
+  if (!nolang_used) {
+    langs.push('NOLANG');
+  }
+*/
+  MultiString.langs_in_path = langs_in_path;
+  let body = "return";
+  if (langs.length) {
+    body += " this."+langs.join(' || this.');
+    body += " || ";
+  }
+  body += "''";
+  //console.log("body {", body, "}");
+  // Compile a new function which follows the langpath for the value
   // so String.prototype methods can get to the value
   MultiString.prototype.toString =
     MultiString.prototype.valueOf =
       new Function(body);
 };
 
-MultiString.set_langpath(); // set the default langpath
+MultiString.set_langpath('ANY:NOLANG'); // set the default langpath
 
 // Extend class with a trivial method
 MultiString.prototype.behead = function(){
   return this.substr(1);
 }
 
-if (module && module.exports) {
+if (module && module.exports) { // for node
   module.exports.MultiString = MultiString;
 }
-

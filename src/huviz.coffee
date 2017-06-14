@@ -3439,12 +3439,12 @@ class Huviz
       language_path:
         text: "Language Path"
         label:
-          title: "Preferred languages in order, with : separator"
+          title: "Preferred languages in order, with : separator."
         input:
           type: "text"
-          value: "en:fr:de"
-          size: "15"
-          placeholder: "en:fr:es:de"
+          value: "en:ANY:NOLANG"
+          size: "16"
+          placeholder: "en:es:fr:de:ANY:NOLANG"
         event_type: "change"
     ]
 
@@ -3590,11 +3590,13 @@ class Huviz
     @updateWindow()
 
   on_change_language_path: (new_val, old_val) ->
-    if not new_val.match(/^([a-z]{2})(:[a-z]{2})*$/)
-      alert(new_val + " Should be a colon-separated list of 2-letter language codes, such as 'en' or 'fr:en:es'")
+    try
+      MultiString.set_langpath(new_val)
+    catch e
+      alert(new_val + " Should be a colon-separated list of 2-letter language codes, such as 'en' or 'fr:en:es'.  One can also include the keywords ANY or NOLANG in the list where ANY means show a value from no particular language and NOLANG means show a value for which no language was specified. ANY works well in situations where you don't know or care which language is used and NOLANG is helpful when for labels which don't have a language.")
       @change_setting_to_from('language_path', old_val, old_val)
       return
-    MultiString.set_langpath(new_val)
+
     if @shelved_set
       @shelved_set.resort()
       @discarded_set.resort()
