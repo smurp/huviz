@@ -145,7 +145,9 @@ unescape_unicode = (u) ->
   return JSON.parse('"' + u.replace('"', '\\"') + '"')
 
 case_insensitive_sort_on_name = (a,b) ->
-  a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+  na = if a.name then a.name else " "
+  nb = if b.name then b.name else " "
+  na.toLowerCase().localeCompare(nb.toLowerCase())
 
 linearize = (msgRecipient, streamoid) ->
   if streamoid.idx is 0
