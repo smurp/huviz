@@ -379,6 +379,7 @@ class Huviz
   last_mouse_pos: [ 0, 0]
 
   renderStyles = themeStyles.light
+  nodeOrderClockwise = true
 
   change_sort_order: (array, cmp) ->
     array.__current_sort_order = cmp
@@ -661,7 +662,6 @@ class Huviz
   # resize-svg-when-window-is-resized-in-d3-js
   #   http://stackoverflow.com/questions/16265123/
   updateWindow: =>
-    console.log("UPDATE WINDOW +++++")
     @get_container_width()
     @get_container_height()
     @update_graph_radius()
@@ -1315,12 +1315,12 @@ class Huviz
     cx = center[0]
     cy = center[1]
     num = set.length
+    #console.log("NODE ORDER --- " + nodeOrderClockwise)
     set.forEach (node, i) =>
       #rad = 2 * Math.PI * i / num
       #clockwise = false
-      console.log("NODE ORDER --- " + @nodeOrderClockwise)
       start = 0 #1 starts at 6, 0.5 starts at 12, 0.75 starts at 9, 0.25 starts at 3
-      if @nodeOrderClockwise
+      if nodeOrderClockwise
         rad = 2 * Math.PI * (start - i / num)
       else
         rad = 2 * Math.PI * (i / num + start)
@@ -3525,10 +3525,6 @@ class Huviz
           value = control.input.checked?
           #console.log "control:",control_name,"value:",value, control
           @change_setting_to_from(control_name, value, undefined) #@[control_name].checked)
-
-        #input.on("change", @update_graph_settings) # when focus changes
-        #input.on("input", @update_graph_settings) # continuous updates
-        console.log("<<<<<<<<<<" + control.event_type)
         if control.event_type is 'change'
           input.on("change", @update_graph_settings) # when focus changes
         else
@@ -3597,7 +3593,7 @@ class Huviz
     else
       $('option.dangerous').hide()
 
-  on_change_theme_colors: (new_val, old_val) ->
+  on_change_theme_colors: (new_val) ->
     if new_val
       renderStyles = themeStyles.dark
       $("body").removeClass themeStyles.light.themeName
@@ -3607,23 +3603,20 @@ class Huviz
     #@update_graph_settings()
     $("body").css "background-color", renderStyles.pageBg
     $("body").addClass renderStyles.themeName
-    console.log("Change theme")
     @updateWindow()
 
-  on_change_display_label_cartouches: (new_val, old_val) ->
+  on_change_display_label_cartouches: (new_val) ->
     if new_val
       @cartouches = true
     else
       @cartouches = false
-    console.log("Change cartouches")
     @updateWindow()
 
-  on_choose_node_display_order: (new_val, old_val) ->
+  on_change_choose_node_display_order: (new_val) ->
     if new_val
-      @nodeOrderClockwise = true
+      nodeOrderClockwise = true
     else
-      @nodeOrderClockwise = false
-    console.log("Change display order")
+      nodeOrderClockwise = false
     @updateWindow()
 
   on_change_shelf_radius: (new_val, old_val) ->
