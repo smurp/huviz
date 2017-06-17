@@ -661,6 +661,7 @@ class Huviz
   # resize-svg-when-window-is-resized-in-d3-js
   #   http://stackoverflow.com/questions/16265123/
   updateWindow: =>
+    console.log("UPDATE WINDOW +++++")
     @get_container_width()
     @get_container_height()
     @update_graph_radius()
@@ -1315,7 +1316,15 @@ class Huviz
     cy = center[1]
     num = set.length
     set.forEach (node, i) =>
-      rad = 2 * Math.PI * i / num
+      #rad = 2 * Math.PI * i / num
+      #clockwise = false
+      console.log("NODE ORDER --- " + @nodeOrderClockwise)
+      start = 0 #1 starts at 6, 0.5 starts at 12, 0.75 starts at 9, 0.25 starts at 3
+      if @nodeOrderClockwise
+        rad = 2 * Math.PI * (start - i / num)
+      else
+        rad = 2 * Math.PI * (i / num + start)
+
       node.rad = rad
       node.x = cx + Math.sin(rad) * radius
       node.y = cy + Math.cos(rad) * radius
@@ -3395,6 +3404,7 @@ class Huviz
         input:
           checked: "checked"
           type: "checkbox"
+        event_type: "change"
     ,
       nodes_pinnable:
         style: "display:none"
@@ -3404,6 +3414,7 @@ class Huviz
         input:
           checked: "checked"
           type: "checkbox"
+        event_type: "change"
     ,
       use_fancy_cursor:
         style: "display:none"
@@ -3413,6 +3424,7 @@ class Huviz
         input:
           checked: "checked"
           type: "checkbox"
+        event_type: "change"
     ,
       doit_asap:
         style: "display:none"
@@ -3422,6 +3434,7 @@ class Huviz
         input:
           checked: "checked" # default to 'on'
           type: "checkbox"
+        event_type: "change"
     ,
       show_dangerous_datasets:
         text: "Show dangerous datasets"
@@ -3429,6 +3442,7 @@ class Huviz
           title: "Show the datasets which are too large or buggy"
         input:
           type: "checkbox"
+        event_type: "change"
     ,
       theme_colors:
         text: "Display graph with dark theme"
@@ -3436,6 +3450,7 @@ class Huviz
           title: "Show graph plotted on a black background"
         input:
           type: "checkbox"
+        event_type: "change"
     ,
       display_label_cartouches:
         text: "Background cartouches for labels"
@@ -3444,6 +3459,16 @@ class Huviz
         input:
           type: "checkbox"
           checked: "checked"
+        event_type: "change"
+    ,
+      choose_node_display_order:
+        text: "Display nodes clockwise"
+        label:
+          title: "Display clockwise (uncheck for counter-clockwise)"
+        input:
+          type: "checkbox"
+          checked: "checked"
+        event_type: "change"
     ,
       language_path:
         text: "Language Path"
@@ -3500,6 +3525,10 @@ class Huviz
           value = control.input.checked?
           #console.log "control:",control_name,"value:",value, control
           @change_setting_to_from(control_name, value, undefined) #@[control_name].checked)
+
+        #input.on("change", @update_graph_settings) # when focus changes
+        #input.on("input", @update_graph_settings) # continuous updates
+        console.log("<<<<<<<<<<" + control.event_type)
         if control.event_type is 'change'
           input.on("change", @update_graph_settings) # when focus changes
         else
@@ -3568,7 +3597,7 @@ class Huviz
     else
       $('option.dangerous').hide()
 
-  on_change_theme_colors: (new_val) ->
+  on_change_theme_colors: (new_val, old_val) ->
     if new_val
       renderStyles = themeStyles.dark
       $("body").removeClass themeStyles.light.themeName
@@ -3578,13 +3607,23 @@ class Huviz
     #@update_graph_settings()
     $("body").css "background-color", renderStyles.pageBg
     $("body").addClass renderStyles.themeName
+    console.log("Change theme")
     @updateWindow()
 
-  on_change_display_label_cartouches: (new_val) ->
+  on_change_display_label_cartouches: (new_val, old_val) ->
     if new_val
       @cartouches = true
     else
       @cartouches = false
+    console.log("Change cartouches")
+    @updateWindow()
+
+  on_choose_node_display_order: (new_val, old_val) ->
+    if new_val
+      @nodeOrderClockwise = true
+    else
+      @nodeOrderClockwise = false
+    console.log("Change display order")
     @updateWindow()
 
   on_change_shelf_radius: (new_val, old_val) ->
@@ -3606,7 +3645,6 @@ class Huviz
       alert("Input: #{new_val}\n#{e.toString()}\n\n  The 'Language Path' should be a colon-separated list of ISO two-letter language codes, such as 'en' or 'fr:en:es'.  One can also include the keywords ANY, NOLANG or ALL in the list.\n  'ANY' means show a value from no particular language and works well in situations where you don't know or care which language is presented.\n  'NOLANG' means show a value for which no language was specified.\n  'ALL' causes all the different language versions to be revealed. It is best used alone\n\nExamples (show first available, so order matters)\n  en:fr\n    show english or french or nothing\n  en:ANY:NOLANG\n    show english or ANY other language or language-less label\n  ALL\n    show all versions available, language-less last")
       @change_setting_to_from('language_path', old_val, old_val)
       return
-
     if @shelved_set
       @shelved_set.resort()
       @discarded_set.resort()
