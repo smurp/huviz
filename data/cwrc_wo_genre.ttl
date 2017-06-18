@@ -717,7 +717,8 @@ cwrc:hasCulturalForms
 cwrc:hasEthnicity
     void:inDataset cwrc:datasetdefinition ;
     a owl:ObjectProperty ;
-    rdfs:domain cwrc:Ethnicity ;
+    rdfs:range cwrc:Ethnicity ;
+    rdfs:domain foaf:Person ;
     rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
     rdfs:label "D'Ethnicité"@fr, "has Ethnicity"@en ;
     rdfs:subPropertyOf cwrc:personalProperty ;
@@ -850,7 +851,8 @@ cwrc:hasRaceColourSelfDeclared
 cwrc:hasReligion
     void:inDataset cwrc:datasetdefinition ;
     a owl:ObjectProperty ;
-    rdfs:domain cwrc:Religion ;
+    rdfs:domain foaf:Person; # cwrc:Religion <-- original value
+    rdfs:range cwrc:Religion; # added by shawn
     rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
     rdfs:label "Religion"@fr, "has Religious Affiliation"@en ;
     rdfs:subPropertyOf cwrc:personalProperty ;

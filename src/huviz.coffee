@@ -721,11 +721,11 @@ class Huviz
     num = filclrs.length
     if not num
       throw new Error("no colors specified")
-    arc = tau/num
-    start_angle = 0
     if num is 1
       @draw_circle(cx, cy, radius, strclr, filclrs[0])
       return
+    arc = tau/num
+    start_angle = 0
     for filclr in filclrs
       end_angle = start_angle + arc
       @draw_circle(cx, cy, radius, strclr, filclr, end_angle, start_angle)
@@ -2492,6 +2492,7 @@ class Huviz
 
   recolor_node: (n, default_color) ->
     default_color ?= 'black'
+    n._types ?= []
     if n._types.length > 1
       n._colors = []
       for taxon_id in n._types
