@@ -31,8 +31,16 @@ describe("MultiString and SortedSet work together", function() {
     MultiString.set_langpath('de:fr:en');
     pets.resort();
     expect(pets.reduce(as_labels)).to.eql('Hund;Katze;Maus');
-    MultiString.set_langpath('en');
+    MultiString.set_langpath('en:NOLANG');
     pets.resort();
     expect(pets.reduce(as_labels)).to.eql('cat;dog;mouse');
+    pets.add({label: new MultiString('Trigger')});
+    expect(pets.reduce(as_labels)).to.eql(
+      'Trigger;cat;dog;mouse',
+      'not doing case_sensitive sort properly');
+    pets.case_insensitive_sort(true);
+    expect(pets.reduce(as_labels)).to.eql(
+      'cat;dog;mouse;Trigger',
+      "not doing case_insensitive sort properly");
   });
 });

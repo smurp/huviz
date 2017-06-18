@@ -55,15 +55,28 @@
 var SortedSet = function(){
     var array = [];
     array.push.apply(array,arguments);
-
+    array.case_insensitive = false;
+    array.case_insensitive_sort = function(b) {
+      if (typeof b == 'boolean') {
+        array.case_insensitive = b;
+        array.resort();
+      }
+      return array;
+    }
     array.sort_on = function(f_or_k){ // f_or_k AKA "Function or Key"
-	// f_or_k: a comparison function returning -1,0,1
+        //   f_or_k: a comparison function returning -1,0,1
 	if (typeof f_or_k == 'string'){ // 'Key' to sort on the value of
-	    array._cmp = function(a,b){
-		if (a[f_or_k] == b[f_or_k]) return 0;
-		if (a[f_or_k] < b[f_or_k]) return -1;
-		return 1;
-	    }
+	  array._cmp = function(a,b){
+            if (array.case_insensitive) {
+              var av = a[f_or_k] || '',
+                  bv = b[f_or_k] || '';
+              return av.toLowerCase().localeCompare(bv.toLowerCase())
+            } else {
+	      if (a[f_or_k] == b[f_or_k]) return 0;
+	      if (a[f_or_k] < b[f_or_k]) return -1;
+	      return 1;
+            }
+	  }
 	} else if (typeof f_or_k == 'function'){
             array._cmp = f_or_k;
 	} else {
@@ -141,9 +154,11 @@ var SortedSet = function(){
     array.add = function(itm){
 	// Objective:
 	//   Maintain a sorted array which acts like a set.
-	//   It is sorted so insertions and tests can be fast.
+        //   It is sorted so insertions and tests can be fast.
+        // Return:
+        //   The index at which it was inserted (or already found)
 	var c = array.binary_search(itm,true)
-	if (typeof c == typeof 3){ // an integer was returned, ie it was found
+	if (typeof c == 'number'){ // an integer was returned, ie it was found
 	    return c;
 	}
 	array.splice(c.idx,0,itm);
@@ -200,10 +215,16 @@ var SortedSet = function(){
 	o[key] = val;
 	return this.get(o);
     };
-    array.binary_search = function(sought,ret_ins_idx){
-	// return -1 or the idx of sought in this
-	// if ret_ins_idx instead of -1 return [n] where n is where it ought to be
-	// AKA "RETurn the INSertion INdeX"
+    array.binary_search = function(sought, ret_ins_idx){
+        /*
+           This method performs a binary-search-powered version of indexOf(),
+           that is; it returns the index of sought or returns -1 to report that
+           it was not found.
+
+           If ret_ins_idx (ie "RETurn the INSertion INdeX") is true then
+           instead of returning -1 upon failure, it returns the index at which
+           sought should be inserted to keep the array sorted.
+        */
 	ret_ins_idx = ret_ins_idx || false;
 	var seeking = true;
 	if (array.length < 1) {
@@ -233,10 +254,27 @@ var SortedSet = function(){
 	    };
 	}
     }
+    array.is_sorted = function() { // return true or throw
+      for (var i = 0; (i + 1) < array.length; i++) {
+        if (array.length > 1) {
+          array.validate_sort_at(i);
+        }
+      }
+      return true;
+    }
+    array.validate_sort_at = function(i) {
+      var other = array[i+1];
+      if (typeof other == 'undefined')
+        return;
+      if (array._cmp(array[i], other) == 1) { // ensure monotonic increase
+        array.dump();
+        throw new Error(`"${array[i].name}" is before "${array[i+1].name}"`);
+      }
+    }
     array.dump = function() {
       for (var i = 0; i < array.length; i++) {
 	var node = array[i];
-	console.log(node.lid, node.name);
+	console.log(node.lid, node.name.toString(), node.name);
       }
     }
     return array;

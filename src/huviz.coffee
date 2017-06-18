@@ -145,11 +145,6 @@ unescape_unicode = (u) ->
   # pre-escape any existing quotes so when JSON.parse does not get confused
   return JSON.parse('"' + u.replace('"', '\\"') + '"')
 
-case_insensitive_sort_on_name = (a,b) ->
-  na = if a.name then a.name else " "
-  nb = if b.name then b.name else " "
-  na.toLowerCase().localeCompare(nb.toLowerCase())
-
 linearize = (msgRecipient, streamoid) ->
   if streamoid.idx is 0
     msgRecipient.postMessage({event: 'finish'})
@@ -847,8 +842,8 @@ class Huviz
       ie which are highlighted and a little larger."
 
     @shelved_set = SortedSet().
-      sort_on(case_insensitive_sort_on_name).
       named("shelved").
+      case_insensitive_sort(true).
       labelled(@human_term.shelved).
       sub_of(@all_set).
       isState()
@@ -859,8 +854,8 @@ class Huviz
       '#{@human_term.unchosen}."
 
     @discarded_set = SortedSet().named("discarded").
-      sort_on(case_insensitive_sort_on_name).
       labelled(@human_term.discarded).
+      case_insensitive_sort(true).
       sub_of(@all_set).
       isState()
     @discarded_set.cleanup_verb = "shelve" # TODO confirm this
