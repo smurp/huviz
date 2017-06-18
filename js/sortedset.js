@@ -56,21 +56,19 @@ var SortedSet = function(){
     var array = [];
     array.push.apply(array,arguments);
 
-    var cmp;
-    array.sort_on = function(f_or_k){
+    array.sort_on = function(f_or_k){ // f_or_k AKA "Function or Key"
 	// f_or_k: a comparison function returning -1,0,1
-	if (typeof f_or_k === typeof 'some string'){
-	    cmp = function(a,b){
+	if (typeof f_or_k == 'string'){ // 'Key' to sort on the value of
+	    array._cmp = function(a,b){
 		if (a[f_or_k] == b[f_or_k]) return 0;
 		if (a[f_or_k] < b[f_or_k]) return -1;
 		return 1;
 	    }
-	} else if (typeof f_or_k === typeof function(){}){
-	    cmp = f_or_k;
+	} else if (typeof f_or_k == 'function'){
+            array._cmp = f_or_k;
 	} else {
-	    throw "sort_on() expects a function or a property name";
+            throw new Error("sort_on() expects a function or a property name");
 	}
-        array._cmp = cmp;
         array.resort()
 	return array;
     }
@@ -219,7 +217,7 @@ var SortedSet = function(){
         top = array.length;
 	while (seeking){
 	    mid = bot + Math.floor((top - bot)/2);
-	    var c = cmp(array[mid],sought);
+	    var c = array._cmp(array[mid],sought);
 	    //console.log(" c =",c);
 	    if (c == 0) return mid;
 	    if (c < 0){ // ie this[mid] < sought
@@ -313,6 +311,7 @@ var SortedSets_tests = function(verbose){
 };
 //(typeof exports !== "undefined" && exports !== null ? exports : this).SortedSet = SortedSet;
 //})(this);
+//SortedSets_tests();
 if (module && module.exports) {
   module.exports.SortedSet = SortedSet;
 }
