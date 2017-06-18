@@ -130,6 +130,7 @@ MultiString.set_langpath('en:fr') # TODO make this a setting
 
 wpad = undefined
 hpad = 10
+tau = Math.PI * 2
 distance = (p1, p2) ->
   p2 = p2 || [0,0]
   x = (p1.x or p1[0]) - (p2.x or p2[0])
@@ -198,7 +199,7 @@ themeStyles =
     "labelColor": "black"
     "shelfColor": "lightgreen"
     "discardColor": "salmon"
-    "nodeHighlightOutline": "white"
+    "nodeHighlightOutline": "black"
   "dark":
     "themeName": "theme_black"
     "pageBg": "black"
@@ -698,14 +699,37 @@ class Huviz
     @animate()
 
   #dump_line(add_line(scene,cx,cy,width,height,'ray'))
-  draw_circle: (cx, cy, radius, strclr, filclr) ->
-    @ctx.strokeStyle = strclr or "blue"  if strclr
-    @ctx.fillStyle = filclr or "blue"  if filclr
+  draw_circle: (cx, cy, radius, strclr, filclr, start_angle, end_angle) ->
+    incl_cntr = start_angle? or end_angle?
+    start_angle = start_angle or 0
+    end_angle = end_angle or tau
+    if strclr
+      @ctx.strokeStyle = strclr or "blue"
+    if filclr
+      @ctx.fillStyle = filclr or "blue"
     @ctx.beginPath()
-    @ctx.arc cx, cy, radius, 0, Math.PI * 2, true
+    if incl_cntr
+      @ctx.moveTo(cx, cy) # so the arcs are wedges not chords
+      # do not incl_cntr when drawing a whole circle
+    @ctx.arc(cx, cy, radius, start_angle, end_angle, true)
     @ctx.closePath()
-    @ctx.stroke()  if strclr
-    @ctx.fill()  if filclr
+    if strclr
+      @ctx.stroke()
+    if filclr
+      @ctx.fill()
+  draw_pie: (cx, cy, radius, strclr, filclrs) ->
+    num = filclrs.length
+    if not num
+      throw new Error("no colors specified")
+    arc = tau/num
+    start_angle = 0
+    if num is 1
+      @draw_circle(cx, cy, radius, strclr, filclrs[0])
+      return
+    for filclr in filclrs
+      end_angle = start_angle + arc
+      @draw_circle(cx, cy, radius, strclr, filclr, end_angle, start_angle)
+      start_angle = start_angle + arc
   draw_line: (x1, y1, x2, y2, clr) ->
     @ctx.strokeStyle = clr or 'red'
     @ctx.beginPath()
@@ -1315,15 +1339,18 @@ class Huviz
     cy = center[1]
     num = set.length
     set.forEach (node, i) =>
-      rad = 2 * Math.PI * i / num
+      rad = tau * i / num
       node.rad = rad
       node.x = cx + Math.sin(rad) * radius
       node.y = cy + Math.cos(rad) * radius
       node.fisheye = @fisheye(node)
       if @use_canvas
-        @draw_circle(node.fisheye.x, node.fisheye.y,
-                     @calc_node_radius(node),
-                     node.color or "yellow", node.color or renderStyles.nodeHighlightOutline)
+        filclrs = @get_node_color_or_color_list(
+          node, renderStyles.nodeHighlightOutline)
+        @draw_pie(node.fisheye.x, node.fisheye.y,
+                  @calc_node_radius(node),
+                  node.color or "yellow",
+                  filclrs)
       if @use_webgl
         @mv_node node.gl, node.fisheye.x, node.fisheye.y
 
@@ -1342,14 +1369,20 @@ class Huviz
         if @use_canvas
           node_radius = @calc_node_radius(d)
           stroke_color = d.color or 'yellow'
-          fill_color = d.color or 'black'
           if d.chosen?
             stroke_color = renderStyles.nodeHighlightOutline
-          @draw_circle(d.fisheye.x, d.fisheye.y,
-                       node_radius,
-                       stroke_color, fill_color)
+          @draw_pie(d.fisheye.x, d.fisheye.y,
+                    node_radius,
+                    stroke_color,
+                    @get_node_color_or_color_list(d))
         if @use_webgl
           @mv_node(d.gl, d.fisheye.x, d.fisheye.y)
+  get_node_color_or_color_list: (n, default_color) ->
+    default_color ?= 'black'
+    if n._types and n._types.length > 1
+      @recolor_node(n, default_color)
+      return n._colors
+    return [n.color or default_color]
   should_show_label: (node) ->
     (node.labelled or
         node.focused_edge or
@@ -1664,7 +1697,7 @@ class Huviz
     else
       subj = @my_graph.subjects[sid]
 
-    @ensure_predicate_lineage pid
+    @ensure_predicate_lineage(pid)
     edge = null
     subj_n = @get_or_create_node_by_id(sid)
     pred_n = @get_or_create_predicate_by_id(pid)
@@ -1680,7 +1713,7 @@ class Huviz
       # so there should be links made between this node and that node
       is_type = is_one_of(pid, TYPE_SYNS)
       if is_type
-        if @try_to_set_node_type(subj_n,quad.o.value)
+        if @try_to_set_node_type(subj_n, quad.o.value)
           @develop(subj_n) # might be ready now
       else
         edge = @get_or_create_Edge(subj_n,obj_n,pred_n,cntx_n)
@@ -1756,13 +1789,13 @@ class Huviz
     ranges = @ontology.range[edge.predicate.lid]
     if ranges?
       #console.log "INFERRING BASED ON: edge_id:(#{edge.id}) first range_lid:(#{ranges[0]})",@ontology
-      @try_to_set_node_type(edge.target,ranges[0])
+      @try_to_set_node_type(edge.target, ranges[0])
 
     # infer type of source based on the domain of the predicate
     domain_lid = @ontology.domain[edge.predicate.lid]
     if domain_lid?
       #console.log "INFERRING BASED ON: edge_id:(#{edge.id}) domain_lid:(#{domain_lid})",@ontology
-      @try_to_set_node_type(edge.source,domain_lid)
+      @try_to_set_node_type(edge.source, domain_lid)
 
   make_Edge_id: (subj_n, obj_n, pred_n) ->
     return (a.lid for a in [subj_n, pred_n, obj_n]).join(' ')
@@ -1777,11 +1810,11 @@ class Huviz
     return edge
 
   add_edge: (edge) ->
-    if edge.id.match /Universal$/
+    if edge.id.match(/Universal$/)
       console.log("add", edge.id)
     # TODO(smurp) should .links_from and .links_to be SortedSets? Yes. Right?
-    @add_to edge,edge.source.links_from
-    @add_to edge,edge.target.links_to
+    @add_to(edge, edge.source.links_from)
+    @add_to(edge, edge.target.links_to)
     edge
 
   delete_edge: (e) ->
@@ -1805,6 +1838,10 @@ class Huviz
     else
       console.info "  try_to_set_node_type",node.lid,"isa",type_lid
     ###
+    if not node._types
+      node._types = []
+    if not (type_lid in node._types)
+      node._types.push(type_lid)
     node.type = type_lid
     return true
 
@@ -2453,9 +2490,21 @@ class Huviz
       node.unselect()
       @recolor_node(node)
 
-  recolor_node: (node) ->
+  recolor_node: (n, default_color) ->
+    default_color ?= 'black'
+    if n._types.length > 1
+      n._colors = []
+      for taxon_id in n._types
+        if typeof(taxon_id) is 'string'
+          color = @get_color_for_node_type(n, taxon_id) or default_color
+          n._colors.push(color)
+       #n._colors = ['red','orange','yellow','green','blue','purple']
+    else
+      n.color = @get_color_for_node_type(n, n.type)
+
+  get_color_for_node_type: (node, type) ->
     state = node.selected? and "emphasizing" or "showing"
-    node.color = @gclui.taxon_picker.get_color_forId_byName(node.type,state)
+    return @gclui.taxon_picker.get_color_forId_byName(type, state)
 
   recolor_nodes: () ->
     # The nodes needing recoloring are all but the embryonic.
