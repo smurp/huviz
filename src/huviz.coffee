@@ -1374,7 +1374,7 @@ class Huviz
           @mv_node(d.gl, d.fisheye.x, d.fisheye.y)
   get_node_color_or_color_list: (n, default_color) ->
     default_color ?= 'black'
-    if n._types and n._types.length > 1
+    if @color_nodes_as_pies and n._types and n._types.length > 1
       @recolor_node(n, default_color)
       return n._colors
     return [n.color or default_color]
@@ -2488,7 +2488,7 @@ class Huviz
   recolor_node: (n, default_color) ->
     default_color ?= 'black'
     n._types ?= []
-    if n._types.length > 1
+    if @color_nodes_as_pies and n._types.length > 1
       n._colors = []
       for taxon_id in n._types
         if typeof(taxon_id) is 'string'
@@ -3501,6 +3501,13 @@ class Huviz
           size: "16"
           placeholder: "en:es:fr:de:ANY:NOLANG"
         event_type: "change"
+    ,
+      color_nodes_as_pies:
+        text: "Color nodes as pies"
+        label:
+          title: "Show all a nodes types as colored pie pieces"
+        input:
+          type: "checkbox"   #checked: "checked"
     ]
 
   dump_current_settings: (post) ->
@@ -3655,6 +3662,10 @@ class Huviz
     if @shelved_set
       @shelved_set.resort()
       @discarded_set.resort()
+
+  XXXXon_change_color_nodes_as_pies: (new_val, old_val) ->  # TODO why this == window ??
+    @color_nodes_as_pies = new_val
+    @recolor_nodes()
 
   init_from_graph_controls: ->
     # alert "init_from_graph_controls() is deprecated"
