@@ -3482,6 +3482,7 @@ class Huviz
         event_type: "change"
     ,
       show_dangerous_datasets:
+        style: "display:none"
         text: "Show dangerous datasets"
         label:
           title: "Show the datasets which are too large or buggy"
@@ -3516,7 +3517,6 @@ class Huviz
         event_type: "change"
     ,
       choose_node_display_angle:
-        #style: "display:none"
         text: "Node display angle"
         label:
           title: "Where on shelf to place first node"
@@ -3524,8 +3524,15 @@ class Huviz
           value: 0.5
           min: 0
           max: 1
-          step: 0.1
+          step: 0.25
           type: "range"
+    ,
+      color_nodes_as_pies:
+        style: "display:none"
+        text: "Color nodes as pies"
+        label:
+          title: "Show all a nodes types as colored pie pieces"
+        input:
     ,
       language_path:
         text: "Language Path"
@@ -3538,12 +3545,6 @@ class Huviz
           size: "16"
           placeholder: "en:es:fr:de:ANY:NOLANG"
         event_type: "change"
-    ,
-      color_nodes_as_pies:
-        text: "Color nodes as pies"
-        label:
-          title: "Show all a nodes types as colored pie pieces"
-        input:
           type: "checkbox"   #checked: "checked"
     ]
 
