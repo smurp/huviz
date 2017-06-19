@@ -92,7 +92,10 @@ body, html {
   text-decoration: none;
   position: absolute;
   bottom: 1.5em;
-  left:49%
+  /*left:49%*/
+  width: 100%;
+  display: block;
+  text-align:center;
 }
 .control_label {
   margin-top: 2px;

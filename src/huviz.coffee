@@ -375,6 +375,8 @@ class Huviz
   last_mouse_pos: [ 0, 0]
 
   renderStyles = themeStyles.light
+  nodeOrderClockwise = true
+  nodeOrderAngle = 0.5
 
   change_sort_order: (array, cmp) ->
     array.__current_sort_order = cmp
@@ -1334,7 +1336,14 @@ class Huviz
     cy = center[1]
     num = set.length
     set.forEach (node, i) =>
-      rad = tau * i / num
+      #clockwise = false
+      # 0 or 1 starts at 6, 0.5 starts at 12, 0.75 starts at 9, 0.25 starts at 3
+      start = 1 - nodeOrderAngle
+      if nodeOrderClockwise
+        rad = 2 * Math.PI * (start - i / num)
+      else
+        rad = 2 * Math.PI * (i / num + start)
+
       node.rad = rad
       node.x = cx + Math.sin(rad) * radius
       node.y = cy + Math.cos(rad) * radius
@@ -3440,6 +3449,7 @@ class Huviz
         input:
           checked: "checked"
           type: "checkbox"
+        event_type: "change"
     ,
       nodes_pinnable:
         style: "display:none"
@@ -3449,6 +3459,7 @@ class Huviz
         input:
           checked: "checked"
           type: "checkbox"
+        event_type: "change"
     ,
       use_fancy_cursor:
         style: "display:none"
@@ -3458,6 +3469,7 @@ class Huviz
         input:
           checked: "checked"
           type: "checkbox"
+        event_type: "change"
     ,
       doit_asap:
         style: "display:none"
@@ -3467,6 +3479,7 @@ class Huviz
         input:
           checked: "checked" # default to 'on'
           type: "checkbox"
+        event_type: "change"
     ,
       show_dangerous_datasets:
         text: "Show dangerous datasets"
@@ -3474,6 +3487,7 @@ class Huviz
           title: "Show the datasets which are too large or buggy"
         input:
           type: "checkbox"
+        event_type: "change"
     ,
       theme_colors:
         text: "Display graph with dark theme"
@@ -3481,6 +3495,7 @@ class Huviz
           title: "Show graph plotted on a black background"
         input:
           type: "checkbox"
+        event_type: "change"
     ,
       display_label_cartouches:
         text: "Background cartouches for labels"
@@ -3489,6 +3504,28 @@ class Huviz
         input:
           type: "checkbox"
           checked: "checked"
+        event_type: "change"
+    ,
+      choose_node_display_order:
+        text: "Display nodes clockwise"
+        label:
+          title: "Display clockwise (uncheck for counter-clockwise)"
+        input:
+          type: "checkbox"
+          checked: "checked"
+        event_type: "change"
+    ,
+      choose_node_display_angle:
+        #style: "display:none"
+        text: "Node display angle"
+        label:
+          title: "Where on shelf to place first node"
+        input:
+          value: 0.5
+          min: 0
+          max: 1
+          step: 0.1
+          type: "range"
     ,
       language_path:
         text: "Language Path"
@@ -3639,6 +3676,17 @@ class Huviz
       @cartouches = false
     @updateWindow()
 
+  on_change_choose_node_display_order: (new_val) ->
+    if new_val
+      nodeOrderClockwise = true
+    else
+      nodeOrderClockwise = false
+    @updateWindow()
+
+  on_change_choose_node_display_angle: (new_val) ->
+    nodeOrderAngle = new_val
+    @updateWindow()
+
   on_change_shelf_radius: (new_val, old_val) ->
     @change_setting_to_from('shelf_radius', new_val, old_val, true)
     @update_graph_radius()
@@ -3658,7 +3706,6 @@ class Huviz
       alert("Input: #{new_val}\n#{e.toString()}\n\n  The 'Language Path' should be a colon-separated list of ISO two-letter language codes, such as 'en' or 'fr:en:es'.  One can also include the keywords ANY, NOLANG or ALL in the list.\n  'ANY' means show a value from no particular language and works well in situations where you don't know or care which language is presented.\n  'NOLANG' means show a value for which no language was specified.\n  'ALL' causes all the different language versions to be revealed. It is best used alone\n\nExamples (show first available, so order matters)\n  en:fr\n    show english or french or nothing\n  en:ANY:NOLANG\n    show english or ANY other language or language-less label\n  ALL\n    show all versions available, language-less last")
       @change_setting_to_from('language_path', old_val, old_val)
       return
-
     if @shelved_set
       @shelved_set.resort()
       @discarded_set.resort()
