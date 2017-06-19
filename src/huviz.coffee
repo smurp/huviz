@@ -3533,6 +3533,7 @@ class Huviz
         label:
           title: "Show all a nodes types as colored pie pieces"
         input:
+          type: "checkbox"   #checked: "checked"
     ,
       language_path:
         text: "Language Path"
@@ -3545,7 +3546,6 @@ class Huviz
           size: "16"
           placeholder: "en:es:fr:de:ANY:NOLANG"
         event_type: "change"
-          type: "checkbox"   #checked: "checked"
     ]
 
   dump_current_settings: (post) ->
