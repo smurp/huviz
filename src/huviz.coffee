@@ -375,7 +375,7 @@ class Huviz
   last_mouse_pos: [ 0, 0]
 
   renderStyles = themeStyles.light
-  nodeOrderClockwise = true
+  display_shelf_clockwise: true
   nodeOrderAngle = 0.5
 
   change_sort_order: (array, cmp) ->
@@ -845,6 +845,7 @@ class Huviz
 
     @shelved_set = SortedSet().
       named("shelved").
+      sort_on('name').
       case_insensitive_sort(true).
       labelled(@human_term.shelved).
       sub_of(@all_set).
@@ -857,6 +858,7 @@ class Huviz
 
     @discarded_set = SortedSet().named("discarded").
       labelled(@human_term.discarded).
+      sort_on('name').
       case_insensitive_sort(true).
       sub_of(@all_set).
       isState()
@@ -1154,6 +1156,7 @@ class Huviz
       node.focused_node = true
     @focused_node = node
     if @focused_node
+      console.log("focused_node:", @focused_node)
       @gclui.engage_transient_verb_if_needed("select")
     else
       @gclui.disengage_transient_verb_if_needed()
@@ -1339,10 +1342,10 @@ class Huviz
       #clockwise = false
       # 0 or 1 starts at 6, 0.5 starts at 12, 0.75 starts at 9, 0.25 starts at 3
       start = 1 - nodeOrderAngle
-      if nodeOrderClockwise
-        rad = 2 * Math.PI * (start - i / num)
+      if @display_shelf_clockwise
+        rad = tau * (start - i / num)
       else
-        rad = 2 * Math.PI * (i / num + start)
+        rad = tau * (i / num + start)
 
       node.rad = rad
       node.x = cx + Math.sin(rad) * radius
@@ -1359,9 +1362,9 @@ class Huviz
         @mv_node node.gl, node.fisheye.x, node.fisheye.y
 
   draw_discards: ->
-    @draw_nodes_in_set @discarded_set, @discard_radius, @discard_center
+    @draw_nodes_in_set(@discarded_set, @discard_radius, @discard_center)
   draw_shelf: ->
-    @draw_nodes_in_set @shelved_set, @graph_radius, @lariat_center
+    @draw_nodes_in_set(@shelved_set, @graph_radius, @lariat_center)
   draw_nodes: ->
     if @use_svg
       node.attr("transform", (d, i) ->
@@ -1431,7 +1434,9 @@ class Huviz
           #   var flip = (node.rad > Math.PI) ? -1 : 1;
           #   view-source:http://www.jasondavies.com/d3-dependencies/
           radians = node.rad
-          flip = radians > Math.PI and radians < 2 * Math.PI
+          #flip = not (radians <= Math.PI and radians >= 0)
+          flip = radians > Math.PI and radians < tau
+          #flip = radians > Math.PI or radians < 0
           textAlign = 'left'
           if flip
             radians = radians - Math.PI
@@ -1440,14 +1445,14 @@ class Huviz
           ctx.translate node.fisheye.x, node.fisheye.y
           ctx.rotate -1 * radians + Math.PI / 2
           ctx.textAlign = textAlign
-          ctx.fillText "  " + node.pretty_name, 0, 0 # TODO use .pretty_name
+          ctx.fillText("  " + node.pretty_name, 0, 0)
           ctx.restore()
         else
           ctx.fillText "  " + node.pretty_name, node.fisheye.x, node.fisheye.y
 
-      @graphed_set.forEach label_node
-      @shelved_set.forEach label_node
-      @discarded_set.forEach label_node
+      @graphed_set.forEach(label_node)
+      @shelved_set.forEach(label_node)
+      @discarded_set.forEach(label_node)
 
   clear_canvas: ->
     @ctx.clearRect 0, 0, @canvas.width, @canvas.height
@@ -2157,12 +2162,12 @@ class Huviz
 
   update_state: (node) ->
     if node.state is @graphed_set and node.links_shown.length is 0
-      @shelved_set.acquire node
+      @shelved_set.acquire(node)
       @unpin(node)
       #console.debug("update_state() had to @shelved_set.acquire(#{node.name})",node)
     if node.state isnt @graphed_set and node.links_shown.length > 0
       #console.debug("update_state() had to @graphed_set.acquire(#{node.name})",node)
-      @graphed_set.acquire node
+      @graphed_set.acquire(node)
 
   hide_links_to_node: (n) ->
     n.links_to.forEach (e, i) =>
@@ -2396,18 +2401,18 @@ class Huviz
   #
   discard: (goner) ->
     @unpin(goner)
-    @unlink goner
-    @discarded_set.acquire goner
-    shown = @update_showing_links goner
-    @unselect goner
-    #@update_state goner
+    @unlink(goner)
+    @discarded_set.acquire(goner)
+    shown = @update_showing_links(goner)
+    @unselect(goner)
+    #@update_state(goner)
     goner
 
   undiscard: (prodigal) ->  # TODO(smurp) rename command to 'retrieve' ????
     if @discarded_set.has(prodigal) # see test 'retrieving should only affect nodes which are discarded'
-      @shelved_set.acquire prodigal
-      @update_showing_links prodigal
-      @update_state prodigal
+      @shelved_set.acquire(prodigal)
+      @update_showing_links(prodigal)
+      @update_state(prodigal)
     prodigal
 
   #
@@ -2418,10 +2423,10 @@ class Huviz
   #
   shelve: (goner) =>
     @unpin(goner)
-    @chosen_set.remove goner
-    @hide_node_links goner
-    @shelved_set.acquire goner
-    shownness = @update_showing_links goner
+    @chosen_set.remove(goner)
+    @hide_node_links(goner)
+    @shelved_set.acquire(goner)
+    shownness = @update_showing_links(goner)
     if goner.links_shown.length > 0
       console.log("shelving failed for", goner)
     goner
@@ -3507,7 +3512,7 @@ class Huviz
           checked: "checked"
         event_type: "change"
     ,
-      choose_node_display_order:
+      display_shelf_clockwise:
         text: "Display nodes clockwise"
         label:
           title: "Display clockwise (uncheck for counter-clockwise)"
@@ -3590,6 +3595,7 @@ class Huviz
           value = control.input.checked?
           #console.log "control:",control_name,"value:",value, control
           @change_setting_to_from(control_name, value, undefined) #@[control_name].checked)
+        # TODO replace control.event_type with autodetecting on_change_ vs on_update_ method existence
         if control.event_type is 'change'
           input.on("change", @update_graph_settings) # when focus changes
         else
@@ -3627,6 +3633,7 @@ class Huviz
 
   change_setting_to_from: (setting_name, new_value, old_value, skip_custom_handler) =>
     skip_custom_handler = skip_custom_handler? and skip_custom_handler or false
+    # TODO replace control.event_type with autodetecting on_change_ vs on_update_ method existence
     custom_handler_name = "on_change_" + setting_name
     custom_handler = @[custom_handler_name]
     if @graph_controls_cursor
@@ -3677,11 +3684,11 @@ class Huviz
       @cartouches = false
     @updateWindow()
 
-  on_change_choose_node_display_order: (new_val) ->
+  on_change_display_shelf_clockwise: (new_val) ->
     if new_val
-      nodeOrderClockwise = true
+      @display_shelf_clockwise = true
     else
-      nodeOrderClockwise = false
+      @display_shelf_clockwise = false
     @updateWindow()
 
   on_change_choose_node_display_angle: (new_val) ->
