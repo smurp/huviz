@@ -1445,6 +1445,11 @@ class Huviz
           ctx.translate node.fisheye.x, node.fisheye.y
           ctx.rotate -1 * radians + Math.PI / 2
           ctx.textAlign = textAlign
+
+          #if radians < 0
+          #  ctx.fillStyle = 'rgb(255,0,0)'
+          #ctx.fillText(("  " + flip + "  " + radians).substr(0,14), 0, 0)
+
           ctx.fillText("  " + node.pretty_name, 0, 0)
           ctx.restore()
         else
