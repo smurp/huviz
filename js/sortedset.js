@@ -58,25 +58,88 @@ var SortedSet = function(){
     array.case_insensitive = false;
     array.case_insensitive_sort = function(b) {
       if (typeof b == 'boolean') {
+        if (b) { // INSENSITIVE
+          array.cmp_options.caseFirst = false;
+          array.cmp_options.sensisitivity = 'base';
+        } else { // SENSITIVE
+          array.cmp_options.caseFirst = 'upper';
+          array.cmp_options.sensisitivity = 'case';
+        }
         array.case_insensitive = b;
         array.resort();
       }
       return array;
     }
+    array.cmp_options = {numeric: true, caseFirst: 'upper', sensitivity: 'case'};
+    array._f_or_k = 'id';
+    array._cmp_instrumented = function(a, b){
+      /*
+        Return a negative number if a < b
+        Return a zero if a == b
+        Return a positive number if a > b
+       */
+      var f_or_k = array._f_or_k,
+          av = (''+(a && a[f_or_k]) || ''),
+          bv = (''+(b && b[f_or_k]) || '');
+      //console.log(f_or_k, array.case_insensitive);
+
+      // xcase are squashed iff needed
+      var acase = array.case_insensitive && av.toLowerCase() || av,
+          bcase = array.case_insensitive && bv.toLowerCase() || bv;
+      if (!array.case_insensitive && acase != av) {
+        throw new Error(`${acase} <> ${av} BUT SHOULD EQUAL`)
+      }
+      //var retval = av.localeCompare(bv, 'en', array.cmp_options);
+      var retval = (acase < bcase) && -1 || ((acase > bcase) && 1 || 0);
+      if (window.SORTLOG) {
+        console.log(`${array.id}.${f_or_k} ${array.case_insensitive&&'IN'||''}SENSITIVE "${av}" ${DIR[retval+1]} "${bv}  (${retval})"`, array.cmp_options);
+      }
+      array._verify_cmp(av, bv, retval);
+      return retval;
+    }
+    array._cmp = function(a, b) {
+      var f_or_k = array._f_or_k,
+          av = (''+(a && a[f_or_k]) || ''),
+          bv = (''+(b && b[f_or_k]) || '');
+      // xcase are squashed iff needed
+      var acase = array.case_insensitive && av.toLowerCase() || av,
+          bcase = array.case_insensitive && bv.toLowerCase() || bv;
+      return (acase < bcase) && -1 || ((acase > bcase) && 1 || 0);
+    }
+    array._verify_cmp = function(av, bv, retval) {
+      var dir = ['less than', 'equal to', 'greater than'][retval+1],
+          right_or_wrong = 'wrongly',
+          sense = (!array.case_insensitive && 'UN' || '') + 'SQUASHED',
+          acase = array.case_insensitive && av.toLowerCase() || av,
+          bcase = array.case_insensitive && bv.toLowerCase() || bv;
+      if (sense == 'UNSQUASHED' &&
+          acase != av &&
+          av.toLowerCase() != av) {
+        /*
+          Is case INSENSITIVE comparison happening on the right values?
+
+          Confirm that when a case_insensitive sort is happening
+          AND the value upon which comparison actually happens (acase) differs from av
+          AND that there are uppercase characters to squash
+         */
+        throw new Error(`${sense}(${array.case_insensitive}) but av(${av}) compared as acase(${acase})`);
+      }
+      var tests = ['(retval > 0 && acase <= bcase)',
+                   '(retval < 0 && acase >= bcase)',
+                   '(retval == 0 && acase != bcase)'];
+      tests.forEach(function(test){
+        if (eval(test)) {
+          throw new Error(`${test} SHOWS _cmp(${sense}) ${right_or_wrong} calling a(${acase}) ${dir} b(${bcase})`);
+        }
+      });
+      right_or_wrong = 'rightly';
+      console.error(`_cmp(${sense}) ${right_or_wrong} calling a(${acase}) ${dir} b(${bcase})`);
+    }
     array.sort_on = function(f_or_k){ // f_or_k AKA "Function or Key"
-        //   f_or_k: a comparison function returning -1,0,1
-	if (typeof f_or_k == 'string'){ // 'Key' to sort on the value of
-	  array._cmp = function(a,b){
-            if (array.case_insensitive) {
-              var av = a[f_or_k] || '',
-                  bv = b[f_or_k] || '';
-              return av.toLowerCase().localeCompare(bv.toLowerCase())
-            } else {
-	      if (a[f_or_k] == b[f_or_k]) return 0;
-	      if (a[f_or_k] < b[f_or_k]) return -1;
-	      return 1;
-            }
-	  }
+      //   f_or_k: a comparison function returning -1,0,1
+        var DIR = ['<','=','>'];
+      if (typeof f_or_k == 'string'){ // item object key to sort on the value of
+          array._f_or_k = f_or_k
 	} else if (typeof f_or_k == 'function'){
             array._cmp = f_or_k;
 	} else {
@@ -86,7 +149,9 @@ var SortedSet = function(){
 	return array;
     }
     array.resort = function() {
+      if (window.SORTLOG) { console.groupCollapsed('resort') }
       array.sort(array._cmp);
+      if (window.SORTLOG) { console.groupEnd('resort') }
     }
     array.clear = function(){
 	array.length = 0;
@@ -168,6 +233,7 @@ var SortedSet = function(){
 	if (array.flag_property){
 	    itm[array.flag_property] = array;
 	}
+        //array.is_sorted();
 	return c.idx;
     }
     array.has = function(itm){ // AKA contains() or is_state_of()
@@ -266,7 +332,7 @@ var SortedSet = function(){
       var other = array[i+1];
       if (typeof other == 'undefined')
         return;
-      if (array._cmp(array[i], other) == 1) { // ensure monotonic increase
+      if (array._cmp(array[i], other) > 0) { // ensure monotonic increase
         array.dump();
         throw new Error(`"${array[i].name}" is before "${array[i+1].name}"`);
       }
