@@ -89,6 +89,7 @@ class CommandController
     # TODO initialize the taxon coloring without cycling all
     @huviz.toggle_taxon("Thing", true)
     @huviz.toggle_taxon("Thing", false)
+    @huviz.shelved_set.resort() # TODO remove when https://github.com/cwrc/HuViz/issues/109
     return
     #@engage_verb('choose')
   init_editor_data: ->
