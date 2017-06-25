@@ -97,7 +97,7 @@ describe("MultiString and SortedSet work together", function() {
   });
 
 
-  it("changing a node's name changes its sort position with .nudge(n)", function() {
+  it("changing a node's name changes its sort position with .alter(n,cb)", function() {
     var pets = SortedSet().sort_on('label');
     pets.case_insensitive_sort(true);
     MultiString.set_langpath('en:ANY:NOLANG');
@@ -106,8 +106,11 @@ describe("MultiString and SortedSet work together", function() {
     pets.add(dog);
     pets.add(horse);
     expect(pets.reduce(as_labels)).to.eql("chevale;dog","fr > en");
-    horse.label.set_val_lang('horse','en');
+    pets.alter(horse, function() {
+      horse.label.set_val_lang('horse','en');
+    });  // .add() is not just for adding anymore, its for nudging
     //pets.nudge(horse) // TODO make something like this work!
+    //expect(pets.validate_sort_at(0, true)).to.eql(true, "horse position not valid")
     expect(pets.reduce(as_labels)).to.eql(
       "dog;horse",
       "changing a node's name does not change its sort position");

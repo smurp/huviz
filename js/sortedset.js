@@ -216,15 +216,52 @@ var SortedSet = function(){
 	    array.add(itm);
 	}
     };
+    array.alter = function(itm, callback) {
+      /*
+        Objective:
+          Alter supports making a possibly position-altering change to an item.
+          Naively changing an item could invalidate its sort order breaking
+          operations which depend on that order.
+        Means:
+          Alter finds itm then calls the callback, which might change itm
+          in a way which ought to cause a repositioning in the array.
+          If the sorted position of itm is now invalid then figure out where
+          it should be positioned and move it there, taking care to not be
+          distracted during binary_search by the fact that item is already
+          in the set but possibly misorderedly so.
+      */
+      var current_idx = array.binary_search(itm, true);
+      callback();
+      if (array.validate_sort_at(current_idx, true)) {
+        return current_idx;
+      }
+      // It was NOT in the right position, so remove it and try again
+      //array.remove(itm); // remove does not work because itm is mis-sorted
+      return array.nudge_itm_at_(itm, current_idx);
+    }
+    array.nudge_itm_at_ = function(itm, current_idx) {
+      var removed = array.splice(current_idx, 1);
+      if (removed.length != 1 || removed[0] != itm) {
+        throw new Error(`failed to remove ${itm[array._f_or_k]} during .add()`);
+      }
+      var ideal = array.binary_search(itm, true);
+      var removed = array.remove(current_idx, 1);
+      if (!(removed.length == 1)) {
+        console.error("removing",itm,"returned",removed)
+        throw new Error("temporarily removing itm extracted ${removed.length} items");
+      }
+      array.splice(ideal.idx, 0, itm);
+      return array;
+    }
     array.add = function(itm){
 	// Objective:
 	//   Maintain a sorted array which acts like a set.
         //   It is sorted so insertions and tests can be fast.
         // Return:
         //   The index at which it was inserted (or already found)
-	var c = array.binary_search(itm,true)
-	if (typeof c == 'number'){ // an integer was returned, ie it was found
-	    return c;
+	var c = array.binary_search(itm, true)
+        if (typeof c == 'number'){ // an integer was returned, ie it was found
+          return c;
 	}
 	array.splice(c.idx,0,itm);
 	if (array.state_property){
@@ -328,14 +365,30 @@ var SortedSet = function(){
       }
       return true;
     }
-    array.validate_sort_at = function(i) {
-      var other = array[i+1];
-      if (typeof other == 'undefined')
-        return;
-      if (array._cmp(array[i], other) > 0) { // ensure monotonic increase
-        array.dump();
-        throw new Error(`"${array[i].name}" is before "${array[i+1].name}"`);
+    array.validate_sort_at = function(i, or_return) {
+      var
+        key = array._f_or_k,
+        after = array[i+1],
+        tween = array[i],
+        before = array[i-1],
+        or_return = !or_return;  // defaults to true
+      console.log("or_return", or_return);
+      // ensure monotonic increase
+      if (typeof after != 'undefined' && array._cmp(tween, after) >= 0) {
+        if (or_return) {
+          throw new Error(`"${tween[key]}" is before "${after[key]}"`);
+        } else {
+          return false;
+        }
       }
+    if (typeof before != 'undefined' && array._cmp(before, tween) >= 0) {
+        if (or_return) {
+          throw new Error(`"${before[key]}" is before "${tween[key]}"`);
+        } else {
+          return false;
+        }
+      }
+      return true;
     }
     array.dump = function() {
       for (var i = 0; i < array.length; i++) {
@@ -370,7 +423,7 @@ var SortedSets_tests = function(verbose){
 	    throw stmt + " returned "+got+" expected "+want;
 	}
     }
-    function assert(be_good,or_throw){
+    function assert(be_good, or_throw){
 	if (! be_good) throw or_throw;
     }
     function cmp_on_name(a,b){
