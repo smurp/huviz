@@ -1738,10 +1738,15 @@ class Huviz
         @develop(obj_n)
     else
       if is_one_of(pid, NAME_SYNS)
-        @set_name(
-          subj_n,
-          quad.o.value.replace(/^\s+|\s+$/g, ''),
-          quad.o.language)
+        add_name = () =>
+          @set_name(
+            subj_n,
+            quad.o.value.replace(/^\s+|\s+$/g, ''),
+            quad.o.language)
+        if subj_n.shelved_set
+          subj_n.shelved_set.alter(subj_n, add_name)
+        else
+          add_name()
         if subj_n.embryo
           @develop(subj_n) # might be ready now
     @last_quad = quad
