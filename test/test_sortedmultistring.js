@@ -97,7 +97,7 @@ describe("MultiString and SortedSet work together", function() {
   });
 
 
-  it("nodes have their position nudged upon name name change", function() {
+  it("changing a node's name changes its sort position with .nudge(n)", function() {
     var pets = SortedSet().sort_on('label');
     pets.case_insensitive_sort(true);
     MultiString.set_langpath('en:ANY:NOLANG');
