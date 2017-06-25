@@ -97,15 +97,20 @@ describe("MultiString and SortedSet work together", function() {
   });
 
 
-  it("pets become people", function() {
-    var peeps = SortedSet().sort_on('label');
-    MultiString.set_langpath('en:NOLANG');
-    peeps.add({label: (new MultiString('English', 'en',
-                                       'Anglais', 'fr'))});
-    expect(''+peeps.reduce(as_labels).label).to.eql('English');
-    peeps.add({label: (new MultiString('Colin Faulkner'))})
-    peeps.resort();
-    expect(peeps.reduce(as_labels)).to.eql('Colin Faulkner;English');
+  it("nodes have their position nudged upon name name change", function() {
+    var pets = SortedSet().sort_on('label');
+    pets.case_insensitive_sort(true);
+    MultiString.set_langpath('en:ANY:NOLANG');
+    var dog = {label: new MultiString('dog', 'en')};
+    var horse = {label: new MultiString('chevale', 'fr')};
+    pets.add(dog);
+    pets.add(horse);
+    expect(pets.reduce(as_labels)).to.eql("chevale;dog","fr > en");
+    horse.label.set_val_lang('horse','en');
+    //pets.nudge(horse) // TODO make something like this work!
+    expect(pets.reduce(as_labels)).to.eql(
+      "dog;horse",
+      "changing a node's name does not change its sort position");
   });
 
 });
