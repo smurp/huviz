@@ -1423,7 +1423,6 @@ class Huviz
               @draw_cartouche(cart_label, node.fisheye.x, node.fisheye.y)
           ctx.fillStyle = node.color
           ctx.font = focused_font
-
         else
           ctx.fillStyle = renderStyles.labelColor #"white" is default
           ctx.font = unfocused_font
@@ -1434,26 +1433,24 @@ class Huviz
           #   var flip = (node.rad > Math.PI) ? -1 : 1;
           #   view-source:http://www.jasondavies.com/d3-dependencies/
           radians = node.rad
-          #flip = not (radians <= Math.PI and radians >= 0)
-          flip = radians > Math.PI and radians < tau
-          #flip = radians > Math.PI or radians < 0
+          flip = node.fisheye.x < @cx # flip labels on the left of center line
           textAlign = 'left'
           if flip
             radians = radians - Math.PI
             textAlign = 'right'
           ctx.save()
-          ctx.translate node.fisheye.x, node.fisheye.y
+          ctx.translate(node.fisheye.x, node.fisheye.y)
           ctx.rotate -1 * radians + Math.PI / 2
           ctx.textAlign = textAlign
-
-          #if radians < 0
-          #  ctx.fillStyle = 'rgb(255,0,0)'
-          #ctx.fillText(("  " + flip + "  " + radians).substr(0,14), 0, 0)
-
-          ctx.fillText("  " + node.pretty_name, 0, 0)
+          if @debug_shelf_angles_and_flipping
+            if flip #radians < 0
+              ctx.fillStyle = 'rgb(255,0,0)'
+            ctx.fillText(("  " + flip + "  " + radians).substr(0,14), 0, 0)
+          else
+            ctx.fillText("  " + node.pretty_name + "  ", 0, 0)
           ctx.restore()
         else
-          ctx.fillText "  " + node.pretty_name, node.fisheye.x, node.fisheye.y
+          ctx.fillText "  " + node.pretty_name + "  ", node.fisheye.x, node.fisheye.y
 
       @graphed_set.forEach(label_node)
       @shelved_set.forEach(label_node)
@@ -3560,6 +3557,15 @@ class Huviz
           value: (window.navigator.language.substr(0,2) + ":en:ANY:NOLANG").replace("en:en:","en:")
           size: "16"
           placeholder: "en:es:fr:de:ANY:NOLANG"
+        event_type: "change"
+    ,
+      debug_shelf_angles_and_flipping:
+        style: "color:orange;display:none"
+        text: "debug shelf angles and flipping"
+        label:
+          title: "show angles and flags with labels"
+        input:
+          type: "checkbox"   #checked: "checked"
         event_type: "change"
     ]
 
