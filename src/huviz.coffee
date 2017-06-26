@@ -1413,6 +1413,7 @@ class Huviz
       label_node = (node) =>
         return unless @should_show_label(node)
         ctx = @ctx
+        ctx.textBaseline = "middle"
         # perhaps scrolling should happen here
         if node.focused_node or node.focused_edge?
           label = @scroll_pretty_name(node)
