@@ -468,6 +468,6 @@ var SortedSets_tests = function(verbose){
 //(typeof exports !== "undefined" && exports !== null ? exports : this).SortedSet = SortedSet;
 //})(this);
 //SortedSets_tests();
-if (module && module.exports) {
+if (typeof module !== 'undefined' && module.exports) {
   module.exports.SortedSet = SortedSet;
 }

@@ -150,7 +150,6 @@ MultiString.set_langpath('ANY:NOLANG'); // set the default langpath
 MultiString.prototype.behead = function(){
   return this.substr(1);
 }
-
-if (module && module.exports) { // for node
+if (typeof module !== 'undefined' && module.exports) {
   module.exports.MultiString = MultiString;
 }
