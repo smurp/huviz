@@ -11,6 +11,10 @@
     {
       "uri": "/data/grace_and_charlotte.ttl",
       "label": "Grace and Charlotte"
+    },
+    {
+      "uri": "https://raw.githubusercontent.com/cwrc/ontology/master/demoData/CWRCTestData.ttl",
+      "label": "CWRCTestData"
     }
   ],
   "defaults": {
