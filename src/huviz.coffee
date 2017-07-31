@@ -126,8 +126,11 @@ Predicate = require('predicate').Predicate
 Taxon = require('taxon').Taxon
 TextCursor = require('textcursor').TextCursor
 
+MultiString.set_langpath('en:fr') # TODO make this a setting
+
 wpad = undefined
 hpad = 10
+tau = Math.PI * 2
 distance = (p1, p2) ->
   p2 = p2 || [0,0]
   x = (p1.x or p1[0]) - (p2.x or p2[0])
@@ -191,7 +194,7 @@ themeStyles =
     "labelColor": "black"
     "shelfColor": "lightgreen"
     "discardColor": "salmon"
-    "nodeHighlightOutline": "white"
+    "nodeHighlightOutline": "black"
   "dark":
     "themeName": "theme_black"
     "pageBg": "black"
@@ -372,6 +375,8 @@ class Huviz
   last_mouse_pos: [ 0, 0]
 
   renderStyles = themeStyles.light
+  display_shelf_clockwise: true
+  nodeOrderAngle = 0.5
 
   change_sort_order: (array, cmp) ->
     array.__current_sort_order = cmp
@@ -496,7 +501,8 @@ class Huviz
 
   like_string: (str) =>
     # Ideally we'd trigger an actual 'input' event but that is not possible
-    $(".like_input").val(str)
+    #$(".like_input").val(str)
+    @gclui.like_input.val(str)
     @gclui.handle_like_input()
     #debugger if @DEBUG and str is ""
     return @
@@ -691,14 +697,37 @@ class Huviz
     @animate()
 
   #dump_line(add_line(scene,cx,cy,width,height,'ray'))
-  draw_circle: (cx, cy, radius, strclr, filclr) ->
-    @ctx.strokeStyle = strclr or "blue"  if strclr
-    @ctx.fillStyle = filclr or "blue"  if filclr
+  draw_circle: (cx, cy, radius, strclr, filclr, start_angle, end_angle) ->
+    incl_cntr = start_angle? or end_angle?
+    start_angle = start_angle or 0
+    end_angle = end_angle or tau
+    if strclr
+      @ctx.strokeStyle = strclr or "blue"
+    if filclr
+      @ctx.fillStyle = filclr or "blue"
     @ctx.beginPath()
-    @ctx.arc cx, cy, radius, 0, Math.PI * 2, true
+    if incl_cntr
+      @ctx.moveTo(cx, cy) # so the arcs are wedges not chords
+      # do not incl_cntr when drawing a whole circle
+    @ctx.arc(cx, cy, radius, start_angle, end_angle, true)
     @ctx.closePath()
-    @ctx.stroke()  if strclr
-    @ctx.fill()  if filclr
+    if strclr
+      @ctx.stroke()
+    if filclr
+      @ctx.fill()
+  draw_pie: (cx, cy, radius, strclr, filclrs) ->
+    num = filclrs.length
+    if not num
+      throw new Error("no colors specified")
+    if num is 1
+      @draw_circle(cx, cy, radius, strclr, filclrs[0])
+      return
+    arc = tau/num
+    start_angle = 0
+    for filclr in filclrs
+      end_angle = start_angle + arc
+      @draw_circle(cx, cy, radius, strclr, filclr, end_angle, start_angle)
+      start_angle = start_angle + arc
   draw_line: (x1, y1, x2, y2, clr) ->
     @ctx.strokeStyle = clr or 'red'
     @ctx.beginPath()
@@ -816,8 +845,9 @@ class Huviz
       ie which are highlighted and a little larger."
 
     @shelved_set = SortedSet().
-      sort_on("name").
       named("shelved").
+      sort_on('name').
+      case_insensitive_sort(true).
       labelled(@human_term.shelved).
       sub_of(@all_set).
       isState()
@@ -828,8 +858,9 @@ class Huviz
       '#{@human_term.unchosen}."
 
     @discarded_set = SortedSet().named("discarded").
-      sort_on("name").
       labelled(@human_term.discarded).
+      sort_on('name').
+      case_insensitive_sort(true).
       sub_of(@all_set).
       isState()
     @discarded_set.cleanup_verb = "shelve" # TODO confirm this
@@ -1126,6 +1157,7 @@ class Huviz
       node.focused_node = true
     @focused_node = node
     if @focused_node
+      console.log("focused_node:", @focused_node)
       @gclui.engage_transient_verb_if_needed("select")
     else
       @gclui.disengage_transient_verb_if_needed()
@@ -1308,22 +1340,32 @@ class Huviz
     cy = center[1]
     num = set.length
     set.forEach (node, i) =>
-      rad = 2 * Math.PI * i / num
+      #clockwise = false
+      # 0 or 1 starts at 6, 0.5 starts at 12, 0.75 starts at 9, 0.25 starts at 3
+      start = 1 - nodeOrderAngle
+      if @display_shelf_clockwise
+        rad = tau * (start - i / num)
+      else
+        rad = tau * (i / num + start)
+
       node.rad = rad
       node.x = cx + Math.sin(rad) * radius
       node.y = cy + Math.cos(rad) * radius
       node.fisheye = @fisheye(node)
       if @use_canvas
-        @draw_circle(node.fisheye.x, node.fisheye.y,
-                     @calc_node_radius(node),
-                     node.color or "yellow", node.color or renderStyles.nodeHighlightOutline)
+        filclrs = @get_node_color_or_color_list(
+          node, renderStyles.nodeHighlightOutline)
+        @draw_pie(node.fisheye.x, node.fisheye.y,
+                  @calc_node_radius(node),
+                  node.color or "yellow",
+                  filclrs)
       if @use_webgl
         @mv_node node.gl, node.fisheye.x, node.fisheye.y
 
   draw_discards: ->
-    @draw_nodes_in_set @discarded_set, @discard_radius, @discard_center
+    @draw_nodes_in_set(@discarded_set, @discard_radius, @discard_center)
   draw_shelf: ->
-    @draw_nodes_in_set @shelved_set, @graph_radius, @lariat_center
+    @draw_nodes_in_set(@shelved_set, @graph_radius, @lariat_center)
   draw_nodes: ->
     if @use_svg
       node.attr("transform", (d, i) ->
@@ -1335,14 +1377,20 @@ class Huviz
         if @use_canvas
           node_radius = @calc_node_radius(d)
           stroke_color = d.color or 'yellow'
-          fill_color = d.color or 'black'
           if d.chosen?
             stroke_color = renderStyles.nodeHighlightOutline
-          @draw_circle(d.fisheye.x, d.fisheye.y,
-                       node_radius,
-                       stroke_color, fill_color)
+          @draw_pie(d.fisheye.x, d.fisheye.y,
+                    node_radius,
+                    stroke_color,
+                    @get_node_color_or_color_list(d))
         if @use_webgl
           @mv_node(d.gl, d.fisheye.x, d.fisheye.y)
+  get_node_color_or_color_list: (n, default_color) ->
+    default_color ?= 'black'
+    if @color_nodes_as_pies and n._types and n._types.length > 1
+      @recolor_node(n, default_color)
+      return n._colors
+    return [n.color or default_color]
   should_show_label: (node) ->
     (node.labelled or
         node.focused_edge or
@@ -1366,6 +1414,7 @@ class Huviz
       label_node = (node) =>
         return unless @should_show_label(node)
         ctx = @ctx
+        ctx.textBaseline = "middle"
         # perhaps scrolling should happen here
         if node.focused_node or node.focused_edge?
           label = @scroll_pretty_name(node)
@@ -1376,7 +1425,6 @@ class Huviz
               @draw_cartouche(cart_label, node.fisheye.x, node.fisheye.y)
           ctx.fillStyle = node.color
           ctx.font = focused_font
-
         else
           ctx.fillStyle = renderStyles.labelColor #"white" is default
           ctx.font = unfocused_font
@@ -1387,23 +1435,28 @@ class Huviz
           #   var flip = (node.rad > Math.PI) ? -1 : 1;
           #   view-source:http://www.jasondavies.com/d3-dependencies/
           radians = node.rad
-          flip = radians > Math.PI and radians < 2 * Math.PI
+          flip = node.fisheye.x < @cx # flip labels on the left of center line
           textAlign = 'left'
           if flip
             radians = radians - Math.PI
             textAlign = 'right'
           ctx.save()
-          ctx.translate node.fisheye.x, node.fisheye.y
+          ctx.translate(node.fisheye.x, node.fisheye.y)
           ctx.rotate -1 * radians + Math.PI / 2
           ctx.textAlign = textAlign
-          ctx.fillText "  " + node.pretty_name, 0, 0 # TODO use .pretty_name
+          if @debug_shelf_angles_and_flipping
+            if flip #radians < 0
+              ctx.fillStyle = 'rgb(255,0,0)'
+            ctx.fillText(("  " + flip + "  " + radians).substr(0,14), 0, 0)
+          else
+            ctx.fillText("  " + node.pretty_name + "  ", 0, 0)
           ctx.restore()
         else
-          ctx.fillText "  " + node.pretty_name, node.fisheye.x, node.fisheye.y
+          ctx.fillText "  " + node.pretty_name + "  ", node.fisheye.x, node.fisheye.y
 
-      @graphed_set.forEach label_node
-      @shelved_set.forEach label_node
-      @discarded_set.forEach label_node
+      @graphed_set.forEach(label_node)
+      @shelved_set.forEach(label_node)
+      @discarded_set.forEach(label_node)
 
   clear_canvas: ->
     @ctx.clearRect 0, 0, @canvas.width, @canvas.height
@@ -1657,7 +1710,7 @@ class Huviz
     else
       subj = @my_graph.subjects[sid]
 
-    @ensure_predicate_lineage pid
+    @ensure_predicate_lineage(pid)
     edge = null
     subj_n = @get_or_create_node_by_id(sid)
     pred_n = @get_or_create_predicate_by_id(pid)
@@ -1673,7 +1726,7 @@ class Huviz
       # so there should be links made between this node and that node
       is_type = is_one_of(pid, TYPE_SYNS)
       if is_type
-        if @try_to_set_node_type(subj_n,quad.o.value)
+        if @try_to_set_node_type(subj_n, quad.o.value)
           @develop(subj_n) # might be ready now
       else
         edge = @get_or_create_Edge(subj_n,obj_n,pred_n,cntx_n)
@@ -1683,21 +1736,39 @@ class Huviz
         @add_edge(edge)
         @develop(obj_n)
     else
-      if subj_n.embryo and is_one_of(pid,NAME_SYNS)
-        @set_name(subj_n, quad.o.value.replace(/^\s+|\s+$/g, ''))
-        @develop(subj_n) # might be ready now
+      if is_one_of(pid, NAME_SYNS)
+        add_name = () =>
+          @set_name(
+            subj_n,
+            quad.o.value.replace(/^\s+|\s+$/g, ''),
+            quad.o.language)
+        if subj_n.shelved_set
+          subj_n.shelved_set.alter(subj_n, add_name)
+        else
+          add_name()
+        if subj_n.embryo
+          @develop(subj_n) # might be ready now
     @last_quad = quad
     return edge
 
-  set_name: (node, full_name) ->
-    node.name ?= full_name  # set it if blank
+  set_name: (node, full_name, lang) ->
+    if typeof full_name is 'object'
+      # MultiString instances have constructor.name == 'String'
+      # console.log(full_name.constructor.name, full_name)
+      node.name = full_name
+    else
+      if node.name
+        node.name.set_val_lang(full_name, lang)
+      else
+        node.name = new MultiString(full_name, lang)
+    #node.name ?= full_name  # set it if blank
     len = @truncate_labels_to
     if not len?
       alert "len not set"
     if len > 0
-      node.pretty_name = full_name.substr(0, len) # truncate
+      node.pretty_name = node.name.substr(0, len) # truncate
     else
-      node.pretty_name = full_name
+      node.pretty_name = node.name
     node.scroll_offset = 0
     return
 
@@ -1736,13 +1807,13 @@ class Huviz
     ranges = @ontology.range[edge.predicate.lid]
     if ranges?
       #console.log "INFERRING BASED ON: edge_id:(#{edge.id}) first range_lid:(#{ranges[0]})",@ontology
-      @try_to_set_node_type(edge.target,ranges[0])
+      @try_to_set_node_type(edge.target, ranges[0])
 
     # infer type of source based on the domain of the predicate
     domain_lid = @ontology.domain[edge.predicate.lid]
     if domain_lid?
       #console.log "INFERRING BASED ON: edge_id:(#{edge.id}) domain_lid:(#{domain_lid})",@ontology
-      @try_to_set_node_type(edge.source,domain_lid)
+      @try_to_set_node_type(edge.source, domain_lid)
 
   make_Edge_id: (subj_n, obj_n, pred_n) ->
     return (a.lid for a in [subj_n, pred_n, obj_n]).join(' ')
@@ -1757,11 +1828,11 @@ class Huviz
     return edge
 
   add_edge: (edge) ->
-    if edge.id.match /Universal$/
+    if edge.id.match(/Universal$/)
       console.log("add", edge.id)
     # TODO(smurp) should .links_from and .links_to be SortedSets? Yes. Right?
-    @add_to edge,edge.source.links_from
-    @add_to edge,edge.target.links_to
+    @add_to(edge, edge.source.links_from)
+    @add_to(edge, edge.target.links_to)
     edge
 
   delete_edge: (e) ->
@@ -1785,6 +1856,10 @@ class Huviz
     else
       console.info "  try_to_set_node_type",node.lid,"isa",type_lid
     ###
+    if not node._types
+      node._types = []
+    if not (type_lid in node._types)
+      node._types.push(type_lid)
     node.type = type_lid
     return true
 
@@ -2096,12 +2171,12 @@ class Huviz
 
   update_state: (node) ->
     if node.state is @graphed_set and node.links_shown.length is 0
-      @shelved_set.acquire node
+      @shelved_set.acquire(node)
       @unpin(node)
       #console.debug("update_state() had to @shelved_set.acquire(#{node.name})",node)
     if node.state isnt @graphed_set and node.links_shown.length > 0
       #console.debug("update_state() had to @graphed_set.acquire(#{node.name})",node)
-      @graphed_set.acquire node
+      @graphed_set.acquire(node)
 
   hide_links_to_node: (n) ->
     n.links_to.forEach (e, i) =>
@@ -2335,18 +2410,18 @@ class Huviz
   #
   discard: (goner) ->
     @unpin(goner)
-    @unlink goner
-    @discarded_set.acquire goner
-    shown = @update_showing_links goner
-    @unselect goner
-    #@update_state goner
+    @unlink(goner)
+    @discarded_set.acquire(goner)
+    shown = @update_showing_links(goner)
+    @unselect(goner)
+    #@update_state(goner)
     goner
 
   undiscard: (prodigal) ->  # TODO(smurp) rename command to 'retrieve' ????
     if @discarded_set.has(prodigal) # see test 'retrieving should only affect nodes which are discarded'
-      @shelved_set.acquire prodigal
-      @update_showing_links prodigal
-      @update_state prodigal
+      @shelved_set.acquire(prodigal)
+      @update_showing_links(prodigal)
+      @update_state(prodigal)
     prodigal
 
   #
@@ -2357,10 +2432,10 @@ class Huviz
   #
   shelve: (goner) =>
     @unpin(goner)
-    @chosen_set.remove goner
-    @hide_node_links goner
-    @shelved_set.acquire goner
-    shownness = @update_showing_links goner
+    @chosen_set.remove(goner)
+    @hide_node_links(goner)
+    @shelved_set.acquire(goner)
+    shownness = @update_showing_links(goner)
     if goner.links_shown.length > 0
       console.log("shelving failed for", goner)
     goner
@@ -2433,9 +2508,22 @@ class Huviz
       node.unselect()
       @recolor_node(node)
 
-  recolor_node: (node) ->
+  recolor_node: (n, default_color) ->
+    default_color ?= 'black'
+    n._types ?= []
+    if @color_nodes_as_pies and n._types.length > 1
+      n._colors = []
+      for taxon_id in n._types
+        if typeof(taxon_id) is 'string'
+          color = @get_color_for_node_type(n, taxon_id) or default_color
+          n._colors.push(color)
+       #n._colors = ['red','orange','yellow','green','blue','purple']
+    else
+      n.color = @get_color_for_node_type(n, n.type)
+
+  get_color_for_node_type: (node, type) ->
     state = node.selected? and "emphasizing" or "showing"
-    node.color = @gclui.taxon_picker.get_color_forId_byName(node.type,state)
+    return @gclui.taxon_picker.get_color_forId_byName(type, state)
 
   recolor_nodes: () ->
     # The nodes needing recoloring are all but the embryonic.
@@ -2853,11 +2941,16 @@ class Huviz
     if not disable?
       ds_v = @dataset_loader.value
       on_v = @ontology_loader.value
+      @update_caption(ds_v, on_v)
       #console.log("DATASET: #{ds_v}\nONTOLOGY: #{on_v}")
       disable = (not (ds_v and on_v)) or ('provide' in [ds_v, on_v])
       ds_on = "#{ds_v} AND #{on_v}"
     @big_go_button.prop('disabled', disable)
     return
+
+  update_caption: (dataset_str, ontology_str) ->
+    $("#dataset_watermark").text(dataset_str)
+    $("#ontology_watermark").text(ontology_str)
 
   set_ontology_from_dataset_if_possible: ->
     if @dataset_loader.value # and not @ontology_loader.value
@@ -3345,7 +3438,7 @@ class Huviz
         label:
           title: "truncate and scroll labels longer than this, or zero to disable"
         input:
-          value: 40
+          value: 0 # 40
           min: 0
           max: 60
           step: 1
@@ -3370,6 +3463,7 @@ class Huviz
         input:
           checked: "checked"
           type: "checkbox"
+        event_type: "change"
     ,
       nodes_pinnable:
         style: "display:none"
@@ -3379,6 +3473,7 @@ class Huviz
         input:
           checked: "checked"
           type: "checkbox"
+        event_type: "change"
     ,
       use_fancy_cursor:
         style: "display:none"
@@ -3388,6 +3483,7 @@ class Huviz
         input:
           checked: "checked"
           type: "checkbox"
+        event_type: "change"
     ,
       doit_asap:
         style: "display:none"
@@ -3397,13 +3493,16 @@ class Huviz
         input:
           checked: "checked" # default to 'on'
           type: "checkbox"
+        event_type: "change"
     ,
       show_dangerous_datasets:
+        style: "display:none"
         text: "Show dangerous datasets"
         label:
           title: "Show the datasets which are too large or buggy"
         input:
           type: "checkbox"
+        event_type: "change"
     ,
       theme_colors:
         text: "Display graph with dark theme"
@@ -3411,6 +3510,7 @@ class Huviz
           title: "Show graph plotted on a black background"
         input:
           type: "checkbox"
+        event_type: "change"
     ,
       display_label_cartouches:
         text: "Background cartouches for labels"
@@ -3419,6 +3519,56 @@ class Huviz
         input:
           type: "checkbox"
           checked: "checked"
+        event_type: "change"
+    ,
+      display_shelf_clockwise:
+        text: "Display nodes clockwise"
+        label:
+          title: "Display clockwise (uncheck for counter-clockwise)"
+        input:
+          type: "checkbox"
+          checked: "checked"
+        event_type: "change"
+    ,
+      choose_node_display_angle:
+        text: "Node display angle"
+        label:
+          title: "Where on shelf to place first node"
+        input:
+          value: 0.5
+          min: 0
+          max: 1
+          step: 0.25
+          type: "range"
+    ,
+      color_nodes_as_pies:
+        style: "display:none"
+        text: "Color nodes as pies"
+        label:
+          title: "Show all a nodes types as colored pie pieces"
+        input:
+          type: "checkbox"   #checked: "checked"
+    ,
+      language_path:
+        text: "Language Path"
+        label:
+          title: "Preferred languages in order, with : separator."
+        input:
+          type: "text"
+          # TODO tidy up -- use browser default language then English
+          value: (window.navigator.language.substr(0,2) + ":en:ANY:NOLANG").replace("en:en:","en:")
+          size: "16"
+          placeholder: "en:es:fr:de:ANY:NOLANG"
+        event_type: "change"
+    ,
+      debug_shelf_angles_and_flipping:
+        style: "color:orange;display:none"
+        text: "debug shelf angles and flipping"
+        label:
+          title: "show angles and flags with labels"
+        input:
+          type: "checkbox"   #checked: "checked"
+        event_type: "change"
     ]
 
   dump_current_settings: (post) ->
@@ -3463,8 +3613,11 @@ class Huviz
           value = control.input.checked?
           #console.log "control:",control_name,"value:",value, control
           @change_setting_to_from(control_name, value, undefined) #@[control_name].checked)
-        input.on("change", @update_graph_settings) # TODO implement one or the other
-        input.on("input", @update_graph_settings)
+        # TODO replace control.event_type with autodetecting on_change_ vs on_update_ method existence
+        if control.event_type is 'change'
+          input.on("change", @update_graph_settings) # when focus changes
+        else
+          input.on("input", @update_graph_settings) # continuous updates
     return
 
   update_graph_controls_cursor: (evt) =>
@@ -3477,6 +3630,7 @@ class Huviz
 
   update_graph_settings: (target, update) =>
     target = target? and target or d3.event.target
+    # event_type = d3.event.type
     update = not update? and true or update
     update = not update
     if target.type is "checkbox"
@@ -3497,6 +3651,7 @@ class Huviz
 
   change_setting_to_from: (setting_name, new_value, old_value, skip_custom_handler) =>
     skip_custom_handler = skip_custom_handler? and skip_custom_handler or false
+    # TODO replace control.event_type with autodetecting on_change_ vs on_update_ method existence
     custom_handler_name = "on_change_" + setting_name
     custom_handler = @[custom_handler_name]
     if @graph_controls_cursor
@@ -3547,6 +3702,16 @@ class Huviz
       @cartouches = false
     @updateWindow()
 
+  on_change_display_shelf_clockwise: (new_val) ->
+    if new_val
+      @display_shelf_clockwise = true
+    else
+      @display_shelf_clockwise = false
+    @updateWindow()
+
+  on_change_choose_node_display_angle: (new_val) ->
+    nodeOrderAngle = new_val
+    @updateWindow()
 
   on_change_shelf_radius: (new_val, old_val) ->
     @change_setting_to_from('shelf_radius', new_val, old_val, true)
@@ -3559,6 +3724,21 @@ class Huviz
       for node in @all_set
         @unscroll_pretty_name(node)
     @updateWindow()
+
+  on_change_language_path: (new_val, old_val) ->
+    try
+      MultiString.set_langpath(new_val)
+    catch e
+      alert("Input: #{new_val}\n#{e.toString()}\n\n  The 'Language Path' should be a colon-separated list of ISO two-letter language codes, such as 'en' or 'fr:en:es'.  One can also include the keywords ANY, NOLANG or ALL in the list.\n  'ANY' means show a value from no particular language and works well in situations where you don't know or care which language is presented.\n  'NOLANG' means show a value for which no language was specified.\n  'ALL' causes all the different language versions to be revealed. It is best used alone\n\nExamples (show first available, so order matters)\n  en:fr\n    show english or french or nothing\n  en:ANY:NOLANG\n    show english or ANY other language or language-less label\n  ALL\n    show all versions available, language-less last")
+      @change_setting_to_from('language_path', old_val, old_val)
+      return
+    if @shelved_set
+      @shelved_set.resort()
+      @discarded_set.resort()
+
+  XXXXon_change_color_nodes_as_pies: (new_val, old_val) ->  # TODO why this == window ??
+    @color_nodes_as_pies = new_val
+    @recolor_nodes()
 
   init_from_graph_controls: ->
     # alert "init_from_graph_controls() is deprecated"
@@ -3741,7 +3921,7 @@ class OntologicallyGrounded extends Huviz
               ontology.range[subj_lid] = []
             if not (obj_lid in ontology.range)
               ontology.range[subj_lid].push(obj_lid)
-          else if pred_lid is 'subClassOf'
+          else if pred_lid in ['subClassOf', 'subClass']
             ontology.subClassOf[subj_lid] = obj_lid
           else if pred_lid is 'subPropertyOf'
             ontology.subPropertyOf[subj_lid] = obj_lid

@@ -55,23 +55,103 @@
 var SortedSet = function(){
     var array = [];
     array.push.apply(array,arguments);
+    array.case_insensitive = false;
+    array.case_insensitive_sort = function(b) {
+      if (typeof b == 'boolean') {
+        if (b) { // INSENSITIVE
+          array.cmp_options.caseFirst = false;
+          array.cmp_options.sensisitivity = 'base';
+        } else { // SENSITIVE
+          array.cmp_options.caseFirst = 'upper';
+          array.cmp_options.sensisitivity = 'case';
+        }
+        array.case_insensitive = b;
+        array.resort();
+      }
+      return array;
+    }
+    array.cmp_options = {numeric: true, caseFirst: 'upper', sensitivity: 'case'};
+    array._f_or_k = 'id';
+    array._cmp_instrumented = function(a, b){
+      /*
+        Return a negative number if a < b
+        Return a zero if a == b
+        Return a positive number if a > b
+       */
+      var f_or_k = array._f_or_k,
+          av = (''+(a && a[f_or_k]) || ''),
+          bv = (''+(b && b[f_or_k]) || '');
+      //console.log(f_or_k, array.case_insensitive);
 
-    var cmp;
-    array.sort_on = function(f_or_k){
-	// f_or_k: a comparison function returning -1,0,1
-	if (typeof f_or_k === typeof 'some string'){
-	    cmp = function(a,b){
-		if (a[f_or_k] == b[f_or_k]) return 0;
-		if (a[f_or_k] < b[f_or_k]) return -1;
-		return 1;
-	    }
-	} else if (typeof f_or_k === typeof function(){}){
-	    cmp = f_or_k;
+      // xcase are squashed iff needed
+      var acase = array.case_insensitive && av.toLowerCase() || av,
+          bcase = array.case_insensitive && bv.toLowerCase() || bv;
+      if (!array.case_insensitive && acase != av) {
+        throw new Error(`${acase} <> ${av} BUT SHOULD EQUAL`)
+      }
+      //var retval = av.localeCompare(bv, 'en', array.cmp_options);
+      var retval = (acase < bcase) && -1 || ((acase > bcase) && 1 || 0);
+      if (window.SORTLOG) {
+        console.error(`${array.id}.${f_or_k} ${array.case_insensitive&&'IN'||''}SENSITIVE "${av}" ${DIR[retval+1]} "${bv}  (${retval})"`, array.cmp_options);
+      }
+      array._verify_cmp(av, bv, retval);
+      return retval;
+    }
+    array._cmp = function(a, b) {
+      var f_or_k = array._f_or_k,
+          av = (''+(a && a[f_or_k]) || ''),
+          bv = (''+(b && b[f_or_k]) || '');
+      // xcase are squashed iff needed
+      var acase = array.case_insensitive && av.toLowerCase() || av,
+          bcase = array.case_insensitive && bv.toLowerCase() || bv;
+      return (acase < bcase) && -1 || ((acase > bcase) && 1 || 0);
+    }
+    array._verify_cmp = function(av, bv, retval) {
+      var dir = ['less than', 'equal to', 'greater than'][retval+1],
+          right_or_wrong = 'wrongly',
+          sense = (!array.case_insensitive && 'UN' || '') + 'SQUASHED',
+          acase = array.case_insensitive && av.toLowerCase() || av,
+          bcase = array.case_insensitive && bv.toLowerCase() || bv;
+      if (sense == 'UNSQUASHED' &&
+          acase != av &&
+          av.toLowerCase() != av) {
+        /*
+          Is case INSENSITIVE comparison happening on the right values?
+
+          Confirm that when a case_insensitive sort is happening
+          AND the value upon which comparison actually happens (acase) differs from av
+          AND that there are uppercase characters to squash
+         */
+        throw new Error(`${sense}(${array.case_insensitive}) but av(${av}) compared as acase(${acase})`);
+      }
+      var tests = ['(retval > 0 && acase <= bcase)',
+                   '(retval < 0 && acase >= bcase)',
+                   '(retval == 0 && acase != bcase)'];
+      tests.forEach(function(test){
+        if (eval(test)) {
+          throw new Error(`${test} SHOWS _cmp(${sense}) ${right_or_wrong} calling a(${acase}) ${dir} b(${bcase})`);
+        }
+      });
+      right_or_wrong = 'rightly';
+      console.error(`_cmp(${sense}) ${right_or_wrong} calling a(${acase}) ${dir} b(${bcase})`);
+    }
+    array.sort_on = function(f_or_k){ // f_or_k AKA "Function or Key"
+      //   f_or_k: a comparison function returning -1,0,1
+        var DIR = ['<','=','>'];
+      if (typeof f_or_k == 'string'){ // item object key to sort on the value of
+          array._f_or_k = f_or_k
+	} else if (typeof f_or_k == 'function'){
+            array._cmp = f_or_k;
 	} else {
-	    throw "sort_on() expects a function or a property name";
+            throw new Error("sort_on() expects a function or a property name");
 	}
-	array.sort(cmp);
+        array.resort()
 	return array;
+    }
+    array.resort = function() {
+      if (window.SORTLOG) { console.groupCollapsed('resort') }
+      array.sort(array._cmp);
+      if (window.SORTLOG) { console.groupEnd('resort') }
     }
     array.clear = function(){
 	array.length = 0;
@@ -115,7 +195,6 @@ var SortedSet = function(){
 	}
 	return array;
     };
-    
     array.named = function(name){
 	array.id = name;
 	return array;
@@ -137,13 +216,52 @@ var SortedSet = function(){
 	    array.add(itm);
 	}
     };
+    array.alter = function(itm, callback) {
+      /*
+        Objective:
+          Alter supports making a possibly position-altering change to an item.
+          Naively changing an item could invalidate its sort order breaking
+          operations which depend on that order.
+        Means:
+          Alter finds itm then calls the callback, which might change itm
+          in a way which ought to cause a repositioning in the array.
+          If the sorted position of itm is now invalid then figure out where
+          it should be positioned and move it there, taking care to not be
+          distracted during binary_search by the fact that item is already
+          in the set but possibly misorderedly so.
+      */
+      var current_idx = array.binary_search(itm, true);
+      callback();
+      if (array.validate_sort_at(current_idx, true)) {
+        return current_idx;
+      }
+      // It was NOT in the right position, so remove it and try again
+      //array.remove(itm); // remove does not work because itm is mis-sorted
+      return array.nudge_itm_at_(itm, current_idx);
+    }
+    array.nudge_itm_at_ = function(itm, current_idx) {
+      var removed = array.splice(current_idx, 1);
+      if (removed.length != 1 || removed[0] != itm) {
+        throw new Error(`failed to remove ${itm[array._f_or_k]} during .add()`);
+      }
+      var ideal = array.binary_search(itm, true);
+      var removed = array.remove(current_idx, 1);
+      if (!(removed.length == 1)) {
+        console.error("removing",itm,"returned",removed)
+        throw new Error("temporarily removing itm extracted ${removed.length} items");
+      }
+      array.splice(ideal.idx, 0, itm);
+      return array;
+    }
     array.add = function(itm){
 	// Objective:
 	//   Maintain a sorted array which acts like a set.
-	//   It is sorted so insertions and tests can be fast.
-	var c = array.binary_search(itm,true)
-	if (typeof c == typeof 3){ // an integer was returned, ie it was found
-	    return c;
+        //   It is sorted so insertions and tests can be fast.
+        // Return:
+        //   The index at which it was inserted (or already found)
+	var c = array.binary_search(itm, true)
+        if (typeof c == 'number'){ // an integer was returned, ie it was found
+          return c;
 	}
 	array.splice(c.idx,0,itm);
 	if (array.state_property){
@@ -152,6 +270,7 @@ var SortedSet = function(){
 	if (array.flag_property){
 	    itm[array.flag_property] = array;
 	}
+        //array.is_sorted();
 	return c.idx;
     }
     array.has = function(itm){ // AKA contains() or is_state_of()
@@ -199,10 +318,16 @@ var SortedSet = function(){
 	o[key] = val;
 	return this.get(o);
     };
-    array.binary_search = function(sought,ret_ins_idx){
-	// return -1 or the idx of sought in this
-	// if ret_ins_idx instead of -1 return [n] where n is where it ought to be
-	// AKA "RETurn the INSertion INdeX"
+    array.binary_search = function(sought, ret_ins_idx){
+        /*
+           This method performs a binary-search-powered version of indexOf(),
+           that is; it returns the index of sought or returns -1 to report that
+           it was not found.
+
+           If ret_ins_idx (ie "RETurn the INSertion INdeX") is true then
+           instead of returning -1 upon failure, it returns the index at which
+           sought should be inserted to keep the array sorted.
+        */
 	ret_ins_idx = ret_ins_idx || false;
 	var seeking = true;
 	if (array.length < 1) {
@@ -216,7 +341,7 @@ var SortedSet = function(){
         top = array.length;
 	while (seeking){
 	    mid = bot + Math.floor((top - bot)/2);
-	    var c = cmp(array[mid],sought);
+	    var c = array._cmp(array[mid],sought);
 	    //console.log(" c =",c);
 	    if (c == 0) return mid;
 	    if (c < 0){ // ie this[mid] < sought
@@ -232,10 +357,42 @@ var SortedSet = function(){
 	    };
 	}
     }
+    array.is_sorted = function() { // return true or throw
+      for (var i = 0; (i + 1) < array.length; i++) {
+        if (array.length > 1) {
+          array.validate_sort_at(i);
+        }
+      }
+      return true;
+    }
+    array.validate_sort_at = function(i, or_return) {
+      var
+        key = array._f_or_k,
+        after = array[i+1],
+        tween = array[i],
+        before = array[i-1],
+        or_return = !or_return;  // defaults to true
+      // ensure monotonic increase
+      if (typeof after != 'undefined' && array._cmp(tween, after) >= 0) {
+        if (or_return) {
+          throw new Error(`"${tween[key]}" is before "${after[key]}"`);
+        } else {
+          return false;
+        }
+      }
+    if (typeof before != 'undefined' && array._cmp(before, tween) >= 0) {
+        if (or_return) {
+          throw new Error(`"${before[key]}" is before "${tween[key]}"`);
+        } else {
+          return false;
+        }
+      }
+      return true;
+    }
     array.dump = function() {
       for (var i = 0; i < array.length; i++) {
 	var node = array[i];
-	console.log(node.lid, node.name);
+	console.log(node.lid, node.name.toString(), node.name);
       }
     }
     return array;
@@ -265,7 +422,7 @@ var SortedSets_tests = function(verbose){
 	    throw stmt + " returned "+got+" expected "+want;
 	}
     }
-    function assert(be_good,or_throw){
+    function assert(be_good, or_throw){
 	if (! be_good) throw or_throw;
     }
     function cmp_on_name(a,b){
@@ -310,3 +467,7 @@ var SortedSets_tests = function(verbose){
 };
 //(typeof exports !== "undefined" && exports !== null ? exports : this).SortedSet = SortedSet;
 //})(this);
+//SortedSets_tests();
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports.SortedSet = SortedSet;
+}

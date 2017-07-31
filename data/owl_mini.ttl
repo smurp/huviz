@@ -1,0 +1,7 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+owl:ObjectProperty owl:subClass owl:Thing .
+owl:Class owl:subClass owl:Thing .
+owl:SymmetricProperty owl:subClass owl:ObjectProperty .
+owl:IrreflexiveProperty owl:subClass owl:ObjectProperty .
+owl:AsymmetricProperty owl:subClass owl:ObjectProperty .

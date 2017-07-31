@@ -3,6 +3,18 @@
     {
       "uri": "https://raw.githubusercontent.com/cwrc/ontology/master/data.ttl",
       "label": "cwrc/ontology/data.ttl"
+    },
+    {
+      "uri": "https://raw.githubusercontent.com/cwrc/ontology/master/demoData/HuVizSHARP2017.ttl",
+      "label": "HuVizSHARP2017"
+    },
+    {
+      "uri": "/data/grace_and_charlotte.ttl",
+      "label": "Grace and Charlotte"
+    },
+    {
+      "uri": "https://raw.githubusercontent.com/cwrc/ontology/master/demoData/CWRCTestData.ttl",
+      "label": "CWRCTestData"
     }
   ],
   "defaults": {

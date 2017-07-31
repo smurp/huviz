@@ -89,6 +89,8 @@ class CommandController
     # TODO initialize the taxon coloring without cycling all
     @huviz.toggle_taxon("Thing", true)
     @huviz.toggle_taxon("Thing", false)
+    @huviz.shelved_set.resort() # TODO remove when https://github.com/cwrc/HuViz/issues/109
+
     return
     #@engage_verb('choose')
   init_editor_data: ->
@@ -518,15 +520,27 @@ class CommandController
 
   build_like: () ->
     @likediv.text('like:').classed("control_label", true)
+    @likediv.style('display','inline-block')
+    @likediv.style('white-space','nowrap')
     @like_input = @likediv.append('input')
     @like_input.attr('class', 'like_input')
     @like_input.attr('placeholder','node Name')
     @liking_all_mode = false # rename to @liking_mode
     @like_input.on 'input', @handle_like_input
+    @clear_like_button = @likediv.append('button').text('⌫')
+    @clear_like_button.attr('type','button').classed('clear_like', true)
+    @clear_like_button.attr('disabled','disabled')
+    @clear_like_button.on 'click', @handle_clear_like
+
+  handle_clear_like: (evt) =>
+    @like_input.property('value','')
+    @handle_like_input()
+
   handle_like_input: (evt) =>
     like_value = @get_like_string()
     like_has_a_value = not not like_value
     if like_has_a_value
+      @clear_like_button.attr('disabled', null)
       if @liking_all_mode #
         TODO = "update the selection based on the like value"
         #@update_command(evt) # update the impact of the value in the like input
@@ -536,6 +550,7 @@ class CommandController
         @set_immediate_execution_mode(@is_verb_phrase_empty())
         @huviz.click_set("all") # ie choose the 'All' set
     else # like does not have a value
+      @clear_like_button.attr('disabled','disabled')
       if @liking_all_mode # but it DID
         TODO = "restore the state before liking_all_mode " + \
         "eg select a different set or disable all set selection"

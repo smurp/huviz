@@ -19,7 +19,8 @@
   clear: both;
 }
 #huvis_controls {
-  padding: 1em 0.4em;
+    padding: 0.4em;
+    padding-bottom: 0.2em;
 }
 .search_box {
   height:1.3em;
@@ -91,7 +92,10 @@ body, html {
   text-decoration: none;
   position: absolute;
   bottom: 1.5em;
-  left:49%
+  /*left:49%*/
+  width: 100%;
+  display: block;
+  text-align:center;
 }
 .control_label {
   margin-top: 2px;
@@ -107,6 +111,8 @@ body, html {
   user-select: none;
   cursor:default;
 }
+
+/* ---------------- Edit controls ----------------------- */
 
 .edit-controls {
     bottom:.2em;
@@ -172,6 +178,7 @@ body, html {
   font-family: sans-serif;
 }
 
+
 /* ---------------- Edit controls - "theme_black" Theme ----------------------- */
 
 .theme_black .slider {
@@ -225,7 +232,7 @@ body, html {
     text-align: left;
     display: inline-block;
     font-size: 1.05em;
-    margin-before: 0.1em;
+    margin-before: 0.3em;
     padding-after: 0.1em;
     margin-start: 0px;
     margin-end: 0px;

@@ -24,6 +24,7 @@
   "defaults": {
     "isOntology": true,
     "opt_group": "Ontologies",
+    "ontology_label": "OWL Mini",
     "canDelete": false
   }
 }
