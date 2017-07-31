@@ -530,6 +530,7 @@ class CommandController
     @clear_like_button = @likediv.append('button').text('⌫')
     @clear_like_button.attr('type','button').classed('clear_like', true)
     @clear_like_button.attr('disabled','disabled')
+    @clear_like_button.attr('title','clear the "like" field')
     @clear_like_button.on 'click', @handle_clear_like
 
   handle_clear_like: (evt) =>
