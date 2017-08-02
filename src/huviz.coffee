@@ -4183,7 +4183,7 @@ class PickOrProvide
     dataset_rec.title ?= dataset_rec.uri
     dataset_rec.canDelete ?= not not dataset_rec.time?
     dataset_rec.label ?= dataset_rec.uri.split('/').reverse()[0]
-    @add_dataset(dataset_rec)
+    @add_dataset(dataset_rec, true)
     @update_state()
 
   add_dataset: (dataset_rec, store_in_db) ->
