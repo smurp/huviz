@@ -1,10 +1,6 @@
 {
   "datasets": [
     {
-      "uri": "https://raw.githubusercontent.com/cwrc/ontology/master/data.ttl",
-      "label": "cwrc/ontology/data.ttl"
-    },
-    {
       "uri": "https://raw.githubusercontent.com/cwrc/ontology/master/demoData/HuVizSHARP2017.ttl",
       "label": "HuVizSHARP2017"
     },
