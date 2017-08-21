@@ -3549,6 +3549,58 @@ class Huviz
         input:
           type: "checkbox"   #checked: "checked"
     ,
+      graph_title_style:
+        text: "Title display"
+        label:
+          title: "Select graph title style"
+        input:
+          type: "select"
+        options : [
+            label: "Watermark"
+            value: "subliminal"
+          ,
+            label: "Bold Titles 1"
+            value: "bold1"
+          ,
+            label: "Bold Titles 2"
+            value: "bold2"
+          ,
+            label: "Custom Captions"
+            value: "custom"
+        ]
+        event_type: "change",
+    ,
+      graph_custom_main_title:
+        style: "display:none"
+        text: "Custom Title"
+        label:
+          title: "Title that appears on the graph background"
+        input:
+          type: "text"
+          size: "16"
+          placeholder: "Enter Title"
+        event_type: "change"
+    ,
+      graph_custom_sub_title:
+        style: "display:none"
+        text: "Custom Sub-title"
+        label:
+          title: "Sub-title that appears below main title"
+        input:
+          type: "text"
+          size: "16"
+          placeholder: "Enter Sub-title"
+        event_type: "change"
+    ,
+      debug_shelf_angles_and_flipping:
+        style: "color:orange;display:none"
+        text: "debug shelf angles and flipping"
+        label:
+          title: "show angles and flags with labels"
+        input:
+          type: "checkbox"   #checked: "checked"
+        event_type: "change",
+    ,
       language_path:
         text: "Language Path"
         label:
@@ -3560,15 +3612,7 @@ class Huviz
           size: "16"
           placeholder: "en:es:fr:de:ANY:NOLANG"
         event_type: "change"
-    ,
-      debug_shelf_angles_and_flipping:
-        style: "color:orange;display:none"
-        text: "debug shelf angles and flipping"
-        label:
-          title: "show angles and flags with labels"
-        input:
-          type: "checkbox"   #checked: "checked"
-        event_type: "change"
+
     ]
 
   dump_current_settings: (post) ->
@@ -3593,27 +3637,40 @@ class Huviz
     #$(@graph_controls).sortable().disableSelection() # TODO fix dropping
     for control_spec in @default_graph_controls
       for control_name, control of control_spec
-        graph_control = @graph_controls.append('span').attr('class', 'graph_control')
+        graph_control = @graph_controls.append('span').attr('id',control_name).attr('class', 'graph_control')
         label = graph_control.append('label')
         if control.text?
           label.text(control.text)
         if control.label?
           label.attr(control.label)
         if control.style?
-           graph_control.attr("style", control.style)
-        input = label.append('input')
-        input.attr("name", control_name)
-        if control.input?
-          for k,v of control.input
-            if k is 'value'
-              old_val = @[control_name]
-              @change_setting_to_from(control_name, v, old_val)
-            input.attr(k,v)
-        if control.input.type is 'checkbox'
-          value = control.input.checked?
-          #console.log "control:",control_name,"value:",value, control
-          @change_setting_to_from(control_name, value, undefined) #@[control_name].checked)
-        # TODO replace control.event_type with autodetecting on_change_ vs on_update_ method existence
+          graph_control.attr("style", control.style)
+        if control.class?
+          console.log(control.class)
+          graph_control.attr('class', 'graph_control ' + control.class)
+        if control.input.type is 'select'
+          input = label.append('select')
+          input.attr("name", control_name)
+          for a,v of control.options
+            option = input.append('option')
+            option.html(v.label).attr("value", v.value)
+          #label.append("input").attr("name", "custom_title").attr("type", "text").attr("style", " ")
+          #label.append("input").attr("name", "custom_subtitle").attr("type", "text").attr("style", " ")
+        else
+          input = label.append('input')
+          input.attr("name", control_name)
+          if control.input?
+            for k,v of control.input
+              if k is 'value'
+                old_val = @[control_name]
+                @change_setting_to_from(control_name, v, old_val)
+              input.attr(k,v)
+          if control.input.type is 'checkbox'
+            value = control.input.checked?
+            #console.log "control:",control_name,"value:",value, control
+            @change_setting_to_from(control_name, value, undefined) #@[control_name].checked)
+          # TODO replace control.event_type with autodetecting on_change_ vs on_update_ method existence
+
         if control.event_type is 'change'
           input.on("change", @update_graph_settings) # when focus changes
         else
@@ -3724,6 +3781,36 @@ class Huviz
       for node in @all_set
         @unscroll_pretty_name(node)
     @updateWindow()
+
+  on_change_graph_title_style: (new_val, old_val) ->
+    if new_val is "custom"
+      $(".main_title").removeAttr("style")
+      $(".sub_title").removeAttr("style")
+      $("#graph_custom_main_title").css('display', 'inherit')
+      $("#graph_custom_sub_title").css('display', 'inherit')
+      custTitle = $("input[name='graph_custom_main_title']")
+      custSubTitle = $("input[name='graph_custom_main_title']")
+      @update_caption(custTitle[0].title, custSubTitle[0].title)
+      $("a.git_commit_hash_watermark").css('display', 'none')
+      $("#ontology_watermark").attr('style', '')
+    else if new_val is "bold1"
+      console.log("here it is")
+      $("#ontology_watermark").css('display', 'none')
+    else
+      $("#graph_custom_main_title").css('display', 'none')
+      $("#graph_custom_sub_title").css('display', 'none')
+      $("a.git_commit_hash_watermark").css('display', 'inherit')
+      $("#ontology_watermark").attr('style', '')
+      @update_caption(@dataset_loader.value,@ontology_loader.value)
+    $("#dataset_watermark").removeClass().addClass(new_val)
+    $("#ontology_watermark").removeClass().addClass(new_val)
+
+  on_change_graph_custom_main_title: (new_val) ->
+    # if new custom values then update titles
+    $("#dataset_watermark").text(new_val)
+
+  on_change_graph_custom_sub_title: (new_val) ->
+    $("#ontology_watermark").text(new_val)
 
   on_change_language_path: (new_val, old_val) ->
     try
