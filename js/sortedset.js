@@ -133,7 +133,7 @@ var SortedSet = function(){
         }
       });
       right_or_wrong = 'rightly';
-      console.error(`_cmp(${sense}) ${right_or_wrong} calling a(${acase}) ${dir} b(${bcase})`);
+      //console.error(`_cmp(${sense}) ${right_or_wrong} calling a(${acase}) ${dir} b(${bcase})`);
     }
     array.sort_on = function(f_or_k){ // f_or_k AKA "Function or Key"
       //   f_or_k: a comparison function returning -1,0,1
