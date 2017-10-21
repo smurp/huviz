@@ -22,9 +22,9 @@
     "stitch": "~0.3.3",
     "libxmljs": "~0.18.7"
   },
-  "commentedOutDependencies": {
-  },
+  "commentedOutDependencies": {},
   "devDependencies": {
+    "chai": "~1.10.0",
     "coffeelint": "~1.7.1",
     "grunt": "~0.4.5",
     "grunt-cli": "1.2.0",
@@ -34,11 +34,20 @@
     "grunt-mocha-test": "~0.12.4",
     "grunt-release": "0.9.0",
     "grunt-stitch": "0.1.0",
-    "chai": "~1.10.0",
-    "mocha": "~2.0.1"
+    "mocha": "~2.0.1",
+    "npm-watch": "^0.3.0"
+  },
+  "watch": {
+    "test": {
+      "patterns": ["js","test","lib","vendor"],
+      "extensions": ["js","coffee"],
+      "quiet": true
+    }
   },
   "scripts": {
     "dev": "node ./node_modules/.bin/grunt dev",
-    "start": "node server.js --git_commit_hash `git log --format=\"%h\" -n 1` --git_branch_name `git rev-parse --abbrev-ref HEAD`"
+    "start": "node server.js --git_commit_hash `git log --format=\"%h\" -n 1` --git_branch_name `git rev-parse --abbrev-ref HEAD`",
+    "test": "node_modules/mocha/bin/mocha --reporter dot",
+    "watchTest": "npm-watch"
   }
 }

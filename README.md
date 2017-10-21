@@ -31,13 +31,19 @@ huviz
 
     # install NodeJS from https://nodejs.org
     # known to work on NodeJS > 0.10.1
-    
+
     # in package.json comment libxmljs back in then do
     npm install
 
 # Running the server during development
 
     npm run dev
+
+# Runner CLI tests during development
+
+    npm run watchTest
+
+uses https://www.npmjs.com/package/npm-watch https://www.npmjs.com/package/mocha
 
 # Running the server
 
