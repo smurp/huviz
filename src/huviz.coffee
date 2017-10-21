@@ -128,6 +128,10 @@ TextCursor = require('textcursor').TextCursor
 
 MultiString.set_langpath('en:fr') # TODO make this a setting
 
+# It is as if these imports were happening but they are being stitched in instead
+#   OnceRunner = require('oncerunner').OnceRunner
+#   TODO document the other examples of requires that are being "stitched in"
+
 wpad = undefined
 hpad = 10
 tau = Math.PI * 2
@@ -645,7 +649,7 @@ class Huviz
       @run_command(cmd)
     #else
     #  @toggle_selected(node)
-    @clean_up_all_dirt()
+    @clean_up_all_dirt_once()
 
   run_command: (cmd) ->
     @show_state_msg(cmd.as_msg())
@@ -2241,10 +2245,19 @@ class Huviz
     if @taxonomy.Thing?
       @taxonomy.Thing.clean_up_dirt()
 
-  clean_up_all_dirt: ->
+  clean_up_all_dirt_once: ->
+    @clean_up_all_dirt_onceRunner ?= new OnceRunner(false)
+    @clean_up_all_dirt_onceRunner.setTimeout(@clean_up_all_dirt, 500)
+
+  clean_up_all_dirt: =>
     @clean_up_dirty_taxons()
     @clean_up_dirty_predicates()
     @regenerate_english()
+
+  prove_OnceRunner: (timeout) ->
+    @prove_OnceRunner_inst ?= new OnceRunner(true)
+    yahoo = () -> alert('yahoo!')
+    @prove_OnceRunner_inst.setTimeout(yahoo, timeout)
 
   get_or_create_context_by_id: (sid) ->
     obj_id = @make_qname(sid)
@@ -3080,7 +3093,7 @@ class Huviz
     $("body").css "background-color", renderStyles.pageBg # FIXME remove once it works!
     $("body").addClass renderStyles.themeName
     @update_all_counts()
-    @clean_up_all_dirt()
+    @clean_up_all_dirt_once()
 
   get_handle: (thing) ->
     # A handle is like a weak reference, saveable, serializable
