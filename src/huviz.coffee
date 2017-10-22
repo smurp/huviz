@@ -2246,7 +2246,7 @@ class Huviz
       @taxonomy.Thing.clean_up_dirt()
 
   clean_up_all_dirt_once: ->
-    @clean_up_all_dirt_onceRunner ?= new OnceRunner(false)
+    @clean_up_all_dirt_onceRunner ?= new OnceRunner(10)
     @clean_up_all_dirt_onceRunner.setTimeout(@clean_up_all_dirt, 500)
 
   clean_up_all_dirt: =>
@@ -2255,7 +2255,7 @@ class Huviz
     @regenerate_english()
 
   prove_OnceRunner: (timeout) ->
-    @prove_OnceRunner_inst ?= new OnceRunner(true)
+    @prove_OnceRunner_inst ?= new OnceRunner(30)
     yahoo = () -> alert('yahoo!')
     @prove_OnceRunner_inst.setTimeout(yahoo, timeout)
 
