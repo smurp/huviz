@@ -269,9 +269,9 @@ class GraphCommand
       more = angliciser((s.get_label() for s in @sets))
       @object_phrase = more
     if @object_phrase?
-      @noun_phrase_ready = true      
+      @noun_phrase_ready = true
       obj_phrase = @object_phrase
-      @noun_phrase = obj_phrase      
+      @noun_phrase = obj_phrase
     else
       if @classes
         obj_phrase += angliciser(@classes)
@@ -302,7 +302,7 @@ class GraphCommand
       @suffix_phrase += " regarding " + regarding_phrase +  ' .'
     else
       @suffix_phrase += ' .'
-    cmd_str += @suffix_phrase       
+    cmd_str += @suffix_phrase
     #cmd_str += " ."
     @ready = ready
     @str = cmd_str
