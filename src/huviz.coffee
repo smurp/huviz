@@ -1469,6 +1469,15 @@ class Huviz
 
   tick: =>
     # return if @focused_node   # <== policy: freeze screen when selected
+    if true
+      if @clean_up_all_dirt_onceRunner?
+        if @clean_up_all_dirt_onceRunner.active
+          @clean_up_all_dirt_onceRunner.stats.runTick ?= 0
+          @clean_up_all_dirt_onceRunner.stats.skipTick ?= 0
+          @clean_up_all_dirt_onceRunner.stats.skipTick++
+          return
+        else
+          @clean_up_all_dirt_onceRunner.stats.runTick++
     @ctx.lineWidth = @edge_width # TODO(smurp) just edges should get this treatment
     @find_node_or_edge_closest_to_pointer()
     @auto_change_verb()
@@ -2236,7 +2245,7 @@ class Huviz
       @attach_predicate_to_its_parent(obj_n)
     obj_n
 
-  clean_up_dirty_predicates: ->
+  clean_up_dirty_predicates: =>
     pred = @predicate_set.get_by('id', 'anything')
     if pred?
       pred.clean_up_dirt()
@@ -2246,13 +2255,16 @@ class Huviz
       @taxonomy.Thing.clean_up_dirt()
 
   clean_up_all_dirt_once: ->
-    @clean_up_all_dirt_onceRunner ?= new OnceRunner(10)
-    @clean_up_all_dirt_onceRunner.setTimeout(@clean_up_all_dirt, 500)
+    @clean_up_all_dirt_onceRunner ?= new OnceRunner(0, 'clean_up_all_dirt_once')
+    @clean_up_all_dirt_onceRunner.setTimeout(@clean_up_all_dirt, 300)
 
   clean_up_all_dirt: =>
+    #console.warn("clean_up_all_dirt()")
     @clean_up_dirty_taxons()
     @clean_up_dirty_predicates()
     @regenerate_english()
+    setTimeout(@clean_up_dirty_predictes, 500)
+    #setTimeout(@clean_up_dirty_predictes, 3000)
 
   prove_OnceRunner: (timeout) ->
     @prove_OnceRunner_inst ?= new OnceRunner(30)
