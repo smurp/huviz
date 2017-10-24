@@ -204,13 +204,50 @@ body, html {
     color: #373737;
 }
 
-
+/*------ Background title styles-----*/
 /* a color just adjacent to the background color, for just barely visible text in watermarks */
 
 .subliminal {
     color: #D7D7D7;
 }
-
+#dataset_watermark.bold1 {
+    color: #333333;
+    font-weight: bold;
+    font-size: 120%;
+    display:block;
+}
+.theme_black #dataset_watermark.bold1 {
+    color: #DDDDDD;
+}
+#dataset_watermark.bold2 {
+    color: #333333;
+    font-weight: bold;
+    font-size: 120%;
+    padding-right: 1em;
+}
+#ontology_watermark.bold2 {
+    color: #333333;
+}
+.theme_black #dataset_watermark.bold2, .theme_black #ontology_watermark.bold2{
+    color: #DDDDDD;
+}
+#dataset_watermark.custom {
+    color: #333333;
+    font-weight: bold;
+    font-size: 120%;
+    display:block;
+}
+#ontology_watermark.custom {
+    color: #333333;
+    font-size: 100%;
+    display:block;
+}
+.theme_black #dataset_watermark.custom {
+    color: #DDDDDD;
+}
+.theme_black #ontology_watermark.custom {
+    color: #DDDDDD;
+}
 
 /* cope with absence of =80x80 in npm marked Markdown support */
 #tabs-credit img {
