@@ -194,45 +194,35 @@ class GraphCommand
     @graph_ctrl.force.stop()
     reg_req = @regarding_required()
     nodes = @get_nodes()
-    console.log @str,"on",nodes.length,"nodes"
+    console.log(@str, "on", nodes.length, "nodes")
+    errorHandler = (err_arg) ->
+      if err_arg?
+        console.error("err =", err_arg)
+        if not err_arg?
+          throw "err_arg is null"
+        throw err_arg
+      else
+        console.log "DONE .execute()"
     if reg_req
       for meth in @get_predicate_methods()
-        err = (err_arg) ->
-          if err_arg?
-            console.error "err =",err_arg
-            if not err_arg?
-              throw "err_arg is null"
-            throw err_arg
-          else
-            console.log "DONE .execute()"
         iter = (node) =>
           for pred in @regarding
-            retval = meth.call(@graph_ctrl,node,pred)
+            retval = meth.call(@graph_ctrl, node, pred)
           @graph_ctrl.tick()
         #async.eachSeries nodes,iter,err
         if nodes?
-          async.each nodes,iter,err
+          async.each(nodes, iter, errorHandler)
         #@graph_ctrl.tick()
     else if @verbs[0] is 'load' # FIXME not very general, but it appears to be the sole exception
       @graph_ctrl.load(@data_uri)
       console.log("load data_uri has returned")
     else
       for meth in @get_methods()
-        # console.log "meth",meth
-        # for node in nodes
-        #  retval = meth.call(@graph_ctrl,node)
-        err = (err_arg) ->
-          if err
-            console.log "err =",err_arg
-            #throw err_arg
-          else
-            console.log "DONE .execute()"
         iter = (node) =>
           retval = meth.call(@graph_ctrl,node)
           @graph_ctrl.tick() # TODO(smurp) move this out, or call every Nth node
-        #async.eachSeries nodes,iter,err
         if nodes?
-          async.each nodes,iter,err
+          async.each(nodes, iter, errorHandler)
         #@graph_ctrl.tick()
     @graph_ctrl.hide_state_msg()
     @graph_ctrl.force.start()
