@@ -224,6 +224,7 @@ class GraphCommand
         if nodes?
           async.each(nodes, iter, errorHandler)
         #@graph_ctrl.tick()
+    @graph_ctrl.clean_up_all_dirt_once()
     @graph_ctrl.hide_state_msg()
     @graph_ctrl.force.start()
   get_pretty_verbs: ->
