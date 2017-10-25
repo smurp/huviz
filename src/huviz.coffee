@@ -352,7 +352,7 @@ class Huviz
   label_show_range: null # @link_distance * 1.1
   focus_threshold: 100
   discard_radius: 200
-  fisheye_radius: 100 #null # label_show_range * 5
+  fisheye_radius: 400 #null # label_show_range * 5
   focus_radius: null # label_show_range
   drag_dist_threshold: 5
   snippet_size: 300
