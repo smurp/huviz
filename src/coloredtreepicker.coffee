@@ -73,6 +73,7 @@ class ColoredTreePicker extends TreePicker
       console.log "RECOLOR"
     branch = @elem[0][0].children[0]
     @recolor_recurse_DOM(retval, recursor, branch, "")
+    return retval
   recolor_recurse_DOM: (retval, recursor, branch, indent) ->
     branch_id = branch.getAttribute("id")
     class_str = branch.getAttribute("class")
@@ -156,5 +157,11 @@ class ColoredTreePicker extends TreePicker
     style = "background-color: transparent;"
     style += " background: linear-gradient(45deg, #{colors})"
     @id_to_elem[id].attr("style", style)
+  set_payload: (id, value) ->
+    super(id, value)
+    # REVIEW it works but is this the right time to do this?
+    # ensure collapsed nodes have summary colors updated
+    @style_with_kid_color_summary_if_needed(id)
+
 
 (exports ? this).ColoredTreePicker = ColoredTreePicker
