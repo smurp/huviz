@@ -551,7 +551,7 @@ class Huviz
           action = "shelve"
         else if @in_discard_dropzone(@dragging)
           action = "discard"
-        @text_cursor.pause("", "drop to #{action}")
+        @text_cursor.pause("", "drop to #{@human_term[action]}")
     else # IE not dragging
       if @edit_mode
         if @editui.object_node or not @editui.subject_node
