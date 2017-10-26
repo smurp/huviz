@@ -1742,7 +1742,7 @@ class Huviz
         if @try_to_set_node_type(subj_n, quad.o.value)
           @develop(subj_n) # might be ready now
       else
-        edge = @get_or_create_Edge(subj_n,obj_n,pred_n,cntx_n)
+        edge = @get_or_create_Edge(subj_n, obj_n, pred_n, cntx_n)
         @infer_edge_end_types(edge)
         edge.register_context(cntx_n)
         edge.color = @gclui.predicate_picker.get_color_forId_byName(pred_n.lid,'showing')
@@ -1836,7 +1836,7 @@ class Huviz
     edge = @edges_by_id[edge_id]
     if not edge?
       @edge_count++
-      edge = new Edge(subj_n,obj_n,pred_n)
+      edge = new Edge(subj_n, obj_n, pred_n)
       @edges_by_id[edge_id] = edge
     return edge
 
