@@ -242,8 +242,9 @@ class TreePicker
       try
         @id_to_elem[id].classed("treepicker-#{old_state}",false)
       catch e
-        console.error('id:',id,'state:',state,'old_state:',old_state)
-        throw e
+        console.error('id:',id,'state:',state,'old_state:',old_state,e)
+        #throw e
+        return
     if state?
       @id_to_elem[id].classed("treepicker-#{state}",true)
   set_indirect_state: (id, state, old_state) ->
