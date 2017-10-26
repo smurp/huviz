@@ -31,7 +31,9 @@
 #   deemphasize: (node,predicate,color) =>
 #   pin/unpin
 #
-# THOUGHT: perhaps there is a distinction to be made between verbs
+# TODO(smurp) break out verbs as instances of class Verb, support loading of verbs
+#
+# TODO: perhaps there is a distinction to be made between verbs
 #   and 'actuators' where verbs are the things that people issue
 #   while actuators (actions?) are the one-or-more things per-verb that
 #   constitute the implementation of the verb.  The motivations are:
@@ -46,13 +48,10 @@
 # 116) BUG: stop truncating verbs lists longer than 2 in TextCursor: use grid
 # 115) TASK: add ColorTreepicker [+] and [-] boxes for 'show' and 'unshow'
 # 114) TASK: make text_cursor show detailed stuff when in Commands and Settings
-# 113) TASK: what is the weird stuff happening when there are selected nodes?
 # 113) TASK: why is CP "Poetry" in abdyma.nq not shelved?
-# 102) BUG: put Classes beside Sets again
 # 107) TASK: minimize hits on TextCursor by only calling it when verbs change
 #            not whenever @focused_node changes
 # 104) TASK: remove no-longer-needed text_cursor calls
-# 105) TASK: move @last_cursor_text logic to TextCursor itself
 #  40) TASK: support search better, show matches continuously
 #  79) TASK: support dragging of edges to shelf or discard bin
 #  97) TASK: integrate blanket for code coverage http://goo.gl/tH4Ghk
@@ -92,7 +91,6 @@
 #  25) TASK: debug wait cursor when slow operations are happening, maybe
 #      prevent starting operations when slow stuff is underway
 #      AKA: show waiting cursor during verb execution
-#  26) boot script should perhaps be "choose writer." or some reasonable set
 #  30) TASK: Stop passing (node, change, old_node_status, new_node_status) to
 #      Taxon.update_state() because it never seems to be needed
 #  35) TASK: get rid of jquery
