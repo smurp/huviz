@@ -155,10 +155,10 @@ class GraphCommand
           if like_regex
             for n in the_set
               if n.name.match(like_regex)
-                result_set.add n
+                result_set.add(n)
           else # a redundant loop, kept shallow for speed when no like
             for n in the_set
-              result_set.add n
+              result_set.add(n)
     if @sets
       for a_set in @sets
         for node in a_set
@@ -173,9 +173,7 @@ class GraphCommand
         methods.push(method)
       else
         msg = "method '"+verb+"' not found"
-        console.log msg
-        alert msg
-        #throw new Error(msg)
+        console.error(msg)
     return methods
   get_predicate_methods: () ->
     methods = []
@@ -185,7 +183,7 @@ class GraphCommand
         methods.push(method)
       else
         msg = "method '"+verb+"' not found"
-        console.log msg
+        console.error(msg)
     return methods
   regarding_required: () ->
     return @regarding? and @regarding.length > 0
