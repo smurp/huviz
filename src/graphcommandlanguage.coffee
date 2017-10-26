@@ -209,21 +209,18 @@ class GraphCommand
           for pred in @regarding
             retval = meth.call(@graph_ctrl, node, pred)
           @graph_ctrl.tick()
-        #async.eachSeries nodes,iter,err
         if nodes?
           async.each(nodes, iter, errorHandler)
-        #@graph_ctrl.tick()
     else if @verbs[0] is 'load' # FIXME not very general, but it appears to be the sole exception
       @graph_ctrl.load(@data_uri)
       console.log("load data_uri has returned")
     else
       for meth in @get_methods()
         iter = (node) =>
-          retval = meth.call(@graph_ctrl,node)
+          retval = meth.call(@graph_ctrl, node)
           @graph_ctrl.tick() # TODO(smurp) move this out, or call every Nth node
         if nodes?
           async.each(nodes, iter, errorHandler)
-        #@graph_ctrl.tick()
     @graph_ctrl.clean_up_all_dirt_once()
     @graph_ctrl.hide_state_msg()
     @graph_ctrl.force.start()
