@@ -1728,6 +1728,9 @@ class Huviz
     subj_n = @get_or_create_node_by_id(sid)
     pred_n = @get_or_create_predicate_by_id(pid)
     cntx_n = @get_or_create_context_by_id(ctxid)
+    if pid.match(/\#(first|rest)$/) # TODO use @predicates_to_ignore instead OR rdfs:first and rdfs:rest
+      console.warn("add_quad() ignoring quad because pid=#{pid}", quad)
+      return
     # set the predicate on the subject
     if not subj.predicates[pid]?
       subj.predicates[pid] = {objects:[]}
