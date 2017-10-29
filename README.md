@@ -34,7 +34,7 @@ huviz
     # known to work on NodeJS >= v6.11.3
     # (as of this writing, the latest Long Term Support version)
 
-    https://github.com/creationix/nvm
+    https://github.com/creationix/nvm#install-script
 
     # Install `nvm` using the curl command in 'Install Script'.
     # Then quit that Terminal window and start a new one to make sure its firing up automatically.
