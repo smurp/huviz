@@ -32,8 +32,22 @@ huviz
 
     # install NodeJS using NVM for most flexibility
     # known to work on NodeJS >= v6.11.3
+    # (as of this writing, the latest Long Term Support version)
 
     https://github.com/creationix/nvm
+
+    # Install `nvm` using the curl command in 'Install Script'.
+    # Then quit that Terminal window and start a new one to make sure its firing up automatically.
+    # There are tips at the bottom of the NVM README in case of problems.
+
+    # Then install the LTS version of `node` itself like this:
+    nvm install --lts
+
+    # Make sure you've got a suitable version of Node
+    node -v # expecting v6.11.3 or later
+
+    # Then do classic normal npm stuff
+    npm install # install needed modules
 
 # Running the server during development
 
