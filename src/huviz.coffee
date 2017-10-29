@@ -2967,6 +2967,8 @@ class Huviz
     if not disable?
       ds_v = @dataset_loader.value
       on_v = @ontology_loader.value
+      selected_dataset = @dataset_loader.get_selected_option()[0]
+      @update_browser_title(selected_dataset)
       @update_caption(ds_v, on_v)
       #console.log("DATASET: #{ds_v}\nONTOLOGY: #{on_v}")
       disable = (not (ds_v and on_v)) or ('provide' in [ds_v, on_v])
@@ -2977,6 +2979,10 @@ class Huviz
   update_caption: (dataset_str, ontology_str) ->
     $("#dataset_watermark").text(dataset_str)
     $("#ontology_watermark").text(ontology_str)
+
+  update_browser_title: (selected_dataset) ->
+    if selected_dataset.value
+      document.title = selected_dataset.label + " - Huvis Graph Visualization"
 
   set_ontology_from_dataset_if_possible: ->
     if @dataset_loader.value # and not @ontology_loader.value
