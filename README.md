@@ -29,11 +29,11 @@ huviz
 
 ## Installation (for running the server)
 
-    # install NodeJS from https://nodejs.org
-    # known to work on NodeJS > 0.10.1
 
-    # in package.json comment libxmljs back in then do
-    npm install
+    # install NodeJS using NVM for most flexibility
+    # known to work on NodeJS >= v6.11.3
+
+    https://github.com/creationix/nvm
 
 # Running the server during development
 
