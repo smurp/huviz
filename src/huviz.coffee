@@ -2948,6 +2948,9 @@ class Huviz
   disable_dataset_ontology_loader: ->
     @dataset_loader.disable()
     @ontology_loader.disable()
+    #console.log("freeze the form--------------------")
+    #console.log @dataset_loader
+    @replace_loader_display(@dataset_loader.get_selected_option()[0].label, @ontology_loader.get_selected_option()[0].label)
     disable = true
     @update_go_button(disable)
     @big_go_button.hide()
@@ -2976,13 +2979,23 @@ class Huviz
     @big_go_button.prop('disabled', disable)
     return
 
-  update_caption: (dataset_str, ontology_str) ->
-    $("#dataset_watermark").text(dataset_str)
-    $("#ontology_watermark").text(ontology_str)
+  replace_loader_display: (selected_dataset, selected_ontology) ->
+    $("#huvis_controls .unselectable").attr("style","display:none")
+    #$(".unselectable").attr("style","display:none")
+    data_ontol_display = "<div id='data_ontology_display'>"
+    data_ontol_display += "<p><span class='dt_label'>Dataset:</span> " + selected_dataset + "</p> "
+    data_ontol_display += "<p><span class='dt_label'>Ontology:</span> " + selected_ontology + "</p>"
+    data_ontol_display += "<br style='clear:both'></div>"
+    $("#huvis_controls").prepend(data_ontol_display)
+    #.text(selected_dataset.label)
 
   update_browser_title: (selected_dataset) ->
     if selected_dataset.value
       document.title = selected_dataset.label + " - Huvis Graph Visualization"
+
+  update_caption: (dataset_str, ontology_str) ->
+    $("#dataset_watermark").text(dataset_str)
+    $("#ontology_watermark").text(ontology_str)
 
   set_ontology_from_dataset_if_possible: ->
     if @dataset_loader.value # and not @ontology_loader.value
