@@ -3821,7 +3821,7 @@ class Huviz
       $("#graph_custom_main_title").css('display', 'inherit')
       $("#graph_custom_sub_title").css('display', 'inherit')
       custTitle = $("input[name='graph_custom_main_title']")
-      custSubTitle = $("input[name='graph_custom_main_title']")
+      custSubTitle = $("input[name='graph_custom_sub_title']")
       @update_caption(custTitle[0].title, custSubTitle[0].title)
       $("a.git_commit_hash_watermark").css('display', 'none')
       $("#ontology_watermark").attr('style', '')
