@@ -2948,6 +2948,9 @@ class Huviz
   disable_dataset_ontology_loader: ->
     @dataset_loader.disable()
     @ontology_loader.disable()
+    #console.log("freeze the form--------------------")
+    #console.log @dataset_loader
+    @replace_loader_display(@dataset_loader.get_selected_option()[0].label, @ontology_loader.get_selected_option()[0].label)
     disable = true
     @update_go_button(disable)
     @big_go_button.hide()
@@ -2967,12 +2970,28 @@ class Huviz
     if not disable?
       ds_v = @dataset_loader.value
       on_v = @ontology_loader.value
+      selected_dataset = @dataset_loader.get_selected_option()[0]
+      @update_browser_title(selected_dataset)
       @update_caption(ds_v, on_v)
       #console.log("DATASET: #{ds_v}\nONTOLOGY: #{on_v}")
       disable = (not (ds_v and on_v)) or ('provide' in [ds_v, on_v])
       ds_on = "#{ds_v} AND #{on_v}"
     @big_go_button.prop('disabled', disable)
     return
+
+  replace_loader_display: (selected_dataset, selected_ontology) ->
+    $("#huvis_controls .unselectable").attr("style","display:none")
+    #$(".unselectable").attr("style","display:none")
+    data_ontol_display = "<div id='data_ontology_display'>"
+    data_ontol_display += "<p><span class='dt_label'>Dataset:</span> " + selected_dataset + "</p> "
+    data_ontol_display += "<p><span class='dt_label'>Ontology:</span> " + selected_ontology + "</p>"
+    data_ontol_display += "<br style='clear:both'></div>"
+    $("#huvis_controls").prepend(data_ontol_display)
+    #.text(selected_dataset.label)
+
+  update_browser_title: (selected_dataset) ->
+    if selected_dataset.value
+      document.title = selected_dataset.label + " - Huvis Graph Visualization"
 
   update_caption: (dataset_str, ontology_str) ->
     $("#dataset_watermark").text(dataset_str)
@@ -3815,7 +3834,7 @@ class Huviz
       $("#graph_custom_main_title").css('display', 'inherit')
       $("#graph_custom_sub_title").css('display', 'inherit')
       custTitle = $("input[name='graph_custom_main_title']")
-      custSubTitle = $("input[name='graph_custom_main_title']")
+      custSubTitle = $("input[name='graph_custom_sub_title']")
       @update_caption(custTitle[0].title, custSubTitle[0].title)
       $("a.git_commit_hash_watermark").css('display', 'none')
       $("#ontology_watermark").attr('style', '')

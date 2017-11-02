@@ -63,6 +63,22 @@
   width: 3px;
   height: 30%;
 }
+#data_ontology_display {
+  background-color: #eee;
+  color: #555;
+  font-size: 90%;
+  padding: 1%;
+  margin-bottom: 1%;
+}
+#data_ontology_display p:first-of-type{
+  margin-right: 4%;
+}
+
+.dt_label{
+  font-size: 80%;
+  color: #777;
+}
+
 .snippet {
   background-color: "lightgray";
 }
