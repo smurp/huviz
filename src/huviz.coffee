@@ -350,7 +350,7 @@ class Huviz
   label_show_range: null # @link_distance * 1.1
   focus_threshold: 100
   discard_radius: 200
-  fisheye_radius: 400 #null # label_show_range * 5
+  fisheye_radius: 300 #null # label_show_range * 5
   focus_radius: null # label_show_range
   drag_dist_threshold: 5
   snippet_size: 300
@@ -3378,7 +3378,7 @@ class Huviz
         label:
           title: "how big the fisheye is"
         input:
-          value: 100
+          value: 300
           min: 40
           max: 2000
           step: 20
