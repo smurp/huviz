@@ -258,11 +258,30 @@ if true
 if not is_one_of(2,[3,2,4])
   alert "is_one_of() fails"
 
-blurt = (str) ->
+blurt = (str, type) ->
+  #css styles for messages: info (blue), alert (yellow), error (red)
+  # TODO There is currently no way for users to remove blurt boxes
+  if !type
+    type='info'
+  if type is "info" then label = "<h3>Message</h3>"
+  if type is "alert" then label = "<h3>Alert</h3>"
+  if type is "error" then label = "<h3>Error</h3>"
   if !$('#blurtbox').length
-    $('#tabs').append('<div id="blurtbox" style="overflow:scroll; height:150px; font-family:monospace"></div>')
-  $('#blurtbox').append("<li>#{str}</li>")
+    if type is "error"
+      $('#huvis_controls').prepend('<div id="blurtbox"></div>')
+    else
+      $('#tabs').append('<div id="blurtbox" style="overflow:scroll;height:150px;"></div>')
+  $('#blurtbox').append("<div class='blurt #{type}'>#{label}#{str}<br class='clear'></div>")
   $('#blurtbox').scrollTop(10000)
+
+escapeHtml = (unsafe) ->
+    return unsafe
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+
 
 orlando_human_term =
   all: 'All'
@@ -1885,7 +1904,13 @@ class Huviz
     context = "http://universal.org"
     if GreenerTurtle? and @turtle_parser is 'GreenerTurtle'
       console.log("GreenTurtle() started")
-      @G = new GreenerTurtle().parse(data, "text/turtle")
+      #@G = new GreenerTurtle().parse(data, "text/turtle")
+      try
+        @G = new GreenerTurtle().parse(data, "text/turtle")
+      catch e
+        msg = escapeHtml(e.toString())
+        blurt_msg = '<p>There has been a problem with the Turtle parser. Check your dataset for errors.</p><p class="js_msg">' + msg + '</p>'
+        blurt(blurt_msg, "error")
     quad_count = 0
     every = @report_every
     for subj_uri,frame of @G.subjects
@@ -2948,8 +2973,6 @@ class Huviz
   disable_dataset_ontology_loader: ->
     @dataset_loader.disable()
     @ontology_loader.disable()
-    #console.log("freeze the form--------------------")
-    #console.log @dataset_loader
     @replace_loader_display(@dataset_loader.get_selected_option()[0].label, @ontology_loader.get_selected_option()[0].label)
     disable = true
     @update_go_button(disable)
@@ -2981,13 +3004,11 @@ class Huviz
 
   replace_loader_display: (selected_dataset, selected_ontology) ->
     $("#huvis_controls .unselectable").attr("style","display:none")
-    #$(".unselectable").attr("style","display:none")
     data_ontol_display = "<div id='data_ontology_display'>"
     data_ontol_display += "<p><span class='dt_label'>Dataset:</span> " + selected_dataset + "</p> "
     data_ontol_display += "<p><span class='dt_label'>Ontology:</span> " + selected_ontology + "</p>"
     data_ontol_display += "<br style='clear:both'></div>"
     $("#huvis_controls").prepend(data_ontol_display)
-    #.text(selected_dataset.label)
 
   update_browser_title: (selected_dataset) ->
     if selected_dataset.value

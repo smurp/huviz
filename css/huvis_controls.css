@@ -1,3 +1,7 @@
+.clear {
+  clear:both;
+}
+
 #tabs {
   position: fixed;
   width: 25em;
@@ -118,6 +122,9 @@ body, html {
   font-weight: bold;
   font-size: 90%;
 }
+.like_input {
+  width: 125px;
+}
 .unselectable {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -126,6 +133,54 @@ body, html {
   -ms-user-select: none;
   user-select: none;
   cursor:default;
+}
+
+#blurtbox {
+   /*overflow:scroll;
+   height:150px;*/
+   font-family:monospace;
+}
+#blurtbox p{
+  margin-left:1em;
+}
+#blurtbox h3 {
+  font-size: 1.2em;
+  width: 98%;
+  padding: 0.3em 0 0.3em 2%;
+  margin-top: 0;
+  margin-bottom: 0.5em;
+}
+#blurtbox .info h3{
+  background-color: #e0e5ff;
+  color: #2d40a5;
+}
+#blurtbox .alert h3{
+  background-color: #fbf6ad;
+  color: #333;
+}
+#blurtbox .error h3{
+  background-color: #f9cccc;
+}
+#blurtbox {
+  list-style:none;
+  padding-left: 1em;
+  margin-right: 1em;
+}
+#blurtbox .js_msg {
+  margin: 0.5em 1em 2em 2.5em;
+  font-style: italic;
+}
+#blurtbox .blurt {
+  width: 95%;
+}
+#blurtbox .info {
+  color: #2d40a5;
+}
+#blurtbox .alert {
+  color: #333;
+}
+#blurtbox .error {
+  color: #bd3a3a;
 }
 
 /* ---------------- Edit controls ----------------------- */
