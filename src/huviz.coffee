@@ -603,21 +603,21 @@ class Huviz
     # if something was being dragged then handle the drop
     if @dragging
       #console.log "STOPPING_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
-      @move_node_to_point @dragging, point
+      @move_node_to_point(@dragging, point)
       if @in_discard_dropzone(@dragging)
-        @run_verb_on_object 'discard', @dragging
+        @run_verb_on_object('discard', @dragging)
       else if @in_disconnect_dropzone(@dragging)  # TODO rename to shelve_dropzone
-        @run_verb_on_object 'shelve', @dragging
+        @run_verb_on_object('shelve', @dragging)
         # @unselect(@dragging) # this might be confusing
       else if @dragging.links_shown.length == 0
-        @run_verb_on_object 'choose', @dragging
+        @run_verb_on_object('choose', @dragging)
       else if @nodes_pinnable
         if @edit_mode and (@dragging is @editui.subject_node)
           console.log "not pinning subject_node when dropping"
         else if @dragging.fixed # aka pinned
-          @run_verb_on_object 'unpin', @dragging
+          @run_verb_on_object('unpin', @dragging)
         else
-          @run_verb_on_object 'pin', @dragging
+          @run_verb_on_object('pin', @dragging)
       @dragging = false
       @text_cursor.continue()
       return
@@ -637,7 +637,7 @@ class Huviz
     if @focused_edge
       # FIXME do the edge equivalent of @perform_current_command
       #@update_snippet() # useful when hover-shows-snippet
-      @print_edge @focused_edge
+      @print_edge(@focused_edge)
       return
 
     # it was a drag, not a click
@@ -648,11 +648,11 @@ class Huviz
 
     if @focused_node
       unless @focused_node.state is @graphed_set
-        @run_verb_on_object 'choose',@focused_node
+        @run_verb_on_object('choose', @focused_node)
       else if @focused_node.showing_links is "all"
-        @run_verb_on_object 'print',@focused_node
+        @run_verb_on_object('print', @focused_node)
       else
-        @run_verb_on_object 'choose',@focused_node
+        @run_verb_on_object('choose', @focused_node)
 
       # TODO(smurp) are these still needed?
       @force.links @links_set
@@ -671,7 +671,6 @@ class Huviz
   run_command: (cmd) ->
     @show_state_msg(cmd.as_msg())
     #@gclui.show_working_on()
-    #alert(cmd.as_msg())
     @gclc.run(cmd)
     #@gclui.show_working_off()
     @hide_state_msg()
