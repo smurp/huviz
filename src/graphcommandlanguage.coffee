@@ -155,10 +155,10 @@ class GraphCommand
           if like_regex
             for n in the_set
               if n.name.match(like_regex)
-                result_set.add n
+                result_set.add(n)
           else # a redundant loop, kept shallow for speed when no like
             for n in the_set
-              result_set.add n
+              result_set.add(n)
     if @sets
       for a_set in @sets
         for node in a_set
@@ -173,9 +173,7 @@ class GraphCommand
         methods.push(method)
       else
         msg = "method '"+verb+"' not found"
-        console.log msg
-        alert msg
-        #throw new Error(msg)
+        console.error(msg)
     return methods
   get_predicate_methods: () ->
     methods = []
@@ -185,7 +183,7 @@ class GraphCommand
         methods.push(method)
       else
         msg = "method '"+verb+"' not found"
-        console.log msg
+        console.error(msg)
     return methods
   regarding_required: () ->
     return @regarding? and @regarding.length > 0
@@ -194,46 +192,34 @@ class GraphCommand
     @graph_ctrl.force.stop()
     reg_req = @regarding_required()
     nodes = @get_nodes()
-    console.log @str,"on",nodes.length,"nodes"
+    console.log(@str, "on", nodes.length, "nodes")
+    errorHandler = (err_arg) ->
+      if err_arg?
+        console.error("err =", err_arg)
+        if not err_arg?
+          throw "err_arg is null"
+        throw err_arg
+      else
+        console.log "DONE .execute()"
     if reg_req
       for meth in @get_predicate_methods()
-        err = (err_arg) ->
-          if err_arg?
-            console.error "err =",err_arg
-            if not err_arg?
-              throw "err_arg is null"
-            throw err_arg
-          else
-            console.log "DONE .execute()"
         iter = (node) =>
           for pred in @regarding
-            retval = meth.call(@graph_ctrl,node,pred)
+            retval = meth.call(@graph_ctrl, node, pred)
           @graph_ctrl.tick()
-        #async.eachSeries nodes,iter,err
         if nodes?
-          async.each nodes,iter,err
-        #@graph_ctrl.tick()
+          async.each(nodes, iter, errorHandler)
     else if @verbs[0] is 'load' # FIXME not very general, but it appears to be the sole exception
       @graph_ctrl.load(@data_uri)
       console.log("load data_uri has returned")
     else
       for meth in @get_methods()
-        # console.log "meth",meth
-        # for node in nodes
-        #  retval = meth.call(@graph_ctrl,node)
-        err = (err_arg) ->
-          if err
-            console.log "err =",err_arg
-            #throw err_arg
-          else
-            console.log "DONE .execute()"
         iter = (node) =>
-          retval = meth.call(@graph_ctrl,node)
+          retval = meth.call(@graph_ctrl, node)
           @graph_ctrl.tick() # TODO(smurp) move this out, or call every Nth node
-        #async.eachSeries nodes,iter,err
         if nodes?
-          async.each nodes,iter,err
-        #@graph_ctrl.tick()
+          async.each(nodes, iter, errorHandler)
+    @graph_ctrl.clean_up_all_dirt_once()
     @graph_ctrl.hide_state_msg()
     @graph_ctrl.force.start()
   get_pretty_verbs: ->
@@ -269,9 +255,9 @@ class GraphCommand
       more = angliciser((s.get_label() for s in @sets))
       @object_phrase = more
     if @object_phrase?
-      @noun_phrase_ready = true      
+      @noun_phrase_ready = true
       obj_phrase = @object_phrase
-      @noun_phrase = obj_phrase      
+      @noun_phrase = obj_phrase
     else
       if @classes
         obj_phrase += angliciser(@classes)
@@ -302,7 +288,7 @@ class GraphCommand
       @suffix_phrase += " regarding " + regarding_phrase +  ' .'
     else
       @suffix_phrase += ' .'
-    cmd_str += @suffix_phrase       
+    cmd_str += @suffix_phrase
     #cmd_str += " ."
     @ready = ready
     @str = cmd_str

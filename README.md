@@ -29,15 +29,35 @@ huviz
 
 ## Installation (for running the server)
 
-    # install NodeJS from https://nodejs.org
-    # known to work on NodeJS > 0.10.1
-    
-    # in package.json comment libxmljs back in then do
-    npm install
+
+    # install NodeJS using NVM for most flexibility
+    # known to work on NodeJS >= v6.11.3
+    # (as of this writing, the latest Long Term Support version)
+
+    https://github.com/creationix/nvm#install-script
+
+    # Install `nvm` using the curl command in 'Install Script'.
+    # Then quit that Terminal window and start a new one to make sure its firing up automatically.
+    # There are tips at the bottom of the NVM README in case of problems.
+
+    # Then install the LTS version of `node` itself like this:
+    nvm install --lts
+
+    # Make sure you've got a suitable version of Node
+    node -v # expecting v6.11.3 or later
+
+    # Then do classic normal npm stuff
+    npm install # install needed modules
 
 # Running the server during development
 
     npm run dev
+
+# Runner CLI tests during development
+
+    npm run watchTest
+
+uses https://www.npmjs.com/package/npm-watch https://www.npmjs.com/package/mocha
 
 # Running the server
 

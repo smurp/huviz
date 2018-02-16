@@ -1,10 +1,50 @@
 
 TreePicker = require('treepicker').TreePicker
 
+###
+#     ColoredTreePicker is a widget for displaying and manipulating a hierarchy
+#     and displaying and manipulating the selectedness of branches and nodes.
+#
+#     The terminology below is a bit screwy because the motivating hierarchy
+#     was a taxonomy controller which determined which nodes in a graph
+#     are 'shown' as selected.  Perhaps better terminology would be to have
+#     'shown' called 'marked' and 'unshown' called 'unmarked'.
+#
+#     ▼ 0x25bc
+#     ▶ 0x25b6
+#
+#     Expanded                   Collapsed
+#     +-----------------+        +-----------------+
+#     | parent        ▼ |        | parent        ▶ |
+#     |   +------------+|        +-----------------+
+#     |   | child 1    ||
+#     |   +------------+|
+#     |   | child 2    ||
+#     |   +------------+|
+#     +-----------------+
+#
+#     Clicking an expanded parent should cycle thru selection and deselection
+#     of only its direct instances, if there are any.
+#
+#     Clicking a collapsed parent should cycle thru selection and deselection
+#     of its direct instances as well as those of all its children.
+#
+#     The coloring of expanded parents cycles thru the three states:
+#       Mixed - some of the direct instances are selected
+#       On - all of the direct instances are selected
+#       Off - none of the direct instances are selected
+#
+#     The coloring of a collapsed parent cycles thru the three states:
+#       Mixed - some descendant instances are selected (direct or indirect)
+#       On - all descendant instances are selected (direct or indirect)
+#       Off - no descendant instances are selected (direct or indirect)
+#
+#     Indirect instances are the instances of subclasses.
+#
 # The states:
-#   showing    everything is "shown"
-#   mixed      some things are shown
-#   unshowing  though there are things, none are shown
+#   showing    everything is "shown" (ie marked)
+#   mixed      some things are shown (ie a mixure of marked and unmarked)
+#   unshowing  though there are things, none are shown (ie unmarked)
 #   empty      a mid-level branch which itself has no direct instances
 #              (motivated by the taxon_picker which often has levels
 #               in its hierarchy which themselves have no direct instances)
@@ -16,6 +56,8 @@ TreePicker = require('treepicker').TreePicker
 # from their direct states.  The direct state relates to the direct instances.
 # The indirect state spans the direct state of a level and all its children.
 # Leaf levels should always have equal direct and indirect states.
+#
+###
 
 L_unshowing = 0.93
 L_showing = 0.75
@@ -73,6 +115,7 @@ class ColoredTreePicker extends TreePicker
       console.log "RECOLOR"
     branch = @elem[0][0].children[0]
     @recolor_recurse_DOM(retval, recursor, branch, "")
+    return retval
   recolor_recurse_DOM: (retval, recursor, branch, indent) ->
     branch_id = branch.getAttribute("id")
     class_str = branch.getAttribute("class")
@@ -156,5 +199,11 @@ class ColoredTreePicker extends TreePicker
     style = "background-color: transparent;"
     style += " background: linear-gradient(45deg, #{colors})"
     @id_to_elem[id].attr("style", style)
+  set_payload: (id, value) ->
+    super(id, value)
+    # REVIEW it works but is this the right time to do this?
+    # ensure collapsed nodes have summary colors updated
+    @style_with_kid_color_summary_if_needed(id)
+
 
 (exports ? this).ColoredTreePicker = ColoredTreePicker

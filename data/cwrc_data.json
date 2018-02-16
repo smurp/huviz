@@ -1,20 +1,28 @@
 {
   "datasets": [
     {
-      "uri": "https://raw.githubusercontent.com/cwrc/ontology/master/data.ttl",
-      "label": "cwrc/ontology/data.ttl"
+      "uri": "https://raw.githubusercontent.com/cwrc/testData/master/demoData/CanAuthors.ttl",
+      "label": "CanAuthors"
     },
     {
-      "uri": "https://raw.githubusercontent.com/cwrc/ontology/master/demoData/HuVizSHARP2017.ttl",
+      "uri": "https://raw.githubusercontent.com/cwrc/ontology/master/demoData/CWRCTestData.ttl",
+      "label": "CWRCTestData"
+    },
+    {
+      "uri": "https://raw.githubusercontent.com/cwrc/testData/master/demoData/DH2017Montreal.ttl",
+      "label": "DH2017Montreal"
+    },
+    {
+      "uri": "https://github.com/cwrc/testData/blob/master/demoData/HuVizMarylandSTSData.ttl",
+      "label": "HuVizMarylandSTSData"
+    },
+    {
+      "uri": "https://raw.githubusercontent.com/cwrc/testData/master/demoData/HuVizSHARP2017.ttl",
       "label": "HuVizSHARP2017"
     },
     {
       "uri": "/data/grace_and_charlotte.ttl",
       "label": "Grace and Charlotte"
-    },
-    {
-      "uri": "https://raw.githubusercontent.com/cwrc/ontology/master/demoData/CWRCTestData.ttl",
-      "label": "CWRCTestData"
     }
   ],
   "defaults": {

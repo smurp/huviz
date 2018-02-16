@@ -152,7 +152,7 @@ class CommandController
     @predicate_hierarchy = {'anything':['anything']}
     # FIXME Why is show_tree being called four times per node?
     @predicate_picker.click_listener = @on_predicate_clicked
-    @predicate_picker.show_tree(@predicate_hierarchy,@predicatebox)
+    @predicate_picker.show_tree(@predicate_hierarchy, @predicatebox)
   add_newpredicate: (pred_lid, parent_lid, pred_name) =>
     #if pred_lid in @predicates_to_ignore
     #  return
@@ -170,7 +170,7 @@ class CommandController
       verbs: [verb]
       regarding: [pred_id]
       sets: [@huviz.selected_set]
-    @prepare_command cmd
+    @prepare_command(cmd)
     @huviz.run_command(@command)
   recolor_edges: (evt) =>
     count = 0
@@ -178,41 +178,7 @@ class CommandController
       for edge in node.links_from
         count++
         pred_n_js_id = edge.predicate.id
-        edge.color = @predicate_picker.get_color_forId_byName(pred_n_js_id,'showing')
-  ###
-  #     Collapsing and expanding taxons whether abstract or just instanceless.
-  #
-  #     ▼ 0x25bc
-  #     ▶ 0x25b6
-  #
-  #     Expanded                   Collapsed
-  #     +-----------------+        +-----------------+
-  #     | parent        ▼ |        | parent        ▶ |
-  #     |   +------------+|        +-----------------+
-  #     |   | child 1    ||
-  #     |   +------------+|
-  #     |   | child 2    ||
-  #     |   +------------+|
-  #     +-----------------+
-  #
-  #     Clicking an expanded parent should cycle thru selection and deselection
-  #     of only its direct instances, if there are any.
-  #
-  #     Clicking a collapsed parent should cycle thru selection and deselection
-  #     of its direct instances as well as those of all its children.
-  #
-  #     The coloring of expanded parents cycles thru the three states:
-  #       Mixed - some of the direct instances are selected
-  #       On - all of the direct instances are selected
-  #       Off - none of the direct instances are selected
-  #
-  #     The coloring of a collapsed parent cycles thru the three states:
-  #       Mixed - some descendant instances are selected (direct or indirect)
-  #       On - all descendant instances are selected (direct or indirect)
-  #       Off - no descendant instances are selected (direct or indirect)
-  #
-  #     Indirect instances are the instances of subclasses.
-  ###
+        edge.color = @predicate_picker.get_color_forId_byName(pred_n_js_id, 'showing')
   build_taxon_picker: (label, where) ->
     id = 'classes'
     title =
@@ -530,6 +496,7 @@ class CommandController
     @clear_like_button = @likediv.append('button').text('⌫')
     @clear_like_button.attr('type','button').classed('clear_like', true)
     @clear_like_button.attr('disabled','disabled')
+    @clear_like_button.attr('title','clear the "like" field')
     @clear_like_button.on 'click', @handle_clear_like
 
   handle_clear_like: (evt) =>
@@ -638,10 +605,10 @@ class CommandController
       args.like = like_str
     @command = new gcl.GraphCommand(@huviz, args)
   update_command: (because) =>
-    console.log "update_command()"
+    console.log("update_command()")
     because = because or {}
     @huviz.show_state_msg("update_command")
-    ready = @prepare_command @build_command()
+    ready = @prepare_command(@build_command())
     if ready and @huviz.doit_asap and @immediate_execution_mode
       @show_working_on()
       if @huviz.slow_it_down
@@ -758,7 +725,7 @@ class CommandController
   build_verb_picker: (id,label,alternatives) ->
     vbctl = alternatives.append('div').attr("class","verb")
     if @verb_descriptions[id]
-      vbctl.attr("title",@verb_descriptions[id])
+      vbctl.attr("title", @verb_descriptions[id])
     vbctl.attr("id", "verb-"+id)
     @verb_control[id] = vbctl
     vbctl.text(label)

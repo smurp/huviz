@@ -103,19 +103,11 @@ class TreePicker
   click_handler: () =>
     picker = this
     elem = d3.select(d3.event.target)
-    #elem = d3.select(d3.event.currentTarget)
-    #if not elem.node().id
-    #  alert("deferring to #{elem.node().parentElement.id}")
-    #  return true
     d3.event.stopPropagation()
-
-    # TODO figure out why the target elem is sometimes the treepicker-label not the
-    this_id = elem.node().id
-    parent_id = elem.node().parentElement.id
-    id = this_id or parent_id
-    if not this_id
+    id = elem.node().id
+    while not id
       elem = d3.select(elem.node().parentElement)
-    #picker.effect_click(id, new_state, send_leafward, listener)
+      id = elem.node().id
     picker.handle_click(id) #, send_leafward)
     # This is hacky but ColorTreePicker.click_handler() needs the id too
     return id
@@ -250,8 +242,9 @@ class TreePicker
       try
         @id_to_elem[id].classed("treepicker-#{old_state}",false)
       catch e
-        console.error('id:',id,'state:',state,'old_state:',old_state)
-        throw e
+        console.error('id:',id,'state:',state,'old_state:',old_state,e)
+        #throw e
+        return
     if state?
       @id_to_elem[id].classed("treepicker-#{state}",true)
   set_indirect_state: (id, state, old_state) ->

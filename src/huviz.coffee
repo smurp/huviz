@@ -31,7 +31,9 @@
 #   deemphasize: (node,predicate,color) =>
 #   pin/unpin
 #
-# THOUGHT: perhaps there is a distinction to be made between verbs
+# TODO(smurp) break out verbs as instances of class Verb, support loading of verbs
+#
+# TODO: perhaps there is a distinction to be made between verbs
 #   and 'actuators' where verbs are the things that people issue
 #   while actuators (actions?) are the one-or-more things per-verb that
 #   constitute the implementation of the verb.  The motivations are:
@@ -46,13 +48,10 @@
 # 116) BUG: stop truncating verbs lists longer than 2 in TextCursor: use grid
 # 115) TASK: add ColorTreepicker [+] and [-] boxes for 'show' and 'unshow'
 # 114) TASK: make text_cursor show detailed stuff when in Commands and Settings
-# 113) TASK: what is the weird stuff happening when there are selected nodes?
 # 113) TASK: why is CP "Poetry" in abdyma.nq not shelved?
-# 102) BUG: put Classes beside Sets again
 # 107) TASK: minimize hits on TextCursor by only calling it when verbs change
 #            not whenever @focused_node changes
 # 104) TASK: remove no-longer-needed text_cursor calls
-# 105) TASK: move @last_cursor_text logic to TextCursor itself
 #  40) TASK: support search better, show matches continuously
 #  79) TASK: support dragging of edges to shelf or discard bin
 #  97) TASK: integrate blanket for code coverage http://goo.gl/tH4Ghk
@@ -92,7 +91,6 @@
 #  25) TASK: debug wait cursor when slow operations are happening, maybe
 #      prevent starting operations when slow stuff is underway
 #      AKA: show waiting cursor during verb execution
-#  26) boot script should perhaps be "choose writer." or some reasonable set
 #  30) TASK: Stop passing (node, change, old_node_status, new_node_status) to
 #      Taxon.update_state() because it never seems to be needed
 #  35) TASK: get rid of jquery
@@ -127,6 +125,10 @@ Taxon = require('taxon').Taxon
 TextCursor = require('textcursor').TextCursor
 
 MultiString.set_langpath('en:fr') # TODO make this a setting
+
+# It is as if these imports were happening but they are being stitched in instead
+#   OnceRunner = require('oncerunner').OnceRunner
+#   TODO document the other examples of requires that are being "stitched in"
 
 wpad = undefined
 hpad = 10
@@ -256,11 +258,30 @@ if true
 if not is_one_of(2,[3,2,4])
   alert "is_one_of() fails"
 
-blurt = (str) ->
+blurt = (str, type) ->
+  #css styles for messages: info (blue), alert (yellow), error (red)
+  # TODO There is currently no way for users to remove blurt boxes
+  if !type
+    type='info'
+  if type is "info" then label = "<h3>Message</h3>"
+  if type is "alert" then label = "<h3>Alert</h3>"
+  if type is "error" then label = "<h3>Error</h3>"
   if !$('#blurtbox').length
-    $('#tabs').append('<div id="blurtbox" style="overflow:scroll; height:150px; font-family:monospace"></div>')
-  $('#blurtbox').append("<li>#{str}</li>")
+    if type is "error"
+      $('#huvis_controls').prepend('<div id="blurtbox"></div>')
+    else
+      $('#tabs').append('<div id="blurtbox" style="overflow:scroll;height:150px;"></div>')
+  $('#blurtbox').append("<div class='blurt #{type}'>#{label}#{str}<br class='clear'></div>")
   $('#blurtbox').scrollTop(10000)
+
+escapeHtml = (unsafe) ->
+    return unsafe
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+
 
 orlando_human_term =
   all: 'All'
@@ -348,7 +369,7 @@ class Huviz
   label_show_range: null # @link_distance * 1.1
   focus_threshold: 100
   discard_radius: 200
-  fisheye_radius: 100 #null # label_show_range * 5
+  fisheye_radius: 300 #null # label_show_range * 5
   focus_radius: null # label_show_range
   drag_dist_threshold: 5
   snippet_size: 300
@@ -547,7 +568,7 @@ class Huviz
           action = "shelve"
         else if @in_discard_dropzone(@dragging)
           action = "discard"
-        @text_cursor.pause("", "drop to #{action}")
+        @text_cursor.pause("", "drop to #{@human_term[action]}")
     else # IE not dragging
       if @edit_mode
         if @editui.object_node or not @editui.subject_node
@@ -582,21 +603,21 @@ class Huviz
     # if something was being dragged then handle the drop
     if @dragging
       #console.log "STOPPING_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
-      @move_node_to_point @dragging, point
+      @move_node_to_point(@dragging, point)
       if @in_discard_dropzone(@dragging)
-        @run_verb_on_object 'discard', @dragging
+        @run_verb_on_object('discard', @dragging)
       else if @in_disconnect_dropzone(@dragging)  # TODO rename to shelve_dropzone
-        @run_verb_on_object 'shelve', @dragging
+        @run_verb_on_object('shelve', @dragging)
         # @unselect(@dragging) # this might be confusing
       else if @dragging.links_shown.length == 0
-        @run_verb_on_object 'choose', @dragging
+        @run_verb_on_object('choose', @dragging)
       else if @nodes_pinnable
         if @edit_mode and (@dragging is @editui.subject_node)
           console.log "not pinning subject_node when dropping"
         else if @dragging.fixed # aka pinned
-          @run_verb_on_object 'unpin', @dragging
+          @run_verb_on_object('unpin', @dragging)
         else
-          @run_verb_on_object 'pin', @dragging
+          @run_verb_on_object('pin', @dragging)
       @dragging = false
       @text_cursor.continue()
       return
@@ -616,7 +637,7 @@ class Huviz
     if @focused_edge
       # FIXME do the edge equivalent of @perform_current_command
       #@update_snippet() # useful when hover-shows-snippet
-      @print_edge @focused_edge
+      @print_edge(@focused_edge)
       return
 
     # it was a drag, not a click
@@ -627,11 +648,11 @@ class Huviz
 
     if @focused_node
       unless @focused_node.state is @graphed_set
-        @run_verb_on_object 'choose',@focused_node
+        @run_verb_on_object('choose', @focused_node)
       else if @focused_node.showing_links is "all"
-        @run_verb_on_object 'print',@focused_node
+        @run_verb_on_object('print', @focused_node)
       else
-        @run_verb_on_object 'choose',@focused_node
+        @run_verb_on_object('choose', @focused_node)
 
       # TODO(smurp) are these still needed?
       @force.links @links_set
@@ -645,16 +666,15 @@ class Huviz
       @run_command(cmd)
     #else
     #  @toggle_selected(node)
-    @clean_up_all_dirt()
+    @clean_up_all_dirt_once()
 
   run_command: (cmd) ->
     @show_state_msg(cmd.as_msg())
     #@gclui.show_working_on()
-    #alert(cmd.as_msg())
-    @gclc.run cmd
+    @gclc.run(cmd)
     #@gclui.show_working_off()
     @hide_state_msg()
-    @gclui.push_command cmd
+    @gclui.push_command(cmd)
 
   #///////////////////////////////////////////////////////////////////////////
   # resize-svg-when-window-is-resized-in-d3-js
@@ -1465,6 +1485,15 @@ class Huviz
 
   tick: =>
     # return if @focused_node   # <== policy: freeze screen when selected
+    if true
+      if @clean_up_all_dirt_onceRunner?
+        if @clean_up_all_dirt_onceRunner.active
+          @clean_up_all_dirt_onceRunner.stats.runTick ?= 0
+          @clean_up_all_dirt_onceRunner.stats.skipTick ?= 0
+          @clean_up_all_dirt_onceRunner.stats.skipTick++
+          return
+        else
+          @clean_up_all_dirt_onceRunner.stats.runTick++
     @ctx.lineWidth = @edge_width # TODO(smurp) just edges should get this treatment
     @find_node_or_edge_closest_to_pointer()
     @auto_change_verb()
@@ -1715,6 +1744,9 @@ class Huviz
     subj_n = @get_or_create_node_by_id(sid)
     pred_n = @get_or_create_predicate_by_id(pid)
     cntx_n = @get_or_create_context_by_id(ctxid)
+    if pid.match(/\#(first|rest)$/) # TODO use @predicates_to_ignore instead OR rdfs:first and rdfs:rest
+      console.warn("add_quad() ignoring quad because pid=#{pid}", quad)
+      return
     # set the predicate on the subject
     if not subj.predicates[pid]?
       subj.predicates[pid] = {objects:[]}
@@ -1729,7 +1761,7 @@ class Huviz
         if @try_to_set_node_type(subj_n, quad.o.value)
           @develop(subj_n) # might be ready now
       else
-        edge = @get_or_create_Edge(subj_n,obj_n,pred_n,cntx_n)
+        edge = @get_or_create_Edge(subj_n, obj_n, pred_n, cntx_n)
         @infer_edge_end_types(edge)
         edge.register_context(cntx_n)
         edge.color = @gclui.predicate_picker.get_color_forId_byName(pred_n.lid,'showing')
@@ -1823,7 +1855,7 @@ class Huviz
     edge = @edges_by_id[edge_id]
     if not edge?
       @edge_count++
-      edge = new Edge(subj_n,obj_n,pred_n)
+      edge = new Edge(subj_n, obj_n, pred_n)
       @edges_by_id[edge_id] = edge
     return edge
 
@@ -1871,7 +1903,13 @@ class Huviz
     context = "http://universal.org"
     if GreenerTurtle? and @turtle_parser is 'GreenerTurtle'
       console.log("GreenTurtle() started")
-      @G = new GreenerTurtle().parse(data, "text/turtle")
+      #@G = new GreenerTurtle().parse(data, "text/turtle")
+      try
+        @G = new GreenerTurtle().parse(data, "text/turtle")
+      catch e
+        msg = escapeHtml(e.toString())
+        blurt_msg = '<p>There has been a problem with the Turtle parser. Check your dataset for errors.</p><p class="js_msg">' + msg + '</p>'
+        blurt(blurt_msg, "error")
     quad_count = 0
     every = @report_every
     for subj_uri,frame of @G.subjects
@@ -2232,7 +2270,7 @@ class Huviz
       @attach_predicate_to_its_parent(obj_n)
     obj_n
 
-  clean_up_dirty_predicates: ->
+  clean_up_dirty_predicates: =>
     pred = @predicate_set.get_by('id', 'anything')
     if pred?
       pred.clean_up_dirt()
@@ -2241,10 +2279,22 @@ class Huviz
     if @taxonomy.Thing?
       @taxonomy.Thing.clean_up_dirt()
 
-  clean_up_all_dirt: ->
+  clean_up_all_dirt_once: ->
+    @clean_up_all_dirt_onceRunner ?= new OnceRunner(0, 'clean_up_all_dirt_once')
+    @clean_up_all_dirt_onceRunner.setTimeout(@clean_up_all_dirt, 300)
+
+  clean_up_all_dirt: =>
+    #console.warn("clean_up_all_dirt()")
     @clean_up_dirty_taxons()
     @clean_up_dirty_predicates()
     @regenerate_english()
+    setTimeout(@clean_up_dirty_predictes, 500)
+    #setTimeout(@clean_up_dirty_predictes, 3000)
+
+  prove_OnceRunner: (timeout) ->
+    @prove_OnceRunner_inst ?= new OnceRunner(30)
+    yahoo = () -> alert('yahoo!')
+    @prove_OnceRunner_inst.setTimeout(yahoo, timeout)
 
   get_or_create_context_by_id: (sid) ->
     obj_id = @make_qname(sid)
@@ -2922,6 +2972,7 @@ class Huviz
   disable_dataset_ontology_loader: ->
     @dataset_loader.disable()
     @ontology_loader.disable()
+    @replace_loader_display(@dataset_loader.get_selected_option()[0].label, @ontology_loader.get_selected_option()[0].label)
     disable = true
     @update_go_button(disable)
     @big_go_button.hide()
@@ -2941,12 +2992,26 @@ class Huviz
     if not disable?
       ds_v = @dataset_loader.value
       on_v = @ontology_loader.value
+      selected_dataset = @dataset_loader.get_selected_option()[0]
+      @update_browser_title(selected_dataset)
       @update_caption(ds_v, on_v)
       #console.log("DATASET: #{ds_v}\nONTOLOGY: #{on_v}")
       disable = (not (ds_v and on_v)) or ('provide' in [ds_v, on_v])
       ds_on = "#{ds_v} AND #{on_v}"
     @big_go_button.prop('disabled', disable)
     return
+
+  replace_loader_display: (selected_dataset, selected_ontology) ->
+    $("#huvis_controls .unselectable").attr("style","display:none")
+    data_ontol_display = "<div id='data_ontology_display'>"
+    data_ontol_display += "<p><span class='dt_label'>Dataset:</span> " + selected_dataset + "</p> "
+    data_ontol_display += "<p><span class='dt_label'>Ontology:</span> " + selected_ontology + "</p>"
+    data_ontol_display += "<br style='clear:both'></div>"
+    $("#huvis_controls").prepend(data_ontol_display)
+
+  update_browser_title: (selected_dataset) ->
+    if selected_dataset.value
+      document.title = selected_dataset.label + " - Huvis Graph Visualization"
 
   update_caption: (dataset_str, ontology_str) ->
     $("#dataset_watermark").text(dataset_str)
@@ -3080,7 +3145,7 @@ class Huviz
     $("body").css "background-color", renderStyles.pageBg # FIXME remove once it works!
     $("body").addClass renderStyles.themeName
     @update_all_counts()
-    @clean_up_all_dirt()
+    @clean_up_all_dirt_once()
 
   get_handle: (thing) ->
     # A handle is like a weak reference, saveable, serializable
@@ -3319,7 +3384,7 @@ class Huviz
         label:
           title: "the attractive force keeping nodes centered"
         input:
-          value: 0.25
+          value: 0.4
           min: 0
           max: 1
           step: 0.025
@@ -3352,7 +3417,7 @@ class Huviz
         label:
           title: "how big the fisheye is"
         input:
-          value: 100
+          value: 300
           min: 40
           max: 2000
           step: 20
@@ -3549,6 +3614,58 @@ class Huviz
         input:
           type: "checkbox"   #checked: "checked"
     ,
+      graph_title_style:
+        text: "Title display"
+        label:
+          title: "Select graph title style"
+        input:
+          type: "select"
+        options : [
+            label: "Watermark"
+            value: "subliminal"
+          ,
+            label: "Bold Titles 1"
+            value: "bold1"
+          ,
+            label: "Bold Titles 2"
+            value: "bold2"
+          ,
+            label: "Custom Captions"
+            value: "custom"
+        ]
+        event_type: "change",
+    ,
+      graph_custom_main_title:
+        style: "display:none"
+        text: "Custom Title"
+        label:
+          title: "Title that appears on the graph background"
+        input:
+          type: "text"
+          size: "16"
+          placeholder: "Enter Title"
+        event_type: "change"
+    ,
+      graph_custom_sub_title:
+        style: "display:none"
+        text: "Custom Sub-title"
+        label:
+          title: "Sub-title that appears below main title"
+        input:
+          type: "text"
+          size: "16"
+          placeholder: "Enter Sub-title"
+        event_type: "change"
+    ,
+      debug_shelf_angles_and_flipping:
+        style: "color:orange;display:none"
+        text: "debug shelf angles and flipping"
+        label:
+          title: "show angles and flags with labels"
+        input:
+          type: "checkbox"   #checked: "checked"
+        event_type: "change",
+    ,
       language_path:
         text: "Language Path"
         label:
@@ -3560,15 +3677,7 @@ class Huviz
           size: "16"
           placeholder: "en:es:fr:de:ANY:NOLANG"
         event_type: "change"
-    ,
-      debug_shelf_angles_and_flipping:
-        style: "color:orange;display:none"
-        text: "debug shelf angles and flipping"
-        label:
-          title: "show angles and flags with labels"
-        input:
-          type: "checkbox"   #checked: "checked"
-        event_type: "change"
+
     ]
 
   dump_current_settings: (post) ->
@@ -3593,27 +3702,40 @@ class Huviz
     #$(@graph_controls).sortable().disableSelection() # TODO fix dropping
     for control_spec in @default_graph_controls
       for control_name, control of control_spec
-        graph_control = @graph_controls.append('span').attr('class', 'graph_control')
+        graph_control = @graph_controls.append('span').attr('id',control_name).attr('class', 'graph_control')
         label = graph_control.append('label')
         if control.text?
           label.text(control.text)
         if control.label?
           label.attr(control.label)
         if control.style?
-           graph_control.attr("style", control.style)
-        input = label.append('input')
-        input.attr("name", control_name)
-        if control.input?
-          for k,v of control.input
-            if k is 'value'
-              old_val = @[control_name]
-              @change_setting_to_from(control_name, v, old_val)
-            input.attr(k,v)
-        if control.input.type is 'checkbox'
-          value = control.input.checked?
-          #console.log "control:",control_name,"value:",value, control
-          @change_setting_to_from(control_name, value, undefined) #@[control_name].checked)
-        # TODO replace control.event_type with autodetecting on_change_ vs on_update_ method existence
+          graph_control.attr("style", control.style)
+        if control.class?
+          console.log(control.class)
+          graph_control.attr('class', 'graph_control ' + control.class)
+        if control.input.type is 'select'
+          input = label.append('select')
+          input.attr("name", control_name)
+          for a,v of control.options
+            option = input.append('option')
+            option.html(v.label).attr("value", v.value)
+          #label.append("input").attr("name", "custom_title").attr("type", "text").attr("style", " ")
+          #label.append("input").attr("name", "custom_subtitle").attr("type", "text").attr("style", " ")
+        else
+          input = label.append('input')
+          input.attr("name", control_name)
+          if control.input?
+            for k,v of control.input
+              if k is 'value'
+                old_val = @[control_name]
+                @change_setting_to_from(control_name, v, old_val)
+              input.attr(k,v)
+          if control.input.type is 'checkbox'
+            value = control.input.checked?
+            #console.log "control:",control_name,"value:",value, control
+            @change_setting_to_from(control_name, value, undefined) #@[control_name].checked)
+          # TODO replace control.event_type with autodetecting on_change_ vs on_update_ method existence
+
         if control.event_type is 'change'
           input.on("change", @update_graph_settings) # when focus changes
         else
@@ -3724,6 +3846,36 @@ class Huviz
       for node in @all_set
         @unscroll_pretty_name(node)
     @updateWindow()
+
+  on_change_graph_title_style: (new_val, old_val) ->
+    if new_val is "custom"
+      $(".main_title").removeAttr("style")
+      $(".sub_title").removeAttr("style")
+      $("#graph_custom_main_title").css('display', 'inherit')
+      $("#graph_custom_sub_title").css('display', 'inherit')
+      custTitle = $("input[name='graph_custom_main_title']")
+      custSubTitle = $("input[name='graph_custom_sub_title']")
+      @update_caption(custTitle[0].title, custSubTitle[0].title)
+      $("a.git_commit_hash_watermark").css('display', 'none')
+      $("#ontology_watermark").attr('style', '')
+    else if new_val is "bold1"
+      console.log("here it is")
+      $("#ontology_watermark").css('display', 'none')
+    else
+      $("#graph_custom_main_title").css('display', 'none')
+      $("#graph_custom_sub_title").css('display', 'none')
+      $("a.git_commit_hash_watermark").css('display', 'inherit')
+      $("#ontology_watermark").attr('style', '')
+      @update_caption(@dataset_loader.value,@ontology_loader.value)
+    $("#dataset_watermark").removeClass().addClass(new_val)
+    $("#ontology_watermark").removeClass().addClass(new_val)
+
+  on_change_graph_custom_main_title: (new_val) ->
+    # if new custom values then update titles
+    $("#dataset_watermark").text(new_val)
+
+  on_change_graph_custom_sub_title: (new_val) ->
+    $("#ontology_watermark").text(new_val)
 
   on_change_language_path: (new_val, old_val) ->
     try
@@ -4183,7 +4335,7 @@ class PickOrProvide
     dataset_rec.title ?= dataset_rec.uri
     dataset_rec.canDelete ?= not not dataset_rec.time?
     dataset_rec.label ?= dataset_rec.uri.split('/').reverse()[0]
-    @add_dataset(dataset_rec)
+    @add_dataset(dataset_rec, true)
     @update_state()
 
   add_dataset: (dataset_rec, store_in_db) ->
@@ -4405,3 +4557,8 @@ class DragAndDropLoader
 (exports ? this).OntoViz = OntoViz
 #(exports ? this).Socrata = Socrata
 (exports ? this).Edge = Edge
+
+
+
+
+
