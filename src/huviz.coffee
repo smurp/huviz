@@ -3313,6 +3313,15 @@ class Huviz
   # TODO add controls
   #   selected_border_thickness
   default_graph_controls: [
+      reset_controls_to_default:
+        label:
+          title: "Reset all controls to default"
+        input:
+          type: "button"
+          label: "Reset All"
+          style: "background-color: #555"
+        event_type: "change"
+    ,
       focused_mag:
         text: "focused label mag"
         input:
@@ -3677,14 +3686,12 @@ class Huviz
           size: "16"
           placeholder: "en:es:fr:de:ANY:NOLANG"
         event_type: "change"
-
     ]
 
-  dump_current_settings: (post) ->
-    console.log("dump_current_settings()")
-    for control_spec in @default_graph_controls
-      for control_name, control of control_spec
-        console.log("#{control_name} is",@[control_name],typeof @[control_name],post or "")
+  dump_current_settings: (post) =>
+    $("#tabs-options,.graph_controls").html("")
+    @init_graph_controls_from_json()
+    @on_change_graph_title_style()
 
   auto_adjust_settings: ->
     # Try to tune the gravity, charge and link length to suit the data and the canvas size.
@@ -3711,7 +3718,6 @@ class Huviz
         if control.style?
           graph_control.attr("style", control.style)
         if control.class?
-          console.log(control.class)
           graph_control.attr('class', 'graph_control ' + control.class)
         if control.input.type is 'select'
           input = label.append('select')
@@ -3721,6 +3727,11 @@ class Huviz
             option.html(v.label).attr("value", v.value)
           #label.append("input").attr("name", "custom_title").attr("type", "text").attr("style", " ")
           #label.append("input").attr("name", "custom_subtitle").attr("type", "text").attr("style", " ")
+        else if control.input.type is 'button'
+          input = label.append('button')
+          input.attr("type", "button")
+          input.html("Reset All")
+          input.on("click", @dump_current_settings)
         else
           input = label.append('input')
           input.attr("name", control_name)
@@ -4557,8 +4568,3 @@ class DragAndDropLoader
 (exports ? this).OntoViz = OntoViz
 #(exports ? this).Socrata = Socrata
 (exports ? this).Edge = Edge
-
-
-
-
-
