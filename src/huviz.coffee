@@ -3691,7 +3691,7 @@ class Huviz
   dump_current_settings: (post) =>
     $("#tabs-options,.graph_controls").html("")
     @init_graph_controls_from_json()
-    @on_change_graph_title_style()
+    @on_change_graph_title_style("subliminal")
 
   auto_adjust_settings: ->
     # Try to tune the gravity, charge and link length to suit the data and the canvas size.
@@ -3870,7 +3870,6 @@ class Huviz
       $("a.git_commit_hash_watermark").css('display', 'none')
       $("#ontology_watermark").attr('style', '')
     else if new_val is "bold1"
-      console.log("here it is")
       $("#ontology_watermark").css('display', 'none')
     else
       $("#graph_custom_main_title").css('display', 'none')
