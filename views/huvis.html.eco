@@ -2,7 +2,8 @@
 <html>
   <head>
     <title>Huvis Graph Visualization</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css">
+    <!--link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css"-->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css">
     <link rel="icon" href="/favicon.ico?v=4" type="image/x-icon" />
     <link href="/jquery-ui-css/jquery-ui.css" rel="stylesheet"/>
     <link href="/css/huvis.css" rel="stylesheet" type="text/css">
@@ -36,196 +37,194 @@
   <body>
     <div id="snippet_box"></div>
     <section id="tabs" role="controls">
-      <ul style="font-size:80%">
-        <li><a href="#tabs-intro" title="Introduction and Usage">Intro</a></li>
-        <li><a href="#tabs-options" title="Fine tune sizes, lengths and thicknesses.">Settings</a></li>
-        <li><a href="#huvis_controls" title="Power tools for controlling the graph with commands consisting of verbs and nouns.">Commands</a></li>
-        <li><a href="#tabs-credit" title="Academic, funding and technical credit.">Credit</a></li>
-        <li class="open_huviz_help">
-          	 <a href="#tabs-help" title="show help window">
-          	   <i class="fa fa-lg fa-question-circle-o"></i>
-          	 </a>
-           </li>
-      </ul>
-      <div id="tabs-intro">
-          <h1 class="git-branch-is-<%= @git_branch_name %>">
-            HuViz
-            <% if @git_commit_hash: %>
-              <sup class="git_commit_hash">
-                <a target="huviz_version" href="https://github.com/smurp/huviz/commit/<%= @git_commit_hash %>"><%= @git_commit_hash %></a>
-              </sup>
-            <% end %>
-          </h1>
-          <h2>RDF Explorer</h2>
-          <h6>(currently works best in Google Chrome)</h6>
-          <div class="huviz-versions">
-            <a href="http://huviz.dev.nooron.com"
-               class="git-branch-is-master <% if @git_branch_name is 'master':%>current-git-branch<% end %>">production</a>
-            <a href="http://beta.huviz.dev.nooron.com"
-               class="git-branch-is-beta  <% if @git_branch_name is 'beta':%>current-git-branch<% end %>">beta</a>
-            <a href="http://alpha.huviz.dev.nooron.com"
-               class="git-branch-is-alpha  <% if @git_branch_name is 'alpha':%>current-git-branch<% end %>">alpha</a>
-            <a href="/tests">tests</a>
-            <a href="/orlonto.html">ontology</a>
-          </div>
-          <p>
-            The Humanities Visualizer (HuViz) interface allows for the
-            exploration of semantic relationships and ontologies
-            represented using the Resource Description Framework.
-          </p>
-          <p>
-            You can load your own ontology and/or dataset, or you can
-            chose to explore one of the existing datasets available on the
-            Command panel to explore the information and relationships
-            encoded in the textbase
-            <a href="http://www.artsrn.ualberta.ca/orlando/">Orlando: Women's Writing in the British Isles from the Beginnings to the Present</a>.
-            For example, Huviz allows for the exploration in RDF triples that assert things like
-          </p>
-          <ul>
-            <li>
-              <span class='eg-subject'>Virginia Wolf</span>
-              <span class='eg-verb'>hasGender</span>
-              <span class='eg-object'>woman</span>
-            </li>
-            <li>
-              <span class='eg-subject'>Virginia Wolf</span>
-              <span class='eg-verb'>hasSister</span>
-              <span class='eg-object'>Vanessa Bell</span>
-            </li>
-            <li>
-              <span class='eg-subject'>Virginia Wolf</span>
-              <span class='eg-verb'>inhabits</span>
-              <span class='eg-object'>London</span>
-            </li>
-          </ul>
-          <p>
-            In addition to datasets, HuViz is also able to display
-            ontologies, the formal definition of things and
-            relationships. External files need to be in Turtle (.ttl)
-            format.
-          </p>
-          <div class="clear"></div>
-          <div class="usage_attribution">
-            <a href="https://github.com/cwrc/HuViz">HuViz is Available on GitHub</a>
-            <p>Datasets: <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC - Attribution-NonCommercial</a></p>
-            <p>Screenshots of HuViz: <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC - Attribution</a></p>
+      <div id="ctrl-handle" class="ui-resizable-handle ui-resizable-w"><div id="ctrl-handle-grip">o</div></div>
+        <ul style="font-size:80%">
+          <li><a href="#tabs-intro" title="Introduction and Usage">Intro</a></li>
+          <li><a href="#tabs-options" title="Fine tune sizes, lengths and thicknesses.">Settings</a></li>
+          <li><a href="#huvis_controls" title="Power tools for controlling the graph with commands consisting of verbs and nouns.">Commands</a></li>
+          <li><a href="#tabs-credit" title="Academic, funding and technical credit.">Credit</a></li>
+          <li class="open_huviz_help">
+            	 <a href="#tabs-help" title="show help window">
+            	   <i class="fa fa-lg fa-question-circle-o"></i>
+            	 </a>
+             </li>
+        </ul>
+        <div id="tabs-intro" class="scrolling_tab">
+            <h1 class="git-branch-is-<%= @git_branch_name %>">
+              HuViz
+              <% if @git_commit_hash: %>
+                <sup class="git_commit_hash">
+                  <a target="huviz_version" href="https://github.com/smurp/huviz/commit/<%= @git_commit_hash %>"><%= @git_commit_hash %></a>
+                </sup>
+              <% end %>
+            </h1>
+            <h2>RDF Explorer</h2>
+            <h6>(currently works best in Google Chrome)</h6>
+            <div class="huviz-versions">
+              <a href="http://huviz.dev.nooron.com"
+                 class="git-branch-is-master <% if @git_branch_name is 'master':%>current-git-branch<% end %>">production</a>
+              <a href="http://beta.huviz.dev.nooron.com"
+                 class="git-branch-is-beta  <% if @git_branch_name is 'beta':%>current-git-branch<% end %>">beta</a>
+              <a href="http://alpha.huviz.dev.nooron.com"
+                 class="git-branch-is-alpha  <% if @git_branch_name is 'alpha':%>current-git-branch<% end %>">alpha</a>
+              <a href="/tests">tests</a>
+              <a href="/orlonto.html">ontology</a>
+            </div>
+            <p>
+              The Humanities Visualizer (HuViz) interface allows for the
+              exploration of semantic relationships and ontologies
+              represented using the Resource Description Framework.
+            </p>
+            <p>
+              You can load your own ontology and/or dataset, or you can
+              chose to explore one of the existing datasets available on the
+              Command panel to explore the information and relationships
+              encoded in the textbase
+              <a href="http://www.artsrn.ualberta.ca/orlando/">Orlando: Women's Writing in the British Isles from the Beginnings to the Present</a>.
+              For example, Huviz allows for the exploration in RDF triples that assert things like
+            </p>
+            <ul>
+              <li>
+                <span class='eg-subject'>Virginia Wolf</span>
+                <span class='eg-verb'>hasGender</span>
+                <span class='eg-object'>woman</span>
+              </li>
+              <li>
+                <span class='eg-subject'>Virginia Wolf</span>
+                <span class='eg-verb'>hasSister</span>
+                <span class='eg-object'>Vanessa Bell</span>
+              </li>
+              <li>
+                <span class='eg-subject'>Virginia Wolf</span>
+                <span class='eg-verb'>inhabits</span>
+                <span class='eg-object'>London</span>
+              </li>
+            </ul>
+            <p>
+              In addition to datasets, HuViz is also able to display
+              ontologies, the formal definition of things and
+              relationships. External files need to be in Turtle (.ttl)
+              format.
+            </p>
             <div class="clear"></div>
-          </div>
-          <div id="external_docs"></div>
+            <div class="usage_attribution">
+              <a href="https://github.com/cwrc/HuViz">HuViz is Available on GitHub</a>
+              <p>Datasets: <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC - Attribution-NonCommercial</a></p>
+              <p>Screenshots of HuViz: <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC - Attribution</a></p>
+              <div class="clear"></div>
+            </div>
+            <div id="external_docs"></div>
         </div>
-      <div id="tabs-options"></div>
-      <div id="huvis_controls">
-      <div class="unselectable">
-        <label title="which file to load">
-          <select
-              style="display:none"
-              name="data_set" class="file_picker"
-              onchange="HVZ.load_file(this)"
-              title="data sets are alphabetical">
-	    <option value=""> -- Pick a Data Set -- </option>
-	    <optgroup label="Individuals">
-              <option title="all attributes -- 72 ndoes; 142 edges"
-		      value="/data/byroau.nq">Augusta Ada Byron</option>
-              <option title="all attributes -- 115 nodes; 236 edges"
-		      value="/data/atwoma.nq">Margaret Atwood</option>
-              <option title="all attributes -- 37 nodes; 55 edges"
-		      value="/data/abdyma.nq">Maria Abdy</option>
-              <option title="all attributes -- 13 nodes; 12 edges"
-		      value="/data/ballrm.nq">R.M. Ballantyne</option>
-              <option title="all attributes -- 38 nodes; 49 edges"
-		      value="/data/shakwi.nq">William Shakespeare</option>
-	    </optgroup>
- 	    <optgroup label="Organizations">
-              <option title="all attributes -- ?? nodes; 6200 edges; ?? predicates"
-		      class="dangerous"
-		      value="/data/academie_des_femmes.nq">Académie des Femmes</option>
-              <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
-		      class="dangerous"
-		      value="/data/african_national_congress.nq">African National Congres</option>
-              <option title="all attributes -- 244 nodes; 719 edges"
-		      value="/data/brontes.nq">The Bronte Sisters</option>
-              <option title="all attributes -- 301 nodes; edges 568"
-		      value="/data/early_writers.nq">Early Writers</option>
-	      <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
-		      class="dangerous"
-		      value="/data/female_antislavery_society.nq">Female Anti-Slavery Society</option>
-              <option title="all attributes -- ?? nodes; 5300 edges; ?? predicates ✓"
-		      value="/data/newnham_college.nq"
-		      class="dangerous">Newnham College</option>
-	      <option title="all attributes -- 116 nodes; 236 edges"
-		      value="/data/nuns.nq">  Nuns: Middle Ages</option>
-	      <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
-		      value="/data/the_17th_century_quakers.nq"
-		      class="dangerous">  The 17th Century Quakers</option>
-	      <option title="all attributes -- 516 nodes; ?? edges; ?? predicates ✓"
-		      value="/data/the_1917_club.nq"
-		      class="dangerous">  The 1917 Club</option>
-	    </optgroup>
- 	    <optgroup label="Periodicals">
-              <option title="all attributes -- 123 nodes; 193 edges"
-		      value="/data/englishwomans_review.nq">Englishwoman's Review</option>
-              <option title="all attributes -- ?? nodes; ?? edges"
-		      value="/data/taits_endinburgh_magazine.nq"
-		      class="dangerous">Tait's Edinburgh Magazine</option>
-              <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
-		      value="/data/yellow_book_and_poet.nq"
-		      class="dangerous">The Yellow Book AND Poet</option>
-	    </optgroup>
- 	    <optgroup label="Publishing Houses">
-              <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
-		      class="dangerous"
-		      value="/data/dial_press.nq">Dial Press (modernist)</option>
-              <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
-		      class="dangerous"
-		      value="/data/kelmscott_press.nq">Kelmscott Press</option>
-              <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
-		      class="dangerous"
-		      value="/data/minerva_press.nq">Minerva Press</option>
-              <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
-		      class="dangerous"
-		      value="/data/victoria_press.nq">Victoria Press</option>
-	    </optgroup>
- 	    <optgroup label="Genres">
-              <option title="all attributes -- 166 nodes;  392 edges"
-		      value="/data/famous_cookbooks.nq">Famous Cookbooks</option>
-	    </optgroup>
-	    <!--
+        <div id="tabs-options" class="scrolling_tab"></div>
+        <div id="huvis_controls">
+          <div class="unselectable">
+            <label title="which file to load">
+          <!--   <select
+                style="display:none"
+                name="data_set" class="file_picker"
+                onchange="HVZ.load_file(this)"
+                title="data sets are alphabetical">
+  	        <option value=""> -- Pick a Data Set -- </option>
+      	   <optgroup label="Individuals">
+                    <option title="all attributes -- 72 ndoes; 142 edges"
+      		      value="/data/byroau.nq">Augusta Ada Byron</option>
+                    <option title="all attributes -- 115 nodes; 236 edges"
+      		      value="/data/atwoma.nq">Margaret Atwood</option>
+                    <option title="all attributes -- 37 nodes; 55 edges"
+      		      value="/data/abdyma.nq">Maria Abdy</option>
+                    <option title="all attributes -- 13 nodes; 12 edges"
+      		      value="/data/ballrm.nq">R.M. Ballantyne</option>
+                    <option title="all attributes -- 38 nodes; 49 edges"
+      		      value="/data/shakwi.nq">William Shakespeare</option>
+      	    </optgroup>
+       	    <optgroup label="Organizations">
+                    <option title="all attributes -- ?? nodes; 6200 edges; ?? predicates"
+      		      class="dangerous"
+      		      value="/data/academie_des_femmes.nq">Académie des Femmes</option>
+                    <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+      		      class="dangerous"
+      		      value="/data/african_national_congress.nq">African National Congres</option>
+                    <option title="all attributes -- 244 nodes; 719 edges"
+      		      value="/data/brontes.nq">The Bronte Sisters</option>
+                    <option title="all attributes -- 301 nodes; edges 568"
+      		      value="/data/early_writers.nq">Early Writers</option>
+      	      <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+      		      class="dangerous"
+      		      value="/data/female_antislavery_society.nq">Female Anti-Slavery Society</option>
+                    <option title="all attributes -- ?? nodes; 5300 edges; ?? predicates ✓"
+      		      value="/data/newnham_college.nq"
+      		      class="dangerous">Newnham College</option>
+      	      <option title="all attributes -- 116 nodes; 236 edges"
+      		      value="/data/nuns.nq">  Nuns: Middle Ages</option>
+      	      <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+      		      value="/data/the_17th_century_quakers.nq"
+      		      class="dangerous">  The 17th Century Quakers</option>
+      	      <option title="all attributes -- 516 nodes; ?? edges; ?? predicates ✓"
+      		      value="/data/the_1917_club.nq"
+      		      class="dangerous">  The 1917 Club</option>
+      	    </optgroup>
+       	    <optgroup label="Periodicals">
+                    <option title="all attributes -- 123 nodes; 193 edges"
+      		      value="/data/englishwomans_review.nq">Englishwoman's Review</option>
+                    <option title="all attributes -- ?? nodes; ?? edges"
+      		      value="/data/taits_endinburgh_magazine.nq"
+      		      class="dangerous">Tait's Edinburgh Magazine</option>
+                    <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+      		      value="/data/yellow_book_and_poet.nq"
+      		      class="dangerous">The Yellow Book AND Poet</option>
+      	    </optgroup>
+       	    <optgroup label="Publishing Houses">
+                    <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+      		      class="dangerous"
+      		      value="/data/dial_press.nq">Dial Press (modernist)</option>
+                    <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+      		      class="dangerous"
+      		      value="/data/kelmscott_press.nq">Kelmscott Press</option>
+                    <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+      		      class="dangerous"
+      		      value="/data/minerva_press.nq">Minerva Press</option>
+                    <option title="all attributes -- ?? nodes; ?? edges; ?? predicates"
+      		      class="dangerous"
+      		      value="/data/victoria_press.nq">Victoria Press</option>
+      	    </optgroup>
+       	    <optgroup label="Genres">
+                    <option title="all attributes -- 166 nodes;  392 edges"
+      		      value="/data/famous_cookbooks.nq">Famous Cookbooks</option>
+      	    </optgroup>-->
+  	    <!--
 
-            <option title="The Poetesses -- all attributes -- 1735 nodes; 1646 edges; 11 predicates">/data/poetesses.nq</option>
-            <option title="Relations -- all writers -- basic relational predicates -- DANGER! -- 6897 nodes; edges 11761; predicates 10">/data/relations.nq</option>
-	    -->
-
-
-	    <!--
-            <option>/data/test_1.nq</option>
-            <option>/data/test_40.nq</option>
+              <option title="The Poetesses -- all attributes -- 1735 nodes; 1646 edges; 11 predicates">/data/poetesses.nq</option>
+              <option title="Relations -- all writers -- basic relational predicates -- DANGER! -- 6897 nodes; edges 11761; predicates 10">/data/relations.nq</option>
+  	    -->
+  	    <!--
+              <option>/data/test_1.nq</option>
+              <option>/data/test_40.nq</option>
 
 
-            <option>/data/test_100.nq</option>
-            <option>/data/test_40.ttl</option>
-            <option>/data/test_1.ttl</option>
-            <option>/data/test_20.ttl</option>
-            <option>/data/all.ttl</option>
-            <option>/data/all.nq</option>
-            <option>/data/test_20.nq</option>
-            <option>/data/orlando_ontology.ttl</option>
-	    -->
-          </select>
-        </label>
-        <span>
-          <button id="reset_btn" style="display:none" type="button"
-		  onclick="HVZ.reset_data(this)">reset</button>
-          <button id="reload_btn" style="display:none"
-		  onclick="window.location.href='/'">reload</button>
-        </span>
+              <option>/data/test_100.nq</option>
+              <option>/data/test_40.ttl</option>
+              <option>/data/test_1.ttl</option>
+              <option>/data/test_20.ttl</option>
+              <option>/data/all.ttl</option>
+              <option>/data/all.nq</option>
+              <option>/data/test_20.nq</option>
+              <option>/data/orlando_ontology.ttl</option>
+
+            </select> -->
+          </label>
+          <span>
+            <button id="reset_btn" style="display:none" type="button"
+  		  onclick="HVZ.reset_data(this)">reset</button>
+            <button id="reload_btn" style="display:none"
+  		  onclick="window.location.href='/'">reload</button>
+          </span>
+        </div>
+        <div id="gclui"></div>
       </div>
-      <div id="gclui"></div>
-    </div>
-      <div id="tabs-credit" class="scrolling_tab">
-      </div>
-      <div id="tabs-help" style="height:0px"></div>
+        <div id="tabs-credit" class="scrolling_tab">
+        </div>
+        <div id="tabs-help" style="height:0px"></div>
     </section>
-
     <div id="vis" class="underneath" style="z-index:-3"></div>
     <div id="viscanvas" class="underneath"></div>
     <pre id="status"></pre>
