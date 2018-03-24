@@ -25,6 +25,7 @@ ColoredTreePicker = require('coloredtreepicker').ColoredTreePicker
 class CommandController
   constructor: (@huviz, @container, @hierarchy) ->
     document.addEventListener 'dataset-loaded', @on_dataset_loaded
+    $("#tabs").resizable()
     if @container is null
       @container = d3.select("body").append("div").attr("id", "gclui")[0][0]
     if not @huviz.all_set.length
@@ -33,7 +34,7 @@ class CommandController
     if @huviz.args.display_hints
       @hints = d3.select(@container).append("div").attr("class","hints")
       $(".hints").append($(".hint_set").contents())
-    @comdiv = d3.select(@container).append("div")
+    @comdiv = d3.select(@container).append("div") # --- Add a container
     @cmdlist = d3.select("#tabs-history").append('div').attr('class','commandlist')
     @oldcommands = @cmdlist.append('div').attr('class','commandhistory')
     @control_label("Current Command")
@@ -42,7 +43,8 @@ class CommandController
     @control_label("Verbs")
     @verbdiv = @comdiv.append('div').attr('class','verbs')
     @add_clear_both(@comdiv)
-    @node_pickers = @comdiv.append('div')
+    #@node_pickers = @comdiv.append('div')
+    @node_pickers = @comdiv.append('div').attr("id","node_pickers")
     @set_picker_box_parent = @build_set_picker("Sets",@node_pickers)
     @taxon_picker_box_parent = @build_taxon_picker("Class Selector",@node_pickers)
     @add_clear_both(@comdiv)
@@ -153,6 +155,7 @@ class CommandController
     # FIXME Why is show_tree being called four times per node?
     @predicate_picker.click_listener = @on_predicate_clicked
     @predicate_picker.show_tree(@predicate_hierarchy, @predicatebox)
+    $("#predicates").append("<br class='clear'")
   add_newpredicate: (pred_lid, parent_lid, pred_name) =>
     #if pred_lid in @predicates_to_ignore
     #  return

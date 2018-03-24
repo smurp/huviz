@@ -2073,6 +2073,7 @@ class Huviz
     pad = pad or hpad
     @width = (@container.clientWidth or window.innerWidth or document.documentElement.clientWidth or document.clientWidth) - pad
     #console.log "get_window_width()",window.innerWidth,document.documentElement.clientWidth,document.clientWidth,"==>",@width
+    @width = window.innerWidth - $("#tabs").width()
 
   # Should be refactored to be get_container_height
   get_container_height: (pad) ->
