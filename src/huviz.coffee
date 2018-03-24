@@ -1580,7 +1580,7 @@ class Huviz
       @msg_history += " " + txt
       txt = @msg_history
     @state_msg_box.show()
-    @state_msg_box.html("<br><br>" + txt)  # FIXME: OMG CSS PDQ
+    @state_msg_box.html("<div class='msg_payload'>" + txt + "</div><div class='msg_backdrop'></div>")
     @text_cursor.pause("wait")
 
   hide_state_msg: () ->
@@ -1925,7 +1925,7 @@ class Huviz
             console.log("===========================\n  #", quad_count, "  subj:", frame.id, "\n  pred:", pred.id, "\n  obj.value:", obj.value)
           else
             if quad_count % every is 0
-              @show_state_msg("parsed relation " + quad_count)
+              @show_state_msg("parsed relation: " + quad_count)
           quad_count++
           @add_quad
             s: frame.id
@@ -2010,8 +2010,9 @@ class Huviz
       msg = null
       if e.data.event is 'line'
         quad_count++
-        if quad_count % 100 is 0
-          @show_state_msg("parsed relation " + quad_count)
+        @show_state_msg("<h3>Parsing... </h3><p>" + uri + "</p><progress value='" + quad_count + "' max='" + @node_count + "'></progress>")
+        #if quad_count % 100 is 0
+          #@show_state_msg("parsed relation " + quad_count)
         q = parseQuadLine(e.data.line)
         if q
           q.s = q.s.raw
@@ -2022,13 +2023,14 @@ class Huviz
             value: unescape_unicode(@remove_framing_quotes(q.o.toString()))
           @add_quad q
       else if e.data.event is 'start'
-        msg = "starting to split "+uri
+        msg = "starting to split " + uri
+        @node_count = e.data.numLines
       else if e.data.event is 'finish'
-        msg = "finished_splitting "+uri
+        msg = "finished_splitting " + uri
         @show_state_msg("done loading")
         @after_file_loaded(uri, callback)
       else
-        msg = "unrecognized NQ event:"+e.data.event
+        msg = "unrecognized NQ event:" + e.data.event
       if msg?
         console.log(msg)
         #alert msg
@@ -3789,7 +3791,7 @@ class Huviz
     custom_handler = @[custom_handler_name]
     if @graph_controls_cursor
       cursor_text = (new_value).toString()
-      console.info("#{setting_name}: #{cursor_text}")
+      #console.info("#{setting_name}: #{cursor_text}")
       @graph_controls_cursor.set_text(cursor_text)
     if custom_handler? and not skip_custom_handler
       #console.log "change_setting_to_from() custom setting: #{setting_name} to:#{new_value}(#{typeof new_value}) from:#{old_value}(#{typeof old_value})"

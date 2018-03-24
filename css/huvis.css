@@ -1,43 +1,45 @@
+
+body {
+  margin: 0;
+}
+body, html {
+  height: 98%
+}
+
 .scrolling_tab {
   max-height: 300px;
   overflow: scroll;
 }
-/*
-  SVG styles
-*/
+
+/* --------------- SVG styles ----------------- */
+
 rect {
   fill: none;
   pointer-events: all;
 }
-
 .node circle {
   fill: #000;
 /*  stroke: red;
   stroke-width: 1px;
 */
 }
-
 .node text {
   font: 7.5px sans-serif;
   pointer-events: none;
   /* text-anchor: middle; */
 }
-
 .nearest_node text {
   font: 9px sans-serif;
   fill: #f00
 }
-
 .cursor {
   fill: none;
   stroke: #eee;
   pointer-events: none;
 }
-
 .link {
   stroke: #CCC;
 }
-
 .underneath {
   position: absolute;
   top: 0;

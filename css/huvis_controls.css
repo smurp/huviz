@@ -8,6 +8,7 @@
   right: 0px;
   font-size: 80%;
   z-index: 3;
+  overflow: scroll;
 }
 .graph_controls { /* put them in the upper right, above the graph */
   right: .2em;
@@ -86,23 +87,85 @@
 .snippet {
   background-color: "lightgray";
 }
-body, html {
-  height: 98%
-}
+/* -------- Loading Message Styles ------------ */
 #state_msg_box {
-  background-color: grey;
-  color: blue;
-  opacity: 0.2;
-  z-index: 5;
-  position:fixed;
-  text-align: center;
-  font-size: 300%;
-  width: 99vw;
-  height: 98vh; /* http://stackoverflow.com/questions/157514 */
+  width: 100%;
+  height: 100vh;
   margin: 0px;
   border: 0px;
+  position:fixed;
   border-radius: 20px;
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
+.msg_backdrop{
+  background-color: #000;
+  opacity: 0.3;
+  width: 100%;
+  height: 100vh;
+  margin: 0px;
+  border: 0px;
+  position:fixed;
+  z-index: 5;
+}
+.msg_payload {
+  background-color: #fff;
+  height: 100px;
+  width: 300px;
+  text-align: center;
+  z-index: 6;
+  padding:1em;
+  border-radius:20px;
+  box-shadow: 5px 10px 10px #888888;
+  overflow: hidden;
+}
+.msg_payload p{
+  float: inherit;
+}
+.msg_payload h3{
+  margin: .3em;
+}
+
+progress[value]{
+  /* Reset the default appearance */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  height: 15px;
+  width: 200px;
+  margin-top:10px;
+}
+progress[value]::-webkit-progress-bar {
+  background-color: #eee;
+  border-radius: 2px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
+}
+progress[value]::-webkit-progress-value {
+  background-image:
+	   -webkit-linear-gradient(top,
+	                           rgba(255, 255, 255, .25),
+	                           rgba(0, 0, 0, .25)),
+	   -webkit-linear-gradient(left, green, green);
+
+    border-radius: 2px;
+    background-size: 35px 20px, 100% 100%, 100% 100%;
+}
+progress[value]::-moz-progress-bar {
+  background-image:
+    -moz-linear-gradient(
+      top,
+      rgba(255, 255, 255, 0.25),
+      rgba(0, 0, 0, 0.25)
+    ),
+    -moz-linear-gradient(
+      left,
+      green,
+      green
+    );
+}
+
 .git_commit_hash {
   font-size: 20%;
   color: grey;
@@ -181,6 +244,10 @@ body, html {
 }
 #blurtbox .error {
   color: #bd3a3a;
+}
+#predicates {
+  /*overflow-y: scroll;
+  max-height: 20em;*/
 }
 
 /* ---------------- Edit controls ----------------------- */

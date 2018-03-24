@@ -11,19 +11,7 @@
     <link href="/css/CRRT.css" rel="stylesheet" type="text/css">
     <link href="/css/gclui.css" rel="stylesheet" type="text/css">
     <link href="/css/help.css" rel="stylesheet" type="text/css">
-    <style>
-      #predicates {
-        overflow-y: scroll;
-        max-height: 20em;
-      }
-      .writername {
-        font-weight: bold;
-        font-size: 110%;
-      }
-      .writername a {
-        color: blue;
-      }
-    </style>
+    <style></style>
   <% if @is_local: %>
     <!--
     <XXlink href="/css/debugging.css" rel="stylesheet"/>
@@ -47,100 +35,86 @@
   </head>
   <body>
     <div id="snippet_box"></div>
-  <section role="controls" id="tabs">
-    <ul style="font-size:80%">
-       <li><a href="#tabs-intro" title="Introduction and Usage">Intro</a></li>
-       <li><a href="#tabs-options" title="Fine tune sizes, lengths and thicknesses.">Settings</a></li>
-       <li><a href="#huvis_controls" title="Power tools for controlling the graph with commands consisting of verbs and nouns.">Commands</a></li>
-       <!--
-       <li style="display:none">
-	 <a href="#tabs-script" title="The sequence of commands which have been performed.">Script</a>
-       </li>
-       -->
-
-       <li><a href="#tabs-credit" title="Academic, funding and technical credit.">Credit</a></li>
-       <li class="open_huviz_help">
-	 <a href="#tabs-help" title="show help window">
-	   <i class="fa fa-lg fa-question-circle-o"></i>
-	 </a>
-       </li>
-    </ul>
-    <div id="tabs-intro">
-      <h1 class="git-branch-is-<%= @git_branch_name %>">
-        HuViz
-        <% if @git_commit_hash: %>
-          <sup class="git_commit_hash">
-            <a target="huviz_version" href="https://github.com/smurp/huviz/commit/<%= @git_commit_hash %>"><%= @git_commit_hash %></a>
-          </sup>
-        <% end %>
-      </h1>
-      <h2>Orlando RDF Explorer</h2>
-      <h6>(currently works best in Google Chrome)</h6>
-      <div class="huviz-versions">
-        <a href="http://huviz.dev.nooron.com"
-           class="git-branch-is-master <% if @git_branch_name is 'master':%>current-git-branch<% end %>">production</a>
-        <a href="http://beta.huviz.dev.nooron.com"
-           class="git-branch-is-beta  <% if @git_branch_name is 'beta':%>current-git-branch<% end %>">beta</a>
-        <a href="http://alpha.huviz.dev.nooron.com"
-           class="git-branch-is-alpha  <% if @git_branch_name is 'alpha':%>current-git-branch<% end %>">alpha</a>
-        <a href="/tests">tests</a>
-        <a href="/orlonto.html">ontology</a>
-      </div>
-      <p>
-        The Humanities Visualizer (HuViz) interface allows for the
-        exploration of semantic relationships and ontologies
-        represented using the Resource Description Framework.
-      </p>
-      <p>
-        You can load your own ontology and/or dataset, or you can
-        chose to explore one of the existing datasets available on the
-        Command panel to explore the information and relationships
-        encoded in the textbase
-        <a href="http://www.artsrn.ualberta.ca/orlando/">Orlando: Women's Writing in the British Isles from the Beginnings to the Present</a>.
-        For example, Huviz allows for the exploration in RDF triples that assert things like
-      </p>
-      <ul>
-        <li>
-          <span class='eg-subject'>Virginia Wolf</span>
-          <span class='eg-verb'>hasGender</span>
-          <span class='eg-object'>woman</span>
-        </li>
-        <li>
-          <span class='eg-subject'>Virginia Wolf</span>
-          <span class='eg-verb'>hasSister</span>
-          <span class='eg-object'>Vanessa Bell</span>
-        </li>
-        <li>
-          <span class='eg-subject'>Virginia Wolf</span>
-          <span class='eg-verb'>inhabits</span>
-          <span class='eg-object'>London</span>
-        </li>
+    <section id="tabs" role="controls">
+      <ul style="font-size:80%">
+        <li><a href="#tabs-intro" title="Introduction and Usage">Intro</a></li>
+        <li><a href="#tabs-options" title="Fine tune sizes, lengths and thicknesses.">Settings</a></li>
+        <li><a href="#huvis_controls" title="Power tools for controlling the graph with commands consisting of verbs and nouns.">Commands</a></li>
+        <li><a href="#tabs-credit" title="Academic, funding and technical credit.">Credit</a></li>
+        <li class="open_huviz_help">
+          	 <a href="#tabs-help" title="show help window">
+          	   <i class="fa fa-lg fa-question-circle-o"></i>
+          	 </a>
+           </li>
       </ul>
-      <p>
-        In addition to datasets, HuViz is also able to display
-        ontologies, the formal definition of things and
-        relationships. External files need to be in Turtle (.ttl)
-        format.
-      </p>
-      <div class="clear"></div>
-      <div class="usage_attribution">
-        <a href="https://github.com/cwrc/HuViz">HuViz is Available on GitHub</a>
-        <p>Datasets: <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC - Attribution-NonCommercial</a></p>
-        <p>Screenshots of HuViz: <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC - Attribution</a></p>
-        <div class="clear"></div>
-      </div>
-      <div id="external_docs"></div>
-    </div>
-    <!--
-    <div id="tabs-script" class="scrolling_tab">
-      <p>This is the sequence of commands which were performed to produce the current state of the display.
-	<i><b>Coming soon.</b></i>
-      </p>
-    </div>
-       <li><a href="#tabs-help" class="open_huviz_help" title="">Help</a></li>
-    -->
-    <div id="tabs-options"></div>
-    <div id="huvis_controls">
+      <div id="tabs-intro">
+          <h1 class="git-branch-is-<%= @git_branch_name %>">
+            HuViz
+            <% if @git_commit_hash: %>
+              <sup class="git_commit_hash">
+                <a target="huviz_version" href="https://github.com/smurp/huviz/commit/<%= @git_commit_hash %>"><%= @git_commit_hash %></a>
+              </sup>
+            <% end %>
+          </h1>
+          <h2>Orlando RDF Explorer</h2>
+          <h6>(currently works best in Google Chrome)</h6>
+          <div class="huviz-versions">
+            <a href="http://huviz.dev.nooron.com"
+               class="git-branch-is-master <% if @git_branch_name is 'master':%>current-git-branch<% end %>">production</a>
+            <a href="http://beta.huviz.dev.nooron.com"
+               class="git-branch-is-beta  <% if @git_branch_name is 'beta':%>current-git-branch<% end %>">beta</a>
+            <a href="http://alpha.huviz.dev.nooron.com"
+               class="git-branch-is-alpha  <% if @git_branch_name is 'alpha':%>current-git-branch<% end %>">alpha</a>
+            <a href="/tests">tests</a>
+            <a href="/orlonto.html">ontology</a>
+          </div>
+          <p>
+            The Humanities Visualizer (HuViz) interface allows for the
+            exploration of semantic relationships and ontologies
+            represented using the Resource Description Framework.
+          </p>
+          <p>
+            You can load your own ontology and/or dataset, or you can
+            chose to explore one of the existing datasets available on the
+            Command panel to explore the information and relationships
+            encoded in the textbase
+            <a href="http://www.artsrn.ualberta.ca/orlando/">Orlando: Women's Writing in the British Isles from the Beginnings to the Present</a>.
+            For example, Huviz allows for the exploration in RDF triples that assert things like
+          </p>
+          <ul>
+            <li>
+              <span class='eg-subject'>Virginia Wolf</span>
+              <span class='eg-verb'>hasGender</span>
+              <span class='eg-object'>woman</span>
+            </li>
+            <li>
+              <span class='eg-subject'>Virginia Wolf</span>
+              <span class='eg-verb'>hasSister</span>
+              <span class='eg-object'>Vanessa Bell</span>
+            </li>
+            <li>
+              <span class='eg-subject'>Virginia Wolf</span>
+              <span class='eg-verb'>inhabits</span>
+              <span class='eg-object'>London</span>
+            </li>
+          </ul>
+          <p>
+            In addition to datasets, HuViz is also able to display
+            ontologies, the formal definition of things and
+            relationships. External files need to be in Turtle (.ttl)
+            format.
+          </p>
+          <div class="clear"></div>
+          <div class="usage_attribution">
+            <a href="https://github.com/cwrc/HuViz">HuViz is Available on GitHub</a>
+            <p>Datasets: <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC - Attribution-NonCommercial</a></p>
+            <p>Screenshots of HuViz: <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC - Attribution</a></p>
+            <div class="clear"></div>
+          </div>
+          <div id="external_docs"></div>
+        </div>
+      <div id="tabs-options"></div>
+      <div id="huvis_controls">
       <div class="unselectable">
         <label title="which file to load">
           <select
@@ -247,11 +221,11 @@
       </div>
       <div id="gclui"></div>
     </div>
-    <div id="tabs-credit" class="scrolling_tab">
-      <p>this is where the credits will go</p>
-    </div>
-    <div id="tabs-help" style="height:0px"></div>
-  </section>
+      <div id="tabs-credit" class="scrolling_tab">
+      </div>
+      <div id="tabs-help" style="height:0px"></div>
+    </section>
+
     <div id="vis" class="underneath" style="z-index:-3"></div>
     <div id="viscanvas" class="underneath"></div>
     <pre id="status"></pre>
@@ -291,72 +265,71 @@
         //HVZ.goto_tab(2); // go to the "Commands" tab, comment out to stay on "Intro" tab
 
         var getMd = function(url) {
-	  var xhr = new XMLHttpRequest();
-          xhr.open('GET', url, false);
-          xhr.send();
-          var resp =  xhr.responseText;
-	  return resp;
-	};
+      	  var xhr = new XMLHttpRequest();
+                xhr.open('GET', url, false);
+                xhr.send();
+                var resp =  xhr.responseText;
+      	  return resp;
+      	};
+              //renderMarkdownFromUrlToId("/docs/tutorial.md", "external_docs");
+              //document.getElementById("external_docs").innerHTML = marked(getMd("/docs/tutorial.md"));
+              document.getElementById("tabs-credit").innerHTML = marked(getMd("/docs/credits.md"));
 
+      	window.open_help_dialog = function() {
+      	  if (!(open_help_dialog && open_help_dialog.help_dialog)) {
+      	    open_help_dialog.help_dialog = $('.help_content').show().dialog();
+      	    open_help_dialog.help_dialog.dialog({
+      	      position: {my: "left bottom", at: "left bottom", of: "html"},
+      	      title: "Help",
+      	      width: $("html").width()*0.24,
+      	      height: $("html").height()*0.4,
+      	      beforeClose: function(evt, ui) {
+      		$(evt.target).parent().hide();
+      		return false;
+      	      }
+      	    });
+      	    open_help_dialog.help_dialog.dialog("open");
+      	    $('#tabs').on("tabsbeforeactivate", function(evt, ui) {
+                    // http://api.jqueryui.com/tabs/#event-beforeActivate
+                    if (ui.newTab.hasClass('open_huviz_help')) {
+                      if ($(open_help_dialog.help_dialog).parent().is(":Visible")) {
+                        $(open_help_dialog.help_dialog.parent()).addClass("help_flash");
+                        setTimeout(function() {
+                          $(open_help_dialog.help_dialog.parent()).removeClass("help_flash");
+                          },500);
+                      } else {
+                        $(open_help_dialog.help_dialog).parent().show();
+                      }
+      		return false; // suppress normal behaviour of the Help tab
+      	      }
+      	      return true; // non-Help tabs work normally
+      	    });
+      	  }
+      	};
+              $(".open_huviz_help").on('click', open_help_dialog);
+              //open_help_dialog();
 
-        //renderMarkdownFromUrlToId("/docs/tutorial.md", "external_docs");
-        //document.getElementById("external_docs").innerHTML = marked(getMd("/docs/tutorial.md"));
-        document.getElementById("tabs-credit").innerHTML = marked(getMd("/docs/credits.md"));
-
-	window.open_help_dialog = function() {
-	  if (!(open_help_dialog && open_help_dialog.help_dialog)) {
-	    open_help_dialog.help_dialog = $('.help_content').show().dialog();
-	    open_help_dialog.help_dialog.dialog({
-	      position: {my: "left bottom", at: "left bottom", of: "html"},
-	      title: "Help",
-	      width: $("html").width()*0.24,
-	      height: $("html").height()*0.4,
-	      beforeClose: function(evt, ui) {
-		$(evt.target).parent().hide();
-		return false;
-	      }
-	    });
-	    open_help_dialog.help_dialog.dialog("open");
-	    $('#tabs').on("tabsbeforeactivate", function(evt, ui) {
-              // http://api.jqueryui.com/tabs/#event-beforeActivate
-              if (ui.newTab.hasClass('open_huviz_help')) {
-                if ($(open_help_dialog.help_dialog).parent().is(":Visible")) {
-                  $(open_help_dialog.help_dialog.parent()).addClass("help_flash");
-                  setTimeout(function() {
-                    $(open_help_dialog.help_dialog.parent()).removeClass("help_flash");
-                    },500);
-                } else {
-                  $(open_help_dialog.help_dialog).parent().show();
-                }
-		return false; // suppress normal behaviour of the Help tab
-	      }
-	      return true; // non-Help tabs work normally
-	    });
-	  }
-	};
-        $(".open_huviz_help").on('click', open_help_dialog);
-        //open_help_dialog();
-
-      /*
-	var renderMarkdownFromUrlToId = function(mdUri, id) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', mdUri, true);
-            xhr.onload = function(e) {
-            if (xhr.readyState === 4) {
-              if (xrh.status === 200) {
-                var rendered = marked(xhr.responseText);
-                console.log("rendered",rendered);
-                alert(rendered);
-                document.getElementById(id).innerHTML = rendered;
-              } else {
-                console.log(mdUri, xhr.statusText);
+            /*
+      	var renderMarkdownFromUrlToId = function(mdUri, id) {
+                  var xhr = new XMLHttpRequest();
+                  xhr.open('GET', mdUri, true);
+                  xhr.onload = function(e) {
+                  if (xhr.readyState === 4) {
+                    if (xrh.status === 200) {
+                      var rendered = marked(xhr.responseText);
+                      console.log("rendered",rendered);
+                      alert(rendered);
+                      document.getElementById(id).innerHTML = rendered;
+                    } else {
+                      console.log(mdUri, xhr.statusText);
+                    }
+                  }
               }
-            }
-        }
-      */
+            */
 
-      });
+            });
     </script>
+
     <div class="hint_set" style="display:none">
       <div class="a_hint">
 	      <strong>Two Ways to Execute Commands</strong>
@@ -370,131 +343,132 @@
     <div class="help_content" style="display:none">
       <div style="position:absolute; top:5px; right:5px">
         <a href="http://cwrc.ca/HuViz_Documentation/" target="_blank">Manual</a>
-	<i class="fa fa-external-link"></i>
+	       <i class="fa fa-external-link"></i>
       </div>
       <h3>Quick Start</h3>
       <dl>
-	<dt>Load Data Set</dt>
-	<dd>
-	  <ul>
-	    <li>
-	      Go to the <a class="open_tab" href="#2">Commands tab</a> and
-	      <code style="background:lightgrey">Pick a Data Set</code>, for
-	      example <em>Maria Abdy</em>.
-	    </li>
-	  </ul>
-	</dd>
-	<dt>Two Ways to Execute Commands</dt>
-	<dd>
-	  <ol>
-	    <li>Directly in the Graph using the "drag and drop" technique</li>
-	    <li>By choosing a combination of a Verb + Set or Class or Selection.</li>
-	  </ol>
-	</dd>
-	<dt>Graph Nodes</dt>
-	<dd>
-	  <ul>
-	    <li>
-	      Next, experiment in the graph by dragging nodes between
-	      the three main areas: the Central Graph, the green Shelf
-	      and the red Discard Bin.
-	    </li>
-	    <li>
-	      Notice how nodes in the central graph will link together
-	      to form networks.
-	      <span class="human_term__chosen">Chosen</span> nodes,
-	      identified by the black outline, are nodes that have been
-	      dragging into the centre.  Any node that is directly
-	      connected to an
-	      <span class="human_term__chosen">Chosen</span> node will
-	      automatically be pulled into the graph.  Together, these
-	      nodes will link to form a network.
-	    </li>
-	    <li>
-	      To <span class="human_term__choose">Choose</span> a node in the
-	      <a class="open_tab" href="#2">Commands tab</a>:
-	      <ol>
-		<li>Click the <span class="control_label">Verb</span>
-		  <span class="human_term__choose">Choose</span></li>
-		<li>Click the <span class="control_label">Class</span>
-		  (such as <span class="taxon">Organization</span>
-		  or <span class="taxon">Person</span>)
-		</li>
-	      </ol>
-	    </li>
-	    <li>
-	      Return nodes to the green Shelf from the central graph by
-	      clicking and dragging OR engaging
-	      the <span class="control_label">Verb</span>
-	      <span class="human_term__shelve">Shelve</span>
-	      from the <a class="open_tab" href="#2">Commands tab</a>.
-	    </li>
-	  </ul>
-	</dd>
-	<dt>View Connections</dt>
-	<dd>
-	  <ul>
-	    <li>
-	      Hover over nodes and edges to see their labels.  Notice
-	      that a tiny speech bubble appears.  The bubble notifies
-	      the user what will happen if the cursor is clicked (or
-	      released if dragging).  The bubble updates automatically
-	      based on the location of the cursor and which Verbs have
-	      been engaged.
-	    </li>
-	    <li>
-	      The Edge label describes the type and number of
-	      connections between two nodes (Ex: hasMother(1)).  Click
-	      on the Edge to open the <strong>Snippet Windows</strong>
-	      and explore the relationship between the nodes in more
-	      detail.
-	    </li>
-	  </ul>
-	</dd>
-	<dt>Adjust Appearance</dt>
-	<dd>
-	  <ul>
-	    <li>
-	      Click on the <a class="open_tab" href="#1">Settings tab</a>
-	      to adjust the physical appearance of the graph.
-	      Play with the <em>gravity</em>, <em>charge</em>
-	      and <em>link distance</em> to control how tightly the
-	      nodes fit together.
-	    </li>
-	  </ul>
-	</dd>
-	<dt>Using the Discard Bin</dt>
-	<dd>
-	  <ul>
-	    <li>
-	      Drag nodes to the red Discard Bin at the bottom right to
-	      temporarily keep them from being pulled into the Central
-	      Graph.
-	    </li>
-	    <li>
-	      <span class="human_term__retrieve">Retrieve</span>
-	      <span class="human_term__discarded">Discarded</span> nodes manually
-	      by dragging them back to the Central Graph or Shelf.
-	    </li>
-	    <li>
-	      To <span class="human_term__retrieve">Retrieve</span>
-	      only certain nodes using the
-	      <a class="open_tab" href="#2">Commands tab</a>:
-	      <ol>
-		<li>
-		  Click the <span class="control_label">V=erb</span>
-		  <span class="human_term__retrieve">Retrieve</span>
-		</li>
-		<li>
-		  Click the <span class="control_label">Class</span>
-		  (eg: <span class="taxon">Person</span> or
-		  <span class="taxon">Place</span>)
-		</li>
-	      </ol>
-	    </li>
-	</dd>
+      	<dt>Load Data Set</dt>
+      	<dd>
+      	  <ul>
+      	    <li>
+      	      Go to the <a class="open_tab" href="#2">Commands tab</a> and
+      	      <code style="background:lightgrey">Pick a Data Set</code>, for
+      	      example <em>Maria Abdy</em>.
+      	    </li>
+      	  </ul>
+      	</dd>
+      	<dt>Two Ways to Execute Commands</dt>
+      	<dd>
+      	  <ol>
+      	    <li>Directly in the Graph using the "drag and drop" technique</li>
+      	    <li>By choosing a combination of a Verb + Set or Class or Selection.</li>
+      	  </ol>
+      	</dd>
+      	<dt>Graph Nodes</dt>
+      	<dd>
+      	  <ul>
+      	    <li>
+      	      Next, experiment in the graph by dragging nodes between
+      	      the three main areas: the Central Graph, the green Shelf
+      	      and the red Discard Bin.
+      	    </li>
+      	    <li>
+      	      Notice how nodes in the central graph will link together
+      	      to form networks.
+      	      <span class="human_term__chosen">Chosen</span> nodes,
+      	      identified by the black outline, are nodes that have been
+      	      dragging into the centre.  Any node that is directly
+      	      connected to an
+      	      <span class="human_term__chosen">Chosen</span> node will
+      	      automatically be pulled into the graph.  Together, these
+      	      nodes will link to form a network.
+      	    </li>
+      	    <li>
+      	      To <span class="human_term__choose">Choose</span> a node in the
+      	      <a class="open_tab" href="#2">Commands tab</a>:
+      	      <ol>
+      		<li>Click the <span class="control_label">Verb</span>
+      		  <span class="human_term__choose">Choose</span></li>
+      		<li>Click the <span class="control_label">Class</span>
+      		  (such as <span class="taxon">Organization</span>
+      		  or <span class="taxon">Person</span>)
+      		</li>
+      	      </ol>
+      	    </li>
+      	    <li>
+      	      Return nodes to the green Shelf from the central graph by
+      	      clicking and dragging OR engaging
+      	      the <span class="control_label">Verb</span>
+      	      <span class="human_term__shelve">Shelve</span>
+      	      from the <a class="open_tab" href="#2">Commands tab</a>.
+      	    </li>
+      	  </ul>
+      	</dd>
+      	<dt>View Connections</dt>
+      	<dd>
+      	  <ul>
+      	    <li>
+      	      Hover over nodes and edges to see their labels.  Notice
+      	      that a tiny speech bubble appears.  The bubble notifies
+      	      the user what will happen if the cursor is clicked (or
+      	      released if dragging).  The bubble updates automatically
+      	      based on the location of the cursor and which Verbs have
+      	      been engaged.
+      	    </li>
+      	    <li>
+      	      The Edge label describes the type and number of
+      	      connections between two nodes (Ex: hasMother(1)).  Click
+      	      on the Edge to open the <strong>Snippet Windows</strong>
+      	      and explore the relationship between the nodes in more
+      	      detail.
+      	    </li>
+      	  </ul>
+      	</dd>
+      	<dt>Adjust Appearance</dt>
+      	<dd>
+      	  <ul>
+      	    <li>
+      	      Click on the <a class="open_tab" href="#1">Settings tab</a>
+      	      to adjust the physical appearance of the graph.
+      	      Play with the <em>gravity</em>, <em>charge</em>
+      	      and <em>link distance</em> to control how tightly the
+      	      nodes fit together.
+      	    </li>
+      	  </ul>
+      	</dd>
+      	<dt>Using the Discard Bin</dt>
+      	<dd>
+      	  <ul>
+      	    <li>
+      	      Drag nodes to the red Discard Bin at the bottom right to
+      	      temporarily keep them from being pulled into the Central
+      	      Graph.
+      	    </li>
+      	    <li>
+      	      <span class="human_term__retrieve">Retrieve</span>
+      	      <span class="human_term__discarded">Discarded</span> nodes manually
+      	      by dragging them back to the Central Graph or Shelf.
+      	    </li>
+      	    <li>
+      	      To <span class="human_term__retrieve">Retrieve</span>
+      	      only certain nodes using the
+      	      <a class="open_tab" href="#2">Commands tab</a>:
+      	      <ol>
+      		<li>
+      		  Click the <span class="control_label">V=erb</span>
+      		  <span class="human_term__retrieve">Retrieve</span>
+      		</li>
+      		<li>
+      		  Click the <span class="control_label">Class</span>
+      		  (eg: <span class="taxon">Person</span> or
+      		  <span class="taxon">Place</span>)
+      		</li>
+      	      </ol>
+      	    </li>
+      	</dd>
       </dl>
     </div>
+
   <% if @git_commit_hash: %>
     <sup class="git_commit_hash_watermark">
       <a class="git_commit_hash_watermark subliminal"
