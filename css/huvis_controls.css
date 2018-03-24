@@ -8,7 +8,36 @@
   right: 0px;
   font-size: 80%;
   z-index: 3;
-  overflow: scroll;
+  height: 100%;
+  border-top: none;
+  border-bottom: none;
+  border-radius: inherit;
+  border-left-width:2px;
+  border-left-style:groove;
+  border-left-color:#ddd;
+}
+#ctrl-handle {
+  background-color: #ccc;
+  border-left: solid 1px #bbb;
+  width: 1px;
+  left: -2px;
+}
+#ctrl-handle-grip {
+  background-color: #ddd;
+  height: 30px;
+  top: 45%;
+  width: 8px;
+  border-radius: 5px 0 0 5px;
+  position: absolute;
+  margin-left:-8px;
+  border-left: solid 1px #bbb;
+}
+.scrolling_tab {
+  max-height: 100%;
+  overflow: auto;
+}
+.tab-content-container {
+  background-color: #f0f;
 }
 .graph_controls { /* put them in the upper right, above the graph */
   right: .2em;
@@ -27,6 +56,19 @@
     padding: 0.4em;
     padding-bottom: 0.2em;
 }
+
+/* Attribution Information */
+.usage_attribution {
+  background-color: #eee;
+  padding: .5em;
+  clear: both;
+  margin: 1em 0;
+}
+#tabs-intro .usage_attribution p {
+  text-indent: 0;
+  font-size: .9em;
+}
+
 .search_box {
   height:1.3em;
   min-width:7em;
@@ -123,6 +165,7 @@
 }
 .msg_payload p{
   float: inherit;
+  margin: 0;
 }
 .msg_payload h3{
   margin: .3em;
@@ -244,10 +287,6 @@ progress[value]::-moz-progress-bar {
 }
 #blurtbox .error {
   color: #bd3a3a;
-}
-#predicates {
-  /*overflow-y: scroll;
-  max-height: 20em;*/
 }
 
 /* ---------------- Edit controls ----------------------- */

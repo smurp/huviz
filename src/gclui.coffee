@@ -25,7 +25,7 @@ ColoredTreePicker = require('coloredtreepicker').ColoredTreePicker
 class CommandController
   constructor: (@huviz, @container, @hierarchy) ->
     document.addEventListener 'dataset-loaded', @on_dataset_loaded
-    $("#tabs").resizable()
+    $("#tabs").resizable({handles: {'w':'#ctrl-handle'}})
     if @container is null
       @container = d3.select("body").append("div").attr("id", "gclui")[0][0]
     if not @huviz.all_set.length
@@ -155,7 +155,9 @@ class CommandController
     # FIXME Why is show_tree being called four times per node?
     @predicate_picker.click_listener = @on_predicate_clicked
     @predicate_picker.show_tree(@predicate_hierarchy, @predicatebox)
-    $("#predicates").append("<br class='clear'")
+    $("#predicates").addClass("ui-resizable").append("<br class='clear'>")
+    $("#predicates").resizable(handles: 's')
+
   add_newpredicate: (pred_lid, parent_lid, pred_name) =>
     #if pred_lid in @predicates_to_ignore
     #  return

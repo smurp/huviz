@@ -5,9 +5,22 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  max-height: 50em;
-  overflow-y: scroll;
+  /*max-height: 50em;
+  overflow-y: scroll;*/
 }
+#gclui p, #data_ontology_display p {
+    width:auto;
+    float:left;
+    margin: .1em;
+}
+#predicates {
+  margin-bottom: 50px;
+}
+#predicates {
+  overflow-y: scroll;
+  height: 30em;
+}
+
 .alternates {
   float:left;
 }
@@ -84,11 +97,7 @@
 .display_none {
   display:none;
 }
-p {
-    width:auto;
-    float:left;
-    margin: .1em;
-}
+
 .container {
     display:inline-block;
     border:1px solid;
@@ -96,7 +105,7 @@ p {
 }
 .contents {
     font-size: 90%;
-    border:1px solid;
+    /*border:1px solid;*/
     padding: .1em;
     overflow:auto;
 }
@@ -171,9 +180,6 @@ p {
 .taxon_picker_box_parent {
   float: right;
   width: 66%
-}
-#tabs {
-  /* max-height: 80%; */
 }
 .nextcommand_command {
   -webkit-touch-callout: initial;
@@ -266,16 +272,4 @@ p {
     outline-offset: -2px;
     border: 6px;
     padding: 8px;
-}
-
-/* Attribution Information */
-.usage_attribution {
-  background-color: #eee;
-  padding: .5em;
-  clear: both;
-  margin: 1em 0;
-}
-#tabs-intro .usage_attribution p {
-  text-indent: 0;
-  font-size: .9em;
 }

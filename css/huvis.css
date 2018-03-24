@@ -3,12 +3,7 @@ body {
   margin: 0;
 }
 body, html {
-  height: 98%
-}
-
-.scrolling_tab {
-  max-height: 300px;
-  overflow: scroll;
+  height: 100%
 }
 
 /* --------------- SVG styles ----------------- */
