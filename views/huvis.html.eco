@@ -56,7 +56,7 @@
               </sup>
             <% end %>
           </h1>
-          <h2>Orlando RDF Explorer</h2>
+          <h2>RDF Explorer</h2>
           <h6>(currently works best in Google Chrome)</h6>
           <div class="huviz-versions">
             <a href="http://huviz.dev.nooron.com"

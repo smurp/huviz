@@ -255,29 +255,24 @@ progress[value]::-moz-progress-bar {
 .edit-controls {
     bottom:.2em;
 }
-
 .edit-controls.loggedIn {
   display: inline;
   position: fixed;
   z-index: 3;
 }
-
 .cntrl-set {
   display: inline;
 }
-
 .edit-form {
   display: none;
 }
 .edit-mode .edit-form {
   display: inline;
 }
-
 .slider-pair {
   display:inline-flex;
   margin-right:.5em;
 }
-
 .slider {
   float:left;
   border:.2em;
@@ -292,7 +287,6 @@ progress[value]::-moz-progress-bar {
 .edit-mode .slider {
   background-color:#f4cb42;
 }
-
 .knob {
   background-color:white;
   border-radius:1em;
@@ -303,7 +297,6 @@ progress[value]::-moz-progress-bar {
   float:left;
   left:.2em;
 }
-
 .edit-mode .knob {
   float:right;
   right:.2em;
@@ -315,7 +308,6 @@ progress[value]::-moz-progress-bar {
   color: #000;
   font-family: sans-serif;
 }
-
 
 /* ---------------- Edit controls - "theme_black" Theme ----------------------- */
 
@@ -392,49 +384,44 @@ progress[value]::-moz-progress-bar {
   height: 64px;
   width: 64px;
 }
-
 #tabs-credit h1 {
     display: block;
     font-size: 1.3em;
-    padding-before: 0.1em;
-    padding-after: 0.2em;
-    padding-start: 0px;
-    padding-end: 0px;
+    padding-top: 0.1em;
+    padding-bottom: 0.2em;
+    padding-top: 0px;
+    padding-bottom: 0px;
     font-weight: medium;
 }
-
 #tabs-credit h2,h3 {
     text-align: left;
     display: inline-block;
     font-size: 1.05em;
-    margin-before: 0.3em;
-    padding-after: 0.1em;
-    margin-start: 0px;
-    margin-end: 0px;
+    margin-top: 0.3em;
+    padding-bottom: 0.1em;
+    margin-top: 0px;
+    margin-bottom: 0px;
     font-weight: bold;
 }
-
 #tabs-credit ul {
     padding: 0px;
     margin: 0px;
     margin-left: 1em;
-    margin-botom: .8em;
+    margin-bottom: .8em;
 }
-
 #tabs-credit li {
     margin: 5px;
 }
 
-
 /* tabs-intro styling */
 
 #tabs-intro p {
-    margin-before: .2em;
+    margin-top: .2em;
     text-indent: 1.2em;
 }
 #tabs-intro ul {
-    margin-before: .5em;
-    margin-after: .5em;
+    margin-top: .5em;
+    margin-bottom: .5em;
     font-family: Courier;
     font-size: 90%;
 }
