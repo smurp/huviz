@@ -39,8 +39,16 @@
   },
   "watch": {
     "test": {
-      "patterns": ["js","test","lib","vendor"],
-      "extensions": ["js","coffee"],
+      "patterns": [
+        "js",
+        "test",
+        "lib",
+        "vendor"
+      ],
+      "extensions": [
+        "js",
+        "coffee"
+      ],
       "quiet": true
     }
   },

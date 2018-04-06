@@ -19,6 +19,14 @@
     {
       "uri": "/data/owl_mini.ttl",
       "label": "OWL Mini"
+    },
+    {
+      "uri": "/data/schema.org.ttl",
+      "label": "Schema.org (subset)"
+    },
+    {
+      "uri": "/data/foaf20140114.ttl",
+      "label": "Friend of a Friend (FOAF)"
     }
   ],
   "defaults": {
