@@ -40,15 +40,16 @@
       <div id="ctrl-handle" class="ui-resizable-handle ui-resizable-w"><div id="ctrl-handle-grip">o</div></div>
         <ul style="font-size:80%">
           <li><a href="#tabs-intro" title="Introduction and Usage">Intro</a></li>
-          <li><a href="#tabs-options" title="Fine tune sizes, lengths and thicknesses.">Settings</a></li>
           <li><a href="#huvis_controls" title="Power tools for controlling the graph with commands consisting of verbs and nouns.">Commands</a></li>
+          <li><a href="#tabs-options" title="Fine tune sizes, lengths and thicknesses.">Settings</a></li>
           <li><a href="#tabs-credit" title="Academic, funding and technical credit.">Credit</a></li>
-          <li class="open_huviz_help">
+          <!--li class="open_huviz_help">
             	 <a href="#tabs-help" title="show help window">
             	   <i class="fa fa-lg fa-question-circle-o"></i>
             	 </a>
-             </li>
+             </li-->
         </ul>
+        <button id="tabs-help" class="open_huviz_help"><i class="fa fa-lg fa-question-circle-o"></i></button>
         <div id="tabs-intro" class="scrolling_tab">
             <h1 class="git-branch-is-<%= @git_branch_name %>">
               HuViz

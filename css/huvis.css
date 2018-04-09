@@ -1,6 +1,7 @@
 
 body {
   margin: 0;
+  font-family: helvetica, arial, verdana, sans-serif;
 }
 body, html {
   height: 100%
@@ -39,9 +40,6 @@ rect {
   position: absolute;
   top: 0;
   left: 0;
-}
-.verbs {
-  font-size: x-small;
 }
 .transient {
   font-style: italic;

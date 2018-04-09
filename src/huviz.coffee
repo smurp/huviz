@@ -2024,6 +2024,7 @@ class Huviz
           @add_quad q
       else if e.data.event is 'start'
         msg = "starting to split " + uri
+        @show_state_msg("<h3>Starting to split... </h3><p>" + uri + "</p>")
         @node_count = e.data.numLines
       else if e.data.event is 'finish'
         msg = "finished_splitting " + uri

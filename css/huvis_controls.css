@@ -15,6 +15,47 @@
   border-left-width:2px;
   border-left-style:groove;
   border-left-color:#ddd;
+  padding: 0;
+  font-family: helvetica, arial, verdana, sans-serif;
+}
+#tabs .ui-tabs-nav{
+  margin: 0;
+  padding: .2em .2em 0;
+  background-color: #157fcc;
+  border-radius: inherit;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  padding-top: 5px;
+}
+#tabs li.ui-tabs-tab.ui-state-default {
+  background: inherit;
+  background-color: #e9f5ff;
+}
+#tabs li.ui-tabs-tab.ui-state-active {
+  background: inherit;
+  background-color: #fff;
+}
+
+#tabs .ui-widget-header {
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    background: #157fcc url(images/ui-bg_highlight-soft_75_cccccc_1x100.png) 50% 50% repeat-x;
+    color: #222222;
+    font-weight: bold;
+}
+#tabs-help {
+  position: absolute;
+  right: 0;
+  top: 5px;
+  border: none;
+  background: none;
+  font-size: 1.3em;
+  color: #d6e7ff;
+}
+#tabs-help:hover {
+  color: #fff;
 }
 #ctrl-handle {
   background-color: #ccc;
@@ -114,8 +155,11 @@
   background-color: #eee;
   color: #555;
   font-size: 90%;
-  padding: 1%;
-  margin-bottom: 1%;
+  padding: 5px 0 5px 5px;
+  border-bottom: solid 1px #ccc;
+  margin-bottom: 10px;
+  margin-left: -.4em;
+  margin-right: -.4em;
 }
 #data_ontology_display p:first-of-type{
   margin-right: 4%;
@@ -123,7 +167,11 @@
 
 .dt_label{
   font-size: 80%;
-  color: #777;
+  color: #fff;
+  background-color: #585858;
+  padding: 2px;
+  border-radius: 2px;
+  margin-right: 3px;
 }
 
 .snippet {
@@ -227,6 +275,7 @@ progress[value]::-moz-progress-bar {
   margin-top: 2px;
   font-weight: bold;
   font-size: 90%;
+  margin-bottom: 5px;
 }
 .like_input {
   width: 125px;
