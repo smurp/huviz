@@ -1451,37 +1451,43 @@ class Huviz
     browser_font_size = 12.8 # -- Setting or auto from browser?
     focused_font_size = @label_em * browser_font_size * @focused_mag
     padding = focused_font_size * 0.5
-    line_height = focused_font_size + focused_font_size * 0.25 + 2 * padding
+    line_height = focused_font_size * 1.25 # set line height to 125%
     text = d.name.NOLANG
     label_measure = @ctx.measureText(text) #this is total length of text
-    #console.log d
     label_length = label_measure.width + 2 * padding
-    #console.log label_length
     # If the total length is less than the maxwidth setting then return as width / height 1 line
     bubble_text = []
-    if (label_length < width_default)
+    ln_i = 0
+    bubble_text[ln_i] = ""
+    if (label_length < width_default) # single line label
       width = label_length
-      height = line_height
       bubble_text[0] = text
     else # more than one line so calculate how many and create text lines array
-      width = width_default
-      max_ln_width = width - 60
       text_split = text.split(' ') # array of words
-      test_line = ''
-      ln_i = 0 # Line index starts at zero
-      for txt_item, i in text_split
-        test_line = test_line + txt_item + ' '
-        metric = @ctx.measureText(test_line)
-        #console.log metric.width + " and " + max_ln_width
-        if (metric.width > max_ln_width)
-          bubble_text[ln_i] = test_line
+      max_line_length = 0
+      for word, i in text_split
+        word_length = @ctx.measureText(word)
+        line_length = @ctx.measureText(bubble_text[ln_i])
+        new_line_length = word_length.width + line_length.width
+        if (new_line_length < width_default)
+          bubble_text[ln_i] = bubble_text[ln_i] + " " + word
+        else #new line needed
+          if (max_line_length < new_line_length)
+            real_line_length = @ctx.measureText(bubble_text[ln_i])
+            max_line_length = real_line_length.width
           ln_i++
-          #console.log i + ' ' + test_line
-          test_line = ''
-        if metric.width > 0
-          bubble_text[ln_i] = test_line
-      #console.log bubble_text
-      height = 100 # calculate height using wrapping text
+          bubble_text[ln_i] = word
+      width = max_line_length + 2 * padding
+    height = (ln_i + 1) * line_height + 2 * padding # calculate height using wrapping text
+    #console.log "++++++++++++++++++++++++++++++"
+    #console.log "focused_font_size: " + focused_font_size
+    #console.log "line height: " + line_height
+    #console.log "padding: " + padding
+    #console.log "label_length: " + label_length
+    #console.log "bubble height: " + height
+    #console.log "max_line_length: " + max_line_length
+    #console.log "bubble width: " + width
+    #console.log "assigned bubble width: " + width
     bubble_attributes = [width, height, line_height, bubble_text]
 
 
@@ -1548,15 +1554,16 @@ class Huviz
           ctx.restore()
         else
           if (node_display_type == 'pills')
+            console.log "***** Call it"
             bubble = @get_label_attributes(node) # Get the size of the bubble and the split text for multiline
             bubble_text = bubble[3] # Array of lines of text
             line_height = bubble[2]  # Line height calculated from text size ?
             adjust_x = bubble[0] / 2
-            adjust_y = bubble[1] / 2 - line_height / 2
-            console.log bubble_text
+            adjust_y = bubble[1] / 2 - line_height
+            #console.log bubble_text
             for text, i in bubble_text
               ctx.fillText "  " + text + "  ", node.fisheye.x - adjust_x, node.fisheye.y - adjust_y
-              adjust_y = adjust_y - line_height/2
+              adjust_y = adjust_y - line_height
           else
             ctx.fillText "  " + node.pretty_name + "  ", node.fisheye.x, node.fisheye.y
 
