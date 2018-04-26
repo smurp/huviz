@@ -1414,14 +1414,14 @@ class Huviz
             rndng = 1
             x = d.fisheye.x
             y = d.fisheye.y
-            if @should_show_label(d)
-              bubble_size = @get_label_attributes(d)
-              pill_width = bubble_size[0]
-              pill_height = bubble_size[1]
-              x = x - pill_width/2
-              y = y - pill_height/2
-              filclr = "#fff" #"#333" or dark grey if
-              rndng = 5
+            #if @should_show_label(d)
+              #bubble_size = @get_label_attributes(d)
+              #pill_width = bubble_size[0]
+              #pill_height = bubble_size[1]
+              #x = x - pill_width/2
+              #y = y - pill_height/2
+              #filclr = "#fff" #"#333" or dark grey if
+              #rndng = 5
             @draw_bubble(x, y,
                       pill_width,
                       pill_height,
@@ -1528,6 +1528,7 @@ class Huviz
           ctx.font = focused_font
         else
           ctx.fillStyle = renderStyles.labelColor #"white" is default
+          console.log renderStyles.labelColor
           ctx.font = unfocused_font
         if not node.fisheye?
           return
@@ -1561,6 +1562,33 @@ class Huviz
             adjust_x = bubble[0] / 2
             adjust_y = bubble[1] / 2 - line_height
             #console.log bubble_text
+            #---------- draw a simulated node from cartouche ----------------------------
+            pill_width = bubble[0]
+            pill_height = bubble[1]
+            x = node.fisheye.x - pill_width/2
+            y = node.fisheye.y - pill_height/2
+            #console.log pill_width
+            #console.log pill_height
+            #console.log x
+            #console.log y
+            #@draw_bubble_node(x, y, pill_width, pill_height)
+            radius = 5
+            fill = "white"
+            alpha = 1
+            outline = node.color
+            @rounded_rectangle(x, y, pill_width, pill_height, radius, fill, outline, alpha)
+            #filclr = "#000" #or dark grey if
+            #stroke_color = "#000"
+            ctx.fillStyle = "#000"
+            #ctx.fill()
+            #rndng = 5
+            console.log ctx
+            #@rounded_rectangle(x, y,
+            #          pill_width,
+            #          pill_height,
+            #          rndng,
+            #          stroke_color,
+            #          filclr, .8)
             for text, i in bubble_text
               ctx.fillText "  " + text + "  ", node.fisheye.x - adjust_x, node.fisheye.y - adjust_y
               adjust_y = adjust_y - line_height
@@ -1634,14 +1662,25 @@ class Huviz
     width = @ctx.measureText(label).width
     height = @label_em * @focused_mag * 16
     radius = @edge_x_offset
-    cart_color = renderStyles.pageBg
+    fill = renderStyles.pageBg
     alpha = .8
     outline = false
     x = x + @edge_x_offset
     y = y - height
     width = width + 2 * @edge_x_offset
     height = height + @edge_x_offset
-    @rounded_rectangle(x, y, width, height, radius, cart_color, outline, alpha)
+    @rounded_rectangle(x, y, width, height, radius, fill, outline, alpha)
+
+  draw_bubble_node: (x, y, width, height) ->
+    #width = @ctx.measureText(label).width
+    #height = @label_em * @focused_mag * 16
+    console.log "drawing on new draw_bubble_node"
+
+    #x = x + @edge_x_offset
+    #y = y - height
+    #width = width + 2 * @edge_x_offset
+    #height = height + @edge_x_offset
+    @rounded_rectangle(x, y, width, height, radius, fill, outline, alpha)
 
   draw_edge_labels: ->
     if @focused_edge?
