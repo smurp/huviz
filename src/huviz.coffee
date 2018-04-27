@@ -1414,21 +1414,12 @@ class Huviz
             rndng = 1
             x = d.fisheye.x
             y = d.fisheye.y
-            #if @should_show_label(d)
-              #bubble_size = @get_label_attributes(d)
-              #pill_width = bubble_size[0]
-              #pill_height = bubble_size[1]
-              #x = x - pill_width/2
-              #y = y - pill_height/2
-              #filclr = "#fff" #"#333" or dark grey if
-              #rndng = 5
             @draw_bubble(x, y,
                       pill_width,
                       pill_height,
                       rndng,
                       stroke_color,
                       filclr)
-            # +++++++++++++++++++++++++++++++++++++++++++++++++++++++
           else
             @draw_pie(d.fisheye.x, d.fisheye.y,
                       node_radius,
@@ -1519,10 +1510,8 @@ class Huviz
         # perhaps scrolling should happen here
         #if not node_display_type and (node.focused_node or node.focused_edge?)
         if node.focused_node or node.focused_edge?
-          if node_display_type
-            console.log ctx.font
+          if (node_display_type == 'pills')
             ctx.font = focused_pill_font
-            console.log "after " + ctx.font
           else
             label = @scroll_pretty_name(node)
             # console.log label
@@ -1575,18 +1564,7 @@ class Huviz
             alpha = 1
             outline = node.color
             @rounded_rectangle(x, y, pill_width, pill_height, radius, fill, outline, alpha)
-            #filclr = "#000" #or dark grey if
-            #stroke_color = "#000"
             ctx.fillStyle = "#000"
-            #ctx.fill()
-            #rndng = 5
-            #console.log ctx
-            #@rounded_rectangle(x, y,
-            #          pill_width,
-            #          pill_height,
-            #          rndng,
-            #          stroke_color,
-            #          filclr, .8)
             for text, i in bubble_text
               ctx.fillText "  " + text + "  ", node.fisheye.x - adjust_x, node.fisheye.y - adjust_y
               adjust_y = adjust_y - line_height
@@ -1667,17 +1645,6 @@ class Huviz
     y = y - height
     width = width + 2 * @edge_x_offset
     height = height + @edge_x_offset
-    @rounded_rectangle(x, y, width, height, radius, fill, outline, alpha)
-
-  draw_bubble_node: (x, y, width, height) ->
-    #width = @ctx.measureText(label).width
-    #height = @label_em * @focused_mag * 16
-    console.log "drawing on new draw_bubble_node"
-
-    #x = x + @edge_x_offset
-    #y = y - height
-    #width = width + 2 * @edge_x_offset
-    #height = height + @edge_x_offset
     @rounded_rectangle(x, y, width, height, radius, fill, outline, alpha)
 
   draw_edge_labels: ->
