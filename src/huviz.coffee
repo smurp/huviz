@@ -1511,24 +1511,30 @@ class Huviz
       focused_font_size = @label_em * @focused_mag
       focused_font = "#{focused_font_size}em sans-serif"
       unfocused_font = "#{@label_em}em sans-serif"
+      focused_pill_font = "bold #{@label_em}em sans-serif"
       label_node = (node) =>
         return unless @should_show_label(node)
         ctx = @ctx
         ctx.textBaseline = "middle"
         # perhaps scrolling should happen here
+        #if not node_display_type and (node.focused_node or node.focused_edge?)
         if node.focused_node or node.focused_edge?
-          label = @scroll_pretty_name(node)
-          # console.log label
-          if node.state.id is "graphed"
-            cart_label = node.pretty_name
-            ctx.measureText(cart_label).width #forces proper label measurement (?)
-            if @cartouches
-              @draw_cartouche(cart_label, node.fisheye.x, node.fisheye.y)
-          ctx.fillStyle = node.color
-          ctx.font = focused_font
+          if node_display_type
+            console.log ctx.font
+            ctx.font = focused_pill_font
+            console.log "after " + ctx.font
+          else
+            label = @scroll_pretty_name(node)
+            # console.log label
+            if node.state.id is "graphed"
+              cart_label = node.pretty_name
+              ctx.measureText(cart_label).width #forces proper label measurement (?)
+              if @cartouches
+                @draw_cartouche(cart_label, node.fisheye.x, node.fisheye.y)
+            ctx.fillStyle = node.color
+            ctx.font = focused_font
         else
           ctx.fillStyle = renderStyles.labelColor #"white" is default
-          console.log renderStyles.labelColor
           ctx.font = unfocused_font
         if not node.fisheye?
           return
@@ -1555,23 +1561,15 @@ class Huviz
           ctx.restore()
         else
           if (node_display_type == 'pills')
-            console.log "***** Call it"
             bubble = @get_label_attributes(node) # Get the size of the bubble and the split text for multiline
             bubble_text = bubble[3] # Array of lines of text
             line_height = bubble[2]  # Line height calculated from text size ?
-            adjust_x = bubble[0] / 2
+            adjust_x = bubble[0] / 2 # Location of first line of text
             adjust_y = bubble[1] / 2 - line_height
-            #console.log bubble_text
-            #---------- draw a simulated node from cartouche ----------------------------
-            pill_width = bubble[0]
+            pill_width = bubble[0] # box size
             pill_height = bubble[1]
             x = node.fisheye.x - pill_width/2
             y = node.fisheye.y - pill_height/2
-            #console.log pill_width
-            #console.log pill_height
-            #console.log x
-            #console.log y
-            #@draw_bubble_node(x, y, pill_width, pill_height)
             radius = 5
             fill = "white"
             alpha = 1
@@ -1582,7 +1580,7 @@ class Huviz
             ctx.fillStyle = "#000"
             #ctx.fill()
             #rndng = 5
-            console.log ctx
+            #console.log ctx
             #@rounded_rectangle(x, y,
             #          pill_width,
             #          pill_height,
