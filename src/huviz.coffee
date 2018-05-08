@@ -1436,39 +1436,39 @@ class Huviz
 
   get_label_attributes: (d) ->
     # label attributes calculates the size of the box and shape of labels
-    # Produce: width and height of bubble - use maxwidth (settings) and maxheight (settings)
-    width_default = 200 #TODO -- this should be a setting
-    height_max = 200 #TODO -- this should be em_conversion * browser font setting * line height constant
+    text = d.pretty_name
+    label_measure = @ctx.measureText(text) #this is total length of text (in ems?)
+    width_default = @label_em * 200 #TODO -- this should be a setting
     browser_font_size = 12.8 # -- Setting or auto from browser?
     focused_font_size = @label_em * browser_font_size * @focused_mag
     padding = focused_font_size * 0.5
     line_height = focused_font_size * 1.25 # set line height to 125%
-    text = d.name.NOLANG
-    label_measure = @ctx.measureText(text) #this is total length of text
+
     label_length = label_measure.width + 2 * padding
-    # If the total length is less than the maxwidth setting then return as width / height 1 line
     bubble_text = []
+    text_cuts = []
     ln_i = 0
     bubble_text[ln_i] = ""
     if (label_length < width_default) # single line label
-      width = label_length
-      bubble_text[0] = text
+      max_line_length = label_length - padding
     else # more than one line so calculate how many and create text lines array
       text_split = text.split(' ') # array of words
       max_line_length = 0
       for word, i in text_split
-        word_length = @ctx.measureText(word)
-        line_length = @ctx.measureText(bubble_text[ln_i])
-        new_line_length = word_length.width + line_length.width
-        if (new_line_length < width_default)
-          bubble_text[ln_i] = bubble_text[ln_i] + " " + word
+        word_length = @ctx.measureText(word) #Get length of next word
+        line_length = @ctx.measureText(bubble_text[ln_i]) #Get current line length
+        new_line_length = word_length.width + line_length.width #add together for testing
+        if (new_line_length < width_default) #if line length is still less than max
+          bubble_text[ln_i] = bubble_text[ln_i] + word + " " #add word to bubble_text
         else #new line needed
-          if (max_line_length < new_line_length)
-            real_line_length = @ctx.measureText(bubble_text[ln_i])
+          text_cuts[ln_i] = i
+          real_line_length = @ctx.measureText(bubble_text[ln_i])
+          new_line_width = real_line_length.width
+          if (new_line_width > max_line_length) # remember longest line lengthth
             max_line_length = real_line_length.width
           ln_i++
-          bubble_text[ln_i] = word
-      width = max_line_length + 2 * padding
+          bubble_text[ln_i] = word + " "
+    width = max_line_length + 2 * padding #set actual width of box to longest line of text
     height = (ln_i + 1) * line_height + 2 * padding # calculate height using wrapping text
     #console.log "++++++++++++++++++++++++++++++"
     #console.log "focused_font_size: " + focused_font_size
@@ -1479,8 +1479,9 @@ class Huviz
     #console.log "max_line_length: " + max_line_length
     #console.log "bubble width: " + width
     #console.log "assigned bubble width: " + width
-    bubble_attributes = [width, height, line_height, bubble_text]
-
+    #console.log "bubble cut points: "
+    #console.log text_cuts
+    d.bub_txt = [width, height, line_height, text_cuts]
 
   should_show_label: (node) ->
     (node.labelled or
@@ -1502,7 +1503,7 @@ class Huviz
       focused_font_size = @label_em * @focused_mag
       focused_font = "#{focused_font_size}em sans-serif"
       unfocused_font = "#{@label_em}em sans-serif"
-      focused_pill_font = "bold #{@label_em}em sans-serif"
+      focused_pill_font = "#{@label_em}em sans-serif"
       label_node = (node) =>
         return unless @should_show_label(node)
         ctx = @ctx
@@ -1550,24 +1551,41 @@ class Huviz
           ctx.restore()
         else
           if (node_display_type == 'pills')
-            bubble = @get_label_attributes(node) # Get the size of the bubble and the split text for multiline
-            bubble_text = bubble[3] # Array of lines of text
-            line_height = bubble[2]  # Line height calculated from text size ?
-            adjust_x = bubble[0] / 2 # Location of first line of text
-            adjust_y = bubble[1] / 2 - line_height
-            pill_width = bubble[0] # box size
-            pill_height = bubble[1]
+            @get_label_attributes(node)
+            line_height = node.bub_txt[2]  # Line height calculated from text size ?
+            adjust_x = node.bub_txt[0] / 2 - line_height/2# Location of first line of text
+            adjust_y = node.bub_txt[1] / 2 - line_height
+            pill_width = node.bub_txt[0] # box size
+            pill_height = node.bub_txt[1]
+
             x = node.fisheye.x - pill_width/2
             y = node.fisheye.y - pill_height/2
-            radius = 5
-            fill = "white"
+            radius = 10 * @label_em
             alpha = 1
             outline = node.color
+            # change box edge thickness and fill if node selected
+            if node.focused_node or node.focused_edge?
+              ctx.lineWidth = 2
+              fill = "#f2f2f2"
+            else
+              ctx.lineWidth = 1
+              fill = "white"
             @rounded_rectangle(x, y, pill_width, pill_height, radius, fill, outline, alpha)
             ctx.fillStyle = "#000"
-            for text, i in bubble_text
-              ctx.fillText "  " + text + "  ", node.fisheye.x - adjust_x, node.fisheye.y - adjust_y
-              adjust_y = adjust_y - line_height
+            # Paint multi-line text
+            text = node.pretty_name
+            text_split = text.split(' ') # array of words
+            cuts = node.bub_txt[3]
+            print_label = ""
+            for text, i in text_split
+              if cuts and i in cuts
+                ctx.fillText print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y
+                adjust_y = adjust_y - line_height
+                print_label = text + " "
+              else
+                print_label = print_label + text + " "
+            if print_label # print last line, or single line if no cuts
+              ctx.fillText print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y
           else
             ctx.fillText "  " + node.pretty_name + "  ", node.fisheye.x, node.fisheye.y
 
