@@ -749,9 +749,6 @@ class Huviz
       end_angle = start_angle + arc
       @draw_circle(cx, cy, radius, strclr, filclr, end_angle, start_angle)
       start_angle = start_angle + arc
-  draw_bubble: (cx, cy, width, height, rndng, strclr, filclrs) ->
-    #@rounded_rectangle(cx-width/2, cy-25, width, height, 5, "white", strclr)
-    @rounded_rectangle(cx, cy, width, height, rndng, filclrs, strclr)
 
   draw_line: (x1, y1, x2, y2, clr) ->
     @ctx.strokeStyle = clr or 'red'
@@ -1414,7 +1411,7 @@ class Huviz
             rndng = 1
             x = d.fisheye.x
             y = d.fisheye.y
-            @draw_bubble(x, y,
+            @rounded_rectangle(x, y,
                       pill_width,
                       pill_height,
                       rndng,
