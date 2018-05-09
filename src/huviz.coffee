@@ -398,7 +398,7 @@ class Huviz
   renderStyles = themeStyles.light
   display_shelf_clockwise: true
   nodeOrderAngle = 0.5
-  node_display_type = 'pills'
+  node_display_type = ''
 
   change_sort_order: (array, cmp) ->
     array.__current_sort_order = cmp
@@ -3701,6 +3701,14 @@ class Huviz
           type: "checkbox"
         event_type: "change"
     ,
+      pill_display:
+        text: "Display graph with boxed labels"
+        label:
+          title: "Show boxed labels on graph"
+        input:
+          type: "checkbox"
+        event_type: "change"
+    ,
       theme_colors:
         text: "Display graph with dark theme"
         label:
@@ -3938,6 +3946,13 @@ class Huviz
         return text
     else
       $('option.dangerous').hide()
+
+  on_change_pill_display: (new_val) ->
+    if new_val
+      node_display_type = 'pills'
+    else
+      node_display_type = ""
+    @updateWindow()
 
   on_change_theme_colors: (new_val) ->
     if new_val
