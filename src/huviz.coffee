@@ -1182,7 +1182,7 @@ class Huviz
       node.focused_node = true
     @focused_node = node
     if @focused_node
-      console.log("focused_node:", @focused_node)
+      #console.log("focused_node:", @focused_node)
       @gclui.engage_transient_verb_if_needed("select")
     else
       @gclui.disengage_transient_verb_if_needed()
@@ -1470,6 +1470,7 @@ class Huviz
           bubble_text[ln_i] = word + " "
     width = max_line_length + 2 * padding #set actual width of box to longest line of text
     height = (ln_i + 1) * line_height + 2 * padding # calculate height using wrapping text
+    font_size = @label_em
     #console.log "++++++++++++++++++++++++++++++"
     #console.log "focused_font_size: " + focused_font_size
     #console.log "line height: " + line_height
@@ -1481,7 +1482,7 @@ class Huviz
     #console.log "assigned bubble width: " + width
     #console.log "bubble cut points: "
     #console.log text_cuts
-    d.bub_txt = [width, height, line_height, text_cuts]
+    d.bub_txt = [width, height, line_height, text_cuts, font_size]
 
   should_show_label: (node) ->
     (node.labelled or
@@ -1551,7 +1552,10 @@ class Huviz
           ctx.restore()
         else
           if (node_display_type == 'pills')
-            @get_label_attributes(node)
+            node_font_size = node.bub_txt[4]
+            result = node_font_size != @label_em
+            if not node.bub_txt.length or result
+              @get_label_attributes(node)
             line_height = node.bub_txt[2]  # Line height calculated from text size ?
             adjust_x = node.bub_txt[0] / 2 - line_height/2# Location of first line of text
             adjust_y = node.bub_txt[1] / 2 - line_height
