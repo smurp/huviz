@@ -3330,7 +3330,6 @@ class Huviz
              nodes([]).
              linkDistance(@link_distance).
              charge(@get_charge).
-             #charge(-300).
              gravity(@gravity).
              on("tick", @tick)
     @update_fisheye()
@@ -3385,7 +3384,8 @@ class Huviz
       collapsible: true
 
   update_fisheye: ->
-    @label_show_range = @link_distance * 1.1
+    #@label_show_range = @link_distance * 1.1
+    @label_show_range = 30 * 1.1 #TODO Fixed value or variable like original? (above)
     #@fisheye_radius = @label_show_range * 5
     @focus_radius = @label_show_range
     @fisheye = d3.fisheye.
@@ -3947,8 +3947,16 @@ class Huviz
   on_change_pill_display: (new_val) ->
     if new_val
       node_display_type = 'pills'
+      $("input[name='charge']").attr('min', '-5000').attr('value', '-3000')
+      $("input[name='link_distance']").attr('max', '500').attr('value', '200')
+      @charge = -3000
+      @link_distance = 200
     else
       node_display_type = ""
+      $("input[name='charge']").attr('min', '-600').attr('value', '-200')
+      $("input[name='link_distance']").attr('max', '200').attr('value', '29')
+      @charge = -200
+      @link_distance = 29
     @updateWindow()
 
   on_change_theme_colors: (new_val) ->
