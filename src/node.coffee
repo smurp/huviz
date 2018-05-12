@@ -2,6 +2,7 @@ uniquer = require("uniquer").uniquer
 
 class Node
   constructor: (@id, use_lid_as_node_name) ->
+    @bub_txt = []
     @links_from = []
     @links_to = []
     @links_shown = []
