@@ -1432,21 +1432,26 @@ class Huviz
     return [n.color or default_color]
 
   get_label_attributes: (d) ->
-    # label attributes calculates the size of the box and shape of labels
     text = d.pretty_name
     label_measure = @ctx.measureText(text) #this is total length of text (in ems?)
-    width_default = @label_em * 200 #TODO -- this should be a setting
     browser_font_size = 12.8 # -- Setting or auto from browser?
     focused_font_size = @label_em * browser_font_size * @focused_mag
     padding = focused_font_size * 0.5
     line_height = focused_font_size * 1.25 # set line height to 125%
-
+    max_len = 250
+    min_len = 100
     label_length = label_measure.width + 2 * padding
+    num_lines_raw = label_length/max_len
+    num_lines = (Math.floor num_lines_raw) + 1
+    if (num_lines > 1)
+      width_default = @label_em * label_measure.width/num_lines
+    else
+      width_default = max_len
     bubble_text = []
     text_cuts = []
     ln_i = 0
     bubble_text[ln_i] = ""
-    if (label_length < width_default) # single line label
+    if (label_length < (width_default + 2 * padding)) # single line label
       max_line_length = label_length - padding
     else # more than one line so calculate how many and create text lines array
       text_split = text.split(' ') # array of words
@@ -1468,7 +1473,7 @@ class Huviz
     width = max_line_length + 2 * padding #set actual width of box to longest line of text
     height = (ln_i + 1) * line_height + 2 * padding # calculate height using wrapping text
     font_size = @label_em
-    #console.log "++++++++++++++++++++++++++++++"
+    #console.log text
     #console.log "focused_font_size: " + focused_font_size
     #console.log "line height: " + line_height
     #console.log "padding: " + padding
@@ -1476,7 +1481,6 @@ class Huviz
     #console.log "bubble height: " + height
     #console.log "max_line_length: " + max_line_length
     #console.log "bubble width: " + width
-    #console.log "assigned bubble width: " + width
     #console.log "bubble cut points: "
     #console.log text_cuts
     d.bub_txt = [width, height, line_height, text_cuts, font_size]
