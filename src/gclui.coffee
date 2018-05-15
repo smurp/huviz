@@ -603,9 +603,10 @@ class CommandController
           args.verbs.push(v)
     if @proposed_verb
       args.verbs.push(@proposed_verb)
-      # TODO set args.
     if @chosen_set_id
       args.sets = [@chosen_set]
+    else if @proposed_set
+      args.sets = [@proposed_set]
     else
       if @taxons_chosen.length > 0
         args.classes = (class_name for class_name in @taxons_chosen)
@@ -616,7 +617,7 @@ class CommandController
       args.like = like_str
     @command = new gcl.GraphCommand(@huviz, args)
   is_proposed: ->
-    @proposed_verb # or @proposed_set or @proposed_taxon
+    @proposed_verb or @proposed_set #or @proposed_taxon
   update_command: (because) =>
     console.log("update_command()")
     because = because or {}
@@ -812,12 +813,24 @@ class CommandController
     @set_picker.click_listener = @on_set_picked
     @set_picker.show_tree(@the_sets, @set_picker_box)
     @populate_all_set_docs()
+    @make_sets_proposable()
     where.classed("set_picker_box_parent",true)
     return where
   populate_all_set_docs: () ->
     for id, a_set of @huviz.selectable_sets
       if a_set.docs?
         @set_picker.set_title(id, a_set.docs)
+  make_sets_proposable: () ->
+    make_listeners = (id, a_set) => # fat arrow carries this to @
+      set_ctl = @set_picker.id_to_elem[id]
+      set_ctl.on 'mouseenter', () =>
+        @proposed_set =  a_set
+        @update_command()
+      set_ctl.on 'mouseleave', () =>
+        @proposed_set = null
+        @update_command()
+    for id, a_set of @huviz.selectable_sets
+      make_listeners(id, a_set)
   on_set_picked: (set_id, new_state) =>
     @clear_set_picker() # TODO consider in relation to liking_all_mode
     @set_picker.set_direct_state(set_id, new_state)
