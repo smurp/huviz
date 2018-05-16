@@ -198,6 +198,7 @@ class CommandController
     # http://en.wikipedia.org/wiki/Taxon
     @taxon_picker = new ColoredTreePicker(@taxon_box,'Thing',[],true)
     @taxon_picker.click_listener = @on_taxon_clicked
+    @taxon_picker.hover_listener = @on_taxon_hovered
     @taxon_picker.show_tree(@hierarchy,@taxon_box)
     where.classed("taxon_picker_box_parent", true)
     return where
@@ -219,6 +220,8 @@ class CommandController
     @start_working()
     setTimeout () => # run asynchronously so @start_working() can get a head start
       @perform_on_taxon_clicked(id, new_state, elem)
+  on_taxon_hovered: () ->
+    
   set_taxa_click_storm_callback: (callback) ->
     if @taxa_click_storm_callback?
       throw new Error("taxa_click_storm_callback already defined")
@@ -591,15 +594,19 @@ class CommandController
     @old_commands.push(record)
     cmd_ui.text(cmd.str)
   build_command: ->
-    args = {}
+    args =
+      verbs: []
     args.object_phrase = @object_phrase
     if @engaged_verbs.length > 0
-      args.verbs = []
       for v in @engaged_verbs
         if v isnt @transient_verb_engaged
-          args.verbs.push v
+          args.verbs.push(v)
+    if @proposed_verb
+      args.verbs.push(@proposed_verb)
     if @chosen_set_id
       args.sets = [@chosen_set]
+    else if @proposed_set
+      args.sets = [@proposed_set]
     else
       if @taxons_chosen.length > 0
         args.classes = (class_name for class_name in @taxons_chosen)
@@ -609,12 +616,14 @@ class CommandController
     if like_str
       args.like = like_str
     @command = new gcl.GraphCommand(@huviz, args)
+  is_proposed: ->
+    @proposed_verb or @proposed_set #or @proposed_taxon
   update_command: (because) =>
     console.log("update_command()")
     because = because or {}
     @huviz.show_state_msg("update_command")
     ready = @prepare_command(@build_command())
-    if ready and @huviz.doit_asap and @immediate_execution_mode
+    if ready and @huviz.doit_asap and @immediate_execution_mode and not @is_proposed()
       @show_working_on()
       if @huviz.slow_it_down
         start = Date.now()
@@ -741,6 +750,7 @@ class CommandController
       elem.classed('engaged',newstate)
       if newstate
         that.engage_verb(id)
+        that.proposed_verb = null # there should be no proposed_verb if we are clicking engaging one
         because =
           verb_added: id
           cleanup: that.disengage_all_verbs
@@ -749,6 +759,29 @@ class CommandController
       if not that.engaged_verbs? or that.engaged_verbs.length is 0
         that.huviz.set_cursor_for_verbs([])
       that.update_command(because)
+    vbctl.on 'mouseenter', () -> # tell user what will happen if this verb is clicked
+      elem = d3.select(this)
+      click_would_engage = not elem.classed('engaged')
+      because = {}
+      if click_would_engage
+        that.proposed_verb = id # not proposed_verbs because there can be at most one
+        because =
+          proposed_verb: id
+          #cleanup: that.disengage_all_verbs
+      else # clicking would disengage the verb
+        that.proposed_verb = null # TODO figure out whether and how to show user
+      # After the click there will be engaged verbs if click_would_engage
+      # or there are more than one engaged_verbs.
+      #click_would_leave_a_verb_phrase = click_would_engage or that.engaged_verbs.length > 1
+      that.update_command(because)
+    vbctl.on 'mouseleave', () ->
+      elem = d3.select(this)
+      leaving_verb_id = elem.classed('engaged')
+      because =
+        verb_leaving: leaving_verb_id
+      that.proposed_verb = null
+      that.update_command(because)
+
   run_script: (script) ->
     # We recognize a couple of different visible "space-illustrating characters" as spaces.
     #   https://en.wikipedia.org/wiki/Whitespace_character
@@ -780,12 +813,24 @@ class CommandController
     @set_picker.click_listener = @on_set_picked
     @set_picker.show_tree(@the_sets, @set_picker_box)
     @populate_all_set_docs()
+    @make_sets_proposable()
     where.classed("set_picker_box_parent",true)
     return where
   populate_all_set_docs: () ->
     for id, a_set of @huviz.selectable_sets
       if a_set.docs?
         @set_picker.set_title(id, a_set.docs)
+  make_sets_proposable: () ->
+    make_listeners = (id, a_set) => # fat arrow carries this to @
+      set_ctl = @set_picker.id_to_elem[id]
+      set_ctl.on 'mouseenter', () =>
+        @proposed_set =  a_set
+        @update_command()
+      set_ctl.on 'mouseleave', () =>
+        @proposed_set = null
+        @update_command()
+    for id, a_set of @huviz.selectable_sets
+      make_listeners(id, a_set)
   on_set_picked: (set_id, new_state) =>
     @clear_set_picker() # TODO consider in relation to liking_all_mode
     @set_picker.set_direct_state(set_id, new_state)

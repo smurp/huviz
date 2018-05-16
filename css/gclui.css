@@ -229,6 +229,10 @@
   color: grey;
   font-style: italic;
 }
+.nextcommand_prompt_proposed {
+  color: red;
+  font-style: bold;
+}
 .close_all_snippets_button {
     cursor: pointer;
     width:15px;
