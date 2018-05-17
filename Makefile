@@ -18,7 +18,7 @@ all: individuals organizations periodicals publishing_houses genres
 
 individuals: atwoma ballrm abdyma shakwi byroau
 
-organizations: academie_des_femmes african_national_congress brontes female_antislavery_society newnham_college nuns the_1917_club the_17th_century_quakers
+organizations: academie_des_femmes african_national_congress brontes female_antislavery_society newnham_college nuns the_1917_club the_17th_century_quakers men_and_womens_club
 
 periodicals: yellow_book_and_poet taits_edinburgh_magazine englishwomans_review
 
@@ -96,13 +96,20 @@ the_17th_century_quakers:
 	sort < ${TMPFILE} > data/the_17th_century_quakers.${EXT}
 	rm ${TMPFILE}
 
+# Henrietta Nuller, Jane Hume Clapperton, Olive Schreiner, Amy Levy, Emma Brooke, Mona Caird
+# Isabella Ford, ie "Ford, Isabella Ormston" appears not to have her own article
+men_and_womens_club:
+	./orlandoscrape.py --outfile ${TMPFILE} --id mullhe,schrol,clapja,levyam,brooem,cairmo ${ARGS}
+	sort < ${TMPFILE} > data/men_and_womens_club.${EXT}
+	rm ${TMPFILE}
+
 poetesses:
 	./orlandoscrape.py --outfile ${TMPFILE} \
 		--ids `bin/get_poetesses_ids.sh` ${BASE_ARGS}
 	sort < ${TMPFILE} > data/poetesses.${EXT}
 	rm ${TMPFILE}
 
-early_writers: 
+early_writers:
 	./orlandoScrape.py --outfile ${TMPFILE} \
 		--id boccgi,chauge,chripi,dant__,helo__,hildbi,julino,kempma,maloth,margna,marifr,petr__ \
 		${ARGS}

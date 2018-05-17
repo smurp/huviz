@@ -31,6 +31,12 @@
       "danger": true
     },
     {
+      "uri": "/data/men_and_womens_club.nq",
+      "label": "Men and Women's Club",
+      "title": "all attributes -- ?? nodes; ?? edges; ?? predicates ✓",
+      "danger": false
+    },
+    {
       "uri": "/data/newnham_college.nq",
       "label": "Newnham College",
       "title": "all attributes -- ?? nodes; 5300 edges; ?? predicates ✓",
