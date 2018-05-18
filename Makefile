@@ -12,7 +12,7 @@ EXT=nq
 
 ARGS = 	--all_predicates ${BASE_ARGS}
 
-TMPFILE := $(shell mktemp /tmp/XXXXXXXXXXXXXX).${EXT}
+TMPFILE := $(shell mktemp /tmp/orlando-XXXXXXXXXXXXXX).${EXT}
 
 all: individuals organizations periodicals publishing_houses genres
 
@@ -99,7 +99,11 @@ the_17th_century_quakers:
 # Henrietta Nuller, Jane Hume Clapperton, Olive Schreiner, Amy Levy, Emma Brooke, Mona Caird
 # Isabella Ford, ie "Ford, Isabella Ormston" appears not to have her own article
 men_and_womens_club:
-	./orlandoscrape.py --outfile ${TMPFILE} --id mullhe,schrol,clapja,levyam,brooem,cairmo ${ARGS}
+	$(eval AUTH_IDS := mullhe,schrol,clapja,levyam,brooem,cairmo,fordis ) # fordis is missing from all_entries_2013-03-04
+	#$(eval TMPINFILE := $(shell mktemp /tmp/orlando-XXXXXXXXXXXXXX).xml)
+	#bin/amalgamate_xml.py ${AUTH_IDS} > ${TMPINFILE}
+	#--infile ${TMPINFILE}
+	./orlandoscrape.py --outfile ${TMPFILE} --id ${AUTH_IDS} ${ARGS}
 	sort < ${TMPFILE} > data/men_and_womens_club.${EXT}
 	rm ${TMPFILE}
 
