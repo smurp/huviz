@@ -10,6 +10,8 @@ header = """<?xml version="1.0" encoding="UTF-8"?>
 footer = """</ORLANDO-CWRC>
 """
 
+# The directory 'root' below is the root of the folder extracted from the following zip file:
+#   https://www.dropbox.com/s/q5q2otxwtyw0fp9/orlando_2017-03-28.zip?dl=0
 root = "orlando_2017-03-28"
 
 def get_first_line(body):
