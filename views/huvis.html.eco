@@ -42,6 +42,7 @@
           <li><a href="#tabs-intro" title="Introduction and Usage">Intro</a></li>
           <li><a href="#huvis_controls" title="Power tools for controlling the graph with commands consisting of verbs and nouns.">Commands</a></li>
           <li><a href="#tabs-options" title="Fine tune sizes, lengths and thicknesses.">Settings</a></li>
+          <li><a href="#tabs-history" title="The command history">History</a></li>
           <li><a href="#tabs-credit" title="Academic, funding and technical credit.">Credit</a></li>
           <!--li class="open_huviz_help">
             	 <a href="#tabs-help" title="show help window">
@@ -223,6 +224,8 @@
         <div id="gclui"></div>
       </div>
         <div id="tabs-credit" class="scrolling_tab">
+        </div>
+        <div id="tabs-history">
         </div>
         <div id="tabs-help" style="height:0px"></div>
     </section>
