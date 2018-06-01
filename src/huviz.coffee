@@ -675,7 +675,7 @@ class Huviz
     @gclc.run(cmd)
     #@gclui.show_working_off()
     @hide_state_msg()
-    @gclui.push_command(cmd)
+    return
 
   #///////////////////////////////////////////////////////////////////////////
   # resize-svg-when-window-is-resized-in-d3-js
