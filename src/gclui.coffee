@@ -626,6 +626,10 @@ class CommandController
     @huviz.show_state_msg("update_command")
     ready = @prepare_command(@build_command())
     if ready and @huviz.doit_asap and @immediate_execution_mode and not @is_proposed()
+      @execute_command(because)
+    @huviz.hide_state_msg() # TODO is this vestigal?
+  execute_command: (because) =>
+    if true
       @show_working_on(@command)
       if @huviz.slow_it_down
         start = Date.now()
@@ -638,7 +642,6 @@ class CommandController
         because.cleanup()
         @update_command()
       @show_working_off()
-    @huviz.hide_state_msg()
   nextcommand_prompts_visible: true
   nextcommand_str_visible: false
   prepare_command: (cmd) ->
