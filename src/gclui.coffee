@@ -220,8 +220,6 @@ class CommandController
     @start_working()
     setTimeout () => # run asynchronously so @start_working() can get a head start
       @perform_on_taxon_clicked(id, new_state, elem)
-  on_taxon_hovered: () ->
-    
   set_taxa_click_storm_callback: (callback) ->
     if @taxa_click_storm_callback?
       throw new Error("taxa_click_storm_callback already defined")
