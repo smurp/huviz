@@ -629,19 +629,18 @@ class CommandController
       @execute_command(because)
     @huviz.hide_state_msg() # TODO is this vestigal?
   execute_command: (because) =>
-    if true
-      @show_working_on(@command)
-      if @huviz.slow_it_down
-        start = Date.now()
-        while Date.now() < start + (@huviz.slow_it_down * 1000)
-          console.log(Math.round((Date.now() - start) / 1000))
-        alert "About to execute:\n  "+@command.str
-      @command.execute()
-      @huviz.update_all_counts()
-      if because.cleanup
-        because.cleanup()
-        @update_command()
-      @show_working_off()
+    @show_working_on(@command)
+    if @huviz.slow_it_down
+      start = Date.now()
+      while Date.now() < start + (@huviz.slow_it_down * 1000)
+        console.log(Math.round((Date.now() - start) / 1000))
+      alert "About to execute:\n  "+@command.str
+    @command.execute()
+    @huviz.update_all_counts()
+    if because.cleanup
+      because.cleanup()
+      @update_command()
+    @show_working_off()
   nextcommand_prompts_visible: true
   nextcommand_str_visible: false
   prepare_command: (cmd) ->
