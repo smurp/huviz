@@ -582,9 +582,9 @@ class CommandController
   get_like_string: ->
     @like_input[0][0].value
   old_commands: []
-  push_command_onto_history: (cmd) ->
-    @push_command(cmd)
   push_command: (cmd) ->
+    @push_command_onto_history(cmd)
+  push_command_onto_history: (cmd) ->
     if @old_commands.length > 0
       prior = @old_commands[@old_commands.length-1]
       if prior.cmd.str is cmd.str
