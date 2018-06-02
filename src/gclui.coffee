@@ -220,8 +220,6 @@ class CommandController
     @start_working()
     setTimeout () => # run asynchronously so @start_working() can get a head start
       @perform_on_taxon_clicked(id, new_state, elem)
-  on_taxon_hovered: () ->
-    
   set_taxa_click_storm_callback: (callback) ->
     if @taxa_click_storm_callback?
       throw new Error("taxa_click_storm_callback already defined")
@@ -482,8 +480,10 @@ class CommandController
   stop_working: =>
     @show_working_off()
     @already_working = undefined
-  show_working_on: ->
+  show_working_on: (cmd)->
     console.log "show_working_on()"
+    if cmd?
+      @push_command_onto_history(cmd)
     @nextcommand_working.attr('class','fa fa-spinner fa-spin') # PREFERRED fa-2x
     @nextcommand.attr('class','nextcommand command cmd-working')
   show_working_off: ->
@@ -582,6 +582,8 @@ class CommandController
   get_like_string: ->
     @like_input[0][0].value
   old_commands: []
+  push_command_onto_history: (cmd) ->
+    @push_command(cmd)
   push_command: (cmd) ->
     if @old_commands.length > 0
       prior = @old_commands[@old_commands.length-1]
@@ -624,7 +626,7 @@ class CommandController
     @huviz.show_state_msg("update_command")
     ready = @prepare_command(@build_command())
     if ready and @huviz.doit_asap and @immediate_execution_mode and not @is_proposed()
-      @show_working_on()
+      @show_working_on(@command)
       if @huviz.slow_it_down
         start = Date.now()
         while Date.now() < start + (@huviz.slow_it_down * 1000)
