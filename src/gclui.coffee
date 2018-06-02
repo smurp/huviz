@@ -627,7 +627,7 @@ class CommandController
     ready = @prepare_command(@build_command())
     if ready and @huviz.doit_asap and @immediate_execution_mode and not @is_proposed()
       @execute_command(because)
-    @huviz.hide_state_msg() # TODO is this vestigal?
+    @huviz.hide_state_msg()
   execute_command: (because) =>
     @show_working_on(@command)
     if @huviz.slow_it_down

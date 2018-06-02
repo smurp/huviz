@@ -571,6 +571,7 @@ class Huviz
           action = "discard"
         @text_cursor.pause("", "drop to #{@human_term[action]}")
     else # IE not dragging
+      # TODO move the "if not @dragging and @mousedown_point and @focused_node and distance" block in here
       if @edit_mode
         if @editui.object_node or not @editui.subject_node
           if @editui.object_datatype_is_literal
@@ -2762,8 +2763,8 @@ class Huviz
     if @peeking_node?
       if @peeking_node is node
         was_already_peeking = true
-      @recolor_node @peeking_node
-      @unflag_all_edges @peeking_node
+      @recolor_node(@peeking_node)
+      @unflag_all_edges(@peeking_node)
     if not was_already_peeking
       @peeking_node = node
       @peeking_node.color = PEEKING_COLOR
