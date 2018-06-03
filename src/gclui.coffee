@@ -709,12 +709,13 @@ class CommandController
 
   ###
   are_non_transient_verbs: ->
+    # return whether there are any non-transient verbs engaged
     len_transient = @transient_verb_engaged? and 1 or 0
-    @engaged_verbs.length > len_transient
+    return @engaged_verbs.length > len_transient
 
-  engage_transient_verb_if_needed: (verb) ->
+  engage_transient_verb_if_needed: (verb_id) ->
     if @engaged_verbs.length is 0 and not @are_non_transient_verbs()
-      @engage_verb(verb, true)
+      @engage_verb(verb_id, true)
 
   disengage_transient_verb_if_needed: ->
     if @transient_verb_engaged

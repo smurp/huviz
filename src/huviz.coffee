@@ -1169,6 +1169,7 @@ class Huviz
     if @focused_node is node
       return # no change so skip
     if @focused_node
+      # unfocus the previously focused_node
       if @use_svg
         d3.select(".focused_node").classed "focused_node", false
       @unscroll_pretty_name(@focused_node)
@@ -1178,10 +1179,10 @@ class Huviz
         svg_node = node[0][new_focused_idx]
         d3.select(svg_node).classed "focused_node", true
       node.focused_node = true
-    @focused_node = node
+    @focused_node = node # might be null
     if @focused_node
       #console.log("focused_node:", @focused_node)
-      @gclui.engage_transient_verb_if_needed("select")
+      @gclui.engage_transient_verb_if_needed("select") # select is default verb
     else
       @gclui.disengage_transient_verb_if_needed()
 
