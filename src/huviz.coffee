@@ -696,6 +696,8 @@ class Huviz
       @canvas.width = @width
       @canvas.height = @height
     @force.size [@mx, @my]
+    $("#graph_title_set").css("width", @width)
+    $("#tabs").css("left", "inherit")
     @restart()
 
   #///////////////////////////////////////////////////////////////////////////
@@ -2194,9 +2196,8 @@ class Huviz
 
   get_container_width: (pad) ->
     pad = pad or hpad
-    @width = (@container.clientWidth or window.innerWidth or document.documentElement.clientWidth or document.clientWidth) - pad
-    #console.log "get_window_width()",window.innerWidth,document.documentElement.clientWidth,document.clientWidth,"==>",@width
-    @width = window.innerWidth - $("#tabs").width()
+    w_width = (@container.clientWidth or window.innerWidth or document.documentElement.clientWidth or document.clientWidth) - pad
+    @width = w_width - $("#tabs").width()
 
   # Should be refactored to be get_container_height
   get_container_height: (pad) ->
@@ -3326,7 +3327,7 @@ class Huviz
     document.addEventListener 'nextsubject', @onnextsubject
     @init_snippet_box()  # FIXME not sure this does much useful anymore
     @mousedown_point = false
-    @discard_point = [@cx,@cy] # FIXME refactor so updateWindow handles this
+    @discard_point = [@cx,@cy] # FIXME refactor so ctrl-handle handles this
     @lariat_center = [@cx,@cy] #       and this....
     @node_radius_policy = node_radius_policies[default_node_radius_policy]
     @currently_printed_snippets = {}
@@ -3362,7 +3363,7 @@ class Huviz
     @reset_graph()
     @updateWindow()
     @ctx = @canvas.getContext("2d")
-    console.log @ctx
+    #console.log @ctx
     @mouse_receiver
       .on("mousemove", @mousemove)
       .on("mousedown", @mousedown)
@@ -3373,8 +3374,8 @@ class Huviz
     search_input = document.getElementById('search')
     if search_input
       search_input.addEventListener("input", @update_searchterm)
-    #$(".search_box").on "input", @update_searchterm
     window.addEventListener "resize", @updateWindow
+    $("#tabs").on("resize", @updateWindow)
     $(@viscanvas).bind("_splitpaneparentresize", @updateWindow)
     $("#tabs").tabs
       active: 0
