@@ -493,7 +493,7 @@ class CommandController
     #@nextcommand.attr('style','background-color:yellow') # PREFERRED
 
   build_like: () ->
-    @likediv.text('like:').classed("control_label", true)
+    @likediv.text('matching:').classed("control_label", true)
     @likediv.style('display','inline-block')
     @likediv.style('white-space','nowrap')
     @like_input = @likediv.append('input')
@@ -504,7 +504,7 @@ class CommandController
     @clear_like_button = @likediv.append('button').text('⌫')
     @clear_like_button.attr('type','button').classed('clear_like', true)
     @clear_like_button.attr('disabled','disabled')
-    @clear_like_button.attr('title','clear the "like" field')
+    @clear_like_button.attr('title','clear the "matching" field')
     @clear_like_button.on 'click', @handle_clear_like
 
   handle_clear_like: (evt) =>

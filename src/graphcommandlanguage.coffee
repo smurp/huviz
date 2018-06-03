@@ -77,11 +77,11 @@ class GCLTestSuite
 class GraphCommand
     # "choose,label 'abdyma'"
     # "label Thing"
-    # "choose like 'Maria'"
-    # "choose organizations like 'church'"
-    # "choose Thing like 'mary'"
-    # "discard organizations like 'mary'"
-    # "choose writers like 'Margaret' regarding family"
+    # "choose matching 'Maria'"
+    # "choose organizations matching 'church'"
+    # "choose Thing matching 'mary'"
+    # "discard organizations matching 'mary'"
+    # "choose writers matching 'Margaret' regarding family"
     #    /(\w+)(,\s*\w+) '(\w+)'/
 
   # Expect args: verbs, subjects, classes, constraints, regarding
@@ -89,7 +89,7 @@ class GraphCommand
   #   subjects: a list of subj_ids eg: ['_:AE','http://a.com/abdyma']
   #   classes: a list of classes: ['writers','orgs']
   #   sets: a list of the huviz sets to act on eg: [@huviz.graphed_set]
-  #   constraints: like TODO(smurp) document GraphCommand constraints
+  #   constraints: matching TODO(smurp) document GraphCommand constraints
   #   regarding: a list of pred_ids eg: ['orl:child','orl:denom']
   #       really [ orl:connectionToOrganization,
   #                http://vocab.sindice.com/xfn#child ]
@@ -283,7 +283,7 @@ class GraphCommand
         ready = false
     @suffix_phrase = ''
     if like_str
-      @suffix_phrase += " like '"+like_str+"'"
+      @suffix_phrase += " matching '"+like_str+"'"
     if regarding_phrase
       @suffix_phrase += " regarding " + regarding_phrase +  ' .'
     else
