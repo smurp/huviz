@@ -37,7 +37,7 @@ class CommandController
     @comdiv = d3.select(@container).append("div") # --- Add a container
     @cmdtitle = d3.select("#tabs-history").append('div').attr('class','control_label').html('Command History')
     @cmdlist = d3.select("#tabs-history").append('div').attr('class','commandlist')
-    @oldcommands = @cmdlist.append('div').attr('class','commandhistory')
+    @oldcommands = @cmdlist.append('div').attr('id','commandhistory')
     @control_label("Current Command")
     @nextcommandbox = @comdiv.append('div')
     @make_verb_sets()
@@ -591,11 +591,15 @@ class CommandController
       if prior.cmd.str is cmd.str
         return  # same as last command, ignore
     cmd_ui = @oldcommands.append('div').attr('class','command')
+    d = $('#commandhistory').scrollTop($('#commandhistory')[0].scrollHeight)
+    #d.scrollTop(d.prop("scrollHeight"))
+    console.log "+++++++++++++++"
     record =
       elem: cmd_ui
       cmd: cmd
     @old_commands.push(record)
     cmd_ui.text(cmd.str)
+
   build_command: ->
     args =
       verbs: []

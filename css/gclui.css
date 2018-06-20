@@ -121,9 +121,9 @@
   background-color: blue;
   color: white;
 }
-.commandhistory {
-  /*overflow-y: scroll;
-  max-height: 6em;*/
+#commandhistory {
+  overflow-y: scroll;
+  /*max-height: 6em; */
 }
 .commandhistory .command{
   padding: .2em .4em;
