@@ -59,11 +59,19 @@
 ## Robert Warren
 * Research Associate; Technical Consultant: 2015-2017
 
-# Partners
+# Funders
 
-[![CWRC Logo](/docs/cwrc_logo.png)](http://www.cwrc.ca)
-[![Orlando Logo](/docs/orlando_tree_logo.png)](http://orlando.cambridge.org)
-[![Nooron Logo](/docs/nooron_logo.png)](http://nooron.com)
+* CANARIE: CWRC Extension (PI: Susan Brown)
+
+* SSHRC: Text Mining the Novel (PI: Andrew Piper)
+
+* SSHRC: Text Mining and Visualization in Literary History (PI: Susan Brown)
+
+* SSHRC: Implementing New Knowledge Environments (PI: Raymond G. Siemens)
+
+* SSHRC: Linked Modernisms (PI: Stephen Ross)
+
+# Partners
 
 ## The Canadian Writing Research Collaboratory
 
@@ -78,11 +86,6 @@
 * http://nooron.com
 
 
-# Funders
-
-* CANARIE: CWRC Extension (PI: Susan Brown)
-* SSHRC: Text Mining the Novel (PI: Andrew Piper)
-* SSHRC: Text Mining and Visualization in Literary History (PI: Susan Brown)
-* SSHRC: Implementing New Knowledge Environments (PI: Raymond G. Siemens)
-* SSHRC: Linked Modernisms (PI: Stephen Ross)
-
+[![CWRC Logo](/docs/cwrc_logo.png)](http://www.cwrc.ca  =200x200)
+[![Orlando Logo](/docs/orlando_tree_logo.png)](http://orlando.cambridge.org)
+[![Nooron Logo](/docs/nooron_logo.png)](http://nooron.com)
