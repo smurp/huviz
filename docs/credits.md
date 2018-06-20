@@ -86,6 +86,6 @@
 * http://nooron.com
 
 
-[![CWRC Logo](/docs/cwrc_logo.png width="100")](http://www.cwrc.ca)
+[![CWRC Logo](/docs/cwrc_logo.png)](http://www.cwrc.ca)
 [![Orlando Logo](/docs/orlando_tree_logo.png)](http://orlando.cambridge.org)
 [![Nooron Logo](/docs/nooron_logo.png)](http://nooron.com)
