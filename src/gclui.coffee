@@ -35,6 +35,7 @@ class CommandController
       @hints = d3.select(@container).append("div").attr("class","hints")
       $(".hints").append($(".hint_set").contents())
     @comdiv = d3.select(@container).append("div") # --- Add a container
+    @cmdtitle = d3.select("#tabs-history").append('div').attr('class','control_label').html('Command History')
     @cmdlist = d3.select("#tabs-history").append('div').attr('class','commandlist')
     @oldcommands = @cmdlist.append('div').attr('class','commandhistory')
     @control_label("Current Command")

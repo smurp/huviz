@@ -81,8 +81,8 @@
   margin-top: .1em;
   padding: .1em;
   color: gray;
-  background-color: #fcf59b; /* legal pad yellow */
-  background-color: rgb(235, 245, 255);;
+  /*background-color: #fcf59b;  legal pad yellow */
+  background-color: rgb(235, 245, 255);
   border-style: solid;
   border-top: 1px solid #ccc;
   border-left: 1px solid #ccc;
@@ -98,10 +98,10 @@
   letter-spacing: .3px;
 }
 .commandlist {
-  overflow-y: auto;
+  /* overflow-y: auto; */
   /* -webkit-border-top-right-radius: 20px 300px; */
   /* background-color: #81cbbc;  hairline blue */
-  background-color: blue; /* hairline blue */
+  /* background-color: blue;  hairline blue */
 }
 .nextcommand {
   color: black;
@@ -113,8 +113,6 @@
   -ms-user-select: auto;
   user-select: auto;
 }
-
-
 .cmdlistbar {
   color: white;
   background-color: blue;
@@ -124,13 +122,15 @@
   color: white;
 }
 .commandhistory {
-  overflow-y: scroll;
-  max-height: 6em;
+  /*overflow-y: scroll;
+  max-height: 6em;*/
+}
+.commandhistory .command{
+  padding: .2em .4em;
 }
 .display_none {
   display:none;
 }
-
 .container {
     display:inline-block;
     border:1px solid;
