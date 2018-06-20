@@ -96,7 +96,6 @@
 #huvis_controls {
     padding: 0.4em;
     padding-bottom: 0.2em;
-    overflow-y: auto;
 }
 
 /* Attribution Information */
@@ -342,9 +341,11 @@ progress[value]::-moz-progress-bar {
 /* ---------------- Edit controls ----------------------- */
 
 #beta-note {
+  position: absolute;
+  top: -20px;
+  left: 50px;
   font-variant-caps: all-petite-caps;
-  color: #aaa;
-  padding-left: 5px;
+  color: #ccc;
 }
 .edit-controls {
     bottom:.2em;
@@ -353,8 +354,6 @@ progress[value]::-moz-progress-bar {
   display: inline;
   position: fixed;
   z-index: 3;
-  background-color: white;
-  padding: 5px;
 }
 .cntrl-set {
   display: inline;
