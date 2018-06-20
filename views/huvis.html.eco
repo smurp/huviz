@@ -118,7 +118,7 @@
             <div id="external_docs"></div>
         </div>
         <div id="tabs-options" class="scrolling_tab"></div>
-        <div id="huvis_controls">
+        <div id="huvis_controls" class="scrolling_tab">
           <div class="unselectable">
             <label title="which file to load">
           <!--   <select
