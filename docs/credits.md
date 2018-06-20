@@ -71,6 +71,8 @@
 
 * SSHRC: Linked Modernisms (PI: Stephen Ross)
 
+* SHARCNET: Dedicated Programming Resources Grant for OVis (PI: Mike Bauer)
+
 # Partners
 
 ## The Canadian Writing Research Collaboratory
