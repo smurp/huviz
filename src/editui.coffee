@@ -14,7 +14,7 @@ class EditController
       @con.setAttribute("edit", "no")
       @huviz.set_edit_mode(false)
       document.body.appendChild(@con)
-      @con.innerHTML = "<div class='cntrl-set slider-pair'><div class='label set-1'>VIEW</div><div class='slider'><div class='knob'></div></div><div class='label set-2'>EDIT</div></div>"
+      @con.innerHTML = "<div id='beta-note'>Beta</div><div class='cntrl-set slider-pair'><div class='label set-1'>VIEW</div><div class='slider'><div class='knob'></div></div><div class='label set-2'>EDIT</div></div>"
       @create_edit_form(@con)
       @con.getElementsByClassName("slider")[0].onclick = @toggle_edit_form
       #console.log(con.getElementsByTagName("form")[0])

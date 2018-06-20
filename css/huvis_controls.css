@@ -340,6 +340,13 @@ progress[value]::-moz-progress-bar {
 
 /* ---------------- Edit controls ----------------------- */
 
+#beta-note {
+  position: absolute;
+  top: -20px;
+  left: 50px;
+  font-variant-caps: all-petite-caps;
+  color: #ccc;
+}
 .edit-controls {
     bottom:.2em;
 }
