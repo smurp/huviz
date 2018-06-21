@@ -1,50 +1,45 @@
-.scrolling_tab {
-  max-height: 300px;
-  overflow: scroll;
+
+body {
+  margin: 0;
+  font-family: helvetica, arial, verdana, sans-serif;
 }
-/*
-  SVG styles
-*/
+body, html {
+  height: 100%
+}
+
+/* --------------- SVG styles ----------------- */
+
 rect {
   fill: none;
   pointer-events: all;
 }
-
 .node circle {
   fill: #000;
 /*  stroke: red;
   stroke-width: 1px;
 */
 }
-
 .node text {
   font: 7.5px sans-serif;
   pointer-events: none;
   /* text-anchor: middle; */
 }
-
 .nearest_node text {
   font: 9px sans-serif;
   fill: #f00
 }
-
 .cursor {
   fill: none;
   stroke: #eee;
   pointer-events: none;
 }
-
 .link {
   stroke: #CCC;
 }
-
 .underneath {
   position: absolute;
   top: 0;
   left: 0;
-}
-.verbs {
-  font-size: x-small;
 }
 .transient {
   font-style: italic;

@@ -398,6 +398,7 @@ class Huviz
   renderStyles = themeStyles.light
   display_shelf_clockwise: true
   nodeOrderAngle = 0.5
+  node_display_type = ''
 
   change_sort_order: (array, cmp) ->
     array.__current_sort_order = cmp
@@ -570,6 +571,7 @@ class Huviz
           action = "discard"
         @text_cursor.pause("", "drop to #{@human_term[action]}")
     else # IE not dragging
+      # TODO move the "if not @dragging and @mousedown_point and @focused_node and distance" block in here
       if @edit_mode
         if @editui.object_node or not @editui.subject_node
           if @editui.object_datatype_is_literal
@@ -674,7 +676,7 @@ class Huviz
     @gclc.run(cmd)
     #@gclui.show_working_off()
     @hide_state_msg()
-    @gclui.push_command(cmd)
+    return
 
   #///////////////////////////////////////////////////////////////////////////
   # resize-svg-when-window-is-resized-in-d3-js
@@ -694,6 +696,8 @@ class Huviz
       @canvas.width = @width
       @canvas.height = @height
     @force.size [@mx, @my]
+    $("#graph_title_set").css("width", @width)
+    $("#tabs").css("left", "inherit")
     @restart()
 
   #///////////////////////////////////////////////////////////////////////////
@@ -748,6 +752,7 @@ class Huviz
       end_angle = start_angle + arc
       @draw_circle(cx, cy, radius, strclr, filclr, end_angle, start_angle)
       start_angle = start_angle + arc
+
   draw_line: (x1, y1, x2, y2, clr) ->
     @ctx.strokeStyle = clr or 'red'
     @ctx.beginPath()
@@ -1166,6 +1171,7 @@ class Huviz
     if @focused_node is node
       return # no change so skip
     if @focused_node
+      # unfocus the previously focused_node
       if @use_svg
         d3.select(".focused_node").classed "focused_node", false
       @unscroll_pretty_name(@focused_node)
@@ -1175,10 +1181,10 @@ class Huviz
         svg_node = node[0][new_focused_idx]
         d3.select(svg_node).classed "focused_node", true
       node.focused_node = true
-    @focused_node = node
+    @focused_node = node # might be null
     if @focused_node
-      console.log("focused_node:", @focused_node)
-      @gclui.engage_transient_verb_if_needed("select")
+      #console.log("focused_node:", @focused_node)
+      @gclui.engage_transient_verb_if_needed("select") # select is default verb
     else
       @gclui.disengage_transient_verb_if_needed()
 
@@ -1394,15 +1400,32 @@ class Huviz
     if @use_canvas or @use_webgl
       @graphed_set.forEach (d, i) =>
         d.fisheye = @fisheye(d)
+        #console.log d.name.NOLANG
         if @use_canvas
           node_radius = @calc_node_radius(d)
           stroke_color = d.color or 'yellow'
           if d.chosen?
             stroke_color = renderStyles.nodeHighlightOutline
-          @draw_pie(d.fisheye.x, d.fisheye.y,
-                    node_radius,
-                    stroke_color,
-                    @get_node_color_or_color_list(d))
+
+          # if 'pills' is selected; change node shape to rounded squares
+          if (node_display_type == 'pills')
+            pill_width = node_radius * 2
+            pill_height = node_radius * 2
+            filclr = @get_node_color_or_color_list(d)
+            rndng = 1
+            x = d.fisheye.x
+            y = d.fisheye.y
+            @rounded_rectangle(x, y,
+                      pill_width,
+                      pill_height,
+                      rndng,
+                      stroke_color,
+                      filclr)
+          else
+            @draw_pie(d.fisheye.x, d.fisheye.y,
+                      node_radius,
+                      stroke_color,
+                      @get_node_color_or_color_list(d))
         if @use_webgl
           @mv_node(d.gl, d.fisheye.x, d.fisheye.y)
   get_node_color_or_color_list: (n, default_color) ->
@@ -1411,6 +1434,61 @@ class Huviz
       @recolor_node(n, default_color)
       return n._colors
     return [n.color or default_color]
+
+  get_label_attributes: (d) ->
+    text = d.pretty_name
+    label_measure = @ctx.measureText(text) #this is total length of text (in ems?)
+    browser_font_size = 12.8 # -- Setting or auto from browser?
+    focused_font_size = @label_em * browser_font_size * @focused_mag
+    padding = focused_font_size * 0.5
+    line_height = focused_font_size * 1.25 # set line height to 125%
+    max_len = 250
+    min_len = 100
+    label_length = label_measure.width + 2 * padding
+    num_lines_raw = label_length/max_len
+    num_lines = (Math.floor num_lines_raw) + 1
+    if (num_lines > 1)
+      width_default = @label_em * label_measure.width/num_lines
+    else
+      width_default = max_len
+    bubble_text = []
+    text_cuts = []
+    ln_i = 0
+    bubble_text[ln_i] = ""
+    if (label_length < (width_default + 2 * padding)) # single line label
+      max_line_length = label_length - padding
+    else # more than one line so calculate how many and create text lines array
+      text_split = text.split(' ') # array of words
+      max_line_length = 0
+      for word, i in text_split
+        word_length = @ctx.measureText(word) #Get length of next word
+        line_length = @ctx.measureText(bubble_text[ln_i]) #Get current line length
+        new_line_length = word_length.width + line_length.width #add together for testing
+        if (new_line_length < width_default) #if line length is still less than max
+          bubble_text[ln_i] = bubble_text[ln_i] + word + " " #add word to bubble_text
+        else #new line needed
+          text_cuts[ln_i] = i
+          real_line_length = @ctx.measureText(bubble_text[ln_i])
+          new_line_width = real_line_length.width
+          if (new_line_width > max_line_length) # remember longest line lengthth
+            max_line_length = real_line_length.width
+          ln_i++
+          bubble_text[ln_i] = word + " "
+    width = max_line_length + 2 * padding #set actual width of box to longest line of text
+    height = (ln_i + 1) * line_height + 2 * padding # calculate height using wrapping text
+    font_size = @label_em
+    #console.log text
+    #console.log "focused_font_size: " + focused_font_size
+    #console.log "line height: " + line_height
+    #console.log "padding: " + padding
+    #console.log "label_length: " + label_length
+    #console.log "bubble height: " + height
+    #console.log "max_line_length: " + max_line_length
+    #console.log "bubble width: " + width
+    #console.log "bubble cut points: "
+    #console.log text_cuts
+    d.bub_txt = [width, height, line_height, text_cuts, font_size]
+
   should_show_label: (node) ->
     (node.labelled or
         node.focused_edge or
@@ -1431,20 +1509,26 @@ class Huviz
       focused_font_size = @label_em * @focused_mag
       focused_font = "#{focused_font_size}em sans-serif"
       unfocused_font = "#{@label_em}em sans-serif"
+      focused_pill_font = "#{@label_em}em sans-serif"
       label_node = (node) =>
         return unless @should_show_label(node)
         ctx = @ctx
         ctx.textBaseline = "middle"
         # perhaps scrolling should happen here
+        #if not node_display_type and (node.focused_node or node.focused_edge?)
         if node.focused_node or node.focused_edge?
-          label = @scroll_pretty_name(node)
-          if node.state.id is "graphed"
-            cart_label = node.pretty_name
-            ctx.measureText(cart_label).width #forces proper label measurement (?)
-            if @cartouches
-              @draw_cartouche(cart_label, node.fisheye.x, node.fisheye.y)
-          ctx.fillStyle = node.color
-          ctx.font = focused_font
+          if (node_display_type == 'pills')
+            ctx.font = focused_pill_font
+          else
+            label = @scroll_pretty_name(node)
+            # console.log label
+            if node.state.id is "graphed"
+              cart_label = node.pretty_name
+              ctx.measureText(cart_label).width #forces proper label measurement (?)
+              if @cartouches
+                @draw_cartouche(cart_label, node.fisheye.x, node.fisheye.y)
+            ctx.fillStyle = node.color
+            ctx.font = focused_font
         else
           ctx.fillStyle = renderStyles.labelColor #"white" is default
           ctx.font = unfocused_font
@@ -1472,7 +1556,47 @@ class Huviz
             ctx.fillText("  " + node.pretty_name + "  ", 0, 0)
           ctx.restore()
         else
-          ctx.fillText "  " + node.pretty_name + "  ", node.fisheye.x, node.fisheye.y
+          if (node_display_type == 'pills')
+            node_font_size = node.bub_txt[4]
+            result = node_font_size != @label_em
+            if not node.bub_txt.length or result
+              @get_label_attributes(node)
+            line_height = node.bub_txt[2]  # Line height calculated from text size ?
+            adjust_x = node.bub_txt[0] / 2 - line_height/2# Location of first line of text
+            adjust_y = node.bub_txt[1] / 2 - line_height
+            pill_width = node.bub_txt[0] # box size
+            pill_height = node.bub_txt[1]
+
+            x = node.fisheye.x - pill_width/2
+            y = node.fisheye.y - pill_height/2
+            radius = 10 * @label_em
+            alpha = 1
+            outline = node.color
+            # change box edge thickness and fill if node selected
+            if node.focused_node or node.focused_edge?
+              ctx.lineWidth = 2
+              fill = "#f2f2f2"
+            else
+              ctx.lineWidth = 1
+              fill = "white"
+            @rounded_rectangle(x, y, pill_width, pill_height, radius, fill, outline, alpha)
+            ctx.fillStyle = "#000"
+            # Paint multi-line text
+            text = node.pretty_name
+            text_split = text.split(' ') # array of words
+            cuts = node.bub_txt[3]
+            print_label = ""
+            for text, i in text_split
+              if cuts and i in cuts
+                ctx.fillText print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y
+                adjust_y = adjust_y - line_height
+                print_label = text + " "
+              else
+                print_label = print_label + text + " "
+            if print_label # print last line, or single line if no cuts
+              ctx.fillText print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y
+          else
+            ctx.fillText "  " + node.pretty_name + "  ", node.fisheye.x, node.fisheye.y
 
       @graphed_set.forEach(label_node)
       @shelved_set.forEach(label_node)
@@ -1541,14 +1665,14 @@ class Huviz
     width = @ctx.measureText(label).width
     height = @label_em * @focused_mag * 16
     radius = @edge_x_offset
-    cart_color = renderStyles.pageBg
+    fill = renderStyles.pageBg
     alpha = .8
     outline = false
     x = x + @edge_x_offset
     y = y - height
     width = width + 2 * @edge_x_offset
     height = height + @edge_x_offset
-    @rounded_rectangle(x, y, width, height, radius, cart_color, outline, alpha)
+    @rounded_rectangle(x, y, width, height, radius, fill, outline, alpha)
 
   draw_edge_labels: ->
     if @focused_edge?
@@ -1580,7 +1704,7 @@ class Huviz
       @msg_history += " " + txt
       txt = @msg_history
     @state_msg_box.show()
-    @state_msg_box.html("<br><br>" + txt)  # FIXME: OMG CSS PDQ
+    @state_msg_box.html("<div class='msg_payload'>" + txt + "</div><div class='msg_backdrop'></div>")
     @text_cursor.pause("wait")
 
   hide_state_msg: () ->
@@ -1925,7 +2049,7 @@ class Huviz
             console.log("===========================\n  #", quad_count, "  subj:", frame.id, "\n  pred:", pred.id, "\n  obj.value:", obj.value)
           else
             if quad_count % every is 0
-              @show_state_msg("parsed relation " + quad_count)
+              @show_state_msg("parsed relation: " + quad_count)
           quad_count++
           @add_quad
             s: frame.id
@@ -2010,8 +2134,9 @@ class Huviz
       msg = null
       if e.data.event is 'line'
         quad_count++
-        if quad_count % 100 is 0
-          @show_state_msg("parsed relation " + quad_count)
+        @show_state_msg("<h3>Parsing... </h3><p>" + uri + "</p><progress value='" + quad_count + "' max='" + @node_count + "'></progress>")
+        #if quad_count % 100 is 0
+          #@show_state_msg("parsed relation " + quad_count)
         q = parseQuadLine(e.data.line)
         if q
           q.s = q.s.raw
@@ -2022,13 +2147,15 @@ class Huviz
             value: unescape_unicode(@remove_framing_quotes(q.o.toString()))
           @add_quad q
       else if e.data.event is 'start'
-        msg = "starting to split "+uri
+        msg = "starting to split " + uri
+        @show_state_msg("<h3>Starting to split... </h3><p>" + uri + "</p>")
+        @node_count = e.data.numLines
       else if e.data.event is 'finish'
-        msg = "finished_splitting "+uri
+        msg = "finished_splitting " + uri
         @show_state_msg("done loading")
         @after_file_loaded(uri, callback)
       else
-        msg = "unrecognized NQ event:"+e.data.event
+        msg = "unrecognized NQ event:" + e.data.event
       if msg?
         console.log(msg)
         #alert msg
@@ -2069,8 +2196,8 @@ class Huviz
 
   get_container_width: (pad) ->
     pad = pad or hpad
-    @width = (@container.clientWidth or window.innerWidth or document.documentElement.clientWidth or document.clientWidth) - pad
-    #console.log "get_window_width()",window.innerWidth,document.documentElement.clientWidth,document.clientWidth,"==>",@width
+    w_width = (@container.clientWidth or window.innerWidth or document.documentElement.clientWidth or document.clientWidth) - pad
+    @width = w_width - $("#tabs").width()
 
   # Should be refactored to be get_container_height
   get_container_height: (pad) ->
@@ -2638,8 +2765,8 @@ class Huviz
     if @peeking_node?
       if @peeking_node is node
         was_already_peeking = true
-      @recolor_node @peeking_node
-      @unflag_all_edges @peeking_node
+      @recolor_node(@peeking_node)
+      @unflag_all_edges(@peeking_node)
     if not was_already_peeking
       @peeking_node = node
       @peeking_node.color = PEEKING_COLOR
@@ -2954,6 +3081,9 @@ class Huviz
   visualize_dataset_using_ontology: =>
     @set_ontology(@ontology_loader.value)
     @load_file_from_uri(@dataset_loader.value) # , () -> alert "woot")
+    selected_dataset = @dataset_loader.get_selected_option()[0]
+    @update_browser_title(selected_dataset)
+    @update_caption(@dataset_loader.value, @ontology_loader.value)
 
   init_gclc: ->
     @gclc = new GraphCommandLanguageCtrl(this)
@@ -2992,9 +3122,6 @@ class Huviz
     if not disable?
       ds_v = @dataset_loader.value
       on_v = @ontology_loader.value
-      selected_dataset = @dataset_loader.get_selected_option()[0]
-      @update_browser_title(selected_dataset)
-      @update_caption(ds_v, on_v)
       #console.log("DATASET: #{ds_v}\nONTOLOGY: #{on_v}")
       disable = (not (ds_v and on_v)) or ('provide' in [ds_v, on_v])
       ds_on = "#{ds_v} AND #{on_v}"
@@ -3200,7 +3327,7 @@ class Huviz
     document.addEventListener 'nextsubject', @onnextsubject
     @init_snippet_box()  # FIXME not sure this does much useful anymore
     @mousedown_point = false
-    @discard_point = [@cx,@cy] # FIXME refactor so updateWindow handles this
+    @discard_point = [@cx,@cy] # FIXME refactor so ctrl-handle handles this
     @lariat_center = [@cx,@cy] #       and this....
     @node_radius_policy = node_radius_policies[default_node_radius_policy]
     @currently_printed_snippets = {}
@@ -3210,7 +3337,6 @@ class Huviz
              nodes([]).
              linkDistance(@link_distance).
              charge(@get_charge).
-             #charge(-300).
              gravity(@gravity).
              on("tick", @tick)
     @update_fisheye()
@@ -3237,7 +3363,7 @@ class Huviz
     @reset_graph()
     @updateWindow()
     @ctx = @canvas.getContext("2d")
-    console.log @ctx
+    #console.log @ctx
     @mouse_receiver
       .on("mousemove", @mousemove)
       .on("mousedown", @mousedown)
@@ -3248,8 +3374,8 @@ class Huviz
     search_input = document.getElementById('search')
     if search_input
       search_input.addEventListener("input", @update_searchterm)
-    #$(".search_box").on "input", @update_searchterm
     window.addEventListener "resize", @updateWindow
+    $("#tabs").on("resize", @updateWindow)
     $(@viscanvas).bind("_splitpaneparentresize", @updateWindow)
     $("#tabs").tabs
       active: 0
@@ -3265,7 +3391,8 @@ class Huviz
       collapsible: true
 
   update_fisheye: ->
-    @label_show_range = @link_distance * 1.1
+    #@label_show_range = @link_distance * 1.1
+    @label_show_range = 30 * 1.1 #TODO Fixed value or variable like original? (above)
     #@fisheye_radius = @label_show_range * 5
     @focus_radius = @label_show_range
     @fisheye = d3.fisheye.
@@ -3313,6 +3440,15 @@ class Huviz
   # TODO add controls
   #   selected_border_thickness
   default_graph_controls: [
+      reset_controls_to_default:
+        label:
+          title: "Reset all controls to default"
+        input:
+          type: "button"
+          label: "Reset All"
+          style: "background-color: #555"
+        event_type: "change"
+    ,
       focused_mag:
         text: "focused label mag"
         input:
@@ -3569,6 +3705,14 @@ class Huviz
           type: "checkbox"
         event_type: "change"
     ,
+      pill_display:
+        text: "Display graph with boxed labels"
+        label:
+          title: "Show boxed labels on graph"
+        input:
+          type: "checkbox"
+        event_type: "change"
+    ,
       theme_colors:
         text: "Display graph with dark theme"
         label:
@@ -3677,14 +3821,12 @@ class Huviz
           size: "16"
           placeholder: "en:es:fr:de:ANY:NOLANG"
         event_type: "change"
-
     ]
 
-  dump_current_settings: (post) ->
-    console.log("dump_current_settings()")
-    for control_spec in @default_graph_controls
-      for control_name, control of control_spec
-        console.log("#{control_name} is",@[control_name],typeof @[control_name],post or "")
+  dump_current_settings: (post) =>
+    $("#tabs-options,.graph_controls").html("")
+    @init_graph_controls_from_json()
+    @on_change_graph_title_style("subliminal")
 
   auto_adjust_settings: ->
     # Try to tune the gravity, charge and link length to suit the data and the canvas size.
@@ -3711,7 +3853,6 @@ class Huviz
         if control.style?
           graph_control.attr("style", control.style)
         if control.class?
-          console.log(control.class)
           graph_control.attr('class', 'graph_control ' + control.class)
         if control.input.type is 'select'
           input = label.append('select')
@@ -3721,6 +3862,11 @@ class Huviz
             option.html(v.label).attr("value", v.value)
           #label.append("input").attr("name", "custom_title").attr("type", "text").attr("style", " ")
           #label.append("input").attr("name", "custom_subtitle").attr("type", "text").attr("style", " ")
+        else if control.input.type is 'button'
+          input = label.append('button')
+          input.attr("type", "button")
+          input.html("Reset All")
+          input.on("click", @dump_current_settings)
         else
           input = label.append('input')
           input.attr("name", control_name)
@@ -3778,7 +3924,7 @@ class Huviz
     custom_handler = @[custom_handler_name]
     if @graph_controls_cursor
       cursor_text = (new_value).toString()
-      console.info("#{setting_name}: #{cursor_text}")
+      #console.info("#{setting_name}: #{cursor_text}")
       @graph_controls_cursor.set_text(cursor_text)
     if custom_handler? and not skip_custom_handler
       #console.log "change_setting_to_from() custom setting: #{setting_name} to:#{new_value}(#{typeof new_value}) from:#{old_value}(#{typeof old_value})"
@@ -3804,6 +3950,21 @@ class Huviz
         return text
     else
       $('option.dangerous').hide()
+
+  on_change_pill_display: (new_val) ->
+    if new_val
+      node_display_type = 'pills'
+      $("input[name='charge']").attr('min', '-5000').attr('value', '-3000')
+      $("input[name='link_distance']").attr('max', '500').attr('value', '200')
+      @charge = -3000
+      @link_distance = 200
+    else
+      node_display_type = ""
+      $("input[name='charge']").attr('min', '-600').attr('value', '-200')
+      $("input[name='link_distance']").attr('max', '200').attr('value', '29')
+      @charge = -200
+      @link_distance = 29
+    @updateWindow()
 
   on_change_theme_colors: (new_val) ->
     if new_val
@@ -3859,7 +4020,6 @@ class Huviz
       $("a.git_commit_hash_watermark").css('display', 'none')
       $("#ontology_watermark").attr('style', '')
     else if new_val is "bold1"
-      console.log("here it is")
       $("#ontology_watermark").css('display', 'none')
     else
       $("#graph_custom_main_title").css('display', 'none')
@@ -4557,8 +4717,3 @@ class DragAndDropLoader
 (exports ? this).OntoViz = OntoViz
 #(exports ? this).Socrata = Socrata
 (exports ? this).Edge = Edge
-
-
-
-
-

@@ -87,6 +87,7 @@ class TreePicker
     top = not top? or top
     for node_id,rest of tree
       label = rest[0]
+      #label = "┗ " + rest[0]
       contents_of_me = @add_alphabetically(i_am_in, node_id, label)
       @id_to_elem[node_id] = contents_of_me
       msg = "show_tree() just did @id_to_elem[#{node_id}] = contents_of_me"
@@ -218,7 +219,7 @@ class TreePicker
       r = thing.select("##{thing_id} > .treepicker-label > .payload")
       if r[0][0] isnt null
         return r
-      thing.select(".treepicker-label").append('div').classed("payload", true)
+      thing.select(".treepicker-label").append('span').classed("payload", true)
   set_payload: (id, value) ->
     elem = @id_to_elem[id]
     if not elem? #and elem isnt null

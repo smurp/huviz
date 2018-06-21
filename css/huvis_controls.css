@@ -8,6 +8,77 @@
   right: 0px;
   font-size: 80%;
   z-index: 3;
+  height: 100%;
+  border-top: none;
+  border-bottom: none;
+  border-radius: inherit;
+  border-left-width:2px;
+  border-left-style:groove;
+  border-left-color:#ddd;
+  padding: 0;
+  font-family: helvetica, arial, verdana, sans-serif;
+}
+#tabs .ui-tabs-nav{
+  margin: 0;
+  padding: .2em .2em 0;
+  background-color: #157fcc;
+  border-radius: inherit;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  padding-top: 5px;
+}
+#tabs li.ui-tabs-tab.ui-state-default {
+  background: inherit;
+  background-color: #e9f5ff;
+}
+#tabs li.ui-tabs-tab.ui-state-active {
+  background: inherit;
+  background-color: #fff;
+}
+
+#tabs .ui-widget-header {
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    background: #157fcc url(images/ui-bg_highlight-soft_75_cccccc_1x100.png) 50% 50% repeat-x;
+    color: #222222;
+    font-weight: bold;
+}
+#tabs-help {
+  position: absolute;
+  right: 0;
+  top: 5px;
+  border: none;
+  background: none;
+  font-size: 1.3em;
+  color: #d6e7ff;
+}
+#tabs-help:hover {
+  color: #fff;
+}
+#ctrl-handle {
+  background-color: #ccc;
+  border-left: solid 1px #bbb;
+  width: 1px;
+  left: -2px;
+}
+#ctrl-handle-grip {
+  background-color: #ddd;
+  height: 30px;
+  top: 45%;
+  width: 8px;
+  border-radius: 5px 0 0 5px;
+  position: absolute;
+  margin-left:-8px;
+  border-left: solid 1px #bbb;
+}
+.scrolling_tab {
+  max-height: 100%;
+  overflow: auto;
+}
+.tab-content-container {
+  background-color: #f0f;
 }
 .graph_controls { /* put them in the upper right, above the graph */
   right: .2em;
@@ -26,6 +97,19 @@
     padding: 0.4em;
     padding-bottom: 0.2em;
 }
+
+/* Attribution Information */
+.usage_attribution {
+  background-color: #eee;
+  padding: .5em;
+  clear: both;
+  margin: 1em 0;
+}
+#tabs-intro .usage_attribution p {
+  text-indent: 0;
+  font-size: .9em;
+}
+
 .search_box {
   height:1.3em;
   min-width:7em;
@@ -71,8 +155,11 @@
   background-color: #eee;
   color: #555;
   font-size: 90%;
-  padding: 1%;
-  margin-bottom: 1%;
+  padding: 5px 0 5px 5px;
+  border-bottom: solid 1px #ccc;
+  margin-bottom: 10px;
+  margin-left: -.4em;
+  margin-right: -.4em;
 }
 #data_ontology_display p:first-of-type{
   margin-right: 4%;
@@ -80,29 +167,96 @@
 
 .dt_label{
   font-size: 80%;
-  color: #777;
+  color: #fff;
+  background-color: #585858;
+  padding: 2px;
+  border-radius: 2px;
+  margin-right: 3px;
 }
 
 .snippet {
   background-color: "lightgray";
 }
-body, html {
-  height: 98%
-}
+/* -------- Loading Message Styles ------------ */
 #state_msg_box {
-  background-color: grey;
-  color: blue;
-  opacity: 0.2;
-  z-index: 5;
-  position:fixed;
-  text-align: center;
-  font-size: 300%;
-  width: 99vw;
-  height: 98vh; /* http://stackoverflow.com/questions/157514 */
+  width: 100%;
+  height: 100vh;
   margin: 0px;
   border: 0px;
+  position:fixed;
   border-radius: 20px;
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
+.msg_backdrop{
+  background-color: #000;
+  opacity: 0.3;
+  width: 100%;
+  height: 100vh;
+  margin: 0px;
+  border: 0px;
+  position:fixed;
+  z-index: 5;
+}
+.msg_payload {
+  background-color: #fff;
+  height: 100px;
+  width: 300px;
+  text-align: center;
+  z-index: 6;
+  padding:1em;
+  border-radius:20px;
+  box-shadow: 5px 10px 10px #888888;
+  overflow: hidden;
+}
+.msg_payload p{
+  float: inherit;
+  margin: 0;
+}
+.msg_payload h3{
+  margin: .3em;
+}
+
+progress[value]{
+  /* Reset the default appearance */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  height: 15px;
+  width: 200px;
+  margin-top:10px;
+}
+progress[value]::-webkit-progress-bar {
+  background-color: #eee;
+  border-radius: 2px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
+}
+progress[value]::-webkit-progress-value {
+  background-image:
+	   -webkit-linear-gradient(top,
+	                           rgba(255, 255, 255, .25),
+	                           rgba(0, 0, 0, .25)),
+	   -webkit-linear-gradient(left, green, green);
+
+    border-radius: 2px;
+    background-size: 35px 20px, 100% 100%, 100% 100%;
+}
+progress[value]::-moz-progress-bar {
+  background-image:
+    -moz-linear-gradient(
+      top,
+      rgba(255, 255, 255, 0.25),
+      rgba(0, 0, 0, 0.25)
+    ),
+    -moz-linear-gradient(
+      left,
+      green,
+      green
+    );
+}
+
 .git_commit_hash {
   font-size: 20%;
   color: grey;
@@ -121,6 +275,7 @@ body, html {
   margin-top: 2px;
   font-weight: bold;
   font-size: 90%;
+  margin-bottom: 5px;
 }
 .like_input {
   width: 125px;
@@ -185,32 +340,32 @@ body, html {
 
 /* ---------------- Edit controls ----------------------- */
 
+#beta-note {
+  font-variant-caps: all-petite-caps;
+  color: #aaa;
+  padding-left: 5px;
+}
 .edit-controls {
     bottom:.2em;
 }
-
 .edit-controls.loggedIn {
   display: inline;
   position: fixed;
   z-index: 3;
 }
-
 .cntrl-set {
   display: inline;
 }
-
 .edit-form {
   display: none;
 }
 .edit-mode .edit-form {
   display: inline;
 }
-
 .slider-pair {
   display:inline-flex;
   margin-right:.5em;
 }
-
 .slider {
   float:left;
   border:.2em;
@@ -225,7 +380,6 @@ body, html {
 .edit-mode .slider {
   background-color:#f4cb42;
 }
-
 .knob {
   background-color:white;
   border-radius:1em;
@@ -236,7 +390,6 @@ body, html {
   float:left;
   left:.2em;
 }
-
 .edit-mode .knob {
   float:right;
   right:.2em;
@@ -248,7 +401,6 @@ body, html {
   color: #000;
   font-family: sans-serif;
 }
-
 
 /* ---------------- Edit controls - "theme_black" Theme ----------------------- */
 
@@ -325,49 +477,44 @@ body, html {
   height: 64px;
   width: 64px;
 }
-
 #tabs-credit h1 {
     display: block;
     font-size: 1.3em;
-    padding-before: 0.1em;
-    padding-after: 0.2em;
-    padding-start: 0px;
-    padding-end: 0px;
+    padding-top: 0.1em;
+    padding-bottom: 0.2em;
+    padding-top: 0px;
+    padding-bottom: 0px;
     font-weight: medium;
 }
-
 #tabs-credit h2,h3 {
     text-align: left;
     display: inline-block;
     font-size: 1.05em;
-    margin-before: 0.3em;
-    padding-after: 0.1em;
-    margin-start: 0px;
-    margin-end: 0px;
+    margin-top: 0.3em;
+    padding-bottom: 0.1em;
+    margin-top: 0px;
+    margin-bottom: 0px;
     font-weight: bold;
 }
-
 #tabs-credit ul {
     padding: 0px;
     margin: 0px;
     margin-left: 1em;
-    margin-botom: .8em;
+    margin-bottom: .8em;
 }
-
 #tabs-credit li {
     margin: 5px;
 }
 
-
 /* tabs-intro styling */
 
 #tabs-intro p {
-    margin-before: .2em;
+    margin-top: .2em;
     text-indent: 1.2em;
 }
 #tabs-intro ul {
-    margin-before: .5em;
-    margin-after: .5em;
+    margin-top: .5em;
+    margin-bottom: .5em;
     font-family: Courier;
     font-size: 90%;
 }

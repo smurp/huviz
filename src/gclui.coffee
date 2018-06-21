@@ -25,6 +25,7 @@ ColoredTreePicker = require('coloredtreepicker').ColoredTreePicker
 class CommandController
   constructor: (@huviz, @container, @hierarchy) ->
     document.addEventListener 'dataset-loaded', @on_dataset_loaded
+    $("#tabs").resizable({handles: {'w':'#ctrl-handle'}})
     if @container is null
       @container = d3.select("body").append("div").attr("id", "gclui")[0][0]
     if not @huviz.all_set.length
@@ -33,16 +34,18 @@ class CommandController
     if @huviz.args.display_hints
       @hints = d3.select(@container).append("div").attr("class","hints")
       $(".hints").append($(".hint_set").contents())
-    @comdiv = d3.select(@container).append("div")
+    @comdiv = d3.select(@container).append("div") # --- Add a container
+    @cmdtitle = d3.select("#tabs-history").append('div').attr('class','control_label').html('Command History')
     @cmdlist = d3.select("#tabs-history").append('div').attr('class','commandlist')
-    @oldcommands = @cmdlist.append('div').attr('class','commandhistory')
+    @oldcommands = @cmdlist.append('div').attr('id','commandhistory')
     @control_label("Current Command")
     @nextcommandbox = @comdiv.append('div')
     @make_verb_sets()
     @control_label("Verbs")
     @verbdiv = @comdiv.append('div').attr('class','verbs')
     @add_clear_both(@comdiv)
-    @node_pickers = @comdiv.append('div')
+    #@node_pickers = @comdiv.append('div')
+    @node_pickers = @comdiv.append('div').attr("id","node_pickers")
     @set_picker_box_parent = @build_set_picker("Sets",@node_pickers)
     @taxon_picker_box_parent = @build_taxon_picker("Class Selector",@node_pickers)
     @add_clear_both(@comdiv)
@@ -153,6 +156,9 @@ class CommandController
     # FIXME Why is show_tree being called four times per node?
     @predicate_picker.click_listener = @on_predicate_clicked
     @predicate_picker.show_tree(@predicate_hierarchy, @predicatebox)
+    $("#predicates").addClass("ui-resizable").append("<br class='clear'>")
+    $("#predicates").resizable(handles: 's')
+
   add_newpredicate: (pred_lid, parent_lid, pred_name) =>
     #if pred_lid in @predicates_to_ignore
     #  return
@@ -193,6 +199,7 @@ class CommandController
     # http://en.wikipedia.org/wiki/Taxon
     @taxon_picker = new ColoredTreePicker(@taxon_box,'Thing',[],true)
     @taxon_picker.click_listener = @on_taxon_clicked
+    @taxon_picker.hover_listener = @on_taxon_hovered
     @taxon_picker.show_tree(@hierarchy,@taxon_box)
     where.classed("taxon_picker_box_parent", true)
     return where
@@ -474,8 +481,10 @@ class CommandController
   stop_working: =>
     @show_working_off()
     @already_working = undefined
-  show_working_on: ->
+  show_working_on: (cmd)->
     console.log "show_working_on()"
+    if cmd?
+      @push_command_onto_history(cmd)
     @nextcommand_working.attr('class','fa fa-spinner fa-spin') # PREFERRED fa-2x
     @nextcommand.attr('class','nextcommand command cmd-working')
   show_working_off: ->
@@ -485,7 +494,7 @@ class CommandController
     #@nextcommand.attr('style','background-color:yellow') # PREFERRED
 
   build_like: () ->
-    @likediv.text('like:').classed("control_label", true)
+    @likediv.text('matching:').classed("control_label", true)
     @likediv.style('display','inline-block')
     @likediv.style('white-space','nowrap')
     @like_input = @likediv.append('input')
@@ -496,7 +505,7 @@ class CommandController
     @clear_like_button = @likediv.append('button').text('⌫')
     @clear_like_button.attr('type','button').classed('clear_like', true)
     @clear_like_button.attr('disabled','disabled')
-    @clear_like_button.attr('title','clear the "like" field')
+    @clear_like_button.attr('title','clear the "matching" field')
     @clear_like_button.on 'click', @handle_clear_like
 
   handle_clear_like: (evt) =>
@@ -575,26 +584,36 @@ class CommandController
     @like_input[0][0].value
   old_commands: []
   push_command: (cmd) ->
+    @push_command_onto_history(cmd)
+  push_command_onto_history: (cmd) ->
     if @old_commands.length > 0
       prior = @old_commands[@old_commands.length-1]
       if prior.cmd.str is cmd.str
         return  # same as last command, ignore
     cmd_ui = @oldcommands.append('div').attr('class','command')
+    d = $('#commandhistory').scrollTop($('#commandhistory')[0].scrollHeight)
+    #d.scrollTop(d.prop("scrollHeight"))
+    console.log "+++++++++++++++"
     record =
       elem: cmd_ui
       cmd: cmd
     @old_commands.push(record)
     cmd_ui.text(cmd.str)
+
   build_command: ->
-    args = {}
+    args =
+      verbs: []
     args.object_phrase = @object_phrase
     if @engaged_verbs.length > 0
-      args.verbs = []
       for v in @engaged_verbs
         if v isnt @transient_verb_engaged
-          args.verbs.push v
+          args.verbs.push(v)
+    if @proposed_verb
+      args.verbs.push(@proposed_verb)
     if @chosen_set_id
       args.sets = [@chosen_set]
+    else if @proposed_set
+      args.sets = [@proposed_set]
     else
       if @taxons_chosen.length > 0
         args.classes = (class_name for class_name in @taxons_chosen)
@@ -604,25 +623,29 @@ class CommandController
     if like_str
       args.like = like_str
     @command = new gcl.GraphCommand(@huviz, args)
+  is_proposed: ->
+    @proposed_verb or @proposed_set #or @proposed_taxon
   update_command: (because) =>
     console.log("update_command()")
     because = because or {}
     @huviz.show_state_msg("update_command")
     ready = @prepare_command(@build_command())
-    if ready and @huviz.doit_asap and @immediate_execution_mode
-      @show_working_on()
-      if @huviz.slow_it_down
-        start = Date.now()
-        while Date.now() < start + (@huviz.slow_it_down * 1000)
-          console.log(Math.round((Date.now() - start) / 1000))
-        alert "About to execute:\n  "+@command.str
-      @command.execute()
-      @huviz.update_all_counts()
-      if because.cleanup
-        because.cleanup()
-        @update_command()
-      @show_working_off()
+    if ready and @huviz.doit_asap and @immediate_execution_mode and not @is_proposed()
+      @execute_command(because)
     @huviz.hide_state_msg()
+  execute_command: (because) =>
+    @show_working_on(@command)
+    if @huviz.slow_it_down
+      start = Date.now()
+      while Date.now() < start + (@huviz.slow_it_down * 1000)
+        console.log(Math.round((Date.now() - start) / 1000))
+      alert "About to execute:\n  "+@command.str
+    @command.execute()
+    @huviz.update_all_counts()
+    if because.cleanup
+      because.cleanup()
+      @update_command()
+    @show_working_off()
   nextcommand_prompts_visible: true
   nextcommand_str_visible: false
   prepare_command: (cmd) ->
@@ -691,12 +714,13 @@ class CommandController
 
   ###
   are_non_transient_verbs: ->
+    # return whether there are any non-transient verbs engaged
     len_transient = @transient_verb_engaged? and 1 or 0
-    @engaged_verbs.length > len_transient
+    return @engaged_verbs.length > len_transient
 
-  engage_transient_verb_if_needed: (verb) ->
+  engage_transient_verb_if_needed: (verb_id) ->
     if @engaged_verbs.length is 0 and not @are_non_transient_verbs()
-      @engage_verb(verb, true)
+      @engage_verb(verb_id, true)
 
   disengage_transient_verb_if_needed: ->
     if @transient_verb_engaged
@@ -736,6 +760,7 @@ class CommandController
       elem.classed('engaged',newstate)
       if newstate
         that.engage_verb(id)
+        that.proposed_verb = null # there should be no proposed_verb if we are clicking engaging one
         because =
           verb_added: id
           cleanup: that.disengage_all_verbs
@@ -744,6 +769,29 @@ class CommandController
       if not that.engaged_verbs? or that.engaged_verbs.length is 0
         that.huviz.set_cursor_for_verbs([])
       that.update_command(because)
+    vbctl.on 'mouseenter', () -> # tell user what will happen if this verb is clicked
+      elem = d3.select(this)
+      click_would_engage = not elem.classed('engaged')
+      because = {}
+      if click_would_engage
+        that.proposed_verb = id # not proposed_verbs because there can be at most one
+        because =
+          proposed_verb: id
+          #cleanup: that.disengage_all_verbs
+      else # clicking would disengage the verb
+        that.proposed_verb = null # TODO figure out whether and how to show user
+      # After the click there will be engaged verbs if click_would_engage
+      # or there are more than one engaged_verbs.
+      #click_would_leave_a_verb_phrase = click_would_engage or that.engaged_verbs.length > 1
+      that.update_command(because)
+    vbctl.on 'mouseleave', () ->
+      elem = d3.select(this)
+      leaving_verb_id = elem.classed('engaged')
+      because =
+        verb_leaving: leaving_verb_id
+      that.proposed_verb = null
+      that.update_command(because)
+
   run_script: (script) ->
     # We recognize a couple of different visible "space-illustrating characters" as spaces.
     #   https://en.wikipedia.org/wiki/Whitespace_character
@@ -775,12 +823,24 @@ class CommandController
     @set_picker.click_listener = @on_set_picked
     @set_picker.show_tree(@the_sets, @set_picker_box)
     @populate_all_set_docs()
+    @make_sets_proposable()
     where.classed("set_picker_box_parent",true)
     return where
   populate_all_set_docs: () ->
     for id, a_set of @huviz.selectable_sets
       if a_set.docs?
         @set_picker.set_title(id, a_set.docs)
+  make_sets_proposable: () ->
+    make_listeners = (id, a_set) => # fat arrow carries this to @
+      set_ctl = @set_picker.id_to_elem[id]
+      set_ctl.on 'mouseenter', () =>
+        @proposed_set =  a_set
+        @update_command()
+      set_ctl.on 'mouseleave', () =>
+        @proposed_set = null
+        @update_command()
+    for id, a_set of @huviz.selectable_sets
+      make_listeners(id, a_set)
   on_set_picked: (set_id, new_state) =>
     @clear_set_picker() # TODO consider in relation to liking_all_mode
     @set_picker.set_direct_state(set_id, new_state)
