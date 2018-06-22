@@ -45,7 +45,7 @@
           <li><a href="#huvis_controls" title="Power tools for controlling the graph with commands consisting of verbs and nouns.">Commands</a></li>
           <li><a href="#tabs-options" title="Fine tune sizes, lengths and thicknesses.">Settings</a></li>
           <li><a href="#tabs-history" title="The command history">History</a></li>
-          <li><a href="#tabs-credit" title="Academic, funding and technical credit.">Credit</a></li>
+          <li><a href="#tabs-credit" title="Academic, funding and technical credit.">Credits</a></li>
           <!--li class="open_huviz_help">
             	 <a href="#tabs-help" title="show help window">
             	   <i class="fa fa-lg fa-question-circle-o"></i>

@@ -4647,6 +4647,7 @@ class DragAndDropLoader
 	    <button class="box__upload_button" type="submit">Upload</button>
       <div class="box__dragndrop" style="display:none"> Drop URL or file here</div>
 	  </div>
+    <input type="url" class="box__uri" placeholder="Or enter URL here" />
 	  <div class="box__uploading" style="display:none">Uploading&hellip;</div>
 	  <div class="box__success" style="display:none">Done!</div>
 	  <div class="box__error" style="display:none">Error! <span></span>.</div>
@@ -4666,8 +4667,8 @@ class DragAndDropLoader
     return true
     return (div.draggable or div.ondragstart) and ( div.ondrop ) and (window.FormData and window.FileReader)
   load_uri: (firstUri) ->
-    @form.find('.box__success').text(firstUri)
-    @form.find('.box__success').show()
+    #@form.find('.box__success').text(firstUri)
+    #@form.find('.box__success').show()
     @picker.add_uri({uri: firstUri, opt_group: 'Your Own'})
     @form.hide()
     return true # ie success
@@ -4693,6 +4694,13 @@ class DragAndDropLoader
       $(@append_to_sel).append(elem)
       elem.attr('id', @local_file_form_id)
     @form = $(@local_file_form_sel)
+    @form.on 'submit unfocus', (e) =>
+      uri_field = @form.find('.box__uri')
+      uri = uri_field.val()
+      if uri_field[0].checkValidity()
+        uri_field.val('')
+        @load_uri(uri)
+      return false
     @form.on 'drag dragstart dragend dragover dragenter dragleave drop', (e) =>
       #console.clear()
       e.preventDefault()

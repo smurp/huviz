@@ -310,3 +310,12 @@
     border: 6px;
     padding: 8px;
 }
+.local_file_form .box__uri {
+    width: 98%;
+}
+.local_file_form .box__uri:invalid {
+    color: red;
+}
+.local_file_form .box__uri:valid {
+    color: green;
+}
