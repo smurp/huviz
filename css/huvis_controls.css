@@ -4,7 +4,7 @@
 
 #tabs {
   position: fixed;
-  width: 25em;
+  width: 26em;
   right: 0px;
   font-size: 80%;
   z-index: 3;
@@ -72,6 +72,32 @@
   position: absolute;
   margin-left:-8px;
   border-left: solid 1px #bbb;
+}
+#collapse_cntrl, #expand_cntrl{
+  background-color: #157fcc;
+  display: block;
+  position: absolute;
+  z-index: 1;
+  width: 1.2em;
+  height: 1.2em;
+  text-align: center;
+  cursor: pointer;
+  font-weight: bold;
+  border-bottom-left-radius: 5px;
+  font-size: 1.2em;
+  padding:0;
+  margin:0;
+  color:#ddd;
+}
+#collapse_cntrl{
+  left: -1.2em;
+}
+#expand_cntrl {
+  right: 0;
+}
+#collapse_cntrl i{
+  padding:0;
+  margin:0;
 }
 .scrolling_tab {
   max-height: 100%;
@@ -265,7 +291,7 @@ progress[value]::-moz-progress-bar {
   font-size: 80%;
   text-decoration: none;
   position: absolute;
-  bottom: 1.5em;
+  bottom: 2.1em;
   /*left:49%*/
   width: 100%;
   display: block;
