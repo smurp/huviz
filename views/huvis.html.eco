@@ -36,7 +36,9 @@
   </head>
   <body>
     <div id="snippet_box"></div>
+    <div id="expand_cntrl" style="visibility:hidden"><i class="fa fa-angle-double-left"></i></div>
     <section id="tabs" role="controls">
+      <div id="collapse_cntrl"><i class="fa fa-angle-double-right"></i></div>
       <div id="ctrl-handle" class="ui-resizable-handle ui-resizable-w"><div id="ctrl-handle-grip">o</div></div>
         <ul style="font-size:80%">
           <li><a href="#tabs-intro" title="Introduction and Usage">Intro</a></li>

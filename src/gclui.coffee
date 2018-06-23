@@ -26,6 +26,8 @@ class CommandController
   constructor: (@huviz, @container, @hierarchy) ->
     document.addEventListener 'dataset-loaded', @on_dataset_loaded
     $("#tabs").resizable({handles: {'w':'#ctrl-handle'}})
+    #$("#collapse_cntrl").click(@minimize_gclui)
+    #$("#expand_cntrl").click(@maximize_gclui)
     if @container is null
       @container = d3.select("body").append("div").attr("id", "gclui")[0][0]
     if not @huviz.all_set.length
@@ -63,6 +65,19 @@ class CommandController
     if title
       label.attr('title',title)
     return outer
+
+#  minimize_gclui: () ->
+    #$('#tabs').prop('style','visibility:hidden')
+    #$('#expand_cntrl').prop('style','visibility:visible')
+    #w_width = (@container.clientWidth or window.innerWidth or document.documentElement.clientWidth or document.clientWidth)
+    #@width = w_width
+    #@get_container_width()
+    #console.log @width
+  #maximize_gclui: () ->
+    #$('#tabs').prop('style','visibility:visible')
+    #$('#maximize_cntrl').prop('style','visibility:hidden')
+    #console.log "minimize the interface"
+
   install_listeners: () ->
     window.addEventListener 'changePredicate', @predicate_picker.onChangeState
     window.addEventListener 'changeTaxon', @taxon_picker.onChangeState

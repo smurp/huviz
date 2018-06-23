@@ -2200,6 +2200,7 @@ class Huviz
     pad = pad or hpad
     w_width = (@container.clientWidth or window.innerWidth or document.documentElement.clientWidth or document.clientWidth) - pad
     @width = w_width - $("#tabs").width()
+    console.log "------------------- " + @width
 
   # Should be refactored to be get_container_height
   get_container_height: (pad) ->
@@ -3379,6 +3380,8 @@ class Huviz
     window.addEventListener "resize", @updateWindow
     $("#tabs").on("resize", @updateWindow)
     $(@viscanvas).bind("_splitpaneparentresize", @updateWindow)
+    $("#collapse_cntrl").click(@minimize_gclui).on("click", @updateWindow)
+    $("#expand_cntrl").click(@maximize_gclui).on("click", @updateWindow)
     $("#tabs").tabs
       active: 0
       collapsible: true
@@ -3386,6 +3389,19 @@ class Huviz
       tab_idx = parseInt($(event.target).attr('href').replace("#",""))
       @goto_tab(tab_idx)
       return false
+
+  minimize_gclui: () ->
+    $('#tabs').prop('style','visibility:hidden;width:0')
+    $('#expand_cntrl').prop('style','visibility:visible')
+    #w_width = (@container.clientWidth or window.innerWidth or document.documentElement.clientWidth or document.clientWidth)
+    #@width = w_width
+    #@get_container_width()
+    #@updateWindow()
+    #console.log @width
+  maximize_gclui: () ->
+    $('#tabs').prop('style','visibility:visible')
+    $('#maximize_cntrl').prop('style','visibility:hidden')
+    console.log "minimize the interface"
 
   goto_tab: (tab_idx) ->
     $('#tabs').tabs
