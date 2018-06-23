@@ -2184,9 +2184,11 @@ class Huviz
         the_parser(data, textStatus, callback)
         #@fire_fileloaded_event(url) ## should call after_file_loaded(url, callback) within the_parser
         @hide_state_msg()
-      error: (jqxhr, textStatus, errorThrown) ->
+      error: (jqxhr, textStatus, errorThrown) =>
         console.log(url, errorThrown)
-        $("#status").text(errorThrown + " while fetching " + url)
+        msg = errorThrown + " while fetching " + url
+        @hide_state_msg()
+        blurt(msg, 'alert')  # trigger this by goofing up one of the URIs in cwrc_data.json
 
   # Deal with buggy situations where flashing the links on and off
   # fixes data structures.  Not currently needed.
