@@ -2184,9 +2184,11 @@ class Huviz
         the_parser(data, textStatus, callback)
         #@fire_fileloaded_event(url) ## should call after_file_loaded(url, callback) within the_parser
         @hide_state_msg()
-      error: (jqxhr, textStatus, errorThrown) ->
+      error: (jqxhr, textStatus, errorThrown) =>
         console.log(url, errorThrown)
-        $("#status").text(errorThrown + " while fetching " + url)
+        msg = errorThrown + " while fetching " + url
+        @hide_state_msg()
+        blurt(msg, 'alert')  # trigger this by goofing up one of the URIs in cwrc_data.json
 
   # Deal with buggy situations where flashing the links on and off
   # fixes data structures.  Not currently needed.
@@ -2198,6 +2200,7 @@ class Huviz
     pad = pad or hpad
     w_width = (@container.clientWidth or window.innerWidth or document.documentElement.clientWidth or document.clientWidth) - pad
     @width = w_width - $("#tabs").width()
+    console.log "------------------- " + @width
 
   # Should be refactored to be get_container_height
   get_container_height: (pad) ->
@@ -3377,6 +3380,8 @@ class Huviz
     window.addEventListener "resize", @updateWindow
     $("#tabs").on("resize", @updateWindow)
     $(@viscanvas).bind("_splitpaneparentresize", @updateWindow)
+    $("#collapse_cntrl").click(@minimize_gclui).on("click", @updateWindow)
+    $("#expand_cntrl").click(@maximize_gclui).on("click", @updateWindow)
     $("#tabs").tabs
       active: 0
       collapsible: true
@@ -3384,6 +3389,19 @@ class Huviz
       tab_idx = parseInt($(event.target).attr('href').replace("#",""))
       @goto_tab(tab_idx)
       return false
+
+  minimize_gclui: () ->
+    $('#tabs').prop('style','visibility:hidden;width:0')
+    $('#expand_cntrl').prop('style','visibility:visible')
+    #w_width = (@container.clientWidth or window.innerWidth or document.documentElement.clientWidth or document.clientWidth)
+    #@width = w_width
+    #@get_container_width()
+    #@updateWindow()
+    #console.log @width
+  maximize_gclui: () ->
+    $('#tabs').prop('style','visibility:visible')
+    $('#maximize_cntrl').prop('style','visibility:hidden')
+    console.log "minimize the interface"
 
   goto_tab: (tab_idx) ->
     $('#tabs').tabs
@@ -4631,6 +4649,7 @@ class DragAndDropLoader
 	    <button class="box__upload_button" type="submit">Upload</button>
       <div class="box__dragndrop" style="display:none"> Drop URL or file here</div>
 	  </div>
+    <input type="url" class="box__uri" placeholder="Or enter URL here" />
 	  <div class="box__uploading" style="display:none">Uploading&hellip;</div>
 	  <div class="box__success" style="display:none">Done!</div>
 	  <div class="box__error" style="display:none">Error! <span></span>.</div>
@@ -4650,8 +4669,8 @@ class DragAndDropLoader
     return true
     return (div.draggable or div.ondragstart) and ( div.ondrop ) and (window.FormData and window.FileReader)
   load_uri: (firstUri) ->
-    @form.find('.box__success').text(firstUri)
-    @form.find('.box__success').show()
+    #@form.find('.box__success').text(firstUri)
+    #@form.find('.box__success').show()
     @picker.add_uri({uri: firstUri, opt_group: 'Your Own'})
     @form.hide()
     return true # ie success
@@ -4677,6 +4696,13 @@ class DragAndDropLoader
       $(@append_to_sel).append(elem)
       elem.attr('id', @local_file_form_id)
     @form = $(@local_file_form_sel)
+    @form.on 'submit unfocus', (e) =>
+      uri_field = @form.find('.box__uri')
+      uri = uri_field.val()
+      if uri_field[0].checkValidity()
+        uri_field.val('')
+        @load_uri(uri)
+      return false
     @form.on 'drag dragstart dragend dragover dragenter dragleave drop', (e) =>
       #console.clear()
       e.preventDefault()
