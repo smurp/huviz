@@ -87,8 +87,8 @@
 
 * http://nooron.com
 
-[![SSHRC Logo](/docs/SSHRC.jpeg)(http://www.sshrc-crsh.gc.ca/)
-[![Canarie Logo](/docs/Canarie.jpeg)(https://www.canarie.ca)
+[![SSHRC Logo](/docs/SSHRC.jpeg)](Screen Shot 2018-06-23 at 12.04.53 PM.png)
+[![Canarie Logo](/docs/Canarie.jpeg)](Screen Shot 2018-06-23 at 12.04.36 PM.png)
 [![CWRC Logo](/docs/cwrc_logo.png)](http://www.cwrc.ca)
 [![Orlando Logo](/docs/orlando_tree_logo.png)](http://orlando.cambridge.org)
 [![Nooron Logo](/docs/nooron_logo.png)](http://nooron.com)
