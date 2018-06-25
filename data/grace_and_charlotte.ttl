@@ -1,0 +1,63 @@
+@prefix cwrc: <http://www.cwrc.ca/ontologies/cwrc#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix void: <http://rdfs.org/ns/void#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+
+# CHARLOTTE DACRE
+<http://www.cwrc.ca/cwrcdata/CharlotteDacre>
+  a foaf:Person ;
+  cwrc:hasGeogHeritage cwrc:jewishGeographicalHeritage;
+  cwrc:hasReligion cwrc:jewishReligion ;
+  cwrc:hasEthnicity cwrc:JewishEthnicity ;
+  foaf:name "Charlotte Dacre" .
+
+# GRACE AGUILAR
+<http://www.cwrc.ca/cwrcdata/GraceAguilar>
+  a foaf:Person, owl:Thing, foaf:Lush ;
+  cwrc:hasEthnicity cwrc:JewishEthnicity ;
+  cwrc:hasNationalitySelfDefined cwrc:jewishNationalIdentity ;
+  cwrc:hasReligionSelfDefined cwrc:jewishReligion ;
+  owl:sameAs <http://viaf.org/viaf/7628015> ;
+  foaf:name "Grace Aguilar" .
+
+<http://www.cwrc.ca/cwrcdata/AnneEnright>
+  a foaf:Person ;
+  cwrc:hasGeogHeritage cwrc:jewishGeographicalHeritage;
+  cwrc:hasReligion cwrc:jewishReligion ;
+  cwrc:hasEthnicity cwrc:JewishEthnicity ;
+  foaf:name "Anne Enright"@de .
+
+cwrc:jewishGeographicalHeritage
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:GeographicalHeritage ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc-2017-06-07> ;
+    rdfs:label "Jewish GH"@en, "Juif GH"@fr ;
+    rdfs:subClass cwrc:jewishLabel ;
+    skos:definition ""@en, ""@fr ;
+    foaf:name "Jewish (Geographical Heritage)"@es .
+
+cwrc:jewishNationalIdentity
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:NationalIdentity, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc-2017-06-07> ;
+    rdfs:label "Jewish"@en, "Juif"@fr ;
+    rdfs:subClass cwrc:jewishLabel ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:jewishReligion
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, owl:Thing, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc-2017-06-07> ;
+    # rdfs:label "Jewish"@en, "Judaísmo"@es, "jodendom"@nl, "joods"@nl, "judaïsme"@fr, "you tai jiao"@zh-latn-pinyin-x-notone, "yu t'ai chiao"@zh-latn-wadegile, "yóu tài jiāo"@zh-latn-pinyin-x-hanyu, "猶太教"@zh-hant ;
+    skos:broaderTransitive cwrc:abrahamicReligions .
+
+cwrc:JewishEthnicity
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Ethnicity ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc-2017-06-07> ;
+    #rdfs:label "Jewish"@en, "Juif"@fr ;
+    rdfs:subClass cwrc:jewishLabel ;
+    skos:definition ""@en, ""@fr ;
+    foaf:name "Jewish (Ethnicity)"@en .

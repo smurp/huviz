@@ -8,16 +8,16 @@
     <link href="/css/CRRT.css" rel="stylesheet" type="text/css">
     <link href="/css/gclui.css" rel="stylesheet" type="text/css">
     <link href="/css/help.css" rel="stylesheet" type="text/css">
-    <link href="/css/jquery-ui.css" rel="stylesheet"/>
+    <link href="/jquery-ui-css/jquery-ui.css" rel="stylesheet"/>
   <% if @is_local: %>
-    <script src="/lib/jquery.js"></script>
-    <script src="/lib/d3.v3.min.js"></script>
-    <script src="/lib/jquery-ui.min.js"></script>
+    <script src="/jquery/jquery.js"></script>
+    <script src="/vendor/d3.v3.min.js"></script>
+    <script src="/jquery-ui/jquery-ui.min.js"></script>
   <% else: %>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script src="//d3js.org/d3.v3.js" charset="utf-8"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
-  <% end %>  
+  <% end %>
   </head>
   <body>
     <div id="snippet_box">
@@ -32,7 +32,7 @@
     </ul>
     <div id="tabs-help" class="scrolling_tab">
       <h1>
-        HuViz 
+        HuViz
         <% if @git_commit_hash: %>
           <sup class="git_commit_hash">
             <a target="huviz_version" href="https://github.com/smurp/huviz/commit/<%= @git_commit_hash %>"><%= @git_commit_hash %></a>
@@ -42,11 +42,11 @@
       <h2>Orlando RDF Explorer</h2>
       <p>This interface is intended to help you explore the
         information and relationships encoded in
-        the <a href="http://www.artsrn.ualberta.ca/orlando/" target="_blank">Orlando</a> 
-        text database of British Women Writers. 
-        In particular, HuViz helps explore semantic information expressed in 
-        <a hef="http://www.artsrn.ualberta.ca/orlando/">RDF triples</a> 
-        that assert things like 
+        the <a href="http://www.artsrn.ualberta.ca/orlando/" target="_blank">Orlando</a>
+        text database of British Women Writers.
+        In particular, HuViz helps explore semantic information expressed in
+        <a hef="http://www.artsrn.ualberta.ca/orlando/">RDF triples</a>
+        that assert things like
         <span class='eg-subject'>Writer</span> <span class='eg-verb'>hasSex</span> <span class='eg-object'>FEMALE</span>
         or <span class='eg-subject'>Writer</span> <span class='eg-verb'>livedInPlace</span> <span class='eg-object'>London</span>.
       </p>
@@ -70,9 +70,9 @@
       <div>
         <label title="which file to load">
           data set
-          <select 
+          <select
               name="data_set" class="file_picker"
-              onchange="HVZ.load_file(this)" 
+              onchange="HVZ.load_file(this)"
               title="data sets are in order of increasing complexity">
 
             <option title="yegodd">/data/yegodd.json</option>
@@ -106,4 +106,3 @@
     </script>
   </body>
 </html>
-

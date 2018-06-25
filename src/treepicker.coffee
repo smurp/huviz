@@ -87,6 +87,7 @@ class TreePicker
     top = not top? or top
     for node_id,rest of tree
       label = rest[0]
+      #label = "┗ " + rest[0]
       contents_of_me = @add_alphabetically(i_am_in, node_id, label)
       @id_to_elem[node_id] = contents_of_me
       msg = "show_tree() just did @id_to_elem[#{node_id}] = contents_of_me"
@@ -103,27 +104,20 @@ class TreePicker
   click_handler: () =>
     picker = this
     elem = d3.select(d3.event.target)
-    #elem = d3.select(d3.event.currentTarget)
-    #if not elem.node().id
-    #  alert("deferring to #{elem.node().parentElement.id}")
-    #  return true
     d3.event.stopPropagation()
-
-    # TODO figure out why the target elem is sometimes the treepicker-label not the
-    this_id = elem.node().id
-    parent_id = elem.node().parentElement.id
-    id = this_id or parent_id
-    if not this_id
+    id = elem.node().id
+    while not id
       elem = d3.select(elem.node().parentElement)
-    #picker.effect_click(id, new_state, send_leafward, listener)
+      id = elem.node().id
     picker.handle_click(id) #, send_leafward)
     # This is hacky but ColorTreePicker.click_handler() needs the id too
     return id
   handle_click: (id) =>
-    #next_state = 
     @go_to_next_state(id, @get_next_state(id))
   get_next_state: (id) ->
     elem = @id_to_elem[id]
+    if not elem
+      throw new Error("elem for '#{id}' not found")
     is_treepicker_collapsed = elem.classed('treepicker-collapse')
     is_treepicker_showing = elem.classed('treepicker-showing')
     is_treepicker_indirect_showing = elem.classed('treepicker-indirect-showing')
@@ -192,7 +186,7 @@ class TreePicker
           text(@collapser_str)
       @id_is_collapsed[id] = false
       picker = this
-      exp.on 'click', () =>
+      exp.on 'click', () => # TODO: make this function a method on the class
         d3.event.stopPropagation()
         id2 = exp[0][0].parentNode.parentNode.getAttribute("id")
         if id2 isnt id
@@ -225,11 +219,12 @@ class TreePicker
       r = thing.select("##{thing_id} > .treepicker-label > .payload")
       if r[0][0] isnt null
         return r
-      thing.select(".treepicker-label").append('div').classed("payload", true)
+      thing.select(".treepicker-label").append('span').classed("payload", true)
   set_payload: (id, value) ->
     elem = @id_to_elem[id]
-    if not elem? and elem isnt null
-      console.warn "set_payload could not find " + id
+    if not elem? #and elem isnt null
+      console.warn "set_payload could not find '#{id}'"
+      return
     payload = @get_or_create_payload(elem)
     if payload?
       if value?
@@ -245,7 +240,12 @@ class TreePicker
       old_state = @id_to_state[true][id]
     @id_to_state[true][id] = state
     if old_state?
-      @id_to_elem[id].classed("treepicker-#{old_state}",false)
+      try
+        @id_to_elem[id].classed("treepicker-#{old_state}",false)
+      catch e
+        console.error('id:',id,'state:',state,'old_state:',old_state,e)
+        #throw e
+        return
     if state?
       @id_to_elem[id].classed("treepicker-#{state}",true)
   set_indirect_state: (id, state, old_state) ->

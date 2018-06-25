@@ -1,0 +1,30 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix nrn: <http://nooron.com/_/> .
+@prefix hsm: <http://huviz.nooron.com/_/state_machine/> .
+
+
+nrn:Go_Button rdf:type nrn:state .
+nrn:Working_Button rdf:type nrn:state .
+
+hsm:Empty hsm:clickNoun hsm:AwaitingVerb .
+hsm:Empty hsm:clickVerb hsm:AwaitingNoun .
+hsm:Empty hsm:showCommand "___ ___ ." .
+hsm:Empty hsm:likeNoun hsm:AwaitingVerbLikingNoun .
+hsm:AwaitingVerb hsm:clickVerb hsm:RunningVerbOnNoun .
+hsm:AwaitingVerb hsm:showCommand "___ SomeSetOrClass ." .
+hsm:AwaitingNoun hsm:clickNoun hsm:RunningNounOnVerb .
+hsm:AwaitingNoun hsm:showCommand "SomeVerb ___ ." .
+hsm:AwaitingVerbLikingNoun hsm:clickVerb hsm:ReadyVerbLikingNoun .
+hsm:AwaitingVerbLikingNoun hsm:showCommand "___ SomeSetOrClass like 'some pattern' ." .
+hsm:AwaitingVerbLikingNoun hsm:clickNoun hsm:AwaitVerbLikingNoun .
+hsm:AwaitingVerbLikingNoun hsm:clickVerb hsm:AwaitVerbLikingNoun .
+hsm:ReadyVerbLikingNoun hsm:pressGo hsm:RunningVerbLikingNoun.
+hsm:RunningVerbLikingNoun hsm:finishRun hsm:RunningVerbLikingNoun .
+hsm:RunningVerbLikingNoun hsm:showCommand "SomeVerb SomeSetOrClass like 'some pattern' ." .
+hsm:RunningVerbOnNoun hsm:finishRun hsm:AwaitingVerb .
+hsm:RunningVerbOnNoun hsm:showCommand "someVerb someSetOrClass ." .
+
+hsm:RunningNounOnVerb hsm:finishRun hsm:AwaitingNoun .
+hsm:RunningNounOnVerb hsm:showCommand "someVerb someSetOrClass ." .
+
+

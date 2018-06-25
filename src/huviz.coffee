@@ -31,7 +31,9 @@
 #   deemphasize: (node,predicate,color) =>
 #   pin/unpin
 #
-# THOUGHT: perhaps there is a distinction to be made between verbs
+# TODO(smurp) break out verbs as instances of class Verb, support loading of verbs
+#
+# TODO: perhaps there is a distinction to be made between verbs
 #   and 'actuators' where verbs are the things that people issue
 #   while actuators (actions?) are the one-or-more things per-verb that
 #   constitute the implementation of the verb.  The motivations are:
@@ -46,13 +48,10 @@
 # 116) BUG: stop truncating verbs lists longer than 2 in TextCursor: use grid
 # 115) TASK: add ColorTreepicker [+] and [-] boxes for 'show' and 'unshow'
 # 114) TASK: make text_cursor show detailed stuff when in Commands and Settings
-# 113) TASK: what is the weird stuff happening when there are selected nodes?
 # 113) TASK: why is CP "Poetry" in abdyma.nq not shelved?
-# 102) BUG: put Classes beside Sets again
 # 107) TASK: minimize hits on TextCursor by only calling it when verbs change
 #            not whenever @focused_node changes
 # 104) TASK: remove no-longer-needed text_cursor calls
-# 105) TASK: move @last_cursor_text logic to TextCursor itself
 #  40) TASK: support search better, show matches continuously
 #  79) TASK: support dragging of edges to shelf or discard bin
 #  97) TASK: integrate blanket for code coverage http://goo.gl/tH4Ghk
@@ -64,7 +63,7 @@
 #  91) BUG: mocha async being misused re done(), so the passes count is wrong
 #  86) BUG: try_to_set_node_type: only permit subtypes to override supertypes
 #  87) BUG: solve node.type vs node.taxon sync problem (see orlonto)
-#  46) TASK: impute node type based on predicates via ontology
+#  46) TASK: impute node type based on predicates via ontology DONE???
 #  53) PERF: should_show_label should not have search_regex in inner loop
 #  65) BUG: hidden nodes are not fully ignored on the shelf so shelved nodes
 #           are not always the focused node
@@ -79,7 +78,7 @@
 #  84) TASK: add an unchosen_set containing the graphed but not chosen nodes
 #
 # Eventual Tasks:
-#  85) TASK: move SVG, Canvas and WebGL renderers to own Renderer subclasses
+#  85) TASK: move SVG, Canvas and WebGL renderers to own pluggable Renderer subclasses
 #  75) TASK: implement real script parser
 #   4) TASK: Suppress all but the 6-letter id of writers in the cmd cli
 #  14) TASK: it takes time for clicks on the predicate picker to finish;
@@ -92,7 +91,6 @@
 #  25) TASK: debug wait cursor when slow operations are happening, maybe
 #      prevent starting operations when slow stuff is underway
 #      AKA: show waiting cursor during verb execution
-#  26) boot script should perhaps be "choose writer." or some reasonable set
 #  30) TASK: Stop passing (node, change, old_node_status, new_node_status) to
 #      Taxon.update_state() because it never seems to be needed
 #  35) TASK: get rid of jquery
@@ -115,6 +113,9 @@ uniquer = require("uniquer").uniquer
 gcl = require('graphcommandlanguage');
 #asyncLoop = require('asynchronizer').asyncLoop
 CommandController = require('gclui').CommandController
+EditController = require('editui').EditController
+IndexedDBService = require('indexeddbservice').IndexedDBService
+IndexedDBStorageController = require('indexeddbstoragecontroller').IndexedDBStorageController
 Edge = require('edge').Edge
 GraphCommandLanguageCtrl = require('graphcommandlanguage').GraphCommandLanguageCtrl
 GreenerTurtle = require('greenerturtle').GreenerTurtle
@@ -123,8 +124,15 @@ Predicate = require('predicate').Predicate
 Taxon = require('taxon').Taxon
 TextCursor = require('textcursor').TextCursor
 
+MultiString.set_langpath('en:fr') # TODO make this a setting
+
+# It is as if these imports were happening but they are being stitched in instead
+#   OnceRunner = require('oncerunner').OnceRunner
+#   TODO document the other examples of requires that are being "stitched in"
+
 wpad = undefined
 hpad = 10
+tau = Math.PI * 2
 distance = (p1, p2) ->
   p2 = p2 || [0,0]
   x = (p1.x or p1[0]) - (p2.x or p2[0])
@@ -138,6 +146,24 @@ dist_lt = (mouse, d, thresh) ->
 unescape_unicode = (u) ->
   # pre-escape any existing quotes so when JSON.parse does not get confused
   return JSON.parse('"' + u.replace('"', '\\"') + '"')
+
+linearize = (msgRecipient, streamoid) ->
+  if streamoid.idx is 0
+    msgRecipient.postMessage({event: 'finish'})
+  else
+    i = streamoid.idx + 1
+    l = 0
+    while (streamoid.data[i] not '\n')
+      l++
+      i++
+    line = streamoid.data.substr(streamoid.idx, l+1).trim()
+    msgRecipient.postMessage({event:'line', line:line})
+    streamoid.idx = i
+    recurse = () -> linearize(msgRecipient, streamoid)
+    setTimeout(recurse, 0)
+
+unique_id = () ->
+  'uid_'+Math.random().toString(36).substr(2,10)
 
 # http://dublincore.org/documents/dcmi-terms/
 DC_subject  = "http://purl.org/dc/terms/subject"
@@ -162,6 +188,23 @@ start_with_http = new RegExp("http", "ig")
 ids_to_show = start_with_http
 
 PEEKING_COLOR = "darkgray"
+
+themeStyles =
+  "light":
+    "themeName": "theme_white"
+    "pageBg": "white"
+    "labelColor": "black"
+    "shelfColor": "lightgreen"
+    "discardColor": "salmon"
+    "nodeHighlightOutline": "black"
+  "dark":
+    "themeName": "theme_black"
+    "pageBg": "black"
+    "labelColor": "#ddd"
+    "shelfColor": "#163e00"
+    "discardColor": "#4b0000"
+    "nodeHighlightOutline": "white"
+
 
 id_escape = (an_id) ->
   retval = an_id.replace(/\:/g,'_')
@@ -212,6 +255,60 @@ if true
   is_one_of = (itm,array) ->
     array.indexOf(itm) > -1
 
+if not is_one_of(2,[3,2,4])
+  alert "is_one_of() fails"
+
+blurt = (str, type) ->
+  #css styles for messages: info (blue), alert (yellow), error (red)
+  # TODO There is currently no way for users to remove blurt boxes
+  if !type
+    type='info'
+  if type is "info" then label = "<h3>Message</h3>"
+  if type is "alert" then label = "<h3>Alert</h3>"
+  if type is "error" then label = "<h3>Error</h3>"
+  if !$('#blurtbox').length
+    if type is "error"
+      $('#huvis_controls').prepend('<div id="blurtbox"></div>')
+    else
+      $('#tabs').append('<div id="blurtbox" style="overflow:scroll;height:150px;"></div>')
+  $('#blurtbox').append("<div class='blurt #{type}'>#{label}#{str}<br class='clear'></div>")
+  $('#blurtbox').scrollTop(10000)
+
+escapeHtml = (unsafe) ->
+    return unsafe
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+
+
+orlando_human_term =
+  all: 'All'
+  chosen: 'Activated'
+  unchosen: 'Deactivated'
+  selected: 'Selected'
+  shelved: 'Shelved'
+  discarded: 'Discarded'
+  hidden: 'Hidden'
+  graphed: 'Graphed'
+  fixed: 'Pinned'
+  labelled: 'Labelled'
+  choose: 'Activate'
+  unchoose: 'Deactivate'
+  select: 'Select'
+  unselect: 'Unselect'
+  label: 'Label'
+  unlabel: 'Unlabel'
+  shelve: 'Shelve'
+  hide: 'Hide'
+  discard: 'Discard'
+  undiscard: 'Retrieve'
+  pin: 'Pin'
+  unpin: 'Unpin'
+  unpinned: 'Unpinned'
+  blank_verb: 'VERB'
+  blank_noun: 'SET/SELECTION'
 
 class Huviz
   class_list: [] # FIXME remove
@@ -270,8 +367,9 @@ class Huviz
   gravity: 0.025
   snippet_count_on_edge_labels: true
   label_show_range: null # @link_distance * 1.1
+  focus_threshold: 100
   discard_radius: 200
-  fisheye_radius: 100 #null # label_show_range * 5
+  fisheye_radius: 300 #null # label_show_range * 5
   focus_radius: null # label_show_range
   drag_dist_threshold: 5
   snippet_size: 300
@@ -296,6 +394,11 @@ class Huviz
   discard_center: [0,0]
   lariat_center: [0,0]
   last_mouse_pos: [ 0, 0]
+
+  renderStyles = themeStyles.light
+  display_shelf_clockwise: true
+  nodeOrderAngle = 0.5
+  node_display_type = ''
 
   change_sort_order: (array, cmp) ->
     array.__current_sort_order = cmp
@@ -376,13 +479,13 @@ class Huviz
     node.y = point[1]
 
   click_node: (node_or_id) ->
-    # motivated by testing
+    # motivated by testing. Should this also be used by normal click handling?
     console.warn("click_node() is deprecated")
     if typeof node_or_id is 'string'
       node = @nodes.get_by('id', node_or_id)
     else
       node = node_or_id
-    @focused_node = node
+    @set_focused_node(node)
     evt = new MouseEvent "mouseup",
       screenX: node.x
       screenY: node.y
@@ -390,7 +493,10 @@ class Huviz
     return @
 
   click_verb: (id) ->
-    $("#verb-#{id}").trigger("click")
+    verbs = $("#verb-#{id}")
+    if not verbs.length
+      throw new Error("verb '#{id}' not found")
+    verbs.trigger("click")
     return @
 
   click_set: (id) ->
@@ -400,7 +506,11 @@ class Huviz
     else
       if not id.endsWith('_set')
         id = id + '_set'
-    $("##{id}").trigger("click")
+    sel = "##{id}"
+    sets = $(sel)
+    if not sets.length
+      throw new Error("set '#{id}' not found using selector: '#{sel}'")
+    sets.trigger("click")
     return @
 
   click_predicate: (id) ->
@@ -413,8 +523,10 @@ class Huviz
 
   like_string: (str) =>
     # Ideally we'd trigger an actual 'input' event but that is not possible
-    $(".like_input").val(str)
+    #$(".like_input").val(str)
+    @gclui.like_input.val(str)
     @gclui.handle_like_input()
+    #debugger if @DEBUG and str is ""
     return @
 
   toggle_expander: (id) ->
@@ -428,7 +540,6 @@ class Huviz
   mousemove: =>
     d3_event = @mouse_receiver[0][0]
     @last_mouse_pos = d3.mouse(d3_event)
-    # || focused_node.state == discarded_set
     if not @dragging and @mousedown_point and @focused_node and
         distance(@last_mouse_pos, @mousedown_point) > @drag_dist_threshold
       # We can only know that the users intention is to drag
@@ -437,22 +548,36 @@ class Huviz
       #console.log "state_name == '" + @focused_node.state.state_name + "' and selected? == " + @focused_node.selected?
       #console.log "START_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
       @dragging = @focused_node
+      if @edit_mode
+        if @editui.subject_node isnt @dragging
+          @editui.set_subject_node(@dragging)
       if @dragging.state isnt @graphed_set
         @graphed_set.acquire(@dragging)
     if @dragging
       @force.resume() # why?
       @move_node_to_point @dragging, @last_mouse_pos
-      if @dragging.links_shown.length is 0
-        action = "choose"
-      else if @dragging.fixed
-        action = "unpin"
+      if @edit_mode
+        @text_cursor.pause("", "drop on object node")
       else
-        action = "pin"
-      if @in_disconnect_dropzone(@dragging)
-        action = "shelve"
-      else if @in_discard_dropzone(@dragging)
-        action = "discard"
-      @text_cursor.pause("", "drop to #{action}")
+        if @dragging.links_shown.length is 0
+          action = "choose"
+        else if @dragging.fixed
+          action = "unpin"
+        else
+          action = "pin"
+        if @in_disconnect_dropzone(@dragging)
+          action = "shelve"
+        else if @in_discard_dropzone(@dragging)
+          action = "discard"
+        @text_cursor.pause("", "drop to #{@human_term[action]}")
+    else # IE not dragging
+      # TODO move the "if not @dragging and @mousedown_point and @focused_node and distance" block in here
+      if @edit_mode
+        if @editui.object_node or not @editui.subject_node
+          if @editui.object_datatype_is_literal
+            @text_cursor.set_text("click subject node")
+          else
+            @text_cursor.set_text("drag subject node")
     if @peeking_node?
       #console.log "PEEKING at node: " + @peeking_node.id
       if @focused_node? and @focused_node isnt @peeking_node
@@ -480,24 +605,32 @@ class Huviz
     # if something was being dragged then handle the drop
     if @dragging
       #console.log "STOPPING_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
-      @move_node_to_point @dragging, point
+      @move_node_to_point(@dragging, point)
       if @in_discard_dropzone(@dragging)
-        @run_verb_on_object 'discard', @dragging
+        @run_verb_on_object('discard', @dragging)
       else if @in_disconnect_dropzone(@dragging)  # TODO rename to shelve_dropzone
-        @run_verb_on_object 'shelve', @dragging
+        @run_verb_on_object('shelve', @dragging)
         # @unselect(@dragging) # this might be confusing
       else if @dragging.links_shown.length == 0
-        @run_verb_on_object 'choose', @dragging
+        @run_verb_on_object('choose', @dragging)
       else if @nodes_pinnable
-        if @dragging.fixed
-          @run_verb_on_object 'unpin', @dragging
+        if @edit_mode and (@dragging is @editui.subject_node)
+          console.log "not pinning subject_node when dropping"
+        else if @dragging.fixed # aka pinned
+          @run_verb_on_object('unpin', @dragging)
         else
-          @run_verb_on_object 'pin', @dragging
+          @run_verb_on_object('pin', @dragging)
       @dragging = false
       @text_cursor.continue()
       return
 
-    # this is the node being clicked
+    if @edit_mode and @focused_node and @editui.object_datatype_is_literal
+      @editui.set_subject_node(@focused_node)
+      console.log("edit mode and focused note and editui is literal")
+      @tick()
+      return
+
+    # this is the node being clickedRDF_literal
     if @focused_node # and @focused_node.state is @graphed_set
       @perform_current_command(@focused_node)
       @tick()
@@ -506,7 +639,7 @@ class Huviz
     if @focused_edge
       # FIXME do the edge equivalent of @perform_current_command
       #@update_snippet() # useful when hover-shows-snippet
-      @print_edge @focused_edge
+      @print_edge(@focused_edge)
       return
 
     # it was a drag, not a click
@@ -517,11 +650,11 @@ class Huviz
 
     if @focused_node
       unless @focused_node.state is @graphed_set
-        @run_verb_on_object 'choose',@focused_node
+        @run_verb_on_object('choose', @focused_node)
       else if @focused_node.showing_links is "all"
-        @run_verb_on_object 'print',@focused_node
+        @run_verb_on_object('print', @focused_node)
       else
-        @run_verb_on_object 'choose',@focused_node
+        @run_verb_on_object('choose', @focused_node)
 
       # TODO(smurp) are these still needed?
       @force.links @links_set
@@ -535,16 +668,15 @@ class Huviz
       @run_command(cmd)
     #else
     #  @toggle_selected(node)
-    @clean_up_all_dirt()
+    @clean_up_all_dirt_once()
 
   run_command: (cmd) ->
     @show_state_msg(cmd.as_msg())
-    #@gclui.show_working_on()    
-    #alert(cmd.as_msg())
-    @gclc.run cmd
+    #@gclui.show_working_on()
+    @gclc.run(cmd)
     #@gclui.show_working_off()
     @hide_state_msg()
-    @gclui.push_command cmd
+    return
 
   #///////////////////////////////////////////////////////////////////////////
   # resize-svg-when-window-is-resized-in-d3-js
@@ -564,6 +696,8 @@ class Huviz
       @canvas.width = @width
       @canvas.height = @height
     @force.size [@mx, @my]
+    $("#graph_title_set").css("width", @width)
+    $("#tabs").css("left", "inherit")
     @restart()
 
   #///////////////////////////////////////////////////////////////////////////
@@ -587,14 +721,38 @@ class Huviz
     @animate()
 
   #dump_line(add_line(scene,cx,cy,width,height,'ray'))
-  draw_circle: (cx, cy, radius, strclr, filclr) ->
-    @ctx.strokeStyle = strclr or "blue"  if strclr
-    @ctx.fillStyle = filclr or "blue"  if filclr
+  draw_circle: (cx, cy, radius, strclr, filclr, start_angle, end_angle) ->
+    incl_cntr = start_angle? or end_angle?
+    start_angle = start_angle or 0
+    end_angle = end_angle or tau
+    if strclr
+      @ctx.strokeStyle = strclr or "blue"
+    if filclr
+      @ctx.fillStyle = filclr or "blue"
     @ctx.beginPath()
-    @ctx.arc cx, cy, radius, 0, Math.PI * 2, true
+    if incl_cntr
+      @ctx.moveTo(cx, cy) # so the arcs are wedges not chords
+      # do not incl_cntr when drawing a whole circle
+    @ctx.arc(cx, cy, radius, start_angle, end_angle, true)
     @ctx.closePath()
-    @ctx.stroke()  if strclr
-    @ctx.fill()  if filclr
+    if strclr
+      @ctx.stroke()
+    if filclr
+      @ctx.fill()
+  draw_pie: (cx, cy, radius, strclr, filclrs) ->
+    num = filclrs.length
+    if not num
+      throw new Error("no colors specified")
+    if num is 1
+      @draw_circle(cx, cy, radius, strclr, filclrs[0])
+      return
+    arc = tau/num
+    start_angle = 0
+    for filclr in filclrs
+      end_angle = start_angle + arc
+      @draw_circle(cx, cy, radius, strclr, filclr, end_angle, start_angle)
+      start_angle = start_angle + arc
+
   draw_line: (x1, y1, x2, y2, clr) ->
     @ctx.strokeStyle = clr or 'red'
     @ctx.beginPath()
@@ -645,12 +803,12 @@ class Huviz
   draw_disconnect_dropzone: ->
     @ctx.save()
     @ctx.lineWidth = @graph_radius * 0.1
-    @draw_circle @lariat_center[0], @lariat_center[1], @graph_radius, "lightgreen"
+    @draw_circle @lariat_center[0], @lariat_center[1], @graph_radius, renderStyles.shelfColor
     @ctx.restore()
   draw_discard_dropzone: ->
     @ctx.save()
     @ctx.lineWidth = @discard_radius * 0.1
-    @draw_circle @discard_center[0], @discard_center[1], @discard_radius, "", "salmon"
+    @draw_circle @discard_center[0], @discard_center[1], @discard_radius, "", renderStyles.discardColor
     @ctx.restore()
   draw_dropzones: ->
     if @dragging
@@ -678,14 +836,14 @@ class Huviz
       sort_on("id").
       labelled(@human_term.all)
     @nodes.docs = """#{@nodes.label} nodes are in this set, regardless of state."""
-    @all_set = @nodes    
+    @all_set = @nodes
 
     @embryonic_set = SortedSet().named("embryo").
       sort_on("id").
       isFlag()
     @embryonic_set.docs = "
-      Nodes which are not yet complete are 'embryonic' and not yet 
-      in '#{@all_set.label}'.  Nodes need to have a class and a label to 
+      Nodes which are not yet complete are 'embryonic' and not yet
+      in '#{@all_set.label}'.  Nodes need to have a class and a label to
       no longer be embryonic."
 
     @chosen_set = SortedSet().named("chosen").
@@ -694,10 +852,10 @@ class Huviz
       labelled(@human_term.chosen).
       sub_of(@all_set)
     @chosen_set.docs = "
-      Nodes which the user has specifically '#{@chosen_set.label}' by either 
-      dragging them into the graph from the surrounding green 
-      'shelf'. '#{@chosen_set.label}' nodes can drag other nodes into the 
-      graph if the others are #{@human_term.hidden} or #{@human_term.shelved} but 
+      Nodes which the user has specifically '#{@chosen_set.label}' by either
+      dragging them into the graph from the surrounding green
+      'shelf'. '#{@chosen_set.label}' nodes can drag other nodes into the
+      graph if the others are #{@human_term.hidden} or #{@human_term.shelved} but
       not if they are #{@human_term.discarded}."
     @chosen_set.cleanup_verb = 'shelve'
 
@@ -708,31 +866,33 @@ class Huviz
       sub_of(@all_set)
     @selected_set.cleanup_verb = "unselect"
     @selected_set.docs = "
-      Nodes which have been '#{@selected_set.label}' using the class picker, 
+      Nodes which have been '#{@selected_set.label}' using the class picker,
       ie which are highlighted and a little larger."
 
     @shelved_set = SortedSet().
-      sort_on("name").
       named("shelved").
+      sort_on('name').
+      case_insensitive_sort(true).
       labelled(@human_term.shelved).
       sub_of(@all_set).
       isState()
     @shelved_set.docs = "
-      Nodes which are '#{@shelved_set.label}' on the green surrounding 'shelf', 
-      either because they have been dragged there or released back to there 
-      when the node which pulled them into the graph was 
+      Nodes which are '#{@shelved_set.label}' on the green surrounding 'shelf',
+      either because they have been dragged there or released back to there
+      when the node which pulled them into the graph was
       '#{@human_term.unchosen}."
 
     @discarded_set = SortedSet().named("discarded").
-      sort_on("name").
       labelled(@human_term.discarded).
+      sort_on('name').
+      case_insensitive_sort(true).
       sub_of(@all_set).
       isState()
     @discarded_set.cleanup_verb = "shelve" # TODO confirm this
     @discarded_set.docs = "
-      Nodes which have been '#{@discarded_set.label}' by being dragged into 
-      the red 'discard bin' in the bottom right corner.  
-      '#{@discarded_set.label}' nodes are not pulled into the graph when 
+      Nodes which have been '#{@discarded_set.label}' by being dragged into
+      the red 'discard bin' in the bottom right corner.
+      '#{@discarded_set.label}' nodes are not pulled into the graph when
       nodes they are connected to become '#{@chosen_set.label}'."
 
     @hidden_set = SortedSet().named("hidden").
@@ -741,8 +901,8 @@ class Huviz
       sub_of(@all_set).
       isState()
     @hidden_set.docs = "
-      Nodes which are '#{@hidden_set.label}' but can be pulled into 
-      the graph by other nodes when those become 
+      Nodes which are '#{@hidden_set.label}' but can be pulled into
+      the graph by other nodes when those become
       '#{@human_term.chosen}'."
     @hidden_set.cleanup_verb = "shelve"
 
@@ -752,8 +912,8 @@ class Huviz
       sub_of(@all_set).
       isState()
     @graphed_set.docs = "
-      Nodes which are included in the central graph either by having been 
-      '#{@human_term.chosen}' themselves or which are pulled into the 
+      Nodes which are included in the central graph either by having been
+      '#{@human_term.chosen}' themselves or which are pulled into the
       graph by those which have been."
     @graphed_set.cleanup_verb = "unchoose"
 
@@ -763,9 +923,9 @@ class Huviz
       sub_of(@all_set).
       isFlag()
     @pinned_set.docs = "
-      Nodes which are '#{@pinned_set.label}' to the canvas as a result of 
-      being dragged and dropped while already being '#{@human_term.graphed}'. 
-      #{@pinned_set.label} nodes can be #{@human_term.unpinned} by dragging 
+      Nodes which are '#{@pinned_set.label}' to the canvas as a result of
+      being dragged and dropped while already being '#{@human_term.graphed}'.
+      #{@pinned_set.label} nodes can be #{@human_term.unpinned} by dragging
       them from their #{@pinned_set.label} location."
     @pinned_set.cleanup_verb = "unpin"
 
@@ -803,6 +963,13 @@ class Huviz
 
   update_all_counts: ->
     @update_set_counts()
+    #@update_predicate_counts()
+
+  update_predicate_counts: ->
+    console.warn('the unproven method update_predicate_counts() has just been called')
+    for a_set in @predicate_set
+      name = a_set.lid
+      @gclui.on_predicate_count_update(name, a_set.length)
 
   update_set_counts: ->
     for name, a_set of @selectable_sets
@@ -825,7 +992,7 @@ class Huviz
     if @taxonomy[root]? # TODO this should be the ROOT, not literally Thing
       @taxonomy[root].update_english()
     else
-      console.log "not regenerating english because no taxonomy[#{root}]"
+      console.log("not regenerating english because no taxonomy[#{root}]")
     return
 
   get_or_create_taxon: (taxon_id) ->
@@ -839,8 +1006,9 @@ class Huviz
       @gclui.add_new_taxon(taxon_id,parent_lid,undefined,taxon) # FIXME should this be an event on the Taxon constructor?
     @taxonomy[taxon_id]
 
-  pick_taxon: (id, hier) ->
-    # TODO rename to click_taxon OR change so it positively picks the taxon
+  toggle_taxon: (id, hier, callback) ->
+    if callback?
+      @gclui.set_taxa_click_storm_callback(callback)
     # TODO preserve the state of collapsedness?
     hier = hier? ? hier : true # default to true
     if hier
@@ -871,6 +1039,9 @@ class Huviz
     @G = {} # is this deprecated?
     @init_sets()
     @init_gclc()
+    @init_editc()
+    @indexed_dbservice()
+    @init_indexddbstorage()
 
     @force.nodes @nodes
     @force.links @links_set
@@ -935,58 +1106,95 @@ class Huviz
     console.log "  showing_links:", node.showing_links
     console.log "  in_sets:", node.in_sets
 
-  find_focused_node_or_edge: ->
-    return if @dragging
-    new_focused_node = undefined
-    new_focused_edge = undefined
-    new_focused_idx = undefined
-    focus_threshold = 100 #@focus_radius * 3
-    closest = @width
-    closest_point = undefined
+  find_node_or_edge_closest_to_pointer: ->
+    new_focused_node = null
+    new_focused_edge = null
+    new_focused_idx = null
+    focus_threshold = @focus_threshold
+    closest_dist = @width
+    closest_point = null
 
-    # FIXME build a spatial index!!!! OMG
+    seeking = null # holds property name of the thing we are seeking: 'focused_node'/'object_node'/false
+    if @dragging
+      if not @edit_mode
+        return
+      seeking = "object_node"
+    else
+      seeking = "focused_node"
+
+    # TODO build a spatial index!!!! OMG https://github.com/smurp/huviz/issues/25
+    # Examine every node to find the closest one within the focus_threshold
     @nodes.forEach (d, i) =>
       n_dist = distance(d.fisheye or d, @last_mouse_pos)
-      if n_dist < closest
-        closest = n_dist
+      #console.log(d)
+      if n_dist < closest_dist
+        closest_dist = n_dist
         closest_point = d.fisheye or d
-      if n_dist <= focus_threshold
-        new_focused_node = d
-        focus_threshold = n_dist
-        new_focused_idx = i
+      if not (seeking is 'object_node' and @dragging and @dragging.id is d.id)
+        if n_dist <= focus_threshold
+          new_focused_node = d
+          focus_threshold = n_dist
+          new_focused_idx = i
 
+    # Examine the center of every edge and make it the new_focused_edge if close enough and the closest thing
     @links_set.forEach (e, i) =>
       if e.handle?
         e_dist = distance(e.handle, @last_mouse_pos)
-        if e_dist < closest
-          closest = e_dist
+        if e_dist < closest_dist
+          closest_dist = e_dist
           closest_point = e.handle
         if e_dist <= focus_threshold
           new_focused_edge = e
           focus_threshold = e_dist
           new_focused_edge_idx = i
 
-    if new_focused_edge?
-      new_focused_node = undefined
+    if new_focused_edge # the mouse is closer to an edge than a node
+      new_focused_node = null
+      seeking = null
 
-    if closest_point?
+    if closest_point
       if @draw_circle_around_focused
-        @draw_circle closest_point.x, closest_point.y, @node_radius * 3, "red"
+        @draw_circle(closest_point.x, closest_point.y, @node_radius * 3, "red")
 
-    unless @focused_node is new_focused_node
-      if @focused_node
-        d3.select(".focused_node").classed "focused_node", false  if @use_svg
-        @focused_node.focused_node = false
-        @unscroll_pretty_name(@focused_node)
-      if new_focused_node?
-        new_focused_node.focused_node = true
-        if @use_svg
-          svg_node = node[0][new_focused_idx]
-          d3.select(svg_node).classed "focused_node", true
-        #@dump_details new_focused_node
+    @set_focused_node(new_focused_node)
+    @set_focused_edge(new_focused_edge)
 
+    if seeking is 'object_node'
+      @editui.set_object_node(new_focused_node)
+
+  DEPRECATED_showing_links_to_cursor_map:
+    all: 'not-allowed'
+    some: 'all-scroll'
+    none: 'pointer'
+
+  set_focused_node: (node) -> # node might be null
+    if @focused_node is node
+      return # no change so skip
+    if @focused_node
+      # unfocus the previously focused_node
+      if @use_svg
+        d3.select(".focused_node").classed "focused_node", false
+      @unscroll_pretty_name(@focused_node)
+      @focused_node.focused_node = false
+    if node
+      if @use_svg
+        svg_node = node[0][new_focused_idx]
+        d3.select(svg_node).classed "focused_node", true
+      node.focused_node = true
+    @focused_node = node # might be null
+    if @focused_node
+      #console.log("focused_node:", @focused_node)
+      @gclui.engage_transient_verb_if_needed("select") # select is default verb
+    else
+      @gclui.disengage_transient_verb_if_needed()
+
+  set_focused_edge: (new_focused_edge) ->
+    if @proposed_edge and @focused_edge # TODO why bail now???
+      return
+    #console.log "set_focused_edge(#{new_focused_edge and new_focused_edge.id})"
     unless @focused_edge is new_focused_edge
       if @focused_edge? #and @focused_edge isnt new_focused_edge
+        console.log "removing focus from previous focused_edge"
         @focused_edge.focused = false
         delete @focused_edge.source.focused_edge
         delete @focused_edge.target.focused_edge
@@ -995,30 +1203,24 @@ class Huviz
         new_focused_edge.focused = true
         new_focused_edge.source.focused_edge = true
         new_focused_edge.target.focused_edge = true
-
-    last_focused_node = @focused_node
-    @focused_node = new_focused_node # possibly null
-    node_changed = @focused_node isnt last_focused_node
-    if node_changed
-      if @focused_node? and @focused_node
-        @gclui.engage_transient_verb_if_needed("select")
-      else
-        @gclui.disengage_transient_verb_if_needed()
-
-    last_focused_edge = @focused_edge
-    @focused_edge = new_focused_edge
-    edge_changed = @focused_edge isnt last_focused_edge
-    if edge_changed
+      @focused_edge = new_focused_edge # blank it or set it
       if @focused_edge?
-        @text_cursor.pause("", "show edge sources")
+        if @edit_mode
+          @text_cursor.pause("", "edit this edge")
+        else
+          @text_cursor.pause("", "show edge sources")
       else
         @text_cursor.continue()
-    #@adjust_cursor()
 
-  DEPRECATED_showing_links_to_cursor_map:
-    all: 'not-allowed'
-    some: 'all-scroll'
-    none: 'pointer'
+  @proposed_edge = null #initialization (no proposed edge active)
+  set_proposed_edge: (new_proposed_edge) ->
+    console.log "Setting proposed edge...", new_proposed_edge
+    if @proposed_edge
+      delete @proposed_edge.proposed # remove .proposed flag from old one
+    if new_proposed_edge
+      new_proposed_edge.proposed = true # flag the new one
+    @proposed_edge = new_proposed_edge # might be null
+    @set_focused_edge(new_proposed_edge) # a proposed_edge also becomes focused
 
   install_update_pointer_togglers: ->
     console.warn("the update_pointer_togglers are being called too often")
@@ -1052,11 +1254,19 @@ class Huviz
       @gclui.auto_change_verb_if_warranted(@focused_node)
 
   position_nodes: ->
-    n_nodes = @nodes.length or 0
+    only_move_subject = @edit_mode and @dragging and @editui.subject_node
     @nodes.forEach (node, i) =>
-      @move_node_to_point node, @last_mouse_pos if @dragging is node
-      return unless @graphed_set.has(node)
-      node.fisheye = @fisheye(node)
+      @reposition_node(node, only_move_subject)
+
+  reposition_node: (node, only_move_subject) ->
+    if @dragging is node
+      @move_node_to_point node, @last_mouse_pos
+    if only_move_subject
+      return
+    if not @graphed_set.has(node)  # slower
+    #if node.showing_links is 'none' # faster
+      return
+    node.fisheye = @fisheye(node)
 
   apply_fisheye: ->
     @links_set.forEach (e) =>
@@ -1076,9 +1286,9 @@ class Huviz
   show_message_once: (msg, alert_too) ->
     if @shown_messages.indexOf(msg) is -1
       @shown_messages.push(msg)
-      console.log msg
+      console.log(msg)
       if alert_too
-        alert msg
+        alert(msg)
 
   draw_edges_from: (node) ->
     num_edges = node.links_to.length
@@ -1103,11 +1313,11 @@ class Huviz
         draw_n_n[n_n] = []
       draw_n_n[n_n].push(e)
       #@show_message_once("will draw edge() n_n:#{n_n} e.id:#{e.id}")
-
     edge_width = @edge_width
     for n_n, edges_between of draw_n_n
       sway = 1
       for e in edges_between
+        #console.log e
         if e.focused? and e.focused
           line_width = @edge_width * @peeking_line_thicker
         else
@@ -1121,11 +1331,6 @@ class Huviz
     if @use_canvas
       @graphed_set.forEach (node, i) =>
         @draw_edges_from(node)
-
-      #@links_set.forEach (e, i) =>
-      #  sway = i * 2
-      #  #@draw_line e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, e.color
-      #  @draw_curvedline e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, sway, e.color
 
     if @use_webgl
       dx = @width * xmult
@@ -1161,22 +1366,32 @@ class Huviz
     cy = center[1]
     num = set.length
     set.forEach (node, i) =>
-      rad = 2 * Math.PI * i / num
+      #clockwise = false
+      # 0 or 1 starts at 6, 0.5 starts at 12, 0.75 starts at 9, 0.25 starts at 3
+      start = 1 - nodeOrderAngle
+      if @display_shelf_clockwise
+        rad = tau * (start - i / num)
+      else
+        rad = tau * (i / num + start)
+
       node.rad = rad
       node.x = cx + Math.sin(rad) * radius
       node.y = cy + Math.cos(rad) * radius
       node.fisheye = @fisheye(node)
       if @use_canvas
-        @draw_circle(node.fisheye.x, node.fisheye.y,
-                     @calc_node_radius(node),
-                     node.color or "yellow", node.color or "black")
+        filclrs = @get_node_color_or_color_list(
+          node, renderStyles.nodeHighlightOutline)
+        @draw_pie(node.fisheye.x, node.fisheye.y,
+                  @calc_node_radius(node),
+                  node.color or "yellow",
+                  filclrs)
       if @use_webgl
         @mv_node node.gl, node.fisheye.x, node.fisheye.y
 
   draw_discards: ->
-    @draw_nodes_in_set @discarded_set, @discard_radius, @discard_center
+    @draw_nodes_in_set(@discarded_set, @discard_radius, @discard_center)
   draw_shelf: ->
-    @draw_nodes_in_set @shelved_set, @graph_radius, @lariat_center
+    @draw_nodes_in_set(@shelved_set, @graph_radius, @lariat_center)
   draw_nodes: ->
     if @use_svg
       node.attr("transform", (d, i) ->
@@ -1185,17 +1400,95 @@ class Huviz
     if @use_canvas or @use_webgl
       @graphed_set.forEach (d, i) =>
         d.fisheye = @fisheye(d)
+        #console.log d.name.NOLANG
         if @use_canvas
           node_radius = @calc_node_radius(d)
           stroke_color = d.color or 'yellow'
-          fill_color = d.color or 'black'
           if d.chosen?
-            stroke_color = 'black'
-          @draw_circle(d.fisheye.x, d.fisheye.y,
-                       node_radius,
-                       stroke_color, fill_color)
+            stroke_color = renderStyles.nodeHighlightOutline
+
+          # if 'pills' is selected; change node shape to rounded squares
+          if (node_display_type == 'pills')
+            pill_width = node_radius * 2
+            pill_height = node_radius * 2
+            filclr = @get_node_color_or_color_list(d)
+            rndng = 1
+            x = d.fisheye.x
+            y = d.fisheye.y
+            @rounded_rectangle(x, y,
+                      pill_width,
+                      pill_height,
+                      rndng,
+                      stroke_color,
+                      filclr)
+          else
+            @draw_pie(d.fisheye.x, d.fisheye.y,
+                      node_radius,
+                      stroke_color,
+                      @get_node_color_or_color_list(d))
         if @use_webgl
           @mv_node(d.gl, d.fisheye.x, d.fisheye.y)
+  get_node_color_or_color_list: (n, default_color) ->
+    default_color ?= 'black'
+    if @color_nodes_as_pies and n._types and n._types.length > 1
+      @recolor_node(n, default_color)
+      return n._colors
+    return [n.color or default_color]
+
+  get_label_attributes: (d) ->
+    text = d.pretty_name
+    label_measure = @ctx.measureText(text) #this is total length of text (in ems?)
+    browser_font_size = 12.8 # -- Setting or auto from browser?
+    focused_font_size = @label_em * browser_font_size * @focused_mag
+    padding = focused_font_size * 0.5
+    line_height = focused_font_size * 1.25 # set line height to 125%
+    max_len = 250
+    min_len = 100
+    label_length = label_measure.width + 2 * padding
+    num_lines_raw = label_length/max_len
+    num_lines = (Math.floor num_lines_raw) + 1
+    if (num_lines > 1)
+      width_default = @label_em * label_measure.width/num_lines
+    else
+      width_default = max_len
+    bubble_text = []
+    text_cuts = []
+    ln_i = 0
+    bubble_text[ln_i] = ""
+    if (label_length < (width_default + 2 * padding)) # single line label
+      max_line_length = label_length - padding
+    else # more than one line so calculate how many and create text lines array
+      text_split = text.split(' ') # array of words
+      max_line_length = 0
+      for word, i in text_split
+        word_length = @ctx.measureText(word) #Get length of next word
+        line_length = @ctx.measureText(bubble_text[ln_i]) #Get current line length
+        new_line_length = word_length.width + line_length.width #add together for testing
+        if (new_line_length < width_default) #if line length is still less than max
+          bubble_text[ln_i] = bubble_text[ln_i] + word + " " #add word to bubble_text
+        else #new line needed
+          text_cuts[ln_i] = i
+          real_line_length = @ctx.measureText(bubble_text[ln_i])
+          new_line_width = real_line_length.width
+          if (new_line_width > max_line_length) # remember longest line lengthth
+            max_line_length = real_line_length.width
+          ln_i++
+          bubble_text[ln_i] = word + " "
+    width = max_line_length + 2 * padding #set actual width of box to longest line of text
+    height = (ln_i + 1) * line_height + 2 * padding # calculate height using wrapping text
+    font_size = @label_em
+    #console.log text
+    #console.log "focused_font_size: " + focused_font_size
+    #console.log "line height: " + line_height
+    #console.log "padding: " + padding
+    #console.log "label_length: " + label_length
+    #console.log "bubble height: " + height
+    #console.log "max_line_length: " + max_line_length
+    #console.log "bubble width: " + width
+    #console.log "bubble cut points: "
+    #console.log text_cuts
+    d.bub_txt = [width, height, line_height, text_cuts, font_size]
+
   should_show_label: (node) ->
     (node.labelled or
         node.focused_edge or
@@ -1216,39 +1509,98 @@ class Huviz
       focused_font_size = @label_em * @focused_mag
       focused_font = "#{focused_font_size}em sans-serif"
       unfocused_font = "#{@label_em}em sans-serif"
+      focused_pill_font = "#{@label_em}em sans-serif"
       label_node = (node) =>
         return unless @should_show_label(node)
         ctx = @ctx
+        ctx.textBaseline = "middle"
         # perhaps scrolling should happen here
+        #if not node_display_type and (node.focused_node or node.focused_edge?)
         if node.focused_node or node.focused_edge?
-          @scroll_pretty_name(node)
-          ctx.fillStyle = node.color
-          ctx.font = focused_font
+          if (node_display_type == 'pills')
+            ctx.font = focused_pill_font
+          else
+            label = @scroll_pretty_name(node)
+            # console.log label
+            if node.state.id is "graphed"
+              cart_label = node.pretty_name
+              ctx.measureText(cart_label).width #forces proper label measurement (?)
+              if @cartouches
+                @draw_cartouche(cart_label, node.fisheye.x, node.fisheye.y)
+            ctx.fillStyle = node.color
+            ctx.font = focused_font
         else
-          ctx.fillStyle = "black"
+          ctx.fillStyle = renderStyles.labelColor #"white" is default
           ctx.font = unfocused_font
-        return unless node.fisheye? # FIXME why is this even happening?
+        if not node.fisheye?
+          return
         if not @graphed_set.has(node) and @draw_lariat_labels_rotated
           # Flip label rather than write upside down
           #   var flip = (node.rad > Math.PI) ? -1 : 1;
           #   view-source:http://www.jasondavies.com/d3-dependencies/
           radians = node.rad
-          flip = radians > Math.PI and radians < 2 * Math.PI
+          flip = node.fisheye.x < @cx # flip labels on the left of center line
           textAlign = 'left'
           if flip
             radians = radians - Math.PI
             textAlign = 'right'
           ctx.save()
-          ctx.translate node.fisheye.x, node.fisheye.y
+          ctx.translate(node.fisheye.x, node.fisheye.y)
           ctx.rotate -1 * radians + Math.PI / 2
           ctx.textAlign = textAlign
-          ctx.fillText "  " + node.pretty_name, 0, 0 # TODO use .pretty_name
+          if @debug_shelf_angles_and_flipping
+            if flip #radians < 0
+              ctx.fillStyle = 'rgb(255,0,0)'
+            ctx.fillText(("  " + flip + "  " + radians).substr(0,14), 0, 0)
+          else
+            ctx.fillText("  " + node.pretty_name + "  ", 0, 0)
           ctx.restore()
         else
-          ctx.fillText "  " + node.pretty_name, node.fisheye.x, node.fisheye.y
-      @graphed_set.forEach label_node
-      @shelved_set.forEach label_node
-      @discarded_set.forEach label_node
+          if (node_display_type == 'pills')
+            node_font_size = node.bub_txt[4]
+            result = node_font_size != @label_em
+            if not node.bub_txt.length or result
+              @get_label_attributes(node)
+            line_height = node.bub_txt[2]  # Line height calculated from text size ?
+            adjust_x = node.bub_txt[0] / 2 - line_height/2# Location of first line of text
+            adjust_y = node.bub_txt[1] / 2 - line_height
+            pill_width = node.bub_txt[0] # box size
+            pill_height = node.bub_txt[1]
+
+            x = node.fisheye.x - pill_width/2
+            y = node.fisheye.y - pill_height/2
+            radius = 10 * @label_em
+            alpha = 1
+            outline = node.color
+            # change box edge thickness and fill if node selected
+            if node.focused_node or node.focused_edge?
+              ctx.lineWidth = 2
+              fill = "#f2f2f2"
+            else
+              ctx.lineWidth = 1
+              fill = "white"
+            @rounded_rectangle(x, y, pill_width, pill_height, radius, fill, outline, alpha)
+            ctx.fillStyle = "#000"
+            # Paint multi-line text
+            text = node.pretty_name
+            text_split = text.split(' ') # array of words
+            cuts = node.bub_txt[3]
+            print_label = ""
+            for text, i in text_split
+              if cuts and i in cuts
+                ctx.fillText print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y
+                adjust_y = adjust_y - line_height
+                print_label = text + " "
+              else
+                print_label = print_label + text + " "
+            if print_label # print last line, or single line if no cuts
+              ctx.fillText print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y
+          else
+            ctx.fillText "  " + node.pretty_name + "  ", node.fisheye.x, node.fisheye.y
+
+      @graphed_set.forEach(label_node)
+      @shelved_set.forEach(label_node)
+      @discarded_set.forEach(label_node)
 
   clear_canvas: ->
     @ctx.clearRect 0, 0, @canvas.width, @canvas.height
@@ -1257,15 +1609,24 @@ class Huviz
 
   tick: =>
     # return if @focused_node   # <== policy: freeze screen when selected
+    if true
+      if @clean_up_all_dirt_onceRunner?
+        if @clean_up_all_dirt_onceRunner.active
+          @clean_up_all_dirt_onceRunner.stats.runTick ?= 0
+          @clean_up_all_dirt_onceRunner.stats.skipTick ?= 0
+          @clean_up_all_dirt_onceRunner.stats.skipTick++
+          return
+        else
+          @clean_up_all_dirt_onceRunner.stats.runTick++
     @ctx.lineWidth = @edge_width # TODO(smurp) just edges should get this treatment
-    @find_focused_node_or_edge()
+    @find_node_or_edge_closest_to_pointer()
     @auto_change_verb()
     @update_snippet() # continuously update the snippet based on the currently focused_edge
     @blank_screen()
     @draw_dropzones()
     @fisheye.focus @last_mouse_pos
     @show_last_mouse_pos()
-    @position_nodes()
+    @position_nodes() # unless @edit_mode and @dragging and @editui.subject_node
     @apply_fisheye()
     @draw_edges()
     @draw_nodes()
@@ -1273,6 +1634,45 @@ class Huviz
     @draw_discards()
     @draw_labels()
     @draw_edge_labels()
+
+  rounded_rectangle: (x, y, w, h, radius, fill, stroke, alpha) ->
+    # http://stackoverflow.com/questions/1255512/how-to-draw-a-rounded-rectangle-on-html-canvas
+    ctx = @ctx
+    ctx.fillStyle = fill
+    r = x + w
+    b = y + h
+    ctx.save()
+    ctx.beginPath()
+    ctx.moveTo(x + radius, y)
+    ctx.lineTo(r - radius, y)
+    ctx.quadraticCurveTo(r, y, r, y + radius)
+    ctx.lineTo(r, y + h - radius)
+    ctx.quadraticCurveTo(r, b, r - radius, b)
+    ctx.lineTo(x + radius, b)
+    ctx.quadraticCurveTo(x, b, x, b - radius)
+    ctx.lineTo(x, y + radius)
+    ctx.quadraticCurveTo(x, y, x + radius, y)
+    ctx.closePath()
+    if alpha
+      ctx.globalAlpha = alpha
+    ctx.fill()
+    ctx.globalAlpha = 1
+    if stroke
+      ctx.strokeStyle = stroke
+      ctx.stroke()
+
+  draw_cartouche: (label, x, y) ->
+    width = @ctx.measureText(label).width
+    height = @label_em * @focused_mag * 16
+    radius = @edge_x_offset
+    fill = renderStyles.pageBg
+    alpha = .8
+    outline = false
+    x = x + @edge_x_offset
+    y = y - height
+    width = width + 2 * @edge_x_offset
+    height = height + @edge_x_offset
+    @rounded_rectangle(x, y, width, height, radius, fill, outline, alpha)
 
   draw_edge_labels: ->
     if @focused_edge?
@@ -1285,8 +1685,12 @@ class Huviz
       if edge.contexts?
         if edge.contexts.length
           label += " (#{edge.contexts.length})"
-    ctx.fillStyle = @shadow_color
-    ctx.fillText " " + label, edge.handle.x + @edge_x_offset + @shadow_offset, edge.handle.y + @shadow_offset
+    width = ctx.measureText(label).width
+    height = @label_em * @focused_mag * 16
+    if @cartouches
+      @draw_cartouche(label, edge.handle.x, edge.handle.y)
+    #ctx.fillStyle = '#666' #@shadow_color
+    #ctx.fillText " " + label, edge.handle.x + @edge_x_offset + @shadow_offset, edge.handle.y + @shadow_offset
     ctx.fillStyle = edge.color
     ctx.fillText " " + label, edge.handle.x + @edge_x_offset, edge.handle.y
 
@@ -1300,7 +1704,7 @@ class Huviz
       @msg_history += " " + txt
       txt = @msg_history
     @state_msg_box.show()
-    @state_msg_box.html("<br><br>" + txt)  # FIXME: OMG CSS PDQ
+    @state_msg_box.html("<div class='msg_payload'>" + txt + "</div><div class='msg_backdrop'></div>")
     @text_cursor.pause("wait")
 
   hide_state_msg: () ->
@@ -1341,7 +1745,6 @@ class Huviz
 
     @label = @svg.selectAll(".label")
 
-  #force.nodes(nodes).links(links_set).start();
   canvas_show_text: (txt, x, y) ->
     # console.log "canvas_show_text(" + txt + ")"
     @ctx.fillStyle = "black"
@@ -1441,13 +1844,13 @@ class Huviz
   object_value_types: {}
   unique_pids: {}
   add_quad: (quad) ->
+    #console.log "HuViz.add_quad()", quad
     sid = quad.s
     pid = @make_qname(quad.p)
     ctxid = quad.g || @DEFAULT_CONTEXT
     subj_lid = uniquer(sid)
     @object_value_types[quad.o.type] = 1
     @unique_pids[pid] = 1
-
     newsubj = false
     subj = null
     if not @my_graph.subjects[sid]?
@@ -1460,11 +1863,14 @@ class Huviz
     else
       subj = @my_graph.subjects[sid]
 
-    @ensure_predicate_lineage pid
-
+    @ensure_predicate_lineage(pid)
+    edge = null
     subj_n = @get_or_create_node_by_id(sid)
     pred_n = @get_or_create_predicate_by_id(pid)
     cntx_n = @get_or_create_context_by_id(ctxid)
+    if pid.match(/\#(first|rest)$/) # TODO use @predicates_to_ignore instead OR rdfs:first and rdfs:rest
+      console.warn("add_quad() ignoring quad because pid=#{pid}", quad)
+      return
     # set the predicate on the subject
     if not subj.predicates[pid]?
       subj.predicates[pid] = {objects:[]}
@@ -1476,30 +1882,49 @@ class Huviz
       # so there should be links made between this node and that node
       is_type = is_one_of(pid, TYPE_SYNS)
       if is_type
-        if @try_to_set_node_type(subj_n,quad.o.value)
+        if @try_to_set_node_type(subj_n, quad.o.value)
           @develop(subj_n) # might be ready now
       else
-        edge = @get_or_create_Edge(subj_n,obj_n,pred_n,cntx_n)
+        edge = @get_or_create_Edge(subj_n, obj_n, pred_n, cntx_n)
         @infer_edge_end_types(edge)
         edge.register_context(cntx_n)
         edge.color = @gclui.predicate_picker.get_color_forId_byName(pred_n.lid,'showing')
-        edge_e = @add_edge(edge)
+        @add_edge(edge)
         @develop(obj_n)
     else
-      if subj_n.embryo and is_one_of(pid,NAME_SYNS)
-        @set_name(subj_n, quad.o.value.replace(/^\s+|\s+$/g, ''))
-        @develop(subj_n) # might be ready now
+      if is_one_of(pid, NAME_SYNS)
+        add_name = () =>
+          @set_name(
+            subj_n,
+            quad.o.value.replace(/^\s+|\s+$/g, ''),
+            quad.o.language)
+        if subj_n.shelved_set
+          subj_n.shelved_set.alter(subj_n, add_name)
+        else
+          add_name()
+        if subj_n.embryo
+          @develop(subj_n) # might be ready now
     @last_quad = quad
+    return edge
 
-  set_name: (node, full_name) ->
-    node.name ?= full_name  # set it if blank
+  set_name: (node, full_name, lang) ->
+    if typeof full_name is 'object'
+      # MultiString instances have constructor.name == 'String'
+      # console.log(full_name.constructor.name, full_name)
+      node.name = full_name
+    else
+      if node.name
+        node.name.set_val_lang(full_name, lang)
+      else
+        node.name = new MultiString(full_name, lang)
+    #node.name ?= full_name  # set it if blank
     len = @truncate_labels_to
     if not len?
       alert "len not set"
     if len > 0
-      node.pretty_name = full_name.substr(0, len) # truncate
+      node.pretty_name = node.name.substr(0, len) # truncate
     else
-      node.pretty_name = full_name
+      node.pretty_name = node.name
     node.scroll_offset = 0
     return
 
@@ -1511,7 +1936,7 @@ class Huviz
     else
       limit = @truncate_labels_to
     should_scroll = limit > 0 and limit < node.name.length
-    if not should_scroll 
+    if not should_scroll
       return
     if true # node.label_truncated_to
       spacer = @scroll_spacer
@@ -1538,38 +1963,40 @@ class Huviz
     ranges = @ontology.range[edge.predicate.lid]
     if ranges?
       #console.log "INFERRING BASED ON: edge_id:(#{edge.id}) first range_lid:(#{ranges[0]})",@ontology
-      @try_to_set_node_type(edge.target,ranges[0])
+      @try_to_set_node_type(edge.target, ranges[0])
 
     # infer type of source based on the domain of the predicate
     domain_lid = @ontology.domain[edge.predicate.lid]
     if domain_lid?
       #console.log "INFERRING BASED ON: edge_id:(#{edge.id}) domain_lid:(#{domain_lid})",@ontology
-      @try_to_set_node_type(edge.source,domain_lid)
+      @try_to_set_node_type(edge.source, domain_lid)
 
   make_Edge_id: (subj_n, obj_n, pred_n) ->
     return (a.lid for a in [subj_n, pred_n, obj_n]).join(' ')
 
-  get_or_create_Edge: (subj_n, obj_n, pred_n) ->
+  get_or_create_Edge: (subj_n, obj_n, pred_n, cntx_n) ->
     edge_id = @make_Edge_id(subj_n, obj_n, pred_n)
     edge = @edges_by_id[edge_id]
     if not edge?
       @edge_count++
-      edge = new Edge(subj_n,obj_n,pred_n)
+      edge = new Edge(subj_n, obj_n, pred_n)
       @edges_by_id[edge_id] = edge
     return edge
 
   add_edge: (edge) ->
-    if edge.id.match /Universal$/
-      console.log "add",edge.id
-    #@add_link(edge)
-    #return edge
+    if edge.id.match(/Universal$/)
+      console.log("add", edge.id)
     # TODO(smurp) should .links_from and .links_to be SortedSets? Yes. Right?
-    #   edge.source.links_from.add(edge)
-    #   edge.target.links_to.add(edge)
-    #console.log "add_edge",edge.id
-    @add_to edge,edge.source.links_from
-    @add_to edge,edge.target.links_to
+    @add_to(edge, edge.source.links_from)
+    @add_to(edge, edge.target.links_to)
     edge
+
+  delete_edge: (e) ->
+    @remove_link(e.id)
+    @remove_from e, e.source.links_from
+    @remove_from e, e.target.links_to
+    delete @edges_by_id[e.id]
+    null
 
   try_to_set_node_type: (node, type_uri) ->
     #if type_uri.match(/^http.*/)
@@ -1585,18 +2012,28 @@ class Huviz
     else
       console.info "  try_to_set_node_type",node.lid,"isa",type_lid
     ###
+    if not node._types
+      node._types = []
+    if not (type_lid in node._types)
+      node._types.push(type_lid)
     node.type = type_lid
     return true
 
   report_every: 100 # if 1 then more data shown
 
-  parseAndShowTTLStreamer: (data, textStatus, callback) =>
+  parseAndShowTTLData: (data, textStatus, callback) =>
     # modelled on parseAndShowNQStreamer
     parse_start_time = new Date()
-    context = "http://universal"
+    context = "http://universal.org"
     if GreenerTurtle? and @turtle_parser is 'GreenerTurtle'
-      @G = new GreenerTurtle().parse(data, "text/turtle")
-      console.log "GreenTurtle"
+      console.log("GreenTurtle() started")
+      #@G = new GreenerTurtle().parse(data, "text/turtle")
+      try
+        @G = new GreenerTurtle().parse(data, "text/turtle")
+      catch e
+        msg = escapeHtml(e.toString())
+        blurt_msg = '<p>There has been a problem with the Turtle parser. Check your dataset for errors.</p><p class="js_msg">' + msg + '</p>'
+        blurt(blurt_msg, "error")
     quad_count = 0
     every = @report_every
     for subj_uri,frame of @G.subjects
@@ -1609,10 +2046,10 @@ class Huviz
           #      http://www.w3.org/TR/curie/#s_intro
           if every is 1
             @show_state_msg "<LI>#{frame.id} <LI>#{pred.id} <LI>#{obj.value}"
-            console.log "===========================\n  #",quad_count,"  subj:",frame.id,"\n  pred:",pred.id, "\n  obj.value:",obj.value
+            console.log("===========================\n  #", quad_count, "  subj:", frame.id, "\n  pred:", pred.id, "\n  obj.value:", obj.value)
           else
             if quad_count % every is 0
-              @show_state_msg("parsed relation " + quad_count)
+              @show_state_msg("parsed relation: " + quad_count)
           quad_count++
           @add_quad
             s: frame.id
@@ -1623,8 +2060,8 @@ class Huviz
     @after_file_loaded('stream', callback)
 
   dump_stats: ->
-    console.log "object_value_types:",@object_value_types
-    console.log "unique_pids:",@unique_pids
+    console.log("object_value_types:", @object_value_types)
+    console.log("unique_pids:", @unique_pids)
 
   parseAndShowTurtle: (data, textStatus) =>
     msg = "data was " + data.length + " bytes"
@@ -1632,22 +2069,22 @@ class Huviz
 
     if GreenerTurtle? and @turtle_parser is 'GreenerTurtle'
       @G = new GreenerTurtle().parse(data, "text/turtle")
-      console.log "GreenTurtle"
+      console.log("GreenTurtle")
 
     else if @turtle_parser is 'N3'
-      console.log "N3"
+      console.log("N3")
       #N3 = require('N3')
-      console.log "n3",N3
+      console.log("n3", N3)
       predicates = {}
       parser = N3.Parser()
       parser.parse data, (err,trip,pref) =>
-        console.log trip
+        console.log(trip)
         if pref
-          console.log pref
+          console.log(pref)
         if trip
-          @add_quad trip
+          @add_quad(trip)
         else
-          console.log err
+          console.log(err)
 
       #console.log "my_graph",@my_graph
       console.log('===================================')
@@ -1664,13 +2101,13 @@ class Huviz
     siz = @roughSizeOfObject(@G)
     msg += " resulting in a graph of " + siz + " bytes"
     msg += " which took " + parse_time + " seconds to parse"
-    console.log msg  if @verbosity >= @COARSE
+    console.log(msg) if @verbosity >= @COARSE
     show_start_time = new Date()
     @showGraph @G
     show_end_time = new Date()
     show_time = (show_end_time - show_start_time) / 1000
     msg += " and " + show_time + " sec to show"
-    console.log msg  if @verbosity >= @COARSE
+    console.log(msg) if @verbosity >= @COARSE
     @text_cursor.set_cursor("default")
     $("#status").text ""
 
@@ -1697,8 +2134,9 @@ class Huviz
       msg = null
       if e.data.event is 'line'
         quad_count++
-        if quad_count % 100 is 0
-          @show_state_msg("parsed relation " + quad_count)
+        @show_state_msg("<h3>Parsing... </h3><p>" + uri + "</p><progress value='" + quad_count + "' max='" + @node_count + "'></progress>")
+        #if quad_count % 100 is 0
+          #@show_state_msg("parsed relation " + quad_count)
         q = parseQuadLine(e.data.line)
         if q
           q.s = q.s.raw
@@ -1709,26 +2147,28 @@ class Huviz
             value: unescape_unicode(@remove_framing_quotes(q.o.toString()))
           @add_quad q
       else if e.data.event is 'start'
-        msg = "starting to split "+uri
+        msg = "starting to split " + uri
+        @show_state_msg("<h3>Starting to split... </h3><p>" + uri + "</p>")
+        @node_count = e.data.numLines
       else if e.data.event is 'finish'
-        msg = "finished_splitting "+uri
+        msg = "finished_splitting " + uri
         @show_state_msg("done loading")
         @after_file_loaded(uri, callback)
       else
-        msg = "unrecognized NQ event:"+e.data.event
+        msg = "unrecognized NQ event:" + e.data.event
       if msg?
-        console.log msg
+        console.log(msg)
         #alert msg
     worker.postMessage({uri:uri})
 
   DUMPER: (data) =>
-    console.log data
+    console.log(data)
 
   fetchAndShow: (url, callback) ->
     @show_state_msg("fetching " + url)
     the_parser = @parseAndShowNQ
     if url.match(/.ttl/)
-      the_parser = @parseAndShowTTLStreamer
+      the_parser = @parseAndShowTTLData # does not stream
     else if url.match(/.(nq|nt)/)
       the_parser = @parseAndShowNQ
     else if url.match(/.json/)
@@ -1744,9 +2184,11 @@ class Huviz
         the_parser(data, textStatus, callback)
         #@fire_fileloaded_event(url) ## should call after_file_loaded(url, callback) within the_parser
         @hide_state_msg()
-      error: (jqxhr, textStatus, errorThrown) ->
-        console.log url, errorThrown
-        $("#status").text errorThrown + " while fetching " + url
+      error: (jqxhr, textStatus, errorThrown) =>
+        console.log(url, errorThrown)
+        msg = errorThrown + " while fetching " + url
+        @hide_state_msg()
+        blurt(msg, 'alert')  # trigger this by goofing up one of the URIs in cwrc_data.json
 
   # Deal with buggy situations where flashing the links on and off
   # fixes data structures.  Not currently needed.
@@ -1756,8 +2198,9 @@ class Huviz
 
   get_container_width: (pad) ->
     pad = pad or hpad
-    @width = (@container.clientWidth or window.innerWidth or document.documentElement.clientWidth or document.clientWidth) - pad
-    #console.log "get_window_width()",window.innerWidth,document.documentElement.clientWidth,document.clientWidth,"==>",@width
+    w_width = (@container.clientWidth or window.innerWidth or document.documentElement.clientWidth or document.clientWidth) - pad
+    @width = w_width - $("#tabs").width()
+    console.log "------------------- " + @width
 
   # Should be refactored to be get_container_height
   get_container_height: (pad) ->
@@ -1802,10 +2245,10 @@ class Huviz
     pattern = new RegExp(srch, "ig")
     nodes.forEach (node, i) =>
       unless node.name.match(pattern)
-        console.log pattern, "does not match!", node.name  if verbose
+        console.log(pattern, "does not match!", node.name) if verbose
         return
-      console.log func.call(node)  if func
-      @dump_details node if not func or verbose
+      console.log(func.call(node))  if func
+      @dump_details(node) if not func or verbose
 
   get_node_by_id: (node_id, throw_on_fail) ->
     throw_on_fail = throw_on_fail or false
@@ -1847,11 +2290,15 @@ class Huviz
     @update_showing_links e.target
     @update_state e.target
 
-  remove_link: (e) ->
-    return if @links_set.indexOf(e) is -1
+  remove_link: (edge_id) ->
+    e = @links_set.get_by('id', edge_id)
+    if not e?
+      console.log("remove_link(#{edge_id}) not found!")
+      return
     @remove_from e, e.source.links_shown
     @remove_from e, e.target.links_shown
     @links_set.remove e
+    console.log "removing links from: " + e.id
     @update_showing_links e.source
     @update_showing_links e.target
     @update_state e.target
@@ -1859,7 +2306,8 @@ class Huviz
 
   # FIXME it looks like incl_discards is not needed and could be removed
   show_link: (edge, incl_discards) ->
-    return  if (not incl_discards) and (edge.target.state is @discarded_set or edge.source.state is @discarded_set)
+    if (not incl_discards) and (edge.target.state is @discarded_set or edge.source.state is @discarded_set)
+      return
     @add_to edge, edge.source.links_shown
     @add_to edge, edge.target.links_shown
     @links_set.add edge
@@ -1872,6 +2320,7 @@ class Huviz
     @remove_from edge,edge.source.links_shown
     @remove_from edge,edge.target.links_shown
     @links_set.remove edge
+    console.log "unshowing links from: " + edge.id
     edge.unshow() # FIXME make unshow call @update_state WHICH ONE? :)
     @update_state edge.source
     @update_state edge.target
@@ -1890,12 +2339,12 @@ class Huviz
 
   update_state: (node) ->
     if node.state is @graphed_set and node.links_shown.length is 0
-      @shelved_set.acquire node
+      @shelved_set.acquire(node)
       @unpin(node)
       #console.debug("update_state() had to @shelved_set.acquire(#{node.name})",node)
     if node.state isnt @graphed_set and node.links_shown.length > 0
       #console.debug("update_state() had to @graphed_set.acquire(#{node.name})",node)
-      @graphed_set.acquire node
+      @graphed_set.acquire(node)
 
   hide_links_to_node: (n) ->
     n.links_to.forEach (e, i) =>
@@ -1907,7 +2356,6 @@ class Huviz
       @update_state e.source
       @update_showing_links e.source
       @update_showing_links e.target
-
     @update_state n
     @force.links @links_set
     @restart()
@@ -1952,7 +2400,7 @@ class Huviz
       @attach_predicate_to_its_parent(obj_n)
     obj_n
 
-  clean_up_dirty_predicates: ->
+  clean_up_dirty_predicates: =>
     pred = @predicate_set.get_by('id', 'anything')
     if pred?
       pred.clean_up_dirt()
@@ -1961,10 +2409,22 @@ class Huviz
     if @taxonomy.Thing?
       @taxonomy.Thing.clean_up_dirt()
 
-  clean_up_all_dirt: ->
+  clean_up_all_dirt_once: ->
+    @clean_up_all_dirt_onceRunner ?= new OnceRunner(0, 'clean_up_all_dirt_once')
+    @clean_up_all_dirt_onceRunner.setTimeout(@clean_up_all_dirt, 300)
+
+  clean_up_all_dirt: =>
+    #console.warn("clean_up_all_dirt()")
     @clean_up_dirty_taxons()
     @clean_up_dirty_predicates()
     @regenerate_english()
+    setTimeout(@clean_up_dirty_predictes, 500)
+    #setTimeout(@clean_up_dirty_predictes, 3000)
+
+  prove_OnceRunner: (timeout) ->
+    @prove_OnceRunner_inst ?= new OnceRunner(30)
+    yahoo = () -> alert('yahoo!')
+    @prove_OnceRunner_inst.setTimeout(yahoo, timeout)
 
   get_or_create_context_by_id: (sid) ->
     obj_id = @make_qname(sid)
@@ -1987,7 +2447,7 @@ class Huviz
         alert "new Node('"+sid+"') has no id"
       #@nodes.add(obj_n)
       @embryonic_set.add(obj_n)
-    return obj_n
+    obj_n
 
   develop: (node) ->
     # If the node is embryonic and is ready to hatch, then hatch it.
@@ -2013,7 +2473,7 @@ class Huviz
     @nodes.add(node)
     @recolor_node(node)
     @tick()
-    return node
+    node
 
   get_or_create_node: (subject, start_point, linked) ->
     linked = false
@@ -2077,11 +2537,6 @@ class Huviz
     @show_links_to_node node
     @update_showing_links node
 
-  ## Never called
-  # toggle_label_display: ->
-  #   @label_graphed = not @label_graphed
-  #   @tick()
-
   toggle_display_tech: (ctrl, tech) ->
     val = undefined
     tech = ctrl.parentNode.id
@@ -2135,18 +2590,18 @@ class Huviz
   #
   discard: (goner) ->
     @unpin(goner)
-    @unlink goner
-    @discarded_set.acquire goner
-    shown = @update_showing_links goner
-    @unselect goner
-    #@update_state goner
+    @unlink(goner)
+    @discarded_set.acquire(goner)
+    shown = @update_showing_links(goner)
+    @unselect(goner)
+    #@update_state(goner)
     goner
 
   undiscard: (prodigal) ->  # TODO(smurp) rename command to 'retrieve' ????
     if @discarded_set.has(prodigal) # see test 'retrieving should only affect nodes which are discarded'
-      @shelved_set.acquire prodigal
-      @update_showing_links prodigal
-      @update_state prodigal
+      @shelved_set.acquire(prodigal)
+      @update_showing_links(prodigal)
+      @update_state(prodigal)
     prodigal
 
   #
@@ -2157,12 +2612,12 @@ class Huviz
   #
   shelve: (goner) =>
     @unpin(goner)
-    @chosen_set.remove goner
-    @hide_node_links goner
-    @shelved_set.acquire goner
-    shownness = @update_showing_links goner
+    @chosen_set.remove(goner)
+    @hide_node_links(goner)
+    @shelved_set.acquire(goner)
+    shownness = @update_showing_links(goner)
     if goner.links_shown.length > 0
-      console.log "shelving failed for",goner
+      console.log("shelving failed for", goner)
     goner
 
   choose: (chosen) =>
@@ -2201,7 +2656,7 @@ class Huviz
         if not (link.target.chosen? or link.source.chosen?)
           @unshow_link(link)
       else
-        console.log "there is a null in the .links_shown of",unchosen
+        console.log("there is a null in the .links_shown of", unchosen)
     @update_state unchosen
 
   hide: (goner) =>
@@ -2214,7 +2669,6 @@ class Huviz
     @update_state(goner)
     shownness = @update_showing_links(goner)
 
-  #
   # The verbs SELECT and UNSELECT perhaps don't need to be exposed on the UI
   # but they perform the function of manipulating the @selected_set
   select: (node) =>
@@ -2234,9 +2688,22 @@ class Huviz
       node.unselect()
       @recolor_node(node)
 
-  recolor_node: (node) ->
+  recolor_node: (n, default_color) ->
+    default_color ?= 'black'
+    n._types ?= []
+    if @color_nodes_as_pies and n._types.length > 1
+      n._colors = []
+      for taxon_id in n._types
+        if typeof(taxon_id) is 'string'
+          color = @get_color_for_node_type(n, taxon_id) or default_color
+          n._colors.push(color)
+       #n._colors = ['red','orange','yellow','green','blue','purple']
+    else
+      n.color = @get_color_for_node_type(n, n.type)
+
+  get_color_for_node_type: (node, type) ->
     state = node.selected? and "emphasizing" or "showing"
-    node.color = @gclui.taxon_picker.get_color_forId_byName(node.type,state)
+    return @gclui.taxon_picker.get_color_forId_byName(type, state)
 
   recolor_nodes: () ->
     # The nodes needing recoloring are all but the embryonic.
@@ -2301,8 +2768,8 @@ class Huviz
     if @peeking_node?
       if @peeking_node is node
         was_already_peeking = true
-      @recolor_node @peeking_node
-      @unflag_all_edges @peeking_node
+      @recolor_node(@peeking_node)
+      @unflag_all_edges(@peeking_node)
     if not was_already_peeking
       @peeking_node = node
       @peeking_node.color = PEEKING_COLOR
@@ -2320,7 +2787,7 @@ class Huviz
       if @currently_printed_snippets[snippet_js_key]?
         # FIXME add the Subj--Pred--Obj line to the snippet for this edge
         #   also bring such snippets to the top
-        console.log "  skipping because",@currently_printed_snippets[snippet_js_key]
+        console.log("  skipping because",@currently_printed_snippets[snippet_js_key])
         continue
       me = this
       make_callback = (context_no, edge, context) ->
@@ -2446,8 +2913,184 @@ class Huviz
     for abbr,prefix of @G.prefixes
       @gclc.prefixes[abbr] = prefix
 
+  # https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB
+  init_datasetDB: ->
+    indexedDB = window.indexedDB # || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || null
+    if not indexedDB
+      console.log("indexedDB not available")
+    if not @datasetDB and indexedDB
+      @dbName = 'datasetDB'
+      @dbVersion = 2
+      request = indexedDB.open(@dbName, @dbVersion)
+      request.onsuccess = (e) =>
+        @datasetDB = request.result
+        @datasetDB.onerror = (e) =>
+          alert "Database error: #{e.target.errorCode}"
+        #alert "onsuccess"
+        @fill_dataset_menus_from_datasetDB('onsuccess')
+      request.onerror = (e) =>
+        alert("unable to init #{@dbName}")
+      request.onupgradeneeded = (e) =>
+        db = event.target.result
+        objectStore = db.createObjectStore("datasets", {keyPath: 'uri'})
+        objectStore.transaction.oncomplete = (e) =>
+          @datasetDB = db
+          # alert "onupgradeneeded"
+          @fill_dataset_menus_from_datasetDB('onupgradeneeded')
+
+  ensure_datasets: (preload_group, store_in_db) =>  # note "fat arrow" so this can be an AJAX callback (see preload_datasets)
+    defaults = preload_group.defaults or {}
+    for ds_rec in preload_group.datasets
+      # If this preload_group has defaults apply them to the ds_rec if it is missing that value.
+      # We do not want to do ds_rec.__proto__ = defaults because then defaults are not ownProperty
+      for k of defaults
+        ds_rec[k] ?= defaults[k]
+      @ensure_dataset(ds_rec, store_in_db)
+
+  ensure_dataset: (dataset_rec, store_in_db) ->
+    # ensure the dataset is in the database and the correct loader
+    uri = dataset_rec.uri
+    dataset_rec.time ?= new Date().toString()
+    dataset_rec.title ?= uri
+    dataset_rec.isUri ?= not not uri.match(/^(http|ftp)/)
+    dataset_rec.canDelete ?= not not dataset_rec.time? # ie if it has a time then a user added it therefore canDelete
+    dataset_rec.label ?= uri.split('/').reverse()[0]
+    if dataset_rec.isOntology
+      if @ontology_loader
+        @ontology_loader.add_dataset(dataset_rec, store_in_db)
+    if @dataset_loader
+      @dataset_loader.add_dataset(dataset_rec, store_in_db)
+
+  add_dataset_to_db: (dataset_rec, callback) ->
+    trx = @datasetDB.transaction('datasets', "readwrite")
+    trx.oncomplete = (e) =>
+      console.log("#{dataset_rec.uri} added!")
+    trx.onerror = (e) =>
+      console.log(e)
+      alert "add_dataset(#{dataset_rec.uri}) error!!!"
+    store = trx.objectStore('datasets')
+    req = store.put(dataset_rec)
+    req.onsuccess = (e) =>
+      if dataset_rec.uri isnt e.target.result
+        debugger
+      callback(dataset_rec)
+
+  remove_dataset_from_db: (dataset_uri, callback) ->
+    trx = @datasetDB.transaction('datasets', "readwrite")
+    trx.oncomplete = (e) =>
+      console.log("#{dataset_uri} deleted")
+    trx.onerror = (e) =>
+      console.log(e)
+      alert "remove_dataset_from_db(#{dataset_uri}) error!!!"
+    store = trx.objectStore('datasets')
+    req = store.delete(dataset_uri)
+    req.onsuccess = (e) =>
+      if callback?
+        callback(dataset_uri)
+    req.onerror = (e) =>
+      console.debug e
+
+  fill_dataset_menus_from_datasetDB: (why) ->
+    #alert "fill_dataset_menus_from_datasetDB()"
+    # https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB#Using_a_cursor
+    console.groupCollapsed("fill_dataset_menus_from_datasetDB(#{why})")
+    datasetDB_objectStore = @datasetDB.transaction('datasets').objectStore('datasets')
+    count = 0
+    make_onsuccess_handler = (why) =>
+      recs = []
+      return (event) =>
+        cursor = event.target.result
+        if cursor
+          count++
+          dataset_rec = cursor.value
+          recs.push(dataset_rec)
+          if not dataset_rec.isOntology
+            # alert "Dataset: add_dataset_option(#{dataset_rec.uri})"
+            @dataset_loader.add_dataset_option(dataset_rec)
+          if dataset_rec.isOntology and @ontology_loader
+            # alert "Ontology: add_dataset_option(#{dataset_rec.uri})"
+            @ontology_loader.add_dataset_option(dataset_rec)
+          cursor.continue()
+        else # when there are no (or NO MORE) entries, ie FINALLY
+          #console.table(recs)
+          @dataset_loader.val('')
+          @ontology_loader.val('')
+          @update_dataset_ontology_loader()
+          console.groupEnd() # closing group called "fill_dataset_menus_from_datasetDB(why)"
+          document.dispatchEvent( # TODO use 'huviz_controls' rather than document
+            new Event('dataset_ontology_loader_ready'));
+          #alert "#{count} entries saved #{why}"
+
+    if @dataset_loader?
+      datasetDB_objectStore.openCursor().onsuccess = make_onsuccess_handler(why)
+
+
+  preload_datasets: ->
+    # If present args.preload is expected to be a list or urls or objects.
+    # Whether literal object or JSON urls the object structure is expected to be:
+    #   { 'datasets': [
+    #        {
+    #         'uri': "/data/byroau.nq",     // url of dataset .ttl or .nq
+    #         'label': "Augusta Ada Brown", // label of OPTION in SELECT
+    #         'isOntology': false,          // optional, if true it goes in Onto menu
+    #         'opt_group': "Individuals",   // user-defined label for menu subsection
+    #         'canDelete':   false,         // meaningful only for recs in datasetsDB
+    #         'ontologyUri': '/data/orlando.ttl' // url of ontology
+    #         }
+    #                  ],
+    #     'defaults': {}  # optional, may contain default values for the keys above
+    #    }
+    console.groupCollapsed("preload_datasets")
+    # Adds preload options to datasetDB table
+    if @args.preload
+      for preload_group_or_uri in @args.preload
+        if typeof(preload_group_or_uri) is 'string' # the URL of a preload_group JSON
+          #$.getJSON(preload_group_or_uri, null, @ensure_datasets_from_XHR)
+          $.ajax
+            async: false
+            url: preload_group_or_uri
+            success: (data, textStatus) =>
+              @ensure_datasets_from_XHR(data)
+            error: (jqxhr, textStatus, errorThrown) ->
+              console.error(preload_group_or_uri + " " +textStatus+" "+errorThrown.toString())
+        else if typeof(preload_group_or_uri) is 'object' # a preload_group object
+          @ensure_datasets(preload_group_or_uri)
+        else
+          console.error("bad member of @args.preload:", preload_group_or_uri)
+    console.groupEnd() # closing group called "preload_datasets"
+
+  ensure_datasets_from_XHR: (preload_group) =>
+    @ensure_datasets(preload_group, false) # false means DO NOT store_in_db
+    return
+
+  init_dataset_menus: ->
+    if not @dataset_loader and @args.dataset_loader__append_to_sel
+      @dataset_loader = new PickOrProvide(@, @args.dataset_loader__append_to_sel, 'Dataset', 'DataPP', false)
+    if not @ontology_loader and @args.ontology_loader__append_to_sel
+      @ontology_loader = new PickOrProvide(@, @args.ontology_loader__append_to_sel, 'Ontology', 'OntoPP', true)
+      #$(@ontology_loader.form).disable()
+    if @ontology_loader and not @big_go_button
+      @big_go_button_id = unique_id()
+      @big_go_button = $('<button>GO</button>')
+      @big_go_button.attr('id', @big_go_button_id)
+      $(@args.ontology_loader__append_to_sel).append(@big_go_button)
+      @big_go_button.click(@visualize_dataset_using_ontology)
+      @big_go_button.prop('disabled', true)
+    @init_datasetDB()
+    @preload_datasets()
+    # TODO remove this nullification of @last_val by fixing logic in select_option()
+    @ontology_loader?last_val = null # clear the last_val so select_option works the first time
+
+  visualize_dataset_using_ontology: =>
+    @set_ontology(@ontology_loader.value)
+    @load_file_from_uri(@dataset_loader.value) # , () -> alert "woot")
+    selected_dataset = @dataset_loader.get_selected_option()[0]
+    @update_browser_title(selected_dataset)
+    @update_caption(@dataset_loader.value, @ontology_loader.value)
+
   init_gclc: ->
     @gclc = new GraphCommandLanguageCtrl(this)
+    @init_dataset_menus()
     if not @gclui?
       @gclui = new CommandController(this,d3.select(@args.gclui_sel)[0][0],@hierarchy)
     window.addEventListener 'showgraph', @register_gclc_prefixes
@@ -2459,7 +3102,88 @@ class Huviz
     for pid in @predicates_to_ignore
       @gclui.ignore_predicate pid
 
-  predicates_to_ignore: ["anything"]
+  disable_dataset_ontology_loader: ->
+    @dataset_loader.disable()
+    @ontology_loader.disable()
+    @replace_loader_display(@dataset_loader.get_selected_option()[0].label, @ontology_loader.get_selected_option()[0].label)
+    disable = true
+    @update_go_button(disable)
+    @big_go_button.hide()
+
+  update_dataset_ontology_loader: =>
+    #alert('update_dataset_ontology_loader')
+    #debugger
+    if not (@dataset_loader? and @ontology_loader?)
+      console.log("still building loaders...")
+      return
+    @set_ontology_from_dataset_if_possible()
+    ugb = () =>
+      @update_go_button()
+    setTimeout(ugb, 200)
+
+  update_go_button: (disable) ->
+    if not disable?
+      ds_v = @dataset_loader.value
+      on_v = @ontology_loader.value
+      #console.log("DATASET: #{ds_v}\nONTOLOGY: #{on_v}")
+      disable = (not (ds_v and on_v)) or ('provide' in [ds_v, on_v])
+      ds_on = "#{ds_v} AND #{on_v}"
+    @big_go_button.prop('disabled', disable)
+    return
+
+  replace_loader_display: (selected_dataset, selected_ontology) ->
+    $("#huvis_controls .unselectable").attr("style","display:none")
+    data_ontol_display = "<div id='data_ontology_display'>"
+    data_ontol_display += "<p><span class='dt_label'>Dataset:</span> " + selected_dataset + "</p> "
+    data_ontol_display += "<p><span class='dt_label'>Ontology:</span> " + selected_ontology + "</p>"
+    data_ontol_display += "<br style='clear:both'></div>"
+    $("#huvis_controls").prepend(data_ontol_display)
+
+  update_browser_title: (selected_dataset) ->
+    if selected_dataset.value
+      document.title = selected_dataset.label + " - Huvis Graph Visualization"
+
+  update_caption: (dataset_str, ontology_str) ->
+    $("#dataset_watermark").text(dataset_str)
+    $("#ontology_watermark").text(ontology_str)
+
+  set_ontology_from_dataset_if_possible: ->
+    if @dataset_loader.value # and not @ontology_loader.value
+      option = @dataset_loader.get_selected_option()
+      ontologyUri = option.data('ontologyUri')
+      ontology_label = option.data('ontology_label')
+      if ontologyUri # let the uri (if present) dominate the label
+        @set_ontology_with_uri(ontologyUri)
+      else
+        @set_ontology_with_label(ontology_label)
+    @ontology_loader.update_state()
+
+  set_ontology_with_label: (ontology_label) ->
+    sel = "[label='#{ontology_label}']"
+    # console.log("$('#{sel}')")
+    for ont_opt in $(sel) # FIXME make this re-entrant
+      @ontology_loader.select_option($(ont_opt))
+      return
+    return
+
+  set_ontology_with_uri: (ontologyUri) ->
+    ontology_option = $('option[value="' + ontologyUri + '"]')
+    # console.log("set_ontology_with_uri",ontologyUri, ontology_option)
+    @ontology_loader.select_option(ontology_option)
+
+  init_editc: ->
+    @editui ?= new EditController(@)
+
+  set_edit_mode: (mode) ->
+    @edit_mode = mode
+
+  indexed_dbservice: ->
+    @indexeddbservice ?= new IndexedDBService(this)
+
+  init_indexddbstorage: ->
+    @dbsstorage ?= new IndexedDBStorageController(this, @indexeddbservice)
+
+  predicates_to_ignore: ["anything", "comment", "first", "rest", "members"] # TODO make other than 'anything' optional
 
   init_snippet_box: ->
     if d3.select('#snippet_box')[0].length > 0
@@ -2469,7 +3193,7 @@ class Huviz
     delete @currently_printed_snippets[key]
     if @snippet_box
       slctr = '#'+id_escape(snippet_id)
-      console.log slctr
+      console.log(slctr)
       @snippet_box.select(slctr).remove()
   push_snippet: (obj, msg) ->
     if @snippet_box
@@ -2497,7 +3221,7 @@ class Huviz
         select(".ui-dialog-titlebar").children().first()
       close_all_button = bomb_parent.
         append('<button type="button" class="ui-button ui-widget" role="button" title="Close All""><img class="close_all_snippets_button" src="close_all.png" title="Close All"></button>')
-        #append('<span class="close_all_snippets_button" title="Close All"></span>')        
+        #append('<span class="close_all_snippets_button" title="Close All"></span>')
         #append('<img class="close_all_snippets_button" src="close_all.png" title="Close All">')
       close_all_button.on 'click', @clear_snippets
       return
@@ -2548,9 +3272,10 @@ class Huviz
   after_running_command: ->
     #toggle_suspend_updates(false)
     @text_cursor.set_cursor("default")
-    $("body").css "background-color", "white" # FIXME remove once it works!
+    $("body").css "background-color", renderStyles.pageBg # FIXME remove once it works!
+    $("body").addClass renderStyles.themeName
     @update_all_counts()
-    @clean_up_all_dirt()
+    @clean_up_all_dirt_once()
 
   get_handle: (thing) ->
     # A handle is like a weak reference, saveable, serializable
@@ -2605,7 +3330,7 @@ class Huviz
     document.addEventListener 'nextsubject', @onnextsubject
     @init_snippet_box()  # FIXME not sure this does much useful anymore
     @mousedown_point = false
-    @discard_point = [@cx,@cy] # FIXME refactor so updateWindow handles this
+    @discard_point = [@cx,@cy] # FIXME refactor so ctrl-handle handles this
     @lariat_center = [@cx,@cy] #       and this....
     @node_radius_policy = node_radius_policies[default_node_radius_policy]
     @currently_printed_snippets = {}
@@ -2615,7 +3340,6 @@ class Huviz
              nodes([]).
              linkDistance(@link_distance).
              charge(@get_charge).
-             #charge(-300).
              gravity(@gravity).
              on("tick", @tick)
     @update_fisheye()
@@ -2642,6 +3366,7 @@ class Huviz
     @reset_graph()
     @updateWindow()
     @ctx = @canvas.getContext("2d")
+    #console.log @ctx
     @mouse_receiver
       .on("mousemove", @mousemove)
       .on("mousedown", @mousedown)
@@ -2652,9 +3377,11 @@ class Huviz
     search_input = document.getElementById('search')
     if search_input
       search_input.addEventListener("input", @update_searchterm)
-    #$(".search_box").on "input", @update_searchterm
     window.addEventListener "resize", @updateWindow
+    $("#tabs").on("resize", @updateWindow)
     $(@viscanvas).bind("_splitpaneparentresize", @updateWindow)
+    $("#collapse_cntrl").click(@minimize_gclui).on("click", @updateWindow)
+    $("#expand_cntrl").click(@maximize_gclui).on("click", @updateWindow)
     $("#tabs").tabs
       active: 0
       collapsible: true
@@ -2663,13 +3390,27 @@ class Huviz
       @goto_tab(tab_idx)
       return false
 
+  minimize_gclui: () ->
+    $('#tabs').prop('style','visibility:hidden;width:0')
+    $('#expand_cntrl').prop('style','visibility:visible')
+    #w_width = (@container.clientWidth or window.innerWidth or document.documentElement.clientWidth or document.clientWidth)
+    #@width = w_width
+    #@get_container_width()
+    #@updateWindow()
+    #console.log @width
+  maximize_gclui: () ->
+    $('#tabs').prop('style','visibility:visible')
+    $('#maximize_cntrl').prop('style','visibility:hidden')
+    console.log "minimize the interface"
+
   goto_tab: (tab_idx) ->
     $('#tabs').tabs
       active: tab_idx
       collapsible: true
 
   update_fisheye: ->
-    @label_show_range = @link_distance * 1.1
+    #@label_show_range = @link_distance * 1.1
+    @label_show_range = 30 * 1.1 #TODO Fixed value or variable like original? (above)
     #@fisheye_radius = @label_show_range * 5
     @focus_radius = @label_show_range
     @fisheye = d3.fisheye.
@@ -2717,6 +3458,15 @@ class Huviz
   # TODO add controls
   #   selected_border_thickness
   default_graph_controls: [
+      reset_controls_to_default:
+        label:
+          title: "Reset all controls to default"
+        input:
+          type: "button"
+          label: "Reset All"
+          style: "background-color: #555"
+        event_type: "change"
+    ,
       focused_mag:
         text: "focused label mag"
         input:
@@ -2788,7 +3538,7 @@ class Huviz
         label:
           title: "the attractive force keeping nodes centered"
         input:
-          value: 0.25
+          value: 0.4
           min: 0
           max: 1
           step: 0.025
@@ -2821,7 +3571,7 @@ class Huviz
         label:
           title: "how big the fisheye is"
         input:
-          value: 100
+          value: 300
           min: 40
           max: 2000
           step: 20
@@ -2836,6 +3586,17 @@ class Huviz
           min: .2
           max: 8
           step: 0.1
+          type: "range"
+    ,
+      focus_threshold:
+        text: "focus threshold"
+        label:
+          title: "how fine is node recognition"
+        input:
+          value: 100
+          min: 15
+          max: 150
+          step: 1
           type: "range"
     ,
       link_distance:
@@ -2896,7 +3657,7 @@ class Huviz
         label:
           title: "truncate and scroll labels longer than this, or zero to disable"
         input:
-          value: 40
+          value: 0 # 40
           min: 0
           max: 60
           step: 1
@@ -2921,6 +3682,7 @@ class Huviz
         input:
           checked: "checked"
           type: "checkbox"
+        event_type: "change"
     ,
       nodes_pinnable:
         style: "display:none"
@@ -2930,6 +3692,7 @@ class Huviz
         input:
           checked: "checked"
           type: "checkbox"
+        event_type: "change"
     ,
       use_fancy_cursor:
         style: "display:none"
@@ -2939,6 +3702,7 @@ class Huviz
         input:
           checked: "checked"
           type: "checkbox"
+        event_type: "change"
     ,
       doit_asap:
         style: "display:none"
@@ -2948,21 +3712,139 @@ class Huviz
         input:
           checked: "checked" # default to 'on'
           type: "checkbox"
+        event_type: "change"
     ,
       show_dangerous_datasets:
+        style: "display:none"
         text: "Show dangerous datasets"
         label:
           title: "Show the datasets which are too large or buggy"
         input:
           type: "checkbox"
+        event_type: "change"
+    ,
+      pill_display:
+        text: "Display graph with boxed labels"
+        label:
+          title: "Show boxed labels on graph"
+        input:
+          type: "checkbox"
+        event_type: "change"
+    ,
+      theme_colors:
+        text: "Display graph with dark theme"
+        label:
+          title: "Show graph plotted on a black background"
+        input:
+          type: "checkbox"
+        event_type: "change"
+    ,
+      display_label_cartouches:
+        text: "Background cartouches for labels"
+        label:
+          title: "Remove backgrounds from focused labels"
+        input:
+          type: "checkbox"
+          checked: "checked"
+        event_type: "change"
+    ,
+      display_shelf_clockwise:
+        text: "Display nodes clockwise"
+        label:
+          title: "Display clockwise (uncheck for counter-clockwise)"
+        input:
+          type: "checkbox"
+          checked: "checked"
+        event_type: "change"
+    ,
+      choose_node_display_angle:
+        text: "Node display angle"
+        label:
+          title: "Where on shelf to place first node"
+        input:
+          value: 0.5
+          min: 0
+          max: 1
+          step: 0.25
+          type: "range"
+    ,
+      color_nodes_as_pies:
+        style: "display:none"
+        text: "Color nodes as pies"
+        label:
+          title: "Show all a nodes types as colored pie pieces"
+        input:
+          type: "checkbox"   #checked: "checked"
+    ,
+      graph_title_style:
+        text: "Title display"
+        label:
+          title: "Select graph title style"
+        input:
+          type: "select"
+        options : [
+            label: "Watermark"
+            value: "subliminal"
+          ,
+            label: "Bold Titles 1"
+            value: "bold1"
+          ,
+            label: "Bold Titles 2"
+            value: "bold2"
+          ,
+            label: "Custom Captions"
+            value: "custom"
+        ]
+        event_type: "change",
+    ,
+      graph_custom_main_title:
+        style: "display:none"
+        text: "Custom Title"
+        label:
+          title: "Title that appears on the graph background"
+        input:
+          type: "text"
+          size: "16"
+          placeholder: "Enter Title"
+        event_type: "change"
+    ,
+      graph_custom_sub_title:
+        style: "display:none"
+        text: "Custom Sub-title"
+        label:
+          title: "Sub-title that appears below main title"
+        input:
+          type: "text"
+          size: "16"
+          placeholder: "Enter Sub-title"
+        event_type: "change"
+    ,
+      debug_shelf_angles_and_flipping:
+        style: "color:orange;display:none"
+        text: "debug shelf angles and flipping"
+        label:
+          title: "show angles and flags with labels"
+        input:
+          type: "checkbox"   #checked: "checked"
+        event_type: "change",
+    ,
+      language_path:
+        text: "Language Path"
+        label:
+          title: "Preferred languages in order, with : separator."
+        input:
+          type: "text"
+          # TODO tidy up -- use browser default language then English
+          value: (window.navigator.language.substr(0,2) + ":en:ANY:NOLANG").replace("en:en:","en:")
+          size: "16"
+          placeholder: "en:es:fr:de:ANY:NOLANG"
+        event_type: "change"
     ]
 
-  dump_current_settings: (post) ->
-    console.log "dump_current_settings()"
-    console.log "======================="
-    for control_spec in @default_graph_controls
-      for control_name, control of control_spec
-        console.log "#{control_name} is",@[control_name],typeof @[control_name],post or ""
+  dump_current_settings: (post) =>
+    $("#tabs-options,.graph_controls").html("")
+    @init_graph_controls_from_json()
+    @on_change_graph_title_style("subliminal")
 
   auto_adjust_settings: ->
     # Try to tune the gravity, charge and link length to suit the data and the canvas size.
@@ -2980,40 +3862,61 @@ class Huviz
     #$(@graph_controls).sortable().disableSelection() # TODO fix dropping
     for control_spec in @default_graph_controls
       for control_name, control of control_spec
-        graph_control = @graph_controls.append('span').attr('class', 'graph_control')
+        graph_control = @graph_controls.append('span').attr('id',control_name).attr('class', 'graph_control')
         label = graph_control.append('label')
         if control.text?
           label.text(control.text)
         if control.label?
           label.attr(control.label)
         if control.style?
-           graph_control.attr("style", control.style)
-        input = label.append('input')
-        input.attr("name", control_name)
-        if control.input?
-          for k,v of control.input
-            if k is 'value'
-              old_val = @[control_name]
-              @change_setting_to_from(control_name, v, old_val)
-            input.attr(k,v)
-        if control.input.type is 'checkbox'
-          value = control.input.checked?
-          #console.log "control:",control_name,"value:",value, control
-          @change_setting_to_from(control_name, value, undefined) #@[control_name].checked)
-        input.on("change", @update_graph_settings) # TODO implement one or the other
-        input.on("input", @update_graph_settings)
+          graph_control.attr("style", control.style)
+        if control.class?
+          graph_control.attr('class', 'graph_control ' + control.class)
+        if control.input.type is 'select'
+          input = label.append('select')
+          input.attr("name", control_name)
+          for a,v of control.options
+            option = input.append('option')
+            option.html(v.label).attr("value", v.value)
+          #label.append("input").attr("name", "custom_title").attr("type", "text").attr("style", " ")
+          #label.append("input").attr("name", "custom_subtitle").attr("type", "text").attr("style", " ")
+        else if control.input.type is 'button'
+          input = label.append('button')
+          input.attr("type", "button")
+          input.html("Reset All")
+          input.on("click", @dump_current_settings)
+        else
+          input = label.append('input')
+          input.attr("name", control_name)
+          if control.input?
+            for k,v of control.input
+              if k is 'value'
+                old_val = @[control_name]
+                @change_setting_to_from(control_name, v, old_val)
+              input.attr(k,v)
+          if control.input.type is 'checkbox'
+            value = control.input.checked?
+            #console.log "control:",control_name,"value:",value, control
+            @change_setting_to_from(control_name, value, undefined) #@[control_name].checked)
+          # TODO replace control.event_type with autodetecting on_change_ vs on_update_ method existence
+
+        if control.event_type is 'change'
+          input.on("change", @update_graph_settings) # when focus changes
+        else
+          input.on("input", @update_graph_settings) # continuous updates
     return
 
   update_graph_controls_cursor: (evt) =>
     cursor_text = (evt.target.value).toString()
     if !cursor_text
-      console.debug cursor_text
+      console.debug(cursor_text)
     else
-      console.log cursor_text
+      console.log(cursor_text)
     @graph_controls_cursor.set_text(cursor_text)
 
   update_graph_settings: (target, update) =>
     target = target? and target or d3.event.target
+    # event_type = d3.event.type
     update = not update? and true or update
     update = not update
     if target.type is "checkbox"
@@ -3034,11 +3937,12 @@ class Huviz
 
   change_setting_to_from: (setting_name, new_value, old_value, skip_custom_handler) =>
     skip_custom_handler = skip_custom_handler? and skip_custom_handler or false
+    # TODO replace control.event_type with autodetecting on_change_ vs on_update_ method existence
     custom_handler_name = "on_change_" + setting_name
     custom_handler = @[custom_handler_name]
     if @graph_controls_cursor
       cursor_text = (new_value).toString()
-      console.info("#{setting_name}: #{cursor_text}")
+      #console.info("#{setting_name}: #{cursor_text}")
       @graph_controls_cursor.set_text(cursor_text)
     if custom_handler? and not skip_custom_handler
       #console.log "change_setting_to_from() custom setting: #{setting_name} to:#{new_value}(#{typeof new_value}) from:#{old_value}(#{typeof old_value})"
@@ -3065,6 +3969,51 @@ class Huviz
     else
       $('option.dangerous').hide()
 
+  on_change_pill_display: (new_val) ->
+    if new_val
+      node_display_type = 'pills'
+      $("input[name='charge']").attr('min', '-5000').attr('value', '-3000')
+      $("input[name='link_distance']").attr('max', '500').attr('value', '200')
+      @charge = -3000
+      @link_distance = 200
+    else
+      node_display_type = ""
+      $("input[name='charge']").attr('min', '-600').attr('value', '-200')
+      $("input[name='link_distance']").attr('max', '200').attr('value', '29')
+      @charge = -200
+      @link_distance = 29
+    @updateWindow()
+
+  on_change_theme_colors: (new_val) ->
+    if new_val
+      renderStyles = themeStyles.dark
+      $("body").removeClass themeStyles.light.themeName
+    else
+      renderStyles = themeStyles.light
+      $("body").removeClass themeStyles.dark.themeName
+    #@update_graph_settings()
+    $("body").css "background-color", renderStyles.pageBg
+    $("body").addClass renderStyles.themeName
+    @updateWindow()
+
+  on_change_display_label_cartouches: (new_val) ->
+    if new_val
+      @cartouches = true
+    else
+      @cartouches = false
+    @updateWindow()
+
+  on_change_display_shelf_clockwise: (new_val) ->
+    if new_val
+      @display_shelf_clockwise = true
+    else
+      @display_shelf_clockwise = false
+    @updateWindow()
+
+  on_change_choose_node_display_angle: (new_val) ->
+    nodeOrderAngle = new_val
+    @updateWindow()
+
   on_change_shelf_radius: (new_val, old_val) ->
     @change_setting_to_from('shelf_radius', new_val, old_val, true)
     @update_graph_radius()
@@ -3077,8 +4026,52 @@ class Huviz
         @unscroll_pretty_name(node)
     @updateWindow()
 
+  on_change_graph_title_style: (new_val, old_val) ->
+    if new_val is "custom"
+      $(".main_title").removeAttr("style")
+      $(".sub_title").removeAttr("style")
+      $("#graph_custom_main_title").css('display', 'inherit')
+      $("#graph_custom_sub_title").css('display', 'inherit')
+      custTitle = $("input[name='graph_custom_main_title']")
+      custSubTitle = $("input[name='graph_custom_sub_title']")
+      @update_caption(custTitle[0].title, custSubTitle[0].title)
+      $("a.git_commit_hash_watermark").css('display', 'none')
+      $("#ontology_watermark").attr('style', '')
+    else if new_val is "bold1"
+      $("#ontology_watermark").css('display', 'none')
+    else
+      $("#graph_custom_main_title").css('display', 'none')
+      $("#graph_custom_sub_title").css('display', 'none')
+      $("a.git_commit_hash_watermark").css('display', 'inherit')
+      $("#ontology_watermark").attr('style', '')
+      @update_caption(@dataset_loader.value,@ontology_loader.value)
+    $("#dataset_watermark").removeClass().addClass(new_val)
+    $("#ontology_watermark").removeClass().addClass(new_val)
+
+  on_change_graph_custom_main_title: (new_val) ->
+    # if new custom values then update titles
+    $("#dataset_watermark").text(new_val)
+
+  on_change_graph_custom_sub_title: (new_val) ->
+    $("#ontology_watermark").text(new_val)
+
+  on_change_language_path: (new_val, old_val) ->
+    try
+      MultiString.set_langpath(new_val)
+    catch e
+      alert("Input: #{new_val}\n#{e.toString()}\n\n  The 'Language Path' should be a colon-separated list of ISO two-letter language codes, such as 'en' or 'fr:en:es'.  One can also include the keywords ANY, NOLANG or ALL in the list.\n  'ANY' means show a value from no particular language and works well in situations where you don't know or care which language is presented.\n  'NOLANG' means show a value for which no language was specified.\n  'ALL' causes all the different language versions to be revealed. It is best used alone\n\nExamples (show first available, so order matters)\n  en:fr\n    show english or french or nothing\n  en:ANY:NOLANG\n    show english or ANY other language or language-less label\n  ALL\n    show all versions available, language-less last")
+      @change_setting_to_from('language_path', old_val, old_val)
+      return
+    if @shelved_set
+      @shelved_set.resort()
+      @discarded_set.resort()
+
+  XXXXon_change_color_nodes_as_pies: (new_val, old_val) ->  # TODO why this == window ??
+    @color_nodes_as_pies = new_val
+    @recolor_nodes()
+
   init_from_graph_controls: ->
-    alert "init_from_graph_controls() is deprecated"
+    # alert "init_from_graph_controls() is deprecated"
     # Perform update_graph_settings for everything in the form
     # so the HTML can be used as configuration file
     for elem in $(".graph_controls input") # so we can modify them in a loop
@@ -3095,7 +4088,7 @@ class Huviz
     edge_count = 0
 
     s = "nodes:#{@nodes.length} predicates:#{pred_count} edges:#{edge_count}"
-    console.log s
+    console.log(s)
     debugger
 
   fire_fileloaded_event: (uri) ->
@@ -3116,15 +4109,30 @@ class Huviz
     if @args.display_reset
       $("#reset_btn").show()
     else
-      $("[name=data_set]").prop('disabled', true)
-      $("#reload_btn").show()
+      #@disable_data_set_selector()
+      @disable_dataset_ontology_loader()
     @show_state_msg("loading...")
     #@init_from_graph_controls()
     #@dump_current_settings("after init_from_graph_controls()")
-    @reset_graph()
+    #@reset_graph()
     @show_state_msg @data_uri
     unless @G.subjects
       @fetchAndShow @data_uri, callback
+
+  disable_data_set_selector: () ->
+    $("[name=data_set]").prop('disabled', true)
+    $("#reload_btn").show()
+
+  read_data_and_show: (filename, data) ->
+    if filename.match(/.ttl$/)
+      the_parser = @parseAndShowTTLData
+    else if filename.match(/.nq$/)
+      the_parser = @parseAndShowNQStreamer
+    else
+      alert("don't know how to parse '#{filename}'")
+      return
+    the_parser(data)
+    @disable_data_set_selector()
 
   get_dataset_uri: () ->
     # FIXME goodbye jquery
@@ -3134,7 +4142,7 @@ class Huviz
     script = location.hash
     script = (not script? or script is "#") and "" or script.replace(/^#/,"")
     script = script.replace(/\+/g," ")
-    console.log "script", script
+    console.log("script", script)
     return script
 
   boot_sequence: (script) ->
@@ -3149,7 +4157,7 @@ class Huviz
     if not script?
       script = @get_script_from_hash()
     if script? and script.length
-      console.log "boot_sequence('#{script}')"
+      console.log("boot_sequence('#{script}')")
       @gclui.run_script(script)
     else
       data_uri = @get_dataset_uri()
@@ -3211,9 +4219,10 @@ class OntologicallyGrounded extends Huviz
   read_ontology: (ontology_uri) ->
     $.ajax
       url: ontology_uri
+      async: false
       success: @parseTTLOntology
       error: (jqxhr, textStatus, errorThrown) ->
-        @show_state_msg(errorThrown + " while fetching ontology " + url)
+        @show_state_msg(errorThrown + " while fetching ontology " + ontology_uri)
 
   parseTTLOntology: (data, textStatus) =>
     # detect (? rdfs:subClassOf ?) and (? ? owl:Class)
@@ -3242,7 +4251,7 @@ class OntologicallyGrounded extends Huviz
               ontology.range[subj_lid] = []
             if not (obj_lid in ontology.range)
               ontology.range[subj_lid].push(obj_lid)
-          else if pred_lid is 'subClassOf'
+          else if pred_lid in ['subClassOf', 'subClass']
             ontology.subClassOf[subj_lid] = obj_lid
           else if pred_lid is 'subPropertyOf'
             ontology.subPropertyOf[subj_lid] = obj_lid
@@ -3301,34 +4310,10 @@ class Orlando extends OntologicallyGrounded
         ## unconfuse emacs Coffee-mode: " """ ' '  "
       super(obj, msg_or_obj) # fail back to super
 
-  human_term:
-    all: 'All'
-    chosen: 'Activated'
-    unchosen: 'Deactivated'
-    selected: 'Selected'
-    shelved: 'Shelved'
-    discarded: 'Discarded'
-    hidden: 'Hidden'
-    graphed: 'Graphed'
-    fixed: 'Pinned'
-    labelled: 'Labelled'
-    choose: 'Activate'
-    unchoose: 'Deactivate'
-    select: 'Select'
-    unselect: 'Unselect'
-    label: 'Label'
-    unlabel: 'Unlabel'
-    shelve: 'Shelve'
-    hide: 'Hide'
-    discard: 'Discard'
-    undiscard: 'Retrieve'
-    pin: 'Pin'
-    unpin: 'Unpin'
-    unpinned: 'Unpinned'
-    blank_verb: 'VERB'
-    blank_noun: 'SET/SELECTION'
+  human_term: orlando_human_term
 
 class OntoViz extends Huviz #OntologicallyGrounded
+  human_term: orlando_human_term
   HHH: # hardcoded hierarchy hints, kv pairs of subClass to superClass
     ObjectProperty: 'Thing'
     Class: 'Thing'
@@ -3352,9 +4337,9 @@ class OntoViz extends Huviz #OntologicallyGrounded
     else if type.match(/Class$/)
       node.type = 'classes'
     else
-      console.log node.id+".type is",type
+      console.log(node.id+".type is", type)
       return false
-    console.log "try_to_set_node_type",node.id,"=====",node.type
+    console.log("try_to_set_node_type", node.id, "=====", node.type)
     return true
 
   # first, rest and members are produced by GreenTurtle regarding the AllDisjointClasses list
@@ -3393,7 +4378,7 @@ class Socrata extends Huviz
         value: clss
 
   assert_propertyValue: (sub_uri,pred_uri,literal) ->
-    console.log "assert_propertyValue",arguments
+    console.log("assert_propertyValue", arguments)
     @add_quad
       s: subj_uri
       p: pred_uri
@@ -3402,7 +4387,7 @@ class Socrata extends Huviz
         value: literal
 
   assert_relation: (subj_uri,pred_uri,obj_uri) ->
-    console.log "assert_relation", arguments
+    console.log("assert_relation", arguments)
     @add_quad
       s: subj_uri
       p: pred_uri
@@ -3418,7 +4403,7 @@ class Socrata extends Huviz
 
     for dataset in data
       #dataset_uri = "https://data.edmonton.ca/api/views/#{dataset.id}/"
-      console.log @dataset_uri
+      console.log(@dataset_uri)
       q =
         g: g
         s: dataset_uri
@@ -3426,8 +4411,8 @@ class Socrata extends Huviz
         o:
           type: RDF_literal
           value: 'dataset'
-      console.log q
-      @add_quad q
+      console.log(q)
+      @add_quad(q)
       for k,v of dataset
         if not is_on_of(k,['category','name','id']) # ,'displayType'
           continue
@@ -3440,7 +4425,7 @@ class Socrata extends Huviz
             value: v
         if k == 'category'
           cat_id = @ensure_category(v)
-          @assert_instanceOf dataset_uri,OWL_Class
+          @assert_instanceOf(dataset_uri, OWL_Class)
           continue
         if k == 'name'
           assert_propertyValue dataset_uri, RDFS_label, v
@@ -3450,16 +4435,308 @@ class Socrata extends Huviz
         if typeof v == 'object'
           continue
         if k is 'name'
-          console.log dataset.id,v
+          console.log(dataset.id, v)
         #console.log k,typeof v
-        @add_quad q
+        @add_quad(q)
         #console.log q
 
+class PickOrProvide
+  tmpl: """
+	<form id="UID" class="pick_or_provide_form" method="post" action="" enctype="multipart/form-data">
+    <span class="pick_or_provide_label">REPLACE_WITH_LABEL</span>
+    <select name="pick_or_provide"></select>
+    <button type="button" class="delete_option">⌫</button>
+  </form>
+  """
+  uri_file_loader_sel: '.uri_file_loader_form'
 
-if not is_one_of(2,[3,2,4])
-  alert "is_one_of() fails"
+  constructor: (@huviz, @append_to_sel, @label, @css_class, @isOntology) ->
+    @uniq_id = unique_id()
+    @select_id = unique_id()
+    @pickable_uid = unique_id()
+    @your_own_uid = unique_id()
+    @find_or_append_form()
+    @drag_and_drop_loader = new DragAndDropLoader(@huviz, @append_to_sel, @)
+    @drag_and_drop_loader.form.hide()
+    #@add_group({label: "-- Pick #{@label} --", id: @pickable_uid})
+    @add_group({label: "Your Own", id: @your_own_uid}, 'append')
+    @add_option({label: "Provide New #{@label} ...", value: 'provide'}, @select_id)
+    @add_option({label: "Pick or Provide...", canDelete: false}, @select_id, 'prepend')
+    @
 
-#(typeof exports is 'undefined' and window or exports).Huviz = Huviz
+  val: (val) ->
+    console.log("#{@label}.val(#{val})")
+    @pick_or_provide_select.val(val)
+    #@pick_or_provide_select.change()
+    #@value = val
+    @refresh()
+
+  disable: ->
+    @pick_or_provide_select.prop('disabled', true)
+    @form.find('.delete_option').hide()
+
+  enable: ->
+    @pick_or_provide_select.prop('disabled', false)
+    @form.find('.delete_option').show()
+
+  select_option: (option) ->
+    new_val = option.val()
+    #console.table([{last_val: @last_val, new_val: new_val}])
+    cur_val = @pick_or_provide_select.val()
+    # TODO remove last_val = null in @init_dataset_menus() by fixing logic below
+    #   What is happening is that the AJAX loading of preloads means that
+    #   it is as if each of the new datasets is being selected as it is
+    #   added -- but when the user picks an actual ontology then
+    #   @set_ontology_from_dataset_if_possible() fails if the new_val == @last_val
+    if cur_val isnt @last_val and not @isOntology
+      @last_val = cur_val
+    if @last_val isnt new_val
+      @last_val = new_val
+      if new_val
+        @pick_or_provide_select.val(new_val)
+      else
+        console.warn("TODO should set option to nothing")
+        # @pick_or_provide_select.val()
+      #if confirm("refresh?")
+      #  @refresh()
+
+  add_uri: (uri_or_rec) =>
+    if typeof uri_or_rec is 'string'
+      uri = uri_or_rec
+      dataset_rec = {}
+    else
+      dataset_rec = uri_or_rec
+    dataset_rec.uri ?= uri
+    dataset_rec.isOntology ?= @isOntology
+    dataset_rec.time ?= new Date().toString()
+    dataset_rec.isUri ?= true
+    dataset_rec.title ?= dataset_rec.uri
+    dataset_rec.canDelete ?= not not dataset_rec.time?
+    dataset_rec.label ?= dataset_rec.uri.split('/').reverse()[0]
+    @add_dataset(dataset_rec, true)
+    @update_state()
+
+  add_dataset: (dataset_rec, store_in_db) ->
+    uri = dataset_rec.uri
+    #dataset_rec.uri ?= uri.split('/').reverse()[0]
+    if store_in_db
+      @huviz.add_dataset_to_db(dataset_rec, @add_dataset_option)
+    else
+      @add_dataset_option(dataset_rec)
+
+  add_dataset_option: (dataset) => # TODO rename to dataset_rec
+    uri = dataset.uri
+    dataset.value = dataset.uri
+    @add_option(dataset, @pickable_uid)
+    @pick_or_provide_select.val(uri)
+    #console.log @pick_or_provide_select
+    @refresh()
+
+  add_group: (grp_rec, which) ->
+    which ?= 'append'
+    optgrp = $("""<optgroup label="#{grp_rec.label}" id="#{grp_rec.id or unique_id()}"></optgroup>""")
+    if which is 'prepend'
+      @pick_or_provide_select.prepend(optgrp)
+    else
+      @pick_or_provide_select.append(optgrp)
+    return optgrp
+
+  add_option: (opt_rec, parent_uid, pre_or_append) ->
+    pre_or_append ?= 'append'
+    if not opt_rec.label?
+      console.log("missing .label on", opt_rec)
+    if @pick_or_provide_select.find("option[value='#{opt_rec.value}']").length
+      #alert "add_option() #{opt_rec.value} collided"
+      return
+    opt_str = """<option id="#{unique_id()}"></option>"""
+    opt = $(opt_str)
+    opt_group_label = opt_rec.opt_group
+    if opt_group_label
+      opt_group = @pick_or_provide_select.find("optgroup[label='#{opt_group_label}']")
+      #console.log(opt_group_label, opt_group.length) #, opt_group[0])
+      if not opt_group.length
+        #blurt("adding '#{opt_group_label}'")
+        opt_group = @add_group({label: opt_group_label}, 'prepend')
+        # opt_group = $('<optgroup></optgroup>')
+        # opt_group.attr('label', opt_group_label)
+        # @pick_or_provide_select.append(opt_group)
+      #if not opt_group.length
+      #  blurt('  but it does not yet exist')
+      opt_group.append(opt)
+    else # There is no opt_group_label, so this is a top level entry, ie a group, etc
+      if pre_or_append is 'append'
+        $("##{parent_uid}").append(opt)
+      else
+        $("##{parent_uid}").prepend(opt)
+    for k in ['value', 'title', 'class', 'id', 'style', 'label']
+      if opt_rec[k]?
+        $(opt).attr(k, opt_rec[k])
+    for k in ['isUri', 'canDelete', 'ontologyUri', 'ontology_label'] # TODO standardize on _
+      if opt_rec[k]?
+        val = opt_rec[k]
+        $(opt).data(k, val)
+    return opt[0]
+
+  update_state: (callback) ->
+    raw_value = @pick_or_provide_select.val()
+    selected_option = @get_selected_option()
+    the_options = @pick_or_provide_select.find("option")
+    kid_cnt = the_options.length
+    #console.log("#{@label}.update_state() raw_value: #{raw_value} kid_cnt: #{kid_cnt}")
+    #console.log "PickOrProvide:", "select:", @pick_or_provide_select[0].value
+    if raw_value is 'provide'
+      @drag_and_drop_loader.form.show()
+      @state = 'awaiting_dnd'
+      @value = undefined
+    else
+      @drag_and_drop_loader.form.hide()
+      @state = 'has_value'
+      @value = raw_value
+    disable_the_delete_button = true
+    if @value?
+      canDelete = selected_option.data('canDelete')
+      disable_the_delete_button = not canDelete
+
+    # disable_the_delete_button = false  # uncomment to always show the delete button -- useful when bad data stored
+    @form.find('.delete_option').prop('disabled', disable_the_delete_button)
+    if callback?
+      callback()
+
+  find_or_append_form: ->
+    if not $(@local_file_form_sel).length
+      $(@append_to_sel).append(@tmpl.replace('REPLACE_WITH_LABEL', @label).replace('UID',@uniq_id))
+    @form = $("##{@uniq_id}")
+    @pick_or_provide_select = @form.find("select[name='pick_or_provide']")
+    @pick_or_provide_select.attr('id',@select_id)
+    #console.debug @css_class,@pick_or_provide_select
+    @pick_or_provide_select.change (e) =>
+      #e.stopPropagation()
+      @refresh()
+    @delete_option_button = @form.find('.delete_option')
+    @delete_option_button.click(@delete_selected_option)
+    @form.find('.delete_option').prop('disabled', true) # disabled initially
+    console.info "form", @form
+
+  get_selected_option: =>
+    @pick_or_provide_select.find('option:selected') # just one CAN be selected
+
+  delete_selected_option: (e) =>
+    e.stopPropagation()
+    selected_option = @get_selected_option()
+    val = selected_option.attr('value')
+    if val?
+      @huviz.remove_dataset_from_db(@value)
+      @delete_option(selected_option)
+      @update_state()
+      #  @value = null
+
+  delete_option: (opt_elem) ->
+    uri = opt_elem.attr('value')
+    @huviz.remove_dataset_from_db(uri)
+    opt_elem.remove()
+    @huviz.update_dataset_ontology_loader()
+
+  refresh: ->
+    @update_state(@huviz.update_dataset_ontology_loader)
+
+# inspiration: https://css-tricks.com/drag-and-drop-file-uploading/
+class DragAndDropLoader
+  tmpl: """
+	<form class="local_file_form" method="post" action="" enctype="multipart/form-data">
+	  <div class="box__input">
+	    <input class="box__file" type="file" name="files[]" id="file" data-multiple-caption="{count} files selected" multiple />
+	    <label for="file"><span class="box__label">Choose a local file</span></label>
+	    <button class="box__upload_button" type="submit">Upload</button>
+      <div class="box__dragndrop" style="display:none"> Drop URL or file here</div>
+	  </div>
+    <input type="url" class="box__uri" placeholder="Or enter URL here" />
+	  <div class="box__uploading" style="display:none">Uploading&hellip;</div>
+	  <div class="box__success" style="display:none">Done!</div>
+	  <div class="box__error" style="display:none">Error! <span></span>.</div>
+  </form>
+  """
+
+  constructor: (@huviz, @append_to_sel, @picker) ->
+    @local_file_form_id = unique_id()
+    @local_file_form_sel = "##{@local_file_form_id}"
+    @find_or_append_form()
+    if @supports_file_dnd()
+      @form.show()
+      @form.addClass('supports-dnd')
+      @form.find(".box__dragndrop").show()
+  supports_file_dnd: ->
+    div = document.createElement('div')
+    return true
+    return (div.draggable or div.ondragstart) and ( div.ondrop ) and (window.FormData and window.FileReader)
+  load_uri: (firstUri) ->
+    #@form.find('.box__success').text(firstUri)
+    #@form.find('.box__success').show()
+    @picker.add_uri({uri: firstUri, opt_group: 'Your Own'})
+    @form.hide()
+    return true # ie success
+  load_file: (firstFile) ->
+    @form.find('.box__success').text(firstFile.name)
+    @form.find('.box__success').show()
+    reader = new FileReader()
+    reader.onload = (evt) =>
+      #console.log evt.target.result
+      #console.log("evt", evt)
+      try
+        @huviz.read_data_and_show(firstFile.name, evt.target.result)
+      catch e
+        msg = e.toString()
+        @form.find('.box__error').show()
+        @form.find('.box__error').text(msg)
+    reader.readAsText(firstFile)
+    return true # ie success
+  find_or_append_form: ->
+    num_dnd_form = $(@local_file_form_sel).length
+    if not num_dnd_form
+      elem = $(@tmpl)
+      $(@append_to_sel).append(elem)
+      elem.attr('id', @local_file_form_id)
+    @form = $(@local_file_form_sel)
+    @form.on 'submit unfocus', (e) =>
+      uri_field = @form.find('.box__uri')
+      uri = uri_field.val()
+      if uri_field[0].checkValidity()
+        uri_field.val('')
+        @load_uri(uri)
+      return false
+    @form.on 'drag dragstart dragend dragover dragenter dragleave drop', (e) =>
+      #console.clear()
+      e.preventDefault()
+      e.stopPropagation()
+    @form.on 'dragover dragenter', () =>
+      @form.addClass('is-dragover')
+      console.log("addClass('is-dragover')")
+    @form.on 'dragleave dragend drop', () =>
+      @form.removeClass('is-dragover')
+    @form.on 'drop', (e) =>
+      @form.find('.box__input').hide()
+      droppedUris = e.originalEvent.dataTransfer.getData("text/uri-list").split("\n")
+      console.log("droppedUris",droppedUris)
+      firstUri = droppedUris[0]
+      if firstUri.length
+        if @load_uri(firstUri)
+          @form.find(".box__success").text('')
+          @picker.refresh()
+          @form.hide()
+          return
+
+      droppedFiles = e.originalEvent.dataTransfer.files
+      console.log("droppedFiles", droppedFiles)
+      if droppedFiles.length
+        firstFile = droppedFiles[0]
+        if @load_file(firstFile)
+          @form.find(".box__success").text('')
+          @form.hide()
+          @picker.refresh()
+          return
+
+      # the drop operation failed to result in loaded data, so show 'drop here' msg
+      @form.find('.box__input').show()
+      @picker.refresh()
 
 (exports ? this).Huviz = Huviz
 (exports ? this).Orlando = Orlando

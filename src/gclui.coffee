@@ -9,6 +9,7 @@
 #
 ###
 window.toggle_suspend_updates = (val) ->
+  console.log "toggle_suspend_updates(#val)"
   if not window.suspend_updates? or not window.suspend_updates
     window.suspend_updates = true
   else
@@ -24,6 +25,9 @@ ColoredTreePicker = require('coloredtreepicker').ColoredTreePicker
 class CommandController
   constructor: (@huviz, @container, @hierarchy) ->
     document.addEventListener 'dataset-loaded', @on_dataset_loaded
+    $("#tabs").resizable({handles: {'w':'#ctrl-handle'}})
+    #$("#collapse_cntrl").click(@minimize_gclui)
+    #$("#expand_cntrl").click(@maximize_gclui)
     if @container is null
       @container = d3.select("body").append("div").attr("id", "gclui")[0][0]
     if not @huviz.all_set.length
@@ -32,16 +36,18 @@ class CommandController
     if @huviz.args.display_hints
       @hints = d3.select(@container).append("div").attr("class","hints")
       $(".hints").append($(".hint_set").contents())
-    @comdiv = d3.select(@container).append("div")
+    @comdiv = d3.select(@container).append("div") # --- Add a container
+    @cmdtitle = d3.select("#tabs-history").append('div').attr('class','control_label').html('Command History')
     @cmdlist = d3.select("#tabs-history").append('div').attr('class','commandlist')
-    @oldcommands = @cmdlist.append('div').attr('class','commandhistory')
+    @oldcommands = @cmdlist.append('div').attr('id','commandhistory')
     @control_label("Current Command")
     @nextcommandbox = @comdiv.append('div')
     @make_verb_sets()
     @control_label("Verbs")
     @verbdiv = @comdiv.append('div').attr('class','verbs')
     @add_clear_both(@comdiv)
-    @node_pickers = @comdiv.append('div')
+    #@node_pickers = @comdiv.append('div')
+    @node_pickers = @comdiv.append('div').attr("id","node_pickers")
     @set_picker_box_parent = @build_set_picker("Sets",@node_pickers)
     @taxon_picker_box_parent = @build_taxon_picker("Class Selector",@node_pickers)
     @add_clear_both(@comdiv)
@@ -59,6 +65,19 @@ class CommandController
     if title
       label.attr('title',title)
     return outer
+
+#  minimize_gclui: () ->
+    #$('#tabs').prop('style','visibility:hidden')
+    #$('#expand_cntrl').prop('style','visibility:visible')
+    #w_width = (@container.clientWidth or window.innerWidth or document.documentElement.clientWidth or document.clientWidth)
+    #@width = w_width
+    #@get_container_width()
+    #console.log @width
+  #maximize_gclui: () ->
+    #$('#tabs').prop('style','visibility:visible')
+    #$('#maximize_cntrl').prop('style','visibility:hidden')
+    #console.log "minimize the interface"
+
   install_listeners: () ->
     window.addEventListener 'changePredicate', @predicate_picker.onChangeState
     window.addEventListener 'changeTaxon', @taxon_picker.onChangeState
@@ -86,8 +105,9 @@ class CommandController
     $(".hints > .a_hint").first().show()
   select_the_initial_set: =>
     # TODO initialize the taxon coloring without cycling all
-    @huviz.pick_taxon("Thing", true)
-    @huviz.pick_taxon("Thing", false)
+    @huviz.toggle_taxon("Thing", true)
+    @huviz.toggle_taxon("Thing", false)
+    @huviz.shelved_set.resort() # TODO remove when https://github.com/cwrc/HuViz/issues/109
     return
     #@engage_verb('choose')
   init_editor_data: ->
@@ -149,12 +169,19 @@ class CommandController
     @predicate_hierarchy = {'anything':['anything']}
     # FIXME Why is show_tree being called four times per node?
     @predicate_picker.click_listener = @on_predicate_clicked
-    @predicate_picker.show_tree(@predicate_hierarchy,@predicatebox)
+    @predicate_picker.show_tree(@predicate_hierarchy, @predicatebox)
+    $("#predicates").addClass("ui-resizable").append("<br class='clear'>")
+    $("#predicates").resizable(handles: 's')
+
   add_newpredicate: (pred_lid, parent_lid, pred_name) =>
     #if pred_lid in @predicates_to_ignore
     #  return
     @predicate_picker.add(pred_lid, parent_lid, pred_name, @on_predicate_clicked)
   on_predicate_clicked: (pred_id, new_state, elem) =>
+    @start_working()
+    setTimeout () => # run asynchronously so @start_working() can get a head start
+      @perform_on_predicate_clicked(pred_id, new_state, elem)
+  perform_on_predicate_clicked: (pred_id, new_state, elem) =>
     if new_state is 'showing'
       verb = 'show'
     else
@@ -163,7 +190,7 @@ class CommandController
       verbs: [verb]
       regarding: [pred_id]
       sets: [@huviz.selected_set]
-    @prepare_command cmd
+    @prepare_command(cmd)
     @huviz.run_command(@command)
   recolor_edges: (evt) =>
     count = 0
@@ -171,41 +198,7 @@ class CommandController
       for edge in node.links_from
         count++
         pred_n_js_id = edge.predicate.id
-        edge.color = @predicate_picker.get_color_forId_byName(pred_n_js_id,'showing')
-  ###
-  #     Collapsing and expanding taxons whether abstract or just instanceless.
-  #
-  #     ▼ 0x25bc
-  #     ▶ 0x25b6
-  #
-  #     Expanded                   Collapsed
-  #     +-----------------+        +-----------------+
-  #     | parent        ▼ |        | parent        ▶ |
-  #     |   +------------+|        +-----------------+
-  #     |   | child 1    ||
-  #     |   +------------+|
-  #     |   | child 2    ||
-  #     |   +------------+|
-  #     +-----------------+
-  #
-  #     Clicking an expanded parent should cycle thru selection and deselection
-  #     of only its direct instances, if there are any.
-  #
-  #     Clicking a collapsed parent should cycle thru selection and deselection
-  #     of its direct instances as well as those of all its children.
-  #
-  #     The coloring of expanded parents cycles thru the three states:
-  #       Mixed - some of the direct instances are selected
-  #       On - all of the direct instances are selected
-  #       Off - none of the direct instances are selected
-  #
-  #     The coloring of a collapsed parent cycles thru the three states:
-  #       Mixed - some descendant instances are selected (direct or indirect)
-  #       On - all descendant instances are selected (direct or indirect)
-  #       Off - no descendant instances are selected (direct or indirect)
-  #
-  #     Indirect instances are the instances of subclasses.
-  ###
+        edge.color = @predicate_picker.get_color_forId_byName(pred_n_js_id, 'showing')
   build_taxon_picker: (label, where) ->
     id = 'classes'
     title =
@@ -220,6 +213,7 @@ class CommandController
     # http://en.wikipedia.org/wiki/Taxon
     @taxon_picker = new ColoredTreePicker(@taxon_box,'Thing',[],true)
     @taxon_picker.click_listener = @on_taxon_clicked
+    @taxon_picker.hover_listener = @on_taxon_hovered
     @taxon_picker.show_tree(@hierarchy,@taxon_box)
     where.classed("taxon_picker_box_parent", true)
     return where
@@ -238,6 +232,38 @@ class CommandController
     # When we select "Thing" we mean:
     #    all nodes except the embryonic and the discarded
     #    OR rather, the hidden, the graphed and the unlinked
+    @start_working()
+    setTimeout () => # run asynchronously so @start_working() can get a head start
+      @perform_on_taxon_clicked(id, new_state, elem)
+  set_taxa_click_storm_callback: (callback) ->
+    if @taxa_click_storm_callback?
+      throw new Error("taxa_click_storm_callback already defined")
+    else
+      @taxa_click_storm_callback = callback
+  taxa_being_clicked_increment: ->
+    if not @taxa_being_clicked?
+      @taxa_being_clicked = 0
+    @taxa_being_clicked = @taxa_being_clicked + 1
+    return
+  taxa_being_clicked_decrement: ->
+    if not @taxa_being_clicked?
+      throw new Error("taxa_being_clicked_decrement() has apparently been called before taxa_being_clicked_increment()")
+    #@taxa_being_clicked ?= 1
+    console.log("taxa_being_clicked_decrement() before:", @taxa_being_clicked)
+    @taxa_being_clicked--
+    console.log("taxa_being_clicked_decrement() after:", @taxa_being_clicked)
+    if @taxa_being_clicked is 0
+      console.log("taxa click storm complete after length #{@taxa_click_storm_length}")
+      #debugger if @taxa_click_storm_callback?
+      if @taxa_click_storm_callback?
+        @taxa_click_storm_callback.call(document)
+        @taxa_click_storm_callback = null
+      #@taxa_click_storm_length = 0
+    #else
+    #  @taxa_click_storm_length ?= 0
+    #  @taxa_click_storm_length++
+  perform_on_taxon_clicked: (id, new_state, elem) =>
+    @taxa_being_clicked_increment()
     taxon = @huviz.taxonomy[id]
     if taxon?
       old_state = taxon.get_state()
@@ -260,19 +286,21 @@ class CommandController
         classes: [id]
     else if old_state is "hidden"
       console.error "Uhh, how is it possible for #{id}.old_state to equal 'hidden' at this point?"
+    @taxon_picker.style_with_kid_color_summary_if_needed(id)
     if cmd?
       if @object_phrase? and @object_phrase isnt ""
         cmd.object_phrase = @object_phrase
-      @show_working_on()
+      #@show_working_on()
       #window.suspend_updates = false #  window.toggle_suspend_updates(false)
       @huviz.run_command(cmd)
-      @show_working_off()
+      #@show_working_off()
     if new_state is 'showing'
       because =
         taxon_added: id
         cleanup: () =>
           @on_taxon_clicked(id, 'unshowing', elem)
     @update_command(because)
+    @taxa_being_clicked_decrement()
   unselect_node_class: (node_class) ->
     # removes node_class from @taxons_chosen
     @taxons_chosen = @taxons_chosen.filter (eye_dee) ->
@@ -350,6 +378,8 @@ class CommandController
   is_verb_phrase_empty: ->
     return @engaged_verbs.length is 0
   auto_change_verb_if_warranted: (node) ->
+    if @huviz.edit_mode
+      return
     if @immediate_execution_mode
       # If there is only one verb, then do auto_change
       if @engaged_verbs.length is 1
@@ -449,28 +479,58 @@ class CommandController
     else
       $(@nextcommandstr[0][0]).hide()
 
-    @nextcommand_working = @nextcommand.append('i')
-    @nextcommand_working.style('float:right; color:red')
+    @nextcommand_working = @nextcommand.append('div').attr('class','cmd-spinner')
+    @nextcommand_working.style('float:right; color:red; display:none;')
     @build_submit()
 
-  show_working_on: ->
+  working_timeout: 500 # msec
+  start_working: ->
+    if @already_working
+      clearTimeout(@already_working)
+      #console.log "already working", @already_working
+    else
+      #console.log "start_working()"
+      @show_working_on()
+    @already_working = setTimeout(@stop_working, @working_timeout)
+  stop_working: =>
+    @show_working_off()
+    @already_working = undefined
+  show_working_on: (cmd)->
     console.log "show_working_on()"
-    @nextcommand_working.attr('class','fa fa-spinner fa-spin fa-2x')
+    if cmd?
+      @push_command_onto_history(cmd)
+    @nextcommand_working.attr('class','fa fa-spinner fa-spin') # PREFERRED fa-2x
+    @nextcommand.attr('class','nextcommand command cmd-working')
   show_working_off: ->
     console.log "show_working_off()"
     @nextcommand_working.attr('class','')
+    @nextcommand.attr('class','nextcommand command')
+    #@nextcommand.attr('style','background-color:yellow') # PREFERRED
 
   build_like: () ->
-    @likediv.text('like:').classed("control_label", true)
+    @likediv.text('matching:').classed("control_label", true)
+    @likediv.style('display','inline-block')
+    @likediv.style('white-space','nowrap')
     @like_input = @likediv.append('input')
     @like_input.attr('class', 'like_input')
     @like_input.attr('placeholder','node Name')
     @liking_all_mode = false # rename to @liking_mode
     @like_input.on 'input', @handle_like_input
+    @clear_like_button = @likediv.append('button').text('⌫')
+    @clear_like_button.attr('type','button').classed('clear_like', true)
+    @clear_like_button.attr('disabled','disabled')
+    @clear_like_button.attr('title','clear the "matching" field')
+    @clear_like_button.on 'click', @handle_clear_like
+
+  handle_clear_like: (evt) =>
+    @like_input.property('value','')
+    @handle_like_input()
+
   handle_like_input: (evt) =>
     like_value = @get_like_string()
     like_has_a_value = not not like_value
     if like_has_a_value
+      @clear_like_button.attr('disabled', null)
       if @liking_all_mode #
         TODO = "update the selection based on the like value"
         #@update_command(evt) # update the impact of the value in the like input
@@ -480,6 +540,7 @@ class CommandController
         @set_immediate_execution_mode(@is_verb_phrase_empty())
         @huviz.click_set("all") # ie choose the 'All' set
     else # like does not have a value
+      @clear_like_button.attr('disabled','disabled')
       if @liking_all_mode # but it DID
         TODO = "restore the state before liking_all_mode " + \
         "eg select a different set or disable all set selection"
@@ -537,26 +598,36 @@ class CommandController
     @like_input[0][0].value
   old_commands: []
   push_command: (cmd) ->
+    @push_command_onto_history(cmd)
+  push_command_onto_history: (cmd) ->
     if @old_commands.length > 0
       prior = @old_commands[@old_commands.length-1]
       if prior.cmd.str is cmd.str
         return  # same as last command, ignore
     cmd_ui = @oldcommands.append('div').attr('class','command')
+    d = $('#commandhistory').scrollTop($('#commandhistory')[0].scrollHeight)
+    #d.scrollTop(d.prop("scrollHeight"))
+    console.log "+++++++++++++++"
     record =
       elem: cmd_ui
       cmd: cmd
     @old_commands.push(record)
     cmd_ui.text(cmd.str)
+
   build_command: ->
-    args = {}
+    args =
+      verbs: []
     args.object_phrase = @object_phrase
     if @engaged_verbs.length > 0
-      args.verbs = []
       for v in @engaged_verbs
         if v isnt @transient_verb_engaged
-          args.verbs.push v
+          args.verbs.push(v)
+    if @proposed_verb
+      args.verbs.push(@proposed_verb)
     if @chosen_set_id
       args.sets = [@chosen_set]
+    else if @proposed_set
+      args.sets = [@proposed_set]
     else
       if @taxons_chosen.length > 0
         args.classes = (class_name for class_name in @taxons_chosen)
@@ -566,24 +637,29 @@ class CommandController
     if like_str
       args.like = like_str
     @command = new gcl.GraphCommand(@huviz, args)
+  is_proposed: ->
+    @proposed_verb or @proposed_set #or @proposed_taxon
   update_command: (because) =>
+    console.log("update_command()")
     because = because or {}
     @huviz.show_state_msg("update_command")
-    ready = @prepare_command @build_command()
-    if ready and @huviz.doit_asap and @immediate_execution_mode
-      @show_working_on()
-      if @huviz.slow_it_down
-        start = Date.now()
-        while Date.now() < start + (@huviz.slow_it_down * 1000)
-          console.log(Math.round((Date.now() - start) / 1000))
-        #alert "About to execute:\n  "+@command.str
-      @command.execute()
-      @huviz.update_all_counts()
-      if because.cleanup
-        because.cleanup()
-        @update_command()
-      @show_working_off()
+    ready = @prepare_command(@build_command())
+    if ready and @huviz.doit_asap and @immediate_execution_mode and not @is_proposed()
+      @execute_command(because)
     @huviz.hide_state_msg()
+  execute_command: (because) =>
+    @show_working_on(@command)
+    if @huviz.slow_it_down
+      start = Date.now()
+      while Date.now() < start + (@huviz.slow_it_down * 1000)
+        console.log(Math.round((Date.now() - start) / 1000))
+      alert "About to execute:\n  "+@command.str
+    @command.execute()
+    @huviz.update_all_counts()
+    if because.cleanup
+      because.cleanup()
+      @update_command()
+    @show_working_off()
   nextcommand_prompts_visible: true
   nextcommand_str_visible: false
   prepare_command: (cmd) ->
@@ -652,12 +728,13 @@ class CommandController
 
   ###
   are_non_transient_verbs: ->
+    # return whether there are any non-transient verbs engaged
     len_transient = @transient_verb_engaged? and 1 or 0
-    @engaged_verbs.length > len_transient
+    return @engaged_verbs.length > len_transient
 
-  engage_transient_verb_if_needed: (verb) ->
+  engage_transient_verb_if_needed: (verb_id) ->
     if @engaged_verbs.length is 0 and not @are_non_transient_verbs()
-      @engage_verb(verb, true)
+      @engage_verb(verb_id, true)
 
   disengage_transient_verb_if_needed: ->
     if @transient_verb_engaged
@@ -677,7 +754,7 @@ class CommandController
     if not (verb_id in @engaged_verbs)
       @engaged_verbs.push(verb_id)
   disengage_verb: (verb_id, transient) ->
-    @engaged_verbs = @engaged_verbs.filter (verb) -> verb isnt verb_id
+    @engaged_verbs = @engaged_verbs.filter((verb) -> verb isnt verb_id) # remove verb_id
     @verb_control[verb_id].classed('engaged',false)
     if verb_id is @transient_verb_engaged
       @transient_verb_engaged = false
@@ -686,7 +763,7 @@ class CommandController
   build_verb_picker: (id,label,alternatives) ->
     vbctl = alternatives.append('div').attr("class","verb")
     if @verb_descriptions[id]
-      vbctl.attr("title",@verb_descriptions[id])
+      vbctl.attr("title", @verb_descriptions[id])
     vbctl.attr("id", "verb-"+id)
     @verb_control[id] = vbctl
     vbctl.text(label)
@@ -697,6 +774,7 @@ class CommandController
       elem.classed('engaged',newstate)
       if newstate
         that.engage_verb(id)
+        that.proposed_verb = null # there should be no proposed_verb if we are clicking engaging one
         because =
           verb_added: id
           cleanup: that.disengage_all_verbs
@@ -705,6 +783,29 @@ class CommandController
       if not that.engaged_verbs? or that.engaged_verbs.length is 0
         that.huviz.set_cursor_for_verbs([])
       that.update_command(because)
+    vbctl.on 'mouseenter', () -> # tell user what will happen if this verb is clicked
+      elem = d3.select(this)
+      click_would_engage = not elem.classed('engaged')
+      because = {}
+      if click_would_engage
+        that.proposed_verb = id # not proposed_verbs because there can be at most one
+        because =
+          proposed_verb: id
+          #cleanup: that.disengage_all_verbs
+      else # clicking would disengage the verb
+        that.proposed_verb = null # TODO figure out whether and how to show user
+      # After the click there will be engaged verbs if click_would_engage
+      # or there are more than one engaged_verbs.
+      #click_would_leave_a_verb_phrase = click_would_engage or that.engaged_verbs.length > 1
+      that.update_command(because)
+    vbctl.on 'mouseleave', () ->
+      elem = d3.select(this)
+      leaving_verb_id = elem.classed('engaged')
+      because =
+        verb_leaving: leaving_verb_id
+      that.proposed_verb = null
+      that.update_command(because)
+
   run_script: (script) ->
     # We recognize a couple of different visible "space-illustrating characters" as spaces.
     #   https://en.wikipedia.org/wiki/Whitespace_character
@@ -736,12 +837,24 @@ class CommandController
     @set_picker.click_listener = @on_set_picked
     @set_picker.show_tree(@the_sets, @set_picker_box)
     @populate_all_set_docs()
+    @make_sets_proposable()
     where.classed("set_picker_box_parent",true)
     return where
   populate_all_set_docs: () ->
     for id, a_set of @huviz.selectable_sets
       if a_set.docs?
         @set_picker.set_title(id, a_set.docs)
+  make_sets_proposable: () ->
+    make_listeners = (id, a_set) => # fat arrow carries this to @
+      set_ctl = @set_picker.id_to_elem[id]
+      set_ctl.on 'mouseenter', () =>
+        @proposed_set =  a_set
+        @update_command()
+      set_ctl.on 'mouseleave', () =>
+        @proposed_set = null
+        @update_command()
+    for id, a_set of @huviz.selectable_sets
+      make_listeners(id, a_set)
   on_set_picked: (set_id, new_state) =>
     @clear_set_picker() # TODO consider in relation to liking_all_mode
     @set_picker.set_direct_state(set_id, new_state)

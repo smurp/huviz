@@ -1,0 +1,27 @@
+{
+  "datasets": [
+    {
+      "uri": "https://raw.githubusercontent.com/cwrc/testData/master/demoData/DH2017Montreal.ttl",
+      "label": "DH2017Montreal"
+    },
+    {
+      "uri": "https://raw.githubusercontent.com/cwrc/testData/master/demoData/HuVizSHARP2017.ttl",
+      "label": "HuVizSHARP2017"
+    },
+    {
+      "uri": "https://raw.githubusercontent.com/cwrc/testData/master/demoData/REED_Elizabethan_sample.ttl",
+      "label": "REED Elizabethan sample"
+
+    },
+    {
+      "uri": "https://raw.githubusercontent.com/cwrc/testData/master/demoData/CanAuthorsBiography.ttl",
+      "label": "Can Authors Biography"
+    }
+  ],
+  "defaults": {
+    "isOntology": false,
+    "opt_group": "CWRC Data",
+    "canDelete": false,
+    "ontology_label": "CWRC Ontology sans Genres"
+  }
+}

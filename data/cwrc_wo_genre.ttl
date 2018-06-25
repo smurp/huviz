@@ -1,0 +1,1364 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix vann: <http://purl.org/vocab/vann/> .
+@prefix skosxl: <http://www.w3.org/2008/05/skos-xl#> .
+@prefix muninn: <http://rdf.muninn-project.org/ontologies/muninn#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dbpedia: <http://dbpedia.org/resource/> .
+@prefix time: <http://www.w3.org/2006/time#> .
+@prefix cc: <http://creativecommons.org/ns#> .
+@prefix nif: <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#> .
+@prefix as: <http://www.w3.org/ns/activitystreams#> .
+@prefix oa: <http://www.w3.org/ns/oa#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix vs: <http://www.w3.org/2003/06/sw-vocab-status/ns#> .
+@prefix swrl: <http://www.w3.org/2003/11/swrl#> .
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix void: <http://rdfs.org/ns/void#> .
+@prefix swrlb: <http://www.w3.org/2003/11/swrlb#> .
+@prefix loc: <http://id.loc.gov/vocabulary/relators/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix cwrc: <http://sparql.cwrc.ca/ontologies/cwrc#> .
+
+<http://sparql.cwrc.ca/ontologies/cwrc>
+    loc:ctb cwrc:ConstanceCrompton ;
+    loc:fnd cwrc:sshrc ;
+    loc:pdr cwrc:SusanBrown ;
+    dcterms:creator cwrc:AbigelLemak, cwrc:ColinFaulkner, cwrc:JohnSimpson, cwrc:RobWarren ;
+    dcterms:date "DATE_TODAY"^^xsd:date ;
+    dcterms:description "L'Ontologie CWRC est l'ontologie maîtresse qui représente tous les éléments de la structure du Collaboratoire scientifique des écrits du Canada."@fr, "The CWRC Ontology is the overall ontology that represents all elements of structure within the Canadian Writing Research Collaboratory."@en ;
+    dcterms:publisher cwrc:cwrc ;
+    dcterms:rights <http://creativecommons.org/licenses/by-nc/4.0/> ;
+    dcterms:subject <http://id.loc.gov/authorities/subjects/sh2009007122>, <http://id.loc.gov/authorities/subjects/sh85013838>, <http://id.loc.gov/authorities/subjects/sh85019388>, <http://id.loc.gov/authorities/subjects/sh85043777>, <http://id.loc.gov/authorities/subjects/sh85077519> ;
+    dcterms:title "L'Ontologie CWRC"@fr, "The CWRC Ontology"@en ;
+    vann:preferredNamespacePrefix "cwrc" ;
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Ontology ;
+    rdfs:comment "L'Ontologie CWRC est l'ontologie maîtresse qui représente tous les éléments de la structure du Collaboratoire scientifique des écrits du Canada."@fr, "The CWRC Ontology is the overall ontology that represents all elements of structure within the Canadian Writing Research Collaboratory."@en ;
+    rdfs:label "L'Ontologie CWRC"@fr, "The CWRC Ontology"@en ;
+    owl:priorVersion <http://sparql.cwrc.ca/ontology/cwrc-2017-03-18> ;
+    owl:versionInfo "0.99.2" ;
+    vs:term_status "Testing"@en ;
+    skos:definition "L'Ontologie CWRC est l'ontologie maîtresse qui représente tous les éléments de la structure du Collaboratoire scientifique des écrits du Canada."@fr, "The CWRC Ontology is the overall ontology that represents all elements of structure within the Canadian Writing Research Collaboratory."@en ;
+    foaf:logo <http://sparql.cwrc.ca/images/CWRCLogo-Horz-FullColour.png> ;
+    foaf:name "L'Ontologie CWRC"@fr, "The CWRC Ontology"@en .
+
+cwrc:AbigelLemak
+    a foaf:Person ;
+    foaf:name "Abigel Lemak" .
+
+cwrc:Actor
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:Concept ;
+    rdfs:comment "A person performing a certain role within an event."@en ;
+    rdfs:isDefinedBy <https://raw.githubusercontent.com/cwrc/OrlandoOntology/master/OrlandoOntology#> ;
+    rdfs:label "Actor"@en ;
+    owl:sameAs <http://erlangen-crm.org/current/E39.Actor> .
+
+cwrc:Address
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:Concept ;
+    rdfs:comment "The postal address is the equivalent of a schema.org address and inherits all of the data from that vocabulary to markup a modern postral address."@en ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/OrlandoOntology#> ;
+    rdfs:label "address"@en, "adresse"@fr ;
+    rdfs:subClassOf cwrc:Place ;
+    owl:sameAs <http://schema.org/PostalAddress> ;
+    skos:definition "A mailling or street address."@en, "Une adresse postale ou de rue."@fr .
+
+cwrc:Androgynous
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Androgyne"@fr, "Androgynous"@en .
+
+cwrc:ColinFaulkner
+    a foaf:Person ;
+    foaf:name "Colin Faulkner" .
+
+cwrc:ConstanceCrompton
+    a foaf:Person ;
+    foaf:name "Constance Crompton" .
+
+cwrc:Context
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:Concept, oa:Annotation ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Context"@en, "Contexte"@fr ;
+    skos:definition ""@fr, "A context relates.... "@en .
+
+cwrc:CulturalForm
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Cultural Form"@en, "Formation Culturelle"@fr ;
+    skos:definition ""@fr, "Cultural forms refers to the processes of lived social subjectivities of people and is often combined with predicates indicating the identity positions as they relate to the following discursive constructions of Class, Religion, Ethnicity, Gender, GeographicalHeritage, LinguisticAbility, NationalHeritage, NationalIdentity, PoliticalAffiliation, RaceColour, Sexuality. These categories are not understood as transhistorical or isolated categories. Rather, they facilitate analysis of how such situationally contingent, changing, and negotiated labels are assigned to or adopted by a particular individual. The tensions endemic to practices of classification demand critical engagement and inquiry into the situatedness of particular cultural identities."@en .
+
+cwrc:CulturalFormation
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:DeprecatedClass, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Cultural Formation "@en, "Formation Culturelle"@fr ;
+    owl:equivalentClass cwrc:CulturalForm ;
+    skos:definition ""@fr, "Cultural formation refers to the processes of lived social subjectivities of people and is often combined with predicates indicating the identity positions as they relate to the following discursive constructions of Class, Religion, Ethnicity, Gender, GeographicalHeritage, LinguisticAbility, NationalHeritage, NationalIdentity, PoliticalAffiliation, RaceColour, Sexuality. These categories are not understood as transhistorical or isolated categories. Rather, they facilitate analysis of how such situationally contingent, changing, and negotiated labels are assigned to or adopted by a particular individual. The tensions endemic to practices of classification demand critical engagement and inquiry into the situatedness of particular cultural identities."@en .
+
+cwrc:EnglishLanguage
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Language, owl:Thing, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Anglais"@fr, "English"@en ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:EnglishNationalHeritage
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:NationalHeritage, owl:Thing, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Anglaise"@fr, "English"@en ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:EnglishNationalIdentity
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:NationalIdentity, owl:Thing, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Anglaise"@fr, "English"@en ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:Ethnicity
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Ethnicity"@en, "Ethnicité"@fr ;
+    owl:subClass cwrc:CulturalForm ;
+    skos:definition ""@fr, "Ethnicity is a subclass of CulturalForm that captures information about a person's ethnic position. Ethnicity is a sub-element within culturalFormation and raceAndEthnicity. See raceAndEthnicity for a detailed description of the complexities of this discursive construction and the social practices surrounding it."@en .
+
+cwrc:EthnicityContext
+    dcterms:subject cwrc:Ethnicity, cwrc:RaceColour ;
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Contexte Raciale, de Couleur de Peau ou d'ethnicité"@fr, "Racial, Colour or Ethnicity Context"@en ;
+    owl:subClass cwrc:Context ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:Event
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:Concept, <http://www.w3.org/2006/time/TemporalEntity> ;
+    rdfs:isDefinedBy <https://raw.githubusercontent.com/cwrc/OrlandoOntology/master/OrlandoOntology#> ;
+    rdfs:label "Event"@de, "Event (Historical)"@en, "Évenement (Historique)"@fr ;
+    owl:sameAs <http://en.wikipedia.org/wiki/Event>, <http://erlangen-crm.org/current/E5.Event>, <http://linkedevents.org/ontology/Event> ;
+    skos:definition "An event that occurs in space and time."@en ;
+    foaf:name "Event" .
+
+cwrc:FemaleLabel
+    void:inDataset cwrc:datasetdefinition ;
+    a skos:Concept, skosxl:Label ;
+    rdf:value "female" ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Female"@en, "Femelle"@fr ;
+    owl:oneOf (cwrc:genderWomanFemale
+        cwrc:femaleSex
+    ) ;
+    skos:definition ""@en, ""@fr ;
+    skos:inScheme cwrc:TextLabels ;
+    foaf:name "Female (Label)"@en .
+
+cwrc:FrenchLanguage
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Language, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Français"@fr, "French"@en ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:Gender
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Gender"@en, "Genre"@fr ;
+    owl:subClass cwrc:CulturalForm ;
+    skos:definition "A subclass of culturalForms for noting a person's gender whether attributed or self-defined. Although in popular culture gender and biological sex are conflated and understood to be binary, the concept of gender stresses the relationality, constructedness, and performativity of gendered identities and gendered behaviour, whose categories are historically contingent and shifting, and the boundaries between them blurry. Cf. Simone de Beauvoir: \"One is not born, but rather becomes, a woman,\" along with many other theorists of gender including Judith Butler, 1990. Gender is understood as fluid, situational, and sometimes plural, and it is related to though not commensurate with sexual identity and orientation. It is related to but not defined by specific forms of embodiment. Rather than seeing biological sex as a pre-social or natural given, the body is understood as a site of inscription (cf. Elizabeth Grosz 1994) which is also socially constructed and indeed epigenetically shaped by environmental factors (N. Katherine Hayles 2012). This ontology therefore does not provide separate terms for sex as distinct from gender. Instead, the slashes conjoining terms associated with gender and those conventionally associated with sex indicate the constant slippage between gender and sex in the way that these categories circulate through discourses, actions, and institutions. Far from indicating a universal facet of experience, gender intersects with other identity categories and axes of oppression such as class, race or colour, or geographical heritage to produced quite different interests and experiences among people of the same gender, as with the intersection of religion and white masculine identity in the Muscular Christianity movement in nineteenth-century Britain. Being a woman of colour may thus compound the impacts of gender oppression (Kimberlé Crenshaw 1989)."@en, "Cette  sous-classe de culturalForms indique le genre d’une personne, qu’il soit attribué par cette dernière ou auto-défini. Même si dans la culture populaire le genre et le sexe biologique sont confondus et binaires, le concept de genre souligne la relativité, la constructivité et la performativité des identités et des comportements genrés, réparties en catégories historiquement contingentes, changeantes et aux frontières floues. Cf Simone de Beauvoir: “On ne naît pas femme, on le devient,” et d’autres nombreuses théoriciennes du genre, dont Judith Butler en 1990. Le genre est entendu comme fluide, situationnel, parfois pluriel, et est relié à, l’identité et l’orientation sexuelles même s’ils ne doivent pas être confondus. Il est relié à des formes spécifiques d’incarnation ou à des comportements physiques, sans pour autant être défini par eux. Plutôt que de voir le sexe biologique comme présocial et attribué par nature,  le corps est compris comme un lieu d’inscriptions (cf Elizabeth Grosz 1994) qui est aussi socialement construit et épigénétiquement modelé par des facteurs environnementaux (N. Katherine Hayles 2012). Cette ontologie ne fournit donc pas de termes séparés pour le genre et le sexe. Les barres obliques qui lient les termes associés aux genres et ceux conventionnellement attribués au sexe indiquent plutôt le glissement constant de ces catégories au fil des discours, des actions et des institutions. Loin d’indiquer une part d’expérience universelle, le genre s’entrecroise avec d’autres catégories d’identité et axes d’oppression comme la classe, la race, la couleur, ou l’héritage géographique pour produire des intérêts et des expériences bien différentes pour les personnes d’un même genre. Un exemple est l’intersection de la religion et de l’identité masculine du mouvement de la Chrétienté Musculaire formé au Royaume-Uni au 19ème siècle. Dans ce contexte, être une femme de couleur devait aggraver les oppressions liées au genre (Kimberlé Crenshaw 1989)."@fr .
+
+cwrc:GenderContext
+    dcterms:subject cwrc:Gender ;
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Contexte de Gendre"@fr, "Gender Context"@en ;
+    owl:subClass cwrc:Context ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:GenderQueer
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "GenderQueer"@en, "Non-binaire"@fr ;
+    skos:note "Listed as non-binary? in french" .
+
+cwrc:Genre
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:ConceptScheme ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "genre littéraire"@fr, "literary genre"@en ;
+    owl:sameAs dbpedia:Literary_genre ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:GeographicalHeritage
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Geographical Heritage"@en, "Héritage Géographique"@fr ;
+    owl:subClass cwrc:CulturalForm ;
+    skos:definition "GeographicalHeritage est une sous-classe de CulturalForms qui contient des informations sur les origines géographiques de la famille d'une personne, ce qui contribue souvent à la compréhension de ses origines ethnique et raciale. Cela permet de saisir l’identité de femmes qui se déclarent “sud-asiatiques” par exemple, quand aucune autre précision n'est fournie concernant l'héritage national. Voir raceEthnicityContext pour un compte-rendu détaillé de la complexité de cet élément."@fr, "GeographicalHeritage is a subclass of CulturalForm that captures information about the geographical origins of a person's family which often contributes to an understanding of their racial and ethnic background. It offers a way to capture women identified as \"South-Asian,\" for example, when no more precise national heritage is indicated. See raceAndEthnicity for a detailed description of the complexities of this element."@en .
+
+cwrc:JohnSimpson
+    a foaf:Person ;
+    foaf:name "John Simpson" .
+
+cwrc:Language
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Habilité linguistique"@fr, "Linguistic Ability"@en ;
+    owl:subClass cwrc:CulturalForm ;
+    skos:definition "Does not differentiate between spoken and/or written."@en, "Écrit ou Parlé"@fr ;
+    foaf:name "Linguistic Ability"@en .
+
+cwrc:LanguageContext
+    dcterms:subject cwrc:Language, cwrc:LinguisticAbility ;
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Contexte Linguistique"@fr, "Language Context"@en ;
+    owl:subClass cwrc:Context ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:LinguisticAbility
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Habilité linguistique (Écris ou Parlé)"@fr, "Linguistic Ability (Spoken and/or Writen)"@en ;
+    owl:subClass cwrc:CulturalForm ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:NationalHeritage
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Héritage Nationale"@fr, "National Heritage"@en ;
+    owl:subClass cwrc:CulturalForm ;
+    skos:definition ""@fr, "A subclass of culturalForms, this descrbes a person's national heritage and is not the same as citizenship."@en .
+
+cwrc:NationalIdentity
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Identité Nationale"@fr, "National Identity"@en ;
+    owl:subClass cwrc:CulturalForm ;
+    skos:definition ""@fr, "A subclass of culturalForms, this descrbes a person's nationality/ies and is not the same as citizenship."@en .
+
+cwrc:NationalityContext
+    dcterms:subject cwrc:GeographicalHeritage, cwrc:NationalHeritage, cwrc:NationalIdentity ;
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Contexte de Nationalité"@fr, "Nationality Context"@en ;
+    owl:subClass cwrc:Context ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:Place
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:Concept ;
+    rdfs:comment "Could be a populated place according to Geonames, but not necessarily so. Some places, such as cross-roads are named without having a population or settlement per say. The geonames is incosistent in this regards in that a populated place can be abandonned."@en ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/OrlandoOntology#> ;
+    rdfs:label "Endroit"@fr, "Place"@en ;
+    rdfs:subClassOf <http://www.w3.org/2003/01/geo/wgs84_pos#SpatialThing> ;
+    owl:equivalentClass <http://dbpedia.org/ontology/Place>, <http://schema.org/Place>, <http://www.geonames.org/ontology#Feature> ;
+    owl:sameAs <http://geovocab.org/spatial#Feature>, <http://www.opengis.net/ont/geosparql#Feature> ;
+    skos:definition "A named place, wheter incorporated, settled or occupied."@en, "Un endroit nommé, qu'il soit populéé, inc nomméorporer ou abandonné."@en ;
+    foaf:name "Endroit"@fr, "Place"@en .
+
+cwrc:PoliticalAffiliation
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Affiliation Politique"@fr, "Political Affiliation"@en ;
+    owl:subClass cwrc:CulturalForm ;
+    skos:definition ""@fr, "This subclass of CulturalForm tracks the affiliations, connections and associations which designate a person's political involvement. These affiliations can be both formal connections to a party or organization and informal political positions held by the writer. We hope to point our readers towards women writers associated with different political positions and help researchers make links between political beliefs and writing. For this reason, we are defining political affiliations broadly and include things like \"against capital punishment\" or \"strong supporter of the Empire\" in addition to more straightforward affiliations such as \"marxist\" or \"conservative.\""@en .
+
+cwrc:PoliticalContext
+    dcterms:subject cwrc:PoliticalAffiliation ;
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Contexte Politique"@fr, "Political Context"@en ;
+    owl:subClass cwrc:Context ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:RaceColour
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Race and/or Colour"@en, "Race et/ou Couleur de Peau"@fr ;
+    owl:subClass cwrc:CulturalForm ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:RaceEthnicity
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Race and/or Ethnicity"@en, "Race et/ou Ethnicité"@fr ;
+    owl:subClass cwrc:CulturalForm ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:RaceEthnicityContext
+    dcterms:subject cwrc:Ethnicity, cwrc:RaceColour ;
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Contexte raciale et/ou ethnique"@fr, "Race Ethnicity Context"@en ;
+    rdfs:subClass cwrc:Context ;
+    skos:definition "raceEthnicityContext est une sous-classe importante de culturalForms. Elle indique la présence d’informations et de discussions sur le sujet concernant son appartenance raciale et ethnique, fonctionnant conjointement avec les sous-éléments spécifiques au sujet (raceColour, nationalHeritage, geogHeritage, ethnicity). La discussion qui suit s’applique aussi bien au contexte discursif général de raceAndEthnicity ainsi qu’aux catégories spécifiques de cette sous-classe. Même si les catégories de race et d'ethnicité sont fréquemment manipulées au service d'intérêts déplorables, leurs répercussions idéologiques et matérielles sur la formation identitaire requière qu'on les prenne en compte. Ces catégories sont changeantes, historiquement constituées, développées de façon intéressée, et leur usage doit être situé dans leur contexte; elles sont finalement comprises ici comme discursives et représentationnelles. C'est pour ces raisons que l'ontologie ne prétend pas présenter un ensemble de catégories exact, complètement défini, ou mutuellement exclusif, ce qui est impossible étant donné leur utilisation en changement constant ainsi que leur chevauchement. Celles/ceux qui appliquent ces catégories et sous-catégories sont encouragé/es à ne pas faire fonctionner les identités privilégiées comme si elles étaient consensuelles et évidentes, ou à utiliser cette classe seulement en relation avec les marginaux. Celles/ceux préoccupés par le fait que \"blanc\" et \"noir\" sont des catégories homogénéisantes sont encouragés à atteindre la spécificité à travers la multiplicité et les représentations intersectionnelles. RaceAndEthnicity est sous-classe de culturalFormation. Elle a quatre sous-classes qui lui sont liées: raceColour, nationalHeritage, geogHeritage et ethnicity."@fr, "raceEthnicityContext is a significant sub-class within culturalForms. It indicates the presence of information and discussions of a person's subject position with regards to race and ethnicity by working in conjunction with subject specific sub-elements (raceColour, nationalHeritage, geogHeritage, ethnicity). The following discussion applies to both the general discursive context of raceAndEthnicity as well as the specific sub-class categories. Despite the ways in which categories of race and ethnicity frequently serve heinous interests, their ideological and material impacts in the formation of identities requires recognition. These are shifting, historically constituted, and interestedly deployed categories whose use must be situated contextually and which are understood here finally as discursive or representational. Because of this this ontology does not try to lay out an exact, fully defined, or mutually exclusive set of categories: this is an impossibility given their shifting use and the overlap among them. Those applying this class and its subclasses are encouraged not to let privileged identities operate as an unspoken given or to use this class solely in relation to the marginalized. Those concerned about \"white\" and \"black\" as homogenizing categories are encouraged to reach for specificity through multiplicity and representations of intersectionality. RaceAndEthnicity is a sub-class within culturalFormation. It has four related content sub-classes: raceColour, nationalHeritage, geogHeritage, and ethnicity."@en .
+
+cwrc:Religion
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:ConceptScheme ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Religion"@en, "Religion"@fr ;
+    owl:subClass cwrc:CulturalForm ;
+    skos:definition ""@fr, "A subclass of CulturalForm, this describes a person's religion(s) or belief system(s). Note that while atheism denotes the absence of religion, we use the Religion label for convinience."@en .
+
+cwrc:ReligionContext
+    dcterms:subject cwrc:Religion ;
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Contexte Religieux"@fr, "Religious Context"@en ;
+    owl:subClass cwrc:Context ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:RobWarren
+    a foaf:Person ;
+    owl:sameAs <http://rdf.muninn-project.org/ww1/2011/11/11/Person/Warren> ;
+    foaf:name "Robert Warren" .
+
+cwrc:SexIdentity
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:DeprecatedClass, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Identité Sexe"@fr, "Sex Identity"@en ;
+    owl:comment "Deprecated in favour of class Gender."@en ;
+    owl:equivalentClass cwrc:Gender ;
+    owl:subClass cwrc:CulturalForm .
+
+cwrc:SexualIdentity
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:DeprecatedClass, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Identité Sexuelle"@fr, "Sexual Identity"@en ;
+    owl:comment "Deprecated in favour of #Sexuality term."@en ;
+    owl:equivalentClass cwrc:Sexuality ;
+    owl:sameAs <http://homosaurus.org/terms/sexualIdentity> ;
+    owl:subClass cwrc:CulturalForm .
+
+cwrc:Sexuality
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Sexuality"@en, "Sexualitée"@fr ;
+    owl:sameAs <http://homosaurus.org/terms/sexualIdentity> ;
+    owl:subClass cwrc:CulturalForm ;
+    skos:definition """Ces termes englobent en un mot ou en une phrase, l’identification à des types de sexualité (par exemple “lesbienne”, “monogame”, “hétérosexuel/le”), non pas pour fermer la discussion, mais pour développer l’étude et l’analyse critique de ces identifications. L’association suppose que la sexualité n’est pas vécue de manière essentialiste, mais peut être plurielle et fluide, et ainsi plusieurs désignations peuvent être appliquées à une seule personne. Les affirmations de l’identité sexuelle peuvent venir du sujet elle/lui-même ou bien d’autres personnes. Elles peuvent être en tension ou incompatibles, et refléter différents moments de la vie. Par exemple, lier le terme “lesbienne” à la classe sexualIdentiy ne signifie pas que le sujet était définitivement lesbienne, puisqu’une telle identification est souvent impossible à cause des lacunes et silences historiques. En ce qui concerne les personnes toujours en vie, notre pratique est de ne nous appuyer que sur des sources ou des divulgations diffusées au public large par le sujet elle/lui-même afin d’éviter de dévoiler sa sexualité par inadvertance. 
+"""@fr, "These terms capture in a word or phrase identifications of sexuality (i.e., \"lesbian,\" \"monogamous,\" \"heterosexual\") not as a means of shutting down but advancing investigation and critical analysis of these identifications. The association assumes that sexual identity does not function in an essentialist manner but can be plural and fluid, so multiple designations can be applied to a single person. Assertions of sexual itentity may come from the subject her/himself or from others. They may be in tension or mutually exclusive, and they may reflect different life stages. Linking to the term \"lesbian\" as a sexualIdentity class, for instance, does not signify that the subject was in any definitive sense a lesbian; such identifications are often impossible for reasons of historical gaps and silences. As far as living persons are concerned, our practice is to draw only on widely circulated public sources or disclosures from the subject her/himself in order to avoid inadvertently outing someone. See Campbell and Cowan 2016"@en .
+
+cwrc:SexualityContext
+    dcterms:subject cwrc:Gender, cwrc:Sexuality ;
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Contexte Sexuel"@fr, "Sexuality Context"@en ;
+    owl:subClass cwrc:Context ;
+    skos:definition "hasSexualityContext is a significant sub-class within culturalForms. It indicates the presence of information and discussions of a person's subject position with regards to their sexuality and sexual identity. A subclass of Cultural Formation, hasSexualityContext provides depth to more granual categorizations of a person through hasSexuality or hasSexuality. It is not meant to capture individual sexual experiences and relationships, which are covered by intimateRelationships. Specific relationships may be invoked here to indicate the effect on a subject's life and understanding of her own sexuality. This effort to to contextualize gestures towards some of the complicated issues around sexuality, for example, the politics of outing, the historical specificity of some categories such as \"congenital invert,\" or the multiple forms of relating to one's own sexuality. Capturing discussions of her sexuality within this element, will help users interested in the historical, ideological and gendered constructions of sexuality. There are important politics of privacy with respect to the disclosure of a subject's sexuality, sexual orientation and sexual identity. As far as living persons are concerned, our practice is to draw only on widely circulated public sources or disclosures from the subject her/himself in order to avoid inadvertently outing someone. See Campbell and Cowan 2016"@en, "sexualityContext est une sous-classe importante de culturalForms. Elle indique la présence de données ou de discussions sur la subjectivité d’une personne en ce qui concerne sa sexualité et son identité sexuelle. Sous-classe de culturalForms, sexualityContext approfondit la catégorisation granulaire d’une personne à travers hasSexuality ou hasSexuality. Elle n’est pas vouée à répertorier les expériences sexuelles et relations personnelles, qui sont comprises dans intimateRelationships. Des relations spécifiques pourront être évoquées ici pour indiquer les conséquences qu’elles ont eu dans la vie du sujet ou la compréhension de sa propre sexualité. Cet effort de contextualisation est un mouvement vers des questions complexes autours de la sexualité, comme par exemple les politiques de délation autour de la sexualité, la spécificité historique de certaines catégories comme “inversion sexuelle”, ou les multiples formes liées à la sexualité d’une personne. En saisissant les discussions sur sa sexualité, cet élément sera utile aux utilisateurs intéressés par la construction historique, idéologique et genrée de la sexualité. Les politiques de confidentialité sont importantes au regard de la divulgation de la sexualité, de l’orientation et de l’identité sexuelles du sujet. En ce qui concerne les personnes toujours en vie, notre pratique est de ne nous appuyer que sur des sources ou des divulgations diffusées au public large par le sujet elle/lui-même, afin d’éviter de dévoiler des informations privées sur sa sexualité par inadvertance. Voir Campbell and Cowan 2016 (http://ir.lib.uwo.ca/cgi/viewcontent.cgi?article=1085&context=fimspub). "@fr .
+
+cwrc:SocialClassContext
+    dcterms:subject cwrc:SocialClassIdentity ;
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Contexte de Classe Sociale"@fr, "Social Class Context"@en ;
+    owl:subClass cwrc:Context ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:SocialClassIdentity
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:Class, skos:Concept, skos:ConceptScheme ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Identité Classe Sociale"@fr, "Social Class Identity"@en ;
+    owl:subClass cwrc:CulturalForm ;
+    skos:definition ""@fr, "A subclass of culturalForms, Social Class terms associate subjects with a specific social group, recognizing that such categories and their application to individuals are contested and can change over time. The association may be or have been embraced by the subject by the subject her/himself or attributed by others. Unlike Notes typed as socialClassContext, which contain detailed discussion of a subject's class position, socialClass links to a word or phrase signifying a particular construction of class, with particular reference to earlier historical periods in the British Isles. Social class has been variously constructed and theorized, and for women is further complicated by the fact that women were understood to take their social status from fathers and/or husbands. The terminology used here reflects quite basic social groupings that intersect with other factors such as wealth."@en .
+
+cwrc:SusanBrown
+    a foaf:Person ;
+    owl:sameAs <http://orcid.org/0000-0002-0267-7344> ;
+    foaf:name "Susan Brown" .
+
+cwrc:TextLabels
+    void:inDataset cwrc:datasetdefinition ;
+    a skos:ConceptScheme ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Collection of all ambiguous labels within the TEI markup."@en, "blanc"@fr ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:abrahamicReligions
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Abrahamic Religions"@en, "Religions abrahamique"@fr ;
+    skos:broaderTransitive cwrc:occultism .
+
+cwrc:agnosticism
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Agnosticism"@en, "l'agnosticisme"@fr ;
+    skos:broaderTransitive cwrc:occultism ;
+    skos:definition ""@en, ""@fr ;
+    skos:inScheme cwrc:Religion .
+
+cwrc:anglicanChurch
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept, foaf:Organization ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Church of England"@en, "Iglesia de Inglaterra"@es, "anglicaans (kerk van Engeland)"@nl, "anglicanismo"@es, "ying guo sheng gong hui"@zh-latn-pinyin-x-notone, "ying kuo sheng kung hui"@zh-latn-wadegile, "yīng guó shèng gōng huì"@zh-latn-pinyin-x-hanyu, "Église d'Angleterre"@fr, "英國聖公會 (英國國教)"@zh-hant ;
+    skos:broaderTransitive cwrc:christianity ;
+    skos:definition ""@fr, "A Christian denomination having both Protestant and Catholic aspects that originated with Henry VIII's break with the Roman Catholic Church (ca. 1532-34). As the official state Church of England, the monarch of England is still formally considered its head. While at first it remained mainly Catholic in character, reforms came under Edward IV and Elizabeth I who introduced doctrine that was more Protestant in nature, namely new editions of the Book of Common Prayer and the Thirty-nine Articles. Although an overall attitude of toleration exists in the modern Anglican Church, tension remains between its Protestant and Catholic inclinations as well as with newer liberal and evangelical influences. Anglicanism is based on episcopal authority and parish structure is fundamental to the organization of the church. The term is used with regard to the Church of England; with regard to the Episcopal Church in America, use \"Episcopal.\" "@en, "Te gebruiken om te verwijzen naar de anglicaanse kerk (Church of England); gebruik 'episcopaal' om te verwijzen naar de episcopale kerk in Amerika. De term verwijst naar een christelijke geloofsrichting met zowel protestantse als katholieke elementen die ontstond na de breuk tussen de Engelse koning Hendrik VIII en de rooms-katholieke kerk (circa 1532-34). Het anglicanisme is de officiële Britse staatsgodsdienst, en de Britse soevereine vorst is nog altijd het officiële hoofd van de anglicaanse kerk. Aanvankelijk droeg de kerk nog een overwegend katholiek karakter, maar onder Edward IV en Elizabeth I werden er hervormingen doorgevoerd en werd een meer protestants georiënteerde geloofsleer geïntroduceerd, met een nieuwe versie van het Book of Common Prayer en de Negenendertig Artikelen. Hoewel de huidige anglicaanse kerk in het algemeen wordt gekenmerkt door een tolerante houding, zijn de spanningen tussen protestants en katholiek gezinde stromingen binnen de kerk nooit verdwenen en heerst er weerstand tegen nieuwe vrijzinnige en evangelische invloeden. Het anglicanisme berust op episcopaal gezag en op een structuur van parochies, welke van fundamenteel belang is voor de kerkelijke organisatie."@nl, "Úsese con referencia a la Iglesia de Inglaterra y también con referencia a la Iglesia Episcopal de Estados Unidos (úsese Iglesia Episcopal). Este término s erefiere a a una denominación cristiana que contiene elementos católicos y protestantes en varios aspectos y que se originó con el rey Enrique VIII quien rompió con la Iglesia Católica Romana (ca. 1532-1534) Es la iglesia oficial de Inglaterra, la Monarquía Inglesa es aún formalmente considerada su cabeza.Mientras en sus comienzos conservaba su carácter católico, con las reformas realizadas bajo Eduardo IV e Isabel I quienes introdujeron una doctrina que está más cerca del protestantismo y que se encuentra contenida en nuevas ediciones del Libro de Oraciones Comunes y en los Treinta y nueve Artículos. Aunque el anglicanismo  tiene actualmente una actitud de total tolerancia, aún persisten tensiones con las iglesias protestantes y católicas así como de últimas influencias liberales y evangélicas.El Anglicanismo está basado en la autoridad episcopal y se sustenta en una estructura de parroquias que resulta fundamental para la organización de la Iglesia. "@es, "英王亨利八世與羅馬天主教教會(西元1532-34年)分裂所創的基督教派別，同時含有新教與天主教元素。作為官方英國國教，其正式教會首腦仍為英國國王。起初較具天主教特色，在愛德華四世與伊莉莎白一世時改革，加入較具新教本質的教條，即：新版的公禱書(Book of Common Prayer)及三十九條信綱(Thirty-nine Articles)。雖然現代的英國聖公會大體上態度已越顯寬容，但教會內的新教派系與天主教派系關係仍緊繃，也仍不樂於接受較新的自由與福音派影響。英國聖公會奠基於主教的權威上，牧師教區的結構對教會組織十分重要。此詞彙用於指稱英國國教；美國區的主教派教會，則稱為「美國聖公會(Episcopal)」。"@zh-hant ;
+    skos:inScheme cwrc:Religion ;
+    prov:derivedFrom <http://vocab.getty.edu/aat/300153822> .
+
+cwrc:atheism
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Atheism"@en, "athéisme"@fr ;
+    skos:definition ""@en, ""@fr ;
+    skos:inScheme cwrc:Religion .
+
+cwrc:baptistChurch
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Baptist"@en, "baptisme"@nl, "baptismo"@es, "baptistas"@es, "baptiste"@fr, "chin li tsung"@zh-latn-wadegile, "jin li zong"@zh-latn-pinyin-x-notone, "jìn lǐ zōng"@zh-latn-pinyin-x-hanyu, "浸信會"@zh-hant, "浸禮宗"@zh-hant, "浸禮派"@zh-hant ;
+    skos:broaderTransitive cwrc:christianity ;
+    skos:definition ""@fr, "Refers to a Protestant denomination centered around the belief that the sacrament of baptism should only be administered to adult members after a personal profession of belief in Jesus Christ. Baptism in this faith is usually done by full immersion. Emphasis is placed on biblical scripture and preaching. The Baptist denomination is primarily derived from early 17th-century England and Wales where it quickly spread although there are some links with the Anabaptists of the 16th century. Baptist churches very rapidly increased in the late 19th century in the United States."@en, "Se refiere a la religión protestante centrada en torno a la creencia que el sacramento del bautismo debería ser administrado sólo a miembros adultos tras una manifestación personal de creencia en Jesucristo. El bautismo en esta fe es usualmente hecho por inmersión total. El énfasis es puesto en las Escrituras Bíblicas y la oración. La denominación baptista deriva principalmente de la Inglaterra y Gales del siglo XVII en donde rápidamente se difundió a pesar que hay algunas conexiones con los Anabaptistas del siglo XVI. La iglesia baptista creció rápidamente en el siglo XIX en los Estados Unidos."@es, "Verwijst naar een protestantse gezindte waarbij het geloof centraal staat dat het sacrament van de doop alleen moet worden toegediend aan volwassen leden na een persoonlijke belijdenis van geloof in Jezus Christus. De doop vindt bij deze gezindte doorgaans plaats door volledige onderdompeling. De nadruk ligt op Bijbelse geschriften en preken. Het baptisme is in hoofdzaak ontstaan in de vroege 17de eeuw in Engeland en Wales waar het zich snel verspreidde, hoewel er enige verbanden zijn met de anabaptisten van de 16de eeuw. In de late 19de eeuw nam het aantal baptistische kerken in de Verenigde Staten snel toe."@nl, "一支新教派別，相信只有親自聲明信仰基督的成人才可受洗。此教的洗禮通常需全身浸洗。重視聖經經文與佈道。浸信會與十六世紀的重浸派有些淵源，但主要源於十七世紀初的英格蘭與威爾斯，在這兩處快速廣傳。其教會於十九世紀末在美國急速增加。"@zh-hant ;
+    skos:inScheme cwrc:Religion ;
+    prov:derivedFrom <http://vocab.getty.edu/aat/300153825> .
+
+cwrc:black
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:RaceColour ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "black (Race)"@en, "noir (Race)"@fr ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:blackLabel
+    void:inDataset cwrc:datasetdefinition ;
+    a skos:Concept, skosxl:Label ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "black"@en, "noir"@fr ;
+    skos:definition ""@en, ""@fr ;
+    skos:inScheme cwrc:TextLabels ;
+    foaf:name "black"@en .
+
+cwrc:buddhism
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Buddhism"@en, "boeddhisme"@nl, "bouddhisme"@fr, "budismo"@es, "fo chiao"@zh-latn-wadegile, "fo jiao"@zh-latn-pinyin-x-notone, "fó jiào"@zh-latn-pinyin-x-hanyu, "佛教"@zh-hant ;
+    skos:altLabel "Buddhist"@en ;
+    skos:broaderTransitive cwrc:occultism ;
+    skos:definition ""@fr, "Refers to the philosophy and religion based on the enlightenment and teachings of the Buddha Gautama in the early sixth century BCE in the northeastern region of modern India. Playing dominant roles in the art and culture of Southeast Asia and East Asia, this religion is based on the transcendence of human suffering and pain through the acceptance of the limitations of individuality, the surrender of worldly desires and cravings that cause disappointment and sorrow, and the deliverance from the impermanence of living and individual ego based on wealth, social position, or family through the process of enlightenment (nirvana). The religion also centers around 'anatman', or no-self, the idea that the self is in a state of action or a series of changing manifestations rather than in a state of fixed, metaphysical substance. The structure of the religion is based on the Triratna (\"Three Jewels\" of Buddha), a tripartite schematic for living based on three elements: Buddha (the teacher), dharma (the teaching), and sangha (community)."@en, "Se refiere a la filosofía y religión basada en la iluminación y enseñanza del Buddha Gautama en el siglo VI a.C temprano en la región nordeste de la India Moderna. Jugando un rol dominante en el arte y la cultura del Asia Sudeste y Asia Oriental, esta religión está basada en la trascendencia del sufrimiento y dolor humano a través de la aceptación de las limitaciones de individualidad, la rendición de deseos mundanos y anhelos que causan desilusión y aflicción y la liberación desde la transitoriedad of living and individual ego based on wealth, social position, or family through the process of enlightenment (nirvana). The religion also centers around anatman, or no-self, the idea that the self is in a state of action or a series of changing manifestations rather than in a state of fixed, metaphysical substance. The structure of the religion is based on the Triratna (\"Three Jewels\" of Buddha), a tripartite schematic for living based on three elements: Buddha (the teacher), dharma (the teaching), and sangha (community)."@es, "Verwijst naar de filosofie en religie die zijn gebaseerd op de verlichting en leer van Boeddha Gautama in de vroege 6de eeuw v. Chr. in het Noord-Oosten van het moderne India. Deze religie, die een dominante rol speelt in de kunst en cultuur van Zuidoost-Azië en Oost-Azië, is gebaseerd op het overstijgen van menselijk lijden en pijn door het accepteren van de grenzen van de individualiteit, het opgeven van wereldse verlangens en wensen die voor teleurstellingen en verdriet zorgen en het loslaten van het niet-permanente van het leven en het afzonderlijke ego met de bijbehorende welvaart, sociale positie of familierelaties, allemaal door het proces van de verlichting (nirvana). Bij deze religie staat ook 'anatman' centraal, het idee dat 'het zelf' altijd in ontwikkeling is of deel uitmaakt van een reeks veranderende verschijningsvormen in plaats van een vaste, metafysische substantie. De structuur van de religie is gebaseerd op de Triratna ('drie juwelen' van boeddha), een drieledige structuur voor het leven gebaseerd op drie elementen: boeddha (de leraar), dharma (de leer) en sangha (de gemeenschap)."@nl, "根據釋迦牟尼佛之開悟與教誨的哲學和宗教，在西元前六世紀初起源於現今印度東北部。佛教於東南亞及東亞的藝術與文化層面扮演主要角色，相信透過接受自身的局限，以及放棄會引起失望與悲傷的世俗欲求及渴望，能夠使人類的苦痛得以昇華，而在開悟（涅盤）過程中得以從短暫的生命以及建築在財富、社會地位與家庭上的個人自尊中獲得解脫。此宗教的中心思想為「無我」，認為自我是處於活動狀態或是一連串的形式改變，而非固定的形上實體狀態。佛教的架構奠基於「三寶」，即生命三元素：佛(老師)、法(規範)、僧(眾)。"@zh-hant ;
+    skos:inScheme cwrc:Religion ;
+    prov:derivedFrom <http://vocab.getty.edu/aat/300073738> .
+
+cwrc:catholicChurch
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept, foaf:Organization ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Roman Catholic"@en, "catholique"@fr, "catolicismo"@es, "catolicismo romano"@es, "katholicisme"@nl, "katholiek"@nl, "rooms-katholicisme"@nl ;
+    skos:broaderTransitive cwrc:christianity ;
+    skos:definition ""@fr, "Refers to the branch of Christianity characterized by a uniform, highly developed ritual canon and organizational structure with doctrinal roots based in the teachings of the Apostles of Jesus Christ in the first century, in the Alexandrian school of theology, and in Augustinian thought. In this religious branch, faith is considered an acceptance of revelation; revelation appears as doctrine. In juridical terms, it refers to the branch of Christianity distinguished as a unified, monolithic sacramental system under the governance of papal authority. Throughout much of its history, the seat of the Pope has been in Rome, thus \"Roman Catholicism\" is often used to distinguish this concept from the Orthodox Catholic church."@en, "Se refiere a la rama del cristianismo caracterizada por un canon ritual uniforme y altamente desarrollado y una estructura organizacional con raíces doctrinales basadas en las enseñanzas de los Apostoles de Jesucristo en la primera centuria, en la Escuela Alejandrina de teología, y en el pensamiento agustiniano. En esta rama de la religión, la fe es considerada como una aceptación de revelación; la revelación aparece como doctrina. Se refiere a la rama del cristianismo caracterizada por un canon ritual uniforme y altamente desarrollado y una estructura organizacional con raíces doctrinales basadas en las enseñanzas de los Apóstoles de Jesucristo en el primer siglo, en la Escuela Alejandrina de teología, y en el pensamiento agustiniano. En esta rama de la religión, la fe es considerada como una aceptación de revelación; la revelación aparece como doctrina. En términos jurídicos, se refiere a la rama del Cristianismo distinguido como sistema sacramental unificado, monolítico bajo gobierno de la autoridad papal. A través de la mayor parte de su historia, \"la silla del papal” ha estado en Roma, mediante este concepto el Catolicismo Romano se distingue de la Iglesia Católica Ortodoxa."@es, "Verwijst naar de richting van het christendom die zich kenmerkt door een uniforme, hoogontwikkelde rituele canon en organisatiestructuur met een doctrine die wortelt in de leer van de apostelen van Jezus Christus in de 1ste eeuw, in de theologie van de Alexandrijnse school en in het augustijner gedachtegoed. In deze godsdienstige richting wordt het geloof beschouwd als een aanvaarding van de openbaring; de openbaring heeft de vorm van een doctrine. In juridische zin verwijst de term naar de richting van het christendom die zich onderscheidt als een verenigd, monolithisch sacramenteel systeem onder het bestuur van het pauselijk gezag. Gedurende het grootste deel van de geschiedenis van dit systeem was de paus gevestigd in Rome en daarom wordt 'rooms-katholicisme' vaak gebruikt om dit begrip te onderscheiden van de orthodoxe katholieke kerk."@nl ;
+    skos:inScheme cwrc:Religion ;
+    prov:derivedFrom <http://vocab.getty.edu/aat/300073730> .
+
+cwrc:christianity
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Christianity"@en, "chi tu chiao"@zh-latn-wadegile, "christelijk"@nl, "christendom"@nl, "chrétianisme"@fr, "cristianismo"@es, "ji du jiao"@zh-latn-pinyin-x-notone, "jī dū jiāo"@zh-latn-pinyin-x-hanyu, "基督教"@zh-hant ;
+    skos:broaderTransitive cwrc:abrahamicReligions ;
+    skos:definition ""@fr, "Refers to the world religion and culture that developed in the first century CE, driven by the teachings of Jesus Christ of Nazareth. Its roots are in the Judaic tradition and the Old Testament. The tenets include a belief in the death and redemptive resurrection of Jesus. The religion incorporates a tradition of faith, ritual, and a form of church authority or leadership."@en, "Se refiere a la religión y cultura que se desarrolló en la primera centuria, guiado por la creencia y reverencia por la vida, enseñanza, muerte y resurrección redentiva de Jesucristo de Nazaret. La religión incorpora una tradición de fe, ritual y una forma de iglesia de autoridad y liderazgo."@es, "Verwijst naar de wereldreligie en -cultuur die in de eerste eeuw n. Chr. tot ontwikkeling kwam op basis van de leer van Jezus Christus van Nazareth. De wortels van deze religie liggen in de joodse traditie en het Oude Testament. Een van de kenmerkende grondbeginselen is het geloof in de dood en wederopstanding van Jezus. De religie omvat een traditie van geloof, rituelen en een vorm van kerkelijke autoriteit of leiderschap."@nl, "發展於西元一世紀的世界宗教與文化，跟隨拿薩勒(Nazareth)耶穌基督的教誨。源於猶太傳統及舊約聖經。教義包括相信耶穌之死與救贖復活。此教融合信仰傳統、儀式，及某種形式的教會權威或領導。"@zh-hant ;
+    skos:inScheme cwrc:Religion ;
+    prov:derivedFrom <http://vocab.getty.edu/aat/300073711> .
+
+cwrc:churchOfChristianScience
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Christian Scientist"@en, "Science chrétienne"@fr, "christenwetenschap"@nl, "ciencia cristiana"@es ;
+    skos:broaderTransitive cwrc:christianity ;
+    skos:definition ""@fr, "Refers to a Christian denomination and movement founded by Mary Baker Eddy (1821-1910) that seeks to reinstate the Christian message of salvation from all evil, including sickness and disease as well as sin. Eddy, a semi-invalid who was interested in cures not involving medicine, claimed a recovery from a bad injury without medical assistance in 1866. Afterwards, she devoted herself to restoring the healing emphasis of early Christianity. In 1875 she finished writing the first edition of the 'Science and Health with Key to the Scriptures.' This work and the Bible are the principal texts of the movement and importance has been laid on establishing reading rooms where these works can make their own appeal to readers. The 'Christian Science Monitor' is also published by the denomination. Christian Science believes that ignorance is at the root of human unease and thus 'dis-ease.' Instead of seeking medical treatment, special Christian Science healers are to be consulted for spiritual healing. Health, happiness, and holiness can be restored by applying to all aspects of life practices and attitudes in keeping with the principal of divine harmony. The first Church of Christ, Scientist was founded in 1879 in Boston and its headquarters remain there."@en, "Se refiere a una secta y movimiento cristiano fundado por Mary Baker Eddy (1821-1910) que busca reincorporar el mensaje cristiano de salvación de todo mal, incluso la enfermedad y padecimiento así como el pecado. Eddy, un semi-inválido que estaba interesado en curas que no involucraran medicina, afirmó que se había recuperado de una lesión grave sin la ayuda médica en 1866. Después, se consagró a restaurar el énfasis curativo de la primera cristiandad. En 1875 ella terminó escribiendo la primera edición del \"la Ciencia y Salud con Llave a las Escrituras\". Este trabajo y la Biblia son los textos principales del movimiento y importancia se ha puesto en establecer salas de lectura donde estos trabajos pueden hacer su propia apelación a los lectores. El \"Instructivo de ciencia cristiano\" también fue publicado por la secta. La Ciencia Cristiana cree que la ignorancia es la raíz de los padecimientos humanos y por lo tanto de la enfermedad. En lugar de buscar tratamiento médico, los sanadores de la Ciencia Cristiana especiales serán consultados para la curación espiritual. La salud, felicidad, y santidad pueden ser restauradas aplicando a todos los aspectos de la vida prácticas y actitudes en concordancia con la armonía divina. La primera Iglesia Científica de Cristo, se fundó en 1879 en Boston y su centro principal permanece allí."@es, "Verwijst naar een christelijke gezindte en beweging die is gesticht door Mary Baker Eddy (1821-1910) en die streeft naar herbevestiging van de christelijke boodschap van verlossing van al het kwaad, met inbegrip van ziekte en zonde. Eddy, die half invalide was en geïnteresseerd in genezing zonder medicijnen, beweerde dat zij in 1866 zonder medische hulp was hersteld van zwaar letsel. Daarna wijdde zij zich aan het herstel van de nadruk op gebedsgenezing die het vroege christendom had gekenmerkt. In 1875 voltooide zij de eerste editie van haar boek 'Science and Health with Key to the Scriptures'. Dit werk en de Bijbel zijn de voornaamste geschriften van de beweging, die veel belang hecht aan de inrichting van leesruimten waar deze boeken een eigen beroep op de lezers kunnen doen. Ook de 'Christian Science Monitor' wordt door het kerkgenootschap uitgegeven. Volgens de leer van Christian Science is onwetendheid de wortel van het menselijk ongemak, de menselijke ziekte. In plaats van medische behandeling te zoeken moet men gebedsgenezers van Christian Science raadplegen voor spirituele genezing. Gezondheid, geluk en heiligheid kunnen worden hersteld door alle aspecten van de levenspraktijk en -houding aan te spreken in overeenstemming met het beginsel van goddelijke harmonie. De eerste Church of Christ, Scientist werd in 1879 in Boston gesticht en het hoofdkwartier van de beweging is daar nog altijd gevestigd."@nl ;
+    skos:inScheme cwrc:Religion ;
+    prov:derivedFrom <http://vocab.getty.edu/aat/300264476> .
+
+cwrc:churchOfEngland
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept, foaf:Organization ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label ""@fr, "Church of England"@en ;
+    skos:broaderTransitive cwrc:christianity ;
+    skos:definition ""@en, ""@fr ;
+    skos:inScheme cwrc:Religion .
+
+cwrc:churchOfIreland
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Church of Ireland"@en, "l'Église d'Irlande"@fr ;
+    skos:broaderTransitive cwrc:christianity ;
+    skos:definition ""@en, ""@fr ;
+    skos:inScheme cwrc:Religion .
+
+cwrc:congregationalChurch
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Congregational Church"@en, "Églises congrégationalistes"@fr ;
+    skos:broaderTransitive cwrc:christianity ;
+    skos:definition ""@en, ""@fr ;
+    skos:inScheme cwrc:Religion .
+
+cwrc:cwrc
+    a foaf:Organization ;
+    foaf:logo <http://sparql.cwrc.ca/images/CWRCLogo-Horz-FullColour.png> ;
+    foaf:name "Le Collaboratoire scientifique des écrits du Canada"@fr, "The Canadian Writing Research Collaboratory"@en .
+
+cwrc:datasetdefinition
+    cc:Jurisdiction dbpedia:Canada ;
+    cc:attributionURL <http://www.cwrc.ca/> ;
+    cc:license <http://creativecommons.org/licenses/by-nc/4.0/> ;
+    loc:ctb cwrc:ConstanceCrompton, cwrc:originalOrlandoAuthor ;
+    loc:fnd cwrc:sshrc ;
+    loc:pdr cwrc:SusanBrown ;
+    dcterms:creator cwrc:AbiLemak, cwrc:ColinFaulkner, cwrc:JohnSimpson, cwrc:RobWarren ;
+    dcterms:description "L'Ontologie CWRC est l'ontologie maîtresse qui représente tous les éléments de la structure du Collaboratoire scientifique des écrits du Canada."@fr, "The CWRC Ontology is the overall ontology that represents all elements of structure within the Canadian Writing Research Collaboratory."@en ;
+    dcterms:publisher cwrc:cwrc ;
+    dcterms:subject <http://id.loc.gov/authorities/subjects/sh2009007122>, <http://id.loc.gov/authorities/subjects/sh85013838>, <http://id.loc.gov/authorities/subjects/sh85019388>, <http://id.loc.gov/authorities/subjects/sh85043777>, <http://id.loc.gov/authorities/subjects/sh85077519> ;
+    dcterms:title "L'Ontologie CWRC"@fr, "The CWRC Ontology"@en ;
+    a void:Dataset ;
+    rdfs:comment "L'Ontologie CWRC est l'ontologie maîtresse qui représente tous les éléments de la structure du Collaboratoire scientifique des écrits du Canada."@fr, "The CWRC Ontology is the overall ontology that represents all elements of structure within the Canadian Writing Research Collaboratory."@en ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "L'Ontologie CWRC"@fr, "The CWRC Ontology"@en ;
+    skos:definition "L'Ontologie CWRC est l'ontologie maîtresse qui représente tous les éléments de la structure du Collaboratoire scientifique des écrits du Canada."@fr, "The CWRC Ontology is the overall ontology that represents all elements of structure within the Canadian Writing Research Collaboratory."@en ;
+    foaf:logo <http://www.cwrc.ca/wp-content/uploads/2010/11/CWRC_logo_v074.gif> ;
+    foaf:name "L'Ontologie CWRC"@fr, "The CWRC Ontology"@en .
+
+cwrc:dissenters
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Dissenters"@en, "dissidents (ou non-conformistes)"@fr ;
+    skos:broaderTransitive cwrc:churchOfEngland ;
+    skos:definition ""@en, ""@fr ;
+    skos:inScheme cwrc:Religion .
+
+cwrc:dissentingChurches
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Dissenting Churches"@en, "l'Église dissidents"@fr ;
+    skos:broaderTransitive cwrc:churchOfEngland ;
+    skos:definition ""@en, ""@fr ;
+    skos:inScheme cwrc:Religion .
+
+cwrc:england
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:GeographicalHeritage, owl:Thing ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "angleterre"@fr, "england"@en ;
+    rdfs:subClass cwrc:englandLabel ;
+    skos:definition ""@en, ""@fr ;
+    foaf:name "England (Geographical Heritage)"@en .
+
+cwrc:englandLabel
+    void:inDataset cwrc:datasetdefinition ;
+    a skos:Concept, skosxl:Label ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "angleterre"@fr, "england"@en ;
+    owl:oneOf (cwrc:england
+    ) ;
+    skos:definition ""@en, ""@fr ;
+    skos:inScheme cwrc:TextLabels ;
+    foaf:name "England"@en .
+
+cwrc:englishLabel
+    void:inDataset cwrc:datasetdefinition ;
+    a skos:Concept, skosxl:Label ;
+    rdf:value "english" ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "englais"@fr, "english"@en ;
+    owl:oneOf (cwrc:EnglishNationalHeritage
+        cwrc:EnglishLanguage
+        cwrc:EnglishNationalIdentity
+    ) ;
+    skos:definition ""@en, ""@fr ;
+    skos:inScheme cwrc:TextLabels ;
+    foaf:name "english"@en .
+
+cwrc:entrepreneurial-industrialism
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:SocialClassIdentity, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label ""@fr, "Entrepreneurial Industrialism"@en ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:entrepreneurial-industrialist
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:SocialClass, cwrc:SocialClassIdentity, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Entrepreneurial Industrialist"@en, "Entrerpreneur Industrialist"@fr, "entrepreneur industrialist"@fr, "entrepreneurial industrialist"@en ;
+    owl:subClass cwrc:CulturalForm ;
+    skos:definition ""@en, ""@fr, "Involves larges-scale enterprises such as running factories, or backing such enterprises through investing money, for instance, Elizabeth Montagu or Beatrice Webb."@en .
+
+cwrc:eurasianRace
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:RaceColour, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "eurasian"@en, "eurasienne"@fr ;
+    skos:definition ""@en, ""@fr ;
+    foaf:name "Eurasian (Race Colour)"@en .
+
+cwrc:femaleSex
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:SexIdentity, owl:Thing, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Female"@en, "Femelle"@fr ;
+    owl:comment "Deprecated in favour of instance #genderWomanFemale."@en ;
+    owl:deprecated true ;
+    owl:equivalentClass cwrc:genderWomanFemale ;
+    skos:definition ""@en, ""@fr ;
+    foaf:name "Female (Sex)"@en .
+
+cwrc:fifthMonarchists
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Cinquièmes Monarchistes"@fr, "Fifth Monarchists"@en ;
+    skos:broaderTransitive cwrc:dissenters, cwrc:millenarianism ;
+    skos:definition ""@en, ""@fr ;
+    skos:inScheme cwrc:Religion .
+
+cwrc:genderManMale
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Gender, owl:Thing, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "man/male"@en, "woman/female"@fr ;
+    skos:definition ""@en ;
+    foaf:name "man/male (gender)"@en .
+
+cwrc:genderTransMan
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Gender, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Homme Trans"@fr, "Transman/Transmale"@en ;
+    skos:definition ""@en ;
+    foaf:name "Transman/Transmale (gender)"@en .
+
+cwrc:genderTransWoman
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Gender, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Femme Trans"@fr, "Transwoman/Transfemale"@en ;
+    skos:definition ""@en ;
+    foaf:name "Transwoman/Transfemale (gender)"@en .
+
+cwrc:genderWomanFemale
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Gender, owl:Thing, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Femme/Femelle"@fr, "Woman/Female"@en ;
+    skos:definition ""@en ;
+    foaf:name "Woman/Female (gender)"@en .
+
+cwrc:gentry
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:SocialClass, cwrc:SocialClassIdentity, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Gentry"@en, "Gentry"@fr, "gentry"@en, "noblesse non titrée"@fr ;
+    owl:sameAs dbpedia:Gentry ;
+    owl:subClass cwrc:CulturalForm ;
+    skos:definition ""@en, ""@fr, "Gentry indicates someone who is property-owning or related to the same; property can be land or stocks and bonds. It begins in the idea of owning arms and having a coat of arms. but is distinguished from nobility in so far as money is not necessarily related to blood and title. Disinterested gentlemen are of this class (i.e. Mr. Bennett in Jane Austen). Gentlewomen belong to this class, even thought they may not themselves own much property but instead be supported by a father or brother, or they may be distressed, which is to say, impoverished gentlewomen, as in the case of Jane Eyre or Austen's Jane Fairfax."@en .
+
+cwrc:hasActor
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:ObjectProperty, skos:Concept ;
+    rdfs:comment "An Actor in this event."@en ;
+    rdfs:domain cwrc:Event ;
+    rdfs:isDefinedBy <https://raw.githubusercontent.com/cwrc/OrlandoOntology/master/OrlandoOntology#> ;
+    rdfs:label "hasActor"@en ;
+    rdfs:range cwrc:Actor .
+
+cwrc:hasCulturalForms
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:ObjectProperty ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "a une formation culturelle"@fr, "has a cultural form"@en ;
+    skos:definition "Cette sous-classe de culturalFormation associe des concepts et des catégories spécifiques au processus de formation identitaire à travers les processus culturels. Le sujet elle/lui-même peut ou a pu s’approprier de telles associations, ou d’autres personnes les lui ont attribuées. Les concepts et les catégories classés dans culturalForms se chevauchent en théorie et en terme d'étiquettes utilisés."@fr, "This sub-class of culturalFormation associates specific concepts and categories with the process of identity formation through cultural processes. Such associations may be or have been embraced by the subject her/himself or attributed by others. The concepts and categories classed as culturalForms are understood to overlap with each other conceptually and in terms of the labels used."@en .
+
+cwrc:hasEthnicity
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:ObjectProperty ;
+    rdfs:range cwrc:Ethnicity ;
+    rdfs:domain foaf:Person ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "D'Ethnicité"@fr, "has Ethnicity"@en ;
+    rdfs:subPropertyOf cwrc:personalProperty ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:hasEthnicitySelfDefined
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:ObjectProperty ;
+    rdfs:domain cwrc:Ethnicity ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "D'Ethnicité (Autodéclarés)"@fr, "has Ethnicity (Self Defined)"@en ;
+    rdfs:subPropertyOf cwrc:personalPropertySelfDefined ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:hasGender
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:ObjectProperty ;
+    rdfs:domain cwrc:Gender ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "A le Genre"@fr, "has Gender"@en ;
+    rdfs:subPropertyOf cwrc:personalProperty ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:hasGenderSelfDeclared
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:ObjectProperty ;
+    rdfs:domain cwrc:Gender ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "A le Genre (Autodéclarés)"@fr, "has Gender (Self Declared)"@en ;
+    rdfs:subPropertyOf cwrc:personalPropertySelfDeclared ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:hasGenre
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:ObjectProperty ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "a un genre"@fr, "has genre"@en ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:hasGeographicHeritage
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:ObjectProperty ;
+    rdfs:domain cwrc:GeographicHeritage ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "A un héritage géographique"@fr, "has Geographic Heritage"@en ;
+    rdfs:subPropertyOf cwrc:personalProperty ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:hasGeographicHeritageSelfDeclared
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:ObjectProperty ;
+    rdfs:domain cwrc:GeographicHeritage ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "A un héritage géographique (Self Declared)"@fr, "has Geographic Heritage (Self Declared)"@en ;
+    rdfs:subPropertyOf cwrc:personalProperty ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:hasLinguisticAbility
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:ObjectProperty ;
+    rdfs:domain cwrc:LinguisticAbility ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Connait la langue"@fr, "Language Known"@en ;
+    rdfs:subPropertyOf cwrc:personalProperty ;
+    skos:definition ""@fr, "Knowlege of the language for writing or reading."@en .
+
+cwrc:hasLinguisticAbilitySelfDeclared
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:ObjectProperty ;
+    rdfs:domain cwrc:LinguisticAbility ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Connait la langue (Autodéclarés)"@fr, "Language Known (Self Declared)"@en ;
+    rdfs:subPropertyOf cwrc:personalPropertySelfDeclared ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:hasNationality
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:ObjectProperty ;
+    rdfs:domain cwrc:NationalIdentity ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "de Nationalité"@fr, "has Nationality"@en ;
+    rdfs:subPropertyOf cwrc:personalProperty ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:hasNationalitySelfDeclared
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:ObjectProperty ;
+    rdfs:domain cwrc:NationalIdentity ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "de Nationalité (Autodéclarés)"@fr, "has Nationality (Self Declared)"@en ;
+    rdfs:subPropertyOf cwrc:personalPropertySelfDeclared ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:hasNativeLinguisticAbility
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:ObjectProperty ;
+    rdfs:domain cwrc:LinguisticAbility ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "A une langue native"@fr, "Natively Known Language"@en ;
+    rdfs:subPropertyOf cwrc:hasLinguisticAbility ;
+    skos:definition ""@fr, "Knowledge of the language for writing or reading."@en .
+
+cwrc:hasNativeLinguisticAbilitySelfDeclared
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:ObjectProperty ;
+    rdfs:domain cwrc:LinguisticAbility ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "A une langue native (Autodéclarés)"@fr, "Natively Known Language (Self Declared)"@en ;
+    rdfs:subPropertyOf cwrc:hasLinguisticAbilitySelfDeclared ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:hasRaceColour
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:ObjectProperty ;
+    rdfs:domain cwrc:RaceColour ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Est de Race"@fr, "has Race"@en ;
+    rdfs:subPropertyOf cwrc:personalProperty ;
+    skos:definition ""@fr, "A subclass of raceEthnicityContext, this describes a person's racial identity."@en .
+
+cwrc:hasRaceColourSelfDeclared
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:ObjectProperty ;
+    rdfs:domain cwrc:Race ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Est de Race (Autodéclarés)"@fr, "has Race (Self Declared)"@en ;
+    rdfs:subPropertyOf cwrc:personalPropertySelfDeclared ;
+    skos:definition ""@fr, "A subclass of raceEthnicityContext, this describes a person's self-reported racial identity."@en .
+
+cwrc:hasReligion
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:ObjectProperty ;
+    rdfs:domain foaf:Person; # cwrc:Religion <-- original value
+    rdfs:range cwrc:Religion; # added by shawn
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Religion"@fr, "has Religious Affiliation"@en ;
+    rdfs:subPropertyOf cwrc:personalProperty ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:hasReligionSelfDefined
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:ObjectProperty ;
+    rdfs:domain cwrc:Religion ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Religion (Autodéclarés)"@fr, "has Religious Affilication (Self Defined)"@en ;
+    rdfs:subPropertyOf cwrc:personalPropertySelfDefined ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:hasSexuality
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:ObjectProperty ;
+    rdfs:domain cwrc:Sexuality ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "A une Orientation Sexuelle"@fr, "has Sexual Orientation"@en ;
+    rdfs:subPropertyOf cwrc:personalProperty ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:hasSexualitySelfDeclared
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:ObjectProperty ;
+    rdfs:domain cwrc:Sexuality ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "A une Orientation Sexuelle (Autodéclarés)"@fr, "has Sexual Orientation (Self Declared)"@en ;
+    rdfs:subPropertyOf cwrc:personalPropertySelfDeclared ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:hasSocialClass
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:ObjectProperty ;
+    rdfs:domain cwrc:SocialClass ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "De Classe Sociale"@fr, "has Social Class"@en ;
+    rdfs:subPropertyOf cwrc:personalProperty ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:hasSocialClassSelfDefined
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:ObjectProperty ;
+    rdfs:domain cwrc:SocialClass ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "De Classe Sociale (Autodéclarés)"@fr, "has Social Class (Self Defined)"@en ;
+    rdfs:subPropertyOf cwrc:personalPropertySelfDefined ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:heterosexual
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Sexuality, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Heterosexual"@en, "Hétérosexuelle"@fr ;
+    owl:sameAs <http://homosaurus.org/terms/heterosexualIdentity> ;
+    skos:definition ""@en, ""@fr ;
+    foaf:name "Heterosexual (Sexual Identity)"@en .
+
+cwrc:hinduism
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Hindou"@fr, "Hinduism"@en, "hindoeïsme"@nl, "hinduismo"@es, "l'hindouisme"@fr, "yin du jiao"@zh-latn-pinyin-x-notone, "yin tu chiao"@zh-latn-wadegile, "yìn dù jiào"@zh-latn-pinyin-x-hanyu, "印度教"@zh-hant ;
+    skos:broaderTransitive cwrc:occultism ;
+    skos:definition ""@fr, "General term for the set of intellectual and philosophical tenets and highly diverse beliefs and practices that define the civilization, art, literature, society, and politics of the Indian subcontinent. Hinduism is not a common set of rigid beliefs , but varies significantly between different regions; it includes Shaivism, Vaishnavism, Srauta, and numerous other traditions. Among other practices and philosophies, Hinduism includes a wide spectrum of laws and prescriptions of \"daily morality\" based on karma, dharma, and societal norms. The highest divine powers are seen as complementary to one another and not exclusive. Hinduism does not have a particular founder or central authority. Hindu literature is rich and varied, with no one text considered uniquely authoritative. The Vedas, dating to the Vedic period (ca. 1200-500 BCE), are the earliest extant writings. Religious law books and epics such as the Ramayana and the Mahabharata have been and continue to be highly influential."@en, "Se refiere al conjunto de creencias y prácticas altamente diversas que generalmente denotan la civilización y cultura India de los dos mil últimos años. La religión influye fuertemente en el arte, la literatura, la política y al sociedad hinduista. Presenta la creencia y la práctica de ritos mágicos, cultos animales, creencia en demonios, cultos a deidades, incluyendo dioses locales y dioses centrales, misticismo, ascetismo y una apreciación y respeto por otras formas de cultos o creencias religiosas. La verdad de la religión no esta concebida como un término dogmático, sino que la verdad supera toda definición verbal. En vez de un sistema de doctrinas, el énfasis se pone en la manera correcta de vivir (dharma). Hay variaciones significativas entre diversas regiones. La mayoría de las formas de hinduismo enfatizan el concepto del reencarnación o de la transmigración; la liberación (moksha) desde el ciclo del samsara es la última meta espiritual del hindú. Brahma, Vishnu y Shiva son las deidades hindúes principales, juntos forman la tríada, el Trimurti. Existen muchos otros deidades de menor rango. El Hinduismo no tiene un fundador en particular o un iniciado, allí no hay una autoridad central. La literatura hindú es rica y variada, sin un texto considerado únicamente autoritario. El Vedas, fechando en el período de Vedic (ca. 1200-500 a. C), es la escritura más temprana existente. Los libros de ley y las epopeyas religiosas tales como el Ramayana y el Mahabharata han sido y continúan siendo altamente influyentes."@es, "Verwijst naar de reeks uiterst diverse geloven en gebruiken die in het algemeen verwijzen naar de Indiase beschaving en cultuur van de afgelopen tweeduizend jaar. De religie heeft een sterke invloed op de Indiase kunst, literatuur, maatschappij en politiek. Het hindoeïsme omvat diverse religieuze geloven en gebruiken en in plaats van andere goden, andere godsdiensten en andere religieuze concepten als fout of onverenigbaar te zien, worden de hoogste goddelijke machten gezien als elkaar aanvullend. De religieuze waarheid wordt niet gezien in dogmatische termen aangezien wordt geloofd dat de waarheid alle woordelijke definities overstijgt. In plaats van op een reeks doctrines ligt de nadruk op de juiste manier van leven (dharma). Er zijn aanzienlijke verschillen per regio. In de meeste vormen van het hindoeïsme ligt de nadruk op het concept van reïncarnatie of zielsverhuizing; de bevrijding (moksha) van de cyclus van samsara is het uiteindelijke spirituele doel van hindoes. Brahma, Visjnoe en Shiva zijn de belangrijkste hindoeïstische godheden en vormen gezamenlijk een drie-eenheid, de Trimurti. Verder is er een groot aantal lagere goden. Het hindoeïsme heeft geen specifieke oprichter of ontstaansmoment en er is geen centrale autoriteit. De hindoeïstische literatuur is erg rijk en gevarieerd en geen enkele specifieke tekst wordt als gezaghebbend beschouwd. De Veda's, die afkomstig zijn uit de Vedische periode (ca. 1200-500 v. Chr.), zijn de oudste overgebleven geschriften. Religieuze wetboeken en heldendichten zoals de Ramayana en de Mahabharata zijn altijd erg invloedrijk geweest."@nl, "代表過去兩千年來印度文明與文化的一套極多樣的信仰與實踐方式。此宗教對印度藝術、文學、社會與政治有極大影響。印度教包含多元的宗教信仰及實踐方式，因此不會認為其他的神明、其他形式的敬拜及宗教觀是錯誤或者互不相容，反而認為最高的神力是彼此互補的。他們相信真理超越所有言語定義，因此不應武斷認定何謂宗教真理。重視生活的正確方式(法)，而非一連串的教條。不同宗教之間差異甚鉅。大部分的印度教形式強調輪迴觀念；從生死疾苦等輪迴中解脫是印度教徒最終的心靈目標。婆羅摩、毗濕奴、濕婆是印度教主要的三個神明(三相神) 。還有很多其他小神。印度教沒有確切的建立者及開始時間，也沒有中央權威。印度教文學豐富且多樣，但沒有哪一部作品被認為是權威。追溯自吠陀時期(西元前500年到西元1200年)的吠陀經是現存最早的經典。宗教法律典籍及史詩如《羅摩耶那史詩》及《摩訶婆羅達》仍舊極具影響力。"@zh-hant ;
+    skos:inScheme cwrc:Religion ;
+    prov:derivedFrom <http://vocab.getty.edu/aat/300073727> .
+
+cwrc:homosexual
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Sexuality, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Homosexual"@en, "Homosexuel"@fr ;
+    skos:definition ""@en, ""@fr ;
+    foaf:name "Homosexual (Sexual Identity)"@en .
+
+cwrc:identity
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:ObjectProperty, skos:Concept ;
+    rdfs:comment "The identity of the person who committed the act."@en ;
+    rdfs:domain cwrc:Actor ;
+    rdfs:isDefinedBy <https://raw.githubusercontent.com/cwrc/OrlandoOntology/master/OrlandoOntology#> ;
+    rdfs:label "Identity"@en ;
+    rdfs:range cwrc:Person .
+
+cwrc:inRole
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:ObjectProperty, skos:Concept ;
+    rdfs:comment "The role taken on by this actor."@en ;
+    rdfs:domain cwrc:Actor ;
+    rdfs:isDefinedBy <https://raw.githubusercontent.com/cwrc/OrlandoOntology/master/OrlandoOntology#> ;
+    rdfs:label "In Role"@en ;
+    rdfs:range cwrc:Role .
+
+cwrc:indigent
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:SocialClass, cwrc:SocialClassIdentity, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Indigent"@en, "Pauvre"@fr, "indigent"@en, "indigents"@fr ;
+    owl:subClass cwrc:CulturalForm ;
+    skos:definition ""@en, ""@fr, "This social group is poor, destitute, unemployed, supported by charity, or on social security."@en .
+
+cwrc:islam
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Islamism"@en, "Religion Mahométane"@fr, "i ssu lan chiao"@zh-latn-wadegile, "islam"@es, "islam"@nl, "islamismo"@es, "l'islam"@fr, "mahométisme"@fr, "yi si lan jiao"@zh-latn-pinyin-x-notone, "yī sī lán jiāo"@zh-latn-pinyin-x-hanyu, "伊斯蘭教"@zh-hant, "回教"@zh-hant ;
+    skos:broaderTransitive cwrc:abrahamicReligions ;
+    skos:definition ""@fr, "Refers to the religious beliefs and social practices founded in the seventh century by the Arabian Prophet Muhammad, held to be the last of a series of major prophets, which include, according to Islamic dogma, Adam, Noah, and Jesus. It later spread throughout the Middle East, Africa, Europe, and parts of Asia. It is characterized by the belief in the fundamental idea that a devotee 'surrenders' and submits his will to Allah, the prime creator and sustainer of the universe and all creation. In Islam, God is unique and has no partner or intermediary as in the Christian Trinity. Social service and the active alleviation of suffering in others is considered the only path to salvation and prayer and sacred ritual alone are inadequate forms of submission to Allah. The Qur'an (Koran), the sacred text of the religion, is a compilation of revelations from Allah believed to have been received by Muhammad."@en, "Se refiere a creencias religiosas y prácticas sociales fundadas en el siglo VII por el Profeta árabe Mahoma, supuestamente el último de una serie de grandes profetas, incluídos, de acuerdo al dogma Islámico, Adán, Noé y Jesús. Posteriormente se difundió a través del Medio Oriente, África, Europa y parte de Asia. Se caracteriza por la creencia en la idea fundamental que un devoto se \"rinde\" y somete la voluntad de Alá, el principal creador y mantenedor del universo y toda creación. En el Islam, Dios es único y no tiene parentesco o intermediario como la trinidad cristiana. El servicio social y las actividades que alivian el sufrimiento de otros es considerado el único camino a la salvación y la oración y ritual sagrado a solas es una inadecuado forma de sumisión para Alá. El Coran (Koran), consagrado el texto de las religiones, es una compilación relevante de las creencias de Alá que fueron recibidas de Mahoma."@es, "Verwijst naar het samenstel van religieuze overtuigingen en sociale gebruiken dat in de 7de eeuw is ontstaan op basis van de leer van de Arabische profeet Mohammed, die wordt beschouwd als de laatste in een reeks van grote profeten; volgens de islamitische leer zijn dit onder anderen Adam, Noach en Jezus. De islam heeft zich later verspreid in het Midden-Oosten, Afrika, Europa en delen van Azië. De islam wordt gekenmerkt door het geloof in het fundamentele idee dat een gelovige zich 'overgeeft' en zich onderwerpt aan Allah, de schepper van het universum en de schepping als geheel. God is uniek en heeft geen partner of tussenpersoon zoals bij de christelijke drie-eenheid. Maatschappelijke dienstbaarheid en het actief verlichten van het lijden van anderen wordt beschouwd als de enige weg naar verlossing en gebeden en heilige rituelen zijn op zichzelf onvoldoende vormen van overgave aan Allah. De Qur'an (Koran), het heilige geschrift van de religie, is een verzameling onthullingen die, zo gelooft men, door Allah aan Mohammed zijn geopenbaard."@nl, "由阿拉伯先知穆罕默德於七世紀創建的宗教信仰與社會實踐方式。根據伊斯蘭教條，穆罕默德是繼亞當、挪亞、耶穌後最後一個主要的先知。此教之後廣傳中東、非洲、歐洲、及部份亞洲。基本思想為信徒交出自己的意志給阿拉(宇宙及所有創造物的最高造物者與支撐者)。就伊斯蘭教而言，神是獨一無二的，且并非如基督教三位一體的觀點般有夥伴或是媒介。社會服務及積極幫助受苦者被認為是通往救贖的唯一路徑，若只有祈禱及神聖儀式則不算完全奉獻予阿拉。可蘭經是此教的聖典，記載穆罕默德從阿拉得來的神示。"@zh-hant ;
+    skos:inScheme cwrc:Religion ;
+    prov:derivedFrom <http://vocab.getty.edu/aat/300073715> .
+
+cwrc:jewish
+    a owl:Thing .
+
+cwrc:jewishLabel
+    void:inDataset cwrc:datasetdefinition ;
+    a skos:Concept, skosxl:Label ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "jewish"@en, "juif"@fr ;
+    owl:oneOf (cwrc:jewish
+    ) ;
+    skos:definition ""@en, ""@fr ;
+    skos:inScheme cwrc:TextLabels ;
+    foaf:name "jewish"@en .
+
+cwrc:jewishReligion
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Jewish"@en, "Judaísmo"@es, "jodendom"@nl, "joods"@nl, "judaïsme"@fr, "you tai jiao"@zh-latn-pinyin-x-notone, "yu t'ai chiao"@zh-latn-wadegile, "yóu tài jiāo"@zh-latn-pinyin-x-hanyu, "猶太教"@zh-hant ;
+    skos:broaderTransitive cwrc:abrahamicReligions ;
+    skos:definition ""@fr, "Refers to the monotheistic religion of the Jewish people, central to which is the belief that the ancient Israelites experienced God's presence in human events. Jews believe that the one God delivered the Israelites out of bondage in Egypt, revealed the structure of communal and individual life to them, and chose them to be a holy nation of people able to set an example for all humankind. The Hebrew Bible and Talmud are the two primary sources for Judaism's spiritual and ethical principles. The religion, which traces its origins to Abraham, places more emphasis on expressing beliefs through ritual rather than through abstract doctrine. The Sabbath, beginning on sunset on Friday and ending at sunset on Saturday, is the central religious observance; there is also an annual cycle of religious festivals and days of fasting. Judaism has had a diverse history of development over almost 4000 years, with a number of resulting branches in modern times, namely Orthodox, Conservative, and Reform."@en, "Se refiere a la religión monoteista del pueblo judío, para los cuales es central la creencia que los antiguos israelitas experimentaron la presencia de Dios en los eventos humanos. Los judíos creen que el Dios único salvó los israelistas de la esclavitud en Egipto, revelándoles la estructura de la vida comunal e individual y eligiéndolos para ser una nación sagrada de personas capaces de dar un ejemplo para toda la humanidad. La Biblia Hebrea y el Talmud son dos fuentes primarias de la espiritualidad judía y de los principios éticos.Los orígenes de la religión se remontan a los tiempos de Abraham, poniendo mayor énfasis en expresar la creencia con rituales más bien que con doctrinas abstractas. El Shabbat, que comienza con la puesta de sol del viernes y termina con la puesta de sol del sábado, es la observancia religiosa central; hay también un ciclo anual de fiestas religiosas y días de ayuno. El judaísmo ha tenido un desarrollo diverso a lo largo de la historia de casi 4.000 años, con un gran número de ramas resultantes en épocas modernas, concretamente ortodoxas, conservadoras, y reformistas."@es, "Verwijst naar de monotheïstische religie van het joodse volk, waarbij het geloof centraal staat dat de oude Israëlieten de aanwezigheid van God ervoeren in menselijke gebeurtenissen. Joden geloven dat één God de Israëlieten uit hun gevangenschap in Egypte heeft bevrijd, de structuur van een gemeenschappelijk en individueel leven aan hen heeft onthuld en hen heeft uitverkoren als een heilig volk dat als voorbeeld moest dienen voor de gehele mensheid. De Hebreeuwse bijbel en de Talmoed zijn de belangrijkste bronnen voor de spirituele en ethische principes van het jodendom. Deze religie, waarvan de oorsprong teruggaat naar de tijd van Abraham, legt meer de nadruk op het tot uitdrukking brengen van het geloof in de vorm van rituelen dan in de vorm van abstracte doctrines. De sabbat, die begint bij zonsondergang op vrijdag en eindigt bij zonsondergang op zaterdag, is een centraal element van de religie; er is ook een jaarlijkse cyclus van religieuze feestdagen en vastendagen. Het jodendom heeft een zeer uiteenlopende ontwikkelingsgeschiedenis die bijna 4000 jaar beslaat en is uitgemond in diverse stromingen: de orthodoxe, conservatieve en reformistische stroming."@nl, "猶太人的一神論宗教，相信古代以色列人於人類事件中體驗到神的存在。猶太人相信這唯一的神使他們脫離埃及的奴役，向他們揭示公共及個人生活的結構，並選擇他們為聖國子民，以為全人類樹立榜樣。《希伯來聖經(Hebrew Bible)》與《塔爾穆德(Talmud)》為猶太教精神與道德原則的兩大來源。猶太教源於亞伯拉罕，較強調以儀式而非抽象的教條表達信仰。遵循信仰的重心為安息日，從週五的日落開始到週日的日出結束；另外每年還有宗教節慶和齋戒日。猶太教經過將近四千年的發展，衍生出許多現代的分支，即正統派猶太教(Orthodox)、保守派猶太教(Conservative)，與改革派猶太教(Reform.)。"@zh-hant ;
+    skos:inScheme cwrc:Religion ;
+    prov:derivedFrom <http://vocab.getty.edu/aat/300073723> .
+
+cwrc:lesbian
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Sexuality, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Lesbian"@en, "Lesbienne"@fr ;
+    owl:sameAs <http://homosaurus.org/terms/lesbianIdentity> ;
+    skos:definition ""@en, ""@fr ;
+    foaf:name "Lesbian (Sexual Identity)"@en .
+
+cwrc:lollards
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Lollards"@en, "Lollards"@fr ;
+    skos:broaderTransitive cwrc:catholicChurch ;
+    skos:definition ""@en, ""@fr ;
+    skos:inScheme cwrc:Religion .
+
+cwrc:lowerMiddleClass
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:SocialClassIdentity, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "This includes employees, clerical workers, teachers, and governesses. Note, however, that some teachers go into Professional (Mr. Chips) and women starting schools and then managing them also go into Professional."@en, "classe basse moyenne"@fr ;
+    owl:subClass cwrc:CulturalForm ;
+    skos:definition ""@fr, "Employees, clerical workers, teachers, governesses. Note, however, that some teachers go into Professional (Mr. Chips) and women starting schools and then managing them also go into Professional."@en .
+
+cwrc:maleLabel
+    void:inDataset cwrc:datasetdefinition ;
+    a skos:Concept, skosxl:Label ;
+    rdf:value "male" ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Male"@en, "Male"@fr ;
+    owl:oneOf (cwrc:genderManMale
+        cwrc:maleSex
+    ) ;
+    skos:definition ""@en, ""@fr ;
+    skos:inScheme cwrc:TextLabels ;
+    foaf:name "Male (Label)"@en .
+
+cwrc:maleSex
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:SexIdentity, owl:Thing, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Male"@en, "Male"@fr ;
+    owl:comment "Deprecated in favour of instance #genderManMale."@en ;
+    owl:deprecated true ;
+    owl:equivalentClass cwrc:genderManMale ;
+    skos:definition ""@en, ""@fr ;
+    foaf:name "Male (Sex)"@en .
+
+cwrc:manLabel
+    void:inDataset cwrc:datasetdefinition ;
+    a skos:Concept, skosxl:Label ;
+    rdf:value "man" ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Homme"@fr, "Man"@en ;
+    owl:oneOf (cwrc:genderManMale
+    ) ;
+    skos:definition ""@en, ""@fr ;
+    skos:inScheme cwrc:TextLabels ;
+    foaf:name "Man (Label)"@en .
+
+cwrc:managerial
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:SocialClassIdentity, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "gestionnaire"@fr, "managerial"@en ;
+    owl:subClass cwrc:CulturalForm ;
+    skos:definition ""@fr, "Someone whose station in life comes from the fact that they are running something but not putting their money into it, e.g. salaried civil service, bankers, hospital administrators."@en .
+
+cwrc:methodistChurch
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Methodist Church"@en, "l'Église méthodiste"@fr ;
+    skos:broaderTransitive cwrc:christianity ;
+    skos:definition ""@en, ""@fr ;
+    skos:inScheme cwrc:Religion .
+
+cwrc:millenarianism
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Millenarianism"@en, "millénarisme, ou chiliasme"@fr ;
+    skos:broaderTransitive cwrc:occultism ;
+    skos:definition ""@en, ""@fr ;
+    skos:inScheme cwrc:Religion .
+
+cwrc:neo-thomism
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Neo-thomism"@en, "néothomisme"@fr ;
+    skos:broaderTransitive cwrc:catholicChurch ;
+    skos:definition ""@en, ""@fr ;
+    skos:inScheme cwrc:Religion .
+
+cwrc:nobility
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:SocialClassIdentity, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "nobility"@en, "nobilitée"@fr ;
+    owl:subClass cwrc:CulturalForm ;
+    skos:definition ""@fr, "This group refers to those holding a title or of close family relation to someone holding a title (such as Lady Mary Wortley Montagu, Lord Byron, or Nancy Mitford)."@en .
+
+cwrc:occultism
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Occultism/Theosophism"@en, "occultisme"@fr ;
+    skos:definition ""@fr, "Any religious or philosophic ideology based on mystical insight into the nature of God and/or divine truth. This insight is attained only through direct experience of the divine. The term is sometimes used to specifically refer to the principles of the Theosophical Society founded in New York in 1875 by Madame Blavatsky and H. S. Olcott which incorporated aspects of Buddhism and Brahmanism."@en ;
+    skos:inScheme cwrc:Religion .
+
+cwrc:originalOrlandoAuthor
+    void:entities "TOTAL_ENTITIES_CWRC_ONTOLOGY" ;
+    void:inDataset cwrc:datasetdefinition ;
+    void:triples "TOTAL_TRIPLES_CWRC_ONTOLOGY" ;
+    a skos:Concept, foaf:Group ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Les membres du project Orlando"@fr, "Members of the Orlando Project"@en ;
+    skos:definition "La collection de tout les auteurs du Project Orlando."@fr, "The collection of all persons having written entries for The Orlando Project."@en ;
+    foaf:homepage <http://orlando.cambridge.org/public/svDocumentation?formname=t&d_id=CREDITSANDACKNOWLEDGEMENTS> ;
+    foaf:name "Members of the Orlando Project."@en .
+
+cwrc:pagan
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Pagan"@en, "païen (ou payen)"@fr ;
+    skos:broaderTransitive cwrc:occultism ;
+    skos:definition ""@en, ""@fr ;
+    skos:inScheme cwrc:Religion .
+
+cwrc:personalProperty
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:ObjectProperty ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Personal Property"@en, "Propriété de la Personne"@fr ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:personalPropertySelfDeclared
+    void:inDataset cwrc:datasetdefinition ;
+    a owl:ObjectProperty ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Personal Property (Self Reported)"@en, "Propriété de la Personne (Autodéclarés)"@fr ;
+    rdfs:subPropertyOf cwrc:personalProperty ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:plymouthBrethren
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Frères de Schwarzenau"@fr, "Plymouth Brethren"@en ;
+    skos:broaderTransitive cwrc:anglicanChurch ;
+    skos:definition ""@en, ""@fr ;
+    skos:inScheme cwrc:Religion .
+
+cwrc:presbyterianism
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Presbyterian"@en, "chang lao tsung"@zh-latn-wadegile, "prebyteriaan"@nl, "presbiterianismo"@es, "presbyterianisme"@nl, "presbytérien"@fr, "zhang lao zong"@zh-latn-pinyin-x-notone, "zhǎng lǎo zōng"@zh-latn-pinyin-x-hanyu, "長老制"@zh-hant, "長老宗"@zh-hant, "長老教會"@zh-hant ;
+    skos:broaderTransitive cwrc:christianity ;
+    skos:definition ""@fr, "Een van de belangrijkste protestantse groeperingen die voortkwamen uit de 16de-eeuwse Reformatie. In het algemeen hebben moderne presbyteriaanse kerken hun oorsprong in de calvinistische kerken op de Britse eilanden, waarvan de Europese tegenhangers bekend zijn geworden onder de meer algemene naam 'gereformeerden'. De term 'presbyteriaans' verwijst ook naar een collegiaal type kerkbestuur onder leiding van pastors en leken die ouderlingen of presbyters worden genoemd. Strikt genomen maken alle presbyteriaanse kerken deel uit van de gereformeerde of calvinistische traditie, maar zijn niet alle gereformeerde kerken presbyteriaans in hun bestuursvorm."@nl, "One of the main Protestant groups that arose out of the 16th-century Reformation. Generally speaking, modern Presbyterian churches trace their origins to the Calvinist churches of the British Isles, the European counterparts of which came to be known by the more inclusive name of Reformed. The term presbyterian also denotes a collegiate type of church government led by pastors and lay leaders called elders or presbyters. Strictly speaking, all Presbyterian churches are a part of the Reformed, or Calvinist, tradition, although not all Reformed churches are presbyterian in their form of government."@en, "Uno de los principales grupos protestantes que surgió de la Reforma del siglo XVI. Hablando en general, las Iglesias Presbiterianas modernas señalan sus orígenes en las iglesias calvinistas de las Islas Británicas, la contraparte Europea la que fue conocida por el nombre más global de \"Reformada\". El término presbiterianismo también denota un tipo colegiado de gobierno de iglesia liderado por el pastor y lideres laicos llamados ancianos o presbiteros. Estrictamente hablando, todas las iglesias presbiterianas son parte de la Iglesia .El término presbiterianismo también denota un tipo colegiado de gobierno de iglesia liderado por el pastor y lideres laicos llamados ancianos o presbiteros. Estrictamente hablando, todas las iglesias presbiterianas son parte de la Reforma o Calvinismo, tradición, aunque no todas las iglesias Reformadas son presbiterianas en su gubernamentalidad."@es, "自十六世紀宗教改革興起的主要新教團體的一派。一般說來，現代的長老教會可追溯至不列顛群島的喀爾文(Calvinis)教派，其在歐洲的對應教派則被稱為較具涵蓋性的歸正派(Reformed)。長老教會一詞，亦表示其管理方式如同大學，由稱作長老或教士的牧師及信徒領導。嚴格來說，所有長老教會皆為歸正派或喀爾文教派傳統的一部分，但並非所有歸正教會的管理方式皆如同長老教會一般。"@zh-hant ;
+    skos:inScheme cwrc:Religion ;
+    prov:derivedFrom <http://vocab.getty.edu/aat/300153854> .
+
+cwrc:professional
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:SocialClassIdentity, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "professional"@en, "professionnel"@fr ;
+    owl:subClass cwrc:CulturalForm ;
+    skos:definition ""@fr, "Includes doctors, lawyers, guild members, and those of high calling such as members of the clergy (Church of England). It implies social respect and intellectual requirements. Examples are Ann Hunter, who was married to a surgeon, and Virginia Woolf, daughter of an intellectual."@en .
+
+cwrc:protestantism
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Protestantism"@en, "hsin chiao"@zh-latn-wadegile, "protestant"@nl, "protestantisme"@fr, "protestantisme"@nl, "protestantismo"@es, "xin jiao"@zh-latn-pinyin-x-notone, "xīn jiāo"@zh-latn-pinyin-x-hanyu, "抗羅宗"@zh-hant, "新教"@zh-hant ;
+    skos:broaderTransitive cwrc:christianity ;
+    skos:definition ""@fr, "De algemene term voor typen christelijk geloof die zijn ontstaan tijdens de Reformatie. Hoewel de vroegste vormen van protestantisme werden beoefend door de volgelingen van Luther, Calvijn en Zwingli, wordt de term tegenwoordig gebruikt voor de meeste overtuigingen die niet rooms-katholiek of orthodox zijn. Protestanten willen dichter bij de geloofsstijl van de vroege kerk staan, die volgens hen in de katholieke praktijk overschaduwd is geraakt. De term is afkomstig van het woord 'protestari', wat niet alleen 'protesteren' betekent, maar ook 'belijden'. Enkele algemene kenmerken van het protestantisme zijn: rechtvaardiging door het geloof alleen, de berusting van alle gezag bij de Bijbel en de leer dat alle gelovigen zelf hun zonden aan God kunnen belijden, waarbij het aanhoren van de biecht niet alleen aan priesters is voorbehouden."@nl, "El término general para tipos de fe cristiana originadas a partir de la Reforma. Aunque las formas tempranas del protestantismo fueron aquellas que obedecían a Lutero, Calvino y Zwinglio, el término ahora incluye la mayoría de las denominaciones no Romanas o no Ortodoxas. El caracter común de los protestantes incluye la justificación de la fe por la fe, la autoridad de la sagrada escritura  y el sacerdocio de todos los fieles, por el que cada creyente puede oir la confesión de los pecados, no siendo exclusivo del clero. protestantes quieren estar cerca al estilo de fe de la primera Iglesia el cual sienten ha sido opacado en las prácticas católicas. El término deriva desde la palabra \"protestari\" que significa no sólo protestar sino que reconocer o confesar. Característica común."@es, "The general term for types of Christian faith originating from the Reformation. Although the early forms of Protestantism were those who followed Luther, Calvin, and Zwingli, the term now includes most non-Roman Catholic or non-Orthodox denominations. Protestants want to be closer to the style of faith of the early Church which they feel has been obscured in Catholic practices. The term derives from the word 'protestari' which means not only to protest but to avow or confess. Common characteristics of Protestantism include the justification by faith alone, the authority of scripture, and the priesthood of all believers, in which not only the clergy are able to hear the confession of sin."@en, "泛稱源自宗教改革的各式基督信仰。雖然早期的新教形式是指遵循路德(Luther)、喀爾文(Calvin)，以及茨溫利(Zwingli)的派別，但現在新教這個詞彙包含了大部分非羅馬天主教或非正教的派別。新教徒希望能更接近早期教會信仰，認為天主教將之變得晦澀難解。本詞彙衍生自”protestari”，不僅意指抗議，更要坦白或懺悔。新教的常見特色包括因純信而稱義、經典的權威性、信徒皆牧師，所以不是只有牧師才能聽取認罪懺悔。\r "@zh-hant ;
+    skos:inScheme cwrc:Religion ;
+    prov:derivedFrom <http://vocab.getty.edu/aat/300073735> .
+
+cwrc:quakers
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Quaker"@en, "quaker"@fr ;
+    skos:broaderTransitive cwrc:churchOfEngland, cwrc:dissenters ;
+    skos:definition "Het Religieus Genootschap der Vrienden, beter bekend als quakers, verouderd Nederlands kwakers, vormt een groep ondogmatische gelovigen, die zijn wortels vindt in de christelijke traditie. Het leven en de overgeleverde uitspraken van Jezus vormen een belangrijke inspiratiebron."@nl, "La Société religieuse des Amis est un mouvement religieux fondé en Angleterre au XVIIe siècle par des dissidents de l'Église anglicane. Les membres de ce mouvement sont communément connus sous le nom de quakers () mais ils se nomment entre eux « Amis » et « Amies ». Le mouvement est souvent nommé simplement Société des Amis et le surnom de « quaker » apparaît le plus souvent dans la dénomination officielle, sous la forme Société religieuse des Amis (quakers). Les historiens s'accordent à désigner George Fox comme le principal fondateur ou le plus important meneur des débuts du mouvement. Depuis sa création en Angleterre, le mouvement s'est d'abord répandu dans les pays de colonisation anglo-saxonne. Au XXe siècle, des missionnaires quakers ont propagé leur religion en Amérique latine et en Afrique. Aujourd'hui, les quakers déclarent être au nombre d'environ 350 000 dans le monde. La Société des Amis se différencie de la plupart des autres groupes issus du christianisme par l'absence de credo et de toute structure hiérarchique. Pour les quakers, la croyance religieuse appartient à la sphère personnelle et chacun est libre de ses convictions. Le concept de « lumière intérieure » (inner light) est cependant partagé par la plupart d'entre eux, quelle que soit la signification donnée à ces mots. De nombreux quakers reconnaissent le christianisme mais ne ressentent pas leur foi comme entrant dans les catégories chrétiennes traditionnelles. On trouve aujourd'hui dans la Société des Amis des pratiques très diverses, y compris un large courant évangélique."@fr, "Quakers (or Friends) are members of a group of religious Christian movements which is known as the Religious Society of Friends in Europe, Australia, New Zealand and parts of North America; and known as the Friends Church in Africa, Asia, South America and parts of the US. The movements were originally, and are still predominantly based on Christianity. Members of the movements profess the priesthood of all believers, a doctrine derived from the First Epistle of Peter. They include those with evangelical, holiness, liberal, and traditional Quaker understandings of Christianity. To differing extents, the different movements that make up the Religious Society of Friends/Friends Church avoid creeds and hierarchical structures. In 2007, there were approximately 359,000 adult Quakers."@en ;
+    skos:inScheme cwrc:Religion ;
+    prov:derivedFrom dbpedia:Quakers .
+
+cwrc:rationalDissenter
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label ""@fr, "Rational Dissenter"@en ;
+    skos:broaderTransitive cwrc:dissenters ;
+    skos:definition ""@en, ""@fr ;
+    skos:inScheme cwrc:Religion .
+
+cwrc:rural-unskilled
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:SocialClassIdentity, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "rural - journalier"@fr, "rural-unskilled"@en ;
+    owl:subClass cwrc:CulturalForm ;
+    skos:definition ""@fr, "This generally indicates farm laborers, mostly male in earlier periods, and includes migrant farm workers."@en .
+
+cwrc:servants
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:SocialClassIdentity, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "servant"@fr, "servants"@en ;
+    owl:subClass cwrc:CulturalForm ;
+    skos:definition ""@fr, "Domestic servants typically live in the home with the family or institution that employs them, although the lowest class of servants might work only casually and hence not receive room and board. This type of labour, very common before the twentieth century, is distinct from that of service positions such as shop assistants, flight attendances, and restaurant workers."@en .
+
+cwrc:shopkeepers
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:SocialClassIdentity, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Typically applied to someone who owns and runs a pub or shop, but not on the scale of an entrepreneur or industrialist."@en, "détaillant"@fr ;
+    owl:subClass cwrc:CulturalForm ;
+    skos:definition ""@fr, "Owns and runs a pub or shop. Similar to an industrialist but to a lesser degree of magnitude."@en .
+
+cwrc:skilledCraftpersonArtisan
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:SocialClassIdentity, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Artisan"@fr, "This category includes such trades as goldsmith, tailor, shoemaker, milliner, and dressmaker."@en ;
+    owl:subClass cwrc:CulturalForm ;
+    skos:definition ""@fr, "Goldsmith, tailor, shoemaker, milliner, dressmaker."@en .
+
+cwrc:societyOfFriends
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Society of Friends"@en, "Société religieuse des Amis"@fr ;
+    skos:broaderTransitive cwrc:christianity ;
+    skos:definition ""@en, ""@fr ;
+    skos:inScheme cwrc:Religion .
+
+cwrc:spiritualism
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Spiritualism"@en, "spiritualisme"@fr ;
+    rdfs:subClassOf dbpedia:Spiritualism ;
+    skos:broaderTransitive cwrc:occultism ;
+    skos:definition ""@en, ""@fr ;
+    skos:inScheme cwrc:Religion .
+
+cwrc:sshrc
+    a foaf:Organization ;
+    foaf:name "Conseil de recherches en sciences humaines"@fr, "Social Sciences and Humanities Research Council"@en ;
+    foaf:nick "SSHRC" .
+
+cwrc:tractarianMovement
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Tractarian Movement"@en, "tractarianisme"@fr ;
+    rdfs:subClassOf dbpedia:Oxford_Movement ;
+    skos:broaderTransitive cwrc:churchOfEngland ;
+    skos:definition ""@en, ""@fr ;
+    skos:inScheme cwrc:Religion .
+
+cwrc:unitarianChurch
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdf:value "unitarianChurch" ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Unitarian Church"@en, "l'Église unitarienne"@fr ;
+    skos:broaderTransitive cwrc:christianity ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:unitarianism
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Religion, skos:Concept ;
+    rdf:value "unitarianMovement" ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Unitarianism"@en, "l'unitarisme"@fr, "unitarios"@es, "unitarisme"@nl, "unitarismo"@es ;
+    rdfs:subClassOf dbpedia:Unitarianism ;
+    skos:altLabel "Unitarian"@en, "Unitarian Movement"@en ;
+    skos:broaderTransitive cwrc:protestantism ;
+    skos:definition ""@fr, "In het bijzonder te gebruiken voor de vrijzinnig protestantse beweging die in Europa opkwam tijdens de Reformatie in de 16de eeuw, werd belichaamd door een kerk in Transsylvanië en een confessionele status verkreeg in Groot-Brittannië, de Verenigde Staten en Canada tijdens de 19de eeuw. De beweging wordt gekenmerkt door de afwijzing van de orthodox christelijke leer van de Drie-eenheid en de goddelijke Christus, het vrije gebruik van de rede in religieuze zaken en het geloof dat God bestaat in één persoon. In 1961 fuseerde deze beweging in de Verenigde Staten en Canada met de universalistische beweging, waardoor het ‘unitaristisch universalisme’ ontstond. Ook in het algemeen te gebruiken voor de theologische leer van de eenheid van God en het mens-zijn van Jezus, zoals voor het eerst verwoord in het monarchisme van de 2de en 3de eeuw en in de leer van Arius in de 3de en 4de eeuw, en later in de leer van de radicale neoplatonisten uit de Reformatie zoals Michael Servetus, Faustus Socinus en Ferenc David."@nl, "The liberal Protestant movement that arose in Europe during the 16th century Reformation, was embodied in a church in Transylvania, and achieved denominational status in the 19th century in the United Kingdom, the United States, and Canada. It is characterized by a denial of the orthodox Christian doctrines of the Trinity and the divinity of Jesus, the free use of reason in religion, and the belief that God exists in one person. In 1961, in the United States and Canada, it merged with the Universalist denomination to form \"Unitarian Universalism.\"  Use also generally for the theological doctrines of the unified nature of God and the humanity of Jesus, first expressed in second- and third-century monarchism and in the teachings of Arius in the third and fourth centuries, and later in the radical Neoplatonist thinkers of the Reformation such as Michael Servetus, Faustus Socinus, and Ferenc David."@en, "Úsese específicamente para el movimiento protestante liberal que surgió en Europa durante la Reforma del siglo XVI, que tuvo su manifestación en una iglesia en Transilvania, y que logró un estatus confesional en el siglo XIX en el Reino Unido, los Estados Unidos y Canadá. Es caracterizado por una desaprobación de las doctrinas cristianas ortodoxas de la Trinidad y la divinidad de Jesús, el libre uso de la razón en la religión y la creencia que Dios existe en una persona. En 1961, en los Estados Unidos y Canadá s"@es ;
+    skos:inScheme cwrc:Religion ;
+    prov:derivedFrom <http://vocab.getty.edu/aat/300263305> .
+
+cwrc:unknownSex
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:SexIdentity, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Inconnue"@fr, "Unknown"@en ;
+    owl:comment "Deprecated with no current equivalence."@en ;
+    owl:deprecated true ;
+    skos:definition ""@en, ""@fr ;
+    foaf:name "Unknown (Sex)"@en .
+
+cwrc:upper-middleClass
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:SocialClassIdentity, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "classe haute moyenne"@fr, "upper middle class"@en ;
+    owl:comment "This term is a CWRC specific addition not in the original Orlando tag set."@en ;
+    owl:subClass cwrc:CulturalForm ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:urban-industrialUnskilled
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:SocialClassIdentity, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "This category includes factory workers and workers in urban or large-scale industries without defined trades or professional qualifications, and those in low-wage and low-status service sector jobs, such as the restaurant or fast-food industry, in industrial or post-industrial societies."@en, "Urbain - industriel - ouvrier non spécialisé"@fr ;
+    owl:subClass cwrc:CulturalForm ;
+    skos:definition ""@en, ""@fr .
+
+cwrc:whiteEthnicity
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:Ethnicity, owl:Thing ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "blanc"@fr, "white"@en ;
+    rdfs:subClass cwrc:whiteLabel ;
+    skos:definition ""@en, ""@fr ;
+    foaf:name "White (Ethnicity)"@en .
+
+cwrc:whiteLabel
+    void:inDataset cwrc:datasetdefinition ;
+    a skos:Concept, skosxl:Label ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "blanc"@fr, "white"@en ;
+    owl:oneOf (cwrc:whiteEthnicity
+        cwrc:whiteRace
+    ) ;
+    skos:definition ""@en, ""@fr ;
+    skos:inScheme cwrc:TextLabels ;
+    foaf:name "white"@en .
+
+cwrc:whiteRace
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:RaceColour, owl:Thing, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "blanc"@fr, "white"@en ;
+    rdfs:subClass cwrc:whiteLabel ;
+    skos:definition ""@en, ""@fr ;
+    foaf:name "White (Race Colour)"@en .
+
+cwrc:womanLabel
+    void:inDataset cwrc:datasetdefinition ;
+    a skos:Concept, skosxl:Label ;
+    rdf:value "woman" ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Femme"@fr, "Woman"@en ;
+    owl:oneOf (cwrc:genderWomanFemale
+    ) ;
+    skos:definition ""@en, ""@fr ;
+    skos:inScheme cwrc:TextLabels ;
+    foaf:name "Woman (Label)"@en .
+
+cwrc:yeoman-farmer
+    void:inDataset cwrc:datasetdefinition ;
+    a cwrc:SocialClassIdentity, skos:Concept ;
+    rdfs:isDefinedBy <http://sparql.cwrc.ca/ontologies/cwrc#> ;
+    rdfs:label "Members of this historica class owned just enough land to support themselves if they did most of the work themselves. Examples include Elizabeth Ham and Mary Webb."@en, "agriculteur vivrier"@fr ;
+    owl:subClass cwrc:CulturalForm ;
+    skos:definition ""@fr, "Own just enough land to support themselves if they do most of the work themselves (ie Elizabeth Ham, Mary Webb)."@en .
+
+prov:derivedFrom
+    rdfs:range cwrc:Context .
+

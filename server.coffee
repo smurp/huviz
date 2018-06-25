@@ -22,6 +22,8 @@ switch process.env.NODE_ENV
   when 'development'
     cooked_argv.push("--faststart")
     cooked_argv.push("--is_local")
+    cooked_argv.push("--git_commit_hash")
+    cooked_argv.push("8e3849b") # cafeb0b is funnier
     console.log cooked_argv
 
 nopts = nopt(knownOpts, shortHands, cooked_argv, 2)
@@ -106,10 +108,15 @@ app.configure ->
   app.use("/huviz", express.static(__dirname + '/lib'))
   app.use('/css', express.static(__dirname + '/css'))
   app.use('/jquery-ui-css',
-    express.static(__dirname + '/node_modules/jquery-ui/themes/smoothness'))
+    express.static(__dirname + '/node_modules/components-jqueryui/themes/smoothness'))
+  app.use('/jquery-ui',
+    express.static(__dirname + '/node_modules/components-jqueryui'))
   # TODO use /jquery-ui/jquery-ui.js instead once "require not found is fixed"
   #   app.use('/jquery-ui',
   #     express.static(__dirname + '/node_modules/jquery-ui'))
+  app.use('/jquery', express.static(__dirname + '/node_modules/jquery/dist'))
+  app.use('/jquery-simulate-ext__libs', express.static(__dirname + '/node_modules/jquery-simulate-ext/libs'))
+  app.use('/jquery-simulate-ext__src', express.static(__dirname + '/node_modules/jquery-simulate-ext/src'))
   app.use('/data', express.static(__dirname + '/data'))
   app.use('/js', express.static(__dirname + '/js'))
   app.use("/jsoutline", express.static(__dirname + "/node_modules/jsoutline/lib"))
@@ -118,9 +125,11 @@ app.configure ->
   app.use('/mocha', express.static(__dirname + '/node_modules/mocha'))
   app.use('/chai', express.static(__dirname + '/node_modules/chai'))
   app.use('/marked', express.static(__dirname + '/node_modules/marked'))
-  app.use('/docs', express.static(__dirname + '/docs'))  
+  app.use('/docs', express.static(__dirname + '/docs'))
   app.get "/orlonto.html", localOrCDN("/views/orlonto.html.eco", nopts.is_local)
   app.get "/yegodd.html", localOrCDN("/views/yegodd.html.eco", nopts.is_local)
+  #app.get "/experiment.html", localOrCDN("/views/experiment.html", nopts.is_local)
+  #app.get "/experiment.js", localOrCDN("/views/experiment.js", nopts.is_local)
   app.get "/tests", localOrCDN("/views/tests.html.eco", nopts.is_local)
   app.get "/", localOrCDN("/views/huvis.html.eco", nopts.is_local)
   app.use express.static(__dirname + '/images') # for /favicon.ico

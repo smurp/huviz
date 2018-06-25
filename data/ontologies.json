@@ -1,0 +1,38 @@
+{
+  "datasets": [
+    {
+      "uri": "http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl",
+      "label": "Orlando Ontology"
+    },
+    {
+      "uri": "http://sparql.cwrc.ca/ontology/cwrc.ttl",
+      "label": "CWRC Ontology"
+    },
+    {
+      "uri": "/data/cwrc_wo_genre.ttl",
+      "label": "CWRC Ontology sans Genres"
+    },
+    {
+      "uri": "/data/OrlandoOntology-SexesUnderPerson.ttl",
+      "label": "OrlandoOntology-SexesUnderPerson"
+    },
+    {
+      "uri": "/data/owl_mini.ttl",
+      "label": "OWL Mini"
+    },
+    {
+      "uri": "/data/schema.org.ttl",
+      "label": "Schema.org (subset)"
+    },
+    {
+      "uri": "/data/foaf20140114.ttl",
+      "label": "Friend of a Friend (FOAF)"
+    }
+  ],
+  "defaults": {
+    "isOntology": true,
+    "opt_group": "Ontologies",
+    "ontology_label": "OWL Mini",
+    "canDelete": false
+  }
+}

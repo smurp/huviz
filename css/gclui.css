@@ -5,20 +5,50 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  max-height: 32em;
-  overflow-y: scroll;
+  /*max-height: 50em;
+  overflow-y: scroll;*/
 }
+#gclui p, #data_ontology_display p {
+    width:auto;
+    float:left;
+    margin: .1em;
+}
+#predicates {
+  margin-bottom: 50px;
+}
+#predicates {
+  overflow-y: scroll;
+  height: 30em;
+}
+
 .alternates {
   float:left;
 }
-.verbs {
-  margin:.1em;
-}
+
 .verb {
-  border:2px solid;
-  margin:0.05em;
+  margin:4px 2px 4px 0;
   cursor: pointer;
+  border-top:1px solid #eee;
+  border-right:1px solid #aaa;
+  border-left:1px solid #eee;
+  border-bottom:1px solid #aaa;
+  background-color: #f5f5f5;
+  padding: 3px 4px;
+  border-radius: 3px;
+  color: #666;
 }
+.engaged {
+  background-color: #ddd;
+  border-top:1px solid #aaa;
+  border-right:1px solid #eee;
+  border-left:1px solid #aaa;
+  border-bottom:1px solid #eee;
+  color: #222;
+}
+.verb:hover {
+  background-color: #ccc;
+}
+
 .contents { /* Boxes in a treepicker are clickable */
     cursor: pointer;
 }
@@ -31,8 +61,9 @@
 .treepicker-collapse { /* but if it is also collapsed then it IS clickable again! ORDER MATTERS */
   cursor: pointer;
 }
-.engaged {
-  background-color: tan;
+.verbs {
+  color: #444;
+  font-size: 85%;
 }
 .taxonomydiv {
   margin:0.1em;
@@ -50,19 +81,37 @@
   margin-top: .1em;
   padding: .1em;
   color: gray;
-  background-color: #fcf59b; /* legal pad yellow */
-  border-style: groove;
+  /*background-color: #fcf59b;  legal pad yellow */
+  background-color: rgb(235, 245, 255);
+  border-style: solid;
+  border-top: 1px solid #ccc;
+  border-left: 1px solid #ccc;
+  border-right: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  border: none;
+}
+.command code {
+  font-family: sans-serif;
+  font-weight: normal;
+  font-style: italic;
+  font-size: .9em;
+  letter-spacing: .3px;
 }
 .commandlist {
-  overflow-y: auto;
+  /* overflow-y: auto; */
   /* -webkit-border-top-right-radius: 20px 300px; */
   /* background-color: #81cbbc;  hairline blue */
-  background-color: blue; /* hairline blue */
+  /* background-color: blue;  hairline blue */
 }
 .nextcommand {
   color: black;
   font-weight:bold;
-
+  -webkit-touch-callout: auto;
+  -webkit-user-select: auto;
+  -khtml-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+  user-select: auto;
 }
 .cmdlistbar {
   color: white;
@@ -72,17 +121,15 @@
   background-color: blue;
   color: white;
 }
-.commandhistory {
+#commandhistory {
   overflow-y: scroll;
-  max-height: 6em;
+  /*max-height: 6em; */
+}
+.commandhistory .command{
+  padding: .2em .4em;
 }
 .display_none {
   display:none;
-}
-p {
-    width:auto;
-    float:left;
-    margin: .1em;
 }
 .container {
     display:inline-block;
@@ -91,7 +138,7 @@ p {
 }
 .contents {
     font-size: 90%;
-    border:1px solid;
+    /*border:1px solid;*/
     padding: .1em;
     overflow:auto;
 }
@@ -153,7 +200,7 @@ p {
   display:none; /* */
 }
 #sets {
-  margin-right: 2px;    
+  margin-right: 2px;
 }
 #sets.locked {
   background: darkgray;
@@ -167,9 +214,6 @@ p {
   float: right;
   width: 66%
 }
-#tabs {
-  /* max-height: 80%; */
-}
 .nextcommand_command {
   -webkit-touch-callout: initial;
   -webkit-user-select: initial;
@@ -179,11 +223,15 @@ p {
   user-select: initial;
 }
 .nextcommand_prompt_ready {
-  color: black;
+  color: #888;
 }
 .nextcommand_prompt_unready {
   color: grey;
   font-style: italic;
+}
+.nextcommand_prompt_proposed {
+  color: red;
+  font-style: bold;
 }
 .close_all_snippets_button {
     cursor: pointer;
@@ -222,8 +270,52 @@ p {
     padding: .5em;
     margin-left: .7em;
     margin-right: .7em;
-    margin-bottom: .7em;    
+    margin-bottom: .7em;
 }
 .hints {
     margin-top: .5em;
+}
+//.box__dragndrop,
+.box__uploading,
+.box__success,
+.box__error {
+  display: none;
+}
+
+.box__error {
+  background-color: red;
+}
+
+.local_file_form.is-dragover {
+  background-color: green;
+}
+.local_file_form .box__file {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+.local_file_form .box__upload_button {
+    display: none;
+}
+.local_file_form .box__label {
+    display: none;
+}
+.local_file_form.supports-dnd {
+    outline: 2px dashed black;
+    margin: 3px;
+    outline-offset: -2px;
+    border: 6px;
+    padding: 8px;
+}
+.local_file_form .box__uri {
+    width: 98%;
+}
+.local_file_form .box__uri:invalid {
+    color: red;
+}
+.local_file_form .box__uri:valid {
+    color: green;
 }
