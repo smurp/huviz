@@ -499,9 +499,13 @@ progress[value]::-moz-progress-bar {
 }
 
 /* cope with absence of =80x80 in npm marked Markdown support */
-#tabs-credit img {
+#logos {
+  padding-bottom: 200px;
+}
+
+#tabs-credit #logos img {
   height: 64px;
-  width: 64px;
+  padding: 5px;
 }
 #tabs-credit h1 {
     display: block;
