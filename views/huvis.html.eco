@@ -34,7 +34,8 @@
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
   <% end %>
   </head>
-  <body>
+  <body id="body">
+    <div id="full_screen" style="position:absolute;z-index:999"><i class="fa fa-arrows-alt"></i></div>
     <div id="snippet_box"></div>
     <div id="expand_cntrl" style="visibility:hidden"><i class="fa fa-angle-double-left"></i></div>
     <section id="tabs" role="controls">
