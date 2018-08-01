@@ -73,7 +73,7 @@
   margin-left:-8px;
   border-left: solid 1px #bbb;
 }
-#collapse_cntrl, #expand_cntrl{
+#collapse_cntrl, #expand_cntrl, #full_screen{
   background-color: #157fcc;
   display: block;
   position: absolute;
@@ -95,10 +95,17 @@
 #expand_cntrl {
   right: 0;
 }
-#collapse_cntrl i{
+#collapse_cntrl i, #full_screen i{
   padding:0;
   margin:0;
 }
+#full_screen{
+  font-size: 0.8em;
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: 5px;
+  padding: 0 2px 2px 0;
+}
+
 .scrolling_tab {
   max-height: 100%;
   overflow: auto;
