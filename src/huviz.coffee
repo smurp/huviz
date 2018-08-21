@@ -2706,8 +2706,9 @@ class Huviz
 
   recolor_nodes: () ->
     # The nodes needing recoloring are all but the embryonic.
-    for node in @nodes
-      @recolor_node(node)
+    if @nodes
+      for node in @nodes
+        @recolor_node(node)
 
   toggle_selected: (node) ->
     if node.selected?
@@ -3773,7 +3774,6 @@ class Huviz
           type: "range"
     ,
       color_nodes_as_pies:
-        style: "display:none"
         text: "Color nodes as pies"
         label:
           title: "Show all a nodes types as colored pie pieces"
@@ -4070,7 +4070,7 @@ class Huviz
       @shelved_set.resort()
       @discarded_set.resort()
 
-  XXXXon_change_color_nodes_as_pies: (new_val, old_val) ->  # TODO why this == window ??
+  on_change_color_nodes_as_pies: (new_val, old_val) ->  # TODO why this == window ??
     @color_nodes_as_pies = new_val
     @recolor_nodes()
 
