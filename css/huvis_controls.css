@@ -41,7 +41,8 @@
     border-top: none;
     border-left: none;
     border-right: none;
-    background: #157fcc url(images/ui-bg_highlight-soft_75_cccccc_1x100.png) 50% 50% repeat-x;
+    /*background: #157fcc url(images/ui-bg_highlight-soft_75_cccccc_1x100.png) 50% 50% repeat-x;*/
+    background: #157fcc 50% 50% repeat-x;
     color: #222222;
     font-weight: bold;
 }
