@@ -105,8 +105,10 @@ class CommandController
     $(".hints > .a_hint").first().show()
   select_the_initial_set: =>
     # TODO initialize the taxon coloring without cycling all
-    @huviz.toggle_taxon("Thing", true)
-    @huviz.toggle_taxon("Thing", false)
+    # Removed toggle_taxon and added statement to start with nodes not selected (#)
+    #@huviz.toggle_taxon("Thing", true)
+    #@huviz.toggle_taxon("Thing", false)
+    @huviz.do({verbs: ['unselect'], sets: []})
     @huviz.shelved_set.resort() # TODO remove when https://github.com/cwrc/HuViz/issues/109
     return
     #@engage_verb('choose')
@@ -249,11 +251,11 @@ class CommandController
     if not @taxa_being_clicked?
       throw new Error("taxa_being_clicked_decrement() has apparently been called before taxa_being_clicked_increment()")
     #@taxa_being_clicked ?= 1
-    console.log("taxa_being_clicked_decrement() before:", @taxa_being_clicked)
+    #console.log("taxa_being_clicked_decrement() before:", @taxa_being_clicked)
     @taxa_being_clicked--
-    console.log("taxa_being_clicked_decrement() after:", @taxa_being_clicked)
+    #console.log("taxa_being_clicked_decrement() after:", @taxa_being_clicked)
     if @taxa_being_clicked is 0
-      console.log("taxa click storm complete after length #{@taxa_click_storm_length}")
+      #console.log("taxa click storm complete after length #{@taxa_click_storm_length}")
       #debugger if @taxa_click_storm_callback?
       if @taxa_click_storm_callback?
         @taxa_click_storm_callback.call(document)
@@ -607,7 +609,6 @@ class CommandController
     cmd_ui = @oldcommands.append('div').attr('class','command')
     d = $('#commandhistory').scrollTop($('#commandhistory')[0].scrollHeight)
     #d.scrollTop(d.prop("scrollHeight"))
-    console.log "+++++++++++++++"
     record =
       elem: cmd_ui
       cmd: cmd

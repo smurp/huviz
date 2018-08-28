@@ -3430,7 +3430,7 @@ class Huviz
       console.info("doing addClass('#{optional_class}') on all occurrences of CSS class human_term__*")
     for canonical, human of @human_term
       selector = '.human_term__' + canonical
-      console.log("replacing '#{canonical}' with '#{human}' in #{selector}")
+      #console.log("replacing '#{canonical}' with '#{human}' in #{selector}")
       $(selector).text(human).addClass(optional_class) #.style('color','red')
 
   human_term:
