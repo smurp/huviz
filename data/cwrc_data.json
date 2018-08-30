@@ -7,6 +7,15 @@
     {
       "uri": "https://raw.githubusercontent.com/cwrc/testData/master/demoData/HuVizSHARP2017.ttl",
       "label": "HuVizSHARP2017"
+    },
+    {
+      "uri": "https://raw.githubusercontent.com/cwrc/testData/master/demoData/REED_Elizabethan_sample.ttl",
+      "label": "REED Elizabethan sample"
+
+    },
+    {
+      "uri": "https://raw.githubusercontent.com/cwrc/testData/master/demoData/CanAuthorsBiography.ttl",
+      "label": "Can Authors Biography"
     }
   ],
   "defaults": {
