@@ -3,6 +3,8 @@ huviz
 
 ![Image](./graph_ex1.png?raw=true)
 
+[Demo](http://huviz.dev.nooron.com/)
+
 # Installation
 
     # Install huviz from github
