@@ -325,9 +325,12 @@ progress[value]::-moz-progress-bar {
 }
 
 #blurtbox {
-   /*overflow:scroll;
-   height:150px;*/
+   overflow:auto;
+   height:150px;
    font-family:monospace;
+   list-style:none;
+   padding-left: 1em;
+   margin-right: 1em;
 }
 #blurtbox p{
   margin-left:1em;
@@ -350,11 +353,6 @@ progress[value]::-moz-progress-bar {
 #blurtbox .error h3{
   background-color: #f9cccc;
 }
-#blurtbox {
-  list-style:none;
-  padding-left: 1em;
-  margin-right: 1em;
-}
 #blurtbox .js_msg {
   margin: 0.5em 1em 2em 2.5em;
   font-style: italic;
@@ -370,6 +368,9 @@ progress[value]::-moz-progress-bar {
 }
 #blurtbox .error {
   color: #bd3a3a;
+}
+.sml_bttn {
+  margin: 2em;
 }
 
 /* ---------------- Edit controls ----------------------- */
