@@ -270,9 +270,10 @@ blurt = (str, type) ->
     if type is "error"
       $('#huvis_controls').prepend('<div id="blurtbox"></div>')
     else
-      $('#tabs').append('<div id="blurtbox" style="overflow:scroll;height:150px;"></div>')
+      $('#tabs').append('<div id="blurtbox"></div>')
   $('#blurtbox').append("<div class='blurt #{type}'>#{label}#{str}<br class='clear'></div>")
   $('#blurtbox').scrollTop(10000)
+  $('#blurtbox').append("<button id='blurt_close' class='sml_bttn' type='button'>close</button>")
 
 escapeHtml = (unsafe) ->
     return unsafe
@@ -3397,6 +3398,7 @@ class Huviz
     $("#collapse_cntrl").click(@minimize_gclui).on("click", @updateWindow)
     $("#full_screen").click(@fullscreen)
     $("#expand_cntrl").click(@maximize_gclui).on("click", @updateWindow)
+    $("#tabs").on('click', '#blurt_close', @close_blurt_box)
     $("#tabs").tabs
       active: 0
       collapsible: true
@@ -3408,6 +3410,9 @@ class Huviz
   fullscreen: () =>
     elem = document.getElementById("body")
     elem.webkitRequestFullscreen()
+
+  close_blurt_box: () =>
+    $('#blurtbox').remove()
 
   minimize_gclui: () ->
     $('#tabs').prop('style','visibility:hidden;width:0')
