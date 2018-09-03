@@ -3081,9 +3081,23 @@ class Huviz
     # TODO remove this nullification of @last_val by fixing logic in select_option()
     @ontology_loader?last_val = null # clear the last_val so select_option works the first time
 
+  pick_parser_for_local_file: (fname) ->
+    the_parser = @parseAndShowNQ
+    if fname.match(/.ttl/)
+      the_parser = @parseAndShowTTLData # does not stream
+    else if fname.match(/.(nq|nt)/)
+      the_parser = @parseAndShowNQ
+    else if fname.match(/.json/)
+      the_parser = @parseAndShowJSON
+    return the_parser
+
   visualize_dataset_using_ontology: =>
     @set_ontology(@ontology_loader.value)
-    @load_file_from_uri(@dataset_loader.value) # , () -> alert "woot")
+    if @dataset_loader.the_file_contents?
+      the_parser = @pick_parser_for_local_file(@dataset_loader.value)
+      the_parser(@dataset_loader.the_file_contents,'')
+    else
+      @load_file_from_uri(@dataset_loader.value) # , () -> alert "woot")
     selected_dataset = @dataset_loader.get_selected_option()[0]
     @update_browser_title(selected_dataset)
     @update_caption(@dataset_loader.value, @ontology_loader.value)
@@ -4686,7 +4700,7 @@ class DragAndDropLoader
       #console.log evt.target.result
       #console.log("evt", evt)
       try
-        @huviz.read_data_and_show(firstFile.name, evt.target.result)
+        @the_file_contents = evt.target.result
       catch e
         msg = e.toString()
         @form.find('.box__error').show()
