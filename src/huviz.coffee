@@ -1004,7 +1004,8 @@ class Huviz
       if parent_lid?
         parent = @get_or_create_taxon(parent_lid)
         taxon.register_superclass(parent)
-      @gclui.add_new_taxon(taxon_id,parent_lid,undefined,taxon) # FIXME should this be an event on the Taxon constructor?
+        label = @ontology.label[taxon_id]
+      @gclui.add_new_taxon(taxon_id, parent_lid, label, taxon) # FIXME should this be an event on the Taxon constructor?
     @taxonomy[taxon_id]
 
   toggle_taxon: (id, hier, callback) ->
@@ -3325,6 +3326,7 @@ class Huviz
       subPropertyOf: {}
       domain: {}
       range: {}
+      label: {} # MultiStrings as values
 
   constructor: (args) -> # Huviz
     args ?= {}
@@ -4264,6 +4266,15 @@ class OntologicallyGrounded extends Huviz
           if pred_lid in ['comment', 'label']
             #console.error "  skipping",subj_lid, pred_lid #, pred
             continue
+          if pred_lid is 'label' # commented out by above test
+            label = obj_raw
+            lang = 'en'
+            if label.indexOf('contexte') > -1  # FIXME replace when N3 used
+              lang = 'fr'
+            if ontology.label[subj_lid]?
+              ontology.label[subj_lid].set_val_lang(label, lang)
+            else
+              ontology.label[subj_lid] = new MultiString(label, lang)
           obj_lid = uniquer(obj_raw)
           #if pred_lid in ['range','domain']
           #  console.log pred_lid, subj_lid, obj_lid
