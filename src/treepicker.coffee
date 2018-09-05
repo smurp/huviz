@@ -36,6 +36,7 @@ class TreePicker
     @id_to_children = {}
     @id_to_payload_collapsed = {}
     @id_to_payload_expanded = {}
+    @id_to_name = {}
     @set_abstract(root)
     @set_abstract('root') # FIXME duplication?!?
     #
@@ -73,7 +74,7 @@ class TreePicker
     label_lower = label.toLowerCase()
     container = i_am_in[0][0]
     for elem in container.children
-      elem_lower = elem.id.toLowerCase() # FIXME should be the elem.label
+      elem_lower = (@id_to_name[elem.id] or elem.id).toLowerCase()
       if (elem_lower > label_lower)
         return @add_to_elem_before(i_am_in, node_id, "#"+elem.id, label)
     # fall through and append if it comes before nothing
@@ -152,7 +153,7 @@ class TreePicker
     contents.append('div').attr('class','container')
   get_top: ->
     return @ids_in_arrival_order[0] or @id
-  add: (new_id,parent_id,name,listener) ->
+  add: (new_id, parent_id, name, listener) ->
     @ids_in_arrival_order.push(new_id)
     parent_id = parent_id? and parent_id or @get_top()
     new_id = @uri_to_js_id(new_id)
@@ -168,6 +169,7 @@ class TreePicker
     name = name? and name or new_id
     branch = {}
     branch[new_id] = [name or new_id]
+    @id_to_name[new_id] = name
     parent = @id_to_elem[parent_id] or @elem
     container = d3.select(@get_or_create_container(parent)[0][0])
     if @needs_expander
