@@ -4266,7 +4266,7 @@ class OntologicallyGrounded extends Huviz
           pred_lid = uniquer(pred_id)
           for obj in pred.objects
             obj_raw = obj.value
-            if pred_lid in ['comment', 'label']
+            if pred_lid in ['comment']
               #console.error "  skipping",subj_lid, pred_lid #, pred
               continue
             if pred_lid is 'label' # commented out by above test
