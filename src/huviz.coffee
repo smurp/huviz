@@ -4236,7 +4236,10 @@ class Huviz
 
 class OntologicallyGrounded extends Huviz
   # If OntologicallyGrounded then there is an associated ontology which informs
-  # the TaxonPicker and the PredicatePicker
+  # the TaxonPicker and the PredicatePicker, rather than the pickers only
+  # being informed by implicit ontological hints such as
+  #   _:Fred a foaf:Person .  # tells us Fred is a Person
+  #   _:Fred dc:name "Fred" . # tells us the predicate_picker needs "name"
   set_ontology: (ontology_uri) ->
     #@init_ontology()
     @read_ontology(ontology_uri)
@@ -4261,34 +4264,31 @@ class OntologicallyGrounded extends Huviz
         subj_lid = uniquer(subj_uri)
         for pred_id, pred of frame.predicates
           pred_lid = uniquer(pred_id)
-          obj_raw = pred.objects[0].value
-
-          if pred_lid in ['comment', 'label']
-            #console.error "  skipping",subj_lid, pred_lid #, pred
-            continue
-          if pred_lid is 'label' # commented out by above test
-            label = obj_raw
-            lang = 'en'
-            if label.indexOf('contexte') > -1  # FIXME replace when N3 used
-              lang = 'fr'
-            if ontology.label[subj_lid]?
-              ontology.label[subj_lid].set_val_lang(label, lang)
-            else
-              ontology.label[subj_lid] = new MultiString(label, lang)
-          obj_lid = uniquer(obj_raw)
-          #if pred_lid in ['range','domain']
-          #  console.log pred_lid, subj_lid, obj_lid
-          if pred_lid is 'domain'
-            ontology.domain[subj_lid] = obj_lid
-          else if pred_lid is 'range'
-            if not ontology.range[subj_lid]?
-              ontology.range[subj_lid] = []
-            if not (obj_lid in ontology.range)
-              ontology.range[subj_lid].push(obj_lid)
-          else if pred_lid in ['subClassOf', 'subClass']
-            ontology.subClassOf[subj_lid] = obj_lid
-          else if pred_lid is 'subPropertyOf'
-            ontology.subPropertyOf[subj_lid] = obj_lid
+          for obj in pred.objects
+            obj_raw = obj.value
+            if pred_lid in ['comment', 'label']
+              #console.error "  skipping",subj_lid, pred_lid #, pred
+              continue
+            if pred_lid is 'label' # commented out by above test
+              label = obj_raw
+              if ontology.label[subj_lid]?
+                ontology.label[subj_lid].set_val_lang(label, obj.language)
+              else
+                ontology.label[subj_lid] = new MultiString(label, obj.language)
+            obj_lid = uniquer(obj_raw)
+            #if pred_lid in ['range','domain']
+            #  console.log pred_lid, subj_lid, obj_lid
+            if pred_lid is 'domain'
+              ontology.domain[subj_lid] = obj_lid
+            else if pred_lid is 'range'
+              if not ontology.range[subj_lid]?
+                ontology.range[subj_lid] = []
+              if not (obj_lid in ontology.range)
+                ontology.range[subj_lid].push(obj_lid)
+            else if pred_lid in ['subClassOf', 'subClass']
+              ontology.subClassOf[subj_lid] = obj_lid
+            else if pred_lid is 'subPropertyOf'
+              ontology.subPropertyOf[subj_lid] = obj_lid
 
         #
         # [ rdf:type owl:AllDisjointClasses ;
