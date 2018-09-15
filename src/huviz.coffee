@@ -3120,7 +3120,7 @@ class Huviz
       #$(@ontology_loader.form).disable()
     if @ontology_loader and not @big_go_button
       @big_go_button_id = unique_id()
-      @big_go_button = $('<button>GO</button>')
+      @big_go_button = $('<button class="big_go_button">LOAD</button>')
       @big_go_button.attr('id', @big_go_button_id)
       $(@args.ontology_loader__append_to_sel).append(@big_go_button)
       @big_go_button.click(@visualize_dataset_using_ontology)
