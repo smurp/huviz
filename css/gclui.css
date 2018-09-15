@@ -319,3 +319,12 @@
 .local_file_form .box__uri:valid {
     color: green;
 }
+.pick_or_provide_form button:enabled{
+  color: #9c1111;
+  border-color: #d41e1e;
+  background-color: #fdf2f2;
+  border-radius: 5px;
+}
+.pick_or_provide_form button:disabled{
+    display: none;
+}

@@ -326,7 +326,6 @@ progress[value]::-moz-progress-bar {
 
 #blurtbox {
    overflow:auto;
-   height:150px;
    font-family:monospace;
    list-style:none;
    padding-left: 1em;

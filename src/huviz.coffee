@@ -387,6 +387,7 @@ class Huviz
 
   # required by green turtle, should be retired
   G: {}
+  local_file_data: ""
 
   search_regex: new RegExp("^$", "ig")
   node_radius: 3.2
@@ -2024,6 +2025,9 @@ class Huviz
 
   parseAndShowTTLData: (data, textStatus, callback) =>
     # modelled on parseAndShowNQStreamer
+    #console.log("parseAndShowTTLData",data)
+    console.log "parseAndShowTTLData"
+    console.log @ontology_loader
     parse_start_time = new Date()
     context = "http://universal.org"
     if GreenerTurtle? and @turtle_parser is 'GreenerTurtle'
@@ -2035,11 +2039,12 @@ class Huviz
         msg = escapeHtml(e.toString())
         blurt_msg = '<p>There has been a problem with the Turtle parser. Check your dataset for errors.</p><p class="js_msg">' + msg + '</p>'
         blurt(blurt_msg, "error")
+        return false
     quad_count = 0
     every = @report_every
     for subj_uri,frame of @G.subjects
-      #console.log "frame:",frame
-      #console.log frame.predicates
+      console.log "frame:",frame
+      console.log frame.predicates
       for pred_id,pred of frame.predicates
         for obj in pred.objects
           # this is the right place to convert the ids (URIs) to CURIES
@@ -2147,6 +2152,7 @@ class Huviz
             type:  owl_type_map[q.o.type]
             value: unescape_unicode(@remove_framing_quotes(q.o.toString()))
           @add_quad q
+          console.log "added a quad called #{q}"
       else if e.data.event is 'start'
         msg = "starting to split " + uri
         @show_state_msg("<h3>Starting to split... </h3><p>" + uri + "</p>")
@@ -2158,24 +2164,62 @@ class Huviz
       else
         msg = "unrecognized NQ event:" + e.data.event
       if msg?
-        console.log(msg)
-        #alert msg
+        blurt(msg)
     worker.postMessage({uri:uri})
+
+  parse_and_show_NQ_file: (data, callback) =>
+    #TODO There is currently no error catcing on local nq files
+    owl_type_map =
+      uri:     RDF_object
+      literal: RDF_literal
+    quad_count = 0
+    allLines = data.split(/\r\n|\n/)
+    for line in allLines
+      quad_count++
+      q = parseQuadLine(line)
+      if q
+        q.s = q.s.raw
+        q.p = q.p.raw
+        q.g = q.g.raw
+        q.o =
+          type:  owl_type_map[q.o.type]
+          value: unescape_unicode(@remove_framing_quotes(q.o.toString()))
+        @add_quad q
+    @local_file_data = ""
+    @after_file_loaded('local file', callback)
 
   DUMPER: (data) =>
     console.log(data)
 
   fetchAndShow: (url, callback) ->
+    console.log "executing fetchAndShow for " + url
     @show_state_msg("fetching " + url)
-    the_parser = @parseAndShowNQ
+    the_parser = @parseAndShowNQ #++++Why does the parser default to NQ?
+    console.log url
     if url.match(/.ttl/)
+      console.log "Fetch and show TTL File"
       the_parser = @parseAndShowTTLData # does not stream
     else if url.match(/.(nq|nt)/)
+      console.log "Fetch and show NQ File"
       the_parser = @parseAndShowNQ
-    else if url.match(/.json/)
-      the_parser = @parseAndShowJSON
+    #else if url.match(/.json/) #Currently JSON files not supported at read_data_and_show
+      #console.log "Fetch and show JSON File"
+      #the_parser = @parseAndShowJSON
+    else #File not valid
+      #abort with message
+      #NOTE This only catches URLs that do not have a valid file name; nothing about actual file format
+      msg = "Could not load #{url}. The data file format is not supported! Only files with TTL and NQ extensions are accepted."
+      @hide_state_msg()
+      blurt(msg, 'error')
+      $('#data_ontology_display').remove()
+      @reset_dataset_ontology_loader()
+      #@init_dataset_menus()
+      console.log @dataset_loader
+      #TODO Remove the link in the Dataset Pick or Provide List
+      return
 
     if the_parser is @parseAndShowNQ
+      console.log "the_parser is heading to NQStreamer"
       @parseAndShowNQStreamer(url, callback)
       return
 
@@ -2183,13 +2227,22 @@ class Huviz
       url: url
       success: (data, textStatus) =>
         the_parser(data, textStatus, callback)
+        console.log "SUCCESS ----- the_Parser"
         #@fire_fileloaded_event(url) ## should call after_file_loaded(url, callback) within the_parser
         @hide_state_msg()
       error: (jqxhr, textStatus, errorThrown) =>
         console.log(url, errorThrown)
+        console.log jqxhr
+        console.log textStatus
+        console.log errorThrown
+        if not errorThrown
+          errorThrown = "Cross-Origin error"
         msg = errorThrown + " while fetching " + url
         @hide_state_msg()
-        blurt(msg, 'alert')  # trigger this by goofing up one of the URIs in cwrc_data.json
+        $('#data_ontology_display').remove()
+        blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
+        @reset_dataset_ontology_loader()
+        #TODO Reset titles on page
 
   # Deal with buggy situations where flashing the links on and off
   # fixes data structures.  Not currently needed.
@@ -3025,7 +3078,6 @@ class Huviz
     if @dataset_loader?
       datasetDB_objectStore.openCursor().onsuccess = make_onsuccess_handler(why)
 
-
   preload_datasets: ->
     # If present args.preload is expected to be a list or urls or objects.
     # Whether literal object or JSON urls the object structure is expected to be:
@@ -3065,6 +3117,10 @@ class Huviz
     return
 
   init_dataset_menus: ->
+    console.log @dataset_loader
+    console.log @ontology_loader
+    console.log @args.dataset_loader__append_to_sel
+    console.log @args.ontology_loader__append_to_sel
     if not @dataset_loader and @args.dataset_loader__append_to_sel
       @dataset_loader = new PickOrProvide(@, @args.dataset_loader__append_to_sel, 'Dataset', 'DataPP', false)
     if not @ontology_loader and @args.ontology_loader__append_to_sel
@@ -3082,22 +3138,13 @@ class Huviz
     # TODO remove this nullification of @last_val by fixing logic in select_option()
     @ontology_loader?last_val = null # clear the last_val so select_option works the first time
 
-  pick_parser_for_local_file: (fname) ->
-    the_parser = @parseAndShowNQ
-    if fname.match(/.ttl/)
-      the_parser = @parseAndShowTTLData # does not stream
-    else if fname.match(/.(nq|nt)/)
-      the_parser = @parseAndShowNQ
-    else if fname.match(/.json/)
-      the_parser = @parseAndShowJSON
-    return the_parser
-
   visualize_dataset_using_ontology: =>
+    @close_blurt_box()
     @set_ontology(@ontology_loader.value)
-    if @dataset_loader.the_file_contents?
-      the_parser = @pick_parser_for_local_file(@dataset_loader.value)
-      the_parser(@dataset_loader.the_file_contents,'')
-    else
+    console.log @dataset_loader
+    if @local_file_data
+      @read_data_and_show(@dataset_loader.value)
+    else #load from URI
       @load_file_from_uri(@dataset_loader.value) # , () -> alert "woot")
     selected_dataset = @dataset_loader.get_selected_option()[0]
     @update_browser_title(selected_dataset)
@@ -3118,12 +3165,21 @@ class Huviz
       @gclui.ignore_predicate pid
 
   disable_dataset_ontology_loader: ->
+    console.log "disable dataset ontology loader"
     @dataset_loader.disable()
     @ontology_loader.disable()
     @replace_loader_display(@dataset_loader.get_selected_option()[0].label, @ontology_loader.get_selected_option()[0].label)
     disable = true
     @update_go_button(disable)
     @big_go_button.hide()
+
+  reset_dataset_ontology_loader: ->
+    #Enable dataset loader and reset to default setting
+    @dataset_loader.enable()
+    @ontology_loader.enable()
+    @big_go_button.show()
+    $("##{@dataset_loader.select_id} option[label='Pick or Provide...']").prop('selected', true)
+    $("#huvis_controls .unselectable").removeAttr("style","display:none")
 
   update_dataset_ontology_loader: =>
     #alert('update_dataset_ontology_loader')
@@ -3163,10 +3219,17 @@ class Huviz
     $("#ontology_watermark").text(ontology_str)
 
   set_ontology_from_dataset_if_possible: ->
+    console.log "Executing... set_ontology_from_dataset_if_possible"
+    console.log @ontology_loader.value #URI of file
+    console.log @dataset_loader.value
     if @dataset_loader.value # and not @ontology_loader.value
+      console.log "&&&&&&&&&&&&&&& Automatically setting ontology"
       option = @dataset_loader.get_selected_option()
+      console.log option
       ontologyUri = option.data('ontologyUri')
-      ontology_label = option.data('ontology_label')
+      ontology_label = option.data('ontology_label') #default set in group json file
+      console.log ontologyUri
+      console.log ontology_label
       if ontologyUri # let the uri (if present) dominate the label
         @set_ontology_with_uri(ontologyUri)
       else
@@ -3175,7 +3238,7 @@ class Huviz
 
   set_ontology_with_label: (ontology_label) ->
     sel = "[label='#{ontology_label}']"
-    # console.log("$('#{sel}')")
+    console.log("$('#{sel}')")
     for ont_opt in $(sel) # FIXME make this re-entrant
       @ontology_loader.select_option($(ont_opt))
       return
@@ -3183,7 +3246,7 @@ class Huviz
 
   set_ontology_with_uri: (ontologyUri) ->
     ontology_option = $('option[value="' + ontologyUri + '"]')
-    # console.log("set_ontology_with_uri",ontologyUri, ontology_option)
+    console.log("set_ontology_with_uri",ontologyUri, ontology_option)
     @ontology_loader.select_option(ontology_option)
 
   init_editc: ->
@@ -4128,7 +4191,9 @@ class Huviz
   load_file: ->
     @load_file_from_uri(@get_dataset_uri())
 
-  load_file_from_uri: (@data_uri, callback) ->
+  load_file_from_uri: (@data_uri, callback) ->  # Used for loading files from menu
+    console.log @args
+    console.log "action: load_file_from_uri 4158"
     if @args.display_reset
       $("#reset_btn").show()
     else
@@ -4146,16 +4211,42 @@ class Huviz
     $("[name=data_set]").prop('disabled', true)
     $("#reload_btn").show()
 
-  read_data_and_show: (filename, data) ->
+  read_data_and_show: (filename, data) -> #Handles drag-and-dropped files
+    console.log "read_data_and_show 4180"
+    console.log filename
+    console.log @ontology_loader.value
+    data = @local_file_data
+    #console.log data
     if filename.match(/.ttl$/)
       the_parser = @parseAndShowTTLData
     else if filename.match(/.nq$/)
-      the_parser = @parseAndShowNQStreamer
+      #the_parser = @parseAndShowNQStreamer
+      the_parser = @parse_and_show_NQ_file
     else
-      alert("don't know how to parse '#{filename}'")
+      alert("Unknown file format. Unable to parse '#{filename}'. Only .ttl and .nq files supported.")
       return
     the_parser(data)
-    @disable_data_set_selector()
+    #@local_file_data = "" #RESET the file data
+    #@disable_data_set_selector()
+    @disable_dataset_ontology_loader()
+    #@replace_loader_display(filename, @ontology_loader.value)
+    #@show_state_msg("loading...")
+    #@show_state_msg filename
+
+  #check_data_file_name: (filename) ->
+    #if filename.match(/.(ttl|.nq)$/)
+      #the_parser = @parseAndShowTTLData
+      #return true
+    #else if filename.match(/.nq$/)
+      #the_parser = @parseAndShowNQStreamer
+      #return true
+    #else
+      #msg = "Unknown file format. Will not be able to parse '#{filename}'. Only .ttl and .nq files supported."
+      #blurt(msg, 'alert')
+      #@pick_or_provide_select.val("pick_or_provide")
+      #@refresh()
+      #Go back to Pick or Provide selection
+      #return false
 
   get_dataset_uri: () ->
     # FIXME goodbye jquery
@@ -4237,6 +4328,7 @@ class OntologicallyGrounded extends Huviz
   # the TaxonPicker and the PredicatePicker
   set_ontology: (ontology_uri) ->
     #@init_ontology()
+    console.log "set_ontology: #{ontology_uri}"
     @read_ontology(ontology_uri)
 
   read_ontology: (ontology_uri) ->
@@ -4252,7 +4344,9 @@ class OntologicallyGrounded extends Huviz
     # Analyze the ontology to enable proper structuring of the
     # predicate_picker and the taxon_picker.  Also to support
     # imputing 'type' (and hence Taxon) to nodes.
+    console.log "parseTTLOntology 4291"
     ontology = @ontology
+    console.log ontology
     if GreenerTurtle? and @turtle_parser is 'GreenerTurtle'
       @raw_ontology = new GreenerTurtle().parse(data, "text/turtle")
       for subj_uri, frame of @raw_ontology.subjects
@@ -4419,6 +4513,7 @@ class Socrata extends Huviz
         value: obj_uri
 
   parseAndShowJSON: (data) =>
+    #TODO Currently not working/tested
     console.log("parseAndShowJSON",data)
     g = @DEFAULT_CONTEXT
 
@@ -4468,7 +4563,7 @@ class PickOrProvide
 	<form id="UID" class="pick_or_provide_form" method="post" action="" enctype="multipart/form-data">
     <span class="pick_or_provide_label">REPLACE_WITH_LABEL</span>
     <select name="pick_or_provide"></select>
-    <button type="button" class="delete_option">⌫</button>
+    <button type="button" class="delete_option"><i class="fa fa-trash" style="font-size: 1.2em;"></i></button>
   </form>
   """
   uri_file_loader_sel: '.uri_file_loader_form'
@@ -4503,6 +4598,7 @@ class PickOrProvide
     @form.find('.delete_option').show()
 
   select_option: (option) ->
+    console.log "select_option"
     new_val = option.val()
     #console.table([{last_val: @last_val, new_val: new_val}])
     cur_val = @pick_or_provide_select.val()
@@ -4524,6 +4620,8 @@ class PickOrProvide
       #  @refresh()
 
   add_uri: (uri_or_rec) =>
+    console.log "URI: "
+    console.log uri_or_rec
     if typeof uri_or_rec is 'string'
       uri = uri_or_rec
       dataset_rec = {}
@@ -4537,6 +4635,29 @@ class PickOrProvide
     dataset_rec.canDelete ?= not not dataset_rec.time?
     dataset_rec.label ?= dataset_rec.uri.split('/').reverse()[0]
     @add_dataset(dataset_rec, true)
+    @update_state()
+
+  add_local_file: (file_rec) =>
+    console.log "LOCAL FILE: "
+    console.log file_rec
+    console.log @huviz.local_file_data
+    #local_file_data = file_rec.data
+    #@huviz.local_file_data = local_file_data
+    data_type = "local"
+    if typeof file_rec is 'string'
+      uri = file_rec
+      dataset_rec = {}
+    else
+      dataset_rec = file_rec
+      dataset_rec.uri ?= uri
+      dataset_rec.isOntology ?= @isOntology
+      dataset_rec.time ?= new Date().toString()
+      dataset_rec.isUri ?= false
+      dataset_rec.title ?= dataset_rec.uri
+      dataset_rec.canDelete ?= not not dataset_rec.time?
+      dataset_rec.label ?= dataset_rec.uri.split('/').reverse()[0]
+    console.log file_rec
+    @add_dataset(dataset_rec, false)
     @update_state()
 
   add_dataset: (dataset_rec, store_in_db) ->
@@ -4605,8 +4726,8 @@ class PickOrProvide
     selected_option = @get_selected_option()
     the_options = @pick_or_provide_select.find("option")
     kid_cnt = the_options.length
-    #console.log("#{@label}.update_state() raw_value: #{raw_value} kid_cnt: #{kid_cnt}")
-    #console.log "PickOrProvide:", "select:", @pick_or_provide_select[0].value
+    console.log("#{@label}.update_state() raw_value: #{raw_value} kid_cnt: #{kid_cnt}")
+    console.log "PickOrProvide:", "select:", @pick_or_provide_select[0].value
     if raw_value is 'provide'
       @drag_and_drop_loader.form.show()
       @state = 'awaiting_dnd'
@@ -4619,7 +4740,6 @@ class PickOrProvide
     if @value?
       canDelete = selected_option.data('canDelete')
       disable_the_delete_button = not canDelete
-
     # disable_the_delete_button = false  # uncomment to always show the delete button -- useful when bad data stored
     @form.find('.delete_option').prop('disabled', disable_the_delete_button)
     if callback?
@@ -4692,24 +4812,40 @@ class DragAndDropLoader
     return true
     return (div.draggable or div.ondragstart) and ( div.ondrop ) and (window.FormData and window.FileReader)
   load_uri: (firstUri) ->
+    console.log "calling load_uri 4680"
     #@form.find('.box__success').text(firstUri)
     #@form.find('.box__success').show()
+    #TODO SHOULD selection be added to the picker here, or wait for after successful?
     @picker.add_uri({uri: firstUri, opt_group: 'Your Own'})
     @form.hide()
     return true # ie success
   load_file: (firstFile) ->
-    @form.find('.box__success').text(firstFile.name)
+    console.log "calling load_file 4742"
+    console.log firstFile.name
+    @huviz.local_file_data = "empty"
+    filename = firstFile.name
+    @form.find('.box__success').text(firstFile.name) #TODO Are these lines still needed?
     @form.find('.box__success').show()
     reader = new FileReader()
     reader.onload = (evt) =>
       #console.log evt.target.result
       #console.log("evt", evt)
       try
-        @the_file_contents = evt.target.result
+        #@huviz.read_data_and_show(firstFile.name, evt.target.result)
+        #if @huviz.check_data_file_name(firstFile.name)
+        if filename.match(/.(ttl|.nq)$/)
+          @picker.add_local_file({uri: firstFile.name, opt_group: 'Your Own'})
+          @huviz.local_file_data = evt.target.result
+        else
+          #$("##{@dataset_loader.select_id} option[label='Pick or Provide...']").prop('selected', true)
+          blurt("Unknown file format. Unable to parse '#{filename}'. Only .ttl and .nq files supported.", 'alert')
+          @huviz.reset_dataset_ontology_loader()
+          $('.delete_option').attr('style','')
       catch e
         msg = e.toString()
-        @form.find('.box__error').show()
-        @form.find('.box__error').text(msg)
+        #@form.find('.box__error').show()
+        #@form.find('.box__error').text(msg)
+        blurt(msg, 'error')
     reader.readAsText(firstFile)
     return true # ie success
   find_or_append_form: ->
@@ -4736,6 +4872,7 @@ class DragAndDropLoader
     @form.on 'dragleave dragend drop', () =>
       @form.removeClass('is-dragover')
     @form.on 'drop', (e) =>
+      console.log("e:",e.originalEvent.dataTransfer)
       @form.find('.box__input').hide()
       droppedUris = e.originalEvent.dataTransfer.getData("text/uri-list").split("\n")
       console.log("droppedUris",droppedUris)
@@ -4746,17 +4883,15 @@ class DragAndDropLoader
           @picker.refresh()
           @form.hide()
           return
-
       droppedFiles = e.originalEvent.dataTransfer.files
       console.log("droppedFiles", droppedFiles)
       if droppedFiles.length
         firstFile = droppedFiles[0]
         if @load_file(firstFile)
           @form.find(".box__success").text('')
-          @form.hide()
           @picker.refresh()
+          @form.hide()
           return
-
       # the drop operation failed to result in loaded data, so show 'drop here' msg
       @form.find('.box__input').show()
       @picker.refresh()
