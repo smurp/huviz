@@ -2026,11 +2026,10 @@ class Huviz
   parseAndShowTTLData: (data, textStatus, callback) =>
     # modelled on parseAndShowNQStreamer
     #console.log("parseAndShowTTLData",data)
-    console.log "parseAndShowTTLData"
     parse_start_time = new Date()
     context = "http://universal.org"
     if GreenerTurtle? and @turtle_parser is 'GreenerTurtle'
-      console.log("GreenTurtle() started")
+      #console.log("GreenTurtle() started")
       #@G = new GreenerTurtle().parse(data, "text/turtle")
       try
         @G = new GreenerTurtle().parse(data, "text/turtle")
@@ -2042,8 +2041,8 @@ class Huviz
     quad_count = 0
     every = @report_every
     for subj_uri,frame of @G.subjects
-      console.log "frame:",frame
-      console.log frame.predicates
+      #console.log "frame:",frame
+      #console.log frame.predicates
       for pred_id,pred of frame.predicates
         for obj in pred.objects
           # this is the right place to convert the ids (URIs) to CURIES
@@ -2192,12 +2191,9 @@ class Huviz
   fetchAndShow: (url, callback) ->
     @show_state_msg("fetching " + url)
     the_parser = @parseAndShowNQ #++++Why does the parser default to NQ?
-    console.log url
     if url.match(/.ttl/)
-      console.log "Fetch and show TTL File"
       the_parser = @parseAndShowTTLData # does not stream
     else if url.match(/.(nq|nt)/)
-      console.log "Fetch and show NQ File"
       the_parser = @parseAndShowNQ
     #else if url.match(/.json/) #Currently JSON files not supported at read_data_and_show
       #console.log "Fetch and show JSON File"
@@ -2211,8 +2207,6 @@ class Huviz
       $('#data_ontology_display').remove()
       @reset_dataset_ontology_loader()
       #@init_dataset_menus()
-      console.log @dataset_loader
-      #TODO Remove the link in the Dataset Pick or Provide List
       return
 
     if the_parser is @parseAndShowNQ
@@ -2223,14 +2217,10 @@ class Huviz
       url: url
       success: (data, textStatus) =>
         the_parser(data, textStatus, callback)
-        console.log "SUCCESS ----- the_Parser"
         #@fire_fileloaded_event(url) ## should call after_file_loaded(url, callback) within the_parser
         @hide_state_msg()
       error: (jqxhr, textStatus, errorThrown) =>
         console.log(url, errorThrown)
-        console.log jqxhr
-        console.log textStatus
-        console.log errorThrown
         if not errorThrown
           errorThrown = "Cross-Origin error"
         msg = errorThrown + " while fetching " + url
@@ -3221,7 +3211,7 @@ class Huviz
 
   set_ontology_with_label: (ontology_label) ->
     sel = "[label='#{ontology_label}']"
-    console.log("$('#{sel}')")
+    #console.log("$('#{sel}')")
     for ont_opt in $(sel) # FIXME make this re-entrant
       @ontology_loader.select_option($(ont_opt))
       return
@@ -3229,7 +3219,7 @@ class Huviz
 
   set_ontology_with_uri: (ontologyUri) ->
     ontology_option = $('option[value="' + ontologyUri + '"]')
-    console.log("set_ontology_with_uri",ontologyUri, ontology_option)
+    #console.log("set_ontology_with_uri",ontologyUri, ontology_option)
     @ontology_loader.select_option(ontology_option)
 
   init_editc: ->
@@ -4290,7 +4280,6 @@ class OntologicallyGrounded extends Huviz
   # the TaxonPicker and the PredicatePicker
   set_ontology: (ontology_uri) ->
     #@init_ontology()
-    console.log "set_ontology: #{ontology_uri}"
     @read_ontology(ontology_uri)
 
   read_ontology: (ontology_uri) ->
@@ -4679,8 +4668,8 @@ class PickOrProvide
     selected_option = @get_selected_option()
     the_options = @pick_or_provide_select.find("option")
     kid_cnt = the_options.length
-    console.log("#{@label}.update_state() raw_value: #{raw_value} kid_cnt: #{kid_cnt}")
-    console.log "PickOrProvide:", "select:", @pick_or_provide_select[0].value
+    #console.log("#{@label}.update_state() raw_value: #{raw_value} kid_cnt: #{kid_cnt}")
+    #console.log "PickOrProvide:", "select:", @pick_or_provide_select[0].value
     if raw_value is 'provide'
       @drag_and_drop_loader.form.show()
       @state = 'awaiting_dnd'
@@ -4711,7 +4700,7 @@ class PickOrProvide
     @delete_option_button = @form.find('.delete_option')
     @delete_option_button.click(@delete_selected_option)
     @form.find('.delete_option').prop('disabled', true) # disabled initially
-    console.info "form", @form
+    #console.info "form", @form
 
   get_selected_option: =>
     @pick_or_provide_select.find('option:selected') # just one CAN be selected
