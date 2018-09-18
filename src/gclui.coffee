@@ -146,7 +146,7 @@ class CommandController
     unless pred_uri in @predicates_ignored # FIXME merge with predicates_to_ignore
       unless pred_lid in @predicates_ignored # FIXME merge with predicates_to_ignore
         pred_name = pred_lid.match(/([\w\d\_\-]+)$/g)[0]
-        @add_newpredicate(pred_lid,parent_lid,pred_name)
+        @add_newpredicate(pred_lid, parent_lid, pred_name)
         @recolor_edges_and_predicates_eventually(e)
   recolor_edges_and_predicates_eventually: ->
     if @recolor_edges_and_predicates_eventually_id?
@@ -169,10 +169,14 @@ class CommandController
       "Stripey color: some edges shown -- click to show all\n" +
       "Hidden: no edges among the selected nodes"
     where = label? and @control_label(label,@comdiv,title) or @comdiv
-    @predicatebox = where.append('div').classed('container',true).attr('id',id)
+    @predicatebox = where.append('div')
+        .classed('container', true)
+        .attr('id', id)
     #@predicatebox.attr('class','scrolling')
     @predicates_ignored = []
-    @predicate_picker = new ColoredTreePicker(@predicatebox,'anything',(extra_classes=[]), (needs_expander=true), (sort_by_label=true), (squash_case=true))
+    @predicate_picker = new ColoredTreePicker(
+      @predicatebox, 'anything',
+      (extra_classes=[]), (needs_expander=true), (sort_by_label=true), (squash_case=true))
     @predicate_hierarchy = {'anything':['anything']}
     # FIXME Why is show_tree being called four times per node?
     @predicate_picker.click_listener = @on_predicate_clicked
@@ -214,14 +218,16 @@ class CommandController
       "Stripey color: some nodes are selected -- click to select all\n"
     where = label? and @control_label(label, where, title) or @comdiv
     @taxon_box = where.append('div')
-        .classed('container',true)
-        .attr('id',id)
+        .classed('container', true)
+        .attr('id', id)
     @taxon_box.attr('style','vertical-align:top')
     # http://en.wikipedia.org/wiki/Taxon
-    @taxon_picker = new ColoredTreePicker(@taxon_box,'Thing', (extra_classes=[]), (needs_expander=true), (sort_by_label=true), (squash_case=true))
+    @taxon_picker = new ColoredTreePicker(
+      @taxon_box, 'Thing',
+      (extra_classes=[]), (needs_expander=true), (sort_by_label=true), (squash_case=true))
     @taxon_picker.click_listener = @on_taxon_clicked
     @taxon_picker.hover_listener = @on_taxon_hovered
-    @taxon_picker.show_tree(@hierarchy,@taxon_box)
+    @taxon_picker.show_tree(@hierarchy, @taxon_box)
     where.classed("taxon_picker_box_parent", true)
     return where
   add_new_taxon: (class_id,parent_lid,class_name,taxon) =>

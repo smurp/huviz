@@ -105,9 +105,10 @@ class TreePicker
     container_elem = @get_container_elem_within_id(an_id)
     if not container_elem
       throw "no container_elem"
-    for val_elem in val_elem_pairs
-      elem = val_elem[1]
-      container_elem.appendChild(elem)
+    for val_elem_pair in val_elem_pairs
+      child_elem = val_elem_pair[1]
+      container_elem.appendChild(child_elem)
+    return
   update_label_for_node: (node_id, node_elem) -> # passing node_elem is optional
     # This takes the current value of @id_to_name[node_id] and displays it in the HTML.
     # Why? Because the label might be a MultiString whose language might have changed.
@@ -149,8 +150,6 @@ class TreePicker
       #       Setting @id_to_elem[node_id] should be in the new method
       contents_of_me = @add_alphabetically(i_am_in, node_id, label)
       @id_to_elem[node_id] = contents_of_me
-      msg = "show_tree() just did @id_to_elem[#{node_id}] = contents_of_me"
-      #console.info(msg)
       picker = this
       contents_of_me.on('click', @click_handler)
       contents_of_me.append("p").attr("class", "treepicker-label").
