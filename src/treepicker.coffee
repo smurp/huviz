@@ -112,7 +112,7 @@ class TreePicker
     # This takes the current value of @id_to_name[node_id] and displays it in the HTML.
     # Why? Because the label might be a MultiString whose language might have changed.
     node_elem ?= @id_to_elem[node_id] # look up node_elem if it is not passed in
-    label_elem = node_elem.querySelector('p.treepicker-label')
+    label_elem = node_elem.querySelector('p.treepicker-label span.label')
     if label_elem?
       label_elem.textContent = @id_to_name[node_id]
   get_comparison_value: (node_id, label) ->
@@ -152,8 +152,9 @@ class TreePicker
       msg = "show_tree() just did @id_to_elem[#{node_id}] = contents_of_me"
       #console.info(msg)
       picker = this
-      contents_of_me.on 'click', @click_handler
-      contents_of_me.append("p").attr("class", "treepicker-label").text(label)
+      contents_of_me.on('click', @click_handler)
+      contents_of_me.append("p").attr("class", "treepicker-label").
+        append('span').attr('class','label').text(label)
       if rest.length > 1
         my_contents = @get_or_create_container(contents_of_me)
         if top and @extra_classes
