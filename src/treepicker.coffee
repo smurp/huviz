@@ -16,33 +16,43 @@ Build and control a hierarchic menu of arbitrarily nested divs looking like:
 * On the other hand, branches in the tree which are empty are hidden.
 * Clicking uncollapsed branches cycles just their selectedness.
 * Clicking collapsed branches cycles the selectedness of them and their children.
+
+* <div class="container"> a container holds one or more contents
+* <div class="contents"> a content (ie a node such as THING) may have a container for it kids
+* so the CONTENT with id=Thing is within the root CONTAINER
+     and the Thing CONTENT itself holds a CONTAINER with the child CONTENTS of its subclasses
+
+Possible Bug: it appears that <div class="container" id="classes"> has a redundant child
+                which looks like <div class="container">.
+              It is unclear why this is needed.  Containers should not directly hold containers.
 ###
 
 uniquer = require("uniquer").uniquer
 
 class TreePicker
-  constructor: (@elem, root, extra_classes, @needs_expander) ->
+  constructor: (@elem, root, extra_classes, @needs_expander, @sort_by_label) ->
     if extra_classes?
       @extra_classes = extra_classes
-    @id_to_elem = {root:elem} # FIXME remove root
-    @id_to_elem[root] = elem
+    if not @sort_by_label?
+      @sort_by_label = true
+    if not @squash_case_during_sort?
+      @squash_case_during_sort = true
+    @id_to_elem = {}
+    @id_to_elem['/'] = elem
     @ids_in_arrival_order = [root]
     @id_is_abstract = {}
     @id_is_collapsed = {}
     @id_to_state =
       true: {}
       false: {}
-    @id_to_parent = {}
-    @id_to_children = {}
+    @id_to_parent = {root: '/'}
+    @id_to_children = {'/': [root]}
     @id_to_payload_collapsed = {}
     @id_to_payload_expanded = {}
     @id_to_name = {}
-    @set_abstract(root)
+    @set_abstract(root) # FIXME is this needed?
+    @set_abstract('/')
     @set_abstract('root') # FIXME duplication?!?
-    #
-    #@shield.classed('shield')
-    console.log('shield', @shield)
-    #debugger
   get_my_id: () ->
     @elem.attr("id")
   shield: ->
@@ -65,17 +75,61 @@ class TreePicker
     @id_is_abstract[id] = true
   get_abstract_count: ->
     return Object.keys(@id_is_abstract).length
-  is_abstract: (id) ->
+  is_abstract: (id) -> # ie class has no direct instances but maybe subclasses
     tmp = @id_is_abstract[id]
     tmp? and tmp
   uri_to_js_id: (uri) ->
     uniquer(uri)
+  get_childrens_ids: (parent_id) ->
+    parent_id ?= '/' # if no parent indicated, return root's kids
+    return @id_to_children[parent_id] or []
+  get_container_elem_within_id: (an_id) ->
+    # the div with class='container' holding class='contents' divs
+    content_elem = @id_to_elem[an_id][0][0]
+    return content_elem.querySelector('.container')
+  resort_recursively: (an_id) ->
+    an_id ?= '/' # if an_id not provided, then sort the root
+    kids_ids = @get_childrens_ids(an_id)
+    if not kids_ids or not kids_ids.length
+      return
+    val_elem_pairs = []
+    sort_by_first_item = (a, b) ->
+      return a[0].localeCompare(b[0])
+    for child_id in kids_ids
+      @resort_recursively(child_id)
+      val = @get_comparison_value(child_id, @id_to_name[child_id])
+      child_elem = @id_to_elem[child_id][0][0]
+      @update_label_for_node(child_id, child_elem)
+      val_elem_pairs.push([val, child_elem])
+    val_elem_pairs.sort(sort_by_first_item)
+    container_elem = @get_container_elem_within_id(an_id)
+    if not container_elem
+      throw "no container_elem"
+    for val_elem in val_elem_pairs
+      elem = val_elem[1]
+      container_elem.appendChild(elem)
+  update_label_for_node: (node_id, node_elem) -> # passing node_elem is optional
+    # This takes the current value of @id_to_name[node_id] and displays it in the HTML.
+    # Why? Because the label might be a MultiString whose language might have changed.
+    node_elem ?= @id_to_elem[node_id] # look up node_elem if it is not passed in
+    label_elem = node_elem.querySelector('p.treepicker-label')
+    if label_elem?
+      label_elem.textContent = @id_to_name[node_id]
+  get_comparison_value: (node_id, label) ->
+    if @sort_by_name
+      this_term = (label or node_id)
+    else
+      this_term = node_id
+    if @squash_case_during_sort is true # expose this as a setting
+      this_term = this_term.toLowerCase()
+    return this_term
   add_alphabetically: (i_am_in, node_id, label) ->
     label_lower = label.toLowerCase()
     container = i_am_in[0][0]
+    this_term = @get_comparison_value(node_id, label)
     for elem in container.children
-      elem_lower = (@id_to_name[elem.id] or elem.id).toLowerCase()
-      if (elem_lower > label_lower)
+      other_term = @get_comparison_value(elem.id, @id_to_name[elem.id])
+      if (other_term > this_term)
         return @add_to_elem_before(i_am_in, node_id, "#"+elem.id, label)
     # fall through and append if it comes before nothing
     @add_to_elem_before(i_am_in, node_id, undefined, label)
@@ -83,12 +137,16 @@ class TreePicker
     i_am_in.insert('div', before). # insert just appends if before is undef
         attr('class','contents').
         attr('id',node_id)
-  show_tree: (tree,i_am_in,listener,top) ->
+  show_tree: (tree, i_am_in, listener, top) ->
     # http://stackoverflow.com/questions/14511872
     top = not top? or top
     for node_id,rest of tree
       label = rest[0]
       #label = "┗ " + rest[0]
+
+      # FIXME the creation of a node in the tree should be extracted into a method
+      #       rather than being spread across this one and add_alphabetically.
+      #       Setting @id_to_elem[node_id] should be in the new method
       contents_of_me = @add_alphabetically(i_am_in, node_id, label)
       @id_to_elem[node_id] = contents_of_me
       msg = "show_tree() just did @id_to_elem[#{node_id}] = contents_of_me"

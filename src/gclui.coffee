@@ -156,6 +156,11 @@ class CommandController
   recolor_edges_and_predicates: (evt) =>
     @predicate_picker.recolor_now()
     @recolor_edges() # FIXME should only really be run after the predicate set has settled for some amount of time
+  resort_pickers: ->
+    @taxon_picker?.resort_recursively()
+    #@predicate_picker?.resort_recursively()
+    #@set_picker?.resort_recursively()
+    return
   build_predicate_picker: (label) ->
     id = 'predicates'
     title =
@@ -167,7 +172,7 @@ class CommandController
     @predicatebox = where.append('div').classed('container',true).attr('id',id)
     #@predicatebox.attr('class','scrolling')
     @predicates_ignored = []
-    @predicate_picker = new ColoredTreePicker(@predicatebox,'anything',[],true)
+    @predicate_picker = new ColoredTreePicker(@predicatebox,'anything',(extra_classes=[]), (needs_expander=true), (sort_by_label=true), (squash_case=true))
     @predicate_hierarchy = {'anything':['anything']}
     # FIXME Why is show_tree being called four times per node?
     @predicate_picker.click_listener = @on_predicate_clicked
@@ -213,7 +218,7 @@ class CommandController
         .attr('id',id)
     @taxon_box.attr('style','vertical-align:top')
     # http://en.wikipedia.org/wiki/Taxon
-    @taxon_picker = new ColoredTreePicker(@taxon_box,'Thing',[],true)
+    @taxon_picker = new ColoredTreePicker(@taxon_box,'Thing', (extra_classes=[]), (needs_expander=true), (sort_by_label=true), (squash_case=true))
     @taxon_picker.click_listener = @on_taxon_clicked
     @taxon_picker.hover_listener = @on_taxon_hovered
     @taxon_picker.show_tree(@hierarchy,@taxon_box)

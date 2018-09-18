@@ -4090,6 +4090,8 @@ class Huviz
     if @shelved_set
       @shelved_set.resort()
       @discarded_set.resort()
+    @gclui?.resort_pickers()
+    return
 
   on_change_color_nodes_as_pies: (new_val, old_val) ->  # TODO why this == window ??
     @color_nodes_as_pies = new_val
