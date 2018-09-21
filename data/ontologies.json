@@ -1,7 +1,7 @@
 {
   "datasets": [
     {
-      "uri": "http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl",
+      "uri": "https://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl",
       "label": "Orlando Ontology"
     },
     {
