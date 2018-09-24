@@ -157,8 +157,14 @@ class CommandController
     @predicate_picker.recolor_now()
     @recolor_edges() # FIXME should only really be run after the predicate set has settled for some amount of time
   resort_pickers: ->
-    @taxon_picker?.resort_recursively()
-    #@predicate_picker?.resort_recursively()
+    if @taxon_picker?
+      # propagate the labels according to the currently preferred language
+      @taxon_picker.resort_recursively()
+      @taxon_picker.recolor_now()
+      @huviz.recolor_nodes()
+    if @predicate_picker?
+      console.log("resorting of predicate_picker on hold until it does not delete 'anything'")
+      #@predicate_picker?.resort_recursively()
     #@set_picker?.resort_recursively()
     return
   build_predicate_picker: (label) ->

@@ -117,7 +117,7 @@ class TreePicker
     if label_elem?
       label_elem.textContent = @id_to_name[node_id]
   get_comparison_value: (node_id, label) ->
-    if @sort_by_name
+    if @sort_by_label
       this_term = (label or node_id)
     else
       this_term = node_id
