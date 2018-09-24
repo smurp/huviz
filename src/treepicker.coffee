@@ -30,11 +30,11 @@ Possible Bug: it appears that <div class="container" id="classes"> has a redunda
 uniquer = require("uniquer").uniquer
 
 class TreePicker
-  constructor: (@elem, root, extra_classes, @needs_expander, @sort_by_label) ->
+  constructor: (@elem, root, extra_classes, @needs_expander, @use_name_as_label) ->
     if extra_classes?
       @extra_classes = extra_classes
-    if not @sort_by_label?
-      @sort_by_label = true
+    if not @use_name_as_label?
+      @use_name_as_label = true
     if not @squash_case_during_sort?
       @squash_case_during_sort = true
     @id_to_elem = {}
@@ -117,7 +117,7 @@ class TreePicker
     if label_elem?
       label_elem.textContent = @id_to_name[node_id]
   get_comparison_value: (node_id, label) ->
-    if @sort_by_label
+    if @use_name_as_label
       this_term = (label or node_id)
     else
       this_term = node_id
@@ -211,6 +211,11 @@ class TreePicker
     contents.append('div').attr('class','container')
   get_top: ->
     return @ids_in_arrival_order[0] or @id
+  set_name_for_id: (name, id) ->
+    if @use_name_as_label
+      @id_to_name[id] = name
+    else
+      @id_to_name[id] = id
   add: (new_id, parent_id, name, listener) ->
     @ids_in_arrival_order.push(new_id)
     parent_id = parent_id? and parent_id or @get_top()

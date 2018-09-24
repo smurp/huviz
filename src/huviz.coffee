@@ -1009,9 +1009,13 @@ class Huviz
       @gclui.add_new_taxon(taxon_id, parent_lid, label, taxon) # FIXME should this be an event on the Taxon constructor?
     @taxonomy[taxon_id]
 
-  update_labels_on_taxons: () -> # yes 'taxa' is correct but then not found in 'taxon' search
-    for taxon_id, taxon_label of @ontology.label
-      @gclui.taxon_picker.id_to_name[taxon_id] = taxon_label
+  update_labels_on_pickers: () ->
+    for term_id, term_label of @ontology.label
+      # a label might be for a taxon or a predicate, so we must sort out which
+      if @gclui.taxon_picker.id_to_name[term_id]?
+        @gclui.taxon_picker.set_name_for_id(term_label, term_id)
+      if @gclui.predicate_picker.id_to_name[term_id]?
+        @gclui.predicate_picker.set_name_for_id(term_label, term_id)
 
   toggle_taxon: (id, hier, callback) ->
     if callback?
@@ -4130,8 +4134,10 @@ class Huviz
     if @shelved_set
       @shelved_set.resort()
       @discarded_set.resort()
-    @update_labels_on_taxons()
+    @update_labels_on_pickers()
     @gclui?.resort_pickers()
+    if @ctx?
+      @tick()
     return
 
   on_change_color_nodes_as_pies: (new_val, old_val) ->  # TODO why this == window ??

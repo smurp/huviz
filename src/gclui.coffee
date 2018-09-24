@@ -182,7 +182,7 @@ class CommandController
     @predicates_ignored = []
     @predicate_picker = new ColoredTreePicker(
       @predicatebox, 'anything',
-      (extra_classes=[]), (needs_expander=true), (sort_by_label=true), (squash_case=true))
+      (extra_classes=[]), (needs_expander=true), (use_name_as_label=true), (squash_case=true))
     @predicate_hierarchy = {'anything':['anything']}
     # FIXME Why is show_tree being called four times per node?
     @predicate_picker.click_listener = @on_predicate_clicked
@@ -230,7 +230,7 @@ class CommandController
     # http://en.wikipedia.org/wiki/Taxon
     @taxon_picker = new ColoredTreePicker(
       @taxon_box, 'Thing',
-      (extra_classes=[]), (needs_expander=true), (sort_by_label=true), (squash_case=true))
+      (extra_classes=[]), (needs_expander=true), (use_name_as_label=true), (squash_case=true))
     @taxon_picker.click_listener = @on_taxon_clicked
     @taxon_picker.hover_listener = @on_taxon_hovered
     @taxon_picker.show_tree(@hierarchy, @taxon_box)
