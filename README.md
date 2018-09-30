@@ -3,6 +3,8 @@ huviz
 
 ![Image](./graph_ex1.png?raw=true)
 
+**/cwrc/HuViz** is a fork of [/smurp/huviz](https://github.com/smurp/huviz)
+
 # Installation
 
     # Install huviz from github
