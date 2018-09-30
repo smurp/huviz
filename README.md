@@ -5,9 +5,9 @@ huviz
 
 # Demonstration Sites
 
-* [Production](http://huvz.dev.nooron.com/)
-* [Beta](http://beta.huvz.dev.nooron.com/)
-* [Alpha](http://alpha.huvz.dev.nooron.com/)
+* [Production](http://huviz.dev.nooron.com/)
+* [Beta](http://beta.huviz.dev.nooron.com/)
+* [Alpha](http://alpha.huviz.dev.nooron.com/)
 
 
 # Installation
