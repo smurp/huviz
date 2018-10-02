@@ -27,6 +27,10 @@
     {
       "uri": "/data/foaf20140114.ttl",
       "label": "Friend of a Friend (FOAF)"
+    },
+    {
+      "uri": "/data/oa.ttl",
+      "label": "Open Annotation (https://www.w3.org/ns/oa.ttl)"
     }
   ],
   "defaults": {
