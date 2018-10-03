@@ -143,9 +143,10 @@ class CommandController
     pred_uri = e.detail.pred_uri
     parent_lid = e.detail.parent_lid
     pred_lid = e.detail.pred_lid
+    pred_name = e.detail.pred_name
     unless pred_uri in @predicates_ignored # FIXME merge with predicates_to_ignore
       unless pred_lid in @predicates_ignored # FIXME merge with predicates_to_ignore
-        pred_name = pred_lid.match(/([\w\d\_\-]+)$/g)[0]
+        pred_name ?= pred_lid.match(/([\w\d\_\-]+)$/g)[0]
         @add_newpredicate(pred_lid, parent_lid, pred_name)
         @recolor_edges_and_predicates_eventually(e)
   recolor_edges_and_predicates_eventually: ->
@@ -237,7 +238,7 @@ class CommandController
     where.classed("taxon_picker_box_parent", true)
     return where
   add_new_taxon: (class_id,parent_lid,class_name,taxon) =>
-    @taxon_picker.add(class_id,parent_lid,class_name,@on_taxon_clicked)
+    @taxon_picker.add(class_id, parent_lid, class_name, @on_taxon_clicked)
     @taxon_picker.recolor_now()
     @huviz.recolor_nodes()
   onChangeEnglish: (evt) =>

@@ -1831,15 +1831,17 @@ class Huviz
         parent_lid = "anything"
       @my_graph.predicates[pred_lid] = []
       @ensure_predicate_lineage(parent_lid)
-      @fire_newpredicate_event pid, pred_lid, parent_lid
+      pred_name = @ontology?label[pred_lid]
+      @fire_newpredicate_event(pid, pred_lid, parent_lid, pred_name)
 
-  fire_newpredicate_event: (pred_uri, pred_lid, parent_lid) ->
+  fire_newpredicate_event: (pred_uri, pred_lid, parent_lid, pred_name) ->
     window.dispatchEvent(
       new CustomEvent 'newpredicate',
         detail:
           pred_uri: pred_uri
           pred_lid: pred_lid
           parent_lid: parent_lid
+          pred_name: pred_name
         bubbles: true
         cancelable: true
     )
