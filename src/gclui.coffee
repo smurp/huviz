@@ -105,13 +105,23 @@ class CommandController
     $(".hints > .a_hint").first().show()
   select_the_initial_set: =>
     # TODO initialize the taxon coloring without cycling all
-    # Removed toggle_taxon and added statement to start with nodes not selected (#)
-    @huviz.toggle_taxon("Thing", true)
-    @huviz.toggle_taxon("Thing", false)
+    toggleEveryThing = () =>
+      @huviz.toggle_taxon("Thing", false) #, () -> alert('called'))
+    toggleEveryThing.call()
+    # everyThingIsSelected = () =>
+    #  @huviz.nodes.length is @huviz.selected_set.length
+    # @check_until_then(everyThingIsSelected, toggleEveryThing)
+    setTimeout(toggleEveryThing, 2000)
     @huviz.do({verbs: ['unselect'], sets: []})
     @huviz.shelved_set.resort() # TODO remove when https://github.com/cwrc/HuViz/issues/109
     return
-    #@engage_verb('choose')
+  check_until_then: (checkCallback, thenCallback) ->
+    nag = () =>
+      if checkCallback.call()
+        clearInterval(intervalId)
+        #alert('check_until_then() is done')
+        thenCallback.call()
+    intervalId = setInterval(nag, 30)
   init_editor_data: ->
     # operations common to the constructor and reset_editor
     @shown_edges_by_predicate = {}
@@ -263,7 +273,7 @@ class CommandController
   taxa_being_clicked_increment: ->
     if not @taxa_being_clicked?
       @taxa_being_clicked = 0
-    @taxa_being_clicked = @taxa_being_clicked + 1
+    @taxa_being_clicked++
     return
   taxa_being_clicked_decrement: ->
     if not @taxa_being_clicked?
@@ -280,6 +290,7 @@ class CommandController
         @taxa_click_storm_callback = null
       #@taxa_click_storm_length = 0
     #else
+    #  blurt(@taxa_being_clicked, null, true)
     #  @taxa_click_storm_length ?= 0
     #  @taxa_click_storm_length++
   perform_on_taxon_clicked: (id, new_state, elem) =>
