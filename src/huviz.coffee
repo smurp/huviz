@@ -277,6 +277,9 @@ window.blurt = (str, type, noButton) ->
   if not noButton
     $('#blurtbox').append("<button id='blurt_close' class='sml_bttn' type='button'>close</button>")
 
+window.blurtDate = () ->
+  blurt((""+new Date()+"").substr(0,24), null, true)
+
 escapeHtml = (unsafe) ->
     return unsafe
          .replace(/&/g, "&amp;")
