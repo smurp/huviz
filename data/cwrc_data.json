@@ -14,6 +14,11 @@
 
     },
     {
+      "uri": "https://raw.githubusercontent.com/cwrc/testData/master/qa/AmyLevy/LevyBioTriples.ttl",
+      "label": "Levy Bio Triples"
+
+    },    
+    {
       "uri": "https://raw.githubusercontent.com/cwrc/testData/master/demoData/CanAuthorsBiography.ttl",
       "label": "Can Authors Biography"
     }
