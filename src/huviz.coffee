@@ -258,14 +258,15 @@ if true
 if not is_one_of(2,[3,2,4])
   alert "is_one_of() fails"
 
-blurt = (str, type) ->
+window.blurt = (str, type, noButton) ->
   #css styles for messages: info (blue), alert (yellow), error (red)
   # TODO There is currently no way for users to remove blurt boxes
-  if !type
-    type='info'
+
+  #type='info' if !type
   if type is "info" then label = "<h3>Message</h3>"
   if type is "alert" then label = "<h3>Alert</h3>"
   if type is "error" then label = "<h3>Error</h3>"
+  if not type then label = ''
   if !$('#blurtbox').length
     if type is "error"
       $('#huvis_controls').prepend('<div id="blurtbox"></div>')
@@ -273,7 +274,8 @@ blurt = (str, type) ->
       $('#tabs').append('<div id="blurtbox"></div>')
   $('#blurtbox').append("<div class='blurt #{type}'>#{label}#{str}<br class='clear'></div>")
   $('#blurtbox').scrollTop(10000)
-  $('#blurtbox').append("<button id='blurt_close' class='sml_bttn' type='button'>close</button>")
+  if not noButton
+    $('#blurtbox').append("<button id='blurt_close' class='sml_bttn' type='button'>close</button>")
 
 escapeHtml = (unsafe) ->
     return unsafe
@@ -2060,7 +2062,7 @@ class Huviz
           #   Or should it be QNames?
           #      http://www.w3.org/TR/curie/#s_intro
           if every is 1
-            @show_state_msg "<LI>#{frame.id} <LI>#{pred.id} <LI>#{obj.value}"
+            @show_state_msg("<LI>#{frame.id} <LI>#{pred.id} <LI>#{obj.value}")
             console.log("===========================\n  #", quad_count, "  subj:", frame.id, "\n  pred:", pred.id, "\n  obj.value:", obj.value)
           else
             if quad_count % every is 0

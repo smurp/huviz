@@ -106,8 +106,8 @@ class CommandController
   select_the_initial_set: =>
     # TODO initialize the taxon coloring without cycling all
     # Removed toggle_taxon and added statement to start with nodes not selected (#)
-    #@huviz.toggle_taxon("Thing", true)
-    #@huviz.toggle_taxon("Thing", false)
+    @huviz.toggle_taxon("Thing", true)
+    @huviz.toggle_taxon("Thing", false)
     @huviz.do({verbs: ['unselect'], sets: []})
     @huviz.shelved_set.resort() # TODO remove when https://github.com/cwrc/HuViz/issues/109
     return
