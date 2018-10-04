@@ -31,6 +31,10 @@
     {
       "uri": "/data/oa.ttl",
       "label": "Open Annotation (https://www.w3.org/ns/oa.ttl)"
+    },
+    {
+      "uri": "/data/video.ttl",
+      "label": "Video Ontology (VidOnt)"
     }
   ],
   "defaults": {
