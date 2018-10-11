@@ -1900,8 +1900,9 @@ class Huviz
       # so there should be links made between this node and that node
       is_type = is_one_of(pid, TYPE_SYNS)
       if is_type
-        if @try_to_set_node_type(subj_n, quad.o.value)
-          @develop(subj_n) # might be ready now
+        @try_to_set_node_type(subj_n, quad.o.value)
+        if not @develop(subj_n) # might be ready now
+          @assign_types(subj_n)
       else
         edge = @get_or_create_Edge(subj_n, obj_n, pred_n, cntx_n)
         @infer_edge_end_types(edge)
@@ -2017,25 +2018,12 @@ class Huviz
     null
 
   try_to_set_node_type: (node, type_uri) ->
-    #if type_uri.match(/^http.*/)
-    #  alert "#{type_uri} is an uri rather than an lid"
     type_lid = uniquer(type_uri) # should ensure uniqueness
-    #if not is_one_of(type_uri,@class_list)
-    #  @class_list.push type_uri
-    #  @hierarchy['everything'][1][type_lid] = [type_lid]
-    ###
-    if node.type?
-      if node.type isnt type_lid
-        console.warn "#{node.lid} already #{node.type} now: #{type_lid} "
-    else
-      console.info "  try_to_set_node_type",node.lid,"isa",type_lid
-    ###
     if not node._types
       node._types = []
     if not (type_lid in node._types)
       node._types.push(type_lid)
     node.type = type_lid
-    return true
 
   report_every: 100 # if 1 then more data shown
 
@@ -2510,6 +2498,8 @@ class Huviz
     # things with, then let it join the company of other complete nodes.
     if node.embryo? and @is_ready(node)
       @hatch(node)
+      return true
+    return false
 
   hatch: (node) ->
     # Take a node from being 'embryonic' to being a fully graphable node
@@ -2530,11 +2520,12 @@ class Huviz
     @tick()
     node
 
+  # TODO: remove this method
   get_or_create_node: (subject, start_point, linked) ->
     linked = false
     @get_or_make_node subject,start_point,linked
 
-  # deprecated in favour of add_quad:
+  # TODO: remove this method
   make_nodes: (g, limit) ->
     limit = limit or 0
     count = 0
@@ -2936,6 +2927,7 @@ class Huviz
       the_title = document.title
       window.history.pushState the_state, the_title, the_state
 
+  # TODO: remove this method
   restore_graph_state: (state) ->
     #console.log('state:',state);
     return unless state
@@ -4265,7 +4257,6 @@ class Huviz
     return node.id? and node.type? and node.name?
 
   assign_types: (node,within) ->
-    # see Orlando.assign_types
     type_id = node.type # FIXME one of type or taxon_id gotta go, bye 'type'
     if type_id
       #console.log "assign_type",type_id,"to",node.id,"within",within,type_id
