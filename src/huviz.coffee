@@ -3128,16 +3128,19 @@ class Huviz
     # TODO remove this nullification of @last_val by fixing logic in select_option()
     @ontology_loader?last_val = null # clear the last_val so select_option works the first time
 
-  visualize_dataset_using_ontology: =>
+  visualize_dataset_using_ontology: (ignoreEvent, dataset, ontologies) =>
     @close_blurt_box()
-    @set_ontology(@ontology_loader.value)
+    # Either dataset and ontologies are passed in by HuViz.load_with() from a command
+    #   or this method is called with neither then get values from the loaders
+    onto = ontologies and ontologies[0] or @ontology_loader
+    data = dataset or @dataset_loader
     if @local_file_data
-      @read_data_and_show(@dataset_loader.value)
+      @read_data_and_show(data.value) #(@dataset_loader.value)
     else #load from URI
-      @load_file_from_uri(@dataset_loader.value) # , () -> alert "woot")
-    selected_dataset = @dataset_loader.get_selected_option()[0]
-    @update_browser_title(selected_dataset)
-    @update_caption(@dataset_loader.value, @ontology_loader.value)
+      @load_data_with_onto(data, onto) # , () -> alert "woot")
+    #selected_dataset = @dataset_loader.get_selected_option()[0]
+    @update_browser_title(data)
+    @update_caption(data.value, onto.value)
 
   init_gclc: ->
     @gclc = new GraphCommandLanguageCtrl(this)
@@ -3153,10 +3156,10 @@ class Huviz
     for pid in @predicates_to_ignore
       @gclui.ignore_predicate pid
 
-  disable_dataset_ontology_loader: ->
+  disable_dataset_ontology_loader: (data, onto) ->
     @dataset_loader.disable()
     @ontology_loader.disable()
-    @replace_loader_display(@dataset_loader.get_selected_option()[0].label, @ontology_loader.get_selected_option()[0].label)
+    @replace_loader_display(data, onto)
     disable = true
     @update_go_button(disable)
     @big_go_button.hide()
@@ -3190,17 +3193,23 @@ class Huviz
     @big_go_button.prop('disabled', disable)
     return
 
-  replace_loader_display: (selected_dataset, selected_ontology) ->
+  replace_loader_display: (dataset, ontology) ->
     $("#huvis_controls .unselectable").attr("style","display:none")
-    data_ontol_display = "<div id='data_ontology_display'>"
-    data_ontol_display += "<p><span class='dt_label'>Dataset:</span> " + selected_dataset + "</p> "
-    data_ontol_display += "<p><span class='dt_label'>Ontology:</span> " + selected_ontology + "</p>"
-    data_ontol_display += "<br style='clear:both'></div>"
+    uri = new URL(location)
+    uri.hash = "load+#{dataset.value}+with+#{ontology.value}"
+    data_ontol_display = """
+    <div id='data_ontology_display'>"
+      <p><span class="dt_label">Dataset:</span> #{dataset.label}</p>
+      <p><span class="dt_label">Ontology:</span> #{ontology.label}</p>
+      <button title="reload"
+         onclick="location.replace('#{uri}');location.reload()">&#8635;</button>
+      <br style="clear:both">
+    </div>"""
     $("#huvis_controls").prepend(data_ontol_display)
 
-  update_browser_title: (selected_dataset) ->
-    if selected_dataset.value
-      document.title = selected_dataset.label + " - Huvis Graph Visualization"
+  update_browser_title: (dataset) ->
+    if dataset.value
+      document.title = dataset.label + " - Huvis Graph Visualization"
 
   update_caption: (dataset_str, ontology_str) ->
     $("#dataset_watermark").text(dataset_str)
@@ -3375,7 +3384,7 @@ class Huviz
     args ?= {}
     if not args.viscanvas_sel
       msg = "call Huviz({viscanvas_sel:'????'}) so it can find the canvas to draw in"
-      console.debug msg
+      console.debug(msg)
     if not args.gclui_sel
       alert("call Huviz({gclui_sel:'????'}) so it can find the div to put the gclui command pickers in")
     if not args.graph_controls_sel
@@ -3385,8 +3394,6 @@ class Huviz
       @selector_for_graph_controls = @args.selector_for_graph_controls
     @init_ontology()
     @off_center = false # FIXME expose this or make the amount a slider
-    #@toggle_logging()
-
     document.addEventListener 'nextsubject', @onnextsubject
     @init_snippet_box()  # FIXME not sure this does much useful anymore
     @mousedown_point = false
@@ -4175,22 +4182,24 @@ class Huviz
         cancelable: true
     )
 
-  load_file: ->
-    @load_file_from_uri(@get_dataset_uri())
+  XXX_load_file: ->
+    @load_data_with_onto(@get_dataset_uri())
 
-  load_file_from_uri: (@data_uri, callback) ->  # Used for loading files from menu
+  load_data_with_onto: (data, onto, callback) ->  # Used for loading files from menu
+    @data_uri = data.value
+    @set_ontology(onto.value)
     if @args.display_reset
       $("#reset_btn").show()
     else
       #@disable_data_set_selector()
-      @disable_dataset_ontology_loader()
+      @disable_dataset_ontology_loader(data, onto)
     @show_state_msg("loading...")
     #@init_from_graph_controls()
     #@dump_current_settings("after init_from_graph_controls()")
     #@reset_graph()
     @show_state_msg @data_uri
     unless @G.subjects
-      @fetchAndShow @data_uri, callback
+      @fetchAndShow(@data_uri, callback)
 
   disable_data_set_selector: () ->
     $("[name=data_set]").prop('disabled', true)
@@ -4210,13 +4219,18 @@ class Huviz
     #@local_file_data = "" #RESET the file data
     #@disable_data_set_selector()
     @disable_dataset_ontology_loader()
-    #@replace_loader_display(filename, @ontology_loader.value)
     #@show_state_msg("loading...")
     #@show_state_msg filename
 
   get_dataset_uri: () ->
     # FIXME goodbye jquery
     return $("select.file_picker option:selected").val()
+
+  run_script_from_hash: ->
+    script = @get_script_from_hash()
+    if script?
+      @gclui.run_script(script)
+    return
 
   get_script_from_hash: () ->
     script = location.hash
@@ -4247,6 +4261,18 @@ class Huviz
   load: (data_uri, callback) ->
     @fetchAndShow(data_uri, callback) unless @G.subjects
     @init_webgl()  if @use_webgl
+
+  load_with: (data_uri, ontology_uris) ->
+    @goto_tab(1) # go to Commands tab # FIXME: should be symbolic not int indexed
+    basename = (uri) ->
+      return uri.split('/').pop().split('.').shift() # the filename without the ext
+    dataset =
+      label: basename(data_uri)
+      value: data_uri
+    ontology =
+      label: basename(ontology_uris[0])
+      value: ontology_uris[0]
+    @visualize_dataset_using_ontology({}, dataset, [ontology])
 
   is_ready: (node) ->
     # This should really be performed on NODES not subjects, meaning nodes should
@@ -4360,6 +4386,10 @@ class OntologicallyGrounded extends Huviz
 class Orlando extends OntologicallyGrounded
   # These are the Orlando specific methods layered on Huviz.
   # These ought to be made more data-driven.
+
+  constructor: ->
+    super
+    @run_script_from_hash()
 
   get_default_set_by_type: (node) ->
     if @is_big_data()
