@@ -3198,11 +3198,13 @@ class Huviz
     uri = new URL(location)
     uri.hash = "load+#{dataset.value}+with+#{ontology.value}"
     data_ontol_display = """
-    <div id='data_ontology_display'>"
+    <div id="data_ontology_display">
       <p><span class="dt_label">Dataset:</span> #{dataset.label}</p>
       <p><span class="dt_label">Ontology:</span> #{ontology.label}</p>
-      <button title="reload"
-         onclick="location.replace('#{uri}');location.reload()">&#8635;</button>
+      <p>
+        <button title="reload"
+           onclick="location.replace('#{uri}');location.reload()"><i class="fas fa-redo"></i></button>
+      </p>
       <br style="clear:both">
     </div>"""
     $("#huvis_controls").prepend(data_ontol_display)
