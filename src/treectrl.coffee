@@ -40,11 +40,11 @@ class TreeCtrl
     @dirty = false
   get_state: () ->
     if not @state?
-      alert "#{@id} has no direct state"
+      alert("#{@id} has no direct state")
     return @state
   get_indirect_state: ->
     if not @indirect_state?
-      alert "#{@id} has no indirect_state"
+      alert("#{@id} has no indirect_state")
     return @indirect_state
   register_superclass: (super_class) ->
     if super_class is this
@@ -127,7 +127,7 @@ class TreeCtrl
             collapsed_payload: @get_collapsed_payload_string()
           bubbles: true
           cancelable: true
-      window.dispatchEvent evt
+      window.dispatchEvent(evt)
       #if @super_class?
       #  @super_class.fire_changeEvent_if_needed()
   format_stats: (stats) ->
