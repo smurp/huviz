@@ -42,9 +42,9 @@ class Taxon extends TreeCtrl
     # Perhaps taxon should be a super of SortedSet rather than a facade.
     # Should Taxon delegate to SortedSet?
     node.taxon = this
-    @add(node)
-  add: (node) ->
-    @instances.add(node)
+    @acquire(node)
+  acquire: (node) ->
+    @instances.acquire(node)
   recalc_direct_stats: ->
     return [@selected_instances.length, @instances.length]
   recalc_english: (in_and_out) ->
