@@ -210,7 +210,7 @@ class GraphCommand
         if nodes?
           async.each(nodes, iter, errorHandler)
     else if @verbs[0] is 'load' # FIXME not very general, but it appears to be the sole exception
-      @graph_ctrl.load(@data_uri)
+      @graph_ctrl.load_with(@data_uri, @with_ontologies)
       console.log("load data_uri has returned")
     else
       for meth in @get_methods()
@@ -299,6 +299,9 @@ class GraphCommand
     cmd.verbs = [verb]
     if verb is 'load'
       cmd.data_uri = parts[1]
+      if parts.length > 3
+        # "load /data/bob.ttl with onto1.ttl onto2.ttl"
+        cmd.with_ontologies = parts.slice(3,) # cdr
     else
       subj = parts[1].replace(/\'/g,"")
       cmd.subjects = [{'id': subj}]
@@ -320,7 +323,7 @@ class GraphCommandLanguageCtrl
     if script instanceof GraphCommand
       @commands = [script]
     else if typeof script is 'string'
-      @commands =  script.split(';')
+      @commands = script.split(';')
     else if script.constructor is [].constructor
       @commands = script
     else # an object we presume

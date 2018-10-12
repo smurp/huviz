@@ -3,7 +3,7 @@
   <head>
     <title>Huvis Graph Visualization</title>
     <!--link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css"-->
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
     <link rel="icon" href="/favicon.ico?v=4" type="image/x-icon" />
     <link href="/jquery-ui-css/jquery-ui.css" rel="stylesheet"/>
     <link href="/css/huvis.css" rel="stylesheet" type="text/css">
