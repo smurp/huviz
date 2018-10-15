@@ -1902,8 +1902,8 @@ class Huviz
       is_type = is_one_of(pid, TYPE_SYNS)
       if is_type
         @try_to_set_node_type(subj_n, quad.o.value)
-        if not @develop(subj_n) # might be ready now
-          @assign_types(subj_n)
+        #if not @develop(subj_n) # might be ready now
+        #  @assign_types(subj_n)
       else
         edge = @get_or_create_Edge(subj_n, obj_n, pred_n, cntx_n)
         @infer_edge_end_types(edge)
@@ -1924,6 +1924,11 @@ class Huviz
           add_name()
         if subj_n.embryo
           @develop(subj_n) # might be ready now
+      # TODO: implement the creation of nodes for literal values
+      #       Make a Setting make_nodes_of_literals which can disable this.
+      #else # the object is a literal other than name
+      #  obj_val = quad.o.value
+      #  @get_or_create_node_by_id(quad.o.value)
     @last_quad = quad
     return edge
 
@@ -1980,15 +1985,13 @@ class Huviz
   infer_edge_end_types: (edge) ->
     edge.source.type = 'Thing' unless edge.source.type?
     edge.target.type = 'Thing' unless edge.target.type?
+    # infer type of source based on the range of the predicate
     ranges = @ontology.range[edge.predicate.lid]
     if ranges?
-      #console.log "INFERRING BASED ON: edge_id:(#{edge.id}) first range_lid:(#{ranges[0]})",@ontology
       @try_to_set_node_type(edge.target, ranges[0])
-
     # infer type of source based on the domain of the predicate
     domain_lid = @ontology.domain[edge.predicate.lid]
     if domain_lid?
-      #console.log "INFERRING BASED ON: edge_id:(#{edge.id}) domain_lid:(#{domain_lid})",@ontology
       @try_to_set_node_type(edge.source, domain_lid)
 
   make_Edge_id: (subj_n, obj_n, pred_n) ->
@@ -2013,8 +2016,8 @@ class Huviz
 
   delete_edge: (e) ->
     @remove_link(e.id)
-    @remove_from e, e.source.links_from
-    @remove_from e, e.target.links_to
+    @remove_from(e, e.source.links_from)
+    @remove_from(e, e.target.links_to)
     delete @edges_by_id[e.id]
     null
 
@@ -2024,7 +2027,10 @@ class Huviz
       node._types = []
     if not (type_lid in node._types)
       node._types.push(type_lid)
+    prev_type = node.type
     node.type = type_lid
+    if prev_type isnt type_lid
+      @assign_types(node)
 
   report_every: 100 # if 1 then more data shown
 
@@ -2112,7 +2118,7 @@ class Huviz
     msg += " which took " + parse_time + " seconds to parse"
     console.log(msg) if @verbosity >= @COARSE
     show_start_time = new Date()
-    @showGraph @G
+    @showGraph(@G)
     show_end_time = new Date()
     show_time = (show_end_time - show_start_time) / 1000
     msg += " and " + show_time + " sec to show"
@@ -4279,11 +4285,9 @@ class Huviz
       value: ontology_uris[0]
     @visualize_dataset_using_ontology({}, dataset, [ontology])
 
+  # TODO: remove now that @get_or_create_node_by_id() sets type and name
   is_ready: (node) ->
-    # This should really be performed on NODES not subjects, meaning nodes should
-    # have FOAF_name and type assigned to them during add_quad()
-    #
-    # Determine whether there is enough known about a subject to create a node for it
+    # Determine whether there is enough known about a node to make it visible
     # Does it have an .id and a .type and a .name?
     return node.id? and node.type? and node.name?
 
