@@ -11,16 +11,19 @@
     {
       "uri": "https://raw.githubusercontent.com/cwrc/testData/master/demoData/REED_Elizabethan_sample.ttl",
       "label": "REED Elizabethan sample"
-
     },
     {
       "uri": "https://raw.githubusercontent.com/cwrc/testData/master/qa/AmyLevy/LevyBioTriples.ttl",
       "label": "Levy Bio Triples"
-
-    },    
+    },
     {
       "uri": "https://raw.githubusercontent.com/cwrc/testData/master/demoData/CanAuthorsBiography.ttl",
       "label": "Can Authors Biography"
+    },
+    {
+      "uri": "https://raw.githubusercontent.com/cwrc/testData/master/sparqlTest1.ttl",
+      "label": "SPARQL Test1",
+      "ontology_label": "CWRC Ontology"
     }
   ],
   "defaults": {

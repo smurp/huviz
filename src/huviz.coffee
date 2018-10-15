@@ -1886,7 +1886,8 @@ class Huviz
     subj_n = @get_or_create_node_by_id(sid)
     pred_n = @get_or_create_predicate_by_id(pid)
     cntx_n = @get_or_create_context_by_id(ctxid)
-    if pid.match(/\#(first|rest)$/) # TODO use @predicates_to_ignore instead OR rdfs:first and rdfs:rest
+    # TODO: use @predicates_to_ignore instead OR rdfs:first and rdfs:rest
+    if pid.match(/\#(first|rest)$/)
       console.warn("add_quad() ignoring quad because pid=#{pid}", quad)
       return
     # set the predicate on the subject
@@ -2479,18 +2480,22 @@ class Huviz
 
   get_or_create_node_by_id: (sid) ->
     # FIXME OMG must standardize on .lid as the short local id, ie internal id
-    obj_id = @make_qname(sid)
-    obj_n = @nodes.get_by('id',obj_id)
-    if not obj_n?
-      obj_n = @embryonic_set.get_by('id',obj_id)
-    if not obj_n?
+    node_id = @make_qname(sid) # REVIEW: what about sid: ":" ie the current graph
+    node = @nodes.get_by('id', node_id)
+    if not node?
+      node = @embryonic_set.get_by('id',node_id)
+    if not node?
       # at this point the node is embryonic, all we know is its uri!
-      obj_n = new Node(obj_id, @use_lid_as_node_name)
-      if not obj_n.id?
+      node = new Node(node_id, @use_lid_as_node_name)
+      if not node.id?
         alert "new Node('"+sid+"') has no id"
-      #@nodes.add(obj_n)
-      @embryonic_set.add(obj_n)
-    obj_n
+      #@nodes.add(node)
+      @embryonic_set.add(node)
+    node.type ?= "Thing"
+    node.lid ?= uniquer(node.id)
+    if not node.name?
+      @set_name(node, node.lid)
+    return node
 
   develop: (node) ->
     # If the node is embryonic and is ready to hatch, then hatch it.
@@ -3173,8 +3178,6 @@ class Huviz
     $("#huvis_controls .unselectable").removeAttr("style","display:none")
 
   update_dataset_ontology_loader: =>
-    #alert('update_dataset_ontology_loader')
-    #debugger
     if not (@dataset_loader? and @ontology_loader?)
       console.log("still building loaders...")
       return
@@ -4284,12 +4287,11 @@ class Huviz
     # Does it have an .id and a .type and a .name?
     return node.id? and node.type? and node.name?
 
-  assign_types: (node,within) ->
+  assign_types: (node, within) ->
     type_id = node.type # FIXME one of type or taxon_id gotta go, bye 'type'
     if type_id
       #console.log "assign_type",type_id,"to",node.id,"within",within,type_id
       @get_or_create_taxon(type_id).register(node)
-
     else
       throw "there must be a .type before hatch can even be called:"+node.id+ " "+type_id
       #console.log "assign_types failed, missing .type on",node.id,"within",within,type_id
