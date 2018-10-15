@@ -1926,9 +1926,17 @@ class Huviz
           @develop(subj_n) # might be ready now
       # TODO: implement the creation of nodes for literal values
       #       Make a Setting make_nodes_of_literals which can disable this.
-      #else # the object is a literal other than name
-      #  obj_val = quad.o.value
-      #  @get_or_create_node_by_id(quad.o.value)
+      else # the object is a literal other than name
+        if @make_nodes_for_literals
+          obj_val = quad.o.value
+          literal_node = @get_or_create_node_by_id(quad.o.value)
+          @try_to_set_node_type(literal_node, "Thing")
+          @develop(literal_node)
+          edge = @get_or_create_Edge(subj_n, literal_node, pred_n, cntx_n)
+          @infer_edge_end_types(edge)
+          edge.register_context(cntx_n)
+          edge.color = @gclui.predicate_picker.get_color_forId_byName(pred_n.lid,'showing')
+          @add_edge(edge)
     @last_quad = quad
     return edge
 
@@ -3857,10 +3865,21 @@ class Huviz
     ,
       color_nodes_as_pies:
         text: "Color nodes as pies"
+        style: "color:orange"
         label:
           title: "Show all a nodes types as colored pie pieces"
         input:
           type: "checkbox"   #checked: "checked"
+    ,
+      make_nodes_for_literals:
+        style: "color:orange"
+        text: "Make nodes for literals"
+        label:
+          title: "show literal values (dates, strings, numbers) as nodes"
+        input:
+          type: "checkbox"
+          checked: "checked"
+        event_type: "change"
     ,
       graph_title_style:
         text: "Title display"
@@ -3912,7 +3931,7 @@ class Huviz
           title: "show angles and flags with labels"
         input:
           type: "checkbox"   #checked: "checked"
-        event_type: "change",
+        event_type: "change"
     ,
       language_path:
         text: "Language Path"
