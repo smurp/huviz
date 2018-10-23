@@ -219,6 +219,79 @@ RDFS_label  = "http://www.w3.org/2000/01/rdf-schema#label"
 TYPE_SYNS   = [RDF_type, RDF_a, 'rdfs:type', 'rdf:type']
 NAME_SYNS   = [FOAF_name, RDFS_label, 'rdfs:label', 'name']
 XML_TAG_REGEX = /(<([^>]+)>)/ig
+
+typeSigRE =
+  # https://regex101.com/r/lKClAg/1
+  'xsd': new RegExp("^http:\/\/www\.w3\.org\/2001\/XMLSchema\#(.*)$")
+  # https://regex101.com/r/ccfdLS/3/
+  'rdf': new RegExp("^http:\/\/www\.w3\.org\/1999\/02\/22-rdf-syntax-ns#(.*)$")
+getPrefixedTypeSignature = (typeUri) ->
+  for prefix, sig of typeSigRE
+    match = typeUri.match(sig)
+    if match
+      return "#{prefix}__#{match[1]}"
+  return
+getTypeSignature = (typeUri) ->
+  typeSig = getPrefixedTypeSignature(typeUri)
+  return typeSig
+  #return (typeSig or '').split('__')[1]
+PRIMORDIAL_ONTOLOGY =
+  subClassOf:
+    Literal: 'Thing'
+    # https://www.w3.org/1999/02/22-rdf-syntax-ns
+    # REVIEW(smurp) ignoring all but the rdfs:Datatype instances
+    # REVIEW(smurp) should Literal be called Datatype instead?
+    "rdf__PlainLiteral": 'Literal'
+    "rdf__HTML": 'Literal'
+    "rdf__langString": 'Literal'
+    "rdf__type": 'Literal'
+    "rdf__XMLLiteral": 'Literal'
+    # https://www.w3.org/TR/xmlschema11-2/type-hierarchy-201104.png
+    # REVIEW(smurp) ideally all the xsd types would fall under anyType > anySimpleType > anyAtomicType
+    # REVIEW(smurp) what about Built-in list types like: ENTITIES, IDREFS, NMTOKENS ????
+    "xsd__anyURI": 'Literal'
+    "xsd__base64Binary": 'Literal'
+    "xsd__boolean": 'Literal'
+    "xsd__date": 'Literal'
+    "xsd__dateTimeStamp": 'date'
+    "xsd__decimal": 'Literal'
+    "xsd__integer": "xsd__decimal"
+    "xsd__long": "xsd__integer"
+    "xsd__int": "xsd__long"
+    "xsd__short": "xsd__int"
+    "xsd__byte": "xsd__short"
+    "xsd__nonNegativeInteger": "xsd__integer"
+    "xsd__positiveInteger": "xsd__nonNegativeInteger"
+    "xsd__unsignedLong": "xsd__nonNegativeInteger"
+    "xsd__unsignedInt":  "xsd__unsignedLong"
+    "xsd__unsignedShort": "xsd__unsignedInt"
+    "xsd__unsignedByte": "xsd__unsignedShort"
+    "xsd__nonPositiveInteger": "xsd__integer"
+    "xsd__negativeInteger": "xsd__nonPositiveInteger"
+    "xsd__double": 'Literal'
+    "xsd__duration": 'Literal'
+    "xsd__float": 'Literal'
+    "xsd__gDay": 'Literal'
+    "xsd__gMonth": 'Literal'
+    "xsd__gMonthDay": 'Literal'
+    "xsd__gYear": 'Literal'
+    "xsd__gYearMonth": 'Literal'
+    "xsd__hexBinary": 'Literal'
+    "xsd__NOTATION": 'Literal'
+    "xsd__QName": 'Literal'
+    "xsd__string": 'Literal'
+    "xsd__normalizedString": "xsd_string"
+    "xsd__token": "xsd__normalizedString"
+    "xsd__language": "xsd__token"
+    "xsd__Name": "xsd__token"
+    "xsd__NCName": "xsd__Name"
+    "xsd__time": 'Literal'
+
+  subPropertyOf: {}
+  domain: {}
+  range: {}
+  label: {} # MultiStrings as values
+
 MANY_SPACES_REGEX = /\s{2,}/g
 UNDEFINED = undefined
 start_with_http = new RegExp("http", "ig")
@@ -1965,7 +2038,7 @@ class Huviz
       else # the object is a literal other than name
         if @make_nodes_for_literals
           objVal = quad.o.value
-          simpleType = quad.o.type.split('#')[1]
+          simpleType = getTypeSignature(quad.o.type or '') or 'Literal'
           # Does the value have a language or does it contain spaces?
           if quad.o.language or (objVal.match(/\s/g)||[]).length > 0
             # Perhaps an appropriate id for a literal "node" is
@@ -3520,15 +3593,10 @@ class Huviz
 
   init_ontology: ->
     @create_taxonomy()
-    @ontology =
-      subClassOf: {}
-      subPropertyOf: {}
-      domain: {}
-      range: {}
-      label: {} # MultiStrings as values
+    @ontology = PRIMORDIAL_ONTOLOGY
 
   constructor: (args) -> # Huviz
-    console.log args
+    console.log(args)
     args ?= {}
     if not args.viscanvas_sel
       msg = "call Huviz({viscanvas_sel:'????'}) so it can find the canvas to draw in"
