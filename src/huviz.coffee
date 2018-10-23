@@ -1965,6 +1965,7 @@ class Huviz
       else # the object is a literal other than name
         if @make_nodes_for_literals
           objVal = quad.o.value
+          simpleType = quad.o.type.split('#')[1]
           # Does the value have a language or does it contain spaces?
           if quad.o.language or (objVal.match(/\s/g)||[]).length > 0
             # Perhaps an appropriate id for a literal "node" is
@@ -1981,7 +1982,7 @@ class Huviz
           else
             objId = synthIdFor(objVal)
           literal_node = @get_or_create_node_by_id(objId)
-          @try_to_set_node_type(literal_node, "Thing")
+          @try_to_set_node_type(literal_node, simpleType)
           @develop(literal_node)
           @set_name(literal_node, quad.o.value, quad.o.language)
           edge = @get_or_create_Edge(subj_n, literal_node, pred_n, cntx_n)
