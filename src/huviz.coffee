@@ -1966,7 +1966,7 @@ class Huviz
         if @make_nodes_for_literals
           objVal = quad.o.value
           # Does the value have a language or does it contain spaces?
-          if quad.o.lang or (objVal.match(/\s/g)||[]).length > 0
+          if quad.o.language or (objVal.match(/\s/g)||[]).length > 0
             # Perhaps an appropriate id for a literal "node" is
             # some sort of amalgam of the subject and predicate ids
             # for that object.
