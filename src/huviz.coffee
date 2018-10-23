@@ -3398,7 +3398,7 @@ class Huviz
   init_indexddbstorage: ->
     @dbsstorage ?= new IndexedDBStorageController(this, @indexeddbservice)
 
-  predicates_to_ignore: ["anything", "comment", "first", "rest", "members"] # TODO make other than 'anything' optional
+  predicates_to_ignore: ["anything", "first", "rest", "members"] # TODO make other than 'anything' optional
 
   init_snippet_box: ->
     if d3.select('#snippet_box')[0].length > 0
