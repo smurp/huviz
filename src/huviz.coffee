@@ -1900,18 +1900,17 @@ class Huviz
       # We have a node for the object of the quad and this quad is relational
       # so there should be links made between this node and that node
       is_type = is_one_of(pid, TYPE_SYNS)
+      make_edge = @show_class_instance_edges or not is_type
       if is_type
         @try_to_set_node_type(subj_n, quad.o.value)
-        #if not @develop(subj_n) # might be ready now
-        #  @assign_types(subj_n)
-      else
+      if make_edge
         edge = @get_or_create_Edge(subj_n, obj_n, pred_n, cntx_n)
         @infer_edge_end_types(edge)
         edge.register_context(cntx_n)
         edge.color = @gclui.predicate_picker.get_color_forId_byName(pred_n.lid,'showing')
         @add_edge(edge)
         @develop(obj_n)
-    else
+    else # ie the quad.o is a literal
       if is_one_of(pid, NAME_SYNS)
         add_name = () =>
           @set_name(
@@ -3237,14 +3236,15 @@ class Huviz
     @init_dataset_menus()
     if not @gclui?
       @gclui = new CommandController(this,d3.select(@args.gclui_sel)[0][0],@hierarchy)
-    window.addEventListener 'showgraph', @register_gclc_prefixes
-    window.addEventListener 'newpredicate', @gclui.handle_newpredicate
-    TYPE_SYNS.forEach (pred_id,i) =>
-      @gclui.ignore_predicate pred_id
+    window.addEventListener('showgraph', @register_gclc_prefixes)
+    window.addEventListener('newpredicate', @gclui.handle_newpredicate)
+    if not @show_class_instance_edges
+      TYPE_SYNS.forEach (pred_id,i) =>
+        @gclui.ignore_predicate(pred_id)
     NAME_SYNS.forEach (pred_id,i) =>
-      @gclui.ignore_predicate pred_id
+      @gclui.ignore_predicate(pred_id)
     for pid in @predicates_to_ignore
-      @gclui.ignore_predicate pid
+      @gclui.ignore_predicate(pid)
 
   disable_dataset_ontology_loader: (data, onto) ->
     @dataset_loader.disable()
@@ -4018,6 +4018,16 @@ class Huviz
           value: (window.navigator.language.substr(0,2) + ":en:ANY:NOLANG").replace("en:en:","en:")
           size: "16"
           placeholder: "en:es:fr:de:ANY:NOLANG"
+        event_type: "change"
+    ,
+      show_class_instance_edges:
+        style: "color:orange"
+        text: "Show class-instance relationships"
+        label:
+          title: "display the class-instance relationship as an edge"
+        input:
+          type: "checkbox"
+          checked: "checked"
         event_type: "change"
     ]
 
