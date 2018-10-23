@@ -3350,9 +3350,9 @@ class Huviz
     data = dataset or @dataset_loader
     if @local_file_data
       @read_data_and_show(data.value) #(@dataset_loader.value)
-    else if @endpoint_loader.value
-      data = @endpoint_loader #TEMP
-      @load_data_with_onto(data, onto) #TODO add ontology here?
+    #else if @endpoint_loader.value
+    #  data = @endpoint_loader #TEMP
+    #  @load_data_with_onto(data, onto) #TODO add ontology here?
     else #load from URI
       @load_data_with_onto(data, onto) # , () -> alert "woot")
     #selected_dataset = @dataset_loader.get_selected_option()[0]
