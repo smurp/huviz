@@ -330,6 +330,7 @@
   text-transform: uppercase;
   color: #888;
   font-size: .8em;
+  display: block;
 }
 .big_go_button {
   margin: 1.5em 0.5em;

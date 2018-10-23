@@ -254,18 +254,21 @@
           gclui_sel: "#gclui",
           dataset_loader__append_to_sel: ".unselectable",
           ontology_loader__append_to_sel: ".unselectable",
+          endpoint_loader__append_to_sel: ".unselectable",
           graph_controls_sel: '#tabs-options',
           display_hints: false, // here to show how to enable hints
           display_reset: false,  // here to show how to enable reset button
-      preload: [
-            '/data/genres.json'
-            , '/data/ontologies.json'
-            , '/data/organizations.json'
-            , '/data/periodicals.json'
-            , '/data/publishing.json'
-            , '/data/individuals.json',
-            , '/data/cwrc_data.json'
-          ]
+          preload: [
+                '/data/genres.json'
+                , '/data/ontologies.json'
+                , '/data/organizations.json'
+                , '/data/periodicals.json'
+                , '/data/publishing.json'
+                , '/data/individuals.json'
+                , '/data/cwrc_data.json'
+                , '/data/public_endpoints.json'
+                , '/data/cwrc_endpoints.json'
+              ]
         });
         HVZ.replace_human_term_spans('ui-widget');
         //HVZ.goto_tab(2); // go to the "Commands" tab, comment out to stay on "Intro" tab

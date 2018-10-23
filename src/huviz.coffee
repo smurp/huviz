@@ -2249,6 +2249,39 @@ class Huviz
         @reset_dataset_ontology_loader()
         #TODO Reset titles on page
 
+  query_and_show: (url, callback) ->
+    qry = """
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      SELECT ?g
+      WHERE {
+        GRAPH ?g { }
+      }
+    """
+    # NEED a parser to handle result
+    console.log url
+    console.log qry
+    #queryUrl = encodeURI( url+"?query="+qry )
+    queryUrl = url + '/?query=' + encodeURIComponent(qry)
+    console.log queryUrl
+    $.ajax
+        type: 'GET'
+        url: queryUrl
+        headers:
+          Accept: 'application/sparql-results+xml'
+        success: (data, textStatus, jqXHR) =>
+          console.log data
+          console.log textStatus
+        error: (jqxhr, textStatus, errorThrown) =>
+          console.log(url, errorThrown)
+          if not errorThrown
+            errorThrown = "Cross-Origin error"
+          msg = errorThrown + " while fetching " + url
+          @hide_state_msg()
+          $('#data_ontology_display').remove()
+          blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
+          @reset_dataset_ontology_loader()
+
   # Deal with buggy situations where flashing the links on and off
   # fixes data structures.  Not currently needed.
   show_and_hide_links_from_node: (d) ->
@@ -3007,6 +3040,7 @@ class Huviz
 
   ensure_datasets: (preload_group, store_in_db) =>  # note "fat arrow" so this can be an AJAX callback (see preload_datasets)
     defaults = preload_group.defaults or {}
+    #console.log preload_group # THIS IS THE ITEMS IN A FILE (i.e. cwrc.json, generes.json)
     for ds_rec in preload_group.datasets
       # If this preload_group has defaults apply them to the ds_rec if it is missing that value.
       # We do not want to do ds_rec.__proto__ = defaults because then defaults are not ownProperty
@@ -3015,7 +3049,7 @@ class Huviz
       @ensure_dataset(ds_rec, store_in_db)
 
   ensure_dataset: (dataset_rec, store_in_db) ->
-    # ensure the dataset is in the database and the correct loader
+    # ensure the dataset is in the database and the correct
     uri = dataset_rec.uri
     dataset_rec.time ?= new Date().toString()
     dataset_rec.title ?= uri
@@ -3025,8 +3059,10 @@ class Huviz
     if dataset_rec.isOntology
       if @ontology_loader
         @ontology_loader.add_dataset(dataset_rec, store_in_db)
-    if @dataset_loader
+    if @dataset_loader and not dataset_rec.isEndpoint
       @dataset_loader.add_dataset(dataset_rec, store_in_db)
+    if dataset_rec.isEndpoint and @endpoint_loader
+      @endpoint_loader.add_dataset(dataset_rec, store_in_db)
 
   add_dataset_to_db: (dataset_rec, callback) ->
     trx = @datasetDB.transaction('datasets', "readwrite")
@@ -3071,8 +3107,9 @@ class Huviz
           count++
           dataset_rec = cursor.value
           recs.push(dataset_rec)
-          if not dataset_rec.isOntology
+          if not dataset_rec.isOntology and not dataset_rec.isEndpoint
             # alert "Dataset: add_dataset_option(#{dataset_rec.uri})"
+            #console.log "Dataset: add_dataset_option(#{dataset_rec.uri})"
             @dataset_loader.add_dataset_option(dataset_rec)
           if dataset_rec.isOntology and @ontology_loader
             # alert "Ontology: add_dataset_option(#{dataset_rec.uri})"
@@ -3082,6 +3119,7 @@ class Huviz
           #console.table(recs)
           @dataset_loader.val('')
           @ontology_loader.val('')
+          @endpoint_loader.val('')
           @update_dataset_ontology_loader()
           console.groupEnd() # closing group called "fill_dataset_menus_from_datasetDB(why)"
           document.dispatchEvent( # TODO use 'huviz_controls' rather than document
@@ -3108,6 +3146,7 @@ class Huviz
     #    }
     console.groupCollapsed("preload_datasets")
     # Adds preload options to datasetDB table
+    console.log @args.preload
     if @args.preload
       for preload_group_or_uri in @args.preload
         if typeof(preload_group_or_uri) is 'string' # the URL of a preload_group JSON
@@ -3125,16 +3164,43 @@ class Huviz
           console.error("bad member of @args.preload:", preload_group_or_uri)
     console.groupEnd() # closing group called "preload_datasets"
 
+  preload_endpoints: ->
+    console.log @args.preload_endpoints
+    console.groupCollapsed("preload_endpoints")
+    ####
+    if @args.preload_endpoints
+      for preload_group_or_uri in @args.preload_endpoints
+        console.log preload_group_or_uri
+        if typeof(preload_group_or_uri) is 'string' # the URL of a preload_group JSON
+          #$.getJSON(preload_group_or_uri, null, @ensure_datasets_from_XHR)
+          $.ajax
+            async: false
+            url: preload_group_or_uri
+            success: (data, textStatus) =>
+              @ensure_datasets_from_XHR(data)
+            error: (jqxhr, textStatus, errorThrown) ->
+              console.error(preload_group_or_uri + " " +textStatus+" "+errorThrown.toString())
+        else if typeof(preload_group_or_uri) is 'object' # a preload_group object
+          @ensure_datasets(preload_group_or_uri)
+        else
+          console.error("bad member of @args.preload:", preload_group_or_uri)
+    console.groupEnd()
+    ####
+
   ensure_datasets_from_XHR: (preload_group) =>
     @ensure_datasets(preload_group, false) # false means DO NOT store_in_db
     return
 
   init_dataset_menus: ->
+
     if not @dataset_loader and @args.dataset_loader__append_to_sel
-      @dataset_loader = new PickOrProvide(@, @args.dataset_loader__append_to_sel, 'Dataset', 'DataPP', false)
+      @dataset_loader = new PickOrProvide(@, @args.dataset_loader__append_to_sel, 'Dataset', 'DataPP', false, false)
     if not @ontology_loader and @args.ontology_loader__append_to_sel
-      @ontology_loader = new PickOrProvide(@, @args.ontology_loader__append_to_sel, 'Ontology', 'OntoPP', true)
+      @ontology_loader = new PickOrProvide(@, @args.ontology_loader__append_to_sel, 'Ontology', 'OntoPP', true, false)
       #$(@ontology_loader.form).disable()
+    if not @endpoint_loader and @args.endpoint_loader__append_to_sel
+      @endpoint_loader = new PickOrProvide(@, @args.endpoint_loader__append_to_sel, 'SPARQL Endpoint', 'EndpointPP', false, true)
+      console.log @endpoint_loader
     if @ontology_loader and not @big_go_button
       @big_go_button_id = unique_id()
       @big_go_button = $('<button class="big_go_button">LOAD</button>')
@@ -3144,6 +3210,8 @@ class Huviz
       @big_go_button.prop('disabled', true)
     @init_datasetDB()
     @preload_datasets()
+
+    #@preload_endpoints()
     # TODO remove this nullification of @last_val by fixing logic in select_option()
     @ontology_loader?last_val = null # clear the last_val so select_option works the first time
 
@@ -3155,6 +3223,9 @@ class Huviz
     data = dataset or @dataset_loader
     if @local_file_data
       @read_data_and_show(data.value) #(@dataset_loader.value)
+    else if @endpoint_loader.value
+      data = @endpoint_loader #TEMP
+      @load_data_with_onto(data, onto) #TODO add ontology here?
     else #load from URI
       @load_data_with_onto(data, onto) # , () -> alert "woot")
     #selected_dataset = @dataset_loader.get_selected_option()[0]
@@ -3192,7 +3263,7 @@ class Huviz
     $("#huvis_controls .unselectable").removeAttr("style","display:none")
 
   update_dataset_ontology_loader: =>
-    if not (@dataset_loader? and @ontology_loader?)
+    if not (@dataset_loader? and @ontology_loader?  and @endpoint_loader?)
       console.log("still building loaders...")
       return
     @set_ontology_from_dataset_if_possible()
@@ -3202,11 +3273,14 @@ class Huviz
 
   update_go_button: (disable) ->
     if not disable?
-      ds_v = @dataset_loader.value
-      on_v = @ontology_loader.value
-      #console.log("DATASET: #{ds_v}\nONTOLOGY: #{on_v}")
-      disable = (not (ds_v and on_v)) or ('provide' in [ds_v, on_v])
-      ds_on = "#{ds_v} AND #{on_v}"
+      if @endpoint_loader.value
+        disable = false
+      else
+        ds_v = @dataset_loader.value
+        on_v = @ontology_loader.value
+        #console.log("DATASET: #{ds_v}\nONTOLOGY: #{on_v}")
+        disable = (not (ds_v and on_v)) or ('provide' in [ds_v, on_v])
+        ds_on = "#{ds_v} AND #{on_v}"
     @big_go_button.prop('disabled', disable)
     return
 
@@ -3400,6 +3474,7 @@ class Huviz
       label: {} # MultiStrings as values
 
   constructor: (args) -> # Huviz
+    console.log args
     args ?= {}
     if not args.viscanvas_sel
       msg = "call Huviz({viscanvas_sel:'????'}) so it can find the canvas to draw in"
@@ -4216,7 +4291,12 @@ class Huviz
     @load_data_with_onto(@get_dataset_uri())
 
   load_data_with_onto: (data, onto, callback) ->  # Used for loading files from menu
+    console.log data
     @data_uri = data.value
+    if data.isEndpoint #then time to query
+      console.log "&&&& go to the query_and_show"
+      @query_and_show(@data_uri, callback)
+      return
     @set_ontology(onto.value)
     if @args.display_reset
       $("#reset_btn").show()
@@ -4596,7 +4676,7 @@ class PickOrProvide
   """
   uri_file_loader_sel: '.uri_file_loader_form'
 
-  constructor: (@huviz, @append_to_sel, @label, @css_class, @isOntology) ->
+  constructor: (@huviz, @append_to_sel, @label, @css_class, @isOntology, @isEndpoint) ->
     @uniq_id = unique_id()
     @select_id = unique_id()
     @pickable_uid = unique_id()
@@ -4627,7 +4707,7 @@ class PickOrProvide
 
   select_option: (option) ->
     new_val = option.val()
-    #console.table([{last_val: @last_val, new_val: new_val}])
+    console.table([{last_val: @last_val, new_val: new_val}])
     cur_val = @pick_or_provide_select.val()
     # TODO remove last_val = null in @init_dataset_menus() by fixing logic below
     #   What is happening is that the AJAX loading of preloads means that
@@ -4694,7 +4774,7 @@ class PickOrProvide
     dataset.value = dataset.uri
     @add_option(dataset, @pickable_uid)
     @pick_or_provide_select.val(uri)
-    #console.log @pick_or_provide_select
+    console.log @pick_or_provide_select
     @refresh()
 
   add_group: (grp_rec, which) ->
@@ -4744,7 +4824,9 @@ class PickOrProvide
 
   update_state: (callback) ->
     raw_value = @pick_or_provide_select.val()
+    #console.log raw_value
     selected_option = @get_selected_option()
+    #console.log selected_option
     the_options = @pick_or_provide_select.find("option")
     kid_cnt = the_options.length
     #console.log("#{@label}.update_state() raw_value: #{raw_value} kid_cnt: #{kid_cnt}")
