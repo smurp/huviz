@@ -636,8 +636,7 @@ class CommandController
       if prior.cmd.str is cmd.str
         return  # same as last command, ignore
     cmd_ui = @oldcommands.append('div').attr('class','command')
-    d = $('#commandhistory').scrollTop($('#commandhistory')[0].scrollHeight)
-    #d.scrollTop(d.prop("scrollHeight"))
+    $('#commandhistory').scrollTop($('#commandhistory').scrollHeight)
     record =
       elem: cmd_ui
       cmd: cmd
