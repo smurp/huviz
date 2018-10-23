@@ -247,6 +247,7 @@ PRIMORDIAL_ONTOLOGY =
     "rdf__type": 'Literal'
     "rdf__XMLLiteral": 'Literal'
     # https://www.w3.org/TR/xmlschema11-2/type-hierarchy-201104.png
+    # https://www.w3.org/2011/rdf-wg/wiki/XSD_Datatypes
     # REVIEW(smurp) ideally all the xsd types would fall under anyType > anySimpleType > anyAtomicType
     # REVIEW(smurp) what about Built-in list types like: ENTITIES, IDREFS, NMTOKENS ????
     "xsd__anyURI": 'Literal'
