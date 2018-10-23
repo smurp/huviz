@@ -142,6 +142,43 @@ dist_lt = (mouse, d, thresh) ->
   x = mouse[0] - d.x
   y = mouse[1] - d.y
   Math.sqrt(x * x + y * y) < thresh
+hash = (str) ->
+  # https://github.com/darkskyapp/string-hash/blob/master/index.js
+  hsh = 5381
+  i = str.length
+  while i
+    hsh = (hsh * 33) ^ str.charCodeAt(--i)
+  return hsh >>> 0
+convert = (src, srctable, desttable) ->
+  # convert.js
+  # http://rot47.net
+  # Dr Zhihua Lai
+  srclen = srctable.length
+  destlen = desttable.length
+  # first convert to base 10
+  val = 0
+  numlen = src.length
+  i = 0
+  while i < numlen
+    val = val * srclen + srctable.indexOf(src.charAt(i))
+    i++
+  return 0  if val < 0
+  # then covert to any base
+  r = val % destlen
+  res = desttable.charAt(r)
+  q = Math.floor(val / destlen)
+  while q
+    r = q % destlen
+    q = Math.floor(q / destlen)
+    res = desttable.charAt(r) + res
+  return res
+BASE57 = "23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+BASE10 = "0123456789"
+int_to_base = (intgr) ->
+  convert(""+intgr, BASE10, BASE57)
+synthIdFor = (str) ->
+  # return a short random hash suitable for use as DOM/JS id
+  return 'h'+int_to_base(hash(str)).substr(0,6)
 
 unescape_unicode = (u) ->
   # pre-escape any existing quotes so when JSON.parse does not get confused
@@ -1927,10 +1964,26 @@ class Huviz
       #       Make a Setting make_nodes_of_literals which can disable this.
       else # the object is a literal other than name
         if @make_nodes_for_literals
-          obj_val = quad.o.value
-          literal_node = @get_or_create_node_by_id(quad.o.value)
+          objVal = quad.o.value
+          # Does the value have a language or does it contain spaces?
+          if quad.o.lang or (objVal.match(/\s/g)||[]).length > 0
+            # Perhaps an appropriate id for a literal "node" is
+            # some sort of amalgam of the subject and predicate ids
+            # for that object.
+            # Why?  Consider the case of rdfs:comment.
+            # If there are multiple literal object values on rdfs:comment
+            # they are presumably different language versions of the same
+            # text.  For them to end up on the same MultiString instance
+            # they all have to be treated as names for a node with the same
+            # id -- hence that id must be composed of the subj and pred ids.
+            objKey = "#{subj_n.lid} #{pid}"
+            objId = synthIdFor(objKey)
+          else
+            objId = synthIdFor(objVal)
+          literal_node = @get_or_create_node_by_id(objId)
           @try_to_set_node_type(literal_node, "Thing")
           @develop(literal_node)
+          @set_name(literal_node, quad.o.value, quad.o.language)
           edge = @get_or_create_Edge(subj_n, literal_node, pred_n, cntx_n)
           @infer_edge_end_types(edge)
           edge.register_context(cntx_n)
@@ -2524,7 +2577,7 @@ class Huviz
       @context_set.add(obj_n)
     obj_n
 
-  get_or_create_node_by_id: (sid) ->
+  get_or_create_node_by_id: (sid, name) ->
     # FIXME OMG must standardize on .lid as the short local id, ie internal id
     node_id = @make_qname(sid) # REVIEW: what about sid: ":" ie the current graph
     node = @nodes.get_by('id', node_id)
@@ -2534,13 +2587,13 @@ class Huviz
       # at this point the node is embryonic, all we know is its uri!
       node = new Node(node_id, @use_lid_as_node_name)
       if not node.id?
-        alert "new Node('"+sid+"') has no id"
+        alert("new Node('#{sid}') has no id")
       #@nodes.add(node)
       @embryonic_set.add(node)
     node.type ?= "Thing"
     node.lid ?= uniquer(node.id)
     if not node.name?
-      @set_name(node, node.lid)
+      @set_name(node, name or node.lid)
     return node
 
   develop: (node) ->
