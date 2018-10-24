@@ -23,6 +23,23 @@ youtu:jNQXAC9IVRw
     rdfs:comment "The first video on YouTube. Maybe it's time to go back to the zoo? The name of the music playing in the background is Darude - Sandstorm." ;
     rdfs:label "Me at the zoo" .
 
+youtu:LeAltgu_pbM
+    a video:Video ;
+    dcterms:contributor ytc:UC7DazZtuimjEKKjU2M6aq8w ;
+    rdfs:comment "description" ;
+    rdfs:label "My Snowboarding Skillz" .
+
+youtu:DdxtXO34T5k
+    a video:Video ;
+    dcterms:contributor ytc:UCJk16eB83Su54903oToXSRg ;
+    rdfs:comment "Third video on youtube uploaded April 24, 2005 by the user tunafat, he privated this video on January 30, 2011, so I reuploaded." ;
+    rdfs:label "Flambe Disaster" .
+
+youtu:nHBhyIzTstI
+    a video:Video ;
+    dcterms:contributor ytc:UCuWwLRjfxRIsx-dpmjs-eeA ;
+    rdfs:label "Bootie Christ Dance" .
+
 dvrsdata:anno1
     a oa:Annotation ;
     oa:motivatedBy oa:linking ;
@@ -33,3 +50,36 @@ dvrsdata:anno1
           a oa:FragmentSelector ;
           dcterms:conformsTo <http://www.w3.org/TR/media-frags/> ;
           rdf:value "t=15,33" ] ] .
+
+dvrsdata:anno2
+    a oa:Annotation ;
+    oa:motivatedBy oa:linking ;
+    oa:hasBody youtu:uImk2RgCq_U ;   # the response
+    oa:hasTarget [
+        oa:hasSource youtu:LeAltgu_pbM ; # the thing being responded to
+        oa:hasSelector [
+          a oa:FragmentSelector ;
+          dcterms:conformsTo <http://www.w3.org/TR/media-frags/> ;
+          rdf:value "t=33,44" ] ] .
+
+dvrsdata:anno3
+    a oa:Annotation ;
+    oa:motivatedBy oa:linking ;
+    oa:hasBody youtu:uImk2RgCq_U ;   # the response
+    oa:hasTarget [
+        oa:hasSource youtu:DdxtXO34T5k ; # the thing being responded to
+        oa:hasSelector [
+          a oa:FragmentSelector ;
+          dcterms:conformsTo <http://www.w3.org/TR/media-frags/> ;
+          rdf:value "t=45,61" ] ] .
+
+dvrsdata:anno4
+    a oa:Annotation ;
+    oa:motivatedBy oa:linking ;
+    oa:hasBody youtu:uImk2RgCq_U ;   # the response
+    oa:hasTarget [
+        oa:hasSource youtu:nHBhyIzTstI ; # the thing being responded to
+        oa:hasSelector [
+          a oa:FragmentSelector ;
+          dcterms:conformsTo <http://www.w3.org/TR/media-frags/> ;
+          rdf:value "t=61,77" ] ] .
