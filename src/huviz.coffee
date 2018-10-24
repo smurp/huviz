@@ -814,7 +814,8 @@ class Huviz
       @canvas.width = @width
       @canvas.height = @height
     @force.size [@mx, @my]
-    # FIXME these selectors must be localized
+    # FIXME all selectors must be localized so if there are two huviz
+    #       instances on a page they do not interact
     $("#graph_title_set").css("width", @width)
     $("#tabs").css("left", "auto")
     @restart()
@@ -2016,6 +2017,8 @@ class Huviz
       if is_type
         @try_to_set_node_type(subj_n, quad.o.value)
       if make_edge
+        @develop(subj_n) # both subj_n and obj_n should hatch for edge to make sense
+        # REVIEW uh, how are we ensuring that the obj_n is hatching? should it?
         edge = @get_or_create_Edge(subj_n, obj_n, pred_n, cntx_n)
         @infer_edge_end_types(edge)
         edge.register_context(cntx_n)
@@ -2035,8 +2038,6 @@ class Huviz
           add_name()
         if subj_n.embryo
           @develop(subj_n) # might be ready now
-      # TODO: implement the creation of nodes for literal values
-      #       Make a Setting make_nodes_of_literals which can disable this.
       else # the object is a literal other than name
         if @make_nodes_for_literals
           objVal = quad.o.value
