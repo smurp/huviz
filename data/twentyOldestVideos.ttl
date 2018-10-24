@@ -33,14 +33,3 @@ dvrsdata:anno1
           a oa:FragmentSelector ;
           dcterms:conformsTo <http://www.w3.org/TR/media-frags/> ;
           rdf:value "t=15,33" ] ] .
-
-
-#dvrsdata:anno2
-#    a oa:Annotation ;
-#    oa:hasBody nrnm:big_buck_bunny_720p_5mb.mp4 ; # srsly self-referential shizzle here
-#    oa:hasTarget [
-#        oa:hasSource nrnm:big_buck_bunny_720p_5mb.mp4 ;
-#        oa:hasSelector [
-#            a oa:FragmentSelector ;
-#            dcterms:conformsTo <http://www.w3.org/TR/media-frags/> ;
-#            rdf:value "t=30,60" ] ] .
