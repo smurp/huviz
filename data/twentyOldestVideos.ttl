@@ -1,0 +1,78 @@
+@prefix naa: <http://nooron.com/_/NooronAppArchitecture.ttl#> .
+@prefix nrn: <http://localhost:9998/__/> .
+@prefix dvrsont: <http://nooron.com/_/dvrsont/> .
+@prefix video: <http://purl.org/ontology/video/> .
+@prefix oa: <http://www.w3.org/ns/oa#> .
+@prefix dc: <http://purl.org/dubincore#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix youtubew: <https://www.youtube.com/watch?v=> .
+@prefix youtu: <https://youtu.be/> .  # this should be our preferred prefix
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dvrsvid: <http://diversus.nooron.com/m/v/> .
+@prefix nrnm: <http://nooron.com/m/v/> .
+@prefix nrnusr: <https://nooron.com/u/> .
+#@prefix : <http://diversus.nooron.com/e/> . # see https://bitbucket.org/nooron/general/issues/42
+@prefix dvrsdata: <http://nooron.com/_/dvrsdata.ttl#> .
+
+# <> rdfs:comment "The data created by users of Diversus." .
+
+# https://bitbucket.org/nooron/general/issues/42/design-prefixes-for-media-users
+
+# http://dublincore.org/2012/06/14/dcterms#contributor
+# dcterms:contributor
+# contributor is WRONG, the concept is submitter but vocab.cc has no mention of the idea
+youtu:uImk2RgCq_U
+    a video:Video ;
+    naa:submittedBy nrnusr:SFM ;
+    rdfs:label "The 20 oldest Videos on Youtube" .
+
+youtu:jNQXAC9IVRw
+    a video:Video ;
+    naa:submittedBy <https://www.youtube.com/channel/UC4QobU6STFB0P71PMvOGN5A> ;
+    rdfs:comment "The first video on YouTube. Maybe it's time to go back to the zoo? The name of the music playing in the background is Darude - Sandstorm." ;
+    rdfs:label "Me at the zoo" .
+
+#nrnm:big_buck_bunny_720p_5mb
+#    a video:video ;
+#    naa:fname "big_buck_bunny_720p_5mb.mp4" .
+
+
+dvrsdata:anno1
+    a oa:Annotation ;
+    oa:motivatedBy dvrsont:contradiction, dvrsont:factCheck ;
+    oa:hasBody youtu:uImk2RgCq_U ;   # the response
+    oa:hasTarget [
+        oa:hasSource youtu:jNQXAC9IVRw ; # the thing being responded to
+        oa:hasSelector [
+          a oa:FragmentSelector ;
+          dcterms:conformsTo <http://www.w3.org/TR/media-frags/> ;
+          rdf:value "t=15,33" ] ] .
+
+
+#dvrsdata:anno2
+#    a oa:Annotation ;
+#    oa:hasBody nrnm:big_buck_bunny_720p_5mb.mp4 ; # srsly self-referential shizzle here
+#    oa:hasTarget [
+#        oa:hasSource nrnm:big_buck_bunny_720p_5mb.mp4 ;
+#        oa:hasSelector [
+#            a oa:FragmentSelector ;
+#            dcterms:conformsTo <http://www.w3.org/TR/media-frags/> ;
+#            rdf:value "t=30,60" ] ] .
+
+# {
+#    "@context": "http://www.w3.org/ns/anno.jsonld",
+#    "id": "http://example.org/anno20",
+#    "type": "Annotation",
+#    "body": {
+#      "source": "http://example.org/video1",
+#      "purpose": "describing",
+#      "selector": {
+#        "type": "FragmentSelector",
+#        "conformsTo": "http://www.w3.org/TR/media-frags/",
+#        "value": "t=30,60"
+#        }
+#      },
+#    "target": "http://example.org/image1"
+# }

@@ -261,6 +261,8 @@
           preload: [
                 '/data/genres.json'
                 , '/data/ontologies.json'
+                , '/data/local_test_data.json'
+                , '/data/open_anno.json'
                 , '/data/organizations.json'
                 , '/data/periodicals.json'
                 , '/data/publishing.json'
@@ -268,7 +270,6 @@
                 , '/data/cwrc_data.json'
                 , '/data/public_endpoints.json'
                 , '/data/cwrc_endpoints.json'
-                , '/data/local_test_data.json'
               ]
         });
         HVZ.replace_human_term_spans('ui-widget');
