@@ -814,8 +814,9 @@ class Huviz
       @canvas.width = @width
       @canvas.height = @height
     @force.size [@mx, @my]
+    # FIXME these selectors must be localized
     $("#graph_title_set").css("width", @width)
-    $("#tabs").css("left", "inherit")
+    $("#tabs").css("left", "auto")
     @restart()
 
   #///////////////////////////////////////////////////////////////////////////
