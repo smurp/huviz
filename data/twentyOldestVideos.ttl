@@ -3,7 +3,7 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix youtu: <https://youtu.be/> .  # this should be our preferred prefix
-@prefix ytc: <https://www.youtube.com/channel/> .
+@prefix youtuch: <https://www.youtube.com/channel/> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix dvrsdata: <http://nooron.com/_/dvrsdata.ttl#> .
 
@@ -14,30 +14,30 @@
 # contributor is WRONG, the concept is submitter but vocab.cc has no mention of the idea
 youtu:uImk2RgCq_U
     a video:Video ;
-    dcterms:contributor ytc:UCLgl2hqyKftAxPVNNXYcOSw ;
+    dcterms:contributor youtuch:UCLgl2hqyKftAxPVNNXYcOSw ;
     rdfs:label "The 20 oldest Videos on Youtube" .
 
 youtu:jNQXAC9IVRw
     a video:Video ;
-    dcterms:contributor ytc:UC4QobU6STFB0P71PMvOGN5A ;
+    dcterms:contributor youtuch:UC4QobU6STFB0P71PMvOGN5A ;
     rdfs:comment "The first video on YouTube. Maybe it's time to go back to the zoo? The name of the music playing in the background is Darude - Sandstorm." ;
     rdfs:label "Me at the zoo" .
 
 youtu:LeAltgu_pbM
     a video:Video ;
-    dcterms:contributor ytc:UC7DazZtuimjEKKjU2M6aq8w ;
+    dcterms:contributor youtuch:UC7DazZtuimjEKKjU2M6aq8w ;
     rdfs:comment "description" ;
     rdfs:label "My Snowboarding Skillz" .
 
 youtu:DdxtXO34T5k
     a video:Video ;
-    dcterms:contributor ytc:UCJk16eB83Su54903oToXSRg ;
+    dcterms:contributor youtuch:UCJk16eB83Su54903oToXSRg ;
     rdfs:comment "Third video on youtube uploaded April 24, 2005 by the user tunafat, he privated this video on January 30, 2011, so I reuploaded." ;
     rdfs:label "Flambe Disaster" .
 
 youtu:nHBhyIzTstI
     a video:Video ;
-    dcterms:contributor ytc:UCuWwLRjfxRIsx-dpmjs-eeA ;
+    dcterms:contributor youtuch:UCuWwLRjfxRIsx-dpmjs-eeA ;
     rdfs:label "Bootie Christ Dance" .
 
 dvrsdata:anno1
