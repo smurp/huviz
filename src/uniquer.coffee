@@ -1,3 +1,4 @@
+# FIXME this should be renamed to make_dom_safe_id()
 uniquer = (str) ->
   m = str.match(/([\w\d\_\-]+)$/g)
   if m
@@ -7,8 +8,7 @@ uniquer = (str) ->
     retval = retval.replace(/[\.\;\/]/g, '_')
     retval = retval.replace(/^\_*/g, '') # leading _
     retval = retval.replace(/\_*$/g, '') # trailing _
-    #if console? and console.info?
-    #  console.info("uniquer('#{str}') = '#{retval}'")
+  if retval.match(/^[^a-zA-Z]/)
+    retval = "x#{retval}"
   return retval
-
 (exports ? this).uniquer = uniquer

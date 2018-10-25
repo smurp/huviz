@@ -109,7 +109,7 @@
 #  67) TASK: add verbs pin/unpin (using polar coords to record placement)
 #
 angliciser = require('angliciser').angliciser
-uniquer = require("uniquer").uniquer
+uniquer = require("uniquer").uniquer # FIXME rename to make_dom_safe_id
 gcl = require('graphcommandlanguage');
 #asyncLoop = require('asynchronizer').asyncLoop
 CommandController = require('gclui').CommandController
@@ -2006,16 +2006,17 @@ class Huviz
     # set the predicate on the subject
     if not subj.predicates[pid]?
       subj.predicates[pid] = {objects:[]}
+    safe_quad_o_value = uniquer(quad.o.value)
     if quad.o.type is RDF_object
       # The object is not a literal, but another resource with an uri
       # so we must get (or create) a node to represent it
-      obj_n = @get_or_create_node_by_id(quad.o.value)
+      obj_n = @get_or_create_node_by_id(safe_quad_o_value)
       # We have a node for the object of the quad and this quad is relational
       # so there should be links made between this node and that node
       is_type = is_one_of(pid, TYPE_SYNS)
       make_edge = @show_class_instance_edges or not is_type
       if is_type
-        @try_to_set_node_type(subj_n, quad.o.value)
+        @try_to_set_node_type(subj_n, safe_quad_o_value)
       if make_edge
         @develop(subj_n) # both subj_n and obj_n should hatch for edge to make sense
         # REVIEW uh, how are we ensuring that the obj_n is hatching? should it?
@@ -2040,7 +2041,7 @@ class Huviz
           @develop(subj_n) # might be ready now
       else # the object is a literal other than name
         if @make_nodes_for_literals
-          objVal = quad.o.value
+          objVal = safe_quad_o_value
           simpleType = getTypeSignature(quad.o.type or '') or 'Literal'
           # Does the value have a language or does it contain spaces?
           if quad.o.language or (objVal.match(/\s/g)||[]).length > 0
