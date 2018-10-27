@@ -215,6 +215,7 @@ RDF_literal = "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"
 RDF_object  = "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
 RDF_type    = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
 RDF_Class   = "http://www.w3.org/2000/01/rdf-schema#Class"
+RDF_subClassOf   = "http://www.w3.org/2000/01/rdf-schema#subClassOf"
 RDF_a       = 'a'
 RDFS_label  = "http://www.w3.org/2000/01/rdf-schema#label"
 TYPE_SYNS   = [RDF_type, RDF_a, 'rdfs:type', 'rdf:type']
@@ -2006,6 +2007,8 @@ class Huviz
     subj_n = @get_or_create_node_by_id(subj_lid)
     pred_n = @get_or_create_predicate_by_id(pid)
     cntx_n = @get_or_create_context_by_id(ctxid)
+    if quad.p is RDF_subClassOf and @show_class_instance_edges
+      @try_to_set_node_type(subj_n, 'Class')
     # TODO: use @predicates_to_ignore instead OR rdfs:first and rdfs:rest
     if pid.match(/\#(first|rest)$/)
       console.warn("add_quad() ignoring quad because pid=#{pid}", quad)
@@ -2020,7 +2023,9 @@ class Huviz
       obj_n = @get_or_create_node_by_id(safe_quad_o_value)
       if quad.o.value is RDF_Class and @show_class_instance_edges
         # This weird operation is to ensure that the Class Class is a Class
-        @try_to_set_node_type(obj_n, safe_quad_o_value)
+        @try_to_set_node_type(obj_n, 'Class')
+      if quad.p is RDF_subClassOf and @show_class_instance_edges
+        @try_to_set_node_type(obj_n, 'Class')
       # We have a node for the object of the quad and this quad is relational
       # so there should be links made between this node and that node
       is_type = is_one_of(pid, TYPE_SYNS)
