@@ -2003,7 +2003,7 @@ class Huviz
 
     @ensure_predicate_lineage(pid)
     edge = null
-    subj_n = @get_or_create_node_by_id(sid)
+    subj_n = @get_or_create_node_by_id(subj_lid)
     pred_n = @get_or_create_predicate_by_id(pid)
     cntx_n = @get_or_create_context_by_id(ctxid)
     # TODO: use @predicates_to_ignore instead OR rdfs:first and rdfs:rest
