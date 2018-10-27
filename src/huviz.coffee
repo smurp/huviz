@@ -214,6 +214,7 @@ OWL_ObjectProperty = "http://www.w3.org/2002/07/owl#ObjectProperty"
 RDF_literal = "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"
 RDF_object  = "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
 RDF_type    = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+RDF_Class   = "http://www.w3.org/2000/01/rdf-schema#Class"
 RDF_a       = 'a'
 RDFS_label  = "http://www.w3.org/2000/01/rdf-schema#label"
 TYPE_SYNS   = [RDF_type, RDF_a, 'rdfs:type', 'rdf:type']
@@ -287,7 +288,6 @@ PRIMORDIAL_ONTOLOGY =
     "xsd__Name": "xsd__token"
     "xsd__NCName": "xsd__Name"
     "xsd__time": 'Literal'
-
   subPropertyOf: {}
   domain: {}
   range: {}
@@ -1975,6 +1975,11 @@ class Huviz
   object_value_types: {}
   unique_pids: {}
   add_quad: (quad) ->
+    # FIXME Oh! How this method needs a fine toothed combing!!!!
+    #   * are rdf:Class and owl:Class the same?
+    #   * uniquer is misnamed, it should be called make_domsafe_id or sumut
+    #   * vars like sid, pid, subj_lid, safe_quad_o_value should be revisited
+    #   * review subj vs subj_n
     #console.log "HuViz.add_quad()", quad
     sid = quad.s
     pid = @make_qname(quad.p)
@@ -1984,6 +1989,8 @@ class Huviz
     @unique_pids[pid] = 1
     newsubj = false
     subj = null
+
+    # REVIEW is @my_graph still needed and being correctly used?
     if not @my_graph.subjects[sid]?
       newsubj = true
       subj =
@@ -2011,6 +2018,9 @@ class Huviz
       # The object is not a literal, but another resource with an uri
       # so we must get (or create) a node to represent it
       obj_n = @get_or_create_node_by_id(safe_quad_o_value)
+      if quad.o.value is RDF_Class
+        # This weird operation is to ensure that the Class Class is a Class
+        @try_to_set_node_type(obj_n, safe_quad_o_value)
       # We have a node for the object of the quad and this quad is relational
       # so there should be links made between this node and that node
       is_type = is_one_of(pid, TYPE_SYNS)
