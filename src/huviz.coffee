@@ -2018,7 +2018,7 @@ class Huviz
       # The object is not a literal, but another resource with an uri
       # so we must get (or create) a node to represent it
       obj_n = @get_or_create_node_by_id(safe_quad_o_value)
-      if quad.o.value is RDF_Class
+      if quad.o.value is RDF_Class and @show_class_instance_edges
         # This weird operation is to ensure that the Class Class is a Class
         @try_to_set_node_type(obj_n, safe_quad_o_value)
       # We have a node for the object of the quad and this quad is relational
