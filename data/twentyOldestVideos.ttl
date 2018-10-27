@@ -43,9 +43,9 @@ youtu:nHBhyIzTstI
 dvrsdata:anno1
     a oa:Annotation ;
     oa:motivatedBy oa:linking ;
-    oa:hasBody youtu:uImk2RgCq_U ;   # the response
-    oa:hasTarget [
-        oa:hasSource youtu:jNQXAC9IVRw ; # the thing being responded to
+    oa:hasTarget youtu:jNQXAC9IVRw ;   # the thing being responded to
+    oa:hasBody [
+        oa:hasSource youtu:uImk2RgCq_U ; # the response
         oa:hasSelector [
           a oa:FragmentSelector ;
           dcterms:conformsTo <http://www.w3.org/TR/media-frags/> ;
@@ -54,9 +54,9 @@ dvrsdata:anno1
 dvrsdata:anno2
     a oa:Annotation ;
     oa:motivatedBy oa:linking ;
-    oa:hasBody youtu:uImk2RgCq_U ;   # the response
-    oa:hasTarget [
-        oa:hasSource youtu:LeAltgu_pbM ; # the thing being responded to
+    oa:hasTarget youtu:LeAltgu_pbM ;   # the thing being responded to
+    oa:hasBody [
+        oa:hasSource youtu:uImk2RgCq_U ; # the response
         oa:hasSelector [
           a oa:FragmentSelector ;
           dcterms:conformsTo <http://www.w3.org/TR/media-frags/> ;
@@ -65,9 +65,9 @@ dvrsdata:anno2
 dvrsdata:anno3
     a oa:Annotation ;
     oa:motivatedBy oa:linking ;
-    oa:hasBody youtu:uImk2RgCq_U ;   # the response
-    oa:hasTarget [
-        oa:hasSource youtu:DdxtXO34T5k ; # the thing being responded to
+    oa:hasTarget youtu:DdxtXO34T5k ;   # the thing being responded to
+    oa:hasBody [
+        oa:hasSource youtu:uImk2RgCq_U ; # the response
         oa:hasSelector [
           a oa:FragmentSelector ;
           dcterms:conformsTo <http://www.w3.org/TR/media-frags/> ;
@@ -76,9 +76,9 @@ dvrsdata:anno3
 dvrsdata:anno4
     a oa:Annotation ;
     oa:motivatedBy oa:linking ;
-    oa:hasBody youtu:uImk2RgCq_U ;   # the response
-    oa:hasTarget [
-        oa:hasSource youtu:nHBhyIzTstI ; # the thing being responded to
+    oa:hasTarget youtu:nHBhyIzTstI ; # the thing being responded to
+    oa:hasBody [
+        oa:hasSource youtu:uImk2RgCq_U ;   # the response
         oa:hasSelector [
           a oa:FragmentSelector ;
           dcterms:conformsTo <http://www.w3.org/TR/media-frags/> ;
