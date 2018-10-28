@@ -1981,6 +1981,8 @@ class Huviz
     #   * uniquer is misnamed, it should be called make_domsafe_id or sumut
     #   * vars like sid, pid, subj_lid, safe_quad_o_value should be revisited
     #   * review subj vs subj_n
+    #   * do not conflate node ids across prefixes eg rdfs:Class vs owl:Class
+    #   * Literal should not be a subclass of Thing. Thing and dataType are sibs
     #console.log "HuViz.add_quad()", quad
     sid = quad.s
     pid = @make_qname(quad.p)
