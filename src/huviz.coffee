@@ -3484,25 +3484,17 @@ class Huviz
 
   populate_label_picker: (labels) ->
     # Convert array into dropdown list of operations
-    $(".unselectable").append("<div class=ui-widget><label for='endpoint_labels'>Find: </label><input id='endpoint_labels'><i class='fas fa-spinner fa-spin' style='visibility:hidden;margin-left: 5px;'></i></div><br><p style='font-size:.8em;margin-top:-10px;'>Put a space in front to get separate words</p>")
-    ###
-    json_data = {
-        "head": { "link": [], "vars": ["sub", "obj"] },
-        "results": { "distinct": false, "ordered": true, "bindings": [
-          { "sub": { "type": "uri", "value": "http://dbpedia.org/resource/Category:Kula_Shaker_albums" }	, "obj": { "type": "literal", "xml:lang": "en", "value": "Kula Shaker albums" }},
-          { "sub": { "type": "uri", "value": "http://dbpedia.org/resource/Category:Shakers" }	, "obj": { "type": "literal", "xml:lang": "en", "value": "Shakers" }},
-          { "sub": { "type": "uri", "value": "http://dbpedia.org/resource/Shakers" }	, "obj": { "type": "literal", "xml:lang": "en", "value": "Shakers" }},
-          { "sub": { "type": "uri", "value": "http://www.wikidata.org/entity/Q1370167" }	, "obj": { "type": "literal", "xml:lang": "en", "value": "Shakers" }},
-          { "sub": { "type": "uri", "value": "http://dbpedia.org/resource/Shakespeare_Apocrypha" }	, "obj": { "type": "literal", "xml:lang": "en", "value": "Shakespeare Apocrypha" }},
-          { "sub": { "type": "uri", "value": "http://dbpedia.org/resource/Category:Shakespeare_Apocrypha" }	, "obj": { "type": "literal", "xml:lang": "en", "value": "Shakespeare Apocrypha" }},
-          { "sub": { "type": "uri", "value": "http://www.wikidata.org/entity/Q4385592" }	, "obj": { "type": "literal", "xml:lang": "en", "value": "Shakespeare Apocrypha" }},
-          { "sub": { "type": "uri", "value": "http://dbpedia.org/resource/Category:Shakespearean_characters" }	, "obj": { "type": "literal", "xml:lang": "en", "value": "Shakespearean characters" }},
-          { "sub": { "type": "uri", "value": "http://dbpedia.org/resource/Shakespearean_characters" }	, "obj": { "type": "literal", "xml:lang": "en", "value": "Shakespearean characters" }},
-          { "sub": { "type": "uri", "value": "http://dbpedia.org/resource/Category:Shakespearean_comedies" }	, "obj": { "type": "literal", "xml:lang": "en", "value": "Shakespearean comedies" }} ] }
-        }
-    ###
-    #labels = @parse_json_label_query_results(json_data)
-    #$("#endpoint_labels").autocomplete({source: labels, minLength: 3})
+    select_box = """
+      <div class=ui-widget>
+        <label for='endpoint_labels'>Find: </label>
+        <input id='endpoint_labels'>
+        <i class='fas fa-spinner fa-spin' style='visibility:hidden;margin-left: 5px;'></i>
+      </div>
+    """
+    searchHint = """
+      <br><p style='font-size:.8em;margin-top:-10px;color: #999;margin-left: 40px;'>Put a space in front to retrieve word</p>
+    """
+    $(".unselectable").append(select_box + searchHint)
     url = "http://dbpedia.org/sparql"
     spinner = $("#endpoint_labels").siblings('i')
     #$("#endpoint_labels").autocomplete({source: @test_source(), minLength: 3})
