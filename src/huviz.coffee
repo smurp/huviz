@@ -3482,38 +3482,9 @@ class Huviz
     #console.log("set_ontology_with_uri",ontologyUri, ontology_option)
     @ontology_loader.select_option(ontology_option)
 
-  query_for_endpoint_labels: (qryString) ->
-    # SPARQL endpoint for specific labels
-    #qryString = "som"
-    qry = """
-      PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-      PREFIX res: <http://dbpedia.org/resource/>
-      SELECT *
-      WHERE {
-	       ?sub rdfs:label ?obj .
-         filter contains(?obj,"#{qryString}")
-      }
-      LIMIT 10
-    """
-    url = "http://dbpedia.org/sparql"
-    queryUrl = url + '/?query=' + encodeURIComponent(qry)
-    $.ajax
-        type: 'GET'
-        url: queryUrl
-        headers:
-          Accept: 'application/sparql-results+json'
-        success: (data, textStatus, jqXHR) =>
-          console.log data
-          selections = @parse_json_label_query_results(data)
-          console.log selections
-          #@populate_label_picker(selections)
-          console.log textStatus
-        error: (jqxhr, textStatus, errorThrown) =>
-          console.log(url, errorThrown)
-
   populate_label_picker: (labels) ->
     # Convert array into dropdown list of operations
-    $(".unselectable").append("<div class=ui-widget><label for='endpoint_labels'>Find: </label><input id='endpoint_labels'><i class='fas fa-spinner fa-spin' style='visibility:hidden'></i></div>")
+    $(".unselectable").append("<div class=ui-widget><label for='endpoint_labels'>Find: </label><input id='endpoint_labels'><i class='fas fa-spinner fa-spin' style='visibility:hidden;margin-left: 5px;'></i></div><br><p style='font-size:.8em;margin-top:-10px;'>Put a space in front to get separate words</p>")
     ###
     json_data = {
         "head": { "link": [], "vars": ["sub", "obj"] },
@@ -3545,7 +3516,7 @@ class Huviz
   	       ?sub rdfs:label ?obj .
            filter contains(?obj,"#{request.term}")
         }
-        LIMIT 10
+        LIMIT 20
       """
       queryUrl = url + '/?query=' + encodeURIComponent(qry)
       $.ajax
