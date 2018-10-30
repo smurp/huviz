@@ -3382,6 +3382,8 @@ class Huviz
   init_gclc: ->
     @gclc = new GraphCommandLanguageCtrl(this)
     @init_dataset_menus()
+    @populate_label_picker()
+    #@query_for_endpoint_labels() #TEMP this is just for development
     if not @gclui?
       @gclui = new CommandController(this,d3.select(@args.gclui_sel)[0][0],@hierarchy)
     window.addEventListener('showgraph', @register_gclc_prefixes)
@@ -3479,6 +3481,93 @@ class Huviz
     ontology_option = $('option[value="' + ontologyUri + '"]')
     #console.log("set_ontology_with_uri",ontologyUri, ontology_option)
     @ontology_loader.select_option(ontology_option)
+
+  query_for_endpoint_labels: (qryString) ->
+    # SPARQL endpoint for specific labels
+    #qryString = "som"
+    qry = """
+      PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+      PREFIX res: <http://dbpedia.org/resource/>
+      SELECT *
+      WHERE {
+	       ?sub rdfs:label ?obj .
+         filter contains(?obj,"#{qryString}")
+      }
+      LIMIT 10
+    """
+    url = "http://dbpedia.org/sparql"
+    queryUrl = url + '/?query=' + encodeURIComponent(qry)
+    $.ajax
+        type: 'GET'
+        url: queryUrl
+        headers:
+          Accept: 'application/sparql-results+json'
+        success: (data, textStatus, jqXHR) =>
+          console.log data
+          selections = @parse_json_label_query_results(data)
+          console.log selections
+          #@populate_label_picker(selections)
+          console.log textStatus
+        error: (jqxhr, textStatus, errorThrown) =>
+          console.log(url, errorThrown)
+
+  populate_label_picker: (labels) ->
+    # Convert array into dropdown list of operations
+    $(".unselectable").append("<div class=ui-widget><label for='endpoint_labels'>Find: </label><input id='endpoint_labels'><i class='fas fa-spinner fa-spin' style='visibility:hidden'></i></div>")
+    ###
+    json_data = {
+        "head": { "link": [], "vars": ["sub", "obj"] },
+        "results": { "distinct": false, "ordered": true, "bindings": [
+          { "sub": { "type": "uri", "value": "http://dbpedia.org/resource/Category:Kula_Shaker_albums" }	, "obj": { "type": "literal", "xml:lang": "en", "value": "Kula Shaker albums" }},
+          { "sub": { "type": "uri", "value": "http://dbpedia.org/resource/Category:Shakers" }	, "obj": { "type": "literal", "xml:lang": "en", "value": "Shakers" }},
+          { "sub": { "type": "uri", "value": "http://dbpedia.org/resource/Shakers" }	, "obj": { "type": "literal", "xml:lang": "en", "value": "Shakers" }},
+          { "sub": { "type": "uri", "value": "http://www.wikidata.org/entity/Q1370167" }	, "obj": { "type": "literal", "xml:lang": "en", "value": "Shakers" }},
+          { "sub": { "type": "uri", "value": "http://dbpedia.org/resource/Shakespeare_Apocrypha" }	, "obj": { "type": "literal", "xml:lang": "en", "value": "Shakespeare Apocrypha" }},
+          { "sub": { "type": "uri", "value": "http://dbpedia.org/resource/Category:Shakespeare_Apocrypha" }	, "obj": { "type": "literal", "xml:lang": "en", "value": "Shakespeare Apocrypha" }},
+          { "sub": { "type": "uri", "value": "http://www.wikidata.org/entity/Q4385592" }	, "obj": { "type": "literal", "xml:lang": "en", "value": "Shakespeare Apocrypha" }},
+          { "sub": { "type": "uri", "value": "http://dbpedia.org/resource/Category:Shakespearean_characters" }	, "obj": { "type": "literal", "xml:lang": "en", "value": "Shakespearean characters" }},
+          { "sub": { "type": "uri", "value": "http://dbpedia.org/resource/Shakespearean_characters" }	, "obj": { "type": "literal", "xml:lang": "en", "value": "Shakespearean characters" }},
+          { "sub": { "type": "uri", "value": "http://dbpedia.org/resource/Category:Shakespearean_comedies" }	, "obj": { "type": "literal", "xml:lang": "en", "value": "Shakespearean comedies" }} ] }
+        }
+    ###
+    #labels = @parse_json_label_query_results(json_data)
+    #$("#endpoint_labels").autocomplete({source: labels, minLength: 3})
+    url = "http://dbpedia.org/sparql"
+    spinner = $("#endpoint_labels").siblings('i')
+    #$("#endpoint_labels").autocomplete({source: @test_source(), minLength: 3})
+    $("#endpoint_labels").autocomplete({minLength: 3, source: (request, response) ->
+      spinner.css('visibility','visible')
+      qry = """
+        PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+        PREFIX res: <http://dbpedia.org/resource/>
+        SELECT *
+        WHERE {
+  	       ?sub rdfs:label ?obj .
+           filter contains(?obj,"#{request.term}")
+        }
+        LIMIT 10
+      """
+      queryUrl = url + '/?query=' + encodeURIComponent(qry)
+      $.ajax
+          type: 'GET'
+          url: queryUrl
+          headers:
+            Accept: 'application/sparql-results+json'
+          success: (data, textStatus, jqXHR) =>
+            results = data.results.bindings
+            selections = []
+            for label in results
+              this_result = {
+                label: label.obj.value
+                value: label.sub.value
+              }
+              selections.push(this_result)
+              spinner.css('visibility','hidden')
+            response(selections)
+            #@parse_json_label_query_results(data)
+          error: (jqxhr, textStatus, errorThrown) =>
+            console.log(url, errorThrown)
+      })
 
   init_editc: ->
     @editui ?= new EditController(@)
