@@ -3382,6 +3382,8 @@ class Huviz
   init_gclc: ->
     @gclc = new GraphCommandLanguageCtrl(this)
     @init_dataset_menus()
+    @populate_label_picker()
+    #@query_for_endpoint_labels() #TEMP this is just for development
     if not @gclui?
       @gclui = new CommandController(this,d3.select(@args.gclui_sel)[0][0],@hierarchy)
     window.addEventListener('showgraph', @register_gclc_prefixes)
@@ -3479,6 +3481,56 @@ class Huviz
     ontology_option = $('option[value="' + ontologyUri + '"]')
     #console.log("set_ontology_with_uri",ontologyUri, ontology_option)
     @ontology_loader.select_option(ontology_option)
+
+  populate_label_picker: (labels) ->
+    # Convert array into dropdown list of operations
+    select_box = """
+      <div class=ui-widget>
+        <label for='endpoint_labels'>Find: </label>
+        <input id='endpoint_labels'>
+        <i class='fas fa-spinner fa-spin' style='visibility:hidden;margin-left: 5px;'></i>
+      </div>
+    """
+    searchHint = """
+      <br><p style='font-size:.8em;margin-top:-10px;color: #999;margin-left: 40px;'>Put a space in front to retrieve word</p>
+    """
+    $(".unselectable").append(select_box + searchHint)
+    url = "http://dbpedia.org/sparql"
+    spinner = $("#endpoint_labels").siblings('i')
+    #$("#endpoint_labels").autocomplete({source: @test_source(), minLength: 3})
+    $("#endpoint_labels").autocomplete({minLength: 3, source: (request, response) ->
+      spinner.css('visibility','visible')
+      qry = """
+        PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+        PREFIX res: <http://dbpedia.org/resource/>
+        SELECT *
+        WHERE {
+  	       ?sub rdfs:label ?obj .
+           filter contains(?obj,"#{request.term}")
+        }
+        LIMIT 20
+      """
+      queryUrl = url + '/?query=' + encodeURIComponent(qry)
+      $.ajax
+          type: 'GET'
+          url: queryUrl
+          headers:
+            Accept: 'application/sparql-results+json'
+          success: (data, textStatus, jqXHR) =>
+            results = data.results.bindings
+            selections = []
+            for label in results
+              this_result = {
+                label: label.obj.value
+                value: label.sub.value
+              }
+              selections.push(this_result)
+              spinner.css('visibility','hidden')
+            response(selections)
+            #@parse_json_label_query_results(data)
+          error: (jqxhr, textStatus, errorThrown) =>
+            console.log(url, errorThrown)
+      })
 
   init_editc: ->
     @editui ?= new EditController(@)
