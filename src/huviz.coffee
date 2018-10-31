@@ -2085,6 +2085,7 @@ class Huviz
           else
             objId = synthIdFor(objVal)
           literal_node = @get_or_create_node_by_id(objId)
+          literal_node.isLiteral = true
           @try_to_set_node_type(literal_node, simpleType)
           @develop(literal_node)
           @set_name(literal_node, quad.o.value, quad.o.language)
@@ -3060,16 +3061,20 @@ class Huviz
           me.currently_printed_snippets[snippet_js_key].push(edge)
           me.snippet_db[snippet_js_key] = snippet_text
           me.printed_edge = edge
+          quad =
+            subj_uri: edge.source.id
+            pred_uri: edge.predicate.id
+            graph_uri: @data_uri
+          if edge.target.isLiteral
+            quad.obj_val = edge.target.name.toString()
+          else
+            quad.obj_uri = edge.target.id
           me.push_snippet
             edge: edge
             pred_id: edge.predicate.lid
             pred_name: edge.predicate.name
             context_id: context.id
-            quad:
-              subj_uri: edge.source.id
-              pred_uri: edge.predicate.id
-              obj_val: edge.target.id
-              graph_uri: @data_uri
+            quad: quad
             dialog_title: edge.source.name
             snippet_text: snippet_text
             no: context_no
@@ -4733,8 +4738,18 @@ class Orlando extends OntologicallyGrounded
     if @snippet_box
       if typeof msg_or_obj isnt 'string'
         [msg_or_obj, m] = ["", msg_or_obj]  # swap them
+        if obj.quad.obj_uri
+          obj_dd = """<dd>#{obj.quad.obj_uri}</dd>"""
+        else
+          obj_dd = """<dd>"#{obj.quad.obj_val}"</dd>"""
         msg_or_obj = """
         <div id="#{obj.snippet_js_key}">
+          <dl>
+            <dt>subject</dt><dd>#{obj.quad.subj_uri}</dd>
+            <dt>predicate</dt><dd>#{obj.quad.pred_uri}</dd>
+            <dt>object</dt>#{obj_dd}
+            <dt>graph</dt><dd>#{obj.quad.graph_uri}</dd>
+          </dl>
           <div style="font-size:#{@snippet_triple_em}em">
             <span class="writername" style="background-color:#{m.edge.source.color}">
               <a target="SRC"
