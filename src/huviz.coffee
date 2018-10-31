@@ -1980,7 +1980,7 @@ class Huviz
     # FIXME Oh! How this method needs a fine toothed combing!!!!
     #   * are rdf:Class and owl:Class the same?
     #   * uniquer is misnamed, it should be called make_domsafe_id or sumut
-    #   * vars like sid, pid, subj_lid, safe_quad_o_value should be revisited
+    #   * vars like sid, pid, subj_lid should be revisited
     #   * review subj vs subj_n
     #   * do not conflate node ids across prefixes eg rdfs:Class vs owl:Class
     #   * Literal should not be a subclass of Thing. Thing and dataType are sibs
@@ -2027,11 +2027,10 @@ class Huviz
     # set the predicate on the subject
     if not subj.predicates[pred_uri]?
       subj.predicates[pred_uri] = {objects:[]}
-    safe_quad_o_value = uniquer(quad.o.value)
     if quad.o.type is RDF_object
       # The object is not a literal, but another resource with an uri
       # so we must get (or create) a node to represent it
-      obj_n = @get_or_create_node_by_id(safe_quad_o_value)
+      obj_n = @get_or_create_node_by_id(quad.o.value)
       if quad.o.value is RDF_Class and @show_class_instance_edges
         # This weird operation is to ensure that the Class Class is a Class
         @try_to_set_node_type(obj_n, 'Class')
@@ -2042,7 +2041,7 @@ class Huviz
       is_type = is_one_of(pred_uri, TYPE_SYNS)
       make_edge = @show_class_instance_edges or not is_type
       if is_type
-        @try_to_set_node_type(subj_n, safe_quad_o_value)
+        @try_to_set_node_type(subj_n, quad.o.value)
       if make_edge
         @develop(subj_n) # both subj_n and obj_n should hatch for edge to make sense
         # REVIEW uh, how are we ensuring that the obj_n is hatching? should it?
@@ -2067,7 +2066,7 @@ class Huviz
           @develop(subj_n) # might be ready now
       else # the object is a literal other than name
         if @make_nodes_for_literals
-          objVal = safe_quad_o_value
+          objVal = quad.o.value
           simpleType = getTypeSignature(quad.o.type or '') or 'Literal'
           # Does the value have a language or does it contain spaces?
           if quad.o.language or (objVal.match(/\s/g)||[]).length > 0
@@ -2087,6 +2086,7 @@ class Huviz
           literal_node = @get_or_create_node_by_id(objId)
           literal_node.isLiteral = true
           @try_to_set_node_type(literal_node, simpleType)
+          literal_node.__dataType = quad.o.type
           @develop(literal_node)
           @set_name(literal_node, quad.o.value, quad.o.language)
           edge = @get_or_create_Edge(subj_n, literal_node, pred_n, cntx_n)
@@ -4733,37 +4733,35 @@ class Orlando extends OntologicallyGrounded
 
   HHH: {}
 
+  make_link: (uri, text, target) ->
+    uri ?= ""
+    target ?= synthIdFor(uri.replace(/\#.*$/,'')) # open only one copy of each document
+    text ?= uri
+    return """<a target="#{target}" href="#{uri}">#{text}</a>"""
+
   push_snippet: (msg_or_obj) ->
     obj = msg_or_obj
     if @snippet_box
       if typeof msg_or_obj isnt 'string'
         [msg_or_obj, m] = ["", msg_or_obj]  # swap them
         if obj.quad.obj_uri
-          obj_dd = """<dd>#{obj.quad.obj_uri}</dd>"""
+          obj_dd = """<dd>#{@make_link(obj.quad.obj_uri)}</dd>"""
         else
-          obj_dd = """<dd>"#{obj.quad.obj_val}"</dd>"""
+          dataType_uri = m.edge.target.__dataType or ""
+          dataType = ""
+          if dataType_uri
+            dataType_curie = m.edge.target.type.replace('__',':')
+            #dataType = """^^<a target="_" href="#{dataType_uri}">#{dataType_curie}</a>"""
+            dataType = "^^#{@make_link(dataType_uri, dataType_curie)}"
+          obj_dd = """<dd>"#{obj.quad.obj_val}"#{dataType}</dd>"""
         msg_or_obj = """
         <div id="#{obj.snippet_js_key}">
-          <dl>
-            <dt>subject</dt><dd>#{obj.quad.subj_uri}</dd>
-            <dt>predicate</dt><dd>#{obj.quad.pred_uri}</dd>
-            <dt>object</dt>#{obj_dd}
-            <dt>graph</dt><dd>#{obj.quad.graph_uri}</dd>
+          <dl style="font-size:#{@snippet_triple_em}em">
+            <dt>subject <span style="background-color:#{m.edge.source.color}">&cir;</span></dt><dd>#{@make_link(obj.quad.subj_uri)}</dd>
+            <dt>predicate <span style="background-color:#{m.edge.color}">&xrarr;</span></dt><dd>#{@make_link(obj.quad.pred_uri)}</dd>
+            <dt>object <span style="background-color:#{m.edge.target.color}">&cir;</span></dt>#{obj_dd}
+            <dt>graph</dt><dd>#{@make_link(obj.quad.graph_uri)}</dd>
           </dl>
-          <div style="font-size:#{@snippet_triple_em}em">
-            <span class="writername" style="background-color:#{m.edge.source.color}">
-              <a target="SRC"
-                 title="see full text at Cambridge"
-                 href="#{m.edge.source.id}"><i class="fa fa-external-link"></i> #{m.edge.source.name}</a>
-            </span>
-            —
-            <span style="background-color:#{m.edge.color}">#{m.pred_id}</span>
-            —
-            <span style="background-color:#{m.edge.target.color}">#{m.edge.target.name}</span>
-          </div>
-          <div>
-            <div contenteditable style="cursor:text;font-size:#{@snippet_body_em}em">#{m.snippet_text}</div>
-          </div>
         </div>
 
         """
