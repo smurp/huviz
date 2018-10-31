@@ -2439,6 +2439,42 @@ class Huviz
           blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
           @reset_dataset_ontology_loader()
 
+  load_endpoint_data_and_show: (url, callback) ->
+    qry = """
+      PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+      PREFIX res: <http://dbpedia.org/resource/>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      SELECT * WHERE {
+        <http://dbpedia.org/resource/Gravitational_singularity> ?p ?o.
+        FILTER(!isLiteral(?o) || lang(?o) = "" || langMatches(lang(?o), "EN"))
+      }
+      LIMIT 10
+    """
+    url = "http://dbpedia.org/sparql"
+    # NEED a parser to handle result
+    console.log url
+    #console.log qry
+    #queryUrl = encodeURI( url+"?query="+qry )
+    queryUrl = url + '/?query=' + encodeURIComponent(qry)
+    console.log queryUrl
+    $.ajax
+        type: 'GET'
+        url: queryUrl
+        headers:
+          Accept: 'application/sparql-results+xml'
+        success: (data, textStatus, jqXHR) =>
+          console.log data
+          console.log textStatus
+        error: (jqxhr, textStatus, errorThrown) =>
+          console.log(url, errorThrown)
+          if not errorThrown
+            errorThrown = "Cross-Origin error"
+          msg = errorThrown + " while fetching " + url
+          @hide_state_msg()
+          $('#data_ontology_display').remove()
+          blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
+          @reset_dataset_ontology_loader()
+
   # Deal with buggy situations where flashing the links on and off
   # fixes data structures.  Not currently needed.
   show_and_hide_links_from_node: (d) ->
@@ -3367,7 +3403,8 @@ class Huviz
       #$(@ontology_loader.form).disable()
     if not @endpoint_loader and @args.endpoint_loader__append_to_sel
       @endpoint_loader = new PickOrProvide(@, @args.endpoint_loader__append_to_sel, 'SPARQL Endpoint', 'EndpointPP', false, true)
-      console.log @endpoint_loader
+      endpoint = "#" + @endpoint_loader.uniq_id
+      $(endpoint).css('display','none')
     if @ontology_loader and not @big_go_button
       @big_go_button_id = unique_id()
       @big_go_button = $('<button class="big_go_button">LOAD</button>')
@@ -3384,6 +3421,13 @@ class Huviz
 
   visualize_dataset_using_ontology: (ignoreEvent, dataset, ontologies) =>
     @close_blurt_box()
+
+    endpoint_uri = $("#endpoint_labels").val()
+    if endpoint_uri
+      @load_endpoint_data_and_show(endpoint_uri)
+      @update_browser_title("TEST ENDPOINT")
+      @update_caption("TEST", "TEST")
+      return
     # Either dataset and ontologies are passed in by HuViz.load_with() from a command
     #   or this method is called with neither then get values from the loaders
     onto = ontologies and ontologies[0] or @ontology_loader
@@ -3504,17 +3548,19 @@ class Huviz
 
   populate_label_picker: (labels) ->
     # Convert array into dropdown list of operations
+    searchHint = """
+      <br><p style='font-size:.8em;margin-top:5px;color: #999;margin-left: 40px;'>Put a space in front to retrieve word</p>
+    """
     select_box = """
-      <div class=ui-widget>
+      <div id='sparqlQryInput' class=ui-widget style='display:none'>
         <label for='endpoint_labels'>Find: </label>
         <input id='endpoint_labels'>
         <i class='fas fa-spinner fa-spin' style='visibility:hidden;margin-left: 5px;'></i>
+        #{searchHint}
       </div>
     """
-    searchHint = """
-      <br><p style='font-size:.8em;margin-top:-10px;color: #999;margin-left: 40px;'>Put a space in front to retrieve word</p>
-    """
-    $(".unselectable").append(select_box + searchHint)
+
+    $(".unselectable").append(select_box)
     url = "http://dbpedia.org/sparql"
     spinner = $("#endpoint_labels").siblings('i')
     #$("#endpoint_labels").autocomplete({source: @test_source(), minLength: 3})
@@ -4171,6 +4217,14 @@ class Huviz
           checked: "checked"
         event_type: "change"
     ,
+      show_hide_endpoint_loading:
+        style: "color:orange"
+        text: "Show SPARQL endpoint loading forms"
+        label:
+          title: "Show SPARQL endpoint interface for querying for nodes"
+        input:
+          type: "checkbox"
+    ,
       graph_title_style:
         text: "Title display"
         label:
@@ -4479,6 +4533,16 @@ class Huviz
   on_change_color_nodes_as_pies: (new_val, old_val) ->  # TODO why this == window ??
     @color_nodes_as_pies = new_val
     @recolor_nodes()
+
+  on_change_show_hide_endpoint_loading: (new_val, old_val) ->
+    if @endpoint_loader
+      endpoint = "#" + @endpoint_loader.uniq_id
+    if new_val and endpoint
+      $('#sparqlQryInput').css('display','block')
+      $(endpoint).css('display','block')
+    else
+      $('#sparqlQryInput').css('display','none')
+      $(endpoint).css('display','none')
 
   init_from_graph_controls: ->
     # alert "init_from_graph_controls() is deprecated"
