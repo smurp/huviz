@@ -473,7 +473,7 @@ class Huviz
   cy: 0
 
   snippet_body_em: .7
-  snippet_triple_em: .5
+  snippet_triple_em: .7
   line_length_min: 4
 
   # TODO figure out how to replace with the default_graph_control
@@ -3083,8 +3083,8 @@ class Huviz
         console.log("  skipping because",@currently_printed_snippets[snippet_js_key])
         continue
       me = this
-      make_callback = (context_no, edge, context) ->
-        (err,data) ->
+      make_callback = (context_no, edge, context) =>
+        (err,data) =>
           data = data or {response: ""}
           snippet_text = data.response
           if not data.already_has_snippet_id
