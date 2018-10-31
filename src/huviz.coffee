@@ -258,21 +258,27 @@ if true
 if not is_one_of(2,[3,2,4])
   alert "is_one_of() fails"
 
-blurt = (str, type) ->
+window.blurt = (str, type, noButton) ->
   #css styles for messages: info (blue), alert (yellow), error (red)
   # TODO There is currently no way for users to remove blurt boxes
-  if !type
-    type='info'
+
+  #type='info' if !type
   if type is "info" then label = "<h3>Message</h3>"
   if type is "alert" then label = "<h3>Alert</h3>"
   if type is "error" then label = "<h3>Error</h3>"
+  if not type then label = ''
   if !$('#blurtbox').length
     if type is "error"
       $('#huvis_controls').prepend('<div id="blurtbox"></div>')
     else
-      $('#tabs').append('<div id="blurtbox" style="overflow:scroll;height:150px;"></div>')
+      $('#tabs').append('<div id="blurtbox"></div>')
   $('#blurtbox').append("<div class='blurt #{type}'>#{label}#{str}<br class='clear'></div>")
   $('#blurtbox').scrollTop(10000)
+  if not noButton
+    $('#blurtbox').append("<button id='blurt_close' class='sml_bttn' type='button'>close</button>")
+
+window.blurtDate = () ->
+  blurt((""+new Date()+"").substr(0,24), null, true)
 
 escapeHtml = (unsafe) ->
     return unsafe
@@ -386,6 +392,7 @@ class Huviz
 
   # required by green turtle, should be retired
   G: {}
+  local_file_data: ""
 
   search_regex: new RegExp("^$", "ig")
   node_radius: 3.2
@@ -1003,8 +1010,17 @@ class Huviz
       if parent_lid?
         parent = @get_or_create_taxon(parent_lid)
         taxon.register_superclass(parent)
-      @gclui.add_new_taxon(taxon_id,parent_lid,undefined,taxon) # FIXME should this be an event on the Taxon constructor?
+        label = @ontology.label[taxon_id]
+      @gclui.add_new_taxon(taxon_id, parent_lid, label, taxon) # FIXME should this be an event on the Taxon constructor?
     @taxonomy[taxon_id]
+
+  update_labels_on_pickers: () ->
+    for term_id, term_label of @ontology.label
+      # a label might be for a taxon or a predicate, so we must sort out which
+      if @gclui.taxon_picker.id_to_name[term_id]?
+        @gclui.taxon_picker.set_name_for_id(term_label, term_id)
+      if @gclui.predicate_picker.id_to_name[term_id]?
+        @gclui.predicate_picker.set_name_for_id(term_label, term_id)
 
   toggle_taxon: (id, hier, callback) ->
     if callback?
@@ -1820,15 +1836,17 @@ class Huviz
         parent_lid = "anything"
       @my_graph.predicates[pred_lid] = []
       @ensure_predicate_lineage(parent_lid)
-      @fire_newpredicate_event pid, pred_lid, parent_lid
+      pred_name = @ontology?label[pred_lid]
+      @fire_newpredicate_event(pid, pred_lid, parent_lid, pred_name)
 
-  fire_newpredicate_event: (pred_uri, pred_lid, parent_lid) ->
+  fire_newpredicate_event: (pred_uri, pred_lid, parent_lid, pred_name) ->
     window.dispatchEvent(
       new CustomEvent 'newpredicate',
         detail:
           pred_uri: pred_uri
           pred_lid: pred_lid
           parent_lid: parent_lid
+          pred_name: pred_name
         bubbles: true
         cancelable: true
     )
@@ -1868,7 +1886,8 @@ class Huviz
     subj_n = @get_or_create_node_by_id(sid)
     pred_n = @get_or_create_predicate_by_id(pid)
     cntx_n = @get_or_create_context_by_id(ctxid)
-    if pid.match(/\#(first|rest)$/) # TODO use @predicates_to_ignore instead OR rdfs:first and rdfs:rest
+    # TODO: use @predicates_to_ignore instead OR rdfs:first and rdfs:rest
+    if pid.match(/\#(first|rest)$/)
       console.warn("add_quad() ignoring quad because pid=#{pid}", quad)
       return
     # set the predicate on the subject
@@ -1882,8 +1901,9 @@ class Huviz
       # so there should be links made between this node and that node
       is_type = is_one_of(pid, TYPE_SYNS)
       if is_type
-        if @try_to_set_node_type(subj_n, quad.o.value)
-          @develop(subj_n) # might be ready now
+        @try_to_set_node_type(subj_n, quad.o.value)
+        #if not @develop(subj_n) # might be ready now
+        #  @assign_types(subj_n)
       else
         edge = @get_or_create_Edge(subj_n, obj_n, pred_n, cntx_n)
         @infer_edge_end_types(edge)
@@ -1904,6 +1924,19 @@ class Huviz
           add_name()
         if subj_n.embryo
           @develop(subj_n) # might be ready now
+      # TODO: implement the creation of nodes for literal values
+      #       Make a Setting make_nodes_of_literals which can disable this.
+      else # the object is a literal other than name
+        if @make_nodes_for_literals
+          obj_val = quad.o.value
+          literal_node = @get_or_create_node_by_id(quad.o.value)
+          @try_to_set_node_type(literal_node, "Thing")
+          @develop(literal_node)
+          edge = @get_or_create_Edge(subj_n, literal_node, pred_n, cntx_n)
+          @infer_edge_end_types(edge)
+          edge.register_context(cntx_n)
+          edge.color = @gclui.predicate_picker.get_color_forId_byName(pred_n.lid,'showing')
+          @add_edge(edge)
     @last_quad = quad
     return edge
 
@@ -1960,15 +1993,13 @@ class Huviz
   infer_edge_end_types: (edge) ->
     edge.source.type = 'Thing' unless edge.source.type?
     edge.target.type = 'Thing' unless edge.target.type?
+    # infer type of source based on the range of the predicate
     ranges = @ontology.range[edge.predicate.lid]
     if ranges?
-      #console.log "INFERRING BASED ON: edge_id:(#{edge.id}) first range_lid:(#{ranges[0]})",@ontology
       @try_to_set_node_type(edge.target, ranges[0])
-
     # infer type of source based on the domain of the predicate
     domain_lid = @ontology.domain[edge.predicate.lid]
     if domain_lid?
-      #console.log "INFERRING BASED ON: edge_id:(#{edge.id}) domain_lid:(#{domain_lid})",@ontology
       @try_to_set_node_type(edge.source, domain_lid)
 
   make_Edge_id: (subj_n, obj_n, pred_n) ->
@@ -1993,40 +2024,31 @@ class Huviz
 
   delete_edge: (e) ->
     @remove_link(e.id)
-    @remove_from e, e.source.links_from
-    @remove_from e, e.target.links_to
+    @remove_from(e, e.source.links_from)
+    @remove_from(e, e.target.links_to)
     delete @edges_by_id[e.id]
     null
 
   try_to_set_node_type: (node, type_uri) ->
-    #if type_uri.match(/^http.*/)
-    #  alert "#{type_uri} is an uri rather than an lid"
     type_lid = uniquer(type_uri) # should ensure uniqueness
-    #if not is_one_of(type_uri,@class_list)
-    #  @class_list.push type_uri
-    #  @hierarchy['everything'][1][type_lid] = [type_lid]
-    ###
-    if node.type?
-      if node.type isnt type_lid
-        console.warn "#{node.lid} already #{node.type} now: #{type_lid} "
-    else
-      console.info "  try_to_set_node_type",node.lid,"isa",type_lid
-    ###
     if not node._types
       node._types = []
     if not (type_lid in node._types)
       node._types.push(type_lid)
+    prev_type = node.type
     node.type = type_lid
-    return true
+    if prev_type isnt type_lid
+      @assign_types(node)
 
   report_every: 100 # if 1 then more data shown
 
   parseAndShowTTLData: (data, textStatus, callback) =>
     # modelled on parseAndShowNQStreamer
+    #console.log("parseAndShowTTLData",data)
     parse_start_time = new Date()
     context = "http://universal.org"
     if GreenerTurtle? and @turtle_parser is 'GreenerTurtle'
-      console.log("GreenTurtle() started")
+      #console.log("GreenTurtle() started")
       #@G = new GreenerTurtle().parse(data, "text/turtle")
       try
         @G = new GreenerTurtle().parse(data, "text/turtle")
@@ -2034,6 +2056,7 @@ class Huviz
         msg = escapeHtml(e.toString())
         blurt_msg = '<p>There has been a problem with the Turtle parser. Check your dataset for errors.</p><p class="js_msg">' + msg + '</p>'
         blurt(blurt_msg, "error")
+        return false
     quad_count = 0
     every = @report_every
     for subj_uri,frame of @G.subjects
@@ -2045,7 +2068,7 @@ class Huviz
           #   Or should it be QNames?
           #      http://www.w3.org/TR/curie/#s_intro
           if every is 1
-            @show_state_msg "<LI>#{frame.id} <LI>#{pred.id} <LI>#{obj.value}"
+            @show_state_msg("<LI>#{frame.id} <LI>#{pred.id} <LI>#{obj.value}")
             console.log("===========================\n  #", quad_count, "  subj:", frame.id, "\n  pred:", pred.id, "\n  obj.value:", obj.value)
           else
             if quad_count % every is 0
@@ -2103,7 +2126,7 @@ class Huviz
     msg += " which took " + parse_time + " seconds to parse"
     console.log(msg) if @verbosity >= @COARSE
     show_start_time = new Date()
-    @showGraph @G
+    @showGraph(@G)
     show_end_time = new Date()
     show_time = (show_end_time - show_start_time) / 1000
     msg += " and " + show_time + " sec to show"
@@ -2157,22 +2180,53 @@ class Huviz
       else
         msg = "unrecognized NQ event:" + e.data.event
       if msg?
-        console.log(msg)
-        #alert msg
+        blurt(msg)
     worker.postMessage({uri:uri})
+
+  parse_and_show_NQ_file: (data, callback) =>
+    #TODO There is currently no error catcing on local nq files
+    owl_type_map =
+      uri:     RDF_object
+      literal: RDF_literal
+    quad_count = 0
+    allLines = data.split(/\r\n|\n/)
+    for line in allLines
+      quad_count++
+      q = parseQuadLine(line)
+      if q
+        q.s = q.s.raw
+        q.p = q.p.raw
+        q.g = q.g.raw
+        q.o =
+          type:  owl_type_map[q.o.type]
+          value: unescape_unicode(@remove_framing_quotes(q.o.toString()))
+        @add_quad q
+    @local_file_data = ""
+    @after_file_loaded('local file', callback)
 
   DUMPER: (data) =>
     console.log(data)
 
   fetchAndShow: (url, callback) ->
     @show_state_msg("fetching " + url)
-    the_parser = @parseAndShowNQ
+    the_parser = @parseAndShowNQ #++++Why does the parser default to NQ?
     if url.match(/.ttl/)
       the_parser = @parseAndShowTTLData # does not stream
     else if url.match(/.(nq|nt)/)
       the_parser = @parseAndShowNQ
-    else if url.match(/.json/)
-      the_parser = @parseAndShowJSON
+    #else if url.match(/.json/) #Currently JSON files not supported at read_data_and_show
+      #console.log "Fetch and show JSON File"
+      #the_parser = @parseAndShowJSON
+    else #File not valid
+      #abort with message
+      #NOTE This only catches URLs that do not have a valid file name; nothing about actual file format
+      msg = "Could not load #{url}. The data file format is not supported! Only files with TTL and NQ extensions are accepted."
+      @hide_state_msg()
+      blurt(msg, 'error')
+      $('#data_ontology_display').remove()
+      @reset_dataset_ontology_loader()
+      #@init_dataset_menus()
+      return
 
     if the_parser is @parseAndShowNQ
       @parseAndShowNQStreamer(url, callback)
@@ -2186,9 +2240,14 @@ class Huviz
         @hide_state_msg()
       error: (jqxhr, textStatus, errorThrown) =>
         console.log(url, errorThrown)
+        if not errorThrown
+          errorThrown = "Cross-Origin error"
         msg = errorThrown + " while fetching " + url
         @hide_state_msg()
-        blurt(msg, 'alert')  # trigger this by goofing up one of the URIs in cwrc_data.json
+        $('#data_ontology_display').remove()
+        blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
+        @reset_dataset_ontology_loader()
+        #TODO Reset titles on page
 
   # Deal with buggy situations where flashing the links on and off
   # fixes data structures.  Not currently needed.
@@ -2200,7 +2259,6 @@ class Huviz
     pad = pad or hpad
     w_width = (@container.clientWidth or window.innerWidth or document.documentElement.clientWidth or document.clientWidth) - pad
     @width = w_width - $("#tabs").width()
-    console.log "------------------- " + @width
 
   # Should be refactored to be get_container_height
   get_container_height: (pad) ->
@@ -2436,18 +2494,22 @@ class Huviz
 
   get_or_create_node_by_id: (sid) ->
     # FIXME OMG must standardize on .lid as the short local id, ie internal id
-    obj_id = @make_qname(sid)
-    obj_n = @nodes.get_by('id',obj_id)
-    if not obj_n?
-      obj_n = @embryonic_set.get_by('id',obj_id)
-    if not obj_n?
+    node_id = @make_qname(sid) # REVIEW: what about sid: ":" ie the current graph
+    node = @nodes.get_by('id', node_id)
+    if not node?
+      node = @embryonic_set.get_by('id',node_id)
+    if not node?
       # at this point the node is embryonic, all we know is its uri!
-      obj_n = new Node(obj_id, @use_lid_as_node_name)
-      if not obj_n.id?
+      node = new Node(node_id, @use_lid_as_node_name)
+      if not node.id?
         alert "new Node('"+sid+"') has no id"
-      #@nodes.add(obj_n)
-      @embryonic_set.add(obj_n)
-    obj_n
+      #@nodes.add(node)
+      @embryonic_set.add(node)
+    node.type ?= "Thing"
+    node.lid ?= uniquer(node.id)
+    if not node.name?
+      @set_name(node, node.lid)
+    return node
 
   develop: (node) ->
     # If the node is embryonic and is ready to hatch, then hatch it.
@@ -2455,6 +2517,8 @@ class Huviz
     # things with, then let it join the company of other complete nodes.
     if node.embryo? and @is_ready(node)
       @hatch(node)
+      return true
+    return false
 
   hatch: (node) ->
     # Take a node from being 'embryonic' to being a fully graphable node
@@ -2475,11 +2539,12 @@ class Huviz
     @tick()
     node
 
+  # TODO: remove this method
   get_or_create_node: (subject, start_point, linked) ->
     linked = false
     @get_or_make_node subject,start_point,linked
 
-  # deprecated in favour of add_quad:
+  # TODO: remove this method
   make_nodes: (g, limit) ->
     limit = limit or 0
     count = 0
@@ -2707,8 +2772,9 @@ class Huviz
 
   recolor_nodes: () ->
     # The nodes needing recoloring are all but the embryonic.
-    for node in @nodes
-      @recolor_node(node)
+    if @nodes
+      for node in @nodes
+        @recolor_node(node)
 
   toggle_selected: (node) ->
     if node.selected?
@@ -2880,6 +2946,7 @@ class Huviz
       the_title = document.title
       window.history.pushState the_state, the_title, the_state
 
+  # TODO: remove this method
   restore_graph_state: (state) ->
     #console.log('state:',state);
     return unless state
@@ -3024,7 +3091,6 @@ class Huviz
     if @dataset_loader?
       datasetDB_objectStore.openCursor().onsuccess = make_onsuccess_handler(why)
 
-
   preload_datasets: ->
     # If present args.preload is expected to be a list or urls or objects.
     # Whether literal object or JSON urls the object structure is expected to be:
@@ -3071,7 +3137,7 @@ class Huviz
       #$(@ontology_loader.form).disable()
     if @ontology_loader and not @big_go_button
       @big_go_button_id = unique_id()
-      @big_go_button = $('<button>GO</button>')
+      @big_go_button = $('<button class="big_go_button">LOAD</button>')
       @big_go_button.attr('id', @big_go_button_id)
       $(@args.ontology_loader__append_to_sel).append(@big_go_button)
       @big_go_button.click(@visualize_dataset_using_ontology)
@@ -3081,12 +3147,19 @@ class Huviz
     # TODO remove this nullification of @last_val by fixing logic in select_option()
     @ontology_loader?last_val = null # clear the last_val so select_option works the first time
 
-  visualize_dataset_using_ontology: =>
-    @set_ontology(@ontology_loader.value)
-    @load_file_from_uri(@dataset_loader.value) # , () -> alert "woot")
-    selected_dataset = @dataset_loader.get_selected_option()[0]
-    @update_browser_title(selected_dataset)
-    @update_caption(@dataset_loader.value, @ontology_loader.value)
+  visualize_dataset_using_ontology: (ignoreEvent, dataset, ontologies) =>
+    @close_blurt_box()
+    # Either dataset and ontologies are passed in by HuViz.load_with() from a command
+    #   or this method is called with neither then get values from the loaders
+    onto = ontologies and ontologies[0] or @ontology_loader
+    data = dataset or @dataset_loader
+    if @local_file_data
+      @read_data_and_show(data.value) #(@dataset_loader.value)
+    else #load from URI
+      @load_data_with_onto(data, onto) # , () -> alert "woot")
+    #selected_dataset = @dataset_loader.get_selected_option()[0]
+    @update_browser_title(data)
+    @update_caption(data.value, onto.value)
 
   init_gclc: ->
     @gclc = new GraphCommandLanguageCtrl(this)
@@ -3102,17 +3175,23 @@ class Huviz
     for pid in @predicates_to_ignore
       @gclui.ignore_predicate pid
 
-  disable_dataset_ontology_loader: ->
+  disable_dataset_ontology_loader: (data, onto) ->
     @dataset_loader.disable()
     @ontology_loader.disable()
-    @replace_loader_display(@dataset_loader.get_selected_option()[0].label, @ontology_loader.get_selected_option()[0].label)
+    @replace_loader_display(data, onto)
     disable = true
     @update_go_button(disable)
     @big_go_button.hide()
 
+  reset_dataset_ontology_loader: ->
+    #Enable dataset loader and reset to default setting
+    @dataset_loader.enable()
+    @ontology_loader.enable()
+    @big_go_button.show()
+    $("##{@dataset_loader.select_id} option[label='Pick or Provide...']").prop('selected', true)
+    $("#huvis_controls .unselectable").removeAttr("style","display:none")
+
   update_dataset_ontology_loader: =>
-    #alert('update_dataset_ontology_loader')
-    #debugger
     if not (@dataset_loader? and @ontology_loader?)
       console.log("still building loaders...")
       return
@@ -3131,17 +3210,25 @@ class Huviz
     @big_go_button.prop('disabled', disable)
     return
 
-  replace_loader_display: (selected_dataset, selected_ontology) ->
+  replace_loader_display: (dataset, ontology) ->
     $("#huvis_controls .unselectable").attr("style","display:none")
-    data_ontol_display = "<div id='data_ontology_display'>"
-    data_ontol_display += "<p><span class='dt_label'>Dataset:</span> " + selected_dataset + "</p> "
-    data_ontol_display += "<p><span class='dt_label'>Ontology:</span> " + selected_ontology + "</p>"
-    data_ontol_display += "<br style='clear:both'></div>"
+    uri = new URL(location)
+    uri.hash = "load+#{dataset.value}+with+#{ontology.value}"
+    data_ontol_display = """
+    <div id="data_ontology_display">
+      <p><span class="dt_label">Dataset:</span> #{dataset.label}</p>
+      <p><span class="dt_label">Ontology:</span> #{ontology.label}</p>
+      <p>
+        <button title="reload"
+           onclick="location.replace('#{uri}');location.reload()"><i class="fas fa-redo"></i></button>
+      </p>
+      <br style="clear:both">
+    </div>"""
     $("#huvis_controls").prepend(data_ontol_display)
 
-  update_browser_title: (selected_dataset) ->
-    if selected_dataset.value
-      document.title = selected_dataset.label + " - Huvis Graph Visualization"
+  update_browser_title: (dataset) ->
+    if dataset.value
+      document.title = dataset.label + " - Huvis Graph Visualization"
 
   update_caption: (dataset_str, ontology_str) ->
     $("#dataset_watermark").text(dataset_str)
@@ -3151,7 +3238,7 @@ class Huviz
     if @dataset_loader.value # and not @ontology_loader.value
       option = @dataset_loader.get_selected_option()
       ontologyUri = option.data('ontologyUri')
-      ontology_label = option.data('ontology_label')
+      ontology_label = option.data('ontology_label') #default set in group json file
       if ontologyUri # let the uri (if present) dominate the label
         @set_ontology_with_uri(ontologyUri)
       else
@@ -3160,7 +3247,7 @@ class Huviz
 
   set_ontology_with_label: (ontology_label) ->
     sel = "[label='#{ontology_label}']"
-    # console.log("$('#{sel}')")
+    #console.log("$('#{sel}')")
     for ont_opt in $(sel) # FIXME make this re-entrant
       @ontology_loader.select_option($(ont_opt))
       return
@@ -3168,7 +3255,7 @@ class Huviz
 
   set_ontology_with_uri: (ontologyUri) ->
     ontology_option = $('option[value="' + ontologyUri + '"]')
-    # console.log("set_ontology_with_uri",ontologyUri, ontology_option)
+    #console.log("set_ontology_with_uri",ontologyUri, ontology_option)
     @ontology_loader.select_option(ontology_option)
 
   init_editc: ->
@@ -3310,12 +3397,13 @@ class Huviz
       subPropertyOf: {}
       domain: {}
       range: {}
+      label: {} # MultiStrings as values
 
   constructor: (args) -> # Huviz
     args ?= {}
     if not args.viscanvas_sel
       msg = "call Huviz({viscanvas_sel:'????'}) so it can find the canvas to draw in"
-      console.debug msg
+      console.debug(msg)
     if not args.gclui_sel
       alert("call Huviz({gclui_sel:'????'}) so it can find the div to put the gclui command pickers in")
     if not args.graph_controls_sel
@@ -3325,8 +3413,6 @@ class Huviz
       @selector_for_graph_controls = @args.selector_for_graph_controls
     @init_ontology()
     @off_center = false # FIXME expose this or make the amount a slider
-    #@toggle_logging()
-
     document.addEventListener 'nextsubject', @onnextsubject
     @init_snippet_box()  # FIXME not sure this does much useful anymore
     @mousedown_point = false
@@ -3381,7 +3467,9 @@ class Huviz
     $("#tabs").on("resize", @updateWindow)
     $(@viscanvas).bind("_splitpaneparentresize", @updateWindow)
     $("#collapse_cntrl").click(@minimize_gclui).on("click", @updateWindow)
+    $("#full_screen").click(@fullscreen)
     $("#expand_cntrl").click(@maximize_gclui).on("click", @updateWindow)
+    $("#tabs").on('click', '#blurt_close', @close_blurt_box)
     $("#tabs").tabs
       active: 0
       collapsible: true
@@ -3389,6 +3477,13 @@ class Huviz
       tab_idx = parseInt($(event.target).attr('href').replace("#",""))
       @goto_tab(tab_idx)
       return false
+
+  fullscreen: () =>
+    elem = document.getElementById("body")
+    elem.webkitRequestFullscreen()
+
+  close_blurt_box: () =>
+    $('#blurtbox').remove()
 
   minimize_gclui: () ->
     $('#tabs').prop('style','visibility:hidden;width:0')
@@ -3425,7 +3520,7 @@ class Huviz
       console.info("doing addClass('#{optional_class}') on all occurrences of CSS class human_term__*")
     for canonical, human of @human_term
       selector = '.human_term__' + canonical
-      console.log("replacing '#{canonical}' with '#{human}' in #{selector}")
+      #console.log("replacing '#{canonical}' with '#{human}' in #{selector}")
       $(selector).text(human).addClass(optional_class) #.style('color','red')
 
   human_term:
@@ -3769,12 +3864,22 @@ class Huviz
           type: "range"
     ,
       color_nodes_as_pies:
-        style: "display:none"
         text: "Color nodes as pies"
+        style: "color:orange"
         label:
           title: "Show all a nodes types as colored pie pieces"
         input:
           type: "checkbox"   #checked: "checked"
+    ,
+      make_nodes_for_literals:
+        style: "color:orange"
+        text: "Make nodes for literals"
+        label:
+          title: "show literal values (dates, strings, numbers) as nodes"
+        input:
+          type: "checkbox"
+          checked: "checked"
+        event_type: "change"
     ,
       graph_title_style:
         text: "Title display"
@@ -3826,7 +3931,7 @@ class Huviz
           title: "show angles and flags with labels"
         input:
           type: "checkbox"   #checked: "checked"
-        event_type: "change",
+        event_type: "change"
     ,
       language_path:
         text: "Language Path"
@@ -4065,8 +4170,13 @@ class Huviz
     if @shelved_set
       @shelved_set.resort()
       @discarded_set.resort()
+    @update_labels_on_pickers()
+    @gclui?.resort_pickers()
+    if @ctx?
+      @tick()
+    return
 
-  XXXXon_change_color_nodes_as_pies: (new_val, old_val) ->  # TODO why this == window ??
+  on_change_color_nodes_as_pies: (new_val, old_val) ->  # TODO why this == window ??
     @color_nodes_as_pies = new_val
     @recolor_nodes()
 
@@ -4102,41 +4212,55 @@ class Huviz
         cancelable: true
     )
 
-  load_file: ->
-    @load_file_from_uri(@get_dataset_uri())
+  XXX_load_file: ->
+    @load_data_with_onto(@get_dataset_uri())
 
-  load_file_from_uri: (@data_uri, callback) ->
+  load_data_with_onto: (data, onto, callback) ->  # Used for loading files from menu
+    @data_uri = data.value
+    @set_ontology(onto.value)
     if @args.display_reset
       $("#reset_btn").show()
     else
       #@disable_data_set_selector()
-      @disable_dataset_ontology_loader()
+      @disable_dataset_ontology_loader(data, onto)
     @show_state_msg("loading...")
     #@init_from_graph_controls()
     #@dump_current_settings("after init_from_graph_controls()")
     #@reset_graph()
     @show_state_msg @data_uri
     unless @G.subjects
-      @fetchAndShow @data_uri, callback
+      @fetchAndShow(@data_uri, callback)
 
   disable_data_set_selector: () ->
     $("[name=data_set]").prop('disabled', true)
     $("#reload_btn").show()
 
-  read_data_and_show: (filename, data) ->
+  read_data_and_show: (filename, data) -> #Handles drag-and-dropped files
+    data = @local_file_data
+    #console.log data
     if filename.match(/.ttl$/)
       the_parser = @parseAndShowTTLData
     else if filename.match(/.nq$/)
-      the_parser = @parseAndShowNQStreamer
+      the_parser = @parse_and_show_NQ_file
     else
-      alert("don't know how to parse '#{filename}'")
+      alert("Unknown file format. Unable to parse '#{filename}'. Only .ttl and .nq files supported.")
       return
     the_parser(data)
-    @disable_data_set_selector()
+    #@local_file_data = "" #RESET the file data
+    #@disable_data_set_selector()
+    @disable_dataset_ontology_loader()
+    #@show_state_msg("loading...")
+    #@show_state_msg filename
 
   get_dataset_uri: () ->
     # FIXME goodbye jquery
     return $("select.file_picker option:selected").val()
+
+  run_script_from_hash: ->
+    script = @get_script_from_hash()
+    if script?
+      @gclui.run_script(script)
+    return
 
   get_script_from_hash: () ->
     script = location.hash
@@ -4168,21 +4292,29 @@ class Huviz
     @fetchAndShow(data_uri, callback) unless @G.subjects
     @init_webgl()  if @use_webgl
 
+  load_with: (data_uri, ontology_uris) ->
+    @goto_tab(1) # go to Commands tab # FIXME: should be symbolic not int indexed
+    basename = (uri) ->
+      return uri.split('/').pop().split('.').shift() # the filename without the ext
+    dataset =
+      label: basename(data_uri)
+      value: data_uri
+    ontology =
+      label: basename(ontology_uris[0])
+      value: ontology_uris[0]
+    @visualize_dataset_using_ontology({}, dataset, [ontology])
+
+  # TODO: remove now that @get_or_create_node_by_id() sets type and name
   is_ready: (node) ->
-    # This should really be performed on NODES not subjects, meaning nodes should
-    # have FOAF_name and type assigned to them during add_quad()
-    #
-    # Determine whether there is enough known about a subject to create a node for it
+    # Determine whether there is enough known about a node to make it visible
     # Does it have an .id and a .type and a .name?
     return node.id? and node.type? and node.name?
 
-  assign_types: (node,within) ->
-    # see Orlando.assign_types
+  assign_types: (node, within) ->
     type_id = node.type # FIXME one of type or taxon_id gotta go, bye 'type'
     if type_id
       #console.log "assign_type",type_id,"to",node.id,"within",within,type_id
       @get_or_create_taxon(type_id).register(node)
-
     else
       throw "there must be a .type before hatch can even be called:"+node.id+ " "+type_id
       #console.log "assign_types failed, missing .type on",node.id,"within",within,type_id
@@ -4211,7 +4343,10 @@ class Huviz
 
 class OntologicallyGrounded extends Huviz
   # If OntologicallyGrounded then there is an associated ontology which informs
-  # the TaxonPicker and the PredicatePicker
+  # the TaxonPicker and the PredicatePicker, rather than the pickers only
+  # being informed by implicit ontological hints such as
+  #   _:Fred a foaf:Person .  # tells us Fred is a Person
+  #   _:Fred dc:name "Fred" . # tells us the predicate_picker needs "name"
   set_ontology: (ontology_uri) ->
     #@init_ontology()
     @read_ontology(ontology_uri)
@@ -4236,25 +4371,31 @@ class OntologicallyGrounded extends Huviz
         subj_lid = uniquer(subj_uri)
         for pred_id, pred of frame.predicates
           pred_lid = uniquer(pred_id)
-          obj_raw = pred.objects[0].value
-
-          if pred_lid in ['comment', 'label']
-            #console.error "  skipping",subj_lid, pred_lid #, pred
-            continue
-          obj_lid = uniquer(obj_raw)
-          #if pred_lid in ['range','domain']
-          #  console.log pred_lid, subj_lid, obj_lid
-          if pred_lid is 'domain'
-            ontology.domain[subj_lid] = obj_lid
-          else if pred_lid is 'range'
-            if not ontology.range[subj_lid]?
-              ontology.range[subj_lid] = []
-            if not (obj_lid in ontology.range)
-              ontology.range[subj_lid].push(obj_lid)
-          else if pred_lid in ['subClassOf', 'subClass']
-            ontology.subClassOf[subj_lid] = obj_lid
-          else if pred_lid is 'subPropertyOf'
-            ontology.subPropertyOf[subj_lid] = obj_lid
+          for obj in pred.objects
+            obj_raw = obj.value
+            if pred_lid in ['comment']
+              #console.error "  skipping",subj_lid, pred_lid #, pred
+              continue
+            if pred_lid is 'label' # commented out by above test
+              label = obj_raw
+              if ontology.label[subj_lid]?
+                ontology.label[subj_lid].set_val_lang(label, obj.language)
+              else
+                ontology.label[subj_lid] = new MultiString(label, obj.language)
+            obj_lid = uniquer(obj_raw)
+            #if pred_lid in ['range','domain']
+            #  console.log pred_lid, subj_lid, obj_lid
+            if pred_lid is 'domain'
+              ontology.domain[subj_lid] = obj_lid
+            else if pred_lid is 'range'
+              if not ontology.range[subj_lid]?
+                ontology.range[subj_lid] = []
+              if not (obj_lid in ontology.range)
+                ontology.range[subj_lid].push(obj_lid)
+            else if pred_lid in ['subClassOf', 'subClass']
+              ontology.subClassOf[subj_lid] = obj_lid
+            else if pred_lid is 'subPropertyOf'
+              ontology.subPropertyOf[subj_lid] = obj_lid
 
         #
         # [ rdf:type owl:AllDisjointClasses ;
@@ -4272,6 +4413,10 @@ class OntologicallyGrounded extends Huviz
 class Orlando extends OntologicallyGrounded
   # These are the Orlando specific methods layered on Huviz.
   # These ought to be made more data-driven.
+
+  constructor: ->
+    super
+    @run_script_from_hash()
 
   get_default_set_by_type: (node) ->
     if @is_big_data()
@@ -4396,6 +4541,7 @@ class Socrata extends Huviz
         value: obj_uri
 
   parseAndShowJSON: (data) =>
+    #TODO Currently not working/tested
     console.log("parseAndShowJSON",data)
     g = @DEFAULT_CONTEXT
 
@@ -4445,7 +4591,7 @@ class PickOrProvide
 	<form id="UID" class="pick_or_provide_form" method="post" action="" enctype="multipart/form-data">
     <span class="pick_or_provide_label">REPLACE_WITH_LABEL</span>
     <select name="pick_or_provide"></select>
-    <button type="button" class="delete_option">⌫</button>
+    <button type="button" class="delete_option"><i class="fa fa-trash" style="font-size: 1.2em;"></i></button>
   </form>
   """
   uri_file_loader_sel: '.uri_file_loader_form'
@@ -4514,6 +4660,25 @@ class PickOrProvide
     dataset_rec.canDelete ?= not not dataset_rec.time?
     dataset_rec.label ?= dataset_rec.uri.split('/').reverse()[0]
     @add_dataset(dataset_rec, true)
+    @update_state()
+
+  add_local_file: (file_rec) =>
+    #local_file_data = file_rec.data
+    #@huviz.local_file_data = local_file_data
+    data_type = "local"
+    if typeof file_rec is 'string'
+      uri = file_rec
+      dataset_rec = {}
+    else
+      dataset_rec = file_rec
+      dataset_rec.uri ?= uri
+      dataset_rec.isOntology ?= @isOntology
+      dataset_rec.time ?= new Date().toString()
+      dataset_rec.isUri ?= false
+      dataset_rec.title ?= dataset_rec.uri
+      dataset_rec.canDelete ?= not not dataset_rec.time?
+      dataset_rec.label ?= dataset_rec.uri.split('/').reverse()[0]
+    @add_dataset(dataset_rec, false)
     @update_state()
 
   add_dataset: (dataset_rec, store_in_db) ->
@@ -4596,7 +4761,6 @@ class PickOrProvide
     if @value?
       canDelete = selected_option.data('canDelete')
       disable_the_delete_button = not canDelete
-
     # disable_the_delete_button = false  # uncomment to always show the delete button -- useful when bad data stored
     @form.find('.delete_option').prop('disabled', disable_the_delete_button)
     if callback?
@@ -4615,7 +4779,7 @@ class PickOrProvide
     @delete_option_button = @form.find('.delete_option')
     @delete_option_button.click(@delete_selected_option)
     @form.find('.delete_option').prop('disabled', true) # disabled initially
-    console.info "form", @form
+    #console.info "form", @form
 
   get_selected_option: =>
     @pick_or_provide_select.find('option:selected') # just one CAN be selected
@@ -4671,22 +4835,34 @@ class DragAndDropLoader
   load_uri: (firstUri) ->
     #@form.find('.box__success').text(firstUri)
     #@form.find('.box__success').show()
+    #TODO SHOULD selection be added to the picker here, or wait for after successful?
     @picker.add_uri({uri: firstUri, opt_group: 'Your Own'})
     @form.hide()
     return true # ie success
   load_file: (firstFile) ->
-    @form.find('.box__success').text(firstFile.name)
+    @huviz.local_file_data = "empty"
+    filename = firstFile.name
+    @form.find('.box__success').text(firstFile.name) #TODO Are these lines still needed?
     @form.find('.box__success').show()
     reader = new FileReader()
     reader.onload = (evt) =>
       #console.log evt.target.result
       #console.log("evt", evt)
       try
-        @huviz.read_data_and_show(firstFile.name, evt.target.result)
+        #@huviz.read_data_and_show(firstFile.name, evt.target.result)
+        if filename.match(/.(ttl|.nq)$/)
+          @picker.add_local_file({uri: firstFile.name, opt_group: 'Your Own'})
+          @huviz.local_file_data = evt.target.result
+        else
+          #$("##{@dataset_loader.select_id} option[label='Pick or Provide...']").prop('selected', true)
+          blurt("Unknown file format. Unable to parse '#{filename}'. Only .ttl and .nq files supported.", 'alert')
+          @huviz.reset_dataset_ontology_loader()
+          $('.delete_option').attr('style','')
       catch e
         msg = e.toString()
-        @form.find('.box__error').show()
-        @form.find('.box__error').text(msg)
+        #@form.find('.box__error').show()
+        #@form.find('.box__error').text(msg)
+        blurt(msg, 'error')
     reader.readAsText(firstFile)
     return true # ie success
   find_or_append_form: ->
@@ -4713,6 +4889,7 @@ class DragAndDropLoader
     @form.on 'dragleave dragend drop', () =>
       @form.removeClass('is-dragover')
     @form.on 'drop', (e) =>
+      console.log("e:",e.originalEvent.dataTransfer)
       @form.find('.box__input').hide()
       droppedUris = e.originalEvent.dataTransfer.getData("text/uri-list").split("\n")
       console.log("droppedUris",droppedUris)
@@ -4723,17 +4900,15 @@ class DragAndDropLoader
           @picker.refresh()
           @form.hide()
           return
-
       droppedFiles = e.originalEvent.dataTransfer.files
       console.log("droppedFiles", droppedFiles)
       if droppedFiles.length
         firstFile = droppedFiles[0]
         if @load_file(firstFile)
           @form.find(".box__success").text('')
-          @form.hide()
           @picker.refresh()
+          @form.hide()
           return
-
       # the drop operation failed to result in loaded data, so show 'drop here' msg
       @form.find('.box__input').show()
       @picker.refresh()

@@ -1,0 +1,762 @@
+@prefix : <http://purl.org/ontology/video/> .
+@prefix cc: <http://creativecommons.org/ns#> .
+@prefix dbpedia: <http://dbpedia.org/resource/> .
+@prefix ebuccdm: <http://www.ebu.ch/metadata/ontologies/ebuccdm#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix owl2: <http://www.w3.org/2006/12/owl2#> .
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix mpeg-7: <http://mpeg7.org/> .
+@prefix po: <http://purl.org/ontology/po/> .
+@prefix schema: <http://schema.org/> .
+@prefix snomedct: <http://purl.bioontology.org/ontology/SNOMEDCT/> .
+@prefix temporal: <http://swrl.stanford.edu/ontologies/built-ins/3.3/temporal.owl> .
+@prefix movie: <http://data.linkedmdb.org/resource/movie/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+##############
+### Provenance ###
+##############
+
+<http://purl.org/ontology/video/> a owl:Ontology ; foaf:maker dbpedia:Leslie_Sikos ; dc:description "The Video Ontology (VidOnt) is a core reference ontology for video."@en ; dc:title "Video Ontology (VidOnt)"@en ; rdfs:seeAlso <http://www.vidont.org/> .
+
+#############
+### Concepts ###
+#############
+
+dc:Agent a owl:Class .
+	schema:copyrightHolder a owl:Class ; rdfs:subClassOf dc:Agent .
+		foaf:Organization a owl:Class ; rdfs:subClassOf schema:copyrightHolder .
+			movie:film_company a owl:Class ; rdfs:subClassOf foaf:Organization .
+			movie:film_distributor a owl:Class ; rdfs:subClassOf foaf:Organization .
+			:FilmStudio a owl:Class ; rdfs:subClassOf foaf:Organization .
+			schema:productionCompany a owl:Class ; rdfs:subClassOf foaf:Organization .
+			po:Broadcaster a owl:Class ; dc:description "An organization responsible of some broadcasting services. It can hold a set of services and outlets." ; rdfs:isDefinedBy po: ; rdfs:label "Broadcaster" ; rdfs:subClassOf foaf:Organization .
+			schema:TelevisionStation a owl:Class ; rdfs:subClassOf foaf:Organization .
+		foaf:Person a owl:Class ; rdfs:subClassOf schema:copyrightHolder .
+			schema:actor a owl:Class ; owl:equivalentClass [ a owl:Class ; owl:unionOf ( :protagonist :supportingActor ) ] ; rdfs:subClassOf foaf:Person ; dc:description "An actor or actress, e.g. in a TV show, movie, video game, etc. Actors can be associated with individual items or with a series, episode, or video clip."@en .
+				:Protagonist a owl:Class ; rdfs:subClassOf schema:actor ; dc:description "Actor or actress in the lead role." .
+				:SupportingActor a owl:Class ; rdfs:subClassOf schema:actor ; dc:description "Actor or actress supporting the actor/actress in the lead role." .
+			:Choreographer a owl:Class ; rdfs:subClassOf foaf:Person .
+			movie:cinematographer a owl:Class ; rdfs:subClassOf foaf:Person .
+			:Composer a owl:Class ; rdfs:subClassOf foaf:Person ; dc:description "Film score composer." .
+			schema:director a owl:Class ; rdfs:subClassOf foaf:Person ; dc:description "A director of e.g. tv, radio, movie, video games etc. content. Directors can be associated with individual items or with a series, episode, clip." .
+			:DirectorOfPhotography a owl:Class ; rdfs:subClassOf foaf:Person .
+			schema:editor a owl:Class ; rdfs:subClassOf foaf:Person ; dc:description "A person who edited the Creative Work." .
+			movie:film_art_director a owl:Class ; rdfs:subClassOf foaf:Person .
+			movie:film_casting_director a owl:Class ; rdfs:subClassOf foaf:Person .
+			movie:film_costume_designer a owl:Class ; rdfs:subClassOf foaf:Person .
+			movie:film_crewmember a owl:Class ; rdfs:subClassOf foaf:Person .
+			movie:film_critic a owl:Class ; rdfs:subClassOf foaf:Person .
+			movie:film_festival_sponsor a owl:Class ; rdfs:subClassOf foaf:Person .
+			movie:film_production_designer a owl:Class ; rdfs:subClassOf foaf:Person .
+			movie:film_set_designer a owl:Class ; rdfs:subClassOf foaf:Person .
+			movie:film_story_contributor a owl:Class ; rdfs:subClassOf foaf:Person .
+			movie:film_theorist a owl:Class ; rdfs:subClassOf foaf:Person .
+			:Lector a owl:Class ; owl:equivalentClass :narrator ; rdfs:subClassOf foaf:Person .
+			:MovieCharacter a owl:Class ; rdfs:subClassOf foaf:Person .
+			movie:music_contributor a owl:Class ; rdfs:subClassOf foaf:Person .
+			schema:producer a owl:Class ; rdfs:subClassOf foaf:Person .
+			:ScriptWriter a owl:Class ; rdfs:subClassOf foaf:Person .
+			:Stuntman a owl:Class ; rdfs:subClassOf foaf:Person .
+			movie:writer a owl:Class ; rdfs:subClassOf foaf:Person .
+schema:award a owl:Class .
+schema:BroadcastService a owl:Class .
+	schema:BroadcastChannel a owl:Class ; owl:equivalentClass [ a owl:Class ; owl:unionOf ( :webcastChannel schema:TelevisionChannel ) ] ; rdfs:subClassOf schema:BroadcastService .
+		schema:TelevisionChannel a owl:Class ; rdfs:subClassOf schema:BroadcastChannel .
+		:WebcastChannel a owl:Class ; rdfs:subClassOf schema:BroadcastChannel .
+po:Channel a owl:Class ; dc:description "A physical channel on which a broadcast occurs. A single outlet or service can be associated with multiple channels. For example, Radio 4 LW broadcasts on Analogue Long Wave and on Digital Satellite." ; rdfs:isDefinedBy po: .
+schema:CreativeWork a owl:Class .
+	schema:Review a owl:Class ; rdfs:subClassOf schema:CreativeWork ; dc:description "A review of an item, e.g., of a movie."@en .
+	:Video a owl:Class ; rdfs:subClassOf schema:CreativeWork .
+		:BroadcastVideo a owl:Class ; rdfs:subClassOf :Video .
+		:Frame a owl:Class ; rdfs:subClassOf :Video .
+			:B-Frame a owl:Class ; rdfs:subClassOf :Frame ; dc:description "Bi-predictive picture"@en .
+			:Field a owl:Class ; rdfs:subClassOf :Frame ; dc:description "One of the many still images which are displayed sequentially to create the impression of motion on the screen. Two fields comprise a video frame."@en .
+			:I-Frame a owl:Class ; rdfs:subClassOf :Frame ; dc:description "Intra-coded picture"@en .
+			:Keyframe a owl:Class ; rdfs:subClassOf :Frame .
+			:P-Frame a owl:Class ; rdfs:subClassOf :Frame ; dc:description "Predicted picture"@en .
+			:Macroblock	a owl:Class ; rdfs:subClassOf :Frame ; dc:description "A frame segment (an individual prediction type)."@en .
+			:Slice a owl:Class ; rdfs:subClassOf :Frame ; dc:description "A spatially distinct region of a frame that is encoded separately from any other region in the same frame."@en .
+		:RegionOfInterest a owl:Class ; rdfs:subClassOf :Video .
+		:TelecastVideo a owl:Class ; rdfs:subClassOf :BroadcastVideo .
+		:WebcastVideo a owl:Class ; rdfs:subClassOf :BroadcastVideo .
+	schema:Clip a owl:Class ; rdfs:subClassOf :Video ; owl:sameAs po:Clip .
+		schema:MovieClip a owl:Class ; rdfs:subClassOf schema:Clip ; dc:description "A short TV or radio program or a segment/part of a program."@en .
+		schema:TVClip a owl:Class ; rdfs:subClassOf schema:Clip ; dc:description "A short TV program or a segment/part of a TV program."@en .
+	schema:MediaObject a owl:Class ; rdfs:subClassOf :Video ; dc:description "An image, video, or audio object embedded in a web page. Note that a creative work may have many media objects associated with it on the same web page. For example, a page about a single song (MusicRecording) may have a music video (VideoObject), and a high and low bandwidth audio stream (2 AudioObjects)."@en .
+		schema:VideoObject a owl:Class ; rdfs:subClassOf schema:MediaObject ; dc:description "A video file."@en .
+			schema:MusicVideoObject a owl:Class ; rdfs:subClassOf schema:VideoObject ; owl:disjointWith schema:TVSeason , schema:trailer ; dc:description "A music video file."@en .
+			schema:trailer a owl:Class ; rdfs:subClassOf schema:VideoObject ; dc:description "The trailer of a movie or tv/radio series, season, episode, etc."@en .
+	schema:Movie a owl:Class ; rdfs:subClassOf :Video ; owl:disjointWith schema:MusicVideoObject , schema:TVSeason , schema:trailer .
+		:AnimatedMovie a owl:Class ; rdfs:subClassOf schema:Movie ; dc:description "Differentiates films from their releases. An animated movie can be a cartoon, a cartoon with motion picture, a computer animaton, or live action." .
+			:Cartoon a owl:Class ; rdfs:subClassOf :AnimatedMovie ; owl:disjointWith :LiveAction .
+			:LiveAction a owl:Class ; rdfs:subClassOf :AnimatedMovie ; owl:disjointWith :Cartoon .
+				:Action a owl:Class ; rdfs:subClassOf :LiveAction .
+				:Adventure a owl:Class ; rdfs:subClassOf :LiveAction .
+				:Comedy a owl:Class ; rdfs:subClassOf :LiveAction .
+				:Documentary a owl:Class ; rdfs:subClassOf :LiveAction .
+				:Drama a owl:Class ; rdfs:subClassOf :LiveAction .
+				:FilmNoir a owl:Class ; rdfs:subClassOf :LiveAction .
+				:Horror a owl:Class ; rdfs:subClassOf :LiveAction .
+				:Romance a owl:Class ; rdfs:subClassOf :LiveAction .
+				:SoapOpera a owl:Class ; rdfs:subClassOf :LiveAction .
+				:Thriller a owl:Class ; rdfs:subClassOf :LiveAction .
+				:Western a owl:Class ; rdfs:subClassOf :LiveAction .			
+			:CartoonWithMotionPicture a owl:Class ; rdfs:subClassOf :AnimatedMovie ; owl:equivalentClass  [ a owl:Class ; owl:intersectionOf  ( :Cartoon :LiveAction ) ] ; dc:description "A combination of cartoon and live action." .
+			:ComputerAnimation a owl:Class ; rdfs:subClassOf :AnimatedMovie .
+		:Release a owl:Class ; rdfs:subClassOf schema:Movie .
+			:DiscRelease a owl:Class ; rdfs:subClassOf :Release .
+				:Blu-Ray a owl:Class ; rdfs:subClassOf :DiscRelease ; dc:description "Blu-Ray disc release." .
+				:DVD-Video a owl:Class ; rdfs:subClassOf :DiscRelease .
+				:HD-DVD a owl:Class ; rdfs:subClassOf :DiscRelease .
+				:VCD a owl:Class ; rdfs:subClassOf :DiscRelease .
+			:FileRelease a owl:Class ; rdfs:subClassOf :Release .
+			:OnlineRelease a owl:Class ; owl:equivalentClass [ a owl:Class ; owl:complementOf :DiscRelease ] .
+				:GoogleVideo a owl:Class ; rdfs:subClassOf :OnlineRelease .
+				:VimeoVideo a owl:Class ; rdfs:subClassOf :OnlineRelease .
+				:YouTubeVideo a owl:Class ; rdfs:subClassOf :OnlineRelease .
+			:VHS a owl:Class ; rdfs:subClassOf :Release .	
+	schema:TVSeason a owl:Class ; rdfs:subClassOf :Video ; owl:disjointWith schema:Movie , schema:trailer .
+		schema:TVSeries a owl:Class ; rdfs:subClassOf schema:TVSeason , [ a owl:Restriction ; owl:onProperty :hasEpisode ; owl:onClass schema:Episode ; owl:minQualifiedCardinality "2"^^xsd:nonNegativeInteger ] ; rdfs:subclassOf schema:TVSeries , [rdf:type owl:Restriction ; owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ; owl:onProperty :partOf ; owl:onClass :TVSeries ] ; owl:disjointWith schema:Movie , schema:trailer .
+			schema:Episode a owl:Class ; rdfs:subClassOf schema:TVSeries ; owl:disjointWith schema:Movie , schema:trailer ; owl:sameAs po:Episode .
+:EditingSoftware a owl:Class .
+	:AudioEditingSoftware a owl:Class ; rdfs:subClassOf :EditingSoftware .
+	:VideoEditingSoftware a owl:Class ; rdfs:subClassOf :EditingSoftware .
+		:VideoConverter a owl:Class ; rdfs:subClassOf :VideoEditingSoftware .
+		:3DComputerGraphicsSoftware a owl:Class ; rdfs:subClassOf :VideoEditingSoftware .
+schema:Event a owl:Class .
+	schema:BroadcastEvent a owl:Class ; rdfs:subClassOf schema:Event ; dc:description "An over the air or online broadcast event."@en ; owl:sameAs po:Broadcast .
+	movie:film_awards_ceremony a owl:Class ; rdfs:subClassOf schema:Event .
+dc:LicenseDocument a owl:Class .
+	 cc:License a owl:Class ; dc:description "A set of requests/permissions to users of a Work, e.g., a copyright license, the public domain, information for distributors" ; rdfs:subClassOf dc:LicenseDocument .
+	 ebuccdm:IPRights a owl:Class ; dc:description "The intellectual property rights, which transform EditorialObjects or MediaResources into Assets." .
+ebuccdm:MediaResource a owl:Class ; dc:description "An audiovisual media resource (or an image or document according to model extensions), which can be composed of one or more fragments." .
+dc:MediaType a owl:Class .
+	:Disc a owl:Class ; rdfs:subClassOf dc:MediaType ; owl:disjointWith :Tape .
+		:BDdisc a owl:Class ; rdfs:subClassOf :Disc ; owl:disjointWith :CDdisc , :DVDdisc , :Tape ; dc:description "Blu-Ray disc (medium)."@en .
+		:CDdisc a owl:Class ; rdfs:subClassOf :Disc ; owl:disjointWith :DVDdisc , :Tape .
+		:DVDdisc a owl:Class ; rdfs:subClassOf :Disc ; owl:disjointWith :Tape .
+	:Tape a owl:Class ; rdfs:subClassOf dc:MediaType ; dc:description "Magnetic tape."@en ; owl:disjointWith :Disc .
+ebuccdm:ProductionDevice a owl:Class .
+	:RecordingEquipment a owl:Class ;rdfs:subClassOf ebuccdm:ProductionDevice .
+		:VideoCamera a owl:Class ; rdfs:subclassOf :RecordingEquipment .
+			:ConsumerVideoCamera a owl:Class ; rdfs:subClassOf :VideoCamera .
+			:Camcorder a owl:Class ; rdfs:subClassOf :VideoCamera .
+			:PTZCamera a owl:Class ; rdfs:subClassOf :VideoCamera .
+			:Webcam a owl:Class ; rdfs:subClassOf :VideoCamera .
+			:CameraPhone a owl:Class ; rdfs:subClassOf :VideoCamera .
+			:ProfessionalVideoCamera a owl:Class ; rdfs:subClassOf :VideoCamera .
+			:CinematographyCamera a owl:Class ; rdfs:subClassOf :VideoCamera .
+		:DSLR a owl:Class ; rdfs:subClassOf :RecordingEquipment .
+		:Microphone a owl:Class ; rdfs:subClassOf :RecordingEquipment .
+:Scene a owl:Class ; rdfs:subClassOf :Video .
+	:CinematicScene a owl:Class ; rdfs:subClassOf :Scene .
+	:StagePlayScene a owl:Class ; rdfs:subClassOf :Scene .
+	:MovieScene a owl:Class ; owl:equivalentClass :CinematicScene ; rdfs:subClassOf :Scene .
+		:ConversationalScene a owl:Class ; rdfs:subClassOf :MovieScene .
+		:ActionScene a owl:Class ; rdfs:subClassOf :MovieScene .
+			:CarChaseScene a owl:Class ; rdfs:subClassOf :ActionScene .
+			:CrashScene a owl:Class ; rdfs:subClassOf :ActionScene .
+			:ExplosionScene a owl:Class ; rdfs:subClassOf :ActionScene .
+			:ShootingScene a owl:Class ; rdfs:subClassOf :ActionScene .
+			:MurderScene a owl:Class ; rdfs:subClassOf :ActionScene .
+			:FightingScene a owl:Class ; rdfs:subClassOf :ActionScene .
+		:DreamingScene a owl:Class ; rdfs:subClassOf :MovieScene .
+		:LoveScene a owl:Class ; rdfs:subClassOf :MovieScene .
+		:NatureScene a owl:Class ; rdfs:subClassOf :MovieScene .
+	:IndoorScene a owl:Class ; rdfs:subClassOf :Scene .
+	:OutdoorScene a owl:Class ; rdfs:subClassOf :Scene .
+dc:Standard a owl:Class .
+	:AnnotationStandard a owl:Class ; owl:equivalentClass [ a owl:Class ; owl:oneOf ( :RDFa :Microdata :JSON-LD ) ] ; rdfs:subClassOf dc:Standard .
+	:MetadataStandard a owl:Class ; rdfs:subClassOf dc:Standard .
+	:BroadcastingStandard a owl:Class ; rdfs:subClassOf dc:Standard .
+		po:DVB a owl:Class ; dc:description "Digital Video Broadcasting" .
+	:StandardResolution a owl:Class ; rdfs:subClassOf dc:Standard .
+
+		
+##########
+### Roles ###
+##########
+
+:basedOn a owl:ObjectProperty , owl:TransitiveProperty ; rdfs:subPropertyOf owl:topObjectProperty .
+	:cutOf a owl:ObjectProperty ; rdfs:subPropertyOf :basedOn .
+	:installmentOf a owl:ObjectProperty ; rdfs:subPropertyOf :basedOn ; owl:equivalentProperty :sequelOf .
+	:recutOf a owl:ObjectProperty ; rdfs:subPropertyOf :basedOn .
+	:remakeOf a owl:ObjectProperty ; rdfs:subPropertyOf :basedOn .
+	:sequelOf a owl:ObjectProperty ; rdfs:subPropertyOf :basedOn .
+:broadcastedBy a owl:ObjectProperty ; rdfs:comment "Telecast or webcast."@en ; rdfs:subPropertyOf owl:topDataProperty .
+	:Ad-ID a owl:ObjectProperty ; dc:description "The industry standard Ad-ID unique identifier to identify commercial advertisers."@en ; rdfs:subPropertyOf :broadcastedBy .
+	:broadcastFormat a owl:ObjectProperty ; rdfs:subPropertyOf :broadcastedBy .
+	:callSign a owl:ObjectProperty ; rdfs:subPropertyOf :broadcastedBy .
+	:colorZone a owl:ObjectProperty ; dc:description "CEA color zone to express TV signal reception. Permissible values are blue, green, light green, pink, violet, or yellow."@en ; rdfs:subPropertyOf :broadcastedBy ; rdfs:range [ a rdfs:Literal ; owl:oneOf [ a rdf:List ; rdf:first "blue" ; rdf:rest [ a rdf:List ; rdf:first "green" ; rdf:rest [ a rdf:List ; rdf:first "light green" ; rdf:rest [ a rdf:List ; rdf:first "pink" ; rdf:rest [ a rdf:List ; rdf:first "red" ; rdf:rest [ a rdf:List ; rdf:first "violet" ; rdf:rest [ a rdf:List ; rdf:first "yellow" ; rdf:rest rdf:nil ] ] ] ] ] ] ] ] .
+	:compassOrientation a owl:ObjectProperty ; dc:description "Indicates which direction to aim directional outdoor antennas in for best signal reception. E.g., 310°."@en ; rdfs:subPropertyOf :broadcastedBy .
+	:deliveryFormat a owl:ObjectProperty ; rdfs:subPropertyOf :broadcastedBy .
+	:FEC a owl:ObjectProperty ; dc:description "Forward Error Correction (FEC), also known as channel coding. The technique used for controlling errors in data transmission over unreliable or noisy communication channels. For example, 4/5."@en ; rdfs:subPropertyOf :broadcastedBy ; rdfs:range [ a rdfs:Literal ; owl:oneOf [ a rdf:List ; rdf:first "1/2" ; rdf:rest [ a rdf:List ; rdf:first "2/3" ; rdf:rest [ a rdf:List ; rdf:first "3/4" ; rdf:rest [ a rdf:List ; rdf:first "3/5" ; rdf:rest [ a rdf:List ; rdf:first "4/5" ; rdf:rest [ a rdf:List ; rdf:first "5/6" ; rdf:rest rdf:nil ] ] ] ] ] ] ] .
+	:frequencyAssignment a owl:ObjectProperty ; rdfs:subPropertyOf :broadcastedBy .
+	:modulation a owl:ObjectProperty ; rdfs:subPropertyOf :broadcastedBy .
+	:transmissionStandard a owl:ObjectProperty ; dc:description "Transmission standard used for broadcasting, e.g., DVB-T2" ; rdfs:subPropertyOf :broadcastedBy .
+	:transmitPower a owl:ObjectProperty ; rdfs:subPropertyOf :broadcastedBy .
+	:TVband a owl:ObjectProperty ; dc:description "TV band, such as UHF or VHF." ; rdfs:subPropertyOf :broadcastedBy ; rdfs:range [ a rdfs:Literal ; owl:oneOf [ a rdf:List ; rdf:first "UHF" ; rdf:rest [ a rdf:List ; rdf:first "VHF" ; rdf:rest rdf:nil ] ] ] .
+	:TVchannel a owl:ObjectProperty ; rdfs:subPropertyOf :broadcastedBy .
+	:TVnetwork a owl:ObjectProperty ; rdfs:subPropertyOf :broadcastedBy .
+	:TVstationType a owl:ObjectProperty ; dc:description "TV station type, e.g., DTV."@en ; rdfs:subPropertyOf :broadcastedBy .	
+:characterFrom a owl:ObjectProperty .
+dc:conformsTo rdfs:subPropertyOf owl:topObjectProperty ; dc:description "Standard(s) the media resource or hardware device conforms to."@en ; rdfs:subPropertyOf owl:topObjectProperty .
+:convertedFrom a owl:ObjectProperty ; rdfs:subPropertyOf owl:topObjectProperty .
+foaf:currentProject a owl:ObjectProperty ; rdfs:subPropertyOf owl:topObjectProperty .
+:depicts a owl:ObjectProperty ; rdfs:subPropertyOf owl:topObjectProperty .
+:distributedBy a owl:ObjectProperty ; rdfs:subPropertyOf owl:topObjectProperty .
+:exportedTo a owl:ObjectProperty ; rdfs:subPropertyOf owl:topObjectProperty .
+:filmAdaptationOf a owl:ObjectProperty .
+movie:film_featured_song a owl:ObjectProperty ; rdfs:subPropertyOf :topObjectProperty .
+movie:film_festival_sponsor a owl:ObjectProperty ; rdfs:subPropertyOf :topObjectProperty .
+movie:film_screening_venue a owl:ObjectProperty ; rdfs:subPropertyOf :topObjectProperty .
+:filmmakerOf a owl:ObjectProperty ; rdfs:range foaf:Person ; rdfs:subPropertyOf owl:topObjectProperty .
+	:authorOf a owl:ObjectProperty ; rdfs:subPropertyOf :filmmakerOf ; owl:inverseOf :authoredBy .
+	:choreographerOf a owl:ObjectProperty ; rdfs:subPropertyOf :filmmakerOf ; owl:inverseOf :choreographedBy .
+	:cinematographerOf a owl:ObjectProperty ; owl:inverseOf :cinematographyBy ; owl:equivalentProperty :directorOfPhotographyOf ; rdfs:subPropertyOf :filmmakerOf .
+	:composerOf a owl:ObjectProperty ; rdfs:subPropertyOf :filmmakerOf .
+	:contributorOf a owl:ObjectProperty ; owl:inverseOf dc:contributor ; rdfs:subPropertyOf :filmmakerOf .
+	:costumeDesignerOf a owl:ObjectProperty ; owl:inverseOf :costumeDesignBy ; rdfs:subPropertyOf :filmmakerOf .
+	:creatorOf a owl:ObjectProperty ; rdfs:subPropertyOf :filmmakerOf .
+	:directorOf a owl:ObjectProperty ; rdfs:subPropertyOf :filmmakerOf ; owl:inverseOf :directedBy .
+	:directorOfPhotographyOf a owl:ObjectProperty ; rdfs:subPropertyOf :filmmakerOf .
+	:editorOf a owl:ObjectProperty ; rdfs:subPropertyOf :filmmakerOf ;  owl:inverseOf :editedBy .
+	:makeupArtistOf a owl:ObjectProperty ; rdfs:subPropertyOf :filmmakerOf ; owl:inverseOf :makeupBy .
+	:narratorOf a owl:ObjectProperty ; rdfs:subPropertyOf :filmmakerOf ; owl:inverseOf :narratedBy .
+	:playedIn a owl:ObjectProperty ; rdfs:subPropertyOf :filmmakerOf .
+	:producerOf a owl:ObjectProperty ; rdfs:subPropertyOf :filmmakerOf ; owl:inverseOf :producedBy .
+	:soundEditorOf a owl:ObjectProperty ; rdfs:subPropertyOf :filmmakerOf .
+	:soundMixerOf a owl:ObjectProperty ; rdfs:subPropertyOf :filmmakerOf .
+	:starredIn a owl:ObjectProperty ; rdfs:subPropertyOf :filmmakerOf .
+	:stuntmanOf a owl:ObjectProperty ; rdfs:subPropertyOf :filmmakerOf ; owl:inverseOf :stuntsBy .
+	:visualEffectsDesignerOf a owl:ObjectProperty ; rdfs:subPropertyOf :filmmakerOf ; owl:inverseOf :visualEffectsBy .
+	:visualEffectsDirectorOf a owl:ObjectProperty ; rdfs:subPropertyOf :filmmakerOf .
+:frameFrom a owl:ObjectProperty .	
+foaf:givenName a owl:ObjectProperty ; rdfs:subPropertyOf owl:topObjectProperty ; rdfs:domain foaf:Person .
+schema:genre a owl:ObjectProperty ; rdfs:subPropertyOf owl:topObjectProperty .
+:hasEpisode a owl:ObjectProperty ; rdfs:subPropertyOf owl:topObjectProperty .
+:hasSeason a owl:ObjectProperty ; owl:inverseOf :seasonOf ; owl:propertyChainAxiom ( :hasEpisode :hasSeries ) ; rdfs:subPropertyOf owl:topObjectProperty .
+:hasSeries a owl:AsymmetricProperty , owl:ObjectProperty ; rdfs:subPropertyOf owl:topObjectProperty .
+temporal:before a owl:ObjectProperty ; rdfs:subPropertyOf owl:topObjectProperty .
+temporal:after a owl:ObjectProperty ; rdfs:subPropertyOf owl:topObjectProperty .
+temporal:hasStartTime a owl:ObjectProperty ; rdfs:subPropertyOf owl:topObjectProperty .
+temporal:hasFinishTime a owl:ObjectProperty ; rdfs:subPropertyOf owl:topObjectProperty .
+:importedFrom a owl:IrreflexiveProperty , owl:ObjectProperty ; rdfs:subPropertyOf :topObjectProperty ; dc:description "The media format the video was imported from."@en  .
+:isActing a owl:ObjectProperty ; rdfs:subPropertyOf owl:topObjectProperty .
+	:isAttackedBy a owl:ObjectProperty ; rdfs:subPropertyOf :isActing .
+	:isAttacking a owl:ObjectProperty ; rdfs:subPropertyOf :isActing .
+	:isFightingWith a owl:ObjectProperty ; rdfs:subPropertyOf :isActing .
+	:isHavingA a owl:ObjectProperty ; rdfs:subPropertyOf owl:topObjectProperty .
+	:isHolding a owl:ObjectProperty ; rdfs:subPropertyOf :isActing .
+	:isKissing a owl:ObjectProperty ; rdfs:subPropertyOf :isActing .
+	:isLookingAt a owl:ObjectProperty ; rdfs:subPropertyOf :isActing .
+	:isPlayingThe a owl:ObjectProperty ; rdfs:subPropertyOf :isActing .
+	:isShootingAt a owl:ObjectProperty ; rdfs:subPropertyOf :isActing .
+	:isShouting a owl:ObjectProperty ; rdfs:subPropertyOf :isActing .
+	:isSpeaking a owl:ObjectProperty ; rdfs:subPropertyOf :isActing .
+	:isSwearing a owl:ObjectProperty ; rdfs:subPropertyOf :isActing .
+	:isTalkingTo a owl:ObjectProperty ; rdfs:subPropertyOf :isActing .
+	:isWhispering a owl:ObjectProperty ; rdfs:subPropertyOf :isActing .
+	:isWithA a owl:ObjectProperty ; rdfs:subPropertyOf owl:topObjectProperty .
+cc:license a owl:ObjectProperty ; rdfs:subPropertyOf :topObjectProperty .
+:madeBy a owl:ObjectProperty , owl:TransitiveProperty ; rdfs:subPropertyOf owl:topObjectProperty ; owl:inverseOf :filmmakerOf .
+	:authoredBy a owl:ObjectProperty ; rdfs:subPropertyOf :madeBy ; owl:inverseOf :authorOf .
+	:choreographedBy a owl:ObjectProperty ; rdfs:subPropertyOf :madeBy ; owl:inverseOf :choreographerOf .
+	:cinematographyBy a owl:ObjectProperty ; rdfs:subPropertyOf :madeBy ; owl:inverseOf :cinematographerOf .
+	:commissionBy a owl:ObjectProperty ; rdfs:subPropertyOf :madeBy .	
+	dc:contributor rdfs:subPropertyOf :madeBy .
+	:castMemberOf a owl:ObjectProperty ; rdfs:subPropertyOf dc:contributor .
+	:costumeDesignBy a owl:ObjectProperty ; rdfs:subPropertyOf :madeBy .
+	dc:creator rdfs:subPropertyOf :madeBy .
+	:directedBy a owl:ObjectProperty ; rdfs:subPropertyOf :madeBy ; owl:inverseOf :directorOf .
+	:dubbedBy a owl:ObjectProperty ; rdfs:subPropertyOf :madeBy .
+	:editedBy a owl:ObjectProperty ; rdfs:subPropertyOf :madeBy ; owl:inverseOf :editorOf .
+		mpeg-7:ColorQuantization a owl:ObjectProperty ; rdfs:subPropertyOf :editedBy .
+		mpeg-7:EditedMovingRegion a owl:ObjectProperty ; rdfs:subPropertyOf :editedBy .
+		mpeg-7:Filter a owl:ObjectProperty ; rdfs:subPropertyOf :editedBy .
+		:hasFileSystem a owl:ObjectProperty ; rdfs:subPropertyOf :editedBy .
+		:MIMEType a owl:ObjectProperty ; rdfs:subPropertyOf :editedBy .
+		mpeg-7:MovingRegion a owl:ObjectProperty ; rdfs:subPropertyOf :editedBy .
+		mpeg-7:PointOfView a owl:ObjectProperty ; rdfs:subPropertyOf :editedBy .
+		mpeg-7:Scaling a owl:ObjectProperty ; rdfs:subPropertyOf :editedBy .
+		mpeg-7:SignLanguage a owl:ObjectProperty ; rdfs:subPropertyOf :editedBy .
+		mpeg-7:StillRegion a owl:ObjectProperty ; rdfs:subPropertyOf :editedBy .
+		mpeg-7:SubRegion a owl:ObjectProperty ; rdfs:subPropertyOf :editedBy .
+		mpeg-7:VideoSegment a owl:ObjectProperty ; rdfs:subPropertyOf :editedBy .
+		mpeg-7:VisualDefects a owl:ObjectProperty ; rdfs:subPropertyOf :editedBy .
+	:ideaBy a owl:ObjectProperty ; rdfs:subPropertyOf :madeBy .
+	:makeupBy a owl:ObjectProperty ; rdfs:subPropertyOf :madeBy .
+	schema:musicBy a owl:ObjectProperty ; rdfs:subPropertyOf :madeBy .
+	:filmScoreBy a owl:ObjectProperty ; rdfs:subPropertyOf schema:musicBy .
+	:muxedBy a owl:ObjectProperty ; rdfs:subPropertyOf :madeBy .
+		:demuxedBy a owl:ObjectProperty ; rdfs:subPropertyOf :muxedBy .
+		:remuxedBy a owl:ObjectProperty ; rdfs:subPropertyOf :muxedBy .
+	:narratedBy a owl:ObjectProperty ; rdfs:subPropertyOf :madeBy ; owl:inverseOf :narratorOf .
+	:producedBy a owl:ObjectProperty ; rdfs:subPropertyOf :madeBy ; owl:inverseOf :producerOf .
+		:casting a owl:ObjectProperty ; rdfs:subPropertyOf :producedBy .
+		mpeg-7:Shot a owl:ObjectProperty ; rdfs:subPropertyOf :producedBy .
+			:scanning a owl:ObjectProperty ; rdfs:subPropertyOf mpeg-7:Shot ; rdfs:range [ a rdfs:Datatype ; owl:oneOf [ a rdf:List ; rdf:first "interlaced" ; rdf:rest [ a rdf:List ; rdf:first "progressive" ; rdf:rest rdf:nil ] ] ] .
+			:recordedWithVideoCamera a owl:ObjectProperty ; rdfs:subPropertyOf mpeg-7:Shot .
+			:VideoFileFormat a owl:ObjectProperty ; rdfs:subPropertyOf mpeg-7:Shot .
+			:VideoMode a owl:ObjectProperty ; rdfs:subPropertyOf mpeg-7:Shot .
+			:VideoCodec a owl:ObjectProperty ; rdfs:subPropertyOf mpeg-7:Shot .
+		:producedInCountry a owl:ObjectProperty ; rdfs:subPropertyOf :producedBy .
+		:producedForTVSystem a owl:ObjectProperty ; rdfs:subPropertyOf :producedBy ; dc:description "TV system, such as PAL, NTSC, or SECAM." ; rdfs:range [ a xsd:string ; owl:oneOf [ a rdf:List ; rdf:first "NTSC" ; rdf:rest [ a rdf:List ; rdf:first "PAL" ; rdf:rest [ a rdf:List ; rdf:first "SECAM" ; rdf:rest rdf:nil ] ] ] ] .			
+		:soundRecorded a owl:ObjectProperty ; rdfs:subPropertyOf :producedBy .
+			:recordedWithMicrophone a owl:ObjectProperty ; rdfs:subPropertyOf :soundRecorded .
+			:syncSound a owl:ObjectProperty ; rdfs:subPropertyOf :soundRecorded .
+			:voiceOver a owl:ObjectProperty ; rdfs:subPropertyOf :soundRecorded .
+			:AudioBitrateType a owl:ObjectProperty ; rdfs:subPropertyOf :soundRecorded .
+			:AudioCodec a owl:ObjectProperty ; rdfs:subPropertyOf :soundRecorded .
+			:AudioFileFormat a owl:ObjectProperty ; rdfs:subPropertyOf :soundRecorded .
+			:AudioChannels a owl:ObjectProperty ; rdfs:subPropertyOf :soundRecorded .
+		:screened	a owl:ObjectProperty ; rdfs:subPropertyOf :producedBy .	
+	:recordedBy a owl:ObjectProperty ; rdfs:subPropertyOf :madeBy .
+	:screenplayBy a owl:ObjectProperty ; rdfs:subPropertyOf :madeBy .
+	:soundEditedBy a owl:ObjectProperty ; rdfs:subPropertyOf :madeBy .
+	:soundMixedBy a owl:ObjectProperty ; rdfs:subPropertyOf :madeBy .
+	:starring a owl:ObjectProperty ; rdfs:subPropertyOf :madeBy  ; owl:inverseOf :starredIn .
+	:starringWith a owl:ObjectProperty ; rdfs:subPropertyOf owl:topObjectProperty ; a owl:ReflexiveProperty .
+	:storyBy a :ObjectProperty ;rdfs:subPropertyOf :madeBy .
+	:stuntsBy a owl:ObjectProperty ; rdfs:subPropertyOf :madeBy ; owl:inverseOf :stuntmanOf .
+	:visualEffectsBy a owl:ObjectProperty ; rdfs:subPropertyOf :madeBy ; owl:inverseOf :visualEffectsDesignerOf .	
+:motionRelated a owl:ObjectProperty .
+	:isApproachingTowards a owl:ObjectProperty ; rdfs:subPropertyOf :motionRelated .
+	:isPassingThrough a owl:ObjectProperty ; rdfs:subPropertyOf :motionRelated .
+	:isTransformingInto a owl:ObjectProperty ; rdfs:subPropertyOf :motionRelated .
+:nominatedFor a :ObjectProperty ; rdfs:subPropertyOf owl:topObjectProperty .	
+:partOf a owl:ObjectProperty , owl:TransitiveProperty ; rdfs:subPropertyOf owl:topObjectProperty .
+	:episodeOf a owl:ObjectProperty ; rdfs:subPropertyOf :partOf ; owl:inverseOf :hasEpisode .
+	:seasonOf a owl:ObjectProperty ; rdfs:subPropertyOf :partOf ; owl:inverseOf :hasSeason .
+	:seriesOf a owl:AsymmetricProperty , owl:ObjectProperty ; rdfs:subPropertyOf :partOf ; owl:inverseOf :hasSeries .
+	:spatialSegmentOf a owl:ObjectProperty ; rdfs:subPropertyOf :partOf .
+	:spatioTemporalSegmentOf a owl:ObjectProperty ; rdfs:subPropertyOf :partOf .
+	:temporalSegmentOf a owl:ObjectProperty ; rdfs:subPropertyOf :partOf .
+:portrayedBy a owl:ObjectProperty ; rdfs:subPropertyOf owl:topObjectProperty .
+:releaseStatus a owl:ObjectProperty ; rdfs:subPropertyOf owl:topObjectProperty .
+	:releasedOn a owl:ObjectProperty ; rdfs:subPropertyOf :releaseStatus ; dc:description "The media type(s) the video has been released on, e.g., disc or tape."@en ; rdfs:subPropertyOf owl:topObjectProperty .	
+	:releasedInFormat a owl:ObjectProperty ; rdfs:subPropertyOf :releaseStatus ; dc:description "The media format the video has been released in, e.g., DVD-Video or Blu-Ray."@en .
+	:promoted a owl:ObjectProperty ; rdfs:subPropertyOf :releaseStatus .
+	:reception a owl:ObjectProperty ; rdfs:subPropertyOf :releaseStatus .
+	:labelledAs a owl:ObjectProperty ; rdfs:subPropertyOf :releaseStatus ; dc:description "Film category such as full length film, re-cut, remake, sequel, spin-off, short film, and trailer."@en .	
+	:userRestriction a owl:ObjectProperty ; rdfs:subPropertyOf :releaseStatus .
+cc:permits a owl:ObjectProperty ; rdfs:subPropertyOf owl:topObjectProperty .
+cc:prohibits a owl:ObjectProperty ; rdfs:subPropertyOf owl:topObjectProperty .
+:recordedFrom a owl:ObjectProperty ; rdfs:subPropertyOf owl:topObjectProperty .
+dc:rightsHolder rdfs:subPropertyOf owl:topObjectProperty .
+:sceneFrom a owl:ObjectProperty .
+:supportedBy a owl:ObjectProperty ; rdfs:subPropertyOf owl:topObjectProperty .
+foaf:surname a owl:ObjectProperty ; rdfs:subPropertyOf owl:topObjectProperty ; rdfs:domain foaf:Person .
+:spatiallyRelated a owl:ObjectProperty .
+	:distanceRelated a owl:ObjectProperty ; rdfs:subPropertyOf :spatiallyRelated .
+		:isAt a owl:ObjectProperty ; rdfs:subPropertyOf :distanceRelated .
+		:isFarFrom a owl:ObjectProperty ; rdfs:subPropertyOf :distanceRelated .
+		:isInTheVicinityOf a owl:ObjectProperty ; rdfs:subPropertyOf :distanceRelated .
+		:isNearTo a owl:ObjectProperty ; rdfs:subPropertyOf :distanceRelated .
+		:isNearby a owl:ObjectProperty ; rdfs:subPropertyOf :distanceRelated .
+	:directionallyRelated a owl:ObjectProperty .
+		:internalDirectionalRelated a owl:ObjectProperty ; rdfs:subPropertyOf :directionallyRelated  ; dc:description "An internal directional relation specifies where an object is located inside the reference object." .
+			 :abaft a owl:ObjectProperty ; rdfs:subPropertyOf :internalDirectionalRelated .
+			 :athwart a owl:ObjectProperty ; rdfs:subPropertyOf :internalDirectionalRelated .
+			 :left a owl:ObjectProperty ; rdfs:subPropertyOf :internalDirectionalRelated .
+			 :right a owl:ObjectProperty ; rdfs:subPropertyOf :internalDirectionalRelated .
+			 :onTheBack a owl:ObjectProperty ; rdfs:subPropertyOf :internalDirectionalRelated .
+		:externalDirectionalRelated a owl:ObjectProperty ; rdfs:subPropertyOf :directionallyRelated ; dc:description "An external relations specifies where the object is located outside of the reference objects." .
+			:abeam a owl:ObjectProperty ; rdfs:subPropertyOf :externalDirectionalRelated . 
+			:astern a owl:ObjectProperty ; rdfs:subPropertyOf :externalDirectionalRelated .
+			:isAbove a owl:ObjectProperty ; rdfs:subPropertyOf :externalDirectionalRelated .
+			:isBehind a owl:ObjectProperty ; rdfs:subPropertyOf :externalDirectionalRelated .
+			:isBelow a owl:ObjectProperty ; rdfs:subPropertyOf :externalDirectionalRelated .
+			:isInFrontOf a owl:ObjectProperty ; rdfs:subPropertyOf :externalDirectionalRelated .
+			:onTheLeftOf a owl:ObjectProperty ; rdfs:subPropertyOf :externalDirectionalRelated .
+			:onTheRightOf a owl:ObjectProperty ; rdfs:subPropertyOf :externalDirectionalRelated . 		
+	:sizeRelated a owl:ObjectProperty ; rdfs:subPropertyOf :spatiallyRelated .
+		:isDifferentFrom a owl:ObjectProperty ; rdfs:subPropertyOf :sizeRelated .
+		:isIdenticalTo a owl:ObjectProperty ; rdfs:subPropertyOf :sizeRelated .
+		:isLargerThan a owl:ObjectProperty ; rdfs:subPropertyOf :sizeRelated .
+		:isSmallerThan a owl:ObjectProperty ; rdfs:subPropertyOf :sizeRelated .
+	:topologicallyRelated a owl:ObjectProperty ; rdfs:subPropertyOf :spatiallyRelated ; dc:description "Topological relations including, but not limited to, the standard DE-9IM topological relations and the RCC8 calculus." .
+		:contains a owl:ObjectProperty ; rdfs:subPropertyOf :topologicallyRelated  ; dc:description "Corresponds to non-tangential proper part (NTPP)/non-tangential proper part inverse (NTPPi) of RCC8." .
+		:coveredBy a owl:ObjectProperty ; rdfs:subPropertyOf :topologicallyRelated .
+		:covers a owl:ObjectProperty ; rdfs:subPropertyOf :topologicallyRelated .
+		:disjointWith a owl:ObjectProperty ; rdfs:subPropertyOf :topologicallyRelated  ; dc:description "Corresponds to disjoint of DE-9IM and disconnected (DC) of RCC8." .
+		:equals a owl:ObjectProperty ; rdfs:subPropertyOf :topologicallyRelated  ; dc:description "Corresponds to equals of DE-9IM and equal (EQ) of RCC8." .
+		:intersects a owl:ObjectProperty ; rdfs:subPropertyOf :topologicallyRelated  ; dc:description "Corresponds to intersects of DE-9IM and partially overlapping (PO) of RCC8." .
+		:isIn a owl:ObjectProperty ; rdfs:subPropertyOf :topologicallyRelated .
+		:isOverlappedBy a owl:ObjectProperty ; rdfs:subPropertyOf :topologicallyRelated .
+		:isPartiallyOverlappedBy a owl:ObjectProperty ; rdfs:subPropertyOf :topologicallyRelated . 
+		:touches a owl:ObjectProperty ; rdfs:subPropertyOf :topologicallyRelated  ; dc:description "Corresponds to touches of DE-9IM and externally connected (EC) of RCC8." .
+		:within a owl:ObjectProperty ; rdfs:subPropertyOf :topologicallyRelated .
+		:tangentialProperPartInverseOf a owl:ObjectProperty ; rdfs:subPropertyOf :topologicallyRelated  ; dc:description "Corresponds to tangential proper part inverse (TPPi) of RCC8." .
+		:tangentialProperPartOf a owl:ObjectProperty ; rdfs:subPropertyOf :topologicallyRelated  ; dc:description "Corresponds to tangential proper part (TPP) of RCC8." .
+:starredWith a owl:ObjectProperty ; rdfs:subPropertyOf owl:topObjectProperty ; a owl:ReflexiveProperty .
+:temporallyRelated a owl:ObjectProperty  ; dc:description "Temporal relations including, but not limited to, Allen’s temporal relations." .
+	:after a owl:ObjectProperty ; rdfs:subPropertyOf :temporallyRelated ; owl:inverseOf :before .
+	:before a owl:ObjectProperty ; rdfs:subPropertyOf :temporallyRelated ; owl:inverseOf :after .
+	:contains a owl:ObjectProperty ; rdfs:subPropertyOf :temporallyRelated ; owl:inverseOf :during .
+	:during a owl:ObjectProperty ; rdfs:subPropertyOf :temporallyRelated ; owl:inverseOf :contains .
+	:earlier a owl:ObjectProperty ; rdfs:subPropertyOf :temporallyRelated ; owl:inverseOf :later .
+	:equals a owl:ObjectProperty ; rdfs:subPropertyOf :temporallyRelated .
+	:finishedBy a owl:ObjectProperty ; rdfs:subPropertyOf :temporallyRelated ; owl:inverseOf :finishes .
+	:finishes a owl:ObjectProperty ; rdfs:subPropertyOf :temporallyRelated ; owl:inverseOf :finishedBy .
+	:follows a owl:ObjectProperty ; rdfs:subPropertyOf :temporallyRelated ; owl:inverseOf :precedes .
+	:later a owl:ObjectProperty ; rdfs:subPropertyOf :temporallyRelated ; owl:inverseOf :earlier .
+	:meets a owl:ObjectProperty ; rdfs:subPropertyOf :temporallyRelated ; owl:inverseOf :metBy .
+	:metBy a owl:ObjectProperty ; rdfs:subPropertyOf :temporallyRelated ; owl:inverseOf :meets .
+	:overlappedBy a owl:ObjectProperty ; rdfs:subPropertyOf :temporallyRelated ; owl:inverseOf :overlaps .
+	:overlaps a owl:ObjectProperty ; rdfs:subPropertyOf :temporallyRelated ; owl:inverseOf :overlappedBy .
+	:precedes a owl:ObjectProperty ; rdfs:subPropertyOf :temporallyRelated ; owl:inverseOf :follows .
+	:startedBy a owl:ObjectProperty ; rdfs:subPropertyOf :temporallyRelated ; owl:inverseOf :starts .
+	:starts a owl:ObjectProperty ; rdfs:subPropertyOf :temporallyRelated ; owl:inverseOf :startedBy .
+:transmittedUsing a owl:ObjectProperty ; rdfs:subPropertyOf owl:topObjectProperty .
+
+
+mpeg-7:BinCounts a owl:DatatypeProperty .
+mpeg-7:CbACCoeff2 a owl:DatatypeProperty .
+mpeg-7:CbDCCoeff a owl:DatatypeProperty .
+mpeg-7:ColorTemperature a owl:DatatypeProperty ; rdfs:range mpeg-7:ColorTemperatureType .
+mpeg-7:CrACCoeff2 a owl:DatatypeProperty .
+mpeg-7:CrDCCoeff a owl:DatatypeProperty .
+mpeg-7:DominantColor a owl:DatatypeProperty ; rdfs:range mpeg-7:DominantColorType .
+:hasAudioChannel a owl:DataProperty ; rdfs:range xsd:boolean .
+	:AudioSamplingRate a owl:DataProperty ; rdfs:subPropertyOf :hasAudioChannel ; dc:description "Audio sampling rate in kHz, e.g., 48." ; rdfs:range xsd:decimal .
+	:AudioBitrate a owl:DataProperty ; rdfs:subPropertyOf :hasAudioChannel ; rdfs:range xsd:positiveInteger .
+:hasVideoChannel a owl:DataProperty ; rdfs:range xsd:boolean .
+	:frameWidth a owl:DatatypeProperty ; dc:description "Video width in pixels, e.g., 1920." ; rdfs:subPropertyOf :hasVideoChannel ; rdfs:range xsd:positiveInteger .
+	:frameHeight a owl:DatatypeProperty ; dc:description "Video height in pixels, e.g., 1080." ; rdfs:subPropertyOf :hasVideoChannel ; rdfs:range xsd:positiveInteger .
+	:AspectRatio a owl:DatatypeProperty ; dc:description "The aspect ratio expresses how many times longer is the width than the height of the video, e.g., 1.78 represents 1.78:1 (and also 16:9). Typical values are 1.33-2.76." ; rdfs:subPropertyOf :hasVideoChannel ; rdfs:range xsd:decimal .
+	:PAR a owl:DatatypeProperty ; dc:description "Pixel aspect ratio." ; rdfs:subPropertyOf :hasVideoChannel .
+	:VideoBitrate a owl:DatatypeProperty ; rdfs:subPropertyOf :hasVideoChannel ; rdfs:range xsd:positiveInteger .
+	:FrameRate a owl:DatatypeProperty ; dc:description "Frame rate in frames per second (fps). The most common values are 24, 25, 29.976, 30, 50, and 60." ; rdfs:range xsd:decimal .
+	:ColorTemperature a owl:DatatypeProperty ; rdfs:subPropertyOf :hasVideoChannel ; rdfs:range xsd:positiveInteger ; dc:description "Color temperature used for recording in Kelvin, e.g., 5700." .
+	:is3D a owl:DatatypeProperty ; rdfs:subPropertyOf :hasVideoChannel ; rdfs:range xsd:boolean .
+	:Gamma a owl:DatatypeProperty ; rdfs:range xsd:decimal .
+	:KneePoint a owl:DatatypeProperty ; rdfs:subPropertyOf :hasVideoChannel ; rdfs:range xsd:decimal ; dc:description "Professional video cameras allow the mapping of high dynamic ranges into lower dynamic ranges, i.e., brighten the content without losing the highlight details. The threshold of the knee is called the Knee Point." .
+	:KneeSlope a owl:DatatypeProperty ; rdfs:subPropertyOf :hasVideoChannel ; dc:description "Professional video cameras allow the mapping of high dynamic ranges into lower dynamic ranges, i.e., brighten the content without losing the highlight details. The knee ratio is called the Knee Slope." .
+	:RefreshRate a owl:DatatypeProperty ; rdfs:subPropertyOf :hasVideoChannel ; rdfs:range xsd:decimal ; dc:description "The vertical scan frequency expressed in Hz. The most common values are 50 and 60." .
+	:resolution a owl:DatatypeProperty ; rdfs:subPropertyOf :hasVideoChannel ; rdfs:range  [ a  rdfs:Datatype ; owl:onDatatype xsd:string ; owl:oneOf  ( "CGA" "CIF" "HVGA" "QVGA" "SIF" "VGA" "PAL" "SVGA" "XGA" "XGA+" "SXGA" "SXGA+" "UXGA" "QXGA" "WQXGA" "QSXGA" "WVGA" "WVGA" "NTSC" "WSVGA" "HD" "WXGA" "WXGA" "WSXGA+" "FHD" "2K" "WUXGA" "UQHD" "WQHD" "UWQHD" "UHD-1" "QFHD" "4K" "8K" "16K" ) ] ; dc:description "The name of the standard resolution of the video resource, e.g., QFHD" .
+	:Subtitle a owl:DatatypeProperty ; rdfs:subPropertyOf :hasVideoChannel . # rdfs:range xsd:language
+	mpeg-7:MaxNumOfKeyFrames a owl:DatatypeProperty ; rdfs:subPropertyOf :hasVideoChannel .
+	mpeg-7:cameraFollows a owl:DatatypeProperty ; rdfs:subPropertyOf :hasVideoChannel .
+	mpeg-7:bitsPerBin a owl:DatatypeProperty ; rdfs:subPropertyOf :hasVideoChannel .
+	mpeg-7:viewpoint a owl:DatatypeProperty ; rdfs:subPropertyOf :hasVideoChannel .
+:completed a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+	dc:created a owl:DatatypeProperty ; rdfs:subPropertyOf :completed ; rdfs:range xsd:datetime .
+	dc:modified a owl:DatatypeProperty ; rdfs:subPropertyOf :completed ; rdfs:range xsd:datetime .
+	:SNRatio a owl:DatatypeProperty ; rdfs:subPropertyOf :completed ; dc:description "Signal-Noise Ratio" ; rdfs:range xsd:decimal .
+	:plot a :DatatypeProperty ; rdfs:subPropertyOf :completed ; rdfs:range xsd:string .
+:isArmed a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+:isAlive a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+:isDead a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+:isHappy a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+:isAngry a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+:isSurprised a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+:isDisappointed a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+:isPleased a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+:isSatisfied a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+:isHurt a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+	:isInPain a owl:DatatypeProperty ; rdfs:range xsd:boolean ; rdfs:subPropertyOf :isHurt .
+:isShocked a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+:isOpening a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+:isClosing a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+:isExploding a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+:isMoving a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+	:isAppearing a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+	:isDisappearing a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+	:isGrowing a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+	:isMovingDownwards a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+	:isMovingLeft a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+	:isMovingRight a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+	:isMovingUpwards a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+	:isPassing a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+	:isShrinking a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+	:isTransitioning a owl:DatatypeProperty ; rdfs:range xsd:boolean .		
+:isSpeedingUp a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+:isSlowingDown a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+:hasSubtitle a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+:isDriving a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+:isEating a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+:isSleeping a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+:startedAt a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+:finishedAt a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+:released a owl:DatatypeProperty ; rdfs:subPropertyOf :released ; rdfs:range xsd:boolean .
+		:Angles a owl:DatatypeProperty ; rdfs:subPropertyOf :hasDiscRelease ; rdfs:range xsd:positiveInteger .
+		:Chapters a owl:DatatypeProperty ; rdfs:subPropertyOf :hasDiscRelease ; rdfs:range xsd:positiveInteger .
+		:hasBDRelease a owl:DatatypeProperty ; rdfs:subPropertyOf :hasDiscRelease ; rdfs:range xsd:boolean .
+		:hasChapterMenu a owl:DatatypeProperty ; rdfs:subPropertyOf :hasDiscRelease ; rdfs:range xsd:boolean .
+		:hasDVDRelease a owl:DatatypeProperty ; rdfs:subPropertyOf :hasDiscRelease ; rdfs:range xsd:boolean .
+		:hasHDDVDRelease a owl:DatatypeProperty ; rdfs:subPropertyOf :hasDiscRelease ; rdfs:range xsd:boolean .
+		:hasRootMenu a owl:DatatypeProperty ; rdfs:subPropertyOf :hasDiscRelease ; rdfs:range xsd:boolean .
+		:hasSVCDRelease a owl:DatatypeProperty ; rdfs:subPropertyOf :hasDiscRelease ; rdfs:range xsd:boolean .
+		:hasSeamlessBranching a owl:DatatypeProperty ; rdfs:subPropertyOf :hasDiscRelease ; rdfs:range xsd:boolean ; dc:description "A mechanism used on DVDs and Blu-ray Discs to allow the player to jump to a different scene after finishing one." .
+		:hasVCDRelease a owl:DatatypeProperty ; rdfs:subPropertyOf :hasDiscRelease ; rdfs:range xsd:boolean .
+	:FanWebsite a owl:DatatypeProperty ; rdfs:subPropertyOf :released ; rdfs:range xsd:anyURI .
+	:OfficialWebsite a owl:DatatypeProperty ; rdfs:subPropertyOf :released ; rdfs:range xsd:anyURI .
+	:boxOffice a owl:DatatypeProperty ; rdfs:subPropertyOf :released ; rdfs:range xsd:positiveInteger .
+	:budget a owl:DatatypeProperty ; rdfs:subPropertyOf :released ; rdfs:range xsd:positiveInteger .
+	:grossRevenue a owl:DatatypeProperty ; rdfs:subPropertyOf :released ; rdfs:range xsd:positiveInteger ; dc:description "Gross revenue in USD."@en .
+	:hasDiscRelease a owl:DatatypeProperty ; rdfs:subPropertyOf :released ; rdfs:range xsd:boolean .
+	:liveDate a owl:DatatypeProperty ; rdfs:subPropertyOf :released ; rdfs:range xsd:dateTime .
+	:premiereDate a owl:DatatypeProperty ; rdfs:subPropertyOf :released ; rdfs:range xsd:dateTime .
+	:rating a owl:DatatypeProperty ; rdfs:subPropertyOf :released ; rdfs:range xsd:nonNegativeInteger .
+	:releaseDate a owl:DatatypeProperty ; rdfs:subPropertyOf :released ; rdfs:range xsd:dateTime .
+	:runningTime a owl:DatatypeProperty ; rdfs:subPropertyOf :released ; rdfs:range xsd:positiveInteger ; dc:description "The running time in minutes" .
+	dc:available a owl:DatatypeProperty ; rdfs:subPropertyOf :released ; rdfs:range xsd:dateTime .
+	dc:dateCopyrighted a owl:DatatypeProperty ; rdfs:subPropertyOf :released ; rdfs:range xsd:dateTime .
+	movie:film_regional_release_date a owl:DataProperty ; rdfs:subPropertyOf :released ; rdfs:range xsd:dateTime .
+	mpeg-7:MinimumAge a owl:DatatypeProperty ; rdfs:subPropertyOf :released .
+	mpeg-7:ParentalGuidance a owl:DatatypeProperty ; rdfs:subPropertyOf :released ; rdfs:range xsd:string ; dc:description "Parental guidance categories, such as sex and nudity, violence and gore, profanity, alcohol/drugs/smoking, or frightening/intense scenes." .
+	mpeg-7:ParentalRating a owl:DatatypeProperty ; rdfs:subPropertyOf :released ; rdfs:range xsd:string ; dc:description "Parental rating, e.g., G - general audiences (all ages permitted), PG - parental guidance suggested (some material may not be suitable for children), PG-13 - parents strongly cautioned (some material may be inappropriate for children under 13), R - restricted (under 17 requires accompanying parent or adult guardian), NC-17 - no one 17 and undef admitted" .
+	schema:copyrightYear a owl:DatatypeProperty ; rdfs:subPropertyOf :released ; dc:description "The year during which the claimed copyright for the CreativeWork was first asserted."@en . # ; rdfs:range xsd:date .
+:isSeries a owl:DatatypeProperty ; rdfs:range xsd:boolean .
+	:hasEpisodes a owl:DatatypeProperty ; rdfs:subPropertyOf :isSeries ; rdfs:range xsd:positiveInteger .
+	:hasSeasons a owl:DatatypeProperty ; rdfs:subPropertyOf :isSeries ; rdfs:range xsd:positiveInteger .
+mpeg-7:YACCoeff5 a owl:DatatypeProperty .
+mpeg-7:YDCCoeff a owl:DatatypeProperty .
+	
+
+#############
+### Individuals ###
+#############
+
+
+dbpedia:Warner_Bros a :filmStudio .
+dbpedia:Walt_Disney_Pictures a :filmStudio .
+dbpedia:Universal_Studios a :filmStudio .
+dbpedia:Columbia_Pictures a :filmStudio .
+dbpedia:20th_Century_Fox a :filmStudio .
+dbpedia:Paramount_Pictures a :filmStudio .
+dbpedia:Lionsgate_Films a :filmStudio .
+dbpedia:The_Weinstein_Company a :filmStudio .
+dbpedia:Relativity_Media a :filmStudio .
+dbpedia:Open_Road_Films a :filmStudio .
+dbpedia:CBS_Films a :filmStudio .
+dbpedia:DreamWorks a :filmStudio .
+dbpedia:DreamWorks_Animation a :filmStudio .
+dbpedia:Gaumont_Film_Company a :filmStudio .
+dbpedia:Metro-Goldwyn-Mayer a :filmStudio .
+
+dbpedia:Australian_Broadcasting_Corporation a po:Broadcaster .
+dbpedia:Seven_Network a po:Broadcaster .
+
+dbpedia:Adobe_Premiere_Elements a :VideoEditingSoftware .
+dbpedia:Adobe_Premiere_Pro a :VideoEditingSoftware .
+dbpedia:Avid_Free_DV a :VideoEditingSoftware .
+dbpedia:Autodesk_Smoke a :VideoEditingSoftware .
+dbpedia:Xpress_Pro a :VideoEditingSoftware .
+dbpedia:Media_Composer a :VideoEditingSoftware .
+dbpedia:Avidemux a :VideoEditingSoftware .
+dbpedia:AVS_Video_Editor a :VideoEditingSoftware .
+dbpedia:Cinelerra a :VideoEditingSoftware .
+dbpedia:Corel_VideoStudio a :VideoEditingSoftware .
+dbpedia:Montage_Extreme a :VideoEditingSoftware .
+dbpedia:EditDV a :VideoEditingSoftware .
+dbpedia:Edius a :VideoEditingSoftware .
+dbpedia:Final_Cut_Express a :VideoEditingSoftware .
+dbpedia:Final_Cut_Pro a :VideoEditingSoftware .
+dbpedia:FORscene a :VideoEditingSoftware .
+dbpedia:IMovie a :VideoEditingSoftware .
+dbpedia:IvsEdits a :VideoEditingSoftware .
+dbpedia:Kdenlive a :VideoEditingSoftware .
+dbpedia:Lightworks a :VideoEditingSoftware .
+dbpedia:LiVES a :VideoEditingSoftware .
+dbpedia:Magix_Movie_Edit_Pro a :VideoEditingSoftware .
+dbpedia:MainActor a :VideoEditingSoftware .
+dbpedia:MoviePlus a :VideoEditingSoftware .
+dbpedia:MPEG_Video_Wizard_DVD a :VideoEditingSoftware .
+dbpedia:VideoPad a :VideoEditingSoftware .
+dbpedia:Nero_Multimedia_Suite a :VideoEditingSoftware .
+dbpedia:OpenShot_Video_Editor a :VideoEditingSoftware .
+dbpedia:Pinnacle_Studio a :VideoEditingSoftware .
+dbpedia:PiTiVi a :VideoEditingSoftware .
+dbpedia:Sony_Vegas_Pro a :VideoEditingSoftware .
+dbpedia:Sony_Vegas_Movie_Studio a :VideoEditingSoftware .
+dbpedia:Ulead_MediaStudio_Pro a :VideoEditingSoftware .
+dbpedia:VideoThang a :VideoEditingSoftware .
+dbpedia:VirtualDub a :VideoEditingSoftware .
+dbpedia:VirtualDubMod a :VideoEditingSoftware .
+dbpedia:Windows_Movie_Maker a :VideoEditingSoftware .
+
+dbpedia:Autodesk_3ds_Max a :3DComputerGraphicsSoftware .
+dbpedia:Autodesk_Maya a :3DComputerGraphicsSoftware .
+dbpedia:Cinema4D a :3DComputerGraphicsSoftware .
+dbpedia:E-on_Vue a :3DComputerGraphicsSoftware .
+dbpedia:Poser a :3DComputerGraphicsSoftware .
+
+dbpedia:Canon_EOS-1D_C a :CinematographyCamera .
+dbpedia:Canon_EOS_C100 a :CinematographyCamera .
+dbpedia:Canon_EOS_C300 a :CinematographyCamera .
+dbpedia:Canon_EOS_C500 a :CinematographyCamera .
+
+:CanonXA10 a :ProfessionalVideoCamera .
+:CanonXA20 a :ProfessionalVideoCamera .
+:CanonXA25 a :ProfessionalVideoCamera .
+:CanonXF305 a :ProfessionalVideoCamera .
+
+:hMedia a :annotationStandard .
+:JSON-LD a :annotationStandard .
+:Microdata a :annotationStandard .
+:RDFa a :annotationStandard .
+
+:AlPacino a schema:actor .
+:AnthonyHopkins a schema:actor .
+:ArnoldSchwarzenegger a schema:actor .
+:BenKingsley a schema:actor .
+:BruceLee a schema:actor.
+:BudSpencer a schema:actor .
+:BurtLancaster a schema:actor .
+:CharlesChaplin a schema:actor .
+:ChristopherPlummer a schema:actor .
+:ChristopherWalken a schema:actor .
+:ClintEastwood a schema:actor .
+:DanielDay-Lewis a schema:actor .
+:DenzelWashington a schema:actor .
+:DustinHoffman a schema:actor .
+:EliWallach a schema:actor .
+:GaryCooper a schema:actor .
+:GeneHackman a schema:actor .
+:GeorgeClooney a schema:actor .
+:GregoryPeck a schema:actor .
+:HarrisonFord a schema:actor .
+:HenryFonda a schema:actor .
+:HumphreyBogart a schema:actor .
+:JackLemmon a schema:actor .
+:JackNicholson a schema:actor .
+:JackieChan a schema:actor ; owl:sameIndividualAs :房仕龍 .
+:JamesDean a schema:actor .
+:JamesStewart a schema:actor .
+:JohnWayne a schema:actor .
+:JohnnyDepp a schema:actor .
+:JonVoight a schema:actor .
+:KevinCostner a schema:actor .
+:KirkDouglas a schema:actor .
+:LeeVanCleef a schema:actor .
+:LeonardoDiCaprio a schema:actor .
+:LiamNeeson a schema:actor .
+:MarlonBrando a schema:actor .
+:MattDamon a schema:actor .
+:MelGibson a schema:actor .
+:MichaelDouglas a schema:actor .
+:PaulNewman a schema:actor .
+:PeterOToole a schema:actor .
+:RalphFiennes a schema:actor .
+:RichardBurton a schema:actor .
+:RobertDeNiro a schema:actor .
+:RobertDuvall a schema:actor .
+:RobertRedford a schema:actor .
+:RobinWilliams a schema:actor .
+:RussellCrowe a schema:actor .
+:SamuelLJackson a schema:actor .
+:SeanConnery a schema:actor .
+:Suraj_Sharma a schema:Actor .
+:SteveMcQueen a schema:actor .
+:TerenceHill a schema:actor .
+:TomCruise a schema:actor .
+:TomHanks a schema:actor .
+:TommyLeeJones a schema:actor .
+:WilliamHolden a schema:actor .
+
+:RobinWiliams owl:differentFrom :RobbieWilliams .
+
+[] a owl:NegativePropertyAssertion ; owl:sourceIndividual :JohnWayne ; owl:assertionProperty :co-starredWith ; owl:targetIndividual :ClintEastwood .
+
+:12AngryMen a schema:Movie , :LiveAction .
+:2001ASpaceOdyssey  a schema:Movie , :LiveAction .
+:Amadeus a schema:Movie , :LiveAction .
+:BenHur a schema:Movie , :LiveAction .
+:ButchCassidyAndTheSundanceKid a schema:Movie , :LiveAction .
+:Casablanca a schema:Movie , :LiveAction .
+:CitizenKane a schema:Movie , :LiveAction .
+:ConanTheBarbarian a schema:Movie , :LiveAction .
+:DirtyDancing a schema:Movie , :LiveAction .
+:DoctorZhivago a schema:Movie , :LiveAction .
+:ForrestGump a schema:Movie , :LiveAction .
+:Ghost a schema:Movie , :LiveAction .
+:GoneWithTheWind a schema:Movie , :LiveAction .
+:ItsAWonderfulLife a schema:Movie , :LiveAction .
+:LawrenceOfArabia a schema:Movie , :LiveAction .
+:LifeOfPi a schema:Movie , :LiveAction ; :filmAdaptationOf dbpedia:Life_of_Pi .
+:MyFairLady a schema:Movie , :LiveAction .
+:OnceUponATimeInTheWest a schema:Movie , :LiveAction .
+:SinginInTheRain a schema:Movie , :LiveAction .
+:SomeLikeItHot a schema:Movie , :LiveAction .
+:SunsetBoulevard a schema:Movie , :LiveAction .
+:TheBridgeOnTheRiverKwai a schema:Movie , :LiveAction .
+:TheGoodTheBadAndTheUgly a schema:Movie , :LiveAction .
+
+:TheSearchers a schema:Movie , :LiveAction .
+:TheSoundOfMusic a schema:Movie , :LiveAction .
+:TheTreasureOfTheSierraMadre a schema:Movie , :LiveAction .
+:TheWizardOfOz  a schema:Movie , :LiveAction .
+:ToKillAMockingbird a schema:Movie , :LiveAction .
+:Unforgiven a schema:Movie , :liveAction ; :starring :ClintEastwood ; :directedBy :ClintEastwood .
+:Vertigo a schema:Movie , :LiveAction .
+:WallStreet a schema:Movie , :LiveAction .
+:WestSideStory a schema:Movie , :LiveAction .
+
+
+:Shrek a :computerAnimation .
+:Zambezia a :computerAnimation .
+
+:DisneysZorro a schema:TVSeries .
+:FiveMileCreek a schema:TVSeries .
+:RoadToAvonlea a schema:TVSeries .
+
+
+<https://www.youtube.com/watch?v=hZibbnjiGuY> a mpeg-7:Video .
+<https://www.youtube.com/watch?v=hZibbnjiGuY#t=0:00:00,0:00:50> a :Scene ; :temporalSegmentOf <https://www.youtube.com/watch?v=hZibbnjiGuY> ; :sceneFrom <https://www.youtube.com/watch?v=hZibbnjiGuY> ; temporal:hasStartTime "00:00:0"^^xsd:time ; temporal:duration "PT00M00S50"^^xsd:duration ; temporal:hasFinishTime "00:00:50"^^xsd:time .
+<https://www.youtube.com/watch?v=hZibbnjiGuY#t=0:00:48,0:00:50&xywh=721,207,358,323> a mpeg-7:StillRegion ; :spatioTemporalSegmentOf <https://www.youtube.com/watch?v=hZibbnjiGuY> ; :depicts snomedct:15013002 , dbpedia:Floater .
+
+
+:AngelEyes a :MovieCharacter ; :portrayedBy :LeeVanCleef ; :characterFrom :TheGoodTheBadAndTheUgly .
+:AtticusFinch a :MovieCharacter ; :portrayedBy :GregoryPeck ; :characterFrom :ToKillAMockingbird .
+:Blondie a :MovieCharacter ; :portrayedBy :ClintEastwood ; :characterFrom :TheGoodTheBadAndTheUgly ; owl:sameIndividualAs dbpedia:Man_with_No_Name .
+:ButchCassidy a :MovieCharacter ; :portrayedBy :PaulNewman ; :characterFrom :ButchCassidyAndTheSundanceKid .
+:CarlosMartinez a :MovieCharacter ; :characterFrom :DisneysZorro .
+:Conan a :MovieCharacter ; :portrayedBy :ArnoldSchwarzenegger ; :characterFrom :ConanTheBarbarian .
+:DirtyHarry a :MovieCharacter ; :portrayedBy :ClintEastwood .
+:DonDiegoDeLaVega a :MovieCharacter ; :portrayedBy :GuyWilliams ; :characterFrom :DisneysZorro .
+:DorothyGale a :MovieCharacter ; :portrayedBy :JudyGarland ; :characterFrom :TheWizardOfOz .
+:ElizaDoolittle a :MovieCharacter ; :portrayedBy :AudreyHepburn ; :characterFrom :MyFairLady .
+:EthanEdwards a :MovieCharacter ; :portrayedBy :JohnWayne ; :characterFrom :TheSearchers .
+:ForrestGump a :MovieCharacter ; :portrayedBy :TomHanks ; :characterFrom :ForrestGump .
+:Frank a :MovieCharacter ; :portrayedBy :HenryFonda ; :characterFrom :OnceUponATimeInTheWest .
+:FredCDobbs a :MovieCharacter ; :portrayedBy :HumphreyBogart ; :characterFrom :TheTreasureOfTheSierraMadre .
+:GeorgeBailey a :MovieCharacter ; :portrayedBy :JamesStewart ; :characterFrom	:ItsAWonderfulLife	.
+:GordonGekko a :MovieCharacter ; :portrayedBy :MichaelDouglas ; :characterFrom :WallStreet .
+:JohnnyCastle a :MovieCharacter ; :portrayedBy :PatrickSwayze ; :characterFrom :DirtyDancing . 
+:MaryBailey a :MovieCharacter ; :portrayedBy :DonnaReed ; :characterFrom :ItsAWonderfulLife .
+:OdaMaeBrown a :MovieCharacter ; :portrayedBy :WhoopiGoldberg ; :characterFrom :Ghost .
+:PiPatel a :MovieCharacter ; :portrayedBy :Suraj_Sharma ; :characterFrom :LifeOfPi .
+:ProfessorHenryHiggins a :MovieCharacter ; :portrayedBy :RexHarrison ; :characterFrom :MyFairLady .
+:RichardParker a :MovieCharacter ; :portrayedBy dbpedia:Bengal_tiger ; :characterFrom :LifeOfPi .
+:Tuco a :MovieCharacter ; :portrayedBy :EliWallach ; :characterFrom :TheGoodTheBadAndTheUgly .
+:Zorro a :MovieCharacter ; :portrayedBy :GuyWilliams ; owl:sameAs :DonDiegoDeLaVega ; owl:differentFrom :CarlosMartinez ; :characterFrom :DisneysZorro .
+
+
+##########
+### Rules ###
+##########
+
+:FHDVideo a owl:Class ; owl:equivalentClass :1080pVideo ; a [ a owl:Class ; owl:unionOf ( [ a owl:Class ; owl:complementOf [ a owl:Restriction ; owl:hasValue "1080p"^^xsd:string ; owl:onClass :Video ; owl:onProperty :videoMode ] ] [ a owl:Restriction ; owl:maxQualifiedCardinality "1080"^^xsd:nonNegativeInteger ; owl:onProperty :frameHeight ] ) ] .
+
+:ProgressiveHDVideo a [ a owl:Class ; owl:unionOf ( [ a owl:Class ; owl:complementOf [ a owl:Restriction ; owl:hasValue "720p"^^xsd:string ; owl:onClass :Video ; owl:onProperty :videoMode ] ] [ a owl:Restriction ; owl:hasValue "progressive"^^xsd:string ; owl:onProperty :scanning ] ) ] .
+
+:InterlacedFHDVideo a [ a owl:Class ; owl:unionOf ( [ a owl:Class ; owl:complementOf [ a owl:Restriction ; owl:hasValue "1080i"^^xsd:string ; owl:onClass :Video ; owl:onProperty :videoMode ] ] [ a owl:Restriction ; owl:hasValue "interlaced"^^xsd:string ; owl:onProperty :scanning ] ) ] .
+
+:ProgressiveFHDVideo a [ a owl:Class ; owl:unionOf ( [ a owl:Class ; owl:complementOf [ a owl:Restriction ; owl:hasValue "1080p"^^xsd:string ; owl:onClass :Video ; owl:onProperty :videoMode ] ] [ a owl:Restriction ; owl:hasValue "progressive"^^xsd:string ; owl:onProperty :scanning ] ) ] .
+
+:BDVideoModes a owl2:DataRange ; owl:oneOf ("720p"^^xsd:string "1080i"^^xsd:string "1080p"^^xsd:string) .
+:BluRayVideo a owl:Restriction ; owl:onProperty :videoMode ; owl:someValuesFrom :BDVideoModes .
+
+:4KVideo a [ a owl:Class ; owl:unionOf ( [ a owl:Class ; owl:complementOf [ a owl:Restriction ; owl:hasValue "2160p"^^xsd:string ; owl:onClass :Video ; owl:onProperty :videoMode ] ] [ a owl:Restriction ; owl:maxQualifiedCardinality "2160"^^xsd:nonNegativeInteger ; owl:onProperty :frameHeight ] ) ] .
+
+:Progressive4KVideo a [ a owl:Class ; owl:unionOf ( [ a owl:Class ; owl:complementOf [ a owl:Restriction ; owl:hasValue "2160p"^^xsd:string ; owl:onClass :Video ; owl:onProperty :videoMode ] ] [ a owl:Restriction ; owl:hasValue "progressive"^^xsd:string ; owl:onProperty :scanning ] ) ] .
+
+:4KBluRay a owl:Class ; :videoMode "2160p"^^xsd:string .
+
+:UltraHDBluray a owl:Class ; owl:equivalentClass :4KBluRay .

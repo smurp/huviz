@@ -25,7 +25,7 @@ ColoredTreePicker = require('coloredtreepicker').ColoredTreePicker
 class CommandController
   constructor: (@huviz, @container, @hierarchy) ->
     document.addEventListener 'dataset-loaded', @on_dataset_loaded
-    $("#tabs").resizable({handles: {'w':'#ctrl-handle'}})
+    $("#tabs").resizable({handles: {'w':'#ctrl-handle'},minWidth: 300})
     #$("#collapse_cntrl").click(@minimize_gclui)
     #$("#expand_cntrl").click(@maximize_gclui)
     if @container is null
@@ -105,11 +105,23 @@ class CommandController
     $(".hints > .a_hint").first().show()
   select_the_initial_set: =>
     # TODO initialize the taxon coloring without cycling all
-    @huviz.toggle_taxon("Thing", true)
-    @huviz.toggle_taxon("Thing", false)
+    toggleEveryThing = () =>
+      @huviz.toggle_taxon("Thing", false) #, () -> alert('called'))
+    toggleEveryThing.call()
+    # everyThingIsSelected = () =>
+    #  @huviz.nodes.length is @huviz.selected_set.length
+    # @check_until_then(everyThingIsSelected, toggleEveryThing)
+    setTimeout(toggleEveryThing, 2000)
+    @huviz.do({verbs: ['unselect'], sets: []})
     @huviz.shelved_set.resort() # TODO remove when https://github.com/cwrc/HuViz/issues/109
     return
-    #@engage_verb('choose')
+  check_until_then: (checkCallback, thenCallback) ->
+    nag = () =>
+      if checkCallback.call()
+        clearInterval(intervalId)
+        #alert('check_until_then() is done')
+        thenCallback.call()
+    intervalId = setInterval(nag, 30)
   init_editor_data: ->
     # operations common to the constructor and reset_editor
     @shown_edges_by_predicate = {}
@@ -141,10 +153,11 @@ class CommandController
     pred_uri = e.detail.pred_uri
     parent_lid = e.detail.parent_lid
     pred_lid = e.detail.pred_lid
+    pred_name = e.detail.pred_name
     unless pred_uri in @predicates_ignored # FIXME merge with predicates_to_ignore
       unless pred_lid in @predicates_ignored # FIXME merge with predicates_to_ignore
-        pred_name = pred_lid.match(/([\w\d\_\-]+)$/g)[0]
-        @add_newpredicate(pred_lid,parent_lid,pred_name)
+        pred_name ?= pred_lid.match(/([\w\d\_\-]+)$/g)[0]
+        @add_newpredicate(pred_lid, parent_lid, pred_name)
         @recolor_edges_and_predicates_eventually(e)
   recolor_edges_and_predicates_eventually: ->
     if @recolor_edges_and_predicates_eventually_id?
@@ -154,6 +167,17 @@ class CommandController
   recolor_edges_and_predicates: (evt) =>
     @predicate_picker.recolor_now()
     @recolor_edges() # FIXME should only really be run after the predicate set has settled for some amount of time
+  resort_pickers: ->
+    if @taxon_picker?
+      # propagate the labels according to the currently preferred language
+      @taxon_picker.resort_recursively()
+      @taxon_picker.recolor_now()
+      @huviz.recolor_nodes()
+    if @predicate_picker?
+      console.log("resorting of predicate_picker on hold until it does not delete 'anything'")
+      #@predicate_picker?.resort_recursively()
+    #@set_picker?.resort_recursively()
+    return
   build_predicate_picker: (label) ->
     id = 'predicates'
     title =
@@ -162,10 +186,14 @@ class CommandController
       "Stripey color: some edges shown -- click to show all\n" +
       "Hidden: no edges among the selected nodes"
     where = label? and @control_label(label,@comdiv,title) or @comdiv
-    @predicatebox = where.append('div').classed('container',true).attr('id',id)
+    @predicatebox = where.append('div')
+        .classed('container', true)
+        .attr('id', id)
     #@predicatebox.attr('class','scrolling')
     @predicates_ignored = []
-    @predicate_picker = new ColoredTreePicker(@predicatebox,'anything',[],true)
+    @predicate_picker = new ColoredTreePicker(
+      @predicatebox, 'anything',
+      (extra_classes=[]), (needs_expander=true), (use_name_as_label=true), (squash_case=true))
     @predicate_hierarchy = {'anything':['anything']}
     # FIXME Why is show_tree being called four times per node?
     @predicate_picker.click_listener = @on_predicate_clicked
@@ -207,18 +235,20 @@ class CommandController
       "Stripey color: some nodes are selected -- click to select all\n"
     where = label? and @control_label(label, where, title) or @comdiv
     @taxon_box = where.append('div')
-        .classed('container',true)
-        .attr('id',id)
+        .classed('container', true)
+        .attr('id', id)
     @taxon_box.attr('style','vertical-align:top')
     # http://en.wikipedia.org/wiki/Taxon
-    @taxon_picker = new ColoredTreePicker(@taxon_box,'Thing',[],true)
+    @taxon_picker = new ColoredTreePicker(
+      @taxon_box, 'Thing',
+      (extra_classes=[]), (needs_expander=true), (use_name_as_label=true), (squash_case=true))
     @taxon_picker.click_listener = @on_taxon_clicked
     @taxon_picker.hover_listener = @on_taxon_hovered
-    @taxon_picker.show_tree(@hierarchy,@taxon_box)
+    @taxon_picker.show_tree(@hierarchy, @taxon_box)
     where.classed("taxon_picker_box_parent", true)
     return where
   add_new_taxon: (class_id,parent_lid,class_name,taxon) =>
-    @taxon_picker.add(class_id,parent_lid,class_name,@on_taxon_clicked)
+    @taxon_picker.add(class_id, parent_lid, class_name, @on_taxon_clicked)
     @taxon_picker.recolor_now()
     @huviz.recolor_nodes()
   onChangeEnglish: (evt) =>
@@ -243,23 +273,24 @@ class CommandController
   taxa_being_clicked_increment: ->
     if not @taxa_being_clicked?
       @taxa_being_clicked = 0
-    @taxa_being_clicked = @taxa_being_clicked + 1
+    @taxa_being_clicked++
     return
   taxa_being_clicked_decrement: ->
     if not @taxa_being_clicked?
       throw new Error("taxa_being_clicked_decrement() has apparently been called before taxa_being_clicked_increment()")
     #@taxa_being_clicked ?= 1
-    console.log("taxa_being_clicked_decrement() before:", @taxa_being_clicked)
+    #console.log("taxa_being_clicked_decrement() before:", @taxa_being_clicked)
     @taxa_being_clicked--
-    console.log("taxa_being_clicked_decrement() after:", @taxa_being_clicked)
+    #console.log("taxa_being_clicked_decrement() after:", @taxa_being_clicked)
     if @taxa_being_clicked is 0
-      console.log("taxa click storm complete after length #{@taxa_click_storm_length}")
+      #console.log("taxa click storm complete after length #{@taxa_click_storm_length}")
       #debugger if @taxa_click_storm_callback?
       if @taxa_click_storm_callback?
         @taxa_click_storm_callback.call(document)
         @taxa_click_storm_callback = null
       #@taxa_click_storm_length = 0
     #else
+    #  blurt(@taxa_being_clicked, null, true)
     #  @taxa_click_storm_length ?= 0
     #  @taxa_click_storm_length++
   perform_on_taxon_clicked: (id, new_state, elem) =>
@@ -607,7 +638,6 @@ class CommandController
     cmd_ui = @oldcommands.append('div').attr('class','command')
     d = $('#commandhistory').scrollTop($('#commandhistory')[0].scrollHeight)
     #d.scrollTop(d.prop("scrollHeight"))
-    console.log "+++++++++++++++"
     record =
       elem: cmd_ui
       cmd: cmd
