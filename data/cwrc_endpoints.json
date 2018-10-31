@@ -1,0 +1,20 @@
+{
+  "datasets": [
+    {
+      "uri": "http://sparql.cwrc.ca/sparql",
+      "label": "CWRC SparQL",
+      "ontology_label": "CWRC Ontology"
+    },
+    {
+      "uri": "https://raw.githubusercontent.com/cwrc/testData/master/sparqlTest1.ttl",
+      "label": "SPARQL Test1",
+      "ontology_label": "CWRC Ontology"
+    }
+  ],
+  "defaults": {
+    "isOntology": false,
+    "isEndpoint": true,
+    "opt_group": "CWRC Endpoints",
+    "canDelete": false
+  }
+}

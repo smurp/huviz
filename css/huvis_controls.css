@@ -386,6 +386,7 @@ progress[value]::-moz-progress-bar {
   display: inline;
   position: fixed;
   z-index: 3;
+  left:1em;
 }
 .cntrl-set {
   display: inline;
@@ -558,4 +559,11 @@ progress[value]::-moz-progress-bar {
 }
 #tabs-intro ul {
     list-style: none outside none;
+}
+
+/*------------------ Misc Styles -----------------*/
+
+/* Font size in endpoint autocomplete */
+#ui-id-1 {
+  font-size: 0.7em;
 }

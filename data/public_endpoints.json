@@ -1,0 +1,19 @@
+{
+  "datasets": [
+    {
+      "uri": "http://endpoint.url",
+      "label": "Test 1 Public Endpoint"
+    },
+    {
+      "uri": "https://endpoint2.url",
+      "label": "Test 2 Public Endpoint",
+      "ontology_label": "CWRC Ontology"
+    }
+  ],
+  "defaults": {
+    "isOntology": false,
+    "isEndpoint": true,
+    "opt_group": "Public Endpoints",
+    "canDelete": false
+  }
+}

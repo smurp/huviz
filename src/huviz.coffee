@@ -109,7 +109,7 @@
 #  67) TASK: add verbs pin/unpin (using polar coords to record placement)
 #
 angliciser = require('angliciser').angliciser
-uniquer = require("uniquer").uniquer
+uniquer = require("uniquer").uniquer # FIXME rename to make_dom_safe_id
 gcl = require('graphcommandlanguage');
 #asyncLoop = require('asynchronizer').asyncLoop
 CommandController = require('gclui').CommandController
@@ -142,6 +142,43 @@ dist_lt = (mouse, d, thresh) ->
   x = mouse[0] - d.x
   y = mouse[1] - d.y
   Math.sqrt(x * x + y * y) < thresh
+hash = (str) ->
+  # https://github.com/darkskyapp/string-hash/blob/master/index.js
+  hsh = 5381
+  i = str.length
+  while i
+    hsh = (hsh * 33) ^ str.charCodeAt(--i)
+  return hsh >>> 0
+convert = (src, srctable, desttable) ->
+  # convert.js
+  # http://rot47.net
+  # Dr Zhihua Lai
+  srclen = srctable.length
+  destlen = desttable.length
+  # first convert to base 10
+  val = 0
+  numlen = src.length
+  i = 0
+  while i < numlen
+    val = val * srclen + srctable.indexOf(src.charAt(i))
+    i++
+  return 0  if val < 0
+  # then covert to any base
+  r = val % destlen
+  res = desttable.charAt(r)
+  q = Math.floor(val / destlen)
+  while q
+    r = q % destlen
+    q = Math.floor(q / destlen)
+    res = desttable.charAt(r) + res
+  return res
+BASE57 = "23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+BASE10 = "0123456789"
+int_to_base = (intgr) ->
+  convert(""+intgr, BASE10, BASE57)
+synthIdFor = (str) ->
+  # return a short random hash suitable for use as DOM/JS id
+  return 'h'+int_to_base(hash(str)).substr(0,6)
 
 unescape_unicode = (u) ->
   # pre-escape any existing quotes so when JSON.parse does not get confused
@@ -177,11 +214,86 @@ OWL_ObjectProperty = "http://www.w3.org/2002/07/owl#ObjectProperty"
 RDF_literal = "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"
 RDF_object  = "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
 RDF_type    = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+RDF_Class   = "http://www.w3.org/2000/01/rdf-schema#Class"
+RDF_subClassOf   = "http://www.w3.org/2000/01/rdf-schema#subClassOf"
 RDF_a       = 'a'
 RDFS_label  = "http://www.w3.org/2000/01/rdf-schema#label"
 TYPE_SYNS   = [RDF_type, RDF_a, 'rdfs:type', 'rdf:type']
 NAME_SYNS   = [FOAF_name, RDFS_label, 'rdfs:label', 'name']
 XML_TAG_REGEX = /(<([^>]+)>)/ig
+
+typeSigRE =
+  # https://regex101.com/r/lKClAg/1
+  'xsd': new RegExp("^http:\/\/www\.w3\.org\/2001\/XMLSchema\#(.*)$")
+  # https://regex101.com/r/ccfdLS/3/
+  'rdf': new RegExp("^http:\/\/www\.w3\.org\/1999\/02\/22-rdf-syntax-ns#(.*)$")
+getPrefixedTypeSignature = (typeUri) ->
+  for prefix, sig of typeSigRE
+    match = typeUri.match(sig)
+    if match
+      return "#{prefix}__#{match[1]}"
+  return
+getTypeSignature = (typeUri) ->
+  typeSig = getPrefixedTypeSignature(typeUri)
+  return typeSig
+  #return (typeSig or '').split('__')[1]
+PRIMORDIAL_ONTOLOGY =
+  subClassOf:
+    Literal: 'Thing'
+    # https://www.w3.org/1999/02/22-rdf-syntax-ns
+    # REVIEW(smurp) ignoring all but the rdfs:Datatype instances
+    # REVIEW(smurp) should Literal be called Datatype instead?
+    "rdf__PlainLiteral": 'Literal'
+    "rdf__HTML": 'Literal'
+    "rdf__langString": 'Literal'
+    "rdf__type": 'Literal'
+    "rdf__XMLLiteral": 'Literal'
+    # https://www.w3.org/TR/xmlschema11-2/type-hierarchy-201104.png
+    # https://www.w3.org/2011/rdf-wg/wiki/XSD_Datatypes
+    # REVIEW(smurp) ideally all the xsd types would fall under anyType > anySimpleType > anyAtomicType
+    # REVIEW(smurp) what about Built-in list types like: ENTITIES, IDREFS, NMTOKENS ????
+    "xsd__anyURI": 'Literal'
+    "xsd__base64Binary": 'Literal'
+    "xsd__boolean": 'Literal'
+    "xsd__date": 'Literal'
+    "xsd__dateTimeStamp": 'date'
+    "xsd__decimal": 'Literal'
+    "xsd__integer": "xsd__decimal"
+    "xsd__long": "xsd__integer"
+    "xsd__int": "xsd__long"
+    "xsd__short": "xsd__int"
+    "xsd__byte": "xsd__short"
+    "xsd__nonNegativeInteger": "xsd__integer"
+    "xsd__positiveInteger": "xsd__nonNegativeInteger"
+    "xsd__unsignedLong": "xsd__nonNegativeInteger"
+    "xsd__unsignedInt":  "xsd__unsignedLong"
+    "xsd__unsignedShort": "xsd__unsignedInt"
+    "xsd__unsignedByte": "xsd__unsignedShort"
+    "xsd__nonPositiveInteger": "xsd__integer"
+    "xsd__negativeInteger": "xsd__nonPositiveInteger"
+    "xsd__double": 'Literal'
+    "xsd__duration": 'Literal'
+    "xsd__float": 'Literal'
+    "xsd__gDay": 'Literal'
+    "xsd__gMonth": 'Literal'
+    "xsd__gMonthDay": 'Literal'
+    "xsd__gYear": 'Literal'
+    "xsd__gYearMonth": 'Literal'
+    "xsd__hexBinary": 'Literal'
+    "xsd__NOTATION": 'Literal'
+    "xsd__QName": 'Literal'
+    "xsd__string": 'Literal'
+    "xsd__normalizedString": "xsd_string"
+    "xsd__token": "xsd__normalizedString"
+    "xsd__language": "xsd__token"
+    "xsd__Name": "xsd__token"
+    "xsd__NCName": "xsd__Name"
+    "xsd__time": 'Literal'
+  subPropertyOf: {}
+  domain: {}
+  range: {}
+  label: {} # MultiStrings as values
+
 MANY_SPACES_REGEX = /\s{2,}/g
 UNDEFINED = undefined
 start_with_http = new RegExp("http", "ig")
@@ -361,7 +473,7 @@ class Huviz
   cy: 0
 
   snippet_body_em: .7
-  snippet_triple_em: .5
+  snippet_triple_em: .7
   line_length_min: 4
 
   # TODO figure out how to replace with the default_graph_control
@@ -703,8 +815,10 @@ class Huviz
       @canvas.width = @width
       @canvas.height = @height
     @force.size [@mx, @my]
+    # FIXME all selectors must be localized so if there are two huviz
+    #       instances on a page they do not interact
     $("#graph_title_set").css("width", @width)
-    $("#tabs").css("left", "inherit")
+    $("#tabs").css("left", "auto")
     @restart()
 
   #///////////////////////////////////////////////////////////////////////////
@@ -1712,7 +1826,7 @@ class Huviz
 
   update_snippet: ->
     if @show_snippets_constantly and @focused_edge? and @focused_edge isnt @printed_edge
-      @print_edge @focused_edge
+      @print_edge(@focused_edge)
 
   msg_history: ""
   show_state_msg: (txt) ->
@@ -1851,8 +1965,9 @@ class Huviz
         cancelable: true
     )
 
-  make_qname: (uri) -> uri # TODO(smurp) reduce wrt prefixes
-                           #     How does this relate to .lid?
+  make_qname: (uri) ->
+    # TODO(smurp) dear god! this method name is lying (it is not even trying)
+    return uri
 
   last_quad: {}
 
@@ -1862,57 +1977,82 @@ class Huviz
   object_value_types: {}
   unique_pids: {}
   add_quad: (quad) ->
+    # FIXME Oh! How this method needs a fine toothed combing!!!!
+    #   * are rdf:Class and owl:Class the same?
+    #   * uniquer is misnamed, it should be called make_domsafe_id or sumut
+    #   * vars like sid, pid, subj_lid should be revisited
+    #   * review subj vs subj_n
+    #   * do not conflate node ids across prefixes eg rdfs:Class vs owl:Class
+    #   * Literal should not be a subclass of Thing. Thing and dataType are sibs
+    # Terminology:
+    #   A `lid` is a "local id" which is unique and a safe identifier for css selectors.
+    #   This is in opposition to an `id` which is a synonym for uri (ideally).
+    #   There is inconsistency in this usage, which should be cleared up.
+    #   Proposed terms which SHOULD be used are:
+    #     - *_curie             eg pred_curie='rdfs:label'
+    #     - *_uri               eg subj_uri='http://sparql.cwrc.ca/ontology/cwrc#NaturalPerson'
+    #     - *_lid: a "local id" eg subj_lid='atwoma'
     #console.log "HuViz.add_quad()", quad
-    sid = quad.s
-    pid = @make_qname(quad.p)
+    subj_uri = quad.s
+    pred_uri = quad.p
     ctxid = quad.g || @DEFAULT_CONTEXT
-    subj_lid = uniquer(sid)
+    subj_lid = uniquer(subj_uri)  # FIXME rename uniquer to make_dom_safe_id
     @object_value_types[quad.o.type] = 1
-    @unique_pids[pid] = 1
+    @unique_pids[pred_uri] = 1
     newsubj = false
     subj = null
-    if not @my_graph.subjects[sid]?
+
+    # REVIEW is @my_graph still needed and being correctly used?
+    if not @my_graph.subjects[subj_uri]?
       newsubj = true
       subj =
-        id: sid
+        id: subj_uri
         name: subj_lid
         predicates: {}
-      @my_graph.subjects[sid] = subj
+      @my_graph.subjects[subj_uri] = subj
     else
-      subj = @my_graph.subjects[sid]
+      subj = @my_graph.subjects[subj_uri]
 
-    @ensure_predicate_lineage(pid)
+    @ensure_predicate_lineage(pred_uri)
     edge = null
-    subj_n = @get_or_create_node_by_id(sid)
-    pred_n = @get_or_create_predicate_by_id(pid)
+    subj_n = @get_or_create_node_by_id(subj_uri)
+    pred_n = @get_or_create_predicate_by_id(pred_uri)
     cntx_n = @get_or_create_context_by_id(ctxid)
+    if quad.p is RDF_subClassOf and @show_class_instance_edges
+      @try_to_set_node_type(subj_n, 'Class')
     # TODO: use @predicates_to_ignore instead OR rdfs:first and rdfs:rest
-    if pid.match(/\#(first|rest)$/)
-      console.warn("add_quad() ignoring quad because pid=#{pid}", quad)
+    if pred_uri.match(/\#(first|rest)$/)
+      console.warn("add_quad() ignoring quad because pred_uri=#{pred_uri}", quad)
       return
     # set the predicate on the subject
-    if not subj.predicates[pid]?
-      subj.predicates[pid] = {objects:[]}
+    if not subj.predicates[pred_uri]?
+      subj.predicates[pred_uri] = {objects:[]}
     if quad.o.type is RDF_object
       # The object is not a literal, but another resource with an uri
       # so we must get (or create) a node to represent it
       obj_n = @get_or_create_node_by_id(quad.o.value)
+      if quad.o.value is RDF_Class and @show_class_instance_edges
+        # This weird operation is to ensure that the Class Class is a Class
+        @try_to_set_node_type(obj_n, 'Class')
+      if quad.p is RDF_subClassOf and @show_class_instance_edges
+        @try_to_set_node_type(obj_n, 'Class')
       # We have a node for the object of the quad and this quad is relational
       # so there should be links made between this node and that node
-      is_type = is_one_of(pid, TYPE_SYNS)
+      is_type = is_one_of(pred_uri, TYPE_SYNS)
+      make_edge = @show_class_instance_edges or not is_type
       if is_type
         @try_to_set_node_type(subj_n, quad.o.value)
-        #if not @develop(subj_n) # might be ready now
-        #  @assign_types(subj_n)
-      else
+      if make_edge
+        @develop(subj_n) # both subj_n and obj_n should hatch for edge to make sense
+        # REVIEW uh, how are we ensuring that the obj_n is hatching? should it?
         edge = @get_or_create_Edge(subj_n, obj_n, pred_n, cntx_n)
         @infer_edge_end_types(edge)
         edge.register_context(cntx_n)
         edge.color = @gclui.predicate_picker.get_color_forId_byName(pred_n.lid,'showing')
         @add_edge(edge)
         @develop(obj_n)
-    else
-      if is_one_of(pid, NAME_SYNS)
+    else # ie the quad.o is a literal
+      if is_one_of(pred_uri, NAME_SYNS)
         add_name = () =>
           @set_name(
             subj_n,
@@ -1924,14 +2064,31 @@ class Huviz
           add_name()
         if subj_n.embryo
           @develop(subj_n) # might be ready now
-      # TODO: implement the creation of nodes for literal values
-      #       Make a Setting make_nodes_of_literals which can disable this.
       else # the object is a literal other than name
         if @make_nodes_for_literals
-          obj_val = quad.o.value
-          literal_node = @get_or_create_node_by_id(quad.o.value)
-          @try_to_set_node_type(literal_node, "Thing")
+          objVal = quad.o.value
+          simpleType = getTypeSignature(quad.o.type or '') or 'Literal'
+          # Does the value have a language or does it contain spaces?
+          if quad.o.language or (objVal.match(/\s/g)||[]).length > 0
+            # Perhaps an appropriate id for a literal "node" is
+            # some sort of amalgam of the subject and predicate ids
+            # for that object.
+            # Why?  Consider the case of rdfs:comment.
+            # If there are multiple literal object values on rdfs:comment
+            # they are presumably different language versions of the same
+            # text.  For them to end up on the same MultiString instance
+            # they all have to be treated as names for a node with the same
+            # id -- hence that id must be composed of the subj and pred ids.
+            objKey = "#{subj_n.lid} #{pred_uri}"
+            objId = synthIdFor(objKey)
+          else
+            objId = synthIdFor(objVal)
+          literal_node = @get_or_create_node_by_id(objId)
+          literal_node.isLiteral = true
+          @try_to_set_node_type(literal_node, simpleType)
+          literal_node.__dataType = quad.o.type
           @develop(literal_node)
+          @set_name(literal_node, quad.o.value, quad.o.language)
           edge = @get_or_create_Edge(subj_n, literal_node, pred_n, cntx_n)
           @infer_edge_end_types(edge)
           edge.register_context(cntx_n)
@@ -2249,6 +2406,75 @@ class Huviz
         @reset_dataset_ontology_loader()
         #TODO Reset titles on page
 
+  query_and_show: (url, callback) ->
+    qry = """
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      SELECT ?g
+      WHERE {
+        GRAPH ?g { }
+      }
+    """
+    # NEED a parser to handle result
+    console.log url
+    console.log qry
+    #queryUrl = encodeURI( url+"?query="+qry )
+    queryUrl = url + '/?query=' + encodeURIComponent(qry)
+    console.log queryUrl
+    $.ajax
+        type: 'GET'
+        url: queryUrl
+        headers:
+          Accept: 'application/sparql-results+xml'
+        success: (data, textStatus, jqXHR) =>
+          console.log data
+          console.log textStatus
+        error: (jqxhr, textStatus, errorThrown) =>
+          console.log(url, errorThrown)
+          if not errorThrown
+            errorThrown = "Cross-Origin error"
+          msg = errorThrown + " while fetching " + url
+          @hide_state_msg()
+          $('#data_ontology_display').remove()
+          blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
+          @reset_dataset_ontology_loader()
+
+  load_endpoint_data_and_show: (url, callback) ->
+    qry = """
+      PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+      PREFIX res: <http://dbpedia.org/resource/>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      SELECT * WHERE {
+        <http://dbpedia.org/resource/Gravitational_singularity> ?p ?o.
+        FILTER(!isLiteral(?o) || lang(?o) = "" || langMatches(lang(?o), "EN"))
+      }
+      LIMIT 10
+    """
+    url = "http://dbpedia.org/sparql"
+    # NEED a parser to handle result
+    console.log url
+    #console.log qry
+    #queryUrl = encodeURI( url+"?query="+qry )
+    queryUrl = url + '/?query=' + encodeURIComponent(qry)
+    console.log queryUrl
+    $.ajax
+        type: 'GET'
+        url: queryUrl
+        headers:
+          Accept: 'application/sparql-results+xml'
+        success: (data, textStatus, jqXHR) =>
+          console.log data
+          console.log textStatus
+        error: (jqxhr, textStatus, errorThrown) =>
+          console.log(url, errorThrown)
+          if not errorThrown
+            errorThrown = "Cross-Origin error"
+          msg = errorThrown + " while fetching " + url
+          @hide_state_msg()
+          $('#data_ontology_display').remove()
+          blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
+          @reset_dataset_ontology_loader()
+
   # Deal with buggy situations where flashing the links on and off
   # fixes data structures.  Not currently needed.
   show_and_hide_links_from_node: (d) ->
@@ -2492,9 +2718,10 @@ class Huviz
       @context_set.add(obj_n)
     obj_n
 
-  get_or_create_node_by_id: (sid) ->
+  get_or_create_node_by_id: (uri, name) ->
     # FIXME OMG must standardize on .lid as the short local id, ie internal id
-    node_id = @make_qname(sid) # REVIEW: what about sid: ":" ie the current graph
+    #node_id = @make_qname(uri) # REVIEW: what about uri: ":" ie the current graph
+    node_id = uri
     node = @nodes.get_by('id', node_id)
     if not node?
       node = @embryonic_set.get_by('id',node_id)
@@ -2502,13 +2729,13 @@ class Huviz
       # at this point the node is embryonic, all we know is its uri!
       node = new Node(node_id, @use_lid_as_node_name)
       if not node.id?
-        alert "new Node('"+sid+"') has no id"
+        alert("new Node('#{uri}') has no id")
       #@nodes.add(node)
       @embryonic_set.add(node)
     node.type ?= "Thing"
     node.lid ?= uniquer(node.id)
     if not node.name?
-      @set_name(node, node.lid)
+      @set_name(node, name or node.lid)
     return node
 
   develop: (node) ->
@@ -2856,8 +3083,8 @@ class Huviz
         console.log("  skipping because",@currently_printed_snippets[snippet_js_key])
         continue
       me = this
-      make_callback = (context_no, edge, context) ->
-        (err,data) ->
+      make_callback = (context_no, edge, context) =>
+        (err,data) =>
           data = data or {response: ""}
           snippet_text = data.response
           if not data.already_has_snippet_id
@@ -2870,16 +3097,25 @@ class Huviz
           me.currently_printed_snippets[snippet_js_key].push(edge)
           me.snippet_db[snippet_js_key] = snippet_text
           me.printed_edge = edge
+          quad =
+            subj_uri: edge.source.id
+            pred_uri: edge.predicate.id
+            graph_uri: @data_uri
+          if edge.target.isLiteral
+            quad.obj_val = edge.target.name.toString()
+          else
+            quad.obj_uri = edge.target.id
           me.push_snippet
             edge: edge
             pred_id: edge.predicate.lid
             pred_name: edge.predicate.name
             context_id: context.id
+            quad: quad
             dialog_title: edge.source.name
             snippet_text: snippet_text
             no: context_no
             snippet_js_key: snippet_js_key
-      @get_snippet context.id, make_callback(context_no, edge, context)
+      @get_snippet(context.id, make_callback(context_no, edge, context))
 
   # The Verbs PRINT and REDACT show and hide snippets respectively
   print: (node) =>
@@ -3007,6 +3243,7 @@ class Huviz
 
   ensure_datasets: (preload_group, store_in_db) =>  # note "fat arrow" so this can be an AJAX callback (see preload_datasets)
     defaults = preload_group.defaults or {}
+    #console.log preload_group # THIS IS THE ITEMS IN A FILE (i.e. cwrc.json, generes.json)
     for ds_rec in preload_group.datasets
       # If this preload_group has defaults apply them to the ds_rec if it is missing that value.
       # We do not want to do ds_rec.__proto__ = defaults because then defaults are not ownProperty
@@ -3015,7 +3252,7 @@ class Huviz
       @ensure_dataset(ds_rec, store_in_db)
 
   ensure_dataset: (dataset_rec, store_in_db) ->
-    # ensure the dataset is in the database and the correct loader
+    # ensure the dataset is in the database and the correct
     uri = dataset_rec.uri
     dataset_rec.time ?= new Date().toString()
     dataset_rec.title ?= uri
@@ -3025,8 +3262,10 @@ class Huviz
     if dataset_rec.isOntology
       if @ontology_loader
         @ontology_loader.add_dataset(dataset_rec, store_in_db)
-    if @dataset_loader
+    if @dataset_loader and not dataset_rec.isEndpoint
       @dataset_loader.add_dataset(dataset_rec, store_in_db)
+    if dataset_rec.isEndpoint and @endpoint_loader
+      @endpoint_loader.add_dataset(dataset_rec, store_in_db)
 
   add_dataset_to_db: (dataset_rec, callback) ->
     trx = @datasetDB.transaction('datasets', "readwrite")
@@ -3071,8 +3310,9 @@ class Huviz
           count++
           dataset_rec = cursor.value
           recs.push(dataset_rec)
-          if not dataset_rec.isOntology
+          if not dataset_rec.isOntology and not dataset_rec.isEndpoint
             # alert "Dataset: add_dataset_option(#{dataset_rec.uri})"
+            #console.log "Dataset: add_dataset_option(#{dataset_rec.uri})"
             @dataset_loader.add_dataset_option(dataset_rec)
           if dataset_rec.isOntology and @ontology_loader
             # alert "Ontology: add_dataset_option(#{dataset_rec.uri})"
@@ -3082,6 +3322,7 @@ class Huviz
           #console.table(recs)
           @dataset_loader.val('')
           @ontology_loader.val('')
+          @endpoint_loader.val('')
           @update_dataset_ontology_loader()
           console.groupEnd() # closing group called "fill_dataset_menus_from_datasetDB(why)"
           document.dispatchEvent( # TODO use 'huviz_controls' rather than document
@@ -3108,6 +3349,7 @@ class Huviz
     #    }
     console.groupCollapsed("preload_datasets")
     # Adds preload options to datasetDB table
+    console.log @args.preload
     if @args.preload
       for preload_group_or_uri in @args.preload
         if typeof(preload_group_or_uri) is 'string' # the URL of a preload_group JSON
@@ -3125,16 +3367,44 @@ class Huviz
           console.error("bad member of @args.preload:", preload_group_or_uri)
     console.groupEnd() # closing group called "preload_datasets"
 
+  preload_endpoints: ->
+    console.log @args.preload_endpoints
+    console.groupCollapsed("preload_endpoints")
+    ####
+    if @args.preload_endpoints
+      for preload_group_or_uri in @args.preload_endpoints
+        console.log preload_group_or_uri
+        if typeof(preload_group_or_uri) is 'string' # the URL of a preload_group JSON
+          #$.getJSON(preload_group_or_uri, null, @ensure_datasets_from_XHR)
+          $.ajax
+            async: false
+            url: preload_group_or_uri
+            success: (data, textStatus) =>
+              @ensure_datasets_from_XHR(data)
+            error: (jqxhr, textStatus, errorThrown) ->
+              console.error(preload_group_or_uri + " " +textStatus+" "+errorThrown.toString())
+        else if typeof(preload_group_or_uri) is 'object' # a preload_group object
+          @ensure_datasets(preload_group_or_uri)
+        else
+          console.error("bad member of @args.preload:", preload_group_or_uri)
+    console.groupEnd()
+    ####
+
   ensure_datasets_from_XHR: (preload_group) =>
     @ensure_datasets(preload_group, false) # false means DO NOT store_in_db
     return
 
   init_dataset_menus: ->
+
     if not @dataset_loader and @args.dataset_loader__append_to_sel
-      @dataset_loader = new PickOrProvide(@, @args.dataset_loader__append_to_sel, 'Dataset', 'DataPP', false)
+      @dataset_loader = new PickOrProvide(@, @args.dataset_loader__append_to_sel, 'Dataset', 'DataPP', false, false)
     if not @ontology_loader and @args.ontology_loader__append_to_sel
-      @ontology_loader = new PickOrProvide(@, @args.ontology_loader__append_to_sel, 'Ontology', 'OntoPP', true)
+      @ontology_loader = new PickOrProvide(@, @args.ontology_loader__append_to_sel, 'Ontology', 'OntoPP', true, false)
       #$(@ontology_loader.form).disable()
+    if not @endpoint_loader and @args.endpoint_loader__append_to_sel
+      @endpoint_loader = new PickOrProvide(@, @args.endpoint_loader__append_to_sel, 'SPARQL Endpoint', 'EndpointPP', false, true)
+      endpoint = "#" + @endpoint_loader.uniq_id
+      $(endpoint).css('display','none')
     if @ontology_loader and not @big_go_button
       @big_go_button_id = unique_id()
       @big_go_button = $('<button class="big_go_button">LOAD</button>')
@@ -3144,17 +3414,29 @@ class Huviz
       @big_go_button.prop('disabled', true)
     @init_datasetDB()
     @preload_datasets()
+
+    #@preload_endpoints()
     # TODO remove this nullification of @last_val by fixing logic in select_option()
     @ontology_loader?last_val = null # clear the last_val so select_option works the first time
 
   visualize_dataset_using_ontology: (ignoreEvent, dataset, ontologies) =>
     @close_blurt_box()
+
+    endpoint_uri = $("#endpoint_labels").val()
+    if endpoint_uri
+      @load_endpoint_data_and_show(endpoint_uri)
+      @update_browser_title("TEST ENDPOINT")
+      @update_caption("TEST", "TEST")
+      return
     # Either dataset and ontologies are passed in by HuViz.load_with() from a command
     #   or this method is called with neither then get values from the loaders
     onto = ontologies and ontologies[0] or @ontology_loader
     data = dataset or @dataset_loader
     if @local_file_data
       @read_data_and_show(data.value) #(@dataset_loader.value)
+    #else if @endpoint_loader.value
+    #  data = @endpoint_loader #TEMP
+    #  @load_data_with_onto(data, onto) #TODO add ontology here?
     else #load from URI
       @load_data_with_onto(data, onto) # , () -> alert "woot")
     #selected_dataset = @dataset_loader.get_selected_option()[0]
@@ -3164,16 +3446,19 @@ class Huviz
   init_gclc: ->
     @gclc = new GraphCommandLanguageCtrl(this)
     @init_dataset_menus()
+    @populate_label_picker()
+    #@query_for_endpoint_labels() #TEMP this is just for development
     if not @gclui?
       @gclui = new CommandController(this,d3.select(@args.gclui_sel)[0][0],@hierarchy)
-    window.addEventListener 'showgraph', @register_gclc_prefixes
-    window.addEventListener 'newpredicate', @gclui.handle_newpredicate
-    TYPE_SYNS.forEach (pred_id,i) =>
-      @gclui.ignore_predicate pred_id
+    window.addEventListener('showgraph', @register_gclc_prefixes)
+    window.addEventListener('newpredicate', @gclui.handle_newpredicate)
+    if not @show_class_instance_edges
+      TYPE_SYNS.forEach (pred_id,i) =>
+        @gclui.ignore_predicate(pred_id)
     NAME_SYNS.forEach (pred_id,i) =>
-      @gclui.ignore_predicate pred_id
+      @gclui.ignore_predicate(pred_id)
     for pid in @predicates_to_ignore
-      @gclui.ignore_predicate pid
+      @gclui.ignore_predicate(pid)
 
   disable_dataset_ontology_loader: (data, onto) ->
     @dataset_loader.disable()
@@ -3192,7 +3477,7 @@ class Huviz
     $("#huvis_controls .unselectable").removeAttr("style","display:none")
 
   update_dataset_ontology_loader: =>
-    if not (@dataset_loader? and @ontology_loader?)
+    if not (@dataset_loader? and @ontology_loader?  and @endpoint_loader?)
       console.log("still building loaders...")
       return
     @set_ontology_from_dataset_if_possible()
@@ -3202,11 +3487,14 @@ class Huviz
 
   update_go_button: (disable) ->
     if not disable?
-      ds_v = @dataset_loader.value
-      on_v = @ontology_loader.value
-      #console.log("DATASET: #{ds_v}\nONTOLOGY: #{on_v}")
-      disable = (not (ds_v and on_v)) or ('provide' in [ds_v, on_v])
-      ds_on = "#{ds_v} AND #{on_v}"
+      if @endpoint_loader.value
+        disable = false
+      else
+        ds_v = @dataset_loader.value
+        on_v = @ontology_loader.value
+        #console.log("DATASET: #{ds_v}\nONTOLOGY: #{on_v}")
+        disable = (not (ds_v and on_v)) or ('provide' in [ds_v, on_v])
+        ds_on = "#{ds_v} AND #{on_v}"
     @big_go_button.prop('disabled', disable)
     return
 
@@ -3258,6 +3546,58 @@ class Huviz
     #console.log("set_ontology_with_uri",ontologyUri, ontology_option)
     @ontology_loader.select_option(ontology_option)
 
+  populate_label_picker: (labels) ->
+    # Convert array into dropdown list of operations
+    searchHint = """
+      <br><p style='font-size:.8em;margin-top:5px;color: #999;margin-left: 40px;'>Put a space in front to retrieve word</p>
+    """
+    select_box = """
+      <div id='sparqlQryInput' class=ui-widget style='display:none'>
+        <label for='endpoint_labels'>Find: </label>
+        <input id='endpoint_labels'>
+        <i class='fas fa-spinner fa-spin' style='visibility:hidden;margin-left: 5px;'></i>
+        #{searchHint}
+      </div>
+    """
+
+    $(".unselectable").append(select_box)
+    url = "http://dbpedia.org/sparql"
+    spinner = $("#endpoint_labels").siblings('i')
+    #$("#endpoint_labels").autocomplete({source: @test_source(), minLength: 3})
+    $("#endpoint_labels").autocomplete({minLength: 3, source: (request, response) ->
+      spinner.css('visibility','visible')
+      qry = """
+        PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+        PREFIX res: <http://dbpedia.org/resource/>
+        SELECT *
+        WHERE {
+  	       ?sub rdfs:label ?obj .
+           filter contains(?obj,"#{request.term}")
+        }
+        LIMIT 20
+      """ # """
+      queryUrl = url + '/?query=' + encodeURIComponent(qry)
+      $.ajax
+          type: 'GET'
+          url: queryUrl
+          headers:
+            Accept: 'application/sparql-results+json'
+          success: (data, textStatus, jqXHR) =>
+            results = data.results.bindings
+            selections = []
+            for label in results
+              this_result = {
+                label: label.obj.value
+                value: label.sub.value
+              }
+              selections.push(this_result)
+              spinner.css('visibility','hidden')
+            response(selections)
+            #@parse_json_label_query_results(data)
+          error: (jqxhr, textStatus, errorThrown) =>
+            console.log(url, errorThrown)
+      })
+
   init_editc: ->
     @editui ?= new EditController(@)
 
@@ -3270,7 +3610,7 @@ class Huviz
   init_indexddbstorage: ->
     @dbsstorage ?= new IndexedDBStorageController(this, @indexeddbservice)
 
-  predicates_to_ignore: ["anything", "comment", "first", "rest", "members"] # TODO make other than 'anything' optional
+  predicates_to_ignore: ["anything", "first", "rest", "members"] # TODO make other than 'anything' optional
 
   init_snippet_box: ->
     if d3.select('#snippet_box')[0].length > 0
@@ -3392,14 +3732,10 @@ class Huviz
 
   init_ontology: ->
     @create_taxonomy()
-    @ontology =
-      subClassOf: {}
-      subPropertyOf: {}
-      domain: {}
-      range: {}
-      label: {} # MultiStrings as values
+    @ontology = PRIMORDIAL_ONTOLOGY
 
   constructor: (args) -> # Huviz
+    console.log(args)
     args ?= {}
     if not args.viscanvas_sel
       msg = "call Huviz({viscanvas_sel:'????'}) so it can find the canvas to draw in"
@@ -3881,6 +4217,14 @@ class Huviz
           checked: "checked"
         event_type: "change"
     ,
+      show_hide_endpoint_loading:
+        style: "color:orange"
+        text: "Show SPARQL endpoint loading forms"
+        label:
+          title: "Show SPARQL endpoint interface for querying for nodes"
+        input:
+          type: "checkbox"
+    ,
       graph_title_style:
         text: "Title display"
         label:
@@ -3943,6 +4287,16 @@ class Huviz
           value: (window.navigator.language.substr(0,2) + ":en:ANY:NOLANG").replace("en:en:","en:")
           size: "16"
           placeholder: "en:es:fr:de:ANY:NOLANG"
+        event_type: "change"
+    ,
+      show_class_instance_edges:
+        style: "color:orange"
+        text: "Show class-instance relationships"
+        label:
+          title: "display the class-instance relationship as an edge"
+        input:
+          type: "checkbox"
+          checked: "checked"
         event_type: "change"
     ]
 
@@ -4180,6 +4534,16 @@ class Huviz
     @color_nodes_as_pies = new_val
     @recolor_nodes()
 
+  on_change_show_hide_endpoint_loading: (new_val, old_val) ->
+    if @endpoint_loader
+      endpoint = "#" + @endpoint_loader.uniq_id
+    if new_val and endpoint
+      $('#sparqlQryInput').css('display','block')
+      $(endpoint).css('display','block')
+    else
+      $('#sparqlQryInput').css('display','none')
+      $(endpoint).css('display','none')
+
   init_from_graph_controls: ->
     # alert "init_from_graph_controls() is deprecated"
     # Perform update_graph_settings for everything in the form
@@ -4216,7 +4580,12 @@ class Huviz
     @load_data_with_onto(@get_dataset_uri())
 
   load_data_with_onto: (data, onto, callback) ->  # Used for loading files from menu
+    console.log data
     @data_uri = data.value
+    if data.isEndpoint #then time to query
+      console.log "&&&& go to the query_and_show"
+      @query_and_show(@data_uri, callback)
+      return
     @set_ontology(onto.value)
     if @args.display_reset
       $("#reset_btn").show()
@@ -4428,27 +4797,35 @@ class Orlando extends OntologicallyGrounded
 
   HHH: {}
 
+  make_link: (uri, text, target) ->
+    uri ?= ""
+    target ?= synthIdFor(uri.replace(/\#.*$/,'')) # open only one copy of each document
+    text ?= uri
+    return """<a target="#{target}" href="#{uri}">#{text}</a>"""
+
   push_snippet: (msg_or_obj) ->
     obj = msg_or_obj
     if @snippet_box
       if typeof msg_or_obj isnt 'string'
         [msg_or_obj, m] = ["", msg_or_obj]  # swap them
+        if obj.quad.obj_uri
+          obj_dd = """<dd>#{@make_link(obj.quad.obj_uri)}</dd>"""
+        else
+          dataType_uri = m.edge.target.__dataType or ""
+          dataType = ""
+          if dataType_uri
+            dataType_curie = m.edge.target.type.replace('__',':')
+            #dataType = """^^<a target="_" href="#{dataType_uri}">#{dataType_curie}</a>"""
+            dataType = "^^#{@make_link(dataType_uri, dataType_curie)}"
+          obj_dd = """<dd>"#{obj.quad.obj_val}"#{dataType}</dd>"""
         msg_or_obj = """
         <div id="#{obj.snippet_js_key}">
-          <div style="font-size:#{@snippet_triple_em}em">
-            <span class="writername" style="background-color:#{m.edge.source.color}">
-              <a target="SRC"
-                 title="see full text at Cambridge"
-                 href="#{m.edge.source.id}"><i class="fa fa-external-link"></i> #{m.edge.source.name}</a>
-            </span>
-            —
-            <span style="background-color:#{m.edge.color}">#{m.pred_id}</span>
-            —
-            <span style="background-color:#{m.edge.target.color}">#{m.edge.target.name}</span>
-          </div>
-          <div>
-            <div contenteditable style="cursor:text;font-size:#{@snippet_body_em}em">#{m.snippet_text}</div>
-          </div>
+          <dl style="font-size:#{@snippet_triple_em}em">
+            <dt>subject <span style="background-color:#{m.edge.source.color}">&cir;</span></dt><dd>#{@make_link(obj.quad.subj_uri)}</dd>
+            <dt>predicate <span style="background-color:#{m.edge.color}">&xrarr;</span></dt><dd>#{@make_link(obj.quad.pred_uri)}</dd>
+            <dt>object <span style="background-color:#{m.edge.target.color}">&cir;</span></dt>#{obj_dd}
+            <dt>graph</dt><dd>#{@make_link(obj.quad.graph_uri)}</dd>
+          </dl>
         </div>
 
         """
@@ -4596,7 +4973,7 @@ class PickOrProvide
   """
   uri_file_loader_sel: '.uri_file_loader_form'
 
-  constructor: (@huviz, @append_to_sel, @label, @css_class, @isOntology) ->
+  constructor: (@huviz, @append_to_sel, @label, @css_class, @isOntology, @isEndpoint) ->
     @uniq_id = unique_id()
     @select_id = unique_id()
     @pickable_uid = unique_id()
@@ -4627,7 +5004,7 @@ class PickOrProvide
 
   select_option: (option) ->
     new_val = option.val()
-    #console.table([{last_val: @last_val, new_val: new_val}])
+    console.table([{last_val: @last_val, new_val: new_val}])
     cur_val = @pick_or_provide_select.val()
     # TODO remove last_val = null in @init_dataset_menus() by fixing logic below
     #   What is happening is that the AJAX loading of preloads means that
@@ -4694,7 +5071,7 @@ class PickOrProvide
     dataset.value = dataset.uri
     @add_option(dataset, @pickable_uid)
     @pick_or_provide_select.val(uri)
-    #console.log @pick_or_provide_select
+    console.log @pick_or_provide_select
     @refresh()
 
   add_group: (grp_rec, which) ->
@@ -4744,7 +5121,9 @@ class PickOrProvide
 
   update_state: (callback) ->
     raw_value = @pick_or_provide_select.val()
+    #console.log raw_value
     selected_option = @get_selected_option()
+    #console.log selected_option
     the_options = @pick_or_provide_select.find("option")
     kid_cnt = the_options.length
     #console.log("#{@label}.update_state() raw_value: #{raw_value} kid_cnt: #{kid_cnt}")

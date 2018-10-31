@@ -1,0 +1,14 @@
+{
+  "datasets": [
+    {
+      "uri": "/data/twentyOldestVideos.ttl",
+      "label": "The 20 oldest videos on YouTube",
+      "ontology_label": "Open Annotation"
+    }
+  ],
+  "defaults": {
+    "isOntology": false,
+    "opt_group": "Open Annotation",
+    "canDelete": false
+  }
+}

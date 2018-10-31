@@ -1,12 +1,8 @@
 {
   "datasets": [
     {
-      "uri": "https://raw.githubusercontent.com/cwrc/testData/master/demoData/DH2017Montreal.ttl",
-      "label": "DH2017Montreal"
-    },
-    {
-      "uri": "https://raw.githubusercontent.com/cwrc/testData/master/demoData/HuVizSHARP2017.ttl",
-      "label": "HuVizSHARP2017"
+      "uri": "https://raw.githubusercontent.com/cwrc/testData/master/demoData/WoolfsOrlando.ttl",
+      "label": "WoolfsOrlando"
     },
     {
       "uri": "https://raw.githubusercontent.com/cwrc/testData/master/demoData/REED_Elizabethan_sample.ttl",
@@ -14,22 +10,25 @@
     },
     {
       "uri": "https://raw.githubusercontent.com/cwrc/testData/master/qa/AmyLevy/LevyBioTriples.ttl",
-      "label": "Levy Bio Triples"
+      "label": "Levy Biography Triples"
     },
     {
       "uri": "https://raw.githubusercontent.com/cwrc/testData/master/demoData/CanAuthorsBiography.ttl",
-      "label": "Can Authors Biography"
+      "label": "CDNAuthorsBiography"
     },
     {
-      "uri": "https://raw.githubusercontent.com/cwrc/testData/master/sparqlTest1.ttl",
-      "label": "SPARQL Test1",
-      "ontology_label": "CWRC Ontology"
+      "uri": "https://raw.githubusercontent.com/cwrc/testData/master/jewish_novelist_biographies.ttl",
+      "label": "Jewish novelist biographies"
+    },
+    {
+      "uri": "https://raw.githubusercontent.com/cwrc/testData/master/unitarian_novelist_biographies.ttl",
+      "label": "Unitarian novelist biographies"
     }
   ],
   "defaults": {
     "isOntology": false,
-    "opt_group": "CWRC Data",
+    "opt_group": "CWRC Data (newest)",
     "canDelete": false,
-    "ontology_label": "CWRC Ontology sans Genres"
+    "ontology_label": "CWRC Ontology"
   }
 }
