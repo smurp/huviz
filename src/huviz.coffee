@@ -3383,7 +3383,8 @@ class Huviz
       #$(@ontology_loader.form).disable()
     if not @endpoint_loader and @args.endpoint_loader__append_to_sel
       @endpoint_loader = new PickOrProvide(@, @args.endpoint_loader__append_to_sel, 'SPARQL Endpoint', 'EndpointPP', false, true)
-      console.log @endpoint_loader
+      endpoint = "#" + @endpoint_loader.uniq_id
+      $(endpoint).css('display','none')
     if @ontology_loader and not @big_go_button
       @big_go_button_id = unique_id()
       @big_go_button = $('<button class="big_go_button">LOAD</button>')
@@ -3527,17 +3528,19 @@ class Huviz
 
   populate_label_picker: (labels) ->
     # Convert array into dropdown list of operations
+    searchHint = """
+      <br><p style='font-size:.8em;margin-top:5px;color: #999;margin-left: 40px;'>Put a space in front to retrieve word</p>
+    """
     select_box = """
-      <div class=ui-widget>
+      <div id='sparqlQryInput' class=ui-widget style='display:none'>
         <label for='endpoint_labels'>Find: </label>
         <input id='endpoint_labels'>
         <i class='fas fa-spinner fa-spin' style='visibility:hidden;margin-left: 5px;'></i>
+        #{searchHint}
       </div>
     """
-    searchHint = """
-      <br><p style='font-size:.8em;margin-top:-10px;color: #999;margin-left: 40px;'>Put a space in front to retrieve word</p>
-    """
-    $(".unselectable").append(select_box + searchHint)
+
+    $(".unselectable").append(select_box)
     url = "http://dbpedia.org/sparql"
     spinner = $("#endpoint_labels").siblings('i')
     #$("#endpoint_labels").autocomplete({source: @test_source(), minLength: 3})
@@ -4194,6 +4197,14 @@ class Huviz
           checked: "checked"
         event_type: "change"
     ,
+      show_hide_endpoint_loading:
+        style: "color:orange"
+        text: "Show SPARQL endpoint loading forms"
+        label:
+          title: "Show SPARQL endpoint interface for querying for nodes"
+        input:
+          type: "checkbox"
+    ,
       graph_title_style:
         text: "Title display"
         label:
@@ -4502,6 +4513,16 @@ class Huviz
   on_change_color_nodes_as_pies: (new_val, old_val) ->  # TODO why this == window ??
     @color_nodes_as_pies = new_val
     @recolor_nodes()
+
+  on_change_show_hide_endpoint_loading: (new_val, old_val) ->
+    if @endpoint_loader
+      endpoint = "#" + @endpoint_loader.uniq_id
+    if new_val and endpoint
+      $('#sparqlQryInput').css('display','block')
+      $(endpoint).css('display','block')
+    else
+      $('#sparqlQryInput').css('display','none')
+      $(endpoint).css('display','none')
 
   init_from_graph_controls: ->
     # alert "init_from_graph_controls() is deprecated"
