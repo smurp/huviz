@@ -2429,6 +2429,42 @@ class Huviz
           blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
           @reset_dataset_ontology_loader()
 
+  load_endpoint_data_and_show: (url, callback) ->
+    qry = """
+      PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+      PREFIX res: <http://dbpedia.org/resource/>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      SELECT * WHERE {
+        <http://dbpedia.org/resource/Gravitational_singularity> ?p ?o.
+        FILTER(!isLiteral(?o) || lang(?o) = "" || langMatches(lang(?o), "EN"))
+      }
+      LIMIT 10
+    """
+    url = "http://dbpedia.org/sparql"
+    # NEED a parser to handle result
+    console.log url
+    #console.log qry
+    #queryUrl = encodeURI( url+"?query="+qry )
+    queryUrl = url + '/?query=' + encodeURIComponent(qry)
+    console.log queryUrl
+    $.ajax
+        type: 'GET'
+        url: queryUrl
+        headers:
+          Accept: 'application/sparql-results+xml'
+        success: (data, textStatus, jqXHR) =>
+          console.log data
+          console.log textStatus
+        error: (jqxhr, textStatus, errorThrown) =>
+          console.log(url, errorThrown)
+          if not errorThrown
+            errorThrown = "Cross-Origin error"
+          msg = errorThrown + " while fetching " + url
+          @hide_state_msg()
+          $('#data_ontology_display').remove()
+          blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
+          @reset_dataset_ontology_loader()
+
   # Deal with buggy situations where flashing the links on and off
   # fixes data structures.  Not currently needed.
   show_and_hide_links_from_node: (d) ->
@@ -3364,6 +3400,13 @@ class Huviz
 
   visualize_dataset_using_ontology: (ignoreEvent, dataset, ontologies) =>
     @close_blurt_box()
+
+    endpoint_uri = $("#endpoint_labels").val()
+    if endpoint_uri
+      @load_endpoint_data_and_show(endpoint_uri)
+      @update_browser_title("TEST ENDPOINT")
+      @update_caption("TEST", "TEST")
+      return
     # Either dataset and ontologies are passed in by HuViz.load_with() from a command
     #   or this method is called with neither then get values from the loaders
     onto = ontologies and ontologies[0] or @ontology_loader
