@@ -1,8 +1,8 @@
 {
   "datasets": [
     {
-      "uri": "https://raw.githubusercontent.com/cwrc/testData/master/demoData/DH2017Montreal.ttl",
-      "label": "WoolfsOrlando.ttl"
+      "uri": "https://raw.githubusercontent.com/cwrc/testData/master/demoData/WoolfsOrlando.ttl",
+      "label": "WoolfsOrlando"
     },
     {
       "uri": "https://raw.githubusercontent.com/cwrc/testData/master/demoData/REED_Elizabethan_sample.ttl",
