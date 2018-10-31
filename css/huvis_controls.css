@@ -386,6 +386,7 @@ progress[value]::-moz-progress-bar {
   display: inline;
   position: fixed;
   z-index: 3;
+  left:1em;
 }
 .cntrl-set {
   display: inline;
