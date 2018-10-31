@@ -1826,7 +1826,7 @@ class Huviz
 
   update_snippet: ->
     if @show_snippets_constantly and @focused_edge? and @focused_edge isnt @printed_edge
-      @print_edge @focused_edge
+      @print_edge(@focused_edge)
 
   msg_history: ""
   show_state_msg: (txt) ->
@@ -1965,8 +1965,9 @@ class Huviz
         cancelable: true
     )
 
-  make_qname: (uri) -> uri # TODO(smurp) reduce wrt prefixes
-                           #     How does this relate to .lid?
+  make_qname: (uri) ->
+    # TODO(smurp) dear god! this method name is lying (it is not even trying)
+    return uri
 
   last_quad: {}
 
@@ -1983,41 +1984,49 @@ class Huviz
     #   * review subj vs subj_n
     #   * do not conflate node ids across prefixes eg rdfs:Class vs owl:Class
     #   * Literal should not be a subclass of Thing. Thing and dataType are sibs
+    # Terminology:
+    #   A `lid` is a "local id" which is unique and a safe identifier for css selectors.
+    #   This is in opposition to an `id` which is a synonym for uri (ideally).
+    #   There is inconsistency in this usage, which should be cleared up.
+    #   Proposed terms which SHOULD be used are:
+    #     - *_curie             eg pred_curie='rdfs:label'
+    #     - *_uri               eg subj_uri='http://sparql.cwrc.ca/ontology/cwrc#NaturalPerson'
+    #     - *_lid: a "local id" eg subj_lid='atwoma'
     #console.log "HuViz.add_quad()", quad
-    sid = quad.s
-    pid = @make_qname(quad.p)
+    subj_uri = quad.s
+    pred_uri = quad.p
     ctxid = quad.g || @DEFAULT_CONTEXT
-    subj_lid = uniquer(sid)
+    subj_lid = uniquer(subj_uri)  # FIXME rename uniquer to make_dom_safe_id
     @object_value_types[quad.o.type] = 1
-    @unique_pids[pid] = 1
+    @unique_pids[pred_uri] = 1
     newsubj = false
     subj = null
 
     # REVIEW is @my_graph still needed and being correctly used?
-    if not @my_graph.subjects[sid]?
+    if not @my_graph.subjects[subj_uri]?
       newsubj = true
       subj =
-        id: sid
+        id: subj_uri
         name: subj_lid
         predicates: {}
-      @my_graph.subjects[sid] = subj
+      @my_graph.subjects[subj_uri] = subj
     else
-      subj = @my_graph.subjects[sid]
+      subj = @my_graph.subjects[subj_uri]
 
-    @ensure_predicate_lineage(pid)
+    @ensure_predicate_lineage(pred_uri)
     edge = null
-    subj_n = @get_or_create_node_by_id(subj_lid)
-    pred_n = @get_or_create_predicate_by_id(pid)
+    subj_n = @get_or_create_node_by_id(subj_uri)
+    pred_n = @get_or_create_predicate_by_id(pred_uri)
     cntx_n = @get_or_create_context_by_id(ctxid)
     if quad.p is RDF_subClassOf and @show_class_instance_edges
       @try_to_set_node_type(subj_n, 'Class')
     # TODO: use @predicates_to_ignore instead OR rdfs:first and rdfs:rest
-    if pid.match(/\#(first|rest)$/)
-      console.warn("add_quad() ignoring quad because pid=#{pid}", quad)
+    if pred_uri.match(/\#(first|rest)$/)
+      console.warn("add_quad() ignoring quad because pred_uri=#{pred_uri}", quad)
       return
     # set the predicate on the subject
-    if not subj.predicates[pid]?
-      subj.predicates[pid] = {objects:[]}
+    if not subj.predicates[pred_uri]?
+      subj.predicates[pred_uri] = {objects:[]}
     safe_quad_o_value = uniquer(quad.o.value)
     if quad.o.type is RDF_object
       # The object is not a literal, but another resource with an uri
@@ -2030,7 +2039,7 @@ class Huviz
         @try_to_set_node_type(obj_n, 'Class')
       # We have a node for the object of the quad and this quad is relational
       # so there should be links made between this node and that node
-      is_type = is_one_of(pid, TYPE_SYNS)
+      is_type = is_one_of(pred_uri, TYPE_SYNS)
       make_edge = @show_class_instance_edges or not is_type
       if is_type
         @try_to_set_node_type(subj_n, safe_quad_o_value)
@@ -2044,7 +2053,7 @@ class Huviz
         @add_edge(edge)
         @develop(obj_n)
     else # ie the quad.o is a literal
-      if is_one_of(pid, NAME_SYNS)
+      if is_one_of(pred_uri, NAME_SYNS)
         add_name = () =>
           @set_name(
             subj_n,
@@ -2071,7 +2080,7 @@ class Huviz
             # text.  For them to end up on the same MultiString instance
             # they all have to be treated as names for a node with the same
             # id -- hence that id must be composed of the subj and pred ids.
-            objKey = "#{subj_n.lid} #{pid}"
+            objKey = "#{subj_n.lid} #{pred_uri}"
             objId = synthIdFor(objKey)
           else
             objId = synthIdFor(objVal)
@@ -2672,9 +2681,10 @@ class Huviz
       @context_set.add(obj_n)
     obj_n
 
-  get_or_create_node_by_id: (sid, name) ->
+  get_or_create_node_by_id: (uri, name) ->
     # FIXME OMG must standardize on .lid as the short local id, ie internal id
-    node_id = @make_qname(sid) # REVIEW: what about sid: ":" ie the current graph
+    #node_id = @make_qname(uri) # REVIEW: what about uri: ":" ie the current graph
+    node_id = uri
     node = @nodes.get_by('id', node_id)
     if not node?
       node = @embryonic_set.get_by('id',node_id)
@@ -2682,7 +2692,7 @@ class Huviz
       # at this point the node is embryonic, all we know is its uri!
       node = new Node(node_id, @use_lid_as_node_name)
       if not node.id?
-        alert("new Node('#{sid}') has no id")
+        alert("new Node('#{uri}') has no id")
       #@nodes.add(node)
       @embryonic_set.add(node)
     node.type ?= "Thing"
@@ -3055,11 +3065,16 @@ class Huviz
             pred_id: edge.predicate.lid
             pred_name: edge.predicate.name
             context_id: context.id
+            quad:
+              subj_uri: edge.source.id
+              pred_uri: edge.predicate.id
+              obj_val: edge.target.id
+              graph_uri: @data_uri
             dialog_title: edge.source.name
             snippet_text: snippet_text
             no: context_no
             snippet_js_key: snippet_js_key
-      @get_snippet context.id, make_callback(context_no, edge, context)
+      @get_snippet(context.id, make_callback(context_no, edge, context))
 
   # The Verbs PRINT and REDACT show and hide snippets respectively
   print: (node) =>
@@ -3509,7 +3524,7 @@ class Huviz
            filter contains(?obj,"#{request.term}")
         }
         LIMIT 20
-      """
+      """ # """
       queryUrl = url + '/?query=' + encodeURIComponent(qry)
       $.ajax
           type: 'GET'
