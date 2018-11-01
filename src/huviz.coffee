@@ -3629,7 +3629,7 @@ class Huviz
       $(snip_div[0][0]).addClass("snippet_dialog_box")
       my_position = @get_next_snippet_position()
       dialog_args =
-        maxHeight: @snippet_size
+        #maxHeight: @snippet_size
         title: obj.dialog_title
         position:
           my: my_position
