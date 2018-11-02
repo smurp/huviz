@@ -3421,7 +3421,6 @@ class Huviz
 
   visualize_dataset_using_ontology: (ignoreEvent, dataset, ontologies) =>
     @close_blurt_box()
-
     endpoint_uri = $("#endpoint_labels").val()
     if endpoint_uri
       @load_endpoint_data_and_show(endpoint_uri)
@@ -4583,7 +4582,6 @@ class Huviz
     console.log data
     @data_uri = data.value
     if data.isEndpoint #then time to query
-      console.log "&&&& go to the query_and_show"
       @query_and_show(@data_uri, callback)
       return
     @set_ontology(onto.value)
@@ -5004,7 +5002,7 @@ class PickOrProvide
 
   select_option: (option) ->
     new_val = option.val()
-    console.table([{last_val: @last_val, new_val: new_val}])
+    #console.table([{last_val: @last_val, new_val: new_val}])
     cur_val = @pick_or_provide_select.val()
     # TODO remove last_val = null in @init_dataset_menus() by fixing logic below
     #   What is happening is that the AJAX loading of preloads means that
@@ -5071,7 +5069,6 @@ class PickOrProvide
     dataset.value = dataset.uri
     @add_option(dataset, @pickable_uid)
     @pick_or_provide_select.val(uri)
-    console.log @pick_or_provide_select
     @refresh()
 
   add_group: (grp_rec, which) ->
@@ -5121,13 +5118,11 @@ class PickOrProvide
 
   update_state: (callback) ->
     raw_value = @pick_or_provide_select.val()
-    #console.log raw_value
     selected_option = @get_selected_option()
-    #console.log selected_option
+    label_value = selected_option[0].label
     the_options = @pick_or_provide_select.find("option")
     kid_cnt = the_options.length
     #console.log("#{@label}.update_state() raw_value: #{raw_value} kid_cnt: #{kid_cnt}")
-    #console.log "PickOrProvide:", "select:", @pick_or_provide_select[0].value
     if raw_value is 'provide'
       @drag_and_drop_loader.form.show()
       @state = 'awaiting_dnd'
@@ -5136,6 +5131,7 @@ class PickOrProvide
       @drag_and_drop_loader.form.hide()
       @state = 'has_value'
       @value = raw_value
+      @label = label_value
     disable_the_delete_button = true
     if @value?
       canDelete = selected_option.data('canDelete')
