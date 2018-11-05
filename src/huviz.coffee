@@ -2449,7 +2449,7 @@ class Huviz
         <#{subject}> ?p ?o.
         FILTER(!isLiteral(?o) || lang(?o) = "" || langMatches(lang(?o), "EN"))
       }
-      LIMIT 10
+      LIMIT 100
     """
     url = "http://dbpedia.org/sparql"
     # NEED a parser to handle result
@@ -3443,9 +3443,9 @@ class Huviz
 
   visualize_dataset_using_ontology: (ignoreEvent, dataset, ontologies) =>
     @close_blurt_box()
-    endpoint_uri = $("#endpoint_labels").val()
-    if endpoint_uri
-      @load_endpoint_data_and_show(endpoint_uri)
+    endpoint_label_uri = $("#endpoint_labels").val()
+    if endpoint_label_uri
+      @load_endpoint_data_and_show(endpoint_label_uri)
       @update_browser_title("TEST ENDPOINT")
       @update_caption("TEST", "TEST")
       return
@@ -3583,9 +3583,10 @@ class Huviz
 
     $(".unselectable").append(select_box)
     url = "http://dbpedia.org/sparql"
+    url = "http://sparql.cwrc.ca/sparql"
     spinner = $("#endpoint_labels").siblings('i')
     #$("#endpoint_labels").autocomplete({source: @test_source(), minLength: 3})
-    $("#endpoint_labels").autocomplete({minLength: 3, source: (request, response) ->
+    $("#endpoint_labels").autocomplete({minLength: 3, delay:500, source: (request, response) ->
       spinner.css('visibility','visible')
       qry = """
         PREFIX foaf: <http://xmlns.com/foaf/0.1/>
@@ -3598,6 +3599,7 @@ class Huviz
         LIMIT 20
       """ # """
       queryUrl = url + '/?query=' + encodeURIComponent(qry)
+      console.log "ajax call"
       $.ajax
           type: 'GET'
           url: queryUrl
