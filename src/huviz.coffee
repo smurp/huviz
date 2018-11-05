@@ -2440,31 +2440,35 @@ class Huviz
           @reset_dataset_ontology_loader()
 
   load_endpoint_data_and_show: (url, callback) ->
+    console.log "ENDPOINT URI: " + url
+    #subject = "http://dbpedia.org/resource/Charlotte_Bronte"
+    #subject= "http://dbpedia.org/resource/Bulldog_breeds"
+    subject = url
     qry = """
-      PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-      PREFIX res: <http://dbpedia.org/resource/>
-      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
       SELECT * WHERE {
-        <http://dbpedia.org/resource/Gravitational_singularity> ?p ?o.
+        <#{subject}> ?p ?o.
         FILTER(!isLiteral(?o) || lang(?o) = "" || langMatches(lang(?o), "EN"))
       }
       LIMIT 10
     """
     url = "http://dbpedia.org/sparql"
     # NEED a parser to handle result
-    console.log url
+    #console.log url
     #console.log qry
     #queryUrl = encodeURI( url+"?query="+qry )
     queryUrl = url + '/?query=' + encodeURIComponent(qry)
-    console.log queryUrl
+    #console.log queryUrl
     $.ajax
         type: 'GET'
         url: queryUrl
         headers:
-          Accept: 'application/sparql-results+xml'
+          Accept: 'application/sparql-results+json'
         success: (data, textStatus, jqXHR) =>
-          console.log data
-          console.log textStatus
+          #console.log data
+          data_ttl = @convert_json_to_ttl(data, subject)
+          #console.log data_ttl
+          @parseAndShowTTLData(data_ttl)
+          @disable_dataset_ontology_loader()
         error: (jqxhr, textStatus, errorThrown) =>
           console.log(url, errorThrown)
           if not errorThrown
@@ -2474,6 +2478,24 @@ class Huviz
           $('#data_ontology_display').remove()
           blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
           @reset_dataset_ontology_loader()
+
+  convert_json_to_ttl: (raw_json_data, subject) ->
+    #console.log "Convert json to ttl now..."
+    #console.log raw_json_data
+    data = ''
+    nodes_in_data = raw_json_data.results.bindings
+    for node in nodes_in_data
+      type_print = ''
+      #console.log node.o.type
+      if node.o.type is 'uri'
+        object_print = "<#{node.o.value}>"
+      else #literal or similar
+        object_print = "'#{node.o.value}'"
+      if node.o.datatype
+        type_print = "^^<#{node.o.datatype}>"
+      new_line = "<#{subject}> <#{node.p.value}> #{object_print}#{type_print}.\n"
+      data = data + new_line
+    return data
 
   # Deal with buggy situations where flashing the links on and off
   # fixes data structures.  Not currently needed.
@@ -3404,7 +3426,7 @@ class Huviz
     if not @endpoint_loader and @args.endpoint_loader__append_to_sel
       @endpoint_loader = new PickOrProvide(@, @args.endpoint_loader__append_to_sel, 'SPARQL Endpoint', 'EndpointPP', false, true)
       endpoint = "#" + @endpoint_loader.uniq_id
-      $(endpoint).css('display','none')
+      #$(endpoint).css('display','none')
     if @ontology_loader and not @big_go_button
       @big_go_button_id = unique_id()
       @big_go_button = $('<button class="big_go_button">LOAD</button>')
@@ -3551,7 +3573,7 @@ class Huviz
       <br><p style='font-size:.8em;margin-top:5px;color: #999;margin-left: 40px;'>Put a space in front to retrieve word</p>
     """
     select_box = """
-      <div id='sparqlQryInput' class=ui-widget style='display:none'>
+      <div id='sparqlQryInput' class=ui-widget style='display:block'>
         <label for='endpoint_labels'>Find: </label>
         <input id='endpoint_labels'>
         <i class='fas fa-spinner fa-spin' style='visibility:hidden;margin-left: 5px;'></i>
