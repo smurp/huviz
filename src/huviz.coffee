@@ -2425,7 +2425,7 @@ class Huviz
         type: 'GET'
         url: queryUrl
         headers:
-          Accept: 'application/sparql-results+xml'
+          Accept: 'application/sparql-results+json'
         success: (data, textStatus, jqXHR) =>
           console.log data
           console.log textStatus
@@ -2440,16 +2440,17 @@ class Huviz
           @reset_dataset_ontology_loader()
 
   load_endpoint_data_and_show: (url, callback) ->
-    console.log "ENDPOINT URI: " + url
+    #console.log "ENDPOINT URI: " + url
     #subject = "http://dbpedia.org/resource/Charlotte_Bronte"
     #subject= "http://dbpedia.org/resource/Bulldog_breeds"
+    node_limit = $('#endpoint_limit').val()
     subject = url
     qry = """
       SELECT * WHERE {
         <#{subject}> ?p ?o.
         FILTER(!isLiteral(?o) || lang(?o) = "" || langMatches(lang(?o), "EN"))
       }
-      LIMIT 100
+      LIMIT #{node_limit}
     """
     url = "http://dbpedia.org/sparql"
     # NEED a parser to handle result
@@ -2468,7 +2469,13 @@ class Huviz
           data_ttl = @convert_json_to_ttl(data, subject)
           #console.log data_ttl
           @parseAndShowTTLData(data_ttl)
-          @disable_dataset_ontology_loader()
+          endpoint = @endpoint_loader.value
+          @dataset_loader.disable()
+          @ontology_loader.disable()
+          @replace_loader_display_for_endpoint(endpoint, subject)
+          disable = true
+          @update_go_button(disable)
+          @big_go_button.hide()
         error: (jqxhr, textStatus, errorThrown) =>
           console.log(url, errorThrown)
           if not errorThrown
@@ -3425,8 +3432,12 @@ class Huviz
       #$(@ontology_loader.form).disable()
     if not @endpoint_loader and @args.endpoint_loader__append_to_sel
       @endpoint_loader = new PickOrProvide(@, @args.endpoint_loader__append_to_sel, 'SPARQL Endpoint', 'EndpointPP', false, true)
-      endpoint = "#" + @endpoint_loader.uniq_id
+      #endpoint = "#" + @endpoint_loader.uniq_id
       #$(endpoint).css('display','none')
+    if @endpoint_loader and not @big_go_button
+      @populate_label_picker()
+      endpoint_selector = "##{@endpoint_loader.select_id}"
+      $(endpoint_selector).change(@update_endpoint_form)
     if @ontology_loader and not @big_go_button
       @big_go_button_id = unique_id()
       @big_go_button = $('<button class="big_go_button">LOAD</button>')
@@ -3445,9 +3456,10 @@ class Huviz
     @close_blurt_box()
     endpoint_label_uri = $("#endpoint_labels").val()
     if endpoint_label_uri
+      data = dataset or @endpoint_loader
       @load_endpoint_data_and_show(endpoint_label_uri)
-      @update_browser_title("TEST ENDPOINT")
-      @update_caption("TEST", "TEST")
+      @update_browser_title(data)
+      @update_caption(data.value, "Endpoint Defined")
       return
     # Either dataset and ontologies are passed in by HuViz.load_with() from a command
     #   or this method is called with neither then get values from the loaders
@@ -3467,8 +3479,6 @@ class Huviz
   init_gclc: ->
     @gclc = new GraphCommandLanguageCtrl(this)
     @init_dataset_menus()
-    @populate_label_picker()
-    #@query_for_endpoint_labels() #TEMP this is just for development
     if not @gclui?
       @gclui = new CommandController(this,d3.select(@args.gclui_sel)[0][0],@hierarchy)
     window.addEventListener('showgraph', @register_gclc_prefixes)
@@ -3501,13 +3511,21 @@ class Huviz
     if not (@dataset_loader? and @ontology_loader?  and @endpoint_loader?)
       console.log("still building loaders...")
       return
+    endpoint_selector = "##{@endpoint_loader.select_id}"
+    $(endpoint_selector).change(@update_endpoint_form)
     @set_ontology_from_dataset_if_possible()
     ugb = () =>
       @update_go_button()
     setTimeout(ugb, 200)
 
+  update_endpoint_form: (e) ->
+    $('#sparqlQryInput').css('display', 'block')
+    # TODO - if a value for Endpoint, let's grey out the dataset / ontology
+
   update_go_button: (disable) ->
     if not disable?
+      #labelSelected = $('#endpoint_labels').val()
+      #console.log "Label selected yes: " + labelSelected
       if @endpoint_loader.value
         disable = false
       else
@@ -3535,6 +3553,18 @@ class Huviz
     </div>"""
     $("#huvis_controls").prepend(data_ontol_display)
 
+  replace_loader_display_for_endpoint: (endpoint, query) ->
+    $("#huvis_controls .unselectable").attr("style","display:none")
+    #uri = new URL(location)
+    #uri.hash = "load+#{dataset.value}+with+#{ontology.value}"
+    data_ontol_display = """
+    <div id="data_ontology_display">
+      <p><span class="dt_label">Endpoint:</span> #{endpoint}</p>
+      <p><span class="dt_label">Subject:</span> #{query}</p>
+      <br style="clear:both">
+    </div>"""
+    $("#huvis_controls").prepend(data_ontol_display)
+
   update_browser_title: (dataset) ->
     if dataset.value
       document.title = dataset.label + " - Huvis Graph Visualization"
@@ -3544,6 +3574,7 @@ class Huviz
     $("#ontology_watermark").text(ontology_str)
 
   set_ontology_from_dataset_if_possible: ->
+    console.log "set_ontology_from_dataset_if_possible"
     if @dataset_loader.value # and not @ontology_loader.value
       option = @dataset_loader.get_selected_option()
       ontologyUri = option.data('ontologyUri')
@@ -3567,45 +3598,48 @@ class Huviz
     #console.log("set_ontology_with_uri",ontologyUri, ontology_option)
     @ontology_loader.select_option(ontology_option)
 
-  populate_label_picker: (labels) ->
+  populate_label_picker: (labels) =>
     # Convert array into dropdown list of operations
     searchHint = """
       <br><p style='font-size:.8em;margin-top:5px;color: #999;margin-left: 40px;'>Put a space in front to retrieve word</p>
     """
     select_box = """
-      <div id='sparqlQryInput' class=ui-widget style='display:block'>
+      <div id='sparqlQryInput' class=ui-widget style='display:none;margin-top:5px;margin-left:10px;'>
         <label for='endpoint_labels'>Find: </label>
         <input id='endpoint_labels'>
         <i class='fas fa-spinner fa-spin' style='visibility:hidden;margin-left: 5px;'></i>
         #{searchHint}
+        <label for='endpoint_limit'>Node Limit: </label>
+        <input id='endpoint_limit' value='100'>
       </div>
     """
-
     $(".unselectable").append(select_box)
     url = "http://dbpedia.org/sparql"
-    url = "http://sparql.cwrc.ca/sparql"
+    #url = "http://sparql.cwrc.ca/sparql"
     spinner = $("#endpoint_labels").siblings('i')
     #$("#endpoint_labels").autocomplete({source: @test_source(), minLength: 3})
-    $("#endpoint_labels").autocomplete({minLength: 3, delay:500, source: (request, response) ->
+    $("#endpoint_labels").autocomplete({minLength: 3, delay:500, source: (request, response) =>
       spinner.css('visibility','visible')
       qry = """
-        PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-        PREFIX res: <http://dbpedia.org/resource/>
-        SELECT *
-        WHERE {
-  	       ?sub rdfs:label ?obj .
-           filter contains(?obj,"#{request.term}")
-        }
-        LIMIT 20
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      SELECT * WHERE {
+  	  ?sub rdfs:label ?obj .
+      filter contains(?obj,"#{request.term}")
+      }
+      LIMIT 20
       """ # """
+      url = @endpoint_loader.value
+      #console.log "++++++++++++++ THIS IS URL: " + url
       queryUrl = url + '/?query=' + encodeURIComponent(qry)
-      console.log "ajax call"
+      #console.log "ajax call"
       $.ajax
           type: 'GET'
           url: queryUrl
           headers:
             Accept: 'application/sparql-results+json'
           success: (data, textStatus, jqXHR) =>
+            #console.log data
             results = data.results.bindings
             selections = []
             for label in results
@@ -3619,6 +3653,7 @@ class Huviz
             #@parse_json_label_query_results(data)
           error: (jqxhr, textStatus, errorThrown) =>
             console.log(url, errorThrown)
+            console.log textStatus
       })
 
   init_editc: ->
