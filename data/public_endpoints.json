@@ -6,8 +6,8 @@
       "ontology_label": "DBpedia Ontology"
     },
     {
-      "uri": "http://data.nobelprize.org/sparql",
-      "label": "Nobel Prizes"
+      "uri": "http://bio2rdf.org/sparql",
+      "label": "Bio Database"
     },
     {
       "uri": "http://ldf.fi/ww1lod/sparql",

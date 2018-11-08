@@ -2447,7 +2447,7 @@ class Huviz
     subject = url
     qry = """
       SELECT * WHERE {
-        <#{subject}> ?p ?o.
+        {<#{subject}> ?p ?o} UNION {?s ?p <#{subject}>}
         FILTER(!isLiteral(?o) || lang(?o) = "" || langMatches(lang(?o), "EN"))
       }
       LIMIT #{node_limit}
@@ -2493,15 +2493,22 @@ class Huviz
     nodes_in_data = raw_json_data.results.bindings
     for node in nodes_in_data
       type_print = ''
-      #console.log node.o.type
-      if node.o.type is 'uri'
-        object_print = "<#{node.o.value}>"
-      else #literal or similar
-        object_print = "'#{node.o.value}'"
-      if node.o.datatype
-        type_print = "^^<#{node.o.datatype}>"
-      new_line = "<#{subject}> <#{node.p.value}> #{object_print}#{type_print}.\n"
+      if node.s
+        sub = node.s.value
+        obj = "<#{subject}>"
+      else
+        sub = subject
+        if node.o.type is 'uri'
+          object_print = "<#{node.o.value}>"
+        else #literal or similar
+          object_print = '"#{node.o.value}"'
+        if node.o.datatype
+          type_print = "^^<#{node.o.datatype}>"
+        obj = object_print + type_print
+      new_line = "<#{sub}> <#{node.p.value}> #{obj}.\n"
+
       data = data + new_line
+    console.log data
     return data
 
   # Deal with buggy situations where flashing the links on and off
@@ -3600,17 +3607,18 @@ class Huviz
 
   populate_label_picker: (labels) =>
     # Convert array into dropdown list of operations
-    searchHint = """
-      <br><p style='font-size:.8em;margin-top:5px;color: #999;margin-left: 40px;'>Put a space in front to retrieve word</p>
-    """
+    #searchHint = """
+    #  <br><p style='font-size:.8em;margin-top:5px;color: #999;margin-left: 40px;'>Put a space in front to retrieve word</p>
+    #"""
+    searchHint = ""
     select_box = """
       <div id='sparqlQryInput' class=ui-widget style='display:none;margin-top:5px;margin-left:10px;'>
         <label for='endpoint_labels'>Find: </label>
         <input id='endpoint_labels'>
         <i class='fas fa-spinner fa-spin' style='visibility:hidden;margin-left: 5px;'></i>
         #{searchHint}
-        <label for='endpoint_limit'>Node Limit: </label>
-        <input id='endpoint_limit' value='100'>
+        <div><label for='endpoint_limit'>Node Limit: </label>
+        <input id='endpoint_limit' value='100'></div>
       </div>
     """
     $(".unselectable").append(select_box)
@@ -3620,6 +3628,7 @@ class Huviz
     #$("#endpoint_labels").autocomplete({source: @test_source(), minLength: 3})
     $("#endpoint_labels").autocomplete({minLength: 3, delay:500, source: (request, response) =>
       spinner.css('visibility','visible')
+      #myLongRequest = "William"
       qry = """
       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -3628,16 +3637,19 @@ class Huviz
       filter contains(?obj,"#{request.term}")
       }
       LIMIT 20
-      """ # """
+      """ # filter contains(?obj,"#{request.term}")
       url = @endpoint_loader.value
-      #console.log "++++++++++++++ THIS IS URL: " + url
+      console.log request
       queryUrl = url + '/?query=' + encodeURIComponent(qry)
       #console.log "ajax call"
       $.ajax
-          type: 'GET'
+          type: 'POST'
           url: queryUrl
-          headers:
-            Accept: 'application/sparql-results+json'
+          #headers:
+            #'Content-Type': "application/sparql-query"
+            #Accept: 'application/sparql-results+json'
+            #Accept: 'application/json'
+
           success: (data, textStatus, jqXHR) =>
             #console.log data
             results = data.results.bindings
@@ -3654,6 +3666,14 @@ class Huviz
           error: (jqxhr, textStatus, errorThrown) =>
             console.log(url, errorThrown)
             console.log textStatus
+            if not errorThrown
+              errorThrown = "Cross-Origin error"
+            msg = errorThrown + " while fetching " + url
+            @hide_state_msg()
+            $('#data_ontology_display').remove()
+            $("#endpoint_labels").siblings('i').css('visibility','hidden')
+            blurt(msg, 'error')
+
       })
 
   init_editc: ->
