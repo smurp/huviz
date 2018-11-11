@@ -4374,7 +4374,7 @@ class Huviz
           title: "display the class-instance relationship as an edge"
         input:
           type: "checkbox"
-          checked: "checked"
+          #checked: "checked"
         event_type: "change"
     ]
 
