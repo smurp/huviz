@@ -2447,20 +2447,12 @@ class Huviz
     subject = url
     #FROM <https://github.com/cwrc/testData/blob/master/GraffleTriples/BronteMini.ttl>
     qry = """
-<<<<<<< HEAD
     SELECT *
     WHERE {
     {<#{subject}> ?p ?o} UNION
     {{<#{subject}> ?p ?o} . {?o ?p2 ?o2 . FILTER(?o != <#{subject}>)}}
     }
     LIMIT #{node_limit}
-=======
-      SELECT * WHERE {
-        {<#{subject}> ?p ?o} UNION {?s ?p <#{subject}>}
-        FILTER(!isLiteral(?o) || lang(?o) = "" || langMatches(lang(?o), "EN"))
-      }
-      LIMIT #{node_limit}
->>>>>>> cdfa36ac2b64fee8da0fb369e452df119972eb91
     """
     url = @endpoint_loader.value
     console.log url
