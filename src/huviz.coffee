@@ -2406,29 +2406,55 @@ class Huviz
         @reset_dataset_ontology_loader()
         #TODO Reset titles on page
 
-  query_and_show: (url, callback) ->
+  query_and_show: (url, id, callback) =>
     qry = """
-      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
       SELECT ?g
       WHERE {
         GRAPH ?g { }
       }
     """
+
+
+    ajax_settings = {
+      'type': 'POST'
+      'url': url
+      'data': qry
+      'headers' :
+        'Content-Type': 'application/sparql-query'
+        'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
+    }
     # NEED a parser to handle result
-    console.log url
-    console.log qry
+    #console.log url
+    #console.log qry
     #queryUrl = encodeURI( url+"?query="+qry )
-    queryUrl = url + '/?query=' + encodeURIComponent(qry)
-    console.log queryUrl
+    #queryUrl = url + '/?query=' + encodeURIComponent(qry)
+    #console.log queryUrl
+
     $.ajax
-        type: 'GET'
-        url: queryUrl
-        headers:
-          Accept: 'application/sparql-results+json'
+        type: ajax_settings.type
+        url: ajax_settings.url
+        headers: ajax_settings.headers
+        data: ajax_settings.data
         success: (data, textStatus, jqXHR) =>
-          console.log data
-          console.log textStatus
+          #console.log data
+          #console.log textStatus
+          json_check = typeof data
+          if json_check is 'string' then json_data = JSON.parse(data) else json_data = data
+          results = json_data.results.bindings
+          console.log results
+          graph_options = "<option id='unique'>All Graphs</option>"
+          for graph in results
+            console.log graph.g.value
+            graph_options = graph_options + "<option id='unique' value='#{graph.g.value}'>#{graph.g.value}</option>"
+          graph_select = """
+              <div id='sparqlGraphSelect' class=ui-widget style=''>
+              <label for='endpoint_labels'>Graphs: </label>
+              <select id=''>
+                  #{graph_options}
+              </select>
+              </div>
+              """
+          $("##{id}").after(graph_select)
         error: (jqxhr, textStatus, errorThrown) =>
           console.log(url, errorThrown)
           if not errorThrown
@@ -2438,6 +2464,7 @@ class Huviz
           $('#data_ontology_display').remove()
           blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
           @reset_dataset_ontology_loader()
+
 
   load_endpoint_data_and_show: (url, callback) ->
     #console.log "ENDPOINT URI: " + url
@@ -2466,6 +2493,7 @@ class Huviz
           'Accept': 'application/json'
         data: qry
         success: (data, textStatus, jqXHR) =>
+          #console.log data
           json_data = JSON.parse(data)
           @add_nodes_from_SPARQL(json_data, subject)
           endpoint = @endpoint_loader.value
@@ -3542,14 +3570,15 @@ class Huviz
     if not (@dataset_loader? and @ontology_loader?  and @endpoint_loader?)
       console.log("still building loaders...")
       return
-    endpoint_selector = "##{@endpoint_loader.select_id}"
-    $(endpoint_selector).change(@update_endpoint_form)
     @set_ontology_from_dataset_if_possible()
     ugb = () =>
       @update_go_button()
     setTimeout(ugb, 200)
 
-  update_endpoint_form: (e) ->
+  update_endpoint_form: (e) =>
+    #check if there are any endpoint selections available
+    console.log e.currentTarget.id
+    @query_and_show(e.currentTarget.value, e.currentTarget.id)
     $('#sparqlQryInput').css('display', 'block')
     # TODO - if a value for Endpoint, let's grey out the dataset / ontology
 
@@ -3646,7 +3675,10 @@ class Huviz
       </div>
     """
     $(".unselectable").append(select_box)
-    url = "http://dbpedia.org/sparql"
+    #endpoint_selector = "##{@endpoint_loader.select_id}"
+    #console.log endpoint_selector
+    #$(endpoint_selector).change(@update_endpoint_form)
+    #url = "http://dbpedia.org/sparql"
     #url = "http://sparql.cwrc.ca/sparql"
     spinner = $("#endpoint_labels").siblings('i')
     #$("#endpoint_labels").autocomplete({source: @test_source(), minLength: 3})
@@ -3663,23 +3695,40 @@ class Huviz
       LIMIT 20
       """ # filter contains(?obj,"#{request.term}")
       url = @endpoint_loader.value
-      console.log request
-      #queryUrl = url + '/?query=' + encodeURIComponent(qry)
-      queryUrl = url
-      console.log url
-      #console.log "ajax call"
-      #headers: { "Content-Type": "application/sparql-query", "Accept": "application/json"}, data: "SELECT * WHERE { ?s ?p ?o } LIMIT 10"
+      console.log @endpoint_loader
+      # CWRC SPARQL
+      ajax_settings = {
+        'type': 'POST'
+        'url': url
+        'data': qry
+        'headers' :
+          'Content-Type': 'application/sparql-query'
+          'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
+      }
+      ###
+      ajax_settings = {
+        'type': 'POST'
+        'url': url + '/?query=' + encodeURIComponent(qry)
+        'data': ''
+        'headers' :
+          #'Accept': 'application/sparql-results+json'
+          'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
+      }
+      ###
       $.ajax
-          type: 'POST'
-          url: queryUrl
-          headers:
-            'Content-Type': "application/sparql-query"
-            #Accept: 'application/sparql-results+json'
-            'Accept': 'application/json'
-          data: qry
+          #ajax_settings
+          type: ajax_settings.type
+          url: ajax_settings.url
+          headers: ajax_settings.headers
+          data: ajax_settings.data
+          #headers:
+            #'Content-Type': "application/sparql-query"   # This works for CWRC
+          #  Accept: 'application/sparql-results+json'
+            #'Accept': 'application/json'  # This works for CWRC
+          #data: qry  # This works for CWRC
           success: (data, textStatus, jqXHR) =>
-            #console.log data
-            json_data = JSON.parse(data)
+            json_check = typeof data
+            if json_check is 'string' then json_data = JSON.parse(data) else json_data = data
             results = json_data.results.bindings
             selections = []
             for label in results
@@ -4689,6 +4738,7 @@ class Huviz
     console.log data
     @data_uri = data.value
     if data.isEndpoint #then time to query
+      console.log "++++++++++++++++++++++++++++++++++++++++++++++++++"
       @query_and_show(@data_uri, callback)
       return
     @set_ontology(onto.value)
