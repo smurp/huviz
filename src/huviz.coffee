@@ -2445,30 +2445,29 @@ class Huviz
     #subject= "http://dbpedia.org/resource/Bulldog_breeds"
     node_limit = $('#endpoint_limit').val()
     subject = url
+    #FROM <https://github.com/cwrc/testData/blob/master/GraffleTriples/BronteMini.ttl>
     qry = """
-      SELECT * WHERE {
-        {<#{subject}> ?p ?o} UNION {?s ?p <#{subject}>}
-        FILTER(!isLiteral(?o) || lang(?o) = "" || langMatches(lang(?o), "EN"))
-      }
-      LIMIT #{node_limit}
+    SELECT *
+    WHERE {
+    {<#{subject}> ?p ?o} UNION
+    {{<#{subject}> ?p ?o} . {?o ?p2 ?o2 . FILTER(?o != <#{subject}>)}}
+    }
+    LIMIT #{node_limit}
     """
-    url = "http://dbpedia.org/sparql"
-    # NEED a parser to handle result
-    #console.log url
-    #console.log qry
-    #queryUrl = encodeURI( url+"?query="+qry )
-    queryUrl = url + '/?query=' + encodeURIComponent(qry)
-    #console.log queryUrl
+    url = @endpoint_loader.value
+    console.log url
     $.ajax
-        type: 'GET'
-        url: queryUrl
+        type: 'POST'
+        url: url
         headers:
-          Accept: 'application/sparql-results+json'
+          #Accept: 'application/sparql-results+json'
+          'Content-Type': "application/sparql-query"
+          #Accept: 'application/sparql-results+json'
+          'Accept': 'application/json'
+        data: qry
         success: (data, textStatus, jqXHR) =>
-          #console.log data
-          data_ttl = @convert_json_to_ttl(data, subject)
-          #console.log data_ttl
-          @parseAndShowTTLData(data_ttl)
+          json_data = JSON.parse(data)
+          @add_nodes_from_SPARQL(json_data, subject)
           endpoint = @endpoint_loader.value
           @dataset_loader.disable()
           @ontology_loader.disable()
@@ -2476,6 +2475,7 @@ class Huviz
           disable = true
           @update_go_button(disable)
           @big_go_button.hide()
+          @after_file_loaded('sparql', callback)
         error: (jqxhr, textStatus, errorThrown) =>
           console.log(url, errorThrown)
           if not errorThrown
@@ -2486,30 +2486,52 @@ class Huviz
           blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
           @reset_dataset_ontology_loader()
 
-  convert_json_to_ttl: (raw_json_data, subject) ->
-    #console.log "Convert json to ttl now..."
-    #console.log raw_json_data
+  add_nodes_from_SPARQL: (json_data, subject) ->
     data = ''
-    nodes_in_data = raw_json_data.results.bindings
+    context = "http://universal.org"
+    plainLiteral = "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"
+    console.log json_data
+    #console.log subject
+    nodes_in_data = json_data.results.bindings
     for node in nodes_in_data
-      type_print = ''
-      if node.s
-        sub = node.s.value
-        obj = "<#{subject}>"
+      language = ''
+      obj_type = "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
+      if node.o2
+        new_subj = node.o.value
+        new_pred = node.p2.value
+        obj_val = node.o2.value
+        if node.o2.type is 'literal' or node.o.type is 'typed-literal'
+          if node.o2.datatype
+            obj_type = node.o2.datatype
+          else
+            obj_type = plainLiteral
+          if node.o2["xml:lang"]
+            language = node.o2['xml:lang']
+        #console.log "-------- Sub-node -----" + new_subj + " " + new_pred  + " " + obj_val + " " + obj_type
       else
-        sub = subject
-        if node.o.type is 'uri'
-          object_print = "<#{node.o.value}>"
-        else #literal or similar
-          object_print = '"#{node.o.value}"'
-        if node.o.datatype
-          type_print = "^^<#{node.o.datatype}>"
-        obj = object_print + type_print
-      new_line = "<#{sub}> <#{node.p.value}> #{obj}.\n"
-
-      data = data + new_line
-    console.log data
-    return data
+        obj_val = node.o.value
+        new_subj = subject
+        new_pred = node.p.value
+        if node.o.type is 'literal' or node.o.type is 'typed-literal'
+          if node.o.datatype
+            obj_type = node.o.datatype
+          else
+            obj_type = plainLiteral
+          if node.o["xml:lang"]
+            language = node.o['xml:lang']
+        #console.log "------- Core node -----" + new_subj + " " + new_pred + " " + obj_val + " " + obj_type
+      q =
+        g: context
+        s: new_subj
+        p: new_pred
+        o:
+          type: obj_type
+          value: obj_val
+      if language
+        q.o.language = language
+      if language then console.log(q)
+      @add_quad(q)
+      #@dump_stats()
 
   # Deal with buggy situations where flashing the links on and off
   # fixes data structures.  Not currently needed.
@@ -3640,19 +3662,23 @@ class Huviz
       """ # filter contains(?obj,"#{request.term}")
       url = @endpoint_loader.value
       console.log request
-      queryUrl = url + '/?query=' + encodeURIComponent(qry)
+      #queryUrl = url + '/?query=' + encodeURIComponent(qry)
+      queryUrl = url
+      console.log url
       #console.log "ajax call"
+      #headers: { "Content-Type": "application/sparql-query", "Accept": "application/json"}, data: "SELECT * WHERE { ?s ?p ?o } LIMIT 10"
       $.ajax
           type: 'POST'
           url: queryUrl
-          #headers:
-            #'Content-Type': "application/sparql-query"
+          headers:
+            'Content-Type': "application/sparql-query"
             #Accept: 'application/sparql-results+json'
-            #Accept: 'application/json'
-
+            'Accept': 'application/json'
+          data: qry
           success: (data, textStatus, jqXHR) =>
             #console.log data
-            results = data.results.bindings
+            json_data = JSON.parse(data)
+            results = json_data.results.bindings
             selections = []
             for label in results
               this_result = {
