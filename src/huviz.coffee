@@ -2447,12 +2447,20 @@ class Huviz
     subject = url
     #FROM <https://github.com/cwrc/testData/blob/master/GraffleTriples/BronteMini.ttl>
     qry = """
+<<<<<<< HEAD
     SELECT *
     WHERE {
     {<#{subject}> ?p ?o} UNION
     {{<#{subject}> ?p ?o} . {?o ?p2 ?o2 . FILTER(?o != <#{subject}>)}}
     }
     LIMIT #{node_limit}
+=======
+      SELECT * WHERE {
+        {<#{subject}> ?p ?o} UNION {?s ?p <#{subject}>}
+        FILTER(!isLiteral(?o) || lang(?o) = "" || langMatches(lang(?o), "EN"))
+      }
+      LIMIT #{node_limit}
+>>>>>>> cdfa36ac2b64fee8da0fb369e452df119972eb91
     """
     url = @endpoint_loader.value
     console.log url
@@ -2793,7 +2801,9 @@ class Huviz
     node.type ?= "Thing"
     node.lid ?= uniquer(node.id)
     if not node.name?
-      @set_name(node, name or node.lid)
+      # FIXME dereferencing of @ontology.label should be by curie, not lid
+      name = name or @ontology.label[node.lid] or node.lid
+      @set_name(node, name)
     return node
 
   develop: (node) ->
@@ -4400,7 +4410,7 @@ class Huviz
           title: "display the class-instance relationship as an edge"
         input:
           type: "checkbox"
-          checked: "checked"
+          #checked: "checked"
         event_type: "change"
     ]
 
