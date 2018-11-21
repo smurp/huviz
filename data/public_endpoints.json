@@ -2,7 +2,7 @@
   "datasets": [
     {
       "uri": "http://dbpedia.org/sparql",
-      "label": "DBpeidia",
+      "label": "DBpedia",
       "ontology_label": "DBpedia Ontology"
     },
     {
