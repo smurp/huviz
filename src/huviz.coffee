@@ -2771,7 +2771,9 @@ class Huviz
     node.type ?= "Thing"
     node.lid ?= uniquer(node.id)
     if not node.name?
-      @set_name(node, name or node.lid)
+      # FIXME dereferencing of @ontology.label should be by curie, not lid
+      name = name or @ontology.label[node.lid] or node.lid
+      @set_name(node, name)
     return node
 
   develop: (node) ->
