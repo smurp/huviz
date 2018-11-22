@@ -414,6 +414,7 @@ orlando_human_term =
   labelled: 'Labelled'
   choose: 'Activate'
   unchoose: 'Deactivate'
+  walk: 'Walk'
   select: 'Select'
   unselect: 'Unselect'
   label: 'Label'
@@ -3032,14 +3033,24 @@ class Huviz
     #       if neither end of the link is chosen then
     #         unshow the link
     # @unpin unchosen # TODO figure out why this does not cleanse pin
-    @chosen_set.remove unchosen
+    @chosen_set.remove(unchosen)
     for link in unchosen.links_shown by -1
       if link?
         if not (link.target.chosen? or link.source.chosen?)
           @unshow_link(link)
       else
         console.log("there is a null in the .links_shown of", unchosen)
-    @update_state unchosen
+    @update_state(unchosen)
+
+  walk: (chosen) =>
+    previouslyChosen = []
+    for prev in @chosen_set
+      previouslyChosen.push(prev)
+    @choose(chosen)
+    for prev in previouslyChosen
+      if prev isnt chosen
+        @unchoose(prev)
+    chosen
 
   hide: (goner) =>
     @unpin(goner)
