@@ -3834,7 +3834,7 @@ class Huviz
         append('<button type="button" class="ui-button ui-widget" role="button" title="Close All""><img class="close_all_snippets_button" src="close_all.png" title="Close All"></button>')
         #append('<span class="close_all_snippets_button" title="Close All"></span>')
         #append('<img class="close_all_snippets_button" src="close_all.png" title="Close All">')
-      close_all_button.on 'click', @clear_snippets
+      close_all_button.on('click', @clear_snippets)
       return
 
   snippet_positions_filled: {}
@@ -3933,7 +3933,7 @@ class Huviz
       @selector_for_graph_controls = @args.selector_for_graph_controls
     @init_ontology()
     @off_center = false # FIXME expose this or make the amount a slider
-    document.addEventListener 'nextsubject', @onnextsubject
+    document.addEventListener('nextsubject', @onnextsubject)
     @init_snippet_box()  # FIXME not sure this does much useful anymore
     @mousedown_point = false
     @discard_point = [@cx,@cy] # FIXME refactor so ctrl-handle handles this
@@ -5005,10 +5005,14 @@ class Orlando extends OntologicallyGrounded
         msg_or_obj = """
         <div id="#{obj.snippet_js_key}">
           <dl style="font-size:#{@snippet_triple_em}em">
-            <dt>subject <span style="background-color:#{m.edge.source.color}">&cir;</span></dt><dd>#{@make_link(obj.quad.subj_uri)}</dd>
-            <dt>predicate <span style="background-color:#{m.edge.color}">&xrarr;</span></dt><dd>#{@make_link(obj.quad.pred_uri)}</dd>
-            <dt>object <span style="background-color:#{m.edge.target.color}">&cir;</span></dt>#{obj_dd}
-            <dt>graph</dt><dd>#{@make_link(obj.quad.graph_uri)}</dd>
+            <dt>subject <span style="background-color:#{m.edge.source.color}">&cir;</span></dt>
+              <dd>#{@make_link(obj.quad.subj_uri)}</dd>
+            <dt>predicate <span style="background-color:#{m.edge.color}">&xrarr;</span></dt>
+              <dd>#{@make_link(obj.quad.pred_uri)}</dd>
+            <dt>object <span style="background-color:#{m.edge.target.color}">&cir;</span></dt>
+              #{obj_dd}
+            <dt>source</dt>
+              <dd>#{@make_link(obj.quad.graph_uri)}</dd>
           </dl>
         </div>
 
