@@ -2885,26 +2885,27 @@ class Huviz
 
   hide_node_links: (node) ->
     node.links_shown.forEach (e, i) =>
-      @links_set.remove e
+      @links_set.remove(e)
       if e.target is node
-        @remove_from e, e.source.links_shown
-        @update_state e.source
+        @remove_from(e, e.source.links_shown)
+        @update_state(e.source)
         e.unshow()
-        @update_showing_links e.source
+        @update_showing_links(e.source)
       else
-        @remove_from e, e.target.links_shown
-        @update_state e.target
+        @remove_from(e, e.target.links_shown)
+        @update_state(e.target)
         e.unshow()
-        @update_showing_links e.target
-      @remove_ghosts e
+        @update_showing_links(e.target)
+      @remove_ghosts(e)
 
     node.links_shown = []
-    @update_state node
-    @update_showing_links node
+    @update_state(node)
+    @update_showing_links(node)
 
   hide_found_links: ->
     @nodes.forEach (node, i) =>
-      @hide_node_links node  if node.name.match(search_regex)
+      if node.name.match(search_regex)
+        @hide_node_links(node)
     @restart()
 
   discard_found_nodes: ->
@@ -2913,9 +2914,9 @@ class Huviz
     @restart()
 
   show_node_links: (node) ->
-    @show_links_from_node node
-    @show_links_to_node node
-    @update_showing_links node
+    @show_links_from_node(node)
+    @show_links_to_node(node)
+    @update_showing_links(node)
 
   toggle_display_tech: (ctrl, tech) ->
     val = undefined
@@ -2935,16 +2936,16 @@ class Huviz
     true
 
   label: (branded) ->
-    @labelled_set.add branded
+    @labelled_set.add(branded)
     @tick()
 
   unlabel: (anonymized) ->
-    @labelled_set.remove anonymized
+    @labelled_set.remove(anonymized)
     @tick()
 
   pin: (node) ->
     if node.state is @graphed_set
-      @pinned_set.add node
+      @pinned_set.add(node)
       return true
     return false
 
@@ -2956,11 +2957,11 @@ class Huviz
 
   unlink: (unlinkee) ->
     # FIXME discover whether unlink is still needed
-    @hide_links_from_node unlinkee
-    @hide_links_to_node unlinkee
-    @shelved_set.acquire unlinkee
-    @update_showing_links unlinkee
-    @update_state unlinkee
+    @hide_links_from_node(unlinkee)
+    @hide_links_to_node(unlinkee)
+    @shelved_set.acquire(unlinkee)
+    @update_showing_links(unlinkee)
+    @update_state(unlinkee)
 
   #
   #  The DISCARDED are those nodes which the user has
@@ -3003,21 +3004,22 @@ class Huviz
   choose: (chosen) =>
     # There is a flag .chosen in addition to the state 'linked'
     # because linked means it is in the graph
-    @chosen_set.add chosen
-    @graphed_set.acquire chosen # do it early so add_link shows them otherwise choosing from discards just puts them on the shelf
-    @show_links_from_node chosen
-    @show_links_to_node chosen
+    @chosen_set.add(chosen)
+    @graphed_set.acquire(chosen) # do it early so add_link shows them otherwise choosing from discards just puts them on the shelf
+    @show_links_from_node(chosen)
+    @show_links_to_node(chosen)
     ###
     if chosen.links_shown
-      @graphed_set.acquire chosen  # FIXME this duplication (see above) is fishy
+      @graphed_set.acquire(chosen)  # FIXME this duplication (see above) is fishy
       chosen.showing_links = "all"
     else
       # FIXME after this weird side effect, at the least we should not go on
-      console.error(chosen.lid,"was found to have no links_shown so: @unlink_set.acquire(chosen)", chosen)
-      @shelved_set.acquire chosen
+      console.error(chosen.lid,
+          "was found to have no links_shown so: @unlink_set.acquire(chosen)", chosen)
+      @shelved_set.acquire(chosen)
     ###
-    @update_state chosen
-    shownness = @update_showing_links chosen
+    @update_state(chosen)
+    shownness = @update_showing_links(chosen)
     chosen
 
   unchoose: (unchosen) =>
