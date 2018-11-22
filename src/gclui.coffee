@@ -349,6 +349,7 @@ class CommandController
     @verb_sets = [ # mutually exclusive within each set
         choose: @huviz.human_term.choose
         unchoose: @huviz.human_term.unchoose
+        walk: @huviz.human_term.walk
       ,
         select: @huviz.human_term.select
         unselect: @huviz.human_term.unselect
@@ -385,9 +386,12 @@ class CommandController
     choose: (node) ->
       if node.chosen?
         return 'unchoose'
-    unchoose: (node) ->
+    unchoose: (node, engagedVerb) ->
       if not node.chosen?
-        return 'choose'
+        return 'choose' or engagedVerb
+    walk: (node) ->
+      if node.chosen?
+        return 'walk'
     label: (node) ->
       if node.labelled
         return 'unlabel'
@@ -417,7 +421,7 @@ class CommandController
         verb = @engaged_verbs[0]
         test = @auto_change_verb_tests[verb]
         if test
-          next_verb = test(node)
+          next_verb = test(node, @engaged_verbs[0])
           if next_verb
             @engage_verb(next_verb, verb is @transient_verb_engaged)
       @huviz.set_cursor_for_verbs(@engaged_verbs)
@@ -426,13 +430,16 @@ class CommandController
   verbs_requiring_regarding:
     ['show','suppress','emphasize','deemphasize']
   verbs_override: # when overriding ones are selected, others are unselected
-    choose: ['discard', 'unchoose', 'shelve', 'hide']
-    shelve: ['unchoose', 'choose', 'hide', 'discard', 'retrieve']
-    discard: ['choose', 'retrieve', 'hide', 'unchoose', 'unselect', 'select']
-    hide: ['discard', 'undiscard', 'label', 'choose' ,'unchoose', 'select', 'unselect']
+    choose: ['discard', 'unchoose', 'shelve', 'hide', 'walk']
+    walk: ['choose', 'unchoose', 'discard', 'shelve', 'hide']
+    shelve: ['unchoose', 'choose', 'hide', 'discard', 'retrieve', 'walk']
+    discard: ['choose', 'retrieve', 'hide', 'unchoose', 'unselect', 'select', 'walk']
+    hide: ['discard', 'undiscard', 'label', 'choose' ,'unchoose', 'select', 'unselect', 'walk']
   verb_descriptions:
     choose: "Put nodes in the graph and pull other, connected nodes in too,
              so long as they haven't been discarded."
+    walk:    "Put nodes in the graph and pull connected nodes in followed by
+              shelving of the nodes which had been pulled into the graph previously."
     shelve: "Remove nodes from the graph and put them on the shelf
              (the circle of nodes around the graph) from which they
              might return if called back into the graph by a neighbor
@@ -465,6 +472,7 @@ class CommandController
   verb_cursors:
     choose: "←"
     unchoose: "⇠"
+    walk: "🚶"
     shelve: "↺"
     label: "☭"
     unlabel: "☢"
