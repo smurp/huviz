@@ -2414,13 +2414,27 @@ class Huviz
       }
     """
     ajax_settings = { #TODO Currently this only works on CWRC Endpoint
-      'type': 'POST'
-      'url': url
-      'data': qry
+      'type': 'GET'#'POST'
+      'url': url + '?query=' + encodeURIComponent(qry)
+      #'data': qry
+      #'query': qry
       'headers' :
+        #'Content-Type': 'application/sparql-query'
         'Content-Type': 'application/sparql-query'
         'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
     }
+    ###
+    ajax_settings = {
+      'type': 'GET'
+      'data': ''
+      'url': url + '?query=' + encodeURIComponent(qry)
+      'headers' :
+        #'Accept': 'application/sparql-results+json'
+        'Content-Type': 'application/x-www-form-urlencoded'
+        'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
+    }
+    ###
+    graphSelector = "#sparqlGraphOptions-#{id}"
     $.ajax
         type: ajax_settings.type
         url: ajax_settings.url
@@ -2428,33 +2442,27 @@ class Huviz
         data: ajax_settings.data
         success: (data, textStatus, jqXHR) =>
           # TODO IF the data returned is empty go on to show input form otherwise show graph selection first
+          #console.log jqXHR
+          #console.log data
           json_check = typeof data
           if json_check is 'string' then json_data = JSON.parse(data) else json_data = data
           results = json_data.results.bindings
-          console.log results
-          graph_options = "<option id='#{unique_id()}' value='#{url}' >All Graphs</option>"
+          graphsNotFound = jQuery.isEmptyObject(results[0])
+          if graphsNotFound
+            $(graphSelector).parent().css('display', 'none')
+            return
+          graph_options = "<option id='#{unique_id()}' value='#{url}'> All Graphs </option>"
           for graph in results
             #console.log graph.g.value
             graph_options = graph_options + "<option id='#{unique_id()}' value='#{graph.g.value}'>#{graph.g.value}</option>"
-          ###
-          graph_select = """
-              <label for='sparqlGraphOptions-#{id}'>Graphs: </label>
-              <select id="sparqlGraphOptions-#{id}">
-                  #{graph_options}
-              </select>
-              """
-          ###
           $("#sparqlGraphOptions-#{id}").html(graph_options)
-          #graph_selector = "##{@endpoint_loader.select_id}"
-          #$("#sparqlGraphOptions").change(console.log("Hello World"))
-
-          # TODO CHANGE detector for when selection made to update URL
-          #@populate_label_picker()
+          $(graphSelector).parent().css('display', 'block')
           endpoint_selector = "##{@endpoint_loader.select_id}"
           $(endpoint_selector).change(@update_endpoint_form)
 
         error: (jqxhr, textStatus, errorThrown) =>
           console.log(url, errorThrown)
+          $(graphSelector).parent().css('display', 'none')
           if not errorThrown
             errorThrown = "Cross-Origin error"
           msg = errorThrown + " while fetching " + url
@@ -2463,36 +2471,51 @@ class Huviz
           blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
           @reset_dataset_ontology_loader()
 
-
-  load_endpoint_data_and_show: (url, callback) ->
+  load_endpoint_data_and_show: (subject, callback) ->
     #console.log "ENDPOINT URI: " + url
     #subject = "http://dbpedia.org/resource/Charlotte_Bronte"
     #subject= "http://dbpedia.org/resource/Bulldog_breeds"
     node_limit = $('#endpoint_limit').val()
-    subject = url
-    #FROM <https://github.com/cwrc/testData/blob/master/GraffleTriples/BronteMini.ttl>
+    url = @endpoint_loader.value
+    fromGraph = ''
+    if @endpoint_loader.endpoint_graph then fromGraph=" FROM <#{@endpoint_loader.endpoint_graph}> "
     qry = """
-    SELECT *
+    SELECT * #{fromGraph}
     WHERE {
     {<#{subject}> ?p ?o} UNION
     {{<#{subject}> ?p ?o} . {?o ?p2 ?o2 . FILTER(?o != <#{subject}>)}}
     }
     LIMIT #{node_limit}
     """
-    url = @endpoint_loader.value
-    console.log url
+    ajax_settings = {
+      'method': 'GET'#'POST'
+      'url': url + '?query=' + encodeURIComponent(qry)
+      'headers' :
+        'Content-Type': 'application/sparql-query'
+        'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
+    }
+    ###
+    ajax_settings = {
+      'method': 'POST'
+      'url': url #+ '?query=' + encodeURIComponent(qry)
+      'data': qry
+      'headers' :
+        'Content-Type': 'application/sparql-query'
+        'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
+    }
+    ###
+    console.log "URL: " + url + "  Graph: " + fromGraph + "  Subject: " + subject
+    console.log qry
     $.ajax
-        type: 'POST'
-        url: url
-        headers:
-          #Accept: 'application/sparql-results+json'
-          'Content-Type': "application/sparql-query"
-          #Accept: 'application/sparql-results+json'
-          'Accept': 'application/json'
-        data: qry
+        method: ajax_settings.method
+        url: ajax_settings.url
+        headers: ajax_settings.headers
+        data: ajax_settings.data
         success: (data, textStatus, jqXHR) =>
+          #console.log jqXHR
           #console.log data
-          json_data = JSON.parse(data)
+          json_check = typeof data
+          if json_check is 'string' then json_data = JSON.parse(data) else json_data = data
           @add_nodes_from_SPARQL(json_data, subject)
           endpoint = @endpoint_loader.value
           @dataset_loader.disable()
@@ -3584,7 +3607,7 @@ class Huviz
     graphSelector = "#sparqlGraphOptions-#{e.currentTarget.id}"
     $(graphSelector).change(@update_graph_form)
     $('#sparqlQryInput').css('display', 'block')
-    $(graphSelector).parent().css('display', 'block')
+    #$(graphSelector).parent().css('display', 'block')
     # TODO - if a value for Endpoint, let's grey out the dataset / ontology
 
   update_go_button: (disable) ->
@@ -3625,7 +3648,7 @@ class Huviz
     data_ontol_display = """
     <div id="data_ontology_display">
       <p><span class="dt_label">Endpoint:</span> #{endpoint}</p>
-      <p><span class="dt_label">Subject:</span> #{query}</p>
+      <p><span class="dt_label">Graph:</span> #{query}</p>
       <br style="clear:both">
     </div>"""
     $("#huvis_controls").prepend(data_ontol_display)
@@ -3668,7 +3691,6 @@ class Huviz
     #searchHint = """
     #  <br><p style='font-size:.8em;margin-top:5px;color: #999;margin-left: 40px;'>Put a space in front to retrieve word</p>
     #"""
-    searchHint = ""
     select_box = """
       <div class='ui-widget' style='display:none;margin-top:5px;margin-left:10px;'>
         <label>Graphs: </label>
@@ -3679,7 +3701,6 @@ class Huviz
         <label for='endpoint_labels'>Find: </label>
         <input id='endpoint_labels'>
         <i class='fas fa-spinner fa-spin' style='visibility:hidden;margin-left: 5px;'></i>
-        #{searchHint}
         <div><label for='endpoint_limit'>Node Limit: </label>
         <input id='endpoint_limit' value='100'>
         </div>
@@ -3696,44 +3717,41 @@ class Huviz
     #$("#endpoint_labels").autocomplete({source: @test_source(), minLength: 3})
     $("#endpoint_labels").autocomplete({minLength: 3, delay:500, source: (request, response) =>
       spinner.css('visibility','visible')
-      #myLongRequest = "William"
+      url = @endpoint_loader.value
+      fromGraph = ''
       if @endpoint_loader.endpoint_graph then fromGraph=" FROM <#{@endpoint_loader.endpoint_graph}> "
       qry = """
       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
       PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-      SELECT *
-      #{fromGraph}
+      SELECT * #{fromGraph}
       WHERE {
   	  ?sub rdfs:label|foaf:name ?obj .
       filter contains(?obj,"#{request.term}")
       }
       LIMIT 20
-      """ # filter contains(?obj,"#{request.term}")
-      url = @endpoint_loader.value
-      console.log @endpoint_loader
-      # CWRC SPARQL
+      """
       ajax_settings = {
-        'type': 'POST'
-        'url': url
-        'data': qry
+        'method': 'GET'#'POST'
+        'url': url + '?query=' + encodeURIComponent(qry)
         'headers' :
           'Content-Type': 'application/sparql-query'
           'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
       }
       ###
       ajax_settings = {
-        'type': 'POST'
-        'url': url + '/?query=' + encodeURIComponent(qry)
-        'data': ''
+        'method': 'POST'
+        'url': url #+ '/?query=' + encodeURIComponent(qry)
+        'data': qry #'/?query=' + encodeURIComponent(qry)
         'headers' :
           #'Accept': 'application/sparql-results+json'
           'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
       }
       ###
+      console.log "URL: " + url + "  Graph: " + fromGraph
+      console.log qry
       $.ajax
-          #ajax_settings
-          type: ajax_settings.type
+          method: ajax_settings.method  # "type" used in eariler jquery
           url: ajax_settings.url
           headers: ajax_settings.headers
           data: ajax_settings.data
@@ -3743,6 +3761,8 @@ class Huviz
             #'Accept': 'application/json'  # This works for CWRC
           #data: qry  # This works for CWRC
           success: (data, textStatus, jqXHR) =>
+            #console.log jqXHR
+            #console.log data
             json_check = typeof data
             if json_check is 'string' then json_data = JSON.parse(data) else json_data = data
             results = json_data.results.bindings
