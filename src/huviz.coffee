@@ -2406,16 +2406,14 @@ class Huviz
         @reset_dataset_ontology_loader()
         #TODO Reset titles on page
 
-  query_and_show: (url, id, callback) =>
+  sparql_graph_query_and_show: (url, id, callback) =>
     qry = """
       SELECT ?g
       WHERE {
         GRAPH ?g { }
       }
     """
-
-
-    ajax_settings = {
+    ajax_settings = { #TODO Currently this only works on CWRC Endpoint
       'type': 'POST'
       'url': url
       'data': qry
@@ -2423,38 +2421,38 @@ class Huviz
         'Content-Type': 'application/sparql-query'
         'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
     }
-    # NEED a parser to handle result
-    #console.log url
-    #console.log qry
-    #queryUrl = encodeURI( url+"?query="+qry )
-    #queryUrl = url + '/?query=' + encodeURIComponent(qry)
-    #console.log queryUrl
-
     $.ajax
         type: ajax_settings.type
         url: ajax_settings.url
         headers: ajax_settings.headers
         data: ajax_settings.data
         success: (data, textStatus, jqXHR) =>
-          #console.log data
-          #console.log textStatus
+          # TODO IF the data returned is empty go on to show input form otherwise show graph selection first
           json_check = typeof data
           if json_check is 'string' then json_data = JSON.parse(data) else json_data = data
           results = json_data.results.bindings
           console.log results
-          graph_options = "<option id='unique'>All Graphs</option>"
+          graph_options = "<option id='#{unique_id()}' value='#{url}' >All Graphs</option>"
           for graph in results
-            console.log graph.g.value
-            graph_options = graph_options + "<option id='unique' value='#{graph.g.value}'>#{graph.g.value}</option>"
+            #console.log graph.g.value
+            graph_options = graph_options + "<option id='#{unique_id()}' value='#{graph.g.value}'>#{graph.g.value}</option>"
+          ###
           graph_select = """
-              <div id='sparqlGraphSelect' class=ui-widget style=''>
-              <label for='endpoint_labels'>Graphs: </label>
-              <select id=''>
+              <label for='sparqlGraphOptions-#{id}'>Graphs: </label>
+              <select id="sparqlGraphOptions-#{id}">
                   #{graph_options}
               </select>
-              </div>
               """
-          $("##{id}").after(graph_select)
+          ###
+          $("#sparqlGraphOptions-#{id}").html(graph_options)
+          #graph_selector = "##{@endpoint_loader.select_id}"
+          #$("#sparqlGraphOptions").change(console.log("Hello World"))
+
+          # TODO CHANGE detector for when selection made to update URL
+          #@populate_label_picker()
+          endpoint_selector = "##{@endpoint_loader.select_id}"
+          $(endpoint_selector).change(@update_endpoint_form)
+
         error: (jqxhr, textStatus, errorThrown) =>
           console.log(url, errorThrown)
           if not errorThrown
@@ -3494,7 +3492,7 @@ class Huviz
       #endpoint = "#" + @endpoint_loader.uniq_id
       #$(endpoint).css('display','none')
     if @endpoint_loader and not @big_go_button
-      @populate_label_picker()
+      @populate_sparql_label_picker()
       endpoint_selector = "##{@endpoint_loader.select_id}"
       $(endpoint_selector).change(@update_endpoint_form)
     if @ontology_loader and not @big_go_button
@@ -3510,6 +3508,10 @@ class Huviz
     #@preload_endpoints()
     # TODO remove this nullification of @last_val by fixing logic in select_option()
     @ontology_loader?last_val = null # clear the last_val so select_option works the first time
+
+  update_graph_form: (e) =>
+    console.log e.currentTarget.value
+    @endpoint_loader.endpoint_graph = e.currentTarget.value
 
   visualize_dataset_using_ontology: (ignoreEvent, dataset, ontologies) =>
     @close_blurt_box()
@@ -3577,9 +3579,12 @@ class Huviz
 
   update_endpoint_form: (e) =>
     #check if there are any endpoint selections available
-    console.log e.currentTarget.id
-    @query_and_show(e.currentTarget.value, e.currentTarget.id)
+    #console.log e.currentTarget.id
+    @sparql_graph_query_and_show(e.currentTarget.value, e.currentTarget.id)
+    graphSelector = "#sparqlGraphOptions-#{e.currentTarget.id}"
+    $(graphSelector).change(@update_graph_form)
     $('#sparqlQryInput').css('display', 'block')
+    $(graphSelector).parent().css('display', 'block')
     # TODO - if a value for Endpoint, let's grey out the dataset / ontology
 
   update_go_button: (disable) ->
@@ -3658,20 +3663,26 @@ class Huviz
     #console.log("set_ontology_with_uri",ontologyUri, ontology_option)
     @ontology_loader.select_option(ontology_option)
 
-  populate_label_picker: (labels) =>
+  populate_sparql_label_picker: () =>
     # Convert array into dropdown list of operations
     #searchHint = """
     #  <br><p style='font-size:.8em;margin-top:5px;color: #999;margin-left: 40px;'>Put a space in front to retrieve word</p>
     #"""
     searchHint = ""
     select_box = """
+      <div class='ui-widget' style='display:none;margin-top:5px;margin-left:10px;'>
+        <label>Graphs: </label>
+        <select id="sparqlGraphOptions-#{@endpoint_loader.select_id}">
+        </select>
+      </div>
       <div id='sparqlQryInput' class=ui-widget style='display:none;margin-top:5px;margin-left:10px;'>
         <label for='endpoint_labels'>Find: </label>
         <input id='endpoint_labels'>
         <i class='fas fa-spinner fa-spin' style='visibility:hidden;margin-left: 5px;'></i>
         #{searchHint}
         <div><label for='endpoint_limit'>Node Limit: </label>
-        <input id='endpoint_limit' value='100'></div>
+        <input id='endpoint_limit' value='100'>
+        </div>
       </div>
     """
     $(".unselectable").append(select_box)
@@ -3681,15 +3692,20 @@ class Huviz
     #url = "http://dbpedia.org/sparql"
     #url = "http://sparql.cwrc.ca/sparql"
     spinner = $("#endpoint_labels").siblings('i')
+    fromGraph =''
     #$("#endpoint_labels").autocomplete({source: @test_source(), minLength: 3})
     $("#endpoint_labels").autocomplete({minLength: 3, delay:500, source: (request, response) =>
       spinner.css('visibility','visible')
       #myLongRequest = "William"
+      if @endpoint_loader.endpoint_graph then fromGraph=" FROM <#{@endpoint_loader.endpoint_graph}> "
       qry = """
       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-      SELECT * WHERE {
-  	  ?sub rdfs:label ?obj .
+      PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+      SELECT *
+      #{fromGraph}
+      WHERE {
+  	  ?sub rdfs:label|foaf:name ?obj .
       filter contains(?obj,"#{request.term}")
       }
       LIMIT 20
