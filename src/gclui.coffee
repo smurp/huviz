@@ -293,6 +293,16 @@ class CommandController
     #  blurt(@taxa_being_clicked, null, true)
     #  @taxa_click_storm_length ?= 0
     #  @taxa_click_storm_length++
+    #
+  make_run_transient_and_cleanup_callback: (because) ->
+    return (err) =>
+      if err
+        console.log(err)
+        throw err
+      @huviz.clean_up_all_dirt()
+      @run_any_immediate_command({})
+      @perform_any_cleanup(because)
+      return
   perform_on_taxon_clicked: (id, new_state, elem) =>
     @taxa_being_clicked_increment()
     taxon = @huviz.taxonomy[id]
@@ -309,29 +319,40 @@ class CommandController
           verbs: ['select']
           classes: (class_name for class_name in @taxons_chosen)
       else
-        console.error "there should be nothing to do because #{id}.#{old_state} == #{new_state}"
+        console.error "no action needed because #{id}.#{old_state} == #{new_state}"
     else if new_state is 'unshowing'
       @unselect_node_class(id)
       cmd = new gcl.GraphCommand @huviz,
         verbs: ['unselect']
         classes: [id]
     else if old_state is "hidden"
-      console.error "Uhh, how is it possible for #{id}.old_state to equal 'hidden' at this point?"
+      console.error "#{id}.old_state should NOT equal 'hidden' here"
     @taxon_picker.style_with_kid_color_summary_if_needed(id)
+    if new_state is 'showing'
+      because =
+        taxon_added: id
+        cleanup: () =>
+          @on_taxon_clicked(id, 'unshowing', elem)   # SEE unshow HERE
     if cmd?
       if @object_phrase? and @object_phrase isnt ""
         cmd.object_phrase = @object_phrase
       #@show_working_on()
       #window.suspend_updates = false #  window.toggle_suspend_updates(false)
-      @huviz.run_command(cmd)
+      # Scenario:
+      #   1) Walk ____ .
+      #   2) this method is servicing a click on a taxon (say Person)
+      #   3) cmd should contain "Select Person ."
+      @huviz.run_command(cmd, @make_run_transient_and_cleanup_callback(because))
+      because = {}  # clear the because
+      # Aftermath:
+      #   1) after running "Select Person ."
+      #   2) then execute "Walk Person ." now that object_phrase has a value
+      #   3) then we must clean up after the click on Person, ie
+      #         @on_taxon_clicked(id, 'unshowing', elem)  # SEE unshow ABOVE
       #@show_working_off()
-    if new_state is 'showing'
-      because =
-        taxon_added: id
-        cleanup: () =>
-          @on_taxon_clicked(id, 'unshowing', elem)
-    @update_command(because)
+    @update_command()
     @taxa_being_clicked_decrement()
+    return
   unselect_node_class: (node_class) ->
     # removes node_class from @taxons_chosen
     @taxons_chosen = @taxons_chosen.filter (eye_dee) ->
@@ -676,27 +697,36 @@ class CommandController
     @command = new gcl.GraphCommand(@huviz, args)
   is_proposed: ->
     @proposed_verb or @proposed_set #or @proposed_taxon
+
   update_command: (because) =>
-    console.log("update_command()")
+    console.log("update_command()", because)
     because = because or {}
     @huviz.show_state_msg("update_command")
+    @run_any_immediate_command(because)
+    @huviz.hide_state_msg()
+  run_any_immediate_command: (because) ->
+    console.log("run_any_immediate_command()", because)
     ready = @prepare_command(@build_command())
     if ready and @huviz.doit_asap and @immediate_execution_mode and not @is_proposed()
-      @execute_command(because)
-    @huviz.hide_state_msg()
-  execute_command: (because) =>
+      @perform_current_command(because)
+    return
+  perform_current_command: (because) =>
     @show_working_on(@command)
     if @huviz.slow_it_down
       start = Date.now()
       while Date.now() < start + (@huviz.slow_it_down * 1000)
         console.log(Math.round((Date.now() - start) / 1000))
-      alert "About to execute:\n  "+@command.str
+      #alert("About to execute:\n  "+@command.str)
     @command.execute()
     @huviz.update_all_counts()
-    if because.cleanup
+    @perform_any_cleanup(because)
+    @show_working_off()
+  perform_any_cleanup: (because) ->
+    console.log("perform_any_cleanup()",because)
+    if because? and because.cleanup
       because.cleanup()
       @update_command()
-    @show_working_off()
+    return
   nextcommand_prompts_visible: true
   nextcommand_str_visible: false
   prepare_command: (cmd) ->

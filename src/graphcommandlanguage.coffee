@@ -170,6 +170,7 @@ class GraphCommand
     for verb in @verbs
       method = @graph_ctrl[verb]
       if method
+        method.build_callback = @graph_ctrl["#{verb}__build_callback"]
         methods.push(method)
       else
         msg = "method '"+verb+"' not found"
@@ -194,6 +195,7 @@ class GraphCommand
     nodes = @get_nodes()
     console.log(@str, "on", nodes.length, "nodes")
     errorHandler = (err_arg) ->
+      #alert("WOOT! command has executed")
       if err_arg?
         console.error("err =", err_arg)
         if not err_arg?
@@ -214,14 +216,27 @@ class GraphCommand
       console.log("load data_uri has returned")
     else
       for meth in @get_methods()
+        if meth.build_callback
+          callback = meth.build_callback(this, nodes)
+        else
+          callback = errorHandler
         iter = (node) =>
           retval = meth.call(@graph_ctrl, node)
           @graph_ctrl.tick() # TODO(smurp) move this out, or call every Nth node
         if nodes?
-          async.each(nodes, iter, errorHandler)
+          if USE_ASYNC = false
+            async.each(nodes, iter, callback)
+          else
+            for node in nodes
+              iter(node)
+            #if callback isnt errorHandler
+            #  debugger
+            @graph_ctrl.gclui.set
+            callback()
     @graph_ctrl.clean_up_all_dirt_once()
     @graph_ctrl.hide_state_msg()
     @graph_ctrl.force.start()
+    return
   get_pretty_verbs: ->
     l = []
     for verb_id in @verbs
@@ -292,6 +307,8 @@ class GraphCommand
     #cmd_str += " ."
     @ready = ready
     @str = cmd_str
+  toString: ->
+    @str
   parse: (cmd_str) ->
     parts = cmd_str.split(" ")
     verb = parts[0]
@@ -314,7 +331,7 @@ class GraphCommand
 class GraphCommandLanguageCtrl
   constructor: (@graph_ctrl) ->
     @prefixes = {}
-  run: (script) ->
+  run: (script, callback) ->
     @graph_ctrl.before_running_command(this)
     #console.debug("script: ",script)
     if not script?
@@ -328,16 +345,16 @@ class GraphCommandLanguageCtrl
       @commands = script
     else # an object we presume
       @commands = [script]
-    retval = @execute()
+    retval = @execute(callback)
     #console.log "commands:"
     #console.log @commands
     @graph_ctrl.after_running_command(this)
-    retval
+    return retval
   run_one: (cmd_spec) ->
     cmd = new GraphCommand(@graph_ctrl, cmd_spec)
     cmd.prefixes = @prefixes
     cmd.execute()
-  execute: =>
+  execute: (callback) =>
     if @commands.length > 0 and typeof @commands[0] is 'string' and @commands[0].match(/^load /)
       #console.log("initial execute", @commands)
       @run_one(@commands.shift())
@@ -350,6 +367,9 @@ class GraphCommandLanguageCtrl
     for cmd_spec in @commands
       if cmd_spec # ie not blank
         @run_one(cmd_spec)
+    if callback?
+      callback()
+    return
 
 (exports ? this).GraphCommandLanguageCtrl = GraphCommandLanguageCtrl
 (exports ? this).GraphCommand = GraphCommand
