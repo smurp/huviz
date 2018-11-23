@@ -6,8 +6,8 @@
       "ontology_label": "CWRC Ontology"
     },
     {
-      "uri": "https://raw.githubusercontent.com/cwrc/testData/master/sparqlTest1.ttl",
-      "label": "SPARQL Test1",
+      "uri": "http://sparql.cwrc.ca/ontologies/cwrc",
+      "label": "CWRC2",
       "ontology_label": "CWRC Ontology"
     }
   ],

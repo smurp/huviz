@@ -2414,16 +2414,37 @@ class Huviz
         GRAPH ?g { }
       }
     """
+    ###
+    Reference: https://www.w3.org/TR/sparql11-protocol/
+    1. query via GET
+    2. query via URL-encoded POST
+    3. query via POST directly -- Query String Parameters: default-graph-uri (0 or more); named-graph-uri (0 or more)
+                               -- Request Content Type: application/sparql-query
+                               -- Request Message Body: Unencoded SPARQL query string
+    ###
+    # These POST settings work for: CWRC, WWI open, on DBpedia, and Open U.K. but not on Bio Database
     ajax_settings = { #TODO Currently this only works on CWRC Endpoint
-      'type': 'GET'#'POST'
+      'type': 'GET'
       'url': url + '?query=' + encodeURIComponent(qry)
-      #'data': qry
-      #'query': qry
       'headers' :
-        #'Content-Type': 'application/sparql-query'
+        #'Content-Type': 'application/sparql-query'  # This is only required for CWRC - not accepted by some Endpoints
+        'Accept': 'application/sparql-results+json'
+    }
+    if url is "http://sparql.cwrc.ca/sparql" # Hack to make CWRC setup work properly
+      ajax_settings.headers =
+        'Content-Type' : 'application/sparql-query'
+        'Accept': 'application/sparql-results+json'
+    # These POST settings work for: CWRC and WWI open, but not on DBpedia and Open U.K.
+    ###
+    ajax_settings = {
+      'type': 'POST'
+      'url': url
+      'data': qry
+      'headers' :
         'Content-Type': 'application/sparql-query'
         'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
     }
+    ###
     ###
     ajax_settings = {
       'type': 'GET'
@@ -2435,22 +2456,63 @@ class Huviz
         'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
     }
     ###
+    #littleTestQuery = """SELECT * WHERE {?s ?o ?p} LIMIT 1"""
+    ###
+    $.ajax
+      method: 'GET'
+      url: url + '?query=' + encodeURIComponent(littleTestQuery)
+      headers:
+        'Accept': 'application/sparql-results+json'
+      success: (data, textStatus, jqXHR) =>
+        console.log "This a little repsponse test: " + textStatus
+        console.log jqXHR
+        console.log jqXHR.getAllResponseHeaders(data)
+        console.log data
+      error: (jqxhr, textStatus, errorThrown) =>
+        console.log(url, errorThrown)
+        console.log jqXHR.getAllResponseHeaders(data)
+    ###
+    ###
+    # This is a quick test of the SPARQL Endpoint it should return https://www.w3.org/TR/2013/REC-sparql11-service-description-20130321/#example-turtle
+    $.ajax
+      method: 'GET'
+      url: url
+      headers:
+        'Accept': 'text/turtle'
+      success: (data, textStatus, jqXHR) =>
+        console.log "This Enpoint Test: " + textStatus
+        console.log jqXHR
+        console.log jqXHR.getAllResponseHeaders(data)
+        console.log data
+      error: (jqxhr, textStatus, errorThrown) =>
+        console.log(url, errorThrown)
+        console.log jqXHR.getAllResponseHeaders(data)
+    ###
     graphSelector = "#sparqlGraphOptions-#{id}"
+    $(graphSelector).parent().css('display', 'none')
+    $('#sparqlQryInput').css('display', 'none')
+    spinner = $("#sparqlGraphSpinner-#{id}")
+    spinner.css('display','block')
     $.ajax
         type: ajax_settings.type
         url: ajax_settings.url
         headers: ajax_settings.headers
-        data: ajax_settings.data
         success: (data, textStatus, jqXHR) =>
           # TODO IF the data returned is empty go on to show input form otherwise show graph selection first
           #console.log jqXHR
-          #console.log data
+          console.log data
+          console.log jqXHR.getAllResponseHeaders(data)
           json_check = typeof data
           if json_check is 'string' then json_data = JSON.parse(data) else json_data = data
           results = json_data.results.bindings
           graphsNotFound = jQuery.isEmptyObject(results[0])
           if graphsNotFound
             $(graphSelector).parent().css('display', 'none')
+            spinner.css('display','none')
+            $('#sparqlQryInput').css('display', 'block')
+            $('#sparqlQryInput').css('color', 'inherit')
+            $("#endpoint_labels").prop('disabled', false).attr('value', '')
+            $("#endpoint_limit").prop('disabled', false).attr('value', '100')
             return
           graph_options = "<option id='#{unique_id()}' value='#{url}'> All Graphs </option>"
           for graph in results
@@ -2460,9 +2522,15 @@ class Huviz
           $(graphSelector).parent().css('display', 'block')
           endpoint_selector = "##{@endpoint_loader.select_id}"
           $(endpoint_selector).change(@update_endpoint_form)
+          spinner.css('display','none')
+          $("#endpoint_labels").prop('disabled', false).attr('value', '')
+          $("#endpoint_limit").prop('disabled', false).attr('value', '100')
+          $('#sparqlQryInput').css('color', 'inherit')
+          $('#sparqlQryInput').css('display', 'block')
 
         error: (jqxhr, textStatus, errorThrown) =>
           console.log(url, errorThrown)
+          console.log jqXHR.getAllResponseHeaders(data)
           $(graphSelector).parent().css('display', 'none')
           if not errorThrown
             errorThrown = "Cross-Origin error"
@@ -2471,6 +2539,8 @@ class Huviz
           $('#data_ontology_display').remove()
           blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
           @reset_dataset_ontology_loader()
+          spinner.css('visibility','hidden')
+
 
   load_endpoint_data_and_show: (subject, callback) ->
     #console.log "ENDPOINT URI: " + url
@@ -2495,6 +2565,10 @@ class Huviz
         'Content-Type': 'application/sparql-query'
         'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
     }
+    if url is "http://sparql.cwrc.ca/sparql" # Hack to make CWRC setup work properly
+      ajax_settings.headers =
+        'Content-Type' : 'application/sparql-query'
+        'Accept': 'application/sparql-results+json'
     ###
     ajax_settings = {
       'method': 'POST'
@@ -2511,7 +2585,6 @@ class Huviz
         method: ajax_settings.method
         url: ajax_settings.url
         headers: ajax_settings.headers
-        data: ajax_settings.data
         success: (data, textStatus, jqXHR) =>
           #console.log jqXHR
           #console.log data
@@ -2528,6 +2601,7 @@ class Huviz
           @after_file_loaded('sparql', callback)
         error: (jqxhr, textStatus, errorThrown) =>
           console.log(url, errorThrown)
+          console.log jqXHR.getAllResponseHeaders(data)
           if not errorThrown
             errorThrown = "Cross-Origin error"
           msg = errorThrown + " while fetching " + url
@@ -3619,7 +3693,7 @@ class Huviz
     @sparql_graph_query_and_show(e.currentTarget.value, e.currentTarget.id)
     graphSelector = "#sparqlGraphOptions-#{e.currentTarget.id}"
     $(graphSelector).change(@update_graph_form)
-    $('#sparqlQryInput').css('display', 'block')
+
     #$(graphSelector).parent().css('display', 'block')
     # TODO - if a value for Endpoint, let's grey out the dataset / ontology
 
@@ -3710,12 +3784,15 @@ class Huviz
         <select id="sparqlGraphOptions-#{@endpoint_loader.select_id}">
         </select>
       </div>
-      <div id='sparqlQryInput' class=ui-widget style='display:none;margin-top:5px;margin-left:10px;'>
+      <div id="sparqlGraphSpinner-#{@endpoint_loader.select_id}" style='display:none;font-style:italic;'>
+        <i class='fas fa-spinner fa-spin' style='margin: 10px 10px 0 50px;'></i>  Looking for graphs...
+      </div>
+      <div id='sparqlQryInput' class=ui-widget style='display:none;margin-top:5px;margin-left:10px;color:#999;'>
         <label for='endpoint_labels'>Find: </label>
-        <input id='endpoint_labels'>
+        <input id='endpoint_labels' disabled>
         <i class='fas fa-spinner fa-spin' style='visibility:hidden;margin-left: 5px;'></i>
         <div><label for='endpoint_limit'>Node Limit: </label>
-        <input id='endpoint_limit' value='100'>
+        <input id='endpoint_limit' value='100' disabled>
         </div>
       </div>
     """
@@ -3745,34 +3822,21 @@ class Huviz
       LIMIT 20
       """
       ajax_settings = {
-        'method': 'GET'#'POST'
+        'method': 'GET'
         'url': url + '?query=' + encodeURIComponent(qry)
         'headers' :
-          'Content-Type': 'application/sparql-query'
-          'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
+          'Accept': 'application/sparql-results+json'
       }
-      ###
-      ajax_settings = {
-        'method': 'POST'
-        'url': url #+ '/?query=' + encodeURIComponent(qry)
-        'data': qry #'/?query=' + encodeURIComponent(qry)
-        'headers' :
-          #'Accept': 'application/sparql-results+json'
-          'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
-      }
-      ###
+      if url is "http://sparql.cwrc.ca/sparql" # Hack to make CWRC setup work properly
+        ajax_settings.headers =
+          'Content-Type' : 'application/sparql-query'
+          'Accept': 'application/sparql-results+json'
       console.log "URL: " + url + "  Graph: " + fromGraph
       console.log qry
       $.ajax
           method: ajax_settings.method  # "type" used in eariler jquery
           url: ajax_settings.url
           headers: ajax_settings.headers
-          data: ajax_settings.data
-          #headers:
-            #'Content-Type': "application/sparql-query"   # This works for CWRC
-          #  Accept: 'application/sparql-results+json'
-            #'Accept': 'application/json'  # This works for CWRC
-          #data: qry  # This works for CWRC
           success: (data, textStatus, jqXHR) =>
             #console.log jqXHR
             #console.log data
