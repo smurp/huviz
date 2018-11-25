@@ -241,7 +241,11 @@ class CommandController
     # http://en.wikipedia.org/wiki/Taxon
     @taxon_picker = new ColoredTreePicker(
       @taxon_box, 'Thing',
-      (extra_classes=[]), (needs_expander=true), (use_name_as_label=true), (squash_case=true))
+      # documenting meaning of positional params with single use variables
+      (extra_classes=[]),
+      (needs_expander=true),
+      (use_name_as_label=true),
+      (squash_case=true))
     @taxon_picker.click_listener = @on_taxon_clicked
     @taxon_picker.hover_listener = @on_taxon_hovered
     @taxon_picker.show_tree(@hierarchy, @taxon_box)
@@ -925,6 +929,7 @@ class CommandController
   on_set_picked: (set_id, new_state) =>
     @clear_set_picker() # TODO consider in relation to liking_all_mode
     @set_picker.set_direct_state(set_id, new_state)
+    because = {}
     if new_state is 'showing'
       @taxon_picker.shield()
       @chosen_set = @huviz[set_id]
@@ -932,14 +937,26 @@ class CommandController
       because =
         set_added: set_id
         cleanup: @disengage_all_sets # the method to call to clear
-    else
+      cmd = new gcl.GraphCommand @huviz,
+          verbs: @engaged_verbs # ['select']
+          sets: [@chosen_set]
+    else if new_state is 'unshowing'
       @taxon_picker.unshield()
+      XXXcmd = new gcl.GraphCommand @huviz,
+          verbs: ['unselect']
+          sets: [@chosen_set]
       @disengage_all_sets()
-    @update_command(because)
-  disengage_all_sets: => # TODO harmonize disengage_all_sets() and clear_all_sets() or document difference
+    if cmd?
+      @huviz.run_command(cmd, @make_run_transient_and_cleanup_callback(because))
+      because = {}
+    @update_command()
+
+  disengage_all_sets: =>
+    # TODO harmonize disengage_all_sets() and clear_all_sets() or document difference
     if @chosen_set_id
       @on_set_picked(@chosen_set_id, "unshowing")
-    #@chosen_set_id = undefined
+      delete @chosen_set_id
+      delete @chosen_set
   clear_all_sets: =>
     skip_sets = ['shelved_set']
     for set_key, set_label of @the_sets.all_set[1]
