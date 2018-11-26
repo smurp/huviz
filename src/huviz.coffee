@@ -2408,6 +2408,7 @@ class Huviz
         #TODO Reset titles on page
 
   sparql_graph_query_and_show: (url, id, callback) =>
+    console.log "<++> sparql_graph_query_and_show"
     qry = """
       SELECT ?g
       WHERE {
@@ -2498,35 +2499,20 @@ class Huviz
         url: ajax_settings.url
         headers: ajax_settings.headers
         success: (data, textStatus, jqXHR) =>
-          # TODO IF the data returned is empty go on to show input form otherwise show graph selection first
-          #console.log jqXHR
-          console.log data
-          console.log jqXHR.getAllResponseHeaders(data)
           json_check = typeof data
           if json_check is 'string' then json_data = JSON.parse(data) else json_data = data
           results = json_data.results.bindings
           graphsNotFound = jQuery.isEmptyObject(results[0])
           if graphsNotFound
             $(graphSelector).parent().css('display', 'none')
-            spinner.css('display','none')
-            $('#sparqlQryInput').css('display', 'block')
-            $('#sparqlQryInput').css('color', 'inherit')
-            $("#endpoint_labels").prop('disabled', false).attr('value', '')
-            $("#endpoint_limit").prop('disabled', false).attr('value', '100')
+            @reset_endpoint_form(true)
             return
           graph_options = "<option id='#{unique_id()}' value='#{url}'> All Graphs </option>"
           for graph in results
-            #console.log graph.g.value
             graph_options = graph_options + "<option id='#{unique_id()}' value='#{graph.g.value}'>#{graph.g.value}</option>"
           $("#sparqlGraphOptions-#{id}").html(graph_options)
           $(graphSelector).parent().css('display', 'block')
-          endpoint_selector = "##{@endpoint_loader.select_id}"
-          $(endpoint_selector).change(@update_endpoint_form)
-          spinner.css('display','none')
-          $("#endpoint_labels").prop('disabled', false).attr('value', '')
-          $("#endpoint_limit").prop('disabled', false).attr('value', '100')
-          $('#sparqlQryInput').css('color', 'inherit')
-          $('#sparqlQryInput').css('display', 'block')
+          @reset_endpoint_form(true)
 
         error: (jqxhr, textStatus, errorThrown) =>
           console.log(url, errorThrown)
@@ -3689,18 +3675,31 @@ class Huviz
 
   update_endpoint_form: (e) =>
     #check if there are any endpoint selections available
-    #console.log e.currentTarget.id
-    @sparql_graph_query_and_show(e.currentTarget.value, e.currentTarget.id)
     graphSelector = "#sparqlGraphOptions-#{e.currentTarget.id}"
     $(graphSelector).change(@update_graph_form)
+    if e.currentTarget.value is ''
+      $("##{@dataset_loader.uniq_id}").children('select').prop('disabled', false)
+      $("##{@ontology_loader.uniq_id}").children('select').prop('disabled', false)
+      $(graphSelector).parent().css('display', 'none')
+      @reset_endpoint_form(false)
+    else
+      @sparql_graph_query_and_show(e.currentTarget.value, e.currentTarget.id)
+      #console.log @dataset_loader
+      $("##{@dataset_loader.uniq_id}").children('select').prop('disabled', 'disabled')
+      $("##{@ontology_loader.uniq_id}").children('select').prop('disabled', 'disabled')
 
-    #$(graphSelector).parent().css('display', 'block')
-    # TODO - if a value for Endpoint, let's grey out the dataset / ontology
+  reset_endpoint_form: (show) =>
+    spinner = $("#sparqlGraphSpinner-#{@endpoint_loader.select_id}")
+    spinner.css('display','none')
+    $("#endpoint_labels").prop('disabled', false).val("")
+    $("#endpoint_limit").prop('disabled', false).val("100")
+    if show
+      $('#sparqlQryInput').css({'display': 'block','color': 'inherit'} )
+    else
+      $('#sparqlQryInput').css('display', 'none')
 
   update_go_button: (disable) ->
     if not disable?
-      #labelSelected = $('#endpoint_labels').val()
-      #console.log "Label selected yes: " + labelSelected
       if @endpoint_loader.value
         disable = false
       else
@@ -3749,7 +3748,7 @@ class Huviz
     $("#ontology_watermark").text(ontology_str)
 
   set_ontology_from_dataset_if_possible: ->
-    console.log "set_ontology_from_dataset_if_possible"
+    console.log "<++> Set_ontology_from_dataset_if_possible"
     if @dataset_loader.value # and not @ontology_loader.value
       option = @dataset_loader.get_selected_option()
       ontologyUri = option.data('ontologyUri')
@@ -3774,10 +3773,6 @@ class Huviz
     @ontology_loader.select_option(ontology_option)
 
   populate_sparql_label_picker: () =>
-    # Convert array into dropdown list of operations
-    #searchHint = """
-    #  <br><p style='font-size:.8em;margin-top:5px;color: #999;margin-left: 40px;'>Put a space in front to retrieve word</p>
-    #"""
     select_box = """
       <div class='ui-widget' style='display:none;margin-top:5px;margin-left:10px;'>
         <label>Graphs: </label>
@@ -3787,7 +3782,7 @@ class Huviz
       <div id="sparqlGraphSpinner-#{@endpoint_loader.select_id}" style='display:none;font-style:italic;'>
         <i class='fas fa-spinner fa-spin' style='margin: 10px 10px 0 50px;'></i>  Looking for graphs...
       </div>
-      <div id='sparqlQryInput' class=ui-widget style='display:none;margin-top:5px;margin-left:10px;color:#999;'>
+      <div id="sparqlQryInput" class=ui-widget style='display:none;margin-top:5px;margin-left:10px;color:#999;'>
         <label for='endpoint_labels'>Find: </label>
         <input id='endpoint_labels' disabled>
         <i class='fas fa-spinner fa-spin' style='visibility:hidden;margin-left: 5px;'></i>
@@ -3797,14 +3792,8 @@ class Huviz
       </div>
     """
     $(".unselectable").append(select_box)
-    #endpoint_selector = "##{@endpoint_loader.select_id}"
-    #console.log endpoint_selector
-    #$(endpoint_selector).change(@update_endpoint_form)
-    #url = "http://dbpedia.org/sparql"
-    #url = "http://sparql.cwrc.ca/sparql"
     spinner = $("#endpoint_labels").siblings('i')
     fromGraph =''
-    #$("#endpoint_labels").autocomplete({source: @test_source(), minLength: 3})
     $("#endpoint_labels").autocomplete({minLength: 3, delay:500, source: (request, response) =>
       spinner.css('visibility','visible')
       url = @endpoint_loader.value
@@ -3831,8 +3820,6 @@ class Huviz
         ajax_settings.headers =
           'Content-Type' : 'application/sparql-query'
           'Accept': 'application/sparql-results+json'
-      console.log "URL: " + url + "  Graph: " + fromGraph
-      console.log qry
       $.ajax
           method: ajax_settings.method  # "type" used in eariler jquery
           url: ajax_settings.url
@@ -4806,10 +4793,8 @@ class Huviz
     if @endpoint_loader
       endpoint = "#" + @endpoint_loader.uniq_id
     if new_val and endpoint
-      $('#sparqlQryInput').css('display','block')
       $(endpoint).css('display','block')
     else
-      $('#sparqlQryInput').css('display','none')
       $(endpoint).css('display','none')
 
   init_from_graph_controls: ->
