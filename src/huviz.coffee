@@ -2580,7 +2580,7 @@ class Huviz
           endpoint = @endpoint_loader.value
           @dataset_loader.disable()
           @ontology_loader.disable()
-          @replace_loader_display_for_endpoint(endpoint, subject)
+          @replace_loader_display_for_endpoint(endpoint, @endpoint_loader.endpoint_graph)
           disable = true
           @update_go_button(disable)
           @big_go_button.hide()
@@ -3616,7 +3616,7 @@ class Huviz
       data = dataset or @endpoint_loader
       @load_endpoint_data_and_show(endpoint_label_uri)
       @update_browser_title(data)
-      @update_caption(data.value, "Endpoint Defined")
+      @update_caption(data.value, data.endpoint_graph)
       return
     # Either dataset and ontologies are passed in by HuViz.load_with() from a command
     #   or this method is called with neither then get values from the loaders
@@ -3727,14 +3727,15 @@ class Huviz
     </div>"""
     $("#huvis_controls").prepend(data_ontol_display)
 
-  replace_loader_display_for_endpoint: (endpoint, query) ->
+  replace_loader_display_for_endpoint: (endpoint, graph) ->
     $("#huvis_controls .unselectable").attr("style","display:none")
     #uri = new URL(location)
     #uri.hash = "load+#{dataset.value}+with+#{ontology.value}"
+    if graph then print_graph = "<p><span class='dt_label'>Graph:</span> #{graph}</p>" else print_graph = ""
     data_ontol_display = """
     <div id="data_ontology_display">
       <p><span class="dt_label">Endpoint:</span> #{endpoint}</p>
-      <p><span class="dt_label">Graph:</span> #{query}</p>
+      #{print_graph}
       <br style="clear:both">
     </div>"""
     $("#huvis_controls").prepend(data_ontol_display)
