@@ -790,10 +790,10 @@ class Huviz
     #  @toggle_selected(node)
     @clean_up_all_dirt_once()
 
-  run_command: (cmd) ->
+  run_command: (cmd, callback) ->
     @show_state_msg(cmd.as_msg())
     #@gclui.show_working_on()
-    @gclc.run(cmd)
+    @gclc.run(cmd, callback)
     #@gclui.show_working_off()
     @hide_state_msg()
     return
@@ -2870,7 +2870,7 @@ class Huviz
     @clean_up_dirty_taxons()
     @clean_up_dirty_predicates()
     @regenerate_english()
-    setTimeout(@clean_up_dirty_predictes, 500)
+    #setTimeout(@clean_up_dirty_predictes, 500)
     #setTimeout(@clean_up_dirty_predictes, 3000)
 
   prove_OnceRunner: (timeout) ->
@@ -3123,15 +3123,30 @@ class Huviz
         console.log("there is a null in the .links_shown of", unchosen)
     @update_state(unchosen)
 
+  walk__build_callback: (commandObj, nodes) =>
+    # Purpose:
+    #   Return the callback which will clean up after desired nodes have been walked.
+    unchooseTheseLater = []
+    for oldChosen in commandObj.graph_ctrl.chosen_set
+      if not (oldChosen in nodes)
+        unchooseTheseLater.push(oldChosen)
+    return (err) =>
+      # Purpose:
+      #   Deactivate all nodes which should no longer be activated.
+      #   This callback is used in async.each(this, iteree, callback) so handles errors too.
+      #     https://caolan.github.io/async/docs.html#each
+      #alert('callback called')
+      if err?
+        alert(err)
+      else
+        for oldChosen in unchooseTheseLater
+          commandObj.graph_ctrl.unchoose(oldChosen)
+
   walk: (chosen) =>
-    previouslyChosen = []
-    for prev in @chosen_set
-      previouslyChosen.push(prev)
-    @choose(chosen)
-    for prev in previouslyChosen
-      if prev isnt chosen
-        @unchoose(prev)
-    chosen
+    # Walk is just the same as Choose (AKA Activate) except afterward it deactivates the
+    # nodes which were in the chosen_set before but are not in the set being walked.
+    # This is accomplished by walk__build_callback()
+    return @choose(chosen)
 
   hide: (goner) =>
     @unpin(goner)
@@ -4214,7 +4229,7 @@ class Huviz
         label:
           title: "the repulsive charge betweeen nodes"
         input:
-          value: -200
+          value: -210
           min: -600
           max: -1
           step: 1
@@ -4225,7 +4240,7 @@ class Huviz
         label:
           title: "the attractive force keeping nodes centered"
         input:
-          value: 0.4
+          value: 0.45
           min: 0
           max: 1
           step: 0.025
