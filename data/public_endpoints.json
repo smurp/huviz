@@ -6,8 +6,32 @@
       "ontology_label": "DBpedia Ontology"
     },
     {
-      "uri": "http://bio2rdf.org/sparql",
-      "label": "Bio Database"
+      "uri": "http://affymetrix.bio2rdf.org/sparql",
+      "label": "Unknown2"
+    },
+    {
+      "uri": "http://aksw.org/sparql",
+      "label": "Unknown3"
+    },
+    {
+      "uri": "http://bnb.data.bl.uk/sparql",
+      "label": "Unknown4"
+    },
+    {
+      "uri": "http://biomodels.bio2rdf.org/sparql",
+      "label": "Unknown5"
+    },
+    {
+      "uri": "http://clinicaltrials.bio2rdf.org/sparql",
+      "label": "Unknown6"
+    },
+    {
+      "uri": "http://ctd.bio2rdf.org/sparql",
+      "label": "Unknown7"
+    },
+    {
+      "uri": "http://data.aalto.fi/sparql",
+      "label": "Unknown8"
     },
     {
       "uri": "http://ldf.fi/ww1lod/sparql",
