@@ -1039,6 +1039,22 @@ class Huviz
       graph by those which have been."
     @graphed_set.cleanup_verb = "unchoose"
 
+    @wasChosen_set = SortedSet().named("wasChosen").
+      sort_on("id").
+      labelled("Was Chosen").
+      isFlag() # membership is not mutually exclusive with the isState() sets
+    @wasChosen_set.docs = "
+      Nodes are marked wasChosen by walk__atFirst for later comparison
+      with nowChosen."
+
+    @nowChosen_set = SortedSet().named("nowChosen").
+      sort_on("id").
+      labelled("Now Graphed").
+      isFlag() # membership is not mutually exclusive with the isState() sets
+    @nowChosen_set.docs = "
+      Nodes pulled in by @choose() are marked nowChosen for later comparison
+      against wasChosen by walk__atLast."
+
     @pinned_set = SortedSet().named('fixed').
       sort_on("id").
       labelled(@human_term.fixed).
@@ -2760,12 +2776,12 @@ class Huviz
   show_link: (edge, incl_discards) ->
     if (not incl_discards) and (edge.target.state is @discarded_set or edge.source.state is @discarded_set)
       return
-    @add_to edge, edge.source.links_shown
-    @add_to edge, edge.target.links_shown
-    @links_set.add edge
+    @add_to(edge, edge.source.links_shown)
+    @add_to(edge, edge.target.links_shown)
+    @links_set.add(edge)
     edge.show()
-    @update_state edge.source
-    @update_state edge.target
+    @update_state(edge.source)
+    @update_state(edge.target)
     #@gclui.add_shown(edge.predicate.lid,edge)
 
   unshow_link: (edge) ->
@@ -2783,10 +2799,10 @@ class Huviz
     #if not n.links_to_found
     #  @find_links_to_node n,incl_discards
     n.links_to.forEach (e, i) =>
-      @show_link e, incl_discards
-    @update_showing_links n
-    @update_state n
-    @force.links @links_set
+      @show_link(e, incl_discards)
+    @update_showing_links(n)
+    @update_state(n)
+    @force.links(@links_set)
     @restart()
 
   update_state: (node) ->
@@ -2817,9 +2833,9 @@ class Huviz
     #if not n.links_from_found
     #  @find_links_from_node n
     n.links_from.forEach (e, i) =>
-      @show_link e, incl_discards
-    @update_state n
-    @force.links @links_set
+      @show_link(e, incl_discards)
+    @update_state(n)
+    @force.links(@links_set)
     @restart()
 
   hide_links_from_node: (n) ->
@@ -3087,10 +3103,11 @@ class Huviz
     # There is a flag .chosen in addition to the state 'linked'
     # because linked means it is in the graph
     @chosen_set.add(chosen)
+    @nowChosen_set.add(chosen)
     @graphed_set.acquire(chosen) # do it early so add_link shows them otherwise choosing from discards just puts them on the shelf
     @show_links_from_node(chosen)
     @show_links_to_node(chosen)
-    ###
+    ### TODO remove this cruft
     if chosen.links_shown
       @graphed_set.acquire(chosen)  # FIXME this duplication (see above) is fishy
       chosen.showing_links = "all"
@@ -3123,24 +3140,32 @@ class Huviz
         console.log("there is a null in the .links_shown of", unchosen)
     @update_state(unchosen)
 
-  walk__build_callback: (commandObj, nodes) =>
+  walk__atFirst: =>
     # Purpose:
-    #   Return the callback which will clean up after desired nodes have been walked.
-    unchooseTheseLater = []
-    for oldChosen in commandObj.graph_ctrl.chosen_set
-      if not (oldChosen in nodes)
-        unchooseTheseLater.push(oldChosen)
-    return (err) =>
-      # Purpose:
-      #   Deactivate all nodes which should no longer be activated.
-      #   This callback is used in async.each(this, iteree, callback) so handles errors too.
-      #     https://caolan.github.io/async/docs.html#each
-      #alert('callback called')
-      if err?
-        alert(err)
-      else
-        for oldChosen in unchooseTheseLater
-          commandObj.graph_ctrl.unchoose(oldChosen)
+    #   At first, before the verb Walk is executed on any node, we must
+    # build a SortedSet of the nodes which were wasChosen to compare
+    # with the SortedSet of nodes which are intendedToBeGraphed as a
+    # result of the Walk command which is being executed.
+    if not @wasChosen_set.clear()
+      throw new Error("expecting wasChosen to be empty")
+    for node in @chosen_set
+      @wasChosen_set.add(node)
+
+  walk__atLast: =>
+    # Purpose:
+    #   At last, after all appropriate nodes have been pulled into the graph
+    # by the Walk verb, it is time to remove wasChosen nodes which
+    # are not nowChosen.  In other words, ungraph those nodes which
+    # are no longer held in the graph by any recently walked-to nodes.
+    wasRollCall = @wasChosen_set.roll_call()
+    nowRollCall = @nowChosen_set.roll_call()
+    removed = @wasChosen_set.filter (node) =>
+      not @nowChosen_set.includes(node)
+    for node in removed
+      @unchoose(node)
+      @wasChosen_set.remove(node)
+    if not @nowChosen_set.clear()
+      throw new Error("the nowChosen_set should be empty after clear()")
 
   walk: (chosen) =>
     # Walk is just the same as Choose (AKA Activate) except afterward it deactivates the

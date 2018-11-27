@@ -154,7 +154,11 @@ var SortedSet = function(){
       if (window.SORTLOG) { console.groupEnd('resort') }
     }
     array.clear = function(){
-	array.length = 0;
+      array.length = 0;
+      for (var i = array.length - 1; i > -1; i--) {
+        array[i].remove()
+      }
+      return array.length == 0; // should be zero now
     };
     array.isState = function(state_property){
 	// Calling isState() on a SortedSet() prepares it so that
@@ -394,6 +398,13 @@ var SortedSet = function(){
 	var node = array[i];
 	console.log(node.lid, node.name.toString(), node.name);
       }
+    }
+    array.roll_call = function() {
+      var out = [];
+      for (var i = 0; i < array.length; i++) {
+	out.push(array[i].lid || array[i].id);
+      }
+      return out.join(', ');
     }
     return array;
 };

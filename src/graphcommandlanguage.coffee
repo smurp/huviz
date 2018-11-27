@@ -171,6 +171,8 @@ class GraphCommand
       method = @graph_ctrl[verb]
       if method
         method.build_callback = @graph_ctrl["#{verb}__build_callback"]
+        method.callback = @graph_ctrl["#{verb}__atLast"]
+        method.atFirst = @graph_ctrl["#{verb}__atFirst"]
         methods.push(method)
       else
         msg = "method '"+verb+"' not found"
@@ -216,13 +218,19 @@ class GraphCommand
       console.log("load data_uri has returned")
     else
       for meth in @get_methods()
-        if meth.build_callback
+        if meth.callback
+          callback = meth.callback
+        else if meth.build_callback
           callback = meth.build_callback(this, nodes)
         else
           callback = errorHandler
+        atFirst = meth.atFirst
+        if atFirst?
+          atFirst()
         iter = (node) =>
           retval = meth.call(@graph_ctrl, node)
           @graph_ctrl.tick() # TODO(smurp) move this out, or call every Nth node
+        # REVIEW Must we check for nodes? Perhaps atLast dominates.
         if nodes?
           if USE_ASYNC = false
             async.each(nodes, iter, callback)
