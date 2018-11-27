@@ -1993,7 +1993,7 @@ class Huviz
   #   newsubject
   object_value_types: {}
   unique_pids: {}
-  add_quad: (quad) ->
+  add_quad: (quad, sprql_subj) ->  #sprq_sbj only used in SPARQL quieries
     # FIXME Oh! How this method needs a fine toothed combing!!!!
     #   * are rdf:Class and owl:Class the same?
     #   * uniquer is misnamed, it should be called make_domsafe_id or sumut
@@ -2111,6 +2111,13 @@ class Huviz
           edge.register_context(cntx_n)
           edge.color = @gclui.predicate_picker.get_color_forId_byName(pred_n.lid,'showing')
           @add_edge(edge)
+
+    # if SPARQL Endpoint loaded AND this is subject node then set current subject to true (i.e. fully loaded)
+    if @endpoint_loader.value
+      subj_n.fully_loaded = false # all nodes default to not being fully_loaded
+      if subj_n.id is sprql_subj # if it is the subject node then is fully_loaded
+        subj_n.fully_loaded = true
+
     @last_quad = quad
     return edge
 
@@ -2424,7 +2431,6 @@ class Huviz
         #TODO Reset titles on page
 
   sparql_graph_query_and_show: (url, id, callback) =>
-    console.log "<++> sparql_graph_query_and_show"
     qry = """
       SELECT ?g
       WHERE {
@@ -2552,11 +2558,24 @@ class Huviz
     url = @endpoint_loader.value
     fromGraph = ''
     if @endpoint_loader.endpoint_graph then fromGraph=" FROM <#{@endpoint_loader.endpoint_graph}> "
+    ###
     qry = """
     SELECT * #{fromGraph}
     WHERE {
     {<#{subject}> ?p ?o} UNION
     {{<#{subject}> ?p ?o} . {?o ?p2 ?o2 . FILTER(?o != <#{subject}>)}}
+    }
+    LIMIT #{node_limit}
+    """
+    ###
+    qry = """
+    SELECT * #{fromGraph}
+    WHERE {
+    {<#{subject}> ?p ?o}
+    UNION
+    {{<#{subject}> ?p ?o} . {?o ?p2 ?o2 . FILTER(?o != <#{subject}>)}}
+    UNION
+    { ?s ?p <#{subject}>}
     }
     LIMIT #{node_limit}
     """
@@ -2581,8 +2600,8 @@ class Huviz
         'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
     }
     ###
-    console.log "URL: " + url + "  Graph: " + fromGraph + "  Subject: " + subject
-    console.log qry
+    #console.log "URL: " + url + "  Graph: " + fromGraph + "  Subject: " + subject
+    #console.log qry
     $.ajax
         method: ajax_settings.method
         url: ajax_settings.url
@@ -2596,7 +2615,7 @@ class Huviz
           endpoint = @endpoint_loader.value
           @dataset_loader.disable()
           @ontology_loader.disable()
-          @replace_loader_display_for_endpoint(endpoint, subject)
+          @replace_loader_display_for_endpoint(endpoint, @endpoint_loader.endpoint_graph)
           disable = true
           @update_go_button(disable)
           @big_go_button.hide()
@@ -2612,19 +2631,81 @@ class Huviz
           blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
           @reset_dataset_ontology_loader()
 
+  test_load_endpoint_data_and_show: (subject, callback) ->
+    node_limit = $('#endpoint_limit').val()
+    url = @endpoint_loader.value
+    fromGraph = ''
+    if @endpoint_loader.endpoint_graph then fromGraph=" FROM <#{@endpoint_loader.endpoint_graph}> "
+    qry = """
+    SELECT * #{fromGraph}
+    WHERE {
+    {<#{subject}> ?p ?o}
+    UNION
+    {{<#{subject}> ?p ?o} . {?o ?p2 ?o2 . FILTER(?o != <#{subject}>)}}
+    UNION
+    { ?s ?p <#{subject}>}
+    }
+    LIMIT #{node_limit}
+    """
+    console.log qry
+    ajax_settings = {
+      'method': 'GET'#'POST'
+      'url': url + '?query=' + encodeURIComponent(qry)
+      'headers' :
+        'Content-Type': 'application/sparql-query'
+        'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
+    }
+    if url is "http://sparql.cwrc.ca/sparql" # Hack to make CWRC setup work properly
+      ajax_settings.headers =
+        'Content-Type' : 'application/sparql-query'
+        'Accept': 'application/sparql-results+json'
+    $.ajax
+        method: ajax_settings.method
+        url: ajax_settings.url
+        headers: ajax_settings.headers
+        success: (data, textStatus, jqXHR) =>
+          #console.log jqXHR
+          console.log "Query: " + subject
+          console.log data
+          json_check = typeof data
+          if json_check is 'string' then json_data = JSON.parse(data) else json_data = data
+          @add_nodes_from_SPARQL(json_data, subject)
+          #endpoint = @endpoint_loader.value
+          #@dataset_loader.disable()
+          #@ontology_loader.disable()
+          #@replace_loader_display_for_endpoint(endpoint, @endpoint_loader.endpoint_graph)
+          #disable = true
+          #@update_go_button(disable)
+          #@big_go_button.hide()
+          #@after_file_loaded('sparql', callback)
+        error: (jqxhr, textStatus, errorThrown) =>
+          console.log(url, errorThrown)
+          console.log jqXHR.getAllResponseHeaders(data)
+          if not errorThrown
+            errorThrown = "Cross-Origin error"
+          msg = errorThrown + " while fetching " + url
+          @hide_state_msg()
+          $('#data_ontology_display').remove()
+          blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
+          @reset_dataset_ontology_loader()
+
   add_nodes_from_SPARQL: (json_data, subject) ->
     data = ''
     context = "http://universal.org"
     plainLiteral = "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"
-    console.log json_data
-    #console.log subject
+    #console.log json_data
     nodes_in_data = json_data.results.bindings
     for node in nodes_in_data
+      console.log node
       language = ''
       obj_type = "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
-      if node.o2
-        new_subj = node.o.value
-        new_pred = node.p2.value
+      if node.s
+        subj = node.s.value
+        pred = node.p.value
+        obj_val = subject
+      else if node.o2
+        subj = node.o.value
+        pred = node.p2.value
         obj_val = node.o2.value
         if node.o2.type is 'literal' or node.o.type is 'typed-literal'
           if node.o2.datatype
@@ -2633,11 +2714,11 @@ class Huviz
             obj_type = plainLiteral
           if node.o2["xml:lang"]
             language = node.o2['xml:lang']
-        #console.log "-------- Sub-node -----" + new_subj + " " + new_pred  + " " + obj_val + " " + obj_type
+        console.log "-------- Sub-node -----" + subj + " " + pred  + " " + obj_val + " " + obj_type
       else
+        subj = subject
+        pred = node.p.value
         obj_val = node.o.value
-        new_subj = subject
-        new_pred = node.p.value
         if node.o.type is 'literal' or node.o.type is 'typed-literal'
           if node.o.datatype
             obj_type = node.o.datatype
@@ -2645,18 +2726,17 @@ class Huviz
             obj_type = plainLiteral
           if node.o["xml:lang"]
             language = node.o['xml:lang']
-        #console.log "------- Core node -----" + new_subj + " " + new_pred + " " + obj_val + " " + obj_type
       q =
         g: context
-        s: new_subj
-        p: new_pred
+        s: subj
+        p: pred
         o:
           type: obj_type
           value: obj_val
       if language
         q.o.language = language
-      if language then console.log(q)
-      @add_quad(q)
+      #console.log(subject) #THIS is the name of the fully_loaded node
+      @add_quad(q, subject)
       #@dump_stats()
 
   # Deal with buggy situations where flashing the links on and off
@@ -3100,6 +3180,13 @@ class Huviz
     goner
 
   choose: (chosen) =>
+    # If this chosen node is part of a SPARQL query set, then check if it is fully loaded
+    # if it isn't then load and activate
+    console.log chosen
+    if @endpoint_loader.value # This is part of a sparql set
+      if not chosen.fully_loaded
+        console.log "Time to make a new SPARQL query using: " + chosen.id
+        @test_load_endpoint_data_and_show(chosen.id)
     # There is a flag .chosen in addition to the state 'linked'
     # because linked means it is in the graph
     @chosen_set.add(chosen)
@@ -3646,7 +3733,7 @@ class Huviz
     @ontology_loader?last_val = null # clear the last_val so select_option works the first time
 
   update_graph_form: (e) =>
-    console.log e.currentTarget.value
+    #console.log e.currentTarget.value
     @endpoint_loader.endpoint_graph = e.currentTarget.value
 
   visualize_dataset_using_ontology: (ignoreEvent, dataset, ontologies) =>
@@ -3656,7 +3743,7 @@ class Huviz
       data = dataset or @endpoint_loader
       @load_endpoint_data_and_show(endpoint_label_uri)
       @update_browser_title(data)
-      @update_caption(data.value, "Endpoint Defined")
+      @update_caption(data.value, data.endpoint_graph)
       return
     # Either dataset and ontologies are passed in by HuViz.load_with() from a command
     #   or this method is called with neither then get values from the loaders
@@ -3767,14 +3854,15 @@ class Huviz
     </div>"""
     $("#huvis_controls").prepend(data_ontol_display)
 
-  replace_loader_display_for_endpoint: (endpoint, query) ->
+  replace_loader_display_for_endpoint: (endpoint, graph) ->
     $("#huvis_controls .unselectable").attr("style","display:none")
     #uri = new URL(location)
     #uri.hash = "load+#{dataset.value}+with+#{ontology.value}"
+    if graph then print_graph = "<p><span class='dt_label'>Graph:</span> #{graph}</p>" else print_graph = ""
     data_ontol_display = """
     <div id="data_ontology_display">
       <p><span class="dt_label">Endpoint:</span> #{endpoint}</p>
-      <p><span class="dt_label">Graph:</span> #{query}</p>
+      #{print_graph}
       <br style="clear:both">
     </div>"""
     $("#huvis_controls").prepend(data_ontol_display)
@@ -3788,7 +3876,6 @@ class Huviz
     $("#ontology_watermark").text(ontology_str)
 
   set_ontology_from_dataset_if_possible: ->
-    console.log "<++> Set_ontology_from_dataset_if_possible"
     if @dataset_loader.value # and not @ontology_loader.value
       option = @dataset_loader.get_selected_option()
       ontologyUri = option.data('ontologyUri')
@@ -3873,7 +3960,7 @@ class Huviz
             selections = []
             for label in results
               this_result = {
-                label: label.obj.value
+                label: label.obj.value + " (#{label.sub.value})"
                 value: label.sub.value
               }
               selections.push(this_result)
@@ -4023,14 +4110,14 @@ class Huviz
   create_state_msg_box: () ->
     @state_msg_box = $("#state_msg_box")
     @hide_state_msg()
-    console.info @state_msg_box
+    #console.info @state_msg_box
 
   init_ontology: ->
     @create_taxonomy()
     @ontology = PRIMORDIAL_ONTOLOGY
 
   constructor: (args) -> # Huviz
-    console.log(args)
+    #console.log(args)
     args ?= {}
     if not args.viscanvas_sel
       msg = "call Huviz({viscanvas_sel:'????'}) so it can find the canvas to draw in"
