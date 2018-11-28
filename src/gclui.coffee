@@ -339,7 +339,7 @@ class CommandController
         if @engaged_verbs.length is 1
           # flip transiently to unselect
           if @immediate_execution_mode
-            @engage_verb('unselect', true)
+            @engage_verb('unselect', (transiently = true))
       else
         because.cleanup = () =>
           @on_taxon_clicked(id, 'unshowing', elem)   # SEE unshow HERE
