@@ -195,7 +195,7 @@ class GraphCommand
     @graph_ctrl.force.stop()
     reg_req = @regarding_required()
     nodes = @get_nodes()
-    console.log(@str, "on", nodes.length, "nodes")
+    console.log("%c#{@str}", "color:blue;font-size:1.5em;", "on #{nodes.length} nodes")
     errorHandler = (err_arg) ->
       #alert("WOOT! command has executed")
       if err_arg?

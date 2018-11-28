@@ -335,7 +335,13 @@ class CommandController
     if new_state is 'showing'
       because =
         taxon_added: id
-        cleanup: () =>
+      if ('select' in @engaged_verbs)
+        if @engaged_verbs.length is 1
+          # flip transiently to unselect
+          if @immediate_execution_mode
+            @engage_verb('unselect', true)
+      else
+        because.cleanup = () =>
           @on_taxon_clicked(id, 'unshowing', elem)   # SEE unshow HERE
     if cmd?
       if @object_phrase? and @object_phrase isnt ""
@@ -757,7 +763,6 @@ class CommandController
       @nextcommand_suffix_phrase.text(@command.suffix_phrase)
     if @nextcommand_str_visible or true # NEEDED BY huviz_test.js
       @nextcommandstr.text(@command.str)
-
     if @command.ready
       @enable_doit_button()
     else
