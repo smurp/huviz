@@ -4355,7 +4355,7 @@ class Huviz
         label:
           title: "the attractive force keeping nodes centered"
         input:
-          value: 0.45
+          value: 0.50
           min: 0
           max: 1
           step: 0.025
