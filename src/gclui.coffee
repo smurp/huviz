@@ -845,21 +845,8 @@ class CommandController
     @verb_control[id] = vbctl
     vbctl.text(label)
     that = @
-    vbctl.on 'click', () ->
-      elem = d3.select(this)
-      newstate = not elem.classed('engaged')
-      elem.classed('engaged',newstate)
-      if newstate
-        that.engage_verb(id)
-        that.proposed_verb = null # there should be no proposed_verb if we are clicking engaging one
-        because =
-          verb_added: id
-          cleanup: that.disengage_all_verbs
-      else
-        that.disengage_verb(id)
-      if not that.engaged_verbs? or that.engaged_verbs.length is 0
-        that.huviz.set_cursor_for_verbs([])
-      that.update_command(because)
+    vbctl.on 'click', () =>
+      @handle_on_verb_clicked(id, vbctl)
     vbctl.on 'mouseenter', () -> # tell user what will happen if this verb is clicked
       elem = d3.select(this)
       click_would_engage = not elem.classed('engaged')
@@ -882,6 +869,26 @@ class CommandController
         verb_leaving: leaving_verb_id
       that.proposed_verb = null
       that.update_command(because)
+
+  handle_on_verb_clicked: (id, elem) =>
+    @start_working()
+    setTimeout () => # run asynchronously so @start_working() can get a head start
+      @on_verb_clicked(id, elem)
+
+  on_verb_clicked: (id, elem) ->
+    newstate = not elem.classed('engaged')
+    elem.classed('engaged',newstate)
+    if newstate
+      @engage_verb(id)
+      @proposed_verb = null # there should be no proposed_verb if we are clicking engaging one
+      because =
+        verb_added: id
+        cleanup: @disengage_all_verbs
+    else
+      @disengage_verb(id)
+    if not @engaged_verbs? or @engaged_verbs.length is 0
+      @huviz.set_cursor_for_verbs([])
+    @update_command(because)
 
   run_script: (script) ->
     # We recognize a couple of different visible "space-illustrating characters" as spaces.
@@ -933,6 +940,7 @@ class CommandController
     for id, a_set of @huviz.selectable_sets
       make_listeners(id, a_set)
   handle_on_set_picked: (set_id, new_state) =>
+    @start_working()
     setTimeout () => # run asynchronously so @start_working() can get a head start
       @on_set_picked(set_id, new_state)
   on_set_picked: (set_id, new_state) ->
