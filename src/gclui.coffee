@@ -947,6 +947,7 @@ class CommandController
     @clear_set_picker() # TODO consider in relation to liking_all_mode
     @set_picker.set_direct_state(set_id, new_state)
     because = {}
+    hasVerbs = @engaged_verbs.length
     if new_state is 'showing'
       @taxon_picker.shield()
       @chosen_set = @huviz[set_id]
@@ -954,9 +955,10 @@ class CommandController
       because =
         set_added: set_id
         cleanup: @disengage_all_sets # the method to call to clear
-      cmd = new gcl.GraphCommand @huviz,
-          verbs: @engaged_verbs # ['select']
-          sets: [@chosen_set]
+      if hasVerbs
+        cmd = new gcl.GraphCommand @huviz,
+            verbs: @engaged_verbs # ['select']
+            sets: [@chosen_set]
     else if new_state is 'unshowing'
       @taxon_picker.unshield()
       XXXcmd = new gcl.GraphCommand @huviz,
