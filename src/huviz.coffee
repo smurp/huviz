@@ -5105,7 +5105,7 @@ class OntologicallyGrounded extends Huviz
       url: ontology_uri
       async: false
       success: @parseTTLOntology
-      error: (jqxhr, textStatus, errorThrown) ->
+      error: (jqxhr, textStatus, errorThrown) =>
         @show_state_msg(errorThrown + " while fetching ontology " + ontology_uri)
 
   parseTTLOntology: (data, textStatus) =>
