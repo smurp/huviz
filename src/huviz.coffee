@@ -2555,9 +2555,7 @@ class Huviz
 
 
   load_endpoint_data_and_show: (subject, callback) ->
-    #console.log "ENDPOINT URI: " + url
-    #subject = "http://dbpedia.org/resource/Charlotte_Bronte"
-    #subject= "http://dbpedia.org/resource/Bulldog_breeds"
+    @sparql_node_list = []
     node_limit = $('#endpoint_limit').val()
     url = @endpoint_loader.value
     fromGraph = ''
@@ -2572,6 +2570,7 @@ class Huviz
     LIMIT #{node_limit}
     """
     ###
+    ###
     qry = """
     SELECT * #{fromGraph}
     WHERE {
@@ -2583,11 +2582,23 @@ class Huviz
     }
     LIMIT #{node_limit}
     """
+    ###
+    qry = """
+    SELECT * #{fromGraph}
+    WHERE {
+      {<#{subject}> ?p ?o}
+      UNION
+      {{<#{subject}> ?p ?o} . {?o ?p2 ?o2}}
+    UNION
+      {{?s3 ?p3 <#{subject}>} . {?s3 ?p4 ?o4 }}
+    }
+    LIMIT #{node_limit}
+    """
+
     ajax_settings = {
       'method': 'GET'#'POST'
       'url': url + '?query=' + encodeURIComponent(qry)
       'headers' :
-        'Content-Type': 'application/sparql-query'
         'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
     }
     if url is "http://sparql.cwrc.ca/sparql" # Hack to make CWRC setup work properly
@@ -2645,18 +2656,16 @@ class Huviz
     WHERE {
     {<#{subject}> ?p ?o}
     UNION
-    {{<#{subject}> ?p ?o} . {?o ?p2 ?o2 . FILTER(?o != <#{subject}>)}}
+    {{<#{subject}> ?p ?o} . {?o ?p2 ?o2}}
     UNION
-    { ?s ?p <#{subject}>}
+    {{?s3 ?p3 <#{subject}>} . {?s3 ?p4 ?o4 }}
     }
     LIMIT #{node_limit}
     """
-    console.log qry
     ajax_settings = {
       'method': 'GET'#'POST'
       'url': url + '?query=' + encodeURIComponent(qry)
       'headers' :
-        'Content-Type': 'application/sparql-query'
         'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
     }
     if url is "http://sparql.cwrc.ca/sparql" # Hack to make CWRC setup work properly
@@ -2699,8 +2708,8 @@ class Huviz
     plainLiteral = "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"
     #console.log json_data
     nodes_in_data = json_data.results.bindings
+    count = 0
     for node in nodes_in_data
-      console.log node
       language = ''
       obj_type = "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
       if node.s
@@ -2718,7 +2727,18 @@ class Huviz
             obj_type = plainLiteral
           if node.o2["xml:lang"]
             language = node.o2['xml:lang']
-        console.log "-------- Sub-node -----" + subj + " " + pred  + " " + obj_val + " " + obj_type
+        #console.log "-------- Sub-node -----" + subj + " " + pred  + " " + obj_val + " " + obj_type
+      else if node.s3
+        subj = node.s3.value
+        pred = node.p4.value
+        obj_val = node.o4.value
+        if node.o4.type is 'literal' or node.o4.type is 'typed-literal'
+          if node.o4.datatype
+            obj_type = node.o4.datatype
+          else
+            obj_type = plainLiteral
+          if node.o4["xml:lang"]
+            language = node.o4['xml:lang']
       else
         subj = subject
         pred = node.p.value
@@ -2739,8 +2759,26 @@ class Huviz
           value: obj_val
       if language
         q.o.language = language
-      #console.log(subject) #THIS is the name of the fully_loaded node
-      @add_quad(q, subject)
+      #IF this is a new quad, then add it. Otherwise no.
+      node_list_empty = @sparql_node_list.length
+      if node_list_empty is 0 # Add first node
+        @sparql_node_list.push q
+      # Check if node is in list
+      for snode in @sparql_node_list
+        if q.s is snode.s and q.p is snode.p and q.o.value is snode.o.value and q.o.type is snode.o.type and q.o.language is snode.o.language
+          console.log "This one is already in the quad set: "# +  q.s + " == " + snode.s
+          node_not_in_list = false
+          break
+        else
+          node_not_in_list = true
+      #If node is not in list then add
+      if node_not_in_list
+        #console.log q
+        #console.log count = count + 1
+        #console.log "Add quad: "  + q.s.split('/').pop() + "  "  + q.p.split('/').pop()  + "  "  + q.o.value.split('/').pop()  + "  "  +  q.o.type.split('/').pop() #+ "  " + q.o.language.split('/').pop()
+        @sparql_node_list.push q
+        node_not_in_list = false
+        @add_quad(q, subject)
       #@dump_stats()
 
   # Deal with buggy situations where flashing the links on and off
@@ -3186,7 +3224,6 @@ class Huviz
   choose: (chosen) =>
     # If this chosen node is part of a SPARQL query set, then check if it is fully loaded
     # if it isn't then load and activate
-    console.log chosen
     if @endpoint_loader.value # This is part of a sparql set
       if not chosen.fully_loaded
         console.log "Time to make a new SPARQL query using: " + chosen.id
@@ -3925,7 +3962,7 @@ class Huviz
     $(".unselectable").append(select_box)
     spinner = $("#endpoint_labels").siblings('i')
     fromGraph =''
-    $("#endpoint_labels").autocomplete({minLength: 3, delay:500, source: (request, response) =>
+    $("#endpoint_labels").autocomplete({minLength: 3, delay:500, position: {collision: "flip"}, source: (request, response) =>
       spinner.css('visibility','visible')
       url = @endpoint_loader.value
       fromGraph = ''

@@ -58,7 +58,7 @@ class TreePicker
   shield: ->
     if not @_shield
       d3.select(@elem[0][0]).style('position','relative')
-      @_shield = d3.select(@elem[0][0]).insert('div',':first-child')
+      @_shield = d3.select(@elem[0][0]).insert('div')
       @_shield.classed('shield',true)
     rect = d3.select(@elem[0][0]).node().getBoundingClientRect()
     styles =
