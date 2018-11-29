@@ -126,7 +126,7 @@ class CommandController
     # operations common to the constructor and reset_editor
     @shown_edges_by_predicate = {}
     @unshown_edges_by_predicate = {}
-    @taxons_chosen = [] # new SortedSet()
+    @engaged_taxons = [] # new SortedSet()
   reset_editor: ->
     @clear_like()
     @disengage_all_verbs()
@@ -308,20 +308,27 @@ class CommandController
     # When we select "Thing" we mean:
     #    all nodes except the embryonic and the discarded
     #    OR rather, the hidden, the graphed and the unlinked
+    #
+    # This method is called in various contexts:
+    # 1) aVerb ______ .      Engage a taxon, run command, disengage taxon
+    # 2) _____ ______ .      Engage a taxon
+    # 3) _____ aTaxon .      Disengage a taxon
+    # 4) _____ a and b .     Engage or disenage a taxon
     @taxa_being_clicked_increment()
     taxon = @huviz.taxonomy[id]
+    hasVerbs = not not @engaged_verbs.length
     if taxon?
       old_state = taxon.get_state()
     else
       throw "Uhh, there should be a root Taxon 'Thing' by this point: " + id
     if new_state is 'showing'
       if old_state in ['mixed', 'unshowing', 'empty']
-        if not (id in @taxons_chosen)
-          @taxons_chosen.push(id)
+        if not (id in @engaged_taxons)
+          @engaged_taxons.push(id)
         # SELECT all members of the currently chosen classes
         cmd = new gcl.GraphCommand @huviz,
           verbs: ['select']
-          classes: (class_name for class_name in @taxons_chosen)
+          classes: (class_name for class_name in @engaged_taxons)
       else
         console.error "no action needed because #{id}.#{old_state} == #{new_state}"
     else if new_state is 'unshowing'
@@ -364,8 +371,8 @@ class CommandController
     @taxa_being_clicked_decrement()
     return
   unselect_node_class: (node_class) ->
-    # removes node_class from @taxons_chosen
-    @taxons_chosen = @taxons_chosen.filter (eye_dee) ->
+    # removes node_class from @engaged_taxons
+    @engaged_taxons = @engaged_taxons.filter (eye_dee) ->
       eye_dee isnt node_class
     # # Elements may be in one of these states:
     #   mixed      - some instances of the node class are selected, but not all
@@ -660,7 +667,7 @@ class CommandController
     for vid in @engaged_verbs
       @disengage_verb(vid)
   unselect_all_node_classes: ->
-    for nid in @taxons_chosen
+    for nid in @engaged_taxons
       @unselect_node_class(nid)
       @taxon_picker.set_direct_state(nid, 'unshowing')
   clear_like: ->
@@ -698,8 +705,8 @@ class CommandController
     else if @proposed_set
       args.sets = [@proposed_set]
     else
-      if @taxons_chosen.length > 0
-        args.classes = (class_name for class_name in @taxons_chosen)
+      if @engaged_taxons.length > 0
+        args.classes = (class_name for class_name in @engaged_taxons)
       if @huviz.selected_set.length > 0
         args.subjects = (s for s in @huviz.selected_set)
     like_str = (@like_input[0][0].value or "").trim()
@@ -947,7 +954,7 @@ class CommandController
     @clear_set_picker() # TODO consider in relation to liking_all_mode
     @set_picker.set_direct_state(set_id, new_state)
     because = {}
-    hasVerbs = @engaged_verbs.length
+    hasVerbs = not not @engaged_verbs.length
     if new_state is 'showing'
       @taxon_picker.shield()
       @chosen_set = @huviz[set_id]
