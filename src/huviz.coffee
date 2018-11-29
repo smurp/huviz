@@ -202,6 +202,9 @@ linearize = (msgRecipient, streamoid) ->
 unique_id = () ->
   'uid_'+Math.random().toString(36).substr(2,10)
 
+window.log_click = () ->
+  console.log("%cCLICK", "color:red;font-size:1.8em")
+
 # http://dublincore.org/documents/dcmi-terms/
 DC_subject  = "http://purl.org/dc/terms/subject"
 
@@ -718,6 +721,7 @@ class Huviz
     @last_mouse_pos = @mousedown_point
 
   mouseup: =>
+    window.log_click()
     d3_event = @mouse_receiver[0][0]
     @mousedown_point = false
     point = d3.mouse(d3_event)

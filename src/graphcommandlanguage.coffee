@@ -203,8 +203,8 @@ class GraphCommand
         if not err_arg?
           throw "err_arg is null"
         throw err_arg
-      else
-        console.log "DONE .execute()"
+      #else
+      #  console.log("DONE .execute()")
     if reg_req
       for meth in @get_predicate_methods()
         iter = (node) =>

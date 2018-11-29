@@ -196,7 +196,7 @@ class CommandController
       (extra_classes=[]), (needs_expander=true), (use_name_as_label=true), (squash_case=true))
     @predicate_hierarchy = {'anything':['anything']}
     # FIXME Why is show_tree being called four times per node?
-    @predicate_picker.click_listener = @on_predicate_clicked
+    @predicate_picker.click_listener = @handle_on_predicate_clicked
     @predicate_picker.show_tree(@predicate_hierarchy, @predicatebox)
     $("#predicates").addClass("ui-resizable").append("<br class='clear'>")
     $("#predicates").resizable(handles: 's')
@@ -204,12 +204,12 @@ class CommandController
   add_newpredicate: (pred_lid, parent_lid, pred_name) =>
     #if pred_lid in @predicates_to_ignore
     #  return
-    @predicate_picker.add(pred_lid, parent_lid, pred_name, @on_predicate_clicked)
-  on_predicate_clicked: (pred_id, new_state, elem) =>
+    @predicate_picker.add(pred_lid, parent_lid, pred_name, @handle_on_predicate_clicked)
+  handle_on_predicate_clicked: (pred_id, new_state, elem) =>
     @start_working()
     setTimeout () => # run asynchronously so @start_working() can get a head start
-      @perform_on_predicate_clicked(pred_id, new_state, elem)
-  perform_on_predicate_clicked: (pred_id, new_state, elem) =>
+      @on_predicate_clicked(pred_id, new_state, elem)
+  on_predicate_clicked: (pred_id, new_state, elem) =>
     if new_state is 'showing'
       verb = 'show'
     else
@@ -246,29 +246,22 @@ class CommandController
       (needs_expander=true),
       (use_name_as_label=true),
       (squash_case=true))
-    @taxon_picker.click_listener = @on_taxon_clicked
+    @taxon_picker.click_listener = @handle_on_taxon_clicked
     @taxon_picker.hover_listener = @on_taxon_hovered
     @taxon_picker.show_tree(@hierarchy, @taxon_box)
     where.classed("taxon_picker_box_parent", true)
     return where
   add_new_taxon: (class_id,parent_lid,class_name,taxon) =>
-    @taxon_picker.add(class_id, parent_lid, class_name, @on_taxon_clicked)
+    @taxon_picker.add(class_id, parent_lid, class_name, @handle_on_taxon_clicked)
     @taxon_picker.recolor_now()
     @huviz.recolor_nodes()
   onChangeEnglish: (evt) =>
     @object_phrase = evt.detail.english
     @update_command()
-  on_taxon_clicked: (id, new_state, elem) =>
-    # this supposedly implements the tristate behaviour:
-    #   Mixed —> On
-    #   On —> Off
-    #   Off —> On
-    # When we select "Thing" we mean:
-    #    all nodes except the embryonic and the discarded
-    #    OR rather, the hidden, the graphed and the unlinked
+  handle_on_taxon_clicked: (id, new_state, elem) =>
     @start_working()
     setTimeout () => # run asynchronously so @start_working() can get a head start
-      @perform_on_taxon_clicked(id, new_state, elem)
+      @on_taxon_clicked(id, new_state, elem)
   set_taxa_click_storm_callback: (callback) ->
     if @taxa_click_storm_callback?
       throw new Error("taxa_click_storm_callback already defined")
@@ -307,7 +300,14 @@ class CommandController
       @run_any_immediate_command({})
       @perform_any_cleanup(because)
       return
-  perform_on_taxon_clicked: (id, new_state, elem) =>
+  on_taxon_clicked: (id, new_state, elem) =>
+    # this supposedly implements the tristate behaviour:
+    #   Mixed —> On
+    #   On —> Off
+    #   Off —> On
+    # When we select "Thing" we mean:
+    #    all nodes except the embryonic and the discarded
+    #    OR rather, the hidden, the graphed and the unlinked
     @taxa_being_clicked_increment()
     taxon = @huviz.taxonomy[id]
     if taxon?
@@ -338,7 +338,7 @@ class CommandController
       if ('select' in @engaged_verbs)
         if @engaged_verbs.length is 1
           # flip transiently to unselect
-          if @immediate_execution_mode
+          if not @immediate_execution_mode
             @engage_verb('unselect', (transiently = true))
       else
         because.cleanup = () =>
@@ -555,6 +555,7 @@ class CommandController
 
   working_timeout: 500 # msec
   start_working: ->
+    log_click()
     if @already_working
       clearTimeout(@already_working)
       #console.log "already working", @already_working
@@ -910,7 +911,7 @@ class CommandController
         .classed('container',true)
         .attr('id', 'sets')
     @set_picker = new TreePicker(@set_picker_box,'all',['treepicker-vertical'])
-    @set_picker.click_listener = @on_set_picked
+    @set_picker.click_listener = @handle_on_set_picked
     @set_picker.show_tree(@the_sets, @set_picker_box)
     @populate_all_set_docs()
     @make_sets_proposable()
@@ -931,7 +932,10 @@ class CommandController
         @update_command()
     for id, a_set of @huviz.selectable_sets
       make_listeners(id, a_set)
-  on_set_picked: (set_id, new_state) =>
+  handle_on_set_picked: (set_id, new_state) =>
+    setTimeout () => # run asynchronously so @start_working() can get a head start
+      @on_set_picked(set_id, new_state)
+  on_set_picked: (set_id, new_state) ->
     @clear_set_picker() # TODO consider in relation to liking_all_mode
     @set_picker.set_direct_state(set_id, new_state)
     because = {}
