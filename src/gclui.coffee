@@ -157,7 +157,7 @@ class CommandController
     unless pred_uri in @predicates_ignored # FIXME merge with predicates_to_ignore
       unless pred_lid in @predicates_ignored # FIXME merge with predicates_to_ignore
         pred_name ?= pred_lid.match(/([\w\d\_\-]+)$/g)[0]
-        @add_newpredicate(pred_lid, parent_lid, pred_name)
+        @add_predicate(pred_lid, parent_lid, pred_name)
         @recolor_edges_and_predicates_eventually(e)
   recolor_edges_and_predicates_eventually: ->
     if @recolor_edges_and_predicates_eventually_id?
@@ -201,7 +201,7 @@ class CommandController
     $("#predicates").addClass("ui-resizable").append("<br class='clear'>")
     $("#predicates").resizable(handles: 's')
 
-  add_newpredicate: (pred_lid, parent_lid, pred_name) =>
+  add_predicate: (pred_lid, parent_lid, pred_name) =>
     #if pred_lid in @predicates_to_ignore
     #  return
     @predicate_picker.add(pred_lid, parent_lid, pred_name, @handle_on_predicate_clicked)
@@ -251,7 +251,7 @@ class CommandController
     @taxon_picker.show_tree(@hierarchy, @taxon_box)
     where.classed("taxon_picker_box_parent", true)
     return where
-  add_new_taxon: (class_id,parent_lid,class_name,taxon) =>
+  add_taxon: (class_id,parent_lid,class_name,taxon) =>
     @taxon_picker.add(class_id, parent_lid, class_name, @handle_on_taxon_clicked)
     @taxon_picker.recolor_now()
     @huviz.recolor_nodes()
@@ -342,11 +342,20 @@ class CommandController
     if new_state is 'showing'
       because =
         taxon_added: id
-      if ('select' in @engaged_verbs)
-        if @engaged_verbs.length is 1
+      if hasVerbs
+        # So the current command looks like "aVerb ____ ."
+        # Meaining that we should do these three things
+        # 1) engage this taxon
+        # 2) run the command "aVerb id."
+        # 3) disengage this taxon
+        #
+        # If one of the engaged verbs is Select then 
+        # Meaning that we should prepare a cleanup
+        #if ('select' in @engaged_verbs)
+        #  if @engaged_verbs.length is 1
           # flip transiently to unselect
-          if not @immediate_execution_mode
-            @engage_verb('unselect', (transiently = true))
+        if not @immediate_execution_mode
+          @engage_verb('unselect', (transiently = true))
       else
         because.cleanup = () =>
           @on_taxon_clicked(id, 'unshowing', elem)   # SEE unshow HERE
@@ -924,7 +933,7 @@ class CommandController
     @set_picker_box = where.append('div')
         .classed('container',true)
         .attr('id', 'sets')
-    @set_picker = new TreePicker(@set_picker_box,'all',['treepicker-vertical'])
+    @set_picker = new TreePicker(@set_picker_box, 'all', ['treepicker-vertical'])
     @set_picker.click_listener = @handle_on_set_picked
     @set_picker.show_tree(@the_sets, @set_picker_box)
     @populate_all_set_docs()
