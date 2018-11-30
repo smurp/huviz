@@ -2635,6 +2635,9 @@ class Huviz
           @update_go_button(disable)
           @big_go_button.hide()
           @after_file_loaded('sparql', callback)
+          console.log ("--------------Show me my node list------------")
+          for node in @shelved_set
+            console.log node.pretty_name.NOLANG
         error: (jqxhr, textStatus, errorThrown) =>
           console.log(url, errorThrown)
           console.log jqXHR.getAllResponseHeaders(data)
@@ -2646,7 +2649,7 @@ class Huviz
           blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
           @reset_dataset_ontology_loader()
 
-  test_load_endpoint_data_and_show: (subject, callback) ->
+  load_new_endpoint_data_and_show: (subject, callback) ->
     node_limit = $('#endpoint_limit').val()
     url = @endpoint_loader.value
     fromGraph = ''
@@ -2683,14 +2686,9 @@ class Huviz
           json_check = typeof data
           if json_check is 'string' then json_data = JSON.parse(data) else json_data = data
           @add_nodes_from_SPARQL(json_data, subject)
-          #endpoint = @endpoint_loader.value
-          #@dataset_loader.disable()
-          #@ontology_loader.disable()
-          #@replace_loader_display_for_endpoint(endpoint, @endpoint_loader.endpoint_graph)
-          #disable = true
-          #@update_go_button(disable)
-          #@big_go_button.hide()
-          #@after_file_loaded('sparql', callback)
+          @shelved_set.resort()
+          @tick()
+          @update_all_counts()
         error: (jqxhr, textStatus, errorThrown) =>
           console.log(url, errorThrown)
           console.log jqXHR.getAllResponseHeaders(data)
@@ -3227,7 +3225,7 @@ class Huviz
     if @endpoint_loader.value # This is part of a sparql set
       if not chosen.fully_loaded
         console.log "Time to make a new SPARQL query using: " + chosen.id
-        @test_load_endpoint_data_and_show(chosen.id)
+        @load_new_endpoint_data_and_show(chosen.id)
     # There is a flag .chosen in addition to the state 'linked'
     # because linked means it is in the graph
     @chosen_set.add(chosen)
@@ -5001,12 +4999,7 @@ class Huviz
     @load_data_with_onto(@get_dataset_uri())
 
   load_data_with_onto: (data, onto, callback) ->  # Used for loading files from menu
-    console.log data
     @data_uri = data.value
-    if data.isEndpoint #then time to query
-      console.log "++++++++++++++++++++++++++++++++++++++++++++++++++"
-      @query_and_show(@data_uri, callback)
-      return
     @set_ontology(onto.value)
     if @args.display_reset
       $("#reset_btn").show()
