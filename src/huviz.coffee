@@ -2558,6 +2558,7 @@ class Huviz
     @sparql_node_list = []
     node_limit = $('#endpoint_limit').val()
     url = @endpoint_loader.value
+    @endpoint_loader.outstanding_requests = 0
     fromGraph = ''
     if @endpoint_loader.endpoint_graph then fromGraph=" FROM <#{@endpoint_loader.endpoint_graph}> "
     ###
@@ -2646,7 +2647,7 @@ class Huviz
           blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
           @reset_dataset_ontology_loader()
 
-  test_load_endpoint_data_and_show: (subject, callback) ->
+  load_new_endpoint_data_and_show: (subject, callback) ->
     node_limit = $('#endpoint_limit').val()
     url = @endpoint_loader.value
     fromGraph = ''
@@ -2679,18 +2680,15 @@ class Huviz
         success: (data, textStatus, jqXHR) =>
           #console.log jqXHR
           console.log "Query: " + subject
-          console.log data
           json_check = typeof data
           if json_check is 'string' then json_data = JSON.parse(data) else json_data = data
+          console.log "Json Array Size: " + json_data.results.bindings.length
           @add_nodes_from_SPARQL(json_data, subject)
-          #endpoint = @endpoint_loader.value
-          #@dataset_loader.disable()
-          #@ontology_loader.disable()
-          #@replace_loader_display_for_endpoint(endpoint, @endpoint_loader.endpoint_graph)
-          #disable = true
-          #@update_go_button(disable)
-          #@big_go_button.hide()
-          #@after_file_loaded('sparql', callback)
+          @shelved_set.resort()
+          @tick()
+          @update_all_counts()
+          @endpoint_loader.outstanding_requests = @endpoint_loader.outstanding_requests - 1
+          console.log "Finished request: count now " + @endpoint_loader.outstanding_requests
         error: (jqxhr, textStatus, errorThrown) =>
           console.log(url, errorThrown)
           console.log jqXHR.getAllResponseHeaders(data)
@@ -2708,7 +2706,6 @@ class Huviz
     plainLiteral = "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"
     #console.log json_data
     nodes_in_data = json_data.results.bindings
-    count = 0
     for node in nodes_in_data
       language = ''
       obj_type = "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
@@ -2765,17 +2762,14 @@ class Huviz
         @sparql_node_list.push q
       # Check if node is in list
       for snode in @sparql_node_list
+        #TODO - This filtering statement doesn't seem tight
         if q.s is snode.s and q.p is snode.p and q.o.value is snode.o.value and q.o.type is snode.o.type and q.o.language is snode.o.language
-          console.log "This one is already in the quad set: "# +  q.s + " == " + snode.s
           node_not_in_list = false
           break
         else
           node_not_in_list = true
       #If node is not in list then add
       if node_not_in_list
-        #console.log q
-        #console.log count = count + 1
-        #console.log "Add quad: "  + q.s.split('/').pop() + "  "  + q.p.split('/').pop()  + "  "  + q.o.value.split('/').pop()  + "  "  +  q.o.type.split('/').pop() #+ "  " + q.o.language.split('/').pop()
         @sparql_node_list.push q
         node_not_in_list = false
         @add_quad(q, subject)
@@ -3224,10 +3218,27 @@ class Huviz
   choose: (chosen) =>
     # If this chosen node is part of a SPARQL query set, then check if it is fully loaded
     # if it isn't then load and activate
+    #console.log chosen
     if @endpoint_loader.value # This is part of a sparql set
       if not chosen.fully_loaded
-        console.log "Time to make a new SPARQL query using: " + chosen.id
-        @test_load_endpoint_data_and_show(chosen.id)
+        #console.log "Time to make a new SPARQL query using: " + chosen.id + " - requests underway: " + @endpoint_loader.outstanding_requests
+        # If there are more than certain number of requests, stop the process
+        if (@endpoint_loader.outstanding_requests < 300)
+          @endpoint_loader.outstanding_requests = @endpoint_loader.outstanding_requests + 1
+          #console.log "Less than 6 so go ahead " + message
+          @load_new_endpoint_data_and_show(chosen.id)
+          console.log "Request counter: " + @endpoint_loader.outstanding_requests
+        else
+          if $("#blurtbox").html()
+            #console.log "Don't add error message " + message
+            console.log "Request counter (over): " + @endpoint_loader.outstanding_requests
+          else
+            #console.log "Error message " + message
+            msg = "There are more than 5 requests in the que. Aborting the process. " + message
+            blurt(msg, 'error')
+            message = true
+            console.log "Request counter: " + @endpoint_loader.outstanding_requests
+
     # There is a flag .chosen in addition to the state 'linked'
     # because linked means it is in the graph
     @chosen_set.add(chosen)
@@ -5001,12 +5012,7 @@ class Huviz
     @load_data_with_onto(@get_dataset_uri())
 
   load_data_with_onto: (data, onto, callback) ->  # Used for loading files from menu
-    console.log data
     @data_uri = data.value
-    if data.isEndpoint #then time to query
-      console.log "++++++++++++++++++++++++++++++++++++++++++++++++++"
-      @query_and_show(@data_uri, callback)
-      return
     @set_ontology(onto.value)
     if @args.display_reset
       $("#reset_btn").show()
