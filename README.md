@@ -110,3 +110,7 @@ See [data/test_q.nq](../master/data/test_1.nq)
 # Generating tag_tree.json
 
     ./extractOrlandoTagInfo.py --compact --outfile orlando_tag_tree.json
+
+# Gallery
+
+![Graph of 3191 nodes pulled from CWRC SPARQL](./docs/3191_nodes.png?raw=true)
