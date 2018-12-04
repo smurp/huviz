@@ -37,6 +37,16 @@
   border-radius: 3px;
   color: #666;
 }
+.control_label.activate_depth {
+  margin-left: 1em;
+  font-weight: normal;
+}
+.activate_depth .depth_input {
+  width: 2.3em;
+  text-align: center;
+  margin-left: 0.5em;
+}
+
 .engaged {
   background-color: #ddd;
   border-top:1px solid #aaa;

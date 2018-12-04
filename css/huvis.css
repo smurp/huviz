@@ -11,6 +11,50 @@ body, html {
 
 /* --------------- SVG styles ----------------- */
 
+.contextMenu {
+  z-index: 999;
+  background-color: white;
+  border: 1px grey solid;
+  padding: 0 0 0.5em;
+  margin: 0.5em 0.5em 1.5em 0.5em;
+  font-size: 0.8em;
+  box-shadow: 2px 2px 4px 2px #ccc;
+  position: absolute;
+  display: block;
+  border-radius: 5px;
+}
+.contextMenu .header {
+  /*background-color: #157fcc;*/
+  background-color: #ccc;
+  height: 0.8em;
+  margin: 0;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  overflow: hidden;
+}
+.contextMenu p {
+  margin: 0.5em 0.5em 0 1em;
+}
+.contextMenu p span.label {
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 0.72em;
+  color: #157fcc;
+}
+.contextMenu .subHeader {
+  height: 100%;
+  float: right;
+}
+
+.contextMenu p.note {
+  font-style: italic;
+  font-size: 0.7em;
+  color: #555;
+  margin: 1em 2em 1em 2em;
+}
+.contextMenu p.note span.label{
+  color:inherit;
+}
 rect {
   fill: none;
   pointer-events: all;

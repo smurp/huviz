@@ -661,6 +661,7 @@ class Huviz
     return @
 
   mousemove: =>
+    d3.select('.contextMenu').style('display','none')
     d3_event = @mouse_receiver[0][0]
     @last_mouse_pos = d3.mouse(d3_event)
     if not @dragging and @mousedown_point and @focused_node and
@@ -725,6 +726,8 @@ class Huviz
     d3_event = @mouse_receiver[0][0]
     @mousedown_point = false
     point = d3.mouse(d3_event)
+    if d3.event.button is 2 # Right click event so don't alter selected state
+      return
 
     # if something was being dragged then handle the drop
     if @dragging
@@ -783,6 +786,54 @@ class Huviz
       # TODO(smurp) are these still needed?
       @force.links @links_set
       @restart()
+
+  mouseright: () =>
+    d3.event.preventDefault()
+    #console.log @focused_node
+    if @focused_node is null then return #skip out if there was no node clicked
+    all_names = Object.values(@focused_node.name)
+    names_all_langs = ""
+    for name in all_names
+      if names_all_langs
+        names_all_langs = names_all_langs + " -- " + name
+      else
+        names_all_langs = name
+    other_types = ""
+    if (@focused_node._types.length > 1)
+      for node_type in @focused_node._types
+        if node_type != @focused_node.type
+          if other_types
+            other_types = other_types + ", " + node_type
+          else
+            other_types = node_type
+      other_types = " (" + other_types + ")"
+    note = ""
+    color_headers = ""
+    console.log @focused_node
+    if @focused_node._colors
+      width = 100 / @focused_node._colors.length
+      for color in @focused_node._colors
+        color_headers = color_headers + "<div class='subHeader' style='background-color: #{color}; width: #{width}%;'></div>"
+    if @endpoint_loader.value
+      if @endpoint_loader.value and @focused_node.fully_loaded
+        note = "<p class='note'>Node Fully Loaded</span>"
+      else
+        note = "<p class='note'><span class='label'>Note:</span> This node may not yet be fully loaded from remote server. Link details may not be accurate. Activate to load.</i>"
+    if @focused_node
+      node_info = """
+        <div class="header" style="background-color:#{@focused_node.color};">#{color_headers}</div>
+        <p><span class='label'>id:</span> #{@focused_node.id}</p>
+        <p><span class='label'>name:</span> #{names_all_langs}</p>
+        <p><span class='label'>type(s):</span> #{@focused_node.type} #{other_types}</p>
+        <p><span class='label'>Links To:</span> #{@focused_node.links_to.length} <br>
+          <span class='label'>Links From:</span> #{@focused_node.links_from.length}</p>
+          #{note}
+        """
+      d3.select('.contextMenu')
+        .style('display', 'block')
+        .style('top', "#{d3.event.clientY}px")
+        .style('left', "#{d3.event.clientX}px")
+        .html(node_info)
 
   perform_current_command: (node) ->
     if @gclui.ready_to_perform()
@@ -2115,13 +2166,12 @@ class Huviz
           edge.register_context(cntx_n)
           edge.color = @gclui.predicate_picker.get_color_forId_byName(pred_n.lid,'showing')
           @add_edge(edge)
-
+          literal_node.fully_loaded = true # for sparql quieries to flag literals as fully_loaded
     # if SPARQL Endpoint loaded AND this is subject node then set current subject to true (i.e. fully loaded)
     if @endpoint_loader.value
       subj_n.fully_loaded = false # all nodes default to not being fully_loaded
-      if subj_n.id is sprql_subj # if it is the subject node then is fully_loaded
+      if subj_n.id is sprql_subj# if it is the subject node then is fully_loaded
         subj_n.fully_loaded = true
-
     @last_quad = quad
     return edge
 
@@ -2679,16 +2729,17 @@ class Huviz
         headers: ajax_settings.headers
         success: (data, textStatus, jqXHR) =>
           #console.log jqXHR
-          console.log "Query: " + subject
+          #console.log "Query: " + subject
+          #console.log qry
           json_check = typeof data
           if json_check is 'string' then json_data = JSON.parse(data) else json_data = data
-          console.log "Json Array Size: " + json_data.results.bindings.length
+          #console.log "Json Array Size: " + json_data.results.bindings.length
           @add_nodes_from_SPARQL(json_data, subject)
           @shelved_set.resort()
           @tick()
           @update_all_counts()
           @endpoint_loader.outstanding_requests = @endpoint_loader.outstanding_requests - 1
-          console.log "Finished request: count now " + @endpoint_loader.outstanding_requests
+          #console.log "Finished request: count now " + @endpoint_loader.outstanding_requests
         error: (jqxhr, textStatus, errorThrown) =>
           console.log(url, errorThrown)
           console.log jqXHR.getAllResponseHeaders(data)
@@ -2705,6 +2756,7 @@ class Huviz
     context = "http://universal.org"
     plainLiteral = "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"
     #console.log json_data
+    #console.log "Adding node (i.e. fully exploring): " + subject
     nodes_in_data = json_data.results.bindings
     for node in nodes_in_data
       language = ''
@@ -2713,6 +2765,7 @@ class Huviz
         subj = node.s.value
         pred = node.p.value
         obj_val = subject
+
       else if node.o2
         subj = node.o.value
         pred = node.p2.value
@@ -2756,18 +2809,35 @@ class Huviz
           value: obj_val
       if language
         q.o.language = language
+
+      #console.log q
       #IF this is a new quad, then add it. Otherwise no.
       node_list_empty = @sparql_node_list.length
-      if node_list_empty is 0 # Add first node
+      if node_list_empty is 0 # Add first node (because list is empty)
         @sparql_node_list.push q
-      # Check if node is in list
-      for snode in @sparql_node_list
-        #TODO - This filtering statement doesn't seem tight
-        if q.s is snode.s and q.p is snode.p and q.o.value is snode.o.value and q.o.type is snode.o.type and q.o.language is snode.o.language
-          node_not_in_list = false
-          break
-        else
-          node_not_in_list = true
+        node_not_in_list = true
+      else
+        # Check if node is in list - sparql_node_list is used to keep track of nodes that have already been
+        # loaded by a query so that they will not be added again through add_quad.
+        for snode in @sparql_node_list
+          #TODO - This filtering statement doesn't seem tight (Will not catch nodes that HuViz creates - that's okay I think)
+          if q.s is snode.s and q.p is snode.p and q.o.value is snode.o.value and q.o.type is snode.o.type and q.o.language is snode.o.language
+            node_not_in_list = false
+            #console.log "Found it in list so will not send to add_quad"
+            if snode.s is subject or snode.o.value is subject#IF node is subject node IS already in list BUT fullly_loaded is false then set to true
+              for a_node, i in @all_set
+                if a_node.id is subject
+                   @all_set[i].fully_loaded = true
+                   #console.log "Found node for #{subject} so making it fully_loaded"
+            #else if snode.o.value is subject
+              #for a_node, i in @all_set
+                #console.log "compare: " + a_node.id + "   subject: " + subject
+                #if a_node.id is subject
+                   #@all_set[i].fully_loaded = true
+                   #console.log "Found object node for #{subject} which should be fully_loaded"
+            break
+          else
+            node_not_in_list = true
       #If node is not in list then add
       if node_not_in_list
         @sparql_node_list.push q
@@ -3234,8 +3304,8 @@ class Huviz
             console.log "Request counter (over): " + @endpoint_loader.outstanding_requests
           else
             #console.log "Error message " + message
-            msg = "There are more than 5 requests in the que. Aborting the process. " + message
-            blurt(msg, 'error')
+            msg = "There are more than 300 requests in the que. Restricting process. " + message
+            blurt(msg, 'alert')
             message = true
             console.log "Request counter: " + @endpoint_loader.outstanding_requests
 
@@ -4223,10 +4293,12 @@ class Huviz
     @updateWindow()
     @ctx = @canvas.getContext("2d")
     #console.log @ctx
+    d3.select('#viscanvas').append('div').attr('class', 'contextMenu').style('display', 'none')
     @mouse_receiver
       .on("mousemove", @mousemove)
       .on("mousedown", @mousedown)
       .on("mouseup", @mouseup)
+      .on("contextmenu", @mouseright)
       #.on("mouseout", @mouseup) # FIXME what *should* happen on mouseout?
     @restart()
     @set_search_regex("")

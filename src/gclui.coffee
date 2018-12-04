@@ -45,6 +45,7 @@ class CommandController
     @make_verb_sets()
     @control_label("Verbs")
     @verbdiv = @comdiv.append('div').attr('class','verbs')
+    @depthdiv = @comdiv.append('div')
     @add_clear_both(@comdiv)
     #@node_pickers = @comdiv.append('div')
     @node_pickers = @comdiv.append('div').attr("id","node_pickers")
@@ -523,6 +524,7 @@ class CommandController
     unpin: "u"
   build_form: () ->
     @build_verb_form()
+    @build_depth()
     @build_like()
     @nextcommand = @nextcommandbox.append('div').
         attr('class','nextcommand command')
@@ -574,16 +576,28 @@ class CommandController
     @show_working_off()
     @already_working = undefined
   show_working_on: (cmd)->
-    console.log "show_working_on()"
+    #console.log "show_working_on()"
     if cmd?
       @push_command_onto_history(cmd)
     @nextcommand_working.attr('class','fa fa-spinner fa-spin') # PREFERRED fa-2x
     @nextcommand.attr('class','nextcommand command cmd-working')
   show_working_off: ->
-    console.log "show_working_off()"
+    #console.log "show_working_off()"
     @nextcommand_working.attr('class','')
     @nextcommand.attr('class','nextcommand command')
     #@nextcommand.attr('style','background-color:yellow') # PREFERRED
+
+  build_depth: () ->
+    @depthdiv.text('Activate/Walk Depth:').classed("control_label activate_depth", true)
+    @depthdiv.style('display','inline-block')
+    @depthdiv.style('white-space','nowrap')
+    @depth_input = @depthdiv.append('input')
+    @depth_input.attr('class', 'depth_input')
+    @depth_input.attr('placeholder','1')
+    @depth_input.attr('type','number')
+    @depth_input.attr('min','1')
+    @depth_input.attr('max','9')
+    @depth_input.attr('value','1')
 
   build_like: () ->
     @likediv.text('matching:').classed("control_label", true)
@@ -717,13 +731,13 @@ class CommandController
     @proposed_verb or @proposed_set #or @proposed_taxon
 
   update_command: (because) =>
-    console.log("update_command()", because)
+    #console.log("update_command()", because)
     because = because or {}
     @huviz.show_state_msg("update_command")
     @run_any_immediate_command(because)
     @huviz.hide_state_msg()
   run_any_immediate_command: (because) ->
-    console.log("run_any_immediate_command()", because)
+    #console.log("run_any_immediate_command()", because)
     ready = @prepare_command(@build_command())
     if ready and @huviz.doit_asap and @immediate_execution_mode and not @is_proposed()
       @perform_current_command(because)
@@ -740,7 +754,7 @@ class CommandController
     @perform_any_cleanup(because)
     @show_working_off()
   perform_any_cleanup: (because) ->
-    console.log("perform_any_cleanup()",because)
+    #console.log("perform_any_cleanup()",because)
     if because? and because.cleanup
       because.cleanup()
       @update_command()
