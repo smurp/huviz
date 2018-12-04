@@ -1197,7 +1197,7 @@ class Huviz
         parent = @get_or_create_taxon(parent_lid)
         taxon.register_superclass(parent)
         label = @ontology.label[taxon_id]
-      @gclui.add_new_taxon(taxon_id, parent_lid, label, taxon) # FIXME should this be an event on the Taxon constructor?
+      @gclui.add_taxon(taxon_id, parent_lid, label, taxon) # FIXME should this be an event on the Taxon constructor?
     @taxonomy[taxon_id]
 
   update_labels_on_pickers: () ->

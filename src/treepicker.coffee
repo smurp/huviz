@@ -14,7 +14,7 @@ Build and control a hierarchic menu of arbitrarily nested divs looking like:
 
 * The user can toggle between collapsed and expanded using the triangles.
 * On the other hand, branches in the tree which are empty are hidden.
-* Clicking uncollapsed branches cycles just their selectedness.
+* Clicking uncollapsed branches cycles just their selectedness not their children.
 * Clicking collapsed branches cycles the selectedness of them and their children.
 
 * <div class="container"> a container holds one or more contents
@@ -159,7 +159,7 @@ class TreePicker
         if top and @extra_classes
           for css_class in @extra_classes
             my_contents.classed(css_class, true)
-        @show_tree(rest[1],my_contents,listener,false)
+        @show_tree(rest[1], my_contents, listener, false)
   click_handler: () =>
     picker = this
     elem = d3.select(d3.event.target)
@@ -237,7 +237,7 @@ class TreePicker
     container = d3.select(@get_or_create_container(parent)[0][0])
     if @needs_expander
       @get_or_create_expander(parent,parent_id)
-    @show_tree(branch,container,listener)
+    @show_tree(branch, container, listener)
   collapser_str: "▼" # 0x25bc
   expander_str: "▶" # 0x25b6
   get_or_create_expander: (thing, id) ->
