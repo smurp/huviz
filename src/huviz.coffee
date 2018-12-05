@@ -219,8 +219,11 @@ RDF_subClassOf   = "http://www.w3.org/2000/01/rdf-schema#subClassOf"
 RDF_a       = 'a'
 RDFS_label  = "http://www.w3.org/2000/01/rdf-schema#label"
 SKOS_prefLabel = "http://www.w3.org/2004/02/skos/core#prefLabel"
+XL_literalForm = "http://www.w3.org/2008/05/skos-xl#literalForm"
 TYPE_SYNS   = [RDF_type, RDF_a, 'rdfs:type', 'rdf:type']
-NAME_SYNS   = [FOAF_name, RDFS_label, 'rdfs:label', 'name', SKOS_prefLabel]
+NAME_SYNS = [
+  FOAF_name, RDFS_label, 'rdfs:label', 'name', SKOS_prefLabel, XL_literalForm
+  ]
 XML_TAG_REGEX = /(<([^>]+)>)/ig
 
 typeSigRE =
@@ -2073,8 +2076,14 @@ class Huviz
 
   auto_discover: (uri) ->
     if uri.startsWith("http://id.loc.gov/")
+      # This is less than ideal because it uses the special knowledge
+      # that the .skos.nt file is available. Unfortunately the only
+      # RDF file which is offered via content negotiation is .rdf and
+      # there is no parser for that in HuViz yet.  Besides, they are huge.
       @ingest_quads_from("#{uri}.skos.nt", @discover_labels(uri))
       #@auto_discover_header(uri, ['X-PrefLabel'], sendHeaders or [])
+    if uri.startsWith("http:")
+      alert(uri)
 
   make_qname: (uri) ->
     # TODO(smurp) dear god! this method name is lying (it is not even trying)
