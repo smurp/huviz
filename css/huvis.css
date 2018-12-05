@@ -94,3 +94,102 @@ rect {
   color: grey;
   float: right;
 }
+
+/* --------------- Snippet Dialog Box (edge inspector) ----------------- */
+
+.ui-dialog {
+  padding: 0;
+  margin: 0.5em;
+  box-shadow: 2px 2px 4px 2px #ccc;
+}
+.ui-dialog .ui-dialog-titlebar {
+  background: #157fcc 50% 50% repeat-x;
+  padding: 0.2em 0.8em;
+  border: none;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.ui-dialog .ui-dialog-title {
+  font-size: 0.7em;
+  color: white;
+  font-weight: normal;
+}
+
+.ui-dialog button.ui-dialog-titlebar-close, .ui-dialog button.close-all {
+  background-color: #e6e6e6;
+  width: 1.0em;
+  height: 1.0em;
+  border: none;
+  position: absolute;
+  padding: 0;
+  margin: 0;
+  top: inherit;
+}
+
+.ui-dialog button.ui-dialog-titlebar-close {
+  right: .3em;
+  background-position:initial;
+}
+.ui-dialog .ui-button .ui-icon, .ui-dialog .ui-button .ui-icon:hover {
+    background-image:url('/close_box.png');
+    background-position:initial;
+    background-size: 0.8em;
+    border-style: none;
+    background-color:initial;
+    margin-top: -0.39em;
+    margin-left: -0.38em;
+}
+.ui-dialog button.ui-dialog-titlebar-close:hover {
+  background: #fff none 50% 50% repeat-x;
+}
+.ui-dialog button.close-all {
+  background-size: 0.8em;
+  right: 1.7em;
+  margin: 0;
+  padding: 0;
+  width: 1.1em;
+}
+.ui-dialog button.close-all:hover {
+  background: #fff none 50% 50% repeat-x;
+}
+img.close_all_snippets_button {
+  cursor: pointer;
+  width: 0.9em;
+  height: 0.85em;
+  position: relative;
+  top: -0.08em;
+}
+.ui-dialog .snippet.ui-dialog-content {
+
+
+}
+.snippet a{
+  color: inherit;
+}
+.snippet dt {
+  text-transform: uppercase;
+  margin-top: 1em;
+  margin-bottom: 0.2em;
+  clear: both;
+}
+.snippet dd {
+  margin-inline-start: 0.5em;
+}
+.snippet .snip_circle{
+   background-color: #000;
+   height: 30px;
+   width: 30px;
+   display: block;
+   margin-right: 0.5em;
+   float: left;
+   border-radius: 50%;
+}
+.snippet .snip_arrow{
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 7.5px 0 7.5px 13.0px;
+  border-color: transparent transparent transparent #007bff;
+  float: left;
+  margin-right: 0.5em;
+}

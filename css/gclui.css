@@ -243,12 +243,7 @@
   color: red;
   font-style: bold;
 }
-.close_all_snippets_button {
-    cursor: pointer;
-    width:15px;
-    height:15px;
-    background-image:url('/close_all.png');
-    background-size:16px;
+
 }
 .graph_control input {
     cursor: inherit;
@@ -256,13 +251,7 @@
 .graph_control label {
     cursor: inherit;
 }
-.ui-widget-content .ui-icon {
-    background-image:url('/close_box.png');
-    background-position:initial;
-    background-size:16px;
-    border-style: none;
-    background-color:initial;
-}
+
 .close_hint {
     background-color: red;
     color: white;

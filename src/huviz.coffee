@@ -477,7 +477,7 @@ class Huviz
   cy: 0
 
   snippet_body_em: .7
-  snippet_triple_em: .7
+  snippet_triple_em: .8
   line_length_min: 4
 
   # TODO figure out how to replace with the default_graph_control
@@ -3443,6 +3443,7 @@ class Huviz
     @regenerate_english()
     @tick()
 
+  # ========================================== SNIPPET (INFO BOX) UI =============================================================================
   get_snippet_url: (snippet_id) ->
     if snippet_id.match(/http\:/)
       return snippet_id
@@ -3482,6 +3483,80 @@ class Huviz
     @snippet_positions_filled = {}
     $('.snippet_dialog_box').remove()
     return
+
+  init_snippet_box: ->
+    if d3.select('#snippet_box')[0].length > 0
+      @snippet_box = d3.select('#snippet_box')
+  remove_snippet: (snippet_id) ->
+    key = @get_snippet_js_key(snippet_id)
+    delete @currently_printed_snippets[key]
+    if @snippet_box
+      slctr = '#'+id_escape(snippet_id)
+      console.log(slctr)
+      @snippet_box.select(slctr).remove()
+  push_snippet: (obj, msg) ->
+    if @snippet_box
+      snip_div = @snippet_box.append('div').attr('class','snippet')
+      snip_div.html(msg)
+      $(snip_div[0][0]).addClass("snippet_dialog_box")
+      my_position = @get_next_snippet_position()
+      dialog_args =
+        #maxHeight: @snippet_size
+        title: obj.dialog_title
+        position:
+          my: my_position
+          at: "left top"
+          of: window
+        close: (event, ui) =>
+          event.stopPropagation()
+          delete @snippet_positions_filled[my_position]
+          delete @currently_printed_snippets[event.target.id]
+          return
+
+      dlg = $(snip_div).dialog(dialog_args)
+      elem = dlg[0][0]
+      elem.setAttribute("id",obj.snippet_js_key)
+      bomb_parent = $(elem).parent().
+        select(".ui-dialog-titlebar").children().first()
+      close_all_button = bomb_parent.
+        append('<button type="button" class="ui-button ui-corner-all ui-widget close-all" role="button" title="Close All""><img class="close_all_snippets_button" src="close_all.png" title="Close All"></button>')
+        #append('<span class="close_all_snippets_button" title="Close All"></span>')
+        #append('<img class="close_all_snippets_button" src="close_all.png" title="Close All">')
+      close_all_button.on('click', @clear_snippets)
+      return
+
+  snippet_positions_filled: {}
+  get_next_snippet_position: ->
+    # Fill the left edge, then the top edge, then diagonally from top-left
+    height = @height
+    width = @width
+    left_full = false
+    top_full = false
+    hinc = 0
+    vinc = @snippet_size
+    hoff = 0
+    voff = 0
+    retval = "left+#{hoff} top+#{voff}"
+    while @snippet_positions_filled[retval]?
+      hoff = hinc + hoff
+      voff = vinc + voff
+      retval = "left+#{hoff} top+#{voff}"
+      if not left_full and voff + vinc + vinc > height
+        left_full = true
+        hinc = @snippet_size
+        hoff = 0
+        voff = 0
+        vinc = 0
+      if not top_full and hoff + hinc + hinc + hinc > width
+        top_full = true
+        hinc = 30
+        vinc = 30
+        hoff = 0
+        voff = 0
+    @snippet_positions_filled[retval] = true
+    return retval
+
+  # =============================================================================================================================
 
   remove_tags: (xml) ->
     xml.replace(XML_TAG_REGEX, " ").replace(MANY_SPACES_REGEX, " ")
@@ -4116,77 +4191,7 @@ class Huviz
 
   predicates_to_ignore: ["anything", "first", "rest", "members"] # TODO make other than 'anything' optional
 
-  init_snippet_box: ->
-    if d3.select('#snippet_box')[0].length > 0
-      @snippet_box = d3.select('#snippet_box')
-  remove_snippet: (snippet_id) ->
-    key = @get_snippet_js_key(snippet_id)
-    delete @currently_printed_snippets[key]
-    if @snippet_box
-      slctr = '#'+id_escape(snippet_id)
-      console.log(slctr)
-      @snippet_box.select(slctr).remove()
-  push_snippet: (obj, msg) ->
-    if @snippet_box
-      snip_div = @snippet_box.append('div').attr('class','snippet')
-      snip_div.html(msg)
-      $(snip_div[0][0]).addClass("snippet_dialog_box")
-      my_position = @get_next_snippet_position()
-      dialog_args =
-        #maxHeight: @snippet_size
-        title: obj.dialog_title
-        position:
-          my: my_position
-          at: "left top"
-          of: window
-        close: (event, ui) =>
-          event.stopPropagation()
-          delete @snippet_positions_filled[my_position]
-          delete @currently_printed_snippets[event.target.id]
-          return
 
-      dlg = $(snip_div).dialog(dialog_args)
-      elem = dlg[0][0]
-      elem.setAttribute("id",obj.snippet_js_key)
-      bomb_parent = $(elem).parent().
-        select(".ui-dialog-titlebar").children().first()
-      close_all_button = bomb_parent.
-        append('<button type="button" class="ui-button ui-widget" role="button" title="Close All""><img class="close_all_snippets_button" src="close_all.png" title="Close All"></button>')
-        #append('<span class="close_all_snippets_button" title="Close All"></span>')
-        #append('<img class="close_all_snippets_button" src="close_all.png" title="Close All">')
-      close_all_button.on('click', @clear_snippets)
-      return
-
-  snippet_positions_filled: {}
-  get_next_snippet_position: ->
-    # Fill the left edge, then the top edge, then diagonally from top-left
-    height = @height
-    width = @width
-    left_full = false
-    top_full = false
-    hinc = 0
-    vinc = @snippet_size
-    hoff = 0
-    voff = 0
-    retval = "left+#{hoff} top+#{voff}"
-    while @snippet_positions_filled[retval]?
-      hoff = hinc + hoff
-      voff = vinc + voff
-      retval = "left+#{hoff} top+#{voff}"
-      if not left_full and voff + vinc + vinc > height
-        left_full = true
-        hinc = @snippet_size
-        hoff = 0
-        voff = 0
-        vinc = 0
-      if not top_full and hoff + hinc + hinc + hinc > width
-        top_full = true
-        hinc = 30
-        vinc = 30
-        hoff = 0
-        voff = 0
-    @snippet_positions_filled[retval] = true
-    return retval
 
   run_verb_on_object: (verb, subject) ->
     cmd = new gcl.GraphCommand this,
@@ -4437,17 +4442,17 @@ class Huviz
           step: .05
           type: 'range'
     ,
-      snippet_body_em:
-        text: "snippet body (em)"
-        label:
-          title: "the size of the snippet text"
-        input:
-          value: .7
-          min: .2
-          max: 4
-          step: .1
-          type: "range"
-    ,
+      #snippet_body_em:
+      #  text: "snippet body (em)"
+      #  label:
+      #    title: "the size of the snippet text"
+      #  input:
+      #    value: .7
+      #    min: .2
+      #    max: 4
+      #    step: .1
+      #    type: "range"
+    #,
       snippet_triple_em:
         text: "snippet triple (em)"
         label:
@@ -5304,6 +5309,7 @@ class Orlando extends OntologicallyGrounded
 
   push_snippet: (msg_or_obj) ->
     obj = msg_or_obj
+    fontSize = @snippet_triple_em
     if @snippet_box
       if typeof msg_or_obj isnt 'string'
         [msg_or_obj, m] = ["", msg_or_obj]  # swap them
@@ -5319,14 +5325,25 @@ class Orlando extends OntologicallyGrounded
           obj_dd = """<dd>"#{obj.quad.obj_val}"#{dataType}</dd>"""
         msg_or_obj = """
         <div id="#{obj.snippet_js_key}">
-          <dl style="font-size:#{@snippet_triple_em}em">
-            <dt>subject <span style="background-color:#{m.edge.source.color}">&cir;</span></dt>
-              <dd>#{@make_link(obj.quad.subj_uri)}</dd>
-            <dt>predicate <span style="background-color:#{m.edge.color}">&xrarr;</span></dt>
-              <dd>#{@make_link(obj.quad.pred_uri)}</dd>
-            <dt>object <span style="background-color:#{m.edge.target.color}">&cir;</span></dt>
-              #{obj_dd}
-            <dt>source</dt>
+          <dl style="font-size:#{fontSize}em">
+            <dt style="font-size:#{fontSize * .5}em;">subject</dt>
+              <dd>
+                <div class="snip_circle" style="background-color:#{m.edge.source.color}; width: #{fontSize * 2.5}em; height: #{fontSize * 2.5}em;"></div>
+                #{@make_link(obj.quad.subj_uri)}
+              </dd>
+            <dt style="font-size:#{fontSize * .5}em;">predicate </dt>
+              <dd>
+                <div class="snip_arrow" style="border-color: transparent transparent transparent #{m.edge.color};
+                  border-width: #{fontSize * 1.4}em 0 #{fontSize * 1.4}em #{fontSize * 2.5}em;">
+                </div>
+                #{@make_link(obj.quad.pred_uri)}
+              </dd>
+            <dt style="font-size:#{fontSize * .5}em;">object </dt>
+              <dd>
+                <div class="snip_circle" style="background-color:#{m.edge.target.color}; width: #{fontSize * 2.5}em; height: #{fontSize * 2.5}em;"></div>
+                #{obj_dd}
+              </dd>
+            <dt  style="font-size:#{fontSize * .5}em;">source</dt>
               <dd>#{@make_link(obj.quad.graph_uri)}</dd>
           </dl>
         </div>
