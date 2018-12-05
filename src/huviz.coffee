@@ -218,8 +218,9 @@ RDF_Class   = "http://www.w3.org/2000/01/rdf-schema#Class"
 RDF_subClassOf   = "http://www.w3.org/2000/01/rdf-schema#subClassOf"
 RDF_a       = 'a'
 RDFS_label  = "http://www.w3.org/2000/01/rdf-schema#label"
+SKOS_prefLabel = "http://www.w3.org/2004/02/skos/core#prefLabel"
 TYPE_SYNS   = [RDF_type, RDF_a, 'rdfs:type', 'rdf:type']
-NAME_SYNS   = [FOAF_name, RDFS_label, 'rdfs:label', 'name']
+NAME_SYNS   = [FOAF_name, RDFS_label, 'rdfs:label', 'name', SKOS_prefLabel]
 XML_TAG_REGEX = /(<([^>]+)>)/ig
 
 typeSigRE =
@@ -1965,6 +1966,116 @@ class Huviz
         cancelable: true
     )
 
+  auto_discover_header: (uri, digestHeaders, sendHeaders) ->
+    # THIS IS A FAILED EXPERIMENT BECAUSE
+    # It turns out that for security reasons AJAX requests cannot show
+    # the headers of redirect responses.  So, though it is a fine ambition
+    # to retrieve the X-PrefLabel it cannot be seen because the 303 redirect
+    # it is attached to is processed automatically by the browser and we
+    # find ourselves looking at the final response.
+    $.ajax
+      type: 'GET'
+      url: uri
+      beforeSend: (xhr) ->
+        #console.log(xhr)
+        for pair in sendHeaders
+          #xhr.setRequestHeader('X-Test-Header', 'test-value')
+          xhr.setRequestHeader(pair[0], pair[1])
+        #xhr.setRequestHeader('Accept', "text/n-triples, text/x-turtle, */*")
+      #headers:
+      #  Accept: "text/n-triples, text/x-turtle, */*"
+      success: (data, textStatus, request) =>
+        console.log(textStatus)
+        console.log(request.getAllResponseHeaders())
+        console.table((line.split(':') for line in request.getAllResponseHeaders().split("\n")))
+        for header in digestHeaders
+          val = request.getResponseHeader(header)
+          if val?
+            alert(val)
+
+  discovery_triple_ingestor_N3: (data, textStatus, request, discoArgs) =>
+    # Purpose:
+    #   THIS IS NOT YET IN USE.  THIS IS FOR WHEN WE SWITCH OVER TO N3
+    #
+    #   This is the XHR callback returned by @make_triple_ingestor()
+    #   The assumption is that data will be something N3 can parse.
+    # Accepts:
+    #   discoArgs:
+    #     quadTester (OPTIONAL)
+    #       returns true if the quad is to be added
+    #     quadMunger (OPTIONAL)
+    #       returns an array of one or more quads inspired by each quad
+    discoArgs ?= {}
+    quadTester = discoArgs.quadTester or (q) => q?
+    quadMunger = discoArgs.quadMunger or (q) => [q]
+    quad_count = 0
+    parser = N3.Parser()
+    parser.parse data, (err, quad, pref) =>
+      if err and discoArgs.onErr?
+        discoArgs.onErr(err)
+      if quadTester(quad)
+        for aQuad in quadMunger(quad)
+          @add_quad(aQuad)
+
+  discovery_triple_ingestor_GreenTurtle: (data, textStatus, request, discoArgs) =>
+    # Purpose:
+    #   This is the XHR callback returned by @make_triple_ingestor()
+    #   The assumption is that data will be something N3 can parse.
+    # Accepts:
+    #   discoArgs:
+    #     quadTester (OPTIONAL)
+    #       returns true if the quad is to be added
+    #     quadMunger (OPTIONAL)
+    #       returns an array of one or more quads inspired by each quad
+    discoArgs ?= {}
+    graphUri = discoArgs.graphUri
+    quadTester = discoArgs.quadTester or (q) => q?
+    quadMunger = discoArgs.quadMunger or (q) => [q]
+    dataset = new GreenerTurtle().parse(data, "text/turtle")
+    for subj_uri, frame of dataset.subjects
+      for pred_id, pred of frame.predicates
+        for obj in pred.objects
+          quad =
+            s: frame.id
+            p: pred.id
+            o: obj # keys: type,value[,language]
+            g: graphUri
+          if quadTester(quad)
+            for aQuad in quadMunger(quad)
+              @add_quad(aQuad)
+    return
+
+  make_triple_ingestor: (discoArgs) =>
+    return (data, textStatus, request) =>
+      @discovery_triple_ingestor_GreenTurtle(data, textStatus, request, discoArgs)
+
+  discover_labels: (uri) =>
+    aUrl = new URL(uri)
+    discoArgs =
+      quadTester: (quad) =>
+        if quad.s isnt uri
+          return false
+        if not (quad.p in NAME_SYNS)
+          return false
+        return true
+      quadMunger: (quad) =>
+        console.log(quad.o.value)
+        return [quad]
+      graphUri: aUrl.origin
+    @make_triple_ingestor(discoArgs)
+
+  ingest_quads_from: (uri, success, failure) =>
+    $.ajax
+      type: 'GET'
+      url: uri
+      success: success
+      failure: failure
+
+  auto_discover: (uri) ->
+    if uri.startsWith("http://id.loc.gov/")
+      @ingest_quads_from("#{uri}.skos.nt", @discover_labels(uri))
+      #@auto_discover_header(uri, ['X-PrefLabel'], sendHeaders or [])
+
   make_qname: (uri) ->
     # TODO(smurp) dear god! this method name is lying (it is not even trying)
     return uri
@@ -2211,7 +2322,7 @@ class Huviz
         @G = new GreenerTurtle().parse(data, "text/turtle")
       catch e
         msg = escapeHtml(e.toString())
-        blurt_msg = '<p>There has been a problem with the Turtle parser. Check your dataset for errors.</p><p class="js_msg">' + msg + '</p>'
+        blurt_msg = """<p>There has been a problem with the Turtle parser.  Check your dataset for errors.</p><p class="js_msg">#{msg}</p>"""
         blurt(blurt_msg, "error")
         return false
     quad_count = 0
@@ -2325,7 +2436,7 @@ class Huviz
           q.o =
             type:  owl_type_map[q.o.type]
             value: unescape_unicode(@remove_framing_quotes(q.o.toString()))
-          @add_quad q
+          @add_quad(q)
       else if e.data.event is 'start'
         msg = "starting to split " + uri
         @show_state_msg("<h3>Starting to split... </h3><p>" + uri + "</p>")
@@ -2357,7 +2468,7 @@ class Huviz
         q.o =
           type:  owl_type_map[q.o.type]
           value: unescape_unicode(@remove_framing_quotes(q.o.toString()))
-        @add_quad q
+        @add_quad(q)
     @local_file_data = ""
     @after_file_loaded('local file', callback)
 
