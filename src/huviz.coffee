@@ -2018,7 +2018,7 @@ class Huviz
         discoArgs.onErr(err)
       if quadTester(quad)
         for aQuad in quadMunger(quad)
-          @add_quad(aQuad)
+          @inject_discovered_quad_for(quad, discoArgs.aUrl)
 
   discovery_triple_ingestor_GreenTurtle: (data, textStatus, request, discoArgs) =>
     # Purpose:
@@ -2045,18 +2045,18 @@ class Huviz
             g: graphUri
           if quadTester(quad)
             for aQuad in quadMunger(quad)
-              @add_quad(aQuad)
+              @inject_discovered_quad_for(aQuad, discoArgs.aUrl)
     return
 
   make_triple_ingestor: (discoArgs) =>
     return (data, textStatus, request) =>
       @discovery_triple_ingestor_GreenTurtle(data, textStatus, request, discoArgs)
 
-  discover_labels: (uri) =>
-    aUrl = new URL(uri)
+  discover_labels: (aUrl) =>
     discoArgs =
+      aUrl: aUrl
       quadTester: (quad) =>
-        if quad.s isnt uri
+        if quad.s isnt aUrl.toString()
           return false
         if not (quad.p in NAME_SYNS)
           return false
@@ -2074,7 +2074,30 @@ class Huviz
       success: success
       failure: failure
 
+  discover_geoname_name: (aUrl) ->
+    id = aUrl.pathname.replace(/\//g,'')
+    $.ajax
+      url: "http://api.geonames.org/hierarchyJSON?geonameId=#{id}&username=huviz"
+      success: (json, textStatus, request) =>
+        #json = JSON.parse(data)
+        lastGeoname = json.geonames[json.geonames.length-1 or 0]
+        #console.log(lastGeoname)
+        name = (lastGeoname or {}).name
+        quad =
+          s: aUrl.toString()
+          p: RDFS_label
+          o:
+            value: name
+            type: RDF_literal
+          g: aUrl.origin
+        @inject_discovered_quad_for(quad, aUrl)
+
+  inject_discovered_quad_for: (quad, url) ->
+    q = @add_quad(quad)
+    console.log("inject_discovered_quad(#{JSON.stringify(quad)})")
+
   auto_discover: (uri) ->
+    aUrl = new URL(uri)
     if uri.startsWith("http://id.loc.gov/")
       # This is less than ideal because it uses the special knowledge
       # that the .skos.nt file is available. Unfortunately the only
@@ -2082,8 +2105,8 @@ class Huviz
       # there is no parser for that in HuViz yet.  Besides, they are huge.
       @ingest_quads_from("#{uri}.skos.nt", @discover_labels(uri))
       #@auto_discover_header(uri, ['X-PrefLabel'], sendHeaders or [])
-    if uri.startsWith("http:")
-      alert(uri)
+    if uri.startsWith("http://sws.geonames.org/")
+      @discover_geoname_name(aUrl)
 
   make_qname: (uri) ->
     # TODO(smurp) dear god! this method name is lying (it is not even trying)
