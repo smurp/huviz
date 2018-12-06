@@ -3487,6 +3487,7 @@ class Huviz
   init_snippet_box: ->
     if d3.select('#snippet_box')[0].length > 0
       @snippet_box = d3.select('#snippet_box')
+      console.log "init_snippet_box"
   remove_snippet: (snippet_id) ->
     key = @get_snippet_js_key(snippet_id)
     delete @currently_printed_snippets[key]
@@ -3495,6 +3496,7 @@ class Huviz
       console.log(slctr)
       @snippet_box.select(slctr).remove()
   push_snippet: (obj, msg) ->
+    console.log "push_snippet"
     if @snippet_box
       snip_div = @snippet_box.append('div').attr('class','snippet')
       snip_div.html(msg)
@@ -3502,6 +3504,7 @@ class Huviz
       my_position = @get_next_snippet_position()
       dialog_args =
         #maxHeight: @snippet_size
+        minWidth: 400
         title: obj.dialog_title
         position:
           my: my_position
@@ -5314,7 +5317,7 @@ class Orlando extends OntologicallyGrounded
       if typeof msg_or_obj isnt 'string'
         [msg_or_obj, m] = ["", msg_or_obj]  # swap them
         if obj.quad.obj_uri
-          obj_dd = """<dd>#{@make_link(obj.quad.obj_uri)}</dd>"""
+          obj_dd = """#{@make_link(obj.quad.obj_uri)}"""
         else
           dataType_uri = m.edge.target.__dataType or ""
           dataType = ""
@@ -5322,30 +5325,28 @@ class Orlando extends OntologicallyGrounded
             dataType_curie = m.edge.target.type.replace('__',':')
             #dataType = """^^<a target="_" href="#{dataType_uri}">#{dataType_curie}</a>"""
             dataType = "^^#{@make_link(dataType_uri, dataType_curie)}"
-          obj_dd = """<dd>"#{obj.quad.obj_val}"#{dataType}</dd>"""
+          obj_dd = """"#{obj.quad.obj_val}"#{dataType}"""
         msg_or_obj = """
         <div id="#{obj.snippet_js_key}">
-          <dl style="font-size:#{fontSize}em">
-            <dt style="font-size:#{fontSize * .5}em;">subject</dt>
-              <dd>
-                <div class="snip_circle" style="background-color:#{m.edge.source.color}; width: #{fontSize * 2.5}em; height: #{fontSize * 2.5}em;"></div>
-                #{@make_link(obj.quad.subj_uri)}
-              </dd>
-            <dt style="font-size:#{fontSize * .5}em;">predicate </dt>
-              <dd>
-                <div class="snip_arrow" style="border-color: transparent transparent transparent #{m.edge.color};
-                  border-width: #{fontSize * 1.4}em 0 #{fontSize * 1.4}em #{fontSize * 2.5}em;">
-                </div>
-                #{@make_link(obj.quad.pred_uri)}
-              </dd>
-            <dt style="font-size:#{fontSize * .5}em;">object </dt>
-              <dd>
-                <div class="snip_circle" style="background-color:#{m.edge.target.color}; width: #{fontSize * 2.5}em; height: #{fontSize * 2.5}em;"></div>
-                #{obj_dd}
-              </dd>
-            <dt  style="font-size:#{fontSize * .5}em;">source</dt>
-              <dd>#{@make_link(obj.quad.graph_uri)}</dd>
-          </dl>
+          <div style="font-size:#{fontSize}em">
+            <h3>subject</h3>
+            <div class="snip_circle" style="background-color:#{m.edge.source.color}; width: #{fontSize * 2.5}em; height: #{fontSize * 2.5}em;"></div>
+            <p style="margin-left: #{fontSize * 3.5}em">#{@make_link(obj.quad.subj_uri)}</p>
+
+            <h3>predicate </h3>
+            <div class="snip_arrow">
+              <div class="snip_arrow_stem" style="width: #{fontSize * 2}em; height: #{fontSize * 1}em; margin-top: #{fontSize * 0.75}em; background-color:#{m.edge.color};"></div>
+              <div class="snip_arrow_head" style="border-color: transparent transparent transparent #{m.edge.color};border-width: #{fontSize * 1.3}em 0 #{fontSize * 1.3}em #{fontSize * 2.3}em;"></div>
+            </div>
+            <p class="pred" style="margin-left: #{fontSize * 4.8}em">#{@make_link(obj.quad.pred_uri)}</p>
+
+            <h3>object </h3>
+            <div class="snip_circle" style="background-color:#{m.edge.target.color}; width: #{fontSize * 2.5}em; height: #{fontSize * 2.5}em;"></div>
+            <p style="margin-left: #{fontSize * 3.5}em">#{obj_dd}</p>
+
+            <h3>source</h3>
+            <p style="margin-left: #{fontSize * 2.5}em">#{@make_link(obj.quad.graph_uri)}</p>
+          </div>
         </div>
 
         """
