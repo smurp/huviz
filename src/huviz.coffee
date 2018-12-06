@@ -130,6 +130,11 @@ MultiString.set_langpath('en:fr') # TODO make this a setting
 #   OnceRunner = require('oncerunner').OnceRunner
 #   TODO document the other examples of requires that are being "stitched in"
 
+colorlog = (msg, color, size) ->
+  color ?= "red"
+  size ?= "1.2em"
+  console.log("%c#{msg}", "color:#{color};font-size:#{size};")
+
 wpad = undefined
 hpad = 10
 tau = Math.PI * 2
@@ -1059,9 +1064,13 @@ class Huviz
       labelled(@human_term.labelled).
       isFlag().
       sub_of(@all_set)
-
     @labelled_set.docs = "Nodes which have their labels permanently shown."
     @labelled_set.cleanup_verb = "unlabel"
+
+    @nameless_set = SortedSet().
+      named("nameless").
+      sort_on("nameless_since").
+      isFlag()
 
     @links_set = SortedSet().
       named("shown").
@@ -1307,13 +1316,13 @@ class Huviz
     if @focused_node
       # unfocus the previously focused_node
       if @use_svg
-        d3.select(".focused_node").classed "focused_node", false
-      @unscroll_pretty_name(@focused_node)
+        d3.select(".focused_node").classed("focused_node", false)
+      #@unscroll_pretty_name(@focused_node)
       @focused_node.focused_node = false
     if node
       if @use_svg
         svg_node = node[0][new_focused_idx]
-        d3.select(svg_node).classed "focused_node", true
+        d3.select(svg_node).classed("focused_node", true)
       node.focused_node = true
     @focused_node = node # might be null
     if @focused_node
@@ -2240,7 +2249,25 @@ class Huviz
     @last_quad = quad
     return edge
 
+  remove_from_nameless: (node) ->
+    delete node.nameless_since
+    @nameless_set.remove(node)
+  add_to_nameless: (node) ->
+    node.nameless_since = new Date()
+    @nameless_set.traffic ?= 0
+    @nameless_set.traffic++
+    @nameless_set.push(node)
+    if @nameless_set.length > 1
+      colorlog("nameless count: #{@nameless_set.length}", "darkgreen")
+
   set_name: (node, full_name, lang) ->
+    # So if we set the full_name to null that is to mean that we have
+    # no good idea what the name yet.
+    if full_name?
+      @remove_from_nameless(node)
+    else
+      @add_to_nameless(node)
+      full_name = node.lid or node.id
     if typeof full_name is 'object'
       # MultiString instances have constructor.name == 'String'
       # console.log(full_name.constructor.name, full_name)
@@ -2914,7 +2941,7 @@ class Huviz
     node.type ?= "Thing"
     node.lid ?= uniquer(node.id)
     if not node.name?
-      @set_name(node, name or node.lid)
+      @set_name(node) # this will cause a made-up name to be applied
     return node
 
   develop: (node) ->
