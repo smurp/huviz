@@ -434,6 +434,7 @@ orlando_human_term =
   pin: 'Pin'
   unpin: 'Unpin'
   unpinned: 'Unpinned'
+  nameless: 'Nameless'
   blank_verb: 'VERB'
   blank_noun: 'SET/SELECTION'
 
@@ -1067,10 +1068,12 @@ class Huviz
     @labelled_set.docs = "Nodes which have their labels permanently shown."
     @labelled_set.cleanup_verb = "unlabel"
 
-    @nameless_set = SortedSet().
-      named("nameless").
+    @nameless_set = SortedSet().named("nameless").
       sort_on("nameless_since").
-      isFlag()
+      labelled(@human_term.nameless).
+      isFlag().
+      sub_of(@all_set)
+    @nameless_set.docs = "Nodes for which no name is yet known"
 
     @links_set = SortedSet().
       named("shown").
@@ -1094,6 +1097,7 @@ class Huviz
       graphed_set: @graphed_set
       labelled_set: @labelled_set
       pinned_set: @pinned_set
+      nameless_set: @nameless_set
 
   update_all_counts: ->
     @update_set_counts()
@@ -1176,6 +1180,7 @@ class Huviz
       @do({verbs: ['unselect'], sets: [@selected_set]})
     @gclui.reset_editor()
     @gclui.select_the_initial_set()
+    @discover_names()
 
   reset_graph: ->
     #@dump_current_settings("at top of reset_graph()")
@@ -2102,11 +2107,20 @@ class Huviz
         @inject_discovered_quad_for(quad, aUrl)
 
   inject_discovered_quad_for: (quad, url) ->
+    # Purpose:
+    #   Central place to perform operations on discoveries, such as caching.
     q = @add_quad(quad)
-    console.log("inject_discovered_quad(#{JSON.stringify(quad)})")
+    @update_set_counts()
+    #msg = "inject_discovered_quad(#{JSON.stringify(quad)})"
+    #colorlog(url,"red","2em")
 
-  auto_discover: (uri) ->
-    aUrl = new URL(uri)
+  auto_discover: (uri, force) ->
+    try
+      aUrl = new URL(uri)
+    catch e
+      colorlog("skipping auto_discover('#{uri}') because")
+      console.log(e)
+      return
     if uri.startsWith("http://id.loc.gov/")
       # This is less than ideal because it uses the special knowledge
       # that the .skos.nt file is available. Unfortunately the only
@@ -2114,8 +2128,12 @@ class Huviz
       # there is no parser for that in HuViz yet.  Besides, they are huge.
       @ingest_quads_from("#{uri}.skos.nt", @discover_labels(uri))
       #@auto_discover_header(uri, ['X-PrefLabel'], sendHeaders or [])
-    if uri.startsWith("http://sws.geonames.org/")
+    if force and uri.startsWith("http://sws.geonames.org/")
       @discover_geoname_name(aUrl)
+
+  discover_names: (force) ->
+    for node in @nameless_set
+      @auto_discover(node.id, force)
 
   make_qname: (uri) ->
     # TODO(smurp) dear god! this method name is lying (it is not even trying)
@@ -2205,15 +2223,10 @@ class Huviz
         @develop(obj_n)
     else # ie the quad.o is a literal
       if is_one_of(pred_uri, NAME_SYNS)
-        add_name = () =>
-          @set_name(
-            subj_n,
-            quad.o.value.replace(/^\s+|\s+$/g, ''),
-            quad.o.language)
-        if subj_n.shelved_set
-          subj_n.shelved_set.alter(subj_n, add_name)
-        else
-          add_name()
+        @set_name(
+          subj_n,
+          quad.o.value.replace(/^\s+|\s+$/g, ''),
+          quad.o.language)
         if subj_n.embryo
           @develop(subj_n) # might be ready now
       else # the object is a literal other than name
@@ -2235,8 +2248,7 @@ class Huviz
             objId = synthIdFor(objKey)
           else
             objId = synthIdFor(objVal)
-          literal_node = @get_or_create_node_by_id(objId)
-          literal_node.isLiteral = true
+          literal_node = @get_or_create_node_by_id(objId, null, (isLiteral = true))
           @try_to_set_node_type(literal_node, simpleType)
           literal_node.__dataType = quad.o.type
           @develop(literal_node)
@@ -2250,33 +2262,52 @@ class Huviz
     return edge
 
   remove_from_nameless: (node) ->
-    delete node.nameless_since
+    #colorlog(node.id, null, "3em")
     @nameless_set.remove(node)
+    delete node.nameless_since
   add_to_nameless: (node) ->
+    if node.isLiteral
+      # Literals cannot have names looked up.
+      return
     node.nameless_since = new Date()
     @nameless_set.traffic ?= 0
     @nameless_set.traffic++
-    @nameless_set.push(node)
+    #@nameless_set.add(node)
+    @nameless_set.push(node) # REVIEW(smurp) why not .add()?????
     if @nameless_set.length > 1
       colorlog("nameless count: #{@nameless_set.length}", "darkgreen")
 
   set_name: (node, full_name, lang) ->
     # So if we set the full_name to null that is to mean that we have
     # no good idea what the name yet.
-    if full_name?
-      @remove_from_nameless(node)
-    else
-      @add_to_nameless(node)
-      full_name = node.lid or node.id
-    if typeof full_name is 'object'
-      # MultiString instances have constructor.name == 'String'
-      # console.log(full_name.constructor.name, full_name)
-      node.name = full_name
-    else
-      if node.name
-        node.name.set_val_lang(full_name, lang)
+    perform_rename = () =>
+      if full_name?
+        @remove_from_nameless(node)
       else
-        node.name = new MultiString(full_name, lang)
+        @add_to_nameless(node)
+        full_name = node.lid or node.id
+      if typeof full_name is 'object'
+        # MultiString instances have constructor.name == 'String'
+        # console.log(full_name.constructor.name, full_name)
+        node.name = full_name
+      else
+        if node.name
+          node.name.set_val_lang(full_name, lang)
+        else
+          node.name = new MultiString(full_name, lang)
+    if node.state and node.state.id is 'shelved'
+      # Alter calls the callback add_name in the midst of an operation
+      # which is likely to move subj_n from its current position in
+      # the shelved_set.  The shelved_set is the only one which is
+      # sorted by name and as a consequence is the only one able to
+      # be confused by the likely shift in alphabetic position of a
+      # node.  For the sake of efficiency we "alter()" the position
+      # of the node rather than do shelved_set.resort() after the
+      # renaming.
+      @shelved_set.alter(node, perform_rename)
+      @tick()
+    else
+      perform_rename()
     #node.name ?= full_name  # set it if blank
     len = @truncate_labels_to
     if not len?
@@ -2924,7 +2955,7 @@ class Huviz
       @context_set.add(obj_n)
     obj_n
 
-  get_or_create_node_by_id: (uri, name) ->
+  get_or_create_node_by_id: (uri, name, isLiteral) ->
     # FIXME OMG must standardize on .lid as the short local id, ie internal id
     #node_id = @make_qname(uri) # REVIEW: what about uri: ":" ie the current graph
     node_id = uri
@@ -2934,6 +2965,8 @@ class Huviz
     if not node?
       # at this point the node is embryonic, all we know is its uri!
       node = new Node(node_id, @use_lid_as_node_name)
+      if isLiteral?
+        node.isLiteral = isLiteral
       if not node.id?
         alert("new Node('#{uri}') has no id")
       #@nodes.add(node)
@@ -4131,6 +4164,7 @@ class Huviz
     pin: 'PIN'
     unpin: 'UNPIN'
     unpinned: 'UNPINNED'
+    nameless: 'NAMELESS'
     blank_verb: 'VERB'
     blank_noun: 'SET/SELECTION'
 

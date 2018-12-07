@@ -245,12 +245,16 @@ var SortedSet = function(){
         throw new Error(`failed to remove ${itm[array._f_or_k]} during .add()`);
       }
       var ideal = array.binary_search(itm, true);
-      var removed = array.remove(current_idx, 1);
-      if (!(removed.length == 1)) {
-        console.error("removing",itm,"returned",removed)
-        throw new Error("temporarily removing itm extracted ${removed.length} items");
+      var before_removal_count = array.length;
+      array.remove(itm);
+      var after_removal_count = array.length;
+      if (false && !(before_removal_count - after_removal_count == 1)) {
+        throw new Error("temporarily removing itm extracted " +
+                        (before_removal_count - after_removal_count) +
+                        " items");
       }
-      array.splice(ideal.idx, 0, itm);
+      //array.splice(ideal.idx, 0, itm);
+      array._engage_at(itm, ideal.idx);
       return array;
     }
     array.add = function(itm){
@@ -263,15 +267,18 @@ var SortedSet = function(){
         if (typeof c == 'number'){ // an integer was returned, ie it was found
           return c;
 	}
-	array.splice(c.idx,0,itm);
+        array._engage_at(itm, c.idx);
+        //array.is_sorted();
+	return c.idx;
+    }
+    array._engage_at = function(itm, idx) {
+        array.splice(idx,0,itm);
 	if (array.state_property){
 	    itm[array.state_property] = array;
 	}
 	if (array.flag_property){
 	    itm[array.flag_property] = array;
 	}
-        //array.is_sorted();
-	return c.idx;
     }
     array.has = function(itm){ // AKA contains() or is_state_of()
 	if (array.state_property){
