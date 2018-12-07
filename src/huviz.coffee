@@ -2274,8 +2274,6 @@ class Huviz
     @nameless_set.traffic++
     #@nameless_set.add(node)
     @nameless_set.push(node) # REVIEW(smurp) why not .add()?????
-    if @nameless_set.length > 1
-      colorlog("nameless count: #{@nameless_set.length}", "darkgreen")
 
   set_name: (node, full_name, lang) ->
     # So if we set the full_name to null that is to mean that we have
