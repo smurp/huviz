@@ -1194,8 +1194,8 @@ class Huviz
     @indexed_dbservice()
     @init_indexddbstorage()
 
-    @force.nodes @nodes
-    @force.links @links_set
+    @force.nodes(@nodes)
+    @force.links(@links_set)
 
     # TODO move this SVG code to own renderer
     d3.select(".link").remove()
@@ -2079,7 +2079,6 @@ class Huviz
           return false
         return true
       quadMunger: (quad) =>
-        console.log(quad.o.value)
         return [quad]
       graphUri: aUrl.origin
     @make_triple_ingestor(discoArgs)
@@ -2093,8 +2092,9 @@ class Huviz
 
   discover_geoname_name: (aUrl) ->
     id = aUrl.pathname.replace(/\//g,'')
+    userId = @discover_geonames_as
     $.ajax
-      url: "http://api.geonames.org/hierarchyJSON?geonameId=#{id}&username=huviz"
+      url: "http://api.geonames.org/hierarchyJSON?geonameId=#{id}&username=#{userId}"
       success: (json, textStatus, request) =>
         #json = JSON.parse(data)
         lastGeoname = json.geonames[json.geonames.length-1 or 0]
@@ -2114,8 +2114,8 @@ class Huviz
     #   Central place to perform operations on discoveries, such as caching.
     q = @add_quad(quad)
     @update_set_counts()
-    #msg = "inject_discovered_quad(#{JSON.stringify(quad)})"
-    #colorlog(url,"red","2em")
+    #msg = "inject_discovered_quad(#{quad.o})"
+    #colorlog(url)
 
   auto_discover: (uri, force) ->
     try
@@ -2131,7 +2131,7 @@ class Huviz
       # there is no parser for that in HuViz yet.  Besides, they are huge.
       @ingest_quads_from("#{uri}.skos.nt", @discover_labels(uri))
       #@auto_discover_header(uri, ['X-PrefLabel'], sendHeaders or [])
-    if force and uri.startsWith("http://sws.geonames.org/")
+    if uri.startsWith("http://sws.geonames.org/") and @discover_geonames_as
       @discover_geoname_name(aUrl)
 
   discover_names: (force) ->
@@ -4581,6 +4581,18 @@ class Huviz
           type: "checkbox"
           #checked: "checked"
         event_type: "change"
+    ,
+      discover_geonames_as:
+        html_text: '<a href="http://www.geonames.org/login" taret="geonamesAcct">Geonames</a> Username'
+        label:
+          title: "The GeoNames Username to look up geonames as"
+        input:
+          type: "text"
+          value: ""
+          size: "16"
+          placeholder: "eg huviz"
+        event_type: "change"
+
     ]
 
   dump_current_settings: (post) =>
@@ -4608,6 +4620,8 @@ class Huviz
         label = graph_control.append('label')
         if control.text?
           label.text(control.text)
+        if control.html_text
+          label.html(control.html_text)
         if control.label?
           label.attr(control.label)
         if control.style?
@@ -4826,6 +4840,11 @@ class Huviz
     else
       $('#sparqlQryInput').css('display','none')
       $(endpoint).css('display','none')
+
+  on_change_discover_geonames_as: (new_val, old_val) ->
+    @discover_geonames_as = new_val
+    if new_val
+      @discover_names()
 
   init_from_graph_controls: ->
     # alert "init_from_graph_controls() is deprecated"
