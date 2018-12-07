@@ -130,6 +130,11 @@ MultiString.set_langpath('en:fr') # TODO make this a setting
 #   OnceRunner = require('oncerunner').OnceRunner
 #   TODO document the other examples of requires that are being "stitched in"
 
+colorlog = (msg, color, size) ->
+  color ?= "red"
+  size ?= "1.2em"
+  console.log("%c#{msg}", "color:#{color};font-size:#{size};")
+
 wpad = undefined
 hpad = 10
 tau = Math.PI * 2
@@ -221,8 +226,12 @@ RDF_Class   = "http://www.w3.org/2000/01/rdf-schema#Class"
 RDF_subClassOf   = "http://www.w3.org/2000/01/rdf-schema#subClassOf"
 RDF_a       = 'a'
 RDFS_label  = "http://www.w3.org/2000/01/rdf-schema#label"
+SKOS_prefLabel = "http://www.w3.org/2004/02/skos/core#prefLabel"
+XL_literalForm = "http://www.w3.org/2008/05/skos-xl#literalForm"
 TYPE_SYNS   = [RDF_type, RDF_a, 'rdfs:type', 'rdf:type']
-NAME_SYNS   = [FOAF_name, RDFS_label, 'rdfs:label', 'name']
+NAME_SYNS = [
+  FOAF_name, RDFS_label, 'rdfs:label', 'name', SKOS_prefLabel, XL_literalForm
+  ]
 XML_TAG_REGEX = /(<([^>]+)>)/ig
 
 typeSigRE =
@@ -429,6 +438,7 @@ orlando_human_term =
   pin: 'Pin'
   unpin: 'Unpin'
   unpinned: 'Unpinned'
+  nameless: 'Nameless'
   blank_verb: 'VERB'
   blank_noun: 'SET/SELECTION'
 
@@ -1127,9 +1137,15 @@ class Huviz
       labelled(@human_term.labelled).
       isFlag().
       sub_of(@all_set)
-
     @labelled_set.docs = "Nodes which have their labels permanently shown."
     @labelled_set.cleanup_verb = "unlabel"
+
+    @nameless_set = SortedSet().named("nameless").
+      sort_on("nameless_since").
+      labelled(@human_term.nameless).
+      isFlag().
+      sub_of(@all_set)
+    @nameless_set.docs = "Nodes for which no name is yet known"
 
     @links_set = SortedSet().
       named("shown").
@@ -1153,6 +1169,7 @@ class Huviz
       graphed_set: @graphed_set
       labelled_set: @labelled_set
       pinned_set: @pinned_set
+      nameless_set: @nameless_set
 
   update_all_counts: ->
     @update_set_counts()
@@ -1236,6 +1253,10 @@ class Huviz
     @gclui.reset_editor()
     @gclui.select_the_initial_set()
 
+  perform_tasks_after_dataset_loaded: ->
+    @gclui.select_the_initial_set()
+    @discover_names()
+
   reset_graph: ->
     #@dump_current_settings("at top of reset_graph()")
     @G = {} # is this deprecated?
@@ -1245,8 +1266,8 @@ class Huviz
     @indexed_dbservice()
     @init_indexddbstorage()
 
-    @force.nodes @nodes
-    @force.links @links_set
+    @force.nodes(@nodes)
+    @force.links(@links_set)
 
     # TODO move this SVG code to own renderer
     d3.select(".link").remove()
@@ -1375,13 +1396,13 @@ class Huviz
     if @focused_node
       # unfocus the previously focused_node
       if @use_svg
-        d3.select(".focused_node").classed "focused_node", false
-      @unscroll_pretty_name(@focused_node)
+        d3.select(".focused_node").classed("focused_node", false)
+      #@unscroll_pretty_name(@focused_node)
       @focused_node.focused_node = false
     if node
       if @use_svg
         svg_node = node[0][new_focused_idx]
-        d3.select(svg_node).classed "focused_node", true
+        d3.select(svg_node).classed("focused_node", true)
       node.focused_node = true
     @focused_node = node # might be null
     if @focused_node
@@ -2037,6 +2058,158 @@ class Huviz
         cancelable: true
     )
 
+  auto_discover_header: (uri, digestHeaders, sendHeaders) ->
+    # THIS IS A FAILED EXPERIMENT BECAUSE
+    # It turns out that for security reasons AJAX requests cannot show
+    # the headers of redirect responses.  So, though it is a fine ambition
+    # to retrieve the X-PrefLabel it cannot be seen because the 303 redirect
+    # it is attached to is processed automatically by the browser and we
+    # find ourselves looking at the final response.
+    $.ajax
+      type: 'GET'
+      url: uri
+      beforeSend: (xhr) ->
+        #console.log(xhr)
+        for pair in sendHeaders
+          #xhr.setRequestHeader('X-Test-Header', 'test-value')
+          xhr.setRequestHeader(pair[0], pair[1])
+        #xhr.setRequestHeader('Accept', "text/n-triples, text/x-turtle, */*")
+      #headers:
+      #  Accept: "text/n-triples, text/x-turtle, */*"
+      success: (data, textStatus, request) =>
+        console.log(textStatus)
+        console.log(request.getAllResponseHeaders())
+        console.table((line.split(':') for line in request.getAllResponseHeaders().split("\n")))
+        for header in digestHeaders
+          val = request.getResponseHeader(header)
+          if val?
+            alert(val)
+
+  discovery_triple_ingestor_N3: (data, textStatus, request, discoArgs) =>
+    # Purpose:
+    #   THIS IS NOT YET IN USE.  THIS IS FOR WHEN WE SWITCH OVER TO N3
+    #
+    #   This is the XHR callback returned by @make_triple_ingestor()
+    #   The assumption is that data will be something N3 can parse.
+    # Accepts:
+    #   discoArgs:
+    #     quadTester (OPTIONAL)
+    #       returns true if the quad is to be added
+    #     quadMunger (OPTIONAL)
+    #       returns an array of one or more quads inspired by each quad
+    discoArgs ?= {}
+    quadTester = discoArgs.quadTester or (q) => q?
+    quadMunger = discoArgs.quadMunger or (q) => [q]
+    quad_count = 0
+    parser = N3.Parser()
+    parser.parse data, (err, quad, pref) =>
+      if err and discoArgs.onErr?
+        discoArgs.onErr(err)
+      if quadTester(quad)
+        for aQuad in quadMunger(quad)
+          @inject_discovered_quad_for(quad, discoArgs.aUrl)
+
+  discovery_triple_ingestor_GreenTurtle: (data, textStatus, request, discoArgs) =>
+    # Purpose:
+    #   This is the XHR callback returned by @make_triple_ingestor()
+    #   The assumption is that data will be something N3 can parse.
+    # Accepts:
+    #   discoArgs:
+    #     quadTester (OPTIONAL)
+    #       returns true if the quad is to be added
+    #     quadMunger (OPTIONAL)
+    #       returns an array of one or more quads inspired by each quad
+    discoArgs ?= {}
+    graphUri = discoArgs.graphUri
+    quadTester = discoArgs.quadTester or (q) => q?
+    quadMunger = discoArgs.quadMunger or (q) => [q]
+    dataset = new GreenerTurtle().parse(data, "text/turtle")
+    for subj_uri, frame of dataset.subjects
+      for pred_id, pred of frame.predicates
+        for obj in pred.objects
+          quad =
+            s: frame.id
+            p: pred.id
+            o: obj # keys: type,value[,language]
+            g: graphUri
+          if quadTester(quad)
+            for aQuad in quadMunger(quad)
+              @inject_discovered_quad_for(aQuad, discoArgs.aUrl)
+    return
+
+  make_triple_ingestor: (discoArgs) =>
+    return (data, textStatus, request) =>
+      @discovery_triple_ingestor_GreenTurtle(data, textStatus, request, discoArgs)
+
+  discover_labels: (aUrl) =>
+    discoArgs =
+      aUrl: aUrl
+      quadTester: (quad) =>
+        if quad.s isnt aUrl.toString()
+          return false
+        if not (quad.p in NAME_SYNS)
+          return false
+        return true
+      quadMunger: (quad) =>
+        return [quad]
+      graphUri: aUrl.origin
+    @make_triple_ingestor(discoArgs)
+
+  ingest_quads_from: (uri, success, failure) =>
+    $.ajax
+      type: 'GET'
+      url: uri
+      success: success
+      failure: failure
+
+  discover_geoname_name: (aUrl) ->
+    id = aUrl.pathname.replace(/\//g,'')
+    userId = @discover_geonames_as
+    $.ajax
+      url: "http://api.geonames.org/hierarchyJSON?geonameId=#{id}&username=#{userId}"
+      success: (json, textStatus, request) =>
+        #json = JSON.parse(data)
+        lastGeoname = json.geonames[json.geonames.length-1 or 0]
+        #console.log(lastGeoname)
+        name = (lastGeoname or {}).name
+        quad =
+          s: aUrl.toString()
+          p: RDFS_label
+          o:
+            value: name
+            type: RDF_literal
+          g: aUrl.origin
+        @inject_discovered_quad_for(quad, aUrl)
+
+  inject_discovered_quad_for: (quad, url) ->
+    # Purpose:
+    #   Central place to perform operations on discoveries, such as caching.
+    q = @add_quad(quad)
+    @update_set_counts()
+    #msg = "inject_discovered_quad(#{quad.o})"
+    #colorlog(url)
+
+  auto_discover: (uri, force) ->
+    try
+      aUrl = new URL(uri)
+    catch e
+      colorlog("skipping auto_discover('#{uri}') because")
+      console.log(e)
+      return
+    if uri.startsWith("http://id.loc.gov/")
+      # This is less than ideal because it uses the special knowledge
+      # that the .skos.nt file is available. Unfortunately the only
+      # RDF file which is offered via content negotiation is .rdf and
+      # there is no parser for that in HuViz yet.  Besides, they are huge.
+      @ingest_quads_from("#{uri}.skos.nt", @discover_labels(uri))
+      #@auto_discover_header(uri, ['X-PrefLabel'], sendHeaders or [])
+    if uri.startsWith("http://sws.geonames.org/") and @discover_geonames_as
+      @discover_geoname_name(aUrl)
+
+  discover_names: (force) ->
+    for node in @nameless_set
+      @auto_discover(node.id, force)
+
   make_qname: (uri) ->
     # TODO(smurp) dear god! this method name is lying (it is not even trying)
     return uri
@@ -2125,15 +2298,10 @@ class Huviz
         @develop(obj_n)
     else # ie the quad.o is a literal
       if is_one_of(pred_uri, NAME_SYNS)
-        add_name = () =>
-          @set_name(
-            subj_n,
-            quad.o.value.replace(/^\s+|\s+$/g, ''),
-            quad.o.language)
-        if subj_n.shelved_set
-          subj_n.shelved_set.alter(subj_n, add_name)
-        else
-          add_name()
+        @set_name(
+          subj_n,
+          quad.o.value.replace(/^\s+|\s+$/g, ''),
+          quad.o.language)
         if subj_n.embryo
           @develop(subj_n) # might be ready now
       else # the object is a literal other than name
@@ -2155,8 +2323,7 @@ class Huviz
             objId = synthIdFor(objKey)
           else
             objId = synthIdFor(objVal)
-          literal_node = @get_or_create_node_by_id(objId)
-          literal_node.isLiteral = true
+          literal_node = @get_or_create_node_by_id(objId, null, (isLiteral = true))
           @try_to_set_node_type(literal_node, simpleType)
           literal_node.__dataType = quad.o.type
           @develop(literal_node)
@@ -2175,16 +2342,51 @@ class Huviz
     @last_quad = quad
     return edge
 
+  remove_from_nameless: (node) ->
+    #colorlog(node.id, null, "3em")
+    @nameless_set.remove(node)
+    delete node.nameless_since
+  add_to_nameless: (node) ->
+    if node.isLiteral
+      # Literals cannot have names looked up.
+      return
+    node.nameless_since = new Date()
+    @nameless_set.traffic ?= 0
+    @nameless_set.traffic++
+    #@nameless_set.add(node)
+    @nameless_set.push(node) # REVIEW(smurp) why not .add()?????
+
   set_name: (node, full_name, lang) ->
-    if typeof full_name is 'object'
-      # MultiString instances have constructor.name == 'String'
-      # console.log(full_name.constructor.name, full_name)
-      node.name = full_name
-    else
-      if node.name
-        node.name.set_val_lang(full_name, lang)
+    # So if we set the full_name to null that is to mean that we have
+    # no good idea what the name yet.
+    perform_rename = () =>
+      if full_name?
+        @remove_from_nameless(node)
       else
-        node.name = new MultiString(full_name, lang)
+        @add_to_nameless(node)
+        full_name = node.lid or node.id
+      if typeof full_name is 'object'
+        # MultiString instances have constructor.name == 'String'
+        # console.log(full_name.constructor.name, full_name)
+        node.name = full_name
+      else
+        if node.name
+          node.name.set_val_lang(full_name, lang)
+        else
+          node.name = new MultiString(full_name, lang)
+    if node.state and node.state.id is 'shelved'
+      # Alter calls the callback add_name in the midst of an operation
+      # which is likely to move subj_n from its current position in
+      # the shelved_set.  The shelved_set is the only one which is
+      # sorted by name and as a consequence is the only one able to
+      # be confused by the likely shift in alphabetic position of a
+      # node.  For the sake of efficiency we "alter()" the position
+      # of the node rather than do shelved_set.resort() after the
+      # renaming.
+      @shelved_set.alter(node, perform_rename)
+      @tick()
+    else
+      perform_rename()
     #node.name ?= full_name  # set it if blank
     len = @truncate_labels_to
     if not len?
@@ -2289,7 +2491,7 @@ class Huviz
         @G = new GreenerTurtle().parse(data, "text/turtle")
       catch e
         msg = escapeHtml(e.toString())
-        blurt_msg = '<p>There has been a problem with the Turtle parser. Check your dataset for errors.</p><p class="js_msg">' + msg + '</p>'
+        blurt_msg = """<p>There has been a problem with the Turtle parser.  Check your dataset for errors.</p><p class="js_msg">#{msg}</p>"""
         blurt(blurt_msg, "error")
         return false
     quad_count = 0
@@ -2403,7 +2605,7 @@ class Huviz
           q.o =
             type:  owl_type_map[q.o.type]
             value: unescape_unicode(@remove_framing_quotes(q.o.toString()))
-          @add_quad q
+          @add_quad(q)
       else if e.data.event is 'start'
         msg = "starting to split " + uri
         @show_state_msg("<h3>Starting to split... </h3><p>" + uri + "</p>")
@@ -2435,7 +2637,7 @@ class Huviz
         q.o =
           type:  owl_type_map[q.o.type]
           value: unescape_unicode(@remove_framing_quotes(q.o.toString()))
-        @add_quad q
+        @add_quad(q)
     @local_file_data = ""
     @after_file_loaded('local file', callback)
 
@@ -3088,7 +3290,7 @@ class Huviz
       @context_set.add(obj_n)
     obj_n
 
-  get_or_create_node_by_id: (uri, name) ->
+  get_or_create_node_by_id: (uri, name, isLiteral) ->
     # FIXME OMG must standardize on .lid as the short local id, ie internal id
     #node_id = @make_qname(uri) # REVIEW: what about uri: ":" ie the current graph
     node_id = uri
@@ -3098,6 +3300,8 @@ class Huviz
     if not node?
       # at this point the node is embryonic, all we know is its uri!
       node = new Node(node_id, @use_lid_as_node_name)
+      if isLiteral?
+        node.isLiteral = isLiteral
       if not node.id?
         alert("new Node('#{uri}') has no id")
       #@nodes.add(node)
@@ -3106,7 +3310,8 @@ class Huviz
     node.lid ?= uniquer(node.id)
     if not node.name?
       # FIXME dereferencing of @ontology.label should be by curie, not lid
-      name = name or @ontology.label[node.lid] or node.lid
+      name = name or @ontology.label[node.lid]
+      # null name this will cause a made-up name to be applied
       @set_name(node, name)
     return node
 
@@ -4397,6 +4602,7 @@ class Huviz
     pin: 'PIN'
     unpin: 'UNPIN'
     unpinned: 'UNPINNED'
+    nameless: 'NAMELESS'
     blank_verb: 'VERB'
     blank_noun: 'SET/SELECTION'
 
@@ -4812,6 +5018,18 @@ class Huviz
           type: "checkbox"
           #checked: "checked"
         event_type: "change"
+    ,
+      discover_geonames_as:
+        html_text: '<a href="http://www.geonames.org/login" taret="geonamesAcct">Geonames</a> Username'
+        label:
+          title: "The GeoNames Username to look up geonames as"
+        input:
+          type: "text"
+          value: ""
+          size: "16"
+          placeholder: "eg huviz"
+        event_type: "change"
+
     ]
 
   dump_current_settings: (post) =>
@@ -4839,6 +5057,8 @@ class Huviz
         label = graph_control.append('label')
         if control.text?
           label.text(control.text)
+        if control.html_text
+          label.html(control.html_text)
         if control.label?
           label.attr(control.label)
         if control.style?
@@ -5055,6 +5275,11 @@ class Huviz
       $(endpoint).css('display','block')
     else
       $(endpoint).css('display','none')
+
+  on_change_discover_geonames_as: (new_val, old_val) ->
+    @discover_geonames_as = new_val
+    if new_val
+      @discover_names()
 
   init_from_graph_controls: ->
     # alert "init_from_graph_controls() is deprecated"

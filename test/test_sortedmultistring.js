@@ -96,6 +96,28 @@ describe("MultiString and SortedSet work together", function() {
     expect(folks.reduce(as_labels)).to.eql("Colin Faulkner;English;Fred Mars","uh, what's up?");
   });
 
+  it("nodes can be removed from start, end and middle", function() {
+    var pets = SortedSet().sort_on('label');
+    var unicorn = {label: 'unicorn'};
+    var dog = {label: 'dog'};
+    var horse = {label: 'horse'};
+
+    pets.add(unicorn);
+    pets.add(horse);
+    pets.add(dog);
+    expect(pets.reduce(as_labels)).to.eql("dog;horse;unicorn");
+    pets.remove(dog);
+    expect(pets.length).to.eql(2);
+    expect(pets.reduce(as_labels)).to.eql("horse;unicorn");
+    pets.add(dog);
+    pets.remove(horse);
+    expect(pets.length).to.eql(2);
+    expect(pets.reduce(as_labels)).to.eql("dog;unicorn");
+    pets.add(horse);
+    pets.remove(unicorn);
+    expect(pets.length).to.eql(2);
+    expect(pets.reduce(as_labels)).to.eql("dog;horse");
+  });
 
   it("changing a node's name changes its sort position with .alter(n,cb)", function() {
     var pets = SortedSet().sort_on('label');
