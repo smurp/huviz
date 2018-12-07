@@ -1180,6 +1180,9 @@ class Huviz
       @do({verbs: ['unselect'], sets: [@selected_set]})
     @gclui.reset_editor()
     @gclui.select_the_initial_set()
+
+  perform_tasks_after_dataset_loaded: ->
+    @gclui.select_the_initial_set()
     @discover_names()
 
   reset_graph: ->
