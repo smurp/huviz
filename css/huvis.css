@@ -9,7 +9,7 @@ body, html {
   background-color: #fff;
 }
 
-/* --------------- SVG styles ----------------- */
+/* ----------------------------- Node Examiner ------------------------------ */
 
 .contextMenu {
   z-index: 999;
@@ -22,6 +22,7 @@ body, html {
   position: absolute;
   display: block;
   border-radius: 5px;
+  overflow: auto;
 }
 .contextMenu .header {
   /*background-color: #157fcc;*/
@@ -31,6 +32,19 @@ body, html {
   border-top-left-radius: 4px;
   border-top-right-radius: 4px;
   overflow: hidden;
+}
+button.close_node_details {
+  position: absolute;
+  right: 0.1em;
+  width: 1.57em;
+  height: 1.3em;
+  top: 0.1em;
+  border-radius: 3px;
+  padding: 0;
+  border: none;
+}
+button.close_node_details img:hover{
+  opacity: 1;
 }
 .contextMenu p {
   margin: 0.5em 0.5em 0 1em;
@@ -55,6 +69,32 @@ body, html {
 .contextMenu p.note span.label{
   color:inherit;
 }
+.contextMenu ul {
+  margin-top: 0.3em;
+  font-size: 0.9em;
+}
+.contextMenu li {
+  list-style-type: none;
+}
+.contextMenu li i {
+  color: #777;
+}
+.contextMenu li a {
+  color: #0056b3;
+}
+.contextMenu li a:hover {
+  color: #3085e0;
+}
+.contextMenu button{
+  cursor: pointer;
+}
+.contextMenu i.fa-window-close {
+  font-size: 1.5em;
+  color: #555;
+}
+
+
+/* --------------- SVG styles ----------------- */
 rect {
   fill: none;
   pointer-events: all;
@@ -166,7 +206,7 @@ img.close_all_snippets_button {
   padding-top: 0;
 }
 .snippet a{
-  color: #558bc5;;
+  color: #0056b3;
 }
 .snippet h3 {
   -webkit-text-size-adjust: none;

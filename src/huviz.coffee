@@ -661,10 +661,25 @@ class Huviz
     return @
 
   mousemove: =>
-    d3.select('.contextMenu').style('display','none')
     d3_event = @mouse_receiver[0][0]
     @last_mouse_pos = d3.mouse(d3_event)
-    if not @dragging and @mousedown_point and @focused_node and
+    if @rightClickHold
+      @text_cursor.continue()
+      @text_cursor.set_text("Inspect")
+      if @focused_node
+        the_node = $("##{@focused_node.lid}")
+        # If box already exists then don't make another, otherwise go ahead
+        if the_node.html() then the_node.remove()
+        @render_node_info_box()
+        #if d3.select("##{@focused_node.lid}") then return
+        console.log "I think this is a new node to show"
+        #@render_node_info_box()
+      else
+        # If there is no node selected but there is still a box created while rightClickHold is true then delete_edge
+        if $(".contextMenu.temp") then $(".contextMenu.temp").remove()
+        #if @last_node_lid then d3.select('#last_node_lid').style('display','none')
+        console.log "No nodes to show"
+    else if not @dragging and @mousedown_point and @focused_node and
         distance(@last_mouse_pos, @mousedown_point) > @drag_dist_threshold
       # We can only know that the users intention is to drag
       # a node once sufficient motion has started, when there
@@ -672,12 +687,16 @@ class Huviz
       #console.log "state_name == '" + @focused_node.state.state_name + "' and selected? == " + @focused_node.selected?
       #console.log "START_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
       @dragging = @focused_node
+      console.log "I'm in here causing problems"
       if @edit_mode
         if @editui.subject_node isnt @dragging
           @editui.set_subject_node(@dragging)
-      if @dragging.state isnt @graphed_set
+      if @dragging.state isnt @graphed_set isnt @rightClickHold
+        console.log "Is this the place?"
         @graphed_set.acquire(@dragging)
-    if @dragging
+
+    if @dragging and not @rightClickHold
+      console.log "right click so why am I in here?"
       @force.resume() # why?
       @move_node_to_point @dragging, @last_mouse_pos
       if @edit_mode
@@ -694,7 +713,8 @@ class Huviz
         else if @in_discard_dropzone(@dragging)
           action = "discard"
         @text_cursor.pause("", "drop to #{@human_term[action]}")
-    else # IE not dragging
+    else if not @rightClickHold# IE not dragging
+      console.log "Tricky spot"
       # TODO move the "if not @dragging and @mousedown_point and @focused_node and distance" block in here
       if @edit_mode
         if @editui.object_node or not @editui.subject_node
@@ -703,7 +723,7 @@ class Huviz
           else
             @text_cursor.set_text("drag subject node")
     if @peeking_node?
-      #console.log "PEEKING at node: " + @peeking_node.id
+      console.log "PEEKING at node: " + @peeking_node.id
       if @focused_node? and @focused_node isnt @peeking_node
         pair = [ @peeking_node.id, @focused_node.id ]
         #console.log "   PEEKING at edge between" + @peeking_node.id + " and " + @focused_node.id
@@ -720,6 +740,7 @@ class Huviz
     d3_event = @mouse_receiver[0][0]
     @mousedown_point = d3.mouse(d3_event)
     @last_mouse_pos = @mousedown_point
+    console.log "Mousedown clicked"
 
   mouseup: =>
     window.log_click()
@@ -727,8 +748,12 @@ class Huviz
     @mousedown_point = false
     point = d3.mouse(d3_event)
     if d3.event.button is 2 # Right click event so don't alter selected state
+      console.log "Right mouse is up - End examine mode"
+      @text_cursor.continue()
+      @text_cursor.set_text("Select")
+      if @focused_node then $("##{@focused_node.lid}").removeClass("temp")
+      @rightClickHold = false
       return
-
     # if something was being dragged then handle the drop
     if @dragging
       #console.log "STOPPING_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
@@ -789,10 +814,26 @@ class Huviz
 
   mouseright: () =>
     d3.event.preventDefault()
-    #console.log @focused_node
-    if @focused_node is null then return #skip out if there was no node clicked
+    @text_cursor.continue()
+    temp = null
+    @text_cursor.set_text("Inspect", temp, "#75c3fb")
+    #console.log "Mouse Right Click Started"
+    @rightClickHold = true
+    #if @focused_node is null then return #skip out if there was no node
+    console.log @focused_node
+    #console.log @focused_node.lid
+    doesnt_exist = if @focused_node then true else false
+    #console.log "Doesn't exist: " + doesnt_exist
+    if @focused_node and doesnt_exist #and not d3.select("##{@focused_node.lid}")
+      @render_node_info_box()
+
+  render_node_info_box: () ->
     all_names = Object.values(@focused_node.name)
     names_all_langs = ""
+    note = ""
+    color_headers = ""
+    node_out_links = ""
+
     for name in all_names
       if names_all_langs
         names_all_langs = names_all_langs + " -- " + name
@@ -807,9 +848,21 @@ class Huviz
           else
             other_types = node_type
       other_types = " (" + other_types + ")"
-    note = ""
-    color_headers = ""
     console.log @focused_node
+    console.log @focused_node.links_from.length
+    if (@focused_node.links_from.length > 0)
+      for link_from in @focused_node.links_from
+        url_check = link_from.target.id
+        url_check = url_check.substring(0,4)
+        console.log url_check
+        if url_check is "http"
+          target = "<a href='#{link_from.target.id}' target='blank'>#{link_from.target.lid}</a>"
+        else
+          target = link_from.target.id
+
+        node_out_links = node_out_links + "<li><i class='fas fa-long-arrow-alt-right'></i> <a href='#{link_from.predicate.id}' target='blank'>#{link_from.predicate.lid}</a> <i class='fas fa-long-arrow-alt-right'></i> #{target}</li>"
+      node_out_links = "<ul>" + node_out_links + "</ul>"
+    #console.log @focused_node
     if @focused_node._colors
       width = 100 / @focused_node._colors.length
       for color in @focused_node._colors
@@ -821,19 +874,29 @@ class Huviz
         note = "<p class='note'><span class='label'>Note:</span> This node may not yet be fully loaded from remote server. Link details may not be accurate. Activate to load.</i>"
     if @focused_node
       node_info = """
-        <div class="header" style="background-color:#{@focused_node.color};">#{color_headers}</div>
+        <div class="header" style="background-color:#{@focused_node.color};">#{color_headers}<button class="close_node_details" title="Close Information Box"><i class="far fa-window-close"></i></button></div>
         <p><span class='label'>id:</span> #{@focused_node.id}</p>
         <p><span class='label'>name:</span> #{names_all_langs}</p>
         <p><span class='label'>type(s):</span> #{@focused_node.type} #{other_types}</p>
         <p><span class='label'>Links To:</span> #{@focused_node.links_to.length} <br>
           <span class='label'>Links From:</span> #{@focused_node.links_from.length}</p>
           #{note}
+          #{node_out_links}
         """
-      d3.select('.contextMenu')
-        .style('display', 'block')
+      max_width = @width * 0.50
+      max_height = @height * 0.80
+      d3.select('#viscanvas').append('div').attr('id', @focused_node.lid ).attr('class', 'contextMenu').classed('temp', true).style('display', 'block')
         .style('top', "#{d3.event.clientY}px")
         .style('left', "#{d3.event.clientX}px")
-        .html(node_info)
+        .style('max-width', "#{max_width}px")
+        .style('max-height', "#{max_height}px")
+        .html(node_info)#.on('drag',@draggable_info_box)
+      $("##{@focused_node.lid}").draggable()
+      $("##{@focused_node.lid} .close_node_details").on('click', @close_info_box)
+
+  close_info_box: (e) ->
+    box = e.currentTarget.offsetParent
+    $(box).remove()
 
   perform_current_command: (node) ->
     if @gclui.ready_to_perform()
@@ -4301,13 +4364,13 @@ class Huviz
     @updateWindow()
     @ctx = @canvas.getContext("2d")
     #console.log @ctx
-    d3.select('#viscanvas').append('div').attr('class', 'contextMenu').style('display', 'none')
     @mouse_receiver
       .on("mousemove", @mousemove)
       .on("mousedown", @mousedown)
       .on("mouseup", @mouseup)
       .on("contextmenu", @mouseright)
       #.on("mouseout", @mouseup) # FIXME what *should* happen on mouseout?
+
     @restart()
     @set_search_regex("")
     search_input = document.getElementById('search')
@@ -4538,8 +4601,8 @@ class Huviz
         label:
           title: "how fine is node recognition"
         input:
-          value: 100
-          min: 15
+          value: 20
+          min: 10
           max: 150
           step: 1
           type: "range"

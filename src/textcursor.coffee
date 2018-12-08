@@ -17,8 +17,9 @@ class TextCursor
     @last_text = ""
   font_height: ->
     return @height * @scale
-  set_text: (text, temp) ->
+  set_text: (text, temp, bgcolor) ->
     #console.log("set_text(#{text.replace("\n", "\\n")})")
+    @bgFillStyle = if bgcolor then bgcolor else "yellow"
     if text
       if not @cache[text]?
         @cache[text] = @make_img(text)
