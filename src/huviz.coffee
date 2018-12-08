@@ -804,7 +804,6 @@ class Huviz
         @run_verb_on_object('print', @focused_node)
       else
         @run_verb_on_object('choose', @focused_node)
-
       # TODO(smurp) are these still needed?
       @force.links @links_set
       @restart()
@@ -814,14 +813,9 @@ class Huviz
     @text_cursor.continue()
     temp = null
     @text_cursor.set_text("Inspect", temp, "#75c3fb")
-    #console.log "Mouse Right Click Started"
     @rightClickHold = true
-    #if @focused_node is null then return #skip out if there was no node
-    console.log @focused_node
-    #console.log @focused_node.lid
     doesnt_exist = if @focused_node then true else false
-    #console.log "Doesn't exist: " + doesnt_exist
-    if @focused_node and doesnt_exist #and not d3.select("##{@focused_node.lid}")
+    if @focused_node and doesnt_exist
       @render_node_info_box()
 
   render_node_info_box: () ->
@@ -845,13 +839,13 @@ class Huviz
           else
             other_types = node_type
       other_types = " (" + other_types + ")"
-    console.log @focused_node
-    console.log @focused_node.links_from.length
+    #console.log @focused_node
+    #console.log @focused_node.links_from.length
     if (@focused_node.links_from.length > 0)
       for link_from in @focused_node.links_from
         url_check = link_from.target.id
         url_check = url_check.substring(0,4)
-        console.log url_check
+        #console.log url_check
         if url_check is "http"
           target = "<a href='#{link_from.target.id}' target='blank'>#{link_from.target.lid}</a>"
         else
@@ -1351,7 +1345,11 @@ class Huviz
       policy_picker.append("option").attr("value", policy_name).text policy_name
 
   calc_node_radius: (d) ->
-    @node_radius * (not d.selected? and 1 or @selected_mag)
+    total_links = d.links_to.length + d.links_from.length
+    diff_adjustment = 10 * (total_links/(total_links+9))
+    final_adjustment =  @node_diff * (diff_adjustment - 1)
+    @node_radius * (not d.selected? and 1 or @selected_mag) + final_adjustment
+
     #@node_radius_policy d
   names_in_edges: (set) ->
     out = []
@@ -4784,8 +4782,19 @@ class Huviz
           title: "how fat the nodes are"
         input:
           value: 3
-          min: .2
-          max: 8
+          min: 0.5
+          max: 50
+          step: 0.1
+          type: "range"
+    ,
+      node_diff:
+        text: "node differentiation"
+        label:
+          title: "size variance for node edge count"
+        input:
+          value: 0
+          min: 0
+          max: 10
           step: 0.1
           type: "range"
     ,
