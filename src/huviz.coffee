@@ -678,17 +678,10 @@ class Huviz
       @text_cursor.set_text("Inspect")
       if @focused_node
         the_node = $("##{@focused_node.lid}")
-        # If box already exists then don't make another, otherwise go ahead
         if the_node.html() then the_node.remove()
         @render_node_info_box()
-        #if d3.select("##{@focused_node.lid}") then return
-        console.log "I think this is a new node to show"
-        #@render_node_info_box()
       else
-        # If there is no node selected but there is still a box created while rightClickHold is true then delete_edge
         if $(".contextMenu.temp") then $(".contextMenu.temp").remove()
-        #if @last_node_lid then d3.select('#last_node_lid').style('display','none')
-        console.log "No nodes to show"
     else if not @dragging and @mousedown_point and @focused_node and
         distance(@last_mouse_pos, @mousedown_point) > @drag_dist_threshold
       # We can only know that the users intention is to drag
@@ -697,16 +690,13 @@ class Huviz
       #console.log "state_name == '" + @focused_node.state.state_name + "' and selected? == " + @focused_node.selected?
       #console.log "START_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
       @dragging = @focused_node
-      console.log "I'm in here causing problems"
       if @edit_mode
         if @editui.subject_node isnt @dragging
           @editui.set_subject_node(@dragging)
       if @dragging.state isnt @graphed_set isnt @rightClickHold
-        console.log "Is this the place?"
         @graphed_set.acquire(@dragging)
 
     if @dragging and not @rightClickHold
-      console.log "right click so why am I in here?"
       @force.resume() # why?
       @move_node_to_point @dragging, @last_mouse_pos
       if @edit_mode
@@ -724,7 +714,6 @@ class Huviz
           action = "discard"
         @text_cursor.pause("", "drop to #{@human_term[action]}")
     else if not @rightClickHold# IE not dragging
-      console.log "Tricky spot"
       # TODO move the "if not @dragging and @mousedown_point and @focused_node and distance" block in here
       if @edit_mode
         if @editui.object_node or not @editui.subject_node
@@ -750,7 +739,6 @@ class Huviz
     d3_event = @mouse_receiver[0][0]
     @mousedown_point = d3.mouse(d3_event)
     @last_mouse_pos = @mousedown_point
-    console.log "Mousedown clicked"
 
   mouseup: =>
     window.log_click()
@@ -758,7 +746,6 @@ class Huviz
     @mousedown_point = false
     point = d3.mouse(d3_event)
     if d3.event.button is 2 # Right click event so don't alter selected state
-      console.log "Right mouse is up - End examine mode"
       @text_cursor.continue()
       @text_cursor.set_text("Select")
       if @focused_node then $("##{@focused_node.lid}").removeClass("temp")
