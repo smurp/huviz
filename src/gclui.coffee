@@ -87,7 +87,7 @@ class CommandController
     if not evt.done?
       $(@container).show()
       @show_succession_of_hints()
-      @select_the_initial_set()
+      @huviz.perform_tasks_after_dataset_loaded()
       @huviz.hide_state_msg()
       # FIXME is there a standards-based way to prevent this happening three times?
       evt.done = true
@@ -943,6 +943,7 @@ class CommandController
               discarded_set: [@huviz.discarded_set.label]
               labelled_set: [@huviz.labelled_set.label]
               pinned_set: [@huviz.pinned_set.label]
+              nameless_set: [@huviz.nameless_set.label]
               ]
     @set_picker_box = where.append('div')
         .classed('container',true)
