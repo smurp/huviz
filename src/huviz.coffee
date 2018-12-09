@@ -437,6 +437,7 @@ orlando_human_term =
   nameless: 'Nameless'
   blank_verb: 'VERB'
   blank_noun: 'SET/SELECTION'
+  hunt: 'Hunt'
 
 class Huviz
   class_list: [] # FIXME remove
@@ -887,8 +888,8 @@ class Huviz
   draw_line: (x1, y1, x2, y2, clr) ->
     @ctx.strokeStyle = clr or 'red'
     @ctx.beginPath()
-    @ctx.moveTo x1, y1
-    @ctx.lineTo x2, y2
+    @ctx.moveTo(x1, y1)
+    @ctx.lineTo(x2, y2)
     @ctx.closePath()
     @ctx.stroke()
   draw_curvedline: (x1, y1, x2, y2, sway_inc, clr, num_contexts, line_width, edge) ->
@@ -918,8 +919,8 @@ class Huviz
     @ctx.strokeStyle = clr or 'red'
     @ctx.beginPath()
     @ctx.lineWidth = line_width
-    @ctx.moveTo x1, y1
-    @ctx.quadraticCurveTo xctrl, yctrl, x2, y2
+    @ctx.moveTo(x1, y1)
+    @ctx.quadraticCurveTo(xctrl, yctrl, x2, y2)
     #@ctx.closePath()
     @ctx.stroke()
 
@@ -928,18 +929,18 @@ class Huviz
     edge.handle =
       x: xhndl
       y: yhndl
-    @draw_circle xhndl,yhndl,(line_width/2),clr # draw a circle at the midpoint of the line
+    @draw_circle(xhndl, yhndl, (line_width/2), clr) # draw a circle at the midpoint of the line
     #@draw_line(xmid,ymid,xctrl,yctrl,clr) # show mid to ctrl
 
   draw_disconnect_dropzone: ->
     @ctx.save()
     @ctx.lineWidth = @graph_radius * 0.1
-    @draw_circle @lariat_center[0], @lariat_center[1], @graph_radius, renderStyles.shelfColor
+    @draw_circle(@lariat_center[0], @lariat_center[1], @graph_radius, renderStyles.shelfColor)
     @ctx.restore()
   draw_discard_dropzone: ->
     @ctx.save()
     @ctx.lineWidth = @discard_radius * 0.1
-    @draw_circle @discard_center[0], @discard_center[1], @discard_radius, "", renderStyles.discardColor
+    @draw_circle(@discard_center[0], @discard_center[1], @discard_radius, "", renderStyles.discardColor)
     @ctx.restore()
   draw_dropzones: ->
     if @dragging
@@ -1069,10 +1070,10 @@ class Huviz
     @labelled_set.cleanup_verb = "unlabel"
 
     @nameless_set = SortedSet().named("nameless").
-      sort_on("nameless_since").
+      sort_on("id").
       labelled(@human_term.nameless).
-      isFlag().
-      sub_of(@all_set)
+      sub_of(@all_set).
+      isFlag('nameless')
     @nameless_set.docs = "Nodes for which no name is yet known"
 
     @links_set = SortedSet().
@@ -1475,7 +1476,8 @@ class Huviz
           line_width = edge_width
         line_width = line_width + (@line_edge_weight * e.contexts.length)
         #@show_message_once("will draw line() n_n:#{n_n} e.id:#{e.id}")
-        @draw_curvedline e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, sway, e.color, e.contexts.length, line_width, e
+        @draw_curvedline(e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x,
+                         e.target.fisheye.y, sway, e.color, e.contexts.length, line_width, e)
         sway++
 
   draw_edges: ->
@@ -1828,10 +1830,16 @@ class Huviz
   draw_edge_labels: ->
     if @focused_edge?
       @draw_edge_label(@focused_edge)
+    if @show_edge_labels_adjacent_to_labelled_nodes
+      for edge in @links_set
+        if edge.target.labelled or edge.source.labelled
+          @draw_edge_label(edge)
 
   draw_edge_label: (edge) ->
     ctx = @ctx
-    label = edge.predicate.lid
+    # TODO the edge label should really come from the pretty name of the predicate
+    #   edge.label > edge.predicate.label > edge.predicate.lid
+    label = edge.label or edge.predicate.lid
     if @snippet_count_on_edge_labels
       if edge.contexts?
         if edge.contexts.length
@@ -1843,7 +1851,7 @@ class Huviz
     #ctx.fillStyle = '#666' #@shadow_color
     #ctx.fillText " " + label, edge.handle.x + @edge_x_offset + @shadow_offset, edge.handle.y + @shadow_offset
     ctx.fillStyle = edge.color
-    ctx.fillText " " + label, edge.handle.x + @edge_x_offset, edge.handle.y
+    ctx.fillText(" " + label, edge.handle.x + @edge_x_offset, edge.handle.y)
 
   update_snippet: ->
     if @show_snippets_constantly and @focused_edge? and @focused_edge isnt @printed_edge
@@ -2114,6 +2122,8 @@ class Huviz
     #   Central place to perform operations on discoveries, such as caching.
     q = @add_quad(quad)
     @update_set_counts()
+    @found_names ?= []
+    @found_names.push(quad.o.value)
     #msg = "inject_discovered_quad(#{quad.o})"
     #colorlog(url)
 
@@ -2265,27 +2275,37 @@ class Huviz
     return edge
 
   remove_from_nameless: (node) ->
-    #colorlog(node.id, null, "3em")
-    @nameless_set.remove(node)
-    delete node.nameless_since
+    if node.nameless?
+      this.nameless_removals ?= 0
+      this.nameless_removals++
+      node_removed = @nameless_set.remove(node)
+      if node_removed isnt node
+        debugger
+      if @nameless_set.binary_search(node) > -1
+        debugger
+      delete node.nameless_since
+    return
   add_to_nameless: (node) ->
     if node.isLiteral
       # Literals cannot have names looked up.
       return
-    node.nameless_since = new Date()
+    node.nameless_since = performance.now()
     @nameless_set.traffic ?= 0
     @nameless_set.traffic++
-    #@nameless_set.add(node)
-    @nameless_set.push(node) # REVIEW(smurp) why not .add()?????
+    @nameless_set.add(node)
+    #@nameless_set.push(node) # REVIEW(smurp) why not .add()?????
+    return
 
   set_name: (node, full_name, lang) ->
     # So if we set the full_name to null that is to mean that we have
     # no good idea what the name yet.
     perform_rename = () =>
       if full_name?
-        @remove_from_nameless(node)
+        if not node.isLiteral
+          @remove_from_nameless(node)
       else
-        @add_to_nameless(node)
+        if not node.isLiteral
+          @add_to_nameless(node)
         full_name = node.lid or node.id
       if typeof full_name is 'object'
         # MultiString instances have constructor.name == 'String'
@@ -2817,35 +2837,35 @@ class Huviz
     if not e?
       console.log("remove_link(#{edge_id}) not found!")
       return
-    @remove_from e, e.source.links_shown
-    @remove_from e, e.target.links_shown
-    @links_set.remove e
-    console.log "removing links from: " + e.id
-    @update_showing_links e.source
-    @update_showing_links e.target
-    @update_state e.target
-    @update_state e.source
+    @remove_from(e, e.source.links_shown)
+    @remove_from(e, e.target.links_shown)
+    @links_set.remove(e)
+    console.log("removing links from: " + e.id)
+    @update_showing_links(e.source)
+    @update_showing_links(e.target)
+    @update_state(e.target)
+    @update_state(e.source)
 
   # FIXME it looks like incl_discards is not needed and could be removed
   show_link: (edge, incl_discards) ->
     if (not incl_discards) and (edge.target.state is @discarded_set or edge.source.state is @discarded_set)
       return
-    @add_to edge, edge.source.links_shown
-    @add_to edge, edge.target.links_shown
-    @links_set.add edge
+    @add_to(edge, edge.source.links_shown)
+    @add_to(edge, edge.target.links_shown)
+    @links_set.add(edge)
     edge.show()
-    @update_state edge.source
-    @update_state edge.target
+    @update_state(edge.source)
+    @update_state(edge.target)
     #@gclui.add_shown(edge.predicate.lid,edge)
 
   unshow_link: (edge) ->
-    @remove_from edge,edge.source.links_shown
-    @remove_from edge,edge.target.links_shown
-    @links_set.remove edge
-    console.log "unshowing links from: " + edge.id
+    @remove_from(edge,edge.source.links_shown)
+    @remove_from(edge,edge.target.links_shown)
+    @links_set.remove(edge)
+    console.log("unshowing links from: " + edge.id)
     edge.unshow() # FIXME make unshow call @update_state WHICH ONE? :)
-    @update_state edge.source
-    @update_state edge.target
+    @update_state(edge.source)
+    @update_state(edge.target)
     #@gclui.remove_shown(edge.predicate.lid,edge)
 
   show_links_to_node: (n, incl_discards) ->
@@ -3219,6 +3239,47 @@ class Huviz
       @selected_set.remove(node)
       node.unselect()
       @recolor_node(node)
+
+  set_unique_color: (uniqcolor, set, node) ->
+    set.uniqcolor ?= {}
+    old_node = set.uniqcolor[uniqcolor]
+    if old_node
+      old_node.color = old_node.uniqucolor_orig
+      delete old_node.uniqcolor_orig
+    set.uniqcolor[uniqcolor] = node
+    node.uniqcolor_orig = node.color
+    node.color = uniqcolor
+    return
+
+  animate_hunt: (array, sought_node, mid_node, prior_node, pos) =>
+    #sought_node.color = 'red'
+    pred_uri = 'hunt:trail'
+    if mid_node
+      mid_node.color = 'black'
+      mid_node.radius = 100
+      @label(mid_node)
+    if prior_node
+      @ensure_predicate_lineage(pred_uri)
+      trail_pred = @get_or_create_predicate_by_id(pred_uri)
+      edge = @get_or_create_Edge(mid_node, prior_node, trail_pred, 'http://universal.org')
+      edge.label = JSON.stringify(pos)
+      @infer_edge_end_types(edge)
+      edge.color = @gclui.predicate_picker.get_color_forId_byName(trail_pred.lid, 'showing')
+      @add_edge(edge)
+      #@show_link(edge)
+    if pos.done
+      cmdArgs =
+        verbs: ['show']
+        regarding: [pred_uri]
+        sets: [@shelved_set]
+      cmd = new gcl.GraphCommand(this, cmdArgs)
+      @run_command(cmd)
+      @clean_up_all_dirt_once()
+
+  hunt: (node) =>
+    # Hunt is just a test verb to animate SortedSet.binary_search() for debugging
+    @animate_hunt(@shelved_set, node, null, null, {})
+    @shelved_set.binary_search(node, false, @animate_hunt)
 
   recolor_node: (n, default_color) ->
     default_color ?= 'black'
@@ -4168,6 +4229,7 @@ class Huviz
     nameless: 'NAMELESS'
     blank_verb: 'VERB'
     blank_noun: 'SET/SELECTION'
+    hunt: 'HUNT'
 
   # TODO add controls
   #   selected_border_thickness
@@ -4583,6 +4645,7 @@ class Huviz
         event_type: "change"
     ,
       discover_geonames_as:
+        style: "color:orange"
         html_text: '<a href="http://www.geonames.org/login" taret="geonamesAcct">Geonames</a> Username'
         label:
           title: "The GeoNames Username to look up geonames as"
@@ -4592,7 +4655,26 @@ class Huviz
           size: "16"
           placeholder: "eg huviz"
         event_type: "change"
-
+    ,
+      show_edge_labels_adjacent_to_labelled_nodes:
+        style: "color:orange"
+        text: "Show adjacent edge labels"
+        label:
+          title: "Show edge labels adjacent to labelled nodes"
+        input:
+          type: "checkbox"
+          #checked: "checked"
+        event_type: "change"
+    ,
+      show_hunt_verb:
+        style: "color:orange;display:none"
+        text: "Show Hunt verb"
+        label:
+          title: "Show the Hunt verb"
+        input:
+          type: "checkbox"
+          #checked: "checked"
+        event_type: "change"
     ]
 
   dump_current_settings: (post) =>
@@ -4713,6 +4795,12 @@ class Huviz
       if @graphed_set
         for node in @graphed_set
           node.fixed = false
+
+  on_change_show_hunt_verb: (new_val, old_val) ->
+    if new_val
+      vset = {hunt: @human_term.hunt}
+      @gclui.verb_sets.push(vset)
+      @gclui.add_verb_set(vset)
 
   on_change_show_dangerous_datasets: (new_val, old_val) ->
     if new_val
