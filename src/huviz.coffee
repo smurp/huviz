@@ -2280,9 +2280,9 @@ class Huviz
       this.nameless_removals++
       node_removed = @nameless_set.remove(node)
       if node_removed isnt node
-        debugger
-      if @nameless_set.binary_search(node) > -1
-        debugger
+        console.log("expecting",node_removed,"to have been",node)
+      #if @nameless_set.binary_search(node) > -1
+      #  console.log("expecting",node,"to no longer be found in",@nameless_set)
       delete node.nameless_since
     return
   add_to_nameless: (node) ->
