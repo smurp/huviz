@@ -2104,6 +2104,17 @@ class Huviz
     $.ajax
       url: "http://api.geonames.org/hierarchyJSON?geonameId=#{id}&username=#{userId}"
       success: (json, textStatus, request) =>
+        if json.status and json.status.message.includes("user does not exist")
+          msg = """There is a problem with the GeoNames Username (#{@discover_geonames_as}).
+                   Visit <a target="geonamesAcct" href="http://www.geonames.org/manageaccount">manage account</a>
+                   and click on "Click here to enable" or just click
+                   <a target="geonamesAcct" href="http://www.geonames.org/enablefreewebservice">this</a>
+                   after validating and logging into your account."""
+          #@show_message_once(msg)
+          if not @already_explained_geonames_enabling
+            @already_explained_geonames_enabling = true
+            @show_state_msg(msg)
+          return
         #json = JSON.parse(data)
         lastGeoname = json.geonames[json.geonames.length-1 or 0]
         #console.log(lastGeoname)
