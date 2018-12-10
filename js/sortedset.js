@@ -91,9 +91,11 @@ var SortedSet = function(){
       }
       //var retval = av.localeCompare(bv, 'en', array.cmp_options);
       var retval = (acase < bcase) && -1 || ((acase > bcase) && 1 || 0);
-      if (window.SORTLOG) {
-        console.error(`${array.id}.${f_or_k} ${array.case_insensitive&&'IN'||''}SENSITIVE "${av}" ${DIR[retval+1]} "${bv}  (${retval})"`, array.cmp_options);
+      /*
+        if (window.SORTLOG) {
+          console.error(`${array.id}.${f_or_k} ${array.case_insensitive&&'IN'||''}SENSITIVE "${av}" ${DIR[retval+1]} "${bv}  (${retval})"`, array.cmp_options);
       }
+      */
       array._verify_cmp(av, bv, retval);
       return retval;
     }
@@ -149,9 +151,9 @@ var SortedSet = function(){
 	return array;
     }
     array.resort = function() {
-      if (window.SORTLOG) { console.groupCollapsed('resort') }
+      //if (window.SORTLOG) { console.groupCollapsed('resort') }
       array.sort(array._cmp);
-      if (window.SORTLOG) { console.groupEnd('resort') }
+      //if (window.SORTLOG) { console.groupEnd('resort') }
     }
     array.clear = function(){
       array.length = 0;
@@ -296,18 +298,33 @@ var SortedSet = function(){
     array.remove = function(itm){
 	// Objective:
 	//   Remove item from an array acting like a set.
-	//   It is sorted by cmp, so we can use binary_search for removal
-	var c = array.binary_search(itm);
-	if (c > -1){
-	    array.splice(c,1);
-	}
+        //   It is sorted by cmp, so we can use binary_search for removal
+      var duds = [];
+        var c = array.binary_search(itm);
+        //console.log("c:", c, array.is_sorted());
+	if (c > -1){  // it was found
+	  duds = array.splice(c, 1);  // remove itm into the duds array (expecting length == 1)
+          if (true) { // report because
+            var because = ((duds.length != 1) && `${duds.length} removed, not 1`) ||
+                ((duds[0] != itm) && (duds[0].lid + " was removed instead of " + itm.lid)) || "";
+            if (because) {
+              console.log(itm[array._f_or_k], '??', duds[0][array._f_or_k])
+              var msg = `remove failed at idx ${c} to splice ${itm.id} out of ${array.label} because ${because}`;
+              console.debug(msg);
+              //throw new Error(msg);
+            }
+          }
+	} else {
+          //debugger;
+          //throw new Error(`remove() is failing at idx ${c} because array.binary_search() failed to find ${itm.lid} in ${array.label}`);
+        }
 	if (array.state_property){
 	    itm[array.state_property] = true; // EXAMINE delete instead?
 	}
 	if (array.flag_property){
 	    delete itm[array.flag_property];
 	}
-	return array;
+	return duds[0];
     }
     array.acquire = function(itm){
 	// acquire() is like add() for SortedSet() but it takes care
@@ -329,7 +346,7 @@ var SortedSet = function(){
 	o[key] = val;
 	return this.get(o);
     };
-    array.binary_search = function(sought, ret_ins_idx){
+  array.binary_search = function(sought, ret_ins_idx, callback){
         /*
            This method performs a binary-search-powered version of indexOf(),
            that is; it returns the index of sought or returns -1 to report that
@@ -339,7 +356,8 @@ var SortedSet = function(){
            instead of returning -1 upon failure, it returns the index at which
            sought should be inserted to keep the array sorted.
         */
-	ret_ins_idx = ret_ins_idx || false;
+        ret_ins_idx = ret_ins_idx || false;
+        var step = 0;
 	var seeking = true;
 	if (array.length < 1) {
 	    if (ret_ins_idx) {
@@ -347,27 +365,39 @@ var SortedSet = function(){
 	    }
 	    return -1;
 	}
-	var mid;
-	var bot = 0,
-        top = array.length;
+        var mid, mid_node, prior_node, c,
+	    bot = 0,
+            top = array.length;
 	while (seeking){
-	    mid = bot + Math.floor((top - bot)/2);
-	    var c = array._cmp(array[mid],sought);
+            mid = bot + Math.floor((top - bot)/2);
+            mid_node = array[mid];
+            c = array._cmp(mid_node, sought);
+            if (callback) {
+              callback(array, sought, mid_node, prior_node, {mid: mid, bot: bot, top: top, c: c, step: step})
+            }
+            step++;
+            prior_node = mid_node;
 	    //console.log(" c =",c);
-	    if (c == 0) return mid;
+            if (c == 0) {
+              if (callback) {callback(array, null, null, null, {done: true, retval: mid});}
+              return mid;
+            }
 	    if (c < 0){ // ie this[mid] < sought
 		bot = mid + 1;
 	    } else {
 		top = mid;
 	    }
-	    if (bot == top){
-		if (ret_ins_idx){
-		    return {idx:bot};
-		}
-		return -1;
+            if (bot == top){
+	      if (ret_ins_idx){
+                if (callback) {callback(array, null, null, null, {done: true, retval: bot});}
+                return {idx:bot};
+	      }
+              if (callback) {callback(array, null, null, null, {done: true, retval: -1});}
+              return -1;
 	    };
 	}
     }
+
     array.is_sorted = function() { // return true or throw
       for (var i = 0; (i + 1) < array.length; i++) {
         if (array.length > 1) {
@@ -384,14 +414,14 @@ var SortedSet = function(){
         before = array[i-1],
         or_return = !or_return;  // defaults to true
       // ensure monotonic increase
-      if (typeof after != 'undefined' && array._cmp(tween, after) >= 0) {
+      if (typeof after != 'undefined' && array._cmp(tween, after) > 0) {
         if (or_return) {
           throw new Error(`"${tween[key]}" is before "${after[key]}"`);
         } else {
           return false;
         }
       }
-    if (typeof before != 'undefined' && array._cmp(before, tween) >= 0) {
+    if (typeof before != 'undefined' && array._cmp(before, tween) > 0) {
         if (or_return) {
           throw new Error(`"${before[key]}" is before "${tween[key]}"`);
         } else {
@@ -431,7 +461,8 @@ var SortedSets_tests = function(verbose){
     stuff = SortedSet(a,b),
     a_d = SortedSet(a,d).sort_on('id'),
     ints = SortedSet(0,1,2,3,4,5,6,7,8,10).sort_on(n),
-    even = SortedSet(0,2,4,6,8,10).sort_on(n);
+    even = SortedSet(0,2,4,6,8,10).sort_on(n),
+    some_dupes = SortedSet(0,1,2,2,5,7,2,9).sort_on(n);
 
     function expect(stmt,want){
 	var got = eval(stmt);
@@ -485,7 +516,7 @@ var SortedSets_tests = function(verbose){
 };
 //(typeof exports !== "undefined" && exports !== null ? exports : this).SortedSet = SortedSet;
 //})(this);
-//SortedSets_tests();
+//Sortedsets_tests();
 if (typeof module !== 'undefined' && module.exports) {
   module.exports.SortedSet = SortedSet;
 }

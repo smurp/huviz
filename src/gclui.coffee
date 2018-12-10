@@ -414,6 +414,8 @@ class CommandController
         pin: @huviz.human_term.pin
         unpin: @huviz.human_term.unpin
       ]
+    if @huviz.show_hunt_verb
+      @verb_sets.push({hunt: @huviz.human_term.hunt})
     #,
     #  print: 'print'
     #  redact: 'redact'
@@ -483,6 +485,7 @@ class CommandController
     shelve: ['unchoose', 'choose', 'hide', 'discard', 'retrieve', 'walk']
     discard: ['choose', 'retrieve', 'hide', 'unchoose', 'unselect', 'select', 'walk']
     hide: ['discard', 'undiscard', 'label', 'choose' ,'unchoose', 'select', 'unselect', 'walk']
+    hunt: ['discard', 'undiscard', 'choose', 'unchoose', 'walk', 'hide', 'unhide', 'shelve', 'pin', 'unpin']
   verb_descriptions:
     choose: "Put nodes in the graph and pull other, connected nodes in too,
              so long as they haven't been discarded."
@@ -517,6 +520,7 @@ class CommandController
     load: "Load knowledge from the given uri."
     pin: "Make a node immobile"
     unpin: "Make a node mobile again"
+    hunt: "Animate binary search for the node"
   verb_cursors:
     choose: "←"
     unchoose: "⇠"
@@ -531,6 +535,7 @@ class CommandController
     unselect: "☺"
     pin: "p"
     unpin: "u"
+    hunt: "X"
   build_form: () ->
     @build_verb_form()
     @build_depth()
@@ -808,10 +813,12 @@ class CommandController
   build_verb_form: () ->
     @verb_pretty_name = {}
     for vset in @verb_sets
-      alternatives = @verbdiv.append('div').attr('class','alternates')
-      for id,label of vset
-        @verb_pretty_name[id] = label
-        @build_verb_picker(id,label,alternatives)
+      @add_verb_set(vset)
+  add_verb_set: (vset) ->
+    alternatives = @verbdiv.append('div').attr('class','alternates')
+    for id,label of vset
+      @verb_pretty_name[id] = label
+      @build_verb_picker(id,label,alternatives)
   get_verbs_overridden_by: (verb_id) ->
     override = @verbs_override[verb_id] || []
     for vset in @verb_sets
