@@ -1864,9 +1864,10 @@ class Huviz
       txt = @msg_history
     @state_msg_box.show()
     @state_msg_box.html("<div class='msg_payload'>" + txt + "</div><div class='msg_backdrop'></div>")
+    @state_msg_box.on('click', @hide_state_msg)
     @text_cursor.pause("wait")
 
-  hide_state_msg: () ->
+  hide_state_msg: () =>
     @state_msg_box.hide()
     @text_cursor.continue()
     #@text_cursor.set_cursor("default")
@@ -2098,26 +2099,40 @@ class Huviz
       success: success
       failure: failure
 
+  discover_geoname_name_msgs_threshold_ms: 5 * 1000 # msec betweeen repetition of a msg display
+  discover_geoname_name_instructions: """<span style="font-size:.8em">
+   Be sure to
+     1) create a
+        <a target="geonamesAcct"
+           href="http://www.geonames.org/login">new account</a>
+     2) validate your email
+     3) on
+        <a target="geonamesAcct"
+           href="http://www.geonames.org/manageaccount">manage account</a>
+        press
+        <a target="geonamesAcct"
+            href="http://www.geonames.org/enablefreewebservice">click here to enable</a>
+    4) re-enter your GeoNames username in HuViz settings to trigger lookup</span>"""
+
   discover_geoname_name: (aUrl) ->
     id = aUrl.pathname.replace(/\//g,'')
     userId = @discover_geonames_as
     $.ajax
       url: "http://api.geonames.org/hierarchyJSON?geonameId=#{id}&username=#{userId}"
       success: (json, textStatus, request) =>
-        if json.status and json.status.message.includes("user does not exist")
-          msg = """There is a problem with the GeoNames Username (#{@discover_geonames_as}).
-                   Visit <a target="geonamesAcct" href="http://www.geonames.org/manageaccount">manage account</a>
-                   and click on "Click here to enable" or just click
-                   <a target="geonamesAcct" href="http://www.geonames.org/enablefreewebservice">this</a>
-                   after validating and logging into your account."""
-          #@show_message_once(msg)
-          if not @already_explained_geonames_enabling
-            @already_explained_geonames_enabling = true
+        if json.status
+          @discover_geoname_name_msgs ?= {}
+          if json.status.message
+            msg = """<dt style="font-size:.9em;color:red">#{json.status.message}</dt>""" +
+              @discover_geoname_name_instructions
+            if userId
+              msg = "#{userId} #{msg}"
+          if (not @discover_geoname_name_msgs[msg]) or
+              (Date.now() - @discover_geoname_name_msgs[msg] > @discover_geoname_name_msgs_threshold_ms)
+            @discover_geoname_name_msgs[msg] = Date.now()
             @show_state_msg(msg)
           return
-        #json = JSON.parse(data)
         lastGeoname = json.geonames[json.geonames.length-1 or 0]
-        #console.log(lastGeoname)
         name = (lastGeoname or {}).name
         quad =
           s: aUrl.toString()
