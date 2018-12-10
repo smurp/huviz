@@ -2128,7 +2128,8 @@ class Huviz
             if userId
               msg = "#{userId} #{msg}"
           if (not @discover_geoname_name_msgs[msg]) or
-              (Date.now() - @discover_geoname_name_msgs[msg] > @discover_geoname_name_msgs_threshold_ms)
+              (@discover_geoname_name_msgs[msg] and
+               Date.now() - @discover_geoname_name_msgs[msg] > @discover_geoname_name_msgs_threshold_ms)
             @discover_geoname_name_msgs[msg] = Date.now()
             @show_state_msg(msg)
           return
