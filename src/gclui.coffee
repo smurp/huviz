@@ -366,14 +366,14 @@ class CommandController
       #@show_working_on()
       #window.suspend_updates = false #  window.toggle_suspend_updates(false)
       # Scenario:
-      #   1) Walk ____ .
+      #   1) Wander ____ .
       #   2) this method is servicing a click on a taxon (say Person)
       #   3) cmd should contain "Select Person ."
       @huviz.run_command(cmd, @make_run_transient_and_cleanup_callback(because))
       because = {}  # clear the because
       # Aftermath:
       #   1) after running "Select Person ."
-      #   2) then execute "Walk Person ." now that object_phrase has a value
+      #   2) then execute "Wander Person ." now that object_phrase has a value
       #   3) then we must clean up after the click on Person, ie
       #         @on_taxon_clicked(id, 'unshowing', elem)  # SEE unshow ABOVE
       #@show_working_off()
@@ -397,7 +397,7 @@ class CommandController
     @verb_sets = [ # mutually exclusive within each set
         choose: @huviz.human_term.choose
         unchoose: @huviz.human_term.unchoose
-        walk: @huviz.human_term.walk
+        wander: @huviz.human_term.wander
       ,
         select: @huviz.human_term.select
         unselect: @huviz.human_term.unselect
@@ -439,9 +439,9 @@ class CommandController
     unchoose: (node, engagedVerb) ->
       if not node.chosen?
         return 'choose' or engagedVerb
-    walk: (node) ->
+    wander: (node) ->
       if node.chosen?
-        return 'walk'
+        return 'wander'
     label: (node) ->
       if node.labelled
         return 'unlabel'
@@ -480,16 +480,16 @@ class CommandController
   verbs_requiring_regarding:
     ['show','suppress','emphasize','deemphasize']
   verbs_override: # when overriding ones are selected, others are unselected
-    choose: ['discard', 'unchoose', 'shelve', 'hide', 'walk']
-    walk: ['choose', 'unchoose', 'discard', 'shelve', 'hide']
-    shelve: ['unchoose', 'choose', 'hide', 'discard', 'retrieve', 'walk']
-    discard: ['choose', 'retrieve', 'hide', 'unchoose', 'unselect', 'select', 'walk']
-    hide: ['discard', 'undiscard', 'label', 'choose' ,'unchoose', 'select', 'unselect', 'walk']
-    hunt: ['discard', 'undiscard', 'choose', 'unchoose', 'walk', 'hide', 'unhide', 'shelve', 'pin', 'unpin']
+    choose: ['discard', 'unchoose', 'shelve', 'hide', 'wander']
+    wander: ['choose', 'unchoose', 'discard', 'shelve', 'hide']
+    shelve: ['unchoose', 'choose', 'hide', 'discard', 'retrieve', 'wander']
+    discard: ['choose', 'retrieve', 'hide', 'unchoose', 'unselect', 'select', 'wander']
+    hide: ['discard', 'undiscard', 'label', 'choose' ,'unchoose', 'select', 'unselect', 'wander']
+    hunt: ['discard', 'undiscard', 'choose', 'unchoose', 'wander', 'hide', 'unhide', 'shelve', 'pin', 'unpin']
   verb_descriptions:
     choose: "Put nodes in the graph and pull other, connected nodes in too,
              so long as they haven't been discarded."
-    walk:    "Put nodes in the graph and pull connected nodes in followed by
+    wander:    "Put nodes in the graph and pull connected nodes in followed by
               shelving of the nodes which had been pulled into the graph previously."
     shelve: "Remove nodes from the graph and put them on the shelf
              (the circle of nodes around the graph) from which they
@@ -524,7 +524,7 @@ class CommandController
   verb_cursors:
     choose: "←"
     unchoose: "⇠"
-    walk: "🚶"
+    wander: "🚶"
     shelve: "↺"
     label: "☭"
     unlabel: "☢"
@@ -602,7 +602,7 @@ class CommandController
     #@nextcommand.attr('style','background-color:yellow') # PREFERRED
 
   build_depth: () ->
-    @depthdiv.text('Activate/Walk Depth:').classed("control_label activate_depth", true)
+    @depthdiv.text('Activate/Wander Depth:').classed("control_label activate_depth", true)
     @depthdiv.style('display','inline-block')
     @depthdiv.style('white-space','nowrap')
     @depth_input = @depthdiv.append('input')

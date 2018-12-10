@@ -426,7 +426,7 @@ orlando_human_term =
   labelled: 'Labelled'
   choose: 'Activate'
   unchoose: 'Deactivate'
-  walk: 'Walk'
+  wander: 'Wander'
   select: 'Select'
   unselect: 'Unselect'
   label: 'Label'
@@ -1154,7 +1154,7 @@ class Huviz
       labelled("Was Chosen").
       isFlag() # membership is not mutually exclusive with the isState() sets
     @wasChosen_set.docs = "
-      Nodes are marked wasChosen by walk__atFirst for later comparison
+      Nodes are marked wasChosen by wander__atFirst for later comparison
       with nowChosen."
 
     @nowChosen_set = SortedSet().named("nowChosen").
@@ -1163,7 +1163,7 @@ class Huviz
       isFlag() # membership is not mutually exclusive with the isState() sets
     @nowChosen_set.docs = "
       Nodes pulled in by @choose() are marked nowChosen for later comparison
-      against wasChosen by walk__atLast."
+      against wasChosen by wander__atLast."
 
     @pinned_set = SortedSet().named('fixed').
       sort_on("id").
@@ -3648,23 +3648,23 @@ class Huviz
         console.log("there is a null in the .links_shown of", unchosen)
     @update_state(unchosen)
 
-  walk__atFirst: =>
+  wander__atFirst: =>
     # Purpose:
-    #   At first, before the verb Walk is executed on any node, we must
+    #   At first, before the verb Wander is executed on any node, we must
     # build a SortedSet of the nodes which were wasChosen to compare
     # with the SortedSet of nodes which are intendedToBeGraphed as a
-    # result of the Walk command which is being executed.
+    # result of the Wander command which is being executed.
     if not @wasChosen_set.clear()
       throw new Error("expecting wasChosen to be empty")
     for node in @chosen_set
       @wasChosen_set.add(node)
 
-  walk__atLast: =>
+  wander__atLast: =>
     # Purpose:
     #   At last, after all appropriate nodes have been pulled into the graph
-    # by the Walk verb, it is time to remove wasChosen nodes which
+    # by the Wander verb, it is time to remove wasChosen nodes which
     # are not nowChosen.  In other words, ungraph those nodes which
-    # are no longer held in the graph by any recently walked-to nodes.
+    # are no longer held in the graph by any recently wandered-to nodes.
     wasRollCall = @wasChosen_set.roll_call()
     nowRollCall = @nowChosen_set.roll_call()
     removed = @wasChosen_set.filter (node) =>
@@ -3675,10 +3675,10 @@ class Huviz
     if not @nowChosen_set.clear()
       throw new Error("the nowChosen_set should be empty after clear()")
 
-  walk: (chosen) =>
-    # Walk is just the same as Choose (AKA Activate) except afterward it deactivates the
-    # nodes which were in the chosen_set before but are not in the set being walked.
-    # This is accomplished by walk__build_callback()
+  wander: (chosen) =>
+    # Wander is just the same as Choose (AKA Activate) except afterward it deactivates the
+    # nodes which were in the chosen_set before but are not in the set being wandered.
+    # This is accomplished by wander__build_callback()
     return @choose(chosen)
 
   hide: (goner) =>
