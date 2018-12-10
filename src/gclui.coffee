@@ -302,6 +302,21 @@ class CommandController
       @perform_any_cleanup(because)
       return
   on_taxon_clicked: (id, new_state, elem) =>
+    # If there is already a verb engaged then this click should be running
+    #     EngagedVerb taxonWith_id .
+    # Otherwise there is not an engaged verb and this click should either
+    # engage or disengage the taxon identified by id as dictated by new_state.
+    #
+    # These guys are handy
+    taxon = @huviz.taxonomy[id]
+    hasVerbs = not not @engaged_verbs.length
+
+    #if hasVerbs
+    #  cmd = new gcl.GraphCommand @huviz,
+    #    verbs: @engaged
+    #
+    # 
+    # 
     # this supposedly implements the tristate behaviour:
     #   Mixed —> On
     #   On —> Off
@@ -316,8 +331,6 @@ class CommandController
     # 3) _____ aTaxon .      Disengage a taxon
     # 4) _____ a and b .     Engage or disenage a taxon
     @taxa_being_clicked_increment()
-    taxon = @huviz.taxonomy[id]
-    hasVerbs = not not @engaged_verbs.length
     if taxon?
       old_state = taxon.get_state()
     else
