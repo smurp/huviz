@@ -2220,7 +2220,7 @@ class Huviz
       failure: failure
 
   discover_geoname_name_msgs_threshold_ms: 5 * 1000 # msec betweeen repetition of a msg display
-  discover_geoname_name_instructions: """<span style="font-size:.8em">
+  discover_geoname_name_instructions: """<span style="font-size:.7em">
    Be sure to
      1) create a
         <a target="geonamesAcct"
@@ -2248,7 +2248,8 @@ class Huviz
             if userId
               msg = "#{userId} #{msg}"
           if (not @discover_geoname_name_msgs[msg]) or
-              (Date.now() - @discover_geoname_name_msgs[msg] > @discover_geoname_name_msgs_threshold_ms)
+              (@discover_geoname_name_msgs[msg] and
+               Date.now() - @discover_geoname_name_msgs[msg] > @discover_geoname_name_msgs_threshold_ms)
             @discover_geoname_name_msgs[msg] = Date.now()
             @show_state_msg(msg)
           return
