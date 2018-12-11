@@ -262,6 +262,7 @@ class CommandController
     taxon_ctl.on 'mouseenter', (evt) =>
       #evt.stopPropagation()
       @proposed_taxon = taxon_id
+      @proposed_every = not not @taxon_picker.id_is_collapsed[taxon_id]
       if @engaged_taxons.includes(taxon_id)
         @proposed_verb = 'unselect'
       else
@@ -332,8 +333,8 @@ class CommandController
     # 2) _____ ______ .      Engage a taxon
     # 3) _____ aTaxon .      Disengage a taxon
     # 4) _____ a and b .     Engage or disenage a taxon
-    # These variables are interesting regardless of which scenario holds
 
+    # These variables are interesting regardless of which scenario holds
     taxon = @huviz.taxonomy[taxonId]
     hasVerbs = not not @engaged_verbs.length
 
@@ -361,10 +362,6 @@ class CommandController
     #   Mixed —> On
     #   On —> Off
     #   Off —> On
-    # When we select "Thing" we mean:
-    #    all nodes except the embryonic and the discarded
-    #    OR rather, the hidden, the graphed and the unlinked
-    #
     if taxon?
       old_state = taxon.get_state()
     else
@@ -747,6 +744,7 @@ class CommandController
       args.sets = [@proposed_set]
     else
       if @proposed_taxon
+        args.every_class = @proposed_every
         args.classes = [@proposed_taxon]
       else # proposed_taxon dominates engaged_taxons and the selected_set equally
         if @engaged_taxons.length > 0
