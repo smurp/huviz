@@ -832,6 +832,8 @@ class CommandController
     for id,label of vset
       @verb_pretty_name[id] = label
       @build_verb_picker(id,label,alternatives)
+    @verb_pretty_name['load'] = @huviz.human_term.load
+    @verb_pretty_name['hunt'] = @huviz.human_term.hunt
   get_verbs_overridden_by: (verb_id) ->
     override = @verbs_override[verb_id] || []
     for vset in @verb_sets

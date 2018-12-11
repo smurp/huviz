@@ -442,6 +442,7 @@ orlando_human_term =
   blank_verb: 'VERB'
   blank_noun: 'SET/SELECTION'
   hunt: 'Hunt'
+  load: 'Load'
 
 class Huviz
   class_list: [] # FIXME remove
