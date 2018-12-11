@@ -1910,6 +1910,7 @@ class Huviz
     @draw_discards()
     @draw_labels()
     @draw_edge_labels()
+    return
 
   rounded_rectangle: (x, y, w, h, radius, fill, stroke, alpha) ->
     # http://stackoverflow.com/questions/1255512/how-to-draw-a-rounded-rectangle-on-html-canvas
@@ -3524,11 +3525,13 @@ class Huviz
 
   label: (branded) ->
     @labelled_set.add(branded)
-    @tick()
+    #@tick()
+    return
 
   unlabel: (anonymized) ->
     @labelled_set.remove(anonymized)
-    @tick()
+    #@tick()
+    return
 
   pin: (node) ->
     if node.state is @graphed_set
@@ -3713,6 +3716,7 @@ class Huviz
       @selected_set.remove(node)
       node.unselect()
       @recolor_node(node)
+    return
 
   set_unique_color: (uniqcolor, set, node) ->
     set.uniqcolor ?= {}
