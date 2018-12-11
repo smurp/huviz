@@ -212,9 +212,9 @@ class CommandController
       @on_predicate_clicked(pred_id, new_state, elem)
   on_predicate_clicked: (pred_id, new_state, elem) =>
     if new_state is 'showing'
-      verb = 'show'
+      verb = 'draw'
     else
-      verb = 'suppress'
+      verb = 'undraw'
     cmd = new gcl.GraphCommand @huviz,
       verbs: [verb]
       regarding: [pred_id]
@@ -809,6 +809,8 @@ class CommandController
       @build_verb_picker(id,label,alternatives)
     @verb_pretty_name['load'] = @huviz.human_term.load
     @verb_pretty_name['hunt'] = @huviz.human_term.hunt
+    @verb_pretty_name['draw'] = @huviz.human_term.draw
+    @verb_pretty_name['undraw'] = @huviz.human_term.undraw
   get_verbs_overridden_by: (verb_id) ->
     override = @verbs_override[verb_id] || []
     for vset in @verb_sets

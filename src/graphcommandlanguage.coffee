@@ -296,7 +296,7 @@ class GraphCommand
     like_str = (@like or "").trim()
     if @verbs
       for verb in @verbs
-        if ['show','suppress'].indexOf(verb) > -1
+        if ['draw', 'undraw'].indexOf(verb) > -1
           regarding_required = true
     if regarding_required
       regarding_phrase = missing

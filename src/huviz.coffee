@@ -443,6 +443,8 @@ orlando_human_term =
   blank_noun: 'SET/SELECTION'
   hunt: 'Hunt'
   load: 'Load'
+  draw: 'Draw'
+  undraw: 'Undraw'
 
 class Huviz
   class_list: [] # FIXME remove
@@ -3972,36 +3974,36 @@ class Huviz
   print: (node) =>
     @clear_snippets()
     for edge in node.links_shown
-      @print_edge edge
+      @print_edge(edge)
+    return
 
   redact: (node) =>
     node.links_shown.forEach (edge,i) =>
       @remove_snippet edge.id
 
-  show_edge_regarding: (node, predicate_lid) =>
+  draw_edge_regarding: (node, predicate_lid) =>
     dirty = false
     doit = (edge,i,frOrTo) =>
       if edge.predicate.lid is predicate_lid
         if not edge.shown?
-          @show_link edge
+          @show_link(edge)
           dirty = true
-
     node.links_from.forEach (edge,i) =>
       doit(edge,i,'from')
     node.links_to.forEach (edge,i) =>
       doit(edge,i,'to')
-
     if dirty
       @update_state(node)
       @update_showing_links(node)
       @force.alpha(0.1)
+    return
 
-  suppress_edge_regarding: (node, predicate_lid) =>
+  undraw_edge_regarding: (node, predicate_lid) =>
     dirty = false
     doit = (edge,i,frOrTo) =>
       if edge.predicate.lid is predicate_lid
         dirty = true
-        @unshow_link edge
+        @unshow_link(edge)
     node.links_from.forEach (edge,i) =>
       doit(edge,i,'from')
     node.links_to.forEach (edge,i) =>
@@ -4009,11 +4011,11 @@ class Huviz
     # FIXME(shawn) Looping through links_shown should suffice, try it again
     #node.links_shown.forEach (edge,i) =>
     #  doit(edge,'shown')
-
     if dirty
       @update_state(node)
       @update_showing_links(node)
       @force.alpha(0.1)
+    return
 
   update_history: ->
     if window.history.pushState
