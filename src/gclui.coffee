@@ -301,23 +301,38 @@ class CommandController
       @run_any_immediate_command({})
       @perform_any_cleanup(because)
       return
-  on_taxon_clicked: (id, new_state, elem) =>
-    # If there is already a verb engaged then this click should be running
-    #     EngagedVerb taxonWith_id .
-    # Otherwise there is not an engaged verb and this click should either
-    # engage or disengage the taxon identified by id as dictated by new_state.
-    #
-    # These guys are handy
-    taxon = @huviz.taxonomy[id]
+  on_taxon_clicked: (taxonId, new_state, elem) =>
+    # This method is called in various contexts:
+    # 1) aVerb ______ .      Engage a taxon, run command, disengage taxon
+    # 2) _____ ______ .      Engage a taxon
+    # 3) _____ aTaxon .      Disengage a taxon
+    # 4) _____ a and b .     Engage or disenage a taxon
+    # These variables are interesting regardless of which scenario holds
+
+    taxon = @huviz.taxonomy[taxonId]
     hasVerbs = not not @engaged_verbs.length
 
-    #if hasVerbs
-    #  cmd = new gcl.GraphCommand @huviz,
-    #    verbs: @engaged
+    # If there is already a verb engaged then this click should be running
+    #     EngagedVerb taxonWith_id .
+    #   In particular, the point being made here is that it is just the
+    #   taxon given by taxonId which will be involved, not the selected_set
+    #   or any other nodes.
     #
-    # 
-    # 
-    # this supposedly implements the tristate behaviour:
+    #   Let us have some examples as a sanity check:
+    #     Select taxonId .    # cool
+    #     Label  taxonId .    # no problemo
+    #       *       *         # OK, OK looks straight forward
+    if hasVerbs
+      cmd = new gcl.GraphCommand(@huviz,
+        verbs: @engaged_verbs
+        classes: [taxonId])
+      @huviz.run_command(cmd)
+      return
+
+    # If there is no verb engaged then this click should either engage or
+    # disengage the taxon identified by id as dictated by new_state.
+    #
+    # The following implements the tristate behaviour:
     #   Mixed —> On
     #   On —> Off
     #   Off —> On
@@ -325,73 +340,33 @@ class CommandController
     #    all nodes except the embryonic and the discarded
     #    OR rather, the hidden, the graphed and the unlinked
     #
-    # This method is called in various contexts:
-    # 1) aVerb ______ .      Engage a taxon, run command, disengage taxon
-    # 2) _____ ______ .      Engage a taxon
-    # 3) _____ aTaxon .      Disengage a taxon
-    # 4) _____ a and b .     Engage or disenage a taxon
-    @taxa_being_clicked_increment()
     if taxon?
       old_state = taxon.get_state()
     else
-      throw "Uhh, there should be a root Taxon 'Thing' by this point: " + id
+      throw "Uhh, there should be a root Taxon 'Thing' by this point: " + taxonId
     if new_state is 'showing'
       if old_state in ['mixed', 'unshowing', 'empty']
-        if not (id in @engaged_taxons)
-          @engaged_taxons.push(id)
+        if not (taxonId in @engaged_taxons)
+          @engaged_taxons.push(taxonId)
         # SELECT all members of the currently chosen classes
         cmd = new gcl.GraphCommand @huviz,
           verbs: ['select']
-          classes: (class_name for class_name in @engaged_taxons)
+          classes: [taxonId]
+          #classes: (class_name for class_name in @engaged_taxons)
       else
-        console.error "no action needed because #{id}.#{old_state} == #{new_state}"
+        console.error "no action needed because #{taxonId}.#{old_state} == #{new_state}"
     else if new_state is 'unshowing'
-      @unselect_node_class(id)
+      @unselect_node_class(taxonId)
       cmd = new gcl.GraphCommand @huviz,
         verbs: ['unselect']
-        classes: [id]
+        classes: [taxonId]
     else if old_state is "hidden"
-      console.error "#{id}.old_state should NOT equal 'hidden' here"
-    @taxon_picker.style_with_kid_color_summary_if_needed(id)
-    if new_state is 'showing'
-      because =
-        taxon_added: id
-      if hasVerbs
-        # So the current command looks like "aVerb ____ ."
-        # Meaining that we should do these three things
-        # 1) engage this taxon
-        # 2) run the command "aVerb id."
-        # 3) disengage this taxon
-        #
-        # If one of the engaged verbs is Select then 
-        # Meaning that we should prepare a cleanup
-        #if ('select' in @engaged_verbs)
-        #  if @engaged_verbs.length is 1
-          # flip transiently to unselect
-        if not @immediate_execution_mode
-          @engage_verb('unselect', (transiently = true))
-      else
-        because.cleanup = () =>
-          @on_taxon_clicked(id, 'unshowing', elem)   # SEE unshow HERE
+      console.error "#{taxonId}.old_state should NOT equal 'hidden' here"
+    @taxon_picker.style_with_kid_color_summary_if_needed(taxonId)
     if cmd?
-      if @object_phrase? and @object_phrase isnt ""
-        cmd.object_phrase = @object_phrase
-      #@show_working_on()
-      #window.suspend_updates = false #  window.toggle_suspend_updates(false)
-      # Scenario:
-      #   1) Wander ____ .
-      #   2) this method is servicing a click on a taxon (say Person)
-      #   3) cmd should contain "Select Person ."
       @huviz.run_command(cmd, @make_run_transient_and_cleanup_callback(because))
       because = {}  # clear the because
-      # Aftermath:
-      #   1) after running "Select Person ."
-      #   2) then execute "Wander Person ." now that object_phrase has a value
-      #   3) then we must clean up after the click on Person, ie
-      #         @on_taxon_clicked(id, 'unshowing', elem)  # SEE unshow ABOVE
-      #@show_working_off()
     @update_command()
-    @taxa_being_clicked_decrement()
     return
   unselect_node_class: (node_class) ->
     # removes node_class from @engaged_taxons
