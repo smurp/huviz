@@ -274,10 +274,11 @@ class GraphCommand
     if cmd_str is 'load '
       @str += @data_uri + " ."
       return
+    @object_phrase = null
     if @sets?
       more = angliciser((s.get_label() for s in @sets))
       @object_phrase = more
-    if @object_phrase?
+      #if @object_phrase?
       @noun_phrase_ready = true
       obj_phrase = @object_phrase
       @noun_phrase = obj_phrase
@@ -286,12 +287,15 @@ class GraphCommand
         obj_phrase += angliciser(@classes)
       if @subjects
         obj_phrase = angliciser((subj.lid for subj in @subjects))
-        @noun_phrase = obj_phrase
+        #@noun_phrase = obj_phrase
     if obj_phrase is ""
       obj_phrase = missing
       ready = false
       @noun_phrase_ready = false
       @noun_phrase = @graph_ctrl.human_term.blank_noun
+    else if obj_phrase.length > 0
+      @noun_phrase_ready = true
+      @noun_phrase = obj_phrase
     cmd_str += obj_phrase
     like_str = (@like or "").trim()
     if @verbs

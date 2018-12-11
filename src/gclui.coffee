@@ -252,10 +252,35 @@ class CommandController
     @taxon_picker.show_tree(@hierarchy, @taxon_box)
     where.classed("taxon_picker_box_parent", true)
     return where
-  add_taxon: (class_id,parent_lid,class_name,taxon) =>
-    @taxon_picker.add(class_id, parent_lid, class_name, @handle_on_taxon_clicked)
+  add_taxon: (taxon_id, parent_lid, class_name, taxon) =>
+    @taxon_picker.add(taxon_id, parent_lid, class_name, @handle_on_taxon_clicked)
+    @make_taxon_proposable(taxon_id)
     @taxon_picker.recolor_now()
     @huviz.recolor_nodes()
+  make_taxon_proposable: (taxon_id) ->
+    taxon_ctl = @taxon_picker.id_to_elem[taxon_id]
+    taxon_ctl.on 'mouseenter', (evt) =>
+      #evt.stopPropagation()
+      @proposed_taxon = taxon_id
+      if @engaged_taxons.includes(taxon_id)
+        @proposed_verb = 'unselect'
+      else
+        @proposed_verb = 'select'
+      console.log(@proposed_verb, @proposed_taxon)
+      cmd = new gcl.GraphCommand(@huviz,
+        verbs: [@proposed_verb]
+        classes: [@proposed_taxon])
+      ready = @prepare_command(@build_command())
+      #@prepare_command(cmd)
+      #@update_command()
+    taxon_ctl.on 'mouseleave', (evt) =>
+      #evt.stopPropagation()
+      @proposed_taxon = null
+      @proposed_verb = null
+      #console.log(@proposed_verb, @proposed_taxon)
+      @prepare_command(new gcl.GraphCommand(@huviz, {}))
+      #@update_command()
+    return
   onChangeEnglish: (evt) =>
     @object_phrase = evt.detail.english
     @update_command()
@@ -721,16 +746,19 @@ class CommandController
     else if @proposed_set
       args.sets = [@proposed_set]
     else
-      if @engaged_taxons.length > 0
-        args.classes = (class_name for class_name in @engaged_taxons)
-      if @huviz.selected_set.length > 0
-        args.subjects = (s for s in @huviz.selected_set)
+      if @proposed_taxon
+        args.classes = [@proposed_taxon]
+      else # proposed_taxon dominates engaged_taxons and the selected_set equally
+        if @engaged_taxons.length > 0
+          args.classes = (class_name for class_name in @engaged_taxons)
+        if @huviz.selected_set.length > 0
+          args.subjects = (s for s in @huviz.selected_set)
     like_str = (@like_input[0][0].value or "").trim()
     if like_str
       args.like = like_str
     @command = new gcl.GraphCommand(@huviz, args)
   is_proposed: ->
-    @proposed_verb or @proposed_set #or @proposed_taxon
+    @proposed_verb or @proposed_set or @proposed_taxon
 
   update_command: (because) =>
     #console.log("update_command()", because)
@@ -962,7 +990,7 @@ class CommandController
     make_listeners = (id, a_set) => # fat arrow carries this to @
       set_ctl = @set_picker.id_to_elem[id]
       set_ctl.on 'mouseenter', () =>
-        @proposed_set =  a_set
+        @proposed_set = a_set
         @update_command()
       set_ctl.on 'mouseleave', () =>
         @proposed_set = null
