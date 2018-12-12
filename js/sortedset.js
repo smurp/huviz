@@ -257,9 +257,11 @@ var SortedSet = function(){
       array.remove(itm);
       var after_removal_count = array.length;
       if (false && !(before_removal_count - after_removal_count == 1)) {
-        throw new Error("temporarily removing itm extracted " +
-                        (before_removal_count - after_removal_count) +
-                        " items");
+        var msg = "temporarily removing itm extracted " +
+            (before_removal_count - after_removal_count) +
+            " items";
+        console.debug(msg);
+        // throw new Error(msg);
       }
       //array.splice(ideal.idx, 0, itm);
       array._engage_at(itm, ideal.idx);
