@@ -2258,6 +2258,8 @@ class Huviz
             @show_state_msg(msg)
           return
         lastGeoname = json.geonames[json.geonames.length-1 or 0]
+        console.log(json)
+        console.table(json.geonames)
         name = (lastGeoname or {}).name
         quad =
           s: aUrl.toString()
