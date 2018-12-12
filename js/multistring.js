@@ -95,12 +95,12 @@ MultiString.prototype.get_ALL = function() {
       if (retval) {
         retval += ', '
       }
-      retval += `"${this[key]}"@${key}`;
+      retval += '"' + this[key] + '"@' + key;
     } else if (key == 'NOLANG') {
       if (retval) {
         retval += ', '
       }
-      retval += `"${this[key]}"`;
+      retval += '"' + this[key] + '"';
     }
   };
   return retval;
@@ -127,7 +127,7 @@ MultiString.set_langpath = function(langpath){
       } else if (p == 'ALL') {
         langs.push("get_ALL()")
       } else {
-        throw new Error(`<${p}> is not a legal term in LANGPATH`);
+        throw new Error("<" + p + "> is not a legal term in LANGPATH");
       }
     });
   }
