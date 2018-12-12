@@ -305,7 +305,7 @@ class GraphCommand
           regarding_required = true
     if regarding_required
       regarding_phrase = missing
-      if @regarding? and @regarding.length > 0
+      if @regarding_required() #? and @regarding.length > 0
         regarding_phrase = angliciser(@regarding)
       else
         ready = false

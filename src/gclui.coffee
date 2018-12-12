@@ -206,6 +206,25 @@ class CommandController
     #if pred_lid in @predicates_to_ignore
     #  return
     @predicate_picker.add(pred_lid, parent_lid, pred_name, @handle_on_predicate_clicked)
+    @make_predicate_proposable(pred_lid)
+  make_predicate_proposable: (pred_lid) ->
+    predicate_ctl = @predicate_picker.id_to_elem[pred_lid]
+    predicate_ctl.on 'mouseenter', () =>
+      every = not not @predicate_picker.id_is_collapsed[pred_lid]
+      @proposed_verb = 'draw'
+      @regarding = [pred_lid]
+      console.log(@proposed_verb, "Selected regarding", @regarding)
+      #cmd = new gcl.GraphCommand(@huviz,
+      #  verbs: [@proposed_verb]
+      #  regarding: [@proposed_predicate])
+      ready = @prepare_command(@build_command())
+      return
+    predicate_ctl.on 'mouseleave', () =>
+      @proposed_verb = null
+      @regarding = null
+      @prepare_command(@build_command())
+      #@prepare_command(new gcl.GraphCommand(@huviz, {}))
+      return
   handle_on_predicate_clicked: (pred_id, new_state, elem) =>
     @start_working()
     setTimeout () => # run asynchronously so @start_working() can get a head start
@@ -267,20 +286,14 @@ class CommandController
         @proposed_verb = 'unselect'
       else
         @proposed_verb = 'select'
-      console.log(@proposed_verb, @proposed_taxon)
-      cmd = new gcl.GraphCommand(@huviz,
-        verbs: [@proposed_verb]
-        classes: [@proposed_taxon])
+      #console.log(@proposed_verb, @proposed_taxon)
       ready = @prepare_command(@build_command())
-      #@prepare_command(cmd)
-      #@update_command()
+      return
     taxon_ctl.on 'mouseleave', (evt) =>
-      #evt.stopPropagation()
       @proposed_taxon = null
       @proposed_verb = null
-      #console.log(@proposed_verb, @proposed_taxon)
-      @prepare_command(new gcl.GraphCommand(@huviz, {}))
-      #@update_command()
+      ready = @prepare_command(@build_command())
+      return
     return
   onChangeEnglish: (evt) =>
     @object_phrase = evt.detail.english
