@@ -56,15 +56,15 @@ class Taxon extends TreeCtrl
     else
       if @indirect_state is 'mixed'
         if @state is 'showing'
-          in_and_out.include.push @lid
+          in_and_out.include.push(@lid)
         if @state is 'mixed'
           if @selected_instances.length < @unselected_instances.length
             for n in @selected_instances
-              in_and_out.include.push n.lid
+              in_and_out.include.push(n.lid)
           else
-            in_and_out.include.push @id
+            in_and_out.include.push(@id)
             for n in @unselected_instances
-              in_and_out.exclude.push n.lid
+              in_and_out.exclude.push(n.lid)
         for sub in @subs
           sub.recalc_english(in_and_out)
     return
