@@ -5292,7 +5292,7 @@ class Huviz
     ,
       discover_geonames_greedily:
         style: "color:orange"
-        text: "Capture more triples from GeoNames"
+        text: "Capture GeoNames Greedily"
         label:
           title: "Capture not just names but population"
         input:
@@ -5302,7 +5302,7 @@ class Huviz
     ,
       discover_geonames_deeply:
         style: "color:orange"
-        text: "Capture GeoNames hierarchy"
+        text: "Capture GeoNames Deeply"
         label:
           title: "Capture not directly referenced but the containing geographical places from GeoNames"
         input:
