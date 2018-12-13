@@ -2238,14 +2238,20 @@ class Huviz
             href="http://www.geonames.org/enablefreewebservice">click here to enable</a>
     4) re-enter your GeoNames username in HuViz settings to trigger lookup</span>"""
 
+  countdown_input: (inputName) ->
+    input = $("input[name='#{inputName}']")
+    if input.val() < 1
+      return false
+    newVal = input.val() - 1
+    input.val(newVal)
+    return true
+
   discover_geoname_name: (aUrl) ->
     id = aUrl.pathname.replace(/\//g,'')
     userId = @discover_geonames_as
     k2p = @discover_geoname_key_to_predicate_mapping
-    if @discover_geonames_remaining < 1
+    if not @countdown_input('discover_geonames_remaining')
       return
-    @discover_geonames_remaining ?= 1
-    @discover_geonames_remaining--
     $.ajax
       url: "http://api.geonames.org/hierarchyJSON?geonameId=#{id}&username=#{userId}"
       success: (json, textStatus, request) =>
@@ -2264,8 +2270,8 @@ class Huviz
             @show_state_msg(msg)
           return
         #subj = aUrl.toString()
-        deeperQuad = null
         geoNamesRoot = aUrl.origin
+        deeperQuad = null
         greedy = @discover_geonames_greedily
         deep = @discover_geonames_deeply
         depth = 0
@@ -5286,7 +5292,7 @@ class Huviz
           title: "The number of Remaining Geonames to look up"
         input:
           type: "integer"
-          value: 50
+          value: 20
           size: 6
         event_type: "change"
     ,
