@@ -45,10 +45,11 @@ MultiString
 */
 
 function MultiString() {
+  var i;
   if (arguments.length == 0) {
     this.set_val_lang()
   } else {
-    let i = -1;
+    i = -1;
     while (arguments[i+=1]) {
       // process value/lang pairs
       this.set_val_lang(arguments[i] || '', arguments[i+=1]);
@@ -77,8 +78,8 @@ MultiString.prototype.set_lang_val = function(lang, value) {
 };
 
 MultiString.prototype.get_ANY_but_langs_in_path = function() {
-  let langs_in_path = MultiString.langs_in_path;
-  for (let key in this) {
+  var langs_in_path = MultiString.langs_in_path;
+  for (var key in this) {
     if (this.hasOwnProperty(key)) {
       if (langs_in_path.indexOf(key) == -1) {
         return this[key];
@@ -88,18 +89,18 @@ MultiString.prototype.get_ANY_but_langs_in_path = function() {
 };
 
 MultiString.prototype.get_ALL = function() {
-  let retval = '';
-  for (let key in this) {
+  var retval = '';
+  for (var key in this) {
     if (key.length == 2) {
       if (retval) {
         retval += ', '
       }
-      retval += `"${this[key]}"@${key}`;
+      retval += '"' + this[key] + '"@' + key;
     } else if (key == 'NOLANG') {
       if (retval) {
         retval += ', '
       }
-      retval += `"${this[key]}"`;
+      retval += '"' + this[key] + '"';
     }
   };
   return retval;
@@ -108,10 +109,10 @@ MultiString.prototype.get_ALL = function() {
 const LANGCODE_RE = /^[a-z]{2}$/
 
 MultiString.set_langpath = function(langpath){
-  let langs = [];
-  let parts = [];
-  let langs_in_path = [];
-  let nolang_used = false;
+  var langs = [],
+      parts = [],
+      langs_in_path = [],
+      nolang_used = false;
   if (langpath) {
     parts = langpath.split(':');
     parts.forEach(function(p,idx){
@@ -126,12 +127,12 @@ MultiString.set_langpath = function(langpath){
       } else if (p == 'ALL') {
         langs.push("get_ALL()")
       } else {
-        throw new Error(`<${p}> is not a legal term in LANGPATH`);
+        throw new Error("<" + p + "> is not a legal term in LANGPATH");
       }
     });
   }
   MultiString.langs_in_path = langs_in_path;
-  let body = "return";
+  var body = "return";
   if (langs.length) {
     body += " this."+langs.join(' || this.');
     body += " || ";

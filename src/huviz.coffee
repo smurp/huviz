@@ -426,7 +426,7 @@ orlando_human_term =
   labelled: 'Labelled'
   choose: 'Activate'
   unchoose: 'Deactivate'
-  walk: 'Walk'
+  wander: 'Wander'
   select: 'Select'
   unselect: 'Unselect'
   label: 'Label'
@@ -441,6 +441,10 @@ orlando_human_term =
   nameless: 'Nameless'
   blank_verb: 'VERB'
   blank_noun: 'SET/SELECTION'
+  hunt: 'Hunt'
+  load: 'Load'
+  draw: 'Draw'
+  undraw: 'Undraw'
 
 class Huviz
   class_list: [] # FIXME remove
@@ -992,8 +996,8 @@ class Huviz
   draw_line: (x1, y1, x2, y2, clr) ->
     @ctx.strokeStyle = clr or 'red'
     @ctx.beginPath()
-    @ctx.moveTo x1, y1
-    @ctx.lineTo x2, y2
+    @ctx.moveTo(x1, y1)
+    @ctx.lineTo(x2, y2)
     @ctx.closePath()
     @ctx.stroke()
   draw_curvedline: (x1, y1, x2, y2, sway_inc, clr, num_contexts, line_width, edge) ->
@@ -1023,8 +1027,8 @@ class Huviz
     @ctx.strokeStyle = clr or 'red'
     @ctx.beginPath()
     @ctx.lineWidth = line_width
-    @ctx.moveTo x1, y1
-    @ctx.quadraticCurveTo xctrl, yctrl, x2, y2
+    @ctx.moveTo(x1, y1)
+    @ctx.quadraticCurveTo(xctrl, yctrl, x2, y2)
     #@ctx.closePath()
     @ctx.stroke()
 
@@ -1033,18 +1037,18 @@ class Huviz
     edge.handle =
       x: xhndl
       y: yhndl
-    @draw_circle xhndl,yhndl,(line_width/2),clr # draw a circle at the midpoint of the line
+    @draw_circle(xhndl, yhndl, (line_width/2), clr) # draw a circle at the midpoint of the line
     #@draw_line(xmid,ymid,xctrl,yctrl,clr) # show mid to ctrl
 
   draw_disconnect_dropzone: ->
     @ctx.save()
     @ctx.lineWidth = @graph_radius * 0.1
-    @draw_circle @lariat_center[0], @lariat_center[1], @graph_radius, renderStyles.shelfColor
+    @draw_circle(@lariat_center[0], @lariat_center[1], @graph_radius, renderStyles.shelfColor)
     @ctx.restore()
   draw_discard_dropzone: ->
     @ctx.save()
     @ctx.lineWidth = @discard_radius * 0.1
-    @draw_circle @discard_center[0], @discard_center[1], @discard_radius, "", renderStyles.discardColor
+    @draw_circle(@discard_center[0], @discard_center[1], @discard_radius, "", renderStyles.discardColor)
     @ctx.restore()
   draw_dropzones: ->
     if @dragging
@@ -1158,7 +1162,7 @@ class Huviz
       labelled("Was Chosen").
       isFlag() # membership is not mutually exclusive with the isState() sets
     @wasChosen_set.docs = "
-      Nodes are marked wasChosen by walk__atFirst for later comparison
+      Nodes are marked wasChosen by wander__atFirst for later comparison
       with nowChosen."
 
     @nowChosen_set = SortedSet().named("nowChosen").
@@ -1167,7 +1171,7 @@ class Huviz
       isFlag() # membership is not mutually exclusive with the isState() sets
     @nowChosen_set.docs = "
       Nodes pulled in by @choose() are marked nowChosen for later comparison
-      against wasChosen by walk__atLast."
+      against wasChosen by wander__atLast."
 
     @pinned_set = SortedSet().named('fixed').
       sort_on("id").
@@ -1190,10 +1194,10 @@ class Huviz
     @labelled_set.cleanup_verb = "unlabel"
 
     @nameless_set = SortedSet().named("nameless").
-      sort_on("nameless_since").
+      sort_on("id").
       labelled(@human_term.nameless).
-      isFlag().
-      sub_of(@all_set)
+      sub_of(@all_set).
+      isFlag('nameless')
     @nameless_set.docs = "Nodes for which no name is yet known"
 
     @links_set = SortedSet().
@@ -1600,7 +1604,8 @@ class Huviz
           line_width = edge_width
         line_width = line_width + (@line_edge_weight * e.contexts.length)
         #@show_message_once("will draw line() n_n:#{n_n} e.id:#{e.id}")
-        @draw_curvedline e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y, sway, e.color, e.contexts.length, line_width, e
+        @draw_curvedline(e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x,
+                         e.target.fisheye.y, sway, e.color, e.contexts.length, line_width, e)
         sway++
 
   draw_edges: ->
@@ -1910,6 +1915,7 @@ class Huviz
     @draw_discards()
     @draw_labels()
     @draw_edge_labels()
+    return
 
   rounded_rectangle: (x, y, w, h, radius, fill, stroke, alpha) ->
     # http://stackoverflow.com/questions/1255512/how-to-draw-a-rounded-rectangle-on-html-canvas
@@ -1953,10 +1959,16 @@ class Huviz
   draw_edge_labels: ->
     if @focused_edge?
       @draw_edge_label(@focused_edge)
+    if @show_edge_labels_adjacent_to_labelled_nodes
+      for edge in @links_set
+        if edge.target.labelled or edge.source.labelled
+          @draw_edge_label(edge)
 
   draw_edge_label: (edge) ->
     ctx = @ctx
-    label = edge.predicate.lid
+    # TODO the edge label should really come from the pretty name of the predicate
+    #   edge.label > edge.predicate.label > edge.predicate.lid
+    label = edge.label or edge.predicate.lid
     if @snippet_count_on_edge_labels
       if edge.contexts?
         if edge.contexts.length
@@ -1968,7 +1980,7 @@ class Huviz
     #ctx.fillStyle = '#666' #@shadow_color
     #ctx.fillText " " + label, edge.handle.x + @edge_x_offset + @shadow_offset, edge.handle.y + @shadow_offset
     ctx.fillStyle = edge.color
-    ctx.fillText " " + label, edge.handle.x + @edge_x_offset, edge.handle.y
+    ctx.fillText(" " + label, edge.handle.x + @edge_x_offset, edge.handle.y)
 
   update_snippet: ->
     if @show_snippets_constantly and @focused_edge? and @focused_edge isnt @printed_edge
@@ -1981,9 +1993,10 @@ class Huviz
       txt = @msg_history
     @state_msg_box.show()
     @state_msg_box.html("<div class='msg_payload'>" + txt + "</div><div class='msg_backdrop'></div>")
+    @state_msg_box.on('click', @hide_state_msg)
     @text_cursor.pause("wait")
 
-  hide_state_msg: () ->
+  hide_state_msg: () =>
     @state_msg_box.hide()
     @text_cursor.continue()
     #@text_cursor.set_cursor("default")
@@ -2215,30 +2228,151 @@ class Huviz
       success: success
       failure: failure
 
+  discover_geoname_name_msgs_threshold_ms: 5 * 1000 # msec betweeen repetition of a msg display
+  discover_geoname_name_instructions: """<span style="font-size:.7em">
+   Be sure to
+     1) create a
+        <a target="geonamesAcct"
+           href="http://www.geonames.org/login">new account</a>
+     2) validate your email
+     3) on
+        <a target="geonamesAcct"
+           href="http://www.geonames.org/manageaccount">manage account</a>
+        press
+        <a target="geonamesAcct"
+            href="http://www.geonames.org/enablefreewebservice">click here to enable</a>
+    4) re-enter your GeoNames username in HuViz settings to trigger lookup</span>"""
+
   discover_geoname_name: (aUrl) ->
     id = aUrl.pathname.replace(/\//g,'')
     userId = @discover_geonames_as
+    k2p = @discover_geoname_key_to_predicate_mapping
+    if @discover_geonames_remaining < 1
+      return
+    @discover_geonames_remaining ?= 1
+    @discover_geonames_remaining--
     $.ajax
       url: "http://api.geonames.org/hierarchyJSON?geonameId=#{id}&username=#{userId}"
       success: (json, textStatus, request) =>
-        #json = JSON.parse(data)
-        lastGeoname = json.geonames[json.geonames.length-1 or 0]
-        #console.log(lastGeoname)
-        name = (lastGeoname or {}).name
-        quad =
-          s: aUrl.toString()
-          p: RDFS_label
-          o:
-            value: name
-            type: RDF_literal
-          g: aUrl.origin
-        @inject_discovered_quad_for(quad, aUrl)
+        if json.status
+          @discover_geoname_name_msgs ?= {}
+          if json.status.message
+            msg = """<dt style="font-size:.9em;color:red">#{json.status.message}</dt>""" +
+              @discover_geoname_name_instructions
+            if userId
+              msg = "#{userId} #{msg}"
+          if (not @discover_geoname_name_msgs[msg]) or
+              (@discover_geoname_name_msgs[msg] and
+               Date.now() - @discover_geoname_name_msgs[msg] >
+                @discover_geoname_name_msgs_threshold_ms)
+            @discover_geoname_name_msgs[msg] = Date.now()
+            @show_state_msg(msg)
+          return
+        #subj = aUrl.toString()
+        deeperQuad = null
+        geoNamesRoot = aUrl.origin
+        greedy = @discover_geonames_greedily
+        deep = @discover_geonames_deeply
+        depth = 0
+        for geoRec in json.geonames by -1 # from most specific to most general
+          subj = geoNamesRoot + '/' + geoRec.geonameId + '/'
+          console.log("discover_geoname_name(#{subj})")
+          depth++
+          console.table([geoRec])
+          name = (geoRec or {}).name
+
+          placeQuad =
+            s: subj
+            p: RDF_type
+            o:
+              value: 'https://schema.org/Place'
+              type: RDF_object  # REVIEW are there others?
+            g: geoNamesRoot
+          @inject_discovered_quad_for(placeQuad, aUrl)
+
+          seen_name = false
+          for key, value of geoRec # climb the hierarchy of Places sent by GeoNames
+            if key is 'name'
+              seen_name = true # so we can break at the end of this loop being done
+            else
+              if not greedy
+                continue
+            if key in ['geonameId']
+              continue
+            pred = k2p[key]
+            if not pred
+              continue
+            theType = RDF_literal
+
+            if typeof value is 'number'
+              # REVIEW are these right?
+              if Number.isInteger(value)
+                theType = 'xsd:integer'
+              else
+                theType = 'xsd:decimal'
+              value = "" + value # convert to string for @add_quad()
+            else
+              theType = RDF_literal
+            quad =
+              s: subj
+              p: pred
+              o:
+                value: value
+                type: theType  # REVIEW are there others?
+              g: geoNamesRoot
+            @inject_discovered_quad_for(quad, aUrl)
+            if not greedy and seen_name
+              break # out of the greedy consumption of all k/v pairs
+          if not deep and depth > 1
+            break # out of the deep consumption of all nested contexts
+          if deeperQuad
+            containershipQuad =
+              s: quad.s
+              p: 'http://data.ordnancesurvey.co.uk/ontology/spatialrelations/contains'
+              o:
+                value: deeperQuad.s
+                type: RDF_object
+              g: geoNamesRoot
+            @inject_discovered_quad_for(containershipQuad, aUrl)
+          deeperQuad = Object.assign({}, quad) # shallow copy
+        return # from success
+    return
+
+  ###
+          "fcode" : "RGN",
+          "adminCodes1" : {
+             "ISO3166_2" : "ENG"
+          },
+          "adminName1" : "England",
+           "countryName" : "United Kingdom",
+          "fcl" : "L",
+          "countryId" : "2635167",
+          "adminCode1" : "ENG",
+          "name" : "Yorkshire",
+          "lat" : "53.95528",
+          "population" : 0,
+          "geonameId" : 8581589,
+          "fclName" : "parks,area, ...",
+          "countryCode" : "GB",
+          "fcodeName" : "region",
+          "toponymName" : "Yorkshire",
+          "lng" : "-1.16318"
+  ###
+  discover_geoname_key_to_predicate_mapping:
+    name: RDFS_label
+    #toponymName: RDFS_label
+    #lat: 'http://dbpedia.org/property/latitude'
+    #lng: 'http://dbpedia.org/property/longitude'
+    #fcodeName: RDF_literal
+    population: 'http://dbpedia.org/property/population'
 
   inject_discovered_quad_for: (quad, url) ->
     # Purpose:
     #   Central place to perform operations on discoveries, such as caching.
     q = @add_quad(quad)
     @update_set_counts()
+    @found_names ?= []
+    @found_names.push(quad.o.value)
     #msg = "inject_discovered_quad(#{quad.o})"
     #colorlog(url)
 
@@ -2400,27 +2534,37 @@ class Huviz
     return edge
 
   remove_from_nameless: (node) ->
-    #colorlog(node.id, null, "3em")
-    @nameless_set.remove(node)
-    delete node.nameless_since
+    if node.nameless?
+      this.nameless_removals ?= 0
+      this.nameless_removals++
+      node_removed = @nameless_set.remove(node)
+      if node_removed isnt node
+        console.log("expecting",node_removed,"to have been",node)
+      #if @nameless_set.binary_search(node) > -1
+      #  console.log("expecting",node,"to no longer be found in",@nameless_set)
+      delete node.nameless_since
+    return
   add_to_nameless: (node) ->
     if node.isLiteral
       # Literals cannot have names looked up.
       return
-    node.nameless_since = new Date()
+    node.nameless_since = performance.now()
     @nameless_set.traffic ?= 0
     @nameless_set.traffic++
-    #@nameless_set.add(node)
-    @nameless_set.push(node) # REVIEW(smurp) why not .add()?????
+    @nameless_set.add(node)
+    #@nameless_set.push(node) # REVIEW(smurp) why not .add()?????
+    return
 
   set_name: (node, full_name, lang) ->
     # So if we set the full_name to null that is to mean that we have
     # no good idea what the name yet.
     perform_rename = () =>
       if full_name?
-        @remove_from_nameless(node)
+        if not node.isLiteral
+          @remove_from_nameless(node)
       else
-        @add_to_nameless(node)
+        if not node.isLiteral
+          @add_to_nameless(node)
         full_name = node.lid or node.id
       if typeof full_name is 'object'
         # MultiString instances have constructor.name == 'String'
@@ -3245,14 +3389,14 @@ class Huviz
     if not e?
       console.log("remove_link(#{edge_id}) not found!")
       return
-    @remove_from e, e.source.links_shown
-    @remove_from e, e.target.links_shown
-    @links_set.remove e
-    console.log "removing links from: " + e.id
-    @update_showing_links e.source
-    @update_showing_links e.target
-    @update_state e.target
-    @update_state e.source
+    @remove_from(e, e.source.links_shown)
+    @remove_from(e, e.target.links_shown)
+    @links_set.remove(e)
+    console.log("removing links from: " + e.id)
+    @update_showing_links(e.source)
+    @update_showing_links(e.target)
+    @update_state(e.target)
+    @update_state(e.source)
 
   # FIXME it looks like incl_discards is not needed and could be removed
   show_link: (edge, incl_discards) ->
@@ -3267,13 +3411,13 @@ class Huviz
     #@gclui.add_shown(edge.predicate.lid,edge)
 
   unshow_link: (edge) ->
-    @remove_from edge,edge.source.links_shown
-    @remove_from edge,edge.target.links_shown
-    @links_set.remove edge
-    console.log "unshowing links from: " + edge.id
+    @remove_from(edge,edge.source.links_shown)
+    @remove_from(edge,edge.target.links_shown)
+    @links_set.remove(edge)
+    console.log("unshowing links from: " + edge.id)
     edge.unshow() # FIXME make unshow call @update_state WHICH ONE? :)
-    @update_state edge.source
-    @update_state edge.target
+    @update_state(edge.source)
+    @update_state(edge.target)
     #@gclui.remove_shown(edge.predicate.lid,edge)
 
   show_links_to_node: (n, incl_discards) ->
@@ -3520,11 +3664,13 @@ class Huviz
 
   label: (branded) ->
     @labelled_set.add(branded)
-    @tick()
+    #@tick()
+    return
 
   unlabel: (anonymized) ->
     @labelled_set.remove(anonymized)
-    @tick()
+    #@tick()
+    return
 
   pin: (node) ->
     if node.state is @graphed_set
@@ -3653,23 +3799,23 @@ class Huviz
         console.log("there is a null in the .links_shown of", unchosen)
     @update_state(unchosen)
 
-  walk__atFirst: =>
+  wander__atFirst: =>
     # Purpose:
-    #   At first, before the verb Walk is executed on any node, we must
+    #   At first, before the verb Wander is executed on any node, we must
     # build a SortedSet of the nodes which were wasChosen to compare
     # with the SortedSet of nodes which are intendedToBeGraphed as a
-    # result of the Walk command which is being executed.
+    # result of the Wander command which is being executed.
     if not @wasChosen_set.clear()
       throw new Error("expecting wasChosen to be empty")
     for node in @chosen_set
       @wasChosen_set.add(node)
 
-  walk__atLast: =>
+  wander__atLast: =>
     # Purpose:
     #   At last, after all appropriate nodes have been pulled into the graph
-    # by the Walk verb, it is time to remove wasChosen nodes which
+    # by the Wander verb, it is time to remove wasChosen nodes which
     # are not nowChosen.  In other words, ungraph those nodes which
-    # are no longer held in the graph by any recently walked-to nodes.
+    # are no longer held in the graph by any recently wandered-to nodes.
     wasRollCall = @wasChosen_set.roll_call()
     nowRollCall = @nowChosen_set.roll_call()
     removed = @wasChosen_set.filter (node) =>
@@ -3680,10 +3826,10 @@ class Huviz
     if not @nowChosen_set.clear()
       throw new Error("the nowChosen_set should be empty after clear()")
 
-  walk: (chosen) =>
-    # Walk is just the same as Choose (AKA Activate) except afterward it deactivates the
-    # nodes which were in the chosen_set before but are not in the set being walked.
-    # This is accomplished by walk__build_callback()
+  wander: (chosen) =>
+    # Wander is just the same as Choose (AKA Activate) except afterward it deactivates the
+    # nodes which were in the chosen_set before but are not in the set being wandered.
+    # This is accomplished by wander__build_callback()
     return @choose(chosen)
 
   hide: (goner) =>
@@ -3714,6 +3860,48 @@ class Huviz
       @selected_set.remove(node)
       node.unselect()
       @recolor_node(node)
+    return
+
+  set_unique_color: (uniqcolor, set, node) ->
+    set.uniqcolor ?= {}
+    old_node = set.uniqcolor[uniqcolor]
+    if old_node
+      old_node.color = old_node.uniqucolor_orig
+      delete old_node.uniqcolor_orig
+    set.uniqcolor[uniqcolor] = node
+    node.uniqcolor_orig = node.color
+    node.color = uniqcolor
+    return
+
+  animate_hunt: (array, sought_node, mid_node, prior_node, pos) =>
+    #sought_node.color = 'red'
+    pred_uri = 'hunt:trail'
+    if mid_node
+      mid_node.color = 'black'
+      mid_node.radius = 100
+      @label(mid_node)
+    if prior_node
+      @ensure_predicate_lineage(pred_uri)
+      trail_pred = @get_or_create_predicate_by_id(pred_uri)
+      edge = @get_or_create_Edge(mid_node, prior_node, trail_pred, 'http://universal.org')
+      edge.label = JSON.stringify(pos)
+      @infer_edge_end_types(edge)
+      edge.color = @gclui.predicate_picker.get_color_forId_byName(trail_pred.lid, 'showing')
+      @add_edge(edge)
+      #@show_link(edge)
+    if pos.done
+      cmdArgs =
+        verbs: ['show']
+        regarding: [pred_uri]
+        sets: [@shelved_set]
+      cmd = new gcl.GraphCommand(this, cmdArgs)
+      @run_command(cmd)
+      @clean_up_all_dirt_once()
+
+  hunt: (node) =>
+    # Hunt is just a test verb to animate SortedSet.binary_search() for debugging
+    @animate_hunt(@shelved_set, node, null, null, {})
+    @shelved_set.binary_search(node, false, @animate_hunt)
 
   recolor_node: (n, default_color) ->
     default_color ?= 'black'
@@ -3934,36 +4122,36 @@ class Huviz
   print: (node) =>
     @clear_snippets()
     for edge in node.links_shown
-      @print_edge edge
+      @print_edge(edge)
+    return
 
   redact: (node) =>
     node.links_shown.forEach (edge,i) =>
       @remove_snippet edge.id
 
-  show_edge_regarding: (node, predicate_lid) =>
+  draw_edge_regarding: (node, predicate_lid) =>
     dirty = false
     doit = (edge,i,frOrTo) =>
       if edge.predicate.lid is predicate_lid
         if not edge.shown?
-          @show_link edge
+          @show_link(edge)
           dirty = true
-
     node.links_from.forEach (edge,i) =>
       doit(edge,i,'from')
     node.links_to.forEach (edge,i) =>
       doit(edge,i,'to')
-
     if dirty
       @update_state(node)
       @update_showing_links(node)
       @force.alpha(0.1)
+    return
 
-  suppress_edge_regarding: (node, predicate_lid) =>
+  undraw_edge_regarding: (node, predicate_lid) =>
     dirty = false
     doit = (edge,i,frOrTo) =>
       if edge.predicate.lid is predicate_lid
         dirty = true
-        @unshow_link edge
+        @unshow_link(edge)
     node.links_from.forEach (edge,i) =>
       doit(edge,i,'from')
     node.links_to.forEach (edge,i) =>
@@ -3971,11 +4159,11 @@ class Huviz
     # FIXME(shawn) Looping through links_shown should suffice, try it again
     #node.links_shown.forEach (edge,i) =>
     #  doit(edge,'shown')
-
     if dirty
       @update_state(node)
       @update_showing_links(node)
       @force.alpha(0.1)
+    return
 
   update_history: ->
     if window.history.pushState
@@ -4706,6 +4894,7 @@ class Huviz
     nameless: 'NAMELESS'
     blank_verb: 'VERB'
     blank_noun: 'SET/SELECTION'
+    hunt: 'HUNT'
 
   # TODO add controls
   #   selected_border_thickness
@@ -5132,16 +5321,67 @@ class Huviz
         event_type: "change"
     ,
       discover_geonames_as:
+        style: "color:orange"
         html_text: '<a href="http://www.geonames.org/login" taret="geonamesAcct">Geonames</a> Username'
         label:
           title: "The GeoNames Username to look up geonames as"
         input:
           type: "text"
-          value: ""
+          value: "" # "smurp_nooron"
           size: "16"
           placeholder: "eg huviz"
         event_type: "change"
-
+    ,
+      discover_geonames_remaining:
+        style: "color:orange"
+        text: 'GeoNames Limit '
+        label:
+          title: "The number of Remaining Geonames to look up"
+        input:
+          type: "integer"
+          value: 50
+          size: 6
+        event_type: "change"
+    ,
+      discover_geonames_greedily:
+        style: "color:orange"
+        text: "Capture GeoNames Greedily"
+        label:
+          title: "Capture not just names but population"
+        input:
+          type: "checkbox"
+          #checked: "checked"
+        event_type: "change"
+    ,
+      discover_geonames_deeply:
+        style: "color:orange"
+        text: "Capture GeoNames Deeply"
+        label:
+          title: "Capture not directly referenced but the containing geographical places from GeoNames"
+        input:
+          type: "checkbox"
+          #checked: "checked"
+        event_type: "change"
+    ,
+      show_edge_labels_adjacent_to_labelled_nodes:
+        style: "color:orange"
+        text: "Show adjacent edge labels"
+        label:
+          title: "Show edge labels adjacent to labelled nodes"
+        input:
+          type: "checkbox"
+          #checked: "checked"
+        event_type: "change"
+    ,
+      show_hunt_verb:
+        style: "color:orange;display:none"
+        text: "Show Hunt verb"
+        label:
+          title: "Show the Hunt verb"
+        input:
+          type: "checkbox"
+          #checked: "checked"
+        event_type: "change"
     ]
 
   dump_current_settings: (post) =>
@@ -5262,6 +5502,12 @@ class Huviz
       if @graphed_set
         for node in @graphed_set
           node.fixed = false
+
+  on_change_show_hunt_verb: (new_val, old_val) ->
+    if new_val
+      vset = {hunt: @human_term.hunt}
+      @gclui.verb_sets.push(vset)
+      @gclui.add_verb_set(vset)
 
   on_change_show_dangerous_datasets: (new_val, old_val) ->
     if new_val
@@ -5391,7 +5637,8 @@ class Huviz
   on_change_discover_geonames_as: (new_val, old_val) ->
     @discover_geonames_as = new_val
     if new_val
-      @discover_names()
+      if @nameless_set
+        @discover_names()
 
   init_from_graph_controls: ->
     # alert "init_from_graph_controls() is deprecated"

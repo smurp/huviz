@@ -274,33 +274,38 @@ class GraphCommand
     if cmd_str is 'load '
       @str += @data_uri + " ."
       return
+    @object_phrase = null
     if @sets?
       more = angliciser((s.get_label() for s in @sets))
       @object_phrase = more
-    if @object_phrase?
+      #if @object_phrase?
       @noun_phrase_ready = true
       obj_phrase = @object_phrase
       @noun_phrase = obj_phrase
     else
       if @classes
-        obj_phrase += angliciser(@classes)
+        maybe_every = @every_class and "every " or ""
+        obj_phrase += maybe_every + angliciser(@classes)
       if @subjects
         obj_phrase = angliciser((subj.lid for subj in @subjects))
-        @noun_phrase = obj_phrase
+        #@noun_phrase = obj_phrase
     if obj_phrase is ""
       obj_phrase = missing
       ready = false
       @noun_phrase_ready = false
       @noun_phrase = @graph_ctrl.human_term.blank_noun
+    else if obj_phrase.length > 0
+      @noun_phrase_ready = true
+      @noun_phrase = obj_phrase
     cmd_str += obj_phrase
     like_str = (@like or "").trim()
     if @verbs
       for verb in @verbs
-        if ['show','suppress'].indexOf(verb) > -1
+        if ['draw', 'undraw'].indexOf(verb) > -1
           regarding_required = true
     if regarding_required
       regarding_phrase = missing
-      if @regarding? and @regarding.length > 0
+      if @regarding_required() #? and @regarding.length > 0
         regarding_phrase = angliciser(@regarding)
       else
         ready = false

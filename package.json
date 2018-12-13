@@ -8,6 +8,7 @@
   "config": {
     "port": "9998"
   },
+  "main": "lib/huviz.js",
   "dependencies": {
     "async": "~0.2.9",
     "coffee-script": "~1.7.1",

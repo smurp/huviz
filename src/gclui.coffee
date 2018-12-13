@@ -206,15 +206,34 @@ class CommandController
     #if pred_lid in @predicates_to_ignore
     #  return
     @predicate_picker.add(pred_lid, parent_lid, pred_name, @handle_on_predicate_clicked)
+    @make_predicate_proposable(pred_lid)
+  make_predicate_proposable: (pred_lid) ->
+    predicate_ctl = @predicate_picker.id_to_elem[pred_lid]
+    predicate_ctl.on 'mouseenter', () =>
+      every = not not @predicate_picker.id_is_collapsed[pred_lid]
+      @proposed_verb = 'draw'
+      @regarding = [pred_lid]
+      console.log(@proposed_verb, "Selected regarding", @regarding)
+      #cmd = new gcl.GraphCommand(@huviz,
+      #  verbs: [@proposed_verb]
+      #  regarding: [@proposed_predicate])
+      ready = @prepare_command(@build_command())
+      return
+    predicate_ctl.on 'mouseleave', () =>
+      @proposed_verb = null
+      @regarding = null
+      @prepare_command(@build_command())
+      #@prepare_command(new gcl.GraphCommand(@huviz, {}))
+      return
   handle_on_predicate_clicked: (pred_id, new_state, elem) =>
     @start_working()
     setTimeout () => # run asynchronously so @start_working() can get a head start
       @on_predicate_clicked(pred_id, new_state, elem)
   on_predicate_clicked: (pred_id, new_state, elem) =>
     if new_state is 'showing'
-      verb = 'show'
+      verb = 'draw'
     else
-      verb = 'suppress'
+      verb = 'undraw'
     cmd = new gcl.GraphCommand @huviz,
       verbs: [verb]
       regarding: [pred_id]
@@ -252,10 +271,30 @@ class CommandController
     @taxon_picker.show_tree(@hierarchy, @taxon_box)
     where.classed("taxon_picker_box_parent", true)
     return where
-  add_taxon: (class_id,parent_lid,class_name,taxon) =>
-    @taxon_picker.add(class_id, parent_lid, class_name, @handle_on_taxon_clicked)
+  add_taxon: (taxon_id, parent_lid, class_name, taxon) =>
+    @taxon_picker.add(taxon_id, parent_lid, class_name, @handle_on_taxon_clicked)
+    @make_taxon_proposable(taxon_id)
     @taxon_picker.recolor_now()
     @huviz.recolor_nodes()
+  make_taxon_proposable: (taxon_id) ->
+    taxon_ctl = @taxon_picker.id_to_elem[taxon_id]
+    taxon_ctl.on 'mouseenter', (evt) =>
+      #evt.stopPropagation()
+      @proposed_taxon = taxon_id
+      @proposed_every = not not @taxon_picker.id_is_collapsed[taxon_id]
+      if @engaged_taxons.includes(taxon_id)
+        @proposed_verb = 'unselect'
+      else
+        @proposed_verb = 'select'
+      #console.log(@proposed_verb, @proposed_taxon)
+      ready = @prepare_command(@build_command())
+      return
+    taxon_ctl.on 'mouseleave', (evt) =>
+      @proposed_taxon = null
+      @proposed_verb = null
+      ready = @prepare_command(@build_command())
+      return
+    return
   onChangeEnglish: (evt) =>
     @object_phrase = evt.detail.english
     @update_command()
@@ -301,84 +340,68 @@ class CommandController
       @run_any_immediate_command({})
       @perform_any_cleanup(because)
       return
-  on_taxon_clicked: (id, new_state, elem) =>
-    # this supposedly implements the tristate behaviour:
-    #   Mixed —> On
-    #   On —> Off
-    #   Off —> On
-    # When we select "Thing" we mean:
-    #    all nodes except the embryonic and the discarded
-    #    OR rather, the hidden, the graphed and the unlinked
-    #
+  on_taxon_clicked: (taxonId, new_state, elem) =>
     # This method is called in various contexts:
     # 1) aVerb ______ .      Engage a taxon, run command, disengage taxon
     # 2) _____ ______ .      Engage a taxon
     # 3) _____ aTaxon .      Disengage a taxon
     # 4) _____ a and b .     Engage or disenage a taxon
-    @taxa_being_clicked_increment()
-    taxon = @huviz.taxonomy[id]
+
+    # These variables are interesting regardless of which scenario holds
+    taxon = @huviz.taxonomy[taxonId]
     hasVerbs = not not @engaged_verbs.length
+
+    # If there is already a verb engaged then this click should be running
+    #     EngagedVerb taxonWith_id .
+    #   In particular, the point being made here is that it is just the
+    #   taxon given by taxonId which will be involved, not the selected_set
+    #   or any other nodes.
+    #
+    #   Let us have some examples as a sanity check:
+    #     Select taxonId .    # cool
+    #     Label  taxonId .    # no problemo
+    #       *       *         # OK, OK looks straight forward
+    if hasVerbs
+      cmd = new gcl.GraphCommand(@huviz,
+        verbs: @engaged_verbs
+        classes: [taxonId])
+      @huviz.run_command(cmd)
+      return
+
+    # If there is no verb engaged then this click should either engage or
+    # disengage the taxon identified by id as dictated by new_state.
+    #
+    # The following implements the tristate behaviour:
+    #   Mixed —> On
+    #   On —> Off
+    #   Off —> On
     if taxon?
       old_state = taxon.get_state()
     else
-      throw "Uhh, there should be a root Taxon 'Thing' by this point: " + id
+      throw "Uhh, there should be a root Taxon 'Thing' by this point: " + taxonId
     if new_state is 'showing'
       if old_state in ['mixed', 'unshowing', 'empty']
-        if not (id in @engaged_taxons)
-          @engaged_taxons.push(id)
+        if not (taxonId in @engaged_taxons)
+          @engaged_taxons.push(taxonId)
         # SELECT all members of the currently chosen classes
         cmd = new gcl.GraphCommand @huviz,
           verbs: ['select']
-          classes: (class_name for class_name in @engaged_taxons)
+          classes: [taxonId]
+          #classes: (class_name for class_name in @engaged_taxons)
       else
-        console.error "no action needed because #{id}.#{old_state} == #{new_state}"
+        console.error "no action needed because #{taxonId}.#{old_state} == #{new_state}"
     else if new_state is 'unshowing'
-      @unselect_node_class(id)
+      @unselect_node_class(taxonId)
       cmd = new gcl.GraphCommand @huviz,
         verbs: ['unselect']
-        classes: [id]
+        classes: [taxonId]
     else if old_state is "hidden"
-      console.error "#{id}.old_state should NOT equal 'hidden' here"
-    @taxon_picker.style_with_kid_color_summary_if_needed(id)
-    if new_state is 'showing'
-      because =
-        taxon_added: id
-      if hasVerbs
-        # So the current command looks like "aVerb ____ ."
-        # Meaining that we should do these three things
-        # 1) engage this taxon
-        # 2) run the command "aVerb id."
-        # 3) disengage this taxon
-        #
-        # If one of the engaged verbs is Select then 
-        # Meaning that we should prepare a cleanup
-        #if ('select' in @engaged_verbs)
-        #  if @engaged_verbs.length is 1
-          # flip transiently to unselect
-        if not @immediate_execution_mode
-          @engage_verb('unselect', (transiently = true))
-      else
-        because.cleanup = () =>
-          @on_taxon_clicked(id, 'unshowing', elem)   # SEE unshow HERE
+      console.error "#{taxonId}.old_state should NOT equal 'hidden' here"
+    @taxon_picker.style_with_kid_color_summary_if_needed(taxonId)
     if cmd?
-      if @object_phrase? and @object_phrase isnt ""
-        cmd.object_phrase = @object_phrase
-      #@show_working_on()
-      #window.suspend_updates = false #  window.toggle_suspend_updates(false)
-      # Scenario:
-      #   1) Walk ____ .
-      #   2) this method is servicing a click on a taxon (say Person)
-      #   3) cmd should contain "Select Person ."
       @huviz.run_command(cmd, @make_run_transient_and_cleanup_callback(because))
       because = {}  # clear the because
-      # Aftermath:
-      #   1) after running "Select Person ."
-      #   2) then execute "Walk Person ." now that object_phrase has a value
-      #   3) then we must clean up after the click on Person, ie
-      #         @on_taxon_clicked(id, 'unshowing', elem)  # SEE unshow ABOVE
-      #@show_working_off()
     @update_command()
-    @taxa_being_clicked_decrement()
     return
   unselect_node_class: (node_class) ->
     # removes node_class from @engaged_taxons
@@ -397,7 +420,7 @@ class CommandController
     @verb_sets = [ # mutually exclusive within each set
         choose: @huviz.human_term.choose
         unchoose: @huviz.human_term.unchoose
-        walk: @huviz.human_term.walk
+        wander: @huviz.human_term.wander
       ,
         select: @huviz.human_term.select
         unselect: @huviz.human_term.unselect
@@ -414,6 +437,8 @@ class CommandController
         pin: @huviz.human_term.pin
         unpin: @huviz.human_term.unpin
       ]
+    if @huviz.show_hunt_verb
+      @verb_sets.push({hunt: @huviz.human_term.hunt})
     #,
     #  print: 'print'
     #  redact: 'redact'
@@ -437,9 +462,9 @@ class CommandController
     unchoose: (node, engagedVerb) ->
       if not node.chosen?
         return 'choose' or engagedVerb
-    walk: (node) ->
+    wander: (node) ->
       if node.chosen?
-        return 'walk'
+        return 'wander'
     label: (node) ->
       if node.labelled
         return 'unlabel'
@@ -478,15 +503,16 @@ class CommandController
   verbs_requiring_regarding:
     ['show','suppress','emphasize','deemphasize']
   verbs_override: # when overriding ones are selected, others are unselected
-    choose: ['discard', 'unchoose', 'shelve', 'hide', 'walk']
-    walk: ['choose', 'unchoose', 'discard', 'shelve', 'hide']
-    shelve: ['unchoose', 'choose', 'hide', 'discard', 'retrieve', 'walk']
-    discard: ['choose', 'retrieve', 'hide', 'unchoose', 'unselect', 'select', 'walk']
-    hide: ['discard', 'undiscard', 'label', 'choose' ,'unchoose', 'select', 'unselect', 'walk']
+    choose: ['discard', 'unchoose', 'shelve', 'hide', 'wander']
+    wander: ['choose', 'unchoose', 'discard', 'shelve', 'hide']
+    shelve: ['unchoose', 'choose', 'hide', 'discard', 'retrieve', 'wander']
+    discard: ['choose', 'retrieve', 'hide', 'unchoose', 'unselect', 'select', 'wander']
+    hide: ['discard', 'undiscard', 'label', 'choose' ,'unchoose', 'select', 'unselect', 'wander']
+    hunt: ['discard', 'undiscard', 'choose', 'unchoose', 'wander', 'hide', 'unhide', 'shelve', 'pin', 'unpin']
   verb_descriptions:
     choose: "Put nodes in the graph and pull other, connected nodes in too,
              so long as they haven't been discarded."
-    walk:    "Put nodes in the graph and pull connected nodes in followed by
+    wander:    "Put nodes in the graph and pull connected nodes in followed by
               shelving of the nodes which had been pulled into the graph previously."
     shelve: "Remove nodes from the graph and put them on the shelf
              (the circle of nodes around the graph) from which they
@@ -517,10 +543,11 @@ class CommandController
     load: "Load knowledge from the given uri."
     pin: "Make a node immobile"
     unpin: "Make a node mobile again"
+    hunt: "Animate binary search for the node"
   verb_cursors:
     choose: "←"
     unchoose: "⇠"
-    walk: "🚶"
+    wander: "🚶"
     shelve: "↺"
     label: "☭"
     unlabel: "☢"
@@ -531,6 +558,7 @@ class CommandController
     unselect: "☺"
     pin: "p"
     unpin: "u"
+    hunt: "X"
   build_form: () ->
     @build_verb_form()
     @build_depth()
@@ -597,7 +625,7 @@ class CommandController
     #@nextcommand.attr('style','background-color:yellow') # PREFERRED
 
   build_depth: () ->
-    @depthdiv.text('Activate/Walk Depth:').classed("control_label activate_depth", true)
+    @depthdiv.text('Activate/Wander Depth:').classed("control_label activate_depth", true)
     @depthdiv.style('display','inline-block')
     @depthdiv.style('white-space','nowrap')
     @depth_input = @depthdiv.append('input')
@@ -728,16 +756,20 @@ class CommandController
     else if @proposed_set
       args.sets = [@proposed_set]
     else
-      if @engaged_taxons.length > 0
-        args.classes = (class_name for class_name in @engaged_taxons)
-      if @huviz.selected_set.length > 0
-        args.subjects = (s for s in @huviz.selected_set)
+      if @proposed_taxon
+        args.every_class = @proposed_every
+        args.classes = [@proposed_taxon]
+      else # proposed_taxon dominates engaged_taxons and the selected_set equally
+        if @engaged_taxons.length > 0
+          args.classes = (class_name for class_name in @engaged_taxons)
+        if @huviz.selected_set.length > 0
+          args.subjects = (s for s in @huviz.selected_set)
     like_str = (@like_input[0][0].value or "").trim()
     if like_str
       args.like = like_str
     @command = new gcl.GraphCommand(@huviz, args)
   is_proposed: ->
-    @proposed_verb or @proposed_set #or @proposed_taxon
+    @proposed_verb or @proposed_set or @proposed_taxon
 
   update_command: (because) =>
     #console.log("update_command()", because)
@@ -808,10 +840,16 @@ class CommandController
   build_verb_form: () ->
     @verb_pretty_name = {}
     for vset in @verb_sets
-      alternatives = @verbdiv.append('div').attr('class','alternates')
-      for id,label of vset
-        @verb_pretty_name[id] = label
-        @build_verb_picker(id,label,alternatives)
+      @add_verb_set(vset)
+  add_verb_set: (vset) ->
+    alternatives = @verbdiv.append('div').attr('class','alternates')
+    for id,label of vset
+      @verb_pretty_name[id] = label
+      @build_verb_picker(id,label,alternatives)
+    @verb_pretty_name['load'] = @huviz.human_term.load
+    @verb_pretty_name['hunt'] = @huviz.human_term.hunt
+    @verb_pretty_name['draw'] = @huviz.human_term.draw
+    @verb_pretty_name['undraw'] = @huviz.human_term.undraw
   get_verbs_overridden_by: (verb_id) ->
     override = @verbs_override[verb_id] || []
     for vset in @verb_sets
@@ -963,7 +1001,7 @@ class CommandController
     make_listeners = (id, a_set) => # fat arrow carries this to @
       set_ctl = @set_picker.id_to_elem[id]
       set_ctl.on 'mouseenter', () =>
-        @proposed_set =  a_set
+        @proposed_set = a_set
         @update_command()
       set_ctl.on 'mouseleave', () =>
         @proposed_set = null
