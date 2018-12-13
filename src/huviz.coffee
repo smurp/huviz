@@ -2275,8 +2275,18 @@ class Huviz
           depth++
           console.table([geoRec])
           name = (geoRec or {}).name
+
+          placeQuad =
+            s: subj
+            p: RDF_type
+            o:
+              value: 'https://schema.org/Place'
+              type: RDF_object  # REVIEW are there others?
+            g: geoNamesRoot
+          @inject_discovered_quad_for(placeQuad, aUrl)
+
           seen_name = false
-          for key, value of geoRec
+          for key, value of geoRec # climb the hierarchy of Places sent by GeoNames
             if key is 'name'
               seen_name = true # so we can break at the end of this loop being done
             else
@@ -2305,11 +2315,9 @@ class Huviz
                 value: value
                 type: theType  # REVIEW are there others?
               g: geoNamesRoot
-            console.log(quad.toString(),'red','2em')
             @inject_discovered_quad_for(quad, aUrl)
             if not greedy and seen_name
               break # out of the greedy consumption of all k/v pairs
-
           if not deep and depth > 1
             break # out of the deep consumption of all nested contexts
           if deeperQuad
