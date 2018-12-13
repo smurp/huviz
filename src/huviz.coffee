@@ -533,6 +533,11 @@ class Huviz
   nodeOrderAngle = 0.5
   node_display_type = ''
 
+  p_display: true
+  p_tick_count: 0
+  p_loaded_quad_count: 0
+  p_total_sprql_requests: 0
+
   change_sort_order: (array, cmp) ->
     array.__current_sort_order = cmp
     array.sort array.__current_sort_order
@@ -1905,6 +1910,7 @@ class Huviz
     @draw_discards()
     @draw_labels()
     @draw_edge_labels()
+    if @p_display then @performance_dashboard('tick')
 
   rounded_rectangle: (x, y, w, h, radius, fill, stroke, alpha) ->
     # http://stackoverflow.com/questions/1255512/how-to-draw-a-rounded-rectangle-on-html-canvas
@@ -2294,6 +2300,7 @@ class Huviz
     @unique_pids[pred_uri] = 1
     newsubj = false
     subj = null
+    if @p_display then @performance_dashboard('add_quad')
 
     # REVIEW is @my_graph still needed and being correctly used?
     if not @my_graph.subjects[subj_uri]?
@@ -2385,9 +2392,12 @@ class Huviz
     # if SPARQL Endpoint loaded AND this is subject node then set current subject to true (i.e. fully loaded)
     if @endpoint_loader.value
       subj_n.fully_loaded = false # all nodes default to not being fully_loaded
-      if subj_n.id is sprql_subj# if it is the subject node then is fully_loaded
+      #if subj_n.id is sprql_subj# if it is the subject node then is fully_loaded
+      #  subj_n.fully_loaded = true
+      if subj_n.id is quad.subject # if it is the subject node then is fully_loaded
         subj_n.fully_loaded = true
     @last_quad = quad
+
     return edge
 
   remove_from_nameless: (node) ->
@@ -2856,10 +2866,13 @@ class Huviz
 
   load_endpoint_data_and_show: (subject, callback) ->
     @sparql_node_list = []
+    @p_total_sprql_requests++
+    if @p_display then @performance_dashboard('sparql_request')
     node_limit = $('#endpoint_limit').val()
     url = @endpoint_loader.value
     @endpoint_loader.outstanding_requests = 0
     fromGraph = ''
+
     if @endpoint_loader.endpoint_graph then fromGraph=" FROM <#{@endpoint_loader.endpoint_graph}> "
     ###
     qry = """
@@ -2947,11 +2960,15 @@ class Huviz
           blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
           @reset_dataset_ontology_loader()
 
+
+
   load_new_endpoint_data_and_show: (subject, callback) ->
     node_limit = $('#endpoint_limit').val()
+    @p_total_sprql_requests++
+    note = ''
     url = @endpoint_loader.value
     fromGraph = ''
-    if @endpoint_loader.endpoint_graph then fromGraph=" FROM <#{@endpoint_loader.endpoint_graph}> "
+    if @endpoint_loader.endpoint_graph then fromGraph = " FROM <#{@endpoint_loader.endpoint_graph}> "
     qry = """
     SELECT * #{fromGraph}
     WHERE {
@@ -2980,6 +2997,8 @@ class Huviz
         success: (data, textStatus, jqXHR) =>
           #console.log jqXHR
           #console.log "Query: " + subject
+          note = subject
+          if @p_display then @performance_dashboard('sparql_request', note)
           #console.log qry
           json_check = typeof data
           if json_check is 'string' then json_data = JSON.parse(data) else json_data = data
@@ -3001,12 +3020,12 @@ class Huviz
           blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
           @reset_dataset_ontology_loader()
 
-  add_nodes_from_SPARQL: (json_data, subject) ->
+  add_nodes_from_SPARQL: (json_data, subject) -> # DEPRECIATED !!!!
     data = ''
     context = "http://universal.org"
     plainLiteral = "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"
     #console.log json_data
-    #console.log "Adding node (i.e. fully exploring): " + subject
+    console.log "Adding node (i.e. fully exploring): " + subject
     nodes_in_data = json_data.results.bindings
     for node in nodes_in_data
       language = ''
@@ -3015,7 +3034,6 @@ class Huviz
         subj = node.s.value
         pred = node.p.value
         obj_val = subject
-
       else if node.o2
         subj = node.o.value
         pred = node.p2.value
@@ -3094,6 +3112,35 @@ class Huviz
         node_not_in_list = false
         @add_quad(q, subject)
       #@dump_stats()
+
+  add_nodes_from_SPARQL_Worker : (queryTarget) ->
+    console.log "Make request for new query and load nodes"
+    url = @endpoint_loader.value
+    if @sparql_node_list then previous_nodes = @sparql_node_list else previous_nodes = []
+    graph = @endpoint_loader.endpoint_graph
+    local_node_added = 0
+    query_limit = 1000 #$('#endpoint_limit').val()
+    worker = new Worker('/huviz/sparql_ajax_query.js')
+    worker.addEventListener 'message', (e) =>
+      #console.log e.data
+      add_fully_loaded = e.data.fully_loaded_index
+      for quad in e.data.results
+        #console.log quad
+        @add_quad(quad)
+        @sparql_node_list.push quad  # Add the new quads to the official list of added quads
+        local_node_added++
+      console.log "Node Added Count: " + local_node_added
+      # Verify through the loaded nodes that they are all properly marked as fully_loaded
+      for a_node, i in @all_set
+        if a_node.id is queryTarget
+          @all_set[i].fully_loaded = true
+      @endpoint_loader.outstanding_requests = @endpoint_loader.outstanding_requests - 1
+      console.log "Resort the shelf"
+      @shelved_set.resort()
+      @tick()
+      @update_all_counts()
+    worker.postMessage({target:queryTarget, url:url, graph:graph, limit:query_limit, previous_nodes:previous_nodes})
+
 
   # Deal with buggy situations where flashing the links on and off
   # fixes data structures.  Not currently needed.
@@ -3546,11 +3593,16 @@ class Huviz
       if not chosen.fully_loaded
         #console.log "Time to make a new SPARQL query using: " + chosen.id + " - requests underway: " + @endpoint_loader.outstanding_requests
         # If there are more than certain number of requests, stop the process
-        if (@endpoint_loader.outstanding_requests < 300)
-          @endpoint_loader.outstanding_requests = @endpoint_loader.outstanding_requests + 1
+
+        if (@endpoint_loader.outstanding_requests < 10)
+          #@endpoint_loader.outstanding_requests = @endpoint_loader.outstanding_requests + 1
+          @endpoint_loader.outstanding_requests++
           #console.log "Less than 6 so go ahead " + message
-          @load_new_endpoint_data_and_show(chosen.id)
+          #@load_new_endpoint_data_and_show(chosen.id)
+          # TEST of calling Worker for Ajax
+          @add_nodes_from_SPARQL_Worker(chosen.id)
           console.log "Request counter: " + @endpoint_loader.outstanding_requests
+
         else
           if $("#blurtbox").html()
             #console.log "Don't add error message " + message
@@ -4165,6 +4217,7 @@ class Huviz
       #$(@ontology_loader.form).disable()
     if not @endpoint_loader and @args.endpoint_loader__append_to_sel
       @endpoint_loader = new PickOrProvide(@, @args.endpoint_loader__append_to_sel, 'SPARQL Endpoint', 'EndpointPP', false, true)
+      #@endpoint_loader.outstanding_requests = 0
       #endpoint = "#" + @endpoint_loader.uniq_id
       #$(endpoint).css('display','none')
     if @endpoint_loader and not @big_go_button
@@ -4516,6 +4569,7 @@ class Huviz
     @off_center = false # FIXME expose this or make the amount a slider
     document.addEventListener('nextsubject', @onnextsubject)
     @init_snippet_box()  # FIXME not sure this does much useful anymore
+
     @mousedown_point = false
     @discard_point = [@cx,@cy] # FIXME refactor so ctrl-handle handles this
     @lariat_center = [@cx,@cy] #       and this....
@@ -4792,7 +4846,7 @@ class Huviz
         label:
           title: "size variance for node edge count"
         input:
-          value: 0
+          value: 2
           min: 0
           max: 10
           step: 0.1
@@ -5569,6 +5623,37 @@ class OntologicallyGrounded extends Huviz
         #
         # If there exists (_:1, rdfs:type, owl:AllDisjointClasses)
         # Then create a root level class for every rdfs:first in rdfs:members
+
+  performance_dashboard: (reason, note) =>
+    #console.log "Initiate the DASHBOARD"
+    #console.log @edge_count
+    #console.log window.performance.memory
+    #@predicate_set.length # Number of types of predicates?
+    #console.log @taxonomy # This is an object not an array
+    warning = ""
+    class_count = 0
+    if reason is 'add_quad'
+      @p_loaded_quad_count++
+    else if reason is 'tick'
+      tick_count_number = @p_tick_count++
+    else if reason is 'sparql_request'
+      sprql_requests = @endpoint_loader.outstanding_requests
+      request_target = "Requesting.... " + note
+      console.log "---------" + request_target
+    else
+      warning = "<div class='feedback_module'>The performance dashboard was called without a reason.</div>"
+
+    for item of @taxonomy
+      class_count++
+    perform = "<div class='feedback_module'>Number of Nodes: #{@nodes.length}</div>"
+    edge_count = "<div class='feedback_module'>Number of Edges: #{@edge_count}</div>"
+    predicates = "<div class='feedback_module'>Number of Predicates: #{@predicate_set.length }</div>"
+    classes = "<div class='feedback_module'>Number of Classes: #{class_count}</div>"
+    loaded_quads = "<div class='feedback_module'>Triples Added: #{@p_loaded_quad_count}</div>"
+    tick_count = "<div class='feedback_module'>Ticks in Session: #{tick_count_number}</div>"
+    sprql_total_requests = "<div class='feedback_module'>Total SPARQL Requests: #{@p_total_sprql_requests}</div>"
+    sprql_current_requests = "<div class='feedback_module'><p>Outstanding SPARQL Requests: #{@endpoint_loader.outstanding_requests}</p><p>#{request_target}</p></div>"
+    $("#performance_dashboard").html(perform + edge_count + predicates + classes + loaded_quads + tick_count + sprql_total_requests + sprql_current_requests + warning)
 
 class Orlando extends OntologicallyGrounded
   # These are the Orlando specific methods layered on Huviz.

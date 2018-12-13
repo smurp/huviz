@@ -9,6 +9,17 @@ body, html {
   background-color: #fff;
 }
 
+#performance_dashboard {
+  height: 500px;
+  width: 250px;
+  background-color: #eee;
+  position: absolute;
+  left: 0;
+  top: 50px;
+  display: none;
+}
+
+
 /* ----------------------------- Node Examiner ------------------------------ */
 
 .contextMenu {
