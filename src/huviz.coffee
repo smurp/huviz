@@ -2241,6 +2241,11 @@ class Huviz
   discover_geoname_name: (aUrl) ->
     id = aUrl.pathname.replace(/\//g,'')
     userId = @discover_geonames_as
+    k2p = @discover_geoname_key_to_predicate_mapping
+    if @discover_geonames_remaining < 1
+      return
+    @discover_geonames_remaining ?= 1
+    @discover_geonames_remaining--
     $.ajax
       url: "http://api.geonames.org/hierarchyJSON?geonameId=#{id}&username=#{userId}"
       success: (json, textStatus, request) =>
@@ -2253,22 +2258,100 @@ class Huviz
               msg = "#{userId} #{msg}"
           if (not @discover_geoname_name_msgs[msg]) or
               (@discover_geoname_name_msgs[msg] and
-               Date.now() - @discover_geoname_name_msgs[msg] > @discover_geoname_name_msgs_threshold_ms)
+               Date.now() - @discover_geoname_name_msgs[msg] >
+                @discover_geoname_name_msgs_threshold_ms)
             @discover_geoname_name_msgs[msg] = Date.now()
             @show_state_msg(msg)
           return
-        lastGeoname = json.geonames[json.geonames.length-1 or 0]
-        console.log(json)
-        console.table(json.geonames)
-        name = (lastGeoname or {}).name
-        quad =
-          s: aUrl.toString()
-          p: RDFS_label
-          o:
-            value: name
-            type: RDF_literal
-          g: aUrl.origin
-        @inject_discovered_quad_for(quad, aUrl)
+        #subj = aUrl.toString()
+        deeperQuad = null
+        geoNamesRoot = aUrl.origin
+        greedy = @discover_geonames_greedily
+        deep = @discover_geonames_deeply
+        depth = 0
+        for geoRec in json.geonames by -1 # from most specific to most general
+          subj = geoNamesRoot + '/' + geoRec.geonameId + '/'
+          console.log("discover_geoname_name(#{subj})")
+          depth++
+          console.table([geoRec])
+          name = (geoRec or {}).name
+          seen_name = false
+          for key, value of geoRec
+            if key is 'name'
+              seen_name = true # so we can break at the end of this loop being done
+            else
+              if not greedy
+                continue
+            if key in ['geonameId']
+              continue
+            pred = k2p[key]
+            if not pred
+              continue
+            theType = RDF_literal
+
+            if typeof value is 'number'
+              # REVIEW are these right?
+              if Number.isInteger(value)
+                theType = 'xsd:integer'
+              else
+                theType = 'xsd:decimal'
+              value = "" + value # convert to string for @add_quad()
+            else
+              theType = RDF_literal
+            quad =
+              s: subj
+              p: pred
+              o:
+                value: value
+                type: theType  # REVIEW are there others?
+              g: geoNamesRoot
+            console.log(quad.toString(),'red','2em')
+            @inject_discovered_quad_for(quad, aUrl)
+            if not greedy and seen_name
+              break # out of the greedy consumption of all k/v pairs
+
+          if not deep and depth > 1
+            break # out of the deep consumption of all nested contexts
+          if deeperQuad
+            containershipQuad =
+              s: quad.s
+              p: 'http://data.ordnancesurvey.co.uk/ontology/spatialrelations/contains'
+              o:
+                value: deeperQuad.s
+                type: RDF_object
+              g: geoNamesRoot
+            @inject_discovered_quad_for(containershipQuad, aUrl)
+          deeperQuad = Object.assign({}, quad) # shallow copy
+        return # from success
+    return
+
+  ###
+          "fcode" : "RGN",
+          "adminCodes1" : {
+             "ISO3166_2" : "ENG"
+          },
+          "adminName1" : "England",
+           "countryName" : "United Kingdom",
+          "fcl" : "L",
+          "countryId" : "2635167",
+          "adminCode1" : "ENG",
+          "name" : "Yorkshire",
+          "lat" : "53.95528",
+          "population" : 0,
+          "geonameId" : 8581589,
+          "fclName" : "parks,area, ...",
+          "countryCode" : "GB",
+          "fcodeName" : "region",
+          "toponymName" : "Yorkshire",
+          "lng" : "-1.16318"
+  ###
+  discover_geoname_key_to_predicate_mapping:
+    name: RDFS_label
+    #toponymName: RDFS_label
+    #lat: 'http://dbpedia.org/property/latitude'
+    #lng: 'http://dbpedia.org/property/longitude'
+    #fcodeName: RDF_literal
+    population: 'http://dbpedia.org/property/population'
 
   inject_discovered_quad_for: (quad, url) ->
     # Purpose:
@@ -5183,9 +5266,40 @@ class Huviz
           title: "The GeoNames Username to look up geonames as"
         input:
           type: "text"
-          value: ""
+          value: "" # "smurp_nooron"
           size: "16"
           placeholder: "eg huviz"
+        event_type: "change"
+    ,
+      discover_geonames_remaining:
+        style: "color:orange"
+        text: 'GeoNames Limit'
+        label:
+          title: "The number of Remaining Geonames to look up"
+        input:
+          type: "integer"
+          value: 3
+          size: 6
+        event_type: "change"
+    ,
+      discover_geonames_greedily:
+        style: "color:orange"
+        text: "Capture more triples from GeoNames"
+        label:
+          title: "Capture not just names but population"
+        input:
+          type: "checkbox"
+          #checked: "checked"
+        event_type: "change"
+    ,
+      discover_geonames_deeply:
+        style: "color:orange"
+        text: "Capture GeoNames hierarchy"
+        label:
+          title: "Capture not directly referenced but the containing geographical places from GeoNames"
+        input:
+          type: "checkbox"
+          #checked: "checked"
         event_type: "change"
     ,
       show_edge_labels_adjacent_to_labelled_nodes:
@@ -5462,7 +5576,8 @@ class Huviz
   on_change_discover_geonames_as: (new_val, old_val) ->
     @discover_geonames_as = new_val
     if new_val
-      @discover_names()
+      if @nameless_set
+        @discover_names()
 
   init_from_graph_controls: ->
     # alert "init_from_graph_controls() is deprecated"
