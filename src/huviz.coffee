@@ -1910,7 +1910,6 @@ class Huviz
     @draw_discards()
     @draw_labels()
     @draw_edge_labels()
-    if @p_display then @performance_dashboard('tick')
 
   rounded_rectangle: (x, y, w, h, radius, fill, stroke, alpha) ->
     # http://stackoverflow.com/questions/1255512/how-to-draw-a-rounded-rectangle-on-html-canvas
