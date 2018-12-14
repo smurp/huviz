@@ -286,7 +286,9 @@ class GraphCommand
       if @classes
         maybe_every = @every_class and "every " or ""
         obj_phrase += maybe_every + angliciser(@classes)
-      if @subjects
+        if @except_subjects
+          obj_phrase += ' except ' + angliciser((subj.lid for subj in @subjects))
+      else if @subjects
         obj_phrase = angliciser((subj.lid for subj in @subjects))
         #@noun_phrase = obj_phrase
     if obj_phrase is ""

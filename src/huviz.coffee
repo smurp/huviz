@@ -3474,6 +3474,7 @@ class Huviz
     @regenerate_english()
     #setTimeout(@clean_up_dirty_predictes, 500)
     #setTimeout(@clean_up_dirty_predictes, 3000)
+    return
 
   prove_OnceRunner: (timeout) ->
     @prove_OnceRunner_inst ?= new OnceRunner(30)

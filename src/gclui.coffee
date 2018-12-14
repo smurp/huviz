@@ -296,6 +296,7 @@ class CommandController
       return
     return
   onChangeEnglish: (evt) =>
+    return
     @object_phrase = evt.detail.english
     @update_command()
   handle_on_taxon_clicked: (id, new_state, elem) =>
