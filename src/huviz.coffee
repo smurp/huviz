@@ -4816,7 +4816,7 @@ class Huviz
     $("#tabs").on('click', '#blurt_close', @close_blurt_box)
     $("#tabs").tabs
       active: 0
-      collapsible: true
+      #collapsible: true
     $('.open_tab').click (event) =>
       tab_idx = parseInt($(event.target).attr('href').replace("#",""))
       @goto_tab(tab_idx)
@@ -4840,7 +4840,6 @@ class Huviz
   maximize_gclui: () ->
     $('#tabs').prop('style','visibility:visible')
     $('#maximize_cntrl').prop('style','visibility:hidden')
-    console.log "minimize the interface"
 
   goto_tab: (tab_idx) ->
     $('#tabs').tabs
@@ -5405,7 +5404,7 @@ class Huviz
     #$(@graph_controls).sortable().disableSelection() # TODO fix dropping
     for control_spec in @default_graph_controls
       for control_name, control of control_spec
-        graph_control = @graph_controls.append('span').attr('id',control_name).attr('class', 'graph_control')
+        graph_control = @graph_controls.append('div').attr('id',control_name).attr('class', 'graph_control')
         label = graph_control.append('label')
         if control.text?
           label.text(control.text)
@@ -5449,6 +5448,7 @@ class Huviz
           input.on("change", @update_graph_settings) # when focus changes
         else
           input.on("input", @update_graph_settings) # continuous updates
+    $("#tabs-options").append("<div id='buffer_space'></div>")
     return
 
   update_graph_controls_cursor: (evt) =>

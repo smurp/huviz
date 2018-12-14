@@ -20,6 +20,10 @@
   overflow-y: scroll;
   height: 30em;
 }
+#buffer_space {
+  height: 10em;
+  clear: both;
+}
 
 .alternates {
   float:left;
