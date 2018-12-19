@@ -422,6 +422,7 @@ class CommandController
         choose: @huviz.human_term.choose
         unchoose: @huviz.human_term.unchoose
         wander: @huviz.human_term.wander
+        walk: @huviz.human_term.walk
       ,
         select: @huviz.human_term.select
         unselect: @huviz.human_term.unselect
@@ -466,6 +467,9 @@ class CommandController
     wander: (node) ->
       if node.chosen?
         return 'wander'
+    walk: (node) ->
+      if node.chosen?
+        return 'walk'
     label: (node) ->
       if node.labelled
         return 'unlabel'
@@ -504,17 +508,20 @@ class CommandController
   verbs_requiring_regarding:
     ['show','suppress','emphasize','deemphasize']
   verbs_override: # when overriding ones are selected, others are unselected
-    choose: ['discard', 'unchoose', 'shelve', 'hide', 'wander']
-    wander: ['choose', 'unchoose', 'discard', 'shelve', 'hide']
-    shelve: ['unchoose', 'choose', 'hide', 'discard', 'retrieve', 'wander']
-    discard: ['choose', 'retrieve', 'hide', 'unchoose', 'unselect', 'select', 'wander']
-    hide: ['discard', 'undiscard', 'label', 'choose' ,'unchoose', 'select', 'unselect', 'wander']
-    hunt: ['discard', 'undiscard', 'choose', 'unchoose', 'wander', 'hide', 'unhide', 'shelve', 'pin', 'unpin']
+    choose: ['discard', 'unchoose', 'shelve', 'hide', 'wander', 'walk']
+    wander: ['choose', 'unchoose', 'discard', 'shelve', 'hide', 'walk']
+    walk: ['choose', 'unchoose', 'discard', 'shelve', 'hide', 'wander']
+    shelve: ['unchoose', 'choose', 'hide', 'discard', 'retrieve', 'wander', 'walk']
+    discard: ['choose', 'retrieve', 'hide', 'unchoose', 'unselect', 'select', 'wander', 'walk']
+    hide: ['discard', 'undiscard', 'label', 'choose' ,'unchoose', 'select', 'unselect', 'wander', 'walk']
+    hunt: ['discard', 'undiscard', 'choose', 'unchoose', 'wander', 'walk', 'hide', 'unhide', 'shelve', 'pin', 'unpin']
   verb_descriptions:
     choose: "Put nodes in the graph and pull other, connected nodes in too,
              so long as they haven't been discarded."
     wander:    "Put nodes in the graph and pull connected nodes in followed by
               shelving of the nodes which had been pulled into the graph previously."
+    walk: "Put nodes in the graph but keep the previous central nodes activated.
+            Shelve previous sub-nodes."
     shelve: "Remove nodes from the graph and put them on the shelf
              (the circle of nodes around the graph) from which they
              might return if called back into the graph by a neighbor
@@ -549,6 +556,7 @@ class CommandController
     choose: "←"
     unchoose: "⇠"
     wander: "🚶"
+    walk: "🚶"
     shelve: "↺"
     label: "☭"
     unlabel: "☢"

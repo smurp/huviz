@@ -427,6 +427,7 @@ orlando_human_term =
   choose: 'Activate'
   unchoose: 'Deactivate'
   wander: 'Wander'
+  walk: 'Walk'
   select: 'Select'
   unselect: 'Unselect'
   label: 'Label'
@@ -537,7 +538,7 @@ class Huviz
   nodeOrderAngle = 0.5
   node_display_type = ''
 
-  p_display: true
+  pfm_display: false
   pfm_data:
     tick:
       total_count: 0
@@ -563,7 +564,6 @@ class Huviz
       timed_count: []
       label: "Sparql Queries/sec"
 
-  p_loaded_quad_count: 0
   p_total_sprql_requests: 0
 
   change_sort_order: (array, cmp) ->
@@ -3866,6 +3866,42 @@ class Huviz
     # This is accomplished by wander__build_callback()
     return @choose(chosen)
 
+  walk__atFirst: =>
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # Purpose:
+    #   At first, before the verb Walk is executed on any node, we must
+    # build a SortedSet of the nodes which were wasChosen to compare
+    # with the SortedSet of nodes which are intendedToBeGraphed as a
+    # result of the Walk command which is being executed.
+    if not @wasChosen_set.clear()
+      throw new Error("expecting wasChosen to be empty")
+    for node in @chosen_set
+      @wasChosen_set.add(node)
+
+  walk__atLast: =>
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # Purpose:
+    #   At last, after all appropriate nodes have been pulled into the graph
+    # by the Walk verb, it is time to remove wasChosen nodes which
+    # are not nowChosen.  In other words, ungraph those nodes which
+    # are no longer held in the graph by any recently walked-to nodes.
+    wasRollCall = @wasChosen_set.roll_call()
+    nowRollCall = @nowChosen_set.roll_call()
+    removed = @wasChosen_set.filter (node) =>
+      not @nowChosen_set.includes(node)
+    for node in removed
+      @unchoose(node)
+      @wasChosen_set.remove(node)
+    if not @nowChosen_set.clear()
+      throw new Error("the nowChosen_set should be empty after clear()")
+
+  walk: (chosen) =>
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # Walk is just the same as Choose (AKA Activate) except afterward it deactivates the
+    # nodes which were in the chosen_set before but are not in the set being walked.
+    # This is accomplished by walked__build_callback()
+    return @choose(chosen)
+
   hide: (goner) =>
     @unpin(goner)
     @chosen_set.remove(goner)
@@ -4774,9 +4810,8 @@ class Huviz
     @ontology = PRIMORDIAL_ONTOLOGY
 
   constructor: (args) -> # Huviz
-    #console.log(args)
-    @pfm_dashboard('startup')
-    timerId = setInterval(@pfm_update, 1000)
+    #if @pfm_display is true
+    #  @pfm_dashboard()
     args ?= {}
     if not args.viscanvas_sel
       msg = "call Huviz({viscanvas_sel:'????'}) so it can find the canvas to draw in"
@@ -5288,6 +5323,7 @@ class Huviz
           title: "Feedback on what HuViz is doing"
         input:
           type: "checkbox"
+          checked: "checked"
     ,
       graph_title_style:
         text: "Title display"
@@ -5682,8 +5718,13 @@ class Huviz
     console.log "clicked performance monitor " + new_val + " " + old_val
     if new_val
       $("#performance_dashboard").css('display','block')
+      @pfm_display = true
+      @pfm_dashboard()
+      @timerId = setInterval(@pfm_update, 1000)
     else
-      $("#performance_dashboard").css('display','none')
+      clearInterval(@timerId)
+      $("#performance_dashboard").css('display','none').html('')
+      @pfm_display = false
 
   on_change_discover_geonames_as: (new_val, old_val) ->
     @discover_geonames_as = new_val
@@ -5908,12 +5949,17 @@ class Huviz
       marker = @pfm_data["#{pfm_marker}"]
       old_count = marker.prev_total_count
       new_count = marker.total_count
-      calls_per_second = new_count - old_count
-      if @pfm_data["#{pfm_marker}"]["timed_count"]
+      calls_per_second = Math.round(new_count - old_count)
+      if @pfm_data["#{pfm_marker}"]["timed_count"] and (@pfm_data["#{pfm_marker}"]["timed_count"].length > 0)
+        #console.log marker.label + "  " + calls_per_second
         if (@pfm_data["#{pfm_marker}"]["timed_count"].length > 60) then @pfm_data["#{pfm_marker}"]["timed_count"].shift()
         @pfm_data["#{pfm_marker}"].timed_count.push(calls_per_second)
-        @pfm_data["#{pfm_marker}"].prev_total_count = new_count
+        @pfm_data["#{pfm_marker}"].prev_total_count = new_count + 0.01
+        #console.log "#pfm_#{pfm_marker}"
         sparkline.sparkline(document.querySelector("#pfm_#{pfm_marker}"), @pfm_data["#{pfm_marker}"].timed_count)
+      else if (@pfm_data["#{pfm_marker}"]["timed_count"])
+        @pfm_data["#{pfm_marker}"]["timed_count"] = [0.01]
+        #console.log "Setting #{marker.label }to zero"
 
 
 class OntologicallyGrounded extends Huviz
