@@ -27,6 +27,7 @@
   <% if @is_local: %>
     <script src="/jquery/jquery.js"></script>
     <script src="/jquery-ui/jquery-ui.min.js"></script>
+    <script src="//cdn.rawgit.com/fnando/sparkline/master/dist/sparkline.js"></script>
   <% else: %>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>

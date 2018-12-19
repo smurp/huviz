@@ -538,7 +538,31 @@ class Huviz
   node_display_type = ''
 
   p_display: true
-  p_tick_count: 0
+  pfm_data:
+    tick:
+      total_count: 0
+      prev_total_count: 0
+      timed_count: []
+      label: "Ticks/sec."
+    add_quad:
+      total_count: 0
+      prev_total_count: 0
+      timed_count: []
+      label: "Add Quad/sec"
+    hatch:
+      total_count: 0
+      prev_total_count: 0
+      timed_count: []
+      label: "Hatch/sec"
+    taxonomy:
+      total_count: 0
+      label: "Number of Classes:"
+    sparql:
+      total_count: 0
+      prev_total_count: 0
+      timed_count: []
+      label: "Sparql Queries/sec"
+
   p_loaded_quad_count: 0
   p_total_sprql_requests: 0
 
@@ -1915,6 +1939,7 @@ class Huviz
     @draw_discards()
     @draw_labels()
     @draw_edge_labels()
+    @pfm_count('tick')
     return
 
   rounded_rectangle: (x, y, w, h, radius, fill, stroke, alpha) ->
@@ -2439,7 +2464,7 @@ class Huviz
     @unique_pids[pred_uri] = 1
     newsubj = false
     subj = null
-    if @p_display then @performance_dashboard('add_quad')
+    #if @p_display then @performance_dashboard('add_quad')
 
     # REVIEW is @my_graph still needed and being correctly used?
     if not @my_graph.subjects[subj_uri]?
@@ -2536,7 +2561,7 @@ class Huviz
       if subj_n.id is quad.subject # if it is the subject node then is fully_loaded
         subj_n.fully_loaded = true
     @last_quad = quad
-
+    @pfm_count('add_quad')
     return edge
 
   remove_from_nameless: (node) ->
@@ -3015,8 +3040,8 @@ class Huviz
 
   load_endpoint_data_and_show: (subject, callback) ->
     @sparql_node_list = []
-    @p_total_sprql_requests++
-    if @p_display then @performance_dashboard('sparql_request')
+    @pfm_count('sparql')
+    #if @p_display then @performance_dashboard('sparql_request')
     node_limit = $('#endpoint_limit').val()
     url = @endpoint_loader.value
     @endpoint_loader.outstanding_requests = 0
@@ -3111,7 +3136,7 @@ class Huviz
 
 
 
-  load_new_endpoint_data_and_show: (subject, callback) ->
+  load_new_endpoint_data_and_show: (subject, callback) -> # DEPRECIATED !!!!
     node_limit = $('#endpoint_limit').val()
     @p_total_sprql_requests++
     note = ''
@@ -3264,6 +3289,7 @@ class Huviz
 
   add_nodes_from_SPARQL_Worker : (queryTarget) ->
     console.log "Make request for new query and load nodes"
+    @pfm_count('sparql')
     url = @endpoint_loader.value
     if @sparql_node_list then previous_nodes = @sparql_node_list else previous_nodes = []
     graph = @endpoint_loader.endpoint_graph
@@ -3586,6 +3612,7 @@ class Huviz
     @nodes.add(node)
     @recolor_node(node)
     @tick()
+    @pfm_count('hatch')
     node
 
   # TODO: remove this method
@@ -4748,6 +4775,8 @@ class Huviz
 
   constructor: (args) -> # Huviz
     #console.log(args)
+    @pfm_dashboard('startup')
+    timerId = setInterval(@pfm_update, 1000)
     args ?= {}
     if not args.viscanvas_sel
       msg = "call Huviz({viscanvas_sel:'????'}) so it can find the canvas to draw in"
@@ -5040,7 +5069,7 @@ class Huviz
         label:
           title: "size variance for node edge count"
         input:
-          value: 2
+          value: 1
           min: 0
           max: 10
           step: 0.1
@@ -5249,6 +5278,14 @@ class Huviz
         text: "Show SPARQL endpoint loading forms"
         label:
           title: "Show SPARQL endpoint interface for querying for nodes"
+        input:
+          type: "checkbox"
+    ,
+      show_hide_performance_monitor:
+        style: "color:orange"
+        text: "Show Performance Monitor"
+        label:
+          title: "Feedback on what HuViz is doing"
         input:
           type: "checkbox"
     ,
@@ -5641,6 +5678,13 @@ class Huviz
     else
       $(endpoint).css('display','none')
 
+  on_change_show_hide_performance_monitor: (new_val, old_val) ->
+    console.log "clicked performance monitor " + new_val + " " + old_val
+    if new_val
+      $("#performance_dashboard").css('display','block')
+    else
+      $("#performance_dashboard").css('display','none')
+
   on_change_discover_geonames_as: (new_val, old_val) ->
     @discover_geonames_as = new_val
     if new_val
@@ -5808,6 +5852,70 @@ class Huviz
   get_default_set_by_type: (node) ->
     return @shelved_set
 
+
+  pfm_dashboard: () =>
+    # Adding feedback monitor
+    #   1. new instance in pfm_data (line 541)
+    #   2. add @pfm_count('name') to method
+    #   3. add #{@build_pfm_live_monitor('name')} into message below
+    warning = ""
+    message = """
+      <div class='feedback_module'><p>Triples Added: <span id="noAddQuad">0</span></p></div>
+      <div class='feedback_module'><p>Number of Nodes: <span id="noN">0</span></p></div>
+      <div class='feedback_module'><p>Number of Edges: <span id="noE">0</span></p></div>
+      <div class='feedback_module'><p>Number of Predicates: <span id="noP">0</span></p></div>
+      <div class='feedback_module'><p>Number of Classes: <span id="noC">0</span></p></div>
+      #{@build_pfm_live_monitor('add_quad')}
+      #{@build_pfm_live_monitor('hatch')}
+      <div class='feedback_module'><p>Ticks in Session: <span id="noTicks">0</span></p></div>
+      #{@build_pfm_live_monitor('tick')}
+      <div class='feedback_module'><p>Total SPARQL Requests: <span id="noSparql">0</span></p></div>
+      <div class='feedback_module'><p>Outstanding SPARQL Requests: <span id="noOR">0</span></p></div>
+      #{@build_pfm_live_monitor('sparql')}
+    """
+    $("#performance_dashboard").html(message + warning)
+
+  build_pfm_live_monitor: (name) =>
+    label = @pfm_data["#{name}"]["label"]
+    monitor = "<div class='feedback_module'>#{label}: <svg id='pfm_#{name}' class='sparkline' width='200px' height='50px' stroke-width='1'></svg></div>"
+    return monitor
+
+  pfm_count: (name) =>
+    # Incriment the global count for 'name' variable (then used to update live counters)
+    @pfm_data["#{name}"].total_count++
+
+  pfm_update: () =>
+    time = Date.now()
+    class_count = 0
+    # update static markers
+    if @nodes then noN = @nodes.length else noN = 0
+    $("#noN").html("#{noN}")
+    if @edge_count then noE = @edge_count else noE = 0
+    $("#noE").html("#{noE}")
+    if @predicate_set then noP = @predicate_set.length else noP = 0
+    $("#noP").html("#{noP}")
+    for item of @taxonomy #TODO Should improve this by avoiding recount every second
+      class_count++
+    @pfm_data.taxonomy.total_count = class_count
+    $("#noC").html("#{@pfm_data.taxonomy.total_count}")
+    $("#noTicks").html("#{@pfm_data.tick.total_count}")
+    $("#noAddQuad").html("#{@pfm_data.add_quad.total_count}")
+    $("#noSparql").html("#{@pfm_data.sparql.total_count}")
+    if @endpoint_loader then noOR = @endpoint_loader.outstanding_requests else noOR = 0
+    $("#noOR").html("#{noOR}")
+
+    for pfm_marker of @pfm_data
+      marker = @pfm_data["#{pfm_marker}"]
+      old_count = marker.prev_total_count
+      new_count = marker.total_count
+      calls_per_second = new_count - old_count + 0.001 #small amount added to ensure the graph always is shown
+      if @pfm_data["#{pfm_marker}"]["timed_count"]
+        if (@pfm_data["#{pfm_marker}"]["timed_count"].length > 60) then @pfm_data["#{pfm_marker}"]["timed_count"].shift()
+        @pfm_data["#{pfm_marker}"].timed_count.push(calls_per_second)
+        @pfm_data["#{pfm_marker}"].prev_total_count = new_count
+        sparkline.sparkline(document.querySelector("#pfm_#{pfm_marker}"), @pfm_data["#{pfm_marker}"].timed_count)
+
+
 class OntologicallyGrounded extends Huviz
   # If OntologicallyGrounded then there is an associated ontology which informs
   # the TaxonPicker and the PredicatePicker, rather than the pickers only
@@ -5876,37 +5984,6 @@ class OntologicallyGrounded extends Huviz
         #
         # If there exists (_:1, rdfs:type, owl:AllDisjointClasses)
         # Then create a root level class for every rdfs:first in rdfs:members
-
-  performance_dashboard: (reason, note) =>
-    #console.log "Initiate the DASHBOARD"
-    #console.log @edge_count
-    #console.log window.performance.memory
-    #@predicate_set.length # Number of types of predicates?
-    #console.log @taxonomy # This is an object not an array
-    warning = ""
-    class_count = 0
-    if reason is 'add_quad'
-      @p_loaded_quad_count++
-    else if reason is 'tick'
-      tick_count_number = @p_tick_count++
-    else if reason is 'sparql_request'
-      sprql_requests = @endpoint_loader.outstanding_requests
-      request_target = "Requesting.... " + note
-      console.log "---------" + request_target
-    else
-      warning = "<div class='feedback_module'>The performance dashboard was called without a reason.</div>"
-
-    for item of @taxonomy
-      class_count++
-    perform = "<div class='feedback_module'>Number of Nodes: #{@nodes.length}</div>"
-    edge_count = "<div class='feedback_module'>Number of Edges: #{@edge_count}</div>"
-    predicates = "<div class='feedback_module'>Number of Predicates: #{@predicate_set.length }</div>"
-    classes = "<div class='feedback_module'>Number of Classes: #{class_count}</div>"
-    loaded_quads = "<div class='feedback_module'>Triples Added: #{@p_loaded_quad_count}</div>"
-    tick_count = "<div class='feedback_module'>Ticks in Session: #{tick_count_number}</div>"
-    sprql_total_requests = "<div class='feedback_module'>Total SPARQL Requests: #{@p_total_sprql_requests}</div>"
-    sprql_current_requests = "<div class='feedback_module'><p>Outstanding SPARQL Requests: #{@endpoint_loader.outstanding_requests}</p><p>#{request_target}</p></div>"
-    $("#performance_dashboard").html(perform + edge_count + predicates + classes + loaded_quads + tick_count + sprql_total_requests + sprql_current_requests + warning)
 
 class Orlando extends OntologicallyGrounded
   # These are the Orlando specific methods layered on Huviz.
