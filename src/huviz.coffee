@@ -5908,7 +5908,7 @@ class Huviz
       marker = @pfm_data["#{pfm_marker}"]
       old_count = marker.prev_total_count
       new_count = marker.total_count
-      calls_per_second = new_count - old_count + 0.001 #small amount added to ensure the graph always is shown
+      calls_per_second = new_count - old_count
       if @pfm_data["#{pfm_marker}"]["timed_count"]
         if (@pfm_data["#{pfm_marker}"]["timed_count"].length > 60) then @pfm_data["#{pfm_marker}"]["timed_count"].shift()
         @pfm_data["#{pfm_marker}"].timed_count.push(calls_per_second)

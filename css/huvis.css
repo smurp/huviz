@@ -266,6 +266,7 @@ img.close_all_snippets_button {
 .sparkline {
   stroke: blue;
   fill: rgba(0, 0, 200, .2);
+  background-color: #fdfdfd;
 }
 
 #performance_dashboard .feedback_module {
