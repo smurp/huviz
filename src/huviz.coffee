@@ -985,7 +985,7 @@ class Huviz
     @animate()
 
   #dump_line(add_line(scene,cx,cy,width,height,'ray'))
-  draw_circle: (cx, cy, radius, strclr, filclr, start_angle, end_angle) ->
+  draw_circle: (cx, cy, radius, strclr, filclr, start_angle, end_angle, special_focus) ->
     incl_cntr = start_angle? or end_angle?
     start_angle = start_angle or 0
     end_angle = end_angle or tau
@@ -1003,18 +1003,27 @@ class Huviz
       @ctx.stroke()
     if filclr
       @ctx.fill()
-  draw_pie: (cx, cy, radius, strclr, filclrs) ->
+
+    if special_focus # true if this is a wander or walk highlighted node
+      @ctx.beginPath()
+      radius = radius/2
+      @ctx.arc(cx, cy, radius, 0, Math.PI*2)
+      @ctx.closePath()
+      @ctx.fillStyle = "black"
+      @ctx.fill()
+
+  draw_pie: (cx, cy, radius, strclr, filclrs, special_focus) ->
     num = filclrs.length
     if not num
       throw new Error("no colors specified")
     if num is 1
-      @draw_circle(cx, cy, radius, strclr, filclrs[0])
+      @draw_circle(cx, cy, radius, strclr, filclrs[0],false,false,special_focus)
       return
     arc = tau/num
     start_angle = 0
     for filclr in filclrs
       end_angle = start_angle + arc
-      @draw_circle(cx, cy, radius, strclr, filclr, end_angle, start_angle)
+      @draw_circle(cx, cy, radius, strclr, filclr, end_angle, start_angle, special_focus)
       start_angle = start_angle + arc
 
   draw_line: (x1, y1, x2, y2, clr) ->
@@ -1233,6 +1242,8 @@ class Huviz
     @predicate_set = SortedSet().named("predicate").isFlag().sort_on("id")
     @context_set   = SortedSet().named("context").isFlag().sort_on("id")
     @context_set.docs = "The set of quad contexts."
+
+    @walk_path_set = []
 
     # TODO make selectable_sets drive gclui.build_set_picker
     #      with the nesting data coming from .sub_of(@all) as above
@@ -1630,6 +1641,16 @@ class Huviz
         #@show_message_once("will draw line() n_n:#{n_n} e.id:#{e.id}")
         @draw_curvedline(e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x,
                          e.target.fisheye.y, sway, e.color, e.contexts.length, line_width, e)
+        #if this line from path node to path node then add black highlight
+        if @walk_path_set.length > 0
+          for node in @walk_path_set
+            if e.source.lid is node then source_is_path = true
+            if e.target.lid is node then target_is_path = true
+        if source_is_path and target_is_path
+          @draw_curvedline(e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x,
+                           e.target.fisheye.y, sway, "black", e.contexts.length, 1, e)
+          source_is_path = false
+          target_is_path = false
         sway++
 
   draw_edges: ->
@@ -1711,7 +1732,9 @@ class Huviz
           stroke_color = d.color or 'yellow'
           if d.chosen?
             stroke_color = renderStyles.nodeHighlightOutline
-
+            for node in @walk_path_set # Flag nodes that should be given path marker
+              if d.lid is node
+                special_focus = true
           # if 'pills' is selected; change node shape to rounded squares
           if (node_display_type == 'pills')
             pill_width = node_radius * 2
@@ -1730,7 +1753,8 @@ class Huviz
             @draw_pie(d.fisheye.x, d.fisheye.y,
                       node_radius,
                       stroke_color,
-                      @get_node_color_or_color_list(d))
+                      @get_node_color_or_color_list(d),
+                      special_focus)
         if @use_webgl
           @mv_node(d.gl, d.fisheye.x, d.fisheye.y)
   get_node_color_or_color_list: (n, default_color) ->
@@ -3881,24 +3905,72 @@ class Huviz
   walk__atLast: =>
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # Purpose:
-    #   At last, after all appropriate nodes have been pulled into the graph
+    # At last, after all appropriate nodes have been pulled into the graph
     # by the Walk verb, it is time to remove wasChosen nodes which
     # are not nowChosen.  In other words, ungraph those nodes which
     # are no longer held in the graph by any recently walked-to nodes.
     wasRollCall = @wasChosen_set.roll_call()
     nowRollCall = @nowChosen_set.roll_call()
-    removed = @wasChosen_set.filter (node) =>
-      not @nowChosen_set.includes(node)
-    for node in removed
-      @unchoose(node)
-      @wasChosen_set.remove(node)
-    if not @nowChosen_set.clear()
-      throw new Error("the nowChosen_set should be empty after clear()")
+    #Get current selection (last) by finding the difference between nowChosen_set and wasChosen_set
+    for node in @nowChosen_set
+      for old_node in @wasChosen_set
+        if node is old_node then found_it = true
+      if found_it then found_it = false else current_selection = node.lid
+    console.log "Current Selection: " + current_selection
+    valid_path_nodes = []
+    hot_nodes = []
+    #if @walk_path_set.length is 0 then @walk_path_set.push nowRollCall #first time through, walked node should always be added to path
+    for node in @all_set
+      for lid in @walk_path_set
+        if node.lid is lid #get edges
+          hot_nodes.push node
+          for e in node.links_from
+            valid_path_nodes.push e.target.lid
+          for e in node.links_to
+            valid_path_nodes.push e.source.lid
+    console.log "wasChosen_set:"
+    console.log @wasChosen_set
+    console.log "nowChosen_set:"
+    console.log @nowChosen_set
+    console.log "valid_path_nodes:"
+    console.log valid_path_nodes
+    console.log "nowRollCall:"
+    console.log nowRollCall
+    for node_lid in valid_path_nodes #check to see if this is a connected node or new unconnect node
+      if current_selection is node_lid then connected_path = true
+
+    # If node is along a continuous path, then add the selection; if not then reset everything and start a new path
+    if connected_path #=true
+      @walk_path_set.push current_selection
+      @walk_path_set.sort()
+      console.log "This was a connected path-+++++++++++"
+      console.log nowRollCall
+      connected_path = false
+    else
+      console.log "Brand new path--------------"
+      removed = @wasChosen_set.filter (node) =>
+        not @nowChosen_set.includes(node)
+      # Add old path nodes to removed so that they are also removed
+      for node in hot_nodes
+        console.log node
+        removed.push node
+      console.log removed
+      for node in removed
+        @unchoose(node)
+        @wasChosen_set.remove(node)
+      if not @nowChosen_set.clear()
+        throw new Error("the nowChosen_set should be empty after clear()")
+      # Reset the walk path and start new one with current selection
+      @walk_path_set = []
+      @walk_path_set.push current_selection
+
+    console.log @walk_path_set
+    console.log "================================"
 
   walk: (chosen) =>
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # Walk is just the same as Choose (AKA Activate) except afterward it deactivates the
-    # nodes which were in the chosen_set before but are not in the set being walked.
+    # nodes which are not connected to the set being walked.
     # This is accomplished by walked__build_callback()
     return @choose(chosen)
 
@@ -5323,7 +5395,6 @@ class Huviz
           title: "Feedback on what HuViz is doing"
         input:
           type: "checkbox"
-          checked: "checked"
     ,
       graph_title_style:
         text: "Title display"
