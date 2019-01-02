@@ -173,8 +173,8 @@ class TreePicker
     return id
   handle_click: (id) =>
     # If this is called then id itself was itself click, not triggered by recursion
-    @go_to_next_state(id, @get_next_state(id))
-  get_next_state: (id) ->
+    @go_to_next_state(id, @get_next_state_args(id))
+  get_next_state_args: (id) ->
     elem = @id_to_elem[id]
     if not elem
       throw new Error("elem for '#{id}' not found")
@@ -190,12 +190,16 @@ class TreePicker
     else
       if is_treepicker_showing
         new_state = 'unshowing'
-    return new_state
-  go_to_next_state: (id, new_state) ->
+    return {
+      new_state: new_state
+      collapsed: is_treepicker_collapsed
+      original_click: true
+    }
+  go_to_next_state: (id, args) ->
     listener = @click_listener
     send_leafward = @id_is_collapsed[id]
-    @effect_click(id, new_state, send_leafward, listener, (original_click = true))
-  effect_click: (id, new_state, send_leafward, listener, original_click) ->
+    @effect_click(id, args.new_state, send_leafward, listener, args)
+  effect_click: (id, new_state, send_leafward, listener, args) ->
     if send_leafward
       kids = @id_to_children[id]
       if kids?
@@ -203,8 +207,8 @@ class TreePicker
           if child_id isnt id
             @effect_click(child_id, new_state, send_leafward, listener)
     if listener?  # TODO(shawn) replace with custom event?
-       elem = @id_to_elem[id]
-       listener.call(this, id, new_state, elem, original_click) # now this==picker not the event
+      elem = @id_to_elem[id]
+      listener.call(this, id, new_state, elem, args) # now this==picker not the event
   get_or_create_container: (contents) ->
     r = contents.select(".container")
     if r[0][0] isnt null

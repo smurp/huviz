@@ -113,7 +113,7 @@ class CommandController
     #  @huviz.nodes.length is @huviz.selected_set.length
     # @check_until_then(everyThingIsSelected, toggleEveryThing)
     setTimeout(toggleEveryThing, 2000)
-    @huviz.do({verbs: ['unselect'], sets: [], skip_history: true})
+    #@huviz.do({verbs: ['unselect'], sets: [], skip_history: true})
     @huviz.shelved_set.resort() # TODO remove when https://github.com/cwrc/HuViz/issues/109
     return
   check_until_then: (checkCallback, thenCallback) ->
@@ -299,13 +299,10 @@ class CommandController
     return
     @object_phrase = evt.detail.english
     @update_command()
-  handle_on_taxon_clicked: (id, new_state, elem, original_click) =>
-    if original_click
-      window.original_click ?= []
-      window.original_click.push(id)
+  handle_on_taxon_clicked: (id, new_state, elem, args) =>
     @start_working()
     setTimeout () => # run asynchronously so @start_working() can get a head start
-      @on_taxon_clicked(id, new_state, elem, original_click)
+      @on_taxon_clicked(id, new_state, elem, args)
   set_taxa_click_storm_callback: (callback) ->
     if @taxa_click_storm_callback?
       throw new Error("taxa_click_storm_callback already defined")
@@ -344,7 +341,8 @@ class CommandController
       @run_any_immediate_command({})
       @perform_any_cleanup(because)
       return
-  on_taxon_clicked: (taxonId, new_state, elem, original_click) =>
+  on_taxon_clicked: (taxonId, new_state, elem, args) =>
+    args ?= {}
     # This method is called in various contexts:
     # 1) aVerb ______ .      Engage a taxon, run command, disengage taxon
     # 2) _____ ______ .      Engage a taxon
@@ -354,8 +352,8 @@ class CommandController
     # These variables are interesting regardless of which scenario holds
     taxon = @huviz.taxonomy[taxonId]
     hasVerbs = not not @engaged_verbs.length
-    skip_history = not original_click # force it to be a boolean
-
+    skip_history = not args.original_click
+    every_class = not not args.collapsed # force boolean value and default false
     # If there is already a verb engaged then this click should be running
     #     EngagedVerb taxonWith_id .
     #   In particular, the point being made here is that it is just the
@@ -370,6 +368,7 @@ class CommandController
       cmd = new gcl.GraphCommand(@huviz,
         verbs: @engaged_verbs
         classes: [taxonId]
+        every_class: every_class
         skip_history: skip_history)
       @huviz.run_command(cmd)
       return
@@ -390,19 +389,21 @@ class CommandController
         if not (taxonId in @engaged_taxons)
           @engaged_taxons.push(taxonId)
         # SELECT all members of the currently chosen classes
-        cmd = new gcl.GraphCommand @huviz,
+        cmd = new gcl.GraphCommand(@huviz,
           verbs: ['select']
           classes: [taxonId]
-          skip_history: skip_history
+          every_class: every_class
+          skip_history: skip_history)
           #classes: (class_name for class_name in @engaged_taxons)
       else
         console.error "no action needed because #{taxonId}.#{old_state} == #{new_state}"
     else if new_state is 'unshowing'
       @unselect_node_class(taxonId)
-      cmd = new gcl.GraphCommand @huviz,
+      cmd = new gcl.GraphCommand(@huviz,
         verbs: ['unselect']
         classes: [taxonId]
-        skip_history: skip_history
+        every_class: every_class
+        skip_history: skip_history)
     else if old_state is "hidden"
       console.error "#{taxonId}.old_state should NOT equal 'hidden' here"
     @taxon_picker.style_with_kid_color_summary_if_needed(taxonId)

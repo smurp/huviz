@@ -104,9 +104,9 @@ class GraphCommand
     else
       args = args_or_str
     args.skip_history ?= true
+    args.every_class ?= false
     for argn,argv of args
       @[argn] = argv
-    #@add_to_history = not not @add_to_history
     if not @str?
       @update_str()
   get_node: (node_spec) ->
