@@ -172,6 +172,7 @@ class TreePicker
     # This is hacky but ColorTreePicker.click_handler() needs the id too
     return id
   handle_click: (id) =>
+    # If this is called then id itself was itself click, not triggered by recursion
     @go_to_next_state(id, @get_next_state(id))
   get_next_state: (id) ->
     elem = @id_to_elem[id]
@@ -193,8 +194,8 @@ class TreePicker
   go_to_next_state: (id, new_state) ->
     listener = @click_listener
     send_leafward = @id_is_collapsed[id]
-    @effect_click(id, new_state, send_leafward, listener)
-  effect_click: (id, new_state, send_leafward, listener) ->
+    @effect_click(id, new_state, send_leafward, listener, (original_click = true))
+  effect_click: (id, new_state, send_leafward, listener, original_click) ->
     if send_leafward
       kids = @id_to_children[id]
       if kids?
@@ -203,7 +204,7 @@ class TreePicker
             @effect_click(child_id, new_state, send_leafward, listener)
     if listener?  # TODO(shawn) replace with custom event?
        elem = @id_to_elem[id]
-       listener.call(this, id, new_state, elem) # now this==picker not the event
+       listener.call(this, id, new_state, elem, original_click) # now this==picker not the event
   get_or_create_container: (contents) ->
     r = contents.select(".container")
     if r[0][0] isnt null

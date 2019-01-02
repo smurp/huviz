@@ -904,11 +904,11 @@ class Huviz
     @clean_up_all_dirt_once()
 
   run_command: (cmd, callback) ->
-    @show_state_msg(cmd.as_msg())
-    #@gclui.show_working_on()
+    #@show_state_msg(cmd.as_msg())
+    @gclui.show_working_on(cmd)
     @gclc.run(cmd, callback)
-    #@gclui.show_working_off()
-    @hide_state_msg()
+    @gclui.show_working_off()
+    #@hide_state_msg()
     return
 
   #///////////////////////////////////////////////////////////////////////////
@@ -2775,7 +2775,7 @@ class Huviz
       verbs: ['choose']
       classes: ['Thing']
     @gclc.run(cmd)
-    @gclui.push_command(cmd)
+    #@gclui.push_command(cmd)
     @tick()
 
   remove_framing_quotes: (s) -> s.replace(/^\"/,"").replace(/\"$/,"")
