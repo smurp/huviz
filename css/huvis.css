@@ -9,6 +9,9 @@ body, html {
   background-color: #fff;
 }
 
+
+
+
 /* ----------------------------- Node Examiner ------------------------------ */
 
 .contextMenu {
@@ -246,4 +249,29 @@ img.close_all_snippets_button {
   width: 1em;
   height: 0.7em;
   float: left;
+}
+
+/* --------------- Performance Monitor ----------------- */
+
+#performance_dashboard {
+  height: 90%;
+  width: 250px;
+  background-color: #eee;
+  position: absolute;
+  left: 0;
+  font-size: 12px;
+  padding-top: 30px;
+  display: none;
+}
+.sparkline {
+  stroke: blue;
+  fill: rgba(0, 0, 200, .2);
+  background-color: #fdfdfd;
+}
+
+#performance_dashboard .feedback_module {
+  margin-left: 12px;
+}
+#performance_dashboard p {
+  margin: 0.25em 0;
 }

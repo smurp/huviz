@@ -10,6 +10,7 @@
   },
   "main": "lib/huviz.js",
   "dependencies": {
+    "@fnando/sparkline": "^0.3.10",
     "async": "~0.2.9",
     "coffee-script": "~1.7.1",
     "components-jqueryui": "git://github.com/components/jqueryui.git",

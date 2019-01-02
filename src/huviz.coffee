@@ -427,6 +427,7 @@ orlando_human_term =
   choose: 'Activate'
   unchoose: 'Deactivate'
   wander: 'Wander'
+  walk: 'Walk'
   select: 'Select'
   unselect: 'Unselect'
   label: 'Label'
@@ -536,6 +537,34 @@ class Huviz
   display_shelf_clockwise: true
   nodeOrderAngle = 0.5
   node_display_type = ''
+
+  pfm_display: false
+  pfm_data:
+    tick:
+      total_count: 0
+      prev_total_count: 0
+      timed_count: []
+      label: "Ticks/sec."
+    add_quad:
+      total_count: 0
+      prev_total_count: 0
+      timed_count: []
+      label: "Add Quad/sec"
+    hatch:
+      total_count: 0
+      prev_total_count: 0
+      timed_count: []
+      label: "Hatch/sec"
+    taxonomy:
+      total_count: 0
+      label: "Number of Classes:"
+    sparql:
+      total_count: 0
+      prev_total_count: 0
+      timed_count: []
+      label: "Sparql Queries/sec"
+
+  p_total_sprql_requests: 0
 
   change_sort_order: (array, cmp) ->
     array.__current_sort_order = cmp
@@ -956,7 +985,7 @@ class Huviz
     @animate()
 
   #dump_line(add_line(scene,cx,cy,width,height,'ray'))
-  draw_circle: (cx, cy, radius, strclr, filclr, start_angle, end_angle) ->
+  draw_circle: (cx, cy, radius, strclr, filclr, start_angle, end_angle, special_focus) ->
     incl_cntr = start_angle? or end_angle?
     start_angle = start_angle or 0
     end_angle = end_angle or tau
@@ -974,18 +1003,27 @@ class Huviz
       @ctx.stroke()
     if filclr
       @ctx.fill()
-  draw_pie: (cx, cy, radius, strclr, filclrs) ->
+
+    if special_focus # true if this is a wander or walk highlighted node
+      @ctx.beginPath()
+      radius = radius/2
+      @ctx.arc(cx, cy, radius, 0, Math.PI*2)
+      @ctx.closePath()
+      @ctx.fillStyle = "black"
+      @ctx.fill()
+
+  draw_pie: (cx, cy, radius, strclr, filclrs, special_focus) ->
     num = filclrs.length
     if not num
       throw new Error("no colors specified")
     if num is 1
-      @draw_circle(cx, cy, radius, strclr, filclrs[0])
+      @draw_circle(cx, cy, radius, strclr, filclrs[0],false,false,special_focus)
       return
     arc = tau/num
     start_angle = 0
     for filclr in filclrs
       end_angle = start_angle + arc
-      @draw_circle(cx, cy, radius, strclr, filclr, end_angle, start_angle)
+      @draw_circle(cx, cy, radius, strclr, filclr, end_angle, start_angle, special_focus)
       start_angle = start_angle + arc
 
   draw_line: (x1, y1, x2, y2, clr) ->
@@ -1204,6 +1242,8 @@ class Huviz
     @predicate_set = SortedSet().named("predicate").isFlag().sort_on("id")
     @context_set   = SortedSet().named("context").isFlag().sort_on("id")
     @context_set.docs = "The set of quad contexts."
+
+    @walk_path_set = []
 
     # TODO make selectable_sets drive gclui.build_set_picker
     #      with the nesting data coming from .sub_of(@all) as above
@@ -1601,6 +1641,16 @@ class Huviz
         #@show_message_once("will draw line() n_n:#{n_n} e.id:#{e.id}")
         @draw_curvedline(e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x,
                          e.target.fisheye.y, sway, e.color, e.contexts.length, line_width, e)
+        #if this line from path node to path node then add black highlight
+        if @walk_path_set.length > 0
+          for node in @walk_path_set
+            if e.source.lid is node then source_is_path = true
+            if e.target.lid is node then target_is_path = true
+        if source_is_path and target_is_path
+          @draw_curvedline(e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x,
+                           e.target.fisheye.y, sway, "black", e.contexts.length, 1, e)
+          source_is_path = false
+          target_is_path = false
         sway++
 
   draw_edges: ->
@@ -1682,7 +1732,9 @@ class Huviz
           stroke_color = d.color or 'yellow'
           if d.chosen?
             stroke_color = renderStyles.nodeHighlightOutline
-
+            for node in @walk_path_set # Flag nodes that should be given path marker
+              if d.lid is node
+                special_focus = true
           # if 'pills' is selected; change node shape to rounded squares
           if (node_display_type == 'pills')
             pill_width = node_radius * 2
@@ -1701,7 +1753,8 @@ class Huviz
             @draw_pie(d.fisheye.x, d.fisheye.y,
                       node_radius,
                       stroke_color,
-                      @get_node_color_or_color_list(d))
+                      @get_node_color_or_color_list(d),
+                      special_focus)
         if @use_webgl
           @mv_node(d.gl, d.fisheye.x, d.fisheye.y)
   get_node_color_or_color_list: (n, default_color) ->
@@ -1910,6 +1963,7 @@ class Huviz
     @draw_discards()
     @draw_labels()
     @draw_edge_labels()
+    @pfm_count('tick')
     return
 
   rounded_rectangle: (x, y, w, h, radius, fill, stroke, alpha) ->
@@ -2434,6 +2488,7 @@ class Huviz
     @unique_pids[pred_uri] = 1
     newsubj = false
     subj = null
+    #if @p_display then @performance_dashboard('add_quad')
 
     # REVIEW is @my_graph still needed and being correctly used?
     if not @my_graph.subjects[subj_uri]?
@@ -2525,9 +2580,12 @@ class Huviz
     # if SPARQL Endpoint loaded AND this is subject node then set current subject to true (i.e. fully loaded)
     if @endpoint_loader.value
       subj_n.fully_loaded = false # all nodes default to not being fully_loaded
-      if subj_n.id is sprql_subj# if it is the subject node then is fully_loaded
+      #if subj_n.id is sprql_subj# if it is the subject node then is fully_loaded
+      #  subj_n.fully_loaded = true
+      if subj_n.id is quad.subject # if it is the subject node then is fully_loaded
         subj_n.fully_loaded = true
     @last_quad = quad
+    @pfm_count('add_quad')
     return edge
 
   remove_from_nameless: (node) ->
@@ -3006,10 +3064,13 @@ class Huviz
 
   load_endpoint_data_and_show: (subject, callback) ->
     @sparql_node_list = []
+    @pfm_count('sparql')
+    #if @p_display then @performance_dashboard('sparql_request')
     node_limit = $('#endpoint_limit').val()
     url = @endpoint_loader.value
     @endpoint_loader.outstanding_requests = 0
     fromGraph = ''
+
     if @endpoint_loader.endpoint_graph then fromGraph=" FROM <#{@endpoint_loader.endpoint_graph}> "
     ###
     qry = """
@@ -3097,11 +3158,15 @@ class Huviz
           blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
           @reset_dataset_ontology_loader()
 
-  load_new_endpoint_data_and_show: (subject, callback) ->
+
+
+  load_new_endpoint_data_and_show: (subject, callback) -> # DEPRECIATED !!!!
     node_limit = $('#endpoint_limit').val()
+    @p_total_sprql_requests++
+    note = ''
     url = @endpoint_loader.value
     fromGraph = ''
-    if @endpoint_loader.endpoint_graph then fromGraph=" FROM <#{@endpoint_loader.endpoint_graph}> "
+    if @endpoint_loader.endpoint_graph then fromGraph = " FROM <#{@endpoint_loader.endpoint_graph}> "
     qry = """
     SELECT * #{fromGraph}
     WHERE {
@@ -3130,6 +3195,8 @@ class Huviz
         success: (data, textStatus, jqXHR) =>
           #console.log jqXHR
           #console.log "Query: " + subject
+          note = subject
+          if @p_display then @performance_dashboard('sparql_request', note)
           #console.log qry
           json_check = typeof data
           if json_check is 'string' then json_data = JSON.parse(data) else json_data = data
@@ -3151,12 +3218,12 @@ class Huviz
           blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
           @reset_dataset_ontology_loader()
 
-  add_nodes_from_SPARQL: (json_data, subject) ->
+  add_nodes_from_SPARQL: (json_data, subject) -> # DEPRECIATED !!!!
     data = ''
     context = "http://universal.org"
     plainLiteral = "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"
     #console.log json_data
-    #console.log "Adding node (i.e. fully exploring): " + subject
+    console.log "Adding node (i.e. fully exploring): " + subject
     nodes_in_data = json_data.results.bindings
     for node in nodes_in_data
       language = ''
@@ -3165,7 +3232,6 @@ class Huviz
         subj = node.s.value
         pred = node.p.value
         obj_val = subject
-
       else if node.o2
         subj = node.o.value
         pred = node.p2.value
@@ -3244,6 +3310,36 @@ class Huviz
         node_not_in_list = false
         @add_quad(q, subject)
       #@dump_stats()
+
+  add_nodes_from_SPARQL_Worker : (queryTarget) ->
+    console.log "Make request for new query and load nodes"
+    @pfm_count('sparql')
+    url = @endpoint_loader.value
+    if @sparql_node_list then previous_nodes = @sparql_node_list else previous_nodes = []
+    graph = @endpoint_loader.endpoint_graph
+    local_node_added = 0
+    query_limit = 1000 #$('#endpoint_limit').val()
+    worker = new Worker('/huviz/sparql_ajax_query.js')
+    worker.addEventListener 'message', (e) =>
+      #console.log e.data
+      add_fully_loaded = e.data.fully_loaded_index
+      for quad in e.data.results
+        #console.log quad
+        @add_quad(quad)
+        @sparql_node_list.push quad  # Add the new quads to the official list of added quads
+        local_node_added++
+      console.log "Node Added Count: " + local_node_added
+      # Verify through the loaded nodes that they are all properly marked as fully_loaded
+      for a_node, i in @all_set
+        if a_node.id is queryTarget
+          @all_set[i].fully_loaded = true
+      @endpoint_loader.outstanding_requests = @endpoint_loader.outstanding_requests - 1
+      console.log "Resort the shelf"
+      @shelved_set.resort()
+      @tick()
+      @update_all_counts()
+    worker.postMessage({target:queryTarget, url:url, graph:graph, limit:query_limit, previous_nodes:previous_nodes})
+
 
   # Deal with buggy situations where flashing the links on and off
   # fixes data structures.  Not currently needed.
@@ -3540,6 +3636,7 @@ class Huviz
     @nodes.add(node)
     @recolor_node(node)
     @tick()
+    @pfm_count('hatch')
     node
 
   # TODO: remove this method
@@ -3699,11 +3796,16 @@ class Huviz
       if not chosen.fully_loaded
         #console.log "Time to make a new SPARQL query using: " + chosen.id + " - requests underway: " + @endpoint_loader.outstanding_requests
         # If there are more than certain number of requests, stop the process
-        if (@endpoint_loader.outstanding_requests < 300)
-          @endpoint_loader.outstanding_requests = @endpoint_loader.outstanding_requests + 1
+
+        if (@endpoint_loader.outstanding_requests < 10)
+          #@endpoint_loader.outstanding_requests = @endpoint_loader.outstanding_requests + 1
+          @endpoint_loader.outstanding_requests++
           #console.log "Less than 6 so go ahead " + message
-          @load_new_endpoint_data_and_show(chosen.id)
+          #@load_new_endpoint_data_and_show(chosen.id)
+          # TEST of calling Worker for Ajax
+          @add_nodes_from_SPARQL_Worker(chosen.id)
           console.log "Request counter: " + @endpoint_loader.outstanding_requests
+
         else
           if $("#blurtbox").html()
             #console.log "Don't add error message " + message
@@ -3786,6 +3888,90 @@ class Huviz
     # Wander is just the same as Choose (AKA Activate) except afterward it deactivates the
     # nodes which were in the chosen_set before but are not in the set being wandered.
     # This is accomplished by wander__build_callback()
+    return @choose(chosen)
+
+  walk__atFirst: =>
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # Purpose:
+    #   At first, before the verb Walk is executed on any node, we must
+    # build a SortedSet of the nodes which were wasChosen to compare
+    # with the SortedSet of nodes which are intendedToBeGraphed as a
+    # result of the Walk command which is being executed.
+    if not @wasChosen_set.clear()
+      throw new Error("expecting wasChosen to be empty")
+    for node in @chosen_set
+      @wasChosen_set.add(node)
+
+  walk__atLast: =>
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # Purpose:
+    # At last, after all appropriate nodes have been pulled into the graph
+    # by the Walk verb, it is time to remove wasChosen nodes which
+    # are not nowChosen.  In other words, ungraph those nodes which
+    # are no longer held in the graph by any recently walked-to nodes.
+    wasRollCall = @wasChosen_set.roll_call()
+    nowRollCall = @nowChosen_set.roll_call()
+    #Get current selection (last) by finding the difference between nowChosen_set and wasChosen_set
+    for node in @nowChosen_set
+      for old_node in @wasChosen_set
+        if node is old_node then found_it = true
+      if found_it then found_it = false else current_selection = node.lid
+    console.log "Current Selection: " + current_selection
+    valid_path_nodes = []
+    hot_nodes = []
+    #if @walk_path_set.length is 0 then @walk_path_set.push nowRollCall #first time through, walked node should always be added to path
+    for node in @all_set
+      for lid in @walk_path_set
+        if node.lid is lid #get edges
+          hot_nodes.push node
+          for e in node.links_from
+            valid_path_nodes.push e.target.lid
+          for e in node.links_to
+            valid_path_nodes.push e.source.lid
+    console.log "wasChosen_set:"
+    console.log @wasChosen_set
+    console.log "nowChosen_set:"
+    console.log @nowChosen_set
+    console.log "valid_path_nodes:"
+    console.log valid_path_nodes
+    console.log "nowRollCall:"
+    console.log nowRollCall
+    for node_lid in valid_path_nodes #check to see if this is a connected node or new unconnect node
+      if current_selection is node_lid then connected_path = true
+
+    # If node is along a continuous path, then add the selection; if not then reset everything and start a new path
+    if connected_path #=true
+      @walk_path_set.push current_selection
+      @walk_path_set.sort()
+      console.log "This was a connected path-+++++++++++"
+      console.log nowRollCall
+      connected_path = false
+    else
+      console.log "Brand new path--------------"
+      removed = @wasChosen_set.filter (node) =>
+        not @nowChosen_set.includes(node)
+      # Add old path nodes to removed so that they are also removed
+      for node in hot_nodes
+        console.log node
+        removed.push node
+      console.log removed
+      for node in removed
+        @unchoose(node)
+        @wasChosen_set.remove(node)
+      if not @nowChosen_set.clear()
+        throw new Error("the nowChosen_set should be empty after clear()")
+      # Reset the walk path and start new one with current selection
+      @walk_path_set = []
+      @walk_path_set.push current_selection
+
+    console.log @walk_path_set
+    console.log "================================"
+
+  walk: (chosen) =>
+    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    # Walk is just the same as Choose (AKA Activate) except afterward it deactivates the
+    # nodes which are not connected to the set being walked.
+    # This is accomplished by walked__build_callback()
     return @choose(chosen)
 
   hide: (goner) =>
@@ -4360,6 +4546,7 @@ class Huviz
       #$(@ontology_loader.form).disable()
     if not @endpoint_loader and @args.endpoint_loader__append_to_sel
       @endpoint_loader = new PickOrProvide(@, @args.endpoint_loader__append_to_sel, 'SPARQL Endpoint', 'EndpointPP', false, true)
+      #@endpoint_loader.outstanding_requests = 0
       #endpoint = "#" + @endpoint_loader.uniq_id
       #$(endpoint).css('display','none')
     if @endpoint_loader and not @big_go_button
@@ -4695,7 +4882,8 @@ class Huviz
     @ontology = PRIMORDIAL_ONTOLOGY
 
   constructor: (args) -> # Huviz
-    #console.log(args)
+    #if @pfm_display is true
+    #  @pfm_dashboard()
     args ?= {}
     if not args.viscanvas_sel
       msg = "call Huviz({viscanvas_sel:'????'}) so it can find the canvas to draw in"
@@ -4711,6 +4899,7 @@ class Huviz
     @off_center = false # FIXME expose this or make the amount a slider
     document.addEventListener('nextsubject', @onnextsubject)
     @init_snippet_box()  # FIXME not sure this does much useful anymore
+
     @mousedown_point = false
     @discard_point = [@cx,@cy] # FIXME refactor so ctrl-handle handles this
     @lariat_center = [@cx,@cy] #       and this....
@@ -4770,7 +4959,7 @@ class Huviz
     $("#tabs").on('click', '#blurt_close', @close_blurt_box)
     $("#tabs").tabs
       active: 0
-      collapsible: true
+      #collapsible: true
     $('.open_tab').click (event) =>
       tab_idx = parseInt($(event.target).attr('href').replace("#",""))
       @goto_tab(tab_idx)
@@ -4794,7 +4983,6 @@ class Huviz
   maximize_gclui: () ->
     $('#tabs').prop('style','visibility:visible')
     $('#maximize_cntrl').prop('style','visibility:hidden')
-    console.log "minimize the interface"
 
   goto_tab: (tab_idx) ->
     $('#tabs').tabs
@@ -4988,7 +5176,7 @@ class Huviz
         label:
           title: "size variance for node edge count"
         input:
-          value: 0
+          value: 1
           min: 0
           max: 10
           step: 0.1
@@ -5200,6 +5388,14 @@ class Huviz
         input:
           type: "checkbox"
     ,
+      show_hide_performance_monitor:
+        style: "color:orange"
+        text: "Show Performance Monitor"
+        label:
+          title: "Feedback on what HuViz is doing"
+        input:
+          type: "checkbox"
+    ,
       graph_title_style:
         text: "Title display"
         label:
@@ -5359,7 +5555,7 @@ class Huviz
     #$(@graph_controls).sortable().disableSelection() # TODO fix dropping
     for control_spec in @default_graph_controls
       for control_name, control of control_spec
-        graph_control = @graph_controls.append('span').attr('id',control_name).attr('class', 'graph_control')
+        graph_control = @graph_controls.append('div').attr('id',control_name).attr('class', 'graph_control')
         label = graph_control.append('label')
         if control.text?
           label.text(control.text)
@@ -5403,6 +5599,7 @@ class Huviz
           input.on("change", @update_graph_settings) # when focus changes
         else
           input.on("input", @update_graph_settings) # continuous updates
+    $("#tabs-options").append("<div id='buffer_space'></div>")
     return
 
   update_graph_controls_cursor: (evt) =>
@@ -5588,6 +5785,18 @@ class Huviz
     else
       $(endpoint).css('display','none')
 
+  on_change_show_hide_performance_monitor: (new_val, old_val) ->
+    console.log "clicked performance monitor " + new_val + " " + old_val
+    if new_val
+      $("#performance_dashboard").css('display','block')
+      @pfm_display = true
+      @pfm_dashboard()
+      @timerId = setInterval(@pfm_update, 1000)
+    else
+      clearInterval(@timerId)
+      $("#performance_dashboard").css('display','none').html('')
+      @pfm_display = false
+
   on_change_discover_geonames_as: (new_val, old_val) ->
     @discover_geonames_as = new_val
     if new_val
@@ -5754,6 +5963,75 @@ class Huviz
 
   get_default_set_by_type: (node) ->
     return @shelved_set
+
+
+  pfm_dashboard: () =>
+    # Adding feedback monitor
+    #   1. new instance in pfm_data (line 541)
+    #   2. add @pfm_count('name') to method
+    #   3. add #{@build_pfm_live_monitor('name')} into message below
+    warning = ""
+    message = """
+      <div class='feedback_module'><p>Triples Added: <span id="noAddQuad">0</span></p></div>
+      <div class='feedback_module'><p>Number of Nodes: <span id="noN">0</span></p></div>
+      <div class='feedback_module'><p>Number of Edges: <span id="noE">0</span></p></div>
+      <div class='feedback_module'><p>Number of Predicates: <span id="noP">0</span></p></div>
+      <div class='feedback_module'><p>Number of Classes: <span id="noC">0</span></p></div>
+      #{@build_pfm_live_monitor('add_quad')}
+      #{@build_pfm_live_monitor('hatch')}
+      <div class='feedback_module'><p>Ticks in Session: <span id="noTicks">0</span></p></div>
+      #{@build_pfm_live_monitor('tick')}
+      <div class='feedback_module'><p>Total SPARQL Requests: <span id="noSparql">0</span></p></div>
+      <div class='feedback_module'><p>Outstanding SPARQL Requests: <span id="noOR">0</span></p></div>
+      #{@build_pfm_live_monitor('sparql')}
+    """
+    $("#performance_dashboard").html(message + warning)
+
+  build_pfm_live_monitor: (name) =>
+    label = @pfm_data["#{name}"]["label"]
+    monitor = "<div class='feedback_module'>#{label}: <svg id='pfm_#{name}' class='sparkline' width='200px' height='50px' stroke-width='1'></svg></div>"
+    return monitor
+
+  pfm_count: (name) =>
+    # Incriment the global count for 'name' variable (then used to update live counters)
+    @pfm_data["#{name}"].total_count++
+
+  pfm_update: () =>
+    time = Date.now()
+    class_count = 0
+    # update static markers
+    if @nodes then noN = @nodes.length else noN = 0
+    $("#noN").html("#{noN}")
+    if @edge_count then noE = @edge_count else noE = 0
+    $("#noE").html("#{noE}")
+    if @predicate_set then noP = @predicate_set.length else noP = 0
+    $("#noP").html("#{noP}")
+    for item of @taxonomy #TODO Should improve this by avoiding recount every second
+      class_count++
+    @pfm_data.taxonomy.total_count = class_count
+    $("#noC").html("#{@pfm_data.taxonomy.total_count}")
+    $("#noTicks").html("#{@pfm_data.tick.total_count}")
+    $("#noAddQuad").html("#{@pfm_data.add_quad.total_count}")
+    $("#noSparql").html("#{@pfm_data.sparql.total_count}")
+    if @endpoint_loader then noOR = @endpoint_loader.outstanding_requests else noOR = 0
+    $("#noOR").html("#{noOR}")
+
+    for pfm_marker of @pfm_data
+      marker = @pfm_data["#{pfm_marker}"]
+      old_count = marker.prev_total_count
+      new_count = marker.total_count
+      calls_per_second = Math.round(new_count - old_count)
+      if @pfm_data["#{pfm_marker}"]["timed_count"] and (@pfm_data["#{pfm_marker}"]["timed_count"].length > 0)
+        #console.log marker.label + "  " + calls_per_second
+        if (@pfm_data["#{pfm_marker}"]["timed_count"].length > 60) then @pfm_data["#{pfm_marker}"]["timed_count"].shift()
+        @pfm_data["#{pfm_marker}"].timed_count.push(calls_per_second)
+        @pfm_data["#{pfm_marker}"].prev_total_count = new_count + 0.01
+        #console.log "#pfm_#{pfm_marker}"
+        sparkline.sparkline(document.querySelector("#pfm_#{pfm_marker}"), @pfm_data["#{pfm_marker}"].timed_count)
+      else if (@pfm_data["#{pfm_marker}"]["timed_count"])
+        @pfm_data["#{pfm_marker}"]["timed_count"] = [0.01]
+        #console.log "Setting #{marker.label }to zero"
+
 
 class OntologicallyGrounded extends Huviz
   # If OntologicallyGrounded then there is an associated ontology which informs
