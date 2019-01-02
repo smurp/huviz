@@ -296,8 +296,9 @@ class CommandController
       return
     return
   onChangeEnglish: (evt) =>
-    return
     @object_phrase = evt.detail.english
+    #console.log("%c#{@object_phrase}",'color:orange;font-size:2em')
+    @prepare_command(@build_command())
     @update_command()
   handle_on_taxon_clicked: (id, new_state, elem, args) =>
     @start_working()

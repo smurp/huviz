@@ -276,7 +276,8 @@ class GraphCommand
     if cmd_str is 'load '
       @str += @data_uri + " ."
       return
-    @object_phrase = null
+    #debugger if not @object_phrase?
+    @object_phrase ?= null
     if @sets?
       more = angliciser((s.get_label() for s in @sets))
       @object_phrase = more
@@ -285,7 +286,10 @@ class GraphCommand
       obj_phrase = @object_phrase
       @noun_phrase = obj_phrase
     else
-      if @classes
+      if @object_phrase
+        console.log("update_str() object_phrase: ", @object_phrase)
+        obj_phrase = @object_phrase
+      else if @classes
         maybe_every = @every_class and "every " or ""
         obj_phrase += maybe_every + angliciser(@classes)
         if @except_subjects
