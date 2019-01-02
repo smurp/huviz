@@ -103,7 +103,7 @@ class GraphCommand
       args = @parse(args_or_str)
     else
       args = args_or_str
-    args.skip_history ?= true
+    args.skip_history ?= false
     args.every_class ?= false
     for argn,argv of args
       @[argn] = argv
