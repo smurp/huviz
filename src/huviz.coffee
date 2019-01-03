@@ -110,7 +110,7 @@
 #
 angliciser = require('angliciser').angliciser
 uniquer = require("uniquer").uniquer # FIXME rename to make_dom_safe_id
-gcl = require('graphcommandlanguage');
+gcl = require('graphcommandlanguage')
 #asyncLoop = require('asynchronizer').asyncLoop
 CommandController = require('gclui').CommandController
 EditController = require('editui').EditController
