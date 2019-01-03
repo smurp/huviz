@@ -3915,46 +3915,98 @@ class Huviz
     for node in @nowChosen_set
       for old_node in @wasChosen_set
         if node is old_node then found_it = true
-      if found_it then found_it = false else current_selection = node.lid
-    console.log "Current Selection: " + current_selection
+      if found_it then found_it = false else current_selection = node
+    #console.log "Current Selection: " + current_selection
     valid_path_nodes = []
-    hot_nodes = []
+    active_nodes = []
     #if @walk_path_set.length is 0 then @walk_path_set.push nowRollCall #first time through, walked node should always be added to path
     for node in @all_set
       for lid in @walk_path_set
         if node.lid is lid #get edges
-          hot_nodes.push node
+          active_nodes.push node
           for e in node.links_from
             valid_path_nodes.push e.target.lid
           for e in node.links_to
             valid_path_nodes.push e.source.lid
-    console.log "wasChosen_set:"
-    console.log @wasChosen_set
-    console.log "nowChosen_set:"
-    console.log @nowChosen_set
-    console.log "valid_path_nodes:"
-    console.log valid_path_nodes
-    console.log "nowRollCall:"
-    console.log nowRollCall
+    #console.log "wasChosen_set:"
+    #console.log @wasChosen_set
+    #console.log "nowChosen_set:"
+    #console.log @nowChosen_set
+    #console.log "valid_path_nodes:"
+    #console.log valid_path_nodes
+    #console.log "nowRollCall:"
+    #console.log nowRollCall
+    #console.log "+++++++++++"
+    #console.log current_selection
+    #console.log "+++++++++++"
     for node_lid in valid_path_nodes #check to see if this is a connected node or new unconnect node
-      if current_selection is node_lid then connected_path = true
-
+      if current_selection.lid is node_lid then connected_path = true
     # If node is along a continuous path, then add the selection; if not then reset everything and start a new path
     if connected_path #=true
-      @walk_path_set.push current_selection
+      @walk_path_set.push current_selection.lid
       @walk_path_set.sort()
-      console.log "This was a connected path-+++++++++++"
-      console.log nowRollCall
       connected_path = false
+      # Prune associated tangential nodes on path (i.e. keep only current_selection edges)
+      if prune_walk_nodes=true
+        #console.log "Pruning the tree...."
+        ungraphed = [] # @graphed_set.sort()
+        keep_graphed = []
+        #console.log active_nodes
+        # Don't ungraph: activated nodes all nodes connected to currently_selected
+        # NO to @walk_path_set (lids of activated nodes)
+        # NO to current_selection edge sources or targets
+        #console.log active_nodes
+        for node in active_nodes
+          #console.log "looking at... #{node.lid}"
+          keep_graphed.push node
+          for edge in current_selection.links_shown
+            #console.log "nodes from edges #{edge.source.lid} and #{edge.target.lid} "
+            if edge.source.lid isnt node.lid then keep_graphed.push edge.source
+            if edge.target.lid isnt node.lid then keep_graphed.push edge.target
+
+          ###
+          #get all the connected nodes
+          #console.log node.links_shown
+          for edge in node.links_shown
+            #console.log edge.source.lid + " and " + edge.target.lid + " and " + node.lid
+            #console.log edge.target.lid
+            #console.log node.lid
+            if edge.source.lid != node.lid and edge.source.lid != current_selection.lid
+              #console.log "Degraph: " + edge.source.lid
+              ungraphed.push edge.source
+            if edge.target.lid != node.lid and edge.target.lid != current_selection.lid
+              #console.log "Degraph: " + edge.target.lid
+              ungraphed.push edge.target
+          for node in active_nodes # Go through all active nodes to find
+            for graphed_node in ungraphed
+              ungraphed.filter (graphed_node) =>
+                node.lid is graphed_node.lid
+          ###
+
+        unique_keep = Array.from(new Set(keep_graphed))
+
+        for graphed_node in @graphed_set
+          console.log graphed_node
+          @unselect(graphed_node)
+          keep_it = false
+          for keep_node in unique_keep
+            if graphed_node is keep_node
+              keep_it = true
+              break
+            else
+              keep_it = false
+
+          if keep_it is false then @unselect(graphed_node)
+        #console.log "Ungraph these..."
+        #console.log ungraphed
+        console.log "Keep these graphed...."
+        console.log unique_keep
     else
-      console.log "Brand new path--------------"
       removed = @wasChosen_set.filter (node) =>
         not @nowChosen_set.includes(node)
       # Add old path nodes to removed so that they are also removed
-      for node in hot_nodes
-        console.log node
+      for node in active_nodes
         removed.push node
-      console.log removed
       for node in removed
         @unchoose(node)
         @wasChosen_set.remove(node)
@@ -3962,7 +4014,7 @@ class Huviz
         throw new Error("the nowChosen_set should be empty after clear()")
       # Reset the walk path and start new one with current selection
       @walk_path_set = []
-      @walk_path_set.push current_selection
+      @walk_path_set.push current_selection.lid
 
     console.log @walk_path_set
     console.log "================================"
