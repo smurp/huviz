@@ -35,7 +35,6 @@
     }
   };
 
-
   var TokenStream = function(input) {
     // based on http://lisperator.net/pltut/parser/token-stream
     var current = null;
@@ -275,35 +274,6 @@
       if (name.type != "var") input.croak("Expecting variable name");
       return name.value;
     }
-    function parse_if() {
-      skip_kw("if");
-      var cond = parse_expression();
-      if (!is_punc("{")) skip_kw("then");
-      var then = parse_expression();
-      var ret = {
-	type: "if",
-	cond: cond,
-	then: then,
-      };
-      if (is_kw("else")) {
-	input.next();
-	ret.else = parse_expression();
-      }
-      return ret;
-    }
-    function parse_lambda() {
-      return {
-	type: "lambda",
-	vars: delimited("(", ")", ",", parse_varname),
-	body: parse_expression()
-      };
-    }
-    function parse_bool() {
-      return {
-	type  : "bool",
-	value : input.next().value == "true"
-      };
-    }
     function maybe_command(expr) {
       expr = expr();
       return parse_call(expr);
@@ -318,11 +288,7 @@
 	}
 	/*
 	  if (is_punc("{")) return parse_prog();
-	  if (is_kw("if")) return parse_if();
-	  if (is_kw("true") || is_kw("false")) return parse_bool();
-	  if (is_kw("lambda") || is_kw("λ")) {
 	  input.next();
-	  return parse_lambda();
 	  }
 	*/
 	var tok = input.next();
