@@ -20,8 +20,8 @@ window.toggle_suspend_updates = (val) ->
   return window.suspend_updates
 
 gcl = require('graphcommandlanguage')
-TreePicker = require('treepicker').TreePicker
 ColoredTreePicker = require('coloredtreepicker').ColoredTreePicker
+TreePicker = require('treepicker').TreePicker
 class CommandController
   constructor: (@huviz, @container, @hierarchy) ->
     document.addEventListener 'dataset-loaded', @on_dataset_loaded

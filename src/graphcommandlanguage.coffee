@@ -1,4 +1,5 @@
 angliciser = require('angliciser').angliciser
+#gvcl = require('gvcl') #.GVCL
 class GCLTest
   constructor: (@runner, @spec) ->
     console.log "GCLTest",this
@@ -362,6 +363,7 @@ class GraphCommandLanguageCtrl
       @commands = [script]
     else if typeof script is 'string'
       @commands = script.split(';')
+      #@gvcl_script = new GVCL(script)
     else if script.constructor is [].constructor
       @commands = script
     else # an object we presume
