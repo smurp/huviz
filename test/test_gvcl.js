@@ -4,6 +4,7 @@ var expect = chai.expect;
 var GVCL = require('../js/gvcl').GVCL;
 
 describe("GVCL", function() {
+  this.bail(process.env.BAIL || false);
   it("Parses simple 'Verb Noun' commands", function() {
     let selThing = new GVCL('Select Thing .');
     expect(selThing.ast).to.be.ok();
