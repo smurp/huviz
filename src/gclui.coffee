@@ -39,7 +39,8 @@ class CommandController
     @comdiv = d3.select(@container).append("div") # --- Add a container
     @cmdtitle = d3.select("#tabs-history").append('div').attr('class','control_label').html('Command History')
     @cmdlist = d3.select("#tabs-history").append('div').attr('class','commandlist')
-    @oldcommands = @cmdlist.append('div').attr('id','commandhistory')
+    console.log "Window height: " + @huviz.height
+    @oldcommands = @cmdlist.append('div').attr('id','commandhistory').style('max-height',"#{@huviz.height-80}px")
     @control_label("Current Command")
     @nextcommandbox = @comdiv.append('div')
     @make_verb_sets()

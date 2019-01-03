@@ -137,7 +137,6 @@
 }
 #commandhistory {
   overflow-y: scroll;
-  /*max-height: 6em; */
 }
 .commandhistory .command{
   padding: .2em .4em;
