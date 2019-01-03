@@ -84,7 +84,7 @@ class Taxon extends TreeCtrl
   english_from: (in_and_out) ->
     english = angliciser(in_and_out.include)
     if in_and_out.exclude.length
-      english += " but not " + angliciser(in_and_out.exclude, " or ")
+      english += " except " + angliciser(in_and_out.exclude, " or ")
     return english
 
 (exports ? this).Taxon = Taxon
