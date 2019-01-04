@@ -129,18 +129,6 @@ class CommandController
   on_forward_click: () ->
 
 
-#  minimize_gclui: () ->
-    #$('#tabs').prop('style','visibility:hidden')
-    #$('#expand_cntrl').prop('style','visibility:visible')
-    #w_width = (@container.clientWidth or window.innerWidth or document.documentElement.clientWidth or document.clientWidth)
-    #@width = w_width
-    #@get_container_width()
-    #console.log @width
-  #maximize_gclui: () ->
-    #$('#tabs').prop('style','visibility:visible')
-    #$('#maximize_cntrl').prop('style','visibility:hidden')
-    #console.log "minimize the interface"
-
   install_listeners: () ->
     window.addEventListener 'changePredicate', @predicate_picker.onChangeState
     window.addEventListener 'changeTaxon', @taxon_picker.onChangeState
