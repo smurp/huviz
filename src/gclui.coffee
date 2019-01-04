@@ -76,15 +76,7 @@ class CommandController
     #  sets: [@huviz.all_set]
     #  skip_history: true))
     @huviz.run_command(new gcl.GraphCommand(@huviz,
-      verbs: ['undiscard']
-      sets: [@huviz.all_set]
-      skip_history: true))
-    @huviz.run_command(new gcl.GraphCommand(@huviz,
-      verbs: ['shelve']
-      sets: [@huviz.all_set]
-      skip_history: true))
-    @huviz.run_command(new gcl.GraphCommand(@huviz,
-      verbs: ['unselect']
+      verbs: ['undiscard','deactivate','unselect', 'unpin', 'shelve']
       sets: [@huviz.all_set]
       skip_history: true))
     @disengage_all_verbs()
