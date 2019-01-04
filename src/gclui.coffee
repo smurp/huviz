@@ -68,8 +68,14 @@ class CommandController
   make_command_history: ->
     @comdiv = d3.select(@container).append("div") # --- Add a container
     history = d3.select("#tabs-history")
-    @scriptPlayerControls = history.append('div').attr('class','scriptPlayerControls').
-      attr('style','position: relative; width: 50%;  float:right')
+    @cmdtitle = history.
+      append('div').
+      attr('class','control_label').
+      html('Command History').
+      attr('style', 'display:inline')
+    
+    @scriptPlayerControls = history.append('div').attr('class','scriptPlayerControls')
+    #  attr('style','position: relative;  float:right')
     @scriptFastBackwardButton = @scriptPlayerControls.append('button').
       append('i').attr("class", "fa fa-fast-backward").
       attr('title','go to start')
@@ -82,11 +88,7 @@ class CommandController
     @scriptDownloadButton = @scriptPlayerControls.append('button').
       append('i').attr("class", "fa fa-file-download").
       attr('title','save script')
-    @cmdtitle = history.
-      append('div').
-      attr('class','control_label').
-      html('Command History').
-      attr('style', 'display:inline')
+    #history.append('div')
     @cmdlist = history.
       append('div').
       attr('class','commandlist')
