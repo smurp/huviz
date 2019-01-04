@@ -36,11 +36,8 @@ class CommandController
     if @huviz.args.display_hints
       @hints = d3.select(@container).append("div").attr("class","hints")
       $(".hints").append($(".hint_set").contents())
-    @comdiv = d3.select(@container).append("div") # --- Add a container
-    @cmdtitle = d3.select("#tabs-history").append('div').attr('class','control_label').html('Command History')
-    @cmdlist = d3.select("#tabs-history").append('div').attr('class','commandlist')
+    @make_command_history()
     console.log "Window height: " + @huviz.height
-    @oldcommands = @cmdlist.append('div').attr('id','commandhistory').style('max-height',"#{@huviz.height-80}px")
     @control_label("Current Command")
     @nextcommandbox = @comdiv.append('div')
     @make_verb_sets()
@@ -67,6 +64,36 @@ class CommandController
     if title
       label.attr('title',title)
     return outer
+
+  make_command_history: ->
+    @comdiv = d3.select(@container).append("div") # --- Add a container
+    history = d3.select("#tabs-history")
+    @scriptPlayerControls = history.append('div').attr('class','scriptPlayerControls').
+      attr('style','position: relative; width: 50%;  float:right')
+    @scriptFastBackwardButton = @scriptPlayerControls.append('button').
+      append('i').attr("class", "fa fa-fast-backward").
+      attr('title','go to start')
+    @scriptPlayButton = @scriptPlayerControls.append('button').
+      append('i').attr("class", "fa fa-play").
+      attr('title','play script')
+    @scriptFastForwardButton = @scriptPlayerControls.append('button').
+      append('i').attr("class", "fa fa-fast-forward").
+      attr('title','go to end')
+    @scriptDownloadButton = @scriptPlayerControls.append('button').
+      append('i').attr("class", "fa fa-file-download").
+      attr('title','save script')
+    @cmdtitle = history.
+      append('div').
+      attr('class','control_label').
+      html('Command History').
+      attr('style', 'display:inline')
+    @cmdlist = history.
+      append('div').
+      attr('class','commandlist')
+    @oldcommands = @cmdlist.
+      append('div').
+      attr('id','commandhistory').
+      style('max-height',"#{@huviz.height-80}px")
 
 #  minimize_gclui: () ->
     #$('#tabs').prop('style','visibility:hidden')
