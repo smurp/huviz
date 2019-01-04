@@ -71,10 +71,10 @@ class CommandController
     * shelve all
     * sanity check set counts
     ###
-    @huviz.run_command(new gcl.GraphCommand(@huviz,
-      verbs: ['unhide']
-      sets: [@huviz.all_set]
-      skip_history: true))
+    #@huviz.run_command(new gcl.GraphCommand(@huviz,
+    #  verbs: ['unhide']
+    #  sets: [@huviz.all_set]
+    #  skip_history: true))
     @huviz.run_command(new gcl.GraphCommand(@huviz,
       verbs: ['undiscard']
       sets: [@huviz.all_set]
@@ -98,20 +98,25 @@ class CommandController
     @scriptPlayerControls = history.append('div').attr('class','scriptPlayerControls')
     #  attr('style','position: relative;  float:right')
     @scriptRewindButton = @scriptPlayerControls.append('button').
-      append('i').attr("class", "fa fa-fast-backward").
       attr('title','rewind to start').
       on('click', @on_rewind_click)
+    @scriptRewindButton.
+      append('i').attr("class", "fa fa-fast-backward")
     @scriptPlayButton = @scriptPlayerControls.append('button').
-      append('i').attr("class", "fa fa-play").
       attr('title','play script step by step').
+      attr('disabled', 'disabled').
       on('click', @on_play_click)
+    @scriptPlayButton.append('i').attr("class", "fa fa-play")
     @scriptForwardButton = @scriptPlayerControls.append('button').
-      append('i').attr("class", "fa fa-forward").
       attr('title','play script continuously').
+      attr('disabled', 'disabled').
       on('click', @on_fastforward_click)
-    #@scriptDownloadButton = @scriptPlayerControls.append('button').
-    #  append('i').attr("class", "fa fa-file-download").
-    #  attr('title','save script')
+    @scriptForwardButton.append('i').attr("class", "fa fa-forward")
+    @scriptDownloadButton = @scriptPlayerControls.append('button').
+      attr('title','save script').
+      attr('style', 'margin-left:1em').
+      on('click', @on_downloadscript_clicked)
+    @scriptDownloadButton.append('i').attr("class", "fa fa-download")
     #history.append('div')
     @cmdlist = history.
       append('div').
@@ -120,15 +125,30 @@ class CommandController
       append('div').
       attr('id','commandhistory').
       style('max-height',"#{@huviz.height-80}px")
-
-  on_rewind_click: () ->
+    @old_commands = []
+  on_rewind_click: () =>
+    @scriptForwardButton.attr('disabled', null)
+    @scriptPlayButton.attr('disabled', null)
     @reset_graph()
-  on_play_click: () ->
-    for cmd in @cmd_history
-      @huviz.run_command(cmd)
-  on_forward_click: () ->
-
-
+    @old_command_idx = 0
+    # * position pointer at next script command
+  on_play_click: () =>
+    @play_old_command_by_idx(@old_command_idx)
+    @old_command_idx++
+  on_forward_click: () =>
+    for cmdRecord in @old_commands
+      @play_old_command(cmdRecord.cmd)
+      @old_command_idx++
+    # disable play and forward buttons because we are at script end
+    @scriptForwardButton.attr('disabled', 'disabled')
+    @scriptPlayButton.attr('disabled', 'disabled')
+  play_old_command_by_idx: (idx) ->
+    cmd = @old_commands[idx].cmd
+    @play_old_command(cmd)
+  play_old_command: (cmd) ->
+    cmd.skip_history = true
+    cmd.skip_history_remove = true
+    @huviz.run_command(cmd)
   install_listeners: () ->
     window.addEventListener 'changePredicate', @predicate_picker.onChangeState
     window.addEventListener 'changeTaxon', @taxon_picker.onChangeState
@@ -793,14 +813,13 @@ class CommandController
     @huviz.like_string()
   get_like_string: ->
     @like_input[0][0].value
-  old_commands: []
   push_command: (cmd) ->
     @push_command_onto_history(cmd)
   push_command_onto_history: (cmd) ->
     if @old_commands.length > 0
       prior = @old_commands[@old_commands.length-1]
       if prior.cmd.str is cmd.str
-        return  # same as last command, ignore
+        console.log("hmmm.  The same command again...", cmd.str)
     cmd_ui = @oldcommands.append('div').attr('class','command')
     $('#commandhistory').scrollTop($('#commandhistory').scrollHeight)
     record =
