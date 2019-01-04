@@ -38,6 +38,7 @@
   var TokenStream = function(input) {
     // based on http://lisperator.net/pltut/parser/token-stream
     var current = null;
+    //window.current = null
     var reserved = "with let ";
     // TODO Probably want to pass the builtins in as an argument
     var verbs = " " +
@@ -60,6 +61,10 @@
       eof   : eof,
       croak : input.croak
     };
+
+    function is_keyword(x) {
+      return keywords.indexOf(" " + x + " ") >= 0;
+    }
     function is_set(x) {
       return sets.indexOf(" " + x + " ") >= 0 && 'set';
     }
@@ -69,6 +74,11 @@
     function is_connector(x) {
       return connectors.indexOf(" " + x + " ") >= 0 && 'connector';
     }
+    /*
+    function is_noun(x) {
+      return is_set(x) || is_
+    }
+    */
     function is_digit(ch) {
       return /[0-9]/i.test(ch);
     }
@@ -173,7 +183,6 @@
       };
       input.croak("Can't handle character: «"+ch+"»");
     }
-
     function peek() {
       return current || (current = read_next());
     }
@@ -253,12 +262,57 @@
       }
       return a;
     }
+    function is_part_of_speech_or_and(x, pos) {
+      console.log('x:', x)
+      return (x.type == pos || x.value == 'and' || false);
+    }
+    function parse_anglicised(member_parser, pos) {
+      /*
+        Consume 'anglicised' lists like:
+          * "one"
+          * "one and two"
+          * "one, two and three"
+       */
+      var a = [], first = true;
+      var next_input = input.peek();
+      while (!input.eof() && (is_part_of_speech_or_and(next_input, pos))) {
+	if (is_punc(input.peek())) skip_punc(',');
+	if (first) first = false; else skip_punc(',');
+	a.push(member_parser());
+        next_input = input.peek();
+      }
+      return a;
+    }
+    function parse_verb_phrase() {
+      return {
+        type: 'verb_phrase',
+        args: parse_anglicised(parse_verb, 'verb')
+      }
+    }
+    function parse_noun_phrase() {
+      return {
+        type: 'noun_phrase',
+        args: parse_anglicised(parse_noun, 'noun')
+      }
+    }
     function parse_call(func) {
       return {
 	type: "call",
 	func: func,
 	args: delimited("(", ")", ",", parse_expression),
       };
+    }
+    function parse_verb() {
+      var name = input.next();
+      console.log('parse_verb:', name)
+      if (name.type != "verb") input.croak("Expecting verb name");
+      return name.value;
+    }
+    function parse_noun() {
+      var name = input.next();
+      console.log('parse_noun:', name)
+      if (name.type != "noun") input.croak("Expecting noun name, got " + JSON.stringify(name));
+      return name.value;
     }
     function parse_varname() {
       var name = input.next();
@@ -283,17 +337,17 @@
 	  }
 	*/
 	var tok = input.next();
-	if (tok.type == "var" || tok.type == "num" || tok.type == "str")
+	if (tok.type == "var" || tok.type == "num" || tok.type == "str") {
 	  return tok;
+        }
 	unexpected();
       });
     }
     function parse_toplevel() {
       var prog = [];
       while (!input.eof()) {
-	prog.push(parse_expression());
+	prog.push(parse_command());
 	// console.log("latest:",prog[prog.length-1]);
-	if (!input.eof()) skip_punc(".");
       }
       return { type: "prog", prog: prog };
     }
@@ -303,10 +357,13 @@
       if (prog.length == 1) return prog[0];
       return { type: "prog", prog: prog };
     }
-    function parse_expression() {
-      return maybe_command(function(){
-	return maybe_binary(parse_atom(), 0);
-      });
+    function parse_command() {
+      var cmd = {};
+      cmd.verb_phrase = parse_verb_phrase();
+      cmd.noun_phrase = parse_noun_phrase();
+      console.log(JSON.stringify(cmd));
+      skip_punc(".");
+      return cmd;
     }
   }
 
