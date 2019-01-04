@@ -64,7 +64,29 @@ class CommandController
     if title
       label.attr('title',title)
     return outer
-
+  reset_graph: ->
+    ###
+    * unhide all
+    * retrieve all
+    * shelve all
+    * sanity check set counts
+    ###
+    @huviz.run_command(new gcl.GraphCommand(@huviz,
+      verbs: ['unhide']
+      sets: [@huviz.all_set]
+      skip_history: true))
+    @huviz.run_command(new gcl.GraphCommand(@huviz,
+      verbs: ['undiscard']
+      sets: [@huviz.all_set]
+      skip_history: true))
+    @huviz.run_command(new gcl.GraphCommand(@huviz,
+      verbs: ['shelve']
+      sets: [@huviz.all_set]
+      skip_history: true))
+    @huviz.run_command(new gcl.GraphCommand(@huviz,
+      verbs: ['unselect']
+      sets: [@huviz.all_set]
+      skip_history: true))
   make_command_history: ->
     @comdiv = d3.select(@container).append("div") # --- Add a container
     history = d3.select("#tabs-history")
@@ -75,15 +97,18 @@ class CommandController
       attr('style', 'display:inline')
     @scriptPlayerControls = history.append('div').attr('class','scriptPlayerControls')
     #  attr('style','position: relative;  float:right')
-    @scriptFastBackwardButton = @scriptPlayerControls.append('button').
+    @scriptRewindButton = @scriptPlayerControls.append('button').
       append('i').attr("class", "fa fa-fast-backward").
-      attr('title','go to start')
+      attr('title','rewind to start').
+      on('click', @on_rewind_click)
     @scriptPlayButton = @scriptPlayerControls.append('button').
       append('i').attr("class", "fa fa-play").
-      attr('title','play script')
-    @scriptFastForwardButton = @scriptPlayerControls.append('button').
-      append('i').attr("class", "fa fa-fast-forward").
-      attr('title','go to end')
+      attr('title','play script step by step').
+      on('click', @on_play_click)
+    @scriptForwardButton = @scriptPlayerControls.append('button').
+      append('i').attr("class", "fa fa-forward").
+      attr('title','play script continuously').
+      on('click', @on_fastforward_click)
     #@scriptDownloadButton = @scriptPlayerControls.append('button').
     #  append('i').attr("class", "fa fa-file-download").
     #  attr('title','save script')
@@ -95,6 +120,14 @@ class CommandController
       append('div').
       attr('id','commandhistory').
       style('max-height',"#{@huviz.height-80}px")
+
+  on_rewind_click: () ->
+    @reset_graph()
+  on_play_click: () ->
+    for cmd in @cmd_history
+      @huviz.run_command(cmd)
+  on_forward_click: () ->
+
 
 #  minimize_gclui: () ->
     #$('#tabs').prop('style','visibility:hidden')
