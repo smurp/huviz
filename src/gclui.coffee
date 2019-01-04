@@ -112,13 +112,12 @@ class CommandController
     @scriptForwardButton = @scriptPlayerControls.append('button').
       attr('title','play script continuously').
       attr('disabled', 'disabled').
-      attr('display', 'none').
+      attr('style', 'display:none').
       on('click', @on_fastforward_click)
     @scriptForwardButton.append('i').attr("class", "fa fa-forward")
     @scriptDownloadButton = @scriptPlayerControls.append('button').
       attr('title','save script').
-      attr('style', 'margin-left:1em').
-      attr('display', 'none').
+      attr('style', 'margin-left:1em;display:none').
       on('click', @on_downloadscript_clicked)
     @scriptDownloadButton.append('i').attr("class", "fa fa-download")
     #history.append('div')
