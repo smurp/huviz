@@ -87,6 +87,8 @@ class CommandController
       verbs: ['unselect']
       sets: [@huviz.all_set]
       skip_history: true))
+    @disengage_all_verbs()
+    @reset_command_history()
   make_command_history: ->
     @comdiv = d3.select(@container).append("div") # --- Add a container
     history = d3.select("#tabs-history")
@@ -110,11 +112,13 @@ class CommandController
     @scriptForwardButton = @scriptPlayerControls.append('button').
       attr('title','play script continuously').
       attr('disabled', 'disabled').
+      attr('display', 'none').
       on('click', @on_fastforward_click)
     @scriptForwardButton.append('i').attr("class", "fa fa-forward")
     @scriptDownloadButton = @scriptPlayerControls.append('button').
       attr('title','save script').
       attr('style', 'margin-left:1em').
+      attr('display', 'none').
       on('click', @on_downloadscript_clicked)
     @scriptDownloadButton.append('i').attr("class", "fa fa-download")
     #history.append('div')
@@ -126,6 +130,9 @@ class CommandController
       attr('id','commandhistory').
       style('max-height',"#{@huviz.height-80}px")
     @old_commands = []
+  reset_command_history: ->
+    for record in @old_commands
+      record.elem.attr('class','command')
   on_rewind_click: () =>
     @scriptForwardButton.attr('disabled', null)
     @scriptPlayButton.attr('disabled', null)
@@ -143,8 +150,9 @@ class CommandController
     @scriptForwardButton.attr('disabled', 'disabled')
     @scriptPlayButton.attr('disabled', 'disabled')
   play_old_command_by_idx: (idx) ->
-    cmd = @old_commands[idx].cmd
-    @play_old_command(cmd)
+    record = @old_commands[idx]
+    record.elem.attr('class', 'command played')
+    @play_old_command(record.cmd)
   play_old_command: (cmd) ->
     cmd.skip_history = true
     cmd.skip_history_remove = true
@@ -820,7 +828,8 @@ class CommandController
       prior = @old_commands[@old_commands.length-1]
       if prior.cmd.str is cmd.str
         console.log("hmmm.  The same command again...", cmd.str)
-    cmd_ui = @oldcommands.append('div').attr('class','command')
+    cmd_ui = @oldcommands.append('div').attr('class','played command')
+    cmd_ui.append('code').text('x')
     $('#commandhistory').scrollTop($('#commandhistory').scrollHeight)
     record =
       elem: cmd_ui

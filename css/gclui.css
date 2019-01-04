@@ -95,7 +95,6 @@
   margin-top: .1em;
   padding: .1em;
   color: gray;
-  /*background-color: #fcf59b;  legal pad yellow */
   background-color: rgb(235, 245, 255);
   border-style: solid;
   border-top: 1px solid #ccc;
@@ -103,6 +102,12 @@
   border-right: 1px solid #eee;
   border-bottom: 1px solid #eee;
   border: none;
+}
+.command.played {
+ background-color: #fcf59b;  /* legal pad yellow */
+}
+.played code {
+  display: none
 }
 .command code {
   font-family: sans-serif;
@@ -366,5 +371,5 @@
   border-radius: 5px;
 }
 .pick_or_provide_form button:disabled{
-    display: none;
+  display: none;
 }
