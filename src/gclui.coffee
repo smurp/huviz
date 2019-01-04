@@ -73,7 +73,6 @@ class CommandController
       attr('class','control_label').
       html('Command History').
       attr('style', 'display:inline')
-    
     @scriptPlayerControls = history.append('div').attr('class','scriptPlayerControls')
     #  attr('style','position: relative;  float:right')
     @scriptFastBackwardButton = @scriptPlayerControls.append('button').
@@ -85,9 +84,9 @@ class CommandController
     @scriptFastForwardButton = @scriptPlayerControls.append('button').
       append('i').attr("class", "fa fa-fast-forward").
       attr('title','go to end')
-    @scriptDownloadButton = @scriptPlayerControls.append('button').
-      append('i').attr("class", "fa fa-file-download").
-      attr('title','save script')
+    #@scriptDownloadButton = @scriptPlayerControls.append('button').
+    #  append('i').attr("class", "fa fa-file-download").
+    #  attr('title','save script')
     #history.append('div')
     @cmdlist = history.
       append('div').
