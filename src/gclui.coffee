@@ -176,14 +176,34 @@ class CommandController
     $(".hints > .a_hint").hide()
     $(".hints > .a_hint").first().show()
   select_the_initial_set: =>
+    @OLD_select_the_initial_set()
+    return
+  NEW_select_the_initial_set: =>
+    # this does NOT function as a workaround for the problem like OLD_select_the_initial_set
+    @huviz.run_command(new gcl.GraphCommand(@huviz,
+      verbs: ['select'],
+      every_class: true,
+      classes: ['Thing'],
+      skip_history: true))
+    @huviz.run_command(new gcl.GraphCommand(@huviz,
+      verbs: ['unselect'],
+      every_class: true,
+      classes: ['Thing'],
+      skip_history: true))
+    @huviz.shelved_set.resort() # TODO remove when https://github.com/cwrc/HuViz/issues/109
+    return
+  OLD_select_the_initial_set: =>
     # TODO initialize the taxon coloring without cycling all
+    rm_cmd = () => # more hideous hackery: remove toggleTaxonThing from script
+      @delete_script_command_by_idx(0)
     toggleEveryThing = () =>
       @huviz.toggle_taxon("Thing", false) #, () -> alert('called'))
+      setTimeout(rm_cmd, 1000)
     toggleEveryThing.call()
     # everyThingIsSelected = () =>
     #  @huviz.nodes.length is @huviz.selected_set.length
     # @check_until_then(everyThingIsSelected, toggleEveryThing)
-    setTimeout(toggleEveryThing, 2000)
+    setTimeout(toggleEveryThing, 1200)
     #@huviz.do({verbs: ['unselect'], sets: [], skip_history: true})
     @huviz.shelved_set.resort() # TODO remove when https://github.com/cwrc/HuViz/issues/109
     return
