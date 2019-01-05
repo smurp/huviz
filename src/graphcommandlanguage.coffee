@@ -323,6 +323,9 @@ class GraphCommand
       @suffix_phrase += " matching '"+like_str+"'"
     if regarding_phrase
       @suffix_phrase += " regarding " + regarding_phrase +  ' .'
+    else if @polar_coords
+      @suffix_phrase +=  " at #{@polar_coords.degrees.toFixed(0)} degrees"
+      @suffix_phrase +=  " and range #{@polar_coords.range.toFixed(2)} ."
     else
       @suffix_phrase += ' .'
     cmd_str += @suffix_phrase

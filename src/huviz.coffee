@@ -3738,7 +3738,7 @@ class Huviz
 
   unpin: (node) ->
     if node.fixed
-      @pinned_set.remove node
+      @pinned_set.remove(node)
       return true
     return false
 
@@ -4843,14 +4843,28 @@ class Huviz
   init_indexddbstorage: ->
     @dbsstorage ?= new IndexedDBStorageController(this, @indexeddbservice)
 
-  predicates_to_ignore: ["anything", "first", "rest", "members"] # TODO make other than 'anything' optional
+  # TODO make other than 'anything' optional
+  predicates_to_ignore: ["anything", "first", "rest", "members"]
 
-
+  get_polar_coords_of: (node) ->
+    w = @get_container_height()
+    h = @get_container_width()
+    min_wh = Math.min(w, h)
+    max_radius = min_wh / 2
+    x = node.x - @cx
+    y = node.y - @cy
+    range = (Math.sqrt(((x * x) + (y * y)))/(max_radius))
+    radians = Math.atan2(y,x) + (Math.PI) # + (Math.PI/2)
+    degrees = (Math.floor(radians * 180 / Math.PI) + 270) % 360
+    return {range: range, degrees: degrees}
 
   run_verb_on_object: (verb, subject) ->
-    cmd = new gcl.GraphCommand this,
+    args =
       verbs: [verb]
       subjects: [@get_handle subject]
+    if verb is 'pin'
+      args.polar_coords = @get_polar_coords_of(subject)
+    cmd = new gcl.GraphCommand(this, args)
     @run_command(cmd)
 
   before_running_command: ->
