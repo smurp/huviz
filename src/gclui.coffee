@@ -832,19 +832,30 @@ class CommandController
       cmd: cmd
     @command_list.push(elem_and_cmd)
     @command_idx0 = @command_list.length
+    idx_of_this_command = @command_idx0
     # we are appending to the end of the script, playing is no longer valid, so...
     @disable_play_buttons()
     elem.text(cmd.str)
-    closer = elem.append('a')
-    closer.attr('class','delete-command').text('x')
+    delete_button = elem.append('a')
+    delete_button.attr('class','delete-command').text('x')
+    delete_button.on('click',() => @delete_script_command_by_id(cmd.id))
   clear_unreplayed_commands_if_needed: ->
     while @command_idx0 < @command_list.length
-      elem_and_cmd = @command_list.pop()
-      elem = elem_and_cmd.elem[0]
-      orphan = elem[0]
-      pops = orphan.parentNode
-      pops.removeChild(orphan)
+      @delete_script_command_by_idx(@command_list.length - 1)
     return
+  delete_script_command_by_id: (cmd_id) ->
+    for elem_and_cmd,idx in @command_list
+      if elem_and_cmd.cmd.id is cmd_id
+        @delete_script_command_by_idx(idx)
+        break
+    return
+  delete_script_command_by_idx: (idx) ->
+    elem_and_cmd = @command_list.splice(idx,1)[0]
+    #alert("about to delete: " + elem_and_cmd.cmd.str)
+    elem = elem_and_cmd.elem[0]
+    orphan = elem[0]
+    pops = orphan.parentNode
+    pops.removeChild(orphan)
   disable_play_buttons: ->
     @scriptPlayButton.attr('disabled', 'disabled')
     @scriptForwardButton.attr('disabled', 'disabled')
