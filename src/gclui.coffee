@@ -102,14 +102,14 @@ class CommandController
     @scriptPlayButton = @scriptPlayerControls.append('button').
       attr('title','play script step by step').
       attr('disabled', 'disabled').
-      on('click', @on_play_click)
+      on('click', @on_forward_click)
     @scriptPlayButton.append('i').attr("class", "fa fa-play")
     @scriptForwardButton = @scriptPlayerControls.append('button').
       attr('title','play script continuously').
       attr('disabled', 'disabled').
-      attr('style', 'display:none').
+      #attr('style', 'display:none').
       on('click', @on_fastforward_click)
-    @scriptForwardButton.append('i').attr("class", "fa fa-forward")
+    @scriptForwardButton.append('i').attr("class", "fa fa-fast-forward")
     @scriptDownloadButton = @scriptPlayerControls.append('button').
       attr('title','save script').
       attr('style', 'margin-left:1em;display:none').
@@ -134,16 +134,14 @@ class CommandController
     @reset_graph()
     @command_idx0 = 0
     # * position pointer at next script command
-  on_play_click: () =>
+  on_forward_click: () =>
     @play_old_command_by_idx(@command_idx0)
     @command_idx0++
-  on_forward_click: () =>
-    for cmdRecord in @command_list
-      @play_old_command(cmdRecord.cmd)
-      @command_idx0++
-    # disable play and forward buttons because we are at script end
-    @scriptForwardButton.attr('disabled', 'disabled')
-    @scriptPlayButton.attr('disabled', 'disabled')
+    if @command_idx0 >= @command_list.length
+      @disable_play_buttons()
+  on_fastforward_click: () =>
+    while @command_idx0 < @command_list.length
+      @on_forward_click()
   play_old_command_by_idx: (idx) ->
     record = @command_list[idx]
     record.elem.attr('class', 'command played')
