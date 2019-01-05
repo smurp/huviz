@@ -18,7 +18,10 @@ window.toggle_suspend_updates = (val) ->
     window.suspend_updates = val
   #console.warn "suspend_updates",window.suspend_updates
   return window.suspend_updates
-
+getRandomId = (prefix) ->
+  max = 10000000000;
+  prefix = prefix || 'id';
+  return prefix + Math.floor(Math.random() * Math.floor(max))
 gcl = require('graphcommandlanguage')
 ColoredTreePicker = require('coloredtreepicker').ColoredTreePicker
 TreePicker = require('treepicker').TreePicker
@@ -76,7 +79,7 @@ class CommandController
     #  sets: [@huviz.all_set]
     #  skip_history: true))
     @huviz.run_command(new gcl.GraphCommand(@huviz,
-      verbs: ['undiscard','deactivate','unselect', 'unpin', 'shelve']
+      verbs: ['undiscard','unchoose','unselect', 'unpin', 'shelve']
       sets: [@huviz.all_set]
       skip_history: true))
     @disengage_all_verbs()
@@ -120,28 +123,29 @@ class CommandController
       append('div').
       attr('id','commandhistory').
       style('max-height',"#{@huviz.height-80}px")
-    @old_commands = []
+    @command_list = []
+    @command_idx0 = 0
   reset_command_history: ->
-    for record in @old_commands
+    for record in @command_list
       record.elem.attr('class','command')
   on_rewind_click: () =>
     @scriptForwardButton.attr('disabled', null)
     @scriptPlayButton.attr('disabled', null)
     @reset_graph()
-    @old_command_idx = 0
+    @command_idx0 = 0
     # * position pointer at next script command
   on_play_click: () =>
-    @play_old_command_by_idx(@old_command_idx)
-    @old_command_idx++
+    @play_old_command_by_idx(@command_idx0)
+    @command_idx0++
   on_forward_click: () =>
-    for cmdRecord in @old_commands
+    for cmdRecord in @command_list
       @play_old_command(cmdRecord.cmd)
-      @old_command_idx++
+      @command_idx0++
     # disable play and forward buttons because we are at script end
     @scriptForwardButton.attr('disabled', 'disabled')
     @scriptPlayButton.attr('disabled', 'disabled')
   play_old_command_by_idx: (idx) ->
-    record = @old_commands[idx]
+    record = @command_list[idx]
     record.elem.attr('class', 'command played')
     @play_old_command(record.cmd)
   play_old_command: (cmd) ->
@@ -813,21 +817,38 @@ class CommandController
   get_like_string: ->
     @like_input[0][0].value
   push_command: (cmd) ->
+    throw new Error('DEPRECATED')
     @push_command_onto_history(cmd)
   push_command_onto_history: (cmd) ->
-    if @old_commands.length > 0
-      prior = @old_commands[@old_commands.length-1]
-      if prior.cmd.str is cmd.str
-        console.log("hmmm.  The same command again...", cmd.str)
-    cmd_ui = @oldcommands.append('div').attr('class','played command')
-    cmd_ui.append('code').text('x')
+    # Maybe the command_pointer is in the middle of the command_list and here
+    # we are trying to run a new command -- so we need to dispose of the remaining
+    # commands in the command_list because the user is choosing to take a new path.
+    @clear_unreplayed_commands_if_needed()
+    cmd.id = getRandomId('cmd')
+    elem = @oldcommands.append('div').
+      attr('class','played command').
+      attr('id',cmd.id)
+    elem.append('code').text('x')
     $('#commandhistory').scrollTop($('#commandhistory').scrollHeight)
-    record =
-      elem: cmd_ui
+    elem_and_cmd =
+      elem: elem
       cmd: cmd
-    @old_commands.push(record)
-    cmd_ui.text(cmd.str)
-
+    @command_list.push(elem_and_cmd)
+    @command_idx0 = @command_list.length
+    # we are appending to the end of the script, playing is no longer valid, so...
+    @disable_play_buttons()
+    elem.text(cmd.str)
+  clear_unreplayed_commands_if_needed: ->
+    while @command_idx0 < @command_list.length
+      elem_and_cmd = @command_list.pop()
+      elem = elem_and_cmd.elem[0]
+      orphan = elem[0]
+      pops = orphan.parentNode
+      pops.removeChild(orphan)
+    return
+  disable_play_buttons: ->
+    @scriptPlayButton.attr('disabled', 'disabled')
+    @scriptForwardButton.attr('disabled', 'disabled')
   build_command: ->
     args =
       verbs: []
