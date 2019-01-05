@@ -102,13 +102,25 @@
   border-right: 1px solid #eee;
   border-bottom: 1px solid #eee;
   border: none;
+  position: relative;
 }
 .command.played {
  background-color: #fcf59b;  /* legal pad yellow */
 }
-.played code {
+.delete-command {
+    display:normal;
+    color: #777;
+    font: 70% sans-serif;
+    position: absolute;
+    right: 5px;
+    text-decoration: none;
+    text-shadow: 0 1px 0 #fff;
+    top: 3px;
+}
+.played .delete-command {
   display: none
 }
+
 .command code {
   font-family: sans-serif;
   font-weight: normal;

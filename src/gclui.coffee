@@ -826,7 +826,6 @@ class CommandController
     elem = @oldcommands.append('div').
       attr('class','played command').
       attr('id',cmd.id)
-    elem.append('code').text('x')
     $('#commandhistory').scrollTop($('#commandhistory').scrollHeight)
     elem_and_cmd =
       elem: elem
@@ -836,6 +835,8 @@ class CommandController
     # we are appending to the end of the script, playing is no longer valid, so...
     @disable_play_buttons()
     elem.text(cmd.str)
+    closer = elem.append('a')
+    closer.attr('class','delete-command').text('x')
   clear_unreplayed_commands_if_needed: ->
     while @command_idx0 < @command_list.length
       elem_and_cmd = @command_list.pop()
