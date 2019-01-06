@@ -878,12 +878,17 @@ class CommandController
         break
     return
   delete_script_command_by_idx: (idx) ->
-    elem_and_cmd = @command_list.splice(idx,1)[0]
+    elem_and_cmd = @command_list.splice(idx, 1)[0]
     #alert("about to delete: " + elem_and_cmd.cmd.str)
     elem = elem_and_cmd.elem[0]
     orphan = elem[0]
     pops = orphan.parentNode
     pops.removeChild(orphan)
+    if idx < @command_idx0
+      @command_idx0--
+    if @command_idx0 < 0
+      @command_idx0 = 0
+    @update_script_buttons()
   update_script_buttons: ->
     if @command_idx0 >= @command_list.length
       @disable_play_buttons()
@@ -891,7 +896,7 @@ class CommandController
       @enable_play_buttons()
     if @command_idx0 > 0
       @enable_back_buttons()
-    if @command_idx0 is 0
+    if @command_idx0 <= 0
       @disable_back_buttons()
   disable_play_buttons: ->
     @scriptPlayButton.attr('disabled', 'disabled')
