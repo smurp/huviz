@@ -99,6 +99,11 @@ class CommandController
       on('click', @on_rewind_click)
     @scriptRewindButton.
       append('i').attr("class", "fa fa-fast-backward")
+    @scriptBackButton = @scriptPlayerControls.append('button').
+      attr('title','go back one step').
+      #attr('disabled', 'disabled').
+      on('click', @on_backward_click)
+    @scriptBackButton.append('i').attr("class", "fa fa-play fa-flip-horizontal")
     @scriptPlayButton = @scriptPlayerControls.append('button').
       attr('title','play script step by step').
       attr('disabled', 'disabled').
@@ -129,18 +134,20 @@ class CommandController
     for record in @command_list
       record.elem.attr('class','command')
   on_rewind_click: () =>
-    @scriptForwardButton.attr('disabled', null)
-    @scriptPlayButton.attr('disabled', null)
     @reset_graph()
     @command_idx0 = 0
-    # * position pointer at next script command
+    @update_script_buttons()
+  on_backward_click: () =>
+    forward_to_idx = @command_idx0 - 1
+    @on_rewind_click()
+    @on_fastforward_click(forward_to_idx)
   on_forward_click: () =>
     @play_old_command_by_idx(@command_idx0)
     @command_idx0++
-    if @command_idx0 >= @command_list.length
-      @disable_play_buttons()
-  on_fastforward_click: () =>
-    while @command_idx0 < @command_list.length
+    @update_script_buttons()
+  on_fastforward_click: (forward_to_idx) =>
+    forward_to_idx ?= @command_list.length
+    while @command_idx0 < forward_to_idx
       @on_forward_click()
   play_old_command_by_idx: (idx) ->
     record = @command_list[idx]
@@ -859,6 +866,7 @@ class CommandController
     delete_button = elem.append('a')
     delete_button.attr('class','delete-command').text('x')
     delete_button.on('click',() => @delete_script_command_by_id(cmd.id))
+    @update_script_buttons()
   clear_unreplayed_commands_if_needed: ->
     while @command_idx0 < @command_list.length
       @delete_script_command_by_idx(@command_list.length - 1)
@@ -876,9 +884,27 @@ class CommandController
     orphan = elem[0]
     pops = orphan.parentNode
     pops.removeChild(orphan)
+  update_script_buttons: ->
+    if @command_idx0 >= @command_list.length
+      @disable_play_buttons()
+    else
+      @enable_play_buttons()
+    if @command_idx0 > 0
+      @enable_back_buttons()
+    if @command_idx0 is 0
+      @disable_back_buttons()
   disable_play_buttons: ->
     @scriptPlayButton.attr('disabled', 'disabled')
     @scriptForwardButton.attr('disabled', 'disabled')
+  enable_play_buttons: ->
+    @scriptForwardButton.attr('disabled', null)
+    @scriptPlayButton.attr('disabled', null)
+  disable_back_buttons: ->
+    @scriptBackButton.attr('disabled', 'disabled')
+    @scriptRewindButton.attr('disabled', 'disabled')
+  enable_back_buttons: ->
+    @scriptBackButton.attr('disabled', null)
+    @scriptRewindButton.attr('disabled', null)
   build_command: ->
     args =
       verbs: []
