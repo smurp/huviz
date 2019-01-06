@@ -117,7 +117,7 @@ class CommandController
     @scriptForwardButton.append('i').attr("class", "fa fa-fast-forward")
     @scriptDownloadButton = @scriptPlayerControls.append('button').
       attr('title','save script').
-      attr('style', 'margin-left:1em;display:none').
+      attr('style', 'margin-left:1em;display:none').  # ;display:none
       on('click', @on_downloadscript_clicked)
     @scriptDownloadButton.append('i').attr("class", "fa fa-download")
     #history.append('div')
