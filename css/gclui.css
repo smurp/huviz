@@ -104,6 +104,7 @@
   border: none;
   position: relative;
   cursor: default;
+  padding-right: 1em;
 }
 .command.played {
   background-color: #fcf59b;  /* legal pad yellow */
