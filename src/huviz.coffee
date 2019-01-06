@@ -3738,10 +3738,10 @@ class Huviz
 
   pin: (node, cmd) ->
     if node.state is @graphed_set
-      @pinned_set.add(node)
       if cmd? and cmd.polar_coords
-        @move_node_to_point(node, @get_point_from_polar_coords(cmd.polar_coords))
-
+        pin_point = @get_point_from_polar_coords(cmd.polar_coords)
+        node.prev_point(pin_point)
+      @pinned_set.add(node)
       return true
     return false
 
