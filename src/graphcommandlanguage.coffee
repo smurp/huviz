@@ -164,7 +164,8 @@ class GraphCommand
             for n in the_set
               result_set.add(n)
     if @sets
-      for a_set in @sets
+      for a_set_id in @sets
+        a_set = @graph_ctrl.get_set_by_id(a_set_id)
         for node in a_set
           if not like_regex? or node.name.match(like_regex)
             result_set.add(node)
@@ -280,7 +281,10 @@ class GraphCommand
     #debugger if not @object_phrase?
     @object_phrase ?= null  # this gives @object_phrase a value even if it is null
     if @sets?
-      more = angliciser((s.get_label() for s in @sets))
+      setLabels = []
+      for aSet in @sets
+        setLabels.push(aSet.get_label())
+      more = angliciser(setLabels)
       @object_phrase = more
       #if @object_phrase?
       @noun_phrase_ready = true

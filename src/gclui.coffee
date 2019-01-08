@@ -80,7 +80,7 @@ class CommandController
     #  skip_history: true))
     @huviz.run_command(new gcl.GraphCommand(@huviz,
       verbs: ['undiscard','unchoose','unselect', 'unpin', 'shelve','unlabel']
-      sets: [@huviz.all_set]
+      sets: [@huviz.all_set.id]
       skip_history: true))
     @disengage_all_verbs()
     @reset_command_history()
@@ -158,7 +158,14 @@ class CommandController
     for elem_and_cmd in @command_list
       cmd = elem_and_cmd.cmd
       cmdList.push(cmd.args_or_str)
-    return JSON.stringify(cmdList, null, 4)
+    replacer = (key, value) ->
+      if key is 'subjects'
+        retlist = []
+        for node in value
+          retlist.push(node.lid or node)
+        return nodelist
+      return value
+    return JSON.stringify(cmdList, replacer, 4)
   make_txt_script_href: () ->
     theBod = encodeURIComponent(@get_script_body())
     theHref = "data:text/plain;charset=utf-8," + theBod
@@ -391,7 +398,7 @@ class CommandController
     cmd = new gcl.GraphCommand @huviz,
       verbs: [verb]
       regarding: [pred_id]
-      sets: [@huviz.selected_set]
+      sets: [@huviz.selected_set.id]
     @prepare_command(cmd)
     @huviz.run_command(@command)
   recolor_edges: (evt) =>
@@ -1254,12 +1261,12 @@ class CommandController
       if hasVerbs
         cmd = new gcl.GraphCommand @huviz,
             verbs: @engaged_verbs # ['select']
-            sets: [@chosen_set]
+            sets: [@chosen_set.id]
     else if new_state is 'unshowing'
       @taxon_picker.unshield()
       XXXcmd = new gcl.GraphCommand @huviz,
           verbs: ['unselect']
-          sets: [@chosen_set]
+          sets: [@chosen_set.id]
       @disengage_all_sets()
     if cmd?
       @huviz.run_command(cmd, @make_run_transient_and_cleanup_callback(because))
@@ -1281,7 +1288,7 @@ class CommandController
       cleanup_verb = the_set.cleanup_verb
       cmd = new gcl.GraphCommand @huviz,
         verbs: [cleanup_verb]
-        sets: [the_set]
+        sets: [the_set.id]
       @huviz.run_command(cmd)
     return
   on_set_count_update: (set_id, count) =>

@@ -1283,6 +1283,9 @@ class Huviz
       pinned_set: @pinned_set
       nameless_set: @nameless_set
 
+  get_set_by_id: (setId) ->
+    return this[setId + '_set']
+
   update_all_counts: ->
     @update_set_counts()
     #@update_predicate_counts()
@@ -1355,13 +1358,13 @@ class Huviz
   reset_data: ->
     # TODO fix gclc.run so it can handle empty sets
     if @discarded_set.length
-      @do({verbs: ['shelve'], sets: [@discarded_set]})
+      @do({verbs: ['shelve'], sets: [@discarded_set.id]})
     if @graphed_set.length
-      @do({verbs: ['shelve'], sets: [@graphed_set]})
+      @do({verbs: ['shelve'], sets: [@graphed_set.id]})
     if @hidden_set.length
-      @do({verbs: ['shelve'], sets: [@hidden_set]})
+      @do({verbs: ['shelve'], sets: [@hidden_set.id]})
     if @selected_set.length
-      @do({verbs: ['unselect'], sets: [@selected_set]})
+      @do({verbs: ['unselect'], sets: [@selected_set.id]})
     @gclui.reset_editor()
     @gclui.select_the_initial_set()
 
@@ -4113,7 +4116,7 @@ class Huviz
       cmdArgs =
         verbs: ['show']
         regarding: [pred_uri]
-        sets: [@shelved_set]
+        sets: [@shelved_set.id]
       cmd = new gcl.GraphCommand(this, cmdArgs)
       @run_command(cmd)
       @clean_up_all_dirt_once()
