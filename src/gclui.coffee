@@ -116,10 +116,17 @@ class CommandController
       on('click', @on_fastforward_click)
     @scriptForwardButton.append('i').attr("class", "fa fa-fast-forward")
     @scriptDownloadButton = @scriptPlayerControls.append('button').
-      attr('title','save script').
+      attr('title','save script as .txt').
       attr('style', 'margin-left:1em').  # ;display:none
-      on('click', @on_downloadscript_clicked)
-    @scriptDownloadButton.append('i').attr("class", "fa fa-download")
+      on('click', @on_downloadscript_txt_clicked)
+    @scriptDownloadButton.append('i').attr("class", "fa fa-download").
+      append('span').text('.txt')
+    @scriptDownloadJsonButton = @scriptPlayerControls.append('button').
+      attr('title','save script as .json').
+      attr('style', '').  # ;display:none
+      on('click', @on_downloadscript_json_clicked)
+    @scriptDownloadJsonButton.append('i').attr("class", "fa fa-download").
+      append('span').text('.json')
     #history.append('div')
     @cmdlist = history.
       append('div').
@@ -133,8 +140,8 @@ class CommandController
   reset_command_history: ->
     for record in @command_list
       record.elem.attr('class','command')
-  get_downloadscript_name: () ->
-    return @lastScriptName or 'HuVizScript.txt'
+  get_downloadscript_name: (ext) ->
+    return @lastScriptName or ('HuVizScript.' + ext)
   get_script_prefix: ->
     return [
       "#!/bin/env huviz",
@@ -146,20 +153,42 @@ class CommandController
       ].join("\n")
   get_script_body: ->
     return @get_script_prefix() + @oldcommands.text()
-  on_downloadscript_clicked: () =>
-    transientLink = @scriptPlayerControls.append('a')
+  get_script_body_as_json: ->
+    cmdList = []
+    for elem_and_cmd in @command_list
+      cmd = elem_and_cmd.cmd
+      cmdList.push(cmd.args_or_str)
+    return JSON.stringify(cmdList, null, 4)
+  make_txt_script_href: () ->
     theBod = encodeURIComponent(@get_script_body())
     theHref = "data:text/plain;charset=utf-8," + theBod
-    filename = "script.huviz"
-    transientLink.text('doh')
+    return theHref
+  make_json_script_href: ->
+    theJSON = encodeURIComponent(@get_script_body_as_json())
+    theHref = "data:text/json;charset=utf-8," + theJSON
+    return theHref
+  on_downloadscript_json_clicked: =>
+    @on_downloadscript_clicked('json')
+    return
+  on_downloadscript_txt_clicked: =>
+    @on_downloadscript_clicked('txt')
+    return
+  on_downloadscript_clicked: (txtOrJson) =>
+    transientLink = @scriptPlayerControls.append('a')
+    transientLink.text('script')
     @lastScriptName = prompt("What would you like to call your saved script?",
-      @get_downloadscript_name())
+      @get_downloadscript_name(txtOrJson))
     transientLink.attr('style','display:none')
     transientLink.attr('download', @lastScriptName)
+    if txtOrJson is 'json'
+      theHref = @make_json_script_href()
+    else
+      theHref = @make_txt_script_href()
     transientLink.attr('href',theHref)
     transientLink.node().click()
     node = transientLink.node()
     node.parentNode.removeChild(node)
+    return
   on_rewind_click: () =>
     @reset_graph()
     @command_idx0 = 0

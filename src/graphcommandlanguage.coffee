@@ -100,6 +100,7 @@ class GraphCommand
   #   constraints and regarding
   constructor: (@graph_ctrl, args_or_str) ->
     @prefixes = {}
+    @args_or_str = args_or_str
     if typeof args_or_str == 'string'
       args = @parse(args_or_str)
     else
