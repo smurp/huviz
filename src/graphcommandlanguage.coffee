@@ -220,7 +220,7 @@ class GraphCommand
       @graph_ctrl.load_with(@data_uri, @with_ontologies)
       console.log("load data_uri has returned")
     else
-      for meth in @get_methods()
+      for meth in @get_methods() # find the methods on huviz which implement each verb
         if meth.callback
           callback = meth.callback
         else if meth.build_callback
@@ -231,7 +231,7 @@ class GraphCommand
         if atFirst?
           atFirst()
         iter = (node) =>
-          retval = meth.call(@graph_ctrl, node)
+          retval = meth.call(@graph_ctrl, node, this)
           @graph_ctrl.tick() # TODO(smurp) move this out, or call every Nth node
         # REVIEW Must we check for nodes? Perhaps atLast dominates.
         if nodes?
@@ -240,8 +240,6 @@ class GraphCommand
           else
             for node in nodes
               iter(node)
-            #if callback isnt errorHandler
-            #  debugger
             @graph_ctrl.gclui.set
             callback()
     @graph_ctrl.clean_up_all_dirt_once()
@@ -323,6 +321,9 @@ class GraphCommand
       @suffix_phrase += " matching '"+like_str+"'"
     if regarding_phrase
       @suffix_phrase += " regarding " + regarding_phrase +  ' .'
+    else if @polar_coords
+      @suffix_phrase +=  " at #{@polar_coords.degrees.toFixed(0)} degrees"
+      @suffix_phrase +=  " and range #{@polar_coords.range.toFixed(2)} ."
     else
       @suffix_phrase += ' .'
     cmd_str += @suffix_phrase

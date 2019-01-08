@@ -18,7 +18,10 @@ window.toggle_suspend_updates = (val) ->
     window.suspend_updates = val
   #console.warn "suspend_updates",window.suspend_updates
   return window.suspend_updates
-
+getRandomId = (prefix) ->
+  max = 10000000000;
+  prefix = prefix || 'id';
+  return prefix + Math.floor(Math.random() * Math.floor(max))
 gcl = require('graphcommandlanguage')
 ColoredTreePicker = require('coloredtreepicker').ColoredTreePicker
 TreePicker = require('treepicker').TreePicker
@@ -36,11 +39,8 @@ class CommandController
     if @huviz.args.display_hints
       @hints = d3.select(@container).append("div").attr("class","hints")
       $(".hints").append($(".hint_set").contents())
-    @comdiv = d3.select(@container).append("div") # --- Add a container
-    @cmdtitle = d3.select("#tabs-history").append('div').attr('class','control_label').html('Command History')
-    @cmdlist = d3.select("#tabs-history").append('div').attr('class','commandlist')
+    @make_command_history()
     console.log "Window height: " + @huviz.height
-    @oldcommands = @cmdlist.append('div').attr('id','commandhistory').style('max-height',"#{@huviz.height-80}px")
     @control_label("Current Command")
     @nextcommandbox = @comdiv.append('div')
     @make_verb_sets()
@@ -67,19 +67,96 @@ class CommandController
     if title
       label.attr('title',title)
     return outer
-
-#  minimize_gclui: () ->
-    #$('#tabs').prop('style','visibility:hidden')
-    #$('#expand_cntrl').prop('style','visibility:visible')
-    #w_width = (@container.clientWidth or window.innerWidth or document.documentElement.clientWidth or document.clientWidth)
-    #@width = w_width
-    #@get_container_width()
-    #console.log @width
-  #maximize_gclui: () ->
-    #$('#tabs').prop('style','visibility:visible')
-    #$('#maximize_cntrl').prop('style','visibility:hidden')
-    #console.log "minimize the interface"
-
+  reset_graph: ->
+    ###
+    * unhide all
+    * retrieve all
+    * shelve all
+    * sanity check set counts
+    ###
+    #@huviz.run_command(new gcl.GraphCommand(@huviz,
+    #  verbs: ['unhide']
+    #  sets: [@huviz.all_set]
+    #  skip_history: true))
+    @huviz.run_command(new gcl.GraphCommand(@huviz,
+      verbs: ['undiscard','unchoose','unselect', 'unpin', 'shelve','unlabel']
+      sets: [@huviz.all_set]
+      skip_history: true))
+    @disengage_all_verbs()
+    @reset_command_history()
+  make_command_history: ->
+    @comdiv = d3.select(@container).append("div") # --- Add a container
+    history = d3.select("#tabs-history")
+    @cmdtitle = history.
+      append('div').
+      attr('class','control_label').
+      html('Command History').
+      attr('style', 'display:inline')
+    @scriptPlayerControls = history.append('div').attr('class','scriptPlayerControls')
+    #  attr('style','position: relative;  float:right')
+    @scriptRewindButton = @scriptPlayerControls.append('button').
+      attr('title','rewind to start').
+      on('click', @on_rewind_click)
+    @scriptRewindButton.
+      append('i').attr("class", "fa fa-fast-backward")
+    @scriptBackButton = @scriptPlayerControls.append('button').
+      attr('title','go back one step').
+      #attr('disabled', 'disabled').
+      on('click', @on_backward_click)
+    @scriptBackButton.append('i').attr("class", "fa fa-play fa-flip-horizontal")
+    @scriptPlayButton = @scriptPlayerControls.append('button').
+      attr('title','play script step by step').
+      attr('disabled', 'disabled').
+      on('click', @on_forward_click)
+    @scriptPlayButton.append('i').attr("class", "fa fa-play")
+    @scriptForwardButton = @scriptPlayerControls.append('button').
+      attr('title','play script continuously').
+      attr('disabled', 'disabled').
+      #attr('style', 'display:none').
+      on('click', @on_fastforward_click)
+    @scriptForwardButton.append('i').attr("class", "fa fa-fast-forward")
+    @scriptDownloadButton = @scriptPlayerControls.append('button').
+      attr('title','save script').
+      attr('style', 'margin-left:1em;display:none').  # ;display:none
+      on('click', @on_downloadscript_clicked)
+    @scriptDownloadButton.append('i').attr("class", "fa fa-download")
+    #history.append('div')
+    @cmdlist = history.
+      append('div').
+      attr('class','commandlist')
+    @oldcommands = @cmdlist.
+      append('div').
+      attr('id','commandhistory').
+      style('max-height',"#{@huviz.height-80}px")
+    @command_list = []
+    @command_idx0 = 0
+  reset_command_history: ->
+    for record in @command_list
+      record.elem.attr('class','command')
+  on_rewind_click: () =>
+    @reset_graph()
+    @command_idx0 = 0
+    @update_script_buttons()
+  on_backward_click: () =>
+    forward_to_idx = @command_idx0 - 1
+    @on_rewind_click()
+    @on_fastforward_click(forward_to_idx)
+  on_forward_click: () =>
+    @play_old_command_by_idx(@command_idx0)
+    @command_idx0++
+    @update_script_buttons()
+  on_fastforward_click: (forward_to_idx) =>
+    forward_to_idx ?= @command_list.length
+    while @command_idx0 < forward_to_idx
+      @on_forward_click()
+  play_old_command_by_idx: (idx) ->
+    record = @command_list[idx]
+    record.elem.attr('class', 'command played')
+    @play_old_command(record.cmd)
+  play_old_command: (cmd) ->
+    cmd.skip_history = true
+    cmd.skip_history_remove = true
+    @huviz.run_command(cmd)
   install_listeners: () ->
     window.addEventListener 'changePredicate', @predicate_picker.onChangeState
     window.addEventListener 'changeTaxon', @taxon_picker.onChangeState
@@ -106,14 +183,34 @@ class CommandController
     $(".hints > .a_hint").hide()
     $(".hints > .a_hint").first().show()
   select_the_initial_set: =>
+    @OLD_select_the_initial_set()
+    return
+  NEW_select_the_initial_set: =>
+    # this does NOT function as a workaround for the problem like OLD_select_the_initial_set
+    @huviz.run_command(new gcl.GraphCommand(@huviz,
+      verbs: ['select'],
+      every_class: true,
+      classes: ['Thing'],
+      skip_history: true))
+    @huviz.run_command(new gcl.GraphCommand(@huviz,
+      verbs: ['unselect'],
+      every_class: true,
+      classes: ['Thing'],
+      skip_history: true))
+    @huviz.shelved_set.resort() # TODO remove when https://github.com/cwrc/HuViz/issues/109
+    return
+  OLD_select_the_initial_set: =>
     # TODO initialize the taxon coloring without cycling all
+    rm_cmd = () => # more hideous hackery: remove toggleTaxonThing from script
+      @delete_script_command_by_idx(0)
     toggleEveryThing = () =>
       @huviz.toggle_taxon("Thing", false) #, () -> alert('called'))
+      setTimeout(rm_cmd, 1000)
     toggleEveryThing.call()
     # everyThingIsSelected = () =>
     #  @huviz.nodes.length is @huviz.selected_set.length
     # @check_until_then(everyThingIsSelected, toggleEveryThing)
-    setTimeout(toggleEveryThing, 2000)
+    setTimeout(toggleEveryThing, 1200)
     #@huviz.do({verbs: ['unselect'], sets: [], skip_history: true})
     @huviz.shelved_set.resort() # TODO remove when https://github.com/cwrc/HuViz/issues/109
     return
@@ -744,22 +841,75 @@ class CommandController
     @huviz.like_string()
   get_like_string: ->
     @like_input[0][0].value
-  old_commands: []
   push_command: (cmd) ->
+    throw new Error('DEPRECATED')
     @push_command_onto_history(cmd)
   push_command_onto_history: (cmd) ->
-    if @old_commands.length > 0
-      prior = @old_commands[@old_commands.length-1]
-      if prior.cmd.str is cmd.str
-        return  # same as last command, ignore
-    cmd_ui = @oldcommands.append('div').attr('class','command')
+    # Maybe the command_pointer is in the middle of the command_list and here
+    # we are trying to run a new command -- so we need to dispose of the remaining
+    # commands in the command_list because the user is choosing to take a new path.
+    @clear_unreplayed_commands_if_needed()
+    cmd.id = getRandomId('cmd')
+    elem = @oldcommands.append('div').
+      attr('class','played command').
+      attr('id',cmd.id)
     $('#commandhistory').scrollTop($('#commandhistory').scrollHeight)
-    record =
-      elem: cmd_ui
+    elem_and_cmd =
+      elem: elem
       cmd: cmd
-    @old_commands.push(record)
-    cmd_ui.text(cmd.str)
-
+    @command_list.push(elem_and_cmd)
+    @command_idx0 = @command_list.length
+    idx_of_this_command = @command_idx0
+    # we are appending to the end of the script, playing is no longer valid, so...
+    @disable_play_buttons()
+    elem.text(cmd.str)
+    delete_button = elem.append('a')
+    delete_button.attr('class','delete-command').text('x')
+    delete_button.on('click',() => @delete_script_command_by_id(cmd.id))
+    @update_script_buttons()
+  clear_unreplayed_commands_if_needed: ->
+    while @command_idx0 < @command_list.length
+      @delete_script_command_by_idx(@command_list.length - 1)
+    return
+  delete_script_command_by_id: (cmd_id) ->
+    for elem_and_cmd,idx in @command_list
+      if elem_and_cmd.cmd.id is cmd_id
+        @delete_script_command_by_idx(idx)
+        break
+    return
+  delete_script_command_by_idx: (idx) ->
+    elem_and_cmd = @command_list.splice(idx, 1)[0]
+    #alert("about to delete: " + elem_and_cmd.cmd.str)
+    elem = elem_and_cmd.elem[0]
+    orphan = elem[0]
+    pops = orphan.parentNode
+    pops.removeChild(orphan)
+    if idx < @command_idx0
+      @command_idx0--
+    if @command_idx0 < 0
+      @command_idx0 = 0
+    @update_script_buttons()
+  update_script_buttons: ->
+    if @command_idx0 >= @command_list.length
+      @disable_play_buttons()
+    else
+      @enable_play_buttons()
+    if @command_idx0 > 0
+      @enable_back_buttons()
+    if @command_idx0 <= 0
+      @disable_back_buttons()
+  disable_play_buttons: ->
+    @scriptPlayButton.attr('disabled', 'disabled')
+    @scriptForwardButton.attr('disabled', 'disabled')
+  enable_play_buttons: ->
+    @scriptForwardButton.attr('disabled', null)
+    @scriptPlayButton.attr('disabled', null)
+  disable_back_buttons: ->
+    @scriptBackButton.attr('disabled', 'disabled')
+    @scriptRewindButton.attr('disabled', 'disabled')
+  enable_back_buttons: ->
+    @scriptBackButton.attr('disabled', null)
+    @scriptRewindButton.attr('disabled', null)
   build_command: ->
     args =
       verbs: []

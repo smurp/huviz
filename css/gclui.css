@@ -9,9 +9,9 @@
   overflow-y: scroll;*/
 }
 #gclui p, #data_ontology_display p {
-    width:auto;
-    float:left;
-    margin: .1em;
+  width:auto;
+  float:left;
+  margin: .1em;
 }
 #predicates {
   margin-bottom: 50px;
@@ -64,7 +64,7 @@
 }
 
 .contents { /* Boxes in a treepicker are clickable */
-    cursor: pointer;
+  cursor: pointer;
 }
 .expander { /* Show expanders as clickable even if they are within treepicker-empty */
   cursor: pointer;
@@ -83,11 +83,11 @@
   margin:0.1em;
 }
 .shield {
-    position: absolute;
-    top:0px;
-    left:0px;
-    background-color:rgba(63,63,63,.5);
-    z-index:5000;
+  position: absolute;
+  top:0px;
+  left:0px;
+  background-color:rgba(63,63,63,.5);
+  z-index:5000;
 }
 /*  http://net.tutsplus.com/tutorials/html-css-techniques/lets-create-paper-with-css/ */
 .command {
@@ -95,7 +95,6 @@
   margin-top: .1em;
   padding: .1em;
   color: gray;
-  /*background-color: #fcf59b;  legal pad yellow */
   background-color: rgb(235, 245, 255);
   border-style: solid;
   border-top: 1px solid #ccc;
@@ -103,6 +102,26 @@
   border-right: 1px solid #eee;
   border-bottom: 1px solid #eee;
   border: none;
+  position: relative;
+  cursor: default;
+  padding-right: 1em;
+}
+.command.played {
+  background-color: #fcf59b;  /* legal pad yellow */
+}
+.delete-command {
+  display:normal;
+  color: #777;
+  font: 70% sans-serif;
+  position: absolute;
+  right: 5px;
+  text-decoration: none;
+  text-shadow: 0 1px 0 #fff;
+  top: 3px;
+  cursor: pointer;
+}
+.played .delete-command {
+  display: none
 }
 .command code {
   font-family: sans-serif;
@@ -145,15 +164,15 @@
   display:none;
 }
 .container {
-    display:inline-block;
-    border:1px solid;
-    overflow:hidden;
+  display:inline-block;
+  border:1px solid;
+  overflow:hidden;
 }
 .contents {
-    font-size: 90%;
-    /*border:1px solid;*/
-    padding: .1em;
-    overflow:auto;
+  font-size: 90%;
+  /*border:1px solid;*/
+  padding: .1em;
+  overflow:auto;
 }
 .treepicker-showing {
     background-color: tan;
@@ -249,33 +268,33 @@
 
 }
 .graph_control input {
-    cursor: inherit;
+  cursor: inherit;
 }
 .graph_control label {
-    cursor: inherit;
+  cursor: inherit;
 }
 
 .close_hint {
-    background-color: red;
-    color: white;
-    border-radius: .5em;
-    padding: 2px;
-    position: absolute;
-    top: 0;
-    right: 0;
+  background-color: red;
+  color: white;
+  border-radius: .5em;
+  padding: 2px;
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 .a_hint {
-    border: .2em;
-    font-size: 90%;
-    font-family: "Times New Roman", Times, serif;
-    background-color: #FFFF88;
-    padding: .5em;
-    margin-left: .7em;
-    margin-right: .7em;
-    margin-bottom: .7em;
+  border: .2em;
+  font-size: 90%;
+  font-family: "Times New Roman", Times, serif;
+  background-color: #FFFF88;
+  padding: .5em;
+  margin-left: .7em;
+  margin-right: .7em;
+  margin-bottom: .7em;
 }
 .hints {
-    margin-top: .5em;
+  margin-top: .5em;
 }
 
 /* ----------------- Dataset / Ontology Upload Forms ---------------- */
@@ -295,34 +314,34 @@
   background-color: green;
 }
 .local_file_form .box__file {
-    width: 0.1px;
-    height: 0.1px;
-    opacity: 0;
-    overflow: hidden;
-    position: absolute;
-    z-index: -1;
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
 }
 .local_file_form .box__upload_button {
-    display: none;
+  display: none;
 }
 .local_file_form .box__label {
-    display: none;
+  display: none;
 }
 .local_file_form.supports-dnd {
-    outline: 2px dashed black;
-    margin: 3px;
-    outline-offset: -2px;
-    border: 6px;
-    padding: 8px;
+  outline: 2px dashed black;
+  margin: 3px;
+  outline-offset: -2px;
+  border: 6px;
+  padding: 8px;
 }
 .local_file_form .box__uri {
-    width: 98%;
+  width: 98%;
 }
 .local_file_form .box__uri:invalid {
-    color: red;
+  color: red;
 }
 .local_file_form .box__uri:valid {
-    color: green;
+  color: green;
 }
 .pick_or_provide_form {
   margin-top: 1em;
@@ -366,5 +385,5 @@
   border-radius: 5px;
 }
 .pick_or_provide_form button:disabled{
-    display: none;
+  display: none;
 }

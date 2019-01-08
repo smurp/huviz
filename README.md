@@ -59,6 +59,9 @@ huviz
 
     npm run watchTest
 
+    # bail on first error
+    BAIL=1 npm run watchTest
+
 uses https://www.npmjs.com/package/npm-watch https://www.npmjs.com/package/mocha
 
 # Running the server
