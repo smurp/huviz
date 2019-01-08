@@ -120,6 +120,9 @@
   top: 3px;
   cursor: pointer;
 }
+.delete-command::after {
+  content: "x";
+}
 .played .delete-command {
   display: none
 }

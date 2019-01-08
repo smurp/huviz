@@ -4698,10 +4698,18 @@ class Huviz
     @big_go_button.prop('disabled', disable)
     return
 
-  replace_loader_display: (dataset, ontology) ->
-    $("#huvis_controls .unselectable").attr("style","display:none")
-    uri = new URL(location)
+  get_reload_uri: ->
+    return @reload_uri or new URL(window.location)
+
+  generate_reload_uri: (dataset, ontology) ->
+    @reload_uri =     uri = new URL(location)
     uri.hash = "load+#{dataset.value}+with+#{ontology.value}"
+    return uri
+
+  replace_loader_display: (dataset, ontology) ->
+    @generate_reload_uri(dataset, ontology)
+    uri = @get_reload_uri()
+    $("#huvis_controls .unselectable").attr("style","display:none")
     data_ontol_display = """
     <div id="data_ontology_display">
       <p><span class="dt_label">Dataset:</span> #{dataset.label}</p>
