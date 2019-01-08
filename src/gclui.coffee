@@ -381,6 +381,7 @@ class CommandController
       @proposed_taxon = taxon_id
       @proposed_every = not not @taxon_picker.id_is_collapsed[taxon_id]
       if not @engaged_verbs.length
+        # only presume that select/unselect is what is happening when no other verbs are engaged
         if @engaged_taxons.includes(taxon_id)
           @proposed_verb = 'unselect'
         else

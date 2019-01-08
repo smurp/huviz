@@ -260,6 +260,7 @@ class GraphCommand
     @verb_phrase = ''
     @noun_phrase = ''
     @noun_phrase_ready = false
+    #@object_phrase = null
     if @verbs and @verbs.length
       cmd_str = angliciser(@get_pretty_verbs())
       @verb_phrase_ready = true
@@ -276,7 +277,7 @@ class GraphCommand
       @str += @data_uri + " ."
       return
     #debugger if not @object_phrase?
-    @object_phrase ?= null
+    @object_phrase ?= null  # this gives @object_phrase a value even if it is null
     if @sets?
       more = angliciser((s.get_label() for s in @sets))
       @object_phrase = more
