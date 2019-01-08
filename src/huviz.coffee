@@ -1012,6 +1012,20 @@ class Huviz
       @ctx.fillStyle = "black"
       @ctx.fill()
 
+  draw_triangle: (x, y, size, color, x1, y1, x2, y2) ->
+    # Rather than send all three coordinates, it would be better if just the tip
+    # was passed along with an angle and size to calculate the other two points of the
+    # triangle.
+    @ctx.beginPath()
+    @ctx.moveTo(x, y)
+    @ctx.lineTo(x1, y1)
+    @ctx.lineTo(x2, y2)
+    @ctx.moveTo(x, y)
+    @ctx.stroke()
+    @ctx.fillStyle = color
+    @ctx.fill()
+    @ctx.closePath()
+
   draw_pie: (cx, cy, radius, strclr, filclrs, special_focus) ->
     num = filclrs.length
     if not num
@@ -1033,7 +1047,7 @@ class Huviz
     @ctx.lineTo(x2, y2)
     @ctx.closePath()
     @ctx.stroke()
-  draw_curvedline: (x1, y1, x2, y2, sway_inc, clr, num_contexts, line_width, edge) ->
+  draw_curvedline: (x1, y1, x2, y2, sway_inc, clr, num_contexts, line_width, edge, directional_edge) ->
     pdist = distance([x1,y1],[x2,y2])
     sway = @swayfrac * sway_inc * pdist
     if pdist < @line_length_min
@@ -1066,11 +1080,21 @@ class Huviz
     @ctx.stroke()
 
     xhndl = xmid + Math.sin(ctrl_angle) * (sway/2)
-    yhndl = ymid + Math.cos(ctrl_angle) * (sway/2)
+    yhndl = ymid + Math.cos(ctrl_angle)* (sway/2)
     edge.handle =
       x: xhndl
       y: yhndl
     @draw_circle(xhndl, yhndl, (line_width/2), clr) # draw a circle at the midpoint of the line
+    if directional_edge
+      arrow_size = 10
+      if directional_edge is "forward"
+        tip_x = x2
+        tip_y = y2
+      else
+        tip_x = x1
+        tip_y = y1
+      #TODO This works but is ugly. The directional arrow created is too large
+      #@draw_triangle(tip_x, tip_y, arrow_size, "blue", xctrl, yctrl, xmid, ymid)
     #@draw_line(xmid,ymid,xctrl,yctrl,clr) # show mid to ctrl
 
   draw_disconnect_dropzone: ->
@@ -1643,9 +1667,22 @@ class Huviz
                          e.target.fisheye.y, sway, e.color, e.contexts.length, line_width, e)
         #if this line from path node to path node then add black highlight
         if @walk_path_set.length > 0
-          for node in @walk_path_set
-            if e.source.lid is node then source_is_path = true
-            if e.target.lid is node then target_is_path = true
+          #console.log @walk_path_set
+          for walk_node, i in @walk_path_set
+            if @prune_walk_nodes is "directional_path"
+              s1 = e.source.lid
+              s2 = e.target.lid
+              previous_node = @walk_path_set[i-1]
+              #walk_frwrd = @walk_path_set[i+1]
+              if s1 is previous_node and s2 is walk_node then directional_edge = 'forward'
+              if s2 is previous_node and s1 is walk_node then directional_edge = 'backward'
+            else # for non-directionall pruned path and 'hairy' path
+              if e.source.lid is walk_node then source_is_path = true
+              if e.target.lid is walk_node then target_is_path = true
+        if directional_edge
+          @draw_curvedline(e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x,
+                           e.target.fisheye.y, sway, "blue", e.contexts.length, 1, e, directional_edge)
+          directional_edge = false
         if source_is_path and target_is_path
           @draw_curvedline(e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x,
                            e.target.fisheye.y, sway, "black", e.contexts.length, 1, e)
@@ -3920,13 +3957,28 @@ class Huviz
     # are no longer held in the graph by any recently walked-to nodes.
     wasRollCall = @wasChosen_set.roll_call()
     nowRollCall = @nowChosen_set.roll_call()
-    #Get current selection (last) by finding the difference between nowChosen_set and wasChosen_set
-    for node in @nowChosen_set
-      for old_node in @wasChosen_set
-        if node is old_node then found_it = true
-      if found_it then found_it = false else current_selection = node
+
+    #console.log @nowChosen_set
+    #console.log @focused_node
+    #current_selection = @nowChosen_set.slice(-1)[0]
+    current_selection = @focused_node
     valid_path_nodes = []
     active_nodes = []
+    if not @prune_walk_nodes then @prune_walk_nodes = $("#prune_walk_nodes :selected").val()
+    # If current_selection is already in @walk_path_set, then delete those that may appear after it (i.e. erase path)
+    #console.log "The mode setting is #{@prune_walk_nodes}"
+    #console.log @walk_path_set
+    #console.log "Current selection is " + current_selection.lid
+    for nodeId, i in @walk_path_set
+      #console.log i
+      #console.log "looking at " + nodeId + " and #{current_selection.lid}"
+      if nodeId is current_selection.lid
+        #console.log "Slice of after #{nodeId} at position #{i}"
+        new_path = @walk_path_set.slice(0,i)
+        #console.log new_path
+        @walk_path_set = new_path
+
+
     #if @walk_path_set.length is 0 then @walk_path_set.push nowRollCall #first time through, walked node should always be added to path
     for node in @all_set
       for lid in @walk_path_set
@@ -3941,10 +3993,10 @@ class Huviz
     # If node is along a continuous path, then add the selection; if not then reset everything and start a new path
     if connected_path #=true
       @walk_path_set.push current_selection.lid
-      @walk_path_set.sort()
+      #@walk_path_set.sort()
       connected_path = false
       # Prune associated tangential nodes on path (i.e. keep only current_selection edges)
-      if @prune_walk_nodes
+      if @prune_walk_nodes is "directional_path" or @prune_walk_nodes is "pruned_path"
         ungraphed = []
         keep_graphed = []
         for node in active_nodes
@@ -3959,11 +4011,11 @@ class Huviz
           remove = false
           for keep_node in unique_keep
             if graphed_node.lid is keep_node.lid
-              console.log "keep #{graphed_node.lid}"
+              #console.log "keep #{graphed_node.lid}"
               remove = false
               break
             else
-              console.log "remove #{graphed_node.lid}"
+              #console.log "remove #{graphed_node.lid}"
               remove = true
           if remove
             remove_list.push graphed_node
@@ -3991,6 +4043,7 @@ class Huviz
       # Reset the walk path and start new one with current selection
       @walk_path_set = []
       @walk_path_set.push current_selection.lid
+    console.log @walk_path_set
 
   walk: (chosen) =>
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -5419,13 +5472,24 @@ class Huviz
           type: "checkbox"   #checked: "checked"
     ,
       prune_walk_nodes:
-        text: "Prune connected nodes on walk path"
+        text: "Walk path options "
         style: "color:orange"
         label:
-          title: "As path is walked, prune all of the connected nodes on distance steps"
+          title: "As path is walked, keep or prune connected nodes on selected steps"
         input:
-          type: "checkbox"
-          checked: "checked"
+          type: "select"
+        options : [
+            label: "Directional (pruned)"
+            value: "directional_path"
+            selected: true
+          ,
+            label: "Non-directional (pruned)"
+            value: "pruned_path"
+          ,
+            label: "Non-directional (unpruned)"
+            value: "hairy_path"
+        ]
+        event_type: "change"
     ,
       make_nodes_for_literals:
         style: "color:orange"
@@ -5454,7 +5518,7 @@ class Huviz
           type: "checkbox"
     ,
       graph_title_style:
-        text: "Title display"
+        text: "Title display "
         label:
           title: "Select graph title style"
         input:
@@ -5595,6 +5659,7 @@ class Huviz
     $("#tabs-options,.graph_controls").html("")
     @init_graph_controls_from_json()
     @on_change_graph_title_style("subliminal")
+    @on_change_prune_walk_nodes("directional_path")
 
   auto_adjust_settings: ->
     # Try to tune the gravity, charge and link length to suit the data and the canvas size.
@@ -5629,7 +5694,10 @@ class Huviz
           input.attr("name", control_name)
           for a,v of control.options
             option = input.append('option')
-            option.html(v.label).attr("value", v.value)
+            if v.selected
+              option.html(v.label).attr("value", v.value).attr("selected", "selected")
+            else
+              option.html(v.label).attr("value", v.value)
           #label.append("input").attr("name", "custom_title").attr("type", "text").attr("style", " ")
           #label.append("input").attr("name", "custom_subtitle").attr("type", "text").attr("style", " ")
         else if control.input.type is 'button'
