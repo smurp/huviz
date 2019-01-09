@@ -1283,6 +1283,9 @@ class Huviz
       pinned_set: @pinned_set
       nameless_set: @nameless_set
 
+  get_set_by_id: (setId) ->
+    return this[setId + '_set']
+
   update_all_counts: ->
     @update_set_counts()
     #@update_predicate_counts()
@@ -1355,13 +1358,13 @@ class Huviz
   reset_data: ->
     # TODO fix gclc.run so it can handle empty sets
     if @discarded_set.length
-      @do({verbs: ['shelve'], sets: [@discarded_set]})
+      @do({verbs: ['shelve'], sets: [@discarded_set.id]})
     if @graphed_set.length
-      @do({verbs: ['shelve'], sets: [@graphed_set]})
+      @do({verbs: ['shelve'], sets: [@graphed_set.id]})
     if @hidden_set.length
-      @do({verbs: ['shelve'], sets: [@hidden_set]})
+      @do({verbs: ['shelve'], sets: [@hidden_set.id]})
     if @selected_set.length
-      @do({verbs: ['unselect'], sets: [@selected_set]})
+      @do({verbs: ['unselect'], sets: [@selected_set.id]})
     @gclui.reset_editor()
     @gclui.select_the_initial_set()
 
@@ -4115,7 +4118,7 @@ class Huviz
       cmdArgs =
         verbs: ['show']
         regarding: [pred_uri]
-        sets: [@shelved_set]
+        sets: [@shelved_set.id]
       cmd = new gcl.GraphCommand(this, cmdArgs)
       @run_command(cmd)
       @clean_up_all_dirt_once()
@@ -4753,10 +4756,18 @@ class Huviz
     @big_go_button.prop('disabled', disable)
     return
 
-  replace_loader_display: (dataset, ontology) ->
-    $("#huvis_controls .unselectable").attr("style","display:none")
-    uri = new URL(location)
+  get_reload_uri: ->
+    return @reload_uri or new URL(window.location)
+
+  generate_reload_uri: (dataset, ontology) ->
+    @reload_uri =     uri = new URL(location)
     uri.hash = "load+#{dataset.value}+with+#{ontology.value}"
+    return uri
+
+  replace_loader_display: (dataset, ontology) ->
+    @generate_reload_uri(dataset, ontology)
+    uri = @get_reload_uri()
+    $("#huvis_controls .unselectable").attr("style","display:none")
     data_ontol_display = """
     <div id="data_ontology_display">
       <p><span class="dt_label">Dataset:</span> #{dataset.label}</p>
