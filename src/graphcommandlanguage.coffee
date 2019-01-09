@@ -164,8 +164,12 @@ class GraphCommand
             for n in the_set
               result_set.add(n)
     if @sets
-      for a_set_id in @sets
-        a_set = @graph_ctrl.get_set_by_id(a_set_id)
+      for set in @sets # set might be a SortedSet instance or a_set_id string
+        if typeof set is 'string'
+          a_set_id = set
+          a_set = @graph_ctrl.get_set_by_id(a_set_id)
+        else
+          a_set = set
         for node in a_set
           if not like_regex? or node.name.match(like_regex)
             result_set.add(node)
@@ -200,7 +204,7 @@ class GraphCommand
     @graph_ctrl.force.stop()
     reg_req = @regarding_required()
     nodes = @get_nodes()
-    console.log("%c#{@str}", "color:blue;font-size:1.5em;", "on #{nodes.length} nodes")
+    #console.log("%c#{@str}", "color:blue;font-size:1.5em;", "on #{nodes.length} nodes")
     errorHandler = (err_arg) ->
       #alert("WOOT! command has executed")
       if err_arg?
@@ -283,7 +287,8 @@ class GraphCommand
     if @sets?
       setLabels = []
       for aSet in @sets
-        setLabels.push(aSet.get_label())
+        setLabel = typeof aSet is 'string' or aSet.get_label()
+        setLabels.push(setLabel)
       more = angliciser(setLabels)
       @object_phrase = more
       #if @object_phrase?
