@@ -3958,10 +3958,12 @@ class Huviz
     wasRollCall = @wasChosen_set.roll_call()
     nowRollCall = @nowChosen_set.roll_call()
 
-    #console.log @nowChosen_set
-    #console.log @focused_node
-    #current_selection = @nowChosen_set.slice(-1)[0]
-    current_selection = @focused_node
+    if @focused_node #TODO This is trying to catch situations where nodes are selected and then Walked
+      current_selection = @focused_node
+    else if @selected_set[0]
+      current_selection = @selected_set[0]
+    else
+      current_selection = @activated_set[0]
     valid_path_nodes = []
     active_nodes = []
     if not @prune_walk_nodes then @prune_walk_nodes = $("#prune_walk_nodes :selected").val()
@@ -3991,7 +3993,7 @@ class Huviz
     for node_lid in valid_path_nodes #check to see if this is a connected node or new unconnect node
       if current_selection.lid is node_lid then connected_path = true
     # If node is along a continuous path, then add the selection; if not then reset everything and start a new path
-    if connected_path #=true
+    if connected_path
       @walk_path_set.push current_selection.lid
       #@walk_path_set.sort()
       connected_path = false
@@ -5464,7 +5466,7 @@ class Huviz
           type: "checkbox"   #checked: "checked"
     ,
       prune_walk_nodes:
-        text: "Walk path options "
+        text: "Walk styles "
         style: "color:orange"
         label:
           title: "As path is walked, keep or prune connected nodes on selected steps"
