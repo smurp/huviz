@@ -204,7 +204,7 @@ class GraphCommand
     @graph_ctrl.force.stop()
     reg_req = @regarding_required()
     nodes = @get_nodes()
-    #console.log("%c#{@str}", "color:blue;font-size:1.5em;", "on #{nodes.length} nodes")
+    console.log("%c#{@str}", "color:blue;font-size:1.5em;", "on #{nodes.length} nodes")
     errorHandler = (err_arg) ->
       #alert("WOOT! command has executed")
       if err_arg?
@@ -286,8 +286,12 @@ class GraphCommand
     @object_phrase ?= null  # this gives @object_phrase a value even if it is null
     if @sets?
       setLabels = []
-      for aSet in @sets
-        setLabel = typeof aSet is 'string' or aSet.get_label()
+      for set in @sets  # either a list of SortedSets or their ids
+        if typeof set is 'string'
+          aSet = @graph_ctrl.get_set_by_id(set)
+        else
+          aSet = set
+        setLabel = aSet.get_label()
         setLabels.push(setLabel)
       more = angliciser(setLabels)
       @object_phrase = more

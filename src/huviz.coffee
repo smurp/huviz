@@ -838,8 +838,10 @@ class Huviz
       else
         @run_verb_on_object('choose', @focused_node)
       # TODO(smurp) are these still needed?
-      @force.links @links_set
+      @force.links(@links_set)
       @restart()
+
+    return
 
   mouseright: () =>
     d3.event.preventDefault()
