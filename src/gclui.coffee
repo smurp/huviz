@@ -84,6 +84,7 @@ class CommandController
       skip_history: true))
     @disengage_all_verbs()
     @reset_command_history()
+    @engaged_taxons = []
   make_command_history: ->
     @comdiv = d3.select(@container).append("div") # --- Add a container
     history = d3.select("#tabs-history")

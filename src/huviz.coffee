@@ -3609,7 +3609,7 @@ class Huviz
     #console.warn("clean_up_all_dirt()")
     @clean_up_dirty_taxons()
     @clean_up_dirty_predicates()
-    @regenerate_english()
+    #@regenerate_english()
     #setTimeout(@clean_up_dirty_predictes, 500)
     #setTimeout(@clean_up_dirty_predictes, 3000)
     return
