@@ -4700,7 +4700,7 @@ class Huviz
             'In fact, perhaps the thing to do is load the dataset and ontology into their ' +
             'pickers so the user can mess with them before proceeding.  YES.  PERFECT.')
       #@local_script_data
-    
+
 
     onto = ontologies and ontologies[0] or @ontology_loader
     data = dataset or @dataset_loader
@@ -6576,12 +6576,15 @@ class PickOrProvide
       rsrcRec = uri_or_rec
     rsrcRec.uri ?= uri
     rsrcRec.isOntology ?= @isOntology
+    rsrcRec.isEndpoint ?= @isEndpoint
     rsrcRec.time ?= (new Date()).toISOString()
     rsrcRec.isUri ?= true
     rsrcRec.title ?= rsrcRec.uri
     rsrcRec.canDelete ?= not not rsrcRec.time?
     rsrcRec.label ?= rsrcRec.uri.split('/').reverse()[0] or rsrcRec.uri
     rsrcRec.rsrcType ?= @opts.rsrcType
+    if rsrcRec.label is "" or dataset_rec.label is "sparql"
+      rsrcRec.label = rsrcRec.uri
     # rsrcRec.data ?= file_rec.data # we cannot add data because for uri we load each time
     @add_resource(rsrcRec, true)
     @update_state()
