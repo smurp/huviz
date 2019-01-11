@@ -4647,14 +4647,14 @@ class Huviz
         'Ontology', 'OntoPP', true, false,
         {rsrcType: 'ontology'})
       #$(@ontology_loader.form).disable()
-    if not @endpoint_loader and @args.endpoint_loader__append_to_sel
-      @endpoint_loader = new PickOrProvide(@, @args.endpoint_loader__append_to_sel,
-        'Sparql', 'EndpointPP', false, true,
-        {rsrcType: 'endpoint'})
     if not @script_loader and @args.script_loader__append_to_sel
       @script_loader = new PickOrProvide(@, @args.script_loader__append_to_sel,
         'Script', 'ScriptPP', false, false,
         {dndLoaderClass: DragAndDropLoaderOfScripts; rsrcType: 'script'})
+    if not @endpoint_loader and @args.endpoint_loader__append_to_sel
+      @endpoint_loader = new PickOrProvide(@, @args.endpoint_loader__append_to_sel,
+        'Sparql', 'EndpointPP', false, true,
+        {rsrcType: 'endpoint'})
 
       #@endpoint_loader.outstanding_requests = 0
       #endpoint = "#" + @endpoint_loader.uniq_id
