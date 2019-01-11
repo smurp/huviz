@@ -2960,7 +2960,7 @@ class Huviz
       blurt(msg, 'error')
       $('#data_ontology_display').remove()
       @reset_dataset_ontology_loader()
-      #@init_dataset_menus()
+      #@init_resource_menus()
       return
 
     if the_parser is @parseAndShowNQ
@@ -4636,7 +4636,7 @@ class Huviz
   get_menu_by_rsrcType: (rsrcType) ->
     return @[rsrcType+'_loader'] # eg rsrcType='script' ==> @script_loader
 
-  init_dataset_menus: ->
+  init_resource_menus: ->
     # REVIEW See views/huviz.html.eco to set dataset_loader__append_to_sel and similar
     if not @dataset_loader and @args.dataset_loader__append_to_sel
       @dataset_loader = new PickOrProvide(@, @args.dataset_loader__append_to_sel,
@@ -4717,7 +4717,7 @@ class Huviz
 
   init_gclc: ->
     @gclc = new GraphCommandLanguageCtrl(this)
-    @init_dataset_menus()
+    @init_resource_menus()
     if not @gclui?
       @gclui = new CommandController(this,d3.select(@args.gclui_sel)[0][0],@hierarchy)
     window.addEventListener('showgraph', @register_gclc_prefixes)
@@ -6547,7 +6547,7 @@ class PickOrProvide
     new_val = option.val()
     #console.table([{last_val: @last_val, new_val: new_val}])
     cur_val = @pick_or_provide_select.val()
-    # TODO remove last_val = null in @init_dataset_menus() by fixing logic below
+    # TODO remove last_val = null in @init_resource_menus() by fixing logic below
     #   What is happening is that the AJAX loading of preloads means that
     #   it is as if each of the new datasets is being selected as it is
     #   added -- but when the user picks an actual ontology then
