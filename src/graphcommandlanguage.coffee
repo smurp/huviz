@@ -37,7 +37,7 @@ class GCLTestSuite
   #      }
   #     ])
   ###
-  constructor: (@graph_ctrl, @suite) ->
+  constructor: (@huviz, @suite) ->
     console.log "GCLTestSuite() arguments",arguments
     @break_quickly = true
   emit: (txt,id) ->
@@ -98,7 +98,7 @@ class GraphCommand
   #   at least one of: subjects, classes or sets
   # Optional parameters are:
   #   constraints and regarding
-  constructor: (@graph_ctrl, args_or_str) ->
+  constructor: (@huviz, args_or_str) ->
     @prefixes = {}
     @args_or_str = args_or_str
     if typeof args_or_str == 'string'
@@ -115,7 +115,7 @@ class GraphCommand
     id = node_spec.id
     term = id
     tried = []
-    node = @graph_ctrl.nodes.get({'id':term})
+    node = @huviz.nodes.get({'id':term})
     tried.push(term)
     id_parts = id.split(':')
     if id_parts.length > 1
@@ -124,16 +124,16 @@ class GraphCommand
       prefix = @prefixes[abbr]
       if prefix
         term = prefix+id
-        node = @graph_ctrl.nodes.get({'id':term})
+        node = @huviz.nodes.get({'id':term})
         tried.push(term)
     unless node
       for abbr,prefix of @prefixes
         if not node
           term = prefix+id
           tried.push(term)
-          node = @graph_ctrl.nodes.get({'id':term})
+          node = @huviz.nodes.get({'id':term})
     if not node
-      msg = "node with id = #{term} not found among #{@graph_ctrl.nodes.length} nodes: #{tried}"
+      msg = "node with id = #{term} not found among #{@huviz.nodes.length} nodes: #{tried}"
       #console.warn msg
     return node
   get_nodes: () ->
@@ -154,7 +154,7 @@ class GraphCommand
         #nodes.push(node)
     if @classes
       for class_name in @classes
-        the_set = @graph_ctrl.taxonomy[class_name]?.get_instances()
+        the_set = @huviz.taxonomy[class_name]?.get_instances()
         if the_set?
           if like_regex
             for n in the_set
@@ -167,7 +167,7 @@ class GraphCommand
       for set in @sets # set might be a SortedSet instance or a_set_id string
         if typeof set is 'string'
           a_set_id = set
-          a_set = @graph_ctrl.get_set_by_id(a_set_id)
+          a_set = @huviz.get_set_by_id(a_set_id)
         else
           a_set = set
         for node in a_set
@@ -177,11 +177,11 @@ class GraphCommand
   get_methods: () ->
     methods = []
     for verb in @verbs
-      method = @graph_ctrl[verb]
+      method = @huviz[verb]
       if method
-        method.build_callback = @graph_ctrl["#{verb}__build_callback"]
-        method.callback = @graph_ctrl["#{verb}__atLast"]
-        method.atFirst = @graph_ctrl["#{verb}__atFirst"]
+        method.build_callback = @huviz["#{verb}__build_callback"]
+        method.callback = @huviz["#{verb}__atLast"]
+        method.atFirst = @huviz["#{verb}__atFirst"]
         methods.push(method)
       else
         msg = "method '"+verb+"' not found"
@@ -190,7 +190,7 @@ class GraphCommand
   get_predicate_methods: () ->
     methods = []
     for verb in @verbs
-      method = @graph_ctrl[verb + "_edge_regarding"]
+      method = @huviz[verb + "_edge_regarding"]
       if method
         methods.push(method)
       else
@@ -200,8 +200,8 @@ class GraphCommand
   regarding_required: () ->
     return @regarding? and @regarding.length > 0
   execute: ->
-    @graph_ctrl.show_state_msg(@as_msg())
-    @graph_ctrl.force.stop()
+    @huviz.show_state_msg(@as_msg())
+    @huviz.force.stop()
     reg_req = @regarding_required()
     nodes = @get_nodes()
     console.log("%c#{@str}", "color:blue;font-size:1.5em;", "on #{nodes.length} nodes")
@@ -218,12 +218,12 @@ class GraphCommand
       for meth in @get_predicate_methods()
         iter = (node) =>
           for pred in @regarding
-            retval = meth.call(@graph_ctrl, node, pred)
-          @graph_ctrl.tick()
+            retval = meth.call(@huviz, node, pred)
+          @huviz.tick()
         if nodes?
           async.each(nodes, iter, errorHandler)
     else if @verbs[0] is 'load' # FIXME not very general, but it appears to be the sole exception
-      @graph_ctrl.load_with(@data_uri, @with_ontologies)
+      @huviz.load_with(@data_uri, @with_ontologies)
       console.log("load data_uri has returned")
     else
       for meth in @get_methods() # find the methods on huviz which implement each verb
@@ -237,8 +237,8 @@ class GraphCommand
         if atFirst?
           atFirst()
         iter = (node) =>
-          retval = meth.call(@graph_ctrl, node, this)
-          @graph_ctrl.tick() # TODO(smurp) move this out, or call every Nth node
+          retval = meth.call(@huviz, node, this)
+          @huviz.tick() # TODO(smurp) move this out, or call every Nth node
         # REVIEW Must we check for nodes? Perhaps atLast dominates.
         if nodes?
           if USE_ASYNC = false
@@ -246,16 +246,16 @@ class GraphCommand
           else
             for node in nodes
               iter(node)
-            @graph_ctrl.gclui.set
+            @huviz.gclui.set
             callback()
-    @graph_ctrl.clean_up_all_dirt_once()
-    @graph_ctrl.hide_state_msg()
-    @graph_ctrl.force.start()
+    @huviz.clean_up_all_dirt_once()
+    @huviz.hide_state_msg()
+    @huviz.force.start()
     return
   get_pretty_verbs: ->
     l = []
     for verb_id in @verbs
-      l.push(@graph_ctrl.gclui.verb_pretty_name[verb_id])
+      l.push(@huviz.gclui.verb_pretty_name[verb_id])
     return l
   missing: '____'
   update_str: ->
@@ -275,7 +275,7 @@ class GraphCommand
       ready = false
       cmd_str = missing
       @verb_phrase_ready = false
-      @verb_phrase = @graph_ctrl.human_term.blank_verb
+      @verb_phrase = @huviz.human_term.blank_verb
     @verb_phrase += ' '
     cmd_str += " "
     obj_phrase = ""
@@ -288,7 +288,7 @@ class GraphCommand
       setLabels = []
       for set in @sets  # either a list of SortedSets or their ids
         if typeof set is 'string'
-          aSet = @graph_ctrl.get_set_by_id(set)
+          aSet = @huviz.get_set_by_id(set)
         else
           aSet = set
         setLabel = aSet.get_label()
@@ -315,7 +315,7 @@ class GraphCommand
       obj_phrase = missing
       ready = false
       @noun_phrase_ready = false
-      @noun_phrase = @graph_ctrl.human_term.blank_noun
+      @noun_phrase = @huviz.human_term.blank_noun
     else if obj_phrase.length > 0
       @noun_phrase_ready = true
       @noun_phrase = obj_phrase
@@ -367,10 +367,10 @@ class GraphCommand
     return @str
 
 class GraphCommandLanguageCtrl
-  constructor: (@graph_ctrl) ->
+  constructor: (@huviz) ->
     @prefixes = {}
   run: (script, callback) ->
-    @graph_ctrl.before_running_command(this)
+    @huviz.before_running_command(this)
     #console.debug("script: ",script)
     if not script?
       console.error "script must be defined"
@@ -387,10 +387,10 @@ class GraphCommandLanguageCtrl
     retval = @execute(callback)
     #console.log "commands:"
     #console.log @commands
-    @graph_ctrl.after_running_command(this)
+    @huviz.after_running_command(this)
     return retval
   run_one: (cmd_spec) ->
-    cmd = new GraphCommand(@graph_ctrl, cmd_spec)
+    cmd = new GraphCommand(@huviz, cmd_spec)
     cmd.prefixes = @prefixes
     cmd.execute()
   execute: (callback) =>
