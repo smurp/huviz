@@ -67,6 +67,8 @@ class CommandController
     if title
       label.attr('title',title)
     return outer
+  new_GraphCommand: (args) ->
+    return new gcl.GraphCommand(@huviz, args)
   reset_graph: ->
     ###
     * unhide all
@@ -74,11 +76,11 @@ class CommandController
     * shelve all
     * sanity check set counts
     ###
-    #@huviz.run_command(new gcl.GraphCommand(@huviz,
+    #@huviz.run_command(@new_GraphCommand(
     #  verbs: ['unhide']
     #  sets: [@huviz.all_set]
     #  skip_history: true))
-    @huviz.run_command(new gcl.GraphCommand(@huviz,
+    @huviz.run_command(@new_GraphCommand(
       verbs: ['undiscard','unchoose','unselect', 'unpin', 'shelve','unlabel']
       sets: [@huviz.all_set.id]
       skip_history: true))
@@ -119,12 +121,11 @@ class CommandController
     @scriptDownloadButton = @scriptPlayerControls.append('button').
       attr('title','save script as .txt').
       attr('style', 'margin-left:1em').  # ;display:none
-      on('click', @on_downloadscript_txt_clicked)
-    @scriptDownloadButton.append('i').attr("class", "fa fa-download").
-      append('span').text('.txt')
+      on('click', @on_downloadscript_hybrid_clicked)
+    @scriptDownloadButton.append('i').attr("class", "fa fa-download") #.append('span').text('.txt')
     @scriptDownloadJsonButton = @scriptPlayerControls.append('button').
       attr('title','save script as .json').
-      attr('style', '').  # ;display:none
+      attr('style', 'display:none').  # ;display:none
       on('click', @on_downloadscript_json_clicked)
     @scriptDownloadJsonButton.append('i').attr("class", "fa fa-download").
       append('span').text('.json')
@@ -174,6 +175,14 @@ class CommandController
         return retlist
       return value
     return JSON.stringify(cmdList, replacer, 4)
+  get_script_body_as_hybrid: ->
+    # The "hybrid" script style consists of three parts
+    #   1) the text version of the script
+    #   2) the json_marker, a separator between the two parts
+    #   3) the json version of the script
+    return @get_script_body() +
+      "\n\n" + @huviz.json_script_marker +
+      "\n\n" + @get_script_body_as_json()
   make_txt_script_href: () ->
     theBod = encodeURIComponent(@get_script_body())
     theHref = "data:text/plain;charset=utf-8," + theBod
@@ -182,26 +191,35 @@ class CommandController
     theJSON = encodeURIComponent(@get_script_body_as_json())
     theHref = "data:text/json;charset=utf-8," + theJSON
     return theHref
+  make_hybrid_script_href: () ->
+    theBod = encodeURIComponent(@get_script_body_as_hybrid())
+    theHref = "data:text/plain;charset=utf-8," + theBod
+    return theHref
   on_downloadscript_json_clicked: =>
-    @on_downloadscript_clicked('json')
+    @on_downloadscript_type('json')
     return
   on_downloadscript_txt_clicked: =>
-    @on_downloadscript_clicked('txt')
+    @on_downloadscript_type('txt')
     return
-  on_downloadscript_clicked: (txtOrJson) =>
+  on_downloadscript_hybrid_clicked: =>
+    @on_downloadscript_type('hybrid', 'txt')
+    return
+  on_downloadscript_type: (scriptFileType, ext) =>
     transientLink = @scriptPlayerControls.append('a')
     transientLink.text('script')
     thisName = prompt("What would you like to call your saved script?",
-      @get_downloadscript_name(txtOrJson))
+      @get_downloadscript_name(ext or scriptFileType))
     if not thisName
       return
     @lastScriptName = thisName
     transientLink.attr('style','display:none')
     transientLink.attr('download', @lastScriptName)
-    if txtOrJson is 'json'
+    if scriptFileType is 'json'
       theHref = @make_json_script_href()
-    else
+    else if scriptFileType is 'txt'
       theHref = @make_txt_script_href()
+    else if scriptFileType is 'hybrid'
+      theHref = @make_hybrid_script_href()
     transientLink.attr('href',theHref)
     transientLink.node().click()
     node = transientLink.node()
@@ -261,12 +279,12 @@ class CommandController
     return
   NEW_select_the_initial_set: =>
     # this does NOT function as a workaround for the problem like OLD_select_the_initial_set
-    @huviz.run_command(new gcl.GraphCommand(@huviz,
+    @huviz.run_command(@new_GraphCommand(
       verbs: ['select'],
       every_class: true,
       classes: ['Thing'],
       skip_history: true))
-    @huviz.run_command(new gcl.GraphCommand(@huviz,
+    @huviz.run_command(@new_GraphCommand(
       verbs: ['unselect'],
       every_class: true,
       classes: ['Thing'],
@@ -386,7 +404,7 @@ class CommandController
       @proposed_verb = 'draw'
       @regarding = [pred_lid]
       console.log(@proposed_verb, "Selected regarding", @regarding)
-      #cmd = new gcl.GraphCommand(@huviz,
+      #cmd = @new_GraphCommand(
       #  verbs: [@proposed_verb]
       #  regarding: [@proposed_predicate])
       ready = @prepare_command(@build_command())
@@ -395,7 +413,7 @@ class CommandController
       @proposed_verb = null
       @regarding = null
       @prepare_command(@build_command())
-      #@prepare_command(new gcl.GraphCommand(@huviz, {}))
+      #@prepare_command(@new_GraphCommand( {}))
       return
   handle_on_predicate_clicked: (pred_id, new_state, elem) =>
     @start_working()
@@ -540,7 +558,7 @@ class CommandController
     #     Label  taxonId .    # no problemo
     #       *       *         # OK, OK looks straight forward
     if hasVerbs
-      cmd = new gcl.GraphCommand(@huviz,
+      cmd = @new_GraphCommand(
         verbs: @engaged_verbs
         classes: [taxonId]
         every_class: every_class
@@ -564,7 +582,7 @@ class CommandController
         if not (taxonId in @engaged_taxons)
           @engaged_taxons.push(taxonId)
         # SELECT all members of the currently chosen classes
-        cmd = new gcl.GraphCommand(@huviz,
+        cmd = @new_GraphCommand(
           verbs: ['select']
           classes: [taxonId]
           every_class: every_class
@@ -574,7 +592,7 @@ class CommandController
         console.error "no action needed because #{taxonId}.#{old_state} == #{new_state}"
     else if new_state is 'unshowing'
       @unselect_node_class(taxonId)
-      cmd = new gcl.GraphCommand(@huviz,
+      cmd = @new_GraphCommand(
         verbs: ['unselect']
         classes: [taxonId]
         every_class: every_class
@@ -1012,7 +1030,7 @@ class CommandController
     like_str = (@like_input[0][0].value or "").trim()
     if like_str
       args.like = like_str
-    @command = new gcl.GraphCommand(@huviz, args)
+    @command = @new_GraphCommand(args)
   is_proposed: ->
     @proposed_verb or @proposed_set or @proposed_taxon
 

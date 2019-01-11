@@ -4444,6 +4444,7 @@ class Huviz
     for abbr,prefix of @G.prefixes
       @gclc.prefixes[abbr] = prefix
 
+
   # https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB
   init_datasetDB: ->
     indexedDB = window.indexedDB # || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || null
@@ -4458,7 +4459,7 @@ class Huviz
         @datasetDB.onerror = (e) =>
           alert "Database error: #{e.target.errorCode}"
         #alert "onsuccess"
-        @fill_dataset_menus_from_datasetDB('onsuccess')
+        @populate_menus_from_IndexedDB('onsuccess')
       request.onerror = (e) =>
         alert("unable to init #{@dbName}")
       request.onupgradeneeded = (e) =>
@@ -4467,9 +4468,10 @@ class Huviz
         objectStore.transaction.oncomplete = (e) =>
           @datasetDB = db
           # alert "onupgradeneeded"
-          @fill_dataset_menus_from_datasetDB('onupgradeneeded')
+          @populate_menus_from_IndexedDB('onupgradeneeded')
 
-  ensure_datasets: (preload_group, store_in_db) =>  # note "fat arrow" so this can be an AJAX callback (see preload_datasets)
+  ensure_datasets: (preload_group, store_in_db) =>
+    # note "fat arrow" so this can be an AJAX callback (see preload_datasets)
     defaults = preload_group.defaults or {}
     #console.log preload_group # THIS IS THE ITEMS IN A FILE (i.e. cwrc.json, generes.json)
     for ds_rec in preload_group.datasets
@@ -4485,23 +4487,24 @@ class Huviz
     dataset_rec.time ?= new Date().toString()
     dataset_rec.title ?= uri
     dataset_rec.isUri ?= not not uri.match(/^(http|ftp)/)
-    dataset_rec.canDelete ?= not not dataset_rec.time? # ie if it has a time then a user added it therefore canDelete
+    # if it has a time then a user added it therefore canDelete
+    dataset_rec.canDelete ?= not not dataset_rec.time?
     dataset_rec.label ?= uri.split('/').reverse()[0]
     if dataset_rec.isOntology
       if @ontology_loader
-        @ontology_loader.add_dataset(dataset_rec, store_in_db)
+        @ontology_loader.add_resource(dataset_rec, store_in_db)
     if @dataset_loader and not dataset_rec.isEndpoint
-      @dataset_loader.add_dataset(dataset_rec, store_in_db)
+      @dataset_loader.add_resource(dataset_rec, store_in_db)
     if dataset_rec.isEndpoint and @endpoint_loader
-      @endpoint_loader.add_dataset(dataset_rec, store_in_db)
+      @endpoint_loader.add_resource(dataset_rec, store_in_db)
 
-  add_dataset_to_db: (dataset_rec, callback) ->
+  add_resource_to_db: (dataset_rec, callback) ->
     trx = @datasetDB.transaction('datasets', "readwrite")
     trx.oncomplete = (e) =>
       console.log("#{dataset_rec.uri} added!")
     trx.onerror = (e) =>
       console.log(e)
-      alert "add_dataset(#{dataset_rec.uri}) error!!!"
+      alert "add_resource(#{dataset_rec.uri}) error!!!"
     store = trx.objectStore('datasets')
     req = store.put(dataset_rec)
     req.onsuccess = (e) =>
@@ -4524,10 +4527,10 @@ class Huviz
     req.onerror = (e) =>
       console.debug e
 
-  fill_dataset_menus_from_datasetDB: (why) ->
-    #alert "fill_dataset_menus_from_datasetDB()"
+  populate_menus_from_IndexedDB: (why) ->
+    #alert "populate_menus_from_IndexedDB()"
     # https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB#Using_a_cursor
-    console.groupCollapsed("fill_dataset_menus_from_datasetDB(#{why})")
+    console.groupCollapsed("populate_menus_from_IndexedDB(#{why})")
     datasetDB_objectStore = @datasetDB.transaction('datasets').objectStore('datasets')
     count = 0
     make_onsuccess_handler = (why) =>
@@ -4536,23 +4539,31 @@ class Huviz
         cursor = event.target.result
         if cursor
           count++
-          dataset_rec = cursor.value
-          recs.push(dataset_rec)
-          if not dataset_rec.isOntology and not dataset_rec.isEndpoint
-            # alert "Dataset: add_dataset_option(#{dataset_rec.uri})"
-            #console.log "Dataset: add_dataset_option(#{dataset_rec.uri})"
-            @dataset_loader.add_dataset_option(dataset_rec)
-          if dataset_rec.isOntology and @ontology_loader
-            # alert "Ontology: add_dataset_option(#{dataset_rec.uri})"
-            @ontology_loader.add_dataset_option(dataset_rec)
+          rec = cursor.value
+          recs.push(rec)
+          legacyDataset = (not rec.isOntology and not rec.rsrcType)
+          legacyOntology = (not not rec.isOntology)
+          if rec.rsrcType in ['dataset', 'ontology'] or legacyDataset or legacyOntology
+            # both datasets and ontologies appear in the dataset menu, for visualization
+            @dataset_loader.add_resource_option(rec)
+          else if rec.rsrcType is 'ontology' or legacyOntology
+            # only datasets are added to the dataset menu
+            @ontology_loader.add_resource_option(rec)
+          else if rec.rsrcType is 'script'
+            @script_loader.add_resource_option(rec)
+          else if rec.rsrcType is 'endpoint'
+            @endpoint_loader.add_resource_option(rec)
           cursor.continue()
         else # when there are no (or NO MORE) entries, ie FINALLY
           #console.table(recs)
+          # Reset the value of each loader to blank so
+          # they show 'Pick or Provide...' not the last added entry.
           @dataset_loader.val('')
           @ontology_loader.val('')
           @endpoint_loader.val('')
+          @script_loader.val('')
           @update_dataset_ontology_loader()
-          console.groupEnd() # closing group called "fill_dataset_menus_from_datasetDB(why)"
+          console.groupEnd() # closing group called "populate_menus_from_IndexedDB(why)"
           document.dispatchEvent( # TODO use 'huviz_controls' rather than document
             new Event('dataset_ontology_loader_ready'));
           #alert "#{count} entries saved #{why}"
@@ -4622,15 +4633,29 @@ class Huviz
     @ensure_datasets(preload_group, false) # false means DO NOT store_in_db
     return
 
-  init_dataset_menus: ->
+  get_menu_by_rsrcType: (rsrcType) ->
+    return @[rsrcType+'_loader'] # eg rsrcType='script' ==> @script_loader
 
+  init_dataset_menus: ->
+    # REVIEW See views/huviz.html.eco to set dataset_loader__append_to_sel and similar
     if not @dataset_loader and @args.dataset_loader__append_to_sel
-      @dataset_loader = new PickOrProvide(@, @args.dataset_loader__append_to_sel, 'Dataset', 'DataPP', false, false)
+      @dataset_loader = new PickOrProvide(@, @args.dataset_loader__append_to_sel,
+        'Dataset', 'DataPP', false, false,
+        {rsrcType: 'dataset'})
     if not @ontology_loader and @args.ontology_loader__append_to_sel
-      @ontology_loader = new PickOrProvide(@, @args.ontology_loader__append_to_sel, 'Ontology', 'OntoPP', true, false)
+      @ontology_loader = new PickOrProvide(@, @args.ontology_loader__append_to_sel,
+        'Ontology', 'OntoPP', true, false,
+        {rsrcType: 'ontology'})
       #$(@ontology_loader.form).disable()
     if not @endpoint_loader and @args.endpoint_loader__append_to_sel
-      @endpoint_loader = new PickOrProvide(@, @args.endpoint_loader__append_to_sel, 'SPARQL Endpoint', 'EndpointPP', false, true)
+      @endpoint_loader = new PickOrProvide(@, @args.endpoint_loader__append_to_sel,
+        'Sparql', 'EndpointPP', false, true,
+        {rsrcType: 'endpoint'})
+    if not @script_loader and @args.script_loader__append_to_sel
+      @script_loader = new PickOrProvide(@, @args.script_loader__append_to_sel,
+        'Script', 'ScriptPP', false, false,
+        {dndLoaderClass: DragAndDropLoaderOfScripts; rsrcType: 'script'})
+
       #@endpoint_loader.outstanding_requests = 0
       #endpoint = "#" + @endpoint_loader.uniq_id
       #$(endpoint).css('display','none')
@@ -4666,7 +4691,17 @@ class Huviz
       @update_caption(data.value, data.endpoint_graph)
       return
     # Either dataset and ontologies are passed in by HuViz.load_with() from a command
-    #   or this method is called with neither then get values from the loaders
+    #   or this method is called with neither in which case get values from the loaders
+    if @script_loader.value
+      alert('It is time to trigger the loading of the dataset and ontology OR endpoint ' +
+            'but the requisite info has not yet been saved in the script ' +
+            'on the other hand: if the user want to run the script on different data.... ' +
+            'then do we pause and let them mess with the script OR let them pick the data. ' +
+            'In fact, perhaps the thing to do is load the dataset and ontology into their ' +
+            'pickers so the user can mess with them before proceeding.  YES.  PERFECT.')
+      #@local_script_data
+    
+
     onto = ontologies and ontologies[0] or @ontology_loader
     data = dataset or @dataset_loader
     if @local_file_data
@@ -4712,7 +4747,7 @@ class Huviz
     $("#huvis_controls .unselectable").removeAttr("style","display:none")
 
   update_dataset_ontology_loader: =>
-    if not (@dataset_loader? and @ontology_loader?  and @endpoint_loader?)
+    if not (@dataset_loader? and @ontology_loader?  and @endpoint_loader? and @script_loader?)
       console.log("still building loaders...")
       return
     @set_ontology_from_dataset_if_possible()
@@ -4747,7 +4782,9 @@ class Huviz
 
   update_go_button: (disable) ->
     if not disable?
-      if @endpoint_loader.value
+      if @script_loader.value
+        disable = false
+      else if @endpoint_loader.value
         disable = false
       else
         ds_v = @dataset_loader.value
@@ -6027,6 +6064,33 @@ class Huviz
     console.log("script", script)
     return script
 
+  # recognize that changing this will likely break old hybrid HuVizScripts
+  json_script_marker: "# JSON FOLLOWS"
+
+  load_script_from_JSON: (json) ->
+    alert('load_script_from_JSON')
+    for cmdArgs in json
+      @gclui.push_command_onto_history(@gclui.new_GraphCommand(cmdArgs))
+    #@gclui.reset_command_history()
+
+  parse_script_file: (data, fname) ->
+    # There are two file formats, both with the extension .txt
+    #   1) * Commands as they appear in the Command History
+    #      * Followed by the comment on a line of its own
+    #      * Followed by the .json version of the script, for trivial parsing
+    #   2) Commands as they appear in the Command History
+    # The thinking is that, ultimately, version 1) will be required until the
+    # parser for the textual version is complete.
+    lines = data.split('\n')
+    while lines.length
+      line = lines.shift()
+      if line.includes(@json_marker)
+        return JSON.parse(lines.join("\n"))
+    return {}
+
+  # this is where the file should be read and run
+  #@huviz.load_script_from_JSON(@parse_script_file(evt.target.result, firstFile.name))
+
   boot_sequence: (script) ->
     # If we are passed an empty string that means there was an outer
     # script but there was nothing for us and DO NOT examine the hash for more.
@@ -6445,13 +6509,15 @@ class PickOrProvide
   """
   uri_file_loader_sel: '.uri_file_loader_form'
 
-  constructor: (@huviz, @append_to_sel, @label, @css_class, @isOntology, @isEndpoint) ->
+  constructor: (@huviz, @append_to_sel, @label, @css_class, @isOntology, @isEndpoint, @opts) ->
+    @opts ?= {}
     @uniq_id = unique_id()
     @select_id = unique_id()
     @pickable_uid = unique_id()
     @your_own_uid = unique_id()
     @find_or_append_form()
-    @drag_and_drop_loader = new DragAndDropLoader(@huviz, @append_to_sel, @)
+    dndLoaderClass = @opts.dndLoaderClass or DragAndDropLoader
+    @drag_and_drop_loader = new dndLoaderClass(@huviz, @append_to_sel, @)
     @drag_and_drop_loader.form.hide()
     #@add_group({label: "-- Pick #{@label} --", id: @pickable_uid})
     @add_group({label: "Your Own", id: @your_own_uid}, 'append')
@@ -6503,18 +6569,22 @@ class PickOrProvide
       dataset_rec = uri_or_rec
     dataset_rec.uri ?= uri
     dataset_rec.isOntology ?= @isOntology
-    dataset_rec.time ?= new Date().toString()
+    dataset_rec.time ?= (new Date()).toISOString()
     dataset_rec.isUri ?= true
     dataset_rec.title ?= dataset_rec.uri
     dataset_rec.canDelete ?= not not dataset_rec.time?
     dataset_rec.label ?= dataset_rec.uri.split('/').reverse()[0]
-    @add_dataset(dataset_rec, true)
+    dataset_rec.rsrcType ?= @opts.rsrcType
+    # dataset_rec.data ?= file_rec.data # we cannot add data because we load data from uri each time
+    @add_resource(dataset_rec, true)
     @update_state()
 
   add_local_file: (file_rec) =>
+    # These are local files which have been 'uploaded' to the browser.
+    # As a consequence they cannot be programmatically loaded by the browser
+    # and so we cache them
     #local_file_data = file_rec.data
     #@huviz.local_file_data = local_file_data
-    data_type = "local"
     if typeof file_rec is 'string'
       uri = file_rec
       dataset_rec = {}
@@ -6522,23 +6592,25 @@ class PickOrProvide
       dataset_rec = file_rec
       dataset_rec.uri ?= uri
       dataset_rec.isOntology ?= @isOntology
-      dataset_rec.time ?= new Date().toString()
+      dataset_rec.time ?= (new Date()).toISOString()
       dataset_rec.isUri ?= false
       dataset_rec.title ?= dataset_rec.uri
       dataset_rec.canDelete ?= not not dataset_rec.time?
       dataset_rec.label ?= dataset_rec.uri.split('/').reverse()[0]
-    @add_dataset(dataset_rec, false)
+      dataset_rec.rsrcType ?= @opts.rsrcType
+      dataset_rec.data ?= file_rec.data
+    @add_resource(dataset_rec, true)
     @update_state()
 
-  add_dataset: (dataset_rec, store_in_db) ->
+  add_resource: (dataset_rec, store_in_db) ->
     uri = dataset_rec.uri
     #dataset_rec.uri ?= uri.split('/').reverse()[0]
     if store_in_db
-      @huviz.add_dataset_to_db(dataset_rec, @add_dataset_option)
+      @huviz.add_resource_to_db(dataset_rec, @add_resource_option)
     else
-      @add_dataset_option(dataset_rec)
+      @add_resource_option(dataset_rec)
 
-  add_dataset_option: (dataset) => # TODO rename to dataset_rec
+  add_resource_option: (dataset) => # TODO rename to rsrcRec
     uri = dataset.uri
     dataset.value = dataset.uri
     @add_option(dataset, @pickable_uid)
@@ -6680,7 +6752,8 @@ class DragAndDropLoader
   supports_file_dnd: ->
     div = document.createElement('div')
     return true
-    return (div.draggable or div.ondragstart) and ( div.ondrop ) and (window.FormData and window.FileReader)
+    return (div.draggable or div.ondragstart) and ( div.ondrop ) and
+      (window.FormData and window.FileReader)
   load_uri: (firstUri) ->
     #@form.find('.box__success').text(firstUri)
     #@form.find('.box__success').show()
@@ -6704,7 +6777,8 @@ class DragAndDropLoader
           @huviz.local_file_data = evt.target.result
         else
           #$("##{@dataset_loader.select_id} option[label='Pick or Provide...']").prop('selected', true)
-          blurt("Unknown file format. Unable to parse '#{filename}'. Only .ttl and .nq files supported.", 'alert')
+          blurt("Unknown file format. Unable to parse '#{filename}'. " +
+                "Only .ttl and .nq files supported.", 'alert')
           @huviz.reset_dataset_ontology_loader()
           $('.delete_option').attr('style','')
       catch e
@@ -6761,6 +6835,40 @@ class DragAndDropLoader
       # the drop operation failed to result in loaded data, so show 'drop here' msg
       @form.find('.box__input').show()
       @picker.refresh()
+
+class DragAndDropLoaderOfScripts extends DragAndDropLoader
+  load_file: (firstFile) ->
+    #@huviz.local_file_data = "empty"
+    filename = firstFile.name
+    @form.find('.box__success').text(firstFile.name) #TODO Are these lines still needed?
+    @form.find('.box__success').show()
+    reader = new FileReader()
+    reader.onload = (evt) =>
+      #console.log evt.target.result
+      #console.log("evt", evt)
+      try
+        #@huviz.read_data_and_show(firstFile.name, evt.target.result)
+        if filename.match(/.(txt|.json)$/)
+          file_rec =
+            uri: firstFile.name
+            opt_group: 'Your Own'
+            data: evt.target.result
+          @picker.add_local_file(file_rec)
+          #alert("the file should be read and run here....")
+          #@huviz.local_file_data = evt.target.result
+        else
+          #$("##{@dataset_loader.select_id} option[label='Pick or Provide...']").prop('selected', true)
+          blurt("Unknown file format. Unable to parse '#{filename}'. " +
+                "Only .txt and .huviz files supported.", 'alert')
+          @huviz.reset_dataset_ontology_loader()
+          $('.delete_option').attr('style','')
+      catch e
+        msg = e.toString()
+        #@form.find('.box__error').show()
+        #@form.find('.box__error').text(msg)
+        blurt(msg, 'error')
+    reader.readAsText(firstFile)
+    return true # ie success
 
 (exports ? this).Huviz = Huviz
 (exports ? this).Orlando = Orlando
