@@ -4481,36 +4481,36 @@ class Huviz
         ds_rec[k] ?= defaults[k]
       @ensure_dataset(ds_rec, store_in_db)
 
-  ensure_dataset: (dataset_rec, store_in_db) ->
+  ensure_dataset: (rsrcRec, store_in_db) ->
     # ensure the dataset is in the database and the correct
-    uri = dataset_rec.uri
-    dataset_rec.time ?= new Date().toString()
-    dataset_rec.title ?= uri
-    dataset_rec.isUri ?= not not uri.match(/^(http|ftp)/)
+    uri = rsrcRec.uri
+    rsrcRec.time ?= new Date().toString()
+    rsrcRec.title ?= uri
+    rsrcRec.isUri ?= not not uri.match(/^(http|ftp)/)
     # if it has a time then a user added it therefore canDelete
-    dataset_rec.canDelete ?= not not dataset_rec.time?
-    dataset_rec.label ?= uri.split('/').reverse()[0]
-    if dataset_rec.isOntology
+    rsrcRec.canDelete ?= not not rsrcRec.time?
+    rsrcRec.label ?= uri.split('/').reverse()[0]
+    if rsrcRec.isOntology
       if @ontology_loader
-        @ontology_loader.add_resource(dataset_rec, store_in_db)
-    if @dataset_loader and not dataset_rec.isEndpoint
-      @dataset_loader.add_resource(dataset_rec, store_in_db)
-    if dataset_rec.isEndpoint and @endpoint_loader
-      @endpoint_loader.add_resource(dataset_rec, store_in_db)
+        @ontology_loader.add_resource(rsrcRec, store_in_db)
+    if @dataset_loader and not rsrcRec.isEndpoint
+      @dataset_loader.add_resource(rsrcRec, store_in_db)
+    if rsrcRec.isEndpoint and @endpoint_loader
+      @endpoint_loader.add_resource(rsrcRec, store_in_db)
 
-  add_resource_to_db: (dataset_rec, callback) ->
+  add_resource_to_db: (rsrcRec, callback) ->
     trx = @datasetDB.transaction('datasets', "readwrite")
     trx.oncomplete = (e) =>
-      console.log("#{dataset_rec.uri} added!")
+      console.log("#{rsrcRec.uri} added!")
     trx.onerror = (e) =>
       console.log(e)
-      alert "add_resource(#{dataset_rec.uri}) error!!!"
+      alert "add_resource(#{rsrcRec.uri}) error!!!"
     store = trx.objectStore('datasets')
-    req = store.put(dataset_rec)
+    req = store.put(rsrcRec)
     req.onsuccess = (e) =>
-      if dataset_rec.uri isnt e.target.result
+      if rsrcRec.uri isnt e.target.result
         debugger
-      callback(dataset_rec)
+      callback(rsrcRec)
 
   remove_dataset_from_db: (dataset_uri, callback) ->
     trx = @datasetDB.transaction('datasets', "readwrite")
@@ -4764,6 +4764,9 @@ class Huviz
       $("##{@ontology_loader.uniq_id}").children('select').prop('disabled', false)
       $(graphSelector).parent().css('display', 'none')
       @reset_endpoint_form(false)
+    else if e.currentTarget.value is 'provide'
+      console.log "update_endpoint_form ... select PROVIDE"
+
     else
       @sparql_graph_query_and_show(e.currentTarget.value, e.currentTarget.id)
       #console.log @dataset_loader
@@ -6564,19 +6567,19 @@ class PickOrProvide
   add_uri: (uri_or_rec) =>
     if typeof uri_or_rec is 'string'
       uri = uri_or_rec
-      dataset_rec = {}
+      rsrcRec = {}
     else
-      dataset_rec = uri_or_rec
-    dataset_rec.uri ?= uri
-    dataset_rec.isOntology ?= @isOntology
-    dataset_rec.time ?= (new Date()).toISOString()
-    dataset_rec.isUri ?= true
-    dataset_rec.title ?= dataset_rec.uri
-    dataset_rec.canDelete ?= not not dataset_rec.time?
-    dataset_rec.label ?= dataset_rec.uri.split('/').reverse()[0]
-    dataset_rec.rsrcType ?= @opts.rsrcType
-    # dataset_rec.data ?= file_rec.data # we cannot add data because we load data from uri each time
-    @add_resource(dataset_rec, true)
+      rsrcRec = uri_or_rec
+    rsrcRec.uri ?= uri
+    rsrcRec.isOntology ?= @isOntology
+    rsrcRec.time ?= (new Date()).toISOString()
+    rsrcRec.isUri ?= true
+    rsrcRec.title ?= rsrcRec.uri
+    rsrcRec.canDelete ?= not not rsrcRec.time?
+    rsrcRec.label ?= rsrcRec.uri.split('/').reverse()[0] or rsrcRec.uri
+    rsrcRec.rsrcType ?= @opts.rsrcType
+    # rsrcRec.data ?= file_rec.data # we cannot add data because for uri we load each time
+    @add_resource(rsrcRec, true)
     @update_state()
 
   add_local_file: (file_rec) =>
@@ -6587,33 +6590,33 @@ class PickOrProvide
     #@huviz.local_file_data = local_file_data
     if typeof file_rec is 'string'
       uri = file_rec
-      dataset_rec = {}
+      rsrcRec = {}
     else
-      dataset_rec = file_rec
-      dataset_rec.uri ?= uri
-      dataset_rec.isOntology ?= @isOntology
-      dataset_rec.time ?= (new Date()).toISOString()
-      dataset_rec.isUri ?= false
-      dataset_rec.title ?= dataset_rec.uri
-      dataset_rec.canDelete ?= not not dataset_rec.time?
-      dataset_rec.label ?= dataset_rec.uri.split('/').reverse()[0]
-      dataset_rec.rsrcType ?= @opts.rsrcType
-      dataset_rec.data ?= file_rec.data
-    @add_resource(dataset_rec, true)
+      rsrcRec = file_rec
+      rsrcRec.uri ?= uri
+      rsrcRec.isOntology ?= @isOntology
+      rsrcRec.time ?= (new Date()).toISOString()
+      rsrcRec.isUri ?= false
+      rsrcRec.title ?= rsrcRec.uri
+      rsrcRec.canDelete ?= not not rsrcRec.time?
+      rsrcRec.label ?= rsrcRec.uri.split('/').reverse()[0]
+      rsrcRec.rsrcType ?= @opts.rsrcType
+      rsrcRec.data ?= file_rec.data
+    @add_resource(rsrcRec, true)
     @update_state()
 
-  add_resource: (dataset_rec, store_in_db) ->
-    uri = dataset_rec.uri
-    #dataset_rec.uri ?= uri.split('/').reverse()[0]
+  add_resource: (rsrcRec, store_in_db) ->
+    uri = rsrcRec.uri
+    #rsrcRec.uri ?= uri.split('/').reverse()[0]
     if store_in_db
-      @huviz.add_resource_to_db(dataset_rec, @add_resource_option)
+      @huviz.add_resource_to_db(rsrcRec, @add_resource_option)
     else
-      @add_resource_option(dataset_rec)
+      @add_resource_option(rsrcRec)
 
-  add_resource_option: (dataset) => # TODO rename to rsrcRec
-    uri = dataset.uri
-    dataset.value = dataset.uri
-    @add_option(dataset, @pickable_uid)
+  add_resource_option: (rsrcRec) => # TODO rename to rsrcRec
+    uri = rsrcRec.uri
+    rsrcRec.value = rsrcRec.uri
+    @add_option(rsrcRec, @pickable_uid)
     @pick_or_provide_select.val(uri)
     @refresh()
 
@@ -6744,6 +6747,8 @@ class DragAndDropLoader
   constructor: (@huviz, @append_to_sel, @picker) ->
     @local_file_form_id = unique_id()
     @local_file_form_sel = "##{@local_file_form_id}"
+    console.log @append_to_sel
+    console.log @picker
     @find_or_append_form()
     if @supports_file_dnd()
       @form.show()
@@ -6796,6 +6801,7 @@ class DragAndDropLoader
       elem.attr('id', @local_file_form_id)
     @form = $(@local_file_form_sel)
     @form.on 'submit unfocus', (e) =>
+      console.log e
       uri_field = @form.find('.box__uri')
       uri = uri_field.val()
       if uri_field[0].checkValidity()
@@ -6812,6 +6818,7 @@ class DragAndDropLoader
     @form.on 'dragleave dragend drop', () =>
       @form.removeClass('is-dragover')
     @form.on 'drop', (e) =>
+      console.log e
       console.log("e:",e.originalEvent.dataTransfer)
       @form.find('.box__input').hide()
       droppedUris = e.originalEvent.dataTransfer.getData("text/uri-list").split("\n")
