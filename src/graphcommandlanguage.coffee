@@ -164,8 +164,12 @@ class GraphCommand
             for n in the_set
               result_set.add(n)
     if @sets
-      for a_set_id in @sets
-        a_set = @graph_ctrl.get_set_by_id(a_set_id)
+      for set in @sets # set might be a SortedSet instance or a_set_id string
+        if typeof set is 'string'
+          a_set_id = set
+          a_set = @graph_ctrl.get_set_by_id(a_set_id)
+        else
+          a_set = set
         for node in a_set
           if not like_regex? or node.name.match(like_regex)
             result_set.add(node)
@@ -282,8 +286,13 @@ class GraphCommand
     @object_phrase ?= null  # this gives @object_phrase a value even if it is null
     if @sets?
       setLabels = []
-      for aSet in @sets
-        setLabels.push(aSet.get_label())
+      for set in @sets  # either a list of SortedSets or their ids
+        if typeof set is 'string'
+          aSet = @graph_ctrl.get_set_by_id(set)
+        else
+          aSet = set
+        setLabel = aSet.get_label()
+        setLabels.push(setLabel)
       more = angliciser(setLabels)
       @object_phrase = more
       #if @object_phrase?

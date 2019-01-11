@@ -84,6 +84,7 @@ class CommandController
       skip_history: true))
     @disengage_all_verbs()
     @reset_command_history()
+    @engaged_taxons = []
   make_command_history: ->
     @comdiv = d3.select(@container).append("div") # --- Add a container
     history = d3.select("#tabs-history")
@@ -159,11 +160,18 @@ class CommandController
       cmd = elem_and_cmd.cmd
       cmdList.push(cmd.args_or_str)
     replacer = (key, value) ->
+      # replacer() removes non-literals from GraphCommand.args_or_script for serialization
+      retlist = []
       if key is 'subjects'
-        retlist = []
-        for node in value
-          retlist.push(node.lid or node)
-        return nodelist
+        for node_or_lid in value
+          lid = node_or_lid.lid or node_or_lid
+          retlist.push(lid)
+        return retlist
+      if key is 'sets'
+        for set_or_id in value
+          setId = set_or_id.id or set_or_id
+          retlist.push(setId)
+        return retlist
       return value
     return JSON.stringify(cmdList, replacer, 4)
   make_txt_script_href: () ->
@@ -183,8 +191,11 @@ class CommandController
   on_downloadscript_clicked: (txtOrJson) =>
     transientLink = @scriptPlayerControls.append('a')
     transientLink.text('script')
-    @lastScriptName = prompt("What would you like to call your saved script?",
+    thisName = prompt("What would you like to call your saved script?",
       @get_downloadscript_name(txtOrJson))
+    if not thisName
+      return
+    @lastScriptName = thisName
     transientLink.attr('style','display:none')
     transientLink.attr('download', @lastScriptName)
     if txtOrJson is 'json'
