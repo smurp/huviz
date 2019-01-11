@@ -4,11 +4,6 @@
       "uri": "http://sparql.cwrc.ca/sparql",
       "label": "CWRC SPARQL",
       "ontology_label": "CWRC Ontology"
-    },
-    {
-      "uri": "http://sparql.cwrc.ca/ontologies/cwrc",
-      "label": "CWRC2",
-      "ontology_label": "CWRC Ontology"
     }
   ],
   "defaults": {

@@ -4727,6 +4727,9 @@ class Huviz
       $("##{@ontology_loader.uniq_id}").children('select').prop('disabled', false)
       $(graphSelector).parent().css('display', 'none')
       @reset_endpoint_form(false)
+    else if e.currentTarget.value is 'provide'
+      console.log "update_endpoint_form ... select PROVIDE"
+
     else
       @sparql_graph_query_and_show(e.currentTarget.value, e.currentTarget.id)
       #console.log @dataset_loader
@@ -6506,6 +6509,7 @@ class PickOrProvide
     dataset_rec.title ?= dataset_rec.uri
     dataset_rec.canDelete ?= not not dataset_rec.time?
     dataset_rec.label ?= dataset_rec.uri.split('/').reverse()[0]
+    if dataset_rec.label is "" then dataset_rec.label = "Endpoint"
     @add_dataset(dataset_rec, true)
     @update_state()
 
@@ -6670,6 +6674,8 @@ class DragAndDropLoader
   constructor: (@huviz, @append_to_sel, @picker) ->
     @local_file_form_id = unique_id()
     @local_file_form_sel = "##{@local_file_form_id}"
+    console.log @append_to_sel
+    console.log @picker
     @find_or_append_form()
     if @supports_file_dnd()
       @form.show()
@@ -6720,6 +6726,7 @@ class DragAndDropLoader
       elem.attr('id', @local_file_form_id)
     @form = $(@local_file_form_sel)
     @form.on 'submit unfocus', (e) =>
+      console.log e
       uri_field = @form.find('.box__uri')
       uri = uri_field.val()
       if uri_field[0].checkValidity()
@@ -6736,6 +6743,7 @@ class DragAndDropLoader
     @form.on 'dragleave dragend drop', () =>
       @form.removeClass('is-dragover')
     @form.on 'drop', (e) =>
+      console.log e
       console.log("e:",e.originalEvent.dataTransfer)
       @form.find('.box__input').hide()
       droppedUris = e.originalEvent.dataTransfer.getData("text/uri-list").split("\n")
