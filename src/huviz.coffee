@@ -4766,7 +4766,6 @@ class Huviz
       @reset_endpoint_form(false)
     else if e.currentTarget.value is 'provide'
       console.log "update_endpoint_form ... select PROVIDE"
-
     else
       @sparql_graph_query_and_show(e.currentTarget.value, e.currentTarget.id)
       #console.log @dataset_loader
@@ -4826,7 +4825,10 @@ class Huviz
     $("#huvis_controls .unselectable").attr("style","display:none")
     #uri = new URL(location)
     #uri.hash = "load+#{dataset.value}+with+#{ontology.value}"
-    if graph then print_graph = "<p><span class='dt_label'>Graph:</span> #{graph}</p>" else print_graph = ""
+    if graph
+      print_graph = "<p><span class='dt_label'>Graph:</span> #{graph}</p>"
+    else
+      print_graph = ""
     data_ontol_display = """
     <div id="data_ontology_display">
       <p><span class="dt_label">Endpoint:</span> #{endpoint}</p>
@@ -4874,10 +4876,12 @@ class Huviz
         <select id="sparqlGraphOptions-#{@endpoint_loader.select_id}">
         </select>
       </div>
-      <div id="sparqlGraphSpinner-#{@endpoint_loader.select_id}" style='display:none;font-style:italic;'>
+      <div id="sparqlGraphSpinner-#{@endpoint_loader.select_id}"
+           style='display:none;font-style:italic;'>
         <i class='fas fa-spinner fa-spin' style='margin: 10px 10px 0 50px;'></i>  Looking for graphs...
       </div>
-      <div id="sparqlQryInput" class=ui-widget style='display:none;margin-top:5px;margin-left:10px;color:#999;'>
+      <div id="sparqlQryInput" class=ui-widget
+           style='display:none;margin-top:5px;margin-left:10px;color:#999;'>
         <label for='endpoint_labels'>Find: </label>
         <input id='endpoint_labels' disabled>
         <i class='fas fa-spinner fa-spin' style='visibility:hidden;margin-left: 5px;'></i>
@@ -4904,7 +4908,7 @@ class Huviz
       filter contains(?obj,"#{request.term}")
       }
       LIMIT 20
-      """
+      """  # " # for emacs syntax hilighting
       ajax_settings = {
         'method': 'GET'
         'url': url + '?query=' + encodeURIComponent(qry)
