@@ -6119,7 +6119,8 @@ class Huviz
 
   load: (data_uri, callback) ->
     @fetchAndShow(data_uri, callback) unless @G.subjects
-    @init_webgl()  if @use_webgl
+    if @use_webgl
+      @init_webgl()
 
   load_with: (data_uri, ontology_uris) ->
     @goto_tab(1) # go to Commands tab # FIXME: should be symbolic not int indexed
