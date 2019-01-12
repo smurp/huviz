@@ -4508,6 +4508,12 @@ class Huviz
     store = trx.objectStore('datasets')
     req = store.put(rsrcRec)
     req.onsuccess = (e) =>
+      if rsrcRec.isEndpoint
+        @sparql_graph_query_and_show(e.srcElement.result, @endpoint_loader.select_id)
+        #console.log @dataset_loader
+        $("##{@dataset_loader.uniq_id}").children('select').prop('disabled', 'disabled')
+        $("##{@ontology_loader.uniq_id}").children('select').prop('disabled', 'disabled')
+        $("##{@script_loader.uniq_id}").children('select').prop('disabled', 'disabled')
       if rsrcRec.uri isnt e.target.result
         debugger
       callback(rsrcRec)
@@ -4762,6 +4768,7 @@ class Huviz
     if e.currentTarget.value is ''
       $("##{@dataset_loader.uniq_id}").children('select').prop('disabled', false)
       $("##{@ontology_loader.uniq_id}").children('select').prop('disabled', false)
+      $("##{@script_loader.uniq_id}").children('select').prop('disabled', false)
       $(graphSelector).parent().css('display', 'none')
       @reset_endpoint_form(false)
     else if e.currentTarget.value is 'provide'
@@ -4771,6 +4778,7 @@ class Huviz
       #console.log @dataset_loader
       $("##{@dataset_loader.uniq_id}").children('select').prop('disabled', 'disabled')
       $("##{@ontology_loader.uniq_id}").children('select').prop('disabled', 'disabled')
+      $("##{@script_loader.uniq_id}").children('select').prop('disabled', 'disabled')
 
   reset_endpoint_form: (show) =>
     spinner = $("#sparqlGraphSpinner-#{@endpoint_loader.select_id}")
@@ -6583,9 +6591,8 @@ class PickOrProvide
     rsrcRec.title ?= rsrcRec.uri
     rsrcRec.canDelete ?= not not rsrcRec.time?
     rsrcRec.label ?= rsrcRec.uri.split('/').reverse()[0] or rsrcRec.uri
+    if rsrcRec.label is "sparql" then rsrcRec.label = rsrcRec.uri
     rsrcRec.rsrcType ?= @opts.rsrcType
-    if rsrcRec.label is "" or dataset_rec.label is "sparql"
-      rsrcRec.label = rsrcRec.uri
     # rsrcRec.data ?= file_rec.data # we cannot add data because for uri we load each time
     @add_resource(rsrcRec, true)
     @update_state()
