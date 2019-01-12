@@ -4527,6 +4527,27 @@ class Huviz
     req.onerror = (e) =>
       console.debug e
 
+  get_resource_from_db: (rsrcUri, callback) ->
+    trx = @datasetDB.transaction('datasets', "readwrite")
+    trx.oncomplete = (e) =>
+      console.log("#{rsrcUri} found")
+    trx.onerror = (e) =>
+      console.log(e)
+      alert("get_resource_from_db(#{rsrcUri}) error!!!")
+    store = trx.objectStore('datasets')
+    req = store.get(rsrcUri)
+    req.onsuccess = (event) =>
+      if callback?
+        callback(event.target.result)
+    req.onerror = (e) =>
+      console.debug(e)
+      if callback
+        callback(e,null)
+      else
+        throw e
+    return
+
+
   populate_menus_from_IndexedDB: (why) ->
     #alert "populate_menus_from_IndexedDB()"
     # https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB#Using_a_cursor
@@ -4651,11 +4672,11 @@ class Huviz
       @script_loader = new PickOrProvide(@, @args.script_loader__append_to_sel,
         'Script', 'ScriptPP', false, false,
         {dndLoaderClass: DragAndDropLoaderOfScripts; rsrcType: 'script'})
+      $("#"+@script_loader.uniq_id).attr('style','display:none') # TEMPORARILY HIDE SCRIPT MENU
     if not @endpoint_loader and @args.endpoint_loader__append_to_sel
       @endpoint_loader = new PickOrProvide(@, @args.endpoint_loader__append_to_sel,
         'Sparql', 'EndpointPP', false, true,
         {rsrcType: 'endpoint'})
-
       #@endpoint_loader.outstanding_requests = 0
       #endpoint = "#" + @endpoint_loader.uniq_id
       #$(endpoint).css('display','none')
@@ -4693,14 +4714,17 @@ class Huviz
     # Either dataset and ontologies are passed in by HuViz.load_with() from a command
     #   or this method is called with neither in which case get values from the loaders
     if @script_loader.value
-      alert('It is time to trigger the loading of the dataset and ontology OR endpoint ' +
+      msg = 'It is time to trigger the loading of the dataset and ontology OR endpoint ' +
             'but the requisite info has not yet been saved in the script ' +
             'on the other hand: if the user want to run the script on different data.... ' +
             'then do we pause and let them mess with the script OR let them pick the data. ' +
             'In fact, perhaps the thing to do is load the dataset and ontology into their ' +
-            'pickers so the user can mess with them before proceeding.  YES.  PERFECT.')
-      #@local_script_data
-    
+            'pickers so the user can mess with them before proceeding.  YES.  PERFECT.'
+      # alert(msg)
+      scriptUri = @script_loader.value
+      option = @script_loader.get_selected_option()
+      @get_resource_from_db(scriptUri, @load_script_from_db)
+      return
 
     onto = ontologies and ontologies[0] or @ontology_loader
     data = dataset or @dataset_loader
@@ -4714,6 +4738,9 @@ class Huviz
     #selected_dataset = @dataset_loader.get_selected_option()[0]
     @update_browser_title(data)
     @update_caption(data.value, onto.value)
+
+  load_script_from_db: (rsrcRec) =>
+    @load_script_from_JSON(@parse_script_file(rsrcRec.data, rsrcRec.uri))
 
   init_gclc: ->
     @gclc = new GraphCommandLanguageCtrl(this)
@@ -6075,7 +6102,7 @@ class Huviz
   json_script_marker: "# JSON FOLLOWS"
 
   load_script_from_JSON: (json) ->
-    alert('load_script_from_JSON')
+    #alert('load_script_from_JSON')
     for cmdArgs in json
       @gclui.push_command_onto_history(@gclui.new_GraphCommand(cmdArgs))
     #@gclui.reset_command_history()
@@ -6091,7 +6118,7 @@ class Huviz
     lines = data.split('\n')
     while lines.length
       line = lines.shift()
-      if line.includes(@json_marker)
+      if line.includes(@json_script_marker)
         return JSON.parse(lines.join("\n"))
     return {}
 
