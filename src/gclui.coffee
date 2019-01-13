@@ -415,19 +415,21 @@ class CommandController
       @prepare_command(@build_command())
       #@prepare_command(@new_GraphCommand( {}))
       return
-  handle_on_predicate_clicked: (pred_id, new_state, elem) =>
+  handle_on_predicate_clicked: (pred_id, new_state, elem, args) =>
     @start_working()
     setTimeout () => # run asynchronously so @start_working() can get a head start
-      @on_predicate_clicked(pred_id, new_state, elem)
-  on_predicate_clicked: (pred_id, new_state, elem) =>
+      @on_predicate_clicked(pred_id, new_state, elem, args)
+  on_predicate_clicked: (pred_id, new_state, elem, args) =>
+    skip_history = not args or not args.original_click
     if new_state is 'showing'
       verb = 'draw'
     else
       verb = 'undraw'
-    cmd = new gcl.GraphCommand @huviz,
+    cmd = @new_GraphCommand(
       verbs: [verb]
       regarding: [pred_id]
       sets: [@huviz.selected_set.id]
+      skip_history: skip_history)
     @prepare_command(cmd)
     @huviz.run_command(@command)
   recolor_edges: (evt) =>
