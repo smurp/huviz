@@ -294,7 +294,7 @@ class GraphCommand
         setLabel = aSet.get_label()
         setLabels.push(setLabel)
       more = angliciser(setLabels)
-      more = "the #{more} set" # no need to pluralize set because it is never plural
+      more = "the #{more} set" +  ((@sets.length > 1) and 's' or '')
       @object_phrase = more
       #if @object_phrase?
       @noun_phrase_ready = true
