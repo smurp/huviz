@@ -406,6 +406,7 @@ class CommandController
       else
         @proposed_verb = 'undraw'
       @regarding = [pred_lid]
+      @regarding_every = not not @predicate_picker.id_is_collapsed[pred_lid]
       ready = @prepare_command(@build_command())
       return
     predicate_ctl.on 'mouseleave', () =>
@@ -427,6 +428,7 @@ class CommandController
     cmd = @new_GraphCommand(
       verbs: [verb]
       regarding: [pred_id]
+      regarding_every: not not @predicate_picker.id_is_collapsed[pred_id]
       sets: [@huviz.selected_set.id]
       skip_history: skip_history)
     @prepare_command(cmd)
@@ -1016,6 +1018,7 @@ class CommandController
           args.verbs.push(v)
     if @regarding? and @regarding.length
       args.regarding = @regarding.slice() # ie copy
+      args.regarding_every = @regarding_every
     if @proposed_verb
       args.verbs.push(@proposed_verb)
     if @chosen_set_id

@@ -202,7 +202,7 @@ class GraphCommand
   execute: ->
     @huviz.show_state_msg(@as_msg())
     @huviz.force.stop()
-    reg_req = @regarding_required()
+    regarding_required = @regarding_required()
     nodes = @get_nodes()
     console.log("%c#{@str}", "color:blue;font-size:1.5em;", "on #{nodes.length} nodes")
     errorHandler = (err_arg) ->
@@ -214,7 +214,7 @@ class GraphCommand
         throw err_arg
       #else
       #  console.log("DONE .execute()")
-    if reg_req
+    if regarding_required
       for meth in @get_predicate_methods()
         iter = (node) =>
           for pred in @regarding
@@ -330,6 +330,8 @@ class GraphCommand
       regarding_phrase = missing
       if @regarding_required() #? and @regarding.length > 0
         regarding_phrase = angliciser(@regarding)
+        if @regarding_every
+          regarding_phrase = "every " + regarding_phrase
       else
         ready = false
     @suffix_phrase = ''
