@@ -746,8 +746,8 @@ class Huviz
         else if @in_discard_dropzone(@dragging)
           action = "discard"
         @text_cursor.pause("", "drop to #{@human_term[action]}")
-    else if not @rightClickHold# IE not dragging
-      # TODO move the "if not @dragging and @mousedown_point and @focused_node and distance" block in here
+    else if not @rightClickHold # ie NOT dragging
+      # TODO put block "if not @dragging and @mousedown_point and @focused_node and distance" here
       if @edit_mode
         if @editui.object_node or not @editui.subject_node
           if @editui.object_datatype_is_literal
@@ -1597,6 +1597,24 @@ class Huviz
     if @focused_node
       @gclui.auto_change_verb_if_warranted(@focused_node)
 
+  get_focused_node_and_its_state: ->
+    focused = @focused_node
+    return "#{focused? and focused.lid or ''} #{focused? and focused.state.id or ''}"
+
+  on_tick_change_current_command_if_warranted: ->
+    # It is warranted if we are hovering over nodes and the last state and this stat differ.
+    # The status of the current command might change even if the mouse has not moved, because
+    # for instance the graph has wiggled around under a stationary mouse.  For that reason
+    # it is legit to go to the trouble of updating the command on the tick.  When though?
+    # The command should be changed if one of a number of things has changed since last tick:
+    #  * the focused node
+    #  * the state of the focused node
+    if @prior_node_and_state isnt @get_focused_node_and_its_state() # ie if it has changed
+      if @gclui.engaged_verbs.length
+        nodes = @focused_node? and [@focused_node] or []
+        @gclui.prepare_command(
+          @gclui.new_GraphCommand({verbs: @gclui.engaged_verbs, subjects: nodes}))
+
   position_nodes: ->
     only_move_subject = @edit_mode and @dragging and @editui.subject_node
     @nodes.forEach (node, i) =>
@@ -1992,6 +2010,7 @@ class Huviz
     @ctx.lineWidth = @edge_width # TODO(smurp) just edges should get this treatment
     @find_node_or_edge_closest_to_pointer()
     @auto_change_verb()
+    @on_tick_change_current_command_if_warranted()
     @update_snippet() # continuously update the snippet based on the currently focused_edge
     @blank_screen()
     @draw_dropzones()
@@ -2006,6 +2025,7 @@ class Huviz
     @draw_labels()
     @draw_edge_labels()
     @pfm_count('tick')
+    @prior_node_and_state = @get_focused_node_and_its_state()
     return
 
   rounded_rectangle: (x, y, w, h, radius, fill, stroke, alpha) ->
