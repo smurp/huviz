@@ -400,12 +400,12 @@ class CommandController
     predicate_ctl = @predicate_picker.id_to_elem[pred_lid]
     predicate_ctl.on 'mouseenter', () =>
       every = not not @predicate_picker.id_is_collapsed[pred_lid]
-      @proposed_verb = 'draw'
+      nextStateArgs = @predicate_picker.get_next_state_args(pred_lid)
+      if nextStateArgs.new_state is 'showing'
+        @proposed_verb = 'draw'
+      else
+        @proposed_verb = 'undraw'
       @regarding = [pred_lid]
-      console.log(@proposed_verb, "Selected regarding", @regarding)
-      #cmd = @new_GraphCommand(
-      #  verbs: [@proposed_verb]
-      #  regarding: [@proposed_predicate])
       ready = @prepare_command(@build_command())
       return
     predicate_ctl.on 'mouseleave', () =>
@@ -471,6 +471,7 @@ class CommandController
     taxon_ctl = @taxon_picker.id_to_elem[taxon_id]
     taxon_ctl.on 'mouseenter', (evt) =>
       #evt.stopPropagation()
+      # REVIEW consider @taxon_picker.get_next_state_args(taxon_id) like make_predicate_proposable()
       @proposed_taxon = taxon_id
       @proposed_every = not not @taxon_picker.id_is_collapsed[taxon_id]
       if not @engaged_verbs.length
