@@ -357,7 +357,7 @@ class CommandController
     @recolor_edges_and_predicates_eventually_id = setTimeout(@recolor_edges_and_predicates, 300)
   recolor_edges_and_predicates: (evt) =>
     @predicate_picker.recolor_now()
-    @recolor_edges() # FIXME should only really be run after the predicate set has settled for some amount of time
+    @recolor_edges() # FIXME should only run after the predicate set has settled for some time
   resort_pickers: ->
     if @taxon_picker?
       # propagate the labels according to the currently preferred language
@@ -391,7 +391,6 @@ class CommandController
     @predicate_picker.show_tree(@predicate_hierarchy, @predicatebox)
     $("#predicates").addClass("ui-resizable").append("<br class='clear'>")
     $("#predicates").resizable(handles: 's')
-
   add_predicate: (pred_lid, parent_lid, pred_name) =>
     #if pred_lid in @predicates_to_ignore
     #  return
@@ -1014,6 +1013,8 @@ class CommandController
       for v in @engaged_verbs
         if v isnt @transient_verb_engaged
           args.verbs.push(v)
+    if @regarding? and @regarding.length
+      args.regarding = @regarding.slice() # ie copy
     if @proposed_verb
       args.verbs.push(@proposed_verb)
     if @chosen_set_id

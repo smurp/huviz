@@ -13,6 +13,9 @@
   float:left;
   margin: .1em;
 }
+#data_ontology_display {
+  margin-bottom: 1px;
+}
 #predicates {
   margin-bottom: 50px;
 }
@@ -30,7 +33,7 @@
 }
 
 .verb {
-  margin:4px 2px 4px 0;
+  margin:1px 2px 4px 0;
   cursor: pointer;
   border-top:1px solid #eee;
   border-right:1px solid #aaa;
@@ -44,6 +47,9 @@
 .control_label.activate_depth {
   margin-left: 1em;
   font-weight: normal;
+}
+.control_label {
+  margin-bottom: 1px;
 }
 .activate_depth .depth_input {
   width: 2.3em;
@@ -142,6 +148,7 @@
 .nextcommand {
   color: black;
   font-weight:bold;
+  height: 2.2em;
   -webkit-touch-callout: auto;
   -webkit-user-select: auto;
   -khtml-user-select: auto;
