@@ -1026,14 +1026,13 @@ class CommandController
         if @engaged_taxons.length > 0
           args.classes = (class_name for class_name in @engaged_taxons)
         if @huviz.selected_set.length > 0
-          args.subjects = (s for s in @huviz.selected_set)
+          args.sets = ['selected']
     like_str = (@like_input[0][0].value or "").trim()
     if like_str
       args.like = like_str
     @command = @new_GraphCommand(args)
   is_proposed: ->
     @proposed_verb or @proposed_set or @proposed_taxon
-
   update_command: (because) =>
     #console.log("update_command()", because)
     because = because or {}
