@@ -4782,11 +4782,11 @@ class Huviz
       @gclui.ignore_predicate(pid)
 
   disable_dataset_ontology_loader: (data, onto) ->
-    @dataset_loader.disable()
-    @ontology_loader.disable()
     @replace_loader_display(data, onto)
     disable = true
     @update_go_button(disable)
+    @dataset_loader.disable()
+    @ontology_loader.disable()
     @big_go_button.hide()
 
   reset_dataset_ontology_loader: ->
