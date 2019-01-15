@@ -1599,7 +1599,14 @@ class Huviz
 
   get_focused_node_and_its_state: ->
     focused = @focused_node
-    return "#{focused? and focused.lid or ''} #{focused? and focused.state.id or ''}"
+    if not focused
+      return
+    retval = (focused.lid or '') + ' '
+    if !focused.state?
+      console.error(retval + ' has no state!!! This is unpossible!!!!')
+      return
+    retval += focused.state.id
+    return retval
 
   on_tick_change_current_command_if_warranted: ->
     # It is warranted if we are hovering over nodes and the last state and this stat differ.
