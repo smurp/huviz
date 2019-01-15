@@ -1603,7 +1603,7 @@ class Huviz
       return
     retval = (focused.lid or '') + ' '
     if !focused.state?
-      console.error(retval + ' has no state!!! This is unpossible!!!!')
+      console.error(retval + ' has no state!!! This is unpossible!!!!', focused)
       return
     retval += focused.state.id
     return retval
