@@ -3988,7 +3988,7 @@ class Huviz
     else if @selected_set[0]
       current_selection = @selected_set[0]
     else
-      current_selection = @activated_set[0]
+      current_selection = @chosen_set[0]
     valid_path_nodes = []
     active_nodes = []
     if not @prune_walk_nodes then @prune_walk_nodes = $("#prune_walk_nodes :selected").val()
