@@ -159,6 +159,12 @@ class CommandController
     return @get_script_prefix() + @oldcommands.text()
   get_script_body_as_json: ->
     cmdList = []
+    if @huviz.dataset_loader.value
+      cmdList.push
+        verbs: ['load']
+        data_uri: @huviz.dataset_loader.value
+        ontologies: [@huviz.ontology_loader.value]
+        skip_history: true
     for elem_and_cmd in @command_list
       cmd = elem_and_cmd.cmd
       cmdList.push(cmd.args_or_str)
