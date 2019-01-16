@@ -4766,13 +4766,6 @@ class Huviz
     # Either dataset and ontologies are passed in by HuViz.load_with() from a command
     #   or this method is called with neither in which case get values from the loaders
     if @script_loader.value
-      msg = 'It is time to trigger the loading of the dataset and ontology OR endpoint ' +
-            'but the requisite info has not yet been saved in the script ' +
-            'on the other hand: if the user want to run the script on different data.... ' +
-            'then do we pause and let them mess with the script OR let them pick the data. ' +
-            'In fact, perhaps the thing to do is load the dataset and ontology into their ' +
-            'pickers so the user can mess with them before proceeding.  YES.  PERFECT.'
-      # alert(msg)
       scriptUri = @script_loader.value
       @get_resource_from_db(scriptUri, @load_script_from_db)
       return
@@ -4782,17 +4775,7 @@ class Huviz
     if not (onto.value and data.value)
       console.debug(data, onto)
       throw new Error("Now whoa-up pardner... both data and onto should have .value")
-
-    #url = data.value
-    #if @local_file_data or
-    #    url.startsWith('file:///') or url.indexOf('/') is -1 # ie it is a local file
-    #  @read_data_and_show(data.value) #(@dataset_loader.value)
-    #else if @endpoint_loader.value
-    #  data = @endpoint_loader #TEMP
-    #  @load_data_with_onto(data, onto) #TODO add ontology here?
-    #else #load from URI
     @load_data_with_onto(data, onto) # , () -> alert "woot")
-    #selected_dataset = @dataset_loader.get_selected_option()[0]
     @update_browser_title(data)
     @update_caption(data.value, onto.value)
     return
@@ -6130,7 +6113,7 @@ class Huviz
     $("[name=data_set]").prop('disabled', true)
     $("#reload_btn").show()
 
-  read_data_and_show: (filename, data) -> #Handles drag-and-dropped files
+  XXX_read_data_and_show: (filename, data) -> #Handles drag-and-dropped files
     # REVIEW is this no longer used?
     data = @local_file_data
     #console.log data
