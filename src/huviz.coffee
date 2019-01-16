@@ -4097,7 +4097,7 @@ class Huviz
     # Walk is just the same as Choose (AKA Activate) except afterward it deactivates the
     # nodes which are not connected to the set being walked.
     # This is accomplished by walked__build_callback()
-    console.log("walk(#{walked.lid})"))
+    console.log("walk(#{walked.lid})")
     @walked_latest_node = walked
     return @choose(walked)
 
