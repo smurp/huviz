@@ -1,0 +1,2039 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix ns0: <http://spinrdf.org/spin#> .
+@prefix ns1: <http://spinrdf.org/spl#> .
+@prefix ns2: <http://uispin.org/ui#> .
+
+<http://uispin.org/html>
+  a owl:Ontology ;
+  owl:imports <http://uispin.org/css>, <http://uispin.org/ui> ;
+  owl:versionInfo "0.1.0"^^xsd:string .
+
+<http://uispin.org/html#Attribute>
+  a rdfs:Class ;
+  rdfs:label "Attribute"^^xsd:string ;
+  rdfs:subClassOf rdf:Property .
+
+<http://uispin.org/html#StyleProperty>
+  a rdfs:Class ;
+  rdfs:label "Style property"^^xsd:string ;
+  rdfs:subClassOf rdf:Property .
+
+<http://uispin.org/html#class>
+  a owl:FunctionalProperty, <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "class"^^xsd:string .
+
+<http://uispin.org/html#attributes>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "attributes"^^xsd:string ;
+  rdfs:comment "An \"abstract\" super-property that is grouping all HTML attributes to avoid clutter in user interfaces."^^xsd:string .
+
+<http://uispin.org/html#Q>
+  a <http://uispin.org/ui#NodeClass> ;
+  rdfs:subClassOf <http://uispin.org/html#TextElements>, <http://uispin.org/html#AttrsAttributeGroup> ;
+  rdfs:label "Q"^^xsd:string ;
+  ns0:constraint [
+    a <http://spinrdf.org/spl#Argument> ;
+    ns1:predicate <http://uispin.org/html#cite>
+  ] .
+
+<http://uispin.org/html#TextElements>
+  a <http://uispin.org/ui#NodeClass> ;
+  rdfs:subClassOf <http://uispin.org/ui#Element> ;
+  ns2:abstract true ;
+  rdfs:label "Text elements"^^xsd:string .
+
+<http://uispin.org/html#cite>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "cite"^^xsd:string .
+
+<http://uispin.org/html#AttrsAttributeGroup>
+  a ns2:NodeClass ;
+  rdfs:label "Attrs attribute group"^^xsd:string ;
+  ns2:abstract true ;
+  rdfs:subClassOf <http://uispin.org/html#CoreAttributeGroup>, <http://uispin.org/html#I18NAttributeGroup> .
+
+<http://uispin.org/html#CoreAttributeGroup>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#AttributeGroups> ;
+  ns2:abstract true ;
+  rdfs:label "Core attribute group"^^xsd:string ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#id> ;
+    rdfs:comment "Document-wide unique id."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#style> ;
+    rdfs:comment "Associated style info."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#class> ;
+    rdfs:comment "Space-separated list of classes."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#title> ;
+    rdfs:comment "Advisory title."^^xsd:string
+  ] .
+
+<http://uispin.org/html#AttributeGroups>
+  a ns2:NodeClass ;
+  ns2:abstract true ;
+  rdfs:subClassOf ns2:Element ;
+  rdfs:label "Attribute Groups"^^xsd:string ;
+  rdfs:comment "Abstract superclass of classes that are used to attach attributes to HTML elements. Correspond to the attribute groups in the HTML DTD."^^xsd:string .
+
+<http://uispin.org/html#id>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "id"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#style>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "style"^^xsd:string .
+
+<http://uispin.org/html#title>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "title"^^xsd:string .
+
+<http://uispin.org/html#I18NAttributeGroup>
+  a ns2:NodeClass ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#dir> ;
+    rdfs:comment "Direction for weak/neutral text."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#lang> ;
+    rdfs:comment "Language code."^^xsd:string
+  ] ;
+  rdfs:label "i18n attribute group"^^xsd:string ;
+  ns2:abstract true ;
+  rdfs:subClassOf <http://uispin.org/html#AttributeGroups> .
+
+<http://uispin.org/html#dir>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "dir"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#lang>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "lang"^^xsd:string .
+
+<http://uispin.org/html#clear>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "clear"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#Tfoot>
+  a ns2:NodeClass ;
+  rdfs:label "Tfoot"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#TableRowGroupElements> .
+
+<http://uispin.org/html#TableRowGroupElements>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#CellVAlignAttributeGroup>, <http://uispin.org/html#TableElements>, <http://uispin.org/html#CellHAlignAttributeGroup>, <http://uispin.org/html#AttrsAttributeGroup> ;
+  rdfs:label "Table row group elements"^^xsd:string ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/struct/tables.html#h-11.2.3> ;
+  ns2:abstract true .
+
+<http://uispin.org/html#CellVAlignAttributeGroup>
+  a ns2:NodeClass ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#valign> ;
+    rdfs:comment "(top|middle|bottom|baseline)"^^xsd:string
+  ] ;
+  rdfs:label "Cell VAlign attribute group"^^xsd:string ;
+  ns2:abstract true ;
+  rdfs:subClassOf <http://uispin.org/html#AttributeGroups> .
+
+<http://uispin.org/html#valign>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "valign"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#TableElements>
+  a ns2:NodeClass ;
+  rdfs:subClassOf ns2:Element ;
+  rdfs:label "Table elements"^^xsd:string ;
+  rdfs:comment "Abstract base class for table containers."^^xsd:string ;
+  ns2:abstract true .
+
+<http://uispin.org/html#CellHAlignAttributeGroup>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#AttributeGroups> ;
+  rdfs:label "Cell HAlign attribute group"^^xsd:string ;
+  ns2:abstract true ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#align> ;
+    rdfs:comment "(left|center|right|justify|char)"^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#char> ;
+    rdfs:comment "Alignment char, e.g. char=':'."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#charoff> ;
+    rdfs:comment "Offset for alignment char."^^xsd:string
+  ] .
+
+<http://uispin.org/html#align>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "align"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#char>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "char"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#charoff>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "charoff"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#Sup>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#TextElements>, <http://uispin.org/html#AttrsAttributeGroup> ;
+  rdfs:label "Sup"^^xsd:string .
+
+<http://uispin.org/html#P>
+  a ns2:NodeClass ;
+  rdfs:label "P"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#AttrsAttributeGroup>, <http://uispin.org/html#TextElements> .
+
+<http://uispin.org/html#link>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "link"^^xsd:string .
+
+<http://uispin.org/html#Kbd>
+  a ns2:NodeClass ;
+  rdfs:label "Kbd"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#PhraseElements> .
+
+<http://uispin.org/html#PhraseElements>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#TextElements>, <http://uispin.org/html#AttrsAttributeGroup> ;
+  ns2:abstract true ;
+  rdfs:label "Phrase elements"^^xsd:string .
+
+<http://uispin.org/html#Tt>
+  a ns2:NodeClass ;
+  rdfs:label "Tt"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#FontStyleElements> .
+
+<http://uispin.org/html#FontStyleElements>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#AttrsAttributeGroup>, <http://uispin.org/html#GraphicsElements> ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/present/graphics.html#h-15.2.1> ;
+  ns2:abstract true ;
+  rdfs:label "Font style elements"^^xsd:string .
+
+<http://uispin.org/html#GraphicsElements>
+  a ns2:NodeClass ;
+  rdfs:subClassOf ns2:Element ;
+  ns2:abstract true ;
+  rdfs:label "Graphics elements"^^xsd:string .
+
+<http://uispin.org/html#selected>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "selected"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#Noframes>
+  a ns2:NodeClass ;
+  rdfs:label "Noframes"^^xsd:string ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/present/frames.html#h-16.4.1> ;
+  rdfs:subClassOf <http://uispin.org/html#AttrsAttributeGroup>, <http://uispin.org/html#FrameElements> .
+
+<http://uispin.org/html#FrameElements>
+  a ns2:NodeClass ;
+  rdfs:subClassOf ns2:Element ;
+  ns2:abstract true ;
+  rdfs:label "Frame elements"^^xsd:string .
+
+<http://uispin.org/html#Frameset>
+  a ns2:NodeClass ;
+  rdfs:label "Frameset"^^xsd:string ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/present/frames.html#h-16.2.1> ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onunload> ;
+    rdfs:comment "All the frames have been removed."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#rows> ;
+    rdfs:comment "List of lengths."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#cols> ;
+    rdfs:comment "List of lengths."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onload> ;
+    rdfs:comment "All the frames have been loaded."^^xsd:string
+  ] ;
+  rdfs:subClassOf <http://uispin.org/html#CoreAttributeGroup>, <http://uispin.org/html#FrameElements> .
+
+<http://uispin.org/html#onunload>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "onunload"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#rows>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "rows"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#cols>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "cols"^^xsd:string .
+
+<http://uispin.org/html#onload>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "onload"^^xsd:string .
+
+<http://uispin.org/html#Abbr>
+  a ns2:NodeClass ;
+  rdfs:label "Abbr"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#PhraseElements> .
+
+<http://uispin.org/html#Dfn>
+  a ns2:NodeClass ;
+  rdfs:label "Dfn"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#PhraseElements> .
+
+<http://uispin.org/html#Ins>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#TextElements>, <http://uispin.org/html#AttrsAttributeGroup> ;
+  rdfs:label "Ins"^^xsd:string ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#datetime>
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#cite>
+  ] .
+
+<http://uispin.org/html#datetime>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "datetime"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#object>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "object"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#Optgroup>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#FormElements> ;
+  rdfs:label "Optgroup"^^xsd:string .
+
+<http://uispin.org/html#FormElements>
+  a ns2:NodeClass ;
+  ns2:abstract true ;
+  rdfs:subClassOf ns2:Element ;
+  rdfs:label "Form elements"^^xsd:string .
+
+<http://uispin.org/html#language>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "language"^^xsd:string .
+
+<http://uispin.org/html#Textarea>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#FormElements>, <http://uispin.org/html#AttrsAttributeGroup> ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/interact/forms.html#h-17.7> ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#rows>
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#readonly>
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#name>
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#accesskey> ;
+    rdfs:comment "Accessibility key character."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onchange> ;
+    rdfs:comment "The element value was changed."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onfocus> ;
+    rdfs:comment "The element got the focus."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#tabindex> ;
+    rdfs:comment "Position in tabbing order."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onselect> ;
+    rdfs:comment "Some text was selected."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#cols>
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onblur> ;
+    rdfs:comment "The element lost the focus."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#disabled> ;
+    rdfs:comment "Unavailable in this context."^^xsd:string
+  ] ;
+  rdfs:label "Textarea"^^xsd:string .
+
+<http://uispin.org/html#readonly>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "readonly"^^xsd:string .
+
+<http://uispin.org/html#name>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "name"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#accesskey>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "accesskey"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#onchange>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "onchange"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#onfocus>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "onfocus"^^xsd:string .
+
+<http://uispin.org/html#tabindex>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "tabindex"^^xsd:string .
+
+<http://uispin.org/html#onselect>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "onselect"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#onblur>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "onblur"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#disabled>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "disabled"^^xsd:string .
+
+<http://uispin.org/html#Var>
+  a ns2:NodeClass ;
+  rdfs:label "Var"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#PhraseElements> .
+
+<http://uispin.org/html#Font>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#GraphicsElements> ;
+  rdfs:label "Font"^^xsd:string .
+
+<http://uispin.org/html#color>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "color"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#label>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "label"^^xsd:string .
+
+<http://uispin.org/html#background>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "background"^^xsd:string .
+
+<http://uispin.org/html#Link>
+  a ns2:NodeClass ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#rev> ;
+    rdfs:comment "Reverse link types."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#rel> ;
+    rdfs:comment "Forward link types."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#charset> ;
+    rdfs:comment "Char encoding of linked resource."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#href> ;
+    rdfs:comment "URI for linked resource."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#hreflang> ;
+    rdfs:comment "Language code."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#type> ;
+    rdfs:comment "Advisory content type."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#media> ;
+    rdfs:comment "For rendering on these media."^^xsd:string
+  ] ;
+  rdfs:subClassOf <http://uispin.org/html#LinkElements>, <http://uispin.org/html#AttrsAttributeGroup> ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/struct/links.html#h-12.3> ;
+  rdfs:label "Link"^^xsd:string .
+
+<http://uispin.org/html#rev>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "rev"^^xsd:string .
+
+<http://uispin.org/html#LinkElements>
+  a ns2:NodeClass ;
+  rdfs:subClassOf ns2:Element ;
+  ns2:abstract true ;
+  rdfs:label "Link elements"^^xsd:string .
+
+<http://uispin.org/html#rel>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "rel"^^xsd:string .
+
+<http://uispin.org/html#charset>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "charset"^^xsd:string .
+
+<http://uispin.org/html#href>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "href"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#hreflang>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "hreflang"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#type>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "type"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#media>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "media"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#Bdo>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#I18NAttributeGroup>, <http://uispin.org/html#LanguageElements>, <http://uispin.org/html#CoreAttributeGroup> ;
+  rdfs:label "Bdo"^^xsd:string .
+
+<http://uispin.org/html#LanguageElements>
+  a ns2:NodeClass ;
+  rdfs:subClassOf ns2:Element ;
+  ns2:abstract true ;
+  rdfs:label "Language elements"^^xsd:string .
+
+<http://uispin.org/html#Dir>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#ListElements> ;
+  rdfs:label "Dir"^^xsd:string .
+
+<http://uispin.org/html#ListElements>
+  a ns2:NodeClass ;
+  rdfs:subClassOf ns2:Element, <http://uispin.org/html#AttrsAttributeGroup> ;
+  rdfs:label "List elements"^^xsd:string ;
+  rdfs:comment "Abstract base class for HTML list elements."^^xsd:string ;
+  ns2:abstract true .
+
+<http://uispin.org/html#Dt>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#ListElements> ;
+  rdfs:label "Dt"^^xsd:string .
+
+<http://uispin.org/html#Cite>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#PhraseElements> ;
+  rdfs:label "Cite"^^xsd:string .
+
+<http://uispin.org/html#vlink>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "vlink"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#Noscript>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#ScriptElements>, <http://uispin.org/html#AttrsAttributeGroup> ;
+  rdfs:label "Noscript"^^xsd:string ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/interact/scripts.html#h-18.3.1> .
+
+<http://uispin.org/html#ScriptElements>
+  a ns2:NodeClass ;
+  rdfs:subClassOf ns2:Element ;
+  ns2:abstract true ;
+  rdfs:label "Script elements"^^xsd:string .
+
+<http://uispin.org/html#Table>
+  a ns2:NodeClass ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#width> ;
+    rdfs:comment "Table width."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#cellspacing> ;
+    rdfs:comment "Spacing between cells."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#rules> ;
+    rdfs:comment "Rulings between rows and cols."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#summary> ;
+    rdfs:comment "Purpose/structure for speech output."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#border> ;
+    rdfs:comment "Controls frame width around table."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#cellpadding> ;
+    rdfs:comment "Spacing within cells."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#frame> ;
+    rdfs:comment "Which parts of frame to render."^^xsd:string
+  ] ;
+  rdfs:label "Table"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#TableElements>, <http://uispin.org/html#AttrsAttributeGroup> .
+
+<http://uispin.org/html#width>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "width"^^xsd:string .
+
+<http://uispin.org/html#cellspacing>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "cellspacing"^^xsd:string .
+
+<http://uispin.org/html#rules>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "rules"^^xsd:string .
+
+<http://uispin.org/html#summary>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "summary"^^xsd:string .
+
+<http://uispin.org/html#border>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "border"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#cellpadding>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "cellpadding"^^xsd:string .
+
+<http://uispin.org/html#frame>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "frame"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#Colgroup>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#CellVAlignAttributeGroup>, <http://uispin.org/html#TableElements>, <http://uispin.org/html#CellHAlignAttributeGroup>, <http://uispin.org/html#AttrsAttributeGroup> ;
+  rdfs:label "Colgroup"^^xsd:string ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#span> ;
+    rdfs:comment "Default number of columns in group."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#width> ;
+    rdfs:comment "Default width for enclosed COLs."^^xsd:string
+  ] ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/struct/tables.html#h-11.2.4> .
+
+<http://uispin.org/html#span>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "span"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#I>
+  a ns2:NodeClass ;
+  rdfs:label "I"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#FontStyleElements> .
+
+<http://uispin.org/html#Body>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#GlobalElements>, <http://uispin.org/html#AttrsAttributeGroup> ;
+  rdfs:label "Body"^^xsd:string .
+
+<http://uispin.org/html#GlobalElements>
+  a ns2:NodeClass ;
+  rdfs:subClassOf ns2:Element ;
+  rdfs:label "Global elements"^^xsd:string ;
+  ns2:abstract true .
+
+<http://uispin.org/html#Span>
+  a ns2:NodeClass ;
+  rdfs:label "Span"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#AttrsAttributeGroup>, <http://uispin.org/html#GlobalElements> .
+
+<http://uispin.org/html#Thead>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#TableRowGroupElements> ;
+  rdfs:label "Thead"^^xsd:string .
+
+<http://uispin.org/html#Blockquote>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#TextElements>, <http://uispin.org/html#AttrsAttributeGroup> ;
+  rdfs:label "Blockquote"^^xsd:string ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#cite>
+  ] .
+
+<http://uispin.org/html#Iframe>
+  a ns2:NodeClass ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#longdesc> ;
+    rdfs:comment "Link to long description."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#marginwidth> ;
+    rdfs:comment "Margin widths in pixels."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#width> ;
+    rdfs:comment "Frame width."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#scrolling> ;
+    rdfs:comment "Scrollbar or none."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#marginheight> ;
+    rdfs:comment "Margin height in pixels."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#frameborder> ;
+    rdfs:comment "Request frame borders?"^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#src> ;
+    rdfs:comment "Source of frame content."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#align> ;
+    rdfs:comment "Vertical or horizontal alignment."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#name> ;
+    rdfs:comment "Name of frame for targetting."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#height> ;
+    rdfs:comment "Frame height."^^xsd:string
+  ] ;
+  rdfs:subClassOf <http://uispin.org/html#FrameElements>, <http://uispin.org/html#CoreAttributeGroup> ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/present/frames.html#h-16.5> ;
+  rdfs:label "Internal Frame"^^xsd:string .
+
+<http://uispin.org/html#longdesc>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "longdesc"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#marginwidth>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "marginwidth"^^xsd:string .
+
+<http://uispin.org/html#scrolling>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "scrolling"^^xsd:string .
+
+<http://uispin.org/html#marginheight>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "marginheight"^^xsd:string .
+
+<http://uispin.org/html#frameborder>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "frameborder"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#src>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "src"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#height>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "height"^^xsd:string .
+
+<http://uispin.org/html#Frame>
+  a ns2:NodeClass ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#marginwidth> ;
+    rdfs:comment "Margin widths in pixels."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#frameborder> ;
+    rdfs:comment "Request frame borders?"^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#noresize> ;
+    rdfs:comment "Allow users to resize frames?"^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#src> ;
+    rdfs:comment "Source of frame content."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#scrolling> ;
+    rdfs:comment "Scrollbar or none."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#marginheight> ;
+    rdfs:comment "Margin height in pixels."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#name> ;
+    rdfs:comment "Name of frame for targetting."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#longdesc> ;
+    rdfs:comment "Link to long description."^^xsd:string
+  ] ;
+  rdfs:subClassOf <http://uispin.org/html#FrameElements>, <http://uispin.org/html#CoreAttributeGroup> ;
+  rdfs:label "Frame"^^xsd:string ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/present/frames.html#h-16.2.2> .
+
+<http://uispin.org/html#noresize>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "noresize"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#Isindex>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#FormElements>, owl:DeprecatedClass ;
+  rdfs:label "Isindex"^^xsd:string .
+
+<http://uispin.org/html#Html>
+  a ns2:NodeClass ;
+  rdfs:label "Html"^^xsd:string ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#dir>
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#lang>
+  ] ;
+  rdfs:subClassOf <http://uispin.org/html#GlobalElements> .
+
+<http://uispin.org/html#Input>
+  a ns2:NodeClass ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#src> ;
+    rdfs:comment "For fields with images."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#size> ;
+    rdfs:comment "Specific to each type of field."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#value> ;
+    rdfs:comment "Specify for radio buttons and checkboxes."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#maxlength> ;
+    rdfs:comment "Max chars for text fields."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onblur> ;
+    rdfs:comment "The element lost the focus."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#name> ;
+    rdfs:comment "Submit as part of form."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onchange> ;
+    rdfs:comment "The element value was changed."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#tabindex> ;
+    rdfs:comment "Position in tabbing order."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#ismap> ;
+    rdfs:comment "Use server-side image map."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#accesskey> ;
+    rdfs:comment "Accessibility key character."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#checked> ;
+    rdfs:comment "For radio buttons and check boxes."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#type> ;
+    rdfs:comment "What kind of widget is needed."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#accept> ;
+    rdfs:comment "List of MIME types for file upload."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#alt> ;
+    rdfs:comment "Short description."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onselect> ;
+    rdfs:comment "Some text was selected."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#disabled> ;
+    rdfs:comment "Unavailable in this context."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onfocus> ;
+    rdfs:comment "The element got the focus."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#readonly> ;
+    rdfs:comment "For text and passwd."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#usemap> ;
+    rdfs:comment "Use client-side image map."^^xsd:string
+  ] ;
+  rdfs:subClassOf <http://uispin.org/html#FormElements>, <http://uispin.org/html#AttrsAttributeGroup> ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/interact/forms.html#h-17.4> ;
+  rdfs:label "Input"^^xsd:string .
+
+<http://uispin.org/html#size>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "size"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#value>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "value"^^xsd:string .
+
+<http://uispin.org/html#maxlength>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "maxlength"^^xsd:string .
+
+<http://uispin.org/html#ismap>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "ismap"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#checked>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "checked"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#accept>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "accept"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#alt>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "alt"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#usemap>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "usemap"^^xsd:string .
+
+<http://uispin.org/html#Div>
+  a ns2:NodeClass ;
+  rdfs:label "Div"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#AttrsAttributeGroup>, <http://uispin.org/html#GlobalElements> .
+
+<http://uispin.org/html#prompt>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "prompt"^^xsd:string .
+
+<http://uispin.org/html#Samp>
+  a ns2:NodeClass ;
+  rdfs:label "Samp"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#PhraseElements> .
+
+<http://uispin.org/html#Param>
+  a ns2:NodeClass ;
+  rdfs:label "Param"^^xsd:string ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#type> ;
+    rdfs:comment "content type for value"^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#id> ;
+    rdfs:comment "Document-wide unique id."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#name> ;
+    rdfs:comment "Property name."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#value> ;
+    rdfs:comment "Property value."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#valuetype> ;
+    rdfs:comment "How to interpret value."^^xsd:string
+  ] ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/struct/objects.html#h-13.3.2> ;
+  rdfs:subClassOf <http://uispin.org/html#ObjectsElements> .
+
+<http://uispin.org/html#valuetype>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "valuetype"^^xsd:string .
+
+<http://uispin.org/html#ObjectsElements>
+  a ns2:NodeClass ;
+  rdfs:subClassOf ns2:Element ;
+  rdfs:label "Objects element"^^xsd:string ;
+  ns2:abstract true .
+
+<http://uispin.org/html#Option>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#FormElements> ;
+  rdfs:label "Option"^^xsd:string .
+
+<http://uispin.org/html#Del>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#TextElements>, <http://uispin.org/html#AttrsAttributeGroup> ;
+  rdfs:label "Del"^^xsd:string ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#datetime>
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#cite>
+  ] .
+
+<http://uispin.org/html#Tbody>
+  a ns2:NodeClass ;
+  rdfs:label "Tbody"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#TableRowGroupElements> .
+
+<http://uispin.org/html#Meta>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#I18NAttributeGroup>, <http://uispin.org/html#GlobalElements> ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#http-equiv>
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#content>
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#name>
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#scheme>
+  ] ;
+  rdfs:label "Meta"^^xsd:string .
+
+<http://uispin.org/html#http-equiv>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "http-equiv"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#content>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "content"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#scheme>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "scheme"^^xsd:string .
+
+<http://uispin.org/html#Sub>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#TextElements>, <http://uispin.org/html#AttrsAttributeGroup> ;
+  rdfs:label "Sub"^^xsd:string .
+
+<http://uispin.org/html#B>
+  a ns2:NodeClass ;
+  rdfs:label "B"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#FontStyleElements> .
+
+<http://uispin.org/html#compact>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "compact"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#start>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "start"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#target>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "target"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#A>
+  a ns2:NodeClass ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#href> ;
+    rdfs:comment "URI for linked resource."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#coords> ;
+    rdfs:comment "For use with client-side image maps."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#tabindex> ;
+    rdfs:comment "Position in tabbing order."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#hreflang> ;
+    rdfs:comment "Language code."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#shape> ;
+    rdfs:comment "For use with client-side image maps."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#name> ;
+    rdfs:comment "Named link end."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#accesskey> ;
+    rdfs:comment "Accessibility key character."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onblur> ;
+    rdfs:comment "The element lost the focus."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#rel> ;
+    rdfs:comment "Forward link types."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#type> ;
+    rdfs:comment "Advisory content type."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onfocus> ;
+    rdfs:comment "The element got the focus."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#charset> ;
+    rdfs:comment "Char encoding of linked resource."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#rev> ;
+    rdfs:comment "Reverse link types."^^xsd:string
+  ] ;
+  rdfs:label "A"^^xsd:string ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/struct/links.html#edef-A> ;
+  rdfs:subClassOf <http://uispin.org/html#AttrsAttributeGroup>, <http://uispin.org/html#LinkElements> ;
+  rdfs:comment """Each A element defines an anchor
+
+The A element's content defines the position of the anchor.
+The name attribute names the anchor so that it may be the destination of zero or more links (see also anchors with id).
+The href attribute makes this anchor the source anchor of exactly one link."""^^xsd:string .
+
+<http://uispin.org/html#coords>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "coords"^^xsd:string .
+
+<http://uispin.org/html#shape>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "shape"^^xsd:string .
+
+<http://uispin.org/html#Pre>
+  a ns2:NodeClass ;
+  rdfs:label "Pre"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#AttrsAttributeGroup>, <http://uispin.org/html#TextElements> .
+
+<http://uispin.org/html#Object>
+  a ns2:NodeClass ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#width> ;
+    rdfs:comment "Override width."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#standby> ;
+    rdfs:comment "Message to show while loading."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#declare> ;
+    rdfs:comment "Declare but don't instantiate flag."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#name> ;
+    rdfs:comment "Submit as part of form."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#tabindex> ;
+    rdfs:comment "Position in tabbing order."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#type> ;
+    rdfs:comment "Content type for data."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#data> ;
+    rdfs:comment "Reference to object's data."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#classid> ;
+    rdfs:comment "Identifies an implementation."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#codetype> ;
+    rdfs:comment "Content type for code."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#archive> ;
+    rdfs:comment "Space-separated list of URIs."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#usemap> ;
+    rdfs:comment "Use client-side image map."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#height> ;
+    rdfs:comment "Override height."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#codebase> ;
+    rdfs:comment "Base URI for classid, data, archive."^^xsd:string
+  ] ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/struct/objects.html#h-13.3> ;
+  rdfs:label "Object"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#AttrsAttributeGroup>, <http://uispin.org/html#ObjectsElements> .
+
+<http://uispin.org/html#standby>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "standby"^^xsd:string .
+
+<http://uispin.org/html#declare>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "declare"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#data>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "data"^^xsd:string .
+
+<http://uispin.org/html#classid>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "classid"^^xsd:string .
+
+<http://uispin.org/html#codetype>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "codetype"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#archive>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "archive"^^xsd:string .
+
+<http://uispin.org/html#codebase>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "codebase"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#noshade>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "noshade"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#Area>
+  a ns2:NodeClass ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#href> ;
+    rdfs:comment "URI for linked resource."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#nohref> ;
+    rdfs:comment "This region has no action."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#accesskey> ;
+    rdfs:comment "Accessibility key character."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#coords> ;
+    rdfs:comment "Comma-separated list of lengths."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#shape> ;
+    rdfs:comment "Controls interpretation of coords."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onblur> ;
+    rdfs:comment "The element lost the focus."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onfocus> ;
+    rdfs:comment "The element got the focus."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#tabindex> ;
+    rdfs:comment "Position in tabbing order."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#alt> ;
+    rdfs:comment "Short description."^^xsd:string
+  ] ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/struct/objects.html#edef-AREA> ;
+  rdfs:subClassOf <http://uispin.org/html#ObjectsElements>, <http://uispin.org/html#AttrsAttributeGroup> ;
+  rdfs:label "Area"^^xsd:string .
+
+<http://uispin.org/html#nohref>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "nohref"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#Form>
+  a ns2:NodeClass ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/interact/forms.html#h-17.3> ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#name> ;
+    rdfs:comment "Name of form for scripting."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#accept> ;
+    rdfs:comment "List of MIME types for file upload"^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#method> ;
+    rdfs:comment "HTTP method used to submit the form."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#accept-charset> ;
+    rdfs:comment "List of supported charsets."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#enctype> ;
+    rdfs:comment "This attribute specifies the content type used to submit the form to the server (when the value of method is \"post\")."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#action> ;
+    rdfs:comment "Server-side form handler."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onsubmit> ;
+    rdfs:comment "The form was submitted."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onreset> ;
+    rdfs:comment "The form was reset."^^xsd:string
+  ] ;
+  rdfs:subClassOf <http://uispin.org/html#FormElements>, <http://uispin.org/html#AttrsAttributeGroup> ;
+  rdfs:label "Form"^^xsd:string .
+
+<http://uispin.org/html#method>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "method"^^xsd:string .
+
+<http://uispin.org/html#accept-charset>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "accept-charset"^^xsd:string .
+
+<http://uispin.org/html#enctype>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "enctype"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#action>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "action"^^xsd:string .
+
+<http://uispin.org/html#onsubmit>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "onsubmit"^^xsd:string .
+
+<http://uispin.org/html#onreset>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "onreset"^^xsd:string .
+
+<http://uispin.org/html#Applet>
+  a ns2:NodeClass, owl:DeprecatedClass ;
+  rdfs:subClassOf <http://uispin.org/html#ObjectsElements>, owl:DeprecatedClass ;
+  rdfs:label "Applet"^^xsd:string .
+
+<http://uispin.org/html#Select>
+  a ns2:NodeClass ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#disabled> ;
+    rdfs:comment "Unavailable in this context."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#name> ;
+    rdfs:comment "Field name."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#size> ;
+    rdfs:comment "Rows visible."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#multiple> ;
+    rdfs:comment "Default is single selection."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onfocus> ;
+    rdfs:comment "The element got the focus."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#tabindex> ;
+    rdfs:comment "Position in tabbing order."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onblur> ;
+    rdfs:comment "The element lost the focus."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onchange> ;
+    rdfs:comment "The element value was changed."^^xsd:string
+  ] ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/interact/forms.html#h-17.6> ;
+  rdfs:label "Select"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#AttrsAttributeGroup>, <http://uispin.org/html#FormElements> .
+
+<http://uispin.org/html#multiple>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "multiple"^^xsd:string .
+
+<http://uispin.org/html#Acronym>
+  a ns2:NodeClass ;
+  rdfs:label "Acronym"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#PhraseElements> .
+
+<http://uispin.org/html#nowrap>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "nowrap"^^xsd:string .
+
+<http://uispin.org/html#bgcolor>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "bgcolor"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#face>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "face"^^xsd:string .
+
+<http://uispin.org/html#Style>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#StyleElements>, <http://uispin.org/html#I18NAttributeGroup> ;
+  rdfs:label "Style"^^xsd:string ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/present/styles.html#h-14.2.3> ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#type> ;
+    rdfs:comment "Content type of style language."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#media> ;
+    rdfs:comment "Designed for use with these media."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#title> ;
+    rdfs:comment "Advisory title."^^xsd:string
+  ] .
+
+<http://uispin.org/html#StyleElements>
+  a ns2:NodeClass ;
+  rdfs:subClassOf ns2:Element ;
+  ns2:abstract true ;
+  rdfs:label "Style elements"^^xsd:string .
+
+<http://uispin.org/html#H1>
+  a ns2:NodeClass ;
+  rdfs:label "H1"^^xsd:string ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/struct/global.html#edef-H1> ;
+  rdfs:subClassOf <http://uispin.org/html#Heading> .
+
+<http://uispin.org/html#Heading>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#GlobalElements>, <http://uispin.org/html#AttrsAttributeGroup> ;
+  rdfs:comment "Abstract base class of the various headings elements."^^xsd:string ;
+  rdfs:label "Heading"^^xsd:string ;
+  ns2:abstract true .
+
+<http://uispin.org/html#Ul>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#ListElements> ;
+  rdfs:label "UL"^^xsd:string .
+
+<http://uispin.org/html#Button>
+  a ns2:NodeClass ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onblur> ;
+    rdfs:comment "The element lost the focus."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#accesskey> ;
+    rdfs:comment "Accessibility key character."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#type> ;
+    rdfs:comment "For use as form button."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#tabindex> ;
+    rdfs:comment "Position in tabbing order."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#value> ;
+    rdfs:comment "Sent to server when submitted."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#disabled> ;
+    rdfs:comment "Unavailable in this context."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onfocus> ;
+    rdfs:comment "The element got the focus."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#name>
+  ] ;
+  rdfs:label "Button"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#AttrsAttributeGroup>, <http://uispin.org/html#FormElements> ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/interact/forms.html#h-17.5> .
+
+<http://uispin.org/html#Th>
+  a ns2:NodeClass ;
+  rdfs:label "Table header"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#Td> .
+
+<http://uispin.org/html#Td>
+  a ns2:NodeClass ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/struct/tables.html#h-11.2.6> ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#abbr> ;
+    rdfs:comment "Abbreviation for header cell."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#headers> ;
+    rdfs:comment "List of id's for header cells."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#scope> ;
+    rdfs:comment "Scope covered by header cells."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#colspan> ;
+    rdfs:comment "Number of columns spanned by cell."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#axis> ;
+    rdfs:comment "Comma-separated list of related headers."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#rowspan> ;
+    rdfs:comment "Number of rows spanned by cell."^^xsd:string
+  ] ;
+  rdfs:subClassOf <http://uispin.org/html#TableElements>, <http://uispin.org/html#CellVAlignAttributeGroup>, <http://uispin.org/html#CellHAlignAttributeGroup>, <http://uispin.org/html#AttrsAttributeGroup> ;
+  rdfs:label "Td"^^xsd:string .
+
+<http://uispin.org/html#abbr>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "abbr"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#headers>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "headers"^^xsd:string .
+
+<http://uispin.org/html#scope>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "scope"^^xsd:string .
+
+<http://uispin.org/html#colspan>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "colspan"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#axis>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "axis"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#rowspan>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "rowspan"^^xsd:string .
+
+<http://uispin.org/html#Label>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#FormElements>, <http://uispin.org/html#AttrsAttributeGroup> ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/interact/forms.html#h-17.9.1> ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onblur> ;
+    rdfs:comment "The element lost the focus"^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#for> ;
+    rdfs:comment "Matches field ID value."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#accesskey> ;
+    rdfs:comment "Accessibility key character."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onfocus> ;
+    rdfs:comment "The element got the focus."^^xsd:string
+  ] ;
+  rdfs:label "Label"^^xsd:string .
+
+<http://uispin.org/html#for>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "for"^^xsd:string .
+
+<http://uispin.org/html#Caption>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#TableElements>, <http://uispin.org/html#AttrsAttributeGroup> ;
+  rdfs:label "Caption"^^xsd:string .
+
+<http://uispin.org/html#Li>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#ListElements> ;
+  rdfs:label "Li"^^xsd:string .
+
+<http://uispin.org/html#Dd>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#ListElements> ;
+  rdfs:label "Dd"^^xsd:string .
+
+<http://uispin.org/html#Ol>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#ListElements> ;
+  rdfs:label "OL"^^xsd:string .
+
+<http://uispin.org/html#Em>
+  a ns2:NodeClass ;
+  rdfs:label "Em"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#PhraseElements> .
+
+<http://uispin.org/html#version>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "version"^^xsd:string .
+
+<http://uispin.org/html#hspace>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "hspace"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#H4>
+  a ns2:NodeClass ;
+  rdfs:label "H4"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#Heading> .
+
+<http://uispin.org/html#H5>
+  a ns2:NodeClass ;
+  rdfs:label "H5"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#Heading> .
+
+<http://uispin.org/html#Hr>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#GraphicsElements> ;
+  rdfs:label "Hr"^^xsd:string ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/present/graphics.html#h-15.3> .
+
+<http://uispin.org/html#Col>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#TableElements> ;
+  rdfs:label "Col"^^xsd:string ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/struct/tables.html#h-11.2.4> .
+
+<http://uispin.org/html#Strong>
+  a ns2:NodeClass ;
+  rdfs:label "Strong"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#PhraseElements> .
+
+<http://uispin.org/html#Basefont>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#GraphicsElements> ;
+  rdfs:label "Basefont"^^xsd:string .
+
+<http://uispin.org/html#code>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "code"^^xsd:string .
+
+<http://uispin.org/html#H2>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#Heading> ;
+  rdfs:label "H2"^^xsd:string .
+
+<http://uispin.org/html#Br>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#TextElements>, <http://uispin.org/html#CoreAttributeGroup> ;
+  rdfs:label "Br"^^xsd:string .
+
+<http://uispin.org/html#Title>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#I18NAttributeGroup>, <http://uispin.org/html#AttrsAttributeGroup> ;
+  rdfs:label "Title"^^xsd:string .
+
+<http://uispin.org/html#Center>
+  a ns2:NodeClass, owl:DeprecatedClass ;
+  rdfs:subClassOf <http://uispin.org/html#GraphicsElements>, owl:DeprecatedClass ;
+  rdfs:label "Center"^^xsd:string .
+
+<http://uispin.org/html#H3>
+  a ns2:NodeClass ;
+  rdfs:label "H3"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#Heading> .
+
+<http://uispin.org/html#vspace>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "vspace"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#Fieldset>
+  a ns2:NodeClass ;
+  rdfs:label "Fieldset"^^xsd:string ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/interact/forms.html#h-17.10> ;
+  rdfs:subClassOf <http://uispin.org/html#AttrsAttributeGroup>, <http://uispin.org/html#FormElements> .
+
+<http://uispin.org/html#Strike>
+  a ns2:NodeClass, owl:DeprecatedClass ;
+  rdfs:label "Strike"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#FontStyleElements> .
+
+<http://uispin.org/html#alink>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "alink"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#Legend>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#FormElements>, <http://uispin.org/html#AttrsAttributeGroup> ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/interact/forms.html#h-17.10> ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#accesskey> ;
+    rdfs:comment "Accessibility key character."^^xsd:string
+  ] ;
+  rdfs:label "Legend"^^xsd:string .
+
+<http://uispin.org/html#Img>
+  a ns2:NodeClass ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#ismap> ;
+    rdfs:comment "Use server-side image map."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#alt> ;
+    rdfs:comment "Short description."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#src> ;
+    rdfs:comment "URI of image to embed."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#usemap> ;
+    rdfs:comment "Use client-side image map."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#height> ;
+    rdfs:comment "Override height."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#width> ;
+    rdfs:comment "Override width"^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#longdesc> ;
+    rdfs:comment "Link to long description."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#name> ;
+    rdfs:comment "Name of image for scripting."^^xsd:string
+  ] ;
+  rdfs:subClassOf <http://uispin.org/html#AttrsAttributeGroup>, <http://uispin.org/html#ObjectsElements> ;
+  rdfs:label "Image"^^xsd:string ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/struct/objects.html#h-13.2> .
+
+<http://uispin.org/html#Address>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#GlobalElements>, <http://uispin.org/html#AttrsAttributeGroup> ;
+  rdfs:label "Address"^^xsd:string .
+
+<http://uispin.org/html#Menu>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#ListElements> ;
+  rdfs:label "Menu"^^xsd:string .
+
+<http://uispin.org/html#Script>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#ScriptElements> ;
+  rdfs:label "Script"^^xsd:string ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/interact/scripts.html#h-18.2.1> ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#charset> ;
+    rdfs:comment "Char encoding of linked resource."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#type> ;
+    rdfs:comment "Content type of script language."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#src> ;
+    rdfs:comment "URI for an external script."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#defer> ;
+    rdfs:comment "UA may defer execution of script."^^xsd:string
+  ] .
+
+<http://uispin.org/html#defer>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "defer"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#Head>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#I18NAttributeGroup>, <http://uispin.org/html#GlobalElements> ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#profile>
+  ] ;
+  rdfs:label "Head"^^xsd:string .
+
+<http://uispin.org/html#profile>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "profile"^^xsd:string .
+
+<http://uispin.org/html#Big>
+  a ns2:NodeClass ;
+  rdfs:label "Big"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#FontStyleElements> .
+
+<http://uispin.org/html#U>
+  a ns2:NodeClass, owl:DeprecatedClass ;
+  rdfs:label "U"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#FontStyleElements> .
+
+<http://uispin.org/html#Tr>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#CellVAlignAttributeGroup>, <http://uispin.org/html#TableElements>, <http://uispin.org/html#CellHAlignAttributeGroup>, <http://uispin.org/html#AttrsAttributeGroup> ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/struct/tables.html#h-11.2.5> ;
+  rdfs:label "Table row"^^xsd:string .
+
+<http://uispin.org/html#Base>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#LinkElements> ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/struct/links.html#h-12.4> ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#href> ;
+    rdfs:comment "URI that acts as base URI."^^xsd:string
+  ] ;
+  rdfs:label "Base"^^xsd:string .
+
+<http://uispin.org/html#Code>
+  a ns2:NodeClass ;
+  rdfs:label "Code"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#PhraseElements> .
+
+<http://uispin.org/html#Dl>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#ListElements> ;
+  rdfs:label "Dl"^^xsd:string .
+
+<http://uispin.org/html#H6>
+  a ns2:NodeClass ;
+  rdfs:label "H6"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#Heading> .
+
+<http://uispin.org/html#EventsAttributeGroup>
+  a ns2:NodeClass ;
+  rdfs:label "Events attribute group"^^xsd:string ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onmouseover> ;
+    rdfs:comment "A pointer was moved onto."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onmousedown> ;
+    rdfs:comment "A pointer button was pressed down."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onkeydown> ;
+    rdfs:comment "A key was pressed down."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onmouseout> ;
+    rdfs:comment "A pointer was moved away."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onmousemove> ;
+    rdfs:comment "A pointer was moved within."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onclick> ;
+    rdfs:comment "A pointer button was clicked."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onkeyup> ;
+    rdfs:comment "A key was released."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onkeypress> ;
+    rdfs:comment "A key was pressed and released."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#ondblclick> ;
+    rdfs:comment "A pointer button was double clicked."^^xsd:string
+  ], [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#onmouseup> ;
+    rdfs:comment "A pointer button was released."^^xsd:string
+  ] ;
+  rdfs:subClassOf <http://uispin.org/html#AttributeGroups> ;
+  ns2:abstract true .
+
+<http://uispin.org/html#onmouseover>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "onmouseover"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#onmousedown>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "onmousedown"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#onkeydown>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "onkeydown"^^xsd:string .
+
+<http://uispin.org/html#onmouseout>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "onmouseout"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#onmousemove>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "onmousemove"^^xsd:string .
+
+<http://uispin.org/html#onclick>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "onclick"^^xsd:string .
+
+<http://uispin.org/html#onkeyup>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:label "onkeyup"^^xsd:string ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> .
+
+<http://uispin.org/html#onkeypress>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "onkeypress"^^xsd:string .
+
+<http://uispin.org/html#ondblclick>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "ondblclick"^^xsd:string .
+
+<http://uispin.org/html#onmouseup>
+  a <http://uispin.org/html#Attribute> ;
+  rdfs:subPropertyOf <http://uispin.org/html#attributes> ;
+  rdfs:label "onmouseup"^^xsd:string .
+
+<http://uispin.org/html#Map>
+  a ns2:NodeClass ;
+  rdfs:subClassOf <http://uispin.org/html#ObjectsElements>, <http://uispin.org/html#AttrsAttributeGroup> ;
+  rdfs:seeAlso <http://www.w3.org/TR/html401/struct/objects.html#h-13.6.1> ;
+  ns0:constraint [
+    a ns1:Argument ;
+    ns1:predicate <http://uispin.org/html#name> ;
+    rdfs:comment "For reference by usemap."^^xsd:string
+  ] ;
+  rdfs:label "Map"^^xsd:string .
+
+<http://uispin.org/html#Small>
+  a ns2:NodeClass ;
+  rdfs:label "Small"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#FontStyleElements> .
+
+<http://uispin.org/html#S>
+  a ns2:NodeClass, owl:DeprecatedClass ;
+  rdfs:label "S"^^xsd:string ;
+  rdfs:subClassOf <http://uispin.org/html#FontStyleElements> .

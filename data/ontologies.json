@@ -29,6 +29,10 @@
     {
       "uri": "/data/video.ttl",
       "label": "Video Ontology (VidOnt)"
+    },
+    {
+      "uri": "/data/uspin_html.ttl",
+      "label": "HTML Ontology from Uspin"
     }
   ],
   "defaults": {
