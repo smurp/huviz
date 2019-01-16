@@ -1380,8 +1380,8 @@ class Huviz
     @init_sets()
     @init_gclc()
     @init_editc()
-    @indexed_dbservice()
-    @init_indexddbstorage()
+    @indexed_dbservice()  # REVIEW is this needed?
+    @init_indexddbstorage() # REVIEW and this?
 
     @force.nodes(@nodes)
     @force.links(@links_set)
@@ -1603,7 +1603,7 @@ class Huviz
       return
     retval = (focused.lid or '') + ' '
     if !focused.state?
-      console.error(retval + ' has no state!!! This is unpossible!!!! name:',focused.name)
+      console.error(retval + ' has no state!!! This is unpossible!!!! name:', focused.name)
       return
     retval += focused.state.id
     return retval
@@ -2982,12 +2982,25 @@ class Huviz
     else #File not valid
       #abort with message
       #NOTE This only catches URLs that do not have a valid file name; nothing about actual file format
-      msg = "Could not load #{url}. The data file format is not supported! Only files with TTL and NQ extensions are accepted."
+      msg = "Could not load #{url}. The data file format is not supported! " +
+            "Only files with TTL and NQ extensions are accepted."
       @hide_state_msg()
       blurt(msg, 'error')
       $('#data_ontology_display').remove()
       @reset_dataset_ontology_loader()
       #@init_resource_menus()
+      return
+
+    # Deal with the case that the file is cached inside the datasetDB as a result
+    # of having been dragged and droppped from the local disk and added to the datasetDB.
+    if url.startsWith('file:///') or url.indexOf('/') is -1 # ie it is a local file
+      @get_resource_from_db  url, (err, rsrcRec) =>
+        if rsrcRec?
+          the_parser(rsrcRec.data)
+          return # REVIEW ensure that proper try catch is happening
+        blurt(err or "'#{url} was not found in your DATASET menu.  Provide it and reload this page")
+        @reset_dataset_ontology_loader()
+        return
       return
 
     if the_parser is @parseAndShowNQ
@@ -3004,7 +3017,7 @@ class Huviz
         console.log(url, errorThrown)
         if not errorThrown
           errorThrown = "Cross-Origin error"
-        msg = errorThrown + " while fetching " + url
+        msg = errorThrown + " while fetching dataset " + url
         @hide_state_msg()
         $('#data_ontology_display').remove()
         blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
@@ -4481,18 +4494,18 @@ class Huviz
       @dbName = 'datasetDB'
       @dbVersion = 2
       request = indexedDB.open(@dbName, @dbVersion)
-      request.onsuccess = (e) =>
+      request.onsuccess = (evt) =>
         @datasetDB = request.result
-        @datasetDB.onerror = (e) =>
-          alert "Database error: #{e.target.errorCode}"
+        @datasetDB.onerror = (err) =>
+          alert("Database error: #{e.target.errorCode}")
         #alert "onsuccess"
         @populate_menus_from_IndexedDB('onsuccess')
-      request.onerror = (e) =>
+      request.onerror = (err) =>
         alert("unable to init #{@dbName}")
-      request.onupgradeneeded = (e) =>
+      request.onupgradeneeded = (event) =>
         db = event.target.result
         objectStore = db.createObjectStore("datasets", {keyPath: 'uri'})
-        objectStore.transaction.oncomplete = (e) =>
+        objectStore.transaction.oncomplete = (evt) =>
           @datasetDB = db
           # alert "onupgradeneeded"
           @populate_menus_from_IndexedDB('onupgradeneeded')
@@ -4562,22 +4575,28 @@ class Huviz
 
   get_resource_from_db: (rsrcUri, callback) ->
     trx = @datasetDB.transaction('datasets', "readwrite")
-    trx.oncomplete = (e) =>
-      console.log("#{rsrcUri} found")
-    trx.onerror = (e) =>
-      console.log(e)
-      alert("get_resource_from_db(#{rsrcUri}) error!!!")
+    trx.oncomplete = (evt) =>
+      console.log("get_resource_from_db('#{rsrcUri}') complete, either by success or error")
+    trx.onerror = (err) =>
+      console.log(err)
+      if callback?
+        callback(err, null)
+      else
+        alert("get_resource_from_db(#{rsrcUri}) error!!!")
+        throw err
     store = trx.objectStore('datasets')
     req = store.get(rsrcUri)
     req.onsuccess = (event) =>
+      console.log("#{rsrcUri} found", event.target.result)
       if callback?
-        callback(event.target.result)
-    req.onerror = (e) =>
-      console.debug(e)
+        callback(null, event.target.result)
+    req.onerror = (err) =>
+      console.debug("get_resource_from_db('#{rsrcUri}') onerror ==>",err)
+      #alert(err)
       if callback
-        callback(e,null)
+        callback(err, null)
       else
-        throw e
+        throw err
     return
 
 
@@ -4600,12 +4619,12 @@ class Huviz
           if rec.rsrcType in ['dataset', 'ontology'] or legacyDataset or legacyOntology
             # both datasets and ontologies appear in the dataset menu, for visualization
             @dataset_loader.add_resource_option(rec)
-          else if rec.rsrcType is 'ontology' or legacyOntology
+          if rec.rsrcType is 'ontology' or legacyOntology
             # only datasets are added to the dataset menu
             @ontology_loader.add_resource_option(rec)
-          else if rec.rsrcType is 'script'
+          if rec.rsrcType is 'script'
             @script_loader.add_resource_option(rec)
-          else if rec.rsrcType is 'endpoint'
+          if rec.rsrcType is 'endpoint'
             @endpoint_loader.add_resource_option(rec)
           cursor.continue()
         else # when there are no (or NO MORE) entries, ie FINALLY
@@ -4759,19 +4778,30 @@ class Huviz
       return
     onto = ontologies and ontologies[0] or @ontology_loader
     data = dataset or @dataset_loader
-    if @local_file_data
-      @read_data_and_show(data.value) #(@dataset_loader.value)
+    # at this point data and onto are both objects with a .value key, containing url or fname
+    if not (onto.value and data.value)
+      console.debug(data, onto)
+      throw new Error("Now whoa-up pardner... both data and onto should have .value")
+
+    #url = data.value
+    #if @local_file_data or
+    #    url.startsWith('file:///') or url.indexOf('/') is -1 # ie it is a local file
+    #  @read_data_and_show(data.value) #(@dataset_loader.value)
     #else if @endpoint_loader.value
     #  data = @endpoint_loader #TEMP
     #  @load_data_with_onto(data, onto) #TODO add ontology here?
-    else #load from URI
-      @load_data_with_onto(data, onto) # , () -> alert "woot")
+    #else #load from URI
+    @load_data_with_onto(data, onto) # , () -> alert "woot")
     #selected_dataset = @dataset_loader.get_selected_option()[0]
     @update_browser_title(data)
     @update_caption(data.value, onto.value)
+    return
 
-  load_script_from_db: (rsrcRec) =>
-    @load_script_from_JSON(@parse_script_file(rsrcRec.data, rsrcRec.uri))
+  load_script_from_db: (err, rsrcRec) =>
+    if err?
+      blurt(err, 'error')
+    else
+      @load_script_from_JSON(@parse_script_file(rsrcRec.data, rsrcRec.uri))
 
   init_gclc: ->
     @gclc = new GraphCommandLanguageCtrl(this)
@@ -4797,6 +4827,7 @@ class Huviz
     @big_go_button.hide()
 
   reset_dataset_ontology_loader: ->
+    # $('#data_ontology_display').remove() # REVIEW do this here rather than all over, right?
     #Enable dataset loader and reset to default setting
     @dataset_loader.enable()
     @ontology_loader.enable()
@@ -6078,6 +6109,8 @@ class Huviz
     @load_data_with_onto(@get_dataset_uri())
 
   load_data_with_onto: (data, onto, callback) ->  # Used for loading files from menu
+    # data and onto are expected to have .value containing an url; full, relative or filename
+    # regardless the .value is a key into the datasetDB
     @data_uri = data.value
     @set_ontology(onto.value)
     if @args.display_reset
@@ -6086,7 +6119,7 @@ class Huviz
       #@disable_data_set_selector()
       @disable_dataset_ontology_loader(data, onto)
     @show_state_msg("loading...")
-    #@init_from_graph_controls()
+    #@init_from_graph_controls() # REVIEW remove init_from_graph_controls?!?
     #@dump_current_settings("after init_from_graph_controls()")
     #@reset_graph()
     @show_state_msg @data_uri
@@ -6098,6 +6131,7 @@ class Huviz
     $("#reload_btn").show()
 
   read_data_and_show: (filename, data) -> #Handles drag-and-dropped files
+    # REVIEW is this no longer used?
     data = @local_file_data
     #console.log data
     if filename.match(/.ttl$/)
@@ -6193,6 +6227,7 @@ class Huviz
       label: basename(ontology_uris[0])
       value: ontology_uris[0]
     @visualize_dataset_using_ontology({}, dataset, [ontology])
+    return
 
   # TODO: remove now that @get_or_create_node_by_id() sets type and name
   is_ready: (node) ->
@@ -6310,13 +6345,23 @@ class OntologicallyGrounded extends Huviz
     #@init_ontology()
     @read_ontology(ontology_uri)
 
-  read_ontology: (ontology_uri) ->
+  read_ontology: (url) ->
+    if url.startsWith('file:///') or url.indexOf('/') is -1 # ie local file stored in datasetDB
+      @get_resource_from_db url, (err, rsrcRec) =>
+        if rsrcRec?
+          @parseTTLOntology(rsrcRec.data)
+          return
+        blurt(err or "'#{url}' was not found in your ONTOLOGY menu.  Provide it and reload page")
+        @reset_dataset_ontology_loader()
+        return
+      return
     $.ajax
-      url: ontology_uri
+      url: url
       async: false
       success: @parseTTLOntology
       error: (jqxhr, textStatus, errorThrown) =>
-        @show_state_msg(errorThrown + " while fetching ontology " + ontology_uri)
+        # REVIEW standardize on blurt(), right?
+        @show_state_msg(errorThrown + " while fetching ontology " + url)
 
   parseTTLOntology: (data, textStatus) =>
     # detect (? rdfs:subClassOf ?) and (? ? owl:Class)
@@ -6375,7 +6420,18 @@ class Orlando extends OntologicallyGrounded
 
   constructor: ->
     super
-    @run_script_from_hash()
+    if window.indexedDB
+      onceDBReady = () =>
+        console.log('onceDBReady')
+        if @datasetDB?
+          console.log('yup, datasetDB is ready')
+          @run_script_from_hash()
+        else
+          setTimeout(onceDBReady)
+      setTimeout(onceDBReady)
+    else
+      # REVIEW not sure if this is worth doing (are we requiring indexedDB absolutely?)
+      @run_script_from_hash()
 
   get_default_set_by_type: (node) ->
     if @is_big_data()
@@ -6843,8 +6899,11 @@ class DragAndDropLoader
       try
         #@huviz.read_data_and_show(firstFile.name, evt.target.result)
         if filename.match(/.(ttl|.nq)$/)
-          @picker.add_local_file({uri: firstFile.name, opt_group: 'Your Own'})
-          @huviz.local_file_data = evt.target.result
+          @picker.add_local_file
+            uri: firstFile.name
+            opt_group: 'Your Own'
+            data: evt.target.result
+          #@huviz.local_file_data = evt.target.result  # REVIEW remove all uses of local_file_data?!?
         else
           #$("##{@dataset_loader.select_id} option[label='Pick or Provide...']").prop('selected', true)
           blurt("Unknown file format. Unable to parse '#{filename}'. " +
@@ -6866,7 +6925,6 @@ class DragAndDropLoader
       elem.attr('id', @local_file_form_id)
     @form = $(@local_file_form_sel)
     @form.on 'submit unfocus', (evt) =>
-      console.log(evt)
       uri_field = @form.find('.box__uri')
       uri = uri_field.val()
       if uri_field[0].checkValidity()
