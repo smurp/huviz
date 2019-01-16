@@ -840,7 +840,7 @@ class CommandController
 
   build_depth: () ->
     @depthdiv.text('Activate/Wander Depth:').classed("control_label activate_depth", true)
-    @depthdiv.style('display','inline-block')
+    @depthdiv.style('display','none')#('display','inline-block')
     @depthdiv.style('white-space','nowrap')
     @depth_input = @depthdiv.append('input')
     @depth_input.attr('class', 'depth_input')
