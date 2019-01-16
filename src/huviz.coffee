@@ -4724,7 +4724,7 @@ class Huviz
       @script_loader = new PickOrProvide(@, @args.script_loader__append_to_sel,
         'Script', 'ScriptPP', false, false,
         {dndLoaderClass: DragAndDropLoaderOfScripts; rsrcType: 'script'})
-      $("#"+@script_loader.uniq_id).attr('style','display:none') # TEMPORARILY HIDE SCRIPT MENU
+      $("#"+@script_loader.uniq_id).hide() # TEMPORARILY HIDE SCRIPT MENU
     if not @endpoint_loader and @args.endpoint_loader__append_to_sel
       @endpoint_loader = new PickOrProvide(@, @args.endpoint_loader__append_to_sel,
         'Sparql', 'EndpointPP', false, true,
