@@ -3988,6 +3988,7 @@ class Huviz
     # build a SortedSet of the nodes which were wasChosen to compare
     # with the SortedSet of nodes which are intendedToBeGraphed as a
     # result of the Walk command which is being executed.
+    console.log('walk__atFirst()')
     if not @wasChosen_set.clear()
       throw new Error("expecting wasChosen to be empty")
     for node in @chosen_set
@@ -4000,15 +4001,14 @@ class Huviz
     # by the Walk verb, it is time to remove wasChosen nodes which
     # are not nowChosen.  In other words, ungraph those nodes which
     # are no longer held in the graph by any recently walked-to nodes.
+    console.log('walk__atLast()')
     wasRollCall = @wasChosen_set.roll_call()
     nowRollCall = @nowChosen_set.roll_call()
 
-    if @focused_node #TODO This is trying to catch situations where nodes are selected and then Walked
-      current_selection = @focused_node
-    else if @selected_set[0]
-      current_selection = @selected_set[0]
-    else
-      current_selection = @chosen_set[0]
+    # The walk() method get passed the node which the user has clicked on with the verb engaged
+    # And it sets @walked_latest_node for us to figure out to do with here....
+    # The walk() method being the unambiguous entry point means that script replay is possible
+    current_selection = @walked_latest_node
     valid_path_nodes = []
     active_nodes = []
     if not @prune_walk_nodes then @prune_walk_nodes = $("#prune_walk_nodes :selected").val()
@@ -4092,12 +4092,14 @@ class Huviz
       @walk_path_set.push current_selection.lid
     console.log @walk_path_set
 
-  walk: (chosen) =>
+  walk: (walked) =>
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     # Walk is just the same as Choose (AKA Activate) except afterward it deactivates the
     # nodes which are not connected to the set being walked.
     # This is accomplished by walked__build_callback()
-    return @choose(chosen)
+    console.log("walk(#{walked.lid})"))
+    @walked_latest_node = walked
+    return @choose(walked)
 
   hide: (goner) =>
     @unpin(goner)

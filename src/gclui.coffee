@@ -85,6 +85,7 @@ class CommandController
       sets: [@huviz.all_set.id]
       skip_history: true))
     @disengage_all_verbs()
+    @huviz.walk_path_set = []
     @reset_command_history()
     @engaged_taxons = []
   make_command_history: ->
