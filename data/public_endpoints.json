@@ -1,13 +1,23 @@
 {
   "datasets": [
     {
-      "uri": "http://endpoint.url",
-      "label": "Test 1 Public Endpoint"
+      "uri": "http://dbpedia.org/sparql",
+      "label": "DBpeidia",
+      "ontology_label": "DBpedia Ontology"
     },
     {
-      "uri": "https://endpoint2.url",
-      "label": "Test 2 Public Endpoint",
-      "ontology_label": "CWRC Ontology"
+      "uri": "http://bio2rdf.org/sparql",
+      "label": "Bio Database"
+    },
+    {
+      "uri": "http://ldf.fi/ww1lod/sparql",
+      "label": "WWI as open linked data",
+      "description": "Multiple graphs available"
+    },
+    {
+      "uri": "http://data.open.ac.uk/query",
+      "label": "Linked Data from Open University U.K.",
+      "description": "Multiple graphs available"
     }
   ],
   "defaults": {

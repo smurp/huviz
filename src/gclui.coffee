@@ -86,7 +86,7 @@ class CommandController
     if not evt.done?
       $(@container).show()
       @show_succession_of_hints()
-      @select_the_initial_set()
+      @huviz.perform_tasks_after_dataset_loaded()
       @huviz.hide_state_msg()
       # FIXME is there a standards-based way to prevent this happening three times?
       evt.done = true
@@ -365,6 +365,8 @@ class CommandController
         pin: @huviz.human_term.pin
         unpin: @huviz.human_term.unpin
       ]
+    if @huviz.show_hunt_verb
+      @verb_sets.push({hunt: @huviz.human_term.hunt})
     #,
     #  print: 'print'
     #  redact: 'redact'
@@ -430,6 +432,7 @@ class CommandController
     shelve: ['unchoose', 'choose', 'hide', 'discard', 'retrieve']
     discard: ['choose', 'retrieve', 'hide', 'unchoose', 'unselect', 'select']
     hide: ['discard', 'undiscard', 'label', 'choose' ,'unchoose', 'select', 'unselect']
+    hunt: []
   verb_descriptions:
     choose: "Put nodes in the graph and pull other, connected nodes in too,
              so long as they haven't been discarded."
@@ -462,6 +465,7 @@ class CommandController
     load: "Load knowledge from the given uri."
     pin: "Make a node immobile"
     unpin: "Make a node mobile again"
+    hunt: "Animate binary search for the node"
   verb_cursors:
     choose: "←"
     unchoose: "⇠"
@@ -475,6 +479,7 @@ class CommandController
     unselect: "☺"
     pin: "p"
     unpin: "u"
+    hunt: "X"
   build_form: () ->
     @build_verb_form()
     @build_like()
@@ -730,10 +735,12 @@ class CommandController
   build_verb_form: () ->
     @verb_pretty_name = {}
     for vset in @verb_sets
-      alternatives = @verbdiv.append('div').attr('class','alternates')
-      for id,label of vset
-        @verb_pretty_name[id] = label
-        @build_verb_picker(id,label,alternatives)
+      @add_verb_set(vset)
+  add_verb_set: (vset) ->
+    alternatives = @verbdiv.append('div').attr('class','alternates')
+    for id,label of vset
+      @verb_pretty_name[id] = label
+      @build_verb_picker(id,label,alternatives)
   get_verbs_overridden_by: (verb_id) ->
     override = @verbs_override[verb_id] || []
     for vset in @verb_sets
@@ -858,6 +865,7 @@ class CommandController
               discarded_set: [@huviz.discarded_set.label]
               labelled_set: [@huviz.labelled_set.label]
               pinned_set: [@huviz.pinned_set.label]
+              nameless_set: [@huviz.nameless_set.label]
               ]
     @set_picker_box = where.append('div')
         .classed('container',true)

@@ -261,7 +261,6 @@
           preload: [
                 '/data/genres.json'
                 , '/data/ontologies.json'
-                , '/data/local_test_data.json'
                 , '/data/open_anno.json'
                 , '/data/organizations.json'
                 , '/data/periodicals.json'

@@ -458,6 +458,11 @@ progress[value]::-moz-progress-bar {
   color: #ddd;
 }
 
+/* change label color in command panel */
+.theme_black #gclui .label {
+  color: #000;
+}
+
 .theme_black .subliminal {
     color: #373737;
 }

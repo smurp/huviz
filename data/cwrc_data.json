@@ -17,11 +17,11 @@
       "label": "CDNAuthorsBiography"
     },
     {
-      "uri": "https://raw.githubusercontent.com/cwrc/testData/master/jewish_novelist_biographies.ttl",
+      "uri": "https://raw.githubusercontent.com/cwrc/testData/master/sparqlOutputs/jewish_novelist_biographies.ttl",
       "label": "Jewish novelist biographies"
     },
     {
-      "uri": "https://raw.githubusercontent.com/cwrc/testData/master/unitarian_novelist_biographies.ttl",
+      "uri": "https://raw.githubusercontent.com/cwrc/testData/master/sparqlOutputs/unitarian_novelist_biographies.ttl",
       "label": "Unitarian novelist biographies"
     }
   ],

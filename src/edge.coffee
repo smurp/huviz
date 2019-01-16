@@ -6,7 +6,7 @@ class Edge
     @register()
     @contexts = []
     this
-  color: "lightgrey"    
+  color: "lightgrey"
   register: () ->
     @predicate.add_inst(this)
   register_context: (context) ->

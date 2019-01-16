@@ -103,8 +103,8 @@ createSnippetServer = (xmlFileName, uppercase) ->
 
 app.configure ->
   app.use express.logger()
-  app.set "views", __dirname + "/views"
-  app.use app.router
+  app.set("views", __dirname + "/views")
+  app.use(app.router)
   app.use("/huviz", express.static(__dirname + '/lib'))
   app.use('/css', express.static(__dirname + '/css'))
   app.use('/jquery-ui-css',
@@ -126,13 +126,13 @@ app.configure ->
   app.use('/chai', express.static(__dirname + '/node_modules/chai'))
   app.use('/marked', express.static(__dirname + '/node_modules/marked'))
   app.use('/docs', express.static(__dirname + '/docs'))
-  app.get "/orlonto.html", localOrCDN("/views/orlonto.html.eco", nopts.is_local)
-  app.get "/yegodd.html", localOrCDN("/views/yegodd.html.eco", nopts.is_local)
+  app.get("/orlonto.html", localOrCDN("/views/orlonto.html.eco", nopts.is_local))
+  app.get("/yegodd.html", localOrCDN("/views/yegodd.html.eco", nopts.is_local))
   #app.get "/experiment.html", localOrCDN("/views/experiment.html", nopts.is_local)
   #app.get "/experiment.js", localOrCDN("/views/experiment.js", nopts.is_local)
-  app.get "/tests", localOrCDN("/views/tests.html.eco", nopts.is_local)
-  app.get "/", localOrCDN("/views/huvis.html.eco", nopts.is_local)
-  app.use express.static(__dirname + '/images') # for /favicon.ico
+  app.get("/tests", localOrCDN("/views/tests.html.eco", nopts.is_local))
+  app.get("/", localOrCDN("/views/huvis.html.eco", nopts.is_local))
+  app.use(express.static(__dirname + '/images')) # for /favicon.ico
 
 port = nopts.port or nopts.argv.remain[0] or process.env.PORT or default_port
 
@@ -145,5 +145,5 @@ if not nopts.skip_poetesses
   app.get "/snippet/poetesses/:id([A-Za-z0-9-_]+)/",
       createSnippetServer("poetesses_decomposed.xml", false)
 
-console.log "Starting server on port: #{port} localhost"
-app.listen port, 'localhost'
+console.log("Starting server on port: #{port} localhost")
+app.listen(port, 'localhost')
