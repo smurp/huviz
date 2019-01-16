@@ -1047,7 +1047,7 @@ class CommandController
     @run_any_immediate_command(because)
     @huviz.hide_state_msg()
   run_any_immediate_command: (because) ->
-    console.log("run_any_immediate_command()", because)
+    #console.log("run_any_immediate_command()", because)
     ready = @prepare_command(@build_command())
     if ready and @huviz.doit_asap and @immediate_execution_mode and not @is_proposed()
       @perform_current_command(because)
@@ -1220,7 +1220,6 @@ class CommandController
       if id is "walk"
          @taxon_picker.shield()
          @set_picker.shield()
-         console.log @taxon_picker
       @proposed_verb = null # there should be no proposed_verb if we are clicking engaging one
       because =
         verb_added: id
