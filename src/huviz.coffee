@@ -4768,6 +4768,7 @@ class Huviz
     # Either dataset and ontologies are passed in by HuViz.load_with() from a command
     #   or this method is called with neither in which case get values from the loaders
     alreadyCommands = (@gclui.command_list? and @gclui.command_list.length)
+    alreadyCommands = @gclui.future_cmds.length > 0
     if @script_loader.value and not alreadyCommands
       scriptUri = @script_loader.value
       @get_resource_from_db(scriptUri, @load_script_from_db)
@@ -4778,10 +4779,15 @@ class Huviz
     if not (onto.value and data.value)
       console.debug(data, onto)
       throw new Error("Now whoa-up pardner... both data and onto should have .value")
-    @load_data_with_onto(data, onto) # , () -> alert "woot")
+
+    @load_data_with_onto(data, onto)#, @show_future_commands)
     @update_browser_title(data)
     @update_caption(data.value, onto.value)
     return
+
+  show_future_commands:  =>
+    alert('woot')
+    @gclui.push_future_onto_history()
 
   load_script_from_db: (err, rsrcRec) =>
     if err?
@@ -6172,8 +6178,9 @@ class Huviz
     for cmdArgs in json
       if 'load' in cmdArgs.verbs
         saul_goodman = @adjust_menus_from_load_cmd(cmdArgs)
-      else if saul_goodman
-        @gclui.push_command_onto_history(@gclui.new_GraphCommand(cmdArgs))
+      else #if saul_goodman
+        @gclui.push_command_onto_future(@gclui.new_GraphCommand(cmdArgs))
+        #@gclui.push_command_onto_history(
     #@gclui.reset_command_history()
 
   parse_script_file: (data, fname) ->
@@ -6684,7 +6691,6 @@ class PickOrProvide
         @value = new_val
       else
         console.warn("TODO should set option to nothing")
-
 
   add_uri: (uri_or_rec) =>
     if typeof uri_or_rec is 'string'

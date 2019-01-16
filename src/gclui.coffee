@@ -138,6 +138,7 @@ class CommandController
       append('div').
       attr('id','commandhistory').
       style('max-height',"#{@huviz.height-80}px")
+    @future_cmds = []
     @command_list = []
     @command_idx0 = 0
   reset_command_history: ->
@@ -304,6 +305,7 @@ class CommandController
     #  @huviz.nodes.length is @huviz.selected_set.length
     # @check_until_then(everyThingIsSelected, toggleEveryThing)
     setTimeout(toggleEveryThing, 1200)
+    setTimeout(@push_future_onto_history, 1800)
     #@huviz.do({verbs: ['unselect'], sets: [], skip_history: true})
     @huviz.shelved_set.resort() # TODO remove when https://github.com/cwrc/HuViz/issues/109
     return
@@ -943,6 +945,16 @@ class CommandController
   push_command: (cmd) ->
     throw new Error('DEPRECATED')
     @push_command_onto_history(cmd)
+  push_command_onto_future: (cmd) ->
+    @future_cmds.push(cmd)
+  push_future_onto_history: =>
+    if @future_cmds.length
+      @huviz.goto_tab(3)
+      for cmd in @future_cmds
+        @push_command_onto_history(cmd)
+      @reset_command_history()
+      @command_idx0 = 0
+      @update_script_buttons()
   push_command_onto_history: (cmd) ->
     # Maybe the command_pointer is in the middle of the command_list and here
     # we are trying to run a new command -- so we need to dispose of the remaining
