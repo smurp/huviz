@@ -6814,8 +6814,6 @@ class DragAndDropLoader
   constructor: (@huviz, @append_to_sel, @picker) ->
     @local_file_form_id = unique_id()
     @local_file_form_sel = "##{@local_file_form_id}"
-    console.log @append_to_sel
-    console.log @picker
     @find_or_append_form()
     if @supports_file_dnd()
       @form.show()
@@ -6867,26 +6865,26 @@ class DragAndDropLoader
       $(@append_to_sel).append(elem)
       elem.attr('id', @local_file_form_id)
     @form = $(@local_file_form_sel)
-    @form.on 'submit unfocus', (e) =>
-      console.log e
+    @form.on 'submit unfocus', (evt) =>
+      console.log(evt)
       uri_field = @form.find('.box__uri')
       uri = uri_field.val()
       if uri_field[0].checkValidity()
         uri_field.val('')
         @load_uri(uri)
       return false
-    @form.on 'drag dragstart dragend dragover dragenter dragleave drop', (e) =>
+    @form.on 'drag dragstart dragend dragover dragenter dragleave drop', (evt) =>
       #console.clear()
-      e.preventDefault()
-      e.stopPropagation()
+      evt.preventDefault()
+      evt.stopPropagation()
     @form.on 'dragover dragenter', () =>
       @form.addClass('is-dragover')
       console.log("addClass('is-dragover')")
     @form.on 'dragleave dragend drop', () =>
       @form.removeClass('is-dragover')
     @form.on 'drop', (e) =>
-      console.log e
-      console.log("e:",e.originalEvent.dataTransfer)
+      console.log(e)
+      console.log("e:", e.originalEvent.dataTransfer)
       @form.find('.box__input').hide()
       droppedUris = e.originalEvent.dataTransfer.getData("text/uri-list").split("\n")
       console.log("droppedUris",droppedUris)
@@ -6912,14 +6910,11 @@ class DragAndDropLoader
 
 class DragAndDropLoaderOfScripts extends DragAndDropLoader
   load_file: (firstFile) ->
-    #@huviz.local_file_data = "empty"
     filename = firstFile.name
     @form.find('.box__success').text(firstFile.name) #TODO Are these lines still needed?
     @form.find('.box__success').show()
     reader = new FileReader()
     reader.onload = (evt) =>
-      #console.log evt.target.result
-      #console.log("evt", evt)
       try
         #@huviz.read_data_and_show(firstFile.name, evt.target.result)
         if filename.match(/.(txt|.json)$/)
@@ -6928,7 +6923,6 @@ class DragAndDropLoaderOfScripts extends DragAndDropLoader
             opt_group: 'Your Own'
             data: evt.target.result
           @picker.add_local_file(file_rec)
-          #alert("the file should be read and run here....")
           #@huviz.local_file_data = evt.target.result
         else
           #$("##{@dataset_loader.select_id} option[label='Pick or Provide...']").prop('selected', true)
@@ -6936,8 +6930,8 @@ class DragAndDropLoaderOfScripts extends DragAndDropLoader
                 "Only .txt and .huviz files supported.", 'alert')
           @huviz.reset_dataset_ontology_loader()
           $('.delete_option').attr('style','')
-      catch e
-        msg = e.toString()
+      catch err
+        msg = err.toString()
         #@form.find('.box__error').show()
         #@form.find('.box__error').text(msg)
         blurt(msg, 'error')
