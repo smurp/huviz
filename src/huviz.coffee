@@ -1265,11 +1265,16 @@ class Huviz
       isFlag()
     @links_set.docs = "Links which are shown."
 
+    @walked_set = SortedSet().
+      named("walked").
+      isFlag().
+      sub_of(@chosen_set).
+      sort_on('walkedIdx0') # sort on index of position in the path; the 0 means zero-based idx
+    @walked_set.docs = "Nodes in order of their walkedness"
+
     @predicate_set = SortedSet().named("predicate").isFlag().sort_on("id")
     @context_set   = SortedSet().named("context").isFlag().sort_on("id")
     @context_set.docs = "The set of quad contexts."
-
-    @walk_path_set = []
 
     # TODO make selectable_sets drive gclui.build_set_picker
     #      with the nesting data coming from .sub_of(@all) as above
@@ -1695,30 +1700,18 @@ class Huviz
         #@show_message_once("will draw line() n_n:#{n_n} e.id:#{e.id}")
         @draw_curvedline(e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x,
                          e.target.fisheye.y, sway, e.color, e.contexts.length, line_width, e)
-        #if this line from path node to path node then add black highlight
-        if @walk_path_set.length > 0
-          #console.log @walk_path_set
-          for walk_node, i in @walk_path_set
-            if @prune_walk_nodes is "directional_path"
-              s1 = e.source.lid
-              s2 = e.target.lid
-              previous_node = @walk_path_set[i-1]
-              #walk_frwrd = @walk_path_set[i+1]
-              if s1 is previous_node and s2 is walk_node then directional_edge = 'forward'
-              if s2 is previous_node and s1 is walk_node then directional_edge = 'backward'
-            else # for non-directionall pruned path and 'hairy' path
-              if e.source.lid is walk_node then source_is_path = true
-              if e.target.lid is walk_node then target_is_path = true
-        if directional_edge
-          @draw_curvedline(e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x,
-                           e.target.fisheye.y, sway, "blue", e.contexts.length, 1, e, directional_edge)
-          directional_edge = false
-        if source_is_path and target_is_path
-          @draw_curvedline(e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x,
-                           e.target.fisheye.y, sway, "black", e.contexts.length, 1, e)
-          source_is_path = false
-          target_is_path = false
+        if node.walked # ie is part of the walk path
+          @draw_walk_edge_from(node, e, sway)
         sway++
+
+  draw_walk_edge_from: (node, edge, sway) ->
+    #if this line from path node to path node then add black highlight
+    if @edgeIsOnWalkedPath(edge)
+      directional_edge = (edge.source.walkedIdx0 > edge.source.walkedIdx0) and 'forward' or 'backward'
+      e = edge
+      if directional_edge
+        @draw_curvedline(e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x,
+                         e.target.fisheye.y, sway, "black", e.contexts.length, 1, e, directional_edge)
 
   draw_edges: ->
     if @use_canvas
@@ -1799,9 +1792,8 @@ class Huviz
           stroke_color = d.color or 'yellow'
           if d.chosen?
             stroke_color = renderStyles.nodeHighlightOutline
-            for node in @walk_path_set # Flag nodes that should be given path marker
-              if d.lid is node
-                special_focus = true
+            # if the node d is in the @walked_set it needs special_focus
+            special_focus = not not d.walked  # "not not" forces boolean
           # if 'pills' is selected; change node shape to rounded squares
           if (node_display_type == 'pills')
             pill_width = node_radius * 2
@@ -3910,21 +3902,13 @@ class Huviz
 
     # There is a flag .chosen in addition to the state 'linked'
     # because linked means it is in the graph
-    @chosen_set.add(chosen)
-    @nowChosen_set.add(chosen)
-    @graphed_set.acquire(chosen) # do it early so add_link shows them otherwise choosing from discards just puts them on the shelf
+    @chosen_set.add(chosen)     # adding the flag .chosen does not affect the .state
+    @nowChosen_set.add(chosen)  # adding the flag .nowChosen does not affect the .state
+    # do it early so add_link shows them otherwise choosing from discards just puts them on the shelf
+    @graphed_set.acquire(chosen) # .acquire means DO change the .state to graphed vs shelved etc
+
     @show_links_from_node(chosen)
     @show_links_to_node(chosen)
-    ### TODO remove this cruft
-    if chosen.links_shown
-      @graphed_set.acquire(chosen)  # FIXME this duplication (see above) is fishy
-      chosen.showing_links = "all"
-    else
-      # FIXME after this weird side effect, at the least we should not go on
-      console.error(chosen.lid,
-          "was found to have no links_shown so: @unlink_set.acquire(chosen)", chosen)
-      @shelved_set.acquire(chosen)
-    ###
     @update_state(chosen)
     shownness = @update_showing_links(chosen)
     chosen
@@ -3981,125 +3965,100 @@ class Huviz
     # This is accomplished by wander__build_callback()
     return @choose(chosen)
 
-  walk__atFirst: =>
-    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    # Purpose:
-    #   At first, before the verb Walk is executed on any node, we must
-    # build a SortedSet of the nodes which were wasChosen to compare
-    # with the SortedSet of nodes which are intendedToBeGraphed as a
-    # result of the Walk command which is being executed.
-    console.log('walk__atFirst()')
-    if not @wasChosen_set.clear()
-      throw new Error("expecting wasChosen to be empty")
-    for node in @chosen_set
-      @wasChosen_set.add(node)
+  unwalk: (node) ->
+    @walked_set.remove(node)
+    delete node.walkedIdx0
+    return
 
-  walk__atLast: =>
-    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    # Purpose:
-    # At last, after all appropriate nodes have been pulled into the graph
-    # by the Walk verb, it is time to remove wasChosen nodes which
-    # are not nowChosen.  In other words, ungraph those nodes which
-    # are no longer held in the graph by any recently walked-to nodes.
-    console.log('walk__atLast()')
-    wasRollCall = @wasChosen_set.roll_call()
-    nowRollCall = @nowChosen_set.roll_call()
+  walkBackTo: (existingStep) ->
+    # note that if existingStep is null (ie a non-node) we will walk back all
+    removed = []
+    for pathNode in @walked_set by -1
+      if pathNode is existingStep
+        break
+      # remove these intervening nodes
+      @unchoose(pathNode)
+      @shave(pathNode)
+      @unwalk(pathNode)
+      removed.push(pathNode)
+    return removed
 
-    # The walk() method get passed the node which the user has clicked on with the verb engaged
-    # And it sets @walked_latest_node for us to figure out to do with here....
-    # The walk() method being the unambiguous entry point means that script replay is possible
-    current_selection = @walked_latest_node
-    valid_path_nodes = []
-    active_nodes = []
-    if not @prune_walk_nodes then @prune_walk_nodes = $("#prune_walk_nodes :selected").val()
-    # If current_selection is already in @walk_path_set, then delete those that may appear after it (i.e. erase path)
-    #console.log "The mode setting is #{@prune_walk_nodes}"
-    #console.log @walk_path_set
-    #console.log "Current selection is " + current_selection.lid
-    for nodeId, i in @walk_path_set
-      #console.log i
-      #console.log "looking at " + nodeId + " and #{current_selection.lid}"
-      if nodeId is current_selection.lid
-        #console.log "Slice of after #{nodeId} at position #{i}"
-        new_path = @walk_path_set.slice(0,i)
-        #console.log new_path
-        @walk_path_set = new_path
+  walkBackAll: ->
+    return @walkBackTo(null)
 
+  walk: (nextStep) =>
+    console.log("walk(#{nextStep.lid})")
+    tooHairy = null
 
-    #if @walk_path_set.length is 0 then @walk_path_set.push nowRollCall #first time through, walked node should always be added to path
-    for node in @all_set
-      for lid in @walk_path_set
-        if node.lid is lid #get edges
-          active_nodes.push node
-          for e in node.links_from
-            valid_path_nodes.push e.target.lid
-          for e in node.links_to
-            valid_path_nodes.push e.source.lid
-    for node_lid in valid_path_nodes #check to see if this is a connected node or new unconnect node
-      if current_selection.lid is node_lid then connected_path = true
-    # If node is along a continuous path, then add the selection; if not then reset everything and start a new path
-    if connected_path
-      @walk_path_set.push current_selection.lid
-      #@walk_path_set.sort()
-      connected_path = false
-      # Prune associated tangential nodes on path (i.e. keep only current_selection edges)
-      if @prune_walk_nodes is "directional_path" or @prune_walk_nodes is "pruned_path"
-        ungraphed = []
-        keep_graphed = []
-        for node in active_nodes
-          keep_graphed.push node
-          for edge in current_selection.links_shown
-            if edge.source.lid isnt node.lid then keep_graphed.push edge.source
-            if edge.target.lid isnt node.lid then keep_graphed.push edge.target
+    if nextStep.walked
+      # 1) if this node already in @walked_set then remove inwtervening nodes
+      # ie it is already in the path so walk back to it
+      @walkBackTo(nextStep) # stop displaying those old links
+      @choose(nextStep)
+      return
 
-        unique_keep = Array.from(new Set(keep_graphed))
-        remove_list = []
-        for graphed_node in @graphed_set
-          remove = false
-          for keep_node in unique_keep
-            if graphed_node.lid is keep_node.lid
-              #console.log "keep #{graphed_node.lid}"
-              remove = false
-              break
-            else
-              #console.log "remove #{graphed_node.lid}"
-              remove = true
-          if remove
-            remove_list.push graphed_node
+    if @walked_set.length
+      lastWalked = @walked_set.slice(-1)[0]
+      if @nodesAreAdjacent(nextStep, lastWalked)
+        # 2) handle the case of this being the next in a long chain of adjacent nodes
+        tooHairy = lastWalked
+        #@unchoose(lastWalked)
+      else
+        # 3) start a new path because nextStep is not connected with the @walked_set
+        @walkBackAll()
 
-        unique_remove = Array.from(new Set(remove_list))
-        for node in remove_list
-          @chosen_set.remove(node)
-          @selected_set.remove(node)
-          @graphed_set.remove(node)
-          node.unselect()
-          @hide_node_links(node)
-          @update_state(node)
-          shownness = @update_showing_links(node)
+    # this should happen to every node added to @walked_set
+    nextStep.walkedIdx0 = @walked_set.length
+    if not nextStep.walked
+      @walked_set.add(nextStep)
+    @choose(nextStep)
+
+    if tooHairy
+      @shave(tooHairy) # ungraph the node which are being held in the graph by...
+      @update_state(tooHairy)
+    if not @walked_set.is_sorted()
+      debugger
+    return
+
+  nodesAreAdjacent: (n1, n2) ->
+    # figure out which node is least connected so we do the least work checking links
+    if (n1.links_from.length + n1.links_to.length) > (n2.links_from.length + n2.links_to.length)
+      [lonelyNode, busyNode] = [n2, n1]
     else
-      removed = @wasChosen_set.filter (node) =>
-        not @nowChosen_set.includes(node)
-      # Add old path nodes to removed so that they are also removed
-      for node in active_nodes
-        removed.push node
-      for node in removed
-        @unchoose(node)
-        @wasChosen_set.remove(node)
-      if not @nowChosen_set.clear()
-        throw new Error("the nowChosen_set should be empty after clear()")
-      # Reset the walk path and start new one with current selection
-      @walk_path_set = []
-      @walk_path_set.push current_selection.lid
-    console.log @walk_path_set
+      [lonelyNode, busyNode] = [n1, n2]
+    # iterate through the outgoing links of the lonlier node, breaking on adjacency
+    for link in lonelyNode.links_from
+      if link.target is busyNode
+        return true
+    # iterate through the incoming links of the lonlier node, breaking on adjacency
+    for link in lonelyNode.links_to
+      if link.source is busyNode
+        return true
+    return false
 
-  walk: (walked) =>
-    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    # Walk is just the same as Choose (AKA Activate) except afterward it deactivates the
-    # nodes which are not connected to the set being walked.
-    # This is accomplished by walked__build_callback()
-    console.log("walk(#{walked.lid})")
-    @walked_latest_node = walked
-    return @choose(walked)
+  shave: (tooHairy) ->
+    console.log("shave(#{tooHairy.lid})")
+    for link in tooHairy.links_shown by -1
+      if link?
+        if (not link.target.walked?) or (not link.source.walked?)
+          @unshow_link(link)
+        if not @edgeIsOnWalkedPath(link)
+          @unshow_link(link)
+      else
+        console.log("there is a null in the .links_shown of", unchosen)
+
+  edgeIsOnWalkedPath: (edge) ->
+    return @nodesAreAdjacentOnWalkedPath(edge.target, edge.source)
+
+  nodesAreAdjacentOnWalkedPath: (n1, n2) ->
+    n1idx0 = n1.walkedIdx0
+    n2idx0 = n2.walkedIdx0
+    if n1idx0? and n2idx0?
+      larger = Math.max(n1idx0, n2idx0)
+      smaller = Math.min(n1idx0, n2idx0)
+      if larger - smaller is 1
+        return true
+    return false
 
   hide: (goner) =>
     @unpin(goner)
@@ -4768,7 +4727,7 @@ class Huviz
     # Either dataset and ontologies are passed in by HuViz.load_with() from a command
     #   or this method is called with neither in which case get values from the loaders
     alreadyCommands = (@gclui.command_list? and @gclui.command_list.length)
-    alreadyCommands = @gclui.future_cmds.length > 0
+    alreadyCommands = @gclui.future_cmdArgs.length > 0
     if @script_loader.value and not alreadyCommands
       scriptUri = @script_loader.value
       @get_resource_from_db(scriptUri, @load_script_from_db)
@@ -4780,14 +4739,10 @@ class Huviz
       console.debug(data, onto)
       throw new Error("Now whoa-up pardner... both data and onto should have .value")
 
-    @load_data_with_onto(data, onto)#, @show_future_commands)
+    @load_data_with_onto(data, onto)
     @update_browser_title(data)
     @update_caption(data.value, onto.value)
     return
-
-  show_future_commands:  =>
-    alert('woot')
-    @gclui.push_future_onto_history()
 
   load_script_from_db: (err, rsrcRec) =>
     if err?
@@ -6179,7 +6134,7 @@ class Huviz
       if 'load' in cmdArgs.verbs
         saul_goodman = @adjust_menus_from_load_cmd(cmdArgs)
       else #if saul_goodman
-        @gclui.push_command_onto_future(@gclui.new_GraphCommand(cmdArgs))
+        @gclui.push_cmdArgs_onto_future(cmdArgs)
         #@gclui.push_command_onto_history(
     #@gclui.reset_command_history()
 

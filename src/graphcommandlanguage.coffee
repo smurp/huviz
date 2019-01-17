@@ -99,6 +99,8 @@ class GraphCommand
   # Optional parameters are:
   #   constraints and regarding
   constructor: (@huviz, args_or_str) ->
+    if args_or_str instanceof GraphCommand
+      throw new Error("nested GraphCommand no longer permitted")
     @prefixes = {}
     @args_or_str = args_or_str
     if typeof args_or_str == 'string'
@@ -112,12 +114,14 @@ class GraphCommand
     if not @str?
       @update_str()
   get_node: (node_spec) ->
-    id = node_spec.id
-    term = id
-    tried = []
-    node = @huviz.nodes.get({'id':term})
-    tried.push(term)
-    id_parts = id.split(':')
+    # REVIEW this method needs attention
+    if node_spec.id
+      node = @huviz.nodes.get({'id':node_spec.id})
+    if node
+      return node
+
+    tried = [node_spec]
+    id_parts = node_spec.split(':') # REVIEW curie? uri?
     if id_parts.length > 1
       abbr = id_parts[0]
       id = id_parts[1]
@@ -134,7 +138,8 @@ class GraphCommand
           node = @huviz.nodes.get({'id':term})
     if not node
       msg = "node with id = #{term} not found among #{@huviz.nodes.length} nodes: #{tried}"
-      #console.warn msg
+      console.warn(msg)
+      throw new Error(msg)
     return node
   get_nodes: () ->
     result_set = SortedSet().sort_on("id")
@@ -235,7 +240,7 @@ class GraphCommand
           callback = errorHandler
         atFirst = meth.atFirst
         if atFirst?
-          atFirst()
+          atFirst() # is called once before iterating through the nodes
         iter = (node) =>
           retval = meth.call(@huviz, node, this)
           @huviz.tick() # TODO(smurp) move this out, or call every Nth node
@@ -247,7 +252,7 @@ class GraphCommand
             for node in nodes
               iter(node)
             @huviz.gclui.set
-            callback()
+            callback() # atLast is called once, after the verb has been called on each node
     @huviz.clean_up_all_dirt_once()
     @huviz.hide_state_msg()
     @huviz.force.start()
@@ -310,7 +315,7 @@ class GraphCommand
         if @except_subjects
           obj_phrase += ' except ' + angliciser((subj.lid for subj in @subjects))
       else if @subjects
-        obj_phrase = angliciser((subj.lid for subj in @subjects))
+        obj_phrase = angliciser((subj.lid or subj for subj in @subjects))
         #@noun_phrase = obj_phrase
     if obj_phrase is ""
       obj_phrase = missing
@@ -393,7 +398,10 @@ class GraphCommandLanguageCtrl
     @huviz.after_running_command(this)
     return retval
   run_one: (cmd_spec) ->
-    cmd = new GraphCommand(@huviz, cmd_spec)
+    if cmd_spec instanceof GraphCommand
+      cmd = cmd_spec
+    else
+      cmd = new GraphCommand(@huviz, cmd_spec)
     cmd.prefixes = @prefixes
     cmd.execute()
   execute: (callback) =>

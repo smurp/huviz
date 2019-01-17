@@ -80,12 +80,13 @@ class CommandController
     #  verbs: ['unhide']
     #  sets: [@huviz.all_set]
     #  skip_history: true))
+    @huviz.walkBackAll()
+    @huviz.walk_path_set = []
     @huviz.run_command(@new_GraphCommand(
       verbs: ['undiscard','unchoose','unselect', 'unpin', 'shelve','unlabel']
       sets: [@huviz.all_set.id]
       skip_history: true))
     @disengage_all_verbs()
-    @huviz.walk_path_set = []
     @reset_command_history()
     @engaged_taxons = []
   make_command_history: ->
@@ -138,7 +139,7 @@ class CommandController
       append('div').
       attr('id','commandhistory').
       style('max-height',"#{@huviz.height-80}px")
-    @future_cmds = []
+    @future_cmdArgs = []
     @command_list = []
     @command_idx0 = 0
   reset_command_history: ->
@@ -172,9 +173,15 @@ class CommandController
       # replacer() removes non-literals from GraphCommand.args_or_script for serialization
       retlist = []
       if key is 'subjects'
-        for node_or_lid in value
-          lid = node_or_lid.lid or node_or_lid
-          retlist.push(lid)
+        for node_or_id in value
+          if not node_or_id.id
+            debugger
+          if node_or_id.id and node_or_id.lid
+            # ideally send both the id (ie url) and the lid which is the pretty id
+            obj =
+              id: node_or_id.id
+              lid: node_or_id.lid
+          retlist.push(obj or node_or_id)
         return retlist
       if key is 'sets'
         for set_or_id in value
@@ -951,13 +958,13 @@ class CommandController
   push_command: (cmd) ->
     throw new Error('DEPRECATED')
     @push_command_onto_history(cmd)
-  push_command_onto_future: (cmd) ->
-    @future_cmds.push(cmd)
+  push_cmdArgs_onto_future: (cmdArgs) ->
+    @future_cmdArgs.push(cmdArgs)
   push_future_onto_history: =>
-    if @future_cmds.length
+    if @future_cmdArgs.length
       @huviz.goto_tab(3)
-      for cmd in @future_cmds
-        @push_command_onto_history(cmd)
+      for cmdArgs in @future_cmdArgs
+        @push_command_onto_history(@new_GraphCommand(cmdArgs))
       @reset_command_history()
       @command_idx0 = 0
       @update_script_buttons()
