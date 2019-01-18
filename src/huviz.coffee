@@ -3990,9 +3990,7 @@ class Huviz
     return @walkBackTo(null)
 
   walk: (nextStep) =>
-    console.log("walk(#{nextStep.lid})")
     tooHairy = null
-
     if nextStep.walked
       # 1) if this node already in @walked_set then remove inwtervening nodes
       # ie it is already in the path so walk back to it
@@ -4000,28 +3998,25 @@ class Huviz
       @choose(nextStep)
       return
 
-    if @walked_set.length
-      lastWalked = @walked_set.slice(-1)[0]
-      if @nodesAreAdjacent(nextStep, lastWalked)
+    if @walked_set.length # is there already a walk path in progress?
+      lastWalked = @walked_set.slice(-1)[0] # find the last node
+      if @nodesAreAdjacent(nextStep, lastWalked) # is nextStep linked to lastWalked?
         # 2) handle the case of this being the next in a long chain of adjacent nodes
-        tooHairy = lastWalked
-        #@unchoose(lastWalked)
+        tooHairy = lastWalked  # Shave this guy later. If we do it now, nextStep gets ungraphed!
       else
         # 3) start a new path because nextStep is not connected with the @walked_set
         @walkBackAll()
 
     # this should happen to every node added to @walked_set
-    nextStep.walkedIdx0 = @walked_set.length
-    if not nextStep.walked
-      @walked_set.add(nextStep)
-    @choose(nextStep)
+    nextStep.walkedIdx0 = @walked_set.length # tell it what position it has in the path
+    if not nextStep.walked # if it is not already on the path
+      @walked_set.add(nextStep) # add it
+    @choose(nextStep) # finally, choose nextStep to make it hairy
 
-    if tooHairy
-      @shave(tooHairy) # ungraph the node which are being held in the graph by...
-      @update_state(tooHairy)
-    if not @walked_set.is_sorted()
-      debugger
-    return
+    if tooHairy # as promised we now deal with the last node
+      @shave(tooHairy) # ungraph the non-path nodes which were held in the graph by tooHairy
+
+    return # so the javascript is not cluttered with confusing nonsense
 
   nodesAreAdjacent: (n1, n2) ->
     # figure out which node is least connected so we do the least work checking links
@@ -4040,7 +4035,6 @@ class Huviz
     return false
 
   shave: (tooHairy) ->
-    console.log("shave(#{tooHairy.lid})")
     for link in tooHairy.links_shown by -1
       if link?
         if (not link.target.walked?) or (not link.source.walked?)
@@ -4049,6 +4043,7 @@ class Huviz
           @unshow_link(link)
       else
         console.log("there is a null in the .links_shown of", unchosen)
+    @update_state(tooHairy) # update the pickers concerning these changes REVIEW needed?
 
   edgeIsOnWalkedPath: (edge) ->
     return @nodesAreAdjacentOnWalkedPath(edge.target, edge.source)
