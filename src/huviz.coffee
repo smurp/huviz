@@ -4005,11 +4005,11 @@ class Huviz
         tooHairy = lastWalked  # Shave this guy later. If we do it now, nextStep gets ungraphed!
       else
         # 3) start a new path because nextStep is not connected with the @walked_set
-        @walkBackAll()
+        @walkBackAll() # clean up the old path completely
 
     # this should happen to every node added to @walked_set
-    nextStep.walkedIdx0 = @walked_set.length # tell it what position it has in the path
-    if not nextStep.walked # if it is not already on the path
+    nextStep.walkedIdx0 = @walked_set.length # tell it what position it will have in the path
+    if not nextStep.walked # It might already be in the path, if not...
       @walked_set.add(nextStep) # add it
     @choose(nextStep) # finally, choose nextStep to make it hairy
 
