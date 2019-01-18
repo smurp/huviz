@@ -428,6 +428,7 @@ orlando_human_term =
   unchoose: 'Deactivate'
   wander: 'Wander'
   walk: 'Walk'
+  walked: "Walked"
   select: 'Select'
   unselect: 'Unselect'
   label: 'Label'
@@ -1268,6 +1269,7 @@ class Huviz
     @walked_set = SortedSet().
       named("walked").
       isFlag().
+      labelled(@human_term.walked).
       sub_of(@chosen_set).
       sort_on('walkedIdx0') # sort on index of position in the path; the 0 means zero-based idx
     @walked_set.docs = "Nodes in order of their walkedness"
@@ -1289,6 +1291,7 @@ class Huviz
       labelled_set: @labelled_set
       pinned_set: @pinned_set
       nameless_set: @nameless_set
+      walked_set: @walked_set
 
   get_set_by_id: (setId) ->
     return this[setId + '_set']
