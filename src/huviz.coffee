@@ -4514,7 +4514,7 @@ class Huviz
         $("##{@ontology_loader.uniq_id}").children('select').prop('disabled', 'disabled')
         $("##{@script_loader.uniq_id}").children('select').prop('disabled', 'disabled')
       if rsrcRec.uri isnt e.target.result
-        debugger
+        console.debug("rsrcRec.uri (#{rsrcRec.uri}) is expected to equal", e.target.result)
       callback(rsrcRec)
 
   remove_dataset_from_db: (dataset_uri, callback) ->
@@ -6040,7 +6040,6 @@ class Huviz
 
     s = "nodes:#{@nodes.length} predicates:#{pred_count} edges:#{edge_count}"
     console.log(s)
-    debugger
 
   fire_fileloaded_event: (uri) ->
     document.dispatchEvent(new CustomEvent("dataset-loaded", {detail: uri}))

@@ -175,7 +175,7 @@ class CommandController
       if key is 'subjects'
         for node_or_id in value
           if not node_or_id.id
-            debugger
+            console.debug("expecting node_or_id to have attribute .id", node_or_id)
           if node_or_id.id and node_or_id.lid
             # ideally send both the id (ie url) and the lid which is the pretty id
             obj =
