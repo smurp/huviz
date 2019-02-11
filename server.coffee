@@ -41,11 +41,11 @@ localOrCDN = (templatePath, isLocal) ->
     res.send(eco.render(template, nopts))
   return respondDude
 
-libxmljs = require "libxmljs"       # https://github.com/polotek/libxmljs
-# https://github.com/polotek/libxmljs/wiki/Document
-#   NOTE attribute names and tag names are CASE SENSITIVE!!!!?!!???
 
 createSnippetServer = (xmlFileName, uppercase) ->
+  libxmljs = require "libxmljs"       # https://github.com/polotek/libxmljs
+  # https://github.com/polotek/libxmljs/wiki/Document
+  #   NOTE attribute names and tag names are CASE SENSITIVE!!!!?!!???
   if not uppercase? or uppercase
     id_in_case = "ID"
   else
@@ -137,7 +137,7 @@ app.configure ->
 port = nopts.port or nopts.argv.remain[0] or process.env.PORT or default_port
 
 # http://regexpal.com/
-if not nopts.skip_orlando
+if false and not nopts.skip_orlando
   app.get "/snippet/orlando/:id([A-Za-z0-9-_]+)/",
       createSnippetServer("orlando_all_entries_2013-03-04.xml", true)
 

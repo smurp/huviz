@@ -3,7 +3,12 @@ huviz
 
 ![Image](./graph_ex1.png?raw=true)
 
-[Demo](http://huviz.dev.nooron.com/)
+# Demonstration Sites
+
+* [Production](http://huviz.dev.nooron.com/)
+* [Beta](http://beta.huviz.dev.nooron.com/)
+* [Alpha](http://alpha.huviz.dev.nooron.com/)
+
 
 # What is HuViz?
 

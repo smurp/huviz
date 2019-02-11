@@ -1,5 +1,5 @@
 (function() {
-  var Stream, a, app, cooked_argv, createSnippetServer, eco, express, fs, knownOpts, libxmljs, localOrCDN, nopt, nopts, port, shortHands;
+  var Stream, a, app, cooked_argv, createSnippetServer, eco, express, fs, knownOpts, localOrCDN, nopt, nopts, port, shortHands;
 
   express = require("express");
 
@@ -64,10 +64,9 @@
     return respondDude;
   };
 
-  libxmljs = require("libxmljs");
-
   createSnippetServer = function(xmlFileName, uppercase) {
-    var doc, elems_by_id, elems_idx_by_id, getSnippetById, id_in_case, makeXmlDoc, nodes_with_id;
+    var doc, elems_by_id, elems_idx_by_id, getSnippetById, id_in_case, libxmljs, makeXmlDoc, nodes_with_id;
+    libxmljs = require("libxmljs");
     if ((uppercase == null) || uppercase) {
       id_in_case = "ID";
     } else {
@@ -158,7 +157,7 @@
 
   port = nopts.port || nopts.argv.remain[0] || process.env.PORT || default_port;
 
-  if (!nopts.skip_orlando) {
+  if (false && !nopts.skip_orlando) {
     app.get("/snippet/orlando/:id([A-Za-z0-9-_]+)/", createSnippetServer("orlando_all_entries_2013-03-04.xml", true));
   }
 
