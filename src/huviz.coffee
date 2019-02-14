@@ -5231,6 +5231,7 @@ class Huviz
     hunt: 'HUNT'
     walk: 'WALK'
     walked: 'WALKED'
+    wander: 'WANDER'
 
   # TODO add controls
   #   selected_border_thickness
