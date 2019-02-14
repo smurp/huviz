@@ -5228,6 +5228,8 @@ class Huviz
     blank_verb: 'VERB'
     blank_noun: 'SET/SELECTION'
     hunt: 'HUNT'
+    walk: 'WALK'
+    walked: 'WALKED'
 
   # TODO add controls
   #   selected_border_thickness
