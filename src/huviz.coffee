@@ -912,7 +912,7 @@ class Huviz
         """
       max_width = @width * 0.50
       max_height = @height * 0.80
-      d3.select('#viscanvas').append('div').attr('id', @focused_node.lid ).attr('class', 'contextMenu').classed('temp', true).style('display', 'block')
+      d3.select(@args.viscanvas_sel).append('div').attr('id', @focused_node.lid ).attr('class', 'contextMenu').classed('temp', true).style('display', 'block')
         .style('top', "#{d3.event.clientY}px")
         .style('left', "#{d3.event.clientX}px")
         .style('max-width', "#{max_width}px")
@@ -5112,7 +5112,8 @@ class Huviz
               attr("position", "absolute")
     @svg.append("rect").attr("width", @width).attr "height", @height
     if not d3.select(@args.viscanvas_sel)[0][0]
-      d3.select("body").append("div").attr("id", "viscanvas")
+      new throw Error('expectling @args.viscanvas_sel to be found')
+      #d3.select("body").append("div").attr("id", "viscanvas")
     @container = d3.select(@args.viscanvas_sel).node().parentNode
     @init_graph_controls_from_json()
     if @use_fancy_cursor
