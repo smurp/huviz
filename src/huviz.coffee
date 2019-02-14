@@ -2642,7 +2642,7 @@ class Huviz
           @add_edge(edge)
           literal_node.fully_loaded = true # for sparql quieries to flag literals as fully_loaded
     # if SPARQL Endpoint loaded AND this is subject node then set current subject to true (i.e. fully loaded)
-    if @endpoint_loader.value
+    if @endpoint_loader? and @endpoint_loader.value
       subj_n.fully_loaded = false # all nodes default to not being fully_loaded
       #if subj_n.id is sprql_subj# if it is the subject node then is fully_loaded
       #  subj_n.fully_loaded = true
@@ -4822,7 +4822,7 @@ class Huviz
     if not disable?
       if @script_loader.value
         disable = false
-      else if @endpoint_loader.value
+      else if @endpoint_loader? and @endpoint_loader.value
         disable = false
       else
         ds_v = @dataset_loader.value
