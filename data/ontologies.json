@@ -33,6 +33,10 @@
     {
       "uri": "/data/uspin_html.ttl",
       "label": "HTML Ontology from Uspin"
+    },
+    {
+      "uri": "https://raw.githubusercontent.com/whanley/names-data/master/tunisians-egypt-1881/tunisian-names-ontology.ttl",
+      "label": "Tunisian Names Ontology"
     }
   ],
   "defaults": {
