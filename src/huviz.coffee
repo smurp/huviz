@@ -1917,7 +1917,7 @@ class Huviz
               cart_label = node.pretty_name
               ctx.measureText(cart_label).width #forces proper label measurement (?)
               if @cartouches
-                @draw_cartouche(cart_label, node.fisheye.x, node.fisheye.y)
+                @draw_cartouche(cart_label, focused_font_size, node.fisheye.x, node.fisheye.y)
             ctx.fillStyle = node.color
             ctx.font = focused_font
         else
@@ -2056,18 +2056,15 @@ class Huviz
       ctx.strokeStyle = stroke
       ctx.stroke()
 
-  draw_cartouche: (label, x, y) ->
-    width = @ctx.measureText(label).width
+  draw_cartouche: (label, focused_font_size, x, y) ->
+    ctx = @ctx
+    width = @ctx.measureText(label).width * focused_font_size
+    focused_font = "#{focused_font_size}em sans-serif"
     height = @label_em * @focused_mag * 16
-    radius = @edge_x_offset
-    fill = renderStyles.pageBg
-    alpha = .8
-    outline = false
-    x = x + @edge_x_offset
-    y = y - height
-    width = width + 2 * @edge_x_offset
-    height = height + @edge_x_offset
-    @rounded_rectangle(x, y, width, height, radius, fill, outline, alpha)
+    ctx.font = focused_font
+    ctx.strokeStyle = renderStyles.pageBg
+    ctx.lineWidth = 5
+    ctx.strokeText("  " + label + "  ", x, y)
 
   draw_edge_labels: ->
     if @focused_edge?
