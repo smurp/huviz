@@ -1908,18 +1908,18 @@ class Huviz
         # perhaps scrolling should happen here
         #if not node_display_type and (node.focused_node or node.focused_edge?)
         if node.focused_node or node.focused_edge?
-          if (node_display_type == 'pills')
-            ctx.font = focused_pill_font
-          else
-            label = @scroll_pretty_name(node)
-            # console.log label
-            if node.state.id is "graphed"
-              cart_label = node.pretty_name
-              ctx.measureText(cart_label).width #forces proper label measurement (?)
-              if @cartouches
-                @draw_cartouche(cart_label, focused_font_size, node.fisheye.x, node.fisheye.y)
-            ctx.fillStyle = node.color
-            ctx.font = focused_font
+          return
+          #if (node_display_type == 'pills')
+          #  ctx.font = focused_pill_font
+          #else
+          #  label = @scroll_pretty_name(node)
+          #  if node.state.id is "graphed"
+          #    cart_label = node.pretty_name
+          #    ctx.measureText(cart_label).width #forces proper label measurement (?)
+          #    if @cartouches
+          #      @draw_cartouche(cart_label, focused_font_size, node.fisheye.x, node.fisheye.y)
+          #  ctx.fillStyle = node.color
+          #  ctx.font = focused_font
         else
           ctx.fillStyle = renderStyles.labelColor #"white" is default
           ctx.font = unfocused_font
@@ -1993,6 +1993,66 @@ class Huviz
       @shelved_set.forEach(label_node)
       @discarded_set.forEach(label_node)
 
+  draw_focused_labels: ->
+    ctx = @ctx
+    focused_font_size = @label_em * @focused_mag
+    focused_font = "#{focused_font_size}em sans-serif"
+    focused_pill_font = "#{@label_em}em sans-serif"
+    highlight_node = (node) =>
+      if node.focused_node or node.focused_edge?
+        if (node_display_type == 'pills')
+          ctx.font = focused_pill_font
+          node_font_size = node.bub_txt[4]
+          result = node_font_size != @label_em
+          if not node.bub_txt.length or result
+            @get_label_attributes(node)
+          line_height = node.bub_txt[2]  # Line height calculated from text size ?
+          adjust_x = node.bub_txt[0] / 2 - line_height/2# Location of first line of text
+          adjust_y = node.bub_txt[1] / 2 - line_height
+          pill_width = node.bub_txt[0] # box size
+          pill_height = node.bub_txt[1]
+
+          x = node.fisheye.x - pill_width/2
+          y = node.fisheye.y - pill_height/2
+          radius = 10 * @label_em
+          alpha = 1
+          outline = node.color
+          # change box edge thickness and fill if node selected
+          if node.focused_node or node.focused_edge?
+            ctx.lineWidth = 2
+            fill = "#f2f2f2"
+          else
+            ctx.lineWidth = 1
+            fill = "white"
+          @rounded_rectangle(x, y, pill_width, pill_height, radius, fill, outline, alpha)
+          ctx.fillStyle = "#000"
+          # Paint multi-line text
+          text = node.pretty_name
+          text_split = text.split(' ') # array of words
+          cuts = node.bub_txt[3]
+          print_label = ""
+          for text, i in text_split
+            if cuts and i in cuts
+              ctx.fillText print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y
+              adjust_y = adjust_y - line_height
+              print_label = text + " "
+            else
+              print_label = print_label + text + " "
+          if print_label # print last line, or single line if no cuts
+            ctx.fillText print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y
+        else
+          label = @scroll_pretty_name(node)
+          # console.log label
+          if node.state.id is "graphed"
+            cart_label = node.pretty_name
+            ctx.measureText(cart_label).width #forces proper label measurement (?)
+            if @cartouches
+              @draw_cartouche(cart_label, focused_font_size, node.fisheye.x, node.fisheye.y)
+          ctx.fillStyle = node.color
+          ctx.font = focused_font
+          ctx.fillText "  " + node.pretty_name + "  ", node.fisheye.x, node.fisheye.y
+    @graphed_set.forEach(highlight_node)
+
   clear_canvas: ->
     @ctx.clearRect 0, 0, @canvas.width, @canvas.height
   blank_screen: ->
@@ -2026,6 +2086,7 @@ class Huviz
     @draw_discards()
     @draw_labels()
     @draw_edge_labels()
+    @draw_focused_labels()
     @pfm_count('tick')
     @prior_node_and_state = @get_focused_node_and_its_state()
     return
@@ -2086,7 +2147,7 @@ class Huviz
     width = ctx.measureText(label).width
     height = @label_em * @focused_mag * 16
     if @cartouches
-      @draw_cartouche(label, edge.handle.x, edge.handle.y)
+      @draw_cartouche(label, @label_em, edge.handle.x, edge.handle.y)
     #ctx.fillStyle = '#666' #@shadow_color
     #ctx.fillText " " + label, edge.handle.x + @edge_x_offset + @shadow_offset, edge.handle.y + @shadow_offset
     ctx.fillStyle = edge.color
