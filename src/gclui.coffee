@@ -126,11 +126,11 @@ class CommandController
     @scriptForwardButton.append('i').attr("class", "fa fa-fast-forward")
 
     @scriptDownloadButton = @scriptPlayerControls.append('button').
-      attr('title','save script as .txt').
+      attr('title','save script to file').
       attr('style', 'margin-left:1em').  # ;display:none
       on('click', @on_downloadscript_hybrid_clicked)
     @scriptDownloadButton.append('i').attr("class", "fa fa-download")
-      .append('span').text('.txt')
+      #.append('span').text('.txt')
 
     @scriptDownloadJsonButton = @scriptPlayerControls.append('button').
       attr('title','save script as .json').
@@ -143,8 +143,8 @@ class CommandController
       attr('title','save script to menu').
       attr('style', 'margin-left:.1em').
       on('click', @on_stashscript_clicked)
-    @scriptStashButton.append('i').attr("class", "fa fa-menu").
-      append('span').text('save to menu')
+    @scriptStashButton.append('i').attr("class", "fa fa-bars")
+      #.append('span').text('save to menu')
 
     #history.append('div')
     @cmdlist = history.
