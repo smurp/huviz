@@ -226,6 +226,7 @@ class EditController
       @remove_proposed_quad()
     @add_proposed_quad(new_q)
     @huviz.tick() # tell the graph to repaint itself
+    console.log "Tick in editui.coffee set_proposed_quad"
 
   add_proposed_quad: (q) ->
     console.log ("add_proposed_quad() " + q.s + " " + q.p + " " +q.o.value)

@@ -732,6 +732,7 @@ class Huviz
 
     if @dragging and not @rightClickHold
       @force.resume() # why?
+      console.log "Tick in @force.resume() mousemove"
       @move_node_to_point(@dragging, @last_mouse_pos)
       if @edit_mode
         @text_cursor.pause("", "drop on object node")
@@ -768,6 +769,7 @@ class Huviz
           else
             edge.focused = false
     @tick()
+    console.log "Tick in mousemove"
 
   mousedown: =>
     d3_event = @mouse_receiver[0][0]
@@ -811,12 +813,14 @@ class Huviz
       @editui.set_subject_node(@focused_node)
       console.log("edit mode and focused note and editui is literal")
       @tick()
+      console.log "Tick in mouseup 1"
       return
 
     # this is the node being clickedRDF_literal
     if @focused_node # and @focused_node.state is @graphed_set
       @perform_current_command(@focused_node)
       @tick()
+      console.log "Tick in mouseup 2"
       return
 
     if @focused_edge
@@ -840,6 +844,7 @@ class Huviz
         @run_verb_on_object('choose', @focused_node)
       # TODO(smurp) are these still needed?
       @force.links(@links_set)
+      console.log "Tick in @force.links() mouseup"
       @restart()
 
     return
@@ -961,6 +966,7 @@ class Huviz
       @canvas.width = @width
       @canvas.height = @height
     @force.size [@mx, @my]
+    console.log "Tick in @force.size() updateWindow"
     # FIXME all selectors must be localized so if there are two huviz
     #       instances on a page they do not interact
     $("#graph_title_set").css("width", @width)
@@ -1393,6 +1399,7 @@ class Huviz
 
     @force.nodes(@nodes)
     @force.links(@links_set)
+    console.log "Tick in @force.nodes() reset_graph"
 
     # TODO move this SVG code to own renderer
     d3.select(".link").remove()
@@ -1407,6 +1414,7 @@ class Huviz
     @node = @node.data(@nodes)
     @node.exit().remove()
     @force.start()
+    console.log "Tick in @force.start() reset_graph2"
 
   set_node_radius_policy: (evt) ->
     # TODO(shawn) remove or replace this whole method
@@ -2088,6 +2096,7 @@ class Huviz
     @draw_edge_labels()
     @draw_focused_labels()
     @pfm_count('tick')
+    console.log "__tick"
     @prior_node_and_state = @get_focused_node_and_its_state()
     return
 
@@ -2231,6 +2240,7 @@ class Huviz
   restart: ->
     @svg_restart() if @use_svg
     @force.start()
+    console.log "Tick in @force.start() restart"
   show_last_mouse_pos: ->
     @draw_circle @last_mouse_pos[0], @last_mouse_pos[1], @focus_radius, "yellow"
   remove_ghosts: (e) ->
@@ -2763,6 +2773,7 @@ class Huviz
       # renaming.
       @shelved_set.alter(node, perform_rename)
       @tick()
+      console.log "Tick in set_name"
     else
       perform_rename()
     #node.name ?= full_name  # set it if blank
@@ -2957,6 +2968,7 @@ class Huviz
     @gclc.run(cmd)
     #@gclui.push_command(cmd)
     @tick()
+    console.log "Tick in choose_everything"
 
   remove_framing_quotes: (s) -> s.replace(/^\"/,"").replace(/\"$/,"")
   parseAndShowNQStreamer: (uri, callback) ->
@@ -3339,6 +3351,7 @@ class Huviz
           @add_nodes_from_SPARQL(json_data, subject)
           @shelved_set.resort()
           @tick()
+          console.log "Tick in load data Endpoint"
           @update_all_counts()
           @endpoint_loader.outstanding_requests = @endpoint_loader.outstanding_requests - 1
           #console.log "Finished request: count now " + @endpoint_loader.outstanding_requests
@@ -3472,6 +3485,7 @@ class Huviz
       console.log "Resort the shelf"
       @shelved_set.resort()
       @tick()
+      console.log "Tick in add_nodes_from_SPARQL_worker"
       @update_all_counts()
     worker.postMessage({target:queryTarget, url:url, graph:graph, limit:query_limit, previous_nodes:previous_nodes})
 
@@ -3620,6 +3634,7 @@ class Huviz
     @update_showing_links(n)
     @update_state(n)
     @force.links(@links_set)
+    console.log "Tick in @force.links(@links_set) show_links_to_node"
     @restart()
 
   update_state: (node) ->
@@ -3643,6 +3658,7 @@ class Huviz
       @update_showing_links e.target
     @update_state n
     @force.links @links_set
+    console.log "Tick in @force.links() hide_links_to_node"
     @restart()
 
   show_links_from_node: (n, incl_discards) ->
@@ -3653,6 +3669,7 @@ class Huviz
       @show_link(e, incl_discards)
     @update_state(n)
     @force.links(@links_set)
+    console.log "Tick in @force.links() show_links_from_node"
     @restart()
 
   hide_links_from_node: (n) ->
@@ -3667,6 +3684,7 @@ class Huviz
       @update_showing_links e.target
 
     @force.links @links_set
+    console.log "Tick in @force.links hide_links_from_node"
     @restart()
 
   attach_predicate_to_its_parent: (a_pred) ->
@@ -3771,6 +3789,7 @@ class Huviz
     @nodes.add(node)
     @recolor_node(node)
     @tick()
+    console.log "Tick in hatch"
     @pfm_count('hatch')
     node
 
@@ -3853,6 +3872,7 @@ class Huviz
       val = @use_webgl
     ctrl.checked = val
     @tick()
+    console.log "Tick in toggle_display_tech"
     true
 
   label: (branded) ->
@@ -4218,6 +4238,7 @@ class Huviz
     @update_all_counts()
     @regenerate_english()
     @tick()
+    console.log "Tick in toggle_selected"
 
   # ========================================== SNIPPET (INFO BOX) UI =============================================================================
   get_snippet_url: (snippet_id) ->
@@ -4428,6 +4449,7 @@ class Huviz
       @update_state(node)
       @update_showing_links(node)
       @force.alpha(0.1)
+      console.log "Tick in @force.alpha draw_edge_regarding"
     return
 
   undraw_edge_regarding: (node, predicate_lid) =>
@@ -5249,6 +5271,7 @@ class Huviz
       radius(@fisheye_radius).
       distortion(@fisheye_zoom)
     @force.linkDistance(@link_distance).gravity(@gravity)
+    console.log "Tick in @force.linkDistance... update_fisheye"
 
   replace_human_term_spans: (optional_class) ->
     optional_class = optional_class or 'a_human_term'

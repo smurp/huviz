@@ -243,7 +243,7 @@ class GraphCommand
           atFirst() # is called once before iterating through the nodes
         iter = (node) =>
           retval = meth.call(@huviz, node, this)
-          @huviz.tick() # TODO(smurp) move this out, or call every Nth node
+          #@huviz.tick() # TODO(smurp) move this out, or call every Nth node
         # REVIEW Must we check for nodes? Perhaps atLast dominates.
         if nodes?
           if USE_ASYNC = false
@@ -256,6 +256,8 @@ class GraphCommand
     @huviz.clean_up_all_dirt_once()
     @huviz.hide_state_msg()
     @huviz.force.start()
+    @huviz.tick() # TODO(smurp) move this out, or call every Nth node
+    console.log "Tick in graphcommandlanguage"
     return
   get_pretty_verbs: ->
     l = []
