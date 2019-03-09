@@ -768,8 +768,7 @@ class Huviz
             @print_edge edge
           else
             edge.focused = false
-    @tick()
-    console.log "Tick in mousemove"
+    @tick("Tick in mousemove")
 
   mousedown: =>
     d3_event = @mouse_receiver[0][0]
@@ -811,16 +810,14 @@ class Huviz
 
     if @edit_mode and @focused_node and @editui.object_datatype_is_literal
       @editui.set_subject_node(@focused_node)
-      console.log("edit mode and focused note and editui is literal")
-      @tick()
-      console.log "Tick in mouseup 1"
+      #console.log("edit mode and focused note and editui is literal")
+      @tick("Tick in mouseup 1")
       return
 
     # this is the node being clickedRDF_literal
     if @focused_node # and @focused_node.state is @graphed_set
       @perform_current_command(@focused_node)
-      @tick()
-      console.log "Tick in mouseup 2"
+      @tick("Tick in mouseup 2")
       return
 
     if @focused_edge
@@ -2066,7 +2063,9 @@ class Huviz
   blank_screen: ->
     @clear_canvas()  if @use_canvas or @use_webgl
 
-  tick: =>
+  tick: (msg) =>
+    if typeof msg is 'string'
+      console.log(msg)
     # return if @focused_node   # <== policy: freeze screen when selected
     if true
       if @clean_up_all_dirt_onceRunner?
@@ -2096,7 +2095,6 @@ class Huviz
     @draw_edge_labels()
     @draw_focused_labels()
     @pfm_count('tick')
-    console.log "__tick"
     @prior_node_and_state = @get_focused_node_and_its_state()
     return
 
@@ -2772,8 +2770,7 @@ class Huviz
       # of the node rather than do shelved_set.resort() after the
       # renaming.
       @shelved_set.alter(node, perform_rename)
-      @tick()
-      console.log "Tick in set_name"
+      @tick("Tick in set_name")
     else
       perform_rename()
     #node.name ?= full_name  # set it if blank
@@ -2967,8 +2964,7 @@ class Huviz
       classes: ['Thing']
     @gclc.run(cmd)
     #@gclui.push_command(cmd)
-    @tick()
-    console.log "Tick in choose_everything"
+    @tick("Tick in choose_everything")
 
   remove_framing_quotes: (s) -> s.replace(/^\"/,"").replace(/\"$/,"")
   parseAndShowNQStreamer: (uri, callback) ->
@@ -3350,8 +3346,7 @@ class Huviz
           #console.log "Json Array Size: " + json_data.results.bindings.length
           @add_nodes_from_SPARQL(json_data, subject)
           @shelved_set.resort()
-          @tick()
-          console.log "Tick in load data Endpoint"
+          @tick("Tick in load_new_endpoint_data_and_show success callback")
           @update_all_counts()
           @endpoint_loader.outstanding_requests = @endpoint_loader.outstanding_requests - 1
           #console.log "Finished request: count now " + @endpoint_loader.outstanding_requests
@@ -3484,8 +3479,7 @@ class Huviz
       @endpoint_loader.outstanding_requests = @endpoint_loader.outstanding_requests - 1
       console.log "Resort the shelf"
       @shelved_set.resort()
-      @tick()
-      console.log "Tick in add_nodes_from_SPARQL_worker"
+      @tick("Tick in add_nodes_from_SPARQL_worker")
       @update_all_counts()
     worker.postMessage({target:queryTarget, url:url, graph:graph, limit:query_limit, previous_nodes:previous_nodes})
 
@@ -3788,8 +3782,7 @@ class Huviz
     @update_showing_links(node)
     @nodes.add(node)
     @recolor_node(node)
-    @tick()
-    console.log "Tick in hatch"
+    @tick("Tick in hatch")
     @pfm_count('hatch')
     node
 
@@ -3871,18 +3864,15 @@ class Huviz
       @use_webgl = not @use_webgl
       val = @use_webgl
     ctrl.checked = val
-    @tick()
-    console.log "Tick in toggle_display_tech"
+    @tick("Tick in toggle_display_tech")
     true
 
   label: (branded) ->
     @labelled_set.add(branded)
-    #@tick()
     return
 
   unlabel: (anonymized) ->
     @labelled_set.remove(anonymized)
-    #@tick()
     return
 
   get_point_from_polar_coords: (polar) ->
@@ -4237,8 +4227,7 @@ class Huviz
       @select(node)
     @update_all_counts()
     @regenerate_english()
-    @tick()
-    console.log "Tick in toggle_selected"
+    @tick("Tick in toggle_selected")
 
   # ========================================== SNIPPET (INFO BOX) UI =============================================================================
   get_snippet_url: (snippet_id) ->
@@ -4603,7 +4592,7 @@ class Huviz
       console.log("#{dataset_uri} deleted")
     trx.onerror = (e) =>
       console.log(e)
-      alert "remove_dataset_from_db(#{dataset_uri}) error!!!"
+      alert("remove_dataset_from_db(#{dataset_uri}) error!!!")
     store = trx.objectStore('datasets')
     req = store.delete(dataset_uri)
     req.onsuccess = (e) =>
@@ -4626,18 +4615,15 @@ class Huviz
     store = trx.objectStore('datasets')
     req = store.get(rsrcUri)
     req.onsuccess = (event) =>
-      console.log("#{rsrcUri} found", event.target.result)
       if callback?
         callback(null, event.target.result)
     req.onerror = (err) =>
       console.debug("get_resource_from_db('#{rsrcUri}') onerror ==>",err)
-      #alert(err)
       if callback
         callback(err, null)
       else
         throw err
     return
-
 
   populate_menus_from_IndexedDB: (why) ->
     #alert "populate_menus_from_IndexedDB()"
@@ -4758,19 +4744,15 @@ class Huviz
       @ontology_loader = new PickOrProvide(@, @args.ontology_loader__append_to_sel,
         'Ontology', 'OntoPP', true, false,
         {rsrcType: 'ontology'})
-      #$(@ontology_loader.form).disable()
     if not @script_loader and @args.script_loader__append_to_sel
       @script_loader = new PickOrProvideScript(@, @args.script_loader__append_to_sel,
         'Script', 'ScriptPP', false, false,
         {dndLoaderClass: DragAndDropLoaderOfScripts; rsrcType: 'script'})
-      #$("#"+@script_loader.uniq_id).hide() # TEMPORARILY HIDE SCRIPT MENU
     if not @endpoint_loader and @args.endpoint_loader__append_to_sel
       @endpoint_loader = new PickOrProvide(@, @args.endpoint_loader__append_to_sel,
         'Sparql', 'EndpointPP', false, true,
         {rsrcType: 'endpoint'})
       #@endpoint_loader.outstanding_requests = 0
-      #endpoint = "#" + @endpoint_loader.uniq_id
-      #$(endpoint).css('display','none')
     if @endpoint_loader and not @big_go_button
       @populate_sparql_label_picker()
       endpoint_selector = "##{@endpoint_loader.select_id}"
@@ -5929,7 +5911,7 @@ class Huviz
                #   ones that do: charge, gravity, fisheye_zoom, fisheye_radius
       @update_fisheye()
       @updateWindow()
-    @tick()
+    @tick("Tick in update_graph_settings")
 
   change_setting_to_from: (setting_name, new_value, old_value, skip_custom_handler) =>
     skip_custom_handler = skip_custom_handler? and skip_custom_handler or false
@@ -6070,7 +6052,7 @@ class Huviz
     @update_labels_on_pickers()
     @gclui?.resort_pickers()
     if @ctx?
-      @tick()
+      @tick("Tick in on_change_language_path")
     return
 
   on_change_color_nodes_as_pies: (new_val, old_val) ->  # TODO why this == window ??
@@ -6902,7 +6884,8 @@ class DragAndDropLoader
   tmpl: """
 	<form class="local_file_form" method="post" action="" enctype="multipart/form-data">
 	  <div class="box__input">
-	    <input class="box__file" type="file" name="files[]" id="file" data-multiple-caption="{count} files selected" multiple />
+	    <input class="box__file" type="file" name="files[]" id="file"
+             data-multiple-caption="{count} files selected" multiple />
 	    <label for="file"><span class="box__label">Choose a local file</span></label>
 	    <button class="box__upload_button" type="submit">Upload</button>
       <div class="box__dragndrop" style="display:none"> Drop URL or file here</div>
