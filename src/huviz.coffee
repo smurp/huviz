@@ -4760,7 +4760,7 @@ class Huviz
         {rsrcType: 'ontology'})
       #$(@ontology_loader.form).disable()
     if not @script_loader and @args.script_loader__append_to_sel
-      @script_loader = new PickOrProvide(@, @args.script_loader__append_to_sel,
+      @script_loader = new PickOrProvideScript(@, @args.script_loader__append_to_sel,
         'Script', 'ScriptPP', false, false,
         {dndLoaderClass: DragAndDropLoaderOfScripts; rsrcType: 'script'})
       #$("#"+@script_loader.uniq_id).hide() # TEMPORARILY HIDE SCRIPT MENU
@@ -6215,10 +6215,9 @@ class Huviz
     for cmdArgs in json
       if 'load' in cmdArgs.verbs
         saul_goodman = @adjust_menus_from_load_cmd(cmdArgs)
-      else #if saul_goodman
+      else
         @gclui.push_cmdArgs_onto_future(cmdArgs)
-        #@gclui.push_command_onto_history(
-    #@gclui.reset_command_history()
+    return
 
   parse_script_file: (data, fname) ->
     # There are two file formats, both with the extension .txt
@@ -6234,9 +6233,6 @@ class Huviz
       if line.includes(@json_script_marker)
         return JSON.parse(lines.join("\n"))
     return {}
-
-  # this is where the file should be read and run
-  #@huviz.load_script_from_JSON(@parse_script_file(evt.target.result, firstFile.name))
 
   boot_sequence: (script) ->
     # If we are passed an empty string that means there was an outer
@@ -6864,13 +6860,15 @@ class PickOrProvide
     @pick_or_provide_select = @form.find("select[name='pick_or_provide']")
     @pick_or_provide_select.attr('id',@select_id)
     #console.debug @css_class,@pick_or_provide_select
-    @pick_or_provide_select.change (e) =>
-      #e.stopPropagation()
-      @refresh()
+    @pick_or_provide_select.change(@onchange)
     @delete_option_button = @form.find('.delete_option')
     @delete_option_button.click(@delete_selected_option)
     @form.find('.delete_option').prop('disabled', true) # disabled initially
     #console.info "form", @form
+
+  onchange: (e) =>
+    #e.stopPropagation()
+    @refresh()
 
   get_selected_option: =>
     @pick_or_provide_select.find('option:selected') # just one CAN be selected
@@ -6893,6 +6891,11 @@ class PickOrProvide
 
   refresh: ->
     @update_state(@huviz.update_dataset_ontology_loader)
+
+class PickOrProvideScript extends PickOrProvide
+  onchange: (e) =>
+    super(e)
+    @huviz.visualize_dataset_using_ontology()
 
 # inspiration: https://css-tricks.com/drag-and-drop-file-uploading/
 class DragAndDropLoader
