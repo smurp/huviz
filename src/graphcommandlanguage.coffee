@@ -256,8 +256,7 @@ class GraphCommand
     @huviz.clean_up_all_dirt_once()
     @huviz.hide_state_msg()
     @huviz.force.start()
-    @huviz.tick() # TODO(smurp) move this out, or call every Nth node
-    console.log "Tick in graphcommandlanguage"
+    @huviz.tick("Tick in graphcommandlanguage")
     return
   get_pretty_verbs: ->
     l = []

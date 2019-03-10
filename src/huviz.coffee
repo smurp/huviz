@@ -732,7 +732,8 @@ class Huviz
 
     if @dragging and not @rightClickHold
       @force.resume() # why?
-      console.log "Tick in @force.resume() mousemove"
+      if not @args.skip_log_tick
+        console.log "Tick in @force.resume() mousemove"
       @move_node_to_point(@dragging, @last_mouse_pos)
       if @edit_mode
         @text_cursor.pause("", "drop on object node")
@@ -841,7 +842,8 @@ class Huviz
         @run_verb_on_object('choose', @focused_node)
       # TODO(smurp) are these still needed?
       @force.links(@links_set)
-      console.log "Tick in @force.links() mouseup"
+      if not @args.skip_log_tick
+        console.log "Tick in @force.links() mouseup"
       @restart()
 
     return
@@ -963,7 +965,8 @@ class Huviz
       @canvas.width = @width
       @canvas.height = @height
     @force.size [@mx, @my]
-    console.log "Tick in @force.size() updateWindow"
+    if not @args.skip_log_tick
+      console.log "Tick in @force.size() updateWindow"
     # FIXME all selectors must be localized so if there are two huviz
     #       instances on a page they do not interact
     $("#graph_title_set").css("width", @width)
@@ -1397,7 +1400,8 @@ class Huviz
 
     @force.nodes(@nodes)
     @force.links(@links_set)
-    console.log "Tick in @force.nodes() reset_graph"
+    if not @args.skip_log_tick
+      console.log "Tick in @force.nodes() reset_graph"
 
     # TODO move this SVG code to own renderer
     d3.select(".link").remove()
@@ -1412,7 +1416,8 @@ class Huviz
     @node = @node.data(@nodes)
     @node.exit().remove()
     @force.start()
-    console.log "Tick in @force.start() reset_graph2"
+    if not @args.skip_log_tick
+      console.log "Tick in @force.start() reset_graph2"
 
   set_node_radius_policy: (evt) ->
     # TODO(shawn) remove or replace this whole method
@@ -2239,7 +2244,8 @@ class Huviz
   restart: ->
     @svg_restart() if @use_svg
     @force.start()
-    console.log "Tick in @force.start() restart"
+    if not @args.skip_log_tick
+      console.log "Tick in @force.start() restart"
   show_last_mouse_pos: ->
     @draw_circle @last_mouse_pos[0], @last_mouse_pos[1], @focus_radius, "yellow"
   remove_ghosts: (e) ->
@@ -2959,12 +2965,10 @@ class Huviz
     $("#status").text ""
 
   choose_everything: =>
-    console.log "choose_everything()"
     cmd = new gcl.GraphCommand this,
       verbs: ['choose']
       classes: ['Thing']
     @gclc.run(cmd)
-    #@gclui.push_command(cmd)
     @tick("Tick in choose_everything")
 
   remove_framing_quotes: (s) -> s.replace(/^\"/,"").replace(/\"$/,"")
@@ -3629,7 +3633,8 @@ class Huviz
     @update_showing_links(n)
     @update_state(n)
     @force.links(@links_set)
-    console.log "Tick in @force.links(@links_set) show_links_to_node"
+    if not @args.skip_log_tick
+      console.log "Tick in @force.links(@links_set) show_links_to_node"
     @restart()
 
   update_state: (node) ->
@@ -3652,8 +3657,9 @@ class Huviz
       @update_showing_links e.source
       @update_showing_links e.target
     @update_state n
-    @force.links @links_set
-    console.log "Tick in @force.links() hide_links_to_node"
+    @force.links(@links_set)
+    if not @args.skip_log_tick
+      console.log "Tick in @force.links() hide_links_to_node"
     @restart()
 
   show_links_from_node: (n, incl_discards) ->
@@ -3664,7 +3670,8 @@ class Huviz
       @show_link(e, incl_discards)
     @update_state(n)
     @force.links(@links_set)
-    console.log "Tick in @force.links() show_links_from_node"
+    if not @args.skip_log_tick
+      console.log("Tick in @force.links() show_links_from_node")
     @restart()
 
   hide_links_from_node: (n) ->
@@ -3678,8 +3685,9 @@ class Huviz
       @update_showing_links e.source
       @update_showing_links e.target
 
-    @force.links @links_set
-    console.log "Tick in @force.links hide_links_from_node"
+    @force.links(@links_set)
+    if not @args.skip_log_tick
+      console.log("Tick in @force.links hide_links_from_node")
     @restart()
 
   attach_predicate_to_its_parent: (a_pred) ->
@@ -4439,7 +4447,8 @@ class Huviz
       @update_state(node)
       @update_showing_links(node)
       @force.alpha(0.1)
-      console.log "Tick in @force.alpha draw_edge_regarding"
+      if not @args.skip_log_tick
+        console.log("Tick in @force.alpha draw_edge_regarding")
     return
 
   undraw_edge_regarding: (node, predicate_lid) =>
@@ -5254,7 +5263,8 @@ class Huviz
       radius(@fisheye_radius).
       distortion(@fisheye_zoom)
     @force.linkDistance(@link_distance).gravity(@gravity)
-    console.log "Tick in @force.linkDistance... update_fisheye"
+    if not @args.skip_log_tick
+      console.log("Tick in @force.linkDistance... update_fisheye")
 
   replace_human_term_spans: (optional_class) ->
     optional_class = optional_class or 'a_human_term'
