@@ -3960,7 +3960,7 @@ class Huviz
     # If this chosen node is part of a SPARQL query set, then check if it is fully loaded
     # if it isn't then load and activate
     #console.log chosen
-    if @endpoint_loader.value # This is part of a sparql set
+    if @endpoint_loader? and @endpoint_loader.value # This is part of a sparql set
       if not chosen.fully_loaded
         #console.log "Time to make a new SPARQL query using: " + chosen.id + " - requests underway: " + @endpoint_loader.outstanding_requests
         # If there are more than certain number of requests, stop the process
