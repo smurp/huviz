@@ -252,6 +252,7 @@
         HVZ = new huviz.Orlando({
           viscanvas_sel: "#viscanvas",
           gclui_sel: "#gclui",
+          skip_log_tick: true,
           dataset_loader__append_to_sel: ".unselectable",
           ontology_loader__append_to_sel: ".unselectable",
           endpoint_loader__append_to_sel: ".unselectable",
