@@ -309,33 +309,29 @@ class TreePicker
     if not old_state?
       old_state = @id_to_state[true][id]
     @id_to_state[true][id] = state
+    elem = @id_to_elem[id]
+    if not elem
+      console.warn("set_direct_state(#{id}, #{state}, #{old_state}) NO elem for id on @id_to_elem")
+      return
     if old_state?
-      try
-        @id_to_elem[id].classed("treepicker-#{old_state}",false)
-      catch e
-        console.error('id:',id,'state:',state,'old_state:',old_state,e)
-        #throw e
-        return
+      elem.classed("treepicker-#{old_state}", false)
     if state?
-      @id_to_elem[id].classed("treepicker-#{state}",true)
+      elem.classed("treepicker-#{state}", true)
   set_indirect_state: (id, state, old_state) ->
     if not state?
-      #if @get_my_id() is "classes"
-      #  throw "#{@get_my_id()}.set_indirect_state() id=" + id + " state=" + state
       console.error("#{@get_my_id()}.set_indirect_state()",
                     arguments, "state should never be",undefined)
     if not old_state?
       old_state = @id_to_state[false][id]
     @id_to_state[false][id] = state  # false means indirect
-    try
-      if old_state?
-        @id_to_elem[id].classed("treepicker-indirect-#{old_state}",false)
-      if state?
-        @id_to_elem[id].classed("treepicker-indirect-#{state}",true)
-    catch e
-      if console?
-        console.log("problems finding #{id} in", this)
-        console.debug(e)
+    elem = @id_to_elem[id]
+    if not elem
+      console.warn("set_indirect_state(#{id}, #{state}, #{old_state}) NO elem for id on @id_to_elem")
+      return
+    if old_state?
+      elem.classed("treepicker-indirect-#{old_state}",false)
+    if state?
+      elem.classed("treepicker-indirect-#{state}",true)
   set_both_states_by_id: (id, direct_state, indirect_state, old_state, old_indirect_state) ->
     @set_direct_state(id, direct_state, old_state)
     @set_indirect_state(id, indirect_state, old_indirect_state)

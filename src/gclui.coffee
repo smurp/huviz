@@ -1035,6 +1035,8 @@ class CommandController
     elem_and_cmd = @command_list.splice(idx, 1)[0]
     #alert("about to delete: " + elem_and_cmd.cmd.str)
     elem = elem_and_cmd.elem[0]
+    if not elem or not elem[0]
+      return
     orphan = elem[0]
     pops = orphan.parentNode
     pops.removeChild(orphan)

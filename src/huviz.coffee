@@ -724,6 +724,8 @@ class Huviz
       #console.log "state_name == '" + @focused_node.state.state_name + "' and selected? == " + @focused_node.selected?
       #console.log "START_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
       @dragging = @focused_node
+      if @args.drag_start_handler
+        @args.drag_start_handler.call(this, @dragging)
       if @edit_mode
         if @editui.subject_node isnt @dragging
           @editui.set_subject_node(@dragging)
@@ -4636,9 +4638,8 @@ class Huviz
     return
 
   populate_menus_from_IndexedDB: (why) ->
-    #alert "populate_menus_from_IndexedDB()"
     # https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB#Using_a_cursor
-    console.groupCollapsed("populate_menus_from_IndexedDB(#{why})")
+    console.log("populate_menus_from_IndexedDB(#{why})")
     datasetDB_objectStore = @datasetDB.transaction('datasets').objectStore('datasets')
     count = 0
     make_onsuccess_handler = (why) =>
