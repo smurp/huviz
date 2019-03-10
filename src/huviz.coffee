@@ -5310,6 +5310,8 @@ class Huviz
     walk: 'WALK'
     walked: 'WALKED'
     wander: 'WANDER'
+    draw: 'DRAW'
+    undraw: 'UNDRAW'
 
   # TODO add controls
   #   selected_border_thickness
