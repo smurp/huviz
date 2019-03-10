@@ -2065,7 +2065,7 @@ class Huviz
     @clear_canvas()  if @use_canvas or @use_webgl
 
   tick: (msg) =>
-    if typeof msg is 'string'
+    if typeof msg is 'string' and not @args.skip_log_tick
       console.log(msg)
     # return if @focused_node   # <== policy: freeze screen when selected
     if true
