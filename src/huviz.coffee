@@ -1383,7 +1383,8 @@ class Huviz
 
   perform_tasks_after_dataset_loaded: ->
     @gclui.select_the_initial_set()
-    @discover_names()
+    if not @args.skip_discover_names
+      @discover_names()
 
   reset_graph: ->
     #@dump_current_settings("at top of reset_graph()")
