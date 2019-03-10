@@ -725,7 +725,10 @@ class Huviz
       #console.log "START_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
       @dragging = @focused_node
       if @args.drag_start_handler
-        @args.drag_start_handler.call(this, @dragging)
+        try
+          @args.drag_start_handler.call(this, @dragging)
+        catch e
+          console.warn(e)
       if @edit_mode
         if @editui.subject_node isnt @dragging
           @editui.set_subject_node(@dragging)
