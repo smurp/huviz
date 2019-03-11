@@ -4926,8 +4926,10 @@ class Huviz
       <p><span class="dt_label">Dataset:</span> #{dataset.label}</p>
       <p><span class="dt_label">Ontology:</span> #{ontology.label}</p>
       <p>
-        <button title="reload"
+        <button title="Reload this data"
            onclick="location.replace('#{uri}');location.reload()"><i class="fas fa-redo"></i></button>
+        <button title="Clear the graph and start over"
+           onclick="location.assign(location.origin)"><i class="fas fa-times"></i></button>
       </p>
       <br style="clear:both">
     </div>"""
