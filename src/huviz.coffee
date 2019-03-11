@@ -6198,7 +6198,8 @@ class Huviz
     script = location.hash
     script = (not script? or script is "#") and "" or script.replace(/^#/,"")
     script = script.replace(/\+/g," ")
-    console.log("script", script)
+    if script
+      colorlog("get_script_from_hash() script: "+script)
     return script
 
   adjust_menus_from_load_cmd: (cmd) ->
@@ -6696,10 +6697,8 @@ class PickOrProvide
     @
 
   val: (val) ->
-    console.log("#{@label}.val(#{val})")
+    console.log(this.constructor.name + '.val(' + (val and '"'+val+'"' or '') + ') for ' + this.opts.rsrcType + ' was ' + @pick_or_provide_select.val())
     @pick_or_provide_select.val(val)
-    #@pick_or_provide_select.change()
-    #@value = val
     @refresh()
 
   disable: ->
