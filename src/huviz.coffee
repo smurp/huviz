@@ -4793,6 +4793,7 @@ class Huviz
     @endpoint_loader.endpoint_graph = e.currentTarget.value
 
   visualize_dataset_using_ontology: (ignoreEvent, dataset, ontologies) =>
+    colorlog('visualize_dataset_using_ontology()', dataset, ontologies)
     @close_blurt_box()
     endpoint_label_uri = $("#endpoint_labels").val()
     if endpoint_label_uri
@@ -5277,8 +5278,8 @@ class Huviz
 
   replace_human_term_spans: (optional_class) ->
     optional_class = optional_class or 'a_human_term'
-    if console and console.info
-      console.info("doing addClass('#{optional_class}') on all occurrences of CSS class human_term__*")
+    #if console and console.info
+    #  console.info("doing addClass('#{optional_class}') on all occurrences of CSS class human_term__*")
     for canonical, human of @human_term
       selector = '.human_term__' + canonical
       #console.log("replacing '#{canonical}' with '#{human}' in #{selector}")
@@ -6468,13 +6469,15 @@ class Orlando extends OntologicallyGrounded
   constructor: ->
     super
     if window.indexedDB
+      onceDBReadyCount = 0
       onceDBReady = () =>
-        console.log('onceDBReady')
+        onceDBReadyCount++
+        console.log('onceDBReady() call #' + onceDBReadyCount)
         if @datasetDB?
-          console.log('yup, datasetDB is ready')
+          console.log('finally! datasetDB is now ready')
           @run_script_from_hash()
         else
-          setTimeout(onceDBReady)
+          setTimeout(onceDBReady) # causes this method to be run again, acting as an async loop
       setTimeout(onceDBReady)
     else
       # REVIEW not sure if this is worth doing (are we requiring indexedDB absolutely?)
