@@ -2574,6 +2574,8 @@ class Huviz
     #colorlog(url)
 
   auto_discover: (uri, force) ->
+    if uri.startsWith('_')
+      return
     try
       aUrl = new URL(uri)
     catch e
@@ -2589,6 +2591,7 @@ class Huviz
       #@auto_discover_header(uri, ['X-PrefLabel'], sendHeaders or [])
     if uri.startsWith("http://sws.geonames.org/") and @discover_geonames_as
       @discover_geoname_name(aUrl)
+    return
 
   discover_names: (force) ->
     for node in @nameless_set
