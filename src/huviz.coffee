@@ -6470,6 +6470,7 @@ class Orlando extends OntologicallyGrounded
     super
     if window.indexedDB
       onceDBReadyCount = 0
+      delay = 100
       onceDBReady = () =>
         onceDBReadyCount++
         console.log('onceDBReady() call #' + onceDBReadyCount)
@@ -6477,8 +6478,8 @@ class Orlando extends OntologicallyGrounded
           console.log('finally! datasetDB is now ready')
           @run_script_from_hash()
         else
-          setTimeout(onceDBReady) # causes this method to be run again, acting as an async loop
-      setTimeout(onceDBReady)
+          setTimeout(onceDBReady,delay) # causes this method to be run again, acting as an async loop
+      setTimeout(onceDBReady,delay)
     else
       # REVIEW not sure if this is worth doing (are we requiring indexedDB absolutely?)
       @run_script_from_hash()
