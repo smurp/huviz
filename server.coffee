@@ -1,6 +1,6 @@
 
 express = require("express")
-eco = require("eco")
+ejs = require("ejs")
 
 # https://github.com/npm/nopt
 nopt = require("nopt")
@@ -38,7 +38,7 @@ app = express.createServer()
 localOrCDN = (templatePath, isLocal) ->
   template = fs.readFileSync __dirname + templatePath, "utf-8"
   respondDude = (req, res) =>
-    res.send(eco.render(template, nopts))
+    res.send(ejs.render(template, {nopts: nopts}))
   return respondDude
 
 
@@ -126,12 +126,12 @@ app.configure ->
   app.use('/chai', express.static(__dirname + '/node_modules/chai'))
   app.use('/marked', express.static(__dirname + '/node_modules/marked'))
   app.use('/docs', express.static(__dirname + '/docs'))
-  app.get("/orlonto.html", localOrCDN("/views/orlonto.html.eco", nopts.is_local))
-  app.get("/yegodd.html", localOrCDN("/views/yegodd.html.eco", nopts.is_local))
+  #app.get("/orlonto.html", localOrCDN("/views/orlonto.html.ejs", nopts.is_local))
+  #app.get("/yegodd.html", localOrCDN("/views/yegodd.html.ejs", nopts.is_local))
   #app.get "/experiment.html", localOrCDN("/views/experiment.html", nopts.is_local)
   #app.get "/experiment.js", localOrCDN("/views/experiment.js", nopts.is_local)
-  app.get("/tests", localOrCDN("/views/tests.html.eco", nopts.is_local))
-  app.get("/", localOrCDN("/views/huvis.html.eco", nopts.is_local))
+  app.get("/tests", localOrCDN("/views/tests.html.ejs", nopts))
+  app.get("/", localOrCDN("/views/huvis.html.ejs", nopts))
   app.use(express.static(__dirname + '/images')) # for /favicon.ico
 
 port = nopts.port or nopts.argv.remain[0] or process.env.PORT or default_port

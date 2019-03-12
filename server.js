@@ -1,9 +1,9 @@
 (function() {
-  var Stream, a, app, cooked_argv, createSnippetServer, eco, express, fs, knownOpts, localOrCDN, nopt, nopts, port, shortHands;
+  var Stream, a, app, cooked_argv, createSnippetServer, ejs, express, fs, knownOpts, localOrCDN, nopt, nopts, port, shortHands;
 
   express = require("express");
 
-  eco = require("eco");
+  ejs = require("ejs");
 
   nopt = require("nopt");
 
@@ -58,7 +58,9 @@
     template = fs.readFileSync(__dirname + templatePath, "utf-8");
     respondDude = (function(_this) {
       return function(req, res) {
-        return res.send(eco.render(template, nopts));
+        return res.send(ejs.render(template, {
+          nopts: nopts
+        }));
       };
     })(this);
     return respondDude;
@@ -148,10 +150,8 @@
     app.use('/chai', express["static"](__dirname + '/node_modules/chai'));
     app.use('/marked', express["static"](__dirname + '/node_modules/marked'));
     app.use('/docs', express["static"](__dirname + '/docs'));
-    app.get("/orlonto.html", localOrCDN("/views/orlonto.html.eco", nopts.is_local));
-    app.get("/yegodd.html", localOrCDN("/views/yegodd.html.eco", nopts.is_local));
-    app.get("/tests", localOrCDN("/views/tests.html.eco", nopts.is_local));
-    app.get("/", localOrCDN("/views/huvis.html.eco", nopts.is_local));
+    app.get("/tests", localOrCDN("/views/tests.html.ejs", nopts));
+    app.get("/", localOrCDN("/views/huvis.html.ejs", nopts));
     return app.use(express["static"](__dirname + '/images'));
   });
 
