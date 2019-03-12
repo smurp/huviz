@@ -31,8 +31,6 @@ class CommandController
     $("#tabs").resizable({handles: {'w':'#ctrl-handle'},minWidth: 300})
     #$("#collapse_cntrl").click(@minimize_gclui)
     #$("#expand_cntrl").click(@maximize_gclui)
-    if @container is null
-      @container = d3.select("body").append("div").attr("id", "gclui")[0][0]
     if not @huviz.all_set.length
       $(@container).hide()
     d3.select(@container).html("")
@@ -40,7 +38,6 @@ class CommandController
       @hints = d3.select(@container).append("div").attr("class","hints")
       $(".hints").append($(".hint_set").contents())
     @make_command_history()
-    console.log "Window height: " + @huviz.height
     @control_label("Current Command")
     @nextcommandbox = @comdiv.append('div')
     @make_verb_sets()

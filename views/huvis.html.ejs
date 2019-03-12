@@ -41,9 +41,7 @@
       <div id="collapse_cntrl"><i class="fa fa-angle-double-right"></i></div>
       <div id="ctrl-handle" class="ui-resizable-handle ui-resizable-w"><div id="ctrl-handle-grip">o</div></div>
         <ul style="font-size:80%">
-          <li>
-              <a href="#tabs-intro" title="Introduction and Usage">Intro<!--<i class="fa fa-info"></i>--></a>
-          </li>
+          <li><a href="#tabs-intro" title="Introduction and Usage">Intro<!--<i class="fa fa-info"></i>--></a></li>
           <li><a href="#huvis_controls" title="Power tools for controlling the graph with commands consisting of verbs and nouns.">Commands</a></li>
           <li><a href="#tabs-options" title="Fine tune sizes, lengths and thicknesses.">Settings</a></li>
           <li><a href="#tabs-history" title="The command history">History</a></li>
@@ -61,20 +59,17 @@
         <div id="tabs-options" class="scrolling_tab"></div>
         <div id="huvis_controls" class="scrolling_tab">
           <div class="unselectable">
-            <label title="which file to load"></label>
-          <span>
-            <button id="reset_btn" style="display:none" type="button"
-  		  onclick="HVZ.reset_data(this)">reset</button>
-            <button id="reload_btn" style="display:none"
-  		  onclick="window.location.href='/'">reload</button>
-          </span>
+            <span>
+              <button id="reset_btn" style="display:none" type="button"
+                      onclick="HVZ.reset_data(this)">reset</button>
+              <button id="reload_btn" style="display:none" type="button"
+                      onclick="window.location.href='/'">reload</button>
+            </span>
+          </div>
         </div>
         <div id="gclui"></div>
-      </div>
-        <div id="tabs-credit" class="scrolling_tab">
-        </div>
-        <div id="tabs-history">
-        </div>
+        <div id="tabs-credit" class="scrolling_tab"></div>
+        <div id="tabs-history"></div>
         <div id="tabs-help" style="height:0px"></div>
     </section>
     <div id="vis" class="underneath" style="z-index:-3"></div>
