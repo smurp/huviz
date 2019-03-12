@@ -18,26 +18,11 @@ module.exports = (grunt) ->
     stitch:
       options:
         paths: ['src']
-        dependencies: [
-          'js/sortedset.js',
-          'js/hsv.js',
-          'js/hsl.js',
-          'vendor/d3.v3.min.js',
-          'vendor/fisheye.js',
-          'js/quadParser.js',
-          'js/multistring.js',
-          'js/oncerunner.js',
-          'js/gvcl.js']
+        dependencies: ['js/sortedset.js', 'js/hsv.js', 'js/hsl.js', 'vendor/d3.v3.min.js', 'vendor/fisheye.js', 'js/quadParser.js', 'js/multistring.js', 'js/oncerunner.js', 'js/gvcl.js']
         dest: 'lib/huviz.js'
     watch:
       scripts:
-        files: [
-          'src/*.coffee',
-          'js/*.js',
-          'Gruntfile.coffee',
-          'server.coffee',
-          'views/*.ejs',
-          'views/*.js']
+        files: ['src/*.coffee', 'js/*.js', 'Gruntfile.coffee', 'server.coffee', 'views/*.eco', 'views/*.js']
         tasks: ['coffee', 'stitch', 'express:dev']
         options:
           atBegin: true
@@ -50,6 +35,8 @@ module.exports = (grunt) ->
         npm: false
         github:
           repo: 'smurp/huviz'
+          #usernameVar: 'GITHUB_USERNAME'
+          #passwordVar: 'GITHUB_PASSWORD'
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-contrib-watch'
   grunt.loadNpmTasks 'grunt-express-server'
