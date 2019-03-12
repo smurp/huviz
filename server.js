@@ -1,5 +1,5 @@
 (function() {
-  var Stream, a, app, cooked_argv, createSnippetServer, ejs, express, fs, knownOpts, localOrCDN, nopt, nopts, port, shortHands;
+  var Stream, a, app, cooked_argv, createSnippetServer, ejs, express, fs, knownOpts, localOrCDN, nopt, nopts, path, port, shortHands;
 
   express = require("express");
 
@@ -10,6 +10,8 @@
   Stream = require("stream").Stream;
 
   fs = require('fs');
+
+  path = require('path');
 
   cooked_argv = (function() {
     var _i, _len, _ref, _results;
@@ -53,17 +55,18 @@
 
   app = express.createServer();
 
-  localOrCDN = function(templatePath, isLocal) {
-    var respondDude, template;
-    template = fs.readFileSync(__dirname + templatePath, "utf-8");
-    respondDude = (function(_this) {
+  localOrCDN = function(templatePath, data, options) {
+    var fullPath;
+    fullPath = path.join(process.cwd(), templatePath);
+    return (function(_this) {
       return function(req, res) {
-        return res.send(ejs.render(template, {
-          nopts: nopts
-        }));
+        console.log('templatePath:', fullPath);
+        return ejs.renderFile(fullPath, data, options, function(err, str) {
+          console.log('data:', data);
+          return res.send(str);
+        });
       };
     })(this);
-    return respondDude;
   };
 
   createSnippetServer = function(xmlFileName, uppercase) {
@@ -150,8 +153,12 @@
     app.use('/chai', express["static"](__dirname + '/node_modules/chai'));
     app.use('/marked', express["static"](__dirname + '/node_modules/marked'));
     app.use('/docs', express["static"](__dirname + '/docs'));
-    app.get("/tests", localOrCDN("/views/tests.html.ejs", nopts));
-    app.get("/", localOrCDN("/views/huvis.html.ejs", nopts));
+    app.get("/tests", localOrCDN("/views/tests.html.ejs", {
+      nopts: nopts
+    }));
+    app.get("/", localOrCDN("/views/huvis.html.ejs", {
+      nopts: nopts
+    }));
     return app.use(express["static"](__dirname + '/images'));
   });
 

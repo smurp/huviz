@@ -6,6 +6,7 @@ ejs = require("ejs")
 nopt = require("nopt")
 Stream = require("stream").Stream
 fs = require('fs')
+path = require('path')
 cooked_argv = (a for a in process.argv)
 knownOpts =
   is_local: Boolean
@@ -35,12 +36,14 @@ switch process.env.NODE_ENV
 app = express.createServer()
 
 # https://github.com/sstephenson/eco
-localOrCDN = (templatePath, isLocal) ->
-  template = fs.readFileSync __dirname + templatePath, "utf-8"
-  respondDude = (req, res) =>
-    res.send(ejs.render(template, {nopts: nopts}))
-  return respondDude
-
+localOrCDN = (templatePath, data, options) ->
+  ##template = fs.readFileSync __dirname + templatePath, "utf-8"
+  fullPath = path.join(process.cwd(), templatePath)
+  return (req, res) =>
+    console.log('templatePath:', fullPath)
+    ejs.renderFile fullPath, data, options, (err, str) =>
+      console.log('data:',data)
+      res.send(str)
 
 createSnippetServer = (xmlFileName, uppercase) ->
   libxmljs = require "libxmljs"       # https://github.com/polotek/libxmljs
@@ -130,8 +133,8 @@ app.configure ->
   #app.get("/yegodd.html", localOrCDN("/views/yegodd.html.ejs", nopts.is_local))
   #app.get "/experiment.html", localOrCDN("/views/experiment.html", nopts.is_local)
   #app.get "/experiment.js", localOrCDN("/views/experiment.js", nopts.is_local)
-  app.get("/tests", localOrCDN("/views/tests.html.ejs", nopts))
-  app.get("/", localOrCDN("/views/huvis.html.ejs", nopts))
+  app.get("/tests", localOrCDN("/views/tests.html.ejs", {nopts: nopts}))
+  app.get("/", localOrCDN("/views/huvis.html.ejs", {nopts: nopts}))
   app.use(express.static(__dirname + '/images')) # for /favicon.ico
 
 port = nopts.port or nopts.argv.remain[0] or process.env.PORT or default_port
