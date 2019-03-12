@@ -42,18 +42,20 @@
       <div id="collapse_cntrl"><i class="fa fa-angle-double-right"></i></div>
       <div id="ctrl-handle" class="ui-resizable-handle ui-resizable-w"><div id="ctrl-handle-grip">o</div></div>
         <ul style="font-size:80%">
-          <li><a href="#tabs-intro" title="Introduction and Usage">Intro</a></li>
+          <li>
+              <a href="#tabs-intro" title="Introduction and Usage">Intro<!--<i class="fa fa-info"></i>--></a>
+          </li>
           <li><a href="#huvis_controls" title="Power tools for controlling the graph with commands consisting of verbs and nouns.">Commands</a></li>
           <li><a href="#tabs-options" title="Fine tune sizes, lengths and thicknesses.">Settings</a></li>
           <li><a href="#tabs-history" title="The command history">History</a></li>
           <li><a href="#tabs-credit" title="Academic, funding and technical credit.">Credits</a></li>
-          <!--li class="open_huviz_help">
-            	 <a href="#tabs-help" title="show help window">
-            	   <i class="fa fa-lg fa-question-circle-o"></i>
-            	 </a>
-             </li-->
+          <!-- <li>
+            <a href="#tabs-help" title="show help window">
+              <i class="fa fa-question"></i>
+            </a>
+          </li>
+          -->
         </ul>
-        <button id="tabs-help" class="open_huviz_help"><i class="fa fa-lg fa-question-circle-o"></i></button>
         <div id="tabs-intro" class="scrolling_tab">
             <h1 class="git-branch-is-<%= @git_branch_name %>">
               HuViz
@@ -118,7 +120,6 @@
               <p>Screenshots of HuViz: <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC - Attribution</a></p>
               <div class="clear"></div>
             </div>
-            <div id="external_docs"></div>
         </div>
         <div id="tabs-options" class="scrolling_tab"></div>
         <div id="huvis_controls" class="scrolling_tab">
@@ -191,9 +192,8 @@
                 var resp =  xhr.responseText;
       	  return resp;
       	};
-              //renderMarkdownFromUrlToId("/docs/tutorial.md", "external_docs");
-              //document.getElementById("external_docs").innerHTML = marked(getMd("/docs/tutorial.md"));
-              document.getElementById("tabs-credit").innerHTML = marked(getMd("/docs/credits.md"));
+        document.getElementById("tabs-credit").innerHTML = marked(getMd("/docs/credits.md"));
+        //document.getElementById("tabs-help").innerHTML = marked(getMd("/docs/tutorial.md"));
 
       	window.open_help_dialog = function() {
       	  if (!(open_help_dialog && open_help_dialog.help_dialog)) {
@@ -226,27 +226,8 @@
       	    });
       	  }
       	};
-              $(".open_huviz_help").on('click', open_help_dialog);
-              //open_help_dialog();
-
-            /*
-      	var renderMarkdownFromUrlToId = function(mdUri, id) {
-                  var xhr = new XMLHttpRequest();
-                  xhr.open('GET', mdUri, true);
-                  xhr.onload = function(e) {
-                  if (xhr.readyState === 4) {
-                    if (xrh.status === 200) {
-                      var rendered = marked(xhr.responseText);
-                      console.log("rendered",rendered);
-                      alert(rendered);
-                      document.getElementById(id).innerHTML = rendered;
-                    } else {
-                      console.log(mdUri, xhr.statusText);
-                    }
-                  }
-              }
-            */
-
+        $(".open_huviz_help").on('click', open_help_dialog);
+       //open_help_dialog();
             });
     </script>
 

@@ -1,6 +1,6 @@
 ## Tutorial ##
 ### Deactivate ###
-**Deactivate** (or 'unchoose' originally and internally to the code) does the job of marking the node no longer specifically and on its own account appearing in the graph.  
+**Deactivate** (or 'unchoose' originally and internally to the code) does the job of marking the node no longer specifically and on its own account appearing in the graph.
 
 There are two reasons why a node might be in the central graph:
 
