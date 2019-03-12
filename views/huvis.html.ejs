@@ -37,6 +37,7 @@
     <div id="full_screen" style="position:absolute;z-index:999"><i class="fa fa-arrows-alt"></i></div>
     <div id="snippet_box"></div>
     <div id="expand_cntrl" style="visibility:hidden"><i class="fa fa-angle-double-left"></i></div>
+    
     <section id="tabs" role="controls">
       <div id="collapse_cntrl"><i class="fa fa-angle-double-right"></i></div>
       <div id="ctrl-handle" class="ui-resizable-handle ui-resizable-w"><div id="ctrl-handle-grip">o</div></div>
@@ -58,20 +59,14 @@
         </div>
         <div id="tabs-options" class="scrolling_tab"></div>
         <div id="huvis_controls" class="scrolling_tab">
-          <div class="unselectable">
-            <span>
-              <button id="reset_btn" style="display:none" type="button"
-                      onclick="HVZ.reset_data(this)">reset</button>
-              <button id="reload_btn" style="display:none" type="button"
-                      onclick="window.location.href='/'">reload</button>
-            </span>
-          </div>
+          <div class="unselectable"></div>
         </div>
         <div id="gclui"></div>
         <div id="tabs-credit" class="scrolling_tab"></div>
         <div id="tabs-history"></div>
         <div id="tabs-help" style="height:0px"></div>
     </section>
+    
     <div id="vis" class="underneath" style="z-index:-3"></div>
     <div id="viscanvas" class="underneath"></div>
     <pre id="status"></pre>

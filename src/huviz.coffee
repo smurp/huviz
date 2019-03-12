@@ -5154,6 +5154,49 @@ class Huviz
     @create_taxonomy()
     @ontology = PRIMORDIAL_ONTOLOGY
 
+  tabs_specs: [
+    cssClass:'tabs-intro scrolling_tab'
+    title: "Introduction and Usage"
+    text: "Intro"
+  ,
+    cssClass:'huvis_controls scrolling_tab'
+    title: "Power tools for controlling the graph"
+    text: "Commands"
+  ,
+    cssClass: 'tabs-options scrolling_tab'
+    title: "Fine tune sizes, lengths and thicknesses"
+    text: "Settings"
+  ,
+    cssClass:'tabs-history'
+    title: "The command history"
+    text: "History"
+  ,
+    cssClass: 'tabs-credit scrolling_tab'
+    title: "Academic, funding and technical credit"
+    text: "Credit"
+  ]
+
+  make_tabs_html: ->
+    @cssClassToTabId = {}
+    theTabs = """<ul class="the-tabs">"""
+    theDivs = """<div id="gclui"></div>"""
+    for t in @tabs_specs
+      id = unique_id()
+      firstClass = t.cssClass.split(' ')[0]
+      @cssClassToTabId[firstClass] = id
+      theTabs += """<li><a href="##{firstClass}" title="#{t.title}">#{t.text}</a></li>"""
+      theDivs += """<div id="#{firstClass}" class="#{t.cssClass}"></div>"""
+    return ["""<section id="tabs" role="controls">""", theTabs, theDivs, "</section>"].join('')
+
+  create_tabs_adjacent: (elem, position) ->
+    elem.insertAdjacentHTML(position, @make_tabs_html())
+
+  create_tabs: ->
+    # create <section id="tabs"...> programmatically, making unique ids along the way
+    elem = document.querySelector(@args.create_tabs_adjacent_to_selector)
+    position = @args.create_tabs_adjacent_position or 'afterend'
+    @create_tabs_adjacent(elem, position)
+
   constructor: (args) -> # Huviz
     #if @pfm_display is true
     #  @pfm_dashboard()
@@ -5168,6 +5211,10 @@ class Huviz
     @args = args
     if @args.selector_for_graph_controls?
       @selector_for_graph_controls = @args.selector_for_graph_controls
+    @args.create_tabs_adjacent_to_selector = "#expand_cntrl"
+    @args.create_tabs_adjacent_position = "afterend"
+    if @args.create_tabs_adjacent_to_selector and false
+      @create_tabs()
     @init_ontology()
     @off_center = false # FIXME expose this or make the amount a slider
     document.addEventListener('nextsubject', @onnextsubject)

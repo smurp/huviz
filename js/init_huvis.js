@@ -1,12 +1,9 @@
       window.addEventListener('load',function(){
-        //var HVZ;
         document.addEventListener('touchmove', function(e) {
           e.preventDefault();
         }, false);
         document.addEventListener('dataset-loaded', function(e) {
-          //HVZ.choose_everything();
         }, false);
-
         huviz = require('huviz');
         HVZ = new huviz.Orlando({
           viscanvas_sel: "#viscanvas",
