@@ -1,11 +1,12 @@
 
 express = require("express")
-eco = require("eco")
+ejs = require("ejs")
 
 # https://github.com/npm/nopt
 nopt = require("nopt")
 Stream = require("stream").Stream
 fs = require('fs')
+path = require('path')
 cooked_argv = (a for a in process.argv)
 knownOpts =
   is_local: Boolean
@@ -35,12 +36,15 @@ switch process.env.NODE_ENV
 app = express.createServer()
 
 # https://github.com/sstephenson/eco
-localOrCDN = (templatePath, isLocal) ->
-  template = fs.readFileSync __dirname + templatePath, "utf-8"
-  respondDude = (req, res) =>
-    res.send(eco.render(template, nopts))
-  return respondDude
-
+localOrCDN = (templatePath, data, options) ->
+  options ?= {}
+  fullPath = path.join(process.cwd(), templatePath)
+  return (req, res) =>
+    ejs.renderFile fullPath, data, options, (err, str) =>
+      if err
+        res.send(err)
+      else
+        res.send(str)
 
 createSnippetServer = (xmlFileName, uppercase) ->
   libxmljs = require "libxmljs"       # https://github.com/polotek/libxmljs
@@ -103,7 +107,8 @@ createSnippetServer = (xmlFileName, uppercase) ->
 
 app.configure ->
   app.use express.logger()
-  app.set("views", __dirname + "/views")
+  app.set("/views", __dirname + "/views")
+  app.set("/views/tabs", path.join(__dirname, 'tabs', "views"))
   app.use(app.router)
   app.use("/huviz", express.static(__dirname + '/lib'))
   app.use('/css', express.static(__dirname + '/css'))
@@ -126,12 +131,12 @@ app.configure ->
   app.use('/chai', express.static(__dirname + '/node_modules/chai'))
   app.use('/marked', express.static(__dirname + '/node_modules/marked'))
   app.use('/docs', express.static(__dirname + '/docs'))
-  app.get("/orlonto.html", localOrCDN("/views/orlonto.html.eco", nopts.is_local))
-  app.get("/yegodd.html", localOrCDN("/views/yegodd.html.eco", nopts.is_local))
+  #app.get("/orlonto.html", localOrCDN("/views/orlonto.html.ejs", nopts.is_local))
+  #app.get("/yegodd.html", localOrCDN("/views/yegodd.html.ejs", nopts.is_local))
   #app.get "/experiment.html", localOrCDN("/views/experiment.html", nopts.is_local)
   #app.get "/experiment.js", localOrCDN("/views/experiment.js", nopts.is_local)
-  app.get("/tests", localOrCDN("/views/tests.html.eco", nopts.is_local))
-  app.get("/", localOrCDN("/views/huvis.html.eco", nopts.is_local))
+  app.get("/tests", localOrCDN("/views/tests.html.ejs", {nopts: nopts}))
+  app.get("/", localOrCDN("/views/huvis.html.ejs", {nopts: nopts}))
   app.use(express.static(__dirname + '/images')) # for /favicon.ico
 
 port = nopts.port or nopts.argv.remain[0] or process.env.PORT or default_port

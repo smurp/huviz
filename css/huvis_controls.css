@@ -2,6 +2,10 @@
   clear:both;
 }
 
+.the-tabs {
+  font-size:80%;
+}
+
 #tabs {
   position: fixed;
   width: 26em;

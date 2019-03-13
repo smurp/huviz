@@ -5144,6 +5144,124 @@ class Huviz
     @create_taxonomy()
     @ontology = PRIMORDIAL_ONTOLOGY
 
+  default_tab_specs: [
+    cssClass:'huvis_controls scrolling_tab unselectable'
+    title: "Power tools for controlling the graph"
+    text: "Commands"
+  ,
+    cssClass: 'tabs-options scrolling_tab'
+    title: "Fine tune sizes, lengths and thicknesses"
+    text: "Settings"
+  ,
+    cssClass:'tabs-history'
+    title: "The command history"
+    text: "History"
+  ,
+    cssClass: 'tabs-credit scrolling_tab'
+    title: "Academic, funding and technical credit"
+    text: "Credit"
+    bodyUrl: "/docs/credits.md"
+  ,
+    cssClass: "tabs-tutor scrolling_tab"
+    title: "A tutorial"
+    text: "Tutorial"
+    bodyUrl: "/docs/tutorial.md"
+  ]
+
+  make_tabs_html: ->
+    # The firstClass in cssClass acts like a re-entrant identifier for these tabs. Each also gets a unique id.
+    # Purpose:
+    #   Programmatically build the equivalent of views/tabs/all.ejs but with unique ids for the divs
+    # Notes:
+    #   When @args.use_old_tabs_ids is true this method reproduces all.ejs exactly.
+    #   Otherwise it gives each div a unique id
+    #   Either way @oldToUniqueTabSel provides a way to select each tab using the old non-reentrant ids like 'tabs-intro'
+    # Arguments:
+    #   cssClass becomes the value of the class attribute of the div
+    #   title becomes the title attribute of the tab
+    #   text becomes the visible label of the tab
+    #   moveSelector: (optional) is the selector of content to move into the div
+    #   bodyUrl: (optional) is the url of content to insert into the div (if it ends with .md the markdown is rendered)
+    # Motivation:
+    #   The problem this is working to solve is that we want HuViz to be re-entrant (ie more than one instance per page)
+    #   but it was originally written without that in mind, using unique ids such as #tabs-intro liberally.
+    #   This method provides a way to programmatically build the tabs with truly unique ids but also with a way to
+    #   learn what those ids are using the old identifiers.  To finish the task of transforming the code to be
+    #   re-entrant we must:
+    #     1) find all the places which use ids such as "#gclui" or "#tabs-history" and get them
+    #        to use @oldToUniqueTabSel as a lookup for the new ids.
+    #     2) rebuild the CSS to use class names such as ".gclui" rather than the old ids such as "#gclui"
+    @oldToUniqueTabSel = {}
+    theTabs = """<ul class="the-tabs">"""
+    theDivs = """<div id="gclui"></div>""" # for some reason this one is unique
+    theHandles = """
+      <div id="collapse_cntrl"><i class="fa fa-angle-double-right"></i></div>
+      <div id="ctrl-handle" class="ui-resizable-handle ui-resizable-w"><div id="ctrl-handle-grip">o</div></div>
+    """
+    tab_specs = @args.tab_specs or @default_tab_specs
+    for t in tab_specs
+      id = unique_id()
+      firstClass = t.cssClass.split(' ')[0]
+      if @args.use_old_tab_ids
+        id = firstClass
+      idSel = '#' + id
+      @oldToUniqueTabSel[firstClass] = idSel
+      theTabs += """<li><a href="#{idSel}" title="#{t.title}">#{t.text}</a></li>"""
+      theDivs += """<div id="#{id}" class="#{t.cssClass}"></div>"""
+      processor = t.bodyUrl? and t.bodyUrl.endsWith('.md') and marked or (data) -> return data
+      if t.bodyUrl?
+        @withUriDo(t.bodyUrl, idSel, processor)
+      if t.moveSelector?
+        mkcb = (fromSel, toSel) => # make closure
+          return () => @moveSelToSel(fromSel, toSel)
+        setTimeout(mkcb(t.moveSelector, idSel), 30)
+    theTabs += "</ul>"
+    return ["""<section id="tabs" role="controls">""", theHandles, theTabs, theDivs, "</section>"].join('')
+
+  moveSelToSel: (moveSel, targetSel) ->
+    if not (moveElem = document.querySelector(moveSel))
+      console.warn("moveSelector() failed to find moveSel: '#{ moveSel}'")
+      return
+    if not (targetElem = document.querySelector(targetSel))
+      console.warn("moveSelector() failed to find targetSel: '#{ targetSel}'")
+      return
+    targetElem.appendChild(moveElem)
+    return
+
+  withUriDo: (url, sel, processor) ->
+    xhr = new XMLHttpRequest();
+    xhr.open("GET", url, true);
+    xhr.onload = (e) =>
+      if xhr.readyState is 4
+        if xhr.status is 200
+          @renderIntoWith(xhr.responseText, sel, processor)
+        else
+          console.error(xhr.statusText)
+    xhr.onerror = (e) ->
+      console.error(xhr.statusText)
+    xhr.send(null)
+
+  renderIntoWith: (data, sel, processor) ->
+    elem = document.querySelector(sel)
+    if not elem
+      return
+    if processor?
+      elem.innerHTML = processor(data)
+    else
+      elem.innerHTML = data
+    return
+
+  create_tabs_adjacent: (elem, position) ->
+    elem.insertAdjacentHTML(position, @make_tabs_html())
+
+  create_tabs: ->
+    # create <section id="tabs"...> programmatically, making unique ids along the way
+    elem = document.querySelector(@args.create_tabs_adjacent_to_selector)
+    if not (position = @args.create_tabs_adjacent_position)
+      console.warn("expecting create_tabs_adjacent_position of beforebegin, afterbegin, beforeend or afterend")
+      return
+    @create_tabs_adjacent(elem, position)
+
   constructor: (args) -> # Huviz
     #if @pfm_display is true
     #  @pfm_dashboard()
@@ -5158,6 +5276,8 @@ class Huviz
     @args = args
     if @args.selector_for_graph_controls?
       @selector_for_graph_controls = @args.selector_for_graph_controls
+    if @args.create_tabs_adjacent_to_selector
+      @create_tabs()
     @init_ontology()
     @off_center = false # FIXME expose this or make the amount a slider
     document.addEventListener('nextsubject', @onnextsubject)
