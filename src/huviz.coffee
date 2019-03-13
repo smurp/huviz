@@ -1924,18 +1924,9 @@ class Huviz
         # perhaps scrolling should happen here
         #if not node_display_type and (node.focused_node or node.focused_edge?)
         if node.focused_node or node.focused_edge?
-          return
-          #if (node_display_type == 'pills')
-          #  ctx.font = focused_pill_font
-          #else
-          #  label = @scroll_pretty_name(node)
-          #  if node.state.id is "graphed"
-          #    cart_label = node.pretty_name
-          #    ctx.measureText(cart_label).width #forces proper label measurement (?)
-          #    if @cartouches
-          #      @draw_cartouche(cart_label, focused_font_size, node.fisheye.x, node.fisheye.y)
-          #  ctx.fillStyle = node.color
-          #  ctx.font = focused_font
+          label = @scroll_pretty_name(node)
+          ctx.fillStyle = node.color
+          ctx.font = focused_font
         else
           ctx.fillStyle = renderStyles.labelColor #"white" is default
           ctx.font = unfocused_font
@@ -2058,13 +2049,12 @@ class Huviz
             ctx.fillText print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y
         else
           label = @scroll_pretty_name(node)
-          # console.log label
           if node.state.id is "graphed"
             cart_label = node.pretty_name
             ctx.measureText(cart_label).width #forces proper label measurement (?)
             if @cartouches
               @draw_cartouche(cart_label, focused_font_size, node.fisheye.x, node.fisheye.y)
-          ctx.fillStyle = node.color
+          ctx.fillStyle = node.color # This is the mouseover highlight color when GRAPHED
           ctx.font = focused_font
           ctx.fillText "  " + node.pretty_name + "  ", node.fisheye.x, node.fisheye.y
     @graphed_set.forEach(highlight_node)
