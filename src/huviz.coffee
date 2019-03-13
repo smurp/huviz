@@ -204,8 +204,9 @@ linearize = (msgRecipient, streamoid) ->
     recurse = () -> linearize(msgRecipient, streamoid)
     setTimeout(recurse, 0)
 
-unique_id = () ->
-  'uid_'+Math.random().toString(36).substr(2,10)
+unique_id = (prefix) ->
+  prefix ?= 'uid_'
+  return prefix + Math.random().toString(36).substr(2,10)
 
 window.log_click = () ->
   console.log("%cCLICK", "color:red;font-size:1.8em")
@@ -4751,22 +4752,40 @@ class Huviz
   get_menu_by_rsrcType: (rsrcType) ->
     return @[rsrcType+'_loader'] # eg rsrcType='script' ==> @script_loader
 
+  get_or_create_sel_for_picker: (specificSel) ->
+    # if specificSel is defined, return it, otherwise return the selector of a thin
+    sel = specificSel
+    if not sel?
+      if not @pickersSel?
+        pickersId = unique_id('pickers_')
+        @pickersSel = '#' + pickersId
+        if (huvis_controls_sel = @oldToUniqueTabSel['huvis_controls'])
+          @huvis_controls_elem ?= document.querySelector(huvis_controls_sel)
+          if @huvis_controls_elem
+            @huvis_controls_elem.insertAdjacentHTML('beforeend', """<div id="#{pickersId}"></div>""")
+      sel = @pickersSel
+    return sel
+
   init_resource_menus: ->
     # REVIEW See views/huviz.html.eco to set dataset_loader__append_to_sel and similar
-    if not @dataset_loader and @args.dataset_loader__append_to_sel
-      @dataset_loader = new PickOrProvide(@, @args.dataset_loader__append_to_sel,
+    if not @dataset_loader and @args.make_pickers
+      sel = @get_or_create_sel_for_picker(@args.dataset_loader__append_to_sel)
+      @dataset_loader = new PickOrProvide(@, sel,
         'Dataset', 'DataPP', false, false,
         {rsrcType: 'dataset'})
-    if not @ontology_loader and @args.ontology_loader__append_to_sel
-      @ontology_loader = new PickOrProvide(@, @args.ontology_loader__append_to_sel,
+    if not @ontology_loader and @args.make_pickers
+      sel = @get_or_create_sel_for_picker(@args.ontology_loader__append_to_sel)
+      @ontology_loader = new PickOrProvide(@, sel,
         'Ontology', 'OntoPP', true, false,
         {rsrcType: 'ontology'})
-    if not @script_loader and @args.script_loader__append_to_sel
-      @script_loader = new PickOrProvideScript(@, @args.script_loader__append_to_sel,
+    if not @script_loader and @args.make_pickers
+      sel = @get_or_create_sel_for_picker(@args.script_loader__append_to_sel)
+      @script_loader = new PickOrProvideScript(@, sel,
         'Script', 'ScriptPP', false, false,
         {dndLoaderClass: DragAndDropLoaderOfScripts; rsrcType: 'script'})
-    if not @endpoint_loader and @args.endpoint_loader__append_to_sel
-      @endpoint_loader = new PickOrProvide(@, @args.endpoint_loader__append_to_sel,
+    if not @endpoint_loader and @args.make_pickers
+      sel = @get_or_create_sel_for_picker(@args.endpoint_loader__append_to_sel)
+      @endpoint_loader = new PickOrProvide(@, sel,
         'Sparql', 'EndpointPP', false, true,
         {rsrcType: 'endpoint'})
       #@endpoint_loader.outstanding_requests = 0
@@ -4775,10 +4794,10 @@ class Huviz
       endpoint_selector = "##{@endpoint_loader.select_id}"
       $(endpoint_selector).change(@update_endpoint_form)
     if @ontology_loader and not @big_go_button
-      @big_go_button_id = unique_id()
+      @big_go_button_id = unique_id('goButton_')
       @big_go_button = $('<button class="big_go_button">LOAD</button>')
       @big_go_button.attr('id', @big_go_button_id)
-      $(@args.ontology_loader__append_to_sel).append(@big_go_button)
+      $(@get_or_create_sel_for_picker()).append(@big_go_button)
       @big_go_button.click(@visualize_dataset_using_ontology)
       @big_go_button.prop('disabled', true)
     @init_datasetDB()
@@ -4832,6 +4851,7 @@ class Huviz
     @gclc = new GraphCommandLanguageCtrl(this)
     @init_resource_menus()
     if not @gclui?
+      # @oldToUniqueTabSel['huvis_controls'] ???
       @gclui = new CommandController(this,d3.select(@args.gclui_sel)[0][0],@hierarchy)
     window.addEventListener('showgraph', @register_gclc_prefixes)
     window.addEventListener('newpredicate', @gclui.handle_newpredicate)
@@ -4858,7 +4878,7 @@ class Huviz
     @ontology_loader.enable()
     @big_go_button.show()
     $("##{@dataset_loader.select_id} option[label='Pick or Provide...']").prop('selected', true)
-    $("#huvis_controls .unselectable").removeAttr("style","display:none")
+    $("#gclui").removeAttr("style","display:none")
 
   update_dataset_ontology_loader: =>
     if not (@dataset_loader? and @ontology_loader?  and @endpoint_loader? and @script_loader?)
@@ -4924,7 +4944,7 @@ class Huviz
   replace_loader_display: (dataset, ontology) ->
     @generate_reload_uri(dataset, ontology)
     uri = @get_reload_uri()
-    $("#huvis_controls .unselectable").attr("style","display:none")
+    $(@pickersSel).attr("style","display:none")
     data_ontol_display = """
     <div id="data_ontology_display">
       <p><span class="dt_label">Dataset:</span> #{dataset.label}</p>
@@ -4937,10 +4957,13 @@ class Huviz
       </p>
       <br style="clear:both">
     </div>"""
-    $("#huvis_controls").prepend(data_ontol_display)
+    sel = @oldToUniqueTabSel['huvis_controls']
+    controls = document.querySelector(sel)
+    controls.insertAdjacentHTML('afterbegin', data_ontol_display)
+    return
 
   replace_loader_display_for_endpoint: (endpoint, graph) ->
-    $("#huvis_controls .unselectable").attr("style","display:none")
+    $(@pickersSel).attr("style","display:none")
     #uri = new URL(location)
     #uri.hash = "load+#{dataset.value}+with+#{ontology.value}"
     if graph
@@ -5011,7 +5034,7 @@ class Huviz
         </div>
       </div>
     """
-    $(".unselectable").append(select_box)
+    $(@pickersSel).append(select_box)
     spinner = $("#endpoint_labels").siblings('i')
     fromGraph =''
     $("#endpoint_labels").autocomplete({minLength: 3, delay:500, position: {collision: "flip"}, source: (request, response) =>
@@ -5203,7 +5226,7 @@ class Huviz
     #     2) rebuild the CSS to use class names such as ".gclui" rather than the old ids such as "#gclui"
     @oldToUniqueTabSel = {}
     theTabs = """<ul class="the-tabs">"""
-    theDivs = """<div id="gclui"></div>""" # for some reason this one is unique
+    theDivs = ""
     theHandles = """
       <div id="collapse_cntrl"><i class="fa fa-angle-double-right"></i></div>
       <div id="ctrl-handle" class="ui-resizable-handle ui-resizable-w"><div id="ctrl-handle-grip">o</div></div>
@@ -5217,7 +5240,13 @@ class Huviz
       idSel = '#' + id
       @oldToUniqueTabSel[firstClass] = idSel
       theTabs += """<li><a href="#{idSel}" title="#{t.title}">#{t.text}</a></li>"""
-      theDivs += """<div id="#{id}" class="#{t.cssClass}"></div>"""
+      
+      # YUP this is automatically cramming the gclui div inside the huvis_controls pane
+      # TODO build the huvis_controls directly in there, or something, when removing id references such as #gclui
+      if firstClass is 'huvis_controls'
+        t.kids = """<div id="gclui" style="display:none"></div>"""
+      
+      theDivs += """<div id="#{id}" class="#{t.cssClass}">#{t.kids or ''}</div>"""
       processor = t.bodyUrl? and t.bodyUrl.endsWith('.md') and marked or (data) -> return data
       if t.bodyUrl?
         @withUriDo(t.bodyUrl, idSel, processor)

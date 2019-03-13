@@ -9,10 +9,13 @@ window.addEventListener('load',function(){
     viscanvas_sel: "#viscanvas",
     gclui_sel: "#gclui",
     skip_log_tick: true,
+    make_pickers: true,
+    /*  // TODO remove any sensitivity to these, we do not need them
     dataset_loader__append_to_sel: "#huvis_controls",
     ontology_loader__append_to_sel: "#huvis_controls",
     endpoint_loader__append_to_sel: "#huvis_controls",
     script_loader__append_to_sel: "#huvis_controls",
+    */
     graph_controls_sel: '#tabs-options',
     display_hints: false, // here to show how to enable hints
     display_reset: false,  // here to show how to enable reset button
