@@ -140,7 +140,8 @@
 
   app.configure(function() {
     app.use(express.logger());
-    app.set("views", __dirname + "/views");
+    app.set("/views", __dirname + "/views");
+    app.set("/views/tabs", path.join(__dirname, 'tabs', "views"));
     app.use(app.router);
     app.use("/huviz", express["static"](__dirname + '/lib'));
     app.use('/css', express["static"](__dirname + '/css'));
