@@ -204,6 +204,9 @@ linearize = (msgRecipient, streamoid) ->
     recurse = () -> linearize(msgRecipient, streamoid)
     setTimeout(recurse, 0)
 
+ident = (data) ->
+  return data
+
 unique_id = (prefix) ->
   prefix ?= 'uid_'
   return prefix + Math.random().toString(36).substr(2,10)
@@ -5237,15 +5240,17 @@ class Huviz
         t.kids = """<div id="gclui" style="display:none"></div>"""
       
       theDivs += """<div id="#{id}" class="#{t.cssClass}">#{t.kids or ''}</div>"""
-      processor = t.bodyUrl? and t.bodyUrl.endsWith('.md') and marked or (data) -> return data
+      if not marked?
+        console.info('marked does not exist yet')
       if t.bodyUrl?
-        @withUriDo(t.bodyUrl, idSel, processor)
+        @withUriDo(t.bodyUrl, idSel)
       if t.moveSelector?
         mkcb = (fromSel, toSel) => # make closure
           return () => @moveSelToSel(fromSel, toSel)
         setTimeout(mkcb(t.moveSelector, idSel), 30)
     theTabs += "</ul>"
-    return ["""<section id="tabs" role="controls">""", theHandles, theTabs, theDivs, "</section>"].join('')
+    @tabs_id = unique_id('tabs_')
+    return ["""<section id="#{@tabs_id}" class="huviz_tabs" role="controls">""", theHandles, theTabs, theDivs, "</section>"].join('')
 
   moveSelToSel: (moveSel, targetSel) ->
     if not (moveElem = document.querySelector(moveSel))
@@ -5263,6 +5268,7 @@ class Huviz
     xhr.onload = (e) =>
       if xhr.readyState is 4
         if xhr.status is 200
+          processor ?= (url.endsWith('.md') and marked) or ident
           @renderIntoWith(xhr.responseText, sel, processor)
         else
           console.error(xhr.statusText)
@@ -5298,8 +5304,8 @@ class Huviz
     if not args.viscanvas_sel
       msg = "call Huviz({viscanvas_sel:'????'}) so it can find the canvas to draw in"
       console.debug(msg)
-    if not args.gclui_sel
-      alert("call Huviz({gclui_sel:'????'}) so it can find the div to put the gclui command pickers in")
+    #if not args.gclui_sel
+    #  alert("call Huviz({gclui_sel:'????'}) so it can find the div to put the gclui command pickers in")
     if not args.graph_controls_sel
       console.warn("call Huviz({graph_controls_sel:'????'}) so it can put the settings somewhere")
     @args = args
@@ -5364,15 +5370,14 @@ class Huviz
     if search_input
       search_input.addEventListener("input", @update_searchterm)
     window.addEventListener "resize", @updateWindow
-    $("#tabs").on("resize", @updateWindow)
+    @tabsJQElem = $('#' + @tabs_id)
+    @tabsJQElem.on("resize", @updateWindow)
     $(@viscanvas).bind("_splitpaneparentresize", @updateWindow)
     $("#collapse_cntrl").click(@minimize_gclui).on("click", @updateWindow)
     $("#full_screen").click(@fullscreen)
     $("#expand_cntrl").click(@maximize_gclui).on("click", @updateWindow)
-    $("#tabs").on('click', '#blurt_close', @close_blurt_box)
-    $("#tabs").tabs
-      active: 0
-      #collapsible: true
+    @tabsJQElem.on('click', '#blurt_close', @close_blurt_box)
+    @tabsJQElem.tabs({active: 0})
     $('.open_tab').click (event) =>
       tab_idx = parseInt($(event.target).attr('href').replace("#",""))
       @goto_tab(tab_idx)
@@ -5386,7 +5391,7 @@ class Huviz
     $('#blurtbox').remove()
 
   minimize_gclui: () ->
-    $('#tabs').prop('style','visibility:hidden;width:0')
+    @tabsJQElem.prop('style','visibility:hidden;width:0')
     $('#expand_cntrl').prop('style','visibility:visible')
     #w_width = (@container.clientWidth or window.innerWidth or document.documentElement.clientWidth or document.clientWidth)
     #@width = w_width
@@ -5394,13 +5399,14 @@ class Huviz
     #@updateWindow()
     #console.log @width
   maximize_gclui: () ->
-    $('#tabs').prop('style','visibility:visible')
+    @tabsJQElem.prop('style','visibility:visible')
     $('#maximize_cntrl').prop('style','visibility:hidden')
 
   goto_tab: (tab_idx) ->
-    $('#tabs').tabs
+    @tabsJQElem.tabs(
       active: tab_idx
-      collapsible: true
+      collapsible: true)
+    return
 
   update_fisheye: ->
     #@label_show_range = @link_distance * 1.1

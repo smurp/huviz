@@ -6,7 +6,7 @@
   font-size:80%;
 }
 
-#tabs {
+.huviz_tabs {
   position: fixed;
   width: 26em;
   right: 0px;
@@ -22,7 +22,7 @@
   padding: 0;
   font-family: helvetica, arial, verdana, sans-serif;
 }
-#tabs .ui-tabs-nav{
+.huviz_tabs .ui-tabs-nav{
   margin: 0;
   padding: .2em .2em 0;
   background-color: #157fcc;
@@ -32,16 +32,16 @@
   border-top: none;
   padding-top: 5px;
 }
-#tabs li.ui-tabs-tab.ui-state-default {
+.huviz_tabs li.ui-tabs-tab.ui-state-default {
   background: inherit;
   background-color: #e9f5ff;
 }
-#tabs li.ui-tabs-tab.ui-state-active {
+.huviz_tabs li.ui-tabs-tab.ui-state-active {
   background: inherit;
   background-color: #fff;
 }
 
-#tabs .ui-widget-header {
+.huviz_tabs .ui-widget-header {
     border-top: none;
     border-left: none;
     border-right: none;
