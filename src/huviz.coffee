@@ -5281,15 +5281,6 @@ class Huviz
     elem.insertAdjacentHTML(position, html)
     return
 
-  create_handles: ->
-    html = """
-      <div id="full_screen" style="position:absolute;z-index:999"><i class="fa fa-arrows-alt"></i></div>
-      <div id="expand_cntrl" style="visibility:hidden"><i class="fa fa-angle-double-left"></i></div>
-      <div id="collapse_cntrl"><i class="fa fa-angle-double-right"></i></div>
-    """
-    @addHTML(html)
-    return
-
   create_tabs: ->
     # create <section id="tabs"...> programmatically, making unique ids along the way
     elem = document.querySelector(@args.create_tabs_adjacent_to_selector)
@@ -5304,6 +5295,7 @@ class Huviz
       @addDivWithIDAndClasses(id, classes, body)
       #@insertBeforeEnd(body, """<div id="#{@args.huviz_top_sel}"></div>""")
     @topElem = document.querySelector(@args.huviz_top_sel)
+    @topJQElem = $(@topElem)
     return
 
   addHTML: (html) ->
@@ -5403,10 +5395,12 @@ class Huviz
     @ensureTopElem()
     if @args.create_tabs_adjacent_to_selector
       @create_tabs()
+    @tabsJQElem = $('#' + @tabs_id)
     @create_blurtbox()
-    @create_handles()
     @ensure_divs()
     @make_JQElems()
+    @create_collapse_expand_handles()
+    @create_fullscreen_handle()
     @init_ontology()
     @off_center = false # FIXME expose this or make the amount a slider
     document.addEventListener('nextsubject', @onnextsubject)
@@ -5466,12 +5460,8 @@ class Huviz
     if search_input
       search_input.addEventListener("input", @update_searchterm)
     window.addEventListener "resize", @updateWindow
-    @tabsJQElem = $('#' + @tabs_id)
     @tabsJQElem.on("resize", @updateWindow)
     $(@viscanvas).bind("_splitpaneparentresize", @updateWindow)
-    $("#collapse_cntrl").click(@minimize_gclui).on("click", @updateWindow)
-    $("#full_screen").click(@fullscreen)
-    $("#expand_cntrl").click(@maximize_gclui).on("click", @updateWindow)
     @tabsJQElem.tabs({active: 0})
     $('.open_tab').click (event) =>
       tab_idx = parseInt($(event.target).attr('href').replace("#",""))
@@ -5513,21 +5503,45 @@ class Huviz
     delete @close_blurtbox_button
     @blurtbox_JQElem.html('')
 
+
+  ##### ------------------- fullscreen stuff ---------------- ########
+  create_fullscreen_handle: ->
+    fs = """<div class="full_screen" style="position:absolute;z-index:999"><i class="fa fa-arrows-alt"></i></div>"""
+    @topJQElem.prepend(fs)
+    @fullscreenJQElem = @topJQElem.find(".full_screen")
+    @fullscreenJQElem.click(@fullscreen)
+    return
+
   fullscreen: () =>
     elem = document.getElementById("body")
     elem.webkitRequestFullscreen()
 
+  ##### ------------------- collapse/expand stuff ---------------- ########
+
   minimize_gclui: () =>
     @tabsJQElem.prop('style','visibility:hidden;width:0')
-    $('#expand_cntrl').prop('style','visibility:visible')
-    #w_width = (@container.clientWidth or window.innerWidth or document.documentElement.clientWidth or document.clientWidth)
-    #@width = w_width
-    #@get_container_width()
-    #@updateWindow()
-    #console.log @width
+    @tabsJQElem.find('.expand_cntrl').prop('style','visibility:visible')
+    #@expandCtrlJQElem.show()
+
   maximize_gclui: () =>
     @tabsJQElem.prop('style','visibility:visible')
-    $('#maximize_cntrl').prop('style','visibility:hidden')
+    #@expandCtrlJQElem.hide()
+    @tabsJQElem.find('.maximize_cntrl').prop('style','visibility:hidden')
+
+  create_collapse_expand_handles: ->
+    html = """
+      <div class="expand_cntrl" style="visibility:hidden"><i class="fa fa-angle-double-left"></i></div>
+      <div class="collapse_cntrl"><i class="fa fa-angle-double-right"></i></div>
+    """
+    #@addHTML(html)
+    @tabsJQElem.prepend(html)
+    @expandCtrlJQElem = @tabsJQElem.find(".expand_cntrl")
+    @expandCtrlJQElem.click(@maximize_gclui).on("click", @updateWindow)
+    @collapseCtrlJQElem = @tabsJQElem.find(".collapse_cntrl")
+    @collapseCtrlJQElem.click(@minimize_gclui).on("click", @updateWindow)
+    return
+
+  #### ---------------------  Utilities ---------------------------- #######
 
   goto_tab: (tab_idx) ->
     @tabsJQElem.tabs(
