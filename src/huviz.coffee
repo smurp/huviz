@@ -391,26 +391,7 @@ if not is_one_of(2,[3,2,4])
   alert "is_one_of() fails"
 
 window.blurt = (str, type, noButton) ->
-  #css styles for messages: info (blue), alert (yellow), error (red)
-  # TODO There is currently no way for users to remove blurt boxes
-
-  #type='info' if !type
-  if type is "info" then label = "<h3>Message</h3>"
-  if type is "alert" then label = "<h3>Alert</h3>"
-  if type is "error" then label = "<h3>Error</h3>"
-  if not type then label = ''
-  if !$('#blurtbox').length
-    if type is "error"
-      $('#huvis_controls').prepend('<div id="blurtbox"></div>')
-    else
-      $('#tabs').append('<div id="blurtbox"></div>')
-  $('#blurtbox').append("<div class='blurt #{type}'>#{label}#{str}<br class='clear'></div>")
-  $('#blurtbox').scrollTop(10000)
-  if not noButton
-    $('#blurtbox').append("<button id='blurt_close' class='sml_bttn' type='button'>close</button>")
-
-window.blurtDate = () ->
-  blurt((""+new Date()+"").substr(0,24), null, true)
+  throw new Error('global blurt() is defunct, use @blurt() on HuViz')
 
 escapeHtml = (unsafe) ->
     return unsafe
@@ -2892,7 +2873,7 @@ class Huviz
       catch e
         msg = escapeHtml(e.toString())
         blurt_msg = """<p>There has been a problem with the Turtle parser.  Check your dataset for errors.</p><p class="js_msg">#{msg}</p>"""
-        blurt(blurt_msg, "error")
+        @blurt(blurt_msg, "error")
         return false
     quad_count = 0
     every = @report_every
@@ -3015,7 +2996,7 @@ class Huviz
       else
         msg = "unrecognized NQ event:" + e.data.event
       if msg?
-        blurt(msg)
+        @blurt(msg)
     worker.postMessage({uri:uri})
 
   parse_and_show_NQ_file: (data, callback) =>
@@ -3058,7 +3039,7 @@ class Huviz
       msg = "Could not load #{url}. The data file format is not supported! " +
             "Only files with TTL and NQ extensions are accepted."
       @hide_state_msg()
-      blurt(msg, 'error')
+      @blurt(msg, 'error')
       $('#'+@get_data_ontology_display_id()).remove()
       @reset_dataset_ontology_loader()
       #@init_resource_menus()
@@ -3071,7 +3052,7 @@ class Huviz
         if rsrcRec?
           the_parser(rsrcRec.data)
           return # REVIEW ensure that proper try catch is happening
-        blurt(err or "'#{url} was not found in your DATASET menu.  Provide it and reload this page")
+        @blurt(err or "'#{url} was not found in your DATASET menu.  Provide it and reload this page")
         @reset_dataset_ontology_loader()
         return
       return
@@ -3093,7 +3074,7 @@ class Huviz
         msg = errorThrown + " while fetching dataset " + url
         @hide_state_msg()
         $('#'+@get_data_ontology_display_id()).remove()
-        blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
+        @blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
         @reset_dataset_ontology_loader()
         #TODO Reset titles on page
 
@@ -3212,7 +3193,7 @@ class Huviz
           msg = errorThrown + " while fetching " + url
           @hide_state_msg()
           $('#'+@get_data_ontology_display_id()).remove()
-          blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
+          @blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
           @reset_dataset_ontology_loader()
           spinner.css('visibility','hidden')
 
@@ -3310,7 +3291,7 @@ class Huviz
           msg = errorThrown + " while fetching " + url
           @hide_state_msg()
           $('#'+@get_data_ontology_display_id()).remove()
-          blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
+          @blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
           @reset_dataset_ontology_loader()
 
 
@@ -3370,7 +3351,7 @@ class Huviz
           msg = errorThrown + " while fetching " + url
           @hide_state_msg()
           $('#'+@get_data_ontology_display_id()).remove()
-          blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
+          @blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
           @reset_dataset_ontology_loader()
 
   add_nodes_from_SPARQL: (json_data, subject) -> # DEPRECIATED !!!!
@@ -3986,7 +3967,7 @@ class Huviz
           else
             #console.log "Error message " + message
             msg = "There are more than 300 requests in the que. Restricting process. " + message
-            blurt(msg, 'alert')
+            @blurt(msg, 'alert')
             message = true
             console.log "Request counter: " + @endpoint_loader.outstanding_requests
 
@@ -4844,7 +4825,7 @@ class Huviz
 
   load_script_from_db: (err, rsrcRec) =>
     if err?
-      blurt(err, 'error')
+      @blurt(err, 'error')
     else
       @load_script_from_JSON(@parse_script_file(rsrcRec.data, rsrcRec.uri))
 
@@ -5097,7 +5078,7 @@ class Huviz
             @hide_state_msg()
             $('#'+@get_data_ontology_display_id()).remove()
             $("#endpoint_labels").siblings('i').css('visibility','hidden')
-            blurt(msg, 'error')
+            @blurt(msg, 'error')
       })
 
   init_editc: ->
@@ -5422,6 +5403,7 @@ class Huviz
     @ensureTopElem()
     if @args.create_tabs_adjacent_to_selector
       @create_tabs()
+    @create_blurtbox()
     @create_handles()
     @ensure_divs()
     @make_JQElems()
@@ -5490,19 +5472,50 @@ class Huviz
     $("#collapse_cntrl").click(@minimize_gclui).on("click", @updateWindow)
     $("#full_screen").click(@fullscreen)
     $("#expand_cntrl").click(@maximize_gclui).on("click", @updateWindow)
-    @tabsJQElem.on('click', '#blurt_close', @close_blurt_box)
     @tabsJQElem.tabs({active: 0})
     $('.open_tab').click (event) =>
       tab_idx = parseInt($(event.target).attr('href').replace("#",""))
       @goto_tab(tab_idx)
       return false
 
+  create_blurtbox: ->
+    blurtbox_id = unique_id('blurtbox_')
+    tabsElem = document.querySelector('#'+@tabs_id)
+    html = """<div id="#{blurtbox_id}" class="blurtbox"></div>"""
+    @insertBeforeEnd(tabsElem, html)
+    @blurtbox_JQElem = $('#'+blurtbox_id)
+    return
+
+  blurt: (str, type, noButton) =>
+    #css styles for messages: info (blue), alert (yellow), error (red)
+    # TODO There is currently no way for users to remove blurt boxes
+
+    #type='info' if !type
+    if type is "info" then label = "<h3>Message</h3>"
+    if type is "alert" then label = "<h3>Alert</h3>"
+    if type is "error" then label = "<h3>Error</h3>"
+    if not type then label = ''
+    ###
+    if !$('#blurtbox').length
+      if type is "error"
+        $('#huvis_controls').prepend('<div id="blurtbox"></div>')
+      else
+        $('#tabs').append('<div id="blurtbox"></div>')
+    ###
+    @blurtbox_JQElem.append("<div class='blurt #{type}'>#{label}#{str}<br class='clear'></div>")
+    @blurtbox_JQElem.scrollTop(10000)
+    if not noButton and not @close_blurtbox_button
+      @close_blurtbox_button = @blurtbox_JQElem.prepend("<button id='blurt_close' class='sml_bttn' type='button'>close</button>")
+      @close_blurtbox_button.on('click', @close_blurt_box)
+    return
+
+  close_blurt_box: () =>
+    delete @close_blurtbox_button
+    @blurtbox_JQElem.html('')
+
   fullscreen: () =>
     elem = document.getElementById("body")
     elem.webkitRequestFullscreen()
-
-  close_blurt_box: () =>
-    $('#blurtbox').remove()
 
   minimize_gclui: () =>
     @tabsJQElem.prop('style','visibility:hidden;width:0')
@@ -6658,7 +6671,7 @@ class OntologicallyGrounded extends Huviz
         if rsrcRec?
           @parseTTLOntology(rsrcRec.data)
           return
-        blurt(err or "'#{url}' was not found in your ONTOLOGY menu.  Provide it and reload page")
+        @blurt(err or "'#{url}' was not found in your ONTOLOGY menu.  Provide it and reload page")
         @reset_dataset_ontology_loader()
         return
       return
@@ -6667,7 +6680,7 @@ class OntologicallyGrounded extends Huviz
       async: false
       success: @parseTTLOntology
       error: (jqxhr, textStatus, errorThrown) =>
-        # REVIEW standardize on blurt(), right?
+        # REVIEW standardize on @blurt(), right?
         @show_state_msg(errorThrown + " while fetching ontology " + url)
 
   parseTTLOntology: (data, textStatus) =>
@@ -7072,13 +7085,13 @@ class PickOrProvide
       opt_group = @pick_or_provide_select.find("optgroup[label='#{opt_group_label}']")
       #console.log(opt_group_label, opt_group.length) #, opt_group[0])
       if not opt_group.length
-        #blurt("adding '#{opt_group_label}'")
+        #@huviz.blurt("adding '#{opt_group_label}'")
         opt_group = @add_group({label: opt_group_label}, 'prepend')
         # opt_group = $('<optgroup></optgroup>')
         # opt_group.attr('label', opt_group_label)
         # @pick_or_provide_select.append(opt_group)
       #if not opt_group.length
-      #  blurt('  but it does not yet exist')
+      #  @huviz.blurt('  but it does not yet exist')
       opt_group.append(opt)
     else # There is no opt_group_label, so this is a top level entry, ie a group, etc
       if pre_or_append is 'append'
@@ -7220,7 +7233,7 @@ class DragAndDropLoader
           #@huviz.local_file_data = evt.target.result  # REVIEW remove all uses of local_file_data?!?
         else
           #$("##{@dataset_loader.select_id} option[label='Pick or Provide...']").prop('selected', true)
-          blurt("Unknown file format. Unable to parse '#{filename}'. " +
+          @huviz.blurt("Unknown file format. Unable to parse '#{filename}'. " +
                 "Only .ttl and .nq files supported.", 'alert')
           @huviz.reset_dataset_ontology_loader()
           $('.delete_option').attr('style','')
@@ -7228,7 +7241,7 @@ class DragAndDropLoader
         msg = e.toString()
         #@form.find('.box__error').show()
         #@form.find('.box__error').text(msg)
-        blurt(msg, 'error')
+        @huviz.blurt(msg, 'error')
     reader.readAsText(firstFile)
     return true # ie success
   find_or_append_form: ->
@@ -7298,7 +7311,7 @@ class DragAndDropLoaderOfScripts extends DragAndDropLoader
           #@huviz.local_file_data = evt.target.result
         else
           #$("##{@dataset_loader.select_id} option[label='Pick or Provide...']").prop('selected', true)
-          blurt("Unknown file format. Unable to parse '#{filename}'. " +
+          @huviz.blurt("Unknown file format. Unable to parse '#{filename}'. " +
                 "Only .txt and .huviz files supported.", 'alert')
           @huviz.reset_dataset_ontology_loader()
           $('.delete_option').attr('style','')
@@ -7306,7 +7319,7 @@ class DragAndDropLoaderOfScripts extends DragAndDropLoader
         msg = err.toString()
         #@form.find('.box__error').show()
         #@form.find('.box__error').text(msg)
-        blurt(msg, 'error')
+        @huviz.blurt(msg, 'error')
     reader.readAsText(firstFile)
     return true # ie success
 
