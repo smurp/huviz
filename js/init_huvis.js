@@ -6,7 +6,6 @@ window.addEventListener('load',function(){
   }, false);
   huviz = require('huviz');
   HVZ = new huviz.Orlando({
-    viscanvas_sel: "#viscanvas",
     gclui_sel: "#gclui",
     skip_log_tick: true,
     make_pickers: true,
@@ -20,8 +19,7 @@ window.addEventListener('load',function(){
     display_hints: false, // here to show how to enable hints
     display_reset: false,  // here to show how to enable reset button
     use_old_tab_ids: true, // TODO (wolf) comment this out when you have converted tab CSS to be based on classes
-    create_tabs_adjacent_to_selector: "#TABS_GO_HERE",
-    create_tabs_adjacent_position: "afterend",
+    huviz_top_sel: "#HUVIZ_TOP",
     // pass in the tab_specs to override the defaults_tab_specs
     tab_specs:
     [

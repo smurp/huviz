@@ -32,16 +32,14 @@
   <% } %>
   </head>
   <body id="body">
-    <div id="performance_dashboard"></div>
-    <div id="full_screen" style="position:absolute;z-index:999"><i class="fa fa-arrows-alt"></i></div>
-    <div id="snippet_box"></div>
-    <div id="expand_cntrl" style="visibility:hidden"><i class="fa fa-angle-double-left"></i></div>
-    <div id="TABS_GO_HERE"></div>
-    <div id="vis" class="underneath" style="z-index:-3"></div>
-    <div id="viscanvas" class="underneath"></div>
-    <pre id="status"></pre>
-    <div id="state_msg_box"></div>
+    <div id="HUVIZ_TOP" class="HUVIZ_TOP"></div>
+
+    <!--
+         The following provides the tabs/intro content for moving into the Intro tab.
+         Do it like credits.md as soon as we have converted it into Markdown.
+      -->
     <div style="display:none"> <%- include('tabs/intro') %> </div>
+
     <script src="/huviz/huviz.js?23234"></script>
     <script src="/js/init_huvis.js"></script>
 

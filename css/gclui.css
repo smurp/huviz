@@ -1,4 +1,4 @@
-#gclui {
+.gclui {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -7,13 +7,12 @@
   user-select: none;
   /*max-height: 50em;
   overflow-y: scroll;*/
-}
-#gclui p, #data_ontology_display p {
+.gclui p, .data_ontology_display p {
   width:auto;
   float:left;
   margin: .1em;
 }
-#data_ontology_display {
+.data_ontology_display {
   margin-bottom: 1px;
 }
 #predicates {

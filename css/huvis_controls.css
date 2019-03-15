@@ -62,13 +62,13 @@
 #tabs-help:hover {
   color: #fff;
 }
-#ctrl-handle {
+.ctrl_handle {
   background-color: #ccc;
   border-left: solid 1px #bbb;
   width: 1px;
   left: -2px;
 }
-#ctrl-handle-grip {
+.ctrl_handle_grip {
   background-color: #ddd;
   height: 30px;
   top: 45%;
@@ -131,7 +131,7 @@
   float: right;
   clear: both;
 }
-#huvis_controls {
+.huvis_controls {
     padding: 0.4em;
     padding-bottom: 0.2em;
 }
@@ -189,7 +189,7 @@
   width: 3px;
   height: 30%;
 }
-#data_ontology_display {
+.data_ontology_display {
   background-color: #eee;
   color: #555;
   font-size: 90%;
@@ -199,7 +199,7 @@
   margin-left: -.4em;
   margin-right: -.4em;
 }
-#data_ontology_display p:first-of-type{
+.data_ontology_display p:first-of-type{
   margin-right: 4%;
 }
 

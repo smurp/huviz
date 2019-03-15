@@ -211,6 +211,10 @@ unique_id = (prefix) ->
   prefix ?= 'uid_'
   return prefix + Math.random().toString(36).substr(2,10)
 
+sel_to_id = (selector) ->
+  # remove the leading hash to make a selector into an id
+  return selector.replace(/^\#/,'')
+
 window.log_click = () ->
   console.log("%cCLICK", "color:red;font-size:1.8em")
 
@@ -3054,7 +3058,7 @@ class Huviz
             "Only files with TTL and NQ extensions are accepted."
       @hide_state_msg()
       blurt(msg, 'error')
-      $('#data_ontology_display').remove()
+      $('#'+@get_data_ontology_display_id()).remove()
       @reset_dataset_ontology_loader()
       #@init_resource_menus()
       return
@@ -3087,7 +3091,7 @@ class Huviz
           errorThrown = "Cross-Origin error"
         msg = errorThrown + " while fetching dataset " + url
         @hide_state_msg()
-        $('#data_ontology_display').remove()
+        $('#'+@get_data_ontology_display_id()).remove()
         blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
         @reset_dataset_ontology_loader()
         #TODO Reset titles on page
@@ -3206,7 +3210,7 @@ class Huviz
             errorThrown = "Cross-Origin error"
           msg = errorThrown + " while fetching " + url
           @hide_state_msg()
-          $('#data_ontology_display').remove()
+          $('#'+@get_data_ontology_display_id()).remove()
           blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
           @reset_dataset_ontology_loader()
           spinner.css('visibility','hidden')
@@ -3304,7 +3308,7 @@ class Huviz
             errorThrown = "Cross-Origin error"
           msg = errorThrown + " while fetching " + url
           @hide_state_msg()
-          $('#data_ontology_display').remove()
+          $('#'+@get_data_ontology_display_id()).remove()
           blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
           @reset_dataset_ontology_loader()
 
@@ -3364,7 +3368,7 @@ class Huviz
             errorThrown = "Cross-Origin error"
           msg = errorThrown + " while fetching " + url
           @hide_state_msg()
-          $('#data_ontology_display').remove()
+          $('#'+@get_data_ontology_display_id()).remove()
           blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
           @reset_dataset_ontology_loader()
 
@@ -4865,13 +4869,13 @@ class Huviz
     @big_go_button.hide()
 
   reset_dataset_ontology_loader: ->
-    # $('#data_ontology_display').remove() # REVIEW do this here rather than all over, right?
+    $('#'+@get_data_ontology_display_id()).remove()
     #Enable dataset loader and reset to default setting
     @dataset_loader.enable()
     @ontology_loader.enable()
     @big_go_button.show()
     $("##{@dataset_loader.select_id} option[label='Pick or Provide...']").prop('selected', true)
-    $("#gclui").removeAttr("style","display:none")
+    @gclui_JQElem.removeAttr("style","display:none")
 
   update_dataset_ontology_loader: =>
     if not (@dataset_loader? and @ontology_loader?  and @endpoint_loader? and @script_loader?)
@@ -4934,12 +4938,16 @@ class Huviz
     uri.hash = "load+#{dataset.value}+with+#{ontology.value}"
     return uri
 
+  get_data_ontology_display_id: ->
+    @data_ontology_display_id ?= unique_id()
+    return @data_ontology_display_id
+
   replace_loader_display: (dataset, ontology) ->
     @generate_reload_uri(dataset, ontology)
     uri = @get_reload_uri()
     $(@pickersSel).attr("style","display:none")
     data_ontol_display = """
-    <div id="data_ontology_display">
+    <div id="#{@get_data_ontology_display_id()}" class="data_ontology_display">
       <p><span class="dt_label">Dataset:</span> #{dataset.label}</p>
       <p><span class="dt_label">Ontology:</span> #{ontology.label}</p>
       <p>
@@ -4949,7 +4957,7 @@ class Huviz
            onclick="location.assign(location.origin)"><i class="fas fa-times"></i></button>
       </p>
       <br style="clear:both">
-    </div>"""
+    </div>""" # """ the extra set of triple double quotes is for emacs coffescript mode
     sel = @oldToUniqueTabSel['huvis_controls']
     controls = document.querySelector(sel)
     controls.insertAdjacentHTML('afterbegin', data_ontol_display)
@@ -4964,7 +4972,7 @@ class Huviz
     else
       print_graph = ""
     data_ontol_display = """
-    <div id="data_ontology_display">
+    <div id="#{get_data_ontology_display_id()}">
       <p><span class="dt_label">Endpoint:</span> #{endpoint}</p>
       #{print_graph}
       <br style="clear:both">
@@ -5083,10 +5091,9 @@ class Huviz
               errorThrown = "Cross-Origin error"
             msg = errorThrown + " while fetching " + url
             @hide_state_msg()
-            $('#data_ontology_display').remove()
+            $('#'+@get_data_ontology_display_id()).remove()
             $("#endpoint_labels").siblings('i').css('visibility','hidden')
             blurt(msg, 'error')
-
       })
 
   init_editc: ->
@@ -5219,15 +5226,13 @@ class Huviz
     #     2) rebuild the CSS to use class names such as ".gclui" rather than the old ids such as "#gclui"
     @oldToUniqueTabSel = {}
     theTabs = """<ul class="the-tabs">"""
+    ctrl_handle_id = sel_to_id(@args.ctrl_handle_sel)
+    theHandles = """<div id="#{ctrl_handle_id}" class="ctrl_handle ui-resizable-handle ui-resizable-w"><div class="ctrl_handle_grip">o</div></div>"""
     theDivs = ""
-    theHandles = """
-      <div id="collapse_cntrl"><i class="fa fa-angle-double-right"></i></div>
-      <div id="ctrl-handle" class="ui-resizable-handle ui-resizable-w"><div id="ctrl-handle-grip">o</div></div>
-    """
     tab_specs = @args.tab_specs or @default_tab_specs
     for t in tab_specs
-      id = unique_id()
       firstClass = t.cssClass.split(' ')[0]
+      id = unique_id(firstClass + '_')
       if @args.use_old_tab_ids
         id = firstClass
       idSel = '#' + id
@@ -5236,7 +5241,7 @@ class Huviz
       
       # YUP this is automatically cramming the gclui div inside the huvis_controls pane
       # TODO build the huvis_controls directly in there, or something, when removing id references such as #gclui
-      if firstClass is 'huvis_controls'
+      if firstClass is 'huvis_controls' and false
         t.kids = """<div id="gclui" style="display:none"></div>"""
       
       theDivs += """<div id="#{id}" class="#{t.cssClass}">#{t.kids or ''}</div>"""
@@ -5286,40 +5291,143 @@ class Huviz
       elem.innerHTML = data
     return
 
-  create_tabs_adjacent: (elem, position) ->
-    elem.insertAdjacentHTML(position, @make_tabs_html())
+  insertBeforeEnd: (elem, html) ->
+    position = 'beforeend'
+    elem.insertAdjacentHTML(position, html)
+    return
+
+  create_handles: ->
+    html = """
+      <div id="full_screen" style="position:absolute;z-index:999"><i class="fa fa-arrows-alt"></i></div>
+      <div id="expand_cntrl" style="visibility:hidden"><i class="fa fa-angle-double-left"></i></div>
+      <div id="collapse_cntrl"><i class="fa fa-angle-double-right"></i></div>
+    """
+    @addHTML(html)
+    return
 
   create_tabs: ->
     # create <section id="tabs"...> programmatically, making unique ids along the way
     elem = document.querySelector(@args.create_tabs_adjacent_to_selector)
-    if not (position = @args.create_tabs_adjacent_position)
-      console.warn("expecting create_tabs_adjacent_position of beforebegin, afterbegin, beforeend or afterend")
-      return
-    @create_tabs_adjacent(elem, position)
+    @addHTML(@make_tabs_html())
+    return
 
-  constructor: (args) -> # Huviz
+  ensureTopElem: ->
+    if not document.querySelector(@args.huviz_top_sel)
+      body = document.querySelector("body")
+      id = sel_to_id(@args.huviz_top_sel)
+      classes = 'huviz_top'
+      @addDivWithIDAndClasses(id, classes, body)
+      #@insertBeforeEnd(body, """<div id="#{@args.huviz_top_sel}"></div>""")
+    @topElem = document.querySelector(@args.huviz_top_sel)
+    return
+
+  addHTML: (html) ->
+    @insertBeforeEnd(@topElem, html)
+
+  addDivWithIdAndClasses: (id, classes, specialElem) ->
+    html = """<div id="#{sel_to_id(id)}" class="#{classes}"></div>"""
+    if specialElem
+      @insertBeforeEnd(specialElem, html)
+    else
+      @addHTML(html)
+    return
+
+  ensure_divs: ->
+    # find the unique id for things like viscanvas and make div if missing
+    for key in @needed_divs
+      key_sel = key + '_sel'
+      if (sel = @args[key_sel])
+        id = sel_to_id(sel)
+        classes = key
+        if not (elem = document.querySelector(sel))
+          specialParentElem = null # indicates the huviz_top div
+          if (specialParent = @div_has_special_parent[key])
+            specialParentSelKey = specialParent + '_sel'
+            if (specialParentSel = @args[specialParentSelKey]) or
+                  (specialParentSel = @oldToUniqueTabSel[specialParent])
+              specialParentElem = document.querySelector(specialParentSel)
+          @addDivWithIdAndClasses(id, classes, specialParentElem)
+    return
+
+  make_JQElems: ->
+    # Make jQuery elems like @viscanvas_JQElem and performance_dashboard_JQElem
+    for key in @needed_JQElems
+      if (sel = @args[key + '_sel'])
+        jqelem_id = key + '_JQElem'
+        found = $(sel)
+        if found.length > 0
+          this[jqelem_id] = found
+        else
+          throw new Error(sel + ' not found')
+    return
+
+  # TODO create default_args from needed_divs (or something)
+  default_args:
+    ctrl_handle_sel: unique_id('#ctrl_handle')
+    gclui_sel: unique_id('#gclui_')
+    graph_controls_sel: unique_id('#graph_controls_')
+    huviz_top_sel: unique_id('#huviz_top_') # if not provided then create
+    performance_dashboard_sel: unique_id('#performance_dashboard_')
+    state_msg_box_sel: unique_id('#state_msg_box_')
+    status_sel: unique_id('#status_')
+    viscanvas_sel: unique_id('#viscanvas_')
+    vissvg_sel: unique_id('#vissvg_')
+
+  # The div on the left should be placed in the div on the right
+  # The div on the left should appear in needed_divs.
+  # The div on right should be identified by a tab id like 'huvis_controls'
+  #                                    or by a div id like 'viscanvas'
+  # Divs which do not have a 'special_parent' get plunked in the @topElem
+  div_has_special_parent:
+    gclui: 'huvis_controls'
+
+  needed_divs: [
+    'gclui'
+    'performance_dashboard'
+    'state_msg_box'
+    'status'
+    'viscanvas'
+    'vissvg'
+    ]
+
+  needed_JQElems: [
+    'gclui'
+    'performance_dashboard'
+    'viscanvas'
+    ]
+
+  calculate_args: (incoming_args) ->
+    # overlay incoming over defaults to make the composition
+    incoming_args ?= {}
+    if not incoming_args.huviz_top_sel
+      console.warn('you have not provided a value for huviz_top_sel so it will be appended to BODY')
+    args = Object.assign(@default_args, incoming_args)
+    # calculate some args from others
+    args.create_tabs_adjacent_to_selector ?= args.huviz_top_sel
+    #if not args.viscanvas_sel
+    #  msg = "call Huviz({viscanvas_sel:'????'}) so it can find the canvas to draw in"
+    #  console.debug(msg)
+    #if not args.graph_controls_sel
+    #  console.warn("call Huviz({graph_controls_sel:'????'}) so it can put the settings somewhere")
+    return args
+
+  constructor: (incoming_args) -> # Huviz
     #if @pfm_display is true
     #  @pfm_dashboard()
-    args ?= {}
-    if not args.viscanvas_sel
-      msg = "call Huviz({viscanvas_sel:'????'}) so it can find the canvas to draw in"
-      console.debug(msg)
-    #if not args.gclui_sel
-    #  alert("call Huviz({gclui_sel:'????'}) so it can find the div to put the gclui command pickers in")
-    if not args.graph_controls_sel
-      console.warn("call Huviz({graph_controls_sel:'????'}) so it can put the settings somewhere")
-    @args = args
-    if @args.selector_for_graph_controls?
-      @selector_for_graph_controls = @args.selector_for_graph_controls
+    @args = @calculate_args(incoming_args)
+    @ensureTopElem()
     if @args.create_tabs_adjacent_to_selector
       @create_tabs()
+    @create_handles()
+    @ensure_divs()
+    @make_JQElems()
     @init_ontology()
     @off_center = false # FIXME expose this or make the amount a slider
     document.addEventListener('nextsubject', @onnextsubject)
     @init_snippet_box()  # FIXME not sure this does much useful anymore
 
     @mousedown_point = false
-    @discard_point = [@cx,@cy] # FIXME refactor so ctrl-handle handles this
+    @discard_point = [@cx,@cy] # FIXME refactor so ctrl_handle handles this
     @lariat_center = [@cx,@cy] #       and this....
     @node_radius_policy = node_radius_policies[default_node_radius_policy]
     @currently_printed_snippets = {}
@@ -5332,15 +5440,17 @@ class Huviz
              gravity(@gravity).
              on("tick", @tick)
     @update_fisheye()
-    @svg = d3.select("#vis").
+    @svg = d3.select(@args.vissvg_sel).
               append("svg").
               attr("width", @width).
               attr("height", @height).
               attr("position", "absolute")
     @svg.append("rect").attr("width", @width).attr "height", @height
+    ###
     if not d3.select(@args.viscanvas_sel)[0][0]
       new throw Error('expectling @args.viscanvas_sel to be found')
       #d3.select("body").append("div").attr("id", "viscanvas")
+    ###
     @container = d3.select(@args.viscanvas_sel).node().parentNode
     @init_graph_controls_from_json()
     if @use_fancy_cursor
@@ -5390,7 +5500,7 @@ class Huviz
   close_blurt_box: () =>
     $('#blurtbox').remove()
 
-  minimize_gclui: () ->
+  minimize_gclui: () =>
     @tabsJQElem.prop('style','visibility:hidden;width:0')
     $('#expand_cntrl').prop('style','visibility:visible')
     #w_width = (@container.clientWidth or window.innerWidth or document.documentElement.clientWidth or document.clientWidth)
@@ -5398,7 +5508,7 @@ class Huviz
     #@get_container_width()
     #@updateWindow()
     #console.log @width
-  maximize_gclui: () ->
+  maximize_gclui: () =>
     @tabsJQElem.prop('style','visibility:visible')
     $('#maximize_cntrl').prop('style','visibility:hidden')
 
@@ -6241,13 +6351,13 @@ class Huviz
   on_change_show_hide_performance_monitor: (new_val, old_val) ->
     console.log "clicked performance monitor " + new_val + " " + old_val
     if new_val
-      $("#performance_dashboard").css('display','block')
+      @performance_dashboard_JQElem.css('display','block')
       @pfm_display = true
       @pfm_dashboard()
       @timerId = setInterval(@pfm_update, 1000)
     else
       clearInterval(@timerId)
-      $("#performance_dashboard").css('display','none').html('')
+      @performance_dashboard_JQElem.css('display','none').html('')
       @pfm_display = false
 
   on_change_discover_geonames_as: (new_val, old_val) ->
@@ -6480,7 +6590,7 @@ class Huviz
       <div class='feedback_module'><p>Outstanding SPARQL Requests: <span id="noOR">0</span></p></div>
       #{@build_pfm_live_monitor('sparql')}
     """
-    $("#performance_dashboard").html(message + warning)
+    @performance_dashboard_JQElem.html(message + warning)
 
   build_pfm_live_monitor: (name) =>
     label = @pfm_data["#{name}"]["label"]
