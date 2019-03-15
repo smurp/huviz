@@ -6,20 +6,9 @@ window.addEventListener('load',function(){
   }, false);
   huviz = require('huviz');
   HVZ = new huviz.Orlando({
-    gclui_sel: "#gclui",
-    skip_log_tick: true,
-    make_pickers: true,
-    /*  // TODO remove any sensitivity to these, we do not need them
-    dataset_loader__append_to_sel: "#huvis_controls",
-    ontology_loader__append_to_sel: "#huvis_controls",
-    endpoint_loader__append_to_sel: "#huvis_controls",
-    script_loader__append_to_sel: "#huvis_controls",
-    */
-    graph_controls_sel: '#tabs-options',
-    display_hints: false, // here to show how to enable hints
-    display_reset: false,  // here to show how to enable reset button
     use_old_tab_ids: true, // TODO (wolf) comment this out when you have converted tab CSS to be based on classes
     huviz_top_sel: "#HUVIZ_TOP",
+//    graph_controls_sel: '#tabs-options',
     // pass in the tab_specs to override the defaults_tab_specs
     tab_specs:
     [
@@ -48,7 +37,7 @@ window.addEventListener('load',function(){
         "cssClass": "tabs-credit scrolling_tab",
         "title": "Academic, funding and technical credit",
         "text": "Credit",
-        "bodyUrl": "/docs/credits.md"
+        "bodyUrl": "/huviz/docs/credits.md"
       }
     ],
     preload: [

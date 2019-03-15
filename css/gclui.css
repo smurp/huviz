@@ -22,7 +22,7 @@
   overflow-y: scroll;
   height: 30em;
 }
-#buffer_space {
+.buffer_space {
   height: 10em;
   clear: both;
 }

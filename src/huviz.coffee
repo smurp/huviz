@@ -4924,7 +4924,7 @@ class Huviz
     return uri
 
   get_data_ontology_display_id: ->
-    @data_ontology_display_id ?= unique_id()
+    @data_ontology_display_id ?= unique_id('datontdisp_')
     return @data_ontology_display_id
 
   replace_loader_display: (dataset, ontology) ->
@@ -5178,12 +5178,12 @@ class Huviz
     cssClass: 'tabs-credit scrolling_tab'
     title: "Academic, funding and technical credit"
     text: "Credit"
-    bodyUrl: "/docs/credits.md"
+    bodyUrl: "/huviz/docs/credits.md"
   ,
     cssClass: "tabs-tutor scrolling_tab"
     title: "A tutorial"
     text: "Tutorial"
-    bodyUrl: "/docs/tutorial.md"
+    bodyUrl: "/huviz/docs/tutorial.md"
   ]
 
   make_tabs_html: ->
@@ -5210,11 +5210,13 @@ class Huviz
     #        to use @oldToUniqueTabSel as a lookup for the new ids.
     #     2) rebuild the CSS to use class names such as ".gclui" rather than the old ids such as "#gclui"
     @oldToUniqueTabSel = {}
+    jQElem_list = [] # a list of args for the command @make_JQElem()
     theTabs = """<ul class="the-tabs">"""
     theDivs = ""
     tab_specs = @args.tab_specs or @default_tab_specs
     for t in tab_specs
       firstClass = t.cssClass.split(' ')[0]
+      firstClass_ = firstClass.replace(/\-/, '_')
       id = unique_id(firstClass + '_')
       if @args.use_old_tab_ids
         id = firstClass
@@ -5236,9 +5238,14 @@ class Huviz
         mkcb = (fromSel, toSel) => # make closure
           return () => @moveSelToSel(fromSel, toSel)
         setTimeout(mkcb(t.moveSelector, idSel), 30)
+      jQElem_list.push([firstClass_, idSel]) # queue up args for execution by @make_JQElem()
     theTabs += "</ul>"
     @tabs_id = unique_id('tabs_')
-    return ["""<section id="#{@tabs_id}" class="huviz_tabs" role="controls">""", theTabs, theDivs, "</section>"].join('')
+    html = [
+      """<section id="#{@tabs_id}" class="huviz_tabs" role="controls">""",
+      theTabs, theDivs,
+      "</section>"].join('')
+    return [html, jQElem_list]
 
   moveSelToSel: (moveSel, targetSel) ->
     if not (moveElem = document.querySelector(moveSel))
@@ -5282,7 +5289,10 @@ class Huviz
   create_tabs: ->
     # create <section id="tabs"...> programmatically, making unique ids along the way
     elem = document.querySelector(@args.create_tabs_adjacent_to_selector)
-    @addHTML(@make_tabs_html())
+    [html, jQElem_list] = @make_tabs_html()
+    @addHTML(html)
+    for pair in jQElem_list
+      @make_JQElem(pair[0], pair[1]) # make things like @tab_options_JQElem
     return
 
   ensureTopElem: ->
@@ -5324,28 +5334,34 @@ class Huviz
           @addDivWithIdAndClasses(id, classes, specialParentElem)
     return
 
+  make_JQElem: (key, sel) ->
+    jqelem_id = key + '_JQElem'
+    found = $(sel)
+    if found.length > 0
+      this[jqelem_id] = found
+    else
+      throw new Error(sel + ' not found')
+    return
+
   make_JQElems: ->
     # Make jQuery elems like @viscanvas_JQElem and performance_dashboard_JQElem
     for key in @needed_JQElems
       if (sel = @args[key + '_sel'])
-        jqelem_id = key + '_JQElem'
-        found = $(sel)
-        if found.length > 0
-          this[jqelem_id] = found
-        else
-          throw new Error(sel + ' not found')
+        @make_JQElem(key, sel)
     return
 
   # TODO create default_args from needed_divs (or something)
   default_args:
-    ctrl_handle_sel: unique_id('#ctrl_handle')
+    ctrl_handle_sel: unique_id('#ctrl_handle_')
     gclui_sel: unique_id('#gclui_')
-    graph_controls_sel: unique_id('#graph_controls_')
     huviz_top_sel: unique_id('#huviz_top_') # if not provided then create
+    make_pickers: true
     performance_dashboard_sel: unique_id('#performance_dashboard_')
+    skip_log_tick: true
     state_msg_box_sel: unique_id('#state_msg_box_')
     status_sel: unique_id('#status_')
     tabs_minWidth: 300
+    use_old_tab_ids: false
     viscanvas_sel: unique_id('#viscanvas_')
     vissvg_sel: unique_id('#vissvg_')
 
@@ -5395,6 +5411,13 @@ class Huviz
     if @args.create_tabs_adjacent_to_selector
       @create_tabs()
     @tabsJQElem = $('#' + @tabs_id)
+    
+    
+    # FIXME Simplify this whole graph_controls_sel and 'tabs-options' thing
+    #       The graph controls should just be built right on tabs_options_JQElem
+    @args.graph_controls_sel ?= @oldToUniqueTabSel['tabs-options']
+    
+    
     @create_blurtbox()
     @ensure_divs()
     @make_JQElems()
@@ -6123,7 +6146,8 @@ class Huviz
     ]
 
   dump_current_settings: (post) =>
-    $("#tabs-options,.graph_controls").html("")
+    #$("#tabs-options,.graph_controls").html("")
+    @tabs_options_JQElem.html('')
     @init_graph_controls_from_json()
     @on_change_graph_title_style("subliminal")
     @on_change_prune_walk_nodes("directional_path")
@@ -6133,8 +6157,7 @@ class Huviz
     return @
 
   init_graph_controls_from_json: =>
-    #@graph_controls_cursor = new TextCursor(@args.graph_controls_sel, "")
-    @graph_controls_cursor = new TextCursor(".graph_control input", "")
+    @graph_controls_cursor = new TextCursor(@args.graph_controls_sel + ' input', "")
     if @graph_controls_cursor
       $("input").on("mouseover", @update_graph_controls_cursor)
       #$("input").on("mouseenter", @update_graph_controls_cursor)
@@ -6191,7 +6214,7 @@ class Huviz
           input.on("change", @update_graph_settings) # when focus changes
         else
           input.on("input", @update_graph_settings) # continuous updates
-    $("#tabs-options").append("<div id='buffer_space'></div>")
+    @tabs_options_JQElem.append("<div class='buffer_space'></div>")
     return
 
   update_graph_controls_cursor: (evt) =>
