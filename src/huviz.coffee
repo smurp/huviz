@@ -983,7 +983,8 @@ class Huviz
     # FIXME all selectors must be localized so if there are two huviz
     #       instances on a page they do not interact
     $("#graph_title_set").css("width", @width)
-    $("#tabs").css("left", "auto")
+    if @tabsJQElem and @tabsJQElem.length > 0
+      @tabsJQElem.css("left", "auto")
     @restart()
 
   #///////////////////////////////////////////////////////////////////////////
@@ -3504,7 +3505,10 @@ class Huviz
   get_container_width: (pad) ->
     pad = pad or hpad
     w_width = (@container.clientWidth or window.innerWidth or document.documentElement.clientWidth or document.clientWidth) - pad
-    @width = w_width - $("#tabs").width()
+    tabs_width = 0
+    if @tabsJQElem and @tabsJQElem.length > 0
+      tabs_width = @tabsJQElem.width()
+    @width = w_width - tabs_width
 
   # Should be refactored to be get_container_height
   get_container_height: (pad) ->
