@@ -28,9 +28,6 @@ TreePicker = require('treepicker').TreePicker
 class CommandController
   constructor: (@huviz, @container, @hierarchy) ->
     document.addEventListener 'dataset-loaded', @on_dataset_loaded
-    $("#tabs").resizable({handles: {'w':'#ctrl-handle'},minWidth: 300})
-    #$("#collapse_cntrl").click(@minimize_gclui)
-    #$("#expand_cntrl").click(@maximize_gclui)
     if not @huviz.all_set.length
       $(@container).hide()
     d3.select(@container).html("")

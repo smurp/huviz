@@ -5211,8 +5211,6 @@ class Huviz
     #     2) rebuild the CSS to use class names such as ".gclui" rather than the old ids such as "#gclui"
     @oldToUniqueTabSel = {}
     theTabs = """<ul class="the-tabs">"""
-    ctrl_handle_id = sel_to_id(@args.ctrl_handle_sel)
-    theHandles = """<div id="#{ctrl_handle_id}" class="ctrl_handle ui-resizable-handle ui-resizable-w"><div class="ctrl_handle_grip">o</div></div>"""
     theDivs = ""
     tab_specs = @args.tab_specs or @default_tab_specs
     for t in tab_specs
@@ -5240,7 +5238,7 @@ class Huviz
         setTimeout(mkcb(t.moveSelector, idSel), 30)
     theTabs += "</ul>"
     @tabs_id = unique_id('tabs_')
-    return ["""<section id="#{@tabs_id}" class="huviz_tabs" role="controls">""", theHandles, theTabs, theDivs, "</section>"].join('')
+    return ["""<section id="#{@tabs_id}" class="huviz_tabs" role="controls">""", theTabs, theDivs, "</section>"].join('')
 
   moveSelToSel: (moveSel, targetSel) ->
     if not (moveElem = document.querySelector(moveSel))
@@ -5347,6 +5345,7 @@ class Huviz
     performance_dashboard_sel: unique_id('#performance_dashboard_')
     state_msg_box_sel: unique_id('#state_msg_box_')
     status_sel: unique_id('#status_')
+    tabs_minWidth: 300
     viscanvas_sel: unique_id('#viscanvas_')
     vissvg_sel: unique_id('#vissvg_')
 
@@ -5529,16 +5528,18 @@ class Huviz
     @tabsJQElem.find('.maximize_cntrl').prop('style','visibility:hidden')
 
   create_collapse_expand_handles: ->
+    ctrl_handle_id = sel_to_id(@args.ctrl_handle_sel)
     html = """
       <div class="expand_cntrl" style="visibility:hidden"><i class="fa fa-angle-double-left"></i></div>
       <div class="collapse_cntrl"><i class="fa fa-angle-double-right"></i></div>
-    """
-    #@addHTML(html)
+      <div id="#{ctrl_handle_id}" class="ctrl_handle ui-resizable-handle ui-resizable-w"><div class="ctrl_handle_grip">o</div></div>
+    """ # """ this comment is to help emacs coffeescript mode
     @tabsJQElem.prepend(html)
     @expandCtrlJQElem = @tabsJQElem.find(".expand_cntrl")
     @expandCtrlJQElem.click(@maximize_gclui).on("click", @updateWindow)
     @collapseCtrlJQElem = @tabsJQElem.find(".collapse_cntrl")
     @collapseCtrlJQElem.click(@minimize_gclui).on("click", @updateWindow)
+    @tabsJQElem.resizable({handles: {'w':@args.ctrl_handle_sel},minWidth: @args.tabs_minWidth})
     return
 
   #### ---------------------  Utilities ---------------------------- #######
