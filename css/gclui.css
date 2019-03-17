@@ -15,10 +15,8 @@
 .data_ontology_display {
   margin-bottom: 1px;
 }
-#predicates {
+.predicates {
   margin-bottom: 50px;
-}
-#predicates {
   overflow-y: scroll;
   height: 30em;
 }
@@ -163,7 +161,7 @@
   background-color: blue;
   color: white;
 }
-#commandhistory {
+.commandhistory {
   overflow-y: scroll;
 }
 .commandhistory .command{

@@ -556,6 +556,10 @@ class Huviz
 
   p_total_sprql_requests: 0
 
+  unique_id: (prefix) ->
+    prefix ?= 'uid_'
+    return prefix + Math.random().toString(36).substr(2,10)
+
   change_sort_order: (array, cmp) ->
     array.__current_sort_order = cmp
     array.sort array.__current_sort_order
@@ -3177,9 +3181,9 @@ class Huviz
             $(graphSelector).parent().css('display', 'none')
             @reset_endpoint_form(true)
             return
-          graph_options = "<option id='#{unique_id()}' value='#{url}'> All Graphs </option>"
+          graph_options = "<option id='#{@unique_id()}' value='#{url}'> All Graphs </option>"
           for graph in results
-            graph_options = graph_options + "<option id='#{unique_id()}' value='#{graph.g.value}'>#{graph.g.value}</option>"
+            graph_options = graph_options + "<option id='#{@unique_id()}' value='#{graph.g.value}'>#{graph.g.value}</option>"
           $("#sparqlGraphOptions-#{id}").html(graph_options)
           $(graphSelector).parent().css('display', 'block')
           @reset_endpoint_form(true)
@@ -4739,7 +4743,7 @@ class Huviz
     sel = specificSel
     if not sel?
       if not @pickersSel?
-        pickersId = unique_id('pickers_')
+        pickersId = @unique_id('pickers_')
         @pickersSel = '#' + pickersId
         if (huvis_controls_sel = @oldToUniqueTabSel['huvis_controls'])
           @huvis_controls_elem ?= document.querySelector(huvis_controls_sel)
@@ -4776,7 +4780,7 @@ class Huviz
       endpoint_selector = "##{@endpoint_loader.select_id}"
       $(endpoint_selector).change(@update_endpoint_form)
     if @ontology_loader and not @big_go_button
-      @big_go_button_id = unique_id('goButton_')
+      @big_go_button_id = @unique_id('goButton_')
       @big_go_button = $('<button class="big_go_button">LOAD</button>')
       @big_go_button.attr('id', @big_go_button_id)
       $(@get_or_create_sel_for_picker()).append(@big_go_button)
@@ -4924,7 +4928,7 @@ class Huviz
     return uri
 
   get_data_ontology_display_id: ->
-    @data_ontology_display_id ?= unique_id('datontdisp_')
+    @data_ontology_display_id ?= @unique_id('datontdisp_')
     return @data_ontology_display_id
 
   replace_loader_display: (dataset, ontology) ->
@@ -5217,7 +5221,7 @@ class Huviz
     for t in tab_specs
       firstClass = t.cssClass.split(' ')[0]
       firstClass_ = firstClass.replace(/\-/, '_')
-      id = unique_id(firstClass + '_')
+      id = @unique_id(firstClass + '_')
       if @args.use_old_tab_ids
         id = firstClass
       idSel = '#' + id
@@ -5240,7 +5244,7 @@ class Huviz
         setTimeout(mkcb(t.moveSelector, idSel), 30)
       jQElem_list.push([firstClass_, idSel]) # queue up args for execution by @make_JQElem()
     theTabs += "</ul>"
-    @tabs_id = unique_id('tabs_')
+    @tabs_id = @unique_id('tabs_')
     html = [
       """<section id="#{@tabs_id}" class="huviz_tabs" role="controls">""",
       theTabs, theDivs,
@@ -5491,7 +5495,7 @@ class Huviz
       return false
 
   create_blurtbox: ->
-    blurtbox_id = unique_id('blurtbox_')
+    blurtbox_id = @unique_id('blurtbox_')
     tabsElem = document.querySelector('#'+@tabs_id)
     html = """<div id="#{blurtbox_id}" class="blurtbox"></div>"""
     @insertBeforeEnd(tabsElem, html)
@@ -5507,13 +5511,6 @@ class Huviz
     if type is "alert" then label = "<h3>Alert</h3>"
     if type is "error" then label = "<h3>Error</h3>"
     if not type then label = ''
-    ###
-    if !$('#blurtbox').length
-      if type is "error"
-        $('#huvis_controls').prepend('<div id="blurtbox"></div>')
-      else
-        $('#tabs').append('<div id="blurtbox"></div>')
-    ###
     @blurtbox_JQElem.append("<div class='blurt #{type}'>#{label}#{str}<br class='clear'></div>")
     @blurtbox_JQElem.scrollTop(10000)
     if not noButton and not @close_blurtbox_button
@@ -6996,10 +6993,10 @@ class PickOrProvide
 
   constructor: (@huviz, @append_to_sel, @label, @css_class, @isOntology, @isEndpoint, @opts) ->
     @opts ?= {}
-    @uniq_id = unique_id()
-    @select_id = unique_id()
-    @pickable_uid = unique_id()
-    @your_own_uid = unique_id()
+    @uniq_id = @huviz.unique_id()
+    @select_id = @huviz.unique_id()
+    @pickable_uid = @huviz.unique_id()
+    @your_own_uid = @huviz.unique_id()
     @find_or_append_form()
     dndLoaderClass = @opts.dndLoaderClass or DragAndDropLoader
     @drag_and_drop_loader = new dndLoaderClass(@huviz, @append_to_sel, @)
@@ -7102,7 +7099,7 @@ class PickOrProvide
 
   add_group: (grp_rec, which) ->
     which ?= 'append'
-    optgrp = $("""<optgroup label="#{grp_rec.label}" id="#{grp_rec.id or unique_id()}"></optgroup>""")
+    optgrp = $("""<optgroup label="#{grp_rec.label}" id="#{grp_rec.id or @huviz.unique_id()}"></optgroup>""")
     if which is 'prepend'
       @pick_or_provide_select.prepend(optgrp)
     else
@@ -7116,7 +7113,7 @@ class PickOrProvide
     if @pick_or_provide_select.find("option[value='#{opt_rec.value}']").length
       #alert "add_option() #{opt_rec.value} collided"
       return
-    opt_str = """<option id="#{unique_id()}"></option>"""
+    opt_str = """<option id="#{@huviz.unique_id()}"></option>"""
     opt = $(opt_str)
     opt_group_label = opt_rec.opt_group
     if opt_group_label
@@ -7233,7 +7230,7 @@ class DragAndDropLoader
   """
 
   constructor: (@huviz, @append_to_sel, @picker) ->
-    @local_file_form_id = unique_id()
+    @local_file_form_id = @huviz.unique_id()
     @local_file_form_sel = "##{@local_file_form_id}"
     @find_or_append_form()
     if @supports_file_dnd()

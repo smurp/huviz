@@ -85,7 +85,7 @@ class CommandController
     @engaged_taxons = []
   make_command_history: ->
     @comdiv = d3.select(@container).append("div") # --- Add a container
-    history = d3.select("#tabs-history")
+    history = d3.select(@huviz.oldToUniqueTabSel['tabs-history'])
     @cmdtitle = history.
       append('div').
       attr('class','control_label').
@@ -146,8 +146,10 @@ class CommandController
       attr('class','commandlist')
     @oldcommands = @cmdlist.
       append('div').
-      attr('id','commandhistory').
-      style('max-height',"#{@huviz.height-80}px")
+      attr('class','commandhistory').
+      style('max-height', "#{@huviz.height-80}px")
+    @commandhistoryElem = @huviz.topElem.querySelector('.commandhistory')
+    @commandhistory_JQElem = $(@commandhistoryElem)
     @future_cmdArgs = []
     @command_list = []
     @command_idx0 = 0
@@ -410,7 +412,7 @@ class CommandController
     #@set_picker?.resort_recursively()
     return
   build_predicate_picker: (label) ->
-    id = 'predicates'
+    @predicates_id = @huviz.unique_id('predicates_')
     title =
       "Medium color: all edges shown -- click to show none\n" +
       "Faint color: no edges are shown -- click to show all\n" +
@@ -419,7 +421,7 @@ class CommandController
     where = label? and @control_label(label,@comdiv,title) or @comdiv
     @predicatebox = where.append('div')
         .classed('container', true)
-        .attr('id', id)
+        .attr('id', @predicates_id)
     #@predicatebox.attr('class','scrolling')
     @predicates_ignored = []
     @predicate_picker = new ColoredTreePicker(
@@ -429,8 +431,9 @@ class CommandController
     # FIXME Why is show_tree being called four times per node?
     @predicate_picker.click_listener = @handle_on_predicate_clicked
     @predicate_picker.show_tree(@predicate_hierarchy, @predicatebox)
-    $("#predicates").addClass("ui-resizable").append("<br class='clear'>")
-    $("#predicates").resizable(handles: 's')
+    @predicates_JQElem = $(@predicates_id)
+    @predicates_JQElem.addClass("predicates ui-resizable").append("<br class='clear'>")
+    @predicates_JQElem.resizable(handles: 's')
   add_predicate: (pred_lid, parent_lid, pred_name) =>
     #if pred_lid in @predicates_to_ignore
     #  return
@@ -1001,7 +1004,7 @@ class CommandController
     elem = @oldcommands.append('div').
       attr('class','played command').
       attr('id',cmd.id)
-    $('#commandhistory').scrollTop($('#commandhistory').scrollHeight)
+    @commandhistory_JQElem.scrollTop(@commandhistory_JQElem.scrollHeight)
     elem_and_cmd =
       elem: elem
       cmd: cmd

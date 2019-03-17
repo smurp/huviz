@@ -50,7 +50,7 @@
     color: #222222;
     font-weight: bold;
 }
-#tabs-help {
+.tabs-help {
   position: absolute;
   right: 0;
   top: 5px;
@@ -59,7 +59,7 @@
   font-size: 1.3em;
   color: #d6e7ff;
 }
-#tabs-help:hover {
+.tabs-help:hover {
   color: #fff;
 }
 .ctrl_handle {
@@ -143,7 +143,7 @@
   clear: both;
   margin: 1em 0;
 }
-#tabs-intro .usage_attribution p {
+.tabs-intro .usage_attribution p {
   text-indent: 0;
   font-size: .9em;
 }
@@ -521,11 +521,11 @@ progress[value]::-moz-progress-bar {
   padding-bottom: 200px;
 }
 
-#tabs-credit #logos img {
+.tabs-credit #logos img {
   height: 64px;
   padding: 5px;
 }
-#tabs-credit h1 {
+.tabs-credit h1 {
     display: block;
     font-size: 1.3em;
     padding-top: 0.1em;
@@ -534,7 +534,7 @@ progress[value]::-moz-progress-bar {
     padding-bottom: 0px;
     font-weight: medium;
 }
-#tabs-credit h2,h3 {
+.tabs-credit h2,h3 {
     text-align: left;
     display: inline-block;
     font-size: 1.05em;
@@ -544,7 +544,7 @@ progress[value]::-moz-progress-bar {
     margin-bottom: 0px;
     font-weight: bold;
 }
-#tabs-credit ul {
+.tabs-credit ul {
     padding: 0px;
     margin: 0px;
     margin-left: 1em;
@@ -556,17 +556,17 @@ progress[value]::-moz-progress-bar {
 
 /* tabs-intro styling */
 
-#tabs-intro p {
+.tabs-intro p {
     margin-top: .2em;
     text-indent: 1.2em;
 }
-#tabs-intro ul {
+.tabs-intro ul {
     margin-top: .5em;
     margin-bottom: .5em;
     font-family: Courier;
     font-size: 90%;
 }
-#tabs-intro ul {
+.tabs-intro ul {
     list-style: none outside none;
 }
 
