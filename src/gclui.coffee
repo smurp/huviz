@@ -80,12 +80,13 @@ class CommandController
     #  verbs: ['unhide']
     #  sets: [@huviz.all_set]
     #  skip_history: true))
+    @huviz.walkBackAll()
+    @huviz.walk_path_set = []
     @huviz.run_command(@new_GraphCommand(
       verbs: ['undiscard','unchoose','unselect', 'unpin', 'shelve','unlabel']
       sets: [@huviz.all_set.id]
       skip_history: true))
     @disengage_all_verbs()
-    @huviz.walk_path_set = []
     @reset_command_history()
     @engaged_taxons = []
   make_command_history: ->
@@ -98,38 +99,53 @@ class CommandController
       attr('style', 'display:inline')
     @scriptPlayerControls = history.append('div').attr('class','scriptPlayerControls')
     #  attr('style','position: relative;  float:right')
+
     @scriptRewindButton = @scriptPlayerControls.append('button').
       attr('title','rewind to start').
       on('click', @on_rewind_click)
     @scriptRewindButton.
       append('i').attr("class", "fa fa-fast-backward")
+
     @scriptBackButton = @scriptPlayerControls.append('button').
       attr('title','go back one step').
       #attr('disabled', 'disabled').
       on('click', @on_backward_click)
     @scriptBackButton.append('i').attr("class", "fa fa-play fa-flip-horizontal")
+
     @scriptPlayButton = @scriptPlayerControls.append('button').
       attr('title','play script step by step').
       attr('disabled', 'disabled').
       on('click', @on_forward_click)
     @scriptPlayButton.append('i').attr("class", "fa fa-play")
+
     @scriptForwardButton = @scriptPlayerControls.append('button').
       attr('title','play script continuously').
       attr('disabled', 'disabled').
       #attr('style', 'display:none').
       on('click', @on_fastforward_click)
     @scriptForwardButton.append('i').attr("class", "fa fa-fast-forward")
+
     @scriptDownloadButton = @scriptPlayerControls.append('button').
-      attr('title','save script as .txt').
+      attr('title','save script to file').
       attr('style', 'margin-left:1em').  # ;display:none
       on('click', @on_downloadscript_hybrid_clicked)
-    @scriptDownloadButton.append('i').attr("class", "fa fa-download") #.append('span').text('.txt')
+    @scriptDownloadButton.append('i').attr("class", "fa fa-download")
+      #.append('span').text('.txt')
+
     @scriptDownloadJsonButton = @scriptPlayerControls.append('button').
       attr('title','save script as .json').
       attr('style', 'display:none').  # ;display:none
       on('click', @on_downloadscript_json_clicked)
     @scriptDownloadJsonButton.append('i').attr("class", "fa fa-download").
       append('span').text('.json')
+
+    @scriptStashButton = @scriptPlayerControls.append('button').
+      attr('title','save script to menu').
+      attr('style', 'margin-left:.1em').
+      on('click', @on_stashscript_clicked)
+    @scriptStashButton.append('i').attr("class", "fa fa-bars")
+      #.append('span').text('save to menu')
+
     #history.append('div')
     @cmdlist = history.
       append('div').
@@ -138,6 +154,7 @@ class CommandController
       append('div').
       attr('id','commandhistory').
       style('max-height',"#{@huviz.height-80}px")
+    @future_cmdArgs = []
     @command_list = []
     @command_idx0 = 0
   reset_command_history: ->
@@ -158,6 +175,12 @@ class CommandController
     return @get_script_prefix() + @oldcommands.text()
   get_script_body_as_json: ->
     cmdList = []
+    if @huviz.dataset_loader.value
+      cmdList.push
+        verbs: ['load']
+        data_uri: @huviz.dataset_loader.value
+        ontologies: [@huviz.ontology_loader.value]
+        skip_history: true
     for elem_and_cmd in @command_list
       cmd = elem_and_cmd.cmd
       cmdList.push(cmd.args_or_str)
@@ -165,9 +188,15 @@ class CommandController
       # replacer() removes non-literals from GraphCommand.args_or_script for serialization
       retlist = []
       if key is 'subjects'
-        for node_or_lid in value
-          lid = node_or_lid.lid or node_or_lid
-          retlist.push(lid)
+        for node_or_id in value
+          if not node_or_id.id
+            console.debug("expecting node_or_id to have attribute .id", node_or_id)
+          if node_or_id.id and node_or_id.lid
+            # ideally send both the id (ie url) and the lid which is the pretty id
+            obj =
+              id: node_or_id.id
+              lid: node_or_id.lid
+          retlist.push(obj or node_or_id)
         return retlist
       if key is 'sets'
         for set_or_id in value
@@ -226,6 +255,21 @@ class CommandController
     node = transientLink.node()
     node.parentNode.removeChild(node)
     return
+  on_stashscript_clicked: () =>
+    scriptFileType = 'hybrid'
+    ext = 'txt'
+    thisName = prompt("What would you like to call this script in your menu?",
+      @get_downloadscript_name(ext or scriptFileType))
+    if not thisName
+      return
+    @lastScriptName = thisName
+    script_rec =
+      uri: thisName
+      opt_group: 'Your Own'
+      data: @get_script_body_as_hybrid()
+    @huviz.script_loader.add_local_file(script_rec)
+    return
+    
   on_rewind_click: () =>
     @reset_graph()
     @command_idx0 = 0
@@ -304,6 +348,7 @@ class CommandController
     #  @huviz.nodes.length is @huviz.selected_set.length
     # @check_until_then(everyThingIsSelected, toggleEveryThing)
     setTimeout(toggleEveryThing, 1200)
+    setTimeout(@push_future_onto_history, 1800)
     #@huviz.do({verbs: ['unselect'], sets: [], skip_history: true})
     @huviz.shelved_set.resort() # TODO remove when https://github.com/cwrc/HuViz/issues/109
     return
@@ -943,6 +988,16 @@ class CommandController
   push_command: (cmd) ->
     throw new Error('DEPRECATED')
     @push_command_onto_history(cmd)
+  push_cmdArgs_onto_future: (cmdArgs) ->
+    @future_cmdArgs.push(cmdArgs)
+  push_future_onto_history: =>
+    if @future_cmdArgs.length
+      @huviz.goto_tab(3)
+      for cmdArgs in @future_cmdArgs
+        @push_command_onto_history(@new_GraphCommand(cmdArgs))
+      @reset_command_history()
+      @command_idx0 = 0
+      @update_script_buttons()
   push_command_onto_history: (cmd) ->
     # Maybe the command_pointer is in the middle of the command_list and here
     # we are trying to run a new command -- so we need to dispose of the remaining
@@ -980,6 +1035,8 @@ class CommandController
     elem_and_cmd = @command_list.splice(idx, 1)[0]
     #alert("about to delete: " + elem_and_cmd.cmd.str)
     elem = elem_and_cmd.elem[0]
+    if not elem or not elem[0]
+      return
     orphan = elem[0]
     pops = orphan.parentNode
     pops.removeChild(orphan)
@@ -1258,6 +1315,7 @@ class CommandController
               labelled_set: [@huviz.labelled_set.label]
               pinned_set: [@huviz.pinned_set.label]
               nameless_set: [@huviz.nameless_set.label]
+              walked_set: [@huviz.walked_set.label]
               ]
     @set_picker_box = where.append('div')
         .classed('container',true)

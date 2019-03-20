@@ -13,7 +13,8 @@ class EditController
       @con.className = "edit-controls loggedIn"
       @con.setAttribute("edit", "no")
       @huviz.set_edit_mode(false)
-      document.getElementById("viscanvas").appendChild(@con)
+      viscanvas = @huviz.viscanvas[0][0]
+      viscanvas.appendChild(@con)
       @con.innerHTML = "<div class='cntrl-set slider-pair'><div class='label set-1'>VIEW</div><div class='slider'><div class='knob'></div></div><div class='label set-2'>CONTRIBUTE</div><div id='beta-note'>(Beta)</div></div>"
       @create_edit_form(@con)
       @con.getElementsByClassName("slider")[0].onclick = @toggle_edit_form
@@ -225,6 +226,7 @@ class EditController
       @remove_proposed_quad()
     @add_proposed_quad(new_q)
     @huviz.tick() # tell the graph to repaint itself
+    console.log "Tick in editui.coffee set_proposed_quad"
 
   add_proposed_quad: (q) ->
     console.log ("add_proposed_quad() " + q.s + " " + q.p + " " +q.o.value)

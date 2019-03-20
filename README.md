@@ -3,31 +3,58 @@ huviz
 
 ![Image](./graph_ex1.png?raw=true)
 
-[Demo](http://huviz.dev.nooron.com/)
+# Demonstration Sites
+
+* [Production](http://huviz.dev.nooron.com/)
+* [Beta](http://beta.huviz.dev.nooron.com/)
+* [Alpha](http://alpha.huviz.dev.nooron.com/)
+
+
+# What is HuViz?
+
+HuViz is a Semantic Web graph visualization system which uses a powerful system of interactions which can
+be captured to produce replayable scripts.  It is rather like SQL (the Structured Query Language) but applied
+to the task of creating graph visualizations.
+
+
+## Sets
+
+The commands in HuViz can be thought of as moving nodes around among various sets, where each set behaves in a particular way on screen.
+
+* Activated -- the nodes which are placed into the graph and which cause other nodes connected to them to become graphed.
+               Dragging a node into the graph Activates it.
+* Discarded -- the nodes which have been placed in the disard bin and which can't be pulled into the graph by activated nodes.
+
+* Graphed -- the nodes which are in the graph, either by being activated or by being pulled into the graph
+* Hidden -- the nodes which have been made invisible to reduce clutter, but which can be pulled into the graph by activated nodes
+* Labelled -- the nodes which show their labels continuously, rather than just when hovered near
+* Nameless -- the nodes which do not have pretty names
+* Pinned -- the nodes which have been pinned in particular places on the graph
+* Selected -- the nodes which have their named edges cataloged in the box labelled "Edges of the Selected Nodes" for the Draw verb to work on
+* Shelved -- the nodes which are kept, disconnected, on display on the sorted, circular "Shelf" around the central graph
+
+
+## Verbs
+
+The Verbs are the operations which move nodes between the various sets, ie sets of nodes in particular states.
+
+* Activate / Deactivate
+* Wander
+* Walk
+* Select / Unselect
+* Draw
+* Label / Unlabel
+* Shelve
+* Hide
+* Discard / Retrieve
+* Pin / Unpin
+
+
 
 # Installation
 
     # Install huviz from github
     git clone https://github.com/smurp/huviz.git
-
-## Installation (for running orlandoScrape.py)
-
-    # On OSX Mavericks install homebrew
-    http://crosstown.coolestguidesontheplanet.com/os-x/55
-
-
-    # If you want to run
-    # On OSX you should set up pyenv-virtualenv
-    https://github.com/yyuu/pyenv-virtualenv
-
-    # Make a virtualenv
-    pyenv virtualenv huvizenv
-
-    # use it
-    echo "PYENV_VERSION=huvizenv" > .python-version
-
-    # install the python requirements
-    pip install -r requirements.txt
 
 ## Installation (for running the server)
 
@@ -68,26 +95,45 @@ uses https://www.npmjs.com/package/npm-watch https://www.npmjs.com/package/mocha
 
     npm start
 
-# Operating orlandoScrape.py
+## Installation (for running orlandoScrape.py)
+
+    # On OSX Mavericks install homebrew
+    http://crosstown.coolestguidesontheplanet.com/os-x/55
+
+
+    # If you want to run
+    # On OSX you should set up pyenv-virtualenv
+    https://github.com/yyuu/pyenv-virtualenv
+
+    # Make a virtualenv
+    pyenv virtualenv huvizenv
+
+    # use it
+    echo "PYENV_VERSION=huvizenv" > .python-version
+
+    # install the python requirements
+    pip install -r requirements.txt
+
+### Operating orlandoScrape.py
 
     --limit 2
         limit the number of writers processed
 
 
-## Converting XML to Turtle (TTL)
+### Converting XML to Turtle (TTL)
 
     ./orlandoScrape.py --outfile data/test_20.ttl  --limit 20 -v
 
 See [data/test_20.ttl](../master/data/test_20.ttl)
 
-## Converting XML to [NQuads](http://www.w3.org/TR/n-quads/)
+### Converting XML to [NQuads](http://www.w3.org/TR/n-quads/)
 
     ./orlandoScrape.py  --outfile data/test_1.nq   --limit 1
 
 See [data/test_q.nq](../master/data/test_1.nq)
 
 
-## Converting XML to JSON
+### Converting XML to JSON
 
   How to produce the full JSON output as `orlando_all_entries_2013-03-04.json` (the default behaviour):
 
@@ -104,13 +150,13 @@ See [data/test_q.nq](../master/data/test_1.nq)
     ./orlandoScrape.py --infile orlando_all_entries_2013-03-04.xml --outfile orlando_timeline.json --regex orlando_timeline.regex -v
 
 
-# Running the Orlando timeline locally
+### Running the Orlando timeline locally
 
     git clone https://github.com/smurp/huviz
     python -m SimpleHTTPServer
     open http://localhost:8000/timeline.html
 
-# Generating tag_tree.json
+### Generating tag_tree.json
 
     ./extractOrlandoTagInfo.py --compact --outfile orlando_tag_tree.json
 

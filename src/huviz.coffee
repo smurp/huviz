@@ -428,6 +428,7 @@ orlando_human_term =
   unchoose: 'Deactivate'
   wander: 'Wander'
   walk: 'Walk'
+  walked: "Walked"
   select: 'Select'
   unselect: 'Unselect'
   label: 'Label'
@@ -723,6 +724,11 @@ class Huviz
       #console.log "state_name == '" + @focused_node.state.state_name + "' and selected? == " + @focused_node.selected?
       #console.log "START_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
       @dragging = @focused_node
+      if @args.drag_start_handler
+        try
+          @args.drag_start_handler.call(this, @dragging)
+        catch e
+          console.warn(e)
       if @edit_mode
         if @editui.subject_node isnt @dragging
           @editui.set_subject_node(@dragging)
@@ -731,6 +737,8 @@ class Huviz
 
     if @dragging and not @rightClickHold
       @force.resume() # why?
+      if not @args.skip_log_tick
+        console.log "Tick in @force.resume() mousemove"
       @move_node_to_point(@dragging, @last_mouse_pos)
       if @edit_mode
         @text_cursor.pause("", "drop on object node")
@@ -766,7 +774,7 @@ class Huviz
             @print_edge edge
           else
             edge.focused = false
-    @tick()
+    @tick("Tick in mousemove")
 
   mousedown: =>
     d3_event = @mouse_receiver[0][0]
@@ -808,14 +816,14 @@ class Huviz
 
     if @edit_mode and @focused_node and @editui.object_datatype_is_literal
       @editui.set_subject_node(@focused_node)
-      console.log("edit mode and focused note and editui is literal")
-      @tick()
+      #console.log("edit mode and focused note and editui is literal")
+      @tick("Tick in mouseup 1")
       return
 
     # this is the node being clickedRDF_literal
     if @focused_node # and @focused_node.state is @graphed_set
       @perform_current_command(@focused_node)
-      @tick()
+      @tick("Tick in mouseup 2")
       return
 
     if @focused_edge
@@ -839,6 +847,8 @@ class Huviz
         @run_verb_on_object('choose', @focused_node)
       # TODO(smurp) are these still needed?
       @force.links(@links_set)
+      if not @args.skip_log_tick
+        console.log "Tick in @force.links() mouseup"
       @restart()
 
     return
@@ -911,7 +921,7 @@ class Huviz
         """
       max_width = @width * 0.50
       max_height = @height * 0.80
-      d3.select('#viscanvas').append('div').attr('id', @focused_node.lid ).attr('class', 'contextMenu').classed('temp', true).style('display', 'block')
+      d3.select(@args.viscanvas_sel).append('div').attr('id', @focused_node.lid ).attr('class', 'contextMenu').classed('temp', true).style('display', 'block')
         .style('top', "#{d3.event.clientY}px")
         .style('left', "#{d3.event.clientX}px")
         .style('max-width', "#{max_width}px")
@@ -960,6 +970,8 @@ class Huviz
       @canvas.width = @width
       @canvas.height = @height
     @force.size [@mx, @my]
+    if not @args.skip_log_tick
+      console.log "Tick in @force.size() updateWindow"
     # FIXME all selectors must be localized so if there are two huviz
     #       instances on a page they do not interact
     $("#graph_title_set").css("width", @width)
@@ -1265,11 +1277,17 @@ class Huviz
       isFlag()
     @links_set.docs = "Links which are shown."
 
+    @walked_set = SortedSet().
+      named("walked").
+      isFlag().
+      labelled(@human_term.walked).
+      sub_of(@chosen_set).
+      sort_on('walkedIdx0') # sort on index of position in the path; the 0 means zero-based idx
+    @walked_set.docs = "Nodes in order of their walkedness"
+
     @predicate_set = SortedSet().named("predicate").isFlag().sort_on("id")
     @context_set   = SortedSet().named("context").isFlag().sort_on("id")
     @context_set.docs = "The set of quad contexts."
-
-    @walk_path_set = []
 
     # TODO make selectable_sets drive gclui.build_set_picker
     #      with the nesting data coming from .sub_of(@all) as above
@@ -1284,6 +1302,7 @@ class Huviz
       labelled_set: @labelled_set
       pinned_set: @pinned_set
       nameless_set: @nameless_set
+      walked_set: @walked_set
 
   get_set_by_id: (setId) ->
     return this[setId + '_set']
@@ -1372,7 +1391,8 @@ class Huviz
 
   perform_tasks_after_dataset_loaded: ->
     @gclui.select_the_initial_set()
-    @discover_names()
+    if not @args.skip_discover_names
+      @discover_names()
 
   reset_graph: ->
     #@dump_current_settings("at top of reset_graph()")
@@ -1385,6 +1405,8 @@ class Huviz
 
     @force.nodes(@nodes)
     @force.links(@links_set)
+    if not @args.skip_log_tick
+      console.log "Tick in @force.nodes() reset_graph"
 
     # TODO move this SVG code to own renderer
     d3.select(".link").remove()
@@ -1399,6 +1421,8 @@ class Huviz
     @node = @node.data(@nodes)
     @node.exit().remove()
     @force.start()
+    if not @args.skip_log_tick
+      console.log "Tick in @force.start() reset_graph2"
 
   set_node_radius_policy: (evt) ->
     # TODO(shawn) remove or replace this whole method
@@ -1695,30 +1719,18 @@ class Huviz
         #@show_message_once("will draw line() n_n:#{n_n} e.id:#{e.id}")
         @draw_curvedline(e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x,
                          e.target.fisheye.y, sway, e.color, e.contexts.length, line_width, e)
-        #if this line from path node to path node then add black highlight
-        if @walk_path_set.length > 0
-          #console.log @walk_path_set
-          for walk_node, i in @walk_path_set
-            if @prune_walk_nodes is "directional_path"
-              s1 = e.source.lid
-              s2 = e.target.lid
-              previous_node = @walk_path_set[i-1]
-              #walk_frwrd = @walk_path_set[i+1]
-              if s1 is previous_node and s2 is walk_node then directional_edge = 'forward'
-              if s2 is previous_node and s1 is walk_node then directional_edge = 'backward'
-            else # for non-directionall pruned path and 'hairy' path
-              if e.source.lid is walk_node then source_is_path = true
-              if e.target.lid is walk_node then target_is_path = true
-        if directional_edge
-          @draw_curvedline(e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x,
-                           e.target.fisheye.y, sway, "blue", e.contexts.length, 1, e, directional_edge)
-          directional_edge = false
-        if source_is_path and target_is_path
-          @draw_curvedline(e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x,
-                           e.target.fisheye.y, sway, "black", e.contexts.length, 1, e)
-          source_is_path = false
-          target_is_path = false
+        if node.walked # ie is part of the walk path
+          @draw_walk_edge_from(node, e, sway)
         sway++
+
+  draw_walk_edge_from: (node, edge, sway) ->
+    #if this line from path node to path node then add black highlight
+    if @edgeIsOnWalkedPath(edge)
+      directional_edge = (edge.source.walkedIdx0 > edge.source.walkedIdx0) and 'forward' or 'backward'
+      e = edge
+      if directional_edge
+        @draw_curvedline(e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x,
+                         e.target.fisheye.y, sway, "black", e.contexts.length, 1, e, directional_edge)
 
   draw_edges: ->
     if @use_canvas
@@ -1799,9 +1811,8 @@ class Huviz
           stroke_color = d.color or 'yellow'
           if d.chosen?
             stroke_color = renderStyles.nodeHighlightOutline
-            for node in @walk_path_set # Flag nodes that should be given path marker
-              if d.lid is node
-                special_focus = true
+            # if the node d is in the @walked_set it needs special_focus
+            special_focus = not not d.walked  # "not not" forces boolean
           # if 'pills' is selected; change node shape to rounded squares
           if (node_display_type == 'pills')
             pill_width = node_radius * 2
@@ -1913,18 +1924,18 @@ class Huviz
         # perhaps scrolling should happen here
         #if not node_display_type and (node.focused_node or node.focused_edge?)
         if node.focused_node or node.focused_edge?
-          if (node_display_type == 'pills')
-            ctx.font = focused_pill_font
-          else
-            label = @scroll_pretty_name(node)
-            # console.log label
-            if node.state.id is "graphed"
-              cart_label = node.pretty_name
-              ctx.measureText(cart_label).width #forces proper label measurement (?)
-              if @cartouches
-                @draw_cartouche(cart_label, node.fisheye.x, node.fisheye.y)
-            ctx.fillStyle = node.color
-            ctx.font = focused_font
+          return
+          #if (node_display_type == 'pills')
+          #  ctx.font = focused_pill_font
+          #else
+          #  label = @scroll_pretty_name(node)
+          #  if node.state.id is "graphed"
+          #    cart_label = node.pretty_name
+          #    ctx.measureText(cart_label).width #forces proper label measurement (?)
+          #    if @cartouches
+          #      @draw_cartouche(cart_label, focused_font_size, node.fisheye.x, node.fisheye.y)
+          #  ctx.fillStyle = node.color
+          #  ctx.font = focused_font
         else
           ctx.fillStyle = renderStyles.labelColor #"white" is default
           ctx.font = unfocused_font
@@ -1998,12 +2009,74 @@ class Huviz
       @shelved_set.forEach(label_node)
       @discarded_set.forEach(label_node)
 
+  draw_focused_labels: ->
+    ctx = @ctx
+    focused_font_size = @label_em * @focused_mag
+    focused_font = "#{focused_font_size}em sans-serif"
+    focused_pill_font = "#{@label_em}em sans-serif"
+    highlight_node = (node) =>
+      if node.focused_node or node.focused_edge?
+        if (node_display_type == 'pills')
+          ctx.font = focused_pill_font
+          node_font_size = node.bub_txt[4]
+          result = node_font_size != @label_em
+          if not node.bub_txt.length or result
+            @get_label_attributes(node)
+          line_height = node.bub_txt[2]  # Line height calculated from text size ?
+          adjust_x = node.bub_txt[0] / 2 - line_height/2# Location of first line of text
+          adjust_y = node.bub_txt[1] / 2 - line_height
+          pill_width = node.bub_txt[0] # box size
+          pill_height = node.bub_txt[1]
+
+          x = node.fisheye.x - pill_width/2
+          y = node.fisheye.y - pill_height/2
+          radius = 10 * @label_em
+          alpha = 1
+          outline = node.color
+          # change box edge thickness and fill if node selected
+          if node.focused_node or node.focused_edge?
+            ctx.lineWidth = 2
+            fill = "#f2f2f2"
+          else
+            ctx.lineWidth = 1
+            fill = "white"
+          @rounded_rectangle(x, y, pill_width, pill_height, radius, fill, outline, alpha)
+          ctx.fillStyle = "#000"
+          # Paint multi-line text
+          text = node.pretty_name
+          text_split = text.split(' ') # array of words
+          cuts = node.bub_txt[3]
+          print_label = ""
+          for text, i in text_split
+            if cuts and i in cuts
+              ctx.fillText print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y
+              adjust_y = adjust_y - line_height
+              print_label = text + " "
+            else
+              print_label = print_label + text + " "
+          if print_label # print last line, or single line if no cuts
+            ctx.fillText print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y
+        else
+          label = @scroll_pretty_name(node)
+          # console.log label
+          if node.state.id is "graphed"
+            cart_label = node.pretty_name
+            ctx.measureText(cart_label).width #forces proper label measurement (?)
+            if @cartouches
+              @draw_cartouche(cart_label, focused_font_size, node.fisheye.x, node.fisheye.y)
+          ctx.fillStyle = node.color
+          ctx.font = focused_font
+          ctx.fillText "  " + node.pretty_name + "  ", node.fisheye.x, node.fisheye.y
+    @graphed_set.forEach(highlight_node)
+
   clear_canvas: ->
     @ctx.clearRect 0, 0, @canvas.width, @canvas.height
   blank_screen: ->
     @clear_canvas()  if @use_canvas or @use_webgl
 
-  tick: =>
+  tick: (msg) =>
+    if typeof msg is 'string' and not @args.skip_log_tick
+      console.log(msg)
     # return if @focused_node   # <== policy: freeze screen when selected
     if true
       if @clean_up_all_dirt_onceRunner?
@@ -2031,6 +2104,7 @@ class Huviz
     @draw_discards()
     @draw_labels()
     @draw_edge_labels()
+    @draw_focused_labels()
     @pfm_count('tick')
     @prior_node_and_state = @get_focused_node_and_its_state()
     return
@@ -2061,18 +2135,15 @@ class Huviz
       ctx.strokeStyle = stroke
       ctx.stroke()
 
-  draw_cartouche: (label, x, y) ->
-    width = @ctx.measureText(label).width
+  draw_cartouche: (label, focused_font_size, x, y) ->
+    ctx = @ctx
+    width = @ctx.measureText(label).width * focused_font_size
+    focused_font = "#{focused_font_size}em sans-serif"
     height = @label_em * @focused_mag * 16
-    radius = @edge_x_offset
-    fill = renderStyles.pageBg
-    alpha = .8
-    outline = false
-    x = x + @edge_x_offset
-    y = y - height
-    width = width + 2 * @edge_x_offset
-    height = height + @edge_x_offset
-    @rounded_rectangle(x, y, width, height, radius, fill, outline, alpha)
+    ctx.font = focused_font
+    ctx.strokeStyle = renderStyles.pageBg
+    ctx.lineWidth = 5
+    ctx.strokeText("  " + label + "  ", x, y)
 
   draw_edge_labels: ->
     if @focused_edge?
@@ -2094,7 +2165,7 @@ class Huviz
     width = ctx.measureText(label).width
     height = @label_em * @focused_mag * 16
     if @cartouches
-      @draw_cartouche(label, edge.handle.x, edge.handle.y)
+      @draw_cartouche(label, @label_em, edge.handle.x, edge.handle.y)
     #ctx.fillStyle = '#666' #@shadow_color
     #ctx.fillText " " + label, edge.handle.x + @edge_x_offset + @shadow_offset, edge.handle.y + @shadow_offset
     ctx.fillStyle = edge.color
@@ -2178,6 +2249,8 @@ class Huviz
   restart: ->
     @svg_restart() if @use_svg
     @force.start()
+    if not @args.skip_log_tick
+      console.log "Tick in @force.start() restart"
   show_last_mouse_pos: ->
     @draw_circle @last_mouse_pos[0], @last_mouse_pos[1], @focus_radius, "yellow"
   remove_ghosts: (e) ->
@@ -2647,7 +2720,7 @@ class Huviz
           @add_edge(edge)
           literal_node.fully_loaded = true # for sparql quieries to flag literals as fully_loaded
     # if SPARQL Endpoint loaded AND this is subject node then set current subject to true (i.e. fully loaded)
-    if @endpoint_loader.value
+    if @endpoint_loader? and @endpoint_loader.value
       subj_n.fully_loaded = false # all nodes default to not being fully_loaded
       #if subj_n.id is sprql_subj# if it is the subject node then is fully_loaded
       #  subj_n.fully_loaded = true
@@ -2709,7 +2782,7 @@ class Huviz
       # of the node rather than do shelved_set.resort() after the
       # renaming.
       @shelved_set.alter(node, perform_rename)
-      @tick()
+      @tick("Tick in set_name")
     else
       perform_rename()
     #node.name ?= full_name  # set it if blank
@@ -2897,13 +2970,11 @@ class Huviz
     $("#status").text ""
 
   choose_everything: =>
-    console.log "choose_everything()"
     cmd = new gcl.GraphCommand this,
       verbs: ['choose']
       classes: ['Thing']
     @gclc.run(cmd)
-    #@gclui.push_command(cmd)
-    @tick()
+    @tick("Tick in choose_everything")
 
   remove_framing_quotes: (s) -> s.replace(/^\"/,"").replace(/\"$/,"")
   parseAndShowNQStreamer: (uri, callback) ->
@@ -3285,7 +3356,7 @@ class Huviz
           #console.log "Json Array Size: " + json_data.results.bindings.length
           @add_nodes_from_SPARQL(json_data, subject)
           @shelved_set.resort()
-          @tick()
+          @tick("Tick in load_new_endpoint_data_and_show success callback")
           @update_all_counts()
           @endpoint_loader.outstanding_requests = @endpoint_loader.outstanding_requests - 1
           #console.log "Finished request: count now " + @endpoint_loader.outstanding_requests
@@ -3418,7 +3489,7 @@ class Huviz
       @endpoint_loader.outstanding_requests = @endpoint_loader.outstanding_requests - 1
       console.log "Resort the shelf"
       @shelved_set.resort()
-      @tick()
+      @tick("Tick in add_nodes_from_SPARQL_worker")
       @update_all_counts()
     worker.postMessage({target:queryTarget, url:url, graph:graph, limit:query_limit, previous_nodes:previous_nodes})
 
@@ -3567,6 +3638,8 @@ class Huviz
     @update_showing_links(n)
     @update_state(n)
     @force.links(@links_set)
+    if not @args.skip_log_tick
+      console.log "Tick in @force.links(@links_set) show_links_to_node"
     @restart()
 
   update_state: (node) ->
@@ -3589,7 +3662,9 @@ class Huviz
       @update_showing_links e.source
       @update_showing_links e.target
     @update_state n
-    @force.links @links_set
+    @force.links(@links_set)
+    if not @args.skip_log_tick
+      console.log "Tick in @force.links() hide_links_to_node"
     @restart()
 
   show_links_from_node: (n, incl_discards) ->
@@ -3600,6 +3675,8 @@ class Huviz
       @show_link(e, incl_discards)
     @update_state(n)
     @force.links(@links_set)
+    if not @args.skip_log_tick
+      console.log("Tick in @force.links() show_links_from_node")
     @restart()
 
   hide_links_from_node: (n) ->
@@ -3613,7 +3690,9 @@ class Huviz
       @update_showing_links e.source
       @update_showing_links e.target
 
-    @force.links @links_set
+    @force.links(@links_set)
+    if not @args.skip_log_tick
+      console.log("Tick in @force.links hide_links_from_node")
     @restart()
 
   attach_predicate_to_its_parent: (a_pred) ->
@@ -3717,7 +3796,7 @@ class Huviz
     @update_showing_links(node)
     @nodes.add(node)
     @recolor_node(node)
-    @tick()
+    @tick("Tick in hatch")
     @pfm_count('hatch')
     node
 
@@ -3799,17 +3878,15 @@ class Huviz
       @use_webgl = not @use_webgl
       val = @use_webgl
     ctrl.checked = val
-    @tick()
+    @tick("Tick in toggle_display_tech")
     true
 
   label: (branded) ->
     @labelled_set.add(branded)
-    #@tick()
     return
 
   unlabel: (anonymized) ->
     @labelled_set.remove(anonymized)
-    #@tick()
     return
 
   get_point_from_polar_coords: (polar) ->
@@ -3883,7 +3960,7 @@ class Huviz
     # If this chosen node is part of a SPARQL query set, then check if it is fully loaded
     # if it isn't then load and activate
     #console.log chosen
-    if @endpoint_loader.value # This is part of a sparql set
+    if @endpoint_loader? and @endpoint_loader.value # This is part of a sparql set
       if not chosen.fully_loaded
         #console.log "Time to make a new SPARQL query using: " + chosen.id + " - requests underway: " + @endpoint_loader.outstanding_requests
         # If there are more than certain number of requests, stop the process
@@ -3910,21 +3987,13 @@ class Huviz
 
     # There is a flag .chosen in addition to the state 'linked'
     # because linked means it is in the graph
-    @chosen_set.add(chosen)
-    @nowChosen_set.add(chosen)
-    @graphed_set.acquire(chosen) # do it early so add_link shows them otherwise choosing from discards just puts them on the shelf
+    @chosen_set.add(chosen)     # adding the flag .chosen does not affect the .state
+    @nowChosen_set.add(chosen)  # adding the flag .nowChosen does not affect the .state
+    # do it early so add_link shows them otherwise choosing from discards just puts them on the shelf
+    @graphed_set.acquire(chosen) # .acquire means DO change the .state to graphed vs shelved etc
+
     @show_links_from_node(chosen)
     @show_links_to_node(chosen)
-    ### TODO remove this cruft
-    if chosen.links_shown
-      @graphed_set.acquire(chosen)  # FIXME this duplication (see above) is fishy
-      chosen.showing_links = "all"
-    else
-      # FIXME after this weird side effect, at the least we should not go on
-      console.error(chosen.lid,
-          "was found to have no links_shown so: @unlink_set.acquire(chosen)", chosen)
-      @shelved_set.acquire(chosen)
-    ###
     @update_state(chosen)
     shownness = @update_showing_links(chosen)
     chosen
@@ -3981,125 +4050,95 @@ class Huviz
     # This is accomplished by wander__build_callback()
     return @choose(chosen)
 
-  walk__atFirst: =>
-    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    # Purpose:
-    #   At first, before the verb Walk is executed on any node, we must
-    # build a SortedSet of the nodes which were wasChosen to compare
-    # with the SortedSet of nodes which are intendedToBeGraphed as a
-    # result of the Walk command which is being executed.
-    console.log('walk__atFirst()')
-    if not @wasChosen_set.clear()
-      throw new Error("expecting wasChosen to be empty")
-    for node in @chosen_set
-      @wasChosen_set.add(node)
+  unwalk: (node) ->
+    @walked_set.remove(node)
+    delete node.walkedIdx0
+    return
 
-  walk__atLast: =>
-    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    # Purpose:
-    # At last, after all appropriate nodes have been pulled into the graph
-    # by the Walk verb, it is time to remove wasChosen nodes which
-    # are not nowChosen.  In other words, ungraph those nodes which
-    # are no longer held in the graph by any recently walked-to nodes.
-    console.log('walk__atLast()')
-    wasRollCall = @wasChosen_set.roll_call()
-    nowRollCall = @nowChosen_set.roll_call()
+  walkBackTo: (existingStep) ->
+    # note that if existingStep is null (ie a non-node) we will walk back all
+    removed = []
+    for pathNode in @walked_set by -1
+      if pathNode is existingStep
+        break
+      # remove these intervening nodes
+      @unchoose(pathNode)
+      @shave(pathNode)
+      @unwalk(pathNode)
+      removed.push(pathNode)
+    return removed
 
-    # The walk() method get passed the node which the user has clicked on with the verb engaged
-    # And it sets @walked_latest_node for us to figure out to do with here....
-    # The walk() method being the unambiguous entry point means that script replay is possible
-    current_selection = @walked_latest_node
-    valid_path_nodes = []
-    active_nodes = []
-    if not @prune_walk_nodes then @prune_walk_nodes = $("#prune_walk_nodes :selected").val()
-    # If current_selection is already in @walk_path_set, then delete those that may appear after it (i.e. erase path)
-    #console.log "The mode setting is #{@prune_walk_nodes}"
-    #console.log @walk_path_set
-    #console.log "Current selection is " + current_selection.lid
-    for nodeId, i in @walk_path_set
-      #console.log i
-      #console.log "looking at " + nodeId + " and #{current_selection.lid}"
-      if nodeId is current_selection.lid
-        #console.log "Slice of after #{nodeId} at position #{i}"
-        new_path = @walk_path_set.slice(0,i)
-        #console.log new_path
-        @walk_path_set = new_path
+  walkBackAll: ->
+    return @walkBackTo(null)
 
+  walk: (nextStep) =>
+    tooHairy = null
+    if nextStep.walked
+      # 1) if this node already in @walked_set then remove inwtervening nodes
+      # ie it is already in the path so walk back to it
+      @walkBackTo(nextStep) # stop displaying those old links
+      @choose(nextStep)
+      return
 
-    #if @walk_path_set.length is 0 then @walk_path_set.push nowRollCall #first time through, walked node should always be added to path
-    for node in @all_set
-      for lid in @walk_path_set
-        if node.lid is lid #get edges
-          active_nodes.push node
-          for e in node.links_from
-            valid_path_nodes.push e.target.lid
-          for e in node.links_to
-            valid_path_nodes.push e.source.lid
-    for node_lid in valid_path_nodes #check to see if this is a connected node or new unconnect node
-      if current_selection.lid is node_lid then connected_path = true
-    # If node is along a continuous path, then add the selection; if not then reset everything and start a new path
-    if connected_path
-      @walk_path_set.push current_selection.lid
-      #@walk_path_set.sort()
-      connected_path = false
-      # Prune associated tangential nodes on path (i.e. keep only current_selection edges)
-      if @prune_walk_nodes is "directional_path" or @prune_walk_nodes is "pruned_path"
-        ungraphed = []
-        keep_graphed = []
-        for node in active_nodes
-          keep_graphed.push node
-          for edge in current_selection.links_shown
-            if edge.source.lid isnt node.lid then keep_graphed.push edge.source
-            if edge.target.lid isnt node.lid then keep_graphed.push edge.target
+    if @walked_set.length # is there already a walk path in progress?
+      lastWalked = @walked_set.slice(-1)[0] # find the last node
+      if @nodesAreAdjacent(nextStep, lastWalked) # is nextStep linked to lastWalked?
+        # 2) handle the case of this being the next in a long chain of adjacent nodes
+        tooHairy = lastWalked  # Shave this guy later. If we do it now, nextStep gets ungraphed!
+      else
+        # 3) start a new path because nextStep is not connected with the @walked_set
+        @walkBackAll() # clean up the old path completely
 
-        unique_keep = Array.from(new Set(keep_graphed))
-        remove_list = []
-        for graphed_node in @graphed_set
-          remove = false
-          for keep_node in unique_keep
-            if graphed_node.lid is keep_node.lid
-              #console.log "keep #{graphed_node.lid}"
-              remove = false
-              break
-            else
-              #console.log "remove #{graphed_node.lid}"
-              remove = true
-          if remove
-            remove_list.push graphed_node
+    # this should happen to every node added to @walked_set
+    nextStep.walkedIdx0 = @walked_set.length # tell it what position it will have in the path
+    if not nextStep.walked # It might already be in the path, if not...
+      @walked_set.add(nextStep) # add it
+    @choose(nextStep) # finally, choose nextStep to make it hairy
 
-        unique_remove = Array.from(new Set(remove_list))
-        for node in remove_list
-          @chosen_set.remove(node)
-          @selected_set.remove(node)
-          @graphed_set.remove(node)
-          node.unselect()
-          @hide_node_links(node)
-          @update_state(node)
-          shownness = @update_showing_links(node)
+    if tooHairy # as promised we now deal with the last node
+      @shave(tooHairy) # ungraph the non-path nodes which were held in the graph by tooHairy
+
+    return # so the javascript is not cluttered with confusing nonsense
+
+  nodesAreAdjacent: (n1, n2) ->
+    # figure out which node is least connected so we do the least work checking links
+    if (n1.links_from.length + n1.links_to.length) > (n2.links_from.length + n2.links_to.length)
+      [lonelyNode, busyNode] = [n2, n1]
     else
-      removed = @wasChosen_set.filter (node) =>
-        not @nowChosen_set.includes(node)
-      # Add old path nodes to removed so that they are also removed
-      for node in active_nodes
-        removed.push node
-      for node in removed
-        @unchoose(node)
-        @wasChosen_set.remove(node)
-      if not @nowChosen_set.clear()
-        throw new Error("the nowChosen_set should be empty after clear()")
-      # Reset the walk path and start new one with current selection
-      @walk_path_set = []
-      @walk_path_set.push current_selection.lid
-    console.log @walk_path_set
+      [lonelyNode, busyNode] = [n1, n2]
+    # iterate through the outgoing links of the lonlier node, breaking on adjacency
+    for link in lonelyNode.links_from
+      if link.target is busyNode
+        return true
+    # iterate through the incoming links of the lonlier node, breaking on adjacency
+    for link in lonelyNode.links_to
+      if link.source is busyNode
+        return true
+    return false
 
-  walk: (walked) =>
-    # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    # Walk is just the same as Choose (AKA Activate) except afterward it deactivates the
-    # nodes which are not connected to the set being walked.
-    # This is accomplished by walked__build_callback()
-    console.log("walk(#{walked.lid})")
-    @walked_latest_node = walked
-    return @choose(walked)
+  shave: (tooHairy) ->
+    for link in tooHairy.links_shown by -1
+      if link?
+        if (not link.target.walked?) or (not link.source.walked?)
+          @unshow_link(link)
+        if not @edgeIsOnWalkedPath(link)
+          @unshow_link(link)
+      else
+        console.log("there is a null in the .links_shown of", unchosen)
+    @update_state(tooHairy) # update the pickers concerning these changes REVIEW needed?
+
+  edgeIsOnWalkedPath: (edge) ->
+    return @nodesAreAdjacentOnWalkedPath(edge.target, edge.source)
+
+  nodesAreAdjacentOnWalkedPath: (n1, n2) ->
+    n1idx0 = n1.walkedIdx0
+    n2idx0 = n2.walkedIdx0
+    if n1idx0? and n2idx0?
+      larger = Math.max(n1idx0, n2idx0)
+      smaller = Math.min(n1idx0, n2idx0)
+      if larger - smaller is 1
+        return true
+    return false
 
   hide: (goner) =>
     @unpin(goner)
@@ -4202,7 +4241,7 @@ class Huviz
       @select(node)
     @update_all_counts()
     @regenerate_english()
-    @tick()
+    @tick("Tick in toggle_selected")
 
   # ========================================== SNIPPET (INFO BOX) UI =============================================================================
   get_snippet_url: (snippet_id) ->
@@ -4413,6 +4452,8 @@ class Huviz
       @update_state(node)
       @update_showing_links(node)
       @force.alpha(0.1)
+      if not @args.skip_log_tick
+        console.log("Tick in @force.alpha draw_edge_regarding")
     return
 
   undraw_edge_regarding: (node, predicate_lid) =>
@@ -4557,7 +4598,7 @@ class Huviz
         $("##{@ontology_loader.uniq_id}").children('select').prop('disabled', 'disabled')
         $("##{@script_loader.uniq_id}").children('select').prop('disabled', 'disabled')
       if rsrcRec.uri isnt e.target.result
-        debugger
+        console.debug("rsrcRec.uri (#{rsrcRec.uri}) is expected to equal", e.target.result)
       callback(rsrcRec)
 
   remove_dataset_from_db: (dataset_uri, callback) ->
@@ -4566,7 +4607,7 @@ class Huviz
       console.log("#{dataset_uri} deleted")
     trx.onerror = (e) =>
       console.log(e)
-      alert "remove_dataset_from_db(#{dataset_uri}) error!!!"
+      alert("remove_dataset_from_db(#{dataset_uri}) error!!!")
     store = trx.objectStore('datasets')
     req = store.delete(dataset_uri)
     req.onsuccess = (e) =>
@@ -4589,23 +4630,19 @@ class Huviz
     store = trx.objectStore('datasets')
     req = store.get(rsrcUri)
     req.onsuccess = (event) =>
-      console.log("#{rsrcUri} found", event.target.result)
       if callback?
         callback(null, event.target.result)
     req.onerror = (err) =>
       console.debug("get_resource_from_db('#{rsrcUri}') onerror ==>",err)
-      #alert(err)
       if callback
         callback(err, null)
       else
         throw err
     return
 
-
   populate_menus_from_IndexedDB: (why) ->
-    #alert "populate_menus_from_IndexedDB()"
     # https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB#Using_a_cursor
-    console.groupCollapsed("populate_menus_from_IndexedDB(#{why})")
+    console.log("populate_menus_from_IndexedDB(#{why})")
     datasetDB_objectStore = @datasetDB.transaction('datasets').objectStore('datasets')
     count = 0
     make_onsuccess_handler = (why) =>
@@ -4721,19 +4758,15 @@ class Huviz
       @ontology_loader = new PickOrProvide(@, @args.ontology_loader__append_to_sel,
         'Ontology', 'OntoPP', true, false,
         {rsrcType: 'ontology'})
-      #$(@ontology_loader.form).disable()
     if not @script_loader and @args.script_loader__append_to_sel
-      @script_loader = new PickOrProvide(@, @args.script_loader__append_to_sel,
+      @script_loader = new PickOrProvideScript(@, @args.script_loader__append_to_sel,
         'Script', 'ScriptPP', false, false,
         {dndLoaderClass: DragAndDropLoaderOfScripts; rsrcType: 'script'})
-      #$("#"+@script_loader.uniq_id).hide() # TEMPORARILY HIDE SCRIPT MENU
     if not @endpoint_loader and @args.endpoint_loader__append_to_sel
       @endpoint_loader = new PickOrProvide(@, @args.endpoint_loader__append_to_sel,
         'Sparql', 'EndpointPP', false, true,
         {rsrcType: 'endpoint'})
       #@endpoint_loader.outstanding_requests = 0
-      #endpoint = "#" + @endpoint_loader.uniq_id
-      #$(endpoint).css('display','none')
     if @endpoint_loader and not @big_go_button
       @populate_sparql_label_picker()
       endpoint_selector = "##{@endpoint_loader.select_id}"
@@ -4768,6 +4801,7 @@ class Huviz
     # Either dataset and ontologies are passed in by HuViz.load_with() from a command
     #   or this method is called with neither in which case get values from the loaders
     alreadyCommands = (@gclui.command_list? and @gclui.command_list.length)
+    alreadyCommands = @gclui.future_cmdArgs.length > 0
     if @script_loader.value and not alreadyCommands
       scriptUri = @script_loader.value
       @get_resource_from_db(scriptUri, @load_script_from_db)
@@ -4778,7 +4812,8 @@ class Huviz
     if not (onto.value and data.value)
       console.debug(data, onto)
       throw new Error("Now whoa-up pardner... both data and onto should have .value")
-    @load_data_with_onto(data, onto) # , () -> alert "woot")
+
+    @load_data_with_onto(data, onto)
     @update_browser_title(data)
     @update_caption(data.value, onto.value)
     return
@@ -4863,7 +4898,7 @@ class Huviz
     if not disable?
       if @script_loader.value
         disable = false
-      else if @endpoint_loader.value
+      else if @endpoint_loader? and @endpoint_loader.value
         disable = false
       else
         ds_v = @dataset_loader.value
@@ -5153,7 +5188,8 @@ class Huviz
               attr("position", "absolute")
     @svg.append("rect").attr("width", @width).attr "height", @height
     if not d3.select(@args.viscanvas_sel)[0][0]
-      d3.select("body").append("div").attr("id", "viscanvas")
+      new throw Error('expectling @args.viscanvas_sel to be found')
+      #d3.select("body").append("div").attr("id", "viscanvas")
     @container = d3.select(@args.viscanvas_sel).node().parentNode
     @init_graph_controls_from_json()
     if @use_fancy_cursor
@@ -5231,6 +5267,8 @@ class Huviz
       radius(@fisheye_radius).
       distortion(@fisheye_zoom)
     @force.linkDistance(@link_distance).gravity(@gravity)
+    if not @args.skip_log_tick
+      console.log("Tick in @force.linkDistance... update_fisheye")
 
   replace_human_term_spans: (optional_class) ->
     optional_class = optional_class or 'a_human_term'
@@ -5269,6 +5307,11 @@ class Huviz
     blank_verb: 'VERB'
     blank_noun: 'SET/SELECTION'
     hunt: 'HUNT'
+    walk: 'WALK'
+    walked: 'WALKED'
+    wander: 'WANDER'
+    draw: 'DRAW'
+    undraw: 'UNDRAW'
 
   # TODO add controls
   #   selected_border_thickness
@@ -5885,7 +5928,7 @@ class Huviz
                #   ones that do: charge, gravity, fisheye_zoom, fisheye_radius
       @update_fisheye()
       @updateWindow()
-    @tick()
+    @tick("Tick in update_graph_settings")
 
   change_setting_to_from: (setting_name, new_value, old_value, skip_custom_handler) =>
     skip_custom_handler = skip_custom_handler? and skip_custom_handler or false
@@ -6026,7 +6069,7 @@ class Huviz
     @update_labels_on_pickers()
     @gclui?.resort_pickers()
     if @ctx?
-      @tick()
+      @tick("Tick in on_change_language_path")
     return
 
   on_change_color_nodes_as_pies: (new_val, old_val) ->  # TODO why this == window ??
@@ -6081,7 +6124,6 @@ class Huviz
 
     s = "nodes:#{@nodes.length} predicates:#{pred_count} edges:#{edge_count}"
     console.log(s)
-    debugger
 
   fire_fileloaded_event: (uri) ->
     document.dispatchEvent(new CustomEvent("dataset-loaded", {detail: uri}))
@@ -6172,9 +6214,9 @@ class Huviz
     for cmdArgs in json
       if 'load' in cmdArgs.verbs
         saul_goodman = @adjust_menus_from_load_cmd(cmdArgs)
-      else if saul_goodman
-        @gclui.push_command_onto_history(@gclui.new_GraphCommand(cmdArgs))
-    #@gclui.reset_command_history()
+      else
+        @gclui.push_cmdArgs_onto_future(cmdArgs)
+    return
 
   parse_script_file: (data, fname) ->
     # There are two file formats, both with the extension .txt
@@ -6190,9 +6232,6 @@ class Huviz
       if line.includes(@json_script_marker)
         return JSON.parse(lines.join("\n"))
     return {}
-
-  # this is where the file should be read and run
-  #@huviz.load_script_from_JSON(@parse_script_file(evt.target.result, firstFile.name))
 
   boot_sequence: (script) ->
     # If we are passed an empty string that means there was an outer
@@ -6685,7 +6724,6 @@ class PickOrProvide
       else
         console.warn("TODO should set option to nothing")
 
-
   add_uri: (uri_or_rec) =>
     if typeof uri_or_rec is 'string'
       uri = uri_or_rec
@@ -6821,13 +6859,15 @@ class PickOrProvide
     @pick_or_provide_select = @form.find("select[name='pick_or_provide']")
     @pick_or_provide_select.attr('id',@select_id)
     #console.debug @css_class,@pick_or_provide_select
-    @pick_or_provide_select.change (e) =>
-      #e.stopPropagation()
-      @refresh()
+    @pick_or_provide_select.change(@onchange)
     @delete_option_button = @form.find('.delete_option')
     @delete_option_button.click(@delete_selected_option)
     @form.find('.delete_option').prop('disabled', true) # disabled initially
     #console.info "form", @form
+
+  onchange: (e) =>
+    #e.stopPropagation()
+    @refresh()
 
   get_selected_option: =>
     @pick_or_provide_select.find('option:selected') # just one CAN be selected
@@ -6851,12 +6891,18 @@ class PickOrProvide
   refresh: ->
     @update_state(@huviz.update_dataset_ontology_loader)
 
+class PickOrProvideScript extends PickOrProvide
+  onchange: (e) =>
+    super(e)
+    @huviz.visualize_dataset_using_ontology()
+
 # inspiration: https://css-tricks.com/drag-and-drop-file-uploading/
 class DragAndDropLoader
   tmpl: """
 	<form class="local_file_form" method="post" action="" enctype="multipart/form-data">
 	  <div class="box__input">
-	    <input class="box__file" type="file" name="files[]" id="file" data-multiple-caption="{count} files selected" multiple />
+	    <input class="box__file" type="file" name="files[]" id="file"
+             data-multiple-caption="{count} files selected" multiple />
 	    <label for="file"><span class="box__label">Choose a local file</span></label>
 	    <button class="box__upload_button" type="submit">Upload</button>
       <div class="box__dragndrop" style="display:none"> Drop URL or file here</div>
