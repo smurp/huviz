@@ -1,0 +1,66 @@
+          <div id="contents_of_intro_tab">
+            <h1 class="git-branch-is-<%= nopts.git_branch_name %>">
+              HuViz
+              <% if (nopts.git_commit_hash) { %>
+                <sup class="git_commit_hash">
+                  <a target="huviz_version"
+                     href="https://github.com/smurp/huviz/commit/<%= nopts.git_commit_hash %>"><%= nopts.git_commit_hash %></a>
+                </sup>
+              <% } %>
+            </h1>
+            <h2>RDF Explorer</h2>
+            <h6>(currently works best in Google Chrome)</h6>
+            <div class="huviz-versions">
+              <a href="http://huviz.dev.nooron.com"
+                 class="git-branch-is-master <% if (nopts.git_branch_name == 'master') {%>current-git-branch<% } %>">production</a>
+              <a href="http://beta.huviz.dev.nooron.com"
+                 class="git-branch-is-beta  <% if (nopts.git_branch_name == 'beta') { %>current-git-branch<% } %>">beta</a>
+              <a href="http://alpha.huviz.dev.nooron.com"
+                 class="git-branch-is-alpha  <% if (nopts.git_branch_name == 'alpha') { %>current-git-branch<% } %>">alpha</a>
+              <a href="/tests">tests</a>
+              <a href="/orlonto.html">ontology</a>
+            </div>
+            <p>
+              The Humanities Visualizer (HuViz) interface allows for the
+              exploration of semantic relationships and ontologies
+              represented using the Resource Description Framework.
+            </p>
+            <p>
+              You can load your own ontology and/or dataset, or you can
+              chose to explore one of the existing datasets available on the
+              Command panel to explore the information and relationships
+              encoded in the textbase
+              <a href="http://www.artsrn.ualberta.ca/orlando/">Orlando: Women's Writing in the British Isles from the Beginnings to the Present</a>.
+              For example, Huviz allows for the exploration in RDF triples that assert things like
+            </p>
+            <ul>
+              <li>
+                <span class='eg-subject'>Virginia Wolf</span>
+                <span class='eg-verb'>hasGender</span>
+                <span class='eg-object'>woman</span>
+              </li>
+              <li>
+                <span class='eg-subject'>Virginia Wolf</span>
+                <span class='eg-verb'>hasSister</span>
+                <span class='eg-object'>Vanessa Bell</span>
+              </li>
+              <li>
+                <span class='eg-subject'>Virginia Wolf</span>
+                <span class='eg-verb'>inhabits</span>
+                <span class='eg-object'>London</span>
+              </li>
+            </ul>
+            <p>
+              In addition to datasets, HuViz is also able to display
+              ontologies, the formal definition of things and
+              relationships. External files need to be in Turtle (.ttl)
+              format.
+            </p>
+            <div class="clear"></div>
+            <div class="usage_attribution">
+              <a href="https://github.com/cwrc/HuViz">HuViz is Available on GitHub</a>
+              <p>Datasets: <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC - Attribution-NonCommercial</a></p>
+              <p>Screenshots of HuViz: <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC - Attribution</a></p>
+              <div class="clear"></div>
+            </div>
+          </div>

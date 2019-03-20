@@ -1,15 +1,17 @@
 (function() {
-  var Stream, a, app, cooked_argv, createSnippetServer, eco, express, fs, knownOpts, localOrCDN, nopt, nopts, port, shortHands;
+  var Stream, a, app, cooked_argv, createSnippetServer, ejs, express, fs, knownOpts, localOrCDN, nopt, nopts, path, port, shortHands;
 
   express = require("express");
 
-  eco = require("eco");
+  ejs = require("ejs");
 
   nopt = require("nopt");
 
   Stream = require("stream").Stream;
 
   fs = require('fs');
+
+  path = require('path');
 
   cooked_argv = (function() {
     var _i, _len, _ref, _results;
@@ -53,15 +55,23 @@
 
   app = express.createServer();
 
-  localOrCDN = function(templatePath, isLocal) {
-    var respondDude, template;
-    template = fs.readFileSync(__dirname + templatePath, "utf-8");
-    respondDude = (function(_this) {
+  localOrCDN = function(templatePath, data, options) {
+    var fullPath;
+    if (options == null) {
+      options = {};
+    }
+    fullPath = path.join(process.cwd(), templatePath);
+    return (function(_this) {
       return function(req, res) {
-        return res.send(eco.render(template, nopts));
+        return ejs.renderFile(fullPath, data, options, function(err, str) {
+          if (err) {
+            return res.send(err);
+          } else {
+            return res.send(str);
+          }
+        });
       };
     })(this);
-    return respondDude;
   };
 
   createSnippetServer = function(xmlFileName, uppercase) {
@@ -130,7 +140,8 @@
 
   app.configure(function() {
     app.use(express.logger());
-    app.set("views", __dirname + "/views");
+    app.set("/views", __dirname + "/views");
+    app.set("/views/tabs", path.join(__dirname, 'tabs', "views"));
     app.use(app.router);
     app.use("/huviz", express["static"](__dirname + '/lib'));
     app.use('/css', express["static"](__dirname + '/css'));
@@ -148,10 +159,12 @@
     app.use('/chai', express["static"](__dirname + '/node_modules/chai'));
     app.use('/marked', express["static"](__dirname + '/node_modules/marked'));
     app.use('/docs', express["static"](__dirname + '/docs'));
-    app.get("/orlonto.html", localOrCDN("/views/orlonto.html.eco", nopts.is_local));
-    app.get("/yegodd.html", localOrCDN("/views/yegodd.html.eco", nopts.is_local));
-    app.get("/tests", localOrCDN("/views/tests.html.eco", nopts.is_local));
-    app.get("/", localOrCDN("/views/huvis.html.eco", nopts.is_local));
+    app.get("/tests", localOrCDN("/views/tests.html.ejs", {
+      nopts: nopts
+    }));
+    app.get("/", localOrCDN("/views/huvis.html.ejs", {
+      nopts: nopts
+    }));
     return app.use(express["static"](__dirname + '/images'));
   });
 

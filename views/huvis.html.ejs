@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Huvis Graph Visualization</title>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+    <link rel="icon" href="/favicon.ico?v=4" type="image/x-icon" />
+    <link href="/jquery-ui-css/jquery-ui.css" rel="stylesheet"/>
+    <link href="/css/huvis.css" rel="stylesheet" type="text/css">
+    <link href="/css/huvis_controls.css" rel="stylesheet" type="text/css">
+    <link href="/css/lariat.css" rel="stylesheet" type="text/css">
+    <link href="/css/CRRT.css" rel="stylesheet" type="text/css">
+    <link href="/css/gclui.css" rel="stylesheet" type="text/css">
+    <link href="/css/help.css" rel="stylesheet" type="text/css">
+    <style></style>
+  <% if (nopts.is_local) { %>
+    <!--
+    <XXlink href="/css/debugging.css" rel="stylesheet"/>
+      -->
+  <% } %>
+    <script>
+      window.module = {};
+    </script>
+    <script src="/node_modules/async/lib/async.js"></script>
+    <script src="/vendor/green_turtle.js"></script>
+    <script src="/marked/marked.min.js"></script>
+    <script src="//cdn.rawgit.com/fnando/sparkline/master/dist/sparkline.js"></script>
+  <% if (nopts.is_local) { %>
+    <script src="/jquery/jquery.js"></script>
+    <script src="/jquery-ui/jquery-ui.min.js"></script>
+  <% } else { %>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+  <% } %>
+  </head>
+  <body id="body">
+    <div id="performance_dashboard"></div>
+    <div id="full_screen" style="position:absolute;z-index:999"><i class="fa fa-arrows-alt"></i></div>
+    <div id="snippet_box"></div>
+    <div id="expand_cntrl" style="visibility:hidden"><i class="fa fa-angle-double-left"></i></div>
+    <div id="TABS_GO_HERE"></div>
+    <div id="vis" class="underneath" style="z-index:-3"></div>
+    <div id="viscanvas" class="underneath"></div>
+    <pre id="status"></pre>
+    <div id="state_msg_box"></div>
+    <div style="display:none"> <%- include('tabs/intro') %> </div>
+    <script src="/huviz/huviz.js?23234"></script>
+    <script src="/js/init_huvis.js"></script>
+
+  <% if (nopts.git_commit_hash) { %>
+    <div id="graph_title_set" class="git_commit_hash_watermark">
+      <a class="git_commit_hash_watermark subliminal"
+         target="huviz_version"  tabindex="-1"
+         href="https://github.com/smurp/huviz/commit/<%= nopts.git_commit_hash %>"><%= nopts.git_commit_hash %></a>
+      <span id="dataset_watermark" class="subliminal"></span>
+      <span id="ontology_watermark" class="subliminal"></span>
+    </div>
+  <% } %>
+  </body>
+</html>
