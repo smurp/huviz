@@ -4726,7 +4726,7 @@ class Huviz
       @script_loader = new PickOrProvide(@, @args.script_loader__append_to_sel,
         'Script', 'ScriptPP', false, false,
         {dndLoaderClass: DragAndDropLoaderOfScripts; rsrcType: 'script'})
-      $("#"+@script_loader.uniq_id).hide() # TEMPORARILY HIDE SCRIPT MENU
+      #$("#"+@script_loader.uniq_id).hide() # TEMPORARILY HIDE SCRIPT MENU
     if not @endpoint_loader and @args.endpoint_loader__append_to_sel
       @endpoint_loader = new PickOrProvide(@, @args.endpoint_loader__append_to_sel,
         'Sparql', 'EndpointPP', false, true,
@@ -4767,7 +4767,8 @@ class Huviz
       return
     # Either dataset and ontologies are passed in by HuViz.load_with() from a command
     #   or this method is called with neither in which case get values from the loaders
-    if @script_loader.value
+    alreadyCommands = (@gclui.command_list? and @gclui.command_list.length)
+    if @script_loader.value and not alreadyCommands
       scriptUri = @script_loader.value
       @get_resource_from_db(scriptUri, @load_script_from_db)
       return
@@ -4940,9 +4941,12 @@ class Huviz
       return
     return
 
+  set_dataset_with_uri: (uri) ->
+    option = $('option[value="' + uri + '"]')
+    @dataset_loader.select_option(option)
+
   set_ontology_with_uri: (ontologyUri) ->
     ontology_option = $('option[value="' + ontologyUri + '"]')
-    #console.log("set_ontology_with_uri",ontologyUri, ontology_option)
     @ontology_loader.select_option(ontology_option)
 
   populate_sparql_label_picker: () =>
@@ -6150,13 +6154,26 @@ class Huviz
     console.log("script", script)
     return script
 
+  adjust_menus_from_load_cmd: (cmd) ->
+    # Adjust the dataset and ontology loaders to match the cmd
+    if cmd.ontologies and cmd.ontologies.length > 0 and not @ontology_loader.value
+      @set_ontology_with_uri(cmd.ontologies[0])
+      if cmd.data_uri and not @dataset_loader.value
+        @set_dataset_with_uri(cmd.data_uri)
+        return true
+    return false
+
   # recognize that changing this will likely break old hybrid HuVizScripts
   json_script_marker: "# JSON FOLLOWS"
 
   load_script_from_JSON: (json) ->
     #alert('load_script_from_JSON')
+    saul_goodman = false
     for cmdArgs in json
-      @gclui.push_command_onto_history(@gclui.new_GraphCommand(cmdArgs))
+      if 'load' in cmdArgs.verbs
+        saul_goodman = @adjust_menus_from_load_cmd(cmdArgs)
+      else if saul_goodman
+        @gclui.push_command_onto_history(@gclui.new_GraphCommand(cmdArgs))
     #@gclui.reset_command_history()
 
   parse_script_file: (data, fname) ->
@@ -6658,17 +6675,16 @@ class PickOrProvide
     #   it is as if each of the new datasets is being selected as it is
     #   added -- but when the user picks an actual ontology then
     #   @set_ontology_from_dataset_if_possible() fails if the new_val == @last_val
-    if cur_val isnt @last_val and not @isOntology
+    if cur_val isnt @last_val # and not @isOntology
       @last_val = cur_val
     if @last_val isnt new_val
       @last_val = new_val
       if new_val
         @pick_or_provide_select.val(new_val)
+        @value = new_val
       else
         console.warn("TODO should set option to nothing")
-        # @pick_or_provide_select.val()
-      #if confirm("refresh?")
-      #  @refresh()
+
 
   add_uri: (uri_or_rec) =>
     if typeof uri_or_rec is 'string'
