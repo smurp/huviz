@@ -1,6 +1,7 @@
 {
   "name": "huviz",
   "version": "0.27.0",
+  "license": "GPL-3.0",
   "repository": {
     "type": "git",
     "url": "http://github.com/smurp/huviz.git"
