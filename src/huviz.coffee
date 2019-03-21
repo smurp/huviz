@@ -949,6 +949,9 @@ class Huviz
   # resize-svg-when-window-is-resized-in-d3-js
   #   http://stackoverflow.com/questions/16265123/
   updateWindow: =>
+    if not @container
+      console.warn('updateWindow() skipped until @container')
+      return
     @get_container_width()
     @get_container_height()
     @update_graph_radius()
@@ -5361,6 +5364,7 @@ class Huviz
     huviz_top_sel: unique_id('#huviz_top_') # if not provided then create
     make_pickers: true
     performance_dashboard_sel: unique_id('#performance_dashboard_')
+    settings: {}
     skip_log_tick: true
     state_msg_box_sel: unique_id('#state_msg_box_')
     status_sel: unique_id('#status_')
@@ -5459,6 +5463,7 @@ class Huviz
     ###
     @container = d3.select(@args.viscanvas_sel).node().parentNode
     @init_graph_controls_from_json()
+    @apply_settings(@args.settings)
     if @use_fancy_cursor
       @text_cursor = new TextCursor(@args.viscanvas_sel, "")
       @install_update_pointer_togglers()
@@ -6242,6 +6247,10 @@ class Huviz
       @update_fisheye()
       @updateWindow()
     @tick("Tick in update_graph_settings")
+
+  apply_settings: (settings) ->
+    for setting, value of settings
+      @change_setting_to_from(setting, value)
 
   change_setting_to_from: (setting_name, new_value, old_value, skip_custom_handler) =>
     skip_custom_handler = skip_custom_handler? and skip_custom_handler or false

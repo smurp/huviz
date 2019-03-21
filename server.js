@@ -159,6 +159,9 @@
     app.use('/chai', express["static"](__dirname + '/node_modules/chai'));
     app.use('/marked', express["static"](__dirname + '/node_modules/marked'));
     app.use('/huviz/docs', express["static"](__dirname + '/docs'));
+    app.get("/flower", localOrCDN("/views/flower.html.ejs", {
+      nopts: nopts
+    }));
     app.get("/tests", localOrCDN("/views/tests.html.ejs", {
       nopts: nopts
     }));
