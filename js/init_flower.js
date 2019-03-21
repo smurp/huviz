@@ -8,7 +8,16 @@ window.addEventListener('load',function(){
   HVZ = new huviz.Orlando({
     //use_old_tab_ids: true, // TODO (wolf) comment this out when you have converted tab CSS to be based on classes
     huviz_top_sel: "#FLOWER_TOP",
-    settings: {theme_colors: 'dark'},
+    settings: {
+      fisheye_zoom: 1
+      , fisheye_radius: 0
+      , link_distance: 0
+      , gravity: 1
+      , make_nodes_for_literals: false
+      , theme_colors: 'dark'
+      , show_edges: false
+      , single_chosen: true
+    },
     // pass in the tab_specs to override the defaults_tab_specs
     tab_specs:
     [

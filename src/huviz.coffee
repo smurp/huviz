@@ -1730,6 +1730,8 @@ class Huviz
                          e.target.fisheye.y, sway, "black", e.contexts.length, 1, e, directional_edge)
 
   draw_edges: ->
+    if not @show_edges
+      return
     if @use_canvas
       @graphed_set.forEach (node, i) =>
         @draw_edges_from(node)
@@ -2078,7 +2080,7 @@ class Huviz
     @find_node_or_edge_closest_to_pointer()
     @auto_change_verb()
     @on_tick_change_current_command_if_warranted()
-    @update_snippet() # continuously update the snippet based on the currently focused_edge
+    #@update_snippet() // not in use
     @blank_screen()
     @draw_dropzones()
     @fisheye.focus @last_mouse_pos
@@ -2133,6 +2135,8 @@ class Huviz
     ctx.strokeText("  " + label + "  ", x, y)
 
   draw_edge_labels: ->
+    if not @show_edges
+      return
     if @focused_edge?
       @draw_edge_label(@focused_edge)
     if @show_edge_labels_adjacent_to_labelled_nodes
@@ -5748,7 +5752,7 @@ class Huviz
           title: "how big the fisheye is"
         input:
           value: 300
-          min: 40
+          min: 0
           max: 2000
           step: 20
           type: "range"
@@ -6145,6 +6149,25 @@ class Huviz
           type: "checkbox"
           #checked: "checked"
         event_type: "change"
+    ,
+      show_edges:
+        style: "color:red"
+        text: "Show Edges"
+        label:
+          title: "Do draw edges"
+        input:
+          type: "checkbox"
+          checked: "checked"
+        event_type: "change"
+    ,
+      single_chosen:
+        style: "color:red"
+        text: "Single Active Node"
+        label:
+          title: "Only use verbs which have one chosen node at a time"
+        input:
+          type: "checkbox"
+        event_type: "change"
     ]
 
   dump_current_settings: (post) =>
@@ -6251,6 +6274,7 @@ class Huviz
   apply_settings: (settings) ->
     for setting, value of settings
       @change_setting_to_from(setting, value)
+      console.warn("should adjust the Settings INPUT for #{setting} too")
 
   change_setting_to_from: (setting_name, new_value, old_value, skip_custom_handler) =>
     skip_custom_handler = skip_custom_handler? and skip_custom_handler or false
