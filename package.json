@@ -6,6 +6,11 @@
     "type": "git",
     "url": "http://github.com/smurp/huviz.git"
   },
+  "author": "Shawn Murphy <smurp@smurp.com> (http://smurp.com)",
+  "contributors": [
+    "Wolf Maul",
+    "John Simpson <john.simpson@ualberta.ca>"
+  ],
   "config": {
     "port": "9998"
   },
