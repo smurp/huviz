@@ -1023,6 +1023,36 @@ class Huviz
       @ctx.fillStyle = "black"
       @ctx.fill()
 
+  draw_round_img: (cx, cy, radius, strclr, filclr, special_focus, img) ->
+    incl_cntr = start_angle? or end_angle?
+    start_angle = start_angle or 0
+    end_angle = end_angle or tau
+    if strclr
+      @ctx.strokeStyle = strclr or "blue"
+    @ctx.beginPath()
+    if incl_cntr
+      @ctx.moveTo(cx, cy) # so the arcs are wedges not chords
+      # do not incl_cntr when drawing a whole circle
+    @ctx.arc(cx, cy, radius, start_angle, end_angle, true)
+    @ctx.closePath()
+    if strclr
+      @ctx.stroke()
+    if filclr
+      @ctx.fill()
+    if img?
+      wh = 100 # radius*2
+      # note that drawImage can clip for the centering task
+      #   https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage
+      @ctx.drawImage(img, cx-radius, cy-radius, radius*2, radius*2)
+
+    if special_focus # true if this is a wander or walk highlighted node
+      @ctx.beginPath()
+      radius = radius/2
+      @ctx.arc(cx, cy, radius, 0, Math.PI*2)
+      @ctx.closePath()
+      @ctx.fillStyle = "black"
+      @ctx.fill()
+
   draw_triangle: (x, y, size, color, x1, y1, x2, y2) ->
     # Rather than send all three coordinates, it would be better if just the tip
     # was passed along with an angle and size to calculate the other two points of the
@@ -1826,6 +1856,15 @@ class Huviz
                       rndng,
                       stroke_color,
                       filclr)
+          else if @default_node_url
+            img = @get_or_create_round_img(@default_node_url)
+            @draw_round_img(
+              d.fisheye.x, d.fisheye.y,
+              node_radius,
+              stroke_color,
+              filclr,
+              special_focus,
+              img)
           else
             @draw_pie(d.fisheye.x, d.fisheye.y,
                       node_radius,
@@ -1840,6 +1879,18 @@ class Huviz
       @recolor_node(n, default_color)
       return n._colors
     return [n.color or default_color]
+
+  get_or_create_round_img: (url) ->
+    @round_img_cache ?= {}
+    if not (img = @round_img_cache[url])
+      style="border-radius:100%;position:absolute;top:32px;left:32px;object-fit:cover;width:64px;height:64px"
+
+      style="border-radius:100%;object-fit:cover;width:64px;height:64px"
+      img = document.createElement('img')
+      img.src = url
+      img.style = style
+      @round_img_cache[url] = img
+    return img
 
   get_label_attributes: (d) ->
     text = d.pretty_name

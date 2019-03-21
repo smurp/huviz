@@ -9,12 +9,17 @@ window.addEventListener('load',function(){
     //use_old_tab_ids: true, // TODO (wolf) comment this out when you have converted tab CSS to be based on classes
     huviz_top_sel: "#FLOWER_TOP",
     settings: {
-      fisheye_zoom: 1
+      charge: -600
+      , shelf_radius: 1
+      , fisheye_zoom: 1
       , fisheye_radius: 0
-      , link_distance: 0
+      , default_node_url: '/huviz/docs/orlando_tree_logo.png'
+      //, // should use weird shape to test circular clipping
       , gravity: 1
+      , link_distance: 0
       , make_nodes_for_literals: false
-      , theme_colors: 'dark'
+      //, theme_colors: 'dark'
+      , node_radius: 25
       , show_edges: false
       , single_chosen: true
     },
