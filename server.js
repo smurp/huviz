@@ -162,6 +162,9 @@
     app.get("/flower", localOrCDN("/views/flower.html.ejs", {
       nopts: nopts
     }));
+    app.get("/boxed", localOrCDN("/views/boxed.html.ejs", {
+      nopts: nopts
+    }));
     app.get("/tests", localOrCDN("/views/tests.html.ejs", {
       nopts: nopts
     }));

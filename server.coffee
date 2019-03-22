@@ -132,6 +132,7 @@ app.configure ->
   app.use('/marked', express.static(__dirname + '/node_modules/marked'))
   app.use('/huviz/docs', express.static(__dirname + '/docs'))
   app.get("/flower", localOrCDN("/views/flower.html.ejs", {nopts: nopts}))
+  app.get("/boxed", localOrCDN("/views/boxed.html.ejs", {nopts: nopts}))
   #app.get("/orlonto.html", localOrCDN("/views/orlonto.html.ejs", nopts.is_local))
   #app.get("/yegodd.html", localOrCDN("/views/yegodd.html.ejs", nopts.is_local))
   #app.get "/experiment.html", localOrCDN("/views/experiment.html", nopts.is_local)
