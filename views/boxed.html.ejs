@@ -31,13 +31,13 @@
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
   <% } %>
   </head>
-  <body id="body">
-    <div id="HUVIZ_TOP" class="HUVIZ_TOP huviz_wrapper"></div>
+  <body id="body" style="background-color:grey">
     <% if (nopts.git_commit_hash) { %>
     <script type="text/javascript">
       window.HUVIZ_GIT_COMMIT_HASH = "<%= nopts.git_commit_hash %>";
     </script>
     <% } %>
+    <div id="HUVIZ_TOP" class="HUVIZ_TOP huviz_wrapper" style="margin:5%;width:90%;height:90%"></div>
     <div style="display:none">
       <%# until the intro tab is rendered as markdown %>
       <%- include('tabs/intro') %>

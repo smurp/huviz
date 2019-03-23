@@ -32,12 +32,12 @@
   <% } %>
   </head>
   <body id="body" style="background-color:grey">
-    <div id="FLOWER_TOP" class="FLOWER_TOP" XXXstyle="margin:5%;width:90%;height:90%;background-color:white"></div>
-
-    <!--
-         The following provides the tabs/intro content for moving into the Intro tab.
-         Do it like credits.md as soon as we have converted it into Markdown.
-      -->
+    <% if (nopts.git_commit_hash) { %>
+    <script type="text/javascript">
+      window.HUVIZ_GIT_COMMIT_HASH = "<%= nopts.git_commit_hash %>";
+    </script>
+    <% } %>
+    <div id="FLOWER_TOP" class="FLOWER_TOP huviz_wrapper" style="margin:5%;width:90%;height:90%;background-color:white"></div>
     <script src="/huviz/huviz.js?23234"></script>
     <script src="/js/init_flower.js"></script>
 
