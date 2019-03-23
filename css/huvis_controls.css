@@ -482,42 +482,42 @@ progress[value]::-moz-progress-bar {
 .subliminal {
     color: #D7D7D7;
 }
-#dataset_watermark.bold1 {
+.dataset_watermark.bold1 {
     color: #333333;
     font-weight: bold;
     font-size: 120%;
     display:block;
 }
-.theme_black #dataset_watermark.bold1 {
+.theme_black .dataset_watermark.bold1 {
     color: #DDDDDD;
 }
-#dataset_watermark.bold2 {
+.dataset_watermark.bold2 {
     color: #333333;
     font-weight: bold;
     font-size: 120%;
     padding-right: 1em;
 }
-#ontology_watermark.bold2 {
+.ontology_watermark.bold2 {
     color: #333333;
 }
-.theme_black #dataset_watermark.bold2, .theme_black #ontology_watermark.bold2{
+.theme_black .dataset_watermark.bold2, .theme_black .ontology_watermark.bold2{
     color: #DDDDDD;
 }
-#dataset_watermark.custom {
+.dataset_watermark.custom {
     color: #333333;
     font-weight: bold;
     font-size: 120%;
     display:block;
 }
-#ontology_watermark.custom {
+.ontology_watermark.custom {
     color: #333333;
     font-size: 100%;
     display:block;
 }
-.theme_black #dataset_watermark.custom {
+.theme_black .dataset_watermark.custom {
     color: #DDDDDD;
 }
-.theme_black #ontology_watermark.custom {
+.theme_black .ontology_watermark.custom {
     color: #DDDDDD;
 }
 

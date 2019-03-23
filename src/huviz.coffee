@@ -1436,12 +1436,12 @@ class Huviz
       console.log "Tick in @force.nodes() reset_graph"
 
     # TODO move this SVG code to own renderer
-    d3.select(".link").remove()
-    d3.select(".node").remove()
-    d3.select(".lariat").remove()
-    @node = @svg.selectAll(".node")
-    @link = @svg.selectAll(".link") # looks bogus, see @link assignment below
-    @lariat = @svg.selectAll(".lariat")
+    d3.select("#{@args.huviz_top_sel} .link").remove()
+    d3.select("#{@args.huviz_top_sel} .node").remove()
+    d3.select("#{@args.huviz_top_sel} .lariat").remove()
+    @node = @svg.selectAll("#{@args.huviz_top_sel} .node")
+    @link = @svg.selectAll("#{@args.huviz_top_sel} .link") # looks bogus, see @link assignment below
+    @lariat = @svg.selectAll("#{@args.huviz_top_sel} .lariat")
 
     @link = @link.data(@links_set)
     @link.exit().remove()
@@ -1461,7 +1461,8 @@ class Huviz
       @node_radius_policy = f
     else
       console.log "f =", f
-  init_node_radius_policy: ->
+
+  DEPRECATED_init_node_radius_policy: ->
     policy_box = d3.select("#huvis_controls").append("div", "node_radius_policy_box")
     policy_picker = policy_box.append("select", "node_radius_policy")
     policy_picker.on "change", set_node_radius_policy
@@ -5030,9 +5031,30 @@ class Huviz
     if dataset.value
       document.title = dataset.label + " - Huvis Graph Visualization"
 
+  make_git_link: ->
+    base = @args.git_base_url
+    """<a class="git_commit_hash_watermark subliminal"
+         target="huviz_version"  tabindex="-1"
+         href="#{base}#{@git_commit_hash}">#{@git_commit_hash}</a>""" # """
+
+  create_caption: ->
+    @captionId = @unique_id('caption_')
+    @addDivWithIdAndClasses(@captionId, "graph_title_set git_commit_hash_watermark")
+    @captionElem = document.querySelector('#' + @captionId)
+    if @git_commit_hash
+      @insertBeforeEnd(@captionElem, @make_git_link())
+    dm = 'dataset_watermark'
+    @insertBeforeEnd(@captionElem, """<span class="#{dm} subliminal"></span>""") #
+    @make_JQElem(dm, @args.huviz_top_sel + ' .' + dm) # @dataset_watermark_JQElem
+    om = 'ontology_watermark'
+    @insertBeforeEnd(@captionElem, """<span class="#{om} subliminal"></span>""") #
+    @make_JQElem(om, @args.huviz_top_sel + ' .' + om) # @ontology_watermark_JQElem
+    return
+
   update_caption: (dataset_str, ontology_str) ->
-    $("#dataset_watermark").text(dataset_str)
-    $("#ontology_watermark").text(ontology_str)
+    @dataset_watermark_JQElem.text(dataset_str)
+    @ontology_watermark_JQElem.text(ontology_str)
+    return
 
   set_ontology_from_dataset_if_possible: ->
     if @dataset_loader.value # and not @ontology_loader.value
@@ -5046,19 +5068,21 @@ class Huviz
     @ontology_loader.update_state()
 
   set_ontology_with_label: (ontology_label) ->
-    sel = "[label='#{ontology_label}']"
-    #console.log("$('#{sel}')")
+    topSel = @args.huviz_top_sel
+    sel = topSel + " [label='#{ontology_label}']"
     for ont_opt in $(sel) # FIXME make this re-entrant
       @ontology_loader.select_option($(ont_opt))
       return
     return
 
   set_dataset_with_uri: (uri) ->
-    option = $('option[value="' + uri + '"]')
+    topSel = @args.huviz_top_sel
+    option = $(topSel + ' option[value="' + uri + '"]')
     @dataset_loader.select_option(option)
 
   set_ontology_with_uri: (ontologyUri) ->
-    ontology_option = $('option[value="' + ontologyUri + '"]')
+    topSel = @args.huviz_top_sel
+    ontology_option = $(topSel + ' option[value="' + ontologyUri + '"]')
     @ontology_loader.select_option(ontology_option)
 
   populate_sparql_label_picker: () =>
@@ -5421,6 +5445,7 @@ class Huviz
     add_to_HVZ: true
     ctrl_handle_sel: unique_id('#ctrl_handle_')
     gclui_sel: unique_id('#gclui_')
+    git_base_url: "https://github.com/smurp/huviz/commit/"
     huviz_top_sel: unique_id('#huviz_top_') # if not provided then create
     make_pickers: true
     performance_dashboard_sel: unique_id('#performance_dashboard_')
@@ -5492,6 +5517,7 @@ class Huviz
     @create_collapse_expand_handles()
     @create_fullscreen_handle()
     @init_ontology()
+    @create_caption()
     @off_center = false # FIXME expose this or make the amount a slider
     document.addEventListener('nextsubject', @onnextsubject)
     @init_snippet_box()  # FIXME not sure this does much useful anymore
@@ -6025,7 +6051,7 @@ class Huviz
     ,
       prune_walk_nodes:
         text: "Walk styles "
-        style: "color:orange"
+        style: "display:none"
         label:
           title: "As path is walked, keep or prune connected nodes on selected steps"
         input:
@@ -6438,32 +6464,32 @@ class Huviz
 
   on_change_graph_title_style: (new_val, old_val) ->
     if new_val is "custom"
-      $(".main_title").removeAttr("style")
-      $(".sub_title").removeAttr("style")
+      @topJQElem.find(".main_title").removeAttr("style")
+      @topJQElem.find(".sub_title").removeAttr("style")
       $("#graph_custom_main_title").css('display', 'inherit')
       $("#graph_custom_sub_title").css('display', 'inherit')
-      custTitle = $("input[name='graph_custom_main_title']")
-      custSubTitle = $("input[name='graph_custom_sub_title']")
+      custTitle = @topJQElem.find("input[name='graph_custom_main_title']")
+      custSubTitle = @topJQElem.find("input[name='graph_custom_sub_title']")
       @update_caption(custTitle[0].title, custSubTitle[0].title)
-      $("a.git_commit_hash_watermark").css('display', 'none')
-      $("#ontology_watermark").attr('style', '')
+      @topJQElem.find("a.git_commit_hash_watermark").css('display', 'none')
+      @ontology_watermark_JQElem.attr('style', '')
     else if new_val is "bold1"
-      $("#ontology_watermark").css('display', 'none')
+      @ontology_watermark_JQElem.css('display', 'none')
     else
       $("#graph_custom_main_title").css('display', 'none')
       $("#graph_custom_sub_title").css('display', 'none')
-      $("a.git_commit_hash_watermark").css('display', 'inherit')
-      $("#ontology_watermark").attr('style', '')
+      @topJQElem.find("a.git_commit_hash_watermark").css('display', 'inherit')
+      @ontology_watermark_JQElem.attr('style', '')
       @update_caption(@dataset_loader.value,@ontology_loader.value)
-    $("#dataset_watermark").removeClass().addClass(new_val)
-    $("#ontology_watermark").removeClass().addClass(new_val)
+    @dataset_watermark_JQElem.removeClass().addClass(new_val)
+    @ontology_watermark_JQElem.removeClass().addClass(new_val)
 
   on_change_graph_custom_main_title: (new_val) ->
     # if new custom values then update titles
-    $("#dataset_watermark").text(new_val)
+    @dataset_watermark_JQElem.text(new_val)
 
   on_change_graph_custom_sub_title: (new_val) ->
-    $("#ontology_watermark").text(new_val)
+    @ontology_watermark_JQElem.text(new_val)
 
   on_change_language_path: (new_val, old_val) ->
     try
