@@ -39,12 +39,11 @@
          Do it like credits.md as soon as we have converted it into Markdown.
       -->
     <div style="display:none"> <%- include('tabs/intro') %> </div>
-
+    <% if (nopts.git_commit_hash) { %>
     <script type="text/javascript">
-      if (nopts.git_commit_hash) {
-        window.HUVIZ_GIT_COMMIT_HASH = nopts.git_commit_hash;
-      }
+      window.HUVIZ_GIT_COMMIT_HASH = "<%= nopts.git_commit_hash %>";
     </script>
+    <% } %>
     <script src="/huviz/huviz.js?23234"></script>
     <script src="/js/init_huvis.js"></script>
 
