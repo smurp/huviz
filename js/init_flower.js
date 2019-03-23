@@ -5,7 +5,7 @@ window.addEventListener('load',function(){
   document.addEventListener('dataset-loaded', function(e) {
   }, false);
   huviz = require('huviz');
-  HVZ = new huviz.Orlando({
+  new huviz.Orlando({
     //use_old_tab_ids: true, // TODO (wolf) comment this out when you have converted tab CSS to be based on classes
     huviz_top_sel: "#FLOWER_TOP",
     settings: {
@@ -51,5 +51,4 @@ window.addEventListener('load',function(){
       , '/data/cwrc_endpoints.json'
     ]
   });
-  HVZ.replace_human_term_spans('ui-widget');
 });
