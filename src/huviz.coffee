@@ -5289,11 +5289,6 @@ class Huviz
       @oldToUniqueTabSel[firstClass] = idSel
       theTabs += """<li><a href="#{idSel}" title="#{t.title}">#{t.text}</a></li>"""
 
-      # YUP this is automatically cramming the gclui div inside the huvis_controls pane
-      # TODO build the huvis_controls directly in there, or something, when removing id references such as #gclui
-      if firstClass is 'huvis_controls' and false
-        t.kids = """<div id="gclui" style="display:none"></div>"""
-
       theDivs += """<div id="#{id}" class="#{t.cssClass}">#{t.kids or ''}</div>"""
       if not marked?
         console.info('marked does not exist yet')
