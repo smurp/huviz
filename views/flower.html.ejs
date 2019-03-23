@@ -30,25 +30,17 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
   <% } %>
-  </head>
-  <body id="body" style="background-color:grey">
     <% if (nopts.git_commit_hash) { %>
     <script type="text/javascript">
       window.HUVIZ_GIT_COMMIT_HASH = "<%= nopts.git_commit_hash %>";
     </script>
     <% } %>
-    <div id="FLOWER_TOP" class="FLOWER_TOP huviz_wrapper" style="margin:5%;width:90%;height:90%;background-color:white"></div>
+  </head>
+  <body id="body" style="background-color:grey">
+    <div id="FLOWER_TOP" class="FLOWER_TOP huviz_wrapper"
+         style="margin:5%;width:90%;height:90%;background-color:grey"></div>
     <script src="/huviz/huviz.js?23234"></script>
     <script src="/js/init_flower.js"></script>
 
-  <% if (nopts.git_commit_hash) { %>
-    <div id="graph_title_set" class="git_commit_hash_watermark">
-      <a class="git_commit_hash_watermark subliminal"
-         target="huviz_version"  tabindex="-1"
-         href="https://github.com/smurp/huviz/commit/<%= nopts.git_commit_hash %>"><%= nopts.git_commit_hash %></a>
-      <span id="dataset_watermark" class="subliminal"></span>
-      <span id="ontology_watermark" class="subliminal"></span>
-    </div>
-  <% } %>
   </body>
 </html>
