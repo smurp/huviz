@@ -33,17 +33,15 @@
   </head>
   <body id="body">
     <div id="HUVIZ_TOP" class="HUVIZ_TOP huviz_wrapper"></div>
-
-    <!--
-         The following provides the tabs/intro content for moving into the Intro tab.
-         Do it like credits.md as soon as we have converted it into Markdown.
-      -->
-    <div style="display:none"> <%- include('tabs/intro') %> </div>
     <% if (nopts.git_commit_hash) { %>
     <script type="text/javascript">
       window.HUVIZ_GIT_COMMIT_HASH = "<%= nopts.git_commit_hash %>";
     </script>
     <% } %>
+    <div style="display:none">
+      <%# until the intro tab is rendered as markdown %>
+      <%- include('tabs/intro') %>
+    </div>
     <script src="/huviz/huviz.js?23234"></script>
     <script src="/js/init_huvis.js"></script>
 
