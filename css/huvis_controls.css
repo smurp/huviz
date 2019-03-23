@@ -2,12 +2,17 @@
   clear:both;
 }
 
+.huviz_wrapper {
+  position: relative;
+  height: 100%;
+}
+
 .the-tabs {
   font-size:80%;
 }
 
-.huviz_tabs {
-  position: fixed;
+.huviz_wrapper .huviz_tabs {
+  position: absolute;
   width: 26em;
   right: 0px;
   font-size: 80%;
