@@ -5418,6 +5418,7 @@ class Huviz
   constructor: (incoming_args) -> # Huviz
     #if @pfm_display is true
     #  @pfm_dashboard()
+    @git_commit_hash = window.HUVIZ_GIT_COMMIT_HASH
     @args = @calculate_args(incoming_args)
     @ensureTopElem()
     if @args.create_tabs_adjacent_to_selector

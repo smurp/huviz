@@ -32,6 +32,11 @@
   <% } %>
   </head>
   <body id="body" style="background-color:grey">
+    <script type="text/javascript">
+      if (nopts.git_commit_hash) {
+        window.HUVIZ_GIT_COMMIT_HASH = nopts.git_commit_hash;
+      }
+    </script>
     <div id="HUVIZ_TOP" class="HUVIZ_TOP" style="margin:5%;width:90%;height:90%"></div>
 
     <!--

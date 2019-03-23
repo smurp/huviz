@@ -40,6 +40,11 @@
       -->
     <div style="display:none"> <%- include('tabs/intro') %> </div>
 
+    <script type="text/javascript">
+      if (nopts.git_commit_hash) {
+        window.HUVIZ_GIT_COMMIT_HASH = nopts.git_commit_hash;
+      }
+    </script>
     <script src="/huviz/huviz.js?23234"></script>
     <script src="/js/init_huvis.js"></script>
 

@@ -8,7 +8,6 @@ window.addEventListener('load',function(){
   HVZ = new huviz.Orlando({
     //use_old_tab_ids: true, // TODO (wolf) comment this out when you have converted tab CSS to be based on classes
     huviz_top_sel: "#HUVIZ_TOP",
-//    graph_controls_sel: '#tabs-options',
     // pass in the tab_specs to override the defaults_tab_specs
     tab_specs:
     [
