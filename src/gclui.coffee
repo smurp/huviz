@@ -34,6 +34,7 @@ class CommandController
     if @huviz.args.display_hints
       @hints = d3.select(@container).append("div").attr("class","hints")
       $(".hints").append($(".hint_set").contents())
+    @style_context_selector = @huviz.get_picker_style_context_selector()
     @make_command_history()
     @control_label("Current Command")
     @nextcommandbox = @comdiv.append('div')
@@ -426,7 +427,11 @@ class CommandController
     @predicates_ignored = []
     @predicate_picker = new ColoredTreePicker(
       @predicatebox, 'anything',
-      (extra_classes=[]), (needs_expander=true), (use_name_as_label=true), (squash_case=true))
+      (extra_classes=[]),
+      (needs_expander=true),
+      (use_name_as_label=true),
+      (squash_case=true),
+      @style_context_selector)
     @predicate_hierarchy = {'anything':['anything']}
     # FIXME Why is show_tree being called four times per node?
     @predicate_picker.click_listener = @handle_on_predicate_clicked
@@ -501,7 +506,8 @@ class CommandController
       (extra_classes=[]),
       (needs_expander=true),
       (use_name_as_label=true),
-      (squash_case=true))
+      (squash_case=true),
+      @style_context_selector)
     @taxon_picker.click_listener = @handle_on_taxon_clicked
     @taxon_picker.hover_listener = @on_taxon_hovered
     @taxon_picker.show_tree(@hierarchy, @taxon_box)

@@ -5371,6 +5371,12 @@ class Huviz
     @topJQElem = $(@topElem)
     return
 
+  get_picker_style_context_selector: ->
+    # The selector of the context which the picker's colors are constrained to.
+    # What?  To keep the colors which any ColorTreePickers create confined to
+    # this particular HuViz instance.
+    return @args.huviz_top_sel
+
   addHTML: (html) ->
     @insertBeforeEnd(@topElem, html)
 
