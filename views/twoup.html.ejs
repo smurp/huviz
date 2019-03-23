@@ -38,30 +38,36 @@
       }
     </script>
     <style>
-      .outerBox: {
-          height:100%;
-          width:100%;
-          display:table;
+      .outerBox {
+        height: 100%;
+        overflow: hidden;
       }
       .innerBox {
-          margin:5%;
-          height:90%;
-          width:40%;
-          float:left;
+        margin: 2%;
+        height: 96%;
+        width: 46%;
+        float: left;
+        overflow: hidden;
+      }
+      .test_tag {
+        width: 400px;
+        height: 40px;
+        background-color: pink;
+        position: absolute;
       }
     </style>
     <div class="outerBox">
-      <div id="HUVIZ_TOP" class="HUVIZ_TOP innerBox"
-           style="background-color:red">LEFT</div>
-      <div id="FLOWER_TOP" class="FLOWER_TOP innerBox"
-           style="background-color:green">RIGHT</div>
+      <div id="HUVIZ_TOP" class="HUVIZ_TOP innerBox huviz_wrapper"
+           style="background-color:red"><div class="test_tag">LEFT</div></div>
+      <div id="FLOWER_TOP" class="FLOWER_TOP innerBox huviz_wrapper"
+           style="background-color:green"><div class="test_tag">RIGHT</div></div>
     </div>
     <div style="display:none"> <%- include('tabs/intro') %> </div>
     <script src="/huviz/huviz.js?23234"></script>
 
     <script src="/js/init_huvis.js"></script>
     <script src="/js/init_flower.js"></script>
-    
+
   <% if (nopts.git_commit_hash) { %>
     <div id="graph_title_set" class="git_commit_hash_watermark">
       <a class="git_commit_hash_watermark subliminal"

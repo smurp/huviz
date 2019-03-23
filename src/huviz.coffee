@@ -5138,8 +5138,11 @@ class Huviz
   after_running_command: ->
     #toggle_suspend_updates(false)
     @text_cursor.set_cursor("default")
-    $("body").css "background-color", renderStyles.pageBg # FIXME remove once it works!
-    $("body").addClass renderStyles.themeName
+    #$("body").css "background-color", renderStyles.pageBg # FIXME remove once it works!
+    #$("body").addClass renderStyles.themeName
+    @topElem.style.backgroundColor = renderStyles.pageBg
+    @topElem.classList.add(renderStyles.themeName)
+
     @update_all_counts()
     @clean_up_all_dirt_once()
 
@@ -5234,12 +5237,12 @@ class Huviz
       idSel = '#' + id
       @oldToUniqueTabSel[firstClass] = idSel
       theTabs += """<li><a href="#{idSel}" title="#{t.title}">#{t.text}</a></li>"""
-      
+
       # YUP this is automatically cramming the gclui div inside the huvis_controls pane
       # TODO build the huvis_controls directly in there, or something, when removing id references such as #gclui
       if firstClass is 'huvis_controls' and false
         t.kids = """<div id="gclui" style="display:none"></div>"""
-      
+
       theDivs += """<div id="#{id}" class="#{t.cssClass}">#{t.kids or ''}</div>"""
       if not marked?
         console.info('marked does not exist yet')
@@ -5424,13 +5427,13 @@ class Huviz
     if @args.create_tabs_adjacent_to_selector
       @create_tabs()
     @tabsJQElem = $('#' + @tabs_id)
-    
-    
+
+
     # FIXME Simplify this whole graph_controls_sel and 'tabs-options' thing
     #       The graph controls should just be built right on tabs_options_JQElem
     @args.graph_controls_sel ?= @oldToUniqueTabSel['tabs-options']
-    
-    
+
+
     @create_blurtbox()
     @ensure_divs()
     @make_JQElems()
@@ -6335,13 +6338,20 @@ class Huviz
   on_change_theme_colors: (new_val) ->
     if new_val
       renderStyles = themeStyles.dark
-      $("body").removeClass themeStyles.light.themeName
+      #$("body").removeClass themeStyles.light.themeName
+      @topElem.classList.remove(themeStyles.light.themeName)
     else
       renderStyles = themeStyles.light
-      $("body").removeClass themeStyles.dark.themeName
+      #$("body").removeClass themeStyles.dark.themeName
+      @topElem.classList.remove(themeStyles.light.themeName)
     #@update_graph_settings()
-    $("body").css "background-color", renderStyles.pageBg
-    $("body").addClass renderStyles.themeName
+    #$("body").css "background-color", renderStyles.pageBg
+    #$("body").addClass renderStyles.themeName
+    @topElem.style.backgroundColor = renderStyles.pageBg
+    @topElem.classList.add(renderStyles.themeName)
+
+
+    console.log @topElem
     @updateWindow()
 
   on_change_display_label_cartouches: (new_val) ->
