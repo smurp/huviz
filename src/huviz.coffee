@@ -5461,14 +5461,10 @@ class Huviz
     incoming_args ?= {}
     if not incoming_args.huviz_top_sel
       console.warn('you have not provided a value for huviz_top_sel so it will be appended to BODY')
-    args = Object.assign(@default_args, incoming_args)
+    def_args = Object.assign({}, @default_args)
+    args = Object.assign(def_args, incoming_args)
     # calculate some args from others
     args.create_tabs_adjacent_to_selector ?= args.huviz_top_sel
-    #if not args.viscanvas_sel
-    #  msg = "call Huviz({viscanvas_sel:'????'}) so it can find the canvas to draw in"
-    #  console.debug(msg)
-    #if not args.graph_controls_sel
-    #  console.warn("call Huviz({graph_controls_sel:'????'}) so it can put the settings somewhere")
     return args
 
   constructor: (incoming_args) -> # Huviz
@@ -5489,7 +5485,6 @@ class Huviz
     # FIXME Simplify this whole graph_controls_sel and 'tabs-options' thing
     #       The graph controls should just be built right on tabs_options_JQElem
     @args.graph_controls_sel ?= @oldToUniqueTabSel['tabs-options']
-
 
     @create_blurtbox()
     @ensure_divs()
@@ -6232,7 +6227,6 @@ class Huviz
     ]
 
   dump_current_settings: (post) =>
-    #$("#tabs-options,.graph_controls").html("")
     @tabs_options_JQElem.html('')
     @init_graph_controls_from_json()
     @on_change_graph_title_style("subliminal")
@@ -6243,9 +6237,10 @@ class Huviz
     return @
 
   init_graph_controls_from_json: =>
-    @graph_controls_cursor = new TextCursor(@args.graph_controls_sel + ' input', "")
+    graph_controls_input_sel = @args.graph_controls_sel + ' input'
+    @graph_controls_cursor = new TextCursor(graph_controls_input_sel, "")
     if @graph_controls_cursor
-      $("input").on("mouseover", @update_graph_controls_cursor)
+      $(graph_controls_input_sel).on("mouseover", @update_graph_controls_cursor)
       #$("input").on("mouseenter", @update_graph_controls_cursor)
       #$("input").on("mousemove", @update_graph_controls_cursor)
     @graph_controls = d3.select(@args.graph_controls_sel)
@@ -6654,8 +6649,6 @@ class Huviz
     # If there is a script after the hash, run it.
     # Otherwise load the default dataset defined by the page.
     # Or load nothing if there is no default.
-    #@init_from_graph_controls()
-    # $(".graph_controls").sortable() # FIXME make graph_controls sortable
     @reset_graph()
     if not script?
       script = @get_script_from_hash()
