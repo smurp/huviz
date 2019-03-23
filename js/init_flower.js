@@ -6,7 +6,7 @@ window.addEventListener('load',function(){
   }, false);
   huviz = require('huviz');
   new huviz.Orlando({
-    //use_old_tab_ids: true, // TODO (wolf) comment this out when you have converted tab CSS to be based on classes
+    default_node_url: '/huviz/docs/cwrc_logo.png',
     huviz_top_sel: "#FLOWER_TOP",
     settings: {
       charge: -600
