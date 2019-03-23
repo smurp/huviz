@@ -131,6 +131,7 @@ app.configure ->
   app.use('/chai', express.static(__dirname + '/node_modules/chai'))
   app.use('/marked', express.static(__dirname + '/node_modules/marked'))
   app.use('/huviz/docs', express.static(__dirname + '/docs'))
+  app.get("/tab_tester", localOrCDN("/views/tab_tester.html", {nopts: nopts}))
   app.get("/flower", localOrCDN("/views/flower.html.ejs", {nopts: nopts}))
   app.get("/boxed", localOrCDN("/views/boxed.html.ejs", {nopts: nopts}))
   app.get("/twoup", localOrCDN("/views/twoup.html.ejs", {nopts: nopts}))
