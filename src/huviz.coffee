@@ -5366,6 +5366,7 @@ class Huviz
 
   # TODO create default_args from needed_divs (or something)
   default_args:
+    add_to_HVZ: true
     ctrl_handle_sel: unique_id('#ctrl_handle_')
     gclui_sel: unique_id('#gclui_')
     huviz_top_sel: unique_id('#huviz_top_') # if not provided then create
@@ -5427,7 +5428,11 @@ class Huviz
     if @args.create_tabs_adjacent_to_selector
       @create_tabs()
     @tabsJQElem = $('#' + @tabs_id)
-
+    @replace_human_term_spans(@tabs_id)
+    if @args.add_to_HVZ
+      if not window.HVZ?
+        window.HVZ = []
+      window.HVZ.push(this)
 
     # FIXME Simplify this whole graph_controls_sel and 'tabs-options' thing
     #       The graph controls should just be built right on tabs_options_JQElem
