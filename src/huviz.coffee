@@ -5633,29 +5633,37 @@ class Huviz
 
   ##### ------------------- collapse/expand stuff ---------------- ########
 
-  minimize_gclui: () =>
+  collapse_tabs: () =>
     @tabsJQElem.prop('style','visibility:hidden;width:0')
     @tabsJQElem.find('.expand_cntrl').prop('style','visibility:visible')
-    #@expandCtrlJQElem.show()
+    #@expandCtrlJQElem.show() # why does this not work instead of the above?
 
-  maximize_gclui: () =>
+  expand_tabs: () =>
     @tabsJQElem.prop('style','visibility:visible')
-    #@expandCtrlJQElem.hide()
-    @tabsJQElem.find('.maximize_cntrl').prop('style','visibility:hidden')
+    #@tabsJQElem.find('.expand_cntrl').prop('style','visibility:hidden')
+    @expandCtrlJQElem.hide()
+    @collapseCtrlJQElem.show()
 
   create_collapse_expand_handles: ->
     ctrl_handle_id = sel_to_id(@args.ctrl_handle_sel)
     html = """
-      <div class="expand_cntrl" style="visibility:hidden"><i class="fa fa-angle-double-left"></i></div>
-      <div class="collapse_cntrl"><i class="fa fa-angle-double-right"></i></div>
-      <div id="#{ctrl_handle_id}" class="ctrl_handle ui-resizable-handle ui-resizable-w"><div class="ctrl_handle_grip">o</div></div>
+      <div class="expand_cntrl" style="visibility:hidden">
+        <i class="fa fa-angle-double-left"></i></div>
+      <div class="collapse_cntrl">
+        <i class="fa fa-angle-double-right"></i></div>
+      <div id="#{ctrl_handle_id}"
+           class="ctrl_handle ui-resizable-handle ui-resizable-w">
+         <div class="ctrl_handle_grip">o</div>
+      </div>
     """ # """ this comment is to help emacs coffeescript mode
     @tabsJQElem.prepend(html)
     @expandCtrlJQElem = @tabsJQElem.find(".expand_cntrl")
-    @expandCtrlJQElem.click(@maximize_gclui).on("click", @updateWindow)
+    @expandCtrlJQElem.click(@expand_tabs).on("click", @updateWindow)
     @collapseCtrlJQElem = @tabsJQElem.find(".collapse_cntrl")
-    @collapseCtrlJQElem.click(@minimize_gclui).on("click", @updateWindow)
-    @tabsJQElem.resizable({handles: {'w':@args.ctrl_handle_sel},minWidth: @args.tabs_minWidth})
+    @collapseCtrlJQElem.click(@collapse_tabs).on("click", @updateWindow)
+    @tabsJQElem.resizable
+        handles: {'w':@args.ctrl_handle_sel}
+        minWidth: @args.tabs_minWidth
     return
 
   #### ---------------------  Utilities ---------------------------- #######
