@@ -690,11 +690,11 @@ class Huviz
     return @
 
   toggle_expander: (id) ->
-    $("##{id} span.expander:first").trigger("click");
+    @topJQElem.find("##{id} span.expander:first").trigger("click");
     return @
 
   doit: ->
-    $("#doit_button").trigger("click")
+    @topJQElem.find(".doit_button").trigger("click")
     return @
 
   mousemove: =>
@@ -911,10 +911,15 @@ class Huviz
           <span class='label'>Links From:</span> #{@focused_node.links_from.length}</p>
           #{note}
           #{node_out_links}
-        """
+        """ # """
       max_width = @width * 0.50
       max_height = @height * 0.80
-      d3.select(@args.viscanvas_sel).append('div').attr('id', @focused_node.lid ).attr('class', 'contextMenu').classed('temp', true).style('display', 'block')
+      d3.select(@args.viscanvas_sel)
+        .append('div')
+        .attr('id', @focused_node.lid )
+        .attr('class', 'contextMenu')
+        .classed('temp', true)
+        .style('display', 'block')
         .style('top', "#{d3.event.clientY}px")
         .style('left', "#{d3.event.clientX}px")
         .style('max-width', "#{max_width}px")
@@ -1395,7 +1400,7 @@ class Huviz
     hier = hier? ? hier : true # default to true
     if hier
       @gclui.taxon_picker.collapse_by_id(id)
-    $("##{id}").trigger("click")
+    @topJQElem.find("##{id}").trigger("click")
     if hier
       @gclui.taxon_picker.expand_by_id(id)
 

@@ -954,7 +954,7 @@ class CommandController
            attr("style","float:right;").
            attr("type","submit").
            attr('value','GO!').
-           attr('id','doit_button')
+           attr('class','doit_button')
     @doit_butt.on 'click', () =>
       if @update_command()
         @huviz.run_command(@command)
