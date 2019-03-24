@@ -5446,22 +5446,23 @@ class Huviz
     return
 
   # TODO create default_args from needed_divs (or something)
-  default_args:
-    add_to_HVZ: true
-    ctrl_handle_sel: unique_id('#ctrl_handle_')
-    gclui_sel: unique_id('#gclui_')
-    git_base_url: "https://github.com/smurp/huviz/commit/"
-    huviz_top_sel: unique_id('#huviz_top_') # if not provided then create
-    make_pickers: true
-    performance_dashboard_sel: unique_id('#performance_dashboard_')
-    settings: {}
-    skip_log_tick: true
-    state_msg_box_sel: unique_id('#state_msg_box_')
-    status_sel: unique_id('#status_')
-    tabs_minWidth: 300
-    use_old_tab_ids: false
-    viscanvas_sel: unique_id('#viscanvas_')
-    vissvg_sel: unique_id('#vissvg_')
+  make_default_args: ->
+    return {
+      add_to_HVZ: true
+      ctrl_handle_sel: unique_id('#ctrl_handle_')
+      gclui_sel: unique_id('#gclui_')
+      git_base_url: "https://github.com/smurp/huviz/commit/"
+      huviz_top_sel: unique_id('#huviz_top_') # if not provided then create
+      make_pickers: true
+      performance_dashboard_sel: unique_id('#performance_dashboard_')
+      settings: {}
+      skip_log_tick: true
+      state_msg_box_sel: unique_id('#state_msg_box_')
+      status_sel: unique_id('#status_')
+      tabs_minWidth: 300
+      use_old_tab_ids: false
+      viscanvas_sel: unique_id('#viscanvas_')
+      vissvg_sel: unique_id('#vissvg_')}
 
   # The div on the left should be placed in the div on the right
   # The div on the left should appear in needed_divs.
@@ -5491,7 +5492,7 @@ class Huviz
     incoming_args ?= {}
     if not incoming_args.huviz_top_sel
       console.warn('you have not provided a value for huviz_top_sel so it will be appended to BODY')
-    def_args = Object.assign({}, @default_args)
+    def_args = Object.assign({}, @make_default_args())
     args = Object.assign(def_args, incoming_args)
     # calculate some args from others
     args.create_tabs_adjacent_to_selector ?= args.huviz_top_sel
