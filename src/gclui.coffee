@@ -27,7 +27,6 @@ ColoredTreePicker = require('coloredtreepicker').ColoredTreePicker
 TreePicker = require('treepicker').TreePicker
 class CommandController
   constructor: (@huviz, @container, @hierarchy) ->
-    document.addEventListener 'dataset-loaded', @on_dataset_loaded
     if not @huviz.all_set.length
       $(@container).hide()
     d3.select(@container).html("")

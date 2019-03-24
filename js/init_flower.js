@@ -1,9 +1,4 @@
 window.addEventListener('load',function(){
-  document.addEventListener('touchmove', function(e) {
-    e.preventDefault();
-  }, false);
-  document.addEventListener('dataset-loaded', function(e) {
-  }, false);
   huviz = require('huviz');
   new huviz.Orlando({
     default_node_url: '/huviz/docs/cwrc_logo.png',

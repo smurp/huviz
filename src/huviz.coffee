@@ -3363,7 +3363,6 @@ class Huviz
           @reset_dataset_ontology_loader()
 
 
-
   load_new_endpoint_data_and_show: (subject, callback) -> # DEPRECIATED !!!!
     node_limit = $('#endpoint_limit').val()
     @p_total_sprql_requests++
@@ -5447,6 +5446,7 @@ class Huviz
 
   # TODO create default_args from needed_divs (or something)
   make_default_args: ->
+    # these must be made on the fly for reentrancy
     return {
       add_to_HVZ: true
       ctrl_handle_sel: unique_id('#ctrl_handle_')
@@ -6562,28 +6562,18 @@ class Huviz
       @update_graph_settings(elem, false)
 
   after_file_loaded: (uri, callback) ->
-    #@show_node_pred_edge_stats()
-    @fire_fileloaded_event(uri)
+    @call_on_dataset_loaded(uri)
     if callback
       callback()
 
   show_node_pred_edge_stats: ->
     pred_count = 0
     edge_count = 0
-
     s = "nodes:#{@nodes.length} predicates:#{pred_count} edges:#{edge_count}"
     console.log(s)
 
-  fire_fileloaded_event: (uri) ->
-    document.dispatchEvent(new CustomEvent("dataset-loaded", {detail: uri}))
-    window.dispatchEvent(
-      new CustomEvent 'fileloaded',
-        detail:
-          message: "file loaded"
-          time: new Date()
-        bubbles: true
-        cancelable: true
-    )
+  call_on_dataset_loaded: (uri) ->
+    @gclui.on_dataset_loaded({uri: uri})
 
   XXX_load_file: ->
     @load_data_with_onto(@get_dataset_uri())
