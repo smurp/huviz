@@ -11,21 +11,7 @@ window.addEventListener('load',function(){
         "text": "Intro",
         "moveSelector": "#contents_of_intro_tab"
       },
-      {
-        "cssClass": "huvis_controls scrolling_tab unselectable",
-        "title": "Power tools for controlling the graph",
-        "text": "Commands"
-      },
-      {
-        "cssClass": "tabs-options scrolling_tab",
-        "title": "Fine tune sizes, lengths and thicknesses",
-        "text": "Settings"
-      },
-      {
-        "cssClass": "tabs-history",
-        "title": "The command history",
-        "text": "History"
-      },
+      'commands','settings','history',
       {
         "cssClass": "tabs-credit scrolling_tab",
         "title": "Academic, funding and technical credit",

@@ -5258,57 +5258,83 @@ class Huviz
     @ontology = PRIMORDIAL_ONTOLOGY
 
   default_tab_specs: [
+    id: 'commands'
     cssClass:'huvis_controls scrolling_tab unselectable'
     title: "Power tools for controlling the graph"
     text: "Commands"
   ,
+    id: 'settings'
     cssClass: 'tabs-options scrolling_tab'
     title: "Fine tune sizes, lengths and thicknesses"
     text: "Settings"
   ,
+    id: 'history'
     cssClass:'tabs-history'
     title: "The command history"
     text: "History"
   ,
+    id: 'credits'
     cssClass: 'tabs-credit scrolling_tab'
     title: "Academic, funding and technical credit"
     text: "Credit"
     bodyUrl: "/huviz/docs/credits.md"
   ,
+    id: 'tutorial'
     cssClass: "tabs-tutor scrolling_tab"
     title: "A tutorial"
     text: "Tutorial"
     bodyUrl: "/huviz/docs/tutorial.md"
   ]
 
+  get_default_tab: (id) ->
+    for tab in @default_tab_specs
+      if tab.id is id
+        return tab
+    return {
+      id: id
+      title: id
+      cssClass: id
+      text: id}
+
   make_tabs_html: ->
-    # The firstClass in cssClass acts like a re-entrant identifier for these tabs. Each also gets a unique id.
+    # The firstClass in cssClass acts like a re-entrant identifier for these
+    # tabs. Each also gets a unique id.
     # Purpose:
-    #   Programmatically build the equivalent of views/tabs/all.ejs but with unique ids for the divs
+    #   Programmatically build the equivalent of views/tabs/all.ejs but with
+    #   unique ids for the divs
     # Notes:
     #   When @args.use_old_tabs_ids is true this method reproduces all.ejs exactly.
     #   Otherwise it gives each div a unique id
-    #   Either way @oldToUniqueTabSel provides a way to select each tab using the old non-reentrant ids like 'tabs-intro'
+    #   Either way @oldToUniqueTabSel provides a way to select each tab using
+    #       the old non-reentrant ids like 'tabs-intro'
     # Arguments:
     #   cssClass becomes the value of the class attribute of the div
     #   title becomes the title attribute of the tab
     #   text becomes the visible label of the tab
-    #   moveSelector: (optional) is the selector of content to move into the div
-    #   bodyUrl: (optional) is the url of content to insert into the div (if it ends with .md the markdown is rendered)
+    #   moveSelector: (optional) the selector of content to move into the div
+    #   bodyUrl: (optional) is the url of content to insert into the div
+    #       (if it ends with .md the markdown is rendered)
     # Motivation:
-    #   The problem this is working to solve is that we want HuViz to be re-entrant (ie more than one instance per page)
-    #   but it was originally written without that in mind, using unique ids such as #tabs-intro liberally.
-    #   This method provides a way to programmatically build the tabs with truly unique ids but also with a way to
-    #   learn what those ids are using the old identifiers.  To finish the task of transforming the code to be
-    #   re-entrant we must:
-    #     1) find all the places which use ids such as "#gclui" or "#tabs-history" and get them
-    #        to use @oldToUniqueTabSel as a lookup for the new ids.
-    #     2) rebuild the CSS to use class names such as ".gclui" rather than the old ids such as "#gclui"
+    #   The problem this is working to solve is that we want HuViz to
+    #   be re-entrant (ie more than one instance per page) but it was
+    #   originally written without that in mind, using unique ids such
+    #   as #tabs-intro liberally.  This method provides a way to
+    #   programmatically build the tabs with truly unique ids but also
+    #   with a way to learn what those ids are using the old
+    #   identifiers.  To finish the task of transforming the code to
+    #   be re-entrant we must:
+    #     1) find all the places which use ids such as "#gclui" or
+    #        "#tabs-history" and get them to use @oldToUniqueTabSel
+    #        as a lookup for the new ids.
+    #     2) rebuild the CSS to use class names such as ".gclui" rather
+    #        than the old ids such as "#gclui"
     jQElem_list = [] # a list of args for the command @make_JQElem()
     theTabs = """<ul class="the-tabs">"""
     theDivs = ""
     tab_specs = @args.tab_specs
     for t in tab_specs
+      if typeof(t) is 'string'
+        t = @get_default_tab(t)
       firstClass = t.cssClass.split(' ')[0]
       firstClass_ = firstClass.replace(/\-/, '_')
       id = @unique_id(firstClass + '_')
@@ -5464,7 +5490,7 @@ class Huviz
       state_msg_box_sel: unique_id('#state_msg_box_')
       status_sel: unique_id('#status_')
       stay_square: false
-      tab_specs: @default_tab_specs
+      tab_specs: ['commands','settings','history'] # things break if these are not present
       tabs_minWidth: 300
       use_old_tab_ids: false
       viscanvas_sel: unique_id('#viscanvas_')
