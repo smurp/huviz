@@ -18,9 +18,8 @@ window.addEventListener('load',function(){
       , show_edges: false
       , single_chosen: true
     },
-    // pass in the tab_specs to override the defaults_tab_specs
-    hide_tabs: true,
-    hide_fullscreen_button: true,
+    //hide_tabs: true,
+    //hide_fullscreen_button: true,
     tab_specs:
     [
       {
