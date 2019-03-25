@@ -1,6 +1,6 @@
 window.addEventListener('load',function(){
   huviz = require('huviz');
-  var hvz = new huviz.Huviz({
+  var hvz = new huviz.Orlando({
     default_node_url: '/huviz/docs/cwrc_logo.png',
     huviz_top_sel: "#FLOWER_TOP",
     settings: {
@@ -18,7 +18,8 @@ window.addEventListener('load',function(){
       , show_edges: false
       , single_chosen: true
     },
-    //hide_tabs: true,
+    stay_square: false,
+    //show_tabs: false,
     //hide_fullscreen_button: true,
     tab_specs:
     [

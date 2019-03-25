@@ -3562,7 +3562,9 @@ class Huviz
   get_container_height: (pad) ->
     pad = pad or hpad
     @height = (@container.clientHeight or window.innerHeight or document.documentElement.clientHeight or document.clientHeight) - pad
-    #console.log "get_window_height()",window.innerHeight,document.documentElement.clientHeight,document.clientHeight,"==>",@height
+    if @args.stay_square
+      @height = @width
+    return @height
 
   update_graph_radius: ->
     @graph_region_radius = Math.floor(Math.min(@width / 2, @height / 2))
@@ -5461,6 +5463,7 @@ class Huviz
       skip_log_tick: true
       state_msg_box_sel: unique_id('#state_msg_box_')
       status_sel: unique_id('#status_')
+      stay_square: false
       tab_specs: @default_tab_specs
       tabs_minWidth: 300
       use_old_tab_ids: false
@@ -5511,7 +5514,7 @@ class Huviz
     if @args.create_tabs_adjacent_to_selector
       @create_tabs()
     @tabsJQElem = $('#' + @tabs_id)
-    if @args.hide_tabs
+    if not @args.show_tabs
       @collapse_tabs()
     @replace_human_term_spans(@tabs_id)
     if @args.add_to_HVZ
