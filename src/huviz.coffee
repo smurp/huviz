@@ -5635,9 +5635,12 @@ class Huviz
     @fullscreenJQElem.click(@fullscreen)
     return
 
-  fullscreen: () =>
-    elem = document.getElementById("body")
-    elem.webkitRequestFullscreen()
+  fullscreen: =>
+    # https://developer.mozilla.org/en-US/docs/Web/API/Document/exitFullscreen
+    if (document.fullscreenElement)
+      document.exitFullscreen()
+    else
+      @topElem.requestFullscreen()
 
   ##### ------------------- collapse/expand stuff ---------------- ########
 
