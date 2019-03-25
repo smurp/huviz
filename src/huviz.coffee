@@ -5302,11 +5302,10 @@ class Huviz
     #     1) find all the places which use ids such as "#gclui" or "#tabs-history" and get them
     #        to use @oldToUniqueTabSel as a lookup for the new ids.
     #     2) rebuild the CSS to use class names such as ".gclui" rather than the old ids such as "#gclui"
-    @oldToUniqueTabSel = {}
     jQElem_list = [] # a list of args for the command @make_JQElem()
     theTabs = """<ul class="the-tabs">"""
     theDivs = ""
-    tab_specs = @args.tab_specs or @default_tab_specs
+    tab_specs = @args.tab_specs
     for t in tab_specs
       firstClass = t.cssClass.split(' ')[0]
       firstClass_ = firstClass.replace(/\-/, '_')
@@ -5316,7 +5315,6 @@ class Huviz
       idSel = '#' + id
       @oldToUniqueTabSel[firstClass] = idSel
       theTabs += """<li><a href="#{idSel}" title="#{t.title}">#{t.text}</a></li>"""
-
       theDivs += """<div id="#{id}" class="#{t.cssClass}">#{t.kids or ''}</div>"""
       if not marked?
         console.info('marked does not exist yet')
@@ -5375,6 +5373,8 @@ class Huviz
     return
 
   create_tabs: ->
+    if not @args.tab_specs
+      return
     # create <section id="tabs"...> programmatically, making unique ids along the way
     elem = document.querySelector(@args.create_tabs_adjacent_to_selector)
     [html, jQElem_list] = @make_tabs_html()
@@ -5452,13 +5452,16 @@ class Huviz
       ctrl_handle_sel: unique_id('#ctrl_handle_')
       gclui_sel: unique_id('#gclui_')
       git_base_url: "https://github.com/smurp/huviz/commit/"
+      hide_fullscreen_button: false
       huviz_top_sel: unique_id('#huviz_top_') # if not provided then create
       make_pickers: true
       performance_dashboard_sel: unique_id('#performance_dashboard_')
       settings: {}
+      show_tabs: true
       skip_log_tick: true
       state_msg_box_sel: unique_id('#state_msg_box_')
       status_sel: unique_id('#status_')
+      tab_specs: @default_tab_specs
       tabs_minWidth: 300
       use_old_tab_ids: false
       viscanvas_sel: unique_id('#viscanvas_')
@@ -5499,6 +5502,7 @@ class Huviz
     return args
 
   constructor: (incoming_args) -> # Huviz
+    @oldToUniqueTabSel = {}
     #if @pfm_display is true
     #  @pfm_dashboard()
     @git_commit_hash = window.HUVIZ_GIT_COMMIT_HASH
@@ -5507,6 +5511,8 @@ class Huviz
     if @args.create_tabs_adjacent_to_selector
       @create_tabs()
     @tabsJQElem = $('#' + @tabs_id)
+    if @args.hide_tabs
+      @collapse_tabs()
     @replace_human_term_spans(@tabs_id)
     if @args.add_to_HVZ
       if not window.HVZ?
@@ -5521,7 +5527,8 @@ class Huviz
     @ensure_divs()
     @make_JQElems()
     @create_collapse_expand_handles()
-    @create_fullscreen_handle()
+    if not @args.hide_fullscreen_button
+      @create_fullscreen_handle()
     @init_ontology()
     @create_caption()
     @off_center = false # FIXME expose this or make the amount a slider

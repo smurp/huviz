@@ -1,6 +1,6 @@
 window.addEventListener('load',function(){
   huviz = require('huviz');
-  new huviz.Orlando({
+  var hvz = new huviz.Huviz({
     default_node_url: '/huviz/docs/cwrc_logo.png',
     huviz_top_sel: "#FLOWER_TOP",
     settings: {
@@ -19,6 +19,8 @@ window.addEventListener('load',function(){
       , single_chosen: true
     },
     // pass in the tab_specs to override the defaults_tab_specs
+    hide_tabs: true,
+    hide_fullscreen_button: true,
     tab_specs:
     [
       {
@@ -51,4 +53,5 @@ window.addEventListener('load',function(){
       , '/data/cwrc_endpoints.json'
     ]
   });
+  hvz.add_quad({s:'http://apple.com', p:'a', o: {value: 'owl:Thing'}});
 });
