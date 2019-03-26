@@ -5326,7 +5326,7 @@ class Huviz
     text: "Commands"
   ,
     id: 'settings'
-    cssClass: 'tabs-options scrolling_tab'
+    cssClass: 'settings scrolling_tab'
     title: "Fine tune sizes, lengths and thicknesses"
     text: "Settings"
   ,
@@ -5610,9 +5610,9 @@ class Huviz
         window.HVZ = []
       window.HVZ.push(this)
 
-    # FIXME Simplify this whole graph_controls_sel and 'tabs-options' thing
-    #       The graph controls should just be built right on tabs_options_JQElem
-    @args.graph_controls_sel ?= @oldToUniqueTabSel['tabs-options']
+    # FIXME Simplify this whole settings_sel and 'settings' thing
+    #       The settings should just be built right on settings_JQElem
+    @args.settings_sel ?= @oldToUniqueTabSel['settings']
 
     @create_blurtbox()
     @ensure_divs()
@@ -5652,7 +5652,7 @@ class Huviz
       #d3.select("body").append("div").attr("id", "viscanvas")
     ###
     @container = d3.select(@args.viscanvas_sel).node().parentNode
-    @init_graph_controls_from_json()
+    @init_settings_from_json()
     @apply_settings(@args.settings)
     if @use_fancy_cursor
       @text_cursor = new TextCursor(@args.viscanvas_sel, "")
@@ -5834,7 +5834,7 @@ class Huviz
 
   # TODO add controls
   #   selected_border_thickness
-  default_graph_controls: [
+  default_settings: [
       reset_controls_to_default:
         label:
           title: "Reset all controls to default"
@@ -6377,8 +6377,8 @@ class Huviz
     ]
 
   dump_current_settings: (post) =>
-    @tabs_options_JQElem.html('')
-    @init_graph_controls_from_json()
+    @settings_JQElem.html('')
+    @init_settings_from_json()
     @on_change_graph_title_style("subliminal")
     @on_change_prune_walk_nodes("directional_path")
 
@@ -6386,19 +6386,20 @@ class Huviz
     # Try to tune the gravity, charge and link length to suit the data and the canvas size.
     return @
 
-  init_graph_controls_from_json: =>
-    graph_controls_input_sel = @args.graph_controls_sel + ' input'
-    @graph_controls_cursor = new TextCursor(graph_controls_input_sel, "")
-    if @graph_controls_cursor
-      $(graph_controls_input_sel).on("mouseover", @update_graph_controls_cursor)
-      #$("input").on("mouseenter", @update_graph_controls_cursor)
-      #$("input").on("mousemove", @update_graph_controls_cursor)
-    @graph_controls = d3.select(@args.graph_controls_sel)
-    @graph_controls.classed('graph_controls',true)
-    #$(@graph_controls).sortable().disableSelection() # TODO fix dropping
-    for control_spec in @default_graph_controls
+  init_settings_from_json: =>
+    settings_input_sel = @args.settings_sel + ' input'
+    @settings_cursor = new TextCursor(settings_input_sel, "")
+    if @settings_cursor
+      $(settings_input_sel).on("mouseover", @update_settings_cursor)
+      #$("input").on("mouseenter", @update_settings_cursor)
+      #$("input").on("mousemove", @update_settings_cursor)
+    @settings = d3.select(@args.settings_sel)
+    @settings.classed('settings',true)
+    for control_spec in @default_settings
       for control_name, control of control_spec
-        graph_control = @graph_controls.append('div').attr('id',control_name).attr('class', 'graph_control')
+        graph_control = @settings.append('div').
+              attr('id', control_name).
+              attr('class', 'a_setting')
         label = graph_control.append('label')
         if control.text?
           label.text(control.text)
@@ -6445,16 +6446,16 @@ class Huviz
           input.on("change", @update_graph_settings) # when focus changes
         else
           input.on("input", @update_graph_settings) # continuous updates
-    @tabs_options_JQElem.append("<div class='buffer_space'></div>")
+    @settings_JQElem.append("<div class='buffer_space'></div>")
     return
 
-  update_graph_controls_cursor: (evt) =>
+  update_settings_cursor: (evt) =>
     cursor_text = (evt.target.value).toString()
     if !cursor_text
       console.debug(cursor_text)
     else
       console.log(cursor_text)
-    @graph_controls_cursor.set_text(cursor_text)
+    @settings_cursor.set_text(cursor_text)
 
   update_graph_settings: (target, update) =>
     target = target? and target or d3.event.target
@@ -6487,10 +6488,10 @@ class Huviz
     # TODO replace control.event_type with autodetecting on_change_ vs on_update_ method existence
     custom_handler_name = "on_change_" + setting_name
     custom_handler = @[custom_handler_name]
-    if @graph_controls_cursor
+    if @settings_cursor
       cursor_text = (new_value).toString()
       #console.info("#{setting_name}: #{cursor_text}")
-      @graph_controls_cursor.set_text(cursor_text)
+      @settings_cursor.set_text(cursor_text)
     if custom_handler? and not skip_custom_handler
       #console.log "change_setting_to_from() custom setting: #{setting_name} to:#{new_value}(#{typeof new_value}) from:#{old_value}(#{typeof old_value})"
       custom_handler.apply(@, [new_value, old_value])
@@ -6664,11 +6665,11 @@ class Huviz
       if @nameless_set
         @discover_names()
 
-  init_from_graph_controls: ->
-    # alert "init_from_graph_controls() is deprecated"
+  init_from_settings: ->
+    # alert "init_from_settings() is deprecated"
     # Perform update_graph_settings for everything in the form
     # so the HTML can be used as configuration file
-    for elem in $(".graph_controls input") # so we can modify them in a loop
+    for elem in $(".settings input") # so we can modify them in a loop
       @update_graph_settings(elem, false)
 
   after_file_loaded: (uri, callback) ->
@@ -6699,8 +6700,8 @@ class Huviz
       #@disable_data_set_selector()
       @disable_dataset_ontology_loader(data, onto)
     @show_state_msg("loading...")
-    #@init_from_graph_controls() # REVIEW remove init_from_graph_controls?!?
-    #@dump_current_settings("after init_from_graph_controls()")
+    #@init_from_settings() # REVIEW remove init_from_settings?!?
+    #@dump_current_settings("after init_from_settings()")
     #@reset_graph()
     @show_state_msg(@data_uri)
     unless @G.subjects
