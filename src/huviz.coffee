@@ -4996,10 +4996,13 @@ class Huviz
     @data_ontology_display_id ?= @unique_id('datontdisp_')
     return @data_ontology_display_id
 
+  hide_pickers: ->
+    $(@pickersSel).attr("style","display:none")
+    
   replace_loader_display: (dataset, ontology) ->
     @generate_reload_uri(dataset, ontology)
     uri = @get_reload_uri()
-    $(@pickersSel).attr("style","display:none")
+    @hide_pickers()
     data_ontol_display = """
     <div id="#{@get_data_ontology_display_id()}" class="data_ontology_display">
       <p><span class="dt_label">Dataset:</span> #{dataset.label}</p>
@@ -6631,7 +6634,7 @@ class Huviz
     #@init_from_graph_controls() # REVIEW remove init_from_graph_controls?!?
     #@dump_current_settings("after init_from_graph_controls()")
     #@reset_graph()
-    @show_state_msg @data_uri
+    @show_state_msg(@data_uri)
     unless @G.subjects
       @fetchAndShow(@data_uri, callback)
 
