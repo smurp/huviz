@@ -2154,8 +2154,7 @@ class Huviz
       return x1 > nx2 or x2 < nx1 or y1 > ny2 or y2 < ny1
 
   respect_single_chosen_node: ->
-    if not @single_chosen
-      return
+    dirty = false
     if @chosen_set.length is 1
       chosen_node = @chosen_set[0]
       if not chosen_node.pinned
@@ -2164,6 +2163,7 @@ class Huviz
             range: 0
             degrees: 0
         @pin(chosen_node, cmd)
+        dirty = true
         chosen_node.pinned_only_while_chosen = true
 
     # Uncenter nodes which are no longer the only chosen node
@@ -2171,10 +2171,16 @@ class Huviz
       if not pinned_node
         continue # how can this even happen?
       if pinned_node.pinned_only_while_chosen? and
-          (not pinned_node.chosen or @chosen_set.length isnt 1)
+          (not pinned_node.chosen or @chosen_set.length isnt 1 or not @single_chosen)
         @unpin(pinned_node)
+        dirty = true
+
+    if dirty
+      @update_set_counts()
 
   tick: (msg) =>
+    if not @ctx?
+      return
     if typeof msg is 'string' and not @args.skip_log_tick
       console.log(msg)
     # return if @focused_node   # <== policy: freeze screen when selected
@@ -6364,6 +6370,7 @@ class Huviz
           title: "Only use verbs which have one chosen node at a time"
         input:
           type: "checkbox"
+          checked: "checked"
         event_type: "change"
     ,
       show_images_in_nodes:
@@ -6552,8 +6559,6 @@ class Huviz
     #$("body").addClass renderStyles.themeName
     @topElem.style.backgroundColor = renderStyles.pageBg
     @topElem.classList.add(renderStyles.themeName)
-
-
     console.log @topElem
     @updateWindow()
 
@@ -6664,6 +6669,10 @@ class Huviz
     if new_val
       if @nameless_set
         @discover_names()
+
+  on_change_single_chosen: (new_val, old_val) ->
+    @single_chosen = new_val
+    @tick()
 
   init_from_settings: ->
     # alert "init_from_settings() is deprecated"
