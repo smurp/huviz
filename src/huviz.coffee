@@ -1679,12 +1679,12 @@ class Huviz
         @gclui.prepare_command(
           @gclui.new_GraphCommand({verbs: @gclui.engaged_verbs, subjects: nodes}))
 
-  position_nodes: ->
+  position_nodes_by_force: ->
     only_move_subject = @edit_mode and @dragging and @editui.subject_node
     @nodes.forEach (node, i) =>
-      @reposition_node(node, only_move_subject)
+      @reposition_node_by_force(node, only_move_subject)
 
-  reposition_node: (node, only_move_subject) ->
+  reposition_node_by_force: (node, only_move_subject) ->
     if @dragging is node
       @move_node_to_point(node, @last_mouse_pos)
     if only_move_subject
@@ -2120,20 +2120,20 @@ class Huviz
   blank_screen: ->
     @clear_canvas()  if @use_canvas or @use_webgl
 
-  use_quadtree: ->
+  should_position_by_packing: ->
     return not @show_edges
 
-  update_quadtree_if_needed: ->
+  position_nodes_by_packing: ->
     # https://bl.ocks.org/mbostock/3231298
-    if not @use_quadtree()
+    if not @should_position_by_packing()
       return
-    q =d3.geom.quadtree(@graphed_set)
+    q = d3.geom.quadtree(@graphed_set)
     i = 0
     n = @graphed_set.length
     while (++i < n)
-      q.visit(@collide(@graphed_set[i]))
+      q.visit(@position_node_by_packing(@graphed_set[i]))
 
-  collide: (node) ->
+  position_node_by_packing: (node) ->
     r = node.radius + 16
     nx1 = node.x - r
     nx2 = node.x + r
@@ -2153,6 +2153,27 @@ class Huviz
           quad.point.y += y
       return x1 > nx2 or x2 < nx1 or y1 > ny2 or y2 < ny1
 
+  respect_single_chosen_node: ->
+    if not @single_chosen
+      return
+    if @chosen_set.length is 1
+      chosen_node = @chosen_set[0]
+      if not chosen_node.pinned
+        cmd =
+          polar_coords:
+            range: 0
+            degrees: 0
+        @pin(chosen_node, cmd)
+        chosen_node.pinned_only_while_chosen = true
+
+    # Uncenter nodes which are no longer the only chosen node
+    for pinned_node in @pinned_set
+      if not pinned_node
+        continue # how can this even happen?
+      if pinned_node.pinned_only_while_chosen? and
+          (not pinned_node.chosen or @chosen_set.length isnt 1)
+        @unpin(pinned_node)
+
   tick: (msg) =>
     if typeof msg is 'string' and not @args.skip_log_tick
       console.log(msg)
@@ -2167,8 +2188,7 @@ class Huviz
         else
           @clean_up_all_dirt_onceRunner.stats.runTick++
     @ctx.lineWidth = @edge_width # TODO(smurp) just edges should get this treatment
-
-    @update_quadtree_if_needed()
+    @respect_single_chosen_node()
     @find_node_or_edge_closest_to_pointer()
     @auto_change_verb()
     @on_tick_change_current_command_if_warranted()
@@ -2177,8 +2197,10 @@ class Huviz
     @draw_dropzones()
     @fisheye.focus @last_mouse_pos
     @show_last_mouse_pos()
-    if not @use_quadtree()
-      @position_nodes() # unless @edit_mode and @dragging and @editui.subject_node
+    if @should_position_by_packing()
+      @position_nodes_by_packing()
+    else
+      @position_nodes_by_force()
     @apply_fisheye()
     @draw_edges()
     @draw_nodes()
@@ -3996,6 +4018,7 @@ class Huviz
     return false
 
   unpin: (node) ->
+    delete node.pinned_only_while_chosen # do it here in case of direct unpinning
     if node.fixed
       @pinned_set.remove(node)
       return true
