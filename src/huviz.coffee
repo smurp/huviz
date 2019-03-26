@@ -1862,8 +1862,8 @@ class Huviz
                       rndng,
                       stroke_color,
                       filclr)
-          else if @default_node_url
-            img = @get_or_create_round_img(@default_node_url)
+          else if @show_images_in_nodes and (img_url = @default_node_url)
+            img = @get_or_create_round_img(img_url)
             @draw_round_img(
               d.fisheye.x, d.fisheye.y,
               node_radius,
@@ -6303,6 +6303,15 @@ class Huviz
         text: "Single Active Node"
         label:
           title: "Only use verbs which have one chosen node at a time"
+        input:
+          type: "checkbox"
+        event_type: "change"
+    ,
+      show_images_in_nodes:
+        style: "color:red"
+        text: "Show Images in Nodes"
+        label:
+          title: "Show images in nodes when available"
         input:
           type: "checkbox"
         event_type: "change"
