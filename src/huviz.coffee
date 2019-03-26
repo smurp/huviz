@@ -2120,6 +2120,39 @@ class Huviz
   blank_screen: ->
     @clear_canvas()  if @use_canvas or @use_webgl
 
+  use_quadtree: ->
+    return not @show_edges
+
+  update_quadtree_if_needed: ->
+    # https://bl.ocks.org/mbostock/3231298
+    if not @use_quadtree()
+      return
+    q =d3.geom.quadtree(@graphed_set)
+    i = 0
+    n = @graphed_set.length
+    while (++i < n)
+      q.visit(@collide(@graphed_set[i]))
+
+  collide: (node) ->
+    r = node.radius + 16
+    nx1 = node.x - r
+    nx2 = node.x + r
+    ny1 = node.y - r
+    ny2 = node.y + r
+    return (quad, x1, y1, x2, y2) ->
+      if (quad.point and (quad.point isnt node))
+        x = node.x - quad.point.x
+        y = node.y - quad.point.y
+        l = Math.sqrt(x * x + y * y)
+        r = node.radius + quad.point.radius
+        if (l < r)
+          l = (l -r) / 1 * .5
+          node.x -= x *= l
+          node.y -= y *= l
+          quad.point.x += x
+          quad.point.y += y
+      return x1 > nx2 or x2 < nx1 or y1 > ny2 or y2 < ny1
+
   tick: (msg) =>
     if typeof msg is 'string' and not @args.skip_log_tick
       console.log(msg)
@@ -2134,6 +2167,8 @@ class Huviz
         else
           @clean_up_all_dirt_onceRunner.stats.runTick++
     @ctx.lineWidth = @edge_width # TODO(smurp) just edges should get this treatment
+
+    @update_quadtree_if_needed()
     @find_node_or_edge_closest_to_pointer()
     @auto_change_verb()
     @on_tick_change_current_command_if_warranted()
@@ -2142,7 +2177,8 @@ class Huviz
     @draw_dropzones()
     @fisheye.focus @last_mouse_pos
     @show_last_mouse_pos()
-    @position_nodes() # unless @edit_mode and @dragging and @editui.subject_node
+    if not @use_quadtree()
+      @position_nodes() # unless @edit_mode and @dragging and @editui.subject_node
     @apply_fisheye()
     @draw_edges()
     @draw_nodes()
