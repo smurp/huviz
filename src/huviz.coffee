@@ -6453,7 +6453,7 @@ class Huviz
           input.on("change", @update_graph_settings) # when focus changes
         else
           input.on("input", @update_graph_settings) # continuous updates
-    @settings_JQElem.append("<div class='buffer_space'></div>")
+    @settings.append('div').attr('class', 'buffer_space')
     return
 
   update_settings_cursor: (evt) =>

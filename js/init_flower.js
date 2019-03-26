@@ -21,24 +21,7 @@ window.addEventListener('load',function(){
     stay_square: false,
     //show_tabs: false,
     //hide_fullscreen_button: true,
-    tab_specs:
-    [
-      {
-        "cssClass": "huvis_controls scrolling_tab unselectable",
-        "title": "Power tools for controlling the graph",
-        "text": "Commands"
-      },
-      {
-        "cssClass": "tabs-options scrolling_tab",
-        "title": "Fine tune sizes, lengths and thicknesses",
-        "text": "Settings"
-      },
-      {
-        "cssClass": "tabs-history",
-        "title": "The command history",
-        "text": "History"
-      }
-    ],
+    tab_specs: ['commands','settings','history'],
     preload: [
       '/data/genres.json'
       , '/data/ontologies.json'
