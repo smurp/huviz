@@ -237,6 +237,9 @@ RDFS_label  = "http://www.w3.org/2000/01/rdf-schema#label"
 SKOS_prefLabel = "http://www.w3.org/2004/02/skos/core#prefLabel"
 XL_literalForm = "http://www.w3.org/2008/05/skos-xl#literalForm"
 TYPE_SYNS   = [RDF_type, RDF_a, 'rdfs:type', 'rdf:type']
+THUMB_PREDS = [
+  'http://dbpedia.org/ontology/thumbnail'
+  'http://xmlns.com/foaf/0.1/thumbnail']
 NAME_SYNS = [
   FOAF_name, RDFS_label, 'rdfs:label', 'name', SKOS_prefLabel, XL_literalForm
   ]
@@ -1679,12 +1682,12 @@ class Huviz
         @gclui.prepare_command(
           @gclui.new_GraphCommand({verbs: @gclui.engaged_verbs, subjects: nodes}))
 
-  position_nodes: ->
+  position_nodes_by_force: ->
     only_move_subject = @edit_mode and @dragging and @editui.subject_node
     @nodes.forEach (node, i) =>
-      @reposition_node(node, only_move_subject)
+      @reposition_node_by_force(node, only_move_subject)
 
-  reposition_node: (node, only_move_subject) ->
+  reposition_node_by_force: (node, only_move_subject) ->
     if @dragging is node
       @move_node_to_point(node, @last_mouse_pos)
     if only_move_subject
@@ -1862,8 +1865,9 @@ class Huviz
                       rndng,
                       stroke_color,
                       filclr)
-          else if @default_node_url
-            img = @get_or_create_round_img(@default_node_url)
+          else if @show_images_in_nodes and
+              (img_url = d.__thumbnail or @default_node_url)
+            img = @get_or_create_round_img(img_url)
             @draw_round_img(
               d.fisheye.x, d.fisheye.y,
               node_radius,
@@ -2143,7 +2147,67 @@ class Huviz
   blank_screen: ->
     @clear_canvas()  if @use_canvas or @use_webgl
 
+  should_position_by_packing: ->
+    return not @show_edges
+
+  position_nodes_by_packing: ->
+    # https://bl.ocks.org/mbostock/3231298
+    if not @should_position_by_packing()
+      return
+    q = d3.geom.quadtree(@graphed_set)
+    i = 0
+    n = @graphed_set.length
+    while (++i < n)
+      q.visit(@position_node_by_packing(@graphed_set[i]))
+
+  position_node_by_packing: (node) ->
+    r = node.radius + 16
+    nx1 = node.x - r
+    nx2 = node.x + r
+    ny1 = node.y - r
+    ny2 = node.y + r
+    return (quad, x1, y1, x2, y2) ->
+      if (quad.point and (quad.point isnt node))
+        x = node.x - quad.point.x
+        y = node.y - quad.point.y
+        l = Math.sqrt(x * x + y * y)
+        r = node.radius + quad.point.radius
+        if (l < r)
+          l = (l -r) / 1 * .5
+          node.x -= x *= l
+          node.y -= y *= l
+          quad.point.x += x
+          quad.point.y += y
+      return x1 > nx2 or x2 < nx1 or y1 > ny2 or y2 < ny1
+
+  respect_single_chosen_node: ->
+    dirty = false
+    if @chosen_set.length is 1
+      chosen_node = @chosen_set[0]
+      if not chosen_node.pinned
+        cmd =
+          polar_coords:
+            range: 0
+            degrees: 0
+        @pin(chosen_node, cmd)
+        dirty = true
+        chosen_node.pinned_only_while_chosen = true
+
+    # Uncenter nodes which are no longer the only chosen node
+    for pinned_node in @pinned_set
+      if not pinned_node
+        continue # how can this even happen?
+      if pinned_node.pinned_only_while_chosen? and
+          (not pinned_node.chosen or @chosen_set.length isnt 1 or not @single_chosen)
+        @unpin(pinned_node)
+        dirty = true
+
+    if dirty
+      @update_set_counts()
+
   tick: (msg) =>
+    if not @ctx?
+      return
     if typeof msg is 'string' and not @args.skip_log_tick
       console.log(msg)
     # return if @focused_node   # <== policy: freeze screen when selected
@@ -2157,6 +2221,7 @@ class Huviz
         else
           @clean_up_all_dirt_onceRunner.stats.runTick++
     @ctx.lineWidth = @edge_width # TODO(smurp) just edges should get this treatment
+    @respect_single_chosen_node()
     @find_node_or_edge_closest_to_pointer()
     @auto_change_verb()
     @on_tick_change_current_command_if_warranted()
@@ -2165,7 +2230,10 @@ class Huviz
     @draw_dropzones()
     @fisheye.focus @last_mouse_pos
     @show_last_mouse_pos()
-    @position_nodes() # unless @edit_mode and @dragging and @editui.subject_node
+    if @should_position_by_packing()
+      @position_nodes_by_packing()
+    else
+      @position_nodes_by_force()
     @apply_fisheye()
     @draw_edges()
     @draw_nodes()
@@ -2743,9 +2811,13 @@ class Huviz
       # We have a node for the object of the quad and this quad is relational
       # so there should be links made between this node and that node
       is_type = is_one_of(pred_uri, TYPE_SYNS)
-      make_edge = @show_class_instance_edges or not is_type
+      use_thumb = is_one_of(pred_uri, THUMB_PREDS) and @show_thumbs_dont_graph
+      make_edge = @show_class_instance_edges or not is_type and not use_thumb
       if is_type
         @try_to_set_node_type(subj_n, quad.o.value)
+      if use_thumb
+        obj_n.__thumbnail = quad.o.value
+        develop(obj_n)
       if make_edge
         @develop(subj_n) # both subj_n and obj_n should hatch for edge to make sense
         # REVIEW uh, how are we ensuring that the obj_n is hatching? should it?
@@ -3585,7 +3657,9 @@ class Huviz
   get_container_height: (pad) ->
     pad = pad or hpad
     @height = (@container.clientHeight or window.innerHeight or document.documentElement.clientHeight or document.clientHeight) - pad
-    #console.log "get_window_height()",window.innerHeight,document.documentElement.clientHeight,document.clientHeight,"==>",@height
+    if @args.stay_square
+      @height = @width
+    return @height
 
   update_graph_radius: ->
     @graph_region_radius = Math.floor(Math.min(@width / 2, @height / 2))
@@ -3981,6 +4055,7 @@ class Huviz
     return false
 
   unpin: (node) ->
+    delete node.pinned_only_while_chosen # do it here in case of direct unpinning
     if node.fixed
       @pinned_set.remove(node)
       return true
@@ -5017,10 +5092,13 @@ class Huviz
     @data_ontology_display_id ?= @unique_id('datontdisp_')
     return @data_ontology_display_id
 
+  hide_pickers: ->
+    $(@pickersSel).attr("style","display:none")
+    
   replace_loader_display: (dataset, ontology) ->
     @generate_reload_uri(dataset, ontology)
     uri = @get_reload_uri()
-    $(@pickersSel).attr("style","display:none")
+    @hide_pickers()
     data_ontol_display = """
     <div id="#{@get_data_ontology_display_id()}" class="data_ontology_display">
       <p><span class="dt_label">Dataset:</span> #{dataset.label}</p>
@@ -5280,58 +5358,83 @@ class Huviz
     @ontology = PRIMORDIAL_ONTOLOGY
 
   default_tab_specs: [
+    id: 'commands'
     cssClass:'huvis_controls scrolling_tab unselectable'
     title: "Power tools for controlling the graph"
     text: "Commands"
   ,
-    cssClass: 'tabs-options scrolling_tab'
+    id: 'settings'
+    cssClass: 'settings scrolling_tab'
     title: "Fine tune sizes, lengths and thicknesses"
     text: "Settings"
   ,
+    id: 'history'
     cssClass:'tabs-history'
     title: "The command history"
     text: "History"
   ,
+    id: 'credits'
     cssClass: 'tabs-credit scrolling_tab'
     title: "Academic, funding and technical credit"
     text: "Credit"
     bodyUrl: "/huviz/docs/credits.md"
   ,
+    id: 'tutorial'
     cssClass: "tabs-tutor scrolling_tab"
     title: "A tutorial"
     text: "Tutorial"
     bodyUrl: "/huviz/docs/tutorial.md"
   ]
 
+  get_default_tab: (id) ->
+    for tab in @default_tab_specs
+      if tab.id is id
+        return tab
+    return {
+      id: id
+      title: id
+      cssClass: id
+      text: id}
+
   make_tabs_html: ->
-    # The firstClass in cssClass acts like a re-entrant identifier for these tabs. Each also gets a unique id.
+    # The firstClass in cssClass acts like a re-entrant identifier for these
+    # tabs. Each also gets a unique id.
     # Purpose:
-    #   Programmatically build the equivalent of views/tabs/all.ejs but with unique ids for the divs
+    #   Programmatically build the equivalent of views/tabs/all.ejs but with
+    #   unique ids for the divs
     # Notes:
     #   When @args.use_old_tabs_ids is true this method reproduces all.ejs exactly.
     #   Otherwise it gives each div a unique id
-    #   Either way @oldToUniqueTabSel provides a way to select each tab using the old non-reentrant ids like 'tabs-intro'
+    #   Either way @oldToUniqueTabSel provides a way to select each tab using
+    #       the old non-reentrant ids like 'tabs-intro'
     # Arguments:
     #   cssClass becomes the value of the class attribute of the div
     #   title becomes the title attribute of the tab
     #   text becomes the visible label of the tab
-    #   moveSelector: (optional) is the selector of content to move into the div
-    #   bodyUrl: (optional) is the url of content to insert into the div (if it ends with .md the markdown is rendered)
+    #   moveSelector: (optional) the selector of content to move into the div
+    #   bodyUrl: (optional) is the url of content to insert into the div
+    #       (if it ends with .md the markdown is rendered)
     # Motivation:
-    #   The problem this is working to solve is that we want HuViz to be re-entrant (ie more than one instance per page)
-    #   but it was originally written without that in mind, using unique ids such as #tabs-intro liberally.
-    #   This method provides a way to programmatically build the tabs with truly unique ids but also with a way to
-    #   learn what those ids are using the old identifiers.  To finish the task of transforming the code to be
-    #   re-entrant we must:
-    #     1) find all the places which use ids such as "#gclui" or "#tabs-history" and get them
-    #        to use @oldToUniqueTabSel as a lookup for the new ids.
-    #     2) rebuild the CSS to use class names such as ".gclui" rather than the old ids such as "#gclui"
-    @oldToUniqueTabSel = {}
+    #   The problem this is working to solve is that we want HuViz to
+    #   be re-entrant (ie more than one instance per page) but it was
+    #   originally written without that in mind, using unique ids such
+    #   as #tabs-intro liberally.  This method provides a way to
+    #   programmatically build the tabs with truly unique ids but also
+    #   with a way to learn what those ids are using the old
+    #   identifiers.  To finish the task of transforming the code to
+    #   be re-entrant we must:
+    #     1) find all the places which use ids such as "#gclui" or
+    #        "#tabs-history" and get them to use @oldToUniqueTabSel
+    #        as a lookup for the new ids.
+    #     2) rebuild the CSS to use class names such as ".gclui" rather
+    #        than the old ids such as "#gclui"
     jQElem_list = [] # a list of args for the command @make_JQElem()
     theTabs = """<ul class="the-tabs">"""
     theDivs = ""
-    tab_specs = @args.tab_specs or @default_tab_specs
+    tab_specs = @args.tab_specs
     for t in tab_specs
+      if typeof(t) is 'string'
+        t = @get_default_tab(t)
       firstClass = t.cssClass.split(' ')[0]
       firstClass_ = firstClass.replace(/\-/, '_')
       id = @unique_id(firstClass + '_')
@@ -5340,7 +5443,6 @@ class Huviz
       idSel = '#' + id
       @oldToUniqueTabSel[firstClass] = idSel
       theTabs += """<li><a href="#{idSel}" title="#{t.title}">#{t.text}</a></li>"""
-
       theDivs += """<div id="#{id}" class="#{t.cssClass}">#{t.kids or ''}</div>"""
       if not marked?
         console.info('marked does not exist yet')
@@ -5399,6 +5501,8 @@ class Huviz
     return
 
   create_tabs: ->
+    if not @args.tab_specs
+      return
     # create <section id="tabs"...> programmatically, making unique ids along the way
     elem = document.querySelector(@args.create_tabs_adjacent_to_selector)
     [html, jQElem_list] = @make_tabs_html()
@@ -5476,13 +5580,17 @@ class Huviz
       ctrl_handle_sel: unique_id('#ctrl_handle_')
       gclui_sel: unique_id('#gclui_')
       git_base_url: "https://github.com/smurp/huviz/commit/"
+      hide_fullscreen_button: false
       huviz_top_sel: unique_id('#huviz_top_') # if not provided then create
       make_pickers: true
       performance_dashboard_sel: unique_id('#performance_dashboard_')
       settings: {}
+      show_tabs: true
       skip_log_tick: true
       state_msg_box_sel: unique_id('#state_msg_box_')
       status_sel: unique_id('#status_')
+      stay_square: false
+      tab_specs: ['commands','settings','history'] # things break if these are not present
       tabs_minWidth: 300
       use_old_tab_ids: false
       viscanvas_sel: unique_id('#viscanvas_')
@@ -5523,6 +5631,7 @@ class Huviz
     return args
 
   constructor: (incoming_args) -> # Huviz
+    @oldToUniqueTabSel = {}
     #if @pfm_display is true
     #  @pfm_dashboard()
     @git_commit_hash = window.HUVIZ_GIT_COMMIT_HASH
@@ -5531,21 +5640,24 @@ class Huviz
     if @args.create_tabs_adjacent_to_selector
       @create_tabs()
     @tabsJQElem = $('#' + @tabs_id)
+    if not @args.show_tabs
+      @collapse_tabs()
     @replace_human_term_spans(@tabs_id)
     if @args.add_to_HVZ
       if not window.HVZ?
         window.HVZ = []
       window.HVZ.push(this)
 
-    # FIXME Simplify this whole graph_controls_sel and 'tabs-options' thing
-    #       The graph controls should just be built right on tabs_options_JQElem
-    @args.graph_controls_sel ?= @oldToUniqueTabSel['tabs-options']
+    # FIXME Simplify this whole settings_sel and 'settings' thing
+    #       The settings should just be built right on settings_JQElem
+    @args.settings_sel ?= @oldToUniqueTabSel['settings']
 
     @create_blurtbox()
     @ensure_divs()
     @make_JQElems()
     @create_collapse_expand_handles()
-    @create_fullscreen_handle()
+    if not @args.hide_fullscreen_button
+      @create_fullscreen_handle()
     @init_ontology()
     @create_caption()
     @off_center = false # FIXME expose this or make the amount a slider
@@ -5578,7 +5690,7 @@ class Huviz
       #d3.select("body").append("div").attr("id", "viscanvas")
     ###
     @container = d3.select(@args.viscanvas_sel).node().parentNode
-    @init_graph_controls_from_json()
+    @init_settings_from_json()
     @apply_settings(@args.settings)
     if @use_fancy_cursor
       @text_cursor = new TextCursor(@args.viscanvas_sel, "")
@@ -5652,9 +5764,12 @@ class Huviz
     @fullscreenJQElem.click(@fullscreen)
     return
 
-  fullscreen: () =>
-    elem = document.getElementById("body")
-    elem.webkitRequestFullscreen()
+  fullscreen: =>
+    # https://developer.mozilla.org/en-US/docs/Web/API/Document/exitFullscreen
+    if (document.fullscreenElement)
+      document.exitFullscreen()
+    else
+      @topElem.requestFullscreen()
 
   ##### ------------------- collapse/expand stuff ---------------- ########
 
@@ -5757,7 +5872,7 @@ class Huviz
 
   # TODO add controls
   #   selected_border_thickness
-  default_graph_controls: [
+  default_settings: [
       reset_controls_to_default:
         label:
           title: "Reset all controls to default"
@@ -6287,12 +6402,31 @@ class Huviz
           title: "Only use verbs which have one chosen node at a time"
         input:
           type: "checkbox"
+          checked: "checked"
+        event_type: "change"
+    ,
+      show_images_in_nodes:
+        style: "color:red"
+        text: "Show Images in Nodes"
+        label:
+          title: "Show images in nodes when available"
+        input:
+          type: "checkbox"
+        event_type: "change"
+    ,
+      show_thumbs_dont_graph:
+        style: "color:red"
+        text: "Show thumbnails, don't graph"
+        label:
+          title: "Treat dbpedia:thumbnail and foaf:thumbnail as images, not graph data"
+        input:
+          type: "checkbox"
         event_type: "change"
     ]
 
   dump_current_settings: (post) =>
-    @tabs_options_JQElem.html('')
-    @init_graph_controls_from_json()
+    @settings_JQElem.html('')
+    @init_settings_from_json()
     @on_change_graph_title_style("subliminal")
     @on_change_prune_walk_nodes("directional_path")
 
@@ -6300,19 +6434,20 @@ class Huviz
     # Try to tune the gravity, charge and link length to suit the data and the canvas size.
     return @
 
-  init_graph_controls_from_json: =>
-    graph_controls_input_sel = @args.graph_controls_sel + ' input'
-    @graph_controls_cursor = new TextCursor(graph_controls_input_sel, "")
-    if @graph_controls_cursor
-      $(graph_controls_input_sel).on("mouseover", @update_graph_controls_cursor)
-      #$("input").on("mouseenter", @update_graph_controls_cursor)
-      #$("input").on("mousemove", @update_graph_controls_cursor)
-    @graph_controls = d3.select(@args.graph_controls_sel)
-    @graph_controls.classed('graph_controls',true)
-    #$(@graph_controls).sortable().disableSelection() # TODO fix dropping
-    for control_spec in @default_graph_controls
+  init_settings_from_json: =>
+    settings_input_sel = @args.settings_sel + ' input'
+    @settings_cursor = new TextCursor(settings_input_sel, "")
+    if @settings_cursor
+      $(settings_input_sel).on("mouseover", @update_settings_cursor)
+      #$("input").on("mouseenter", @update_settings_cursor)
+      #$("input").on("mousemove", @update_settings_cursor)
+    @settings = d3.select(@args.settings_sel)
+    @settings.classed('settings',true)
+    for control_spec in @default_settings
       for control_name, control of control_spec
-        graph_control = @graph_controls.append('div').attr('id',control_name).attr('class', 'graph_control')
+        graph_control = @settings.append('div').
+              attr('id', control_name).
+              attr('class', 'a_setting')
         label = graph_control.append('label')
         if control.text?
           label.text(control.text)
@@ -6359,16 +6494,16 @@ class Huviz
           input.on("change", @update_graph_settings) # when focus changes
         else
           input.on("input", @update_graph_settings) # continuous updates
-    @tabs_options_JQElem.append("<div class='buffer_space'></div>")
+    @settings.append('div').attr('class', 'buffer_space')
     return
 
-  update_graph_controls_cursor: (evt) =>
+  update_settings_cursor: (evt) =>
     cursor_text = (evt.target.value).toString()
     if !cursor_text
       console.debug(cursor_text)
     else
       console.log(cursor_text)
-    @graph_controls_cursor.set_text(cursor_text)
+    @settings_cursor.set_text(cursor_text)
 
   update_graph_settings: (target, update) =>
     target = target? and target or d3.event.target
@@ -6401,10 +6536,10 @@ class Huviz
     # TODO replace control.event_type with autodetecting on_change_ vs on_update_ method existence
     custom_handler_name = "on_change_" + setting_name
     custom_handler = @[custom_handler_name]
-    if @graph_controls_cursor
+    if @settings_cursor
       cursor_text = (new_value).toString()
       #console.info("#{setting_name}: #{cursor_text}")
-      @graph_controls_cursor.set_text(cursor_text)
+      @settings_cursor.set_text(cursor_text)
     if custom_handler? and not skip_custom_handler
       #console.log "change_setting_to_from() custom setting: #{setting_name} to:#{new_value}(#{typeof new_value}) from:#{old_value}(#{typeof old_value})"
       custom_handler.apply(@, [new_value, old_value])
@@ -6465,8 +6600,6 @@ class Huviz
     #$("body").addClass renderStyles.themeName
     @topElem.style.backgroundColor = renderStyles.pageBg
     @topElem.classList.add(renderStyles.themeName)
-
-
     console.log @topElem
     @updateWindow()
 
@@ -6578,11 +6711,15 @@ class Huviz
       if @nameless_set
         @discover_names()
 
-  init_from_graph_controls: ->
-    # alert "init_from_graph_controls() is deprecated"
+  on_change_single_chosen: (new_val, old_val) ->
+    @single_chosen = new_val
+    @tick()
+
+  init_from_settings: ->
+    # alert "init_from_settings() is deprecated"
     # Perform update_graph_settings for everything in the form
     # so the HTML can be used as configuration file
-    for elem in $(".graph_controls input") # so we can modify them in a loop
+    for elem in $(".settings input") # so we can modify them in a loop
       @update_graph_settings(elem, false)
 
   after_file_loaded: (uri, callback) ->
@@ -6613,10 +6750,10 @@ class Huviz
       #@disable_data_set_selector()
       @disable_dataset_ontology_loader(data, onto)
     @show_state_msg("loading...")
-    #@init_from_graph_controls() # REVIEW remove init_from_graph_controls?!?
-    #@dump_current_settings("after init_from_graph_controls()")
+    #@init_from_settings() # REVIEW remove init_from_settings?!?
+    #@dump_current_settings("after init_from_settings()")
     #@reset_graph()
-    @show_state_msg @data_uri
+    @show_state_msg(@data_uri)
     unless @G.subjects
       @fetchAndShow(@data_uri, callback)
 
