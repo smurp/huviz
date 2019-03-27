@@ -1,6 +1,6 @@
 window.addEventListener('load',function(){
   huviz = require('huviz');
-  new huviz.Orlando({
+  var hvz = new huviz.Orlando({
     default_node_url: '/huviz/docs/cwrc_logo.png',
     huviz_top_sel: "#FLOWER_TOP",
     settings: {
@@ -20,25 +20,10 @@ window.addEventListener('load',function(){
       , show_edges: false
       , single_chosen: true
     },
-    // pass in the tab_specs to override the defaults_tab_specs
-    tab_specs:
-    [
-      {
-        "cssClass": "huvis_controls scrolling_tab unselectable",
-        "title": "Power tools for controlling the graph",
-        "text": "Commands"
-      },
-      {
-        "cssClass": "tabs-options scrolling_tab",
-        "title": "Fine tune sizes, lengths and thicknesses",
-        "text": "Settings"
-      },
-      {
-        "cssClass": "tabs-history",
-        "title": "The command history",
-        "text": "History"
-      }
-    ],
+    stay_square: false,
+    //show_tabs: false,
+    //hide_fullscreen_button: true,
+    tab_specs: ['commands','settings','history'],
     preload: [
       '/data/genres.json'
       , '/data/ontologies.json'
@@ -53,4 +38,5 @@ window.addEventListener('load',function(){
       , '/data/cwrc_endpoints.json'
     ]
   });
+  hvz.add_quad({s:'http://apple.com', p:'a', o: {value: 'owl:Thing'}});
 });

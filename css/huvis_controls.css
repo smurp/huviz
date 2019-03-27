@@ -123,7 +123,7 @@
 .tab-content-container {
   background-color: #f0f;
 }
-.graph_controls { /* put them in the upper right, above the graph */
+.settings { /* put them in the upper right, above the graph */
   right: .2em;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -132,7 +132,7 @@
   -ms-user-select: none;
   user-select: none;
 }
-.graph_controls label { /* slide them to the right */
+.settings label { /* slide them to the right */
   float: right;
   clear: both;
 }
