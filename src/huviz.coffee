@@ -237,6 +237,9 @@ RDFS_label  = "http://www.w3.org/2000/01/rdf-schema#label"
 SKOS_prefLabel = "http://www.w3.org/2004/02/skos/core#prefLabel"
 XL_literalForm = "http://www.w3.org/2008/05/skos-xl#literalForm"
 TYPE_SYNS   = [RDF_type, RDF_a, 'rdfs:type', 'rdf:type']
+THUMB_PREDS = [
+  'http://dbpedia.org/ontology/thumbnail'
+  'http://xmlns.com/foaf/0.1/thumbnail']
 NAME_SYNS = [
   FOAF_name, RDFS_label, 'rdfs:label', 'name', SKOS_prefLabel, XL_literalForm
   ]
@@ -1862,7 +1865,8 @@ class Huviz
                       rndng,
                       stroke_color,
                       filclr)
-          else if @show_images_in_nodes and (img_url = @default_node_url)
+          else if @show_images_in_nodes and
+              (img_url = d.__thumbnail or @default_node_url)
             img = @get_or_create_round_img(img_url)
             @draw_round_img(
               d.fisheye.x, d.fisheye.y,
@@ -2784,9 +2788,13 @@ class Huviz
       # We have a node for the object of the quad and this quad is relational
       # so there should be links made between this node and that node
       is_type = is_one_of(pred_uri, TYPE_SYNS)
-      make_edge = @show_class_instance_edges or not is_type
+      use_thumb = is_one_of(pred_uri, THUMB_PREDS) and @show_thumbs_dont_graph
+      make_edge = @show_class_instance_edges or not is_type and not use_thumb
       if is_type
         @try_to_set_node_type(subj_n, quad.o.value)
+      if use_thumb
+        obj_n.__thumbnail = quad.o.value
+        develop(obj_n)
       if make_edge
         @develop(subj_n) # both subj_n and obj_n should hatch for edge to make sense
         # REVIEW uh, how are we ensuring that the obj_n is hatching? should it?
@@ -6378,6 +6386,15 @@ class Huviz
         text: "Show Images in Nodes"
         label:
           title: "Show images in nodes when available"
+        input:
+          type: "checkbox"
+        event_type: "change"
+    ,
+      show_thumbs_dont_graph:
+        style: "color:red"
+        text: "Show thumbnails, don't graph"
+        label:
+          title: "Treat dbpedia:thumbnail and foaf:thumbnail as images, not graph data"
         input:
           type: "checkbox"
         event_type: "change"

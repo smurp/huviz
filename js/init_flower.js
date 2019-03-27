@@ -8,12 +8,15 @@ window.addEventListener('load',function(){
       , shelf_radius: 1
       , fisheye_zoom: 1
       , fisheye_radius: 0
-      , default_node_url: '/huviz/docs/orlando_tree_logo.png'
+      //, default_node_url: '/huviz/docs/sshrc_logo_en2.png'
+      , default_node_url: '/huviz/docs/nooron_logo.png'
       //, // should use weird shape to test circular clipping
       , gravity: 1
       , link_distance: 0
       , make_nodes_for_literals: false
       //, theme_colors: 'dark'
+      , show_thumbs_dont_graph: true
+      , show_images_in_nodes: true
       , node_radius: 25
       , show_edges: false
       , single_chosen: true
