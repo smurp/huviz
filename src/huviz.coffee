@@ -1883,6 +1883,7 @@ class Huviz
                       special_focus)
         if @use_webgl
           @mv_node(d.gl, d.fisheye.x, d.fisheye.y)
+
   get_node_color_or_color_list: (n, default_color) ->
     default_color ?= 'black'
     if @color_nodes_as_pies and n._types and n._types.length > 1
@@ -1921,6 +1922,7 @@ class Huviz
         ctx.drawImage(theImage, x, y, w, h) # This just paints the image as is
 
         img.src = round_image_maker.toDataURL()
+      theImage.crossOrigin = "Anonymous";
       theImage.src = url # path to image file
     @round_img_cache[url] = img
     return img
