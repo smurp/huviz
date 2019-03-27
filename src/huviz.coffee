@@ -1899,9 +1899,11 @@ class Huviz
       theImage = new Image()
       theImage.onload = () ->  # When image is loaded create a new round image
         ctx.beginPath()
-        ctx.arc(display_image_size/2, display_image_size/2, display_image_size/2, 0, 2 * Math.PI, false)
+        ctx.arc(display_image_size/2, display_image_size/2, display_image_size/2, 0, 2 * Math.PI, false) # This needs to be half the size of height/width to fill canvas area
+        ctx.clip()
         ctx.fillStyle = renderStyles.pageBg
         ctx.fill()
+
         if theImage.width > theImage.height  # Landscape image
           w = Math.round(theImage.width * display_image_size/theImage.height)
           h = Math.round(display_image_size)
@@ -1913,6 +1915,7 @@ class Huviz
           x = 0
           y = Math.round((w - h)/2)
         ctx.drawImage(theImage, x, y, w, h) # This just paints the image as is
+
         img.src = round_image_maker.toDataURL()
       theImage.src = url # path to image file
     @round_img_cache[url] = img
