@@ -1888,14 +1888,34 @@ class Huviz
 
   get_or_create_round_img: (url) ->
     @round_img_cache ?= {}
+    display_image_size = 128
     if not (img = @round_img_cache[url])
-      style="border-radius:100%;position:absolute;top:32px;left:32px;object-fit:cover;width:64px;height:64px"
-
-      style="border-radius:100%;object-fit:cover;width:64px;height:64px"
       img = document.createElement('img')
-      img.src = url
-      img.style = style
-      @round_img_cache[url] = img
+      round_image_maker = document.createElement("CANVAS")
+      round_image_maker.width = display_image_size # size of ultimate image
+      round_image_maker.height = display_image_size
+      ctx = round_image_maker.getContext("2d")
+
+      theImage = new Image()
+      theImage.onload = () ->  # When image is loaded create a new round image
+        ctx.beginPath()
+        ctx.arc(display_image_size/2, display_image_size/2, display_image_size/2, 0, 2 * Math.PI, false)
+        ctx.fillStyle = renderStyles.pageBg
+        ctx.fill()
+        if theImage.width > theImage.height  # Landscape image
+          w = Math.round(theImage.width * display_image_size/theImage.height)
+          h = Math.round(display_image_size)
+          x = - Math.round((w - h)/2)
+          y = 0
+        else # Portrait image
+          w = Math.round(display_image_size)
+          h = Math.round(theImage.height * display_image_size/theImage.width)
+          x = 0
+          y = Math.round((w - h)/2)
+        ctx.drawImage(theImage, x, y, w, h) # This just paints the image as is
+        img.src = round_image_maker.toDataURL()
+      theImage.src = url # path to image file
+    @round_img_cache[url] = img
     return img
 
   get_label_attributes: (d) ->
@@ -3229,7 +3249,7 @@ class Huviz
     ###
     graphSelector = "#sparqlGraphOptions-#{id}"
     $(graphSelector).parent().css('display', 'none')
-    $('#sparqlQryInput').css('display', 'none')
+    $("#sparqlQryInput_#{sparqlId}").css('display', 'none')
     spinner = $("#sparqlGraphSpinner-#{id}")
     spinner.css('display','block')
     $.ajax
@@ -5090,6 +5110,7 @@ class Huviz
     @ontology_loader.select_option(ontology_option)
 
   populate_sparql_label_picker: () =>
+    sparqlId = unique_id()
     select_box = """
       <div class='ui-widget' style='display:none;margin-top:5px;margin-left:10px;'>
         <label>Graphs: </label>
@@ -5100,10 +5121,10 @@ class Huviz
            style='display:none;font-style:italic;'>
         <i class='fas fa-spinner fa-spin' style='margin: 10px 10px 0 50px;'></i>  Looking for graphs...
       </div>
-      <div id="sparqlQryInput" class=ui-widget
+      <div id="sparqlQryInput_#{sparqlId}" class="ui-widget sparqlQryInput"
            style='display:none;margin-top:5px;margin-left:10px;color:#999;'>
-        <label for='endpoint_labels'>Find: </label>
-        <input id='endpoint_labels' disabled>
+        <label for='endpoint_labels_#{sparqlId}'>Find: </label>
+        <input id='endpoint_labels_#{sparqlId}' disabled>
         <i class='fas fa-spinner fa-spin' style='visibility:hidden;margin-left: 5px;'></i>
         <div><label for='endpoint_limit'>Node Limit: </label>
         <input id='endpoint_limit' value='100' disabled>
@@ -5111,9 +5132,9 @@ class Huviz
       </div>
     """
     $(@pickersSel).append(select_box)
-    spinner = $("#endpoint_labels").siblings('i')
+    spinner = $("#endpoint_labels_#{sparqlId}").siblings('i')
     fromGraph =''
-    $("#endpoint_labels").autocomplete({minLength: 3, delay:500, position: {collision: "flip"}, source: (request, response) =>
+    $(".endpoint_labels_#{sparqlId}").autocomplete({minLength: 3, delay:500, position: {collision: "flip"}, source: (request, response) =>
       spinner.css('visibility','visible')
       url = @endpoint_loader.value
       fromGraph = ''
