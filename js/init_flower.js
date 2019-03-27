@@ -9,7 +9,9 @@ window.addEventListener('load',function(){
       , fisheye_zoom: 1
       , fisheye_radius: 0
       //, default_node_url: '/huviz/docs/sshrc_logo_en2.png'
-      , default_node_url: '/huviz/docs/nooron_logo.png'
+      //, default_node_url: '/huviz/docs/nooron_logo.png'
+      //, default_node_url: '/huviz/docs/CANARIE_v2.png'
+      , default_node_url: '/huviz/docs/test_img_portrait.png'
       //, // should use weird shape to test circular clipping
       , gravity: 1
       , link_distance: 0
