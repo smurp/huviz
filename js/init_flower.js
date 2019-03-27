@@ -11,7 +11,8 @@ window.addEventListener('load',function(){
       //, default_node_url: '/huviz/docs/sshrc_logo_en2.png'
       //, default_node_url: '/huviz/docs/nooron_logo.png'
       //, default_node_url: '/huviz/docs/CANARIE_v2.png'
-      , default_node_url: '/huviz/docs/test_img_portrait.png'
+      //, default_node_url: '/huviz/docs/test_img_portrait.png'
+      , default_node_url: 'http://i3.ytimg.com/vi/LeAltgu_pbM/hqdefault.jpg'
       //, // should use weird shape to test circular clipping
       , gravity: 1
       , link_distance: 0
