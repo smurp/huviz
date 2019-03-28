@@ -1031,7 +1031,7 @@ class Huviz
       @ctx.fillStyle = "black"
       @ctx.fill()
 
-  draw_round_img: (cx, cy, radius, strclr, filclr, special_focus, img) ->
+  draw_round_img: (cx, cy, radius, strclr, filclr, special_focus, imageData, url) ->
     incl_cntr = start_angle? or end_angle?
     start_angle = start_angle or 0
     end_angle = end_angle or tau
@@ -1047,11 +1047,17 @@ class Huviz
       @ctx.stroke()
     if filclr
       @ctx.fill()
-    if img?
-      wh = 100 # radius*2
+    wh = radius*2
+    if imageData?
       # note that drawImage can clip for the centering task
       #   https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage
-      @ctx.drawImage(img, cx-radius, cy-radius, radius*2, radius*2)
+      @ctx.drawImage(imageData, cx-radius, cy-radius, wh, wh)
+    else
+      img = new Image()
+      img.src = url
+      @ctx.drawImage(img,
+                     0, 0, img.width, img.height,
+                     cx-radius, cy-radius, wh, wh)
 
     if special_focus # true if this is a wander or walk highlighted node
       @ctx.beginPath()
@@ -1866,15 +1872,19 @@ class Huviz
                       stroke_color,
                       filclr)
           else if @show_images_in_nodes and
-              (img_url = d.__thumbnail or @default_node_url)
-            img = @get_or_create_round_img(img_url)
+              (imgUrl = (d.__thumbnail or @args.default_node_url))
+            try
+              imageData = @get_or_create_round_img(imgUrl)
+            catch e
+              console.error(e)
             @draw_round_img(
               d.fisheye.x, d.fisheye.y,
               node_radius,
               stroke_color,
               filclr,
               special_focus,
-              img)
+              imageData,
+              imgUrl)
           else
             @draw_pie(d.fisheye.x, d.fisheye.y,
                       node_radius,
@@ -2821,8 +2831,8 @@ class Huviz
       if is_type
         @try_to_set_node_type(subj_n, quad.o.value)
       if use_thumb
-        obj_n.__thumbnail = quad.o.value
-        develop(obj_n)
+        subj_n.__thumbnail = quad.o.value
+        @develop(subj_n)
       if make_edge
         @develop(subj_n) # both subj_n and obj_n should hatch for edge to make sense
         # REVIEW uh, how are we ensuring that the obj_n is hatching? should it?
