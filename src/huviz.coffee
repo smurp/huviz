@@ -1894,46 +1894,42 @@ class Huviz
   get_or_create_round_img: (url) ->
     @round_img_cache ?= {}
     display_image_size = 128
-
-    
-
     if not (img = @round_img_cache[url])
       imgId = @unique_id('round_img_')
-      @addHTML("""<img id="#{imgId}" src="#{url}" xstyle="display:none"/>""")
-      theImage = document.querySelector('#'+imgId)
-      img = document.createElement('img')
+      #@addHTML("""<img id="#{imgId}" src="#{url}" style="display:none"/>""")
+      #origImage = document.querySelector('#'+imgId)
+      roundImage = document.createElement('img')
       round_image_maker = document.createElement("CANVAS")
       round_image_maker.width = display_image_size # size of ultimate image
       round_image_maker.height = display_image_size
       ctx = round_image_maker.getContext("2d")
 
-      theImage = new Image()
-      #theImage.crossOrigin = "Anonymous";
-      #theImage.src = url # path to image file
+      origImage = new Image()
+      origImage.crossOrigin = "Anonymous";
+      origImage.src = url # path to image file
 
-      img = theImage
-      theImage.onload = () ->  # When image is loaded create a new round image
+      #roundImage = origImage
+      origImage.onload = () ->  # When image is loaded create a new round image
         ctx.beginPath()
         ctx.arc(display_image_size/2, display_image_size/2, display_image_size/2, 0, 2 * Math.PI, false) # This needs to be half the size of height/width to fill canvas area
         ctx.clip()
         ctx.fillStyle = renderStyles.pageBg
         ctx.fill()
 
-        if theImage.width > theImage.height  # Landscape image
-          w = Math.round(theImage.width * display_image_size/theImage.height)
+        if origImage.width > origImage.height  # Landscape image
+          w = Math.round(origImage.width * display_image_size/origImage.height)
           h = Math.round(display_image_size)
           x = - Math.round((w - h)/2)
           y = 0
         else # Portrait image
           w = Math.round(display_image_size)
-          h = Math.round(theImage.height * display_image_size/theImage.width)
+          h = Math.round(origImage.height * display_image_size/origImage.width)
           x = 0
           y = Math.round((w - h)/2)
-        ctx.drawImage(theImage, x, y, w, h) # This just paints the image as is
-
-        img.src = round_image_maker.toDataURL()
-      @round_img_cache[url] = img
-    return img
+        ctx.drawImage(origImage, x, y, w, h) # This just paints the image as is
+        roundImage.src = round_image_maker.toDataURL()
+      @round_img_cache[url] = roundImage
+    return roundImage
 
   get_label_attributes: (d) ->
     text = d.pretty_name
@@ -4837,7 +4833,7 @@ class Huviz
           @script_loader.val('')
           @update_dataset_ontology_loader()
           console.groupEnd() # closing group called "populate_menus_from_IndexedDB(why)"
-          document.dispatchEvent( # TODO use 'huviz_controls' rather than document
+          document.dispatchEvent( # TODO use 'huvis_controls' rather than document
             new Event('dataset_ontology_loader_ready'));
           #alert "#{count} entries saved #{why}"
 
@@ -5627,6 +5623,7 @@ class Huviz
     'gclui'
     'performance_dashboard'
     'viscanvas'
+    'huviz_controls'
     ]
 
   calculate_args: (incoming_args) ->
@@ -5723,14 +5720,24 @@ class Huviz
     search_input = document.getElementById('search')
     if search_input
       search_input.addEventListener("input", @update_searchterm)
-    window.addEventListener "resize", @updateWindow
+    window.addEventListener("resize", @updateWindow)
     @tabsJQElem.on("resize", @updateWindow)
     $(@viscanvas).bind("_splitpaneparentresize", @updateWindow)
     @tabsJQElem.tabs({active: 0})
-    $('.open_tab').click (event) =>
-      tab_idx = parseInt($(event.target).attr('href').replace("#",""))
-      @goto_tab(tab_idx)
-      return false
+    @maybe_demo_round_img()
+
+  maybe_demo_round_img: ->
+    if not (@args.demo_round_img)
+      return
+    try
+      roundImage = @get_or_create_round_img(@args.demo_round_img)
+      roundImage.id = @unique_id('sample_round_img_')
+      @tabsJQElem.append(roundImage)
+      $('#'+roundImage.id).attr("style","background-color:black")
+    catch e
+      console.warn("url:", @args.demo_round_img)
+      console.debug(e)
+    return
 
   create_blurtbox: ->
     blurtbox_id = @unique_id('blurtbox_')

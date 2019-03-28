@@ -1,19 +1,17 @@
 window.addEventListener('load',function(){
   huviz = require('huviz');
   var hvz = new huviz.Orlando({
-    default_node_url: '/huviz/docs/cwrc_logo.png',
+    //default_node_url: '/huviz/docs/cwrc_logo.png',
+    //default_node_url: '/huviz/docs/sshrc_logo_en2.png',
+    default_node_url: '/huviz/docs/sshrc_logo_en2.png',
+    demo_round_img: '/huviz/docs/test_img_portrait.png',
+    //demo_round_img: 'http://i3.ytimg.com/vi/LeAltgu_pbM/hqdefault.jpg',
     huviz_top_sel: "#FLOWER_TOP",
     settings: {
       charge: -600
       , shelf_radius: 1
       , fisheye_zoom: 1
       , fisheye_radius: 0
-      //, default_node_url: '/huviz/docs/sshrc_logo_en2.png'
-      //, default_node_url: '/huviz/docs/nooron_logo.png'
-      //, default_node_url: '/huviz/docs/CANARIE_v2.png'
-      //, default_node_url: '/huviz/docs/test_img_portrait.png'
-      , default_node_url: 'http://i3.ytimg.com/vi/LeAltgu_pbM/hqdefault.jpg'
-      //, // should use weird shape to test circular clipping
       , gravity: 1
       , link_distance: 0
       , make_nodes_for_literals: false
@@ -42,5 +40,5 @@ window.addEventListener('load',function(){
       , '/data/cwrc_endpoints.json'
     ]
   });
-  hvz.add_quad({s:'http://apple.com', p:'a', o: {value: 'owl:Thing'}});
+  //hvz.add_quad({s:'http://apple.com', p:'a', o: {value: 'owl:Thing'}});
 });
