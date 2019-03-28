@@ -1,9 +1,9 @@
 window.addEventListener('load',function(){
   huviz = require('huviz');
   var hvz = new huviz.Orlando({
-    //default_node_url: '/huviz/docs/cwrc_logo.png',
+    default_node_url: '/huviz/docs/cwrc_logo.png',
     //default_node_url: '/huviz/docs/sshrc_logo_en2.png',
-    default_node_url: '/huviz/docs/sshrc_logo_en2.png',
+    //default_node_url: '/huviz/docs/sshrc_logo_en2.png',
     demo_round_img: '/huviz/docs/test_img_portrait.png',
     //demo_round_img: 'http://i3.ytimg.com/vi/LeAltgu_pbM/hqdefault.jpg',
     huviz_top_sel: "#FLOWER_TOP",

@@ -42,7 +42,8 @@ youtu:DdxtXO34T5k
 
 youtu:nHBhyIzTstI
     a video:Video ;
-    foaf:thumbnail <http://i3.ytimg.com/vi/nHBhyIzTstI/hqdefault.jpg> ;
+    #foaf:thumbnail <http://i3.ytimg.com/vi/nHBhyIzTstI/hqdefault.jpg> ;
+    foaf:thumbnail <http://localhost:9997/huviz/docs/nooron_logo.png> ;
     dcterms:contributor youtuch:UCuWwLRjfxRIsx-dpmjs-eeA ;
     rdfs:label "Bootie Christ Dance" .
 
