@@ -1896,8 +1896,6 @@ class Huviz
     display_image_size = 128
     if not (img = @round_img_cache[url])
       imgId = @unique_id('round_img_')
-      #@addHTML("""<img id="#{imgId}" src="#{url}" style="display:none"/>""")
-      #origImage = document.querySelector('#'+imgId)
       roundImage = document.createElement('img')
       round_image_maker = document.createElement("CANVAS")
       round_image_maker.width = display_image_size # size of ultimate image
@@ -1908,10 +1906,11 @@ class Huviz
       origImage.crossOrigin = "Anonymous";
       origImage.src = url # path to image file
 
-      #roundImage = origImage
       origImage.onload = () ->  # When image is loaded create a new round image
         ctx.beginPath()
-        ctx.arc(display_image_size/2, display_image_size/2, display_image_size/2, 0, 2 * Math.PI, false) # This needs to be half the size of height/width to fill canvas area
+        # This needs to be half the size of height/width to fill canvas area
+        ctx.arc(display_image_size/2, display_image_size/2,
+                display_image_size/2, 0, 2 * Math.PI, false)
         ctx.clip()
         ctx.fillStyle = renderStyles.pageBg
         ctx.fill()
