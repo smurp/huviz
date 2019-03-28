@@ -1894,7 +1894,13 @@ class Huviz
   get_or_create_round_img: (url) ->
     @round_img_cache ?= {}
     display_image_size = 128
+
+    
+
     if not (img = @round_img_cache[url])
+      imgId = @unique_id('round_img_')
+      @addHTML("""<img id="#{imgId}" src="#{url}" xstyle="display:none"/>""")
+      theImage = document.querySelector('#'+imgId)
       img = document.createElement('img')
       round_image_maker = document.createElement("CANVAS")
       round_image_maker.width = display_image_size # size of ultimate image
@@ -1902,6 +1908,10 @@ class Huviz
       ctx = round_image_maker.getContext("2d")
 
       theImage = new Image()
+      #theImage.crossOrigin = "Anonymous";
+      #theImage.src = url # path to image file
+
+      img = theImage
       theImage.onload = () ->  # When image is loaded create a new round image
         ctx.beginPath()
         ctx.arc(display_image_size/2, display_image_size/2, display_image_size/2, 0, 2 * Math.PI, false) # This needs to be half the size of height/width to fill canvas area
@@ -1922,9 +1932,7 @@ class Huviz
         ctx.drawImage(theImage, x, y, w, h) # This just paints the image as is
 
         img.src = round_image_maker.toDataURL()
-      theImage.crossOrigin = "Anonymous";
-      theImage.src = url # path to image file
-    @round_img_cache[url] = img
+      @round_img_cache[url] = img
     return img
 
   get_label_attributes: (d) ->
@@ -5685,12 +5693,7 @@ class Huviz
               attr("width", @width).
               attr("height", @height).
               attr("position", "absolute")
-    @svg.append("rect").attr("width", @width).attr "height", @height
-    ###
-    if not d3.select(@args.viscanvas_sel)[0][0]
-      new throw Error('expectling @args.viscanvas_sel to be found')
-      #d3.select("body").append("div").attr("id", "viscanvas")
-    ###
+    @svg.append("rect").attr("width", @width).attr("height", @height)
     @container = d3.select(@args.viscanvas_sel).node().parentNode
     @init_settings_from_json()
     @apply_settings(@args.settings)
