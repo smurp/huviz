@@ -2598,6 +2598,7 @@ class Huviz
 
   discover_geoname_name: (aUrl) ->
     id = aUrl.pathname.replace(/\//g,'')
+    idInt = parseInt(id)
     userId = @discover_geonames_as
     k2p = @discover_geoname_key_to_predicate_mapping
     if not @countdown_input('discover_geonames_remaining')
@@ -2627,9 +2628,13 @@ class Huviz
         depth = 0
         for geoRec in json.geonames by -1 # from most specific to most general
           subj = geoNamesRoot + '/' + geoRec.geonameId + '/'
-          console.log("discover_geoname_name(#{subj})")
+          #console.log("discover_geoname_name(#{subj})")
           depth++
-          console.table([geoRec])
+          soughtGeoname = (geoRec.geonameId is idInt)
+          if (not deep) and (not soughtGeoname)
+            #console.error("skipping because we are not going deep",geoRec.geonameId, id, geoRec.name)
+            continue
+          #console.table([{id: id, geonameId: geoRec.geonameId, name: geoRec.name}])
           name = (geoRec or {}).name
 
           placeQuad =
