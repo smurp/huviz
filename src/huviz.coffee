@@ -2729,8 +2729,6 @@ class Huviz
     @update_set_counts()
     @found_names ?= []
     @found_names.push(quad.o.value)
-    #msg = "inject_discovered_quad(#{quad.o})"
-    #colorlog(url)
 
   auto_discover: (uri, force) ->
     if uri.startsWith('_')
@@ -6349,7 +6347,6 @@ class Huviz
         event_type: "change"
     ,
       discover_geonames_as:
-        style: "color:orange"
         html_text: '<a href="http://www.geonames.org/login" taret="geonamesAcct">Geonames</a> Username'
         label:
           title: "The GeoNames Username to look up geonames as"
@@ -6361,7 +6358,6 @@ class Huviz
         event_type: "change"
     ,
       discover_geonames_remaining:
-        style: "color:orange"
         text: 'GeoNames Limit '
         label:
           title: "The number of Remaining Geonames to look up"
@@ -6372,7 +6368,6 @@ class Huviz
         event_type: "change"
     ,
       discover_geonames_greedily:
-        style: "color:orange"
         text: "Capture GeoNames Greedily"
         label:
           title: "Capture not just names but population"
@@ -6382,7 +6377,6 @@ class Huviz
         event_type: "change"
     ,
       discover_geonames_deeply:
-        style: "color:orange"
         text: "Capture GeoNames Deeply"
         label:
           title: "Capture not directly referenced but the containing geographical places from GeoNames"
@@ -6392,7 +6386,6 @@ class Huviz
         event_type: "change"
     ,
       show_edge_labels_adjacent_to_labelled_nodes:
-        style: "color:orange"
         text: "Show adjacent edge labels"
         label:
           title: "Show edge labels adjacent to labelled nodes"
@@ -6402,7 +6395,7 @@ class Huviz
         event_type: "change"
     ,
       show_hunt_verb:
-        style: "color:orange;display:none"
+        style: "display:none"
         text: "Show Hunt verb"
         label:
           title: "Show the Hunt verb"
@@ -6461,6 +6454,7 @@ class Huviz
     return @
 
   init_settings_from_json: =>
+    @settingsElem = document.querySelector(@args.settings_sel) # TODO Wolf, rebuild this method without D3 using @settingsElem
     settings_input_sel = @args.settings_sel + ' input'
     @settings_cursor = new TextCursor(settings_input_sel, "")
     if @settings_cursor
