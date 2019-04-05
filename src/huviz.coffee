@@ -405,6 +405,34 @@ escapeHtml = (unsafe) ->
          .replace(/'/g, "&#039;");
 
 
+class UsernameWidget
+  state_to_fa_icon:
+    bad: 'fa-times'
+    good: 'fa-check'
+    maybe: 'fa-question'
+
+  constructor: (@inputElem, state) ->
+    @state = state
+    @inputElem.insertAdjacentHTML('beforeend', """
+       <span style="border:2px solid orange; color:orange; padding:2px">
+         <i class="fa fa-user-alt"></i>
+         <i class="fa fa-question"></i>
+         <input style="border:none"/>
+       </span>
+      """)
+
+  set_state: (state) ->
+    if state isnt @state
+      alert(@state)
+    @state = state
+    @state_to_fa_icon(state)
+      #          <i class="fa fa-times"></i>
+      #          <i class="fa fa-question"></i>
+      #          <i class="fa fa-check"></i>
+
+class GeoUserNameWidget extends UsernameWidget
+
+
 orlando_human_term =
   all: 'All'
   chosen: 'Activated'
@@ -2601,10 +2629,15 @@ class Huviz
     idInt = parseInt(id)
     userId = @discover_geonames_as
     k2p = @discover_geoname_key_to_predicate_mapping
+    url = "http://api.geonames.org/hierarchyJSON?geonameId=#{id}&username=#{userId}"
     if not @countdown_input('discover_geonames_remaining')
       return
     $.ajax
-      url: "http://api.geonames.org/hierarchyJSON?geonameId=#{id}&username=#{userId}"
+      url: url
+      error: (xhr, status, error) =>
+        #console.log(xhr, status, error)
+        if error is 'Unauthorized'
+          @discover_geonames_as__widget.set_state('bad')
       success: (json, textStatus, request) =>
         if json.status
           @discover_geoname_name_msgs ?= {}
@@ -2621,6 +2654,7 @@ class Huviz
             @show_state_msg(msg)
           return
         #subj = aUrl.toString()
+        @discover_geonames_as__widget.set_state('good')
         geoNamesRoot = aUrl.origin
         deeperQuad = null
         greedy = @discover_geonames_greedily
@@ -5904,7 +5938,6 @@ class Huviz
           type: "button"
           label: "Reset All"
           style: "background-color: #555"
-        event_type: "change"
     ,
       focused_mag:
         text: "focused label mag"
@@ -6089,7 +6122,7 @@ class Huviz
         input:
           value: 0.22
           min: 0.001
-          max: 0.6
+          max: 1.0
           step: 0.01
           type: "range"
     ,
@@ -6132,7 +6165,6 @@ class Huviz
         input:
           checked: "checked"
           type: "checkbox"
-        event_type: "change"
     ,
       nodes_pinnable:
         style: "display:none"
@@ -6142,7 +6174,6 @@ class Huviz
         input:
           checked: "checked"
           type: "checkbox"
-        event_type: "change"
     ,
       use_fancy_cursor:
         style: "display:none"
@@ -6152,7 +6183,6 @@ class Huviz
         input:
           checked: "checked"
           type: "checkbox"
-        event_type: "change"
     ,
       doit_asap:
         style: "display:none"
@@ -6162,7 +6192,6 @@ class Huviz
         input:
           checked: "checked" # default to 'on'
           type: "checkbox"
-        event_type: "change"
     ,
       show_dangerous_datasets:
         style: "display:none"
@@ -6171,7 +6200,6 @@ class Huviz
           title: "Show the datasets which are too large or buggy"
         input:
           type: "checkbox"
-        event_type: "change"
     ,
       pill_display:
         text: "Display graph with boxed labels"
@@ -6179,7 +6207,6 @@ class Huviz
           title: "Show boxed labels on graph"
         input:
           type: "checkbox"
-        event_type: "change"
     ,
       theme_colors:
         text: "Display graph with dark theme"
@@ -6187,7 +6214,6 @@ class Huviz
           title: "Show graph plotted on a black background"
         input:
           type: "checkbox"
-        event_type: "change"
     ,
       display_label_cartouches:
         text: "Background cartouches for labels"
@@ -6196,7 +6222,6 @@ class Huviz
         input:
           type: "checkbox"
           checked: "checked"
-        event_type: "change"
     ,
       display_shelf_clockwise:
         text: "Display nodes clockwise"
@@ -6205,7 +6230,6 @@ class Huviz
         input:
           type: "checkbox"
           checked: "checked"
-        event_type: "change"
     ,
       choose_node_display_angle:
         text: "Node display angle"
@@ -6244,7 +6268,6 @@ class Huviz
             label: "Non-directional (unpruned)"
             value: "hairy_path"
         ]
-        event_type: "change"
     ,
       make_nodes_for_literals:
         style: "color:orange"
@@ -6291,7 +6314,6 @@ class Huviz
             label: "Custom Captions"
             value: "custom"
         ]
-        event_type: "change",
     ,
       graph_custom_main_title:
         style: "display:none"
@@ -6302,7 +6324,6 @@ class Huviz
           type: "text"
           size: "16"
           placeholder: "Enter Title"
-        event_type: "change"
     ,
       graph_custom_sub_title:
         style: "display:none"
@@ -6313,7 +6334,6 @@ class Huviz
           type: "text"
           size: "16"
           placeholder: "Enter Sub-title"
-        event_type: "change"
     ,
       debug_shelf_angles_and_flipping:
         style: "color:orange;display:none"
@@ -6322,7 +6342,6 @@ class Huviz
           title: "show angles and flags with labels"
         input:
           type: "checkbox"   #checked: "checked"
-        event_type: "change"
     ,
       language_path:
         text: "Language Path"
@@ -6334,7 +6353,6 @@ class Huviz
           value: (window.navigator.language.substr(0,2) + ":en:ANY:NOLANG").replace("en:en:","en:")
           size: "16"
           placeholder: "en:es:fr:de:ANY:NOLANG"
-        event_type: "change"
     ,
       show_class_instance_edges:
         style: "color:orange"
@@ -6344,18 +6362,17 @@ class Huviz
         input:
           type: "checkbox"
           #checked: "checked"
-        event_type: "change"
     ,
       discover_geonames_as:
         html_text: '<a href="http://www.geonames.org/login" taret="geonamesAcct">Geonames</a> Username'
         label:
           title: "The GeoNames Username to look up geonames as"
         input:
+          jsWidgetClass: GeoUserNameWidget
           type: "text"
           value: "" # "smurp_nooron"
           size: "16"
           placeholder: "eg huviz"
-        event_type: "change"
     ,
       discover_geonames_remaining:
         text: 'GeoNames Limit '
@@ -6365,7 +6382,6 @@ class Huviz
           type: "integer"
           value: 20
           size: 6
-        event_type: "change"
     ,
       discover_geonames_greedily:
         text: "Capture GeoNames Greedily"
@@ -6374,7 +6390,6 @@ class Huviz
         input:
           type: "checkbox"
           #checked: "checked"
-        event_type: "change"
     ,
       discover_geonames_deeply:
         text: "Capture GeoNames Deeply"
@@ -6383,7 +6398,6 @@ class Huviz
         input:
           type: "checkbox"
           #checked: "checked"
-        event_type: "change"
     ,
       show_edge_labels_adjacent_to_labelled_nodes:
         text: "Show adjacent edge labels"
@@ -6392,7 +6406,6 @@ class Huviz
         input:
           type: "checkbox"
           #checked: "checked"
-        event_type: "change"
     ,
       show_hunt_verb:
         style: "display:none"
@@ -6402,7 +6415,6 @@ class Huviz
         input:
           type: "checkbox"
           #checked: "checked"
-        event_type: "change"
     ,
       show_edges:
         style: "color:red"
@@ -6412,7 +6424,6 @@ class Huviz
         input:
           type: "checkbox"
           checked: "checked"
-        event_type: "change"
     ,
       single_chosen:
         style: "color:red"
@@ -6422,7 +6433,6 @@ class Huviz
         input:
           type: "checkbox"
           checked: "checked"
-        event_type: "change"
     ,
       show_images_in_nodes:
         style: "color:red"
@@ -6431,7 +6441,6 @@ class Huviz
           title: "Show images in nodes when available"
         input:
           type: "checkbox"
-        event_type: "change"
     ,
       show_thumbs_dont_graph:
         style: "color:red"
@@ -6440,7 +6449,6 @@ class Huviz
           title: "Treat dbpedia:thumbnail and foaf:thumbnail as images, not graph data"
         input:
           type: "checkbox"
-        event_type: "change"
     ]
 
   dump_current_settings: (post) =>
@@ -6465,6 +6473,7 @@ class Huviz
     @settings.classed('settings',true)
     for control_spec in @default_settings
       for control_name, control of control_spec
+        input = false
         graph_control = @settings.append('div').
               attr('id', control_name).
               attr('class', 'a_setting')
@@ -6500,19 +6509,33 @@ class Huviz
           input.attr("name", control_name)
           if control.input?
             for k,v of control.input
+              if k is 'jsWidgetClass'
+                WidgetClass = v
+                continue
               if k is 'value'
                 old_val = @[control_name]
                 @change_setting_to_from(control_name, v, old_val)
               input.attr(k,v)
+            if WidgetClass and false # coming soon to a HuViz near you.....
+              inputElem = input[0]
+              @[control_name + '__widget'] = new WidgetClass(inputElem)
           if control.input.type is 'checkbox'
             value = control.input.checked?
             #console.log "control:",control_name,"value:",value, control
             @change_setting_to_from(control_name, value, undefined) #@[control_name].checked)
           # TODO replace control.event_type with autodetecting on_change_ vs on_update_ method existence
 
-        if control.event_type is 'change'
-          input.on("change", @update_graph_settings) # when focus changes
+        event_type = control.event_type or
+            (control.input.type in ['checkbox','range','radio'] and 'input') or
+            'change'
+        if event_type is 'change'
+          # These controls only update when enter is pressed or the focus changes.
+          # Good for things like text fields which might not make sense until the user is 'done'.
+          input.on("change", @update_graph_settings)
         else
+          # These controls get continuously updated.
+          # Good for range sliders, radiobuttons and checkboxes.
+          # This can be forced by setting the .event_type on the control_spec explicitly.
           input.on("input", @update_graph_settings) # continuous updates
     @settings.append('div').attr('class', 'buffer_space')
     return
