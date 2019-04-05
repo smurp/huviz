@@ -5365,7 +5365,7 @@ class Huviz
   before_running_command: ->
     # FIXME fix non-display of cursor and color changes
     @text_cursor.set_cursor("wait")
-    $("body").css "background-color", "red" # FIXME remove once it works!
+    #$("body").css "background-color", "red" # FIXME remove once it works!
     #toggle_suspend_updates(true)
 
   after_running_command: ->
