@@ -2891,6 +2891,8 @@ class Huviz
         if @make_nodes_for_literals
           objVal = quad.o.value
           simpleType = getTypeSignature(quad.o.type or '') or 'Literal'
+          if not objVal?
+            new throw Error("missing value for " + JSON.stringify([subj_uri, pred_uri, quad.o]))
           # Does the value have a language or does it contain spaces?
           if quad.o.language or (objVal.match(/\s/g)||[]).length > 0
             # Perhaps an appropriate id for a literal "node" is
