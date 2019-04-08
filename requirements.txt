@@ -3,9 +3,10 @@ beautifulsoup4==4.3.2
 html5lib==1.0b3
 ipython==1.1.0
 isodate==0.4.9
-lxml==3.4.2
 pyparsing==1.5.7
 rdflib==4.0.1
 six==1.4.1
 wsgiref==0.1.2
-lxml-xpath2-functions==0.0.4
+# needed by orlandoScrape and by server createSnippetServer, but both are sunsetting...
+#lxml==3.4.2
+#lxml-xpath2-functions==0.0.4
