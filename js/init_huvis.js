@@ -23,6 +23,7 @@ window.addEventListener('load',function(){
       '/data/genres.json'
       , '/data/ontologies.json'
       , '/data/open_anno.json'
+      , '/data/experiments.json'
       , '/data/organizations.json'
       , '/data/periodicals.json'
       , '/data/publishing.json'
