@@ -7104,7 +7104,7 @@ class Orlando extends OntologicallyGrounded
   # These ought to be made more data-driven.
 
   constructor: ->
-    super
+    super(arguments...)
     if window.indexedDB
       onceDBReadyCount = 0
       delay = 100

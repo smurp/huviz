@@ -67,7 +67,7 @@ verbose = false
 
 class ColoredTreePicker extends TreePicker
   constructor: ->
-    super
+    super(arguments...)
     @id_to_colors = {}
   add: (id,parent_id,name,listener) ->
     super(id,parent_id,name,listener)
