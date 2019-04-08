@@ -1,0 +1,24 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix fsm: <https://example.com/> .
+
+#fsm:set_value a fsm:Transition .
+
+_:empty a fsm:State .
+_:untried a fsm:State .
+_:bad a fsm:State .
+_:good a fsm:State .
+_:trying a fsm:State .
+
+_:empty fsm:set_value _:untried .
+_:untried fsm:start_query _:trying .
+
+_:trying fsm:succeed _:good .
+_:trying fsm:fail _:bad .
+
+_:bad fsm:change _:untried .
+_:bad fsm:clear _:empty .
+_:good fsm:change _:untried .
+_:good fsm:clear _:empty .
+
+
+
