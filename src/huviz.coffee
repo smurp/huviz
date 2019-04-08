@@ -404,31 +404,51 @@ escapeHtml = (unsafe) ->
          .replace(/"/g, "&quot;")
          .replace(/'/g, "&#039;");
 
+class SettingsWidget
+  constructor: (@inputElem, state) ->
+    @id = unique_id('widget_')
+    @inputJQElem = $(@inputElem)
 
-class UsernameWidget
-  state_to_fa_icon:
+  wrap: (html) ->
+    $(@inputElem).wrap(html)
+
+class UsernameWidget extends SettingsWidget
+  state_to_state_icon:
     bad: 'fa-times'
     good: 'fa-check'
     maybe: 'fa-question'
+  state_to_user_icon:
+    bad: 'fa-user-times'
+    good: 'fa-user-alt'
+    maybe: 'fa-user-slash'
+  state_to_color:
+    bad: 'red'
+    good: 'green'
+    maybe: 'orange'
 
-  constructor: (@inputElem, state) ->
-    @state = state
-    @inputElem.insertAdjacentHTML('beforeend', """
-       <span style="border:2px solid orange; color:orange; padding:2px">
-         <i class="fa fa-user-alt"></i>
-         <i class="fa fa-question"></i>
-         <input style="border:none"/>
+  constructor: ->
+    super(arguments...)
+    @wrap("""
+       <span id="#{@id}" style="border:2px solid; padding:2px">
+       <i class="userIcon fa fa-user-alt"></i>
+       <i class="stateIcon fa fa-question"></i>
        </span>
-      """)
+      """) # """
+    @inputElem.setAttribute('style','border:none')
+    @widgetJQElem = $('#'+@id)
+    @set_state('maybe')
 
   set_state: (state) ->
-    if state isnt @state
-      alert(@state)
+    if false and @state and @state is state
+      console.log("not bothering to change the state to",state,"cause it already is")
+      return
     @state = state
-    @state_to_fa_icon(state)
-      #          <i class="fa fa-times"></i>
-      #          <i class="fa fa-question"></i>
-      #          <i class="fa fa-check"></i>
+    stateIcon = @state_to_state_icon[state]
+    @widgetJQElem.find('.stateIcon').attr('class', "stateIcon fa " + stateIcon)
+    color = @state_to_color[state]
+    @widgetJQElem.css('border-color',color)
+    @widgetJQElem.css('color',color)
+    return
 
 class GeoUserNameWidget extends UsernameWidget
 
@@ -6366,7 +6386,7 @@ class Huviz
           #checked: "checked"
     ,
       discover_geonames_as:
-        html_text: '<a href="http://www.geonames.org/login" taret="geonamesAcct">Geonames</a> Username'
+        html_text: '<a href="http://www.geonames.org/login" taret="geonamesAcct">Geonames</a> User'
         label:
           title: "The GeoNames Username to look up geonames as"
         input:
@@ -6509,6 +6529,7 @@ class Huviz
         else
           input = label.append('input')
           input.attr("name", control_name)
+          WidgetClass = null
           if control.input?
             for k,v of control.input
               if k is 'jsWidgetClass'
@@ -6518,8 +6539,8 @@ class Huviz
                 old_val = @[control_name]
                 @change_setting_to_from(control_name, v, old_val)
               input.attr(k,v)
-            if WidgetClass and false # coming soon to a HuViz near you.....
-              inputElem = input[0]
+            if WidgetClass and true # coming soon to a HuViz near you.....
+              inputElem = input[0][0]
               @[control_name + '__widget'] = new WidgetClass(inputElem)
           if control.input.type is 'checkbox'
             value = control.input.checked?
