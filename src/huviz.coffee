@@ -416,15 +416,15 @@ class UsernameWidget extends SettingsWidget
   state_to_state_icon:
     bad: 'fa-times'
     good: 'fa-check'
-    maybe: 'fa-question'
-  state_to_user_icon:
-    bad: 'fa-user-times'
-    good: 'fa-user-alt'
-    maybe: 'fa-user-slash'
+    untried: 'fa-question'
+    trying: 'fa-spinner' # or sync ???
+    empty: 'fa-ellipsis-h' # or ellipsis-h ???
   state_to_color:
     bad: 'red'
     good: 'green'
-    maybe: 'orange'
+    untried: 'orange'
+    trying: 'orange'
+    empty: 'grey'
 
   constructor: ->
     super(arguments...)
@@ -436,19 +436,23 @@ class UsernameWidget extends SettingsWidget
       """) # """
     @inputElem.setAttribute('style','border:none')
     @widgetJQElem = $('#'+@id)
-    @set_state('maybe')
+    @set_state('empty')
 
   set_state: (state) ->
     if false and @state and @state is state
       console.log("not bothering to change the state to",state,"cause it already is")
       return
     @state = state
+    console.log(state)
     stateIcon = @state_to_state_icon[state]
     @widgetJQElem.find('.stateIcon').attr('class', "stateIcon fa " + stateIcon)
     color = @state_to_color[state]
     @widgetJQElem.css('border-color',color)
     @widgetJQElem.css('color',color)
     return
+
+  can_run: ->
+    return @state in ['good','untried']
 
 class GeoUserNameWidget extends UsernameWidget
 
@@ -2650,6 +2654,9 @@ class Huviz
     userId = @discover_geonames_as
     k2p = @discover_geoname_key_to_predicate_mapping
     url = "http://api.geonames.org/hierarchyJSON?geonameId=#{id}&username=#{userId}"
+    if (widget = @discover_geonames_as__widget)
+      if widget.state is 'untried'
+        @discover_geonames_as__widget.set_state('trying')
     if not @countdown_input('discover_geonames_remaining')
       return
     $.ajax
@@ -2674,18 +2681,21 @@ class Huviz
             @show_state_msg(msg)
           return
         #subj = aUrl.toString()
-        @discover_geonames_as__widget.set_state('good')
+        if (widget = @discover_geonames_as__widget)
+          if widget.state isnt 'good'
+            @discover_geonames_as__widget.set_state('good')
+            @discover_names('sws.geonames.org')  # trigger again
         geoNamesRoot = aUrl.origin
         deeperQuad = null
-        greedy = @discover_geonames_greedily
-        deep = @discover_geonames_deeply
+        greedily = @discover_geonames_greedily
+        deeply = @discover_geonames_deeply
         depth = 0
         for geoRec in json.geonames by -1 # from most specific to most general
           subj = geoNamesRoot + '/' + geoRec.geonameId + '/'
           #console.log("discover_geoname_name(#{subj})")
           depth++
           soughtGeoname = (geoRec.geonameId is idInt)
-          if (not deep) and (not soughtGeoname)
+          if (not deeply) and (not soughtGeoname)
             #console.error("skipping because we are not going deep",geoRec.geonameId, id, geoRec.name)
             continue
           #console.table([{id: id, geonameId: geoRec.geonameId, name: geoRec.name}])
@@ -2705,7 +2715,7 @@ class Huviz
             if key is 'name'
               seen_name = true # so we can break at the end of this loop being done
             else
-              if not greedy
+              if not greedily
                 continue
             if key in ['geonameId']
               continue
@@ -2731,9 +2741,9 @@ class Huviz
                 type: theType  # REVIEW are there others?
               g: geoNamesRoot
             @inject_discovered_quad_for(quad, aUrl)
-            if not greedy and seen_name
+            if not greedily and seen_name
               break # out of the greedy consumption of all k/v pairs
-          if not deep and depth > 1
+          if not deeply and depth > 1
             break # out of the deep consumption of all nested contexts
           if deeperQuad
             containershipQuad =
@@ -2784,8 +2794,8 @@ class Huviz
     @found_names ?= []
     @found_names.push(quad.o.value)
 
-  auto_discover: (uri, force) ->
-    if uri.startsWith('_')
+  auto_discover: (uri) ->
+    if uri.startsWith('_') # skip "blank" nodes
       return
     try
       aUrl = new URL(uri)
@@ -2798,15 +2808,24 @@ class Huviz
       # that the .skos.nt file is available. Unfortunately the only
       # RDF file which is offered via content negotiation is .rdf and
       # there is no parser for that in HuViz yet.  Besides, they are huge.
-      @ingest_quads_from("#{uri}.skos.nt", @discover_labels(uri))
+      retval = @ingest_quads_from("#{uri}.skos.nt", @discover_labels(uri))
       #@auto_discover_header(uri, ['X-PrefLabel'], sendHeaders or [])
-    if uri.startsWith("http://sws.geonames.org/") and @discover_geonames_as
+    if uri.startsWith("http://sws.geonames.org/") and @discover_geonames_as__widget.can_run() and @discover_geonames_remaining
       @discover_geoname_name(aUrl)
     return
 
-  discover_names: (force) ->
+  discover_names_including: (includes) ->
+    if @nameless_set # this might be before the set exists
+      @discover_names(includes)
+    return
+
+  discover_names: (includes) ->
     for node in @nameless_set
-      @auto_discover(node.id, force)
+      url = node.id
+      if not (includes? and not url.includes(includes))
+        # only if includes is specified but not found do we skip auto_discover
+        @auto_discover(node.id)
+    return
 
   make_qname: (uri) ->
     # TODO(smurp) dear god! this method name is lying (it is not even trying)
@@ -6386,7 +6405,7 @@ class Huviz
           #checked: "checked"
     ,
       discover_geonames_as:
-        html_text: '<a href="http://www.geonames.org/login" taret="geonamesAcct">Geonames</a> User'
+        html_text: '<a href="http://www.geonames.org/login" target="geonamesAcct">Geonames</a> User '
         label:
           title: "The GeoNames Username to look up geonames as"
         input:
@@ -6771,11 +6790,18 @@ class Huviz
       @performance_dashboard_JQElem.css('display','none').html('')
       @pfm_display = false
 
+  on_change_discover_geonames_remaining: (new_val, old_val) ->
+    @discover_geonames_remaining = new_val
+    @discover_names_including('sws.geonames.org')
+
   on_change_discover_geonames_as: (new_val, old_val) ->
     @discover_geonames_as = new_val
     if new_val
-      if @nameless_set
-        @discover_names()
+      @discover_geonames_as__widget.set_state('untried')
+      @discover_names_including('sws.geonames.org')
+    else
+      if @discover_geonames_as__widget
+        @discover_geonames_as__widget.set_state('empty')
 
   on_change_single_chosen: (new_val, old_val) ->
     @single_chosen = new_val
