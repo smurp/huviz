@@ -1492,7 +1492,7 @@ class Huviz
     @G = {} # is this deprecated?
     @init_sets()
     @init_gclc()
-    @init_editc()
+    @init_editc_or_not()
     @indexed_dbservice()  # REVIEW is this needed?
     @init_indexddbstorage() # REVIEW and this?
 
@@ -5366,8 +5366,9 @@ class Huviz
             @blurt(msg, 'error')
       })
 
-  init_editc: ->
-    @editui ?= new EditController(@)
+  init_editc_or_not: ->
+    if @show_edit
+      @editui ?= new EditController(@)
 
   set_edit_mode: (mode) ->
     @edit_mode = mode
@@ -5678,6 +5679,7 @@ class Huviz
       make_pickers: true
       performance_dashboard_sel: unique_id('#performance_dashboard_')
       settings: {}
+      show_edit: false
       show_tabs: true
       skip_log_tick: true
       state_msg_box_sel: unique_id('#state_msg_box_')
