@@ -6429,7 +6429,7 @@ class Huviz
       discover_geonames_greedily:
         text: "Capture GeoNames Greedily"
         label:
-          title: "Capture not just names but population"
+          title: "Capture not just names but populations too."
         input:
           type: "checkbox"
           #checked: "checked"
@@ -6437,7 +6437,7 @@ class Huviz
       discover_geonames_deeply:
         text: "Capture GeoNames Deeply"
         label:
-          title: "Capture not directly referenced but the containing geographical places from GeoNames"
+          title: "Capture not just directly referenced but also the containing geographical places from GeoNames."
         input:
           type: "checkbox"
           #checked: "checked"
