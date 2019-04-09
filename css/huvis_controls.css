@@ -389,11 +389,10 @@ progress[value]::-moz-progress-bar {
   padding-left: 5px;
 }
 .edit-controls {
-    bottom:.2em;
+    bottom: 1.5em;
 }
 .edit-controls.loggedIn {
-  display: inline;
-  position: fixed;
+  position: relative;
   z-index: 3;
   left:1em;
 }
