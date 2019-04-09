@@ -9,7 +9,17 @@ body, html {
   background-color: #fff;
 }
 
+/* ----------------------------- Markdown Dialogs ------------------------------ */
+.markdownDialog ul {
+  list-style-type: circle;
+}
 
+.markdownDialog ul li {
+  list-style-type: circle;
+}
+.markdownDialog ol li {
+  list-style-type: decimal;
+}
 
 
 /* ----------------------------- Node Examiner ------------------------------ */

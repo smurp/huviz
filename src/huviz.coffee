@@ -135,6 +135,22 @@ colorlog = (msg, color, size) ->
   size ?= "1.2em"
   console.log("%c#{msg}", "color:#{color};font-size:#{size};")
 
+unpad_md = (txt, pad) ->
+  # Purpose:
+  #   Remove padding at the beginings of all lines in txt IFF all lines have padding
+  # Motivation:
+  #   Markdown is very whitespace sensitive but it makes for ugly code
+  #   to not have left padding in large strings.
+  pad = "    "
+  out_lines = []
+  in_lines = txt.split("\n")
+  for line in in_lines
+    if not (line.startsWith(pad) or line.length is 0)
+      return txt
+    out_lines.push(line.replace(/^    /,''))
+  out = out_lines.join("\n")
+  return out
+
 wpad = undefined
 hpad = 10
 tau = Math.PI * 2
@@ -624,13 +640,13 @@ class Huviz
     incoming ?= {}
     return Object.assign(Object.assign({}, defs), incoming)
 
-  default_dialog_args: {width:200, height:200, left:100, top:100, head_bg_color:'blue'}
+  default_dialog_args: {width:200, height:200, left:100, top:100, head_bg_color:'blue', classes: "contextMenu temp"}
   gen_dialog_html: (contents, id, in_args) ->
     args = @compose_object_from_defaults_and_incoming(@default_dialog_args, in_args)
     #args = Object.assign(default_args, in_args)
-    return """<div id="#{id}" class="contextMenu temp"
+    return """<div id="#{id}" class="#{args.classes} #{args.extraClasses}"
         style="display:block;top:#{args.top}px;left:#{args.left}px;max-width:#{args.width}px;max-height:#{args.height}px">
-      <div class="header" style="background-color:#{args.head_bg_color};">
+      <div class="header" style="background-color:#{args.head_bg_color};#{args.style}">
         <button class="close_node_details" title="Close"><i class="far fa-window-close"></i></button>
       </div>
       #{contents}
@@ -649,6 +665,8 @@ class Huviz
     $(box).remove()
 
   make_markdown_dialog: (markdown, id, args) ->
+    args ?= {}
+    args.extraClasses += " markdownDialog"
     return @make_dialog(marked(markdown or ''), id, args)
 
   unique_id: (prefix) ->
@@ -2658,6 +2676,8 @@ class Huviz
       failure: failure
 
   discover_geoname_name_msgs_threshold_ms: 5 * 1000 # msec betweeen repetition of a msg display
+
+  # TODO eliminate all use of this version in favor of the markdown version
   discover_geoname_name_instructions: """<span style="font-size:.7em">
    Be sure to
      1) create a
@@ -2672,6 +2692,29 @@ class Huviz
             href="http://www.geonames.org/enablefreewebservice">click here to enable</a>
     4) re-enter your GeoNames username in HuViz settings to trigger lookup</span>"""
 
+  discover_geoname_name_instructions_md: """
+    ## How to get GeoNames lookup working
+
+    [GeoNames](http://www.geonames.org) is a very popular service experiencing much load.
+    To protect their servers they require a username to be able to perform lookup.
+    The hourly limit is 1000 and the daily limit is 30000 per username.
+
+    You may use the `huviz` username if you are going to perform just a couple of lookups.
+    If you are going to do lots of GeoNames lookups you should set up your own account.
+    Here is how:
+
+    1. create a <a target="geonamesAcct" href="http://www.geonames.org/login">new account</a> if you don't have one
+    2. validate your email (if you haven't already)
+    3. on the <a target="geonamesAcct" href="http://www.geonames.org/manageaccount">manage account</a> page
+       press <a target="geonamesAcct" href="http://www.geonames.org/enablefreewebservice">Click here to enable</a>
+       if your account is not already _enabled to use the free web services_
+    4. enter your *GeoNames user* in HuViz `Settings` tab then press the TAB or ENTER key to trigger lookup
+    5. if you need to perform more lookups, just adjust the *GeoNames Limit*, then leave that field with TAB, ENTER or a click
+
+    (Soon, HuViz will let you save your personal *Geonames Username* and your *GeoNames Limit* to make this more convenient.)
+
+  """
+
   countdown_input: (inputName) ->
     input = $("input[name='#{inputName}']")
     if input.val() < 1
@@ -2679,6 +2722,13 @@ class Huviz
     newVal = input.val() - 1
     input.val(newVal)
     return newVal
+
+  show_geonames_instructions: ->
+    args =
+      width: @width * 0.6
+      height: @height * 0.6
+    markdown = @discover_geoname_name_instructions_md
+    @make_markdown_dialog(markdown, null, args)
 
   discover_geoname_name: (aUrl) ->
     id = aUrl.pathname.replace(/\//g,'')
@@ -2699,7 +2749,9 @@ class Huviz
       error: (xhr, status, error) =>
         #console.log(xhr, status, error)
         if error is 'Unauthorized'
-          @discover_geonames_as__widget.set_state('bad')
+          if @discover_geonames_as__widget.state isnt 'bad'
+            @discover_geonames_as__widget.set_state('bad')
+            @show_geonames_instructions()
       success: (json, textStatus, request) =>
         if json.status
           @discover_geoname_name_msgs ?= {}
