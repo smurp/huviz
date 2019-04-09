@@ -2,6 +2,7 @@ window.addEventListener('load',function(){
   huviz = require('huviz');
   new huviz.Orlando({
     huviz_top_sel: "#HUVIZ_TOP",
+    show_edit: true,
     // pass in the tab_specs to override the defaults_tab_specs
     tab_specs:
     [
