@@ -417,7 +417,7 @@ class UsernameWidget extends SettingsWidget
     bad: 'fa-times'
     good: 'fa-check'
     untried: 'fa-question'
-    trying: 'fa-spinner' # or sync ???
+    trying: 'fa-spinner fa-pulse' # https://fontawesome.com/v4.7.0/examples/#animated
     empty: 'fa-ellipsis-h' # or ellipsis-h ???
   state_to_color:
     bad: 'red'
@@ -443,7 +443,7 @@ class UsernameWidget extends SettingsWidget
       console.log("not bothering to change the state to",state,"cause it already is")
       return
     @state = state
-    console.log(state)
+    console.log(state, @inputJQElem.val())
     stateIcon = @state_to_state_icon[state]
     @widgetJQElem.find('.stateIcon').attr('class', "stateIcon fa " + stateIcon)
     color = @state_to_color[state]
