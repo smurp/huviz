@@ -644,6 +644,10 @@ class Huviz
     $(elem).draggable()
     return elem
 
+  destroy_box: (e) ->
+    box = e.currentTarget.offsetParent
+    $(box).remove()
+
   make_markdown_dialog: (markdown, id, args) ->
     return @make_dialog(marked(markdown or ''), id, args)
 
@@ -992,9 +996,17 @@ class Huviz
         note = "<p class='note'>Node Fully Loaded</span>"
       else
         note = "<p class='note'><span class='label'>Note:</span> This node may not yet be fully loaded from remote server. Link details may not be accurate. Activate to load.</i>"
+
+    dialogArgs =
+      width: @width * 0.50
+      height: @height * 0.80
+      top: d3.event.clientY
+      left: d3.event.clientX
+
     if @focused_node
+      dialogArgs.head_bg_color = @focused_node.color
+
       node_info = """
-        <div class="header" style="background-color:#{@focused_node.color};">#{color_headers}<button class="close_node_details" title="Close Information Box"><i class="far fa-window-close"></i></button></div>
         <p><span class='label'>id:</span> #{@focused_node.id}</p>
         <p><span class='label'>name:</span> #{names_all_langs}</p>
         <p><span class='label'>type(s):</span> #{@focused_node.type} #{other_types}</p>
@@ -1003,25 +1015,9 @@ class Huviz
           #{note}
           #{node_out_links}
         """ # """
-      max_width = @width * 0.50
-      max_height = @height * 0.80
-      d3.select(@args.viscanvas_sel)
-        .append('div')
-        .attr('id', @focused_node.lid )
-        .attr('class', 'contextMenu')
-        .classed('temp', true)
-        .style('display', 'block')
-        .style('top', "#{d3.event.clientY}px")
-        .style('left', "#{d3.event.clientX}px")
-        .style('max-width', "#{max_width}px")
-        .style('max-height', "#{max_height}px")
-        .html(node_info)#.on('drag',@draggable_info_box)
-      $("##{@focused_node.lid}").draggable()
-      $("##{@focused_node.lid} .close_node_details").on('click', @destroy_box)
 
-  destroy_box: (e) ->
-    box = e.currentTarget.offsetParent
-    $(box).remove()
+      @make_dialog(node_info, @unique_id(@focused_node.lid+'__'), dialogArgs)
+    return
 
   perform_current_command: (node) ->
     if @gclui.ready_to_perform()
@@ -5765,8 +5761,6 @@ class Huviz
     incoming_args ?= {}
     if not incoming_args.huviz_top_sel
       console.warn('you have not provided a value for huviz_top_sel so it will be appended to BODY')
-    #def_args = Object.assign({}, @make_default_args())
-    #args = Object.assign(def_args, incoming_args)
     args = @compose_object_from_defaults_and_incoming(@make_default_args(), incoming_args)
     # calculate some args from others
     args.create_tabs_adjacent_to_selector ?= args.huviz_top_sel
