@@ -611,6 +611,42 @@ class Huviz
 
   p_total_sprql_requests: 0
 
+  compose_object_from_defaults_and_incoming: (defs, incoming) ->
+    # Purpose:
+    #   To return an object with the properties of defs and incoming layered into it in turn
+    # Intended Use Case:
+    #   It is frequently the case that one wants to have and object with contains
+    #   the default arguments for something and that one also wants the ability to
+    #   pass in another object which contains the specifics for the call.
+    #   This method joins those things together properly (they can even be null)
+    #   to return the amalgamation of the defaults and the incoming arguments.
+    defs ?= {}
+    incoming ?= {}
+    return Object.assign(Object.assign({}, defs), incoming)
+
+  default_dialog_args: {width:200, height:200, left:100, top:100, head_bg_color:'blue'}
+  gen_dialog_html: (contents, id, in_args) ->
+    args = @compose_object_from_defaults_and_incoming(@default_dialog_args, in_args)
+    #args = Object.assign(default_args, in_args)
+    return """<div id="#{id}" class="contextMenu temp"
+        style="display:block;top:#{args.top}px;left:#{args.left}px;max-width:#{args.width}px;max-height:#{args.height}px">
+      <div class="header" style="background-color:#{args.head_bg_color};">
+        <button class="close_node_details" title="Close"><i class="far fa-window-close"></i></button>
+      </div>
+      #{contents}
+    </div>""" # """ for emacs coffeescript mode
+
+  make_dialog: (content_html, id, args) ->
+    id ?= @unique_id('dialog_')
+    @addHTML(@gen_dialog_html(content_html, id, args))
+    elem = document.querySelector('#'+id)
+    $(elem.querySelector(' .close_node_details')).on('click', @destroy_box)
+    $(elem).draggable()
+    return elem
+
+  make_markdown_dialog: (markdown, id, args) ->
+    return @make_dialog(marked(markdown or ''), id, args)
+
   unique_id: (prefix) ->
     prefix ?= 'uid_'
     return prefix + Math.random().toString(36).substr(2,10)
@@ -981,9 +1017,9 @@ class Huviz
         .style('max-height', "#{max_height}px")
         .html(node_info)#.on('drag',@draggable_info_box)
       $("##{@focused_node.lid}").draggable()
-      $("##{@focused_node.lid} .close_node_details").on('click', @close_info_box)
+      $("##{@focused_node.lid} .close_node_details").on('click', @destroy_box)
 
-  close_info_box: (e) ->
+  destroy_box: (e) ->
     box = e.currentTarget.offsetParent
     $(box).remove()
 
@@ -2643,10 +2679,10 @@ class Huviz
   countdown_input: (inputName) ->
     input = $("input[name='#{inputName}']")
     if input.val() < 1
-      return false
+      return 0
     newVal = input.val() - 1
     input.val(newVal)
-    return true
+    return newVal
 
   discover_geoname_name: (aUrl) ->
     id = aUrl.pathname.replace(/\//g,'')
@@ -2657,7 +2693,10 @@ class Huviz
     if (widget = @discover_geonames_as__widget)
       if widget.state is 'untried'
         @discover_geonames_as__widget.set_state('trying')
-    if not @countdown_input('discover_geonames_remaining')
+      if widget.state is 'good'
+        @countdown_input('discover_geonames_remaining')
+    if @discover_geonames_remaining < 1
+      console.warn("discover_geoname_name() should not be called when remaining is less than 1")
       return
     $.ajax
       url: url
@@ -2678,13 +2717,17 @@ class Huviz
                Date.now() - @discover_geoname_name_msgs[msg] >
                 @discover_geoname_name_msgs_threshold_ms)
             @discover_geoname_name_msgs[msg] = Date.now()
-            @show_state_msg(msg)
+            @make_dialog(msg)
+            #@show_state_msg(msg)
           return
         #subj = aUrl.toString()
+        rem = @countdown_input('discover_geonames_remaining')
+        console.log('discover_geonames_remaining',rem)
         if (widget = @discover_geonames_as__widget)
           if widget.state isnt 'good'
+            @countdown_input('discover_geonames_remaining') # decrement now because we just used one up for this account
             @discover_geonames_as__widget.set_state('good')
-            @discover_names('sws.geonames.org')  # trigger again
+            @discover_names('sws.geonames.org')  # trigger again because they have been suspended
         geoNamesRoot = aUrl.origin
         deeperQuad = null
         greedily = @discover_geonames_greedily
@@ -2810,7 +2853,9 @@ class Huviz
       # there is no parser for that in HuViz yet.  Besides, they are huge.
       retval = @ingest_quads_from("#{uri}.skos.nt", @discover_labels(uri))
       #@auto_discover_header(uri, ['X-PrefLabel'], sendHeaders or [])
-    if uri.startsWith("http://sws.geonames.org/") and @discover_geonames_as__widget.can_run() and @discover_geonames_remaining
+    if uri.startsWith("http://sws.geonames.org/") and
+        @discover_geonames_as__widget.can_run() and
+        @discover_geonames_remaining > 0
       @discover_geoname_name(aUrl)
     return
 
@@ -5720,8 +5765,9 @@ class Huviz
     incoming_args ?= {}
     if not incoming_args.huviz_top_sel
       console.warn('you have not provided a value for huviz_top_sel so it will be appended to BODY')
-    def_args = Object.assign({}, @make_default_args())
-    args = Object.assign(def_args, incoming_args)
+    #def_args = Object.assign({}, @make_default_args())
+    #args = Object.assign(def_args, incoming_args)
+    args = @compose_object_from_defaults_and_incoming(@make_default_args(), incoming_args)
     # calculate some args from others
     args.create_tabs_adjacent_to_selector ?= args.huviz_top_sel
     return args
