@@ -455,6 +455,8 @@ class UsernameWidget extends SettingsWidget
       """) # """
     @inputElem.setAttribute('style','border:none')
     @widgetJQElem = $('#'+@id)
+    @stateIconJQElem = @widgetJQElem.find('.stateIcon')
+    @userIconJQElem = @widgetJQElem.find('.userIcon')
     @set_state('empty')
 
   set_state: (state) ->
@@ -464,7 +466,7 @@ class UsernameWidget extends SettingsWidget
     @state = state
     console.log(state, @inputJQElem.val())
     stateIcon = @state_to_state_icon[state]
-    @widgetJQElem.find('.stateIcon').attr('class', "stateIcon fa " + stateIcon)
+    @stateIconJQElem.attr('class', "stateIcon fa " + stateIcon)
     color = @state_to_color[state]
     @widgetJQElem.css('border-color',color)
     @widgetJQElem.css('color',color)
@@ -474,7 +476,10 @@ class UsernameWidget extends SettingsWidget
     return @state in ['good','untried','looking']
 
 class GeoUserNameWidget extends UsernameWidget
-
+  constructor: ->
+    super(arguments...)
+    @stateIconJQElem.on('click', @huviz.show_geonames_instructions)
+    @userIconJQElem.on('click', @huviz.show_geonames_instructions)
 
 orlando_human_term =
   all: 'All'
@@ -2728,7 +2733,7 @@ class Huviz
       this[inputName] = newVal
     return newVal
 
-  show_geonames_instructions: ->
+  show_geonames_instructions: =>
     args =
       width: @width * 0.6
       height: @height * 0.6
