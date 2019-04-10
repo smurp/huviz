@@ -421,7 +421,7 @@ escapeHtml = (unsafe) ->
          .replace(/'/g, "&#039;");
 
 class SettingsWidget
-  constructor: (@inputElem, state) ->
+  constructor: (@huviz, @inputElem, state) ->
     @id = unique_id('widget_')
     @inputJQElem = $(@inputElem)
 
@@ -6690,9 +6690,9 @@ class Huviz
                 old_val = @[control_name]
                 @change_setting_to_from(control_name, v, old_val)
               input.attr(k,v)
-            if WidgetClass and true # coming soon to a HuViz near you.....
+            if WidgetClass
               inputElem = input[0][0]
-              @[control_name + '__widget'] = new WidgetClass(inputElem)
+              @[control_name + '__widget'] = new WidgetClass(this, inputElem)
           if control.input.type is 'checkbox'
             value = control.input.checked?
             #console.log "control:",control_name,"value:",value, control
