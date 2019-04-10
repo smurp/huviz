@@ -429,18 +429,21 @@ class SettingsWidget
     $(@inputElem).wrap(html)
 
 class UsernameWidget extends SettingsWidget
+  # https://fontawesome.com/v4.7.0/examples/#animated explains animations fa-spin (continuous) and fa-pulse (8-step)
   state_to_state_icon:
-    bad: 'fa-times'
-    good: 'fa-check'
-    untried: 'fa-question'
-    trying: 'fa-spinner fa-pulse' # https://fontawesome.com/v4.7.0/examples/#animated
-    empty: 'fa-ellipsis-h' # or ellipsis-h ???
+    bad: 'fa-times' # the username has been tried and failed last use
+    good: 'fa-check' # the username has been tried and succeeded last use
+    untried: 'fa-question' # a username has been provided but not yet tried
+    trying: 'fa-spinner fa-pulse' # performing a lookup with a username which might be bad or good
+    empty: 'fa-ellipsis-h' # no username present
+    looking: 'fa-map-marker-alt fa-spin' # performing a lookup with a known good username
   state_to_color:
     bad: 'red'
     good: 'green'
     untried: 'orange'
     trying: 'orange'
     empty: 'grey'
+    looking: 'green'
 
   constructor: ->
     super(arguments...)
@@ -468,7 +471,7 @@ class UsernameWidget extends SettingsWidget
     return
 
   can_run: ->
-    return @state in ['good','untried']
+    return @state in ['good','untried','looking']
 
 class GeoUserNameWidget extends UsernameWidget
 
@@ -2715,12 +2718,14 @@ class Huviz
 
   """
 
-  countdown_input: (inputName) ->
-    input = $("input[name='#{inputName}']")
+  countdown_setting: (inputName) ->
+    input = @topJQElem.find("input[name='#{inputName}']")
     if input.val() < 1
       return 0
     newVal = input.val() - 1
     input.val(newVal)
+    if this[inputName]?
+      this[inputName] = newVal
     return newVal
 
   show_geonames_instructions: ->
@@ -2736,14 +2741,30 @@ class Huviz
     userId = @discover_geonames_as
     k2p = @discover_geoname_key_to_predicate_mapping
     url = "http://api.geonames.org/hierarchyJSON?geonameId=#{id}&username=#{userId}"
-    if (widget = @discover_geonames_as__widget)
-      if widget.state is 'untried'
-        @discover_geonames_as__widget.set_state('trying')
-      if widget.state is 'good'
-        @countdown_input('discover_geonames_remaining')
     if @discover_geonames_remaining < 1
       console.warn("discover_geoname_name() should not be called when remaining is less than 1")
       return
+    if (widget = @discover_geonames_as__widget)
+      if widget.state is 'untried'
+        @discover_geonames_as__widget.set_state('trying')
+      else if widget.state is 'looking'
+        if @discover_geonames_remaining < 1
+          console.info('stop looking because remaining is', @discover_geonames_remaining)
+          return false
+        # We decrement remaining before looking or after successfully trying.
+        # We do so before looking because we know that the username is good, so this will count.
+        # We do so after trying because we do not know until afterward that the username was good and whether it would count.
+        rem = @countdown_setting('discover_geonames_remaining')
+        console.info('discover_geoname_name() widget.state =', widget.state, "so decrementing remaining (#{rem}) early")
+      else if widget.state is 'good'
+        if @discover_geonames_remaining < 1
+          console.info('aborting discover_geoname_name() because remaining =', @discover_geonames_remaining)
+          return false
+        @discover_geonames_as__widget.set_state('looking')
+        console.info('looking for',id,'using name',userId)
+      else
+        console.warn("discover_goename_name() should not be called when widget.state =", widget.state)
+        return false
     $.ajax
       url: url
       error: (xhr, status, error) =>
@@ -2769,13 +2790,30 @@ class Huviz
             #@show_state_msg(msg)
           return
         #subj = aUrl.toString()
-        rem = @countdown_input('discover_geonames_remaining')
-        console.log('discover_geonames_remaining',rem)
         if (widget = @discover_geonames_as__widget)
-          if widget.state isnt 'good'
-            @countdown_input('discover_geonames_remaining') # decrement now because we just used one up for this account
-            @discover_geonames_as__widget.set_state('good')
-            @discover_names('sws.geonames.org')  # trigger again because they have been suspended
+          if widget.state in ['trying', 'looking']
+            #rem = @countdown_setting('discover_geonames_remaining')
+            #console.log('discover_geonames_remaining',rem,"after looking up",id)
+            #@countdown_setting('discover_geonames_remaining') # decrement now because we just used one up for this account
+            if widget.state is 'trying'
+              # we decrement remaining after successfully trying or before looking
+              @countdown_setting('discover_geonames_remaining')
+              @discover_geonames_as__widget.set_state('looking') # more remaining, go straight to looking
+            if widget.state is 'looking'
+              if @discover_geonames_remaining > 0
+                # trigger again because they have been suspended
+                # use setTimeout to give nodes a chance to update
+                again = () => @discover_names('sws.geonames.org')
+                setTimeout(again, 100)
+              else
+                @discover_geonames_as__widget.set_state('good') # no more remaining lookups permitted
+            else # TODO figure out why setting 'good' only when done (and setting 'looking' while 'trying') hangs
+              console.log('we should never get here where widget.state =',widget.state)
+              #@discover_geonames_as__widget.set_state('good') # finally go to good because we are done
+          else
+            msg = "widget.state = #{widget.state} but it should only be looking or trying"
+            console.error(msg)
+            #throw new Error(msg)
         geoNamesRoot = aUrl.origin
         deeperQuad = null
         greedily = @discover_geonames_greedily
@@ -2885,13 +2923,13 @@ class Huviz
     @found_names ?= []
     @found_names.push(quad.o.value)
 
-  auto_discover: (uri) ->
+  auto_discover_name_for: (uri) ->
     if uri.startsWith('_') # skip "blank" nodes
       return
     try
       aUrl = new URL(uri)
     catch e
-      colorlog("skipping auto_discover('#{uri}') because")
+      colorlog("skipping auto_discover_name_for('#{uri}') because")
       console.log(e)
       return
     if uri.startsWith("http://id.loc.gov/")
@@ -2916,8 +2954,8 @@ class Huviz
     for node in @nameless_set
       url = node.id
       if not (includes? and not url.includes(includes))
-        # only if includes is specified but not found do we skip auto_discover
-        @auto_discover(node.id)
+        # only if includes is specified but not found do we skip auto_discover_name_for
+        @auto_discover_name_for(node.id)
     return
 
   make_qname: (uri) ->

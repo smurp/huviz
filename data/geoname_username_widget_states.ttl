@@ -21,7 +21,7 @@ _:empty fsm:set_value _:untried .
 _:untried fsm:start_query _:trying .
 
 _:trying fsm:succeed _:good .
-_:trying fsm:fail _:bad .
+_:trying fsm:unauth _:bad .
 
 _:bad fsm:change _:untried .
 _:bad fsm:clear _:empty .
