@@ -635,6 +635,45 @@ class Huviz
 
   p_total_sprql_requests: 0
 
+  how_heavy_are: (n, label, cb) ->
+    memories = []
+    memories.push(window.performance.memory)
+    @heavy_things ?= {}
+    buncha = []
+    @heavy_things[label] = buncha
+    for m in [1..n]
+      retval = cb.call(this,n)
+      #console.log(retval)
+      buncha.push(retval)
+    memories.push(window.performance.memory)
+    memories.push({})
+    memories.push({})
+    [before,after,diff,per] = memories
+    for k of memories[0]
+      diff[k] = after[k] - before[k]
+      per[k] = diff[k] / n
+    per.what = 'B/'+label
+    before.what = 'before'
+    after.what = 'after'
+    diff.what = 'diff'
+    #console.log(per)
+    colorlog(label + ' occupy ' + per.totalJSHeapSize + ' Bytes each')
+    console.log('eg', retval)
+    #console.table(memories)
+    return
+
+  how_heavy: (n) ->
+    # Purpose:
+    #   Find out how many Bytes each of the following objects occupy in RAM.
+    # Example:
+    #   HVZ[0].how_heavy(100000)
+    #   Shows 
+    @how_heavy_are(n, 'Array', (x) -> return new Array(100))
+    @how_heavy_are(n, 'Object', (x) -> return (new Object())[x] = x)
+    @how_heavy_are(n, 'String', (x) -> return ""+x)
+    @how_heavy_are(n, 'Random', (x) -> return Math.random())
+    @how_heavy_are(n, 'SortedSet', (x) -> return SortedSet().named(x))
+
   compose_object_from_defaults_and_incoming: (defs, incoming) ->
     # Purpose:
     #   To return an object with the properties of defs and incoming layered into it in turn
