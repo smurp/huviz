@@ -667,7 +667,6 @@ class Huviz
     #   Find out how many Bytes each of the following objects occupy in RAM.
     # Example:
     #   HVZ[0].how_heavy(100000)
-    #   Shows 
     @how_heavy_are(n, 'Array', (x) -> return new Array(100))
     @how_heavy_are(n, 'Object', (x) -> return (new Object())[x] = x)
     @how_heavy_are(n, 'String', (x) -> return ""+x)
