@@ -3,11 +3,19 @@
 
 #fsm:set_value a fsm:Transition .
 
-_:empty a fsm:State .
-_:untried a fsm:State .
-_:bad a fsm:State .
-_:good a fsm:State .
-_:trying a fsm:State .
+_:empty a fsm:State ;
+    rdfs:comment "There is no value present. No attempt to perform lookups will occur".
+
+_:untried a fsm:State ;
+    rdfs:comment "There is a value present but for whatever reason it has not yet been tried.  An attempt to perform a lookup may be started" .
+_:bad a fsm:State ;
+    rdfs:comment "There is a value present.  When it was tried an 'Unauthorized' response was received. It will not be automatically tried again even when the GeoNames Limit is updated.".
+
+_:good a fsm:State ;
+    rdfs:comment "There is a value present. It has been tried.  It was successful. It can be used again." .
+
+_:trying a fsm:State ;
+    rdfs:comment "There is a value present. An attempt is in progress, ie a query has been initiated but the response has not returned. It will not be tried again until either a successful or failure has been received." .
 
 _:empty fsm:set_value _:untried .
 _:untried fsm:start_query _:trying .
