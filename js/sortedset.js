@@ -52,7 +52,13 @@
  */
 //(function() {
 
+
 var SortedSet = function(){
+    if (arguments.callee) {arguments.callee.NUMBER_OF_COPIES += 1;}
+    if (window) {
+      if (!window.NUM_SORTEDSET){window.NUM_SORTEDSET = 0}
+      window.NUM_SORTEDSET += 1;
+    }
     var array = [];
     array.push.apply(array,arguments);
     array.case_insensitive = false;
@@ -451,7 +457,7 @@ var SortedSet = function(){
     }
     return array;
 };
-
+SortedSet.NUMBER_OF_COPIES = 0;
 var SortedSets_tests = function(verbose){
     verbose = verbose || false;
     var n = function(a,b){
