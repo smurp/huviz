@@ -1126,7 +1126,8 @@ class Huviz
       console.log "Tick in @force.size() updateWindow"
     # FIXME all selectors must be localized so if there are two huviz
     #       instances on a page they do not interact
-    $("#graph_title_set").css("width", @width)
+    instance_container = @args.huviz_top_sel
+    $("#{instance_container} .graph_title_set").css("width", @width)
     if @tabsJQElem and @tabsJQElem.length > 0
       @tabsJQElem.css("left", "auto")
     @restart()
@@ -5361,7 +5362,7 @@ class Huviz
 
   hide_pickers: ->
     $(@pickersSel).attr("style","display:none")
-    
+
   replace_loader_display: (dataset, ontology) ->
     @generate_reload_uri(dataset, ontology)
     uri = @get_reload_uri()
