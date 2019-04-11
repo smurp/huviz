@@ -6439,7 +6439,7 @@ class Huviz
           title: "Show boxed labels on graph"
         input:
           type: "checkbox"
-          checked: "checked"
+          #checked: "checked"
     ,
       theme_colors:
         text: "Display graph with dark theme"
