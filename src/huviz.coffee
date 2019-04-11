@@ -2758,15 +2758,27 @@ class Huviz
 
   """
 
+  set_setting: (inputName, newVal) ->
+    input = @topJQElem.find("input[name='#{inputName}']")
+    input.val(newVal)
+    if this[inputName]?
+      this[inputName] = newVal
+    return newVal
+
   countdown_setting: (inputName) ->
     input = @topJQElem.find("input[name='#{inputName}']")
     if input.val() < 1
       return 0
     newVal = input.val() - 1
-    input.val(newVal)
-    if this[inputName]?
-      this[inputName] = newVal
-    return newVal
+    return @set_setting(inputName, newVal)
+
+  preset_discover_geonames_remaining: ->
+    count = 0
+    for node in @nameless_set
+      url = node.id
+      if url.includes('sws.geonames.org')
+        count++
+    return @set_setting('discover_geonames_remaining', count)
 
   show_geonames_instructions: =>
     args =
@@ -2782,7 +2794,7 @@ class Huviz
     k2p = @discover_geoname_key_to_predicate_mapping
     url = "http://api.geonames.org/hierarchyJSON?geonameId=#{id}&username=#{userId}"
     if @discover_geonames_remaining < 1
-      console.warn("discover_geoname_name() should not be called when remaining is less than 1")
+      #console.warn("discover_geoname_name() should not be called when remaining is less than 1")
       return
     if (widget = @discover_geonames_as__widget)
       if widget.state is 'untried'
@@ -2795,10 +2807,10 @@ class Huviz
         # We do so before looking because we know that the username is good, so this will count.
         # We do so after trying because we do not know until afterward that the username was good and whether it would count.
         rem = @countdown_setting('discover_geonames_remaining')
-        console.info('discover_geoname_name() widget.state =', widget.state, "so decrementing remaining (#{rem}) early")
+        #console.info('discover_geoname_name() widget.state =', widget.state, "so decrementing remaining (#{rem}) early")
       else if widget.state is 'good'
         if @discover_geonames_remaining < 1
-          console.info('aborting discover_geoname_name() because remaining =', @discover_geonames_remaining)
+          #console.info('aborting discover_geoname_name() because remaining =', @discover_geonames_remaining)
           return false
         @discover_geonames_as__widget.set_state('looking')
         console.info('looking for',id,'using name',userId)
@@ -2855,7 +2867,7 @@ class Huviz
               #@discover_geonames_as__widget.set_state('good') # finally go to good because we are done
           else
             msg = "state_at_start = #{state_at_start} but it should only be looking or trying (nameless: #{@nameless_set.length})"
-            console.error(msg)
+            #console.error(msg)
             #throw new Error(msg)
         geoNamesRoot = aUrl.origin
         deeperQuad = null
@@ -2994,7 +3006,7 @@ class Huviz
     return
 
   discover_names: (includes) ->
-    console.log('discover_names(',includes,') # of nameless:',@nameless_set.length)
+    #console.log('discover_names(',includes,') # of nameless:',@nameless_set.length)
     for node in @nameless_set
       url = node.id
       if not (includes? and not url.includes(includes))
@@ -5251,10 +5263,13 @@ class Huviz
       console.debug(data, onto)
       throw new Error("Now whoa-up pardner... both data and onto should have .value")
 
-    @load_data_with_onto(data, onto)
+    @load_data_with_onto(data, onto, @after_visualize_dataset_using_ontology)
     @update_browser_title(data)
     @update_caption(data.value, onto.value)
     return
+
+  after_visualize_dataset_using_ontology: =>
+    @preset_discover_geonames_remaining()
 
   load_script_from_db: (err, rsrcRec) =>
     if err?
