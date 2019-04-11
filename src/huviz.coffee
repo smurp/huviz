@@ -472,9 +472,6 @@ class UsernameWidget extends SettingsWidget
     @widgetJQElem.css('color',color)
     return
 
-  can_run: ->
-    return @state in ['good','untried','looking']
-
 class GeoUserNameWidget extends UsernameWidget
   constructor: ->
     super(arguments...)
@@ -2808,6 +2805,8 @@ class Huviz
       else
         console.warn("discover_goename_name() should not be called when widget.state =", widget.state)
         return false
+    @geonames_name_lookups_performed ?= 0
+    @geonames_name_lookups_performed += 1
     $.ajax
       url: url
       error: (xhr, status, error) =>
@@ -2834,7 +2833,8 @@ class Huviz
           return
         #subj = aUrl.toString()
         if (widget = @discover_geonames_as__widget)
-          if widget.state in ['trying', 'looking']
+          state_at_start = widget.state
+          if state_at_start in ['trying', 'looking']
             #rem = @countdown_setting('discover_geonames_remaining')
             #console.log('discover_geonames_remaining',rem,"after looking up",id)
             #@countdown_setting('discover_geonames_remaining') # decrement now because we just used one up for this account
@@ -2854,7 +2854,7 @@ class Huviz
               console.log('we should never get here where widget.state =',widget.state)
               #@discover_geonames_as__widget.set_state('good') # finally go to good because we are done
           else
-            msg = "widget.state = #{widget.state} but it should only be looking or trying"
+            msg = "state_at_start = #{state_at_start} but it should only be looking or trying (nameless: #{@nameless_set.length})"
             console.error(msg)
             #throw new Error(msg)
         geoNamesRoot = aUrl.origin
@@ -2983,7 +2983,7 @@ class Huviz
       retval = @ingest_quads_from("#{uri}.skos.nt", @discover_labels(uri))
       #@auto_discover_header(uri, ['X-PrefLabel'], sendHeaders or [])
     if uri.startsWith("http://sws.geonames.org/") and
-        @discover_geonames_as__widget.can_run() and
+        @discover_geonames_as__widget.state in ['untried','looking','good'] and
         @discover_geonames_remaining > 0
       @discover_geoname_name(aUrl)
     return
@@ -2994,6 +2994,7 @@ class Huviz
     return
 
   discover_names: (includes) ->
+    console.log('discover_names(',includes,') # of nameless:',@nameless_set.length)
     for node in @nameless_set
       url = node.id
       if not (includes? and not url.includes(includes))
@@ -6379,7 +6380,7 @@ class Huviz
         label:
           title: "whether edges have their snippet count shown as (#)"
         input:
-          checked: "checked"
+          #checked: "checked"
           type: "checkbox"
     ,
       nodes_pinnable:
@@ -6423,6 +6424,7 @@ class Huviz
           title: "Show boxed labels on graph"
         input:
           type: "checkbox"
+          checked: "checked"
     ,
       theme_colors:
         text: "Display graph with dark theme"
