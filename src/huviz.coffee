@@ -472,9 +472,6 @@ class UsernameWidget extends SettingsWidget
     @widgetJQElem.css('color',color)
     return
 
-  can_run: ->
-    return @state in ['good','untried','looking']
-
 class GeoUserNameWidget extends UsernameWidget
   constructor: ->
     super(arguments...)
@@ -2737,7 +2734,7 @@ class Huviz
         press
         <a target="geonamesAcct"
             href="http://www.geonames.org/enablefreewebservice">click here to enable</a>
-    4) re-enter your GeoNames username in HuViz settings to trigger lookup</span>"""
+    4) re-enter your GeoNames Username in HuViz settings to trigger lookup</span>"""
 
   discover_geoname_name_instructions_md: """
     ## How to get GeoNames lookup working
@@ -2755,22 +2752,34 @@ class Huviz
     3. on the <a target="geonamesAcct" href="http://www.geonames.org/manageaccount">manage account</a> page
        press <a target="geonamesAcct" href="http://www.geonames.org/enablefreewebservice">Click here to enable</a>
        if your account is not already _enabled to use the free web services_
-    4. enter your *GeoNames user* in HuViz `Settings` tab then press the TAB or ENTER key to trigger lookup
+    4. enter your *GeoNames Username* in HuViz `Settings` tab then press the TAB or ENTER key to trigger lookup
     5. if you need to perform more lookups, just adjust the *GeoNames Limit*, then leave that field with TAB, ENTER or a click
 
-    (Soon, HuViz will let you save your personal *Geonames Username* and your *GeoNames Limit* to make this more convenient.)
+    (Soon, HuViz will let you save your personal *GeoNames Username* and your *GeoNames Limit* to make this more convenient.)
 
   """
+
+  set_setting: (inputName, newVal) ->
+    input = @topJQElem.find("input[name='#{inputName}']")
+    input.val(newVal)
+    if this[inputName]?
+      this[inputName] = newVal
+    return newVal
 
   countdown_setting: (inputName) ->
     input = @topJQElem.find("input[name='#{inputName}']")
     if input.val() < 1
       return 0
     newVal = input.val() - 1
-    input.val(newVal)
-    if this[inputName]?
-      this[inputName] = newVal
-    return newVal
+    return @set_setting(inputName, newVal)
+
+  preset_discover_geonames_remaining: ->
+    count = 0
+    for node in @nameless_set
+      url = node.id
+      if url.includes('sws.geonames.org')
+        count++
+    return @set_setting('discover_geonames_remaining', count)
 
   show_geonames_instructions: =>
     args =
@@ -2786,7 +2795,7 @@ class Huviz
     k2p = @discover_geoname_key_to_predicate_mapping
     url = "http://api.geonames.org/hierarchyJSON?geonameId=#{id}&username=#{userId}"
     if @discover_geonames_remaining < 1
-      console.warn("discover_geoname_name() should not be called when remaining is less than 1")
+      #console.warn("discover_geoname_name() should not be called when remaining is less than 1")
       return
     if (widget = @discover_geonames_as__widget)
       if widget.state is 'untried'
@@ -2799,16 +2808,18 @@ class Huviz
         # We do so before looking because we know that the username is good, so this will count.
         # We do so after trying because we do not know until afterward that the username was good and whether it would count.
         rem = @countdown_setting('discover_geonames_remaining')
-        console.info('discover_geoname_name() widget.state =', widget.state, "so decrementing remaining (#{rem}) early")
+        #console.info('discover_geoname_name() widget.state =', widget.state, "so decrementing remaining (#{rem}) early")
       else if widget.state is 'good'
         if @discover_geonames_remaining < 1
-          console.info('aborting discover_geoname_name() because remaining =', @discover_geonames_remaining)
+          #console.info('aborting discover_geoname_name() because remaining =', @discover_geonames_remaining)
           return false
         @discover_geonames_as__widget.set_state('looking')
         console.info('looking for',id,'using name',userId)
       else
         console.warn("discover_goename_name() should not be called when widget.state =", widget.state)
         return false
+    @geonames_name_lookups_performed ?= 0
+    @geonames_name_lookups_performed += 1
     $.ajax
       url: url
       error: (xhr, status, error) =>
@@ -2835,7 +2846,8 @@ class Huviz
           return
         #subj = aUrl.toString()
         if (widget = @discover_geonames_as__widget)
-          if widget.state in ['trying', 'looking']
+          state_at_start = widget.state
+          if state_at_start in ['trying', 'looking']
             #rem = @countdown_setting('discover_geonames_remaining')
             #console.log('discover_geonames_remaining',rem,"after looking up",id)
             #@countdown_setting('discover_geonames_remaining') # decrement now because we just used one up for this account
@@ -2855,8 +2867,8 @@ class Huviz
               console.log('we should never get here where widget.state =',widget.state)
               #@discover_geonames_as__widget.set_state('good') # finally go to good because we are done
           else
-            msg = "widget.state = #{widget.state} but it should only be looking or trying"
-            console.error(msg)
+            msg = "state_at_start = #{state_at_start} but it should only be looking or trying (nameless: #{@nameless_set.length})"
+            #console.error(msg)
             #throw new Error(msg)
         geoNamesRoot = aUrl.origin
         deeperQuad = null
@@ -2984,7 +2996,7 @@ class Huviz
       retval = @ingest_quads_from("#{uri}.skos.nt", @discover_labels(uri))
       #@auto_discover_header(uri, ['X-PrefLabel'], sendHeaders or [])
     if uri.startsWith("http://sws.geonames.org/") and
-        @discover_geonames_as__widget.can_run() and
+        @discover_geonames_as__widget.state in ['untried','looking','good'] and
         @discover_geonames_remaining > 0
       @discover_geoname_name(aUrl)
     return
@@ -2995,6 +3007,7 @@ class Huviz
     return
 
   discover_names: (includes) ->
+    #console.log('discover_names(',includes,') # of nameless:',@nameless_set.length)
     for node in @nameless_set
       url = node.id
       if not (includes? and not url.includes(includes))
@@ -5251,10 +5264,13 @@ class Huviz
       console.debug(data, onto)
       throw new Error("Now whoa-up pardner... both data and onto should have .value")
 
-    @load_data_with_onto(data, onto)
+    @load_data_with_onto(data, onto, @after_visualize_dataset_using_ontology)
     @update_browser_title(data)
     @update_caption(data.value, onto.value)
     return
+
+  after_visualize_dataset_using_ontology: =>
+    @preset_discover_geonames_remaining()
 
   load_script_from_db: (err, rsrcRec) =>
     if err?
@@ -6380,7 +6396,7 @@ class Huviz
         label:
           title: "whether edges have their snippet count shown as (#)"
         input:
-          checked: "checked"
+          #checked: "checked"
           type: "checkbox"
     ,
       nodes_pinnable:
@@ -6424,6 +6440,7 @@ class Huviz
           title: "Show boxed labels on graph"
         input:
           type: "checkbox"
+          #checked: "checked"
     ,
       theme_colors:
         text: "Display graph with dark theme"
@@ -6581,14 +6598,14 @@ class Huviz
           #checked: "checked"
     ,
       discover_geonames_as:
-        html_text: '<a href="http://www.geonames.org/login" target="geonamesAcct">Geonames</a> User '
+        html_text: '<a href="http://www.geonames.org/login" target="geonamesAcct">GeoNames</a> Username '
         label:
           title: "The GeoNames Username to look up geonames as"
         input:
           jsWidgetClass: GeoUserNameWidget
           type: "text"
           value: "" # "smurp_nooron"
-          size: "16"
+          size: "14"
           placeholder: "eg huviz"
     ,
       discover_geonames_remaining:
