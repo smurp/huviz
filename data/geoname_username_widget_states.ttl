@@ -17,6 +17,9 @@ _:good a fsm:State ;
 _:trying a fsm:State ;
     rdfs:comment "There is a value present. An attempt is in progress, ie a query has been initiated but the response has not returned. It will not be tried again until either a successful or failure has been received." .
 
+_:looking a fsm:State ;
+    rdfs:comment "There is a value present. An attempt is in progress, ie a query has been initiated but the response has not returned." .
+
 _:empty fsm:set_value _:untried .
 _:untried fsm:start_query _:trying .
 
@@ -27,6 +30,9 @@ _:bad fsm:change _:untried .
 _:bad fsm:clear _:empty .
 _:good fsm:change _:untried .
 _:good fsm:clear _:empty .
+_:good fsm:lookup _:looking .
+_:looking fsm:found _:good .
+
 
 
 
