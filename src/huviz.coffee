@@ -447,14 +447,10 @@ class UsernameWidget extends SettingsWidget
 
   constructor: ->
     super(arguments...)
-    @wrap("""
-       <span id="#{@id}" style="border:2px solid; padding:2px">
-       <i class="userIcon fa fa-user-alt"></i>
-       <i class="stateIcon fa fa-question"></i>
-       </span>
-      """) # """
+    @wrap("""<span id="#{@id}" style="border:2px solid; padding:2px"></span>""")
     @inputElem.setAttribute('style','border:none')
     @widgetJQElem = $('#'+@id)
+    @widgetJQElem.prepend("""<i class="userIcon fa fa-user-alt"></i><i class="stateIcon fa fa-question"></i>""")
     @stateIconJQElem = @widgetJQElem.find('.stateIcon')
     @userIconJQElem = @widgetJQElem.find('.userIcon')
     @set_state('empty')
