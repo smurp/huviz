@@ -33,6 +33,3 @@ _:good fsm:clear _:empty .
 _:good fsm:lookup _:looking .
 _:looking fsm:found _:good .
 
-
-
-
