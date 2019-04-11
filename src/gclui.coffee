@@ -96,13 +96,14 @@ class CommandController
 
     @scriptRewindButton = @scriptPlayerControls.append('button').
       attr('title','rewind to start').
+      attr('disabled', 'disabled').
       on('click', @on_rewind_click)
     @scriptRewindButton.
       append('i').attr("class", "fa fa-fast-backward")
 
     @scriptBackButton = @scriptPlayerControls.append('button').
       attr('title','go back one step').
-      #attr('disabled', 'disabled').
+      attr('disabled', 'disabled').
       on('click', @on_backward_click)
     @scriptBackButton.append('i').attr("class", "fa fa-play fa-flip-horizontal")
 
@@ -122,6 +123,7 @@ class CommandController
     @scriptDownloadButton = @scriptPlayerControls.append('button').
       attr('title','save script to file').
       attr('style', 'margin-left:1em').  # ;display:none
+      attr('disabled', 'disabled').
       on('click', @on_downloadscript_hybrid_clicked)
     @scriptDownloadButton.append('i').attr("class", "fa fa-download")
       #.append('span').text('.txt')
@@ -135,6 +137,7 @@ class CommandController
 
     @scriptStashButton = @scriptPlayerControls.append('button').
       attr('title','save script to menu').
+      attr('disabled', 'disabled').
       attr('style', 'margin-left:.1em').
       on('click', @on_stashscript_clicked)
     @scriptStashButton.append('i').attr("class", "fa fa-bars")
@@ -1048,6 +1051,10 @@ class CommandController
       @command_idx0 = 0
     @update_script_buttons()
   update_script_buttons: ->
+    if @command_list.length > 1
+      @enable_save_buttons()
+    else
+      @disable_save_buttons()
     if @command_idx0 >= @command_list.length
       @disable_play_buttons()
     else
@@ -1068,6 +1075,12 @@ class CommandController
   enable_back_buttons: ->
     @scriptBackButton.attr('disabled', null)
     @scriptRewindButton.attr('disabled', null)
+  disable_save_buttons: ->
+    @scriptDownloadButton.attr('disabled', 'disabled')
+    @scriptStashButton.attr('disabled', 'disabled')
+  enable_save_buttons: ->
+    @scriptDownloadButton.attr('disabled', null)
+    @scriptStashButton.attr('disabled', null)
   build_command: ->
     args =
       verbs: []
