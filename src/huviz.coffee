@@ -1491,6 +1491,7 @@ class Huviz
       walked_set: @walked_set
 
   get_set_by_id: (setId) ->
+    setId = setId is 'fixed' and 'pinned' or setId # because pinned uses fixed as its 'name'
     return this[setId + '_set']
 
   update_all_counts: ->
@@ -6805,8 +6806,10 @@ class Huviz
 
   apply_settings: (settings) ->
     for setting, value of settings
-      @change_setting_to_from(setting, value)
-      console.warn("should adjust the Settings INPUT for #{setting} too")
+      @set_setting(setting, value)
+      # TODO could it be that some of these need their handlers run? eg on_change_SOME_SETTING_NAME
+      #@change_setting_to_from(setting, value)
+      #console.warn("should adjust the Settings INPUT for #{setting} too")
 
   change_setting_to_from: (setting_name, new_value, old_value, skip_custom_handler) =>
     skip_custom_handler = skip_custom_handler? and skip_custom_handler or false
