@@ -2733,7 +2733,7 @@ class Huviz
         press
         <a target="geonamesAcct"
             href="http://www.geonames.org/enablefreewebservice">click here to enable</a>
-    4) re-enter your GeoNames username in HuViz settings to trigger lookup</span>"""
+    4) re-enter your GeoNames Username in HuViz settings to trigger lookup</span>"""
 
   discover_geoname_name_instructions_md: """
     ## How to get GeoNames lookup working
@@ -2751,10 +2751,10 @@ class Huviz
     3. on the <a target="geonamesAcct" href="http://www.geonames.org/manageaccount">manage account</a> page
        press <a target="geonamesAcct" href="http://www.geonames.org/enablefreewebservice">Click here to enable</a>
        if your account is not already _enabled to use the free web services_
-    4. enter your *GeoNames user* in HuViz `Settings` tab then press the TAB or ENTER key to trigger lookup
+    4. enter your *GeoNames Username* in HuViz `Settings` tab then press the TAB or ENTER key to trigger lookup
     5. if you need to perform more lookups, just adjust the *GeoNames Limit*, then leave that field with TAB, ENTER or a click
 
-    (Soon, HuViz will let you save your personal *Geonames Username* and your *GeoNames Limit* to make this more convenient.)
+    (Soon, HuViz will let you save your personal *GeoNames Username* and your *GeoNames Limit* to make this more convenient.)
 
   """
 
@@ -6597,14 +6597,14 @@ class Huviz
           #checked: "checked"
     ,
       discover_geonames_as:
-        html_text: '<a href="http://www.geonames.org/login" target="geonamesAcct">Geonames</a> User '
+        html_text: '<a href="http://www.geonames.org/login" target="geonamesAcct">GeoNames</a> Username '
         label:
           title: "The GeoNames Username to look up geonames as"
         input:
           jsWidgetClass: GeoUserNameWidget
           type: "text"
           value: "" # "smurp_nooron"
-          size: "16"
+          size: "14"
           placeholder: "eg huviz"
     ,
       discover_geonames_remaining:
