@@ -5430,10 +5430,10 @@ class Huviz
     if @git_commit_hash
       @insertBeforeEnd(@captionElem, @make_git_link())
     dm = 'dataset_watermark'
-    @insertBeforeEnd(@captionElem, """<span class="#{dm} subliminal"></span>""") #
+    @insertBeforeEnd(@captionElem, """<div class="#{dm} subliminal"></div>""") #
     @make_JQElem(dm, @args.huviz_top_sel + ' .' + dm) # @dataset_watermark_JQElem
     om = 'ontology_watermark'
-    @insertBeforeEnd(@captionElem, """<span class="#{om} subliminal"></span>""") #
+    @insertBeforeEnd(@captionElem, """<div class="#{om} subliminal"></div>""") #
     @make_JQElem(om, @args.huviz_top_sel + ' .' + om) # @ontology_watermark_JQElem
     return
 
@@ -6914,8 +6914,8 @@ class Huviz
     if new_val is "custom"
       @topJQElem.find(".main_title").removeAttr("style")
       @topJQElem.find(".sub_title").removeAttr("style")
-      $("#graph_custom_main_title").css('display', 'inherit')
-      $("#graph_custom_sub_title").css('display', 'inherit')
+      @topJQElem.find("#graph_custom_main_title").css('display', 'inherit')
+      @topJQElem.find("#graph_custom_sub_title").css('display', 'inherit')
       custTitle = @topJQElem.find("input[name='graph_custom_main_title']")
       custSubTitle = @topJQElem.find("input[name='graph_custom_sub_title']")
       @update_caption(custTitle[0].title, custSubTitle[0].title)
@@ -6924,13 +6924,13 @@ class Huviz
     else if new_val is "bold1"
       @ontology_watermark_JQElem.css('display', 'none')
     else
-      $("#graph_custom_main_title").css('display', 'none')
-      $("#graph_custom_sub_title").css('display', 'none')
+      @topJQElem.find("#graph_custom_main_title").css('display', 'none')
+      @topJQElem.find("#graph_custom_sub_title").css('display', 'none')
       @topJQElem.find("a.git_commit_hash_watermark").css('display', 'inherit')
       @ontology_watermark_JQElem.attr('style', '')
-      @update_caption(@dataset_loader.value,@ontology_loader.value)
-    @dataset_watermark_JQElem.removeClass().addClass(new_val)
-    @ontology_watermark_JQElem.removeClass().addClass(new_val)
+      @update_caption(@data_uri,@onto_uri)
+    @dataset_watermark_JQElem.removeClass().addClass("dataset_watermark #{new_val}")
+    @ontology_watermark_JQElem.removeClass().addClass("ontology_watermark #{new_val}")
 
   on_change_graph_custom_main_title: (new_val) ->
     # if new custom values then update titles
@@ -7028,6 +7028,7 @@ class Huviz
     # regardless the .value is a key into the datasetDB
     @data_uri = data.value
     @set_ontology(onto.value)
+    @onto_uri = onto.value
     if @args.display_reset
       $("#reset_btn").show()
     else

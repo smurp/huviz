@@ -308,11 +308,14 @@ progress[value]::-moz-progress-bar {
   font-size: 80%;
   text-decoration: none;
   position: absolute;
-  bottom: 2.1em;
+  bottom: 2.6em;
   /*left:49%*/
   width: 100%;
   display: block;
   text-align:center;
+}
+a.git_commit_hash_watermark {
+  margin-bottom: 0.5em;
 }
 .control_label {
   margin-top: 2px;
