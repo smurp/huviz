@@ -5555,7 +5555,7 @@ class Huviz
       })
 
   init_editc_or_not: ->
-    if @show_edit
+    if @args.show_edit
       @editui ?= new EditController(@)
 
   set_edit_mode: (mode) ->
