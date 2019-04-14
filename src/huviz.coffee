@@ -3132,7 +3132,7 @@ class Huviz
             objId = synthIdFor(objKey)
           else
             objId = synthIdFor(objVal)
-          literal_node = @get_or_create_node_by_id(objId, null, (isLiteral = true))
+          literal_node = @get_or_create_node_by_id(objId, objVal, (isLiteral = true))
           @try_to_set_node_type(literal_node, simpleType)
           literal_node.__dataType = quad.o.type
           @develop(literal_node)
