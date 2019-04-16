@@ -13,6 +13,7 @@
 
 .huviz_wrapper .huviz_tabs {
   position: absolute;
+  /* position: fixed; */
   width: 26em;
   right: 0px;
   font-size: 80%;
@@ -395,9 +396,11 @@ a.git_commit_hash_watermark {
     bottom: 1.5em;
 }
 .edit-controls.loggedIn {
+  position: absolute;
   position: relative;
   z-index: 3;
   left:1em;
+  height: 0;
 }
 .cntrl-set {
   display: inline;

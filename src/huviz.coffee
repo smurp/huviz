@@ -6064,11 +6064,15 @@ class Huviz
   collapse_tabs: () =>
     @tabsJQElem.prop('style','visibility:hidden;width:0')
     @tabsJQElem.find('.expand_cntrl').prop('style','visibility:visible')
+    @tabsJQElem.find('.the-tabs').prop('style','display:none')
+    @tabsJQElem.find('.tabs-intro').prop('style','display:none')
     #@expandCtrlJQElem.show() # why does this not work instead of the above?
 
   expand_tabs: () =>
     @tabsJQElem.prop('style','visibility:visible')
     #@tabsJQElem.find('.expand_cntrl').prop('style','visibility:hidden')
+    @tabsJQElem.find('.the-tabs').prop('style','display:inherit')
+    @tabsJQElem.find('.tabs-intro').prop('style','display:inherit')
     @expandCtrlJQElem.hide()
     @collapseCtrlJQElem.show()
 
