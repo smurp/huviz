@@ -5430,10 +5430,10 @@ class Huviz
     if @git_commit_hash
       @insertBeforeEnd(@captionElem, @make_git_link())
     dm = 'dataset_watermark'
-    @insertBeforeEnd(@captionElem, """<div class="#{dm} subliminal"></div>""") #
+    @insertBeforeEnd(@captionElem, """<div class="#{dm} subliminal"></div>""") # """
     @make_JQElem(dm, @args.huviz_top_sel + ' .' + dm) # @dataset_watermark_JQElem
     om = 'ontology_watermark'
-    @insertBeforeEnd(@captionElem, """<div class="#{om} subliminal"></div>""") #
+    @insertBeforeEnd(@captionElem, """<div class="#{om} subliminal"></div>""") # """
     @make_JQElem(om, @args.huviz_top_sel + ' .' + om) # @ontology_watermark_JQElem
     return
 
@@ -6756,14 +6756,8 @@ class Huviz
         inputId = unique_id(control_name+'_')
         groupName = control.group or 'General'
         groupElem = @get_or_create_settings_group(groupName)
-        input = false
-        if false
-          graph_control = d3.select(groupElem).append('div').
-                attr('id', control_name).
-                attr('class', 'a_setting')
         controlElem = @insertBeforeEnd(groupElem, """<div class="a_setting #{control_name}__setting"></div>""")
         labelElem = @insertBeforeEnd(controlElem, """<label for="#{inputId}"></label>""")
-        #label = graph_control.append('label')
         if control.text?
           labelElem.innerHTML = control.text
         if control.html_text?
@@ -6774,7 +6768,7 @@ class Huviz
           graph_control.attr('class', 'graph_control ' + control.class)
           controlElem.setAttribute('class', control.class)
         if control.input.type is 'select'
-          inputElem = @insertBeforeEnd(controlElem, """<select name="#{control.name}"></select>""")
+          inputElem = @insertBeforeEnd(controlElem, """<select></select>""")
           for optIdx, opt of control.options
             optionElem = @insertBeforeEnd(inputElem, """<option value="#{opt.value}"></option>""")
             if opt.selected
@@ -6800,14 +6794,14 @@ class Huviz
                 old_val = @[control_name]
                 @change_setting_to_from(control_name, v, old_val)
               inputElem.setAttribute(k, v)
-            if WidgetClass and false
-              inputElem = input[0][0]
+            if WidgetClass
               @[control_name + '__widget'] = new WidgetClass(this, inputElem)
           if control.input.type is 'checkbox'
             value = control.input.checked?
             @change_setting_to_from(control_name, value, undefined) #@[control_name].checked)
           # TODO replace control.event_type with autodetecting on_change_ vs on_update_ method existence
         inputElem.setAttribute('id', inputId)
+        inputElem.setAttribute('name', control_name)
         if control.label.title?
           @insertBeforeEnd(controlElem, '<div class="setting_explanation">' + control.label.title + '</div>')
         event_type = control.event_type or
@@ -6838,7 +6832,7 @@ class Huviz
 
   update_graph_settings: (event) =>
     @change_graph_settings(event, true)
-    
+
   change_graph_settings: (event, update) =>
     target = event.target
     update ?= false
@@ -6971,8 +6965,8 @@ class Huviz
     if new_val is "custom"
       @topJQElem.find(".main_title").removeAttr("style")
       @topJQElem.find(".sub_title").removeAttr("style")
-      @topJQElem.find("#graph_custom_main_title").css('display', 'inherit')
-      @topJQElem.find("#graph_custom_sub_title").css('display', 'inherit')
+      @topJQElem.find(".graph_custom_main_title__setting").css('display', 'inherit')
+      @topJQElem.find(".graph_custom_sub_title__setting").css('display', 'inherit')
       custTitle = @topJQElem.find("input[name='graph_custom_main_title']")
       custSubTitle = @topJQElem.find("input[name='graph_custom_sub_title']")
       @update_caption(custTitle[0].title, custSubTitle[0].title)
