@@ -6889,7 +6889,13 @@ class Huviz
       $(@settingGroupsContainerElem).accordion()
     else
       try
+        # How to turn off the accordion once turned on....
+        # https://stackoverflow.com/questions/2754931/jquery-ui-disable-accordion-tab/17800814
         $(@settingGroupsContainerElem).accordion("option","active",0)
+        # This is not yet working to turn if off..
+        # and it causes this exception which must be trapped if
+        # it gets called before the accordion is turned on, which is
+        # the case if the default is for the accordion to not be on.
       catch e
         console.warn(e)
 
