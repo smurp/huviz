@@ -6167,6 +6167,15 @@ class Huviz
           label: "Reset All"
           #style: "background-color: #303030"
     ,
+      use_accordion_for_settings:
+        text: "show Settings in accordion"
+        label:
+          title: "Show the Settings Groups as an 'Accordion'"
+        input:
+          #checked: "checked"
+          type: "checkbox"
+        style: "color:orange"
+    ,
       focused_mag:
         group: "Sizing"
         text: "focused label mag"
@@ -6499,7 +6508,6 @@ class Huviz
       color_nodes_as_pies:
         group: "Ontological"
         text: "Color nodes as pies"
-        style: "color:orange"
         label:
           title: "Show all a nodes types as colored pie pieces"
         input:
@@ -6820,6 +6828,7 @@ class Huviz
           inputElem.addEventListener('input', @update_graph_settings)
     #$(@settingGroupsContainerElem).accordion()
     #@settings.append('div').attr('class', 'buffer_space')
+    @insertBeforeEnd(@settingsElem, """<div class="buffer_space"></div>""")
     return
 
   update_settings_cursor: (evt) =>
@@ -6874,6 +6883,15 @@ class Huviz
     else
       #console.log "change_setting_to_from() setting: #{setting_name} to:#{new_value}(#{typeof new_value}) from:#{old_value}(#{typeof old_value})"
       this[setting_name] = new_value
+
+  on_change_use_accordion_for_settings: (new_val, old_val) ->
+    if new_val
+      $(@settingGroupsContainerElem).accordion()
+    else
+      try
+        $(@settingGroupsContainerElem).accordion("option","active",0)
+      catch e
+        console.warn(e)
 
   # on_change handlers for the various settings which need them
   on_change_nodes_pinnable: (new_val, old_val) ->
