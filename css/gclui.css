@@ -274,12 +274,20 @@
   font-style: bold;
 }
 
-}
+
 .a_setting input {
   cursor: inherit;
 }
 .a_setting label {
   cursor: inherit;
+}
+.a_setting {
+    background: #f0f0f0;
+    margin-top: .4em;
+}
+.settingGroupsContainer {
+}
+.settings {
 }
 
 .close_hint {

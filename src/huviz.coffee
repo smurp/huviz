@@ -5780,7 +5780,7 @@ class Huviz
   insertBeforeEnd: (elem, html) ->
     position = 'beforeend'
     elem.insertAdjacentHTML(position, html)
-    return
+    return elem.lastElementChild  # note, this only works right if html has one outer elem
 
   create_tabs: ->
     if not @args.tab_specs
@@ -5811,15 +5811,14 @@ class Huviz
     return @args.huviz_top_sel
 
   addHTML: (html) ->
-    @insertBeforeEnd(@topElem, html)
+    return @insertBeforeEnd(@topElem, html)
 
   addDivWithIdAndClasses: (id, classes, specialElem) ->
     html = """<div id="#{sel_to_id(id)}" class="#{classes}"></div>"""
     if specialElem
-      @insertBeforeEnd(specialElem, html)
+      return @insertBeforeEnd(specialElem, html)
     else
-      @addHTML(html)
-    return
+      return @addHTML(html)
 
   ensure_divs: ->
     # find the unique id for things like viscanvas and make div if missing
@@ -6019,8 +6018,7 @@ class Huviz
     blurtbox_id = @unique_id('blurtbox_')
     tabsElem = document.querySelector('#'+@tabs_id)
     html = """<div id="#{blurtbox_id}" class="blurtbox"></div>"""
-    @insertBeforeEnd(tabsElem, html)
-    @blurtbox_JQElem = $('#'+blurtbox_id)
+    @blurtbox_JQElem = $(@insertBeforeEnd(tabsElem, html))
     return
 
   blurt: (str, type, noButton) =>
@@ -6167,9 +6165,10 @@ class Huviz
         input:
           type: "button"
           label: "Reset All"
-          style: "background-color: #555"
+          #style: "background-color: #303030"
     ,
       focused_mag:
+        group: "Sizing"
         text: "focused label mag"
         input:
           value: 1.4
@@ -6181,6 +6180,7 @@ class Huviz
           title: "the amount bigger than a normal label the currently focused one is"
     ,
       selected_mag:
+        group: "Sizing"
         text: "selected node mag"
         input:
           value: 1.5
@@ -6192,6 +6192,7 @@ class Huviz
           title: "the amount bigger than a normal node the currently selected ones are"
     ,
       label_em:
+        group: "Sizing"
         text: "label size (em)"
         label:
           title: "the size of the font"
@@ -6214,6 +6215,7 @@ class Huviz
       #    type: "range"
     #,
       snippet_triple_em:
+        group: "Sizing"
         text: "snippet triple (em)"
         label:
           title: "the size of the snippet triples"
@@ -6225,6 +6227,7 @@ class Huviz
           type: "range"
     ,
       charge:
+        group: "Layout"
         text: "charge (-)"
         label:
           title: "the repulsive charge betweeen nodes"
@@ -6236,6 +6239,7 @@ class Huviz
           type: "range"
     ,
       gravity:
+        group: "Layout"
         text: "gravity"
         label:
           title: "the attractive force keeping nodes centered"
@@ -6247,6 +6251,7 @@ class Huviz
           type: "range"
     ,
       shelf_radius:
+        group: "Sizing"
         text: "shelf radius"
         label:
           title: "how big the shelf is"
@@ -6258,6 +6263,7 @@ class Huviz
           type: "range"
     ,
       fisheye_zoom:
+        group: "Sizing"
         text: "fisheye zoom"
         label:
           title: "how much magnification happens"
@@ -6269,6 +6275,7 @@ class Huviz
           type: "range"
     ,
       fisheye_radius:
+        group: "Sizing"
         text: "fisheye radius"
         label:
           title: "how big the fisheye is"
@@ -6280,6 +6287,7 @@ class Huviz
           type: "range"
     ,
       node_radius:
+        group: "Sizing"
         text: "node radius"
         label:
           title: "how fat the nodes are"
@@ -6291,6 +6299,7 @@ class Huviz
           type: "range"
     ,
       node_diff:
+        group: "Sizing"
         text: "node differentiation"
         label:
           title: "size variance for node edge count"
@@ -6302,6 +6311,7 @@ class Huviz
           type: "range"
     ,
       focus_threshold:
+        group: "Sizing"
         text: "focus threshold"
         label:
           title: "how fine is node recognition"
@@ -6313,6 +6323,7 @@ class Huviz
           type: "range"
     ,
       link_distance:
+        group: "Layout"
         text: "link distance"
         label:
           title: "how long the lines are"
@@ -6324,6 +6335,7 @@ class Huviz
           type: "range"
     ,
       edge_width:
+        group: "Sizing"
         text: "line thickness"
         label:
           title: "how thick the lines are"
@@ -6335,6 +6347,7 @@ class Huviz
           type: "range"
     ,
       line_edge_weight:
+        group: "Sizing"
         text: "line edge weight"
         label:
           title: "how much thicker lines become to indicate the number of snippets"
@@ -6346,6 +6359,7 @@ class Huviz
           type: "range"
     ,
       swayfrac:
+        group: "Sizing"
         text: "sway fraction"
         label:
           title: "how much curvature lines have"
@@ -6357,6 +6371,7 @@ class Huviz
           type: "range"
     ,
       label_graphed:
+        group: "Labels"
         text: "label graphed nodes"
         style: "display:none"
         label:
@@ -6366,6 +6381,7 @@ class Huviz
           type: "checkbox"
     ,
       truncate_labels_to:
+        group: "Labels"
         text: "truncate and scroll"
         label:
           title: "truncate and scroll labels longer than this, or zero to disable"
@@ -6377,6 +6393,7 @@ class Huviz
           type: "range"
     ,
       slow_it_down:
+        group: "Debugging"
         #style: "display:none"
         text: "Slow it down (sec)"
         label:
@@ -6389,6 +6406,7 @@ class Huviz
           type: "range"
     ,
       snippet_count_on_edge_labels:
+        group: "Labels"
         text: "snippet count on edge labels"
         label:
           title: "whether edges have their snippet count shown as (#)"
@@ -6432,6 +6450,7 @@ class Huviz
           type: "checkbox"
     ,
       pill_display:
+        group: "Labels"
         text: "Display graph with boxed labels"
         label:
           title: "Show boxed labels on graph"
@@ -6440,6 +6459,7 @@ class Huviz
           #checked: "checked"
     ,
       theme_colors:
+        group: "Styling"
         text: "Display graph with dark theme"
         label:
           title: "Show graph plotted on a black background"
@@ -6447,6 +6467,7 @@ class Huviz
           type: "checkbox"
     ,
       display_label_cartouches:
+        group: "Styling"
         text: "Background cartouches for labels"
         label:
           title: "Remove backgrounds from focused labels"
@@ -6455,6 +6476,7 @@ class Huviz
           checked: "checked"
     ,
       display_shelf_clockwise:
+        group: "Styling"
         text: "Display nodes clockwise"
         label:
           title: "Display clockwise (uncheck for counter-clockwise)"
@@ -6463,6 +6485,7 @@ class Huviz
           checked: "checked"
     ,
       choose_node_display_angle:
+        group: "Styling"
         text: "Node display angle"
         label:
           title: "Where on shelf to place first node"
@@ -6474,6 +6497,7 @@ class Huviz
           type: "range"
     ,
       color_nodes_as_pies:
+        group: "Ontological"
         text: "Color nodes as pies"
         style: "color:orange"
         label:
@@ -6501,7 +6525,7 @@ class Huviz
         ]
     ,
       make_nodes_for_literals:
-        style: "color:orange"
+        group: "Ontological"
         text: "Make nodes for literals"
         label:
           title: "show literal values (dates, strings, numbers) as nodes"
@@ -6519,6 +6543,7 @@ class Huviz
           type: "checkbox"
     ,
       show_hide_performance_monitor:
+        group: "Debugging"
         style: "color:orange"
         text: "Show Performance Monitor"
         label:
@@ -6527,6 +6552,7 @@ class Huviz
           type: "checkbox"
     ,
       graph_title_style:
+        group: "Captions"
         text: "Title display "
         label:
           title: "Select graph title style"
@@ -6547,6 +6573,7 @@ class Huviz
         ]
     ,
       graph_custom_main_title:
+        group: "Captions"
         style: "display:none"
         text: "Custom Title"
         label:
@@ -6557,6 +6584,7 @@ class Huviz
           placeholder: "Enter Title"
     ,
       graph_custom_sub_title:
+        group: "Captions"
         style: "display:none"
         text: "Custom Sub-title"
         label:
@@ -6567,6 +6595,7 @@ class Huviz
           placeholder: "Enter Sub-title"
     ,
       debug_shelf_angles_and_flipping:
+        group: "Debugging"
         style: "color:orange;display:none"
         text: "debug shelf angles and flipping"
         label:
@@ -6575,6 +6604,7 @@ class Huviz
           type: "checkbox"   #checked: "checked"
     ,
       language_path:
+        group: "Ontological"
         text: "Language Path"
         label:
           title: "Preferred languages in order, with : separator."
@@ -6586,7 +6616,7 @@ class Huviz
           placeholder: "en:es:fr:de:ANY:NOLANG"
     ,
       show_class_instance_edges:
-        style: "color:orange"
+        group: "Ontological"
         text: "Show class-instance relationships"
         label:
           title: "display the class-instance relationship as an edge"
@@ -6595,6 +6625,7 @@ class Huviz
           #checked: "checked"
     ,
       discover_geonames_as:
+        group: "Geonames"
         html_text: '<a href="http://www.geonames.org/login" target="geonamesAcct">GeoNames</a> Username '
         label:
           title: "The GeoNames Username to look up geonames as"
@@ -6606,6 +6637,7 @@ class Huviz
           placeholder: "eg huviz"
     ,
       discover_geonames_remaining:
+        group: "Geonames"
         text: 'GeoNames Limit '
         label:
           title: "The number of Remaining Geonames to look up"
@@ -6615,6 +6647,7 @@ class Huviz
           size: 6
     ,
       discover_geonames_greedily:
+        group: "Geonames"
         text: "Capture GeoNames Greedily"
         label:
           title: "Capture not just names but populations too."
@@ -6623,6 +6656,7 @@ class Huviz
           #checked: "checked"
     ,
       discover_geonames_deeply:
+        group: "Geonames"
         text: "Capture GeoNames Deeply"
         label:
           title: "Capture not just directly referenced but also the containing geographical places from GeoNames."
@@ -6666,6 +6700,7 @@ class Huviz
           checked: "checked"
     ,
       show_images_in_nodes:
+        group: "Images"
         style: "color:red"
         text: "Show Images in Nodes"
         label:
@@ -6674,6 +6709,7 @@ class Huviz
           type: "checkbox"
     ,
       show_thumbs_dont_graph:
+        group: "Images"
         style: "color:red"
         text: "Show thumbnails, don't graph"
         label:
@@ -6692,52 +6728,68 @@ class Huviz
     # Try to tune the gravity, charge and link length to suit the data and the canvas size.
     return @
 
+  make_settings_group: (groupName) ->
+    return @insertBeforeEnd(@settingGroupsContainerElem, """<h1>#{groupName}</h1><div class="settingsGroup"></div>""")
+
+  get_or_create_settings_group: (groupName) ->
+    groupId = synthIdFor(groupName)
+    @settings_groups ?= {}
+    group = @settings_groups[groupName]
+    if not group
+      @settings_groups[groupName] = group = @make_settings_group(groupName)
+    return group
+
   init_settings_from_json: =>
-    @settingsElem = document.querySelector(@args.settings_sel) # TODO Wolf, rebuild this method without D3 using @settingsElem
+    # TODO rebuild this method without D3 using @settingsElem
+    @settingsElem = document.querySelector(@args.settings_sel)
     settings_input_sel = @args.settings_sel + ' input'
     @settings_cursor = new TextCursor(settings_input_sel, "")
     if @settings_cursor
       $(settings_input_sel).on("mouseover", @update_settings_cursor)
       #$("input").on("mouseenter", @update_settings_cursor)
       #$("input").on("mousemove", @update_settings_cursor)
-    @settings = d3.select(@args.settings_sel)
+    @settings = d3.select(@settingsElem)
     @settings.classed('settings',true)
+    @settingGroupsContainerElem = @insertBeforeEnd(@settingsElem, '<div class="settingGroupsContainer"></div>')
     for control_spec in @default_settings
       for control_name, control of control_spec
+        inputId = unique_id(control_name+'_')
+        groupName = control.group or 'General'
+        groupElem = @get_or_create_settings_group(groupName)
         input = false
-        graph_control = @settings.append('div').
-              attr('id', control_name).
-              attr('class', 'a_setting')
-        label = graph_control.append('label')
+        if false
+          graph_control = d3.select(groupElem).append('div').
+                attr('id', control_name).
+                attr('class', 'a_setting')
+        controlElem = @insertBeforeEnd(groupElem, """<div class="a_setting #{control_name}__setting"></div>""")
+        labelElem = @insertBeforeEnd(controlElem, """<label for="#{inputId}"></label>""")
+        #label = graph_control.append('label')
         if control.text?
-          label.text(control.text)
-        if control.html_text
-          label.html(control.html_text)
-        if control.label?
-          label.attr(control.label)
+          labelElem.innerHTML = control.text
+        if control.html_text?
+          labelElem.innerHTML = control.html_text
         if control.style?
-          graph_control.attr("style", control.style)
+          controlElem.setAttribute('style', control.style)
         if control.class?
           graph_control.attr('class', 'graph_control ' + control.class)
+          controlElem.setAttribute('class', control.class)
         if control.input.type is 'select'
-          input = label.append('select')
-          input.attr("name", control_name)
-          for a,v of control.options
-            option = input.append('option')
-            if v.selected
-              option.html(v.label).attr("value", v.value).attr("selected", "selected")
-            else
-              option.html(v.label).attr("value", v.value)
-          #label.append("input").attr("name", "custom_title").attr("type", "text").attr("style", " ")
-          #label.append("input").attr("name", "custom_subtitle").attr("type", "text").attr("style", " ")
+          inputElem = @insertBeforeEnd(controlElem, """<select name="#{control.name}"></select>""")
+          for optIdx, opt of control.options
+            optionElem = @insertBeforeEnd(inputElem, """<option value="#{opt.value}"></option>""")
+            if opt.selected
+              optionElem.setAttribute('selected','selected')
+            if opt.label?
+              optionElem.innerHTML = opt.label
         else if control.input.type is 'button'
-          input = label.append('button')
-          input.attr("type", "button")
-          input.html("Reset All")
-          input.on("click", @dump_current_settings)
+          inputElem = @insertBeforeEnd(controlElem, """<button type="button">(should set label)</button>""")
+          if control.input.label?
+            inputElem.innerHTML = control.input.label
+          if control.input.style?
+            inputElem.setAttribute('style', control.input.style)
+          inputElem.onClick = @dump_current_settings
         else
-          input = label.append('input')
-          input.attr("name", control_name)
+          inputElem = @insertBeforeEnd(controlElem, """<input name="#{control_name}"></input>""")
           WidgetClass = null
           if control.input?
             for k,v of control.input
@@ -6747,29 +6799,33 @@ class Huviz
               if k is 'value'
                 old_val = @[control_name]
                 @change_setting_to_from(control_name, v, old_val)
-              input.attr(k,v)
-            if WidgetClass
+              inputElem.setAttribute(k, v)
+            if WidgetClass and false
               inputElem = input[0][0]
               @[control_name + '__widget'] = new WidgetClass(this, inputElem)
           if control.input.type is 'checkbox'
             value = control.input.checked?
-            #console.log "control:",control_name,"value:",value, control
             @change_setting_to_from(control_name, value, undefined) #@[control_name].checked)
           # TODO replace control.event_type with autodetecting on_change_ vs on_update_ method existence
-
+        inputElem.setAttribute('id', inputId)
+        if control.label.title?
+          @insertBeforeEnd(controlElem, '<div class="setting_explanation">' + control.label.title + '</div>')
         event_type = control.event_type or
             (control.input.type in ['checkbox','range','radio'] and 'input') or
             'change'
         if event_type is 'change'
           # These controls only update when enter is pressed or the focus changes.
           # Good for things like text fields which might not make sense until the user is 'done'.
-          input.on("change", @update_graph_settings)
+          #input.on("change", @update_graph_settings)
+          inputElem.addEventListener('change', @change_graph_settings)
         else
           # These controls get continuously updated.
           # Good for range sliders, radiobuttons and checkboxes.
           # This can be forced by setting the .event_type on the control_spec explicitly.
-          input.on("input", @update_graph_settings) # continuous updates
-    @settings.append('div').attr('class', 'buffer_space')
+          #input.on("input", @update_graph_settings) # continuous updates
+          inputElem.addEventListener('input', @update_graph_settings)
+    #$(@settingGroupsContainerElem).accordion()
+    #@settings.append('div').attr('class', 'buffer_space')
     return
 
   update_settings_cursor: (evt) =>
@@ -6780,11 +6836,12 @@ class Huviz
       console.log(cursor_text)
     @settings_cursor.set_text(cursor_text)
 
-  update_graph_settings: (target, update) =>
-    target = target? and target or d3.event.target
-    # event_type = d3.event.type
-    update = not update? and true or update
-    update = not update
+  update_graph_settings: (event) =>
+    @change_graph_settings(event, true)
+    
+  change_graph_settings: (event, update) =>
+    target = event.target
+    update ?= false
     if target.type is "checkbox"
       cooked_value = target.checked
     else if target.type is "range" # must massage into something useful
@@ -6794,7 +6851,7 @@ class Huviz
       cooked_value = target.value
     old_value = @[target.name]
     @change_setting_to_from(target.name, cooked_value, old_value)
-    d3.select(target).attr("title", cooked_value)
+    #d3.select(target).attr("title", cooked_value)
     if update  # TODO be more discriminating, not all settings require update
                #   ones that do: charge, gravity, fisheye_zoom, fisheye_radius
       @update_fisheye()
