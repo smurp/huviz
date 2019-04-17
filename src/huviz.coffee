@@ -200,7 +200,7 @@ int_to_base = (intgr) ->
 synthIdFor = (str) ->
   # return a short random hash suitable for use as DOM/JS id
   return 'h'+int_to_base(hash(str)).substr(0,6)
-
+window.synthIdFor = synthIdFor
 unescape_unicode = (u) ->
   # pre-escape any existing quotes so when JSON.parse does not get confused
   return JSON.parse('"' + u.replace('"', '\\"') + '"')
@@ -3116,7 +3116,7 @@ class Huviz
           objVal = quad.o.value
           simpleType = getTypeSignature(quad.o.type or '') or 'Literal'
           if not objVal?
-            new throw Error("missing value for " + JSON.stringify([subj_uri, pred_uri, quad.o]))
+            throw new Error("missing value for " + JSON.stringify([subj_uri, pred_uri, quad.o]))
           # Does the value have a language or does it contain spaces?
           if quad.o.language or (objVal.match(/\s/g)||[]).length > 0
             # Perhaps an appropriate id for a literal "node" is
@@ -4194,7 +4194,11 @@ class Huviz
     node.lid ?= uniquer(node.id)
     if not node.name?
       # FIXME dereferencing of @ontology.label should be by curie, not lid
-      name = name or @ontology.label[node.lid]
+      # if name is empty string, that is acceptable
+      # if no name is provided, we use the label from the ontology if available
+      if not name?
+        name = @ontology.label[node.lid] or node.lid
+      #name = name? and name or @ontology.label[node.lid]
       # null name this will cause a made-up name to be applied
       @set_name(node, name)
     return node
@@ -6178,7 +6182,7 @@ class Huviz
         input:
           #checked: "checked"
           type: "checkbox"
-        style: "color:orange"
+        style: "background:yello"
     ,
       focused_mag:
         group: "Sizing"
@@ -6547,7 +6551,7 @@ class Huviz
         event_type: "change"
     ,
       show_hide_endpoint_loading:
-        style: "color:orange"
+        style: "background:yellow"
         text: "Show SPARQL endpoint loading forms"
         label:
           title: "Show SPARQL endpoint interface for querying for nodes"
@@ -6556,7 +6560,7 @@ class Huviz
     ,
       show_hide_performance_monitor:
         group: "Debugging"
-        style: "color:orange"
+        style: "background:yellow"
         text: "Show Performance Monitor"
         label:
           title: "Feedback on what HuViz is doing"
@@ -6608,7 +6612,7 @@ class Huviz
     ,
       debug_shelf_angles_and_flipping:
         group: "Debugging"
-        style: "color:orange;display:none"
+        style: "background:yellow;display:none"
         text: "debug shelf angles and flipping"
         label:
           title: "show angles and flags with labels"
@@ -6638,7 +6642,7 @@ class Huviz
     ,
       discover_geonames_as:
         group: "Geonames"
-        html_text: '<a href="http://www.geonames.org/login" target="geonamesAcct">GeoNames</a> Username '
+        html_text: '<a href="http://www.geonames.org/login" target="geonamesAcct">Username</a> '
         label:
           title: "The GeoNames Username to look up geonames as"
         input:
@@ -6694,7 +6698,7 @@ class Huviz
           #checked: "checked"
     ,
       show_edges:
-        style: "color:red"
+        style: "background:yellow"
         text: "Show Edges"
         label:
           title: "Do draw edges"
@@ -6703,7 +6707,7 @@ class Huviz
           checked: "checked"
     ,
       single_chosen:
-        style: "color:red"
+        style: "background:yellow"
         text: "Single Active Node"
         label:
           title: "Only use verbs which have one chosen node at a time"
@@ -6713,7 +6717,7 @@ class Huviz
     ,
       show_images_in_nodes:
         group: "Images"
-        style: "color:red"
+        style: "background:yellow"
         text: "Show Images in Nodes"
         label:
           title: "Show images in nodes when available"
@@ -6722,7 +6726,7 @@ class Huviz
     ,
       show_thumbs_dont_graph:
         group: "Images"
-        style: "color:red"
+        style: "background:yellow"
         text: "Show thumbnails, don't graph"
         label:
           title: "Treat dbpedia:thumbnail and foaf:thumbnail as images, not graph data"
