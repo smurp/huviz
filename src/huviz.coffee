@@ -200,7 +200,7 @@ int_to_base = (intgr) ->
 synthIdFor = (str) ->
   # return a short random hash suitable for use as DOM/JS id
   return 'h'+int_to_base(hash(str)).substr(0,6)
-
+window.synthIdFor = synthIdFor
 unescape_unicode = (u) ->
   # pre-escape any existing quotes so when JSON.parse does not get confused
   return JSON.parse('"' + u.replace('"', '\\"') + '"')
@@ -3116,7 +3116,7 @@ class Huviz
           objVal = quad.o.value
           simpleType = getTypeSignature(quad.o.type or '') or 'Literal'
           if not objVal?
-            new throw Error("missing value for " + JSON.stringify([subj_uri, pred_uri, quad.o]))
+            throw new Error("missing value for " + JSON.stringify([subj_uri, pred_uri, quad.o]))
           # Does the value have a language or does it contain spaces?
           if quad.o.language or (objVal.match(/\s/g)||[]).length > 0
             # Perhaps an appropriate id for a literal "node" is
@@ -4194,7 +4194,11 @@ class Huviz
     node.lid ?= uniquer(node.id)
     if not node.name?
       # FIXME dereferencing of @ontology.label should be by curie, not lid
-      name = name or @ontology.label[node.lid]
+      # if name is empty string, that is acceptable
+      # if no name is provided, we use the label from the ontology if available
+      if not name?
+        name = @ontology.label[node.lid] or node.lid
+      #name = name? and name or @ontology.label[node.lid]
       # null name this will cause a made-up name to be applied
       @set_name(node, name)
     return node
