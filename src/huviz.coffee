@@ -6642,7 +6642,7 @@ class Huviz
     ,
       discover_geonames_as:
         group: "Geonames"
-        html_text: '<a href="http://www.geonames.org/login" target="geonamesAcct">GeoNames</a> Username '
+        html_text: '<a href="http://www.geonames.org/login" target="geonamesAcct">Username</a> '
         label:
           title: "The GeoNames Username to look up geonames as"
         input:
