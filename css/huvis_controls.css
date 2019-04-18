@@ -188,7 +188,10 @@ button[name='reset_controls_to_default'] {
   float: right;
   clear: both;
 }
-
+.a_setting.alpha_feature {
+  color: #a1001c;
+  font-style: italic;
+}
 
 .huviz_tabs .huvis_controls {
     padding: 0.4em;
