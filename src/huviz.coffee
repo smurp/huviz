@@ -6551,7 +6551,7 @@ class Huviz
         event_type: "change"
     ,
       show_hide_endpoint_loading:
-        style: "background:yellow"
+        class: "alpha_feature"
         text: "Show SPARQL endpoint loading forms"
         label:
           title: "Show SPARQL endpoint interface for querying for nodes"
@@ -6560,7 +6560,7 @@ class Huviz
     ,
       show_hide_performance_monitor:
         group: "Debugging"
-        style: "background:yellow"
+        class: "alpha_feature"
         text: "Show Performance Monitor"
         label:
           title: "Feedback on what HuViz is doing"
@@ -6612,7 +6612,8 @@ class Huviz
     ,
       debug_shelf_angles_and_flipping:
         group: "Debugging"
-        style: "background:yellow;display:none"
+        class: "alpha_feature"
+        style: "display:none"
         text: "debug shelf angles and flipping"
         label:
           title: "show angles and flags with labels"
@@ -6698,7 +6699,7 @@ class Huviz
           #checked: "checked"
     ,
       show_edges:
-        style: "background:yellow"
+        class: "alpha_feature"
         text: "Show Edges"
         label:
           title: "Do draw edges"
@@ -6707,7 +6708,7 @@ class Huviz
           checked: "checked"
     ,
       single_chosen:
-        style: "background:yellow"
+        class: "alpha_feature"
         text: "Single Active Node"
         label:
           title: "Only use verbs which have one chosen node at a time"
@@ -6717,7 +6718,7 @@ class Huviz
     ,
       show_images_in_nodes:
         group: "Images"
-        style: "background:yellow"
+        class: "alpha_feature"
         text: "Show Images in Nodes"
         label:
           title: "Show images in nodes when available"
@@ -6726,7 +6727,7 @@ class Huviz
     ,
       show_thumbs_dont_graph:
         group: "Images"
-        style: "background:yellow"
+        class: "alpha_feature"
         text: "Show thumbnails, don't graph"
         label:
           title: "Treat dbpedia:thumbnail and foaf:thumbnail as images, not graph data"
@@ -6781,8 +6782,9 @@ class Huviz
         if control.style?
           controlElem.setAttribute('style', control.style)
         if control.class?
-          graph_control.attr('class', 'graph_control ' + control.class)
-          controlElem.setAttribute('class', control.class)
+          #graph_control.attr('class', 'graph_control ' + control.class)
+          #controlElem.addAttribute('class', control.class)
+          controlElem.classList.add(control.class)
         if control.input.type is 'select'
           inputElem = @insertBeforeEnd(controlElem, """<select></select>""")
           for optIdx, opt of control.options
