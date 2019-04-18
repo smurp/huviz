@@ -6382,7 +6382,7 @@ class Huviz
           title: "how much curvature lines have"
         input:
           value: 0.22
-          min: 0.001
+          min: -1.0
           max: 1.0
           step: 0.01
           type: "range"
