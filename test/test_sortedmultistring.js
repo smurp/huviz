@@ -16,7 +16,10 @@ var as_labels = function(acc, obj) {
   //console.log("as_labels(acc:",acc,'obj:', ''+obj, ") ==>", retval);
   return ''+retval;
 };
-
+var get_random_element = function(array) {
+  var idx = Math.trunc(Math.random()*array.length);
+  return array[idx];
+}
 global.window = {SORTLOG: false}
 console.groupCollapsed = function(){}
 console.groupEnd = function(){}
@@ -136,6 +139,106 @@ describe("MultiString and SortedSet work together", function() {
     expect(pets.reduce(as_labels)).to.eql(
       "dog;horse",
       "changing a node's name does not change its sort position");
+  });
+  it("random insertion and removal of MultiStrings", function() {
+    MultiString.set_langpath('en:ANY:NOLANG');
+    var rand = SortedSet().sort_on('name');
+    rand.case_insensitive_sort(true);
+    var all = [];
+    for (var i=0; i < 1000; i++) {
+      var id =  Math.random().toString(36).substr(2,10);
+      var enLabel =  Math.random().toString(36).substr(2,10);
+      var frLabel =  Math.random().toString(36).substr(2,10);
+      var nolangLabel = Math.random().toString(36).substr(2,10);
+      all.push(id);
+      var ms = new MultiString(nolangLabel);
+      ms.set_val_lang(frLabel, 'fr');
+      ms.set_val_lang(enLabel, 'en');
+      rand.add({lid: id, name: ms});
+      if (i % 3 == 0) { // one out of X insertions, do a removal
+        var randIdx = Math.round(Math.random() * all.length);
+        var rmId = all.pop(randIdx);
+        var dud = rand.remove(rmId);
+        //console.log('randIdx:',randIdx, 'rmId:',rmId, 'dud:',dud);
+      }
+    }
+    console.log('langpath:en INITIAL');
+    rand.dump();
+
+    console.log('langpath:fr');
+    MultiString.set_langpath('fr:ANY:NOLANG');
+    rand.resort();
+    rand.dump();
+
+    console.log('langpath:en');
+    MultiString.set_langpath('en:ANY:NOLANG');
+    rand.resort();
+    rand.dump();
+  });
+  it("random name arrival of MultiStrings", function() {
+    MultiString.set_langpath('en:ANY:NOLANG');
+    var languages = ['en', 'fr', 'de', null];
+    var all = SortedSet().sort_on('id').named('all');
+    var embryo = SortedSet().sort_on('id').named('embryo').isFlag();
+    var shelved = SortedSet().sort_on('name').case_insensitive_sort(true).sub_of(all).isState();
+    var node, randLang, randName, randTask, randType;
+    var ids = [];
+    var types = ['Pig', 'Dog', 'Horse'];
+    var tasks = 'new name name hatch'.split(' '); // ie things get on average two names and things generally hatch
+    for (var i=0; i < 100; i++) {
+      randTask = get_random_element(tasks);
+      randType = get_random_element(types);
+      randLang = languages[Math.round(Math.random()*3)];
+      randName = Math.random().toString(36).substr(2,10);
+      console.log(randTask,i);
+      if (randTask == 'name') {
+        // add a new name to an existing node
+        node = get_random_element(shelved);
+        if (!node) {
+          break;
+        }
+        if (node.name) {
+          node.name.set_val_lang(randName, randLang);
+        } else {
+          node.name = new MultiString(randName, randLang);
+        }
+      } else if (randTask == 'new') {
+        // add a new node
+        const id = Math.random().toString(36).substr(2,10);
+        node = {
+          id: id,
+          lid: id,
+          name: new MultiString(randName, randLang)
+        };
+        ids.push(node.id);
+        all.add(node);
+        embryo.add(node);
+      } else if (randTask == 'hatch') {
+        node = get_random_element(embryo);
+        if (node) {
+          shelved.acquire(node);
+          shelved.resort();
+        }
+      } else {
+        throw new Error('there should be a randTask');
+      }
+    }
+    console.log('langpath:en INITIAL');
+    //all.dump();
+
+    console.log({all: all.length, embryo: embryo.length, shelved: shelved.length});
+    
+    console.log('langpath:fr');
+    MultiString.set_langpath('fr:ANY:NOLANG');
+    shelved.resort();
+    console.log(shelved.name_call());
+    shelved.dump();
+
+    console.log('langpath:en');
+    MultiString.set_langpath('en:ANY:NOLANG');
+    shelved.resort();
+    console.log(shelved.name_call());
+    shelved.dump();
   });
 
 });
