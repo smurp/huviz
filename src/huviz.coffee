@@ -6894,22 +6894,13 @@ class Huviz
       #console.log "change_setting_to_from() setting: #{setting_name} to:#{new_value}(#{typeof new_value}) from:#{old_value}(#{typeof old_value})"
       this[setting_name] = new_value
 
+  # on_change handlers for the various settings which need them
   on_change_use_accordion_for_settings: (new_val, old_val) ->
     if new_val
       $(@settingGroupsContainerElem).accordion()
     else
-      try
-        # How to turn off the accordion once turned on....
-        # https://stackoverflow.com/questions/2754931/jquery-ui-disable-accordion-tab/17800814
-        $(@settingGroupsContainerElem).accordion("option","active",0)
-        # This is not yet working to turn if off..
-        # and it causes this exception which must be trapped if
-        # it gets called before the accordion is turned on, which is
-        # the case if the default is for the accordion to not be on.
-      catch e
-        console.warn(e)
+      console.warn('We do not yet have a solution for turning OFF the Accordion')
 
-  # on_change handlers for the various settings which need them
   on_change_nodes_pinnable: (new_val, old_val) ->
     if not new_val
       if @graphed_set
