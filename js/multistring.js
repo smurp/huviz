@@ -142,7 +142,7 @@ MultiString.set_langpath = function(langpath){
   // so String.prototype methods can get to the value
   MultiString.prototype.toString =
     MultiString.prototype.valueOf =
-      new Function(body);
+    new Function(body);
 };
 
 MultiString.set_langpath('ANY:NOLANG'); // set the default langpath

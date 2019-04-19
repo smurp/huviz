@@ -3118,7 +3118,8 @@ class Huviz
           if not objVal?
             throw new Error("missing value for " + JSON.stringify([subj_uri, pred_uri, quad.o]))
           # Does the value have a language or does it contain spaces?
-          if quad.o.language or (objVal.match(/\s/g)||[]).length > 0
+          objValHasSpaces = (objVal.match(/\s/g)||[]).length > 0
+          if quad.o.language # and objValHasSpaces
             # Perhaps an appropriate id for a literal "node" is
             # some sort of amalgam of the subject and predicate ids
             # for that object.
@@ -3128,8 +3129,23 @@ class Huviz
             # text.  For them to end up on the same MultiString instance
             # they all have to be treated as names for a node with the same
             # id -- hence that id must be composed of the subj and pred ids.
+            # Another perspective on this is that these are different comments
+            # in different languages, so what suggests that they have anything
+            # at all to do with one another?
+            # Further, if (as is the case with these triples)
+            #   Martineau_Harriet hasActivistInvolvementIn "_tariff reform_"
+            #   Martineau_Harriet hasGenderedPoliticalActivity "_tariff reform_"
+            # they SHOULD share the "_tariff reform_" node.
+            #
+            # So, after all this (poorly stated commentary) the uneasy conclusion
+            # is that if a literal value has a language associated with it then
+            # all the alternate language literals associated with that same
+            # subject/predicate combination will be treated as the same literal
+            # node.
             objKey = "#{subj_n.lid} #{pred_uri}"
             objId = synthIdFor(objKey)
+            objId_explanation = "synthIdFor('#{objKey}') = #{objId}"
+            console.warn(objId_explanation)
           else
             objId = synthIdFor(objVal)
           literal_node = @get_or_create_node_by_id(objId, objVal, (isLiteral = true))
@@ -4051,7 +4067,7 @@ class Huviz
     @remove_from(edge,edge.source.links_shown)
     @remove_from(edge,edge.target.links_shown)
     @links_set.remove(edge)
-    console.log("unshowing links from: " + edge.id)
+    #console.log("unshowing links from: " + edge.id)
     edge.unshow() # FIXME make unshow call @update_state WHICH ONE? :)
     @update_state(edge.source)
     @update_state(edge.target)
@@ -6382,7 +6398,7 @@ class Huviz
           title: "how much curvature lines have"
         input:
           value: 0.22
-          min: 0.001
+          min: -1.0
           max: 1.0
           step: 0.01
           type: "range"
@@ -6894,22 +6910,13 @@ class Huviz
       #console.log "change_setting_to_from() setting: #{setting_name} to:#{new_value}(#{typeof new_value}) from:#{old_value}(#{typeof old_value})"
       this[setting_name] = new_value
 
+  # on_change handlers for the various settings which need them
   on_change_use_accordion_for_settings: (new_val, old_val) ->
     if new_val
       $(@settingGroupsContainerElem).accordion()
     else
-      try
-        # How to turn off the accordion once turned on....
-        # https://stackoverflow.com/questions/2754931/jquery-ui-disable-accordion-tab/17800814
-        $(@settingGroupsContainerElem).accordion("option","active",0)
-        # This is not yet working to turn if off..
-        # and it causes this exception which must be trapped if
-        # it gets called before the accordion is turned on, which is
-        # the case if the default is for the accordion to not be on.
-      catch e
-        console.warn(e)
+      console.warn('We do not yet have a solution for turning OFF the Accordion')
 
-  # on_change handlers for the various settings which need them
   on_change_nodes_pinnable: (new_val, old_val) ->
     if not new_val
       if @graphed_set
