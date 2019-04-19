@@ -3118,7 +3118,8 @@ class Huviz
           if not objVal?
             throw new Error("missing value for " + JSON.stringify([subj_uri, pred_uri, quad.o]))
           # Does the value have a language or does it contain spaces?
-          if quad.o.language or (objVal.match(/\s/g)||[]).length > 0
+          objValHasSpaces = (objVal.match(/\s/g)||[]).length > 0
+          if quad.o.language # and objValHasSpaces
             # Perhaps an appropriate id for a literal "node" is
             # some sort of amalgam of the subject and predicate ids
             # for that object.
@@ -3128,8 +3129,23 @@ class Huviz
             # text.  For them to end up on the same MultiString instance
             # they all have to be treated as names for a node with the same
             # id -- hence that id must be composed of the subj and pred ids.
+            # Another perspective on this is that these are different comments
+            # in different languages, so what suggests that they have anything
+            # at all to do with one another?
+            # Further, if (as is the case with these triples)
+            #   Martineau_Harriet hasActivistInvolvementIn "_tariff reform_"
+            #   Martineau_Harriet hasGenderedPoliticalActivity "_tariff reform_"
+            # they SHOULD share the "_tariff reform_" node.
+            #
+            # So, after all this (poorly stated commentary) the uneasy conclusion
+            # is that if a literal value has a language associated with it then
+            # all the alternate language literals associated with that same
+            # subject/predicate combination will be treated as the same literal
+            # node.
             objKey = "#{subj_n.lid} #{pred_uri}"
             objId = synthIdFor(objKey)
+            objId_explanation = "synthIdFor('#{objKey}') = #{objId}"
+            console.warn(objId_explanation)
           else
             objId = synthIdFor(objVal)
           literal_node = @get_or_create_node_by_id(objId, objVal, (isLiteral = true))
@@ -4051,7 +4067,7 @@ class Huviz
     @remove_from(edge,edge.source.links_shown)
     @remove_from(edge,edge.target.links_shown)
     @links_set.remove(edge)
-    console.log("unshowing links from: " + edge.id)
+    #console.log("unshowing links from: " + edge.id)
     edge.unshow() # FIXME make unshow call @update_state WHICH ONE? :)
     @update_state(edge.source)
     @update_state(edge.target)
