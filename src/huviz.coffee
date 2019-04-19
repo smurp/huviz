@@ -447,8 +447,8 @@ class UsernameWidget extends SettingsWidget
 
   constructor: ->
     super(arguments...)
-    @wrap("""<span id="#{@id}" style="border:2px solid; padding:2px"></span>""")
-    @inputElem.setAttribute('style','border:none')
+    @wrap("""<div id="#{@id}" class="geo_input_wrap"></div>""") #  style="border:2px solid; padding:2px
+    #@inputElem.setAttribute('style','border:none')
     @widgetJQElem = $('#'+@id)
     @widgetJQElem.prepend("""<i class="userIcon fa fa-user-alt"></i><i class="stateIcon fa fa-question"></i>""")
     @stateIconJQElem = @widgetJQElem.find('.stateIcon')
@@ -6651,7 +6651,7 @@ class Huviz
           type: "text"
           value: "" # "smurp_nooron"
           size: "14"
-          placeholder: "eg huviz"
+          placeholder: "e.g. huviz"
     ,
       discover_geonames_remaining:
         group: "Geonames"
@@ -7009,8 +7009,8 @@ class Huviz
     else if new_val is "bold1"
       @ontology_watermark_JQElem.css('display', 'none')
     else
-      @topJQElem.find("#graph_custom_main_title").css('display', 'none')
-      @topJQElem.find("#graph_custom_sub_title").css('display', 'none')
+      @topJQElem.find(".graph_custom_main_title__setting").css('display', 'none')
+      @topJQElem.find(".graph_custom_sub_title__setting").css('display', 'none')
       @topJQElem.find("a.git_commit_hash_watermark").css('display', 'inherit')
       @ontology_watermark_JQElem.attr('style', '')
       @update_caption(@data_uri,@onto_uri)

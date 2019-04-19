@@ -188,6 +188,23 @@ button[name='reset_controls_to_default'] {
   float: right;
   clear: both;
 }
+select[name='graph_title_style'] {
+  float: right;
+  clear: both;
+}
+.geo_input_wrap {
+  float: right;
+  clear: both;
+  border:2px solid;
+  padding:2px;
+}
+.geo_input_wrap i{
+  line-height: 1.8em;
+}
+.geo_input_wrap input{
+  margin-left: 5px;
+}
+
 .a_setting.alpha_feature {
   color: #a1001c;
   font-style: italic;
