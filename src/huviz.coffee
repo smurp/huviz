@@ -6579,8 +6579,7 @@ class Huviz
         label:
           title: """Group literals together as a single node when they have
           a language indicated and they share a subject and predicate, on the
-          theory that they are different language versions of the same text.
-          This must be set before data ingestion to take effect."""
+          theory that they are different language versions of the same text."""
         input:
           type: "checkbox"
           checked: "checked"
@@ -6589,8 +6588,7 @@ class Huviz
         group: "Ontological"
         text: "Color nodes as pies"
         label:
-          title: """Show all a nodes types as colored pie pieces.
-          This must be set before data ingestion to take effect."""
+          title: """Show all a nodes types as colored pie pieces."""
         input:
           type: "checkbox"   #checked: "checked"
     ,
