@@ -880,33 +880,34 @@ class Huviz
       if @dragging.state isnt @graphed_set isnt @rightClickHold
         @graphed_set.acquire(@dragging)
 
-    if @dragging and not @rightClickHold
-      @force.resume() # why?
-      if not @args.skip_log_tick
-        console.log "Tick in @force.resume() mousemove"
-      @move_node_to_point(@dragging, @last_mouse_pos)
-      if @edit_mode
-        @text_cursor.pause("", "drop on object node")
-      else
-        if @dragging.links_shown.length is 0
-          action = "choose"
-        else if @dragging.fixed
-          action = "unpin"
+    if not @rightClickHold
+      if @dragging
+        @force.resume() # why?
+        if not @args.skip_log_tick
+          console.log "Tick in @force.resume() mousemove"
+        @move_node_to_point(@dragging, @last_mouse_pos)
+        if @edit_mode
+          @text_cursor.pause("", "drop on object node")
         else
-          action = "pin"
-        if @in_disconnect_dropzone(@dragging)
-          action = "shelve"
-        else if @in_discard_dropzone(@dragging)
-          action = "discard"
-        @text_cursor.pause("", "drop to #{@human_term[action]}")
-    else if not @rightClickHold # ie NOT dragging
-      # TODO put block "if not @dragging and @mousedown_point and @focused_node and distance" here
-      if @edit_mode
-        if @editui.object_node or not @editui.subject_node
-          if @editui.object_datatype_is_literal
-            @text_cursor.set_text("click subject node")
+          if @dragging.links_shown.length is 0
+            action = "choose"
+          else if @dragging.fixed
+            action = "unpin"
           else
-            @text_cursor.set_text("drag subject node")
+            action = "pin"
+          if @in_disconnect_dropzone(@dragging)
+            action = "shelve"
+          else if @in_discard_dropzone(@dragging)
+            action = "discard"
+          @text_cursor.pause("", "drop to #{@human_term[action]}")
+      else
+        # TODO put block "if not @dragging and @mousedown_point and @focused_node and distance" here
+        if @edit_mode
+          if @editui.object_node or not @editui.subject_node
+            if @editui.object_datatype_is_literal
+              @text_cursor.set_text("click subject node")
+            else
+              @text_cursor.set_text("drag subject node")
     if @peeking_node?
       console.log "PEEKING at node: " + @peeking_node.id
       if @focused_node? and @focused_node isnt @peeking_node
