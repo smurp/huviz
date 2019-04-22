@@ -6426,19 +6426,6 @@ class Huviz
           step: 1
           type: "range"
     ,
-      slow_it_down:
-        group: "Debugging"
-        #style: "display:none"
-        text: "Slow it down (sec)"
-        label:
-          title: "execute commands with wait states to simulate long operations"
-        input:
-          value: 0
-          min: 0
-          max: 10
-          step: 0.1
-          type: "range"
-    ,
       snippet_count_on_edge_labels:
         group: "Labels"
         text: "snippet count on edge labels"
@@ -6620,15 +6607,6 @@ class Huviz
         input:
           type: "checkbox"
     ,
-      show_hide_performance_monitor:
-        group: "Debugging"
-        class: "alpha_feature"
-        text: "Show Performance Monitor"
-        label:
-          title: "Feedback on what HuViz is doing"
-        input:
-          type: "checkbox"
-    ,
       graph_title_style:
         group: "Captions"
         text: "Title display "
@@ -6671,16 +6649,6 @@ class Huviz
           type: "text"
           size: "16"
           placeholder: "Enter Sub-title"
-    ,
-      debug_shelf_angles_and_flipping:
-        group: "Debugging"
-        class: "alpha_feature"
-        style: "display:none"
-        text: "debug shelf angles and flipping"
-        label:
-          title: "show angles and flags with labels"
-        input:
-          type: "checkbox"   #checked: "checked"
     ,
       discover_geonames_as:
         group: "Geonames"
@@ -6730,15 +6698,6 @@ class Huviz
           type: "checkbox"
           #checked: "checked"
     ,
-      show_hunt_verb:
-        style: "display:none"
-        text: "Show Hunt verb"
-        label:
-          title: "Show the Hunt verb"
-        input:
-          type: "checkbox"
-          #checked: "checked"
-    ,
       show_edges:
         class: "alpha_feature"
         text: "Show Edges"
@@ -6774,6 +6733,47 @@ class Huviz
           title: "Treat dbpedia:thumbnail and foaf:thumbnail as images, not graph data"
         input:
           type: "checkbox"
+    ,
+      debug_shelf_angles_and_flipping:
+        group: "Debugging"
+        class: "alpha_feature"
+        text: "debug shelf angles and flipping"
+        label:
+          title: "show angles and flags with labels"
+        input:
+          type: "checkbox"   #checked: "checked"
+    ,
+      show_hide_performance_monitor:
+        group: "Debugging"
+        class: "alpha_feature"
+        text: "Show Performance Monitor"
+        label:
+          title: "Feedback on what HuViz is doing"
+        input:
+          type: "checkbox"
+    ,
+      slow_it_down:
+        group: "Debugging"
+        class: "alpha_feature"
+        text: "Slow it down (sec)"
+        label:
+          title: "execute commands with wait states to simulate long operations"
+        input:
+          value: 0
+          min: 0
+          max: 10
+          step: 0.1
+          type: "range"
+    ,
+      show_hunt_verb:
+        group: "Debugging"
+        class: "alpha_feature"
+        text: "Show Hunt verb"
+        label:
+          title: "Expose the 'Hunt' verb, for demonstration of SortedSet.binary_search()"
+        input:
+          type: "checkbox"
+          #checked: "checked"
     ]
 
   dump_current_settings: (post) =>
