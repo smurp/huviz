@@ -547,7 +547,7 @@ a.git_commit_hash_watermark {
 }
 
 .theme_black .label {
-  color: #ddd;
+  /* color: #ddd; */
 }
 
 /* change label color in command panel */
