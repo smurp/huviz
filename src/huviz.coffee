@@ -880,33 +880,34 @@ class Huviz
       if @dragging.state isnt @graphed_set isnt @rightClickHold
         @graphed_set.acquire(@dragging)
 
-    if @dragging and not @rightClickHold
-      @force.resume() # why?
-      if not @args.skip_log_tick
-        console.log "Tick in @force.resume() mousemove"
-      @move_node_to_point(@dragging, @last_mouse_pos)
-      if @edit_mode
-        @text_cursor.pause("", "drop on object node")
-      else
-        if @dragging.links_shown.length is 0
-          action = "choose"
-        else if @dragging.fixed
-          action = "unpin"
+    if not @rightClickHold
+      if @dragging
+        @force.resume() # why?
+        if not @args.skip_log_tick
+          console.log "Tick in @force.resume() mousemove"
+        @move_node_to_point(@dragging, @last_mouse_pos)
+        if @edit_mode
+          @text_cursor.pause("", "drop on object node")
         else
-          action = "pin"
-        if @in_disconnect_dropzone(@dragging)
-          action = "shelve"
-        else if @in_discard_dropzone(@dragging)
-          action = "discard"
-        @text_cursor.pause("", "drop to #{@human_term[action]}")
-    else if not @rightClickHold # ie NOT dragging
-      # TODO put block "if not @dragging and @mousedown_point and @focused_node and distance" here
-      if @edit_mode
-        if @editui.object_node or not @editui.subject_node
-          if @editui.object_datatype_is_literal
-            @text_cursor.set_text("click subject node")
+          if @dragging.links_shown.length is 0
+            action = "choose"
+          else if @dragging.fixed
+            action = "unpin"
           else
-            @text_cursor.set_text("drag subject node")
+            action = "pin"
+          if @in_disconnect_dropzone(@dragging)
+            action = "shelve"
+          else if @in_discard_dropzone(@dragging)
+            action = "discard"
+          @text_cursor.pause("", "drop to #{@human_term[action]}")
+      else
+        # TODO put block "if not @dragging and @mousedown_point and @focused_node and distance" here
+        if @edit_mode
+          if @editui.object_node or not @editui.subject_node
+            if @editui.object_datatype_is_literal
+              @text_cursor.set_text("click subject node")
+            else
+              @text_cursor.set_text("drag subject node")
     if @peeking_node?
       console.log "PEEKING at node: " + @peeking_node.id
       if @focused_node? and @focused_node isnt @peeking_node
@@ -3118,8 +3119,8 @@ class Huviz
           if not objVal?
             throw new Error("missing value for " + JSON.stringify([subj_uri, pred_uri, quad.o]))
           # Does the value have a language or does it contain spaces?
-          objValHasSpaces = (objVal.match(/\s/g)||[]).length > 0
-          if quad.o.language # and objValHasSpaces
+          #objValHasSpaces = (objVal.match(/\s/g)||[]).length > 0
+          if quad.o.language and @group_literals_by_subj_and_pred
             # Perhaps an appropriate id for a literal "node" is
             # some sort of amalgam of the subject and predicate ids
             # for that object.
@@ -6529,11 +6530,66 @@ class Huviz
           step: 0.25
           type: "range"
     ,
+      language_path:
+        group: "Ontological"
+        text: "Language Path"
+        label:
+          title: """Using ':' as separator and with ANY and NOLANG as possible values,
+            a list of the languages to expose, in order of preference.
+            Examples: "en:fr" means show English before French or nothing;
+            "ANY:en" means show any language before showing English;
+            "en:ANY:NOLANG" means show English if available, then any other
+            language, then finally labels in no declared language.
+            """
+        input:
+          type: "text"
+          # TODO tidy up -- use browser default language then English
+          value: (window.navigator.language.substr(0,2) + ":en:ANY:NOLANG").replace("en:en:","en:")
+          size: "16"
+          placeholder: "en:es:fr:de:ANY:NOLANG"
+    ,
+      ontological_settings_preamble:
+        group: "Ontological"
+        text: "Set before data ingestion..."
+        label:
+          title: """The following settings must be adjusted before
+            data ingestion for them to take effect."""
+    ,
+      show_class_instance_edges:
+        group: "Ontological"
+        text: "Show class-instance relationships"
+        label:
+          title: "display the class-instance relationship as an edge"
+        input:
+          type: "checkbox"
+          #checked: "checked"
+    ,
+      make_nodes_for_literals:
+        group: "Ontological"
+        text: "Make nodes for literals"
+        label:
+          title: "show literal values (dates, strings, numbers) as nodes"
+        input:
+          type: "checkbox"
+          checked: "checked"
+        event_type: "change"
+    ,
+      group_literals_by_subj_and_pred:
+        group: "Ontological"
+        text: "Group literals by subject & predicate"
+        label:
+          title: """Group literals together as a single node when they have
+          a language indicated and they share a subject and predicate, on the
+          theory that they are different language versions of the same text."""
+        input:
+          type: "checkbox"
+          checked: "checked"
+    ,
       color_nodes_as_pies:
         group: "Ontological"
         text: "Color nodes as pies"
         label:
-          title: "Show all a nodes types as colored pie pieces"
+          title: """Show all a nodes types as colored pie pieces."""
         input:
           type: "checkbox"   #checked: "checked"
     ,
@@ -6555,16 +6611,6 @@ class Huviz
             label: "Non-directional (unpruned)"
             value: "hairy_path"
         ]
-    ,
-      make_nodes_for_literals:
-        group: "Ontological"
-        text: "Make nodes for literals"
-        label:
-          title: "show literal values (dates, strings, numbers) as nodes"
-        input:
-          type: "checkbox"
-          checked: "checked"
-        event_type: "change"
     ,
       show_hide_endpoint_loading:
         class: "alpha_feature"
@@ -6635,27 +6681,6 @@ class Huviz
           title: "show angles and flags with labels"
         input:
           type: "checkbox"   #checked: "checked"
-    ,
-      language_path:
-        group: "Ontological"
-        text: "Language Path"
-        label:
-          title: "Preferred languages in order, with : separator."
-        input:
-          type: "text"
-          # TODO tidy up -- use browser default language then English
-          value: (window.navigator.language.substr(0,2) + ":en:ANY:NOLANG").replace("en:en:","en:")
-          size: "16"
-          placeholder: "en:es:fr:de:ANY:NOLANG"
-    ,
-      show_class_instance_edges:
-        group: "Ontological"
-        text: "Show class-instance relationships"
-        label:
-          title: "display the class-instance relationship as an edge"
-        input:
-          type: "checkbox"
-          #checked: "checked"
     ,
       discover_geonames_as:
         group: "Geonames"
@@ -6801,25 +6826,25 @@ class Huviz
           #graph_control.attr('class', 'graph_control ' + control.class)
           #controlElem.addAttribute('class', control.class)
           controlElem.classList.add(control.class)
-        if control.input.type is 'select'
-          inputElem = @insertBeforeEnd(controlElem, """<select></select>""")
-          for optIdx, opt of control.options
-            optionElem = @insertBeforeEnd(inputElem, """<option value="#{opt.value}"></option>""")
-            if opt.selected
-              optionElem.setAttribute('selected','selected')
-            if opt.label?
-              optionElem.innerHTML = opt.label
-        else if control.input.type is 'button'
-          inputElem = @insertBeforeEnd(controlElem, """<button type="button">(should set label)</button>""")
-          if control.input.label?
-            inputElem.innerHTML = control.input.label
-          if control.input.style?
-            inputElem.setAttribute('style', control.input.style)
-          inputElem.onClick = @dump_current_settings
-        else
-          inputElem = @insertBeforeEnd(controlElem, """<input name="#{control_name}"></input>""")
-          WidgetClass = null
-          if control.input?
+        if control.input?
+          if control.input.type is 'select'
+            inputElem = @insertBeforeEnd(controlElem, """<select></select>""")
+            for optIdx, opt of control.options
+              optionElem = @insertBeforeEnd(inputElem, """<option value="#{opt.value}"></option>""")
+              if opt.selected
+                optionElem.setAttribute('selected','selected')
+              if opt.label?
+                optionElem.innerHTML = opt.label
+          else if control.input.type is 'button'
+            inputElem = @insertBeforeEnd(controlElem, """<button type="button">(should set label)</button>""")
+            if control.input.label?
+              inputElem.innerHTML = control.input.label
+            if control.input.style?
+              inputElem.setAttribute('style', control.input.style)
+            inputElem.onClick = @dump_current_settings
+          else
+            inputElem = @insertBeforeEnd(controlElem, """<input name="#{control_name}"></input>""")
+            WidgetClass = null
             for k,v of control.input
               if k is 'jsWidgetClass'
                 WidgetClass = v
@@ -6830,28 +6855,28 @@ class Huviz
               inputElem.setAttribute(k, v)
             if WidgetClass
               @[control_name + '__widget'] = new WidgetClass(this, inputElem)
-          if control.input.type is 'checkbox'
-            value = control.input.checked?
-            @change_setting_to_from(control_name, value, undefined) #@[control_name].checked)
-          # TODO replace control.event_type with autodetecting on_change_ vs on_update_ method existence
-        inputElem.setAttribute('id', inputId)
-        inputElem.setAttribute('name', control_name)
+            if control.input.type is 'checkbox'
+              value = control.input.checked?
+              @change_setting_to_from(control_name, value, undefined) #@[control_name].checked)
+            # TODO replace control.event_type with autodetecting on_change_ vs on_update_ method existence
+          inputElem.setAttribute('id', inputId)
+          inputElem.setAttribute('name', control_name)
+          event_type = control.event_type or
+              (control.input.type in ['checkbox','range','radio'] and 'input') or
+              'change'
+          if event_type is 'change'
+            # These controls only update when enter is pressed or the focus changes.
+            # Good for things like text fields which might not make sense until the user is 'done'.
+            #input.on("change", @update_graph_settings)
+            inputElem.addEventListener('change', @change_graph_settings)
+          else
+            # These controls get continuously updated.
+            # Good for range sliders, radiobuttons and checkboxes.
+            # This can be forced by setting the .event_type on the control_spec explicitly.
+            #input.on("input", @update_graph_settings) # continuous updates
+            inputElem.addEventListener('input', @update_graph_settings)
         if control.label.title?
           @insertBeforeEnd(controlElem, '<div class="setting_explanation">' + control.label.title + '</div>')
-        event_type = control.event_type or
-            (control.input.type in ['checkbox','range','radio'] and 'input') or
-            'change'
-        if event_type is 'change'
-          # These controls only update when enter is pressed or the focus changes.
-          # Good for things like text fields which might not make sense until the user is 'done'.
-          #input.on("change", @update_graph_settings)
-          inputElem.addEventListener('change', @change_graph_settings)
-        else
-          # These controls get continuously updated.
-          # Good for range sliders, radiobuttons and checkboxes.
-          # This can be forced by setting the .event_type on the control_spec explicitly.
-          #input.on("input", @update_graph_settings) # continuous updates
-          inputElem.addEventListener('input', @update_graph_settings)
     #$(@settingGroupsContainerElem).accordion()
     #@settings.append('div').attr('class', 'buffer_space')
     @insertBeforeEnd(@settingsElem, """<div class="buffer_space"></div>""")
