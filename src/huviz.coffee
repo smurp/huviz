@@ -6202,7 +6202,7 @@ class Huviz
         style: "background:yello"
     ,
       focused_mag:
-        group: "Sizing"
+        group: "Labels"
         text: "focused label mag"
         input:
           value: 1.4
@@ -6214,7 +6214,7 @@ class Huviz
           title: "the amount bigger than a normal label the currently focused one is"
     ,
       selected_mag:
-        group: "Sizing"
+        group: "Labels"
         text: "selected node mag"
         input:
           value: 1.5
@@ -6226,7 +6226,7 @@ class Huviz
           title: "the amount bigger than a normal node the currently selected ones are"
     ,
       label_em:
-        group: "Sizing"
+        group: "Labels"
         text: "label size (em)"
         label:
           title: "the size of the font"
@@ -6249,7 +6249,7 @@ class Huviz
       #    type: "range"
     #,
       snippet_triple_em:
-        group: "Sizing"
+        group: "Labels"
         text: "snippet triple (em)"
         label:
           title: "the size of the snippet triples"
