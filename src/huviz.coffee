@@ -955,8 +955,7 @@ class Huviz
       return
     # if something was being dragged then handle the drop
     if @dragging
-      
-      #console.log "STOPPING_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
+      #@log_mouse_activity('FINISH A DRAG')
       @move_node_to_point(@dragging, point)
       if @in_discard_dropzone(@dragging)
         @run_verb_on_object('discard', @dragging)
@@ -1014,6 +1013,9 @@ class Huviz
       @restart()
 
     return
+
+  log_mouse_activity: (label) ->
+    console.log(label,"\n  dragging", @dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node)
 
   mouseright: () =>
     d3.event.preventDefault()
@@ -6756,9 +6758,10 @@ class Huviz
         class: "alpha_feature"
         text: "Show Images in Nodes"
         label:
-          title: "Show images in nodes when available"
+          title: "Show dbpedia:thumbnail and foaf:thumbnail in nodes when available"
         input:
           type: "checkbox"
+          checked: "checked"
     ,
       show_thumbs_dont_graph:
         group: "Images"
@@ -6768,6 +6771,7 @@ class Huviz
           title: "Treat dbpedia:thumbnail and foaf:thumbnail as images, not graph data"
         input:
           type: "checkbox"
+          checked: "checked"
     ,
       debug_shelf_angles_and_flipping:
         group: "Debugging"
