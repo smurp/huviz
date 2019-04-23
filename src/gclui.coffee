@@ -1192,6 +1192,7 @@ class CommandController
     @verb_pretty_name['hunt'] = @huviz.human_term.hunt
     @verb_pretty_name['draw'] = @huviz.human_term.draw
     @verb_pretty_name['undraw'] = @huviz.human_term.undraw
+    return alternatives
   get_verbs_overridden_by: (verb_id) ->
     override = @verbs_override[verb_id] || []
     for vset in @verb_sets

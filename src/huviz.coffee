@@ -508,6 +508,11 @@ orlando_human_term =
   load: 'Load'
   draw: 'Draw'
   undraw: 'Undraw'
+  connect: 'Connect'
+  spawn: 'Spawn'
+  specialize: 'Specialize'
+  annotate: 'Annotate'
+  seeking_object: 'Object node'
 
 class Huviz
   class_list: [] # FIXME remove
@@ -849,6 +854,13 @@ class Huviz
     @topJQElem.find(".doit_button").trigger("click")
     return @
 
+  make_cursor_text_while_dragging: (action) ->
+    if action in ['seeking_object']
+      drag_or_drop = 'drag'
+    else
+      drag_or_drop = 'drop'
+    return "#{@human_term[drag_or_drop] or drag_or_drop} to #{@human_term[action] or action}"
+
   mousemove: =>
     d3_event = @mouse_receiver[0][0]
     @last_mouse_pos = d3.mouse(d3_event)
@@ -895,11 +907,14 @@ class Huviz
             action = "unpin"
           else
             action = "pin"
-          if @in_disconnect_dropzone(@dragging)
+          if (edit_state = @editui.get_state()) isnt 'not_editing'
+            action = edit_state
+          else if @in_disconnect_dropzone(@dragging)
             action = "shelve"
           else if @in_discard_dropzone(@dragging)
             action = "discard"
-          @text_cursor.pause("", "drop to #{@human_term[action]}")
+          cursor_text = @make_cursor_text_while_dragging(action)
+          @text_cursor.pause("", cursor_text)
       else
         # TODO put block "if not @dragging and @mousedown_point and @focused_node and distance" here
         if @edit_mode
@@ -940,6 +955,7 @@ class Huviz
       return
     # if something was being dragged then handle the drop
     if @dragging
+      
       #console.log "STOPPING_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
       @move_node_to_point(@dragging, point)
       if @in_discard_dropzone(@dragging)
@@ -4249,10 +4265,12 @@ class Huviz
     @pfm_count('hatch')
     node
 
-  # TODO: remove this method
-  get_or_create_node: (subject, start_point, linked) ->
-    linked = false
-    @get_or_make_node subject,start_point,linked
+  get_or_create_transient_node: (subjNode, point) ->
+    transient_id = '_:_transient'
+    transient_node = @get_or_create_node_by_id(transient_id, (name = "↪"), (isLiteral = false))
+    @move_node_to_point(transient_node, {x: subjNode.x, y: subjNode.y})
+    transient_node.radius = 20
+    return transient_node
 
   # TODO: remove this method
   make_nodes: (g, limit) ->
@@ -4619,6 +4637,19 @@ class Huviz
       node.unselect()
       @recolor_node(node)
     return
+
+  # These are the EDITING VERBS: connect, spawn, specialize and annotate
+  connect: (node) ->
+    if node isnt @focused_node
+      console.info("connect('#{node.lid}') SKIPPING because it is not the focused node")
+      return
+    @editui.set_state('seeking_object')
+    @editui.set_subject_node(node)
+    @transient_node = @get_or_create_transient_node(node)
+    @editui.set_object_node(@transient_node)
+    @dragging = @transient_node
+    console.log(@transient_node.state.id)
+    #alert("connect('#{node.lid}')")
 
   set_unique_color: (uniqcolor, set, node) ->
     set.uniqcolor ?= {}
@@ -6180,6 +6211,10 @@ class Huviz
     wander: 'WANDER'
     draw: 'DRAW'
     undraw: 'UNDRAW'
+    connect: 'CONNECT'
+    spawn: 'SPAWN'
+    specialize: 'SPECIALIZE'
+    annotate: 'ANNOTATE'
 
   # TODO add controls
   #   selected_border_thickness
