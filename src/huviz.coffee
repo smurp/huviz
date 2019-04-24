@@ -6728,6 +6728,7 @@ class Huviz
           #checked: "checked"
     ,
       show_edge_labels_adjacent_to_labelled_nodes:
+        group: "Labels"
         text: "Show adjacent edge labels"
         label:
           title: "Show edge labels adjacent to labelled nodes"
