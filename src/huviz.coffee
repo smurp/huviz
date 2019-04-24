@@ -474,6 +474,30 @@ class GeoUserNameWidget extends UsernameWidget
     @stateIconJQElem.on('click', @huviz.show_geonames_instructions)
     @userIconJQElem.on('click', @huviz.show_geonames_instructions)
 
+
+# FiniteStateMachine has states and transitions between them with custom handlers
+#
+# Transitions are POJOs (Plain Old Javascript Objects) with keys:
+#   id, targetState, handler and (optionally) sourceState
+class FiniteStateMachine
+  constructor: (@id, @transitions) ->
+  set_state: (state) ->
+    @state = state
+  transit: (trans_id) ->
+    transition = @transitions[trans_id]
+    if transition
+      if (handler = transition.handler)
+        handler.call()
+      else
+        throw new Error("FiniteStateMachine #{@id} has no .handler")
+      if (targetState = transition.targetState)
+        @setState(targetState)
+      else
+        throw new Error("FiniteStateMachine #{@id} has no .targetState")
+      return
+    else
+      throw new Error("FiniteStateMachine #{@id} has no transition with id #{trans_id}")
+
 orlando_human_term =
   all: 'All'
   chosen: 'Activated'
@@ -5611,6 +5635,8 @@ class Huviz
   init_editc_or_not: ->
     if @args.show_edit
       @editui ?= new EditController(@)
+    #if @args.start_in_edit_mode
+    #  @editui.set_state('
 
   set_edit_mode: (mode) ->
     @edit_mode = mode
