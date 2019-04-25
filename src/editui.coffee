@@ -1,15 +1,27 @@
 # Edit UI - Jan 2017
 
+FiniteStateMachine = require('fsm').FiniteStateMachine
 indexdDBstore = require('indexeddbstoragecontroller')
 
-
-class EditController
+class EditController extends FiniteStateMachine
   constructor: (@huviz) ->
     #TODO EditController should be loaded and checked when a dataset is loaded
     @userValid = true #TODO this needs to be hooked into authentication -- remove to huviz.coffee to validate against dataloaded and authentication
     #@userValid = false
-    @set_state('not_editing')
     @ensure_verbs()
+    @build_transitions()
+    @state = null
+
+  build_transitions: ->
+    @transitions =
+      prepare:
+        target: 'prepared'
+      disable:
+        target: 'disabled'
+      enable:
+        target: 'prepared'
+
+  on__prepare: =>
     if @userValid is true and not @con #document.getElementsByClassName("edit-controls")[0] is undefined
       @con = document.createElement("div")
       @con.className = "edit-controls loggedIn"
@@ -38,7 +50,15 @@ class EditController
       @predicate_input = @formFields[1]
       @object_input = @formFields[2]
 
-  get_verb_set: ->
+  on__disable: =>
+    @hide_verbs()
+    @hide_form()
+
+  on__enable: =>
+    @show_verbs()
+    @show_form()
+
+  get_verb_set: =>
     return {
       connect: @huviz.human_term.connect # aka link
       spawn: @huviz.human_term.spawn # aka instantiate
@@ -46,28 +66,21 @@ class EditController
       annotate: @huviz.human_term.annotate
       }
 
-  add_verbs: ->
+  add_verbs: =>
     vset = @get_verb_set()
     @huviz.gclui.verb_sets.unshift(vset)
     @huviz.gclui.add_verb_set(vset, (prepend = true))
 
-  ensure_verbs: ->
+  ensure_verbs: =>
     if not @my_verbs
       @my_verbs = @add_verbs()
       @hide_verbs()
 
-  hide_verbs: ->
+  hide_verbs: =>
     @my_verbs.style('display','none')
 
-  show_verbs: ->
+  show_verbs: =>
     @my_verbs.style('display','flex')
-
-  set_state: (state) ->
-    @state = state
-    return
-
-  get_state: ->
-    return @state
 
   create_edit_form: (toggleEdit) ->
     formNode = document.createElement('form')
@@ -108,19 +121,25 @@ class EditController
     console.log("#{new_pred_value} is new predicate")
     @validate_proposed_edge()
 
+  hide_form: =>
+    @con.setAttribute("edit","no")
+    @con.classList.remove("edit-mode")
+    @huviz.set_edit_mode(false)
+
+  show_form: =>
+    @con.setAttribute("edit","yes")
+    @con.classList.add("edit-mode")
+    @huviz.set_edit_mode(true)
+
   toggle_edit_form: () =>
     toggleEditMode = @con.getAttribute("edit")
     #debugger
     if toggleEditMode is 'no' #toggle switched to edit mode, then show form
       @show_verbs()
-      @con.setAttribute("edit","yes")
-      @con.classList.add("edit-mode")
-      @huviz.set_edit_mode(true)
+      @show_form()
     if toggleEditMode is 'yes' #toggle switched to normal mode, then hide form
       @hide_verbs()
-      @con.setAttribute("edit","no")
-      @con.classList.remove("edit-mode")
-      @huviz.set_edit_mode(false)
+      @hide_form()
 
   validate_edit_form: (evt) =>
     form = @controls
@@ -283,6 +302,5 @@ class EditController
       @huviz.delete_edge(old_edge)
       #delete @huviz.edges_by_id[old_edge]
     @proposed_quad = null
-
 
   (exports ? this).EditController = EditController

@@ -114,6 +114,7 @@ gcl = require('graphcommandlanguage')
 #asyncLoop = require('asynchronizer').asyncLoop
 CommandController = require('gclui').CommandController
 EditController = require('editui').EditController
+#FiniteStateMachine = require('fsm').FiniteStateMachine
 IndexedDBService = require('indexeddbservice').IndexedDBService
 IndexedDBStorageController = require('indexeddbstoragecontroller').IndexedDBStorageController
 Edge = require('edge').Edge
@@ -473,30 +474,6 @@ class GeoUserNameWidget extends UsernameWidget
     super(arguments...)
     @stateIconJQElem.on('click', @huviz.show_geonames_instructions)
     @userIconJQElem.on('click', @huviz.show_geonames_instructions)
-
-
-# FiniteStateMachine has states and transitions between them with custom handlers
-#
-# Transitions are POJOs (Plain Old Javascript Objects) with keys:
-#   id, targetState, handler and (optionally) sourceState
-class FiniteStateMachine
-  constructor: (@id, @transitions) ->
-  set_state: (state) ->
-    @state = state
-  transit: (trans_id) ->
-    transition = @transitions[trans_id]
-    if transition
-      if (handler = transition.handler)
-        handler.call()
-      else
-        throw new Error("FiniteStateMachine #{@id} has no .handler")
-      if (targetState = transition.targetState)
-        @setState(targetState)
-      else
-        throw new Error("FiniteStateMachine #{@id} has no .targetState")
-      return
-    else
-      throw new Error("FiniteStateMachine #{@id} has no transition with id #{trans_id}")
 
 orlando_human_term =
   all: 'All'
@@ -885,9 +862,23 @@ class Huviz
       drag_or_drop = 'drop'
     return "#{@human_term[drag_or_drop] or drag_or_drop} to #{@human_term[action] or action}"
 
+  get_mouse_point: (d3_event) ->
+    d3_event ?= @mouse_receiver[0][0]
+    return d3.mouse(d3_event)
+
+  should_start_dragging: ->
+    # We can only know that the users intention is to drag
+    # a node once sufficient motion has started, when there
+    # is a focused_node
+    #console.log "state_name == '" + @focused_node.state.state_name + "' and selected? == " + @focused_node.selected?
+    #console.log "START_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
+    return not @dragging and
+        @mousedown_point and
+        @focused_node and
+        distance(@last_mouse_pos, @mousedown_point) > @drag_dist_threshold
+
   mousemove: =>
-    d3_event = @mouse_receiver[0][0]
-    @last_mouse_pos = d3.mouse(d3_event)
+    @last_mouse_pos = @get_mouse_point()
     if @rightClickHold
       @text_cursor.continue()
       @text_cursor.set_text("Inspect")
@@ -897,13 +888,7 @@ class Huviz
         @render_node_info_box()
       else
         if $(".contextMenu.temp") then $(".contextMenu.temp").remove()
-    else if not @dragging and @mousedown_point and @focused_node and
-        distance(@last_mouse_pos, @mousedown_point) > @drag_dist_threshold
-      # We can only know that the users intention is to drag
-      # a node once sufficient motion has started, when there
-      # is a focused_node
-      #console.log "state_name == '" + @focused_node.state.state_name + "' and selected? == " + @focused_node.selected?
-      #console.log "START_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
+    else if @should_start_dragging()
       @dragging = @focused_node
       if @args.drag_start_handler
         try
@@ -962,15 +947,14 @@ class Huviz
     @tick("Tick in mousemove")
 
   mousedown: =>
-    d3_event = @mouse_receiver[0][0]
-    @mousedown_point = d3.mouse(d3_event)
+    @mousedown_point = @get_mouse_point()
     @last_mouse_pos = @mousedown_point
 
   mouseup: =>
     window.log_click()
     d3_event = @mouse_receiver[0][0]
     @mousedown_point = false
-    point = d3.mouse(d3_event)
+    point = @get_mouse_point(d3_event)
     if d3.event.button is 2 # Right click event so don't alter selected state
       @text_cursor.continue()
       @text_cursor.set_text("Select")
@@ -1039,7 +1023,9 @@ class Huviz
     return
 
   log_mouse_activity: (label) ->
-    console.log(label,"\n  dragging", @dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node)
+    console.log(label,"\n  dragging", @dragging,
+        "\n  mousedown_point:",@mousedown_point,
+        "\n  @focused_node:", @focused_node)
 
   mouseright: () =>
     d3.event.preventDefault()
@@ -5635,8 +5621,10 @@ class Huviz
   init_editc_or_not: ->
     if @args.show_edit
       @editui ?= new EditController(@)
-    #if @args.start_in_edit_mode
-    #  @editui.set_state('
+      @editui.id = 'EditUI'
+      @editui.transit('prepare')
+    if @args.start_with_editing
+      @editui.transit('enable')
 
   set_edit_mode: (mode) ->
     @edit_mode = mode
