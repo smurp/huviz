@@ -4,8 +4,8 @@
 #
 # There are three kinds of methods:
 # 1. on__TRANSITID called upon the commencement of the transition
-# 2. leave__STATEID called when leaving a state
-# 3. become__STATEID called when becoming a state
+# 2. exit__STATEID called when leaving a state
+# 3. enter__STATEID called when becoming a state
 #
 # All three kinds of methods are optional.  If no method of any kind is found
 # during a transition then a message is either thrown, logged or ignored based
@@ -28,9 +28,9 @@
 #           target: 'stopped'
 #       on__start: ->
 #         console.log('on "start"')
-#       leave__ready: ->
+#       exit__ready: ->
 #         console.log('leave "ready"')
-#       become__stopped: ->
+#       enter__stopped: ->
 #         console.log('become "stopped"')
 #
 #     myFSM = new MyFSM()
@@ -52,25 +52,25 @@ class FiniteStateMachine
     return false
   set_state: (state) ->
     # call a method when arriving at the new state, if it exists
-    called = @call_method_by_name('become__' + state)
+    called = @call_method_by_name('enter__' + state)
     @state = state # set after calling meth_name so the old state is available to it
     return called
-  leave_state: ->
+  exit_state: ->
     # call a method when leaving the old state, if it exists
-    return @call_method_by_name('leave__' + @state)
+    return @call_method_by_name('exit__' + @state)
   get_state: ->
     return @state
   is_state: (candidate) ->
     return @state is candidate
   make_noop_msg: (trans_id, old_state, new_state) ->
     return this.constructor.name + " had neither " +
-           "on__#{trans_id} leave__#{old_state} or become__#{new_state}"
+           "on__#{trans_id} exit__#{old_state} or enter__#{new_state}"
   transit: (trans_id) ->
     @transitions ?= {}
     if (transition = @transitions[trans_id])
       called = @call_method_by_name('on__'+trans_id)
       msg = @make_noop_msg(trans_id, @state, target_id)
-      called = @leave_state() or called
+      called = @exit_state() or called
       if (target_id = transition.target)
         called = @set_state(target_id) or called
       if not called
