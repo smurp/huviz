@@ -114,6 +114,7 @@ gcl = require('graphcommandlanguage')
 #asyncLoop = require('asynchronizer').asyncLoop
 CommandController = require('gclui').CommandController
 EditController = require('editui').EditController
+#FiniteStateMachine = require('fsm').FiniteStateMachine
 IndexedDBService = require('indexeddbservice').IndexedDBService
 IndexedDBStorageController = require('indexeddbstoragecontroller').IndexedDBStorageController
 Edge = require('edge').Edge
@@ -508,6 +509,11 @@ orlando_human_term =
   load: 'Load'
   draw: 'Draw'
   undraw: 'Undraw'
+  connect: 'Connect'
+  spawn: 'Spawn'
+  specialize: 'Specialize'
+  annotate: 'Annotate'
+  seeking_object: 'Object node'
 
 class Huviz
   class_list: [] # FIXME remove
@@ -849,9 +855,30 @@ class Huviz
     @topJQElem.find(".doit_button").trigger("click")
     return @
 
+  make_cursor_text_while_dragging: (action) ->
+    if action in ['seeking_object']
+      drag_or_drop = 'drag'
+    else
+      drag_or_drop = 'drop'
+    return "#{@human_term[drag_or_drop] or drag_or_drop} to #{@human_term[action] or action}"
+
+  get_mouse_point: (d3_event) ->
+    d3_event ?= @mouse_receiver[0][0]
+    return d3.mouse(d3_event)
+
+  should_start_dragging: ->
+    # We can only know that the users intention is to drag
+    # a node once sufficient motion has started, when there
+    # is a focused_node
+    #console.log "state_name == '" + @focused_node.state.state_name + "' and selected? == " + @focused_node.selected?
+    #console.log "START_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
+    return not @dragging and
+        @mousedown_point and
+        @focused_node and
+        distance(@last_mouse_pos, @mousedown_point) > @drag_dist_threshold
+
   mousemove: =>
-    d3_event = @mouse_receiver[0][0]
-    @last_mouse_pos = d3.mouse(d3_event)
+    @last_mouse_pos = @get_mouse_point()
     if @rightClickHold
       @text_cursor.continue()
       @text_cursor.set_text("Inspect")
@@ -861,13 +888,7 @@ class Huviz
         @render_node_info_box()
       else
         if $(".contextMenu.temp") then $(".contextMenu.temp").remove()
-    else if not @dragging and @mousedown_point and @focused_node and
-        distance(@last_mouse_pos, @mousedown_point) > @drag_dist_threshold
-      # We can only know that the users intention is to drag
-      # a node once sufficient motion has started, when there
-      # is a focused_node
-      #console.log "state_name == '" + @focused_node.state.state_name + "' and selected? == " + @focused_node.selected?
-      #console.log "START_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
+    else if @should_start_dragging()
       @dragging = @focused_node
       if @args.drag_start_handler
         try
@@ -895,11 +916,14 @@ class Huviz
             action = "unpin"
           else
             action = "pin"
-          if @in_disconnect_dropzone(@dragging)
+          if (edit_state = @editui.get_state()) isnt 'not_editing'
+            action = edit_state
+          else if @in_disconnect_dropzone(@dragging)
             action = "shelve"
           else if @in_discard_dropzone(@dragging)
             action = "discard"
-          @text_cursor.pause("", "drop to #{@human_term[action]}")
+          cursor_text = @make_cursor_text_while_dragging(action)
+          @text_cursor.pause("", cursor_text)
       else
         # TODO put block "if not @dragging and @mousedown_point and @focused_node and distance" here
         if @edit_mode
@@ -923,15 +947,14 @@ class Huviz
     @tick("Tick in mousemove")
 
   mousedown: =>
-    d3_event = @mouse_receiver[0][0]
-    @mousedown_point = d3.mouse(d3_event)
+    @mousedown_point = @get_mouse_point()
     @last_mouse_pos = @mousedown_point
 
   mouseup: =>
     window.log_click()
     d3_event = @mouse_receiver[0][0]
     @mousedown_point = false
-    point = d3.mouse(d3_event)
+    point = @get_mouse_point(d3_event)
     if d3.event.button is 2 # Right click event so don't alter selected state
       @text_cursor.continue()
       @text_cursor.set_text("Select")
@@ -940,7 +963,7 @@ class Huviz
       return
     # if something was being dragged then handle the drop
     if @dragging
-      #console.log "STOPPING_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
+      #@log_mouse_activity('FINISH A DRAG')
       @move_node_to_point(@dragging, point)
       if @in_discard_dropzone(@dragging)
         @run_verb_on_object('discard', @dragging)
@@ -998,6 +1021,11 @@ class Huviz
       @restart()
 
     return
+
+  log_mouse_activity: (label) ->
+    console.log(label,"\n  dragging", @dragging,
+        "\n  mousedown_point:",@mousedown_point,
+        "\n  @focused_node:", @focused_node)
 
   mouseright: () =>
     d3.event.preventDefault()
@@ -4267,10 +4295,12 @@ class Huviz
     @pfm_count('hatch')
     node
 
-  # TODO: remove this method
-  get_or_create_node: (subject, start_point, linked) ->
-    linked = false
-    @get_or_make_node subject,start_point,linked
+  get_or_create_transient_node: (subjNode, point) ->
+    transient_id = '_:_transient'
+    transient_node = @get_or_create_node_by_id(transient_id, (name = "↪"), (isLiteral = false))
+    @move_node_to_point(transient_node, {x: subjNode.x, y: subjNode.y})
+    transient_node.radius = 20
+    return transient_node
 
   # TODO: remove this method
   make_nodes: (g, limit) ->
@@ -4637,6 +4667,19 @@ class Huviz
       node.unselect()
       @recolor_node(node)
     return
+
+  # These are the EDITING VERBS: connect, spawn, specialize and annotate
+  connect: (node) ->
+    if node isnt @focused_node
+      console.info("connect('#{node.lid}') SKIPPING because it is not the focused node")
+      return
+    @editui.set_state('seeking_object')
+    @editui.set_subject_node(node)
+    @transient_node = @get_or_create_transient_node(node)
+    @editui.set_object_node(@transient_node)
+    @dragging = @transient_node
+    console.log(@transient_node.state.id)
+    #alert("connect('#{node.lid}')")
 
   set_unique_color: (uniqcolor, set, node) ->
     set.uniqcolor ?= {}
@@ -5596,6 +5639,10 @@ class Huviz
   init_editc_or_not: ->
     if @args.show_edit
       @editui ?= new EditController(@)
+      @editui.id = 'EditUI'
+      @editui.transit('prepare')
+    if @args.start_with_editing
+      @editui.transit('enable')
 
   set_edit_mode: (mode) ->
     @edit_mode = mode
@@ -6198,6 +6245,10 @@ class Huviz
     wander: 'WANDER'
     draw: 'DRAW'
     undraw: 'UNDRAW'
+    connect: 'CONNECT'
+    spawn: 'SPAWN'
+    specialize: 'SPECIALIZE'
+    annotate: 'ANNOTATE'
 
   # TODO add controls
   #   selected_border_thickness
@@ -6220,7 +6271,7 @@ class Huviz
         style: "background:yello"
     ,
       focused_mag:
-        group: "Sizing"
+        group: "Labels"
         text: "focused label mag"
         input:
           value: 1.4
@@ -6232,7 +6283,7 @@ class Huviz
           title: "the amount bigger than a normal label the currently focused one is"
     ,
       selected_mag:
-        group: "Sizing"
+        group: "Labels"
         text: "selected node mag"
         input:
           value: 1.5
@@ -6244,7 +6295,7 @@ class Huviz
           title: "the amount bigger than a normal node the currently selected ones are"
     ,
       label_em:
-        group: "Sizing"
+        group: "Labels"
         text: "label size (em)"
         label:
           title: "the size of the font"
@@ -6267,7 +6318,7 @@ class Huviz
       #    type: "range"
     #,
       snippet_triple_em:
-        group: "Sizing"
+        group: "Labels"
         text: "snippet triple (em)"
         label:
           title: "the size of the snippet triples"
@@ -6442,19 +6493,6 @@ class Huviz
           min: 0
           max: 60
           step: 1
-          type: "range"
-    ,
-      slow_it_down:
-        group: "Debugging"
-        #style: "display:none"
-        text: "Slow it down (sec)"
-        label:
-          title: "execute commands with wait states to simulate long operations"
-        input:
-          value: 0
-          min: 0
-          max: 10
-          step: 0.1
           type: "range"
     ,
       snippet_count_on_edge_labels:
@@ -6638,15 +6676,6 @@ class Huviz
         input:
           type: "checkbox"
     ,
-      show_hide_performance_monitor:
-        group: "Debugging"
-        class: "alpha_feature"
-        text: "Show Performance Monitor"
-        label:
-          title: "Feedback on what HuViz is doing"
-        input:
-          type: "checkbox"
-    ,
       graph_title_style:
         group: "Captions"
         text: "Title display "
@@ -6690,16 +6719,6 @@ class Huviz
           size: "16"
           placeholder: "Enter Sub-title"
     ,
-      debug_shelf_angles_and_flipping:
-        group: "Debugging"
-        class: "alpha_feature"
-        style: "display:none"
-        text: "debug shelf angles and flipping"
-        label:
-          title: "show angles and flags with labels"
-        input:
-          type: "checkbox"   #checked: "checked"
-    ,
       discover_geonames_as:
         group: "Geonames"
         html_text: '<a href="http://www.geonames.org/login" target="geonamesAcct">Username</a> '
@@ -6742,18 +6761,10 @@ class Huviz
           #checked: "checked"
     ,
       show_edge_labels_adjacent_to_labelled_nodes:
+        group: "Labels"
         text: "Show adjacent edge labels"
         label:
           title: "Show edge labels adjacent to labelled nodes"
-        input:
-          type: "checkbox"
-          #checked: "checked"
-    ,
-      show_hunt_verb:
-        style: "display:none"
-        text: "Show Hunt verb"
-        label:
-          title: "Show the Hunt verb"
         input:
           type: "checkbox"
           #checked: "checked"
@@ -6790,9 +6801,10 @@ class Huviz
         class: "alpha_feature"
         text: "Show Images in Nodes"
         label:
-          title: "Show images in nodes when available"
+          title: "Show dbpedia:thumbnail and foaf:thumbnail in nodes when available"
         input:
           type: "checkbox"
+          checked: "checked"
     ,
       show_thumbs_dont_graph:
         group: "Images"
@@ -6802,6 +6814,48 @@ class Huviz
           title: "Treat dbpedia:thumbnail and foaf:thumbnail as images, not graph data"
         input:
           type: "checkbox"
+          checked: "checked"
+    ,
+      debug_shelf_angles_and_flipping:
+        group: "Debugging"
+        class: "alpha_feature"
+        text: "debug shelf angles and flipping"
+        label:
+          title: "show angles and flags with labels"
+        input:
+          type: "checkbox"   #checked: "checked"
+    ,
+      show_hide_performance_monitor:
+        group: "Debugging"
+        class: "alpha_feature"
+        text: "Show Performance Monitor"
+        label:
+          title: "Feedback on what HuViz is doing"
+        input:
+          type: "checkbox"
+    ,
+      slow_it_down:
+        group: "Debugging"
+        class: "alpha_feature"
+        text: "Slow it down (sec)"
+        label:
+          title: "execute commands with wait states to simulate long operations"
+        input:
+          value: 0
+          min: 0
+          max: 10
+          step: 0.1
+          type: "range"
+    ,
+      show_hunt_verb:
+        group: "Debugging"
+        class: "alpha_feature"
+        text: "Show Hunt verb"
+        label:
+          title: "Expose the 'Hunt' verb, for demonstration of SortedSet.binary_search()"
+        input:
+          type: "checkbox"
+          #checked: "checked"
     ]
 
   dump_current_settings: (post) =>

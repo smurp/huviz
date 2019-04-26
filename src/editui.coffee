@@ -1,13 +1,27 @@
 # Edit UI - Jan 2017
 
+FiniteStateMachine = require('fsm').FiniteStateMachine
 indexdDBstore = require('indexeddbstoragecontroller')
 
-
-class EditController
+class EditController extends FiniteStateMachine
   constructor: (@huviz) ->
     #TODO EditController should be loaded and checked when a dataset is loaded
     @userValid = true #TODO this needs to be hooked into authentication -- remove to huviz.coffee to validate against dataloaded and authentication
     #@userValid = false
+    @ensure_verbs()
+    @build_transitions()
+    @state = null
+
+  build_transitions: ->
+    @transitions =
+      prepare:
+        target: 'prepared'
+      disable:
+        target: 'disabled'
+      enable:
+        target: 'prepared'
+
+  on__prepare: ->
     if @userValid is true and not @con #document.getElementsByClassName("edit-controls")[0] is undefined
       @con = document.createElement("div")
       @con.className = "edit-controls loggedIn"
@@ -35,6 +49,38 @@ class EditController
       @subject_input = @formFields[0]
       @predicate_input = @formFields[1]
       @object_input = @formFields[2]
+
+  on__disable: ->
+    @hide_verbs()
+    @hide_form()
+
+  on__enable: ->
+    @show_verbs()
+    @show_form()
+
+  get_verb_set: ->
+    return {
+      connect: @huviz.human_term.connect # aka link
+      spawn: @huviz.human_term.spawn # aka instantiate
+      specialize: @huviz.human_term.specialize # aka subclass / subpropertize
+      annotate: @huviz.human_term.annotate
+      }
+
+  add_verbs: ->
+    vset = @get_verb_set()
+    @huviz.gclui.verb_sets.unshift(vset)
+    @huviz.gclui.add_verb_set(vset, (prepend = true))
+
+  ensure_verbs: ->
+    if not @my_verbs
+      @my_verbs = @add_verbs()
+      @hide_verbs()
+
+  hide_verbs: ->
+    @my_verbs.style('display','none')
+
+  show_verbs: ->
+    @my_verbs.style('display','flex')
 
   create_edit_form: (toggleEdit) ->
     formNode = document.createElement('form')
@@ -69,25 +115,33 @@ class EditController
         at: "left top"
     )
 
-  update_predicate_picked: (event, ui) =>
+  update_predicate_picked: (event, ui) ->
     #if event.type is 'autocompletechange'
     new_pred_value = @predicate_input.value
     console.log("#{new_pred_value} is new predicate")
     @validate_proposed_edge()
 
-  toggle_edit_form: () =>
+  hide_form: ->
+    @con.setAttribute("edit","no")
+    @con.classList.remove("edit-mode")
+    @huviz.set_edit_mode(false)
+
+  show_form: ->
+    @con.setAttribute("edit","yes")
+    @con.classList.add("edit-mode")
+    @huviz.set_edit_mode(true)
+
+  toggle_edit_form: () ->
     toggleEditMode = @con.getAttribute("edit")
     #debugger
     if toggleEditMode is 'no' #toggle switched to edit mode, then show form
-      @con.setAttribute("edit","yes")
-      @con.classList.add("edit-mode")
-      @huviz.set_edit_mode(true)
-    if toggleEditMode is'yes' #toggle switched to normal mode, then hide form
-      @con.setAttribute("edit","no")
-      @con.classList.remove("edit-mode")
-      @huviz.set_edit_mode(false)
+      @show_verbs()
+      @show_form()
+    if toggleEditMode is 'yes' #toggle switched to normal mode, then hide form
+      @hide_verbs()
+      @hide_form()
 
-  validate_edit_form: (evt) =>
+  validate_edit_form: (evt) ->
     form = @controls
     inputFields = form.getElementsByTagName('input')
     saveButton = form.getElementsByTagName('button')[0]
@@ -127,7 +181,7 @@ class EditController
     #  0. replace placeholder to reflect data type needed in object
     #  1. object field will only accpet input according to appropriate type (i.e. literal string, number or date)
 
-  save_edit_form: () =>
+  save_edit_form: () ->
     form = @controls
     inputFields = form.getElementsByTagName('input')
     tuple = []
@@ -151,7 +205,7 @@ class EditController
     saveButton.disabled = true
     #@proposed_quad = null #set to false (no focused edge)
 
-  clear_edit_form: () =>
+  clear_edit_form: () ->
     form = @controls
     inputFields = form.getElementsByTagName('input')
     saveButton = form.getElementsByTagName('button')[0]
@@ -248,6 +302,5 @@ class EditController
       @huviz.delete_edge(old_edge)
       #delete @huviz.edges_by_id[old_edge]
     @proposed_quad = null
-
 
   (exports ? this).EditController = EditController

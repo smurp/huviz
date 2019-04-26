@@ -1,6 +1,6 @@
 {
   "name": "huviz",
-  "version": "0.28.0",
+  "version": "0.28.1",
   "license": "GPL-3.0-or-later",
   "repository": {
     "type": "git",
@@ -62,7 +62,7 @@
   "scripts": {
     "dev": "node ./node_modules/.bin/grunt dev",
     "start": "node server.js --git_commit_hash `git log --format=\"%h\" -n 1` --git_branch_name `git rev-parse --abbrev-ref HEAD`",
-    "test": "node_modules/mocha/bin/mocha --reporter dot",
+    "test": "node_modules/mocha/bin/mocha --require coffeescript/register --compilers coffee:coffeescript --reporter dot",
     "watchTest": "npm-watch"
   }
 }
