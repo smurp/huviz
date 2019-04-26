@@ -1327,14 +1327,14 @@ class Huviz
       arrow_color = "#333" # clr
       node_radius = @calc_node_radius(edge.target)
 
-      arw_angl = Math.atan((yctrl - y1)/(xctrl - x1))
+      arw_angl = Math.atan((yctrl - y2)/(xctrl - x2))
       hd_angl = Math.tan(a_w/a_l)
-      if (xctrl < x1) then flip = -1 else flip = 1 # Flip sign depending on angle
+      if (xctrl < x2) then flip = -1 else flip = 1 # Flip sign depending on angle
 
-      pnt_x =  x1 + flip * node_radius * Math.cos(arw_angl)
-      pnt_y =  y1 + flip * node_radius * Math.sin(arw_angl)
-      arrow_base_x = x1 + flip * (node_radius + a_l) * Math.cos(arw_angl)
-      arrow_base_y = y1 + flip * (node_radius + a_l) * Math.sin(arw_angl)
+      pnt_x =  x2 + flip * node_radius * Math.cos(arw_angl)
+      pnt_y =  y2 + flip * node_radius * Math.sin(arw_angl)
+      arrow_base_x = x2 + flip * (node_radius + a_l) * Math.cos(arw_angl)
+      arrow_base_y = y2 + flip * (node_radius + a_l) * Math.sin(arw_angl)
       xo1 = pnt_x + flip * arr_side * Math.cos(arw_angl + hd_angl)
       yo1 = pnt_y + flip * arr_side * Math.sin(arw_angl + hd_angl)
       xo2 = pnt_x + flip * arr_side * Math.cos(arw_angl - hd_angl)
