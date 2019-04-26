@@ -1,47 +1,86 @@
-# FiniteStateMachine has states and transitions between them with custom handlers
+# FiniteStateMachine implements a simple abstract engine for running state machines.
 #
-# Transitions are POJOs (Plain Old Javascript Objects) with keys:
-#   id, targetState, handler and (optionally) sourceState
+# It supports optional methods for every transition and for become/leav a state.
 #
+# There are three kinds of methods:
+# 1. on__TRANSITID called upon the commencement of the transition
+# 2. leave__STATEID called when leaving a state
+# 3. become__STATEID called when becoming a state
+#
+# All three kinds of methods are optional.  If no method of any kind is found
+# during a transition then a message is either thrown, logged or ignored based
+# on the value of this.throw_log_or_ignore
+#
+# If there is an array at this.trace then the names of the method are pushed
+# onto it as they are called.
+#
+# # Usage
+#
+#     class MyFSM extends FiniteStateMachine
+#       constructor: (anything, you want) ->
+#         # you can do anything you want on your FSM constructor
+#       throw_log_or_ignore: 'ignore'
+#       transitions:
+#         start:
+#           target: 'ready'
+#         stop:
+#           source: 'ready' # TODO respect source by raising error if an illegal transit is tried
+#           target: 'stopped'
+#       on__start: ->
+#         console.log('on "start"')
+#       leave__ready: ->
+#         console.log('leave "ready"')
+#       become__stopped: ->
+#         console.log('become "stopped"')
+#
+#     myFSM = new MyFSM()
+#     myFSM.transit('start') ==> 'on "start"', 'leave "ready"'
+#     myFSM.get_state() ==> 'ready'
+#     myFSM.transit('stop') ==> 'become "stopped"'
+#
+
 # Notes:
 #   suitable for use as a mixin
 #   https://coffeescript-cookbook.github.io/chapters/classes_and_objects/mixins
 class FiniteStateMachine
+  call_method_by_name: (meth_name) ->
+    if (meth = Reflect.get(this, meth_name))
+      meth.call(this)
+      if @trace
+        @trace.push(meth_name)
+      return true
+    return false
   set_state: (state) ->
-    called = false
-    meth_name = 'become__' + state
-    if (method = this[meth_name])
-      method.bind(this)
-      console.info('called', meth_name)
-      method.call()
-      called = true
+    # call a method when arriving at the new state, if it exists
+    called = @call_method_by_name('become__' + state)
     @state = state # set after calling meth_name so the old state is available to it
     return called
+  leave_state: ->
+    # call a method when leaving the old state, if it exists
+    return @call_method_by_name('leave__' + @state)
   get_state: ->
     return @state
   is_state: (candidate) ->
     return @state is candidate
-  get_transit_handler_name: (transit_id) ->
-    return 'on__' + transit_id
+  make_noop_msg: (trans_id, old_state, new_state) ->
+    return this.constructor.name + " had neither " +
+           "on__#{trans_id} leave__#{old_state} or become__#{new_state}"
   transit: (trans_id) ->
     @transitions ?= {}
-    called = false
     if (transition = @transitions[trans_id])
-      transit_handler_name = @get_transit_handler_name(trans_id)
-      if (transit_handler = this[transit_handler_name])
-        transit_handler.bind(this)
-        transit_handler.call()
-        console.info('called',transit_handler_name)
-        called = true
+      called = @call_method_by_name('on__'+trans_id)
+      msg = @make_noop_msg(trans_id, @state, target_id)
+      called = @leave_state() or called
       if (target_id = transition.target)
-        before_state_name = 'become__' + target_id
         called = @set_state(target_id) or called
       if not called
-        msg = "FiniteStateMachine #{@id or ''} had neither #{transit_handler_name} or #{before_state_name}"
-        console.log(this)
-        throw new Error(msg)
+        throw_log_or_ignore = @throw_log_or_ignore or 'ignore'
+        if throw_log_or_ignore is 'throw'
+          throw new Error(msg)
+        else if throw_log_or_ignore is 'log'
+          console.log(msg)
       return
     else
-      throw new Error("FiniteStateMachine #{@id or ''} has no transition with id #{trans_id}")
+      throw new Error("#{this.constructor.name} has no transition with id #{trans_id}")
 
 (exports ? this).FiniteStateMachine = FiniteStateMachine

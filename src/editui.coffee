@@ -21,7 +21,7 @@ class EditController extends FiniteStateMachine
       enable:
         target: 'prepared'
 
-  on__prepare: =>
+  on__prepare: ->
     if @userValid is true and not @con #document.getElementsByClassName("edit-controls")[0] is undefined
       @con = document.createElement("div")
       @con.className = "edit-controls loggedIn"
@@ -50,15 +50,15 @@ class EditController extends FiniteStateMachine
       @predicate_input = @formFields[1]
       @object_input = @formFields[2]
 
-  on__disable: =>
+  on__disable: ->
     @hide_verbs()
     @hide_form()
 
-  on__enable: =>
+  on__enable: ->
     @show_verbs()
     @show_form()
 
-  get_verb_set: =>
+  get_verb_set: ->
     return {
       connect: @huviz.human_term.connect # aka link
       spawn: @huviz.human_term.spawn # aka instantiate
@@ -66,20 +66,20 @@ class EditController extends FiniteStateMachine
       annotate: @huviz.human_term.annotate
       }
 
-  add_verbs: =>
+  add_verbs: ->
     vset = @get_verb_set()
     @huviz.gclui.verb_sets.unshift(vset)
     @huviz.gclui.add_verb_set(vset, (prepend = true))
 
-  ensure_verbs: =>
+  ensure_verbs: ->
     if not @my_verbs
       @my_verbs = @add_verbs()
       @hide_verbs()
 
-  hide_verbs: =>
+  hide_verbs: ->
     @my_verbs.style('display','none')
 
-  show_verbs: =>
+  show_verbs: ->
     @my_verbs.style('display','flex')
 
   create_edit_form: (toggleEdit) ->
@@ -115,23 +115,23 @@ class EditController extends FiniteStateMachine
         at: "left top"
     )
 
-  update_predicate_picked: (event, ui) =>
+  update_predicate_picked: (event, ui) ->
     #if event.type is 'autocompletechange'
     new_pred_value = @predicate_input.value
     console.log("#{new_pred_value} is new predicate")
     @validate_proposed_edge()
 
-  hide_form: =>
+  hide_form: ->
     @con.setAttribute("edit","no")
     @con.classList.remove("edit-mode")
     @huviz.set_edit_mode(false)
 
-  show_form: =>
+  show_form: ->
     @con.setAttribute("edit","yes")
     @con.classList.add("edit-mode")
     @huviz.set_edit_mode(true)
 
-  toggle_edit_form: () =>
+  toggle_edit_form: () ->
     toggleEditMode = @con.getAttribute("edit")
     #debugger
     if toggleEditMode is 'no' #toggle switched to edit mode, then show form
@@ -141,7 +141,7 @@ class EditController extends FiniteStateMachine
       @hide_verbs()
       @hide_form()
 
-  validate_edit_form: (evt) =>
+  validate_edit_form: (evt) ->
     form = @controls
     inputFields = form.getElementsByTagName('input')
     saveButton = form.getElementsByTagName('button')[0]
@@ -181,7 +181,7 @@ class EditController extends FiniteStateMachine
     #  0. replace placeholder to reflect data type needed in object
     #  1. object field will only accpet input according to appropriate type (i.e. literal string, number or date)
 
-  save_edit_form: () =>
+  save_edit_form: () ->
     form = @controls
     inputFields = form.getElementsByTagName('input')
     tuple = []
@@ -205,7 +205,7 @@ class EditController extends FiniteStateMachine
     saveButton.disabled = true
     #@proposed_quad = null #set to false (no focused edge)
 
-  clear_edit_form: () =>
+  clear_edit_form: () ->
     form = @controls
     inputFields = form.getElementsByTagName('input')
     saveButton = form.getElementsByTagName('button')[0]
