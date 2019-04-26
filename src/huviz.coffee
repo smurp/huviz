@@ -1210,12 +1210,11 @@ class Huviz
       @ctx.fillStyle = "black"
       @ctx.fill()
 
-  draw_triangle: (x, y, size, color, x1, y1, x2, y2) ->
-    # Rather than send all three coordinates, it would be better if just the tip
-    # was passed along with an angle and size to calculate the other two points of the
-    # triangle.
+
+  draw_triangle: (x, y, color, x1, y1, x2, y2) ->
     @ctx.beginPath()
     @ctx.moveTo(x, y)
+    @ctx.strokeStyle = color
     @ctx.lineTo(x1, y1)
     @ctx.lineTo(x2, y2)
     @ctx.moveTo(x, y)
@@ -1245,6 +1244,7 @@ class Huviz
     @ctx.lineTo(x2, y2)
     @ctx.closePath()
     @ctx.stroke()
+
   draw_curvedline: (x1, y1, x2, y2, sway_inc, clr, num_contexts, line_width, edge, directional_edge) ->
     pdist = distance([x1,y1],[x2,y2])
     sway = @swayfrac * sway_inc * pdist
@@ -1283,17 +1283,35 @@ class Huviz
       x: xhndl
       y: yhndl
     @draw_circle(xhndl, yhndl, (line_width/2), clr) # draw a circle at the midpoint of the line
-    if directional_edge
-      arrow_size = 10
-      if directional_edge is "forward"
-        tip_x = x2
-        tip_y = y2
-      else
-        tip_x = x1
-        tip_y = y1
-      #TODO This works but is ugly. The directional arrow created is too large
-      #@draw_triangle(tip_x, tip_y, arrow_size, "blue", xctrl, yctrl, xmid, ymid)
-    #@draw_line(xmid,ymid,xctrl,yctrl,clr) # show mid to ctrl
+    if directional_edge is "forward"
+      tip_x = x2
+      tip_y = y2
+    else
+      tip_x = x1
+      tip_y = y1
+
+    # --------- ARROWS on Edges -----------
+    if @arrows_chosen
+      a_l = 8 # arrow length
+      a_w = 2 # arrow width
+      arr_side = Math.sqrt(a_l * a_l + a_w * a_w)
+
+      arrow_color = "#333" # clr
+      node_radius = @calc_node_radius(edge.target)
+
+      arw_angl = Math.atan((yctrl - y1)/(xctrl - x1))
+      hd_angl = Math.tan(a_w/a_l)
+      if (xctrl < x1) then flip = -1 else flip = 1 # Flip sign depending on angle
+
+      pnt_x =  x1 + flip * node_radius * Math.cos(arw_angl)
+      pnt_y =  y1 + flip * node_radius * Math.sin(arw_angl)
+      arrow_base_x = x1 + flip * (node_radius + a_l) * Math.cos(arw_angl)
+      arrow_base_y = y1 + flip * (node_radius + a_l) * Math.sin(arw_angl)
+      xo1 = pnt_x + flip * arr_side * Math.cos(arw_angl + hd_angl)
+      yo1 = pnt_y + flip * arr_side * Math.sin(arw_angl + hd_angl)
+      xo2 = pnt_x + flip * arr_side * Math.cos(arw_angl - hd_angl)
+      yo2 = pnt_y + flip * arr_side * Math.sin(arw_angl - hd_angl)
+      @draw_triangle(pnt_x, pnt_y, arrow_color, xo1, yo1, xo2, yo2)
 
   draw_disconnect_dropzone: ->
     @ctx.save()
@@ -6692,6 +6710,7 @@ class Huviz
           type: "text"
           value: "" # "smurp_nooron"
           size: "14"
+
           placeholder: "e.g. huviz"
     ,
       discover_geonames_remaining:
@@ -6753,6 +6772,15 @@ class Huviz
         text: "Single Active Node"
         label:
           title: "Only use verbs which have one chosen node at a time"
+        input:
+          type: "checkbox"
+          checked: "checked"
+    ,
+      arrows_chosen:
+        class: "alpha_feature"
+        text: "Arrows on Edges"
+        label:
+          title: "Displays directional arrows for predicates"
         input:
           type: "checkbox"
           checked: "checked"
@@ -7114,6 +7142,10 @@ class Huviz
 
   on_change_single_chosen: (new_val, old_val) ->
     @single_chosen = new_val
+    @tick()
+
+  on_change_arrows_chosen: (new_val, old_val) ->
+    @arrows_chosen = new_val
     @tick()
 
   init_from_settings: ->
