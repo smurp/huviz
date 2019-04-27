@@ -479,6 +479,7 @@ a.git_commit_hash_watermark {
   z-index: 3;
   left:1em;
   height: 0;
+  width: 95%;
 }
 .cntrl-set {
   display: inline;
