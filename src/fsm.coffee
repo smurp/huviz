@@ -44,7 +44,8 @@
 #   https://coffeescript-cookbook.github.io/chapters/classes_and_objects/mixins
 class FiniteStateMachine
   call_method_by_name: (meth_name) ->
-    if (meth = Reflect.get(this, meth_name))
+    if (meth = this[meth_name])
+    #if (meth = Reflect.get(this, meth_name))
       meth.call(this)
       if @trace
         @trace.push(meth_name)
@@ -65,22 +66,26 @@ class FiniteStateMachine
   make_noop_msg: (trans_id, old_state, new_state) ->
     return this.constructor.name + " had neither " +
            "on__#{trans_id} exit__#{old_state} or enter__#{new_state}"
+  throw_log_or_ignore_msg: (msg) ->
+    throw_log_or_ignore = @throw_log_or_ignore or 'ignore'
+    if throw_log_or_ignore is 'throw'
+      throw new Error(msg)
+    else if throw_log_or_ignore is 'log'
+      console.warn(msg)
+    return
   transit: (trans_id) ->
     @transitions ?= {}
     if (transition = @transitions[trans_id])
+      initial_state = @state
       called = @call_method_by_name('on__'+trans_id)
-      msg = @make_noop_msg(trans_id, @state, target_id)
       called = @exit_state() or called
       if (target_id = transition.target)
         called = @set_state(target_id) or called
       if not called
-        throw_log_or_ignore = @throw_log_or_ignore or 'ignore'
-        if throw_log_or_ignore is 'throw'
-          throw new Error(msg)
-        else if throw_log_or_ignore is 'log'
-          console.log(msg)
-      return
+        msg = @make_noop_msg(trans_id, initial_state, target_id)
+        @throw_log_or_ignore_msg(msg)
     else
-      throw new Error("#{this.constructor.name} has no transition with id #{trans_id}")
+      @throw_log_or_ignore_msg("#{this.constructor.name} has no transition with id #{trans_id}")
+    return
 
 (exports ? this).FiniteStateMachine = FiniteStateMachine
