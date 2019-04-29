@@ -2206,6 +2206,7 @@ class Huviz
       focused_font = "#{focused_font_size}em sans-serif"
       unfocused_font = "#{@label_em}em sans-serif"
       focused_pill_font = "#{@label_em}em sans-serif"
+
       label_node = (node) =>
         return unless @should_show_label(node)
         ctx = @ctx
@@ -2221,12 +2222,19 @@ class Huviz
           ctx.font = unfocused_font
         if not node.fisheye?
           return
+
+        flip_point = @cx
+        if  @discarded_set.has(node)
+          flip_point = @discard_center[0]
+        else if @shelved_set.has(node)
+          flip_point = @lariat_center[0]
+
         if not @graphed_set.has(node) and @draw_lariat_labels_rotated
           # Flip label rather than write upside down
           #   var flip = (node.rad > Math.PI) ? -1 : 1;
           #   view-source:http://www.jasondavies.com/d3-dependencies/
           radians = node.rad
-          flip = node.fisheye.x < @cx # flip labels on the left of center line
+          flip = node.fisheye.x < flip_point # @cx  # flip labels on the left of center line
           textAlign = 'left'
           if flip
             radians = radians - Math.PI
