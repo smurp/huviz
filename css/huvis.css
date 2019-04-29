@@ -82,6 +82,9 @@ button.close_node_details img:hover{
 .contextMenu p.note span.label{
   color:inherit;
 }
+.contextMenu .id_display a{
+  font-size: 0.9em;
+}
 .contextMenu ul {
   margin-top: 0.3em;
   font-size: 0.9em;
@@ -92,10 +95,10 @@ button.close_node_details img:hover{
 .contextMenu li i {
   color: #777;
 }
-.contextMenu li a {
+.contextMenu li a, .contextMenu .id_display a {
   color: #0056b3;
 }
-.contextMenu li a:hover {
+.contextMenu li a:hover, .contextMenu .id_display a:hover  {
   color: #3085e0;
 }
 .contextMenu button{

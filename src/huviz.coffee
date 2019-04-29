@@ -1062,14 +1062,7 @@ class Huviz
     #console.log @focused_node.links_from.length
     if (@focused_node.links_from.length > 0)
       for link_from in @focused_node.links_from
-        url_check = link_from.target.id
-        url_check = url_check.substring(0,4)
-        #console.log url_check
-        if url_check is "http"
-          target = "<a href='#{link_from.target.id}' target='blank'>#{link_from.target.lid}</a>"
-        else
-          target = link_from.target.id
-
+        target = @create_link_if_url(link_from.target.id)
         node_out_links = node_out_links + "<li><i class='fas fa-long-arrow-alt-right'></i> <a href='#{link_from.predicate.id}' target='blank'>#{link_from.predicate.lid}</a> <i class='fas fa-long-arrow-alt-right'></i> #{target}</li>"
       node_out_links = "<ul>" + node_out_links + "</ul>"
     #console.log @focused_node
@@ -1091,9 +1084,9 @@ class Huviz
 
     if @focused_node
       dialogArgs.head_bg_color = @focused_node.color
-
+      id_display = @create_link_if_url(@focused_node.id)
       node_info = """
-        <p><span class='label'>id:</span> #{@focused_node.id}</p>
+        <p class='id_display'><span class='label'>id:</span> #{id_display}</p>
         <p><span class='label'>name:</span> #{names_all_langs}</p>
         <p><span class='label'>type(s):</span> #{@focused_node.type} #{other_types}</p>
         <p><span class='label'>Links To:</span> #{@focused_node.links_to.length} <br>
@@ -1104,6 +1097,14 @@ class Huviz
 
       @make_dialog(node_info, @unique_id(@focused_node.lid+'__'), dialogArgs)
     return
+
+  create_link_if_url: (possible_link) ->
+    url_check = possible_link.substring(0,4)
+    if url_check is "http"
+      target = "<a href='#{possible_link}' target='blank'>#{possible_link}</a>"
+    else
+      target = possible_link
+
 
   perform_current_command: (node) ->
     if @gclui.ready_to_perform()
