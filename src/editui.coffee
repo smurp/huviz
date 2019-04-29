@@ -131,7 +131,7 @@ class EditController extends FiniteStateMachine
     @con.classList.add("edit-mode")
     #@huviz.set_edit_mode(true)
 
-  toggle_edit_form: () ->
+  toggle_edit_form: () =>
     toggleEditMode = @con.getAttribute("edit")
     #debugger
     if toggleEditMode is 'no' #toggle switched to edit mode, then show form
