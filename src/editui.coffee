@@ -26,7 +26,7 @@ class EditController extends FiniteStateMachine
       @con = document.createElement("div")
       @con.className = "edit-controls loggedIn"
       @con.setAttribute("edit", "no")
-      @huviz.set_edit_mode(false)
+      #@huviz.set_edit_mode(false)
       viscanvas = @huviz.args.viscanvas_sel
       new_viscanvas = viscanvas.replace('#','')
       document.getElementById(new_viscanvas).appendChild(@con)
@@ -124,12 +124,12 @@ class EditController extends FiniteStateMachine
   hide_form: ->
     @con.setAttribute("edit","no")
     @con.classList.remove("edit-mode")
-    @huviz.set_edit_mode(false)
+    #@huviz.set_edit_mode(false)
 
   show_form: ->
     @con.setAttribute("edit","yes")
     @con.classList.add("edit-mode")
-    @huviz.set_edit_mode(true)
+    #@huviz.set_edit_mode(true)
 
   toggle_edit_form: () ->
     toggleEditMode = @con.getAttribute("edit")

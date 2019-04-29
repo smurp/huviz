@@ -895,7 +895,7 @@ class Huviz
           @args.drag_start_handler.call(this, @dragging)
         catch e
           console.warn(e)
-      if @edit_mode
+      if @editui.is_state('connecting')
         if @editui.subject_node isnt @dragging
           @editui.set_subject_node(@dragging)
       if @dragging.state isnt @graphed_set isnt @rightClickHold
@@ -907,7 +907,7 @@ class Huviz
         if not @args.skip_log_tick
           console.log "Tick in @force.resume() mousemove"
         @move_node_to_point(@dragging, @last_mouse_pos)
-        if @edit_mode
+        if @editui.is_state('connecting')
           @text_cursor.pause("", "drop on object node")
         else
           if @dragging.links_shown.length is 0
@@ -926,7 +926,7 @@ class Huviz
           @text_cursor.pause("", cursor_text)
       else
         # TODO put block "if not @dragging and @mousedown_point and @focused_node and distance" here
-        if @edit_mode
+        if @editui.is_state('connecting')
           if @editui.object_node or not @editui.subject_node
             if @editui.object_datatype_is_literal
               @text_cursor.set_text("click subject node")
@@ -973,7 +973,7 @@ class Huviz
       else if @dragging.links_shown.length == 0
         @run_verb_on_object('choose', @dragging)
       else if @nodes_pinnable
-        if @edit_mode and (@dragging is @editui.subject_node)
+        if @editui.is_state('connecting') and (@dragging is @editui.subject_node)
           console.log "not pinning subject_node when dropping"
         else if @dragging.fixed # aka pinned
           @run_verb_on_object('unpin', @dragging)
@@ -983,7 +983,7 @@ class Huviz
       @text_cursor.continue()
       return
 
-    if @edit_mode and @focused_node and @editui.object_datatype_is_literal
+    if @editui.is_state('connecting') and @focused_node and @editui.object_datatype_is_literal
       @editui.set_subject_node(@focused_node)
       #console.log("edit mode and focused note and editui is literal")
       @tick("Tick in mouseup 1")
@@ -1716,7 +1716,7 @@ class Huviz
 
     seeking = null # holds property name of the thing we are seeking: 'focused_node'/'object_node'/false
     if @dragging
-      if not @edit_mode
+      if not @editui.is_state('connecting')
         return
       seeking = "object_node"
     else
@@ -1805,7 +1805,7 @@ class Huviz
         new_focused_edge.target.focused_edge = true
       @focused_edge = new_focused_edge # blank it or set it
       if @focused_edge?
-        if @edit_mode
+        if @editui.is_state('connecting')
           @text_cursor.pause("", "edit this edge")
         else
           @text_cursor.pause("", "show edge sources")
@@ -1879,7 +1879,7 @@ class Huviz
           @gclui.new_GraphCommand({verbs: @gclui.engaged_verbs, subjects: nodes}))
 
   position_nodes_by_force: ->
-    only_move_subject = @edit_mode and @dragging and @editui.subject_node
+    only_move_subject = @editui.is_state('connecting') and @dragging and @editui.subject_node
     @nodes.forEach (node, i) =>
       @reposition_node_by_force(node, only_move_subject)
 
@@ -4299,7 +4299,7 @@ class Huviz
     transient_id = '_:_transient'
     transient_node = @get_or_create_node_by_id(transient_id, (name = "↪"), (isLiteral = false))
     @move_node_to_point(transient_node, {x: subjNode.x, y: subjNode.y})
-    transient_node.radius = 20
+    transient_node.radius = 2
     return transient_node
 
   # TODO: remove this method
@@ -5643,9 +5643,6 @@ class Huviz
       @editui.transit('prepare')
     if @args.start_with_editing
       @editui.transit('enable')
-
-  set_edit_mode: (mode) ->
-    @edit_mode = mode
 
   indexed_dbservice: ->
     @indexeddbservice ?= new IndexedDBService(this)
