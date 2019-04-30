@@ -1161,8 +1161,10 @@ class Huviz
   get_charge: (d) =>
     graphed = d.state == @graphed_set
     retval = graphed and @charge or 0  # zero so shelf has no influence
-    if retval is 0 and graphed
-      console.error "bad combo of retval and graphed?",retval,graphed,d.name
+    if d.charge?
+      retval = d.charge
+    #if retval is 0 and graphed
+    #  console.error "bad combo of retval and graphed?",retval,graphed,d.name
     return retval
 
   get_gravity: =>
@@ -1678,8 +1680,9 @@ class Huviz
     total_links = d.links_to.length + d.links_from.length
     diff_adjustment = 10 * (total_links/(total_links+9))
     final_adjustment =  @node_diff * (diff_adjustment - 1)
-    @node_radius * (not d.selected? and 1 or @selected_mag) + final_adjustment
-
+    if d.radius?
+      return d.radius
+    return @node_radius * (not d.selected? and 1 or @selected_mag) + final_adjustment
     #@node_radius_policy d
   names_in_edges: (set) ->
     out = []
@@ -4306,9 +4309,12 @@ class Huviz
 
   get_or_create_transient_node: (subjNode, point) ->
     transient_id = '_:_transient'
-    transient_node = @get_or_create_node_by_id(transient_id, (name = "↪"), (isLiteral = false))
+    nom = "↪"
+    nom = " "
+    transient_node = @get_or_create_node_by_id(transient_id, (name = nom), (isLiteral = false))
     @move_node_to_point(transient_node, {x: subjNode.x, y: subjNode.y})
-    transient_node.radius = 2
+    transient_node.radius = 0
+    transient_node.charge = 20
     return transient_node
 
   # TODO: remove this method
