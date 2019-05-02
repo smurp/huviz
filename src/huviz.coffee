@@ -3677,7 +3677,7 @@ class Huviz
     ###
     graphSelector = "#sparqlGraphOptions-#{id}"
     $(graphSelector).parent().css('display', 'none')
-    $("#sparqlQryInput_#{sparqlId}").css('display', 'none')
+    $("#sparqlQryInput_#{@sparqlId}").css('display', 'none')
     spinner = $("#sparqlGraphSpinner-#{id}")
     spinner.css('display','block')
     $.ajax
@@ -5569,7 +5569,7 @@ class Huviz
     @ontology_loader.select_option(ontology_option)
 
   populate_sparql_label_picker: () =>
-    sparqlId = unique_id()
+    @sparqlId = unique_id()
     select_box = """
       <div class='ui-widget' style='display:none;margin-top:5px;margin-left:10px;'>
         <label>Graphs: </label>
@@ -5580,10 +5580,10 @@ class Huviz
            style='display:none;font-style:italic;'>
         <i class='fas fa-spinner fa-spin' style='margin: 10px 10px 0 50px;'></i>  Looking for graphs...
       </div>
-      <div id="sparqlQryInput_#{sparqlId}" class="ui-widget sparqlQryInput"
+      <div id="sparqlQryInput_#{@sparqlId}" class="ui-widget sparqlQryInput"
            style='display:none;margin-top:5px;margin-left:10px;color:#999;'>
-        <label for='endpoint_labels_#{sparqlId}'>Find: </label>
-        <input id='endpoint_labels_#{sparqlId}' disabled>
+        <label for='endpoint_labels_#{@sparqlId}'>Find: </label>
+        <input id='endpoint_labels_#{@sparqlId}' disabled>
         <i class='fas fa-spinner fa-spin' style='visibility:hidden;margin-left: 5px;'></i>
         <div><label for='endpoint_limit'>Node Limit: </label>
         <input id='endpoint_limit' value='100' disabled>
@@ -5591,9 +5591,9 @@ class Huviz
       </div>
     """
     $(@pickersSel).append(select_box)
-    spinner = $("#endpoint_labels_#{sparqlId}").siblings('i')
+    spinner = $("#endpoint_labels_#{@sparqlId}").siblings('i')
     fromGraph =''
-    $(".endpoint_labels_#{sparqlId}").autocomplete({minLength: 3, delay:500, position: {collision: "flip"}, source: (request, response) =>
+    $(".endpoint_labels_#{@sparqlId}").autocomplete({minLength: 3, delay:500, position: {collision: "flip"}, source: (request, response) =>
       spinner.css('visibility','visible')
       url = @endpoint_loader.value
       fromGraph = ''
