@@ -4272,9 +4272,9 @@ class Huviz
       # if name is empty string, that is acceptable
       # if no name is provided, we use the label from the ontology if available
       if not name?
-        name = @ontology.label[node.lid] or node.lid
-      #name = name? and name or @ontology.label[node.lid]
-      # null name this will cause a made-up name to be applied
+        # Leave defaulting to the use of node.lid to @set_name() itself.
+        # If we do that here then nothing is recognized as being nameless.
+        name = @ontology.label[node.lid] or null
       @set_name(node, name)
     return node
 
