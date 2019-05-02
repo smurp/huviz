@@ -6283,7 +6283,7 @@ class Huviz
         input:
           #checked: "checked"
           type: "checkbox"
-        style: "background:yello"
+        #style: "display:none"
     ,
       focused_mag:
         group: "Labels"
@@ -7034,7 +7034,9 @@ class Huviz
   # on_change handlers for the various settings which need them
   on_change_use_accordion_for_settings: (new_val, old_val) ->
     if new_val
-      $(@settingGroupsContainerElem).accordion()
+      # TODO replace this delay with a promise
+      doit = () => $(@settingGroupsContainerElem).accordion()
+      setTimeout(doit, 200)
     else
       console.warn('We do not yet have a solution for turning OFF the Accordion')
 
