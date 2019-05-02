@@ -2778,7 +2778,7 @@ class Huviz
   discover_geoname_name_msgs_threshold_ms: 5 * 1000 # msec betweeen repetition of a msg display
 
   # TODO eliminate all use of this version in favor of the markdown version
-  discover_geoname_name_instructions: """<span style="font-size:.7em">
+  discover_geoname_name_instructions: """
    Be sure to
      1) create a
         <a target="geonamesAcct"
@@ -2837,11 +2837,22 @@ class Huviz
         count++
     return @set_setting('discover_geonames_remaining', count)
 
-  show_geonames_instructions: =>
+  show_geonames_instructions: (params) =>
+    #params =
+    #  msg: "Check your email for confirmation msg"
+    # Usage:
+    #   show_geonames_instructions({msg:'Check your email for confirmation message.'})
     args =
       width: @width * 0.6
       height: @height * 0.6
     markdown = @discover_geoname_name_instructions_md
+    if params?
+      if params.msg?
+        markdown += """
+        
+          #### Error:
+          <span style="color:red">#{params.msg}</span>
+           """
     @make_markdown_dialog(markdown, null, args)
 
   discover_geoname_name: (aUrl) ->
@@ -7213,7 +7224,7 @@ class Huviz
       @pfm_display = false
 
   on_change_discover_geonames_remaining: (new_val, old_val) ->
-    @discover_geonames_remaining = new_val
+    @discover_geonames_remaining = parseInt(new_val,10)
     @discover_names_including('sws.geonames.org')
 
   on_change_discover_geonames_as: (new_val, old_val) ->
