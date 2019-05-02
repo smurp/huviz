@@ -3724,7 +3724,7 @@ class Huviz
     @sparql_node_list = []
     @pfm_count('sparql')
     #if @p_display then @performance_dashboard('sparql_request')
-    node_limit = $('#endpoint_limit').val()
+    node_limit = @endpoint_limit_JQElem.val()
     url = @endpoint_loader.value
     @endpoint_loader.outstanding_requests = 0
     fromGraph = ''
@@ -3818,7 +3818,7 @@ class Huviz
 
 
   load_new_endpoint_data_and_show: (subject, callback) -> # DEPRECIATED !!!!
-    node_limit = $('#endpoint_limit').val()
+    node_limit = @endpoint_limit_JQElem.val()
     @p_total_sprql_requests++
     note = ''
     url = @endpoint_loader.value
@@ -3975,7 +3975,7 @@ class Huviz
     if @sparql_node_list then previous_nodes = @sparql_node_list else previous_nodes = []
     graph = @endpoint_loader.endpoint_graph
     local_node_added = 0
-    query_limit = 1000 #$('#endpoint_limit').val()
+    query_limit = 1000 #@endpoint_limit_JQElem.val()
     worker = new Worker('/huviz/sparql_ajax_query.js')
     worker.addEventListener 'message', (e) =>
       #console.log e.data
@@ -5342,7 +5342,7 @@ class Huviz
   visualize_dataset_using_ontology: (ignoreEvent, dataset, ontologies) =>
     colorlog('visualize_dataset_using_ontology()', dataset, ontologies)
     @close_blurt_box()
-    endpoint_label_uri = $("#endpoint_labels").val()
+    endpoint_label_uri = @endpoint_labels_JQElem.val()
     if endpoint_label_uri
       data = dataset or @endpoint_loader
       @load_endpoint_data_and_show(endpoint_label_uri)
@@ -5442,8 +5442,8 @@ class Huviz
   reset_endpoint_form: (show) =>
     spinner = $("#sparqlGraphSpinner-#{@endpoint_loader.select_id}")
     spinner.css('display','none')
-    $("#endpoint_labels").prop('disabled', false).val("")
-    $("#endpoint_limit").prop('disabled', false).val("100")
+    @endpoint_labels_JQElem.prop('disabled', false).val("")
+    @endpoint_limit_JQElem.prop('disabled', false).val("100")
     if show
       @sparqlQryInput_show()
     else
@@ -5509,7 +5509,7 @@ class Huviz
     else
       print_graph = ""
     data_ontol_display = """
-    <div id="#{get_data_ontology_display_id()}">
+    <div id="#{@get_data_ontology_display_id()}">
       <p><span class="dt_label">Endpoint:</span> #{endpoint}</p>
       #{print_graph}
       <br style="clear:both">
@@ -5579,6 +5579,7 @@ class Huviz
     sparqlQryInput_id = "sparqlQryInput_#{@sparqlId}"
     @sparqlQryInput_selector = "#" + sparqlQryInput_id
     endpoint_limit_id = unique_id('endpoint_limit_')
+    endpoint_labels_id = unique_id('endpoint_labels_')
     select_box = """
       <div class='ui-widget' style='display:none;margin-top:5px;margin-left:10px;'>
         <label>Graphs: </label>
@@ -5591,22 +5592,23 @@ class Huviz
       </div>
       <div id="#{sparqlQryInput_id}" class="ui-widget sparqlQryInput"
            style='display:none;margin-top:5px;margin-left:10px;color:#999;'>
-        <label for='endpoint_labels_#{@sparqlId}'>Find: </label>
-        <input id='endpoint_labels_#{@sparqlId}'>
+        <label for='#{endpoint_labels_id}'>Find: </label>
+        <input id='#{endpoint_labels_id}'>
         <i class='fas fa-spinner fa-spin' style='visibility:hidden;margin-left: 5px;'></i>
         <div><label for='#{endpoint_limit_id}'>Node Limit: </label>
         <input id='#{endpoint_limit_id}' value='100'>
         </div>
       </div>
-    """
+    """ # """
     $(@pickersSel).append(select_box)
     @sparqlQryInput_JQElem = $(@sparqlQryInput_selector)
-
+    @endpoint_labels_JQElem = $('#'+endpoint_labels_id)
+    @endpoint_limit_JQElem = $('#'+endpoint_limit_id)
     fromGraph =''
-    $(".endpoint_labels_#{@sparqlId}").autocomplete({minLength: 3, delay:500, position: {collision: "flip"}, source: @populate_graphs_selector})
+    @endpoint_labels_JQElem.autocomplete({minLength: 3, delay:500, position: {collision: "flip"}, source: @populate_graphs_selector})
 
   populate_graphs_selector: (request, response) =>
-      spinner = $("#endpoint_labels_#{@sparqlId}").siblings('i')
+      spinner = @endpoint_labels_JQElem.siblings('i')
       spinner.css('visibility','visible')
       url = @endpoint_loader.value
       fromGraph = ''
@@ -5660,7 +5662,7 @@ class Huviz
             msg = errorThrown + " while fetching " + url
             @hide_state_msg()
             $('#'+@get_data_ontology_display_id()).remove()
-            $("#endpoint_labels").siblings('i').css('visibility','hidden')
+            @endpoint_labels_JQElem.siblings('i').css('visibility','hidden')
             @blurt(msg, 'error')
 
   init_editc_or_not: ->
