@@ -6824,7 +6824,7 @@ class Huviz
           title: "Displays directional arrowheads on the 'object' end of lines."
         input:
           type: "checkbox"
-          checked: "checked"
+          #checked: "checked"
     ,
       show_images_in_nodes:
         group: "Images"
