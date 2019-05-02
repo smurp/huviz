@@ -138,9 +138,10 @@
   margin: 0;
   height: 95%;
 }
-.settingGroupsContainer {
-
+.settingGroupsContainer .settingsGroup.ui-accordion-content {
+  padding: 0.2em;
 }
+
 
 .settingsGroup {
   color: #555;
