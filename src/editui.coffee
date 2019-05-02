@@ -30,7 +30,7 @@ class EditController extends FiniteStateMachine
       viscanvas = @huviz.args.viscanvas_sel
       new_viscanvas = viscanvas.replace('#','')
       document.getElementById(new_viscanvas).appendChild(@con)
-      @con.innerHTML = "<div class='cntrl-set slider-pair'><div class='label set-1'>VIEW</div><div class='slider'><div class='knob'></div></div><div class='label set-2'>CONTRIBUTE</div><div id='beta-note'>(Beta)</div></div>"
+      @con.innerHTML = "<div class='cntrl-set slider-pair'><div class='label set-1'>VIEW</div><div class='slider'><div class='knob'></div></div><div class='label set-2'>CONTRIBUTE</div><div id='beta-note'>(Alpha)</div></div>"
       @create_edit_form(@con)
       @con.getElementsByClassName("slider")[0].onclick = @toggle_edit_form
       #console.log(con.getElementsByTagName("form")[0])
@@ -49,6 +49,11 @@ class EditController extends FiniteStateMachine
       @subject_input = @formFields[0]
       @predicate_input = @formFields[1]
       @object_input = @formFields[2]
+
+  hide: ->
+    $(@con).hide()
+  show: ->
+    $(@con).show()
 
   on__disable: ->
     @hide_verbs()

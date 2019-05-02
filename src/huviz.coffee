@@ -5652,10 +5652,13 @@ class Huviz
       })
 
   init_editc_or_not: ->
+    @editui ?= new EditController(@)
+    @editui.id = 'EditUI'
+    @editui.transit('prepare')
     if @args.show_edit
-      @editui ?= new EditController(@)
-      @editui.id = 'EditUI'
-      @editui.transit('prepare')
+      @editui.show()
+    else
+      @editui.hide()
     if @args.start_with_editing
       @editui.transit('enable')
 
