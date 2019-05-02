@@ -5312,7 +5312,7 @@ class Huviz
         {rsrcType: 'endpoint'})
       #@endpoint_loader.outstanding_requests = 0
     if @endpoint_loader and not @big_go_button
-      @populate_sparql_label_picker()
+      @build_sparql_form()
       endpoint_selector = "##{@endpoint_loader.select_id}"
       $(endpoint_selector).change(@update_endpoint_form)
     if @ontology_loader and not @big_go_button
@@ -5568,7 +5568,7 @@ class Huviz
     ontology_option = $(topSel + ' option[value="' + ontologyUri + '"]')
     @ontology_loader.select_option(ontology_option)
 
-  populate_sparql_label_picker: () =>
+  build_sparql_form: () =>
     @sparqlId = unique_id()
     select_box = """
       <div class='ui-widget' style='display:none;margin-top:5px;margin-left:10px;'>
@@ -5591,9 +5591,12 @@ class Huviz
       </div>
     """
     $(@pickersSel).append(select_box)
-    spinner = $("#endpoint_labels_#{@sparqlId}").siblings('i')
+
     fromGraph =''
-    $(".endpoint_labels_#{@sparqlId}").autocomplete({minLength: 3, delay:500, position: {collision: "flip"}, source: (request, response) =>
+    $(".endpoint_labels_#{@sparqlId}").autocomplete({minLength: 3, delay:500, position: {collision: "flip"}, source: @populate_graphs_selector})
+
+  populate_graphs_selector: (request, response) =>
+      spinner = $("#endpoint_labels_#{@sparqlId}").siblings('i')
       spinner.css('visibility','visible')
       url = @endpoint_loader.value
       fromGraph = ''
@@ -5649,7 +5652,6 @@ class Huviz
             $('#'+@get_data_ontology_display_id()).remove()
             $("#endpoint_labels").siblings('i').css('visibility','hidden')
             @blurt(msg, 'error')
-      })
 
   init_editc_or_not: ->
     @editui ?= new EditController(@)
