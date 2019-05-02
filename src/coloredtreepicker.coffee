@@ -155,6 +155,8 @@ class ColoredTreePicker extends TreePicker
         unshowing:   hsl2rgb(hue, S_all, L_unshowing)
         showing:     hsl2rgb(hue, S_all, L_showing)
         emphasizing: hsl2rgb(hue, S_all, L_emphasizing)
+      if verbose and recursor.i in [1, recursor.count + 1]
+        console.info(id, recursor, hue, retval[id])
     if verbose
       console.log(indent + " - - - recolor_node("+id+")",retval[id].unshowing)
   get_current_color_forId: (id) ->
