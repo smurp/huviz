@@ -6698,6 +6698,7 @@ class Huviz
         ]
     ,
       show_hide_endpoint_loading:
+        style: "display:none"
         class: "alpha_feature"
         text: "Show SPARQL endpoint loading forms"
         label:
