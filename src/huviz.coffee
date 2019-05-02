@@ -6804,9 +6804,9 @@ class Huviz
     ,
       arrows_chosen:
         class: "alpha_feature"
-        text: "Arrows on Edges"
+        text: "Arrowheads on Edges"
         label:
-          title: "Displays directional arrows for predicates"
+          title: "Displays directional arrowheads on the 'object' end of lines."
         input:
           type: "checkbox"
           checked: "checked"
