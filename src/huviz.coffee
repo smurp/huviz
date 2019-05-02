@@ -6975,8 +6975,7 @@ class Huviz
         if control.label.title?
           @insertBeforeEnd(controlElem, '<div class="setting_explanation">' + control.label.title + '</div>')
     #$(@settingGroupsContainerElem).accordion()
-    #@settings.append('div').attr('class', 'buffer_space')
-    @insertBeforeEnd(@settingsElem, """<div class="buffer_space"></div>""")
+    #@insertBeforeEnd(@settingsElem, """<div class="buffer_space"></div>""")
     return
 
   update_settings_cursor: (evt) =>
