@@ -147,8 +147,10 @@ class ColoredTreePicker extends TreePicker
         emphasizing: hsl2rgb(0, 0, L_emphasizing)
     else
       # https://en.wikipedia.org/wiki/HSL_and_HSV#HSL
-      recursor.i++
-      hue = recursor.i/recursor.count * 360
+      #   Adding .5 ensures hues are centered in their range, not at top.
+      #   Adding 1 ensures different first and last colors, since 0 == 360
+      hue = ((recursor.i + .5)/(recursor.count + 1)) * 360
+      recursor.i++ # post-increment to stay in the range below 360
       retval[id] =
         unshowing:   hsl2rgb(hue, S_all, L_unshowing)
         showing:     hsl2rgb(hue, S_all, L_showing)
