@@ -2,12 +2,18 @@
   clear:both;
 }
 
+.huviz_wrapper {
+  position: relative;
+  height: 100%;
+}
+
 .the-tabs {
   font-size:80%;
 }
 
-#tabs {
-  position: fixed;
+.huviz_wrapper .huviz_tabs {
+  position: absolute;
+  /* position: fixed; */
   width: 26em;
   right: 0px;
   font-size: 80%;
@@ -22,7 +28,7 @@
   padding: 0;
   font-family: helvetica, arial, verdana, sans-serif;
 }
-#tabs .ui-tabs-nav{
+.huviz_tabs .ui-tabs-nav{
   margin: 0;
   padding: .2em .2em 0;
   background-color: #157fcc;
@@ -32,16 +38,16 @@
   border-top: none;
   padding-top: 5px;
 }
-#tabs li.ui-tabs-tab.ui-state-default {
+.huviz_tabs li.ui-tabs-tab.ui-state-default {
   background: inherit;
   background-color: #e9f5ff;
 }
-#tabs li.ui-tabs-tab.ui-state-active {
+.huviz_tabs li.ui-tabs-tab.ui-state-active {
   background: inherit;
   background-color: #fff;
 }
 
-#tabs .ui-widget-header {
+.huviz_tabs .ui-widget-header {
     border-top: none;
     border-left: none;
     border-right: none;
@@ -50,7 +56,7 @@
     color: #222222;
     font-weight: bold;
 }
-#tabs-help {
+.tabs-help {
   position: absolute;
   right: 0;
   top: 5px;
@@ -59,16 +65,16 @@
   font-size: 1.3em;
   color: #d6e7ff;
 }
-#tabs-help:hover {
+.tabs-help:hover {
   color: #fff;
 }
-#ctrl-handle {
+.ctrl_handle {
   background-color: #ccc;
   border-left: solid 1px #bbb;
   width: 1px;
   left: -2px;
 }
-#ctrl-handle-grip {
+.ctrl_handle_grip {
   background-color: #ddd;
   height: 30px;
   top: 45%;
@@ -78,7 +84,7 @@
   margin-left:-8px;
   border-left: solid 1px #bbb;
 }
-#collapse_cntrl, #expand_cntrl, #full_screen{
+.collapse_cntrl, .expand_cntrl, .full_screen{
   background-color: #157fcc;
   display: block;
   position: absolute;
@@ -94,17 +100,17 @@
   margin:0;
   color:#ddd;
 }
-#collapse_cntrl{
+.collapse_cntrl{
   left: -1.2em;
 }
-#expand_cntrl {
+.expand_cntrl {
   right: 0;
 }
-#collapse_cntrl i, #full_screen i{
+.collapse_cntrl i, .full_screen i{
   padding:0;
   margin:0;
 }
-#full_screen{
+.full_screen{
   font-size: 0.8em;
   border-bottom-left-radius: inherit;
   border-bottom-right-radius: 5px;
@@ -118,7 +124,9 @@
 .tab-content-container {
   background-color: #f0f;
 }
-.graph_controls { /* put them in the upper right, above the graph */
+/* ------------------- Setting Control Styles -------------------- */
+
+.huviz_tabs .settings { /* put them in the upper right, above the graph */
   right: .2em;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -126,12 +134,89 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  padding: 0;
+  margin: 0;
+  height: 95%;
 }
-.graph_controls label { /* slide them to the right */
+.settingGroupsContainer .settingsGroup.ui-accordion-content {
+  padding: 0.2em;
+}
+
+
+.settingsGroup {
+  color: #555;
+  margin: 5px;
+  border-radius: 5px;
+  -webkit-box-shadow: 0px 1px 3px 1px rgba(201,201,201,1);
+  -moz-box-shadow: 0px 1px 3px 1px rgba(201,201,201,1);
+  box-shadow: 0px 1px 3px 1px rgba(201,201,201,1);
+  padding: 0.2px;
+}
+.a_setting {
+  border-bottom: solid 1px #ccc;
+  padding: 0.3em;
+}
+
+.a_setting input {
+  cursor: inherit;
+  float: right;
+}
+.a_setting label {
+  cursor: inherit;
+}
+
+.settings label { /* slide them to the right */
+  clear: both;
+  text-transform: capitalize;
+}
+.settings h1 {
+  font-size: 1.1em;
+  text-transform: uppercase;
+  background-color: #dfeffa;
+  padding: 0.2em 0.4em;
+  margin: 0;
+}
+
+.settings .setting_explanation {
+  font-size: 0.8em;
+  color: #757575;
+  margin-left: 0.5em;
+}
+.a_setting.reset_controls_to_default__setting {
+  height: 2em;
+}
+button[name='reset_controls_to_default'] {
   float: right;
   clear: both;
 }
-#huvis_controls {
+select[name='graph_title_style'] {
+  float: right;
+  clear: both;
+}
+.geo_input_wrap {
+  float: right;
+  clear: both;
+  border:2px solid;
+  padding:2px;
+}
+.geo_input_wrap i{
+  line-height: 1.8em;
+}
+.geo_input_wrap input{
+  margin-left: 5px;
+}
+
+.a_setting.alpha_feature {
+  color: #a1001c;
+  font-style: italic;
+}
+
+.huviz_tabs .huvis_controls {
+    padding: 0.4em;
+    padding-bottom: 0.2em;
+}
+
+.huviz_tabs .huvis_controls {
     padding: 0.4em;
     padding-bottom: 0.2em;
 }
@@ -143,7 +228,7 @@
   clear: both;
   margin: 1em 0;
 }
-#tabs-intro .usage_attribution p {
+.tabs-intro .usage_attribution p {
   text-indent: 0;
   font-size: .9em;
 }
@@ -189,7 +274,7 @@
   width: 3px;
   height: 30%;
 }
-#data_ontology_display {
+.data_ontology_display {
   background-color: #eee;
   color: #555;
   font-size: 90%;
@@ -199,7 +284,7 @@
   margin-left: -.4em;
   margin-right: -.4em;
 }
-#data_ontology_display p:first-of-type{
+.data_ontology_display p:first-of-type{
   margin-right: 4%;
 }
 
@@ -303,11 +388,14 @@ progress[value]::-moz-progress-bar {
   font-size: 80%;
   text-decoration: none;
   position: absolute;
-  bottom: 2.1em;
+  bottom: 2.6em;
   /*left:49%*/
   width: 100%;
   display: block;
   text-align:center;
+}
+a.git_commit_hash_watermark {
+  margin-bottom: 0.5em;
 }
 .control_label {
   margin-top: 2px;
@@ -328,48 +416,48 @@ progress[value]::-moz-progress-bar {
   cursor:default;
 }
 
-#blurtbox {
+.blurtbox {
    overflow:auto;
    font-family:monospace;
    list-style:none;
    padding-left: 1em;
    margin-right: 1em;
 }
-#blurtbox p{
+.blurtbox p{
   margin-left:1em;
 }
-#blurtbox h3 {
+.blurtbox h3 {
   font-size: 1.2em;
   width: 98%;
   padding: 0.3em 0 0.3em 2%;
   margin-top: 0;
   margin-bottom: 0.5em;
 }
-#blurtbox .info h3{
+.blurtbox .info h3{
   background-color: #e0e5ff;
   color: #2d40a5;
 }
-#blurtbox .alert h3{
+.blurtbox .alert h3{
   background-color: #fbf6ad;
   color: #333;
 }
-#blurtbox .error h3{
+.blurtbox .error h3{
   background-color: #f9cccc;
 }
-#blurtbox .js_msg {
+.blurtbox .js_msg {
   margin: 0.5em 1em 2em 2.5em;
   font-style: italic;
 }
-#blurtbox .blurt {
+.blurtbox .blurt {
   width: 95%;
 }
-#blurtbox .info {
+.blurtbox .info {
   color: #2d40a5;
 }
-#blurtbox .alert {
+.blurtbox .alert {
   color: #333;
 }
-#blurtbox .error {
+.blurtbox .error {
   color: #bd3a3a;
 }
 .sml_bttn {
@@ -384,13 +472,15 @@ progress[value]::-moz-progress-bar {
   padding-left: 5px;
 }
 .edit-controls {
-    bottom:.2em;
+    bottom: 1.5em;
 }
 .edit-controls.loggedIn {
-  display: inline;
-  position: fixed;
+  position: absolute;
+  position: relative;
   z-index: 3;
   left:1em;
+  height: 0;
+  width: 95%;
 }
 .cntrl-set {
   display: inline;
@@ -459,7 +549,7 @@ progress[value]::-moz-progress-bar {
 }
 
 .theme_black .label {
-  color: #ddd;
+  /* color: #ddd; */
 }
 
 /* change label color in command panel */
@@ -477,42 +567,42 @@ progress[value]::-moz-progress-bar {
 .subliminal {
     color: #D7D7D7;
 }
-#dataset_watermark.bold1 {
+.dataset_watermark.bold1 {
     color: #333333;
     font-weight: bold;
     font-size: 120%;
     display:block;
 }
-.theme_black #dataset_watermark.bold1 {
+.theme_black .dataset_watermark.bold1 {
     color: #DDDDDD;
 }
-#dataset_watermark.bold2 {
+.dataset_watermark.bold2 {
     color: #333333;
     font-weight: bold;
     font-size: 120%;
     padding-right: 1em;
 }
-#ontology_watermark.bold2 {
+.ontology_watermark.bold2 {
     color: #333333;
 }
-.theme_black #dataset_watermark.bold2, .theme_black #ontology_watermark.bold2{
+.theme_black .dataset_watermark.bold2, .theme_black .ontology_watermark.bold2{
     color: #DDDDDD;
 }
-#dataset_watermark.custom {
+.dataset_watermark.custom {
     color: #333333;
     font-weight: bold;
     font-size: 120%;
     display:block;
 }
-#ontology_watermark.custom {
+.ontology_watermark.custom {
     color: #333333;
     font-size: 100%;
     display:block;
 }
-.theme_black #dataset_watermark.custom {
+.theme_black .dataset_watermark.custom {
     color: #DDDDDD;
 }
-.theme_black #ontology_watermark.custom {
+.theme_black .ontology_watermark.custom {
     color: #DDDDDD;
 }
 
@@ -521,11 +611,11 @@ progress[value]::-moz-progress-bar {
   padding-bottom: 200px;
 }
 
-#tabs-credit #logos img {
+.tabs-credit #logos img {
   height: 64px;
   padding: 5px;
 }
-#tabs-credit h1 {
+.tabs-credit h1 {
     display: block;
     font-size: 1.3em;
     padding-top: 0.1em;
@@ -534,7 +624,7 @@ progress[value]::-moz-progress-bar {
     padding-bottom: 0px;
     font-weight: medium;
 }
-#tabs-credit h2,h3 {
+.tabs-credit h2,h3 {
     text-align: left;
     display: inline-block;
     font-size: 1.05em;
@@ -544,7 +634,7 @@ progress[value]::-moz-progress-bar {
     margin-bottom: 0px;
     font-weight: bold;
 }
-#tabs-credit ul {
+.tabs-credit ul {
     padding: 0px;
     margin: 0px;
     margin-left: 1em;
@@ -556,17 +646,17 @@ progress[value]::-moz-progress-bar {
 
 /* tabs-intro styling */
 
-#tabs-intro p {
+.tabs-intro p {
     margin-top: .2em;
     text-indent: 1.2em;
 }
-#tabs-intro ul {
+.tabs-intro ul {
     margin-top: .5em;
     margin-bottom: .5em;
     font-family: Courier;
     font-size: 90%;
 }
-#tabs-intro ul {
+.tabs-intro ul {
     list-style: none outside none;
 }
 

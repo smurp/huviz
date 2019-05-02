@@ -1,4 +1,4 @@
-#gclui {
+.gclui {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -8,22 +8,20 @@
   /*max-height: 50em;
   overflow-y: scroll;*/
 }
-#gclui p, #data_ontology_display p {
+.gclui p, .data_ontology_display p {
   width:auto;
   float:left;
   margin: .1em;
 }
-#data_ontology_display {
+.data_ontology_display {
   margin-bottom: 1px;
 }
-#predicates {
+.predicates {
   margin-bottom: 50px;
-}
-#predicates {
   overflow-y: scroll;
   height: 30em;
 }
-#buffer_space {
+.buffer_space {
   height: 10em;
   clear: both;
 }
@@ -164,7 +162,7 @@
   background-color: blue;
   color: white;
 }
-#commandhistory {
+.commandhistory {
   overflow-y: scroll;
 }
 .commandhistory .command{
@@ -274,14 +272,6 @@
 .nextcommand_prompt_proposed {
   color: red;
   font-style: bold;
-}
-
-}
-.graph_control input {
-  cursor: inherit;
-}
-.graph_control label {
-  cursor: inherit;
 }
 
 .close_hint {

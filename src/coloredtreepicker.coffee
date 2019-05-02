@@ -67,7 +67,7 @@ verbose = false
 
 class ColoredTreePicker extends TreePicker
   constructor: ->
-    super
+    super(arguments...)
     @id_to_colors = {}
   add: (id,parent_id,name,listener) ->
     super(id,parent_id,name,listener)
@@ -79,22 +79,26 @@ class ColoredTreePicker extends TreePicker
     return "#{@get_my_id()}_colors"
   update_css: ->
     if not @style_sheet?
-      @style_sheet = d3.select("body").
-        append("style").attr("id", @get_my_style_id())
-    styles = "  ##{@get_my_id()} {}"
+      @style_sheet = @elem.append("style")
+        # .attr("id", @get_my_style_id())
+    styles = "// #{@get_my_id()}"
+    ctxSel = @style_context_selector
+    if ctxSel
+      ctxSel += ' ' # put a space after ctxSel if it has content
+    ctxSel ?= ''
     for id,colors of @id_to_colors
       nc = colors.unshowing
       sc = colors.showing
       styles += """
 
-        ##{id}.treepicker-showing {
+        #{ctxSel}##{id}.treepicker-showing {
            background-color:#{sc};
         }
-        ##{id}.treepicker-unshowing {
+        #{ctxSel}##{id}.treepicker-unshowing {
            background-color:#{nc};
         }
-        ##{id}.treepicker-mixed,
-        ##{id}.treepicker-indirect-mixed.treepicker-collapse {
+        #{ctxSel}##{id}.treepicker-mixed,
+        #{ctxSel}##{id}.treepicker-indirect-mixed.treepicker-collapse {
           background: linear-gradient(45deg, #{nc}, #{sc}, #{nc}, #{sc}, #{nc}, #{sc}, #{nc}, #{sc});
           background-color: transparent;
         }

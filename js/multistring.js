@@ -50,7 +50,7 @@ function MultiString() {
     this.set_val_lang()
   } else {
     i = -1;
-    while (arguments[i+=1]) {
+    while (typeof(arguments[i+=1]) != 'undefined') { // an empty string is a legal name
       // process value/lang pairs
       this.set_val_lang(arguments[i] || '', arguments[i+=1]);
     }
@@ -142,7 +142,7 @@ MultiString.set_langpath = function(langpath){
   // so String.prototype methods can get to the value
   MultiString.prototype.toString =
     MultiString.prototype.valueOf =
-      new Function(body);
+    new Function(body);
 };
 
 MultiString.set_langpath('ANY:NOLANG'); // set the default langpath

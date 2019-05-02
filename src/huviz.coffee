@@ -114,6 +114,7 @@ gcl = require('graphcommandlanguage')
 #asyncLoop = require('asynchronizer').asyncLoop
 CommandController = require('gclui').CommandController
 EditController = require('editui').EditController
+#FiniteStateMachine = require('fsm').FiniteStateMachine
 IndexedDBService = require('indexeddbservice').IndexedDBService
 IndexedDBStorageController = require('indexeddbstoragecontroller').IndexedDBStorageController
 Edge = require('edge').Edge
@@ -134,6 +135,22 @@ colorlog = (msg, color, size) ->
   color ?= "red"
   size ?= "1.2em"
   console.log("%c#{msg}", "color:#{color};font-size:#{size};")
+
+unpad_md = (txt, pad) ->
+  # Purpose:
+  #   Remove padding at the beginings of all lines in txt IFF all lines have padding
+  # Motivation:
+  #   Markdown is very whitespace sensitive but it makes for ugly code
+  #   to not have left padding in large strings.
+  pad = "    "
+  out_lines = []
+  in_lines = txt.split("\n")
+  for line in in_lines
+    if not (line.startsWith(pad) or line.length is 0)
+      return txt
+    out_lines.push(line.replace(/^    /,''))
+  out = out_lines.join("\n")
+  return out
 
 wpad = undefined
 hpad = 10
@@ -184,7 +201,7 @@ int_to_base = (intgr) ->
 synthIdFor = (str) ->
   # return a short random hash suitable for use as DOM/JS id
   return 'h'+int_to_base(hash(str)).substr(0,6)
-
+window.synthIdFor = synthIdFor
 unescape_unicode = (u) ->
   # pre-escape any existing quotes so when JSON.parse does not get confused
   return JSON.parse('"' + u.replace('"', '\\"') + '"')
@@ -204,8 +221,16 @@ linearize = (msgRecipient, streamoid) ->
     recurse = () -> linearize(msgRecipient, streamoid)
     setTimeout(recurse, 0)
 
-unique_id = () ->
-  'uid_'+Math.random().toString(36).substr(2,10)
+ident = (data) ->
+  return data
+
+unique_id = (prefix) ->
+  prefix ?= 'uid_'
+  return prefix + Math.random().toString(36).substr(2,10)
+
+sel_to_id = (selector) ->
+  # remove the leading hash to make a selector into an id
+  return selector.replace(/^\#/,'')
 
 window.log_click = () ->
   console.log("%cCLICK", "color:red;font-size:1.8em")
@@ -229,6 +254,9 @@ RDFS_label  = "http://www.w3.org/2000/01/rdf-schema#label"
 SKOS_prefLabel = "http://www.w3.org/2004/02/skos/core#prefLabel"
 XL_literalForm = "http://www.w3.org/2008/05/skos-xl#literalForm"
 TYPE_SYNS   = [RDF_type, RDF_a, 'rdfs:type', 'rdf:type']
+THUMB_PREDS = [
+  'http://dbpedia.org/ontology/thumbnail'
+  'http://xmlns.com/foaf/0.1/thumbnail']
 NAME_SYNS = [
   FOAF_name, RDFS_label, 'rdfs:label', 'name', SKOS_prefLabel, XL_literalForm
   ]
@@ -383,26 +411,7 @@ if not is_one_of(2,[3,2,4])
   alert "is_one_of() fails"
 
 window.blurt = (str, type, noButton) ->
-  #css styles for messages: info (blue), alert (yellow), error (red)
-  # TODO There is currently no way for users to remove blurt boxes
-
-  #type='info' if !type
-  if type is "info" then label = "<h3>Message</h3>"
-  if type is "alert" then label = "<h3>Alert</h3>"
-  if type is "error" then label = "<h3>Error</h3>"
-  if not type then label = ''
-  if !$('#blurtbox').length
-    if type is "error"
-      $('#huvis_controls').prepend('<div id="blurtbox"></div>')
-    else
-      $('#tabs').append('<div id="blurtbox"></div>')
-  $('#blurtbox').append("<div class='blurt #{type}'>#{label}#{str}<br class='clear'></div>")
-  $('#blurtbox').scrollTop(10000)
-  if not noButton
-    $('#blurtbox').append("<button id='blurt_close' class='sml_bttn' type='button'>close</button>")
-
-window.blurtDate = () ->
-  blurt((""+new Date()+"").substr(0,24), null, true)
+  throw new Error('global blurt() is defunct, use @blurt() on HuViz')
 
 escapeHtml = (unsafe) ->
     return unsafe
@@ -412,6 +421,59 @@ escapeHtml = (unsafe) ->
          .replace(/"/g, "&quot;")
          .replace(/'/g, "&#039;");
 
+class SettingsWidget
+  constructor: (@huviz, @inputElem, state) ->
+    @id = unique_id('widget_')
+    @inputJQElem = $(@inputElem)
+
+  wrap: (html) ->
+    $(@inputElem).wrap(html)
+
+class UsernameWidget extends SettingsWidget
+  # https://fontawesome.com/v4.7.0/examples/#animated explains animations fa-spin (continuous) and fa-pulse (8-step)
+  state_to_state_icon:
+    bad: 'fa-times' # the username has been tried and failed last use
+    good: 'fa-check' # the username has been tried and succeeded last use
+    untried: 'fa-question' # a username has been provided but not yet tried
+    trying: 'fa-spinner fa-pulse' # performing a lookup with a username which might be bad or good
+    empty: 'fa-ellipsis-h' # no username present
+    looking: 'fa-map-marker-alt fa-spin' # performing a lookup with a known good username
+  state_to_color:
+    bad: 'red'
+    good: 'green'
+    untried: 'orange'
+    trying: 'orange'
+    empty: 'grey'
+    looking: 'green'
+
+  constructor: ->
+    super(arguments...)
+    @wrap("""<div id="#{@id}" class="geo_input_wrap"></div>""") #  style="border:2px solid; padding:2px
+    #@inputElem.setAttribute('style','border:none')
+    @widgetJQElem = $('#'+@id)
+    @widgetJQElem.prepend("""<i class="userIcon fa fa-user-alt"></i><i class="stateIcon fa fa-question"></i>""")
+    @stateIconJQElem = @widgetJQElem.find('.stateIcon')
+    @userIconJQElem = @widgetJQElem.find('.userIcon')
+    @set_state('empty')
+
+  set_state: (state) ->
+    if false and @state and @state is state
+      console.log("not bothering to change the state to",state,"cause it already is")
+      return
+    @state = state
+    console.log(state, @inputJQElem.val())
+    stateIcon = @state_to_state_icon[state]
+    @stateIconJQElem.attr('class', "stateIcon fa " + stateIcon)
+    color = @state_to_color[state]
+    @widgetJQElem.css('border-color',color)
+    @widgetJQElem.css('color',color)
+    return
+
+class GeoUserNameWidget extends UsernameWidget
+  constructor: ->
+    super(arguments...)
+    @stateIconJQElem.on('click', @huviz.show_geonames_instructions)
+    @userIconJQElem.on('click', @huviz.show_geonames_instructions)
 
 orlando_human_term =
   all: 'All'
@@ -447,6 +509,11 @@ orlando_human_term =
   load: 'Load'
   draw: 'Draw'
   undraw: 'Undraw'
+  connect: 'Connect'
+  spawn: 'Spawn'
+  specialize: 'Specialize'
+  annotate: 'Annotate'
+  seeking_object: 'Object node'
 
 class Huviz
   class_list: [] # FIXME remove
@@ -566,6 +633,90 @@ class Huviz
       label: "Sparql Queries/sec"
 
   p_total_sprql_requests: 0
+
+  how_heavy_are: (n, label, cb) ->
+    memories = []
+    memories.push(window.performance.memory)
+    @heavy_things ?= {}
+    buncha = []
+    @heavy_things[label] = buncha
+    for m in [1..n]
+      retval = cb.call(this,n)
+      #console.log(retval)
+      buncha.push(retval)
+    memories.push(window.performance.memory)
+    memories.push({})
+    memories.push({})
+    [before,after,diff,per] = memories
+    for k of memories[0]
+      diff[k] = after[k] - before[k]
+      per[k] = diff[k] / n
+    per.what = 'B/'+label
+    before.what = 'before'
+    after.what = 'after'
+    diff.what = 'diff'
+    #console.log(per)
+    colorlog(label + ' occupy ' + per.totalJSHeapSize + ' Bytes each')
+    console.log('eg', retval)
+    #console.table(memories)
+    return
+
+  how_heavy: (n) ->
+    # Purpose:
+    #   Find out how many Bytes each of the following objects occupy in RAM.
+    # Example:
+    #   HVZ[0].how_heavy(100000)
+    @how_heavy_are(n, 'Array', (x) -> return new Array(100))
+    @how_heavy_are(n, 'Object', (x) -> return (new Object())[x] = x)
+    @how_heavy_are(n, 'String', (x) -> return ""+x)
+    @how_heavy_are(n, 'Random', (x) -> return Math.random())
+    @how_heavy_are(n, 'SortedSet', (x) -> return SortedSet().named(x))
+
+  compose_object_from_defaults_and_incoming: (defs, incoming) ->
+    # Purpose:
+    #   To return an object with the properties of defs and incoming layered into it in turn
+    # Intended Use Case:
+    #   It is frequently the case that one wants to have and object with contains
+    #   the default arguments for something and that one also wants the ability to
+    #   pass in another object which contains the specifics for the call.
+    #   This method joins those things together properly (they can even be null)
+    #   to return the amalgamation of the defaults and the incoming arguments.
+    defs ?= {}
+    incoming ?= {}
+    return Object.assign(Object.assign({}, defs), incoming)
+
+  default_dialog_args: {width:200, height:200, left:100, top:100, head_bg_color:'blue', classes: "contextMenu temp"}
+  gen_dialog_html: (contents, id, in_args) ->
+    args = @compose_object_from_defaults_and_incoming(@default_dialog_args, in_args)
+    #args = Object.assign(default_args, in_args)
+    return """<div id="#{id}" class="#{args.classes} #{args.extraClasses}"
+        style="display:block;top:#{args.top}px;left:#{args.left}px;max-width:#{args.width}px;max-height:#{args.height}px">
+      <div class="header" style="background-color:#{args.head_bg_color};#{args.style}">
+        <button class="close_node_details" title="Close"><i class="far fa-window-close"></i></button>
+      </div>
+      #{contents}
+    </div>""" # """ for emacs coffeescript mode
+
+  make_dialog: (content_html, id, args) ->
+    id ?= @unique_id('dialog_')
+    @addHTML(@gen_dialog_html(content_html, id, args))
+    elem = document.querySelector('#'+id)
+    $(elem.querySelector(' .close_node_details')).on('click', @destroy_box)
+    $(elem).draggable()
+    return elem
+
+  destroy_box: (e) ->
+    box = e.currentTarget.offsetParent
+    $(box).remove()
+
+  make_markdown_dialog: (markdown, id, args) ->
+    args ?= {}
+    args.extraClasses += " markdownDialog"
+    return @make_dialog(marked(markdown or ''), id, args)
+
+  unique_id: (prefix) ->
+    prefix ?= 'uid_'
+    return prefix + Math.random().toString(36).substr(2,10)
 
   change_sort_order: (array, cmp) ->
     array.__current_sort_order = cmp
@@ -697,16 +848,37 @@ class Huviz
     return @
 
   toggle_expander: (id) ->
-    $("##{id} span.expander:first").trigger("click");
+    @topJQElem.find("##{id} span.expander:first").trigger("click");
     return @
 
   doit: ->
-    $("#doit_button").trigger("click")
+    @topJQElem.find(".doit_button").trigger("click")
     return @
 
+  make_cursor_text_while_dragging: (action) ->
+    if action in ['seeking_object']
+      drag_or_drop = 'drag'
+    else
+      drag_or_drop = 'drop'
+    return "#{@human_term[drag_or_drop] or drag_or_drop} to #{@human_term[action] or action}"
+
+  get_mouse_point: (d3_event) ->
+    d3_event ?= @mouse_receiver[0][0]
+    return d3.mouse(d3_event)
+
+  should_start_dragging: ->
+    # We can only know that the users intention is to drag
+    # a node once sufficient motion has started, when there
+    # is a focused_node
+    #console.log "state_name == '" + @focused_node.state.state_name + "' and selected? == " + @focused_node.selected?
+    #console.log "START_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
+    return not @dragging and
+        @mousedown_point and
+        @focused_node and
+        distance(@last_mouse_pos, @mousedown_point) > @drag_dist_threshold
+
   mousemove: =>
-    d3_event = @mouse_receiver[0][0]
-    @last_mouse_pos = d3.mouse(d3_event)
+    @last_mouse_pos = @get_mouse_point()
     if @rightClickHold
       @text_cursor.continue()
       @text_cursor.set_text("Inspect")
@@ -716,52 +888,50 @@ class Huviz
         @render_node_info_box()
       else
         if $(".contextMenu.temp") then $(".contextMenu.temp").remove()
-    else if not @dragging and @mousedown_point and @focused_node and
-        distance(@last_mouse_pos, @mousedown_point) > @drag_dist_threshold
-      # We can only know that the users intention is to drag
-      # a node once sufficient motion has started, when there
-      # is a focused_node
-      #console.log "state_name == '" + @focused_node.state.state_name + "' and selected? == " + @focused_node.selected?
-      #console.log "START_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
+    else if @should_start_dragging()
       @dragging = @focused_node
       if @args.drag_start_handler
         try
           @args.drag_start_handler.call(this, @dragging)
         catch e
           console.warn(e)
-      if @edit_mode
+      if @editui.is_state('connecting')
         if @editui.subject_node isnt @dragging
           @editui.set_subject_node(@dragging)
       if @dragging.state isnt @graphed_set isnt @rightClickHold
         @graphed_set.acquire(@dragging)
 
-    if @dragging and not @rightClickHold
-      @force.resume() # why?
-      if not @args.skip_log_tick
-        console.log "Tick in @force.resume() mousemove"
-      @move_node_to_point(@dragging, @last_mouse_pos)
-      if @edit_mode
-        @text_cursor.pause("", "drop on object node")
-      else
-        if @dragging.links_shown.length is 0
-          action = "choose"
-        else if @dragging.fixed
-          action = "unpin"
+    if not @rightClickHold
+      if @dragging
+        @force.resume() # why?
+        if not @args.skip_log_tick
+          console.log "Tick in @force.resume() mousemove"
+        @move_node_to_point(@dragging, @last_mouse_pos)
+        if @editui.is_state('connecting')
+          @text_cursor.pause("", "drop on object node")
         else
-          action = "pin"
-        if @in_disconnect_dropzone(@dragging)
-          action = "shelve"
-        else if @in_discard_dropzone(@dragging)
-          action = "discard"
-        @text_cursor.pause("", "drop to #{@human_term[action]}")
-    else if not @rightClickHold # ie NOT dragging
-      # TODO put block "if not @dragging and @mousedown_point and @focused_node and distance" here
-      if @edit_mode
-        if @editui.object_node or not @editui.subject_node
-          if @editui.object_datatype_is_literal
-            @text_cursor.set_text("click subject node")
+          if @dragging.links_shown.length is 0
+            action = "choose"
+          else if @dragging.fixed
+            action = "unpin"
           else
-            @text_cursor.set_text("drag subject node")
+            action = "pin"
+          if (edit_state = @editui.get_state()) isnt 'not_editing'
+            action = edit_state
+          else if @in_disconnect_dropzone(@dragging)
+            action = "shelve"
+          else if @in_discard_dropzone(@dragging)
+            action = "discard"
+          cursor_text = @make_cursor_text_while_dragging(action)
+          @text_cursor.pause("", cursor_text)
+      else
+        # TODO put block "if not @dragging and @mousedown_point and @focused_node and distance" here
+        if @editui.is_state('connecting')
+          if @editui.object_node or not @editui.subject_node
+            if @editui.object_datatype_is_literal
+              @text_cursor.set_text("click subject node")
+            else
+              @text_cursor.set_text("drag subject node")
     if @peeking_node?
       console.log "PEEKING at node: " + @peeking_node.id
       if @focused_node? and @focused_node isnt @peeking_node
@@ -777,15 +947,14 @@ class Huviz
     @tick("Tick in mousemove")
 
   mousedown: =>
-    d3_event = @mouse_receiver[0][0]
-    @mousedown_point = d3.mouse(d3_event)
+    @mousedown_point = @get_mouse_point()
     @last_mouse_pos = @mousedown_point
 
   mouseup: =>
     window.log_click()
     d3_event = @mouse_receiver[0][0]
     @mousedown_point = false
-    point = d3.mouse(d3_event)
+    point = @get_mouse_point(d3_event)
     if d3.event.button is 2 # Right click event so don't alter selected state
       @text_cursor.continue()
       @text_cursor.set_text("Select")
@@ -794,7 +963,7 @@ class Huviz
       return
     # if something was being dragged then handle the drop
     if @dragging
-      #console.log "STOPPING_DRAG: \n  dragging",@dragging,"\n  mousedown_point:",@mousedown_point,"\n  @focused_node:",@focused_node
+      #@log_mouse_activity('FINISH A DRAG')
       @move_node_to_point(@dragging, point)
       if @in_discard_dropzone(@dragging)
         @run_verb_on_object('discard', @dragging)
@@ -804,7 +973,7 @@ class Huviz
       else if @dragging.links_shown.length == 0
         @run_verb_on_object('choose', @dragging)
       else if @nodes_pinnable
-        if @edit_mode and (@dragging is @editui.subject_node)
+        if @editui.is_state('connecting') and (@dragging is @editui.subject_node)
           console.log "not pinning subject_node when dropping"
         else if @dragging.fixed # aka pinned
           @run_verb_on_object('unpin', @dragging)
@@ -814,7 +983,7 @@ class Huviz
       @text_cursor.continue()
       return
 
-    if @edit_mode and @focused_node and @editui.object_datatype_is_literal
+    if @editui.is_state('connecting') and @focused_node and @editui.object_datatype_is_literal
       @editui.set_subject_node(@focused_node)
       #console.log("edit mode and focused note and editui is literal")
       @tick("Tick in mouseup 1")
@@ -853,6 +1022,11 @@ class Huviz
 
     return
 
+  log_mouse_activity: (label) ->
+    console.log(label,"\n  dragging", @dragging,
+        "\n  mousedown_point:",@mousedown_point,
+        "\n  @focused_node:", @focused_node)
+
   mouseright: () =>
     d3.event.preventDefault()
     @text_cursor.continue()
@@ -888,14 +1062,7 @@ class Huviz
     #console.log @focused_node.links_from.length
     if (@focused_node.links_from.length > 0)
       for link_from in @focused_node.links_from
-        url_check = link_from.target.id
-        url_check = url_check.substring(0,4)
-        #console.log url_check
-        if url_check is "http"
-          target = "<a href='#{link_from.target.id}' target='blank'>#{link_from.target.lid}</a>"
-        else
-          target = link_from.target.id
-
+        target = @create_link_if_url(link_from.target.id)
         node_out_links = node_out_links + "<li><i class='fas fa-long-arrow-alt-right'></i> <a href='#{link_from.predicate.id}' target='blank'>#{link_from.predicate.lid}</a> <i class='fas fa-long-arrow-alt-right'></i> #{target}</li>"
       node_out_links = "<ul>" + node_out_links + "</ul>"
     #console.log @focused_node
@@ -908,31 +1075,36 @@ class Huviz
         note = "<p class='note'>Node Fully Loaded</span>"
       else
         note = "<p class='note'><span class='label'>Note:</span> This node may not yet be fully loaded from remote server. Link details may not be accurate. Activate to load.</i>"
+
+    dialogArgs =
+      width: @width * 0.50
+      height: @height * 0.80
+      top: d3.event.clientY
+      left: d3.event.clientX
+
     if @focused_node
+      dialogArgs.head_bg_color = @focused_node.color
+      id_display = @create_link_if_url(@focused_node.id)
       node_info = """
-        <div class="header" style="background-color:#{@focused_node.color};">#{color_headers}<button class="close_node_details" title="Close Information Box"><i class="far fa-window-close"></i></button></div>
-        <p><span class='label'>id:</span> #{@focused_node.id}</p>
+        <p class='id_display'><span class='label'>id:</span> #{id_display}</p>
         <p><span class='label'>name:</span> #{names_all_langs}</p>
         <p><span class='label'>type(s):</span> #{@focused_node.type} #{other_types}</p>
         <p><span class='label'>Links To:</span> #{@focused_node.links_to.length} <br>
           <span class='label'>Links From:</span> #{@focused_node.links_from.length}</p>
           #{note}
           #{node_out_links}
-        """
-      max_width = @width * 0.50
-      max_height = @height * 0.80
-      d3.select(@args.viscanvas_sel).append('div').attr('id', @focused_node.lid ).attr('class', 'contextMenu').classed('temp', true).style('display', 'block')
-        .style('top', "#{d3.event.clientY}px")
-        .style('left', "#{d3.event.clientX}px")
-        .style('max-width', "#{max_width}px")
-        .style('max-height', "#{max_height}px")
-        .html(node_info)#.on('drag',@draggable_info_box)
-      $("##{@focused_node.lid}").draggable()
-      $("##{@focused_node.lid} .close_node_details").on('click', @close_info_box)
+        """ # """
 
-  close_info_box: (e) ->
-    box = e.currentTarget.offsetParent
-    $(box).remove()
+      @make_dialog(node_info, @unique_id(@focused_node.lid+'__'), dialogArgs)
+    return
+
+  create_link_if_url: (possible_link) ->
+    url_check = possible_link.substring(0,4)
+    if url_check is "http"
+      target = "<a href='#{possible_link}' target='blank'>#{possible_link}</a>"
+    else
+      target = possible_link
+
 
   perform_current_command: (node) ->
     if @gclui.ready_to_perform()
@@ -956,6 +1128,9 @@ class Huviz
   # resize-svg-when-window-is-resized-in-d3-js
   #   http://stackoverflow.com/questions/16265123/
   updateWindow: =>
+    if not @container
+      console.warn('updateWindow() skipped until @container')
+      return
     @get_container_width()
     @get_container_height()
     @update_graph_radius()
@@ -974,8 +1149,10 @@ class Huviz
       console.log "Tick in @force.size() updateWindow"
     # FIXME all selectors must be localized so if there are two huviz
     #       instances on a page they do not interact
-    $("#graph_title_set").css("width", @width)
-    $("#tabs").css("left", "auto")
+    instance_container = @args.huviz_top_sel
+    $("#{instance_container} .graph_title_set").css("width", @width)
+    if @tabsJQElem and @tabsJQElem.length > 0
+      @tabsJQElem.css("left", "auto")
     @restart()
 
   #///////////////////////////////////////////////////////////////////////////
@@ -984,8 +1161,10 @@ class Huviz
   get_charge: (d) =>
     graphed = d.state == @graphed_set
     retval = graphed and @charge or 0  # zero so shelf has no influence
-    if retval is 0 and graphed
-      console.error "bad combo of retval and graphed?",retval,graphed,d.name
+    if d.charge?
+      retval = d.charge
+    #if retval is 0 and graphed
+    #  console.error "bad combo of retval and graphed?",retval,graphed,d.name
     return retval
 
   get_gravity: =>
@@ -1026,12 +1205,47 @@ class Huviz
       @ctx.fillStyle = "black"
       @ctx.fill()
 
-  draw_triangle: (x, y, size, color, x1, y1, x2, y2) ->
-    # Rather than send all three coordinates, it would be better if just the tip
-    # was passed along with an angle and size to calculate the other two points of the
-    # triangle.
+  draw_round_img: (cx, cy, radius, strclr, filclr, special_focus, imageData, url) ->
+    incl_cntr = start_angle? or end_angle?
+    start_angle = start_angle or 0
+    end_angle = end_angle or tau
+    if strclr
+      @ctx.strokeStyle = strclr or "blue"
+    @ctx.beginPath()
+    if incl_cntr
+      @ctx.moveTo(cx, cy) # so the arcs are wedges not chords
+      # do not incl_cntr when drawing a whole circle
+    @ctx.arc(cx, cy, radius, start_angle, end_angle, true)
+    @ctx.closePath()
+    if strclr
+      @ctx.stroke()
+    if filclr
+      @ctx.fill()
+    wh = radius*2
+    if imageData?
+      # note that drawImage can clip for the centering task
+      #   https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/drawImage
+      @ctx.drawImage(imageData, cx-radius, cy-radius, wh, wh)
+    else
+      img = new Image()
+      img.src = url
+      @ctx.drawImage(img,
+                     0, 0, img.width, img.height,
+                     cx-radius, cy-radius, wh, wh)
+
+    if special_focus # true if this is a wander or walk highlighted node
+      @ctx.beginPath()
+      radius = radius/2
+      @ctx.arc(cx, cy, radius, 0, Math.PI*2)
+      @ctx.closePath()
+      @ctx.fillStyle = "black"
+      @ctx.fill()
+
+
+  draw_triangle: (x, y, color, x1, y1, x2, y2) ->
     @ctx.beginPath()
     @ctx.moveTo(x, y)
+    @ctx.strokeStyle = color
     @ctx.lineTo(x1, y1)
     @ctx.lineTo(x2, y2)
     @ctx.moveTo(x, y)
@@ -1061,6 +1275,7 @@ class Huviz
     @ctx.lineTo(x2, y2)
     @ctx.closePath()
     @ctx.stroke()
+
   draw_curvedline: (x1, y1, x2, y2, sway_inc, clr, num_contexts, line_width, edge, directional_edge) ->
     pdist = distance([x1,y1],[x2,y2])
     sway = @swayfrac * sway_inc * pdist
@@ -1099,17 +1314,35 @@ class Huviz
       x: xhndl
       y: yhndl
     @draw_circle(xhndl, yhndl, (line_width/2), clr) # draw a circle at the midpoint of the line
-    if directional_edge
-      arrow_size = 10
-      if directional_edge is "forward"
-        tip_x = x2
-        tip_y = y2
-      else
-        tip_x = x1
-        tip_y = y1
-      #TODO This works but is ugly. The directional arrow created is too large
-      #@draw_triangle(tip_x, tip_y, arrow_size, "blue", xctrl, yctrl, xmid, ymid)
-    #@draw_line(xmid,ymid,xctrl,yctrl,clr) # show mid to ctrl
+    if directional_edge is "forward"
+      tip_x = x2
+      tip_y = y2
+    else
+      tip_x = x1
+      tip_y = y1
+
+    # --------- ARROWS on Edges -----------
+    if @arrows_chosen
+      a_l = 8 # arrow length
+      a_w = 2 # arrow width
+      arr_side = Math.sqrt(a_l * a_l + a_w * a_w)
+
+      arrow_color = "#333" # clr
+      node_radius = @calc_node_radius(edge.target)
+
+      arw_angl = Math.atan((yctrl - y2)/(xctrl - x2))
+      hd_angl = Math.tan(a_w/a_l)
+      if (xctrl < x2) then flip = -1 else flip = 1 # Flip sign depending on angle
+
+      pnt_x =  x2 + flip * node_radius * Math.cos(arw_angl)
+      pnt_y =  y2 + flip * node_radius * Math.sin(arw_angl)
+      arrow_base_x = x2 + flip * (node_radius + a_l) * Math.cos(arw_angl)
+      arrow_base_y = y2 + flip * (node_radius + a_l) * Math.sin(arw_angl)
+      xo1 = pnt_x + flip * arr_side * Math.cos(arw_angl + hd_angl)
+      yo1 = pnt_y + flip * arr_side * Math.sin(arw_angl + hd_angl)
+      xo2 = pnt_x + flip * arr_side * Math.cos(arw_angl - hd_angl)
+      yo2 = pnt_y + flip * arr_side * Math.sin(arw_angl - hd_angl)
+      @draw_triangle(pnt_x, pnt_y, arrow_color, xo1, yo1, xo2, yo2)
 
   draw_disconnect_dropzone: ->
     @ctx.save()
@@ -1305,6 +1538,7 @@ class Huviz
       walked_set: @walked_set
 
   get_set_by_id: (setId) ->
+    setId = setId is 'fixed' and 'pinned' or setId # because pinned uses fixed as its 'name'
     return this[setId + '_set']
 
   update_all_counts: ->
@@ -1368,7 +1602,7 @@ class Huviz
     hier = hier? ? hier : true # default to true
     if hier
       @gclui.taxon_picker.collapse_by_id(id)
-    $("##{id}").trigger("click")
+    @topJQElem.find("##{id}").trigger("click")
     if hier
       @gclui.taxon_picker.expand_by_id(id)
 
@@ -1399,7 +1633,7 @@ class Huviz
     @G = {} # is this deprecated?
     @init_sets()
     @init_gclc()
-    @init_editc()
+    @init_editc_or_not()
     @indexed_dbservice()  # REVIEW is this needed?
     @init_indexddbstorage() # REVIEW and this?
 
@@ -1409,12 +1643,12 @@ class Huviz
       console.log "Tick in @force.nodes() reset_graph"
 
     # TODO move this SVG code to own renderer
-    d3.select(".link").remove()
-    d3.select(".node").remove()
-    d3.select(".lariat").remove()
-    @node = @svg.selectAll(".node")
-    @link = @svg.selectAll(".link") # looks bogus, see @link assignment below
-    @lariat = @svg.selectAll(".lariat")
+    d3.select("#{@args.huviz_top_sel} .link").remove()
+    d3.select("#{@args.huviz_top_sel} .node").remove()
+    d3.select("#{@args.huviz_top_sel} .lariat").remove()
+    @node = @svg.selectAll("#{@args.huviz_top_sel} .node")
+    @link = @svg.selectAll("#{@args.huviz_top_sel} .link") # looks bogus, see @link assignment below
+    @lariat = @svg.selectAll("#{@args.huviz_top_sel} .lariat")
 
     @link = @link.data(@links_set)
     @link.exit().remove()
@@ -1434,7 +1668,8 @@ class Huviz
       @node_radius_policy = f
     else
       console.log "f =", f
-  init_node_radius_policy: ->
+
+  DEPRECATED_init_node_radius_policy: ->
     policy_box = d3.select("#huvis_controls").append("div", "node_radius_policy_box")
     policy_picker = policy_box.append("select", "node_radius_policy")
     policy_picker.on "change", set_node_radius_policy
@@ -1445,8 +1680,9 @@ class Huviz
     total_links = d.links_to.length + d.links_from.length
     diff_adjustment = 10 * (total_links/(total_links+9))
     final_adjustment =  @node_diff * (diff_adjustment - 1)
-    @node_radius * (not d.selected? and 1 or @selected_mag) + final_adjustment
-
+    if d.radius?
+      return d.radius
+    return @node_radius * (not d.selected? and 1 or @selected_mag) + final_adjustment
     #@node_radius_policy d
   names_in_edges: (set) ->
     out = []
@@ -1484,7 +1720,7 @@ class Huviz
 
     seeking = null # holds property name of the thing we are seeking: 'focused_node'/'object_node'/false
     if @dragging
-      if not @edit_mode
+      if not @editui.is_state('connecting')
         return
       seeking = "object_node"
     else
@@ -1573,7 +1809,7 @@ class Huviz
         new_focused_edge.target.focused_edge = true
       @focused_edge = new_focused_edge # blank it or set it
       if @focused_edge?
-        if @edit_mode
+        if @editui.is_state('connecting')
           @text_cursor.pause("", "edit this edge")
         else
           @text_cursor.pause("", "show edge sources")
@@ -1646,12 +1882,12 @@ class Huviz
         @gclui.prepare_command(
           @gclui.new_GraphCommand({verbs: @gclui.engaged_verbs, subjects: nodes}))
 
-  position_nodes: ->
-    only_move_subject = @edit_mode and @dragging and @editui.subject_node
+  position_nodes_by_force: ->
+    only_move_subject = @editui.is_state('connecting') and @dragging and @editui.subject_node
     @nodes.forEach (node, i) =>
-      @reposition_node(node, only_move_subject)
+      @reposition_node_by_force(node, only_move_subject)
 
-  reposition_node: (node, only_move_subject) ->
+  reposition_node_by_force: (node, only_move_subject) ->
     if @dragging is node
       @move_node_to_point(node, @last_mouse_pos)
     if only_move_subject
@@ -1733,6 +1969,8 @@ class Huviz
                          e.target.fisheye.y, sway, "black", e.contexts.length, 1, e, directional_edge)
 
   draw_edges: ->
+    if not @show_edges
+      return
     if @use_canvas
       @graphed_set.forEach (node, i) =>
         @draw_edges_from(node)
@@ -1827,6 +2065,20 @@ class Huviz
                       rndng,
                       stroke_color,
                       filclr)
+          else if @show_images_in_nodes and
+              (imgUrl = (d.__thumbnail or @args.default_node_url))
+            try
+              imageData = @get_or_create_round_img(imgUrl)
+            catch e
+              console.error(e)
+            @draw_round_img(
+              d.fisheye.x, d.fisheye.y,
+              node_radius,
+              stroke_color,
+              filclr,
+              special_focus,
+              imageData,
+              imgUrl)
           else
             @draw_pie(d.fisheye.x, d.fisheye.y,
                       node_radius,
@@ -1835,12 +2087,52 @@ class Huviz
                       special_focus)
         if @use_webgl
           @mv_node(d.gl, d.fisheye.x, d.fisheye.y)
+
   get_node_color_or_color_list: (n, default_color) ->
     default_color ?= 'black'
     if @color_nodes_as_pies and n._types and n._types.length > 1
       @recolor_node(n, default_color)
       return n._colors
     return [n.color or default_color]
+
+  get_or_create_round_img: (url) ->
+    @round_img_cache ?= {}
+    display_image_size = 128
+    if not (img = @round_img_cache[url])
+      imgId = @unique_id('round_img_')
+      roundImage = document.createElement('img')
+      round_image_maker = document.createElement("CANVAS")
+      round_image_maker.width = display_image_size # size of ultimate image
+      round_image_maker.height = display_image_size
+      ctx = round_image_maker.getContext("2d")
+
+      origImage = new Image()
+      origImage.crossOrigin = "Anonymous";
+      origImage.src = url # path to image file
+
+      origImage.onload = () ->  # When image is loaded create a new round image
+        ctx.beginPath()
+        # This needs to be half the size of height/width to fill canvas area
+        ctx.arc(display_image_size/2, display_image_size/2,
+                display_image_size/2, 0, 2 * Math.PI, false)
+        ctx.clip()
+        ctx.fillStyle = renderStyles.pageBg
+        ctx.fill()
+
+        if origImage.width > origImage.height  # Landscape image
+          w = Math.round(origImage.width * display_image_size/origImage.height)
+          h = Math.round(display_image_size)
+          x = - Math.round((w - h)/2)
+          y = 0
+        else # Portrait image
+          w = Math.round(display_image_size)
+          h = Math.round(origImage.height * display_image_size/origImage.width)
+          x = 0
+          y = Math.round((w - h)/2)
+        ctx.drawImage(origImage, x, y, w, h) # This just paints the image as is
+        roundImage.src = round_image_maker.toDataURL()
+      @round_img_cache[url] = roundImage
+    return roundImage
 
   get_label_attributes: (d) ->
     text = d.pretty_name
@@ -1917,6 +2209,7 @@ class Huviz
       focused_font = "#{focused_font_size}em sans-serif"
       unfocused_font = "#{@label_em}em sans-serif"
       focused_pill_font = "#{@label_em}em sans-serif"
+
       label_node = (node) =>
         return unless @should_show_label(node)
         ctx = @ctx
@@ -1932,12 +2225,19 @@ class Huviz
           ctx.font = unfocused_font
         if not node.fisheye?
           return
+
+        flip_point = @cx
+        if  @discarded_set.has(node)
+          flip_point = @discard_center[0]
+        else if @shelved_set.has(node)
+          flip_point = @lariat_center[0]
+
         if not @graphed_set.has(node) and @draw_lariat_labels_rotated
           # Flip label rather than write upside down
           #   var flip = (node.rad > Math.PI) ? -1 : 1;
           #   view-source:http://www.jasondavies.com/d3-dependencies/
           radians = node.rad
-          flip = node.fisheye.x < @cx # flip labels on the left of center line
+          flip = node.fisheye.x < flip_point # @cx  # flip labels on the left of center line
           textAlign = 'left'
           if flip
             radians = radians - Math.PI
@@ -2064,7 +2364,67 @@ class Huviz
   blank_screen: ->
     @clear_canvas()  if @use_canvas or @use_webgl
 
+  should_position_by_packing: ->
+    return not @show_edges
+
+  position_nodes_by_packing: ->
+    # https://bl.ocks.org/mbostock/3231298
+    if not @should_position_by_packing()
+      return
+    q = d3.geom.quadtree(@graphed_set)
+    i = 0
+    n = @graphed_set.length
+    while (++i < n)
+      q.visit(@position_node_by_packing(@graphed_set[i]))
+
+  position_node_by_packing: (node) ->
+    r = node.radius + 16
+    nx1 = node.x - r
+    nx2 = node.x + r
+    ny1 = node.y - r
+    ny2 = node.y + r
+    return (quad, x1, y1, x2, y2) ->
+      if (quad.point and (quad.point isnt node))
+        x = node.x - quad.point.x
+        y = node.y - quad.point.y
+        l = Math.sqrt(x * x + y * y)
+        r = node.radius + quad.point.radius
+        if (l < r)
+          l = (l -r) / 1 * .5
+          node.x -= x *= l
+          node.y -= y *= l
+          quad.point.x += x
+          quad.point.y += y
+      return x1 > nx2 or x2 < nx1 or y1 > ny2 or y2 < ny1
+
+  respect_single_chosen_node: ->
+    dirty = false
+    if @chosen_set.length is 1
+      chosen_node = @chosen_set[0]
+      if not chosen_node.pinned
+        cmd =
+          polar_coords:
+            range: 0
+            degrees: 0
+        @pin(chosen_node, cmd)
+        dirty = true
+        chosen_node.pinned_only_while_chosen = true
+
+    # Uncenter nodes which are no longer the only chosen node
+    for pinned_node in @pinned_set
+      if not pinned_node
+        continue # how can this even happen?
+      if pinned_node.pinned_only_while_chosen? and
+          (not pinned_node.chosen or @chosen_set.length isnt 1 or not @single_chosen)
+        @unpin(pinned_node)
+        dirty = true
+
+    if dirty
+      @update_set_counts()
+
   tick: (msg) =>
+    if not @ctx?
+      return
     if typeof msg is 'string' and not @args.skip_log_tick
       console.log(msg)
     # return if @focused_node   # <== policy: freeze screen when selected
@@ -2078,15 +2438,19 @@ class Huviz
         else
           @clean_up_all_dirt_onceRunner.stats.runTick++
     @ctx.lineWidth = @edge_width # TODO(smurp) just edges should get this treatment
+    @respect_single_chosen_node()
     @find_node_or_edge_closest_to_pointer()
     @auto_change_verb()
     @on_tick_change_current_command_if_warranted()
-    @update_snippet() # continuously update the snippet based on the currently focused_edge
+    #@update_snippet() // not in use
     @blank_screen()
     @draw_dropzones()
     @fisheye.focus @last_mouse_pos
     @show_last_mouse_pos()
-    @position_nodes() # unless @edit_mode and @dragging and @editui.subject_node
+    if @should_position_by_packing()
+      @position_nodes_by_packing()
+    else
+      @position_nodes_by_force()
     @apply_fisheye()
     @draw_edges()
     @draw_nodes()
@@ -2136,6 +2500,8 @@ class Huviz
     ctx.strokeText("  " + label + "  ", x, y)
 
   draw_edge_labels: ->
+    if not @show_edges
+      return
     if @focused_edge?
       @draw_edge_label(@focused_edge)
     if @show_edge_labels_adjacent_to_labelled_nodes
@@ -2410,6 +2776,8 @@ class Huviz
       failure: failure
 
   discover_geoname_name_msgs_threshold_ms: 5 * 1000 # msec betweeen repetition of a msg display
+
+  # TODO eliminate all use of this version in favor of the markdown version
   discover_geoname_name_instructions: """<span style="font-size:.7em">
    Be sure to
      1) create a
@@ -2422,24 +2790,100 @@ class Huviz
         press
         <a target="geonamesAcct"
             href="http://www.geonames.org/enablefreewebservice">click here to enable</a>
-    4) re-enter your GeoNames username in HuViz settings to trigger lookup</span>"""
+    4) re-enter your GeoNames Username in HuViz settings to trigger lookup</span>"""
 
-  countdown_input: (inputName) ->
-    input = $("input[name='#{inputName}']")
-    if input.val() < 1
-      return false
-    newVal = input.val() - 1
+  discover_geoname_name_instructions_md: """
+    ## How to get GeoNames lookup working
+
+    [GeoNames](http://www.geonames.org) is a very popular service experiencing much load.
+    To protect their servers they require a username to be able to perform lookup.
+    The hourly limit is 1000 and the daily limit is 30000 per username.
+
+    You may use the `huviz` username if you are going to perform just a couple of lookups.
+    If you are going to do lots of GeoNames lookups you should set up your own account.
+    Here is how:
+
+    1. create a <a target="geonamesAcct" href="http://www.geonames.org/login">new account</a> if you don't have one
+    2. validate your email (if you haven't already)
+    3. on the <a target="geonamesAcct" href="http://www.geonames.org/manageaccount">manage account</a> page
+       press <a target="geonamesAcct" href="http://www.geonames.org/enablefreewebservice">Click here to enable</a>
+       if your account is not already _enabled to use the free web services_
+    4. enter your *GeoNames Username* in HuViz `Settings` tab then press the TAB or ENTER key to trigger lookup
+    5. if you need to perform more lookups, just adjust the *GeoNames Limit*, then leave that field with TAB, ENTER or a click
+
+    (Soon, HuViz will let you save your personal *GeoNames Username* and your *GeoNames Limit* to make this more convenient.)
+
+  """
+
+  set_setting: (inputName, newVal) ->
+    input = @topJQElem.find("input[name='#{inputName}']")
     input.val(newVal)
-    return true
+    if this[inputName]?
+      this[inputName] = newVal
+    return newVal
+
+  countdown_setting: (inputName) ->
+    input = @topJQElem.find("input[name='#{inputName}']")
+    if input.val() < 1
+      return 0
+    newVal = input.val() - 1
+    return @set_setting(inputName, newVal)
+
+  preset_discover_geonames_remaining: ->
+    count = 0
+    for node in @nameless_set
+      url = node.id
+      if url.includes('sws.geonames.org')
+        count++
+    return @set_setting('discover_geonames_remaining', count)
+
+  show_geonames_instructions: =>
+    args =
+      width: @width * 0.6
+      height: @height * 0.6
+    markdown = @discover_geoname_name_instructions_md
+    @make_markdown_dialog(markdown, null, args)
 
   discover_geoname_name: (aUrl) ->
     id = aUrl.pathname.replace(/\//g,'')
+    idInt = parseInt(id)
     userId = @discover_geonames_as
     k2p = @discover_geoname_key_to_predicate_mapping
-    if not @countdown_input('discover_geonames_remaining')
+    url = "http://api.geonames.org/hierarchyJSON?geonameId=#{id}&username=#{userId}"
+    if @discover_geonames_remaining < 1
+      #console.warn("discover_geoname_name() should not be called when remaining is less than 1")
       return
+    if (widget = @discover_geonames_as__widget)
+      if widget.state is 'untried'
+        @discover_geonames_as__widget.set_state('trying')
+      else if widget.state is 'looking'
+        if @discover_geonames_remaining < 1
+          console.info('stop looking because remaining is', @discover_geonames_remaining)
+          return false
+        # We decrement remaining before looking or after successfully trying.
+        # We do so before looking because we know that the username is good, so this will count.
+        # We do so after trying because we do not know until afterward that the username was good and whether it would count.
+        rem = @countdown_setting('discover_geonames_remaining')
+        #console.info('discover_geoname_name() widget.state =', widget.state, "so decrementing remaining (#{rem}) early")
+      else if widget.state is 'good'
+        if @discover_geonames_remaining < 1
+          #console.info('aborting discover_geoname_name() because remaining =', @discover_geonames_remaining)
+          return false
+        @discover_geonames_as__widget.set_state('looking')
+        console.info('looking for',id,'using name',userId)
+      else
+        console.warn("discover_goename_name() should not be called when widget.state =", widget.state)
+        return false
+    @geonames_name_lookups_performed ?= 0
+    @geonames_name_lookups_performed += 1
     $.ajax
-      url: "http://api.geonames.org/hierarchyJSON?geonameId=#{id}&username=#{userId}"
+      url: url
+      error: (xhr, status, error) =>
+        #console.log(xhr, status, error)
+        if error is 'Unauthorized'
+          if @discover_geonames_as__widget.state isnt 'bad'
+            @discover_geonames_as__widget.set_state('bad')
+            @show_geonames_instructions()
       success: (json, textStatus, request) =>
         if json.status
           @discover_geoname_name_msgs ?= {}
@@ -2453,19 +2897,49 @@ class Huviz
                Date.now() - @discover_geoname_name_msgs[msg] >
                 @discover_geoname_name_msgs_threshold_ms)
             @discover_geoname_name_msgs[msg] = Date.now()
-            @show_state_msg(msg)
+            @make_dialog(msg)
+            #@show_state_msg(msg)
           return
         #subj = aUrl.toString()
+        if (widget = @discover_geonames_as__widget)
+          state_at_start = widget.state
+          if state_at_start in ['trying', 'looking']
+            #rem = @countdown_setting('discover_geonames_remaining')
+            #console.log('discover_geonames_remaining',rem,"after looking up",id)
+            #@countdown_setting('discover_geonames_remaining') # decrement now because we just used one up for this account
+            if widget.state is 'trying'
+              # we decrement remaining after successfully trying or before looking
+              @countdown_setting('discover_geonames_remaining')
+              @discover_geonames_as__widget.set_state('looking') # more remaining, go straight to looking
+            if widget.state is 'looking'
+              if @discover_geonames_remaining > 0
+                # trigger again because they have been suspended
+                # use setTimeout to give nodes a chance to update
+                again = () => @discover_names('sws.geonames.org')
+                setTimeout(again, 100)
+              else
+                @discover_geonames_as__widget.set_state('good') # no more remaining lookups permitted
+            else # TODO figure out why setting 'good' only when done (and setting 'looking' while 'trying') hangs
+              console.log('we should never get here where widget.state =',widget.state)
+              #@discover_geonames_as__widget.set_state('good') # finally go to good because we are done
+          else
+            msg = "state_at_start = #{state_at_start} but it should only be looking or trying (nameless: #{@nameless_set.length})"
+            #console.error(msg)
+            #throw new Error(msg)
         geoNamesRoot = aUrl.origin
         deeperQuad = null
-        greedy = @discover_geonames_greedily
-        deep = @discover_geonames_deeply
+        greedily = @discover_geonames_greedily
+        deeply = @discover_geonames_deeply
         depth = 0
         for geoRec in json.geonames by -1 # from most specific to most general
           subj = geoNamesRoot + '/' + geoRec.geonameId + '/'
-          console.log("discover_geoname_name(#{subj})")
+          #console.log("discover_geoname_name(#{subj})")
           depth++
-          console.table([geoRec])
+          soughtGeoname = (geoRec.geonameId is idInt)
+          if (not deeply) and (not soughtGeoname)
+            #console.error("skipping because we are not going deep",geoRec.geonameId, id, geoRec.name)
+            continue
+          #console.table([{id: id, geonameId: geoRec.geonameId, name: geoRec.name}])
           name = (geoRec or {}).name
 
           placeQuad =
@@ -2482,7 +2956,7 @@ class Huviz
             if key is 'name'
               seen_name = true # so we can break at the end of this loop being done
             else
-              if not greedy
+              if not greedily
                 continue
             if key in ['geonameId']
               continue
@@ -2508,9 +2982,9 @@ class Huviz
                 type: theType  # REVIEW are there others?
               g: geoNamesRoot
             @inject_discovered_quad_for(quad, aUrl)
-            if not greedy and seen_name
+            if not greedily and seen_name
               break # out of the greedy consumption of all k/v pairs
-          if not deep and depth > 1
+          if not deeply and depth > 1
             break # out of the deep consumption of all nested contexts
           if deeperQuad
             containershipQuad =
@@ -2560,16 +3034,14 @@ class Huviz
     @update_set_counts()
     @found_names ?= []
     @found_names.push(quad.o.value)
-    #msg = "inject_discovered_quad(#{quad.o})"
-    #colorlog(url)
 
-  auto_discover: (uri, force) ->
-    if uri.startsWith('_')
+  auto_discover_name_for: (uri) ->
+    if uri.startsWith('_') # skip "blank" nodes
       return
     try
       aUrl = new URL(uri)
     catch e
-      colorlog("skipping auto_discover('#{uri}') because")
+      colorlog("skipping auto_discover_name_for('#{uri}') because")
       console.log(e)
       return
     if uri.startsWith("http://id.loc.gov/")
@@ -2577,15 +3049,27 @@ class Huviz
       # that the .skos.nt file is available. Unfortunately the only
       # RDF file which is offered via content negotiation is .rdf and
       # there is no parser for that in HuViz yet.  Besides, they are huge.
-      @ingest_quads_from("#{uri}.skos.nt", @discover_labels(uri))
+      retval = @ingest_quads_from("#{uri}.skos.nt", @discover_labels(uri))
       #@auto_discover_header(uri, ['X-PrefLabel'], sendHeaders or [])
-    if uri.startsWith("http://sws.geonames.org/") and @discover_geonames_as
+    if uri.startsWith("http://sws.geonames.org/") and
+        @discover_geonames_as__widget.state in ['untried','looking','good'] and
+        @discover_geonames_remaining > 0
       @discover_geoname_name(aUrl)
     return
 
-  discover_names: (force) ->
+  discover_names_including: (includes) ->
+    if @nameless_set # this might be before the set exists
+      @discover_names(includes)
+    return
+
+  discover_names: (includes) ->
+    #console.log('discover_names(',includes,') # of nameless:',@nameless_set.length)
     for node in @nameless_set
-      @auto_discover(node.id, force)
+      url = node.id
+      if not (includes? and not url.includes(includes))
+        # only if includes is specified but not found do we skip auto_discover_name_for
+        @auto_discover_name_for(node.id)
+    return
 
   make_qname: (uri) ->
     # TODO(smurp) dear god! this method name is lying (it is not even trying)
@@ -2662,9 +3146,13 @@ class Huviz
       # We have a node for the object of the quad and this quad is relational
       # so there should be links made between this node and that node
       is_type = is_one_of(pred_uri, TYPE_SYNS)
-      make_edge = @show_class_instance_edges or not is_type
+      use_thumb = is_one_of(pred_uri, THUMB_PREDS) and @show_thumbs_dont_graph
+      make_edge = @show_class_instance_edges or not is_type and not use_thumb
       if is_type
         @try_to_set_node_type(subj_n, quad.o.value)
+      if use_thumb
+        subj_n.__thumbnail = quad.o.value
+        @develop(subj_n)
       if make_edge
         @develop(subj_n) # both subj_n and obj_n should hatch for edge to make sense
         # REVIEW uh, how are we ensuring that the obj_n is hatching? should it?
@@ -2686,8 +3174,11 @@ class Huviz
         if @make_nodes_for_literals
           objVal = quad.o.value
           simpleType = getTypeSignature(quad.o.type or '') or 'Literal'
+          if not objVal?
+            throw new Error("missing value for " + JSON.stringify([subj_uri, pred_uri, quad.o]))
           # Does the value have a language or does it contain spaces?
-          if quad.o.language or (objVal.match(/\s/g)||[]).length > 0
+          #objValHasSpaces = (objVal.match(/\s/g)||[]).length > 0
+          if quad.o.language and @group_literals_by_subj_and_pred
             # Perhaps an appropriate id for a literal "node" is
             # some sort of amalgam of the subject and predicate ids
             # for that object.
@@ -2697,11 +3188,26 @@ class Huviz
             # text.  For them to end up on the same MultiString instance
             # they all have to be treated as names for a node with the same
             # id -- hence that id must be composed of the subj and pred ids.
+            # Another perspective on this is that these are different comments
+            # in different languages, so what suggests that they have anything
+            # at all to do with one another?
+            # Further, if (as is the case with these triples)
+            #   Martineau_Harriet hasActivistInvolvementIn "_tariff reform_"
+            #   Martineau_Harriet hasGenderedPoliticalActivity "_tariff reform_"
+            # they SHOULD share the "_tariff reform_" node.
+            #
+            # So, after all this (poorly stated commentary) the uneasy conclusion
+            # is that if a literal value has a language associated with it then
+            # all the alternate language literals associated with that same
+            # subject/predicate combination will be treated as the same literal
+            # node.
             objKey = "#{subj_n.lid} #{pred_uri}"
             objId = synthIdFor(objKey)
+            objId_explanation = "synthIdFor('#{objKey}') = #{objId}"
+            console.warn(objId_explanation)
           else
             objId = synthIdFor(objVal)
-          literal_node = @get_or_create_node_by_id(objId, null, (isLiteral = true))
+          literal_node = @get_or_create_node_by_id(objId, objVal, (isLiteral = true))
           @try_to_set_node_type(literal_node, simpleType)
           literal_node.__dataType = quad.o.type
           @develop(literal_node)
@@ -2883,7 +3389,7 @@ class Huviz
       catch e
         msg = escapeHtml(e.toString())
         blurt_msg = """<p>There has been a problem with the Turtle parser.  Check your dataset for errors.</p><p class="js_msg">#{msg}</p>"""
-        blurt(blurt_msg, "error")
+        @blurt(blurt_msg, "error")
         return false
     quad_count = 0
     every = @report_every
@@ -3006,7 +3512,7 @@ class Huviz
       else
         msg = "unrecognized NQ event:" + e.data.event
       if msg?
-        blurt(msg)
+        @blurt(msg)
     worker.postMessage({uri:uri})
 
   parse_and_show_NQ_file: (data, callback) =>
@@ -3049,8 +3555,8 @@ class Huviz
       msg = "Could not load #{url}. The data file format is not supported! " +
             "Only files with TTL and NQ extensions are accepted."
       @hide_state_msg()
-      blurt(msg, 'error')
-      $('#data_ontology_display').remove()
+      @blurt(msg, 'error')
+      $('#'+@get_data_ontology_display_id()).remove()
       @reset_dataset_ontology_loader()
       #@init_resource_menus()
       return
@@ -3062,7 +3568,7 @@ class Huviz
         if rsrcRec?
           the_parser(rsrcRec.data)
           return # REVIEW ensure that proper try catch is happening
-        blurt(err or "'#{url} was not found in your DATASET menu.  Provide it and reload this page")
+        @blurt(err or "'#{url} was not found in your DATASET menu.  Provide it and reload this page")
         @reset_dataset_ontology_loader()
         return
       return
@@ -3083,8 +3589,8 @@ class Huviz
           errorThrown = "Cross-Origin error"
         msg = errorThrown + " while fetching dataset " + url
         @hide_state_msg()
-        $('#data_ontology_display').remove()
-        blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
+        $('#'+@get_data_ontology_display_id()).remove()
+        @blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
         @reset_dataset_ontology_loader()
         #TODO Reset titles on page
 
@@ -3171,7 +3677,8 @@ class Huviz
     ###
     graphSelector = "#sparqlGraphOptions-#{id}"
     $(graphSelector).parent().css('display', 'none')
-    $('#sparqlQryInput').css('display', 'none')
+    @sparqlQryInput_hide()
+
     spinner = $("#sparqlGraphSpinner-#{id}")
     spinner.css('display','block')
     $.ajax
@@ -3187,9 +3694,9 @@ class Huviz
             $(graphSelector).parent().css('display', 'none')
             @reset_endpoint_form(true)
             return
-          graph_options = "<option id='#{unique_id()}' value='#{url}'> All Graphs </option>"
+          graph_options = "<option id='#{@unique_id()}' value='#{url}'> All Graphs </option>"
           for graph in results
-            graph_options = graph_options + "<option id='#{unique_id()}' value='#{graph.g.value}'>#{graph.g.value}</option>"
+            graph_options = graph_options + "<option id='#{@unique_id()}' value='#{graph.g.value}'>#{graph.g.value}</option>"
           $("#sparqlGraphOptions-#{id}").html(graph_options)
           $(graphSelector).parent().css('display', 'block')
           @reset_endpoint_form(true)
@@ -3202,17 +3709,22 @@ class Huviz
             errorThrown = "Cross-Origin error"
           msg = errorThrown + " while fetching " + url
           @hide_state_msg()
-          $('#data_ontology_display').remove()
-          blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
+          $('#'+@get_data_ontology_display_id()).remove()
+          @blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
           @reset_dataset_ontology_loader()
           spinner.css('visibility','hidden')
 
+  sparqlQryInput_hide: ->
+    @sparqlQryInput_JQElem.hide() #css('display', 'none')
+  sparqlQryInput_show: ->
+    @sparqlQryInput_JQElem.show()
+    @sparqlQryInput_JQElem.css({'color': 'inherit'} )
 
   load_endpoint_data_and_show: (subject, callback) ->
     @sparql_node_list = []
     @pfm_count('sparql')
     #if @p_display then @performance_dashboard('sparql_request')
-    node_limit = $('#endpoint_limit').val()
+    node_limit = @endpoint_limit_JQElem.val()
     url = @endpoint_loader.value
     @endpoint_loader.outstanding_requests = 0
     fromGraph = ''
@@ -3300,14 +3812,13 @@ class Huviz
             errorThrown = "Cross-Origin error"
           msg = errorThrown + " while fetching " + url
           @hide_state_msg()
-          $('#data_ontology_display').remove()
-          blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
+          $('#'+@get_data_ontology_display_id()).remove()
+          @blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
           @reset_dataset_ontology_loader()
 
 
-
   load_new_endpoint_data_and_show: (subject, callback) -> # DEPRECIATED !!!!
-    node_limit = $('#endpoint_limit').val()
+    node_limit = @endpoint_limit_JQElem.val()
     @p_total_sprql_requests++
     note = ''
     url = @endpoint_loader.value
@@ -3360,8 +3871,8 @@ class Huviz
             errorThrown = "Cross-Origin error"
           msg = errorThrown + " while fetching " + url
           @hide_state_msg()
-          $('#data_ontology_display').remove()
-          blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
+          $('#'+@get_data_ontology_display_id()).remove()
+          @blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
           @reset_dataset_ontology_loader()
 
   add_nodes_from_SPARQL: (json_data, subject) -> # DEPRECIATED !!!!
@@ -3464,7 +3975,7 @@ class Huviz
     if @sparql_node_list then previous_nodes = @sparql_node_list else previous_nodes = []
     graph = @endpoint_loader.endpoint_graph
     local_node_added = 0
-    query_limit = 1000 #$('#endpoint_limit').val()
+    query_limit = 1000 #@endpoint_limit_JQElem.val()
     worker = new Worker('/huviz/sparql_ajax_query.js')
     worker.addEventListener 'message', (e) =>
       #console.log e.data
@@ -3496,13 +4007,18 @@ class Huviz
   get_container_width: (pad) ->
     pad = pad or hpad
     w_width = (@container.clientWidth or window.innerWidth or document.documentElement.clientWidth or document.clientWidth) - pad
-    @width = w_width - $("#tabs").width()
+    tabs_width = 0
+    if @tabsJQElem and @tabsJQElem.length > 0
+      tabs_width = @tabsJQElem.width()
+    @width = w_width - tabs_width
 
   # Should be refactored to be get_container_height
   get_container_height: (pad) ->
     pad = pad or hpad
     @height = (@container.clientHeight or window.innerHeight or document.documentElement.clientHeight or document.clientHeight) - pad
-    #console.log "get_window_height()",window.innerHeight,document.documentElement.clientHeight,document.clientHeight,"==>",@height
+    if @args.stay_square
+      @height = @width
+    return @height
 
   update_graph_radius: ->
     @graph_region_radius = Math.floor(Math.min(@width / 2, @height / 2))
@@ -3616,7 +4132,7 @@ class Huviz
     @remove_from(edge,edge.source.links_shown)
     @remove_from(edge,edge.target.links_shown)
     @links_set.remove(edge)
-    console.log("unshowing links from: " + edge.id)
+    #console.log("unshowing links from: " + edge.id)
     edge.unshow() # FIXME make unshow call @update_state WHICH ONE? :)
     @update_state(edge.source)
     @update_state(edge.target)
@@ -3759,8 +4275,12 @@ class Huviz
     node.lid ?= uniquer(node.id)
     if not node.name?
       # FIXME dereferencing of @ontology.label should be by curie, not lid
-      name = name or @ontology.label[node.lid]
-      # null name this will cause a made-up name to be applied
+      # if name is empty string, that is acceptable
+      # if no name is provided, we use the label from the ontology if available
+      if not name?
+        # Leave defaulting to the use of node.lid to @set_name() itself.
+        # If we do that here then nothing is recognized as being nameless.
+        name = @ontology.label[node.lid] or null
       @set_name(node, name)
     return node
 
@@ -3793,10 +4313,15 @@ class Huviz
     @pfm_count('hatch')
     node
 
-  # TODO: remove this method
-  get_or_create_node: (subject, start_point, linked) ->
-    linked = false
-    @get_or_make_node subject,start_point,linked
+  get_or_create_transient_node: (subjNode, point) ->
+    transient_id = '_:_transient'
+    nom = "↪"
+    nom = " "
+    transient_node = @get_or_create_node_by_id(transient_id, (name = nom), (isLiteral = false))
+    @move_node_to_point(transient_node, {x: subjNode.x, y: subjNode.y})
+    transient_node.radius = 0
+    transient_node.charge = 20
+    return transient_node
 
   # TODO: remove this method
   make_nodes: (g, limit) ->
@@ -3898,6 +4423,7 @@ class Huviz
     return false
 
   unpin: (node) ->
+    delete node.pinned_only_while_chosen # do it here in case of direct unpinning
     if node.fixed
       @pinned_set.remove(node)
       return true
@@ -3974,7 +4500,7 @@ class Huviz
           else
             #console.log "Error message " + message
             msg = "There are more than 300 requests in the que. Restricting process. " + message
-            blurt(msg, 'alert')
+            @blurt(msg, 'alert')
             message = true
             console.log "Request counter: " + @endpoint_loader.outstanding_requests
 
@@ -4162,6 +4688,19 @@ class Huviz
       node.unselect()
       @recolor_node(node)
     return
+
+  # These are the EDITING VERBS: connect, spawn, specialize and annotate
+  connect: (node) ->
+    if node isnt @focused_node
+      console.info("connect('#{node.lid}') SKIPPING because it is not the focused node")
+      return
+    @editui.set_state('seeking_object')
+    @editui.set_subject_node(node)
+    @transient_node = @get_or_create_transient_node(node)
+    @editui.set_object_node(@transient_node)
+    @dragging = @transient_node
+    console.log(@transient_node.state.id)
+    #alert("connect('#{node.lid}')")
 
   set_unique_color: (uniqcolor, set, node) ->
     set.uniqcolor ?= {}
@@ -4669,7 +5208,7 @@ class Huviz
           @script_loader.val('')
           @update_dataset_ontology_loader()
           console.groupEnd() # closing group called "populate_menus_from_IndexedDB(why)"
-          document.dispatchEvent( # TODO use 'huviz_controls' rather than document
+          document.dispatchEvent( # TODO use 'huvis_controls' rather than document
             new Event('dataset_ontology_loader_ready'));
           #alert "#{count} entries saved #{why}"
 
@@ -4741,34 +5280,52 @@ class Huviz
   get_menu_by_rsrcType: (rsrcType) ->
     return @[rsrcType+'_loader'] # eg rsrcType='script' ==> @script_loader
 
+  get_or_create_sel_for_picker: (specificSel) ->
+    # if specificSel is defined, return it, otherwise return the selector of a thin
+    sel = specificSel
+    if not sel?
+      if not @pickersSel?
+        pickersId = @unique_id('pickers_')
+        @pickersSel = '#' + pickersId
+        if (huvis_controls_sel = @oldToUniqueTabSel['huvis_controls'])
+          @huvis_controls_elem ?= document.querySelector(huvis_controls_sel)
+          if @huvis_controls_elem
+            @huvis_controls_elem.insertAdjacentHTML('beforeend', """<div id="#{pickersId}"></div>""")
+      sel = @pickersSel
+    return sel
+
   init_resource_menus: ->
     # REVIEW See views/huviz.html.eco to set dataset_loader__append_to_sel and similar
-    if not @dataset_loader and @args.dataset_loader__append_to_sel
-      @dataset_loader = new PickOrProvide(@, @args.dataset_loader__append_to_sel,
+    if not @dataset_loader and @args.make_pickers
+      sel = @get_or_create_sel_for_picker(@args.dataset_loader__append_to_sel)
+      @dataset_loader = new PickOrProvide(@, sel,
         'Dataset', 'DataPP', false, false,
         {rsrcType: 'dataset'})
-    if not @ontology_loader and @args.ontology_loader__append_to_sel
-      @ontology_loader = new PickOrProvide(@, @args.ontology_loader__append_to_sel,
+    if not @ontology_loader and @args.make_pickers
+      sel = @get_or_create_sel_for_picker(@args.ontology_loader__append_to_sel)
+      @ontology_loader = new PickOrProvide(@, sel,
         'Ontology', 'OntoPP', true, false,
         {rsrcType: 'ontology'})
-    if not @script_loader and @args.script_loader__append_to_sel
-      @script_loader = new PickOrProvideScript(@, @args.script_loader__append_to_sel,
+    if not @script_loader and @args.make_pickers
+      sel = @get_or_create_sel_for_picker(@args.script_loader__append_to_sel)
+      @script_loader = new PickOrProvideScript(@, sel,
         'Script', 'ScriptPP', false, false,
         {dndLoaderClass: DragAndDropLoaderOfScripts; rsrcType: 'script'})
-    if not @endpoint_loader and @args.endpoint_loader__append_to_sel
-      @endpoint_loader = new PickOrProvide(@, @args.endpoint_loader__append_to_sel,
+    if not @endpoint_loader and @args.make_pickers
+      sel = @get_or_create_sel_for_picker(@args.endpoint_loader__append_to_sel)
+      @endpoint_loader = new PickOrProvide(@, sel,
         'Sparql', 'EndpointPP', false, true,
         {rsrcType: 'endpoint'})
       #@endpoint_loader.outstanding_requests = 0
     if @endpoint_loader and not @big_go_button
-      @populate_sparql_label_picker()
+      @build_sparql_form()
       endpoint_selector = "##{@endpoint_loader.select_id}"
       $(endpoint_selector).change(@update_endpoint_form)
     if @ontology_loader and not @big_go_button
-      @big_go_button_id = unique_id()
+      @big_go_button_id = @unique_id('goButton_')
       @big_go_button = $('<button class="big_go_button">LOAD</button>')
       @big_go_button.attr('id', @big_go_button_id)
-      $(@args.ontology_loader__append_to_sel).append(@big_go_button)
+      $(@get_or_create_sel_for_picker()).append(@big_go_button)
       @big_go_button.click(@visualize_dataset_using_ontology)
       @big_go_button.prop('disabled', true)
     @init_datasetDB()
@@ -4785,7 +5342,7 @@ class Huviz
   visualize_dataset_using_ontology: (ignoreEvent, dataset, ontologies) =>
     colorlog('visualize_dataset_using_ontology()', dataset, ontologies)
     @close_blurt_box()
-    endpoint_label_uri = $("#endpoint_labels").val()
+    endpoint_label_uri = @endpoint_labels_JQElem.val()
     if endpoint_label_uri
       data = dataset or @endpoint_loader
       @load_endpoint_data_and_show(endpoint_label_uri)
@@ -4807,14 +5364,17 @@ class Huviz
       console.debug(data, onto)
       throw new Error("Now whoa-up pardner... both data and onto should have .value")
 
-    @load_data_with_onto(data, onto)
+    @load_data_with_onto(data, onto, @after_visualize_dataset_using_ontology)
     @update_browser_title(data)
     @update_caption(data.value, onto.value)
     return
 
+  after_visualize_dataset_using_ontology: =>
+    @preset_discover_geonames_remaining()
+
   load_script_from_db: (err, rsrcRec) =>
     if err?
-      blurt(err, 'error')
+      @blurt(err, 'error')
     else
       @load_script_from_JSON(@parse_script_file(rsrcRec.data, rsrcRec.uri))
 
@@ -4822,6 +5382,7 @@ class Huviz
     @gclc = new GraphCommandLanguageCtrl(this)
     @init_resource_menus()
     if not @gclui?
+      # @oldToUniqueTabSel['huvis_controls'] ???
       @gclui = new CommandController(this,d3.select(@args.gclui_sel)[0][0],@hierarchy)
     window.addEventListener('showgraph', @register_gclc_prefixes)
     window.addEventListener('newpredicate', @gclui.handle_newpredicate)
@@ -4842,13 +5403,13 @@ class Huviz
     @big_go_button.hide()
 
   reset_dataset_ontology_loader: ->
-    # $('#data_ontology_display').remove() # REVIEW do this here rather than all over, right?
+    $('#'+@get_data_ontology_display_id()).remove()
     #Enable dataset loader and reset to default setting
     @dataset_loader.enable()
     @ontology_loader.enable()
     @big_go_button.show()
     $("##{@dataset_loader.select_id} option[label='Pick or Provide...']").prop('selected', true)
-    $("#huvis_controls .unselectable").removeAttr("style","display:none")
+    @gclui_JQElem.removeAttr("style","display:none")
 
   update_dataset_ontology_loader: =>
     if not (@dataset_loader? and @ontology_loader?  and @endpoint_loader? and @script_loader?)
@@ -4881,12 +5442,12 @@ class Huviz
   reset_endpoint_form: (show) =>
     spinner = $("#sparqlGraphSpinner-#{@endpoint_loader.select_id}")
     spinner.css('display','none')
-    $("#endpoint_labels").prop('disabled', false).val("")
-    $("#endpoint_limit").prop('disabled', false).val("100")
+    @endpoint_labels_JQElem.prop('disabled', false).val("")
+    @endpoint_limit_JQElem.prop('disabled', false).val("100")
     if show
-      $('#sparqlQryInput').css({'display': 'block','color': 'inherit'} )
+      @sparqlQryInput_show()
     else
-      $('#sparqlQryInput').css('display', 'none')
+      @sparqlQryInput_hide()
 
   update_go_button: (disable) ->
     if not disable?
@@ -4911,12 +5472,19 @@ class Huviz
     uri.hash = "load+#{dataset.value}+with+#{ontology.value}"
     return uri
 
+  get_data_ontology_display_id: ->
+    @data_ontology_display_id ?= @unique_id('datontdisp_')
+    return @data_ontology_display_id
+
+  hide_pickers: ->
+    $(@pickersSel).attr("style","display:none")
+
   replace_loader_display: (dataset, ontology) ->
     @generate_reload_uri(dataset, ontology)
     uri = @get_reload_uri()
-    $("#huvis_controls .unselectable").attr("style","display:none")
+    @hide_pickers()
     data_ontol_display = """
-    <div id="data_ontology_display">
+    <div id="#{@get_data_ontology_display_id()}" class="data_ontology_display">
       <p><span class="dt_label">Dataset:</span> #{dataset.label}</p>
       <p><span class="dt_label">Ontology:</span> #{ontology.label}</p>
       <p>
@@ -4926,11 +5494,14 @@ class Huviz
            onclick="location.assign(location.origin)"><i class="fas fa-times"></i></button>
       </p>
       <br style="clear:both">
-    </div>"""
-    $("#huvis_controls").prepend(data_ontol_display)
+    </div>""" # """ the extra set of triple double quotes is for emacs coffescript mode
+    sel = @oldToUniqueTabSel['huvis_controls']
+    controls = document.querySelector(sel)
+    controls.insertAdjacentHTML('afterbegin', data_ontol_display)
+    return
 
   replace_loader_display_for_endpoint: (endpoint, graph) ->
-    $("#huvis_controls .unselectable").attr("style","display:none")
+    $(@pickersSel).attr("style","display:none")
     #uri = new URL(location)
     #uri.hash = "load+#{dataset.value}+with+#{ontology.value}"
     if graph
@@ -4938,7 +5509,7 @@ class Huviz
     else
       print_graph = ""
     data_ontol_display = """
-    <div id="data_ontology_display">
+    <div id="#{@get_data_ontology_display_id()}">
       <p><span class="dt_label">Endpoint:</span> #{endpoint}</p>
       #{print_graph}
       <br style="clear:both">
@@ -4949,9 +5520,30 @@ class Huviz
     if dataset.value
       document.title = dataset.label + " - Huvis Graph Visualization"
 
+  make_git_link: ->
+    base = @args.git_base_url
+    """<a class="git_commit_hash_watermark subliminal"
+         target="huviz_version"  tabindex="-1"
+         href="#{base}#{@git_commit_hash}">#{@git_commit_hash}</a>""" # """
+
+  create_caption: ->
+    @captionId = @unique_id('caption_')
+    @addDivWithIdAndClasses(@captionId, "graph_title_set git_commit_hash_watermark")
+    @captionElem = document.querySelector('#' + @captionId)
+    if @git_commit_hash
+      @insertBeforeEnd(@captionElem, @make_git_link())
+    dm = 'dataset_watermark'
+    @insertBeforeEnd(@captionElem, """<div class="#{dm} subliminal"></div>""") # """
+    @make_JQElem(dm, @args.huviz_top_sel + ' .' + dm) # @dataset_watermark_JQElem
+    om = 'ontology_watermark'
+    @insertBeforeEnd(@captionElem, """<div class="#{om} subliminal"></div>""") # """
+    @make_JQElem(om, @args.huviz_top_sel + ' .' + om) # @ontology_watermark_JQElem
+    return
+
   update_caption: (dataset_str, ontology_str) ->
-    $("#dataset_watermark").text(dataset_str)
-    $("#ontology_watermark").text(ontology_str)
+    @dataset_watermark_JQElem.text(dataset_str)
+    @ontology_watermark_JQElem.text(ontology_str)
+    return
 
   set_ontology_from_dataset_if_possible: ->
     if @dataset_loader.value # and not @ontology_loader.value
@@ -4965,22 +5557,29 @@ class Huviz
     @ontology_loader.update_state()
 
   set_ontology_with_label: (ontology_label) ->
-    sel = "[label='#{ontology_label}']"
-    #console.log("$('#{sel}')")
+    topSel = @args.huviz_top_sel
+    sel = topSel + " [label='#{ontology_label}']"
     for ont_opt in $(sel) # FIXME make this re-entrant
       @ontology_loader.select_option($(ont_opt))
       return
     return
 
   set_dataset_with_uri: (uri) ->
-    option = $('option[value="' + uri + '"]')
+    topSel = @args.huviz_top_sel
+    option = $(topSel + ' option[value="' + uri + '"]')
     @dataset_loader.select_option(option)
 
   set_ontology_with_uri: (ontologyUri) ->
-    ontology_option = $('option[value="' + ontologyUri + '"]')
+    topSel = @args.huviz_top_sel
+    ontology_option = $(topSel + ' option[value="' + ontologyUri + '"]')
     @ontology_loader.select_option(ontology_option)
 
-  populate_sparql_label_picker: () =>
+  build_sparql_form: () =>
+    @sparqlId = unique_id()
+    sparqlQryInput_id = "sparqlQryInput_#{@sparqlId}"
+    @sparqlQryInput_selector = "#" + sparqlQryInput_id
+    endpoint_limit_id = unique_id('endpoint_limit_')
+    endpoint_labels_id = unique_id('endpoint_labels_')
     select_box = """
       <div class='ui-widget' style='display:none;margin-top:5px;margin-left:10px;'>
         <label>Graphs: </label>
@@ -4991,20 +5590,25 @@ class Huviz
            style='display:none;font-style:italic;'>
         <i class='fas fa-spinner fa-spin' style='margin: 10px 10px 0 50px;'></i>  Looking for graphs...
       </div>
-      <div id="sparqlQryInput" class=ui-widget
+      <div id="#{sparqlQryInput_id}" class="ui-widget sparqlQryInput"
            style='display:none;margin-top:5px;margin-left:10px;color:#999;'>
-        <label for='endpoint_labels'>Find: </label>
-        <input id='endpoint_labels' disabled>
+        <label for='#{endpoint_labels_id}'>Find: </label>
+        <input id='#{endpoint_labels_id}'>
         <i class='fas fa-spinner fa-spin' style='visibility:hidden;margin-left: 5px;'></i>
-        <div><label for='endpoint_limit'>Node Limit: </label>
-        <input id='endpoint_limit' value='100' disabled>
+        <div><label for='#{endpoint_limit_id}'>Node Limit: </label>
+        <input id='#{endpoint_limit_id}' value='100'>
         </div>
       </div>
-    """
-    $(".unselectable").append(select_box)
-    spinner = $("#endpoint_labels").siblings('i')
+    """ # """
+    $(@pickersSel).append(select_box)
+    @sparqlQryInput_JQElem = $(@sparqlQryInput_selector)
+    @endpoint_labels_JQElem = $('#'+endpoint_labels_id)
+    @endpoint_limit_JQElem = $('#'+endpoint_limit_id)
     fromGraph =''
-    $("#endpoint_labels").autocomplete({minLength: 3, delay:500, position: {collision: "flip"}, source: (request, response) =>
+    @endpoint_labels_JQElem.autocomplete({minLength: 3, delay:500, position: {collision: "flip"}, source: @populate_graphs_selector})
+
+  populate_graphs_selector: (request, response) =>
+      spinner = @endpoint_labels_JQElem.siblings('i')
       spinner.css('visibility','visible')
       url = @endpoint_loader.value
       fromGraph = ''
@@ -5057,17 +5661,20 @@ class Huviz
               errorThrown = "Cross-Origin error"
             msg = errorThrown + " while fetching " + url
             @hide_state_msg()
-            $('#data_ontology_display').remove()
-            $("#endpoint_labels").siblings('i').css('visibility','hidden')
-            blurt(msg, 'error')
+            $('#'+@get_data_ontology_display_id()).remove()
+            @endpoint_labels_JQElem.siblings('i').css('visibility','hidden')
+            @blurt(msg, 'error')
 
-      })
-
-  init_editc: ->
+  init_editc_or_not: ->
     @editui ?= new EditController(@)
-
-  set_edit_mode: (mode) ->
-    @edit_mode = mode
+    @editui.id = 'EditUI'
+    @editui.transit('prepare')
+    if @args.show_edit
+      @editui.show()
+    else
+      @editui.hide()
+    if @args.start_with_editing
+      @editui.transit('enable')
 
   indexed_dbservice: ->
     @indexeddbservice ?= new IndexedDBService(this)
@@ -5103,14 +5710,17 @@ class Huviz
   before_running_command: ->
     # FIXME fix non-display of cursor and color changes
     @text_cursor.set_cursor("wait")
-    $("body").css "background-color", "red" # FIXME remove once it works!
+    #$("body").css "background-color", "red" # FIXME remove once it works!
     #toggle_suspend_updates(true)
 
   after_running_command: ->
     #toggle_suspend_updates(false)
     @text_cursor.set_cursor("default")
-    $("body").css "background-color", renderStyles.pageBg # FIXME remove once it works!
-    $("body").addClass renderStyles.themeName
+    #$("body").css "background-color", renderStyles.pageBg # FIXME remove once it works!
+    #$("body").addClass renderStyles.themeName
+    @topElem.style.backgroundColor = renderStyles.pageBg
+    @topElem.classList.add(renderStyles.themeName)
+
     @update_all_counts()
     @clean_up_all_dirt_once()
 
@@ -5145,78 +5755,108 @@ class Huviz
     @ontology = PRIMORDIAL_ONTOLOGY
 
   default_tab_specs: [
+    id: 'commands'
     cssClass:'huvis_controls scrolling_tab unselectable'
     title: "Power tools for controlling the graph"
     text: "Commands"
   ,
-    cssClass: 'tabs-options scrolling_tab'
+    id: 'settings'
+    cssClass: 'settings scrolling_tab'
     title: "Fine tune sizes, lengths and thicknesses"
     text: "Settings"
   ,
+    id: 'history'
     cssClass:'tabs-history'
     title: "The command history"
     text: "History"
   ,
+    id: 'credits'
     cssClass: 'tabs-credit scrolling_tab'
     title: "Academic, funding and technical credit"
     text: "Credit"
-    bodyUrl: "/docs/credits.md"
+    bodyUrl: "/huviz/docs/credits.md"
   ,
+    id: 'tutorial'
     cssClass: "tabs-tutor scrolling_tab"
     title: "A tutorial"
     text: "Tutorial"
-    bodyUrl: "/docs/tutorial.md"
+    bodyUrl: "/huviz/docs/tutorial.md"
   ]
 
+  get_default_tab: (id) ->
+    for tab in @default_tab_specs
+      if tab.id is id
+        return tab
+    return {
+      id: id
+      title: id
+      cssClass: id
+      text: id}
+
   make_tabs_html: ->
-    # The firstClass in cssClass acts like a re-entrant identifier for these tabs. Each also gets a unique id.
+    # The firstClass in cssClass acts like a re-entrant identifier for these
+    # tabs. Each also gets a unique id.
     # Purpose:
-    #   Programmatically build the equivalent of views/tabs/all.ejs but with unique ids for the divs
+    #   Programmatically build the equivalent of views/tabs/all.ejs but with
+    #   unique ids for the divs
     # Notes:
     #   When @args.use_old_tabs_ids is true this method reproduces all.ejs exactly.
     #   Otherwise it gives each div a unique id
-    #   Either way @oldToUniqueTabSel provides a way to select each tab using the old non-reentrant ids like 'tabs-intro'
+    #   Either way @oldToUniqueTabSel provides a way to select each tab using
+    #       the old non-reentrant ids like 'tabs-intro'
     # Arguments:
     #   cssClass becomes the value of the class attribute of the div
     #   title becomes the title attribute of the tab
     #   text becomes the visible label of the tab
-    #   moveSelector: (optional) is the selector of content to move into the div
-    #   bodyUrl: (optional) is the url of content to insert into the div (if it ends with .md the markdown is rendered)
+    #   moveSelector: (optional) the selector of content to move into the div
+    #   bodyUrl: (optional) is the url of content to insert into the div
+    #       (if it ends with .md the markdown is rendered)
     # Motivation:
-    #   The problem this is working to solve is that we want HuViz to be re-entrant (ie more than one instance per page)
-    #   but it was originally written without that in mind, using unique ids such as #tabs-intro liberally.
-    #   This method provides a way to programmatically build the tabs with truly unique ids but also with a way to
-    #   learn what those ids are using the old identifiers.  To finish the task of transforming the code to be
-    #   re-entrant we must:
-    #     1) find all the places which use ids such as "#gclui" or "#tabs-history" and get them
-    #        to use @oldToUniqueTabSel as a lookup for the new ids.
-    #     2) rebuild the CSS to use class names such as ".gclui" rather than the old ids such as "#gclui"
-    @oldToUniqueTabSel = {}
+    #   The problem this is working to solve is that we want HuViz to
+    #   be re-entrant (ie more than one instance per page) but it was
+    #   originally written without that in mind, using unique ids such
+    #   as #tabs-intro liberally.  This method provides a way to
+    #   programmatically build the tabs with truly unique ids but also
+    #   with a way to learn what those ids are using the old
+    #   identifiers.  To finish the task of transforming the code to
+    #   be re-entrant we must:
+    #     1) find all the places which use ids such as "#gclui" or
+    #        "#tabs-history" and get them to use @oldToUniqueTabSel
+    #        as a lookup for the new ids.
+    #     2) rebuild the CSS to use class names such as ".gclui" rather
+    #        than the old ids such as "#gclui"
+    jQElem_list = [] # a list of args for the command @make_JQElem()
     theTabs = """<ul class="the-tabs">"""
-    theDivs = """<div id="gclui"></div>""" # for some reason this one is unique
-    theHandles = """
-      <div id="collapse_cntrl"><i class="fa fa-angle-double-right"></i></div>
-      <div id="ctrl-handle" class="ui-resizable-handle ui-resizable-w"><div id="ctrl-handle-grip">o</div></div>
-    """
-    tab_specs = @args.tab_specs or @default_tab_specs
+    theDivs = ""
+    tab_specs = @args.tab_specs
     for t in tab_specs
-      id = unique_id()
+      if typeof(t) is 'string'
+        t = @get_default_tab(t)
       firstClass = t.cssClass.split(' ')[0]
+      firstClass_ = firstClass.replace(/\-/, '_')
+      id = @unique_id(firstClass + '_')
       if @args.use_old_tab_ids
         id = firstClass
       idSel = '#' + id
       @oldToUniqueTabSel[firstClass] = idSel
       theTabs += """<li><a href="#{idSel}" title="#{t.title}">#{t.text}</a></li>"""
-      theDivs += """<div id="#{id}" class="#{t.cssClass}"></div>"""
-      processor = t.bodyUrl? and t.bodyUrl.endsWith('.md') and marked or (data) -> return data
+      theDivs += """<div id="#{id}" class="#{t.cssClass}">#{t.kids or ''}</div>"""
+      if not marked?
+        console.info('marked does not exist yet')
       if t.bodyUrl?
-        @withUriDo(t.bodyUrl, idSel, processor)
+        @withUriDo(t.bodyUrl, idSel)
       if t.moveSelector?
         mkcb = (fromSel, toSel) => # make closure
           return () => @moveSelToSel(fromSel, toSel)
         setTimeout(mkcb(t.moveSelector, idSel), 30)
+      jQElem_list.push([firstClass_, idSel]) # queue up args for execution by @make_JQElem()
     theTabs += "</ul>"
-    return ["""<section id="tabs" role="controls">""", theHandles, theTabs, theDivs, "</section>"].join('')
+    @tabs_id = @unique_id('tabs_')
+    html = [
+      """<section id="#{@tabs_id}" class="huviz_tabs" role="controls">""",
+      theTabs, theDivs,
+      "</section>"].join('')
+    return [html, jQElem_list]
 
   moveSelToSel: (moveSel, targetSel) ->
     if not (moveElem = document.querySelector(moveSel))
@@ -5234,6 +5874,7 @@ class Huviz
     xhr.onload = (e) =>
       if xhr.readyState is 4
         if xhr.status is 200
+          processor ?= (url.endsWith('.md') and marked) or ident
           @renderIntoWith(xhr.responseText, sel, processor)
         else
           console.error(xhr.statusText)
@@ -5251,40 +5892,177 @@ class Huviz
       elem.innerHTML = data
     return
 
-  create_tabs_adjacent: (elem, position) ->
-    elem.insertAdjacentHTML(position, @make_tabs_html())
+  insertBeforeEnd: (elem, html) ->
+    position = 'beforeend'
+    elem.insertAdjacentHTML(position, html)
+    return elem.lastElementChild  # note, this only works right if html has one outer elem
 
   create_tabs: ->
+    if not @args.tab_specs
+      return
     # create <section id="tabs"...> programmatically, making unique ids along the way
     elem = document.querySelector(@args.create_tabs_adjacent_to_selector)
-    if not (position = @args.create_tabs_adjacent_position)
-      console.warn("expecting create_tabs_adjacent_position of beforebegin, afterbegin, beforeend or afterend")
-      return
-    @create_tabs_adjacent(elem, position)
+    [html, jQElem_list] = @make_tabs_html()
+    @addHTML(html)
+    for pair in jQElem_list
+      @make_JQElem(pair[0], pair[1]) # make things like @tab_options_JQElem
+    return
 
-  constructor: (args) -> # Huviz
+  ensureTopElem: ->
+    if not document.querySelector(@args.huviz_top_sel)
+      body = document.querySelector("body")
+      id = sel_to_id(@args.huviz_top_sel)
+      classes = 'huviz_top'
+      @addDivWithIDAndClasses(id, classes, body)
+      #@insertBeforeEnd(body, """<div id="#{@args.huviz_top_sel}"></div>""")
+    @topElem = document.querySelector(@args.huviz_top_sel)
+    @topJQElem = $(@topElem)
+    return
+
+  get_picker_style_context_selector: ->
+    # The selector of the context which the picker's colors are constrained to.
+    # What?  To keep the colors which any ColorTreePickers create confined to
+    # this particular HuViz instance.
+    return @args.huviz_top_sel
+
+  addHTML: (html) ->
+    return @insertBeforeEnd(@topElem, html)
+
+  addDivWithIdAndClasses: (id, classes, specialElem) ->
+    html = """<div id="#{sel_to_id(id)}" class="#{classes}"></div>"""
+    if specialElem
+      return @insertBeforeEnd(specialElem, html)
+    else
+      return @addHTML(html)
+
+  ensure_divs: ->
+    # find the unique id for things like viscanvas and make div if missing
+    for key in @needed_divs
+      key_sel = key + '_sel'
+      if (sel = @args[key_sel])
+        id = sel_to_id(sel)
+        classes = key
+        if not (elem = document.querySelector(sel))
+          specialParentElem = null # indicates the huviz_top div
+          if (specialParent = @div_has_special_parent[key])
+            specialParentSelKey = specialParent + '_sel'
+            if (specialParentSel = @args[specialParentSelKey]) or
+                  (specialParentSel = @oldToUniqueTabSel[specialParent])
+              specialParentElem = document.querySelector(specialParentSel)
+          @addDivWithIdAndClasses(id, classes, specialParentElem)
+    return
+
+  make_JQElem: (key, sel) ->
+    jqelem_id = key + '_JQElem'
+    found = $(sel)
+    if found.length > 0
+      this[jqelem_id] = found
+    else
+      throw new Error(sel + ' not found')
+    return
+
+  make_JQElems: ->
+    # Make jQuery elems like @viscanvas_JQElem and performance_dashboard_JQElem
+    for key in @needed_JQElems
+      if (sel = @args[key + '_sel'])
+        @make_JQElem(key, sel)
+    return
+
+  # TODO create default_args from needed_divs (or something)
+  make_default_args: ->
+    # these must be made on the fly for reentrancy
+    return {
+      add_to_HVZ: true
+      ctrl_handle_sel: unique_id('#ctrl_handle_')
+      gclui_sel: unique_id('#gclui_')
+      git_base_url: "https://github.com/smurp/huviz/commit/"
+      hide_fullscreen_button: false
+      huviz_top_sel: unique_id('#huviz_top_') # if not provided then create
+      make_pickers: true
+      performance_dashboard_sel: unique_id('#performance_dashboard_')
+      settings: {}
+      show_edit: false
+      show_tabs: true
+      skip_log_tick: true
+      state_msg_box_sel: unique_id('#state_msg_box_')
+      status_sel: unique_id('#status_')
+      stay_square: false
+      tab_specs: ['commands','settings','history'] # things break if these are not present
+      tabs_minWidth: 300
+      use_old_tab_ids: false
+      viscanvas_sel: unique_id('#viscanvas_')
+      vissvg_sel: unique_id('#vissvg_')}
+
+  # The div on the left should be placed in the div on the right
+  # The div on the left should appear in needed_divs.
+  # The div on right should be identified by a tab id like 'huvis_controls'
+  #                                    or by a div id like 'viscanvas'
+  # Divs which do not have a 'special_parent' get plunked in the @topElem
+  div_has_special_parent:
+    gclui: 'huvis_controls'
+
+  needed_divs: [
+    'gclui'
+    'performance_dashboard'
+    'state_msg_box'
+    'status'
+    'viscanvas'
+    'vissvg'
+    ]
+
+  needed_JQElems: [
+    'gclui'
+    'performance_dashboard'
+    'viscanvas'
+    'huviz_controls'
+    ]
+
+  calculate_args: (incoming_args) ->
+    # overlay incoming over defaults to make the composition
+    incoming_args ?= {}
+    if not incoming_args.huviz_top_sel
+      console.warn('you have not provided a value for huviz_top_sel so it will be appended to BODY')
+    args = @compose_object_from_defaults_and_incoming(@make_default_args(), incoming_args)
+    # calculate some args from others
+    args.create_tabs_adjacent_to_selector ?= args.huviz_top_sel
+    return args
+
+  constructor: (incoming_args) -> # Huviz
+    @oldToUniqueTabSel = {}
     #if @pfm_display is true
     #  @pfm_dashboard()
-    args ?= {}
-    if not args.viscanvas_sel
-      msg = "call Huviz({viscanvas_sel:'????'}) so it can find the canvas to draw in"
-      console.debug(msg)
-    if not args.gclui_sel
-      alert("call Huviz({gclui_sel:'????'}) so it can find the div to put the gclui command pickers in")
-    if not args.graph_controls_sel
-      console.warn("call Huviz({graph_controls_sel:'????'}) so it can put the settings somewhere")
-    @args = args
-    if @args.selector_for_graph_controls?
-      @selector_for_graph_controls = @args.selector_for_graph_controls
+    @git_commit_hash = window.HUVIZ_GIT_COMMIT_HASH
+    @args = @calculate_args(incoming_args)
+    @ensureTopElem()
     if @args.create_tabs_adjacent_to_selector
       @create_tabs()
+    @tabsJQElem = $('#' + @tabs_id)
+    if not @args.show_tabs
+      @collapse_tabs()
+    @replace_human_term_spans(@tabs_id)
+    if @args.add_to_HVZ
+      if not window.HVZ?
+        window.HVZ = []
+      window.HVZ.push(this)
+
+    # FIXME Simplify this whole settings_sel and 'settings' thing
+    #       The settings should just be built right on settings_JQElem
+    @args.settings_sel ?= @oldToUniqueTabSel['settings']
+
+    @create_blurtbox()
+    @ensure_divs()
+    @make_JQElems()
+    @create_collapse_expand_handles()
+    if not @args.hide_fullscreen_button
+      @create_fullscreen_handle()
     @init_ontology()
+    @create_caption()
     @off_center = false # FIXME expose this or make the amount a slider
     document.addEventListener('nextsubject', @onnextsubject)
     @init_snippet_box()  # FIXME not sure this does much useful anymore
 
     @mousedown_point = false
-    @discard_point = [@cx,@cy] # FIXME refactor so ctrl-handle handles this
+    @discard_point = [@cx,@cy] # FIXME refactor so ctrl_handle handles this
     @lariat_center = [@cx,@cy] #       and this....
     @node_radius_policy = node_radius_policies[default_node_radius_policy]
     @currently_printed_snippets = {}
@@ -5297,17 +6075,15 @@ class Huviz
              gravity(@gravity).
              on("tick", @tick)
     @update_fisheye()
-    @svg = d3.select("#vis").
+    @svg = d3.select(@args.vissvg_sel).
               append("svg").
               attr("width", @width).
               attr("height", @height).
               attr("position", "absolute")
-    @svg.append("rect").attr("width", @width).attr "height", @height
-    if not d3.select(@args.viscanvas_sel)[0][0]
-      new throw Error('expectling @args.viscanvas_sel to be found')
-      #d3.select("body").append("div").attr("id", "viscanvas")
+    @svg.append("rect").attr("width", @width).attr("height", @height)
     @container = d3.select(@args.viscanvas_sel).node().parentNode
-    @init_graph_controls_from_json()
+    @init_settings_from_json()
+    @apply_settings(@args.settings)
     if @use_fancy_cursor
       @text_cursor = new TextCursor(@args.viscanvas_sel, "")
       @install_update_pointer_togglers()
@@ -5334,44 +6110,114 @@ class Huviz
     search_input = document.getElementById('search')
     if search_input
       search_input.addEventListener("input", @update_searchterm)
-    window.addEventListener "resize", @updateWindow
-    $("#tabs").on("resize", @updateWindow)
+    window.addEventListener("resize", @updateWindow)
+    @tabsJQElem.on("resize", @updateWindow)
     $(@viscanvas).bind("_splitpaneparentresize", @updateWindow)
-    $("#collapse_cntrl").click(@minimize_gclui).on("click", @updateWindow)
-    $("#full_screen").click(@fullscreen)
-    $("#expand_cntrl").click(@maximize_gclui).on("click", @updateWindow)
-    $("#tabs").on('click', '#blurt_close', @close_blurt_box)
-    $("#tabs").tabs
-      active: 0
-      #collapsible: true
-    $('.open_tab').click (event) =>
-      tab_idx = parseInt($(event.target).attr('href').replace("#",""))
-      @goto_tab(tab_idx)
-      return false
+    @tabsJQElem.tabs({active: 0})
+    @maybe_demo_round_img()
 
-  fullscreen: () =>
-    elem = document.getElementById("body")
-    elem.webkitRequestFullscreen()
+  maybe_demo_round_img: ->
+    if not (@args.demo_round_img)
+      return
+    try
+      roundImage = @get_or_create_round_img(@args.demo_round_img)
+      roundImage.id = @unique_id('sample_round_img_')
+      @tabsJQElem.append(roundImage)
+      $('#'+roundImage.id).attr("style","background-color:black")
+    catch e
+      console.warn("url:", @args.demo_round_img)
+      console.debug(e)
+    return
+
+  create_blurtbox: ->
+    blurtbox_id = @unique_id('blurtbox_')
+    tabsElem = document.querySelector('#'+@tabs_id)
+    html = """<div id="#{blurtbox_id}" class="blurtbox"></div>"""
+    @blurtbox_JQElem = $(@insertBeforeEnd(tabsElem, html))
+    return
+
+  blurt: (str, type, noButton) =>
+    #css styles for messages: info (blue), alert (yellow), error (red)
+    # TODO There is currently no way for users to remove blurt boxes
+
+    #type='info' if !type
+    if type is "info" then label = "<h3>Message</h3>"
+    if type is "alert" then label = "<h3>Alert</h3>"
+    if type is "error" then label = "<h3>Error</h3>"
+    if not type then label = ''
+    @blurtbox_JQElem.append("<div class='blurt #{type}'>#{label}#{str}<br class='clear'></div>")
+    @blurtbox_JQElem.scrollTop(10000)
+    if not noButton and not @close_blurtbox_button
+      @close_blurtbox_button = @blurtbox_JQElem.prepend("<button id='blurt_close' class='sml_bttn' type='button'>close</button>")
+      @close_blurtbox_button.on('click', @close_blurt_box)
+    return
 
   close_blurt_box: () =>
-    $('#blurtbox').remove()
+    delete @close_blurtbox_button
+    @blurtbox_JQElem.html('')
 
-  minimize_gclui: () ->
-    $('#tabs').prop('style','visibility:hidden;width:0')
-    $('#expand_cntrl').prop('style','visibility:visible')
-    #w_width = (@container.clientWidth or window.innerWidth or document.documentElement.clientWidth or document.clientWidth)
-    #@width = w_width
-    #@get_container_width()
-    #@updateWindow()
-    #console.log @width
-  maximize_gclui: () ->
-    $('#tabs').prop('style','visibility:visible')
-    $('#maximize_cntrl').prop('style','visibility:hidden')
+
+  ##### ------------------- fullscreen stuff ---------------- ########
+  create_fullscreen_handle: ->
+    fs = """<div class="full_screen" style="position:absolute;z-index:999"><i class="fa fa-arrows-alt"></i></div>"""
+    @topJQElem.prepend(fs)
+    @fullscreenJQElem = @topJQElem.find(".full_screen")
+    @fullscreenJQElem.click(@fullscreen)
+    return
+
+  fullscreen: =>
+    # https://developer.mozilla.org/en-US/docs/Web/API/Document/exitFullscreen
+    if (document.fullscreenElement)
+      document.exitFullscreen()
+    else
+      @topElem.requestFullscreen()
+
+  ##### ------------------- collapse/expand stuff ---------------- ########
+
+  collapse_tabs: () =>
+    @tabsJQElem.prop('style','visibility:hidden;width:0')
+    @tabsJQElem.find('.expand_cntrl').prop('style','visibility:visible')
+    @tabsJQElem.find('.the-tabs').prop('style','display:none')
+    @tabsJQElem.find('.tabs-intro').prop('style','display:none')
+    #@expandCtrlJQElem.show() # why does this not work instead of the above?
+
+  expand_tabs: () =>
+    @tabsJQElem.prop('style','visibility:visible')
+    #@tabsJQElem.find('.expand_cntrl').prop('style','visibility:hidden')
+    @tabsJQElem.find('.the-tabs').prop('style','display:inherit')
+    @tabsJQElem.find('.tabs-intro').prop('style','display:inherit')
+    @expandCtrlJQElem.hide()
+    @collapseCtrlJQElem.show()
+
+  create_collapse_expand_handles: ->
+    ctrl_handle_id = sel_to_id(@args.ctrl_handle_sel)
+    html = """
+      <div class="expand_cntrl" style="visibility:hidden">
+        <i class="fa fa-angle-double-left"></i></div>
+      <div class="collapse_cntrl">
+        <i class="fa fa-angle-double-right"></i></div>
+      <div id="#{ctrl_handle_id}"
+           class="ctrl_handle ui-resizable-handle ui-resizable-w">
+         <div class="ctrl_handle_grip">o</div>
+      </div>
+    """ # """ this comment is to help emacs coffeescript mode
+    @tabsJQElem.prepend(html)
+    @expandCtrlJQElem = @tabsJQElem.find(".expand_cntrl")
+    @expandCtrlJQElem.click(@expand_tabs).on("click", @updateWindow)
+    @collapseCtrlJQElem = @tabsJQElem.find(".collapse_cntrl")
+    @collapseCtrlJQElem.click(@collapse_tabs).on("click", @updateWindow)
+    @tabsJQElem.resizable
+        handles: {'w':@args.ctrl_handle_sel}
+        minWidth: @args.tabs_minWidth
+    return
+
+  #### ---------------------  Utilities ---------------------------- #######
 
   goto_tab: (tab_idx) ->
-    $('#tabs').tabs
+    @tabsJQElem.tabs(
       active: tab_idx
-      collapsible: true
+      collapsible: true)
+    return
 
   update_fisheye: ->
     #@label_show_range = @link_distance * 1.1
@@ -5428,20 +6274,33 @@ class Huviz
     wander: 'WANDER'
     draw: 'DRAW'
     undraw: 'UNDRAW'
+    connect: 'CONNECT'
+    spawn: 'SPAWN'
+    specialize: 'SPECIALIZE'
+    annotate: 'ANNOTATE'
 
   # TODO add controls
   #   selected_border_thickness
-  default_graph_controls: [
+  default_settings: [
       reset_controls_to_default:
         label:
           title: "Reset all controls to default"
         input:
           type: "button"
           label: "Reset All"
-          style: "background-color: #555"
-        event_type: "change"
+          #style: "background-color: #303030"
+    ,
+      use_accordion_for_settings:
+        text: "show Settings in accordion"
+        label:
+          title: "Show the Settings Groups as an 'Accordion'"
+        input:
+          #checked: "checked"
+          type: "checkbox"
+        #style: "display:none"
     ,
       focused_mag:
+        group: "Labels"
         text: "focused label mag"
         input:
           value: 1.4
@@ -5453,6 +6312,7 @@ class Huviz
           title: "the amount bigger than a normal label the currently focused one is"
     ,
       selected_mag:
+        group: "Labels"
         text: "selected node mag"
         input:
           value: 1.5
@@ -5464,6 +6324,7 @@ class Huviz
           title: "the amount bigger than a normal node the currently selected ones are"
     ,
       label_em:
+        group: "Labels"
         text: "label size (em)"
         label:
           title: "the size of the font"
@@ -5486,6 +6347,7 @@ class Huviz
       #    type: "range"
     #,
       snippet_triple_em:
+        group: "Labels"
         text: "snippet triple (em)"
         label:
           title: "the size of the snippet triples"
@@ -5497,6 +6359,7 @@ class Huviz
           type: "range"
     ,
       charge:
+        group: "Layout"
         text: "charge (-)"
         label:
           title: "the repulsive charge betweeen nodes"
@@ -5508,6 +6371,7 @@ class Huviz
           type: "range"
     ,
       gravity:
+        group: "Layout"
         text: "gravity"
         label:
           title: "the attractive force keeping nodes centered"
@@ -5519,6 +6383,7 @@ class Huviz
           type: "range"
     ,
       shelf_radius:
+        group: "Sizing"
         text: "shelf radius"
         label:
           title: "how big the shelf is"
@@ -5530,6 +6395,7 @@ class Huviz
           type: "range"
     ,
       fisheye_zoom:
+        group: "Sizing"
         text: "fisheye zoom"
         label:
           title: "how much magnification happens"
@@ -5541,17 +6407,19 @@ class Huviz
           type: "range"
     ,
       fisheye_radius:
+        group: "Sizing"
         text: "fisheye radius"
         label:
           title: "how big the fisheye is"
         input:
           value: 300
-          min: 40
+          min: 0
           max: 2000
           step: 20
           type: "range"
     ,
       node_radius:
+        group: "Sizing"
         text: "node radius"
         label:
           title: "how fat the nodes are"
@@ -5563,6 +6431,7 @@ class Huviz
           type: "range"
     ,
       node_diff:
+        group: "Sizing"
         text: "node differentiation"
         label:
           title: "size variance for node edge count"
@@ -5574,6 +6443,7 @@ class Huviz
           type: "range"
     ,
       focus_threshold:
+        group: "Sizing"
         text: "focus threshold"
         label:
           title: "how fine is node recognition"
@@ -5585,6 +6455,7 @@ class Huviz
           type: "range"
     ,
       link_distance:
+        group: "Layout"
         text: "link distance"
         label:
           title: "how long the lines are"
@@ -5596,6 +6467,7 @@ class Huviz
           type: "range"
     ,
       edge_width:
+        group: "Sizing"
         text: "line thickness"
         label:
           title: "how thick the lines are"
@@ -5607,6 +6479,7 @@ class Huviz
           type: "range"
     ,
       line_edge_weight:
+        group: "Sizing"
         text: "line edge weight"
         label:
           title: "how much thicker lines become to indicate the number of snippets"
@@ -5618,17 +6491,19 @@ class Huviz
           type: "range"
     ,
       swayfrac:
+        group: "Sizing"
         text: "sway fraction"
         label:
           title: "how much curvature lines have"
         input:
           value: 0.22
-          min: 0.001
-          max: 0.6
+          min: -1.0
+          max: 1.0
           step: 0.01
           type: "range"
     ,
       label_graphed:
+        group: "Labels"
         text: "label graphed nodes"
         style: "display:none"
         label:
@@ -5638,6 +6513,7 @@ class Huviz
           type: "checkbox"
     ,
       truncate_labels_to:
+        group: "Labels"
         text: "truncate and scroll"
         label:
           title: "truncate and scroll labels longer than this, or zero to disable"
@@ -5648,26 +6524,14 @@ class Huviz
           step: 1
           type: "range"
     ,
-      slow_it_down:
-        #style: "display:none"
-        text: "Slow it down (sec)"
-        label:
-          title: "execute commands with wait states to simulate long operations"
-        input:
-          value: 0
-          min: 0
-          max: 10
-          step: 0.1
-          type: "range"
-    ,
       snippet_count_on_edge_labels:
+        group: "Labels"
         text: "snippet count on edge labels"
         label:
           title: "whether edges have their snippet count shown as (#)"
         input:
-          checked: "checked"
+          #checked: "checked"
           type: "checkbox"
-        event_type: "change"
     ,
       nodes_pinnable:
         style: "display:none"
@@ -5677,7 +6541,6 @@ class Huviz
         input:
           checked: "checked"
           type: "checkbox"
-        event_type: "change"
     ,
       use_fancy_cursor:
         style: "display:none"
@@ -5687,7 +6550,6 @@ class Huviz
         input:
           checked: "checked"
           type: "checkbox"
-        event_type: "change"
     ,
       doit_asap:
         style: "display:none"
@@ -5697,7 +6559,6 @@ class Huviz
         input:
           checked: "checked" # default to 'on'
           type: "checkbox"
-        event_type: "change"
     ,
       show_dangerous_datasets:
         style: "display:none"
@@ -5706,43 +6567,44 @@ class Huviz
           title: "Show the datasets which are too large or buggy"
         input:
           type: "checkbox"
-        event_type: "change"
     ,
       pill_display:
+        group: "Labels"
         text: "Display graph with boxed labels"
         label:
           title: "Show boxed labels on graph"
         input:
           type: "checkbox"
-        event_type: "change"
+          #checked: "checked"
     ,
       theme_colors:
+        group: "Styling"
         text: "Display graph with dark theme"
         label:
           title: "Show graph plotted on a black background"
         input:
           type: "checkbox"
-        event_type: "change"
     ,
       display_label_cartouches:
+        group: "Styling"
         text: "Background cartouches for labels"
         label:
           title: "Remove backgrounds from focused labels"
         input:
           type: "checkbox"
           checked: "checked"
-        event_type: "change"
     ,
       display_shelf_clockwise:
+        group: "Styling"
         text: "Display nodes clockwise"
         label:
           title: "Display clockwise (uncheck for counter-clockwise)"
         input:
           type: "checkbox"
           checked: "checked"
-        event_type: "change"
     ,
       choose_node_display_angle:
+        group: "Styling"
         text: "Node display angle"
         label:
           title: "Where on shelf to place first node"
@@ -5753,17 +6615,72 @@ class Huviz
           step: 0.25
           type: "range"
     ,
-      color_nodes_as_pies:
-        text: "Color nodes as pies"
-        style: "color:orange"
+      language_path:
+        group: "Ontological"
+        text: "Language Path"
         label:
-          title: "Show all a nodes types as colored pie pieces"
+          title: """Using ':' as separator and with ANY and NOLANG as possible values,
+            a list of the languages to expose, in order of preference.
+            Examples: "en:fr" means show English before French or nothing;
+            "ANY:en" means show any language before showing English;
+            "en:ANY:NOLANG" means show English if available, then any other
+            language, then finally labels in no declared language.
+            """
+        input:
+          type: "text"
+          # TODO tidy up -- use browser default language then English
+          value: (window.navigator.language.substr(0,2) + ":en:ANY:NOLANG").replace("en:en:","en:")
+          size: "16"
+          placeholder: "en:es:fr:de:ANY:NOLANG"
+    ,
+      ontological_settings_preamble:
+        group: "Ontological"
+        text: "Set before data ingestion..."
+        label:
+          title: """The following settings must be adjusted before
+            data ingestion for them to take effect."""
+    ,
+      show_class_instance_edges:
+        group: "Ontological"
+        text: "Show class-instance relationships"
+        label:
+          title: "display the class-instance relationship as an edge"
+        input:
+          type: "checkbox"
+          #checked: "checked"
+    ,
+      make_nodes_for_literals:
+        group: "Ontological"
+        text: "Make nodes for literals"
+        label:
+          title: "show literal values (dates, strings, numbers) as nodes"
+        input:
+          type: "checkbox"
+          checked: "checked"
+        event_type: "change"
+    ,
+      group_literals_by_subj_and_pred:
+        group: "Ontological"
+        text: "Group literals by subject & predicate"
+        label:
+          title: """Group literals together as a single node when they have
+          a language indicated and they share a subject and predicate, on the
+          theory that they are different language versions of the same text."""
+        input:
+          type: "checkbox"
+          checked: "checked"
+    ,
+      color_nodes_as_pies:
+        group: "Ontological"
+        text: "Color nodes as pies"
+        label:
+          title: """Show all a nodes types as colored pie pieces."""
         input:
           type: "checkbox"   #checked: "checked"
     ,
       prune_walk_nodes:
         text: "Walk styles "
-        style: "color:orange"
+        style: "display:none"
         label:
           title: "As path is walked, keep or prune connected nodes on selected steps"
         input:
@@ -5779,35 +6696,18 @@ class Huviz
             label: "Non-directional (unpruned)"
             value: "hairy_path"
         ]
-        event_type: "change"
-    ,
-      make_nodes_for_literals:
-        style: "color:orange"
-        text: "Make nodes for literals"
-        label:
-          title: "show literal values (dates, strings, numbers) as nodes"
-        input:
-          type: "checkbox"
-          checked: "checked"
-        event_type: "change"
     ,
       show_hide_endpoint_loading:
-        style: "color:orange"
+        style: "display:none"
+        class: "alpha_feature"
         text: "Show SPARQL endpoint loading forms"
         label:
           title: "Show SPARQL endpoint interface for querying for nodes"
         input:
           type: "checkbox"
     ,
-      show_hide_performance_monitor:
-        style: "color:orange"
-        text: "Show Performance Monitor"
-        label:
-          title: "Feedback on what HuViz is doing"
-        input:
-          type: "checkbox"
-    ,
       graph_title_style:
+        group: "Captions"
         text: "Title display "
         label:
           title: "Select graph title style"
@@ -5826,9 +6726,9 @@ class Huviz
             label: "Custom Captions"
             value: "custom"
         ]
-        event_type: "change",
     ,
       graph_custom_main_title:
+        group: "Captions"
         style: "display:none"
         text: "Custom Title"
         label:
@@ -5837,9 +6737,9 @@ class Huviz
           type: "text"
           size: "16"
           placeholder: "Enter Title"
-        event_type: "change"
     ,
       graph_custom_sub_title:
+        group: "Captions"
         style: "display:none"
         text: "Custom Sub-title"
         label:
@@ -5848,53 +6748,22 @@ class Huviz
           type: "text"
           size: "16"
           placeholder: "Enter Sub-title"
-        event_type: "change"
-    ,
-      debug_shelf_angles_and_flipping:
-        style: "color:orange;display:none"
-        text: "debug shelf angles and flipping"
-        label:
-          title: "show angles and flags with labels"
-        input:
-          type: "checkbox"   #checked: "checked"
-        event_type: "change"
-    ,
-      language_path:
-        text: "Language Path"
-        label:
-          title: "Preferred languages in order, with : separator."
-        input:
-          type: "text"
-          # TODO tidy up -- use browser default language then English
-          value: (window.navigator.language.substr(0,2) + ":en:ANY:NOLANG").replace("en:en:","en:")
-          size: "16"
-          placeholder: "en:es:fr:de:ANY:NOLANG"
-        event_type: "change"
-    ,
-      show_class_instance_edges:
-        style: "color:orange"
-        text: "Show class-instance relationships"
-        label:
-          title: "display the class-instance relationship as an edge"
-        input:
-          type: "checkbox"
-          #checked: "checked"
-        event_type: "change"
     ,
       discover_geonames_as:
-        style: "color:orange"
-        html_text: '<a href="http://www.geonames.org/login" taret="geonamesAcct">Geonames</a> Username'
+        group: "Geonames"
+        html_text: '<a href="http://www.geonames.org/login" target="geonamesAcct">Username</a> '
         label:
           title: "The GeoNames Username to look up geonames as"
         input:
+          jsWidgetClass: GeoUserNameWidget
           type: "text"
           value: "" # "smurp_nooron"
-          size: "16"
-          placeholder: "eg huviz"
-        event_type: "change"
+          size: "14"
+
+          placeholder: "e.g. huviz"
     ,
       discover_geonames_remaining:
-        style: "color:orange"
+        group: "Geonames"
         text: 'GeoNames Limit '
         label:
           title: "The number of Remaining Geonames to look up"
@@ -5902,52 +6771,126 @@ class Huviz
           type: "integer"
           value: 20
           size: 6
-        event_type: "change"
     ,
       discover_geonames_greedily:
-        style: "color:orange"
+        group: "Geonames"
         text: "Capture GeoNames Greedily"
         label:
-          title: "Capture not just names but population"
+          title: "Capture not just names but populations too."
         input:
           type: "checkbox"
           #checked: "checked"
-        event_type: "change"
     ,
       discover_geonames_deeply:
-        style: "color:orange"
+        group: "Geonames"
         text: "Capture GeoNames Deeply"
         label:
-          title: "Capture not directly referenced but the containing geographical places from GeoNames"
+          title: "Capture not just directly referenced but also the containing geographical places from GeoNames."
         input:
           type: "checkbox"
           #checked: "checked"
-        event_type: "change"
     ,
       show_edge_labels_adjacent_to_labelled_nodes:
-        style: "color:orange"
+        group: "Labels"
         text: "Show adjacent edge labels"
         label:
           title: "Show edge labels adjacent to labelled nodes"
         input:
           type: "checkbox"
           #checked: "checked"
-        event_type: "change"
     ,
-      show_hunt_verb:
-        style: "color:orange;display:none"
-        text: "Show Hunt verb"
+      show_edges:
+        class: "alpha_feature"
+        text: "Show Edges"
         label:
-          title: "Show the Hunt verb"
+          title: "Do draw edges"
+        input:
+          type: "checkbox"
+          checked: "checked"
+    ,
+      single_chosen:
+        class: "alpha_feature"
+        text: "Single Active Node"
+        label:
+          title: "Only use verbs which have one chosen node at a time"
+        input:
+          type: "checkbox"
+          checked: "checked"
+    ,
+      arrows_chosen:
+        class: "alpha_feature"
+        text: "Arrowheads on Edges"
+        label:
+          title: "Displays directional arrowheads on the 'object' end of lines."
         input:
           type: "checkbox"
           #checked: "checked"
-        event_type: "change"
+    ,
+      show_images_in_nodes:
+        group: "Images"
+        class: "alpha_feature"
+        text: "Show Images in Nodes"
+        label:
+          title: "Show dbpedia:thumbnail and foaf:thumbnail in nodes when available"
+        input:
+          type: "checkbox"
+          checked: "checked"
+    ,
+      show_thumbs_dont_graph:
+        group: "Images"
+        class: "alpha_feature"
+        text: "Show thumbnails, don't graph"
+        label:
+          title: "Treat dbpedia:thumbnail and foaf:thumbnail as images, not graph data"
+        input:
+          type: "checkbox"
+          checked: "checked"
+    ,
+      debug_shelf_angles_and_flipping:
+        group: "Debugging"
+        class: "alpha_feature"
+        text: "debug shelf angles and flipping"
+        label:
+          title: "show angles and flags with labels"
+        input:
+          type: "checkbox"   #checked: "checked"
+    ,
+      show_hide_performance_monitor:
+        group: "Debugging"
+        class: "alpha_feature"
+        text: "Show Performance Monitor"
+        label:
+          title: "Feedback on what HuViz is doing"
+        input:
+          type: "checkbox"
+    ,
+      slow_it_down:
+        group: "Debugging"
+        class: "alpha_feature"
+        text: "Slow it down (sec)"
+        label:
+          title: "execute commands with wait states to simulate long operations"
+        input:
+          value: 0
+          min: 0
+          max: 10
+          step: 0.1
+          type: "range"
+    ,
+      show_hunt_verb:
+        group: "Debugging"
+        class: "alpha_feature"
+        text: "Show Hunt verb"
+        label:
+          title: "Expose the 'Hunt' verb, for demonstration of SortedSet.binary_search()"
+        input:
+          type: "checkbox"
+          #checked: "checked"
     ]
 
   dump_current_settings: (post) =>
-    $("#tabs-options,.graph_controls").html("")
-    @init_graph_controls_from_json()
+    @settings_JQElem.html('')
+    @init_settings_from_json()
     @on_change_graph_title_style("subliminal")
     @on_change_prune_walk_nodes("directional_path")
 
@@ -5955,81 +6898,115 @@ class Huviz
     # Try to tune the gravity, charge and link length to suit the data and the canvas size.
     return @
 
-  init_graph_controls_from_json: =>
-    #@graph_controls_cursor = new TextCursor(@args.graph_controls_sel, "")
-    @graph_controls_cursor = new TextCursor(".graph_control input", "")
-    if @graph_controls_cursor
-      $("input").on("mouseover", @update_graph_controls_cursor)
-      #$("input").on("mouseenter", @update_graph_controls_cursor)
-      #$("input").on("mousemove", @update_graph_controls_cursor)
-    @graph_controls = d3.select(@args.graph_controls_sel)
-    @graph_controls.classed('graph_controls',true)
-    #$(@graph_controls).sortable().disableSelection() # TODO fix dropping
-    for control_spec in @default_graph_controls
+  make_settings_group: (groupName) ->
+    return @insertBeforeEnd(@settingGroupsContainerElem, """<h1>#{groupName}</h1><div class="settingsGroup"></div>""")
+
+  get_or_create_settings_group: (groupName) ->
+    groupId = synthIdFor(groupName)
+    @settings_groups ?= {}
+    group = @settings_groups[groupName]
+    if not group
+      @settings_groups[groupName] = group = @make_settings_group(groupName)
+    return group
+
+  init_settings_from_json: =>
+    # TODO rebuild this method without D3 using @settingsElem
+    @settingsElem = document.querySelector(@args.settings_sel)
+    settings_input_sel = @args.settings_sel + ' input'
+    @settings_cursor = new TextCursor(settings_input_sel, "")
+    if @settings_cursor
+      $(settings_input_sel).on("mouseover", @update_settings_cursor)
+      #$("input").on("mouseenter", @update_settings_cursor)
+      #$("input").on("mousemove", @update_settings_cursor)
+    @settings = d3.select(@settingsElem)
+    @settings.classed('settings',true)
+    @settingGroupsContainerElem = @insertBeforeEnd(@settingsElem, '<div class="settingGroupsContainer"></div>')
+    for control_spec in @default_settings
       for control_name, control of control_spec
-        graph_control = @graph_controls.append('div').attr('id',control_name).attr('class', 'graph_control')
-        label = graph_control.append('label')
+        inputId = unique_id(control_name+'_')
+        groupName = control.group or 'General'
+        groupElem = @get_or_create_settings_group(groupName)
+        controlElem = @insertBeforeEnd(groupElem, """<div class="a_setting #{control_name}__setting"></div>""")
+        labelElem = @insertBeforeEnd(controlElem, """<label for="#{inputId}"></label>""")
         if control.text?
-          label.text(control.text)
-        if control.html_text
-          label.html(control.html_text)
-        if control.label?
-          label.attr(control.label)
+          labelElem.innerHTML = control.text
+        if control.html_text?
+          labelElem.innerHTML = control.html_text
         if control.style?
-          graph_control.attr("style", control.style)
+          controlElem.setAttribute('style', control.style)
         if control.class?
-          graph_control.attr('class', 'graph_control ' + control.class)
-        if control.input.type is 'select'
-          input = label.append('select')
-          input.attr("name", control_name)
-          for a,v of control.options
-            option = input.append('option')
-            if v.selected
-              option.html(v.label).attr("value", v.value).attr("selected", "selected")
-            else
-              option.html(v.label).attr("value", v.value)
-          #label.append("input").attr("name", "custom_title").attr("type", "text").attr("style", " ")
-          #label.append("input").attr("name", "custom_subtitle").attr("type", "text").attr("style", " ")
-        else if control.input.type is 'button'
-          input = label.append('button')
-          input.attr("type", "button")
-          input.html("Reset All")
-          input.on("click", @dump_current_settings)
-        else
-          input = label.append('input')
-          input.attr("name", control_name)
-          if control.input?
+          #graph_control.attr('class', 'graph_control ' + control.class)
+          #controlElem.addAttribute('class', control.class)
+          controlElem.classList.add(control.class)
+        if control.input?
+          if control.input.type is 'select'
+            inputElem = @insertBeforeEnd(controlElem, """<select></select>""")
+            for optIdx, opt of control.options
+              optionElem = @insertBeforeEnd(inputElem, """<option value="#{opt.value}"></option>""")
+              if opt.selected
+                optionElem.setAttribute('selected','selected')
+              if opt.label?
+                optionElem.innerHTML = opt.label
+          else if control.input.type is 'button'
+            inputElem = @insertBeforeEnd(controlElem, """<button type="button">(should set label)</button>""")
+            if control.input.label?
+              inputElem.innerHTML = control.input.label
+            if control.input.style?
+              inputElem.setAttribute('style', control.input.style)
+            inputElem.onClick = @dump_current_settings
+          else
+            inputElem = @insertBeforeEnd(controlElem, """<input name="#{control_name}"></input>""")
+            WidgetClass = null
             for k,v of control.input
+              if k is 'jsWidgetClass'
+                WidgetClass = v
+                continue
               if k is 'value'
                 old_val = @[control_name]
                 @change_setting_to_from(control_name, v, old_val)
-              input.attr(k,v)
-          if control.input.type is 'checkbox'
-            value = control.input.checked?
-            #console.log "control:",control_name,"value:",value, control
-            @change_setting_to_from(control_name, value, undefined) #@[control_name].checked)
-          # TODO replace control.event_type with autodetecting on_change_ vs on_update_ method existence
-
-        if control.event_type is 'change'
-          input.on("change", @update_graph_settings) # when focus changes
-        else
-          input.on("input", @update_graph_settings) # continuous updates
-    $("#tabs-options").append("<div id='buffer_space'></div>")
+              inputElem.setAttribute(k, v)
+            if WidgetClass
+              @[control_name + '__widget'] = new WidgetClass(this, inputElem)
+            if control.input.type is 'checkbox'
+              value = control.input.checked?
+              @change_setting_to_from(control_name, value, undefined) #@[control_name].checked)
+            # TODO replace control.event_type with autodetecting on_change_ vs on_update_ method existence
+          inputElem.setAttribute('id', inputId)
+          inputElem.setAttribute('name', control_name)
+          event_type = control.event_type or
+              (control.input.type in ['checkbox','range','radio'] and 'input') or
+              'change'
+          if event_type is 'change'
+            # These controls only update when enter is pressed or the focus changes.
+            # Good for things like text fields which might not make sense until the user is 'done'.
+            #input.on("change", @update_graph_settings)
+            inputElem.addEventListener('change', @change_graph_settings)
+          else
+            # These controls get continuously updated.
+            # Good for range sliders, radiobuttons and checkboxes.
+            # This can be forced by setting the .event_type on the control_spec explicitly.
+            #input.on("input", @update_graph_settings) # continuous updates
+            inputElem.addEventListener('input', @update_graph_settings)
+        if control.label.title?
+          @insertBeforeEnd(controlElem, '<div class="setting_explanation">' + control.label.title + '</div>')
+    #$(@settingGroupsContainerElem).accordion()
+    #@insertBeforeEnd(@settingsElem, """<div class="buffer_space"></div>""")
     return
 
-  update_graph_controls_cursor: (evt) =>
+  update_settings_cursor: (evt) =>
     cursor_text = (evt.target.value).toString()
     if !cursor_text
       console.debug(cursor_text)
     else
       console.log(cursor_text)
-    @graph_controls_cursor.set_text(cursor_text)
+    @settings_cursor.set_text(cursor_text)
 
-  update_graph_settings: (target, update) =>
-    target = target? and target or d3.event.target
-    # event_type = d3.event.type
-    update = not update? and true or update
-    update = not update
+  update_graph_settings: (event) =>
+    @change_graph_settings(event, true)
+
+  change_graph_settings: (event, update) =>
+    target = event.target
+    update ?= false
     if target.type is "checkbox"
       cooked_value = target.checked
     else if target.type is "range" # must massage into something useful
@@ -6039,22 +7016,29 @@ class Huviz
       cooked_value = target.value
     old_value = @[target.name]
     @change_setting_to_from(target.name, cooked_value, old_value)
-    d3.select(target).attr("title", cooked_value)
+    #d3.select(target).attr("title", cooked_value)
     if update  # TODO be more discriminating, not all settings require update
                #   ones that do: charge, gravity, fisheye_zoom, fisheye_radius
       @update_fisheye()
       @updateWindow()
     @tick("Tick in update_graph_settings")
 
+  apply_settings: (settings) ->
+    for setting, value of settings
+      @set_setting(setting, value)
+      # TODO could it be that some of these need their handlers run? eg on_change_SOME_SETTING_NAME
+      #@change_setting_to_from(setting, value)
+      #console.warn("should adjust the Settings INPUT for #{setting} too")
+
   change_setting_to_from: (setting_name, new_value, old_value, skip_custom_handler) =>
     skip_custom_handler = skip_custom_handler? and skip_custom_handler or false
     # TODO replace control.event_type with autodetecting on_change_ vs on_update_ method existence
     custom_handler_name = "on_change_" + setting_name
     custom_handler = @[custom_handler_name]
-    if @graph_controls_cursor
+    if @settings_cursor
       cursor_text = (new_value).toString()
       #console.info("#{setting_name}: #{cursor_text}")
-      @graph_controls_cursor.set_text(cursor_text)
+      @settings_cursor.set_text(cursor_text)
     if custom_handler? and not skip_custom_handler
       #console.log "change_setting_to_from() custom setting: #{setting_name} to:#{new_value}(#{typeof new_value}) from:#{old_value}(#{typeof old_value})"
       custom_handler.apply(@, [new_value, old_value])
@@ -6063,6 +7047,14 @@ class Huviz
       this[setting_name] = new_value
 
   # on_change handlers for the various settings which need them
+  on_change_use_accordion_for_settings: (new_val, old_val) ->
+    if new_val
+      # TODO replace this delay with a promise
+      doit = () => $(@settingGroupsContainerElem).accordion()
+      setTimeout(doit, 200)
+    else
+      console.warn('We do not yet have a solution for turning OFF the Accordion')
+
   on_change_nodes_pinnable: (new_val, old_val) ->
     if not new_val
       if @graphed_set
@@ -6104,13 +7096,18 @@ class Huviz
   on_change_theme_colors: (new_val) ->
     if new_val
       renderStyles = themeStyles.dark
-      $("body").removeClass themeStyles.light.themeName
+      #$("body").removeClass themeStyles.light.themeName
+      @topElem.classList.remove(themeStyles.light.themeName)
     else
       renderStyles = themeStyles.light
-      $("body").removeClass themeStyles.dark.themeName
+      #$("body").removeClass themeStyles.dark.themeName
+      @topElem.classList.remove(themeStyles.light.themeName)
     #@update_graph_settings()
-    $("body").css "background-color", renderStyles.pageBg
-    $("body").addClass renderStyles.themeName
+    #$("body").css "background-color", renderStyles.pageBg
+    #$("body").addClass renderStyles.themeName
+    @topElem.style.backgroundColor = renderStyles.pageBg
+    @topElem.classList.add(renderStyles.themeName)
+    console.log @topElem
     @updateWindow()
 
   on_change_display_label_cartouches: (new_val) ->
@@ -6145,32 +7142,32 @@ class Huviz
 
   on_change_graph_title_style: (new_val, old_val) ->
     if new_val is "custom"
-      $(".main_title").removeAttr("style")
-      $(".sub_title").removeAttr("style")
-      $("#graph_custom_main_title").css('display', 'inherit')
-      $("#graph_custom_sub_title").css('display', 'inherit')
-      custTitle = $("input[name='graph_custom_main_title']")
-      custSubTitle = $("input[name='graph_custom_sub_title']")
+      @topJQElem.find(".main_title").removeAttr("style")
+      @topJQElem.find(".sub_title").removeAttr("style")
+      @topJQElem.find(".graph_custom_main_title__setting").css('display', 'inherit')
+      @topJQElem.find(".graph_custom_sub_title__setting").css('display', 'inherit')
+      custTitle = @topJQElem.find("input[name='graph_custom_main_title']")
+      custSubTitle = @topJQElem.find("input[name='graph_custom_sub_title']")
       @update_caption(custTitle[0].title, custSubTitle[0].title)
-      $("a.git_commit_hash_watermark").css('display', 'none')
-      $("#ontology_watermark").attr('style', '')
+      @topJQElem.find("a.git_commit_hash_watermark").css('display', 'none')
+      @ontology_watermark_JQElem.attr('style', '')
     else if new_val is "bold1"
-      $("#ontology_watermark").css('display', 'none')
+      @ontology_watermark_JQElem.css('display', 'none')
     else
-      $("#graph_custom_main_title").css('display', 'none')
-      $("#graph_custom_sub_title").css('display', 'none')
-      $("a.git_commit_hash_watermark").css('display', 'inherit')
-      $("#ontology_watermark").attr('style', '')
-      @update_caption(@dataset_loader.value,@ontology_loader.value)
-    $("#dataset_watermark").removeClass().addClass(new_val)
-    $("#ontology_watermark").removeClass().addClass(new_val)
+      @topJQElem.find(".graph_custom_main_title__setting").css('display', 'none')
+      @topJQElem.find(".graph_custom_sub_title__setting").css('display', 'none')
+      @topJQElem.find("a.git_commit_hash_watermark").css('display', 'inherit')
+      @ontology_watermark_JQElem.attr('style', '')
+      @update_caption(@data_uri,@onto_uri)
+    @dataset_watermark_JQElem.removeClass().addClass("dataset_watermark #{new_val}")
+    @ontology_watermark_JQElem.removeClass().addClass("ontology_watermark #{new_val}")
 
   on_change_graph_custom_main_title: (new_val) ->
     # if new custom values then update titles
-    $("#dataset_watermark").text(new_val)
+    @dataset_watermark_JQElem.text(new_val)
 
   on_change_graph_custom_sub_title: (new_val) ->
-    $("#ontology_watermark").text(new_val)
+    @ontology_watermark_JQElem.text(new_val)
 
   on_change_language_path: (new_val, old_val) ->
     try
@@ -6206,51 +7203,56 @@ class Huviz
   on_change_show_hide_performance_monitor: (new_val, old_val) ->
     console.log "clicked performance monitor " + new_val + " " + old_val
     if new_val
-      $("#performance_dashboard").css('display','block')
+      @performance_dashboard_JQElem.css('display','block')
       @pfm_display = true
       @pfm_dashboard()
       @timerId = setInterval(@pfm_update, 1000)
     else
       clearInterval(@timerId)
-      $("#performance_dashboard").css('display','none').html('')
+      @performance_dashboard_JQElem.css('display','none').html('')
       @pfm_display = false
+
+  on_change_discover_geonames_remaining: (new_val, old_val) ->
+    @discover_geonames_remaining = new_val
+    @discover_names_including('sws.geonames.org')
 
   on_change_discover_geonames_as: (new_val, old_val) ->
     @discover_geonames_as = new_val
     if new_val
-      if @nameless_set
-        @discover_names()
+      @discover_geonames_as__widget.set_state('untried')
+      @discover_names_including('sws.geonames.org')
+    else
+      if @discover_geonames_as__widget
+        @discover_geonames_as__widget.set_state('empty')
 
-  init_from_graph_controls: ->
-    # alert "init_from_graph_controls() is deprecated"
+  on_change_single_chosen: (new_val, old_val) ->
+    @single_chosen = new_val
+    @tick()
+
+  on_change_arrows_chosen: (new_val, old_val) ->
+    @arrows_chosen = new_val
+    @tick()
+
+  init_from_settings: ->
+    # alert "init_from_settings() is deprecated"
     # Perform update_graph_settings for everything in the form
     # so the HTML can be used as configuration file
-    for elem in $(".graph_controls input") # so we can modify them in a loop
+    for elem in $(".settings input") # so we can modify them in a loop
       @update_graph_settings(elem, false)
 
   after_file_loaded: (uri, callback) ->
-    #@show_node_pred_edge_stats()
-    @fire_fileloaded_event(uri)
+    @call_on_dataset_loaded(uri)
     if callback
       callback()
 
   show_node_pred_edge_stats: ->
     pred_count = 0
     edge_count = 0
-
     s = "nodes:#{@nodes.length} predicates:#{pred_count} edges:#{edge_count}"
     console.log(s)
 
-  fire_fileloaded_event: (uri) ->
-    document.dispatchEvent(new CustomEvent("dataset-loaded", {detail: uri}))
-    window.dispatchEvent(
-      new CustomEvent 'fileloaded',
-        detail:
-          message: "file loaded"
-          time: new Date()
-        bubbles: true
-        cancelable: true
-    )
+  call_on_dataset_loaded: (uri) ->
+    @gclui.on_dataset_loaded({uri: uri})
 
   XXX_load_file: ->
     @load_data_with_onto(@get_dataset_uri())
@@ -6260,16 +7262,17 @@ class Huviz
     # regardless the .value is a key into the datasetDB
     @data_uri = data.value
     @set_ontology(onto.value)
+    @onto_uri = onto.value
     if @args.display_reset
       $("#reset_btn").show()
     else
       #@disable_data_set_selector()
       @disable_dataset_ontology_loader(data, onto)
     @show_state_msg("loading...")
-    #@init_from_graph_controls() # REVIEW remove init_from_graph_controls?!?
-    #@dump_current_settings("after init_from_graph_controls()")
+    #@init_from_settings() # REVIEW remove init_from_settings?!?
+    #@dump_current_settings("after init_from_settings()")
     #@reset_graph()
-    @show_state_msg @data_uri
+    @show_state_msg(@data_uri)
     unless @G.subjects
       @fetchAndShow(@data_uri, callback)
 
@@ -6356,8 +7359,6 @@ class Huviz
     # If there is a script after the hash, run it.
     # Otherwise load the default dataset defined by the page.
     # Or load nothing if there is no default.
-    #@init_from_graph_controls()
-    # $(".graph_controls").sortable() # FIXME make graph_controls sortable
     @reset_graph()
     if not script?
       script = @get_script_from_hash()
@@ -6445,7 +7446,7 @@ class Huviz
       <div class='feedback_module'><p>Outstanding SPARQL Requests: <span id="noOR">0</span></p></div>
       #{@build_pfm_live_monitor('sparql')}
     """
-    $("#performance_dashboard").html(message + warning)
+    @performance_dashboard_JQElem.html(message + warning)
 
   build_pfm_live_monitor: (name) =>
     label = @pfm_data["#{name}"]["label"]
@@ -6509,7 +7510,7 @@ class OntologicallyGrounded extends Huviz
         if rsrcRec?
           @parseTTLOntology(rsrcRec.data)
           return
-        blurt(err or "'#{url}' was not found in your ONTOLOGY menu.  Provide it and reload page")
+        @blurt(err or "'#{url}' was not found in your ONTOLOGY menu.  Provide it and reload page")
         @reset_dataset_ontology_loader()
         return
       return
@@ -6518,7 +7519,7 @@ class OntologicallyGrounded extends Huviz
       async: false
       success: @parseTTLOntology
       error: (jqxhr, textStatus, errorThrown) =>
-        # REVIEW standardize on blurt(), right?
+        # REVIEW standardize on @blurt(), right?
         @show_state_msg(errorThrown + " while fetching ontology " + url)
 
   parseTTLOntology: (data, textStatus) =>
@@ -6577,7 +7578,7 @@ class Orlando extends OntologicallyGrounded
   # These ought to be made more data-driven.
 
   constructor: ->
-    super
+    super(arguments...)
     if window.indexedDB
       onceDBReadyCount = 0
       delay = 100
@@ -6796,10 +7797,10 @@ class PickOrProvide
 
   constructor: (@huviz, @append_to_sel, @label, @css_class, @isOntology, @isEndpoint, @opts) ->
     @opts ?= {}
-    @uniq_id = unique_id()
-    @select_id = unique_id()
-    @pickable_uid = unique_id()
-    @your_own_uid = unique_id()
+    @uniq_id = @huviz.unique_id()
+    @select_id = @huviz.unique_id()
+    @pickable_uid = @huviz.unique_id()
+    @your_own_uid = @huviz.unique_id()
     @find_or_append_form()
     dndLoaderClass = @opts.dndLoaderClass or DragAndDropLoader
     @drag_and_drop_loader = new dndLoaderClass(@huviz, @append_to_sel, @)
@@ -6902,7 +7903,7 @@ class PickOrProvide
 
   add_group: (grp_rec, which) ->
     which ?= 'append'
-    optgrp = $("""<optgroup label="#{grp_rec.label}" id="#{grp_rec.id or unique_id()}"></optgroup>""")
+    optgrp = $("""<optgroup label="#{grp_rec.label}" id="#{grp_rec.id or @huviz.unique_id()}"></optgroup>""")
     if which is 'prepend'
       @pick_or_provide_select.prepend(optgrp)
     else
@@ -6916,20 +7917,20 @@ class PickOrProvide
     if @pick_or_provide_select.find("option[value='#{opt_rec.value}']").length
       #alert "add_option() #{opt_rec.value} collided"
       return
-    opt_str = """<option id="#{unique_id()}"></option>"""
+    opt_str = """<option id="#{@huviz.unique_id()}"></option>"""
     opt = $(opt_str)
     opt_group_label = opt_rec.opt_group
     if opt_group_label
       opt_group = @pick_or_provide_select.find("optgroup[label='#{opt_group_label}']")
       #console.log(opt_group_label, opt_group.length) #, opt_group[0])
       if not opt_group.length
-        #blurt("adding '#{opt_group_label}'")
+        #@huviz.blurt("adding '#{opt_group_label}'")
         opt_group = @add_group({label: opt_group_label}, 'prepend')
         # opt_group = $('<optgroup></optgroup>')
         # opt_group.attr('label', opt_group_label)
         # @pick_or_provide_select.append(opt_group)
       #if not opt_group.length
-      #  blurt('  but it does not yet exist')
+      #  @huviz.blurt('  but it does not yet exist')
       opt_group.append(opt)
     else # There is no opt_group_label, so this is a top level entry, ie a group, etc
       if pre_or_append is 'append'
@@ -7033,7 +8034,7 @@ class DragAndDropLoader
   """
 
   constructor: (@huviz, @append_to_sel, @picker) ->
-    @local_file_form_id = unique_id()
+    @local_file_form_id = @huviz.unique_id()
     @local_file_form_sel = "##{@local_file_form_id}"
     @find_or_append_form()
     if @supports_file_dnd()
@@ -7071,7 +8072,7 @@ class DragAndDropLoader
           #@huviz.local_file_data = evt.target.result  # REVIEW remove all uses of local_file_data?!?
         else
           #$("##{@dataset_loader.select_id} option[label='Pick or Provide...']").prop('selected', true)
-          blurt("Unknown file format. Unable to parse '#{filename}'. " +
+          @huviz.blurt("Unknown file format. Unable to parse '#{filename}'. " +
                 "Only .ttl and .nq files supported.", 'alert')
           @huviz.reset_dataset_ontology_loader()
           $('.delete_option').attr('style','')
@@ -7079,7 +8080,7 @@ class DragAndDropLoader
         msg = e.toString()
         #@form.find('.box__error').show()
         #@form.find('.box__error').text(msg)
-        blurt(msg, 'error')
+        @huviz.blurt(msg, 'error')
     reader.readAsText(firstFile)
     return true # ie success
   find_or_append_form: ->
@@ -7149,7 +8150,7 @@ class DragAndDropLoaderOfScripts extends DragAndDropLoader
           #@huviz.local_file_data = evt.target.result
         else
           #$("##{@dataset_loader.select_id} option[label='Pick or Provide...']").prop('selected', true)
-          blurt("Unknown file format. Unable to parse '#{filename}'. " +
+          @huviz.blurt("Unknown file format. Unable to parse '#{filename}'. " +
                 "Only .txt and .huviz files supported.", 'alert')
           @huviz.reset_dataset_ontology_loader()
           $('.delete_option').attr('style','')
@@ -7157,7 +8158,7 @@ class DragAndDropLoaderOfScripts extends DragAndDropLoader
         msg = err.toString()
         #@form.find('.box__error').show()
         #@form.find('.box__error').text(msg)
-        blurt(msg, 'error')
+        @huviz.blurt(msg, 'error')
     reader.readAsText(firstFile)
     return true # ie success
 

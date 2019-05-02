@@ -6,6 +6,7 @@
 @prefix youtuch: <https://www.youtube.com/channel/> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
 @prefix dvrsdata: <http://nooron.com/_/dvrsdata.ttl#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
 
 # https://bitbucket.org/nooron/general/issues/42/design-prefixes-for-media-users
 
@@ -14,29 +15,35 @@
 # contributor is WRONG, the concept is submitter but vocab.cc has no mention of the idea
 youtu:uImk2RgCq_U
     a video:Video ;
+    foaf:thumbnail <http://i3.ytimg.com/vi/uImk2RgCq_U/hqdefault.jpg> ;
     dcterms:contributor youtuch:UCLgl2hqyKftAxPVNNXYcOSw ;
     rdfs:label "The 20 oldest Videos on Youtube" .
 
 youtu:jNQXAC9IVRw
     a video:Video ;
+    foaf:thumbnail <http://i3.ytimg.com/vi/jNQXAC9IVRw/hqdefault.jpg> ;
     dcterms:contributor youtuch:UC4QobU6STFB0P71PMvOGN5A ;
     rdfs:comment "The first video on YouTube. Maybe it's time to go back to the zoo? The name of the music playing in the background is Darude - Sandstorm." ;
     rdfs:label "Me at the zoo" .
 
 youtu:LeAltgu_pbM
     a video:Video ;
+    foaf:thumbnail <http://i3.ytimg.com/vi/LeAltgu_pbM/hqdefault.jpg> ;
     dcterms:contributor youtuch:UC7DazZtuimjEKKjU2M6aq8w ;
     rdfs:comment "description" ;
     rdfs:label "My Snowboarding Skillz" .
 
 youtu:DdxtXO34T5k
     a video:Video ;
+    foaf:thumbnail <http://i3.ytimg.com/vi/DdxtXO34T5k/hqdefault.jpg> ;
     dcterms:contributor youtuch:UCJk16eB83Su54903oToXSRg ;
     rdfs:comment "Third video on youtube uploaded April 24, 2005 by the user tunafat, he privated this video on January 30, 2011, so I reuploaded." ;
     rdfs:label "Flambe Disaster" .
 
 youtu:nHBhyIzTstI
     a video:Video ;
+    #foaf:thumbnail <http://i3.ytimg.com/vi/nHBhyIzTstI/hqdefault.jpg> ;
+    foaf:thumbnail <http://localhost:9997/huviz/docs/nooron_logo.png> ;
     dcterms:contributor youtuch:UCuWwLRjfxRIsx-dpmjs-eeA ;
     rdfs:label "Bootie Christ Dance" .
 

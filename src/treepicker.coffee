@@ -30,7 +30,8 @@ Possible Bug: it appears that <div class="container" id="classes"> has a redunda
 uniquer = require("uniquer").uniquer
 
 class TreePicker
-  constructor: (@elem, root, extra_classes, @needs_expander, @use_name_as_label) ->
+  constructor: (@elem, root, extra_classes, @needs_expander, @use_name_as_label, @squash_case_during_sort, @style_context_selector) ->
+    # The @style_context_selector is only really needed by colortreepicker
     if extra_classes?
       @extra_classes = extra_classes
     if not @use_name_as_label?

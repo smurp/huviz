@@ -1,0 +1,14 @@
+{
+  "datasets": [
+    {
+      "uri": "/data/geoname_username_widget_states.ttl",
+      "label": "GeoNames Widget state machine",
+      "ontology_label": "OWL Mini"
+    }
+  ],
+  "defaults": {
+    "isOntology": false,
+    "opt_group": "Experiments",
+    "canDelete": false
+  }
+}

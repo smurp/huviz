@@ -9,7 +9,17 @@ body, html {
   background-color: #fff;
 }
 
+/* ----------------------------- Markdown Dialogs ------------------------------ */
+.markdownDialog ul {
+  list-style-type: circle;
+}
 
+.markdownDialog ul li {
+  list-style-type: circle;
+}
+.markdownDialog ol li {
+  list-style-type: decimal;
+}
 
 
 /* ----------------------------- Node Examiner ------------------------------ */
@@ -72,6 +82,9 @@ button.close_node_details img:hover{
 .contextMenu p.note span.label{
   color:inherit;
 }
+.contextMenu .id_display a{
+  font-size: 0.9em;
+}
 .contextMenu ul {
   margin-top: 0.3em;
   font-size: 0.9em;
@@ -82,10 +95,10 @@ button.close_node_details img:hover{
 .contextMenu li i {
   color: #777;
 }
-.contextMenu li a {
+.contextMenu li a, .contextMenu .id_display a {
   color: #0056b3;
 }
-.contextMenu li a:hover {
+.contextMenu li a:hover, .contextMenu .id_display a:hover  {
   color: #3085e0;
 }
 .contextMenu button{
@@ -253,7 +266,7 @@ img.close_all_snippets_button {
 
 /* --------------- Performance Monitor ----------------- */
 
-#performance_dashboard {
+.performance_dashboard {
   height: 90%;
   width: 250px;
   background-color: #eee;
@@ -269,9 +282,24 @@ img.close_all_snippets_button {
   background-color: #fdfdfd;
 }
 
-#performance_dashboard .feedback_module {
+.performance_dashboard .feedback_module {
   margin-left: 12px;
 }
-#performance_dashboard p {
+.performance_dashboard p {
   margin: 0.25em 0;
+}
+
+/* ---------------- The SVG and/or CANVAS elements --------- */
+
+.vissvg {
+  z-index:-3;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.viscanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
 }

@@ -3,7 +3,7 @@ uniquer = require("uniquer").uniquer
 
 class Predicate extends TreeCtrl
   constructor: (@id) ->
-    super
+    super(arguments...)
     @lid = uniquer(@id) # lid means local_id
     @all_edges = SortedSet().sort_on("id").named("predicate")
     # TODO check for .acquire() bugs re isState('_s') vs isState('_p')

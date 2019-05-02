@@ -25,12 +25,10 @@
     <script src="//cdn.rawgit.com/fnando/sparkline/master/dist/sparkline.js"></script>
   <% if (nopts.is_local) { %>
     <script src="/jquery/jquery.js"></script>
-    <script src="/jquery-ui/jquery-ui.min.js"></script>
-    <script src="/d3/d3.js"></script>
+    <script src="/jquery-ui/jquery-ui.js"></script>
   <% } else { %>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
   <% } %>
   <% if (nopts.git_commit_hash) { %>
     <script type="text/javascript">
@@ -38,14 +36,29 @@
     </script>
   <% } %>
   </head>
-  <body id="body">
-    <div id="HUVIZ_TOP" class="HUVIZ_TOP huviz_wrapper"></div>
-    <div style="display:none">
-      <%# until the intro tab is rendered as markdown %>
-      <%- include('tabs/intro') %>
+  <body id="body" style="background-color:grey">
+    <style>
+      .outerBox {
+        height: 100%;
+        overflow: hidden;
+      }
+      .innerBox {
+        margin: 2%;
+        height: 96%;
+        width: 46%;
+        float: left;
+        overflow: hidden;
+      }
+    </style>
+    <div class="outerBox">
+      <div id="HUVIZ_TOP" class="HUVIZ_TOP innerBox huviz_wrapper"></div>
+      <div id="FLOWER_TOP" class="FLOWER_TOP innerBox huviz_wrapper"></div>
     </div>
+    <div style="display:none"> <%- include('tabs/intro') %> </div>
     <script src="/huviz/huviz.js?23234"></script>
+
     <script src="/js/init_huvis.js"></script>
+    <script src="/js/init_flower.js"></script>
 
   </body>
 </html>

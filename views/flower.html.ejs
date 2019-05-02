@@ -26,26 +26,21 @@
   <% if (nopts.is_local) { %>
     <script src="/jquery/jquery.js"></script>
     <script src="/jquery-ui/jquery-ui.min.js"></script>
-    <script src="/d3/d3.js"></script>
   <% } else { %>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
   <% } %>
-  <% if (nopts.git_commit_hash) { %>
+    <% if (nopts.git_commit_hash) { %>
     <script type="text/javascript">
       window.HUVIZ_GIT_COMMIT_HASH = "<%= nopts.git_commit_hash %>";
     </script>
-  <% } %>
+    <% } %>
   </head>
-  <body id="body">
-    <div id="HUVIZ_TOP" class="HUVIZ_TOP huviz_wrapper"></div>
-    <div style="display:none">
-      <%# until the intro tab is rendered as markdown %>
-      <%- include('tabs/intro') %>
-    </div>
+  <body id="body" style="background-color:grey">
+    <div id="FLOWER_TOP" class="FLOWER_TOP huviz_wrapper"
+         style="margin:5%;width:90%;height:90%;background-color:grey"></div>
     <script src="/huviz/huviz.js?23234"></script>
-    <script src="/js/init_huvis.js"></script>
+    <script src="/js/init_flower.js"></script>
 
   </body>
 </html>

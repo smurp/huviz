@@ -122,6 +122,7 @@ app.configure ->
   app.use('/jquery', express.static(__dirname + '/node_modules/jquery/dist'))
   app.use('/jquery-simulate-ext__libs', express.static(__dirname + '/node_modules/jquery-simulate-ext/libs'))
   app.use('/jquery-simulate-ext__src', express.static(__dirname + '/node_modules/jquery-simulate-ext/src'))
+  app.use('/d3', express.static(__dirname + '/node_modules/d3'))
   app.use('/data', express.static(__dirname + '/data'))
   app.use('/js', express.static(__dirname + '/js'))
   app.use("/jsoutline", express.static(__dirname + "/node_modules/jsoutline/lib"))
@@ -130,7 +131,11 @@ app.configure ->
   app.use('/mocha', express.static(__dirname + '/node_modules/mocha'))
   app.use('/chai', express.static(__dirname + '/node_modules/chai'))
   app.use('/marked', express.static(__dirname + '/node_modules/marked'))
-  app.use('/docs', express.static(__dirname + '/docs'))
+  app.use('/huviz/docs', express.static(__dirname + '/docs'))
+  app.get("/tab_tester", localOrCDN("/views/tab_tester.html", {nopts: nopts}))
+  app.get("/flower", localOrCDN("/views/flower.html.ejs", {nopts: nopts}))
+  app.get("/boxed", localOrCDN("/views/boxed.html.ejs", {nopts: nopts}))
+  app.get("/twoup", localOrCDN("/views/twoup.html.ejs", {nopts: nopts}))
   #app.get("/orlonto.html", localOrCDN("/views/orlonto.html.ejs", nopts.is_local))
   #app.get("/yegodd.html", localOrCDN("/views/yegodd.html.ejs", nopts.is_local))
   #app.get "/experiment.html", localOrCDN("/views/experiment.html", nopts.is_local)
@@ -143,6 +148,7 @@ port = nopts.port or nopts.argv.remain[0] or process.env.PORT or default_port
 
 # http://regexpal.com/
 if false and not nopts.skip_orlando
+  # 
   app.get "/snippet/orlando/:id([A-Za-z0-9-_]+)/",
       createSnippetServer("orlando_all_entries_2013-03-04.xml", true)
 
