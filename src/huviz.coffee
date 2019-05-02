@@ -3677,7 +3677,8 @@ class Huviz
     ###
     graphSelector = "#sparqlGraphOptions-#{id}"
     $(graphSelector).parent().css('display', 'none')
-    $("#sparqlQryInput_#{@sparqlId}").css('display', 'none')
+    @sparqlQryInput_hide()
+
     spinner = $("#sparqlGraphSpinner-#{id}")
     spinner.css('display','block')
     $.ajax
@@ -3713,6 +3714,11 @@ class Huviz
           @reset_dataset_ontology_loader()
           spinner.css('visibility','hidden')
 
+  sparqlQryInput_hide: ->
+    @sparqlQryInput_JQElem.hide() #css('display', 'none')
+  sparqlQryInput_show: ->
+    @sparqlQryInput_JQElem.show()
+    @sparqlQryInput_JQElem.css({'color': 'inherit'} )
 
   load_endpoint_data_and_show: (subject, callback) ->
     @sparql_node_list = []
@@ -5439,9 +5445,9 @@ class Huviz
     $("#endpoint_labels").prop('disabled', false).val("")
     $("#endpoint_limit").prop('disabled', false).val("100")
     if show
-      $('#sparqlQryInput').css({'display': 'block','color': 'inherit'} )
+      @sparqlQryInput_show()
     else
-      $('#sparqlQryInput').css('display', 'none')
+      @sparqlQryInput_hide()
 
   update_go_button: (disable) ->
     if not disable?
@@ -5570,6 +5576,9 @@ class Huviz
 
   build_sparql_form: () =>
     @sparqlId = unique_id()
+    sparqlQryInput_id = "sparqlQryInput_#{@sparqlId}"
+    @sparqlQryInput_selector = "#" + sparqlQryInput_id
+    endpoint_limit_id = unique_id('endpoint_limit_')
     select_box = """
       <div class='ui-widget' style='display:none;margin-top:5px;margin-left:10px;'>
         <label>Graphs: </label>
@@ -5580,17 +5589,18 @@ class Huviz
            style='display:none;font-style:italic;'>
         <i class='fas fa-spinner fa-spin' style='margin: 10px 10px 0 50px;'></i>  Looking for graphs...
       </div>
-      <div id="sparqlQryInput_#{@sparqlId}" class="ui-widget sparqlQryInput"
+      <div id="#{sparqlQryInput_id}" class="ui-widget sparqlQryInput"
            style='display:none;margin-top:5px;margin-left:10px;color:#999;'>
         <label for='endpoint_labels_#{@sparqlId}'>Find: </label>
-        <input id='endpoint_labels_#{@sparqlId}' disabled>
+        <input id='endpoint_labels_#{@sparqlId}'>
         <i class='fas fa-spinner fa-spin' style='visibility:hidden;margin-left: 5px;'></i>
-        <div><label for='endpoint_limit'>Node Limit: </label>
-        <input id='endpoint_limit' value='100' disabled>
+        <div><label for='#{endpoint_limit_id}'>Node Limit: </label>
+        <input id='#{endpoint_limit_id}' value='100'>
         </div>
       </div>
     """
     $(@pickersSel).append(select_box)
+    @sparqlQryInput_JQElem = $(@sparqlQryInput_selector)
 
     fromGraph =''
     $(".endpoint_labels_#{@sparqlId}").autocomplete({minLength: 3, delay:500, position: {collision: "flip"}, source: @populate_graphs_selector})
