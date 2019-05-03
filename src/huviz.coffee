@@ -1063,18 +1063,26 @@ class Huviz
     if (@focused_node.links_from.length > 0)
       for link_from in @focused_node.links_from
         target = @create_link_if_url(link_from.target.id)
-        node_out_links = node_out_links + "<li><i class='fas fa-long-arrow-alt-right'></i> <a href='#{link_from.predicate.id}' target='blank'>#{link_from.predicate.lid}</a> <i class='fas fa-long-arrow-alt-right'></i> #{target}</li>"
+        node_out_links = node_out_links + """
+        <li><i class='fas fa-long-arrow-alt-right'></i>
+          <a href='#{link_from.predicate.id}' target='blank'>#{link_from.predicate.lid}</a>
+          <i class='fas fa-long-arrow-alt-right'></i> #{target}
+        </li>
+          """ # """
       node_out_links = "<ul>" + node_out_links + "</ul>"
     #console.log @focused_node
     if @focused_node._colors
       width = 100 / @focused_node._colors.length
       for color in @focused_node._colors
-        color_headers = color_headers + "<div class='subHeader' style='background-color: #{color}; width: #{width}%;'></div>"
+        color_headers = color_headers +
+          "<div class='subHeader' style='background-color: #{color}; width: #{width}%;'></div>"
     if @endpoint_loader.value
       if @endpoint_loader.value and @focused_node.fully_loaded
         note = "<p class='note'>Node Fully Loaded</span>"
       else
-        note = "<p class='note'><span class='label'>Note:</span> This node may not yet be fully loaded from remote server. Link details may not be accurate. Activate to load.</i>"
+        note = """<p class='note'><span class='label'>Note:</span>
+          This node may not yet be fully loaded from remote server.
+          Link details may not be accurate. Activate to load.</i>""" # """
 
     dialogArgs =
       width: @width * 0.50
