@@ -1062,11 +1062,11 @@ class Huviz
     #console.log @focused_node.links_from.length
     if (@focused_node.links_from.length > 0)
       for link_from in @focused_node.links_from
-        target = @render_target_for_display(link_from.target)
+        [target_prefix, target] = @render_target_for_display(link_from.target)
         node_out_links = node_out_links + """
         <li><i class='fas fa-long-arrow-alt-right'></i>
           <a href='#{link_from.predicate.id}' target='blank'>#{link_from.predicate.lid}</a>
-          <i class='fas fa-long-arrow-alt-right'></i> #{target}
+          #{target_prefix} #{target}
         </li>
           """ # """
       node_out_links = "<ul>" + node_out_links + "</ul>"
@@ -1115,13 +1115,17 @@ class Huviz
 
   render_target_for_display: (node) ->
     if node.isLiteral
-      if node.type is 'rdf__PlainLiteral'
-        return "<blockquote>#{node.name}</blockquote>"
+      typeCURIE = node.type.replace('__',':')
+      lines = node.name.toString().split(/\r\n|\r|\n/)
+      showBlock = lines.length > 1 or node.name.toString().length > 30
+      colon = ":"
+      if showBlock
+        return [colon, """<blockquote title="#{typeCURIE}">#{node.name}</blockquote>"""]
       else
-        typeCURIE = node.type.replace('__',':')
-        return """<code title="#{typeCURIE}">#{node.name}</code>"""
+        return [colon, """<code title="#{typeCURIE}">#{node.name}</code>"""]
     else
-      return @create_link_if_url(node.id)
+      arrow = "<i class='fas fa-long-arrow-alt-right'></i>"
+      return [arrow, @create_link_if_url(node.id)]
 
   perform_current_command: (node) ->
     if @gclui.ready_to_perform()
