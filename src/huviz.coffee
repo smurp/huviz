@@ -3067,6 +3067,33 @@ class Huviz
     @found_names ?= []
     @found_names.push(quad.o.value)
 
+  deprefix: (uri, prefix, expansion) ->
+    # Return uri replacing expansion with prefix if possible
+    return uri.replace(expansion, prefix)
+
+  make_sqarql_name_for_getty: (uris, expansion, prefix) ->
+    # This is good stuff which should be made a bit more general
+    # for applicability beyond getty.edu
+    #   see https://github.com/cwrc/HuViz/issues/180#issuecomment-489557605
+    prefix ?= ':'
+    if not Array.isArray(uris)
+      uris = [uris]
+    if not uris.length
+      throw new Error('expecting uris to be an Array of length > 0')
+    if uris.length is 1 # so just match that one uri directly
+      subj_constraint = "BIND (?s AS <#{uris[0]}>)"
+    else # more than 1 so make a FILTER statement for the ?subj match
+      # Build a constraint for the subject
+      #   FILTER (?subj IN (:300073730, :300153822, :300153825))
+      subj_constraint = "FILTER (?s IN (" +
+        (@deprefix(uri, prefix, expansion) for uri in uris).join(', ') + "))"
+    return """
+      PREFIX #{prefix} <#{expansion}>
+      SELECT * {
+        ?subj gvp:prefLabelGVP [xl:literalForm ?label] .
+        #{subj_constraint}
+       }""" # """
+
   auto_discover_name_for: (uri) ->
     if uri.startsWith('_') # skip "blank" nodes
       return
@@ -3083,11 +3110,21 @@ class Huviz
       # there is no parser for that in HuViz yet.  Besides, they are huge.
       retval = @ingest_quads_from("#{uri}.skos.nt", @discover_labels(uri))
       #@auto_discover_header(uri, ['X-PrefLabel'], sendHeaders or [])
+    #for expansion in ["http://vocab.getty.edu/aat/", "http://vocab.getty.edu/ontology#"]
+    #  # Work was stopped on this when I realized that the CWRC ontology is no
+    #  # longer referencing Getty.  It is still good stuff, but should be deprioritized
+    #  # pending review.
+    #  if uri.startsWith(expansion) # TODO can this be more general? ie shorter?
+    #    sparql = @make_sparql_name_for_getty(uri, expansion)
+    #    @ingest_quads_from_sparql(sparql) # TODO this is not yet implemented
     if uri.startsWith("http://sws.geonames.org/") and
         @discover_geonames_as__widget.state in ['untried','looking','good'] and
         @discover_geonames_remaining > 0
       @discover_geoname_name(aUrl)
     return
+
+  ingest_quads_from_sparql: (sparql) ->
+    console.info(sparql)
 
   discover_names_including: (includes) ->
     if @nameless_set # this might be before the set exists
@@ -3692,7 +3729,8 @@ class Huviz
         console.log jqXHR.getAllResponseHeaders(data)
     ###
     ###
-    # This is a quick test of the SPARQL Endpoint it should return https://www.w3.org/TR/2013/REC-sparql11-service-description-20130321/#example-turtle
+    # This is a quick test of the SPARQL Endpoint it should return
+    #   https://www.w3.org/TR/2013/REC-sparql11-service-description-20130321/#example-turtle
     $.ajax
       method: 'GET'
       url: url
