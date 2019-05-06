@@ -4,6 +4,11 @@
       "uri": "/data/geoname_username_widget_states.ttl",
       "label": "GeoNames Widget state machine",
       "ontology_label": "OWL Mini"
+    },
+    {
+      "uri": "/data/name_lookup_demo.ttl",
+      "label": "Name Lookup Demo",
+      "ontology_label": "OWL Mini"
     }
   ],
   "defaults": {

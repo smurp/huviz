@@ -1,0 +1,5 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix locrel: <http://id.loc.gov/vocabulary/relators/> .
+@prefix locnam: <http://id.loc.gov/authorities/names/> .
+
+locnam:n86110448 rdf:type locrel:prg .
