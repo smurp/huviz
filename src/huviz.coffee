@@ -3071,7 +3071,7 @@ class Huviz
     # Return uri replacing expansion with prefix if possible
     return uri.replace(expansion, prefix)
 
-  make_sqarql_name_for_getty: (uris, expansion, prefix) ->
+  make_sparql_name_for_getty: (uris, expansion, prefix) ->
     # This is good stuff which should be made a bit more general
     # for applicability beyond getty.edu
     #   see https://github.com/cwrc/HuViz/issues/180#issuecomment-489557605
@@ -3662,6 +3662,9 @@ class Huviz
         @blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
         @reset_dataset_ontology_loader()
         #TODO Reset titles on page
+
+  log_query: (qry) ->
+    console.log(qry)
 
   sparql_graph_query_and_show: (url, id, callback) =>
     qry = """
@@ -5093,7 +5096,7 @@ class Huviz
 
       the_url = location.href.replace(location.hash, "") + hash
       the_title = document.title
-      window.history.pushState the_state, the_title, the_state
+      window.history.pushState(the_state, the_title, the_state)
 
   # TODO: remove this method
   restore_graph_state: (state) ->
@@ -5851,6 +5854,11 @@ class Huviz
     title: "A tutorial"
     text: "Tutorial"
     bodyUrl: "/huviz/docs/tutorial.md"
+  ,
+    id: 'sparqlQueries'
+    cssClass: "tabs-sparqlQueries scrolling_tab"
+    title: "SPARQL Queries"
+    text: "Queries"
   ]
 
   get_default_tab: (id) ->
@@ -5905,6 +5913,7 @@ class Huviz
       firstClass = t.cssClass.split(' ')[0]
       firstClass_ = firstClass.replace(/\-/, '_')
       id = @unique_id(firstClass + '_')
+      @tabs_class_to_id[firstClass] = id
       if @args.use_old_tab_ids
         id = firstClass
       idSel = '#' + id
@@ -5968,6 +5977,7 @@ class Huviz
     return elem.lastElementChild  # note, this only works right if html has one outer elem
 
   create_tabs: ->
+    @tabs_class_to_id = {}
     if not @args.tab_specs
       return
     # create <section id="tabs"...> programmatically, making unique ids along the way
@@ -6956,6 +6966,16 @@ class Huviz
         input:
           type: "checkbox"
           #checked: "checked"
+    ,
+      show_queries_tab:
+        group: "Debugging"
+        class: "alpha_feature"
+        text: "Show Queries Tab"
+        label:
+          title: "Expose the 'Queries' tab to be able to monitor and debug SPARQL queries"
+        input:
+          type: "checkbox"
+          #checked: "checked"
     ]
 
   dump_current_settings: (post) =>
@@ -7136,6 +7156,28 @@ class Huviz
       vset = {hunt: @human_term.hunt}
       @gclui.verb_sets.push(vset)
       @gclui.add_verb_set(vset)
+
+  on_change_show_queries_tab: (new_val, old_val) ->
+    if not @sparqlQuery_tab_JQElem?
+      # Keep calling this same method until tabs-sparqlQueries has been found
+      setTimeout((() => @on_change_show_queries_tab(new_val, old_val)), 50)
+      id = @tabs_class_to_id['tabs-sparqlQueries']
+      if not id
+        console.log(@tabs_class_to_id)
+        console.error('can not find class')
+        return
+      sel = '[aria-controls="'+id+'"]'
+      JQElem = @tabsJQElem.find(sel)
+      console.log(sel, JQElem.length)
+      if JQElem.length
+        @sparqlQuery_tab_JQElem = JQElem
+      else
+        return
+    console.info('on_change_show_queries_tab()', new_val)
+    if new_val
+      @sparqlQuery_tab_JQElem.show()
+    else
+      @sparqlQuery_tab_JQElem.hide()
 
   on_change_show_dangerous_datasets: (new_val, old_val) ->
     if new_val

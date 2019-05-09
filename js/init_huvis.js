@@ -19,7 +19,8 @@ window.addEventListener('load',function(){
         "title": "Academic, funding and technical credit",
         "text": "Credit",
         "bodyUrl": "/huviz/docs/credits.md"
-      }
+      },
+      'sparqlQueries'
     ],
     preload: [
       '/data/genres.json'
