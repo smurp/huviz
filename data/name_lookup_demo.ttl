@@ -1,5 +1,17 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix locrel: <http://id.loc.gov/vocabulary/relators/> .
 @prefix locnam: <http://id.loc.gov/authorities/names/> .
+@prefix dbr: <http://dbpedia.org/resource/> .
+@prefix dbo: <http://dbpedia.org/ontology/> .
 
-locnam:n86110448 rdf:type locrel:prg .
+locnam:n86110448 rdf:type locrel:prg, <http://dbpedia.org/class/yago/Programmer110481268> .
+
+dbr:Berlin dbo:CityOf dbr:Charlottenburg, dbr:Technical_University_of_Berlin .
+
+#dbr:Berlin dbo:CityOf dbr:U1_(Berlin_U-Bahn) .
+
+
+
+
+
+

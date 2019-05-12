@@ -516,6 +516,7 @@ orlando_human_term =
   seeking_object: 'Object node'
 
 class Huviz
+  hash: hash
   class_list: [] # FIXME remove
   HHH: {}
   edges_by_id: {}
@@ -3094,6 +3095,59 @@ class Huviz
         #{subj_constraint}
        }""" # """
 
+  make_sparql_name_query: (uris) ->
+    if uris.length is 1 # so just match that one uri directly
+      #subj_constraint = "BIND (<#{uris[0]}> AS ?subj)"
+      subj_constraint = "FILTER (?subj in (<#{uris[0]}>))"
+    else # more than 1 so make a FILTER statement for the ?subj match
+      # Build a constraint for the subject
+      #   FILTER (?subj IN (:300073730, :300153822, :300153825))
+      subj_constraint = "FILTER (?subj IN (" +
+        (@deprefix(uri, prefix, expansion) for uri in uris).join(', ') + "))"
+    return """
+      PREFIX dbr: <http://dbpedia.org/resource/>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+      CONSTRUCT {
+        ?subj ?pred ?obj .
+      }
+      WHERE {
+        ?subj ?pred ?obj .
+        FILTER (?pred IN (rdfs:label)) .
+        #{subj_constraint}
+       }""" # """
+    ###
+      PREFIX dbr: <http://dbpedia.org/resource/>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+      CONSTRUCT {?sub ?pre ?obj}
+      WHERE {
+         ?sub ?pre ?obj .
+         FILTER (?sub IN (dbr:Robert_Tappan_Morris,dbr:Technical_University_of_Berlin)) .
+         FILTER (?pre IN (rdfs:label)) .
+      }
+    ###
+
+    ###
+     SELECT ?sub ?obj
+     WHERE {
+       ?sub rdfs:label|foaf:name ?obj .
+       FILTER (?sub IN (<http://dbpedia.org/page/Robert_Tappan_Morris>))
+     }
+    ###
+
+  make_sparql_name_handler: (uris) ->
+    return () => return
+
+  make_sparql_name_query_and_handler: (uri_or_uris) ->
+    if Array.isArray(uri_or_uris)
+      uris = uri_or_uris
+    else
+      uris = [uri_or_uris]
+    query = @make_sparql_name_query(uris)
+    handler = @make_sparql_name_handler(uris)
+    return [query, handler]
+
   auto_discover_name_for: (uri) ->
     if uri.startsWith('_') # skip "blank" nodes
       return
@@ -3117,6 +3171,11 @@ class Huviz
     #  if uri.startsWith(expansion) # TODO can this be more general? ie shorter?
     #    sparql = @make_sparql_name_for_getty(uri, expansion)
     #    @ingest_quads_from_sparql(sparql) # TODO this is not yet implemented
+    for expansion in ["http://dbpedia"]
+      if uri.startsWith(expansion)
+        [sparql, handler] = @make_sparql_name_query_and_handler(uri, expansion)
+        #@ingest_quads_from_sparql_with_handler(sparql, handler)
+        @log_query(sparql)
     if uri.startsWith("http://sws.geonames.org/") and
         @discover_geonames_as__widget.state in ['untried','looking','good'] and
         @discover_geonames_remaining > 0
@@ -3134,10 +3193,11 @@ class Huviz
   discover_names: (includes) ->
     #console.log('discover_names(',includes,') # of nameless:',@nameless_set.length)
     for node in @nameless_set
-      url = node.id
-      if not (includes? and not url.includes(includes))
+      uri = node.id
+      if not (includes? and not uri.includes(includes))
         # only if includes is specified but not found do we skip auto_discover_name_for
-        @auto_discover_name_for(node.id)
+        console.log('auto_discover_name_for',uri)
+        @auto_discover_name_for(uri)
     return
 
   make_qname: (uri) ->
@@ -3664,6 +3724,7 @@ class Huviz
         #TODO Reset titles on page
 
   log_query: (qry) ->
+    @gclui.push_sparqlQuery_onto_log(qry)
     console.log(qry)
 
   sparql_graph_query_and_show: (url, id, callback) =>
@@ -3673,6 +3734,7 @@ class Huviz
         GRAPH ?g { }
       }
     """
+    @log_query(qry)
     ###
     Reference: https://www.w3.org/TR/sparql11-protocol/
     1. query via GET
@@ -3838,6 +3900,7 @@ class Huviz
     LIMIT #{node_limit}
     """
 
+    @log_query(qry)
     ajax_settings = {
       'method': 'GET'#'POST'
       'url': url + '?query=' + encodeURIComponent(qry)
@@ -3908,6 +3971,7 @@ class Huviz
     }
     LIMIT #{node_limit}
     """
+    @log_query(qry)
     ajax_settings = {
       'method': 'GET'#'POST'
       'url': url + '?query=' + encodeURIComponent(qry)
@@ -5697,6 +5761,7 @@ class Huviz
       }
       LIMIT 20
       """  # " # for emacs syntax hilighting
+      @log_query(qry)
       ajax_settings = {
         'method': 'GET'
         'url': url + '?query=' + encodeURIComponent(qry)
@@ -5985,7 +6050,10 @@ class Huviz
     [html, jQElem_list] = @make_tabs_html()
     @addHTML(html)
     for pair in jQElem_list
-      @make_JQElem(pair[0], pair[1]) # make things like @tab_options_JQElem
+      contentAreaJQElem = @make_JQElem(pair[0], pair[1]) # make things like @tab_options_JQElem
+      tabKey = 'tab_for_' + pair[0]
+      tabSel = 'li [href="#' + contentAreaJQElem[0].id + '"]'
+      @make_JQElem(tabKey, tabSel) # make things like @tab_for_tab_options_JQElem
     return
 
   ensureTopElem: ->
@@ -6039,7 +6107,7 @@ class Huviz
       this[jqelem_id] = found
     else
       throw new Error(sel + ' not found')
-    return
+    return found
 
   make_JQElems: ->
     # Make jQuery elems like @viscanvas_JQElem and performance_dashboard_JQElem
@@ -7158,26 +7226,20 @@ class Huviz
       @gclui.add_verb_set(vset)
 
   on_change_show_queries_tab: (new_val, old_val) ->
-    if not @sparqlQuery_tab_JQElem?
+    if not @tab_for_tabs_sparqlQueries_JQElem?
       # Keep calling this same method until tabs-sparqlQueries has been found
       setTimeout((() => @on_change_show_queries_tab(new_val, old_val)), 50)
-      id = @tabs_class_to_id['tabs-sparqlQueries']
-      if not id
-        console.log(@tabs_class_to_id)
-        console.error('can not find class')
-        return
-      sel = '[aria-controls="'+id+'"]'
-      JQElem = @tabsJQElem.find(sel)
-      console.log(sel, JQElem.length)
-      if JQElem.length
-        @sparqlQuery_tab_JQElem = JQElem
-      else
-        return
+      return
     console.info('on_change_show_queries_tab()', new_val)
     if new_val
-      @sparqlQuery_tab_JQElem.show()
+      @tab_for_tabs_sparqlQueries_JQElem.show()
+      if @tab_for_tabs_credit_JQElem?
+        @tab_for_tabs_credit_JQElem.hide()
     else
-      @sparqlQuery_tab_JQElem.hide()
+      @tab_for_tabs_sparqlQueries_JQElem.hide()
+      if @tab_for_tabs_credit_JQElem?
+        @tab_for_tabs_credit_JQElem.show()
+    return
 
   on_change_show_dangerous_datasets: (new_val, old_val) ->
     if new_val

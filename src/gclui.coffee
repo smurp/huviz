@@ -35,6 +35,7 @@ class CommandController
       $(".hints").append($(".hint_set").contents())
     @style_context_selector = @huviz.get_picker_style_context_selector()
     @make_command_history()
+    @prepare_tabs_sparqlQueries()
     @control_label("Current Command")
     @nextcommandbox = @comdiv.append('div')
     @make_verb_sets()
@@ -83,6 +84,20 @@ class CommandController
     @disengage_all_verbs()
     @reset_command_history()
     @engaged_taxons = []
+  prepare_tabs_sparqlQueries: ->
+    # populate @huviz.tabs_sparqlQueries_JQElem with needed furniture
+    return
+  push_sparqlQuery_onto_log: (qry, meta) ->
+    meta ?= {}
+    meta.timestamp ?= Date.now()
+    id = meta.id or @huviz.hash(qry + meta.timestamp)
+    queriesJQElem = @huviz.tabs_sparqlQueries_JQElem
+    qryJQElem = $('<div class="played command"><pre></pre></div>')
+    qryJQElem.attr('id', id)
+    queriesJQElem.append(qryJQElem)
+    qryJQElem.find('pre').text(qry) # rely on text() doing HTML encoding (to protect <, >, etc )
+    console.info(qry, qryJQElem.find('pre').length)
+    return
   make_command_history: ->
     @comdiv = d3.select(@container).append("div") # --- Add a container
     history = d3.select(@huviz.oldToUniqueTabSel['tabs-history'])
