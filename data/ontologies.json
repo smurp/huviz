@@ -31,6 +31,10 @@
       "label": "Video Ontology (VidOnt)"
     },
     {
+      "uri": "http://vocab.deri.ie/void.ttl",
+      "label": "Vocabulary of Interlinked Datasets (VoID)"
+    },
+    {
       "uri": "/data/uspin_html.ttl",
       "label": "HTML Ontology from Uspin"
     },
