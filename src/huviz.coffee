@@ -1094,7 +1094,7 @@ class Huviz
     if @focused_node
       dialogArgs.head_bg_color = @focused_node.color
       id_display = @create_link_if_url(@focused_node.id)
-      node_info = """
+      node_info_html = """
         <p class='id_display'><span class='label'>id:</span> #{id_display}</p>
         <p><span class='label'>name:</span> #{names_all_langs}</p>
         <p><span class='label'>type(s):</span> #{@focused_node.type} #{other_types}</p>
@@ -1104,7 +1104,7 @@ class Huviz
           #{node_out_links}
         """ # """
 
-      @make_dialog(node_info, @unique_id(@focused_node.lid+'__'), dialogArgs)
+      @make_dialog(node_info_html, @unique_id(@focused_node.lid+'__'), dialogArgs)
     return
 
   create_link_if_url: (possible_link) ->
@@ -7826,7 +7826,15 @@ class Orlando extends OntologicallyGrounded
 
         """
         ## unconfuse emacs Coffee-mode: " """ ' '  "
-      super(obj, msg_or_obj) # fail back to super
+      dialogArgs =
+        width: @width * 0.50
+        height: @height * 0.80
+        top: 10
+        left: 10
+      # TODO ideally the id for the dialog should be determined by the edge.id
+      # TODO ideally if you click on the edge again and an inspector for that
+      #      edge is already visible, then a new one would not be created.
+      @make_dialog(msg_or_obj, @unique_id(), dialogArgs)
 
   human_term: orlando_human_term
 
