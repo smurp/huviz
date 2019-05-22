@@ -243,7 +243,7 @@ img.close_all_snippets_button {
   margin-bottom: 0;
 }
 .edge_inspector p.pred{
-  margin-inline-start: 2.7em;
+  margin-inline-start: 2.3em;
 }
 .edge_circle{
    background-color: #000;
@@ -265,7 +265,7 @@ img.close_all_snippets_button {
   border-color: transparent transparent transparent #007bff;
   float: left;
   margin-right: 0.5em;
-  border-width: 1em 0 1em 1.5em;
+  border-width: 0.8em 0 0.8em 0.8em;
 }
 .edge_arrow_stem {
   width: 1em;
