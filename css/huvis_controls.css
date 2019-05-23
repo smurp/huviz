@@ -297,9 +297,6 @@ select[name='graph_title_style'] {
   margin-right: 3px;
 }
 
-.snippet {
-  background-color: "lightgray";
-}
 /* -------- Loading Message Styles ------------ */
 #state_msg_box {
   width: 100%;

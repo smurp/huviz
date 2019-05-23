@@ -561,7 +561,6 @@ class Huviz
   cy: 0
 
   snippet_body_em: .7
-  snippet_triple_em: .8
   line_length_min: 4
 
   # TODO figure out how to replace with the default_graph_control
@@ -686,7 +685,7 @@ class Huviz
     incoming ?= {}
     return Object.assign(Object.assign({}, defs), incoming)
 
-  default_dialog_args: {width:200, height:200, left:100, top:100, head_bg_color:'blue', classes: "contextMenu temp"}
+  default_dialog_args: {width:200, height:200, left:100, top:100, head_bg_color:'#157fcc', classes: "contextMenu temp"}
   gen_dialog_html: (contents, id, in_args) ->
     args = @compose_object_from_defaults_and_incoming(@default_dialog_args, in_args)
     #args = Object.assign(default_args, in_args)
@@ -2871,7 +2870,7 @@ class Huviz
     if params?
       if params.msg?
         markdown += """
-        
+
           #### Error:
           <span style="color:red">#{params.msg}</span>
            """
@@ -6508,18 +6507,6 @@ class Huviz
       #    step: .1
       #    type: "range"
     #,
-      snippet_triple_em:
-        group: "Labels"
-        text: "snippet triple (em)"
-        label:
-          title: "the size of the snippet triples"
-        input:
-          value: .5
-          min: .2
-          max: 4
-          step: .1
-          type: "range"
-    ,
       charge:
         group: "Layout"
         text: "charge (-)"
@@ -7801,7 +7788,6 @@ class Orlando extends OntologicallyGrounded
 
   push_snippet: (msg_or_obj) ->
     obj = msg_or_obj
-    fontSize = @snippet_triple_em
     if true #@snippet_box
       if typeof msg_or_obj isnt 'string'
         [msg_or_obj, m] = ["", msg_or_obj]  # swap them
@@ -7816,35 +7802,33 @@ class Orlando extends OntologicallyGrounded
             dataType = "^^#{@make_link(dataType_uri, dataType_curie)}"
           obj_dd = """"#{obj.quad.obj_val}"#{dataType}"""
         msg_or_obj = """
-        <div id="#{obj.edge_inspector_id}">
-          <div style="font-size:#{fontSize}em">
+        <div id="#{obj.snippet_js_key}" class="message_wrapper">
             <h3>subject</h3>
-            <div class="snip_circle" style="background-color:#{m.edge.source.color}; width: #{fontSize * 2.5}em; height: #{fontSize * 2.5}em;"></div>
-            <p style="margin-left: #{fontSize * 3.5}em">#{@make_link(obj.quad.subj_uri)}</p>
+            <div class="edge_circle" style="background-color:#{m.edge.source.color};"></div>
+            <p>#{@make_link(obj.quad.subj_uri)}</p>
 
             <h3>predicate </h3>
-            <div class="snip_arrow">
-              <div class="snip_arrow_stem" style="width: #{fontSize * 2}em; height: #{fontSize * 1}em; margin-top: #{fontSize * 0.75}em; background-color:#{m.edge.color};"></div>
-              <div class="snip_arrow_head" style="border-color: transparent transparent transparent #{m.edge.color};border-width: #{fontSize * 1.3}em 0 #{fontSize * 1.3}em #{fontSize * 2.3}em;"></div>
+            <div class="edge_arrow">
+              <div class="edge_arrow_stem" style="background-color:#{m.edge.color};"></div>
+              <div class="edge_arrow_head" style="border-color: transparent transparent transparent #{m.edge.color};"></div>
             </div>
-            <p class="pred" style="margin-left: #{fontSize * 4.8}em">#{@make_link(obj.quad.pred_uri)}</p>
+            <p class="pred">#{@make_link(obj.quad.pred_uri)}</p>
 
             <h3>object </h3>
-            <div class="snip_circle" style="background-color:#{m.edge.target.color}; width: #{fontSize * 2.5}em; height: #{fontSize * 2.5}em;"></div>
-            <p style="margin-left: #{fontSize * 3.5}em">#{obj_dd}</p>
+            <div class="edge_circle" style="background-color:#{m.edge.target.color};"></div>
+            <p>#{obj_dd}</p>
 
             <h3>source</h3>
-            <p style="margin-left: #{fontSize * 2.5}em">#{@make_link(obj.quad.graph_uri)}</p>
-          </div>
+            <p">#{@make_link(obj.quad.graph_uri)}</p>
         </div>
 
         """
         ## unconfuse emacs Coffee-mode: " """ ' '  "
     pos = @get_next_snippet_position_obj()
     dialogArgs =
-      title: "inspect edge"
-      width: @width * 0.50
-      height: @height * 0.80
+      width: @width
+      height: @height
+      extraClasses: "edge_inspector"
       top: pos.top
       left: pos.left
       close: (event, ui) =>
