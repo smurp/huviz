@@ -1045,6 +1045,10 @@ class Huviz
       @render_node_info_box(@focused_node)
 
   render_node_info_box: (info_node) ->
+    node_inspector_id = "NODE_INSPECTOR__" + info_node.lid
+    if info_node._inspector?
+      @hilight_dialog(info_node._inspector)
+      return
     all_names = Object.values(info_node.name)
     names_all_langs = ""
     note = ""
@@ -1096,6 +1100,7 @@ class Huviz
       height: @height * 0.80
       top: d3.event.clientY
       left: d3.event.clientX
+      close: @close_node_inspector
 
     if info_node
       dialogArgs.head_bg_color = info_node.color
@@ -1110,7 +1115,18 @@ class Huviz
           #{node_out_links}
         """ # """
 
-      @make_dialog(node_info_html, @unique_id(info_node.lid+'__'), dialogArgs)
+      info_node._inspector = @make_dialog(node_info_html, node_inspector_id, dialogArgs)
+      info_node._inspector.dataset.node_id = info_node.id
+    return
+
+  close_node_inspector: (event, ui) =>  # fat because it is called by click handler
+    box = event.currentTarget.offsetParent
+    node_id = box.dataset.node_id
+    if node_id?
+      node = @all_set.get_by('id', node_id)
+      if node?
+        delete node._inspector
+    @destroy_dialog(event)
     return
 
   create_link_if_url: (possible_link) ->
@@ -5068,8 +5084,14 @@ class Huviz
     for edge in node.links_shown
       edge.focused = false
 
-  hilight_window: (window_id) ->
-    console.log("hilight_window('#{window_id}') by bringing it to top and doing a CSS trick")
+  hilight_dialog: (dialog_elem_or_id) ->
+    if typeof(dialog_elem_or_id) is 'string'
+      dialog_id = dialog_elem_or_id
+    else
+      dialog_id = dialog_elem_or_id.getAttribute('id')
+    console.info("TODO make hilight_dialog('#{dialog_id}') bring it to top and do a CSS animation")
+    # an example CSS animation: Wiggle
+    #   https://codepen.io/theDeanH/pen/zBZXLN
 
   print_edge: (edge) ->
     # @clear_snippets()
@@ -5079,7 +5101,7 @@ class Huviz
       #snippet_js_key = @get_snippet_js_key(context.id)
       context_no++
       if @currently_printed_snippets[edge_inspector_id]?
-        @hilight_window(edge_inspector_id)
+        @hilight_dialog(edge_inspector_id)
         continue
       me = this
       make_callback = (context_no, edge, context) =>
