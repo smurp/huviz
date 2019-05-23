@@ -942,7 +942,7 @@ class Huviz
           if edge.source.id in pair and edge.target.id in pair
             #console.log "PEEK edge.id is '" + edge.id + "'"
             edge.focused = true
-            @print_edge edge
+            @print_edge(edge)
           else
             edge.focused = false
     @tick("Tick in mousemove")
@@ -4912,7 +4912,7 @@ class Huviz
     @regenerate_english()
     @tick("Tick in toggle_selected")
 
-  # ========================================== SNIPPET (INFO BOX) UI =============================================================================
+  # ======== SNIPPET (INFO BOX) UI ==========================================
   get_snippet_url: (snippet_id) ->
     if snippet_id.match(/http\:/)
       return snippet_id
@@ -4928,12 +4928,18 @@ class Huviz
       which = "orlando"
     return "/snippet/#{which}/#{snippet_id}/"
 
+  make_edge_inspector_id: (edge) ->
+    id = edge.id.replace(new RegExp(' ','g'), '_')
+    #console.log("make_edge_inspector_id()", edge, '==>', id)
+    return id
+
   get_snippet_js_key: (snippet_id) ->
     # This is in case snippet_ids can not be trusted as javascript
     # property ids because they might have leading '-' or something.
     return "K_" + snippet_id
 
   get_snippet: (snippet_id, callback) ->
+    console.warn("get_snippet('#{snippet_id}') should no longer be called")
     snippet_js_key = @get_snippet_js_key(snippet_id)
     snippet_text = @snippet_db[snippet_js_key]
     url = @get_snippet_url(snippet_id)
@@ -4998,6 +5004,12 @@ class Huviz
       return
 
   snippet_positions_filled: {}
+  snippet_position_str_to_obj: (str) ->
+    # convert "left+123 top+456" to {left: 123, top: 456}
+    [left, top] = str.replace(new RegExp('([a-z]*)\\+','g'),'').split(' ').map((c) -> parseInt(c))
+    return {left, top}
+  get_next_snippet_position_obj: ->
+    return @snippet_position_str_to_obj(@get_next_snippet_position())
   get_next_snippet_position: ->
     # Fill the left edge, then the top edge, then diagonally from top-left
     height = @height
@@ -5028,7 +5040,7 @@ class Huviz
     @snippet_positions_filled[retval] = true
     return retval
 
-  # =============================================================================================================================
+  # =========================================================================
 
   remove_tags: (xml) ->
     xml.replace(XML_TAG_REGEX, " ").replace(MANY_SPACES_REGEX, " ")
@@ -5053,12 +5065,13 @@ class Huviz
     # @clear_snippets()
     context_no = 0
     for context in edge.contexts
-      snippet_js_key = @get_snippet_js_key(context.id)
+      edge_inspector_id = @make_edge_inspector_id(edge, context)
+      #snippet_js_key = @get_snippet_js_key(context.id)
       context_no++
-      if @currently_printed_snippets[snippet_js_key]?
+      if @currently_printed_snippets[edge_inspector_id]?
         # FIXME add the Subj--Pred--Obj line to the snippet for this edge
         #   also bring such snippets to the top
-        console.log("  skipping because",@currently_printed_snippets[snippet_js_key])
+        console.log("  skipping because",edge_inspector_id,@currently_printed_snippets[edge_inspector_id])
         continue
       me = this
       make_callback = (context_no, edge, context) =>
@@ -5070,10 +5083,10 @@ class Huviz
             snippet_text += '<br><code class="snippet_id">'+context.id+"</code>"
           snippet_id = context.id
           snippet_js_key = me.get_snippet_js_key snippet_id
-          if not me.currently_printed_snippets[snippet_js_key]?
-            me.currently_printed_snippets[snippet_js_key] = []
-          me.currently_printed_snippets[snippet_js_key].push(edge)
-          me.snippet_db[snippet_js_key] = snippet_text
+          if not me.currently_printed_snippets[edge_inspector_id]?
+            me.currently_printed_snippets[edge_inspector_id] = []
+          me.currently_printed_snippets[edge_inspector_id].push(edge)
+          me.snippet_db[edge_inspector_id] = snippet_text
           me.printed_edge = edge
           quad =
             subj_uri: edge.source.id
@@ -5084,6 +5097,7 @@ class Huviz
           else
             quad.obj_uri = edge.target.id
           me.push_snippet
+            edge_inspector_id: edge_inspector_id
             edge: edge
             pred_id: edge.predicate.lid
             pred_name: edge.predicate.name
@@ -7788,7 +7802,7 @@ class Orlando extends OntologicallyGrounded
   push_snippet: (msg_or_obj) ->
     obj = msg_or_obj
     fontSize = @snippet_triple_em
-    if @snippet_box
+    if true #@snippet_box
       if typeof msg_or_obj isnt 'string'
         [msg_or_obj, m] = ["", msg_or_obj]  # swap them
         if obj.quad.obj_uri
@@ -7802,7 +7816,7 @@ class Orlando extends OntologicallyGrounded
             dataType = "^^#{@make_link(dataType_uri, dataType_curie)}"
           obj_dd = """"#{obj.quad.obj_val}"#{dataType}"""
         msg_or_obj = """
-        <div id="#{obj.snippet_js_key}">
+        <div id="#{obj.edge_inspector_id}">
           <div style="font-size:#{fontSize}em">
             <h3>subject</h3>
             <div class="snip_circle" style="background-color:#{m.edge.source.color}; width: #{fontSize * 2.5}em; height: #{fontSize * 2.5}em;"></div>
@@ -7826,15 +7840,19 @@ class Orlando extends OntologicallyGrounded
 
         """
         ## unconfuse emacs Coffee-mode: " """ ' '  "
-      dialogArgs =
-        width: @width * 0.50
-        height: @height * 0.80
-        top: 10
-        left: 10
-      # TODO ideally the id for the dialog should be determined by the edge.id
-      # TODO ideally if you click on the edge again and an inspector for that
-      #      edge is already visible, then a new one would not be created.
-      @make_dialog(msg_or_obj, @unique_id(), dialogArgs)
+    pos = @get_next_snippet_position_obj()
+    dialogArgs =
+      title: "inspect edge"
+      width: @width * 0.50
+      height: @height * 0.80
+      top: pos.top
+      left: pos.left
+      close: (event, ui) =>
+        alert('closing ' + event.target.id)
+    # TODO ideally the id for the dialog should be determined by the edge.id
+    # TODO ideally if you click on the edge again and an inspector for that
+    #      edge is already visible, then a new one would not be created.
+    @make_dialog(msg_or_obj, obj.edge_inspector_id, dialogArgs)
 
   human_term: orlando_human_term
 
