@@ -5464,6 +5464,14 @@ class Huviz
       $(@get_or_create_sel_for_picker()).append(@big_go_button)
       @big_go_button.click(@visualize_dataset_using_ontology)
       @big_go_button.prop('disabled', true)
+    if @ontology_loader or @dataset_loader or @script_loader and not @big_go_button
+      ontology_selector = "##{@ontology_loader.select_id}"
+      $(ontology_selector).change(@update_dataset_forms)
+      dataset_selector = "##{@dataset_loader.select_id}"
+      $(dataset_selector).change(@update_dataset_forms)
+      script_selector = "##{@script_loader.select_id}"
+      $(script_selector).change(@update_dataset_forms)
+
     @init_datasetDB()
     @preload_datasets()
 
@@ -5471,8 +5479,19 @@ class Huviz
     # TODO remove this nullification of @last_val by fixing logic in select_option()
     @ontology_loader?last_val = null # clear the last_val so select_option works the first time
 
+  update_dataset_forms: (e) =>
+    console.log e
+    ont_val = $("##{@ontology_loader.select_id}").val()
+    dat_val = $("##{@dataset_loader.select_id}").val()
+    scr_val = $("##{@script_loader.select_id}").val()
+    console.log scr_val
+    if ont_val is '' and dat_val is '' and scr_val is ''
+      $("##{@endpoint_loader.uniq_id}").children('select').prop('disabled', false)
+    else
+      $("##{@endpoint_loader.uniq_id}").children('select').prop('disabled', 'disabled')
+
   update_graph_form: (e) =>
-    #console.log e.currentTarget.value
+    console.log e.currentTarget.value
     @endpoint_loader.endpoint_graph = e.currentTarget.value
 
   visualize_dataset_using_ontology: (ignoreEvent, dataset, ontologies) =>
@@ -5498,8 +5517,8 @@ class Huviz
     # at this point data and onto are both objects with a .value key, containing url or fname
     if not (onto.value and data.value)
       console.debug(data, onto)
+      @update_dataset_forms()
       throw new Error("Now whoa-up pardner... both data and onto should have .value")
-
     @load_data_with_onto(data, onto, @after_visualize_dataset_using_ontology)
     @update_browser_title(data)
     @update_caption(data.value, onto.value)
