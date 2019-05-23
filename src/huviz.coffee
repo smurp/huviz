@@ -5114,7 +5114,9 @@ class Huviz
             snippet_text: snippet_text
             no: context_no
             snippet_js_key: snippet_js_key
-      @get_snippet(context.id, make_callback(context_no, edge, context))
+      cb = make_callback(context_no, edge, context)
+      cb() # To get the old snippet fetcher working again, do the following instead:
+      #@get_snippet(context.id, cb)
 
   # The Verbs PRINT and REDACT show and hide snippets respectively
   print: (node) =>
