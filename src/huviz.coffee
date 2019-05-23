@@ -5084,11 +5084,11 @@ class Huviz
     for edge in node.links_shown
       edge.focused = false
 
-  hilight_dialog: (dialog_elem_or_id) ->
-    if typeof(dialog_elem_or_id) is 'string'
-      dialog_id = dialog_elem_or_id
+  hilight_dialog: (dialog_elem) ->
+    if typeof(dialog_elem) is 'string'
+      throw new Error('hilight_dialog() expects an Elem, not '+dialog_elem)
     else
-      dialog_id = dialog_elem_or_id.getAttribute('id')
+      dialog_id = dialog_elem.getAttribute('id')
     console.info("TODO make hilight_dialog('#{dialog_id}') bring it to top and do a CSS animation")
     # an example CSS animation: Wiggle
     #   https://codepen.io/theDeanH/pen/zBZXLN
@@ -5101,7 +5101,7 @@ class Huviz
       #snippet_js_key = @get_snippet_js_key(context.id)
       context_no++
       if @currently_printed_snippets[edge_inspector_id]?
-        @hilight_dialog(edge_inspector_id)
+        @hilight_dialog(edge._inspector or edge_inspector_id)
         continue
       me = this
       make_callback = (context_no, edge, context) =>
@@ -7884,9 +7884,16 @@ class Orlando extends OntologicallyGrounded
       top: pos.top
       left: pos.left
       close: @close_edge_inspector
-    @make_dialog(msg_or_obj, obj.edge_inspector_id, dialogArgs)
+    obj.edge._inspector = @make_dialog(msg_or_obj, obj.edge_inspector_id, dialogArgs)
+    obj.edge._inspector.dataset.edge_id = obj.edge.id
 
   close_edge_inspector: (event, ui) =>
+    box = event.currentTarget.offsetParent
+    edge_id = box.dataset.edge_id
+    if edge_id?
+      edge = @edges_by_id[edge_id]
+      if edge?
+        delete edge._inspector
     edge_inspector_id = event.target.getAttribute('for')
     @remove_edge_inspector(edge_inspector_id)
     @destroy_dialog(event)
