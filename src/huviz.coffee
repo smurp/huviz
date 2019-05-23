@@ -892,7 +892,7 @@ class Huviz
       if @focused_node
         the_node = $("##{@focused_node.lid}")
         if the_node.html() then the_node.remove()
-        @render_node_info_box()
+        @render_node_info_box(@focused_node)
       else
         if $(".contextMenu.temp") then $(".contextMenu.temp").remove()
     else if @should_start_dragging()
@@ -1042,10 +1042,10 @@ class Huviz
     @rightClickHold = true
     doesnt_exist = if @focused_node then true else false
     if @focused_node and doesnt_exist
-      @render_node_info_box()
+      @render_node_info_box(@focused_node)
 
-  render_node_info_box: () ->
-    all_names = Object.values(@focused_node.name)
+  render_node_info_box: (info_node) ->
+    all_names = Object.values(info_node.name)
     names_all_langs = ""
     note = ""
     color_headers = ""
@@ -1057,18 +1057,18 @@ class Huviz
       else
         names_all_langs = name
     other_types = ""
-    if (@focused_node._types.length > 1)
-      for node_type in @focused_node._types
-        if node_type != @focused_node.type
+    if (info_node._types.length > 1)
+      for node_type in info_node._types
+        if node_type != info_node.type
           if other_types
             other_types = other_types + ", " + node_type
           else
             other_types = node_type
       other_types = " (" + other_types + ")"
-    #console.log @focused_node
-    #console.log @focused_node.links_from.length
-    if (@focused_node.links_from.length > 0)
-      for link_from in @focused_node.links_from
+    #console.log info_node
+    #console.log info_node.links_from.length
+    if (info_node.links_from.length > 0)
+      for link_from in info_node.links_from
         [target_prefix, target] = @render_target_for_display(link_from.target)
         node_out_links = node_out_links + """
         <li><i class='fas fa-long-arrow-alt-right'></i>
@@ -1077,14 +1077,14 @@ class Huviz
         </li>
           """ # """
       node_out_links = "<ul>" + node_out_links + "</ul>"
-    #console.log @focused_node
-    if @focused_node._colors
-      width = 100 / @focused_node._colors.length
-      for color in @focused_node._colors
+    #console.log info_node
+    if info_node._colors
+      width = 100 / info_node._colors.length
+      for color in info_node._colors
         color_headers = color_headers +
           "<div class='subHeader' style='background-color: #{color}; width: #{width}%;'></div>"
     if @endpoint_loader.value
-      if @endpoint_loader.value and @focused_node.fully_loaded
+      if @endpoint_loader.value and info_node.fully_loaded
         note = "<p class='note'>Node Fully Loaded</span>"
       else
         note = """<p class='note'><span class='label'>Note:</span>
@@ -1097,20 +1097,20 @@ class Huviz
       top: d3.event.clientY
       left: d3.event.clientX
 
-    if @focused_node
-      dialogArgs.head_bg_color = @focused_node.color
-      id_display = @create_link_if_url(@focused_node.id)
+    if info_node
+      dialogArgs.head_bg_color = info_node.color
+      id_display = @create_link_if_url(info_node.id)
       node_info_html = """
         <p class='id_display'><span class='label'>id:</span> #{id_display}</p>
         <p><span class='label'>name:</span> #{names_all_langs}</p>
-        <p><span class='label'>type(s):</span> #{@focused_node.type} #{other_types}</p>
-        <p><span class='label'>Links To:</span> #{@focused_node.links_to.length} <br>
-          <span class='label'>Links From:</span> #{@focused_node.links_from.length}</p>
+        <p><span class='label'>type(s):</span> #{info_node.type} #{other_types}</p>
+        <p><span class='label'>Links To:</span> #{info_node.links_to.length} <br>
+          <span class='label'>Links From:</span> #{info_node.links_from.length}</p>
           #{note}
           #{node_out_links}
         """ # """
 
-      @make_dialog(node_info_html, @unique_id(@focused_node.lid+'__'), dialogArgs)
+      @make_dialog(node_info_html, @unique_id(info_node.lid+'__'), dialogArgs)
     return
 
   create_link_if_url: (possible_link) ->
