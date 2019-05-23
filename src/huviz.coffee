@@ -685,23 +685,30 @@ class Huviz
     incoming ?= {}
     return Object.assign(Object.assign({}, defs), incoming)
 
-  default_dialog_args: {width:200, height:200, left:100, top:100, head_bg_color:'#157fcc', classes: "contextMenu temp"}
+  default_dialog_args:
+    width:200
+    height:200
+    left:100
+    top:100
+    head_bg_color:'#157fcc'
+    classes: "contextMenu temp"
+
   gen_dialog_html: (contents, id, in_args) ->
     args = @compose_object_from_defaults_and_incoming(@default_dialog_args, in_args)
     #args = Object.assign(default_args, in_args)
     return """<div id="#{id}" class="#{args.classes} #{args.extraClasses}"
         style="display:block;top:#{args.top}px;left:#{args.left}px;max-width:#{args.width}px;max-height:#{args.height}px">
       <div class="header" style="background-color:#{args.head_bg_color};#{args.style}">
-        <button class="close_node_details" title="Close"><i class="far fa-window-close"></i></button>
+        <button class="close_node_details" title="Close"><i class="far fa-window-close" for="#{id}"></i></button>
       </div>
       #{contents}
     </div>""" # """ for emacs coffeescript mode
 
   make_dialog: (content_html, id, args) ->
-    id ?= @unique_id('dialog_')
+    id ?= @unique_id('dialog_')  # if you do not have an id, an id will be provided for you
     @addHTML(@gen_dialog_html(content_html, id, args))
     elem = document.querySelector('#'+id)
-    $(elem.querySelector(' .close_node_details')).on('click', @destroy_box)
+    $(elem.querySelector(' .close_node_details')).on('click', args.close or @destroy_box)
     $(elem).draggable()
     return elem
 
@@ -941,7 +948,7 @@ class Huviz
           if edge.source.id in pair and edge.target.id in pair
             #console.log "PEEK edge.id is '" + edge.id + "'"
             edge.focused = true
-            @print_edge edge
+            @print_edge(edge)
           else
             edge.focused = false
     @tick("Tick in mousemove")
@@ -4911,7 +4918,7 @@ class Huviz
     @regenerate_english()
     @tick("Tick in toggle_selected")
 
-  # ========================================== SNIPPET (INFO BOX) UI =============================================================================
+  # ======== SNIPPET (INFO BOX) UI ==========================================
   get_snippet_url: (snippet_id) ->
     if snippet_id.match(/http\:/)
       return snippet_id
@@ -4927,12 +4934,18 @@ class Huviz
       which = "orlando"
     return "/snippet/#{which}/#{snippet_id}/"
 
+  make_edge_inspector_id: (edge) ->
+    id = edge.id.replace(new RegExp(' ','g'), '_')
+    #console.log("make_edge_inspector_id()", edge, '==>', id)
+    return id
+
   get_snippet_js_key: (snippet_id) ->
     # This is in case snippet_ids can not be trusted as javascript
     # property ids because they might have leading '-' or something.
     return "K_" + snippet_id
 
   get_snippet: (snippet_id, callback) ->
+    console.warn("get_snippet('#{snippet_id}') should no longer be called")
     snippet_js_key = @get_snippet_js_key(snippet_id)
     snippet_text = @snippet_db[snippet_js_key]
     url = @get_snippet_url(snippet_id)
@@ -4969,7 +4982,7 @@ class Huviz
       snip_div = @snippet_box.append('div').attr('class','snippet')
       snip_div.html(msg)
       $(snip_div[0][0]).addClass("snippet_dialog_box")
-      my_position = @get_next_snippet_position()
+      my_position = @get_next_snippet_position(obj.snippet_js_key)
       dialog_args =
         #maxHeight: @snippet_size
         minWidth: 400
@@ -4997,8 +5010,15 @@ class Huviz
       return
 
   snippet_positions_filled: {}
-  get_next_snippet_position: ->
+  snippet_position_str_to_obj: (str) ->
+    # convert "left+123 top+456" to {left: 123, top: 456}
+    [left, top] = str.replace(new RegExp('([a-z]*)\\+','g'),'').split(' ').map((c) -> parseInt(c))
+    return {left, top}
+  get_next_snippet_position_obj: (id) ->
+    return @snippet_position_str_to_obj(@get_next_snippet_position(id))
+  get_next_snippet_position: (id) ->
     # Fill the left edge, then the top edge, then diagonally from top-left
+    id ?= true
     height = @height
     width = @width
     left_full = false
@@ -5024,10 +5044,10 @@ class Huviz
         vinc = 30
         hoff = 0
         voff = 0
-    @snippet_positions_filled[retval] = true
+    @snippet_positions_filled[retval] = id
     return retval
 
-  # =============================================================================================================================
+  # =========================================================================
 
   remove_tags: (xml) ->
     xml.replace(XML_TAG_REGEX, " ").replace(MANY_SPACES_REGEX, " ")
@@ -5052,12 +5072,13 @@ class Huviz
     # @clear_snippets()
     context_no = 0
     for context in edge.contexts
-      snippet_js_key = @get_snippet_js_key(context.id)
+      edge_inspector_id = @make_edge_inspector_id(edge, context)
+      #snippet_js_key = @get_snippet_js_key(context.id)
       context_no++
-      if @currently_printed_snippets[snippet_js_key]?
+      if @currently_printed_snippets[edge_inspector_id]?
         # FIXME add the Subj--Pred--Obj line to the snippet for this edge
         #   also bring such snippets to the top
-        console.log("  skipping because",@currently_printed_snippets[snippet_js_key])
+        console.log("skipping because #{edge_inspector_id} is already shown")
         continue
       me = this
       make_callback = (context_no, edge, context) =>
@@ -5069,10 +5090,10 @@ class Huviz
             snippet_text += '<br><code class="snippet_id">'+context.id+"</code>"
           snippet_id = context.id
           snippet_js_key = me.get_snippet_js_key snippet_id
-          if not me.currently_printed_snippets[snippet_js_key]?
-            me.currently_printed_snippets[snippet_js_key] = []
-          me.currently_printed_snippets[snippet_js_key].push(edge)
-          me.snippet_db[snippet_js_key] = snippet_text
+          if not me.currently_printed_snippets[edge_inspector_id]?
+            me.currently_printed_snippets[edge_inspector_id] = []
+          me.currently_printed_snippets[edge_inspector_id].push(edge)
+          me.snippet_db[edge_inspector_id] = snippet_text
           me.printed_edge = edge
           quad =
             subj_uri: edge.source.id
@@ -5083,6 +5104,7 @@ class Huviz
           else
             quad.obj_uri = edge.target.id
           me.push_snippet
+            edge_inspector_id: edge_inspector_id
             edge: edge
             pred_id: edge.predicate.lid
             pred_name: edge.predicate.name
@@ -5092,7 +5114,9 @@ class Huviz
             snippet_text: snippet_text
             no: context_no
             snippet_js_key: snippet_js_key
-      @get_snippet(context.id, make_callback(context_no, edge, context))
+      cb = make_callback(context_no, edge, context)
+      cb() # To get the old snippet fetcher working again, do the following instead:
+      #@get_snippet(context.id, cb)
 
   # The Verbs PRINT and REDACT show and hide snippets respectively
   print: (node) =>
@@ -7793,7 +7817,7 @@ class Orlando extends OntologicallyGrounded
 
   push_snippet: (msg_or_obj) ->
     obj = msg_or_obj
-    if @snippet_box
+    if true #@snippet_box
       if typeof msg_or_obj isnt 'string'
         [msg_or_obj, m] = ["", msg_or_obj]  # swap them
         if obj.quad.obj_uri
@@ -7829,16 +7853,34 @@ class Orlando extends OntologicallyGrounded
 
         """
         ## unconfuse emacs Coffee-mode: " """ ' '  "
-      dialogArgs =
-        width: @width #* 0.50
-        height: @height #* 0.80
-        top: 10
-        left: 10
-        extraClasses: "edge_inspector"
-      # TODO ideally the id for the dialog should be determined by the edge.id
-      # TODO ideally if you click on the edge again and an inspector for that
-      #      edge is already visible, then a new one would not be created.
-      @make_dialog(msg_or_obj, @unique_id(), dialogArgs)
+    pos = @get_next_snippet_position_obj(obj.edge_inspector_id)
+    dialogArgs =
+      width: @width
+      height: @height
+      extraClasses: "edge_inspector"
+      top: pos.top
+      left: pos.left
+      close: @close_edge_inspector
+    @make_dialog(msg_or_obj, obj.edge_inspector_id, dialogArgs)
+
+  close_edge_inspector: (event, ui) =>
+    edge_inspector_id = event.target.getAttribute('for')
+    @remove_edge_inspector(edge_inspector_id)
+    @destroy_box(event)
+    return
+
+  remove_edge_inspector: (edge_inspector_id) ->
+    delete @currently_printed_snippets[edge_inspector_id]
+    @clear_snippet_position_filled_for(edge_inspector_id)
+    return
+
+  clear_snippet_position_filled_for: (match_id) ->
+    # delete the snippet_position_filled for match_id, so the position can be re-used
+    for pos, id of @snippet_positions_filled
+      if id is match_id
+        delete @snippet_positions_filled[pos]
+        break
+    return
 
   human_term: orlando_human_term
 
