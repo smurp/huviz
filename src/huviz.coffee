@@ -708,11 +708,11 @@ class Huviz
     id ?= @unique_id('dialog_')  # if you do not have an id, an id will be provided for you
     @addHTML(@gen_dialog_html(content_html, id, args))
     elem = document.querySelector('#'+id)
-    $(elem.querySelector(' .close_node_details')).on('click', args.close or @destroy_box)
+    $(elem.querySelector(' .close_node_details')).on('click', args.close or @destroy_dialog)
     $(elem).draggable()
     return elem
 
-  destroy_box: (e) ->
+  destroy_dialog: (e) ->
     box = e.currentTarget.offsetParent
     $(box).remove()
 
@@ -5068,6 +5068,9 @@ class Huviz
     for edge in node.links_shown
       edge.focused = false
 
+  hilight_window: (window_id) ->
+    console.log("hilight_window('#{window_id}') by bringing it to top and doing a CSS trick")
+
   print_edge: (edge) ->
     # @clear_snippets()
     context_no = 0
@@ -5076,9 +5079,7 @@ class Huviz
       #snippet_js_key = @get_snippet_js_key(context.id)
       context_no++
       if @currently_printed_snippets[edge_inspector_id]?
-        # FIXME add the Subj--Pred--Obj line to the snippet for this edge
-        #   also bring such snippets to the top
-        console.log("skipping because #{edge_inspector_id} is already shown")
+        @hilight_window(edge_inspector_id)
         continue
       me = this
       make_callback = (context_no, edge, context) =>
@@ -7866,7 +7867,7 @@ class Orlando extends OntologicallyGrounded
   close_edge_inspector: (event, ui) =>
     edge_inspector_id = event.target.getAttribute('for')
     @remove_edge_inspector(edge_inspector_id)
-    @destroy_box(event)
+    @destroy_dialog(event)
     return
 
   remove_edge_inspector: (edge_inspector_id) ->
