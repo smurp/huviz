@@ -5078,7 +5078,7 @@ class Huviz
       if @currently_printed_snippets[edge_inspector_id]?
         # FIXME add the Subj--Pred--Obj line to the snippet for this edge
         #   also bring such snippets to the top
-        console.log("  skipping because",edge_inspector_id,@currently_printed_snippets[edge_inspector_id])
+        console.log("skipping because #{edge_inspector_id} is already shown")
         continue
       me = this
       make_callback = (context_no, edge, context) =>
