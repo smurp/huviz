@@ -685,23 +685,30 @@ class Huviz
     incoming ?= {}
     return Object.assign(Object.assign({}, defs), incoming)
 
-  default_dialog_args: {width:200, height:200, left:100, top:100, head_bg_color:'#157fcc', classes: "contextMenu temp"}
+  default_dialog_args:
+    width:200
+    height:200
+    left:100
+    top:100
+    head_bg_color:'#157fcc'
+    classes: "contextMenu temp"
+
   gen_dialog_html: (contents, id, in_args) ->
     args = @compose_object_from_defaults_and_incoming(@default_dialog_args, in_args)
     #args = Object.assign(default_args, in_args)
     return """<div id="#{id}" class="#{args.classes} #{args.extraClasses}"
         style="display:block;top:#{args.top}px;left:#{args.left}px;max-width:#{args.width}px;max-height:#{args.height}px">
       <div class="header" style="background-color:#{args.head_bg_color};#{args.style}">
-        <button class="close_node_details" title="Close"><i class="far fa-window-close"></i></button>
+        <button class="close_node_details" title="Close"><i class="far fa-window-close" for="#{id}"></i></button>
       </div>
       #{contents}
     </div>""" # """ for emacs coffeescript mode
 
   make_dialog: (content_html, id, args) ->
-    id ?= @unique_id('dialog_')
+    id ?= @unique_id('dialog_')  # if you do not have an id, an id will be provided for you
     @addHTML(@gen_dialog_html(content_html, id, args))
     elem = document.querySelector('#'+id)
-    $(elem.querySelector(' .close_node_details')).on('click', @destroy_box)
+    $(elem.querySelector(' .close_node_details')).on('click', args.close or @destroy_box)
     $(elem).draggable()
     return elem
 
@@ -4975,7 +4982,7 @@ class Huviz
       snip_div = @snippet_box.append('div').attr('class','snippet')
       snip_div.html(msg)
       $(snip_div[0][0]).addClass("snippet_dialog_box")
-      my_position = @get_next_snippet_position()
+      my_position = @get_next_snippet_position(obj.snippet_js_key)
       dialog_args =
         #maxHeight: @snippet_size
         minWidth: 400
@@ -5007,10 +5014,11 @@ class Huviz
     # convert "left+123 top+456" to {left: 123, top: 456}
     [left, top] = str.replace(new RegExp('([a-z]*)\\+','g'),'').split(' ').map((c) -> parseInt(c))
     return {left, top}
-  get_next_snippet_position_obj: ->
-    return @snippet_position_str_to_obj(@get_next_snippet_position())
-  get_next_snippet_position: ->
+  get_next_snippet_position_obj: (id) ->
+    return @snippet_position_str_to_obj(@get_next_snippet_position(id))
+  get_next_snippet_position: (id) ->
     # Fill the left edge, then the top edge, then diagonally from top-left
+    id ?= true
     height = @height
     width = @width
     left_full = false
@@ -5036,7 +5044,7 @@ class Huviz
         vinc = 30
         hoff = 0
         voff = 0
-    @snippet_positions_filled[retval] = true
+    @snippet_positions_filled[retval] = id
     return retval
 
   # =========================================================================
@@ -7824,19 +7832,34 @@ class Orlando extends OntologicallyGrounded
 
         """
         ## unconfuse emacs Coffee-mode: " """ ' '  "
-    pos = @get_next_snippet_position_obj()
+    pos = @get_next_snippet_position_obj(obj.edge_inspector_id)
     dialogArgs =
       width: @width
       height: @height
       extraClasses: "edge_inspector"
       top: pos.top
       left: pos.left
-      close: (event, ui) =>
-        alert('closing ' + event.target.id)
-    # TODO ideally the id for the dialog should be determined by the edge.id
-    # TODO ideally if you click on the edge again and an inspector for that
-    #      edge is already visible, then a new one would not be created.
+      close: @close_edge_inspector
     @make_dialog(msg_or_obj, obj.edge_inspector_id, dialogArgs)
+
+  close_edge_inspector: (event, ui) =>
+    edge_inspector_id = event.target.getAttribute('for')
+    @remove_edge_inspector(edge_inspector_id)
+    @destroy_box(event)
+    return
+
+  remove_edge_inspector: (edge_inspector_id) ->
+    delete @currently_printed_snippets[edge_inspector_id]
+    @clear_snippet_position_filled_for(edge_inspector_id)
+    return
+
+  clear_snippet_position_filled_for: (match_id) ->
+    # delete the snippet_position_filled for match_id, so the position can be re-used
+    for pos, id of @snippet_positions_filled
+      if id is match_id
+        delete @snippet_positions_filled[pos]
+        break
+    return
 
   human_term: orlando_human_term
 
