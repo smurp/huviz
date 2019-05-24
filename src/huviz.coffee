@@ -5807,7 +5807,11 @@ class Huviz
     @endpoint_labels_JQElem = $('#'+endpoint_labels_id)
     @endpoint_limit_JQElem = $('#'+endpoint_limit_id)
     fromGraph =''
-    @endpoint_labels_JQElem.autocomplete({minLength: 3, delay:500, position: {collision: "flip"}, source: @populate_graphs_selector})
+    @endpoint_labels_JQElem.autocomplete
+      minLength: 3
+      delay:500
+      position: {collision: "flip"}
+      source: @populate_graphs_selector
 
   populate_graphs_selector: (request, response) =>
       spinner = @endpoint_labels_JQElem.siblings('i')
@@ -5827,9 +5831,11 @@ class Huviz
       LIMIT 20
       """  # " # for emacs syntax hilighting
       @log_query(qry)
+      more = ""
+      more = "&timeout=5000"
       ajax_settings = {
         'method': 'GET'
-        'url': url + '?query=' + encodeURIComponent(qry)
+        'url': url + '?query=' + encodeURIComponent(qry) + more
         'headers' :
           'Accept': 'application/sparql-results+json'
       }
@@ -5848,21 +5854,30 @@ class Huviz
             if json_check is 'string' then json_data = JSON.parse(data) else json_data = data
             results = json_data.results.bindings
             selections = []
+            console.info("There were #{results.length} results")
+            spinner.css('visibility','hidden') #  happens regardless of result.length
             for label in results
               this_result = {
                 label: label.obj.value + " (#{label.sub.value})"
                 value: label.sub.value
               }
               selections.push(this_result)
-              spinner.css('visibility','hidden')
+
             response(selections)
             #@parse_json_label_query_results(data)
           error: (jqxhr, textStatus, errorThrown) =>
             console.log(url, errorThrown)
-            console.log textStatus
+            console.log(textStatus)
+            console.log(jqxhr.responseText)
             if not errorThrown
               errorThrown = "Cross-Origin error"
-            msg = errorThrown + " while fetching " + url
+            msg = errorThrown + " while fetching " + url + " with query \n" + qry
+            #   for query <pre>#{qry}</pre> at
+            msg = """
+            <code>#{errorThrown}</code> with
+            <pre>#{jqxhr.responseText}</pre>
+            <a href="#{url}">#{url}</a>
+            """ # """
             @hide_state_msg()
             $('#'+@get_data_ontology_display_id()).remove()
             @endpoint_labels_JQElem.siblings('i').css('visibility','hidden')
@@ -7284,14 +7299,19 @@ class Huviz
       setTimeout((() => @on_change_show_queries_tab(new_val, old_val)), 50)
       return
     console.info('on_change_show_queries_tab()', new_val)
+    # Showing the queries tab is a power-user thing so we hide boring tabs for convenience.
     if new_val
       @tab_for_tabs_sparqlQueries_JQElem.show()
       if @tab_for_tabs_credit_JQElem?
         @tab_for_tabs_credit_JQElem.hide()
+      if @tab_for_tabs_intro_JQElem?
+        @tab_for_tabs_intro_JQElem.hide()
     else
       @tab_for_tabs_sparqlQueries_JQElem.hide()
       if @tab_for_tabs_credit_JQElem?
         @tab_for_tabs_credit_JQElem.show()
+      if @tab_for_tabs_intro_JQElem?
+        @tab_for_tabs_intro_JQElem.show()
     return
 
   on_change_show_dangerous_datasets: (new_val, old_val) ->
