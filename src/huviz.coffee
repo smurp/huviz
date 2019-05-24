@@ -5822,7 +5822,7 @@ class Huviz
       SELECT * #{fromGraph}
       WHERE {
   	  ?sub rdfs:label|foaf:name ?obj .
-      filter contains(?obj,"#{request.term}")
+      filter regex(?obj,"^#{request.term}", "i")
       }
       LIMIT 20
       """  # " # for emacs syntax hilighting
