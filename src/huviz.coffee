@@ -1906,8 +1906,13 @@ class Huviz
     if not focused
       return
     retval = (focused.lid or '') + ' '
-    if !focused.state?
-      console.error(retval + ' has no state!!! This is unpossible!!!! name:', focused.name)
+    if not focused.state?
+      msg = retval + ' has no state!!! This is unpossible!!!! name:'
+      focused._warnings ?= {}
+      if not focused._warnings[msg]
+        # warn each unique message once
+        console.warn(msg, focused.name)
+        focused._warnings[msg] = true
       return
     retval += focused.state.id
     return retval
@@ -2959,13 +2964,10 @@ class Huviz
         if (widget = @discover_geonames_as__widget)
           state_at_start = widget.state
           if state_at_start in ['trying', 'looking']
-            #rem = @countdown_setting('discover_geonames_remaining')
-            #console.log('discover_geonames_remaining',rem,"after looking up",id)
-            #@countdown_setting('discover_geonames_remaining') # decrement now because we just used one up for this account
             if widget.state is 'trying'
               # we decrement remaining after successfully trying or before looking
-              @countdown_setting('discover_geonames_remaining')
-              @discover_geonames_as__widget.set_state('looking') # more remaining, go straight to looking
+              @countdown_setting('discover_geonames_remaining') # more remaining, go straight to looking
+              @discover_geonames_as__widget.set_state('looking')
             if widget.state is 'looking'
               if @discover_geonames_remaining > 0
                 # trigger again because they have been suspended
@@ -3355,7 +3357,7 @@ class Huviz
             objKey = "#{subj_n.lid} #{pred_uri}"
             objId = synthIdFor(objKey)
             objId_explanation = "synthIdFor('#{objKey}') = #{objId}"
-            console.warn(objId_explanation)
+            #console.warn(objId_explanation)
           else
             objId = synthIdFor(objVal)
           literal_node = @get_or_create_node_by_id(objId, objVal, (isLiteral = true))
@@ -4099,8 +4101,9 @@ class Huviz
         @sparql_node_list.push q
         node_not_in_list = true
       else
-        # Check if node is in list - sparql_node_list is used to keep track of nodes that have already been
-        # loaded by a query so that they will not be added again through add_quad.
+        # Check if node is in list - sparql_node_list is used to keep track
+        # of nodes that have already been loaded by a query so that they
+        # will not be added again through add_quad.
         for snode in @sparql_node_list
           #TODO - This filtering statement doesn't seem tight (Will not catch nodes that HuViz creates - that's okay I think)
           if q.s is snode.s and q.p is snode.p and q.o.value is snode.o.value and q.o.type is snode.o.type and q.o.language is snode.o.language
