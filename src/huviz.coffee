@@ -3745,7 +3745,7 @@ class Huviz
         @reset_dataset_ontology_loader()
         #TODO Reset titles on page
 
-  log_query: (qry) ->
+  log_query: (qry) =>
     @gclui.push_sparqlQuery_onto_log(qry)
     console.log(qry)
 
@@ -4127,8 +4127,8 @@ class Huviz
         @add_quad(q, subject)
       #@dump_stats()
 
-  add_nodes_from_SPARQL_Worker : (queryTarget) ->
-    console.log "Make request for new query and load nodes"
+  add_nodes_from_SPARQL_Worker: (queryTarget) ->
+    console.log("Make request for new query and load nodes")
     @pfm_count('sparql')
     url = @endpoint_loader.value
     if @sparql_node_list then previous_nodes = @sparql_node_list else previous_nodes = []
@@ -4138,6 +4138,11 @@ class Huviz
     worker = new Worker('/huviz/sparql_ajax_query.js')
     worker.addEventListener 'message', (e) =>
       #console.log e.data
+      if e.data.method_name is 'log_query'
+        @log_query(e.data.qry)
+        return
+      else if e.data.method_name isnt 'accept_results'
+        throw new Error("expecting either data.method = 'log_query' or 'accept_results'")
       add_fully_loaded = e.data.fully_loaded_index
       for quad in e.data.results
         #console.log quad
@@ -4154,8 +4159,38 @@ class Huviz
       @shelved_set.resort()
       @tick("Tick in add_nodes_from_SPARQL_worker")
       @update_all_counts()
-    worker.postMessage({target:queryTarget, url:url, graph:graph, limit:query_limit, previous_nodes:previous_nodes})
+    worker.postMessage(
+      target: queryTarget
+      url: url
+      graph: graph
+      limit: query_limit
+      previous_nodes: previous_nodes)
 
+  is_from_sparql: ->
+    # force the return of a boolan with "not not"
+    return not not (@endpoint_loader? and @endpoint_loader.value) # This is part of a sparql set
+
+  get_neighbors_via_sparql: (chosen) ->
+    if not chosen.fully_loaded
+      # If there are more than certain number of requests, stop the process
+      maxReq = @max_outstanding_sparql_requests
+      if (@endpoint_loader.outstanding_requests < maxReq)
+        @endpoint_loader.outstanding_requests++
+        @add_nodes_from_SPARQL_Worker(chosen.id)
+        console.log("outstanding_requests: " + @endpoint_loader.outstanding_requests)
+      else
+        msg = "SPARQL requests capped at #{maxReq}"
+        @blurt(msg, 'alert')
+        # if $("#blurtbox").html()
+        #   #console.log "Don't add error message " + message
+        #   console.log "Request counter (over): " + @endpoint_loader.outstanding_requests
+        # else
+        #   #console.log "Error message " + message
+        #   msg = "There are more than 300 requests in the que. Restricting process. " + message
+        #   @blurt(msg, 'alert')
+        #   message = true
+        #   console.log "Request counter: " + @endpoint_loader.outstanding_requests
+    return
 
   # Deal with buggy situations where flashing the links on and off
   # fixes data structures.  Not currently needed.
@@ -4638,30 +4673,8 @@ class Huviz
     # If this chosen node is part of a SPARQL query set, then check if it is fully loaded
     # if it isn't then load and activate
     #console.log chosen
-    if @endpoint_loader? and @endpoint_loader.value # This is part of a sparql set
-      if not chosen.fully_loaded
-        #console.log "Time to make a new SPARQL query using: " + chosen.id + " - requests underway: " + @endpoint_loader.outstanding_requests
-        # If there are more than certain number of requests, stop the process
-
-        if (@endpoint_loader.outstanding_requests < 10)
-          #@endpoint_loader.outstanding_requests = @endpoint_loader.outstanding_requests + 1
-          @endpoint_loader.outstanding_requests++
-          #console.log "Less than 6 so go ahead " + message
-          #@load_new_endpoint_data_and_show(chosen.id)
-          # TEST of calling Worker for Ajax
-          @add_nodes_from_SPARQL_Worker(chosen.id)
-          console.log "Request counter: " + @endpoint_loader.outstanding_requests
-
-        else
-          if $("#blurtbox").html()
-            #console.log "Don't add error message " + message
-            console.log "Request counter (over): " + @endpoint_loader.outstanding_requests
-          else
-            #console.log "Error message " + message
-            msg = "There are more than 300 requests in the que. Restricting process. " + message
-            @blurt(msg, 'alert')
-            message = true
-            console.log "Request counter: " + @endpoint_loader.outstanding_requests
+    if @is_from_sparql()
+      @get_neighbors_via_sparql(chosen)
 
     # There is a flag .chosen in addition to the state 'linked'
     # because linked means it is in the graph
@@ -7062,6 +7075,29 @@ class Huviz
           type: "checkbox"
           checked: "checked"
     ,
+      show_queries_tab:
+        group: "SPARQL"
+        class: "alpha_feature"
+        text: "Show Queries Tab"
+        label:
+          title: "Expose the 'Queries' tab to be able to monitor and debug SPARQL queries"
+        input:
+          type: "checkbox"
+          checked: "checked"
+    ,
+      max_outstanding_sparql_requests:
+        group: "SPARQL"
+        class: "alpha_feature"
+        text: "Max. Outstanding Requests"
+        label:
+          title: "Cap on the number of simultaneous SPARQL requests"
+        input:
+          value: 20
+          min: 1
+          max: 100
+          step: 1
+          type: "range"
+    ,
       debug_shelf_angles_and_flipping:
         group: "Debugging"
         class: "alpha_feature"
@@ -7099,16 +7135,6 @@ class Huviz
         text: "Show Hunt verb"
         label:
           title: "Expose the 'Hunt' verb, for demonstration of SortedSet.binary_search()"
-        input:
-          type: "checkbox"
-          #checked: "checked"
-    ,
-      show_queries_tab:
-        group: "Debugging"
-        class: "alpha_feature"
-        text: "Show Queries Tab"
-        label:
-          title: "Expose the 'Queries' tab to be able to monitor and debug SPARQL queries"
         input:
           type: "checkbox"
           #checked: "checked"
