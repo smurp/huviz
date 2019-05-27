@@ -6478,6 +6478,7 @@ class Huviz
         input:
           type: "button"
           label: "Reset All"
+          funct: "reset"
           #style: "background-color: #303030"
     ,
       use_accordion_for_settings:
@@ -7099,6 +7100,7 @@ class Huviz
 
   init_settings_from_json: =>
     # TODO rebuild this method without D3 using @settingsElem
+    console.log "INININITIALIZE -----------"
     @settingsElem = document.querySelector(@args.settings_sel)
     settings_input_sel = @args.settings_sel + ' input'
     @settings_cursor = new TextCursor(settings_input_sel, "")
@@ -7136,12 +7138,15 @@ class Huviz
               if opt.label?
                 optionElem.innerHTML = opt.label
           else if control.input.type is 'button'
+            #console.log "construct button: #{control.input.label}"
             inputElem = @insertBeforeEnd(controlElem, """<button type="button">(should set label)</button>""")
             if control.input.label?
               inputElem.innerHTML = control.input.label
             if control.input.style?
               inputElem.setAttribute('style', control.input.style)
-            inputElem.onClick = @dump_current_settings
+            if control.input.funct?
+              inputElem.setAttribute('funct', control.input.funct)
+              $("button[funct='reset']").click(@dump_current_settings)
           else
             inputElem = @insertBeforeEnd(controlElem, """<input name="#{control_name}"></input>""")
             WidgetClass = null
@@ -7311,7 +7316,6 @@ class Huviz
     #$("body").addClass renderStyles.themeName
     @topElem.style.backgroundColor = renderStyles.pageBg
     @topElem.classList.add(renderStyles.themeName)
-    console.log @topElem
     @updateWindow()
 
   on_change_display_label_cartouches: (new_val) ->
