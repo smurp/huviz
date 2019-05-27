@@ -708,11 +708,11 @@ class Huviz
     id ?= @unique_id('dialog_')  # if you do not have an id, an id will be provided for you
     @addHTML(@gen_dialog_html(content_html, id, args))
     elem = document.querySelector('#'+id)
-    $(elem.querySelector(' .close_node_details')).on('click', args.close or @destroy_box)
+    $(elem.querySelector(' .close_node_details')).on('click', args.close or @destroy_dialog)
     $(elem).draggable()
     return elem
 
-  destroy_box: (e) ->
+  destroy_dialog: (e) ->
     box = e.currentTarget.offsetParent
     $(box).remove()
 
@@ -892,7 +892,7 @@ class Huviz
       if @focused_node
         the_node = $("##{@focused_node.lid}")
         if the_node.html() then the_node.remove()
-        @render_node_info_box()
+        @render_node_info_box(@focused_node)
       else
         if $(".contextMenu.temp") then $(".contextMenu.temp").remove()
     else if @should_start_dragging()
@@ -1042,10 +1042,14 @@ class Huviz
     @rightClickHold = true
     doesnt_exist = if @focused_node then true else false
     if @focused_node and doesnt_exist
-      @render_node_info_box()
+      @render_node_info_box(@focused_node)
 
-  render_node_info_box: () ->
-    all_names = Object.values(@focused_node.name)
+  render_node_info_box: (info_node) ->
+    node_inspector_id = "NODE_INSPECTOR__" + info_node.lid
+    if info_node._inspector?
+      @hilight_dialog(info_node._inspector)
+      return
+    all_names = Object.values(info_node.name)
     names_all_langs = ""
     note = ""
     color_headers = ""
@@ -1057,18 +1061,18 @@ class Huviz
       else
         names_all_langs = name
     other_types = ""
-    if (@focused_node._types.length > 1)
-      for node_type in @focused_node._types
-        if node_type != @focused_node.type
+    if (info_node._types.length > 1)
+      for node_type in info_node._types
+        if node_type != info_node.type
           if other_types
             other_types = other_types + ", " + node_type
           else
             other_types = node_type
       other_types = " (" + other_types + ")"
-    #console.log @focused_node
-    #console.log @focused_node.links_from.length
-    if (@focused_node.links_from.length > 0)
-      for link_from in @focused_node.links_from
+    #console.log info_node
+    #console.log info_node.links_from.length
+    if (info_node.links_from.length > 0)
+      for link_from in info_node.links_from
         [target_prefix, target] = @render_target_for_display(link_from.target)
         node_out_links = node_out_links + """
         <li><i class='fas fa-long-arrow-alt-right'></i>
@@ -1077,14 +1081,14 @@ class Huviz
         </li>
           """ # """
       node_out_links = "<ul>" + node_out_links + "</ul>"
-    #console.log @focused_node
-    if @focused_node._colors
-      width = 100 / @focused_node._colors.length
-      for color in @focused_node._colors
+    #console.log info_node
+    if info_node._colors
+      width = 100 / info_node._colors.length
+      for color in info_node._colors
         color_headers = color_headers +
           "<div class='subHeader' style='background-color: #{color}; width: #{width}%;'></div>"
     if @endpoint_loader.value
-      if @endpoint_loader.value and @focused_node.fully_loaded
+      if @endpoint_loader.value and info_node.fully_loaded
         note = "<p class='note'>Node Fully Loaded</span>"
       else
         note = """<p class='note'><span class='label'>Note:</span>
@@ -1096,21 +1100,33 @@ class Huviz
       height: @height * 0.80
       top: d3.event.clientY
       left: d3.event.clientX
+      close: @close_node_inspector
 
-    if @focused_node
-      dialogArgs.head_bg_color = @focused_node.color
-      id_display = @create_link_if_url(@focused_node.id)
+    if info_node
+      dialogArgs.head_bg_color = info_node.color
+      id_display = @create_link_if_url(info_node.id)
       node_info_html = """
         <p class='id_display'><span class='label'>id:</span> #{id_display}</p>
         <p><span class='label'>name:</span> #{names_all_langs}</p>
-        <p><span class='label'>type(s):</span> #{@focused_node.type} #{other_types}</p>
-        <p><span class='label'>Links To:</span> #{@focused_node.links_to.length} <br>
-          <span class='label'>Links From:</span> #{@focused_node.links_from.length}</p>
+        <p><span class='label'>type(s):</span> #{info_node.type} #{other_types}</p>
+        <p><span class='label'>Links To:</span> #{info_node.links_to.length} <br>
+          <span class='label'>Links From:</span> #{info_node.links_from.length}</p>
           #{note}
           #{node_out_links}
         """ # """
 
-      @make_dialog(node_info_html, @unique_id(@focused_node.lid+'__'), dialogArgs)
+      info_node._inspector = @make_dialog(node_info_html, node_inspector_id, dialogArgs)
+      info_node._inspector.dataset.node_id = info_node.id
+    return
+
+  close_node_inspector: (event, ui) =>  # fat because it is called by click handler
+    box = event.currentTarget.offsetParent
+    node_id = box.dataset.node_id
+    if node_id?
+      node = @all_set.get_by('id', node_id)
+      if node?
+        delete node._inspector
+    @destroy_dialog(event)
     return
 
   create_link_if_url: (possible_link) ->
@@ -1890,8 +1906,13 @@ class Huviz
     if not focused
       return
     retval = (focused.lid or '') + ' '
-    if !focused.state?
-      console.error(retval + ' has no state!!! This is unpossible!!!! name:', focused.name)
+    if not focused.state?
+      msg = retval + ' has no state!!! This is unpossible!!!! name:'
+      focused._warnings ?= {}
+      if not focused._warnings[msg]
+        # warn each unique message once
+        console.warn(msg, focused.name)
+        focused._warnings[msg] = true
       return
     retval += focused.state.id
     return retval
@@ -2943,13 +2964,10 @@ class Huviz
         if (widget = @discover_geonames_as__widget)
           state_at_start = widget.state
           if state_at_start in ['trying', 'looking']
-            #rem = @countdown_setting('discover_geonames_remaining')
-            #console.log('discover_geonames_remaining',rem,"after looking up",id)
-            #@countdown_setting('discover_geonames_remaining') # decrement now because we just used one up for this account
             if widget.state is 'trying'
               # we decrement remaining after successfully trying or before looking
-              @countdown_setting('discover_geonames_remaining')
-              @discover_geonames_as__widget.set_state('looking') # more remaining, go straight to looking
+              @countdown_setting('discover_geonames_remaining') # more remaining, go straight to looking
+              @discover_geonames_as__widget.set_state('looking')
             if widget.state is 'looking'
               if @discover_geonames_remaining > 0
                 # trigger again because they have been suspended
@@ -3339,7 +3357,7 @@ class Huviz
             objKey = "#{subj_n.lid} #{pred_uri}"
             objId = synthIdFor(objKey)
             objId_explanation = "synthIdFor('#{objKey}') = #{objId}"
-            console.warn(objId_explanation)
+            #console.warn(objId_explanation)
           else
             objId = synthIdFor(objVal)
           literal_node = @get_or_create_node_by_id(objId, objVal, (isLiteral = true))
@@ -3729,7 +3747,7 @@ class Huviz
         @reset_dataset_ontology_loader()
         #TODO Reset titles on page
 
-  log_query: (qry) ->
+  log_query: (qry) =>
     @gclui.push_sparqlQuery_onto_log(qry)
     console.log(qry)
 
@@ -4083,8 +4101,9 @@ class Huviz
         @sparql_node_list.push q
         node_not_in_list = true
       else
-        # Check if node is in list - sparql_node_list is used to keep track of nodes that have already been
-        # loaded by a query so that they will not be added again through add_quad.
+        # Check if node is in list - sparql_node_list is used to keep track
+        # of nodes that have already been loaded by a query so that they
+        # will not be added again through add_quad.
         for snode in @sparql_node_list
           #TODO - This filtering statement doesn't seem tight (Will not catch nodes that HuViz creates - that's okay I think)
           if q.s is snode.s and q.p is snode.p and q.o.value is snode.o.value and q.o.type is snode.o.type and q.o.language is snode.o.language
@@ -4111,8 +4130,8 @@ class Huviz
         @add_quad(q, subject)
       #@dump_stats()
 
-  add_nodes_from_SPARQL_Worker : (queryTarget) ->
-    console.log "Make request for new query and load nodes"
+  add_nodes_from_SPARQL_Worker: (queryTarget) ->
+    console.log("Make request for new query and load nodes")
     @pfm_count('sparql')
     url = @endpoint_loader.value
     if @sparql_node_list then previous_nodes = @sparql_node_list else previous_nodes = []
@@ -4122,6 +4141,11 @@ class Huviz
     worker = new Worker('/huviz/sparql_ajax_query.js')
     worker.addEventListener 'message', (e) =>
       #console.log e.data
+      if e.data.method_name is 'log_query'
+        @log_query(e.data.qry)
+        return
+      else if e.data.method_name isnt 'accept_results'
+        throw new Error("expecting either data.method = 'log_query' or 'accept_results'")
       add_fully_loaded = e.data.fully_loaded_index
       for quad in e.data.results
         #console.log quad
@@ -4138,8 +4162,38 @@ class Huviz
       @shelved_set.resort()
       @tick("Tick in add_nodes_from_SPARQL_worker")
       @update_all_counts()
-    worker.postMessage({target:queryTarget, url:url, graph:graph, limit:query_limit, previous_nodes:previous_nodes})
+    worker.postMessage(
+      target: queryTarget
+      url: url
+      graph: graph
+      limit: query_limit
+      previous_nodes: previous_nodes)
 
+  is_from_sparql: ->
+    # force the return of a boolan with "not not"
+    return not not (@endpoint_loader? and @endpoint_loader.value) # This is part of a sparql set
+
+  get_neighbors_via_sparql: (chosen) ->
+    if not chosen.fully_loaded
+      # If there are more than certain number of requests, stop the process
+      maxReq = @max_outstanding_sparql_requests
+      if (@endpoint_loader.outstanding_requests < maxReq)
+        @endpoint_loader.outstanding_requests++
+        @add_nodes_from_SPARQL_Worker(chosen.id)
+        console.log("outstanding_requests: " + @endpoint_loader.outstanding_requests)
+      else
+        msg = "SPARQL requests capped at #{maxReq}"
+        @blurt(msg, 'alert')
+        # if $("#blurtbox").html()
+        #   #console.log "Don't add error message " + message
+        #   console.log "Request counter (over): " + @endpoint_loader.outstanding_requests
+        # else
+        #   #console.log "Error message " + message
+        #   msg = "There are more than 300 requests in the que. Restricting process. " + message
+        #   @blurt(msg, 'alert')
+        #   message = true
+        #   console.log "Request counter: " + @endpoint_loader.outstanding_requests
+    return
 
   # Deal with buggy situations where flashing the links on and off
   # fixes data structures.  Not currently needed.
@@ -4622,30 +4676,8 @@ class Huviz
     # If this chosen node is part of a SPARQL query set, then check if it is fully loaded
     # if it isn't then load and activate
     #console.log chosen
-    if @endpoint_loader? and @endpoint_loader.value # This is part of a sparql set
-      if not chosen.fully_loaded
-        #console.log "Time to make a new SPARQL query using: " + chosen.id + " - requests underway: " + @endpoint_loader.outstanding_requests
-        # If there are more than certain number of requests, stop the process
-
-        if (@endpoint_loader.outstanding_requests < 10)
-          #@endpoint_loader.outstanding_requests = @endpoint_loader.outstanding_requests + 1
-          @endpoint_loader.outstanding_requests++
-          #console.log "Less than 6 so go ahead " + message
-          #@load_new_endpoint_data_and_show(chosen.id)
-          # TEST of calling Worker for Ajax
-          @add_nodes_from_SPARQL_Worker(chosen.id)
-          console.log "Request counter: " + @endpoint_loader.outstanding_requests
-
-        else
-          if $("#blurtbox").html()
-            #console.log "Don't add error message " + message
-            console.log "Request counter (over): " + @endpoint_loader.outstanding_requests
-          else
-            #console.log "Error message " + message
-            msg = "There are more than 300 requests in the que. Restricting process. " + message
-            @blurt(msg, 'alert')
-            message = true
-            console.log "Request counter: " + @endpoint_loader.outstanding_requests
+    if @is_from_sparql()
+      @get_neighbors_via_sparql(chosen)
 
     # There is a flag .chosen in addition to the state 'linked'
     # because linked means it is in the graph
@@ -5068,6 +5100,15 @@ class Huviz
     for edge in node.links_shown
       edge.focused = false
 
+  hilight_dialog: (dialog_elem) ->
+    if typeof(dialog_elem) is 'string'
+      throw new Error('hilight_dialog() expects an Elem, not '+dialog_elem)
+    else
+      dialog_id = dialog_elem.getAttribute('id')
+    console.info("TODO make hilight_dialog('#{dialog_id}') bring it to top and do a CSS animation")
+    # an example CSS animation: Wiggle
+    #   https://codepen.io/theDeanH/pen/zBZXLN
+
   print_edge: (edge) ->
     # @clear_snippets()
     context_no = 0
@@ -5076,9 +5117,7 @@ class Huviz
       #snippet_js_key = @get_snippet_js_key(context.id)
       context_no++
       if @currently_printed_snippets[edge_inspector_id]?
-        # FIXME add the Subj--Pred--Obj line to the snippet for this edge
-        #   also bring such snippets to the top
-        console.log("skipping because #{edge_inspector_id} is already shown")
+        @hilight_dialog(edge._inspector or edge_inspector_id)
         continue
       me = this
       make_callback = (context_no, edge, context) =>
@@ -5784,7 +5823,11 @@ class Huviz
     @endpoint_labels_JQElem = $('#'+endpoint_labels_id)
     @endpoint_limit_JQElem = $('#'+endpoint_limit_id)
     fromGraph =''
-    @endpoint_labels_JQElem.autocomplete({minLength: 3, delay:500, position: {collision: "flip"}, source: @populate_graphs_selector})
+    @endpoint_labels_JQElem.autocomplete
+      minLength: 3
+      delay:500
+      position: {collision: "flip"}
+      source: @populate_graphs_selector
 
   populate_graphs_selector: (request, response) =>
       spinner = @endpoint_labels_JQElem.siblings('i')
@@ -5799,14 +5842,16 @@ class Huviz
       SELECT * #{fromGraph}
       WHERE {
   	  ?sub rdfs:label|foaf:name ?obj .
-      filter contains(?obj,"#{request.term}")
+      filter regex(?obj,"^#{request.term}", "i")
       }
       LIMIT 20
       """  # " # for emacs syntax hilighting
       @log_query(qry)
+      more = ""
+      more = "&timeout=5000"
       ajax_settings = {
         'method': 'GET'
-        'url': url + '?query=' + encodeURIComponent(qry)
+        'url': url + '?query=' + encodeURIComponent(qry) + more
         'headers' :
           'Accept': 'application/sparql-results+json'
       }
@@ -5825,21 +5870,30 @@ class Huviz
             if json_check is 'string' then json_data = JSON.parse(data) else json_data = data
             results = json_data.results.bindings
             selections = []
+            console.info("There were #{results.length} results")
+            spinner.css('visibility','hidden') #  happens regardless of result.length
             for label in results
               this_result = {
                 label: label.obj.value + " (#{label.sub.value})"
                 value: label.sub.value
               }
               selections.push(this_result)
-              spinner.css('visibility','hidden')
+
             response(selections)
             #@parse_json_label_query_results(data)
           error: (jqxhr, textStatus, errorThrown) =>
             console.log(url, errorThrown)
-            console.log textStatus
+            console.log(textStatus)
+            console.log(jqxhr.responseText)
             if not errorThrown
               errorThrown = "Cross-Origin error"
-            msg = errorThrown + " while fetching " + url
+            msg = errorThrown + " while fetching " + url + " with query \n" + qry
+            #   for query <pre>#{qry}</pre> at
+            msg = """
+            <code>#{errorThrown}</code> with
+            <pre>#{jqxhr.responseText}</pre>
+            <a href="#{url}">#{url}</a>
+            """ # """
             @hide_state_msg()
             $('#'+@get_data_ontology_display_id()).remove()
             @endpoint_labels_JQElem.siblings('i').css('visibility','hidden')
@@ -7025,6 +7079,29 @@ class Huviz
           type: "checkbox"
           checked: "checked"
     ,
+      show_queries_tab:
+        group: "SPARQL"
+        class: "alpha_feature"
+        text: "Show Queries Tab"
+        label:
+          title: "Expose the 'Queries' tab to be able to monitor and debug SPARQL queries"
+        input:
+          type: "checkbox"
+          checked: "checked"
+    ,
+      max_outstanding_sparql_requests:
+        group: "SPARQL"
+        class: "alpha_feature"
+        text: "Max. Outstanding Requests"
+        label:
+          title: "Cap on the number of simultaneous SPARQL requests"
+        input:
+          value: 20
+          min: 1
+          max: 100
+          step: 1
+          type: "range"
+    ,
       debug_shelf_angles_and_flipping:
         group: "Debugging"
         class: "alpha_feature"
@@ -7062,16 +7139,6 @@ class Huviz
         text: "Show Hunt verb"
         label:
           title: "Expose the 'Hunt' verb, for demonstration of SortedSet.binary_search()"
-        input:
-          type: "checkbox"
-          #checked: "checked"
-    ,
-      show_queries_tab:
-        group: "Debugging"
-        class: "alpha_feature"
-        text: "Show Queries Tab"
-        label:
-          title: "Expose the 'Queries' tab to be able to monitor and debug SPARQL queries"
         input:
           type: "checkbox"
           #checked: "checked"
@@ -7266,14 +7333,19 @@ class Huviz
       setTimeout((() => @on_change_show_queries_tab(new_val, old_val)), 50)
       return
     console.info('on_change_show_queries_tab()', new_val)
+    # Showing the queries tab is a power-user thing so we hide boring tabs for convenience.
     if new_val
       @tab_for_tabs_sparqlQueries_JQElem.show()
       if @tab_for_tabs_credit_JQElem?
         @tab_for_tabs_credit_JQElem.hide()
+      if @tab_for_tabs_intro_JQElem?
+        @tab_for_tabs_intro_JQElem.hide()
     else
       @tab_for_tabs_sparqlQueries_JQElem.hide()
       if @tab_for_tabs_credit_JQElem?
         @tab_for_tabs_credit_JQElem.show()
+      if @tab_for_tabs_intro_JQElem?
+        @tab_for_tabs_intro_JQElem.show()
     return
 
   on_change_show_dangerous_datasets: (new_val, old_val) ->
@@ -7865,12 +7937,19 @@ class Orlando extends OntologicallyGrounded
       top: pos.top
       left: pos.left
       close: @close_edge_inspector
-    @make_dialog(msg_or_obj, obj.edge_inspector_id, dialogArgs)
+    obj.edge._inspector = @make_dialog(msg_or_obj, obj.edge_inspector_id, dialogArgs)
+    obj.edge._inspector.dataset.edge_id = obj.edge.id
 
   close_edge_inspector: (event, ui) =>
+    box = event.currentTarget.offsetParent
+    edge_id = box.dataset.edge_id
+    if edge_id?
+      edge = @edges_by_id[edge_id]
+      if edge?
+        delete edge._inspector
     edge_inspector_id = event.target.getAttribute('for')
     @remove_edge_inspector(edge_inspector_id)
-    @destroy_box(event)
+    @destroy_dialog(event)
     return
 
   remove_edge_inspector: (edge_inspector_id) ->

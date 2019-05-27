@@ -96,7 +96,6 @@ class CommandController
     qryJQElem.attr('id', id)
     queriesJQElem.append(qryJQElem)
     qryJQElem.find('pre').text(qry) # rely on text() doing HTML encoding (to protect <, >, etc )
-    console.info(qry, qryJQElem.find('pre').length)
     return
   make_command_history: ->
     @comdiv = d3.select(@container).append("div") # --- Add a container
