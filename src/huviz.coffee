@@ -7457,13 +7457,13 @@ class Huviz
       $("input[name='charge']").attr('min', '-5000').attr('value', '-3000')
       $("input[name='link_distance']").attr('max', '500').attr('value', '200')
       @charge = -3000
-      @link_distance = 200
+      @link_distance = 200 # TODO use the method which updates settings...
     else
       node_display_type = ""
       $("input[name='charge']").attr('min', '-600').attr('value', '-200')
       $("input[name='link_distance']").attr('max', '200').attr('value', '29')
       @charge = -200
-      @link_distance = 29
+      @link_distance = 29 # TODO use the method which updates settings...
     @updateWindow()
 
   on_change_theme_colors: (new_val) ->
