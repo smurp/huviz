@@ -5799,22 +5799,22 @@ class Huviz
     endpoint_limit_id = unique_id('endpoint_limit_')
     endpoint_labels_id = unique_id('endpoint_labels_')
     select_box = """
-      <div class='ui-widget' style='display:none;margin-top:5px;margin-left:10px;'>
+      <div class="ui-widget" style="display:none;margin-top:5px;margin-left:10px;">
         <label>Graphs: </label>
         <select id="sparqlGraphOptions-#{@endpoint_loader.select_id}">
         </select>
       </div>
       <div id="sparqlGraphSpinner-#{@endpoint_loader.select_id}"
-           style='display:none;font-style:italic;'>
-        <i class='fas fa-spinner fa-spin' style='margin: 10px 10px 0 50px;'></i>  Looking for graphs...
+           style="display:none;font-style:italic;">
+        <i class="fas fa-spinner fa-spin" style="margin: 10px 10px 0 50px;"></i>  Looking for graphs...
       </div>
       <div id="#{sparqlQryInput_id}" class="ui-widget sparqlQryInput"
-           style='display:none;margin-top:5px;margin-left:10px;color:#999;'>
-        <label for='#{endpoint_labels_id}'>Find: </label>
-        <input id='#{endpoint_labels_id}'>
-        <i class='fas fa-spinner fa-spin' style='visibility:hidden;margin-left: 5px;'></i>
-        <div><label for='#{endpoint_limit_id}'>Node Limit: </label>
-        <input id='#{endpoint_limit_id}' value='100'>
+           style="display:none;margin-top:5px;margin-left:10px;color:#999;">
+        <label for="#{endpoint_labels_id}">Find: </label>
+        <input id="#{endpoint_labels_id}">
+        <i class="fas fa-spinner fa-spin" style="visibility:hidden;margin-left: 5px;"></i>
+        <div><label for="#{endpoint_limit_id}">Node Limit: </label>
+        <input id="#{endpoint_limit_id}" value="100">
         </div>
       </div>
     """ # """
@@ -5828,6 +5828,34 @@ class Huviz
       delay:500
       position: {collision: "flip"}
       source: @populate_graphs_selector
+
+  animate_sparql_search: (overMsec, fc, bc) ->
+    elem = @endpoint_labels_JQElem[0]
+    @animate_fill_graph(elem, overMsec, fc, bc)
+
+  animate_fill_graph: (elem, overMsec, fillColor, bgColor) ->
+    # https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
+    overMsec ?= 2000
+    fillColor ?= 'yellow'
+    bgColor ?= 'white'
+    startMsec = Date.now()
+    animId = false
+    go = (elem, overMsec, fillColor, bgColor) ->
+      startMsec = null
+      step = (nowMsec) ->
+        if not startMsec
+          startMsec = nowMsec
+        progressMsec = nowMsec - startMsec
+        fillPct = ((overMsec - progressMsec) / overMsec) * 100
+        bgPct = 100 - fillPct
+        #bgPct = 100
+        bg = "linear-gradient(to right, #{fillColor} 0% #{bgPct}%, #{bgColor} #{bgPct}%, #{bgColor} 100%)"
+        console.log(bg, startMsec, nowMsec, progressMsec)
+        elem.style.background = bg
+        if progressMsec < overMsec
+          requestAnimationFrame(step)
+      animId = requestAnimationFrame(step)
+    go(elem, overMsec, fillColor, bgColor)
 
   populate_graphs_selector: (request, response) =>
       spinner = @endpoint_labels_JQElem.siblings('i')
