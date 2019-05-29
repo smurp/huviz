@@ -5823,41 +5823,75 @@ class Huviz
     @endpoint_labels_JQElem = $('#'+endpoint_labels_id)
     @endpoint_limit_JQElem = $('#'+endpoint_limit_id)
     fromGraph =''
+    @endpoint_labels_JQElem.on('input', @animate_endpoint_label_typing)
     @endpoint_labels_JQElem.autocomplete
       minLength: 3
       delay:500
       position: {collision: "flip"}
       source: @populate_graphs_selector
 
-  animate_sparql_search: (overMsec, fc, bc) ->
+  animate_endpoint_label_typing: =>
+    # Called every time the user types a character to animate the countdown to sending a query
     elem = @endpoint_labels_JQElem[0]
-    @animate_fill_graph(elem, overMsec, fc, bc)
+    @endpoint_label_typing_anim = @animate_fill_graph(elem, 500, '#E7E7E7')
+    # TODO receive a handle to the animation so it can be killed when the search begins
+
+  animate_endpoint_label_search: (overMsec, fc, bc) =>
+    # Called every time the search starts to show countdown until timeout
+    @endpoint_labels_JQElem.siblings('i').css('visibility','visible')
+    overMsec ?= 1000 * (@sparql_timeout or 5)
+    fc = 'lightblue'
+    elem = @endpoint_labels_JQElem[0]
+    @endpoint_label_search_anim = @animate_fill_graph(elem, overMsec, fc, bc)
+    # TODO upon timeout, style box with a color to indicate failure
+    # TODO upon success, style the box with a color to indicate success
+
+  endpoint_label_search_success: ->
+    @kill_endpoint_label_search_anim()
+    @endpoint_labels_JQElem.css('background', 'lightgreen')
+
+  endpoint_label_search_none: ->
+    @kill_endpoint_label_search_anim()
+    @endpoint_labels_JQElem.css('background', 'lightgrey')
+
+  endpoint_label_search_failure: ->
+    @kill_endpoint_label_search_anim()
+    @endpoint_labels_JQElem.css('background', 'pink')
+
+  kill_endpoint_label_search_anim: ->
+    @endpoint_label_search_anim.cancel = true
+    window.cancelAnimationFrame(@endpoint_label_search_anim.animId)
+    @endpoint_labels_JQElem.siblings('i').css('visibility','hidden')
+    return
 
   animate_fill_graph: (elem, overMsec, fillColor, bgColor) ->
     # https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
     overMsec ?= 2000
     fillColor ?= 'yellow'
     bgColor ?= 'white'
-    startMsec = Date.now()
     animId = false
     go = (elem, overMsec, fillColor, bgColor) ->
-      startMsec = null
+      anim = {elem, overMsec, fillColor, bgColor}
       step = (nowMsec) ->
-        if not startMsec
-          startMsec = nowMsec
-        progressMsec = nowMsec - startMsec
-        fillPct = ((overMsec - progressMsec) / overMsec) * 100
+        if anim.cancel
+          console.info('animate_fill_graph() cancelled')
+          return
+        if not anim.startMsec
+          anim.startMsec = nowMsec
+        anim.progressMsec = nowMsec - anim.startMsec
+        fillPct = ((anim.overMsec - anim.progressMsec) / anim.overMsec) * 100
         bgPct = 100 - fillPct
-        #bgPct = 100
-        bg = "linear-gradient(to right, #{fillColor} 0% #{bgPct}%, #{bgColor} #{bgPct}%, #{bgColor} 100%)"
-        console.log(bg, startMsec, nowMsec, progressMsec)
+        bg = "linear-gradient(to right, #{anim.fillColor} 0% #{bgPct}%, #{bgColor} #{bgPct}%, #{anim.bgColor} 100%)"
+        # console.log(bg, anim.startMsec, nowMsec, anim.progressMsec)
         elem.style.background = bg
-        if progressMsec < overMsec
-          requestAnimationFrame(step)
-      animId = requestAnimationFrame(step)
-    go(elem, overMsec, fillColor, bgColor)
+        if anim.progressMsec < anim.overMsec
+          anim.animId = requestAnimationFrame(step)
+      anim.animId = requestAnimationFrame(step)
+      return anim
+    return go(elem, overMsec, fillColor, bgColor)
 
   populate_graphs_selector: (request, response) =>
+      @animate_endpoint_label_search()
       spinner = @endpoint_labels_JQElem.siblings('i')
       spinner.css('visibility','visible')
       url = @endpoint_loader.value
@@ -5895,10 +5929,23 @@ class Huviz
             #console.log jqXHR
             #console.log data
             json_check = typeof data
-            if json_check is 'string' then json_data = JSON.parse(data) else json_data = data
+            if json_check is 'string'
+              try
+                json_data = JSON.parse(data)
+              catch e
+                console.error(e)
+                console.log({data})
+                @endpoint_label_search_failure()
+            else
+              json_data = data
             results = json_data.results.bindings
             selections = []
             console.info("There were #{results.length} results")
+            if results.length
+              @endpoint_label_search_success()
+            else
+              @endpoint_label_search_none()
+            # TODO maybe move spinner control into @kill_endpoint_label_search_anim()
             spinner.css('visibility','hidden') #  happens regardless of result.length
             for label in results
               this_result = {
@@ -5913,6 +5960,8 @@ class Huviz
             console.log(url, errorThrown)
             console.log(textStatus)
             console.log(jqxhr.responseText)
+            #@endpoint_label_search_timeout()
+            @endpoint_label_search_failure()
             if not errorThrown
               errorThrown = "Cross-Origin error"
             msg = errorThrown + " while fetching " + url + " with query \n" + qry
@@ -7115,7 +7164,7 @@ class Huviz
           title: "Expose the 'Queries' tab to be able to monitor and debug SPARQL queries"
         input:
           type: "checkbox"
-          checked: "checked"
+          #checked: "checked"
     ,
       max_outstanding_sparql_requests:
         group: "SPARQL"
@@ -7127,6 +7176,19 @@ class Huviz
           value: 20
           min: 1
           max: 100
+          step: 1
+          type: "range"
+    ,
+      sparql_timeout:
+        group: "SPARQL"
+        class: "alpha_feature"
+        text: "Query timeout"
+        label:
+          title: "Number of seconds to run SPARQL queries before giving up."
+        input:
+          value: 10
+          min: 1
+          max: 30
           step: 1
           type: "range"
     ,
