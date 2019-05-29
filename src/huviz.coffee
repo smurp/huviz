@@ -5839,7 +5839,7 @@ class Huviz
   animate_endpoint_label_search: (overMsec, fc, bc) =>
     # Called every time the search starts to show countdown until timeout
     @endpoint_labels_JQElem.siblings('i').css('visibility','visible')
-    overMsec ?= 1000 * (@sparql_timeout or 5)
+    overMsec ?= @get_sparql_timeout_msec()
     fc = 'lightblue'
     elem = @endpoint_labels_JQElem[0]
     @endpoint_label_search_anim = @animate_fill_graph(elem, overMsec, fc, bc)
@@ -5890,6 +5890,9 @@ class Huviz
       return anim
     return go(elem, overMsec, fillColor, bgColor)
 
+  get_sparql_timeout_msec: ->
+    return 1000 * (@sparql_timeout or 5)
+
   populate_graphs_selector: (request, response) =>
       @animate_endpoint_label_search()
       spinner = @endpoint_labels_JQElem.siblings('i')
@@ -5909,8 +5912,7 @@ class Huviz
       LIMIT 20
       """  # " # for emacs syntax hilighting
       @log_query(qry)
-      more = ""
-      more = "&timeout=5000"
+      more = "&timeout=" + @get_sparql_timeout_msec()
       ajax_settings = {
         'method': 'GET'
         'url': url + '?query=' + encodeURIComponent(qry) + more
