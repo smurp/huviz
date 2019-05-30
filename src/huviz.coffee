@@ -708,11 +708,16 @@ class Huviz
     id ?= @unique_id('dialog_')  # if you do not have an id, an id will be provided for you
     @addHTML(@gen_dialog_html(content_html, id, args))
     elem = document.querySelector('#'+id)
+    $(elem).on('drag',@pop_div_to_top)
+    $(elem).draggable().resizable()
     $(elem.querySelector(' .close_node_details')).on('click', args.close or @destroy_dialog)
-    $(elem).draggable()
     return elem
 
+  pop_div_to_top: (elem) ->
+    $(elem.currentTarget).parent().append(elem.currentTarget)
+
   destroy_dialog: (e) ->
+    console.log "destroy_dialog"
     box = e.currentTarget.offsetParent
     $(box).remove()
 
@@ -1106,13 +1111,15 @@ class Huviz
       dialogArgs.head_bg_color = info_node.color
       id_display = @create_link_if_url(info_node.id)
       node_info_html = """
-        <p class='id_display'><span class='label'>id:</span> #{id_display}</p>
-        <p><span class='label'>name:</span> #{names_all_langs}</p>
-        <p><span class='label'>type(s):</span> #{info_node.type} #{other_types}</p>
-        <p><span class='label'>Links To:</span> #{info_node.links_to.length} <br>
-          <span class='label'>Links From:</span> #{info_node.links_from.length}</p>
-          #{note}
-          #{node_out_links}
+        <div class="message_wrapper">
+          <p class='id_display'><span class='label'>id:</span> #{id_display}</p>
+          <p><span class='label'>name:</span> #{names_all_langs}</p>
+          <p><span class='label'>type(s):</span> #{info_node.type} #{other_types}</p>
+          <p><span class='label'>Links To:</span> #{info_node.links_to.length} <br>
+            <span class='label'>Links From:</span> #{info_node.links_from.length}</p>
+            #{note}
+            #{node_out_links}
+        </div>
         """ # """
 
       info_node._inspector = @make_dialog(node_info_html, node_inspector_id, dialogArgs)
@@ -7999,7 +8006,7 @@ class Orlando extends OntologicallyGrounded
             dataType = "^^#{@make_link(dataType_uri, dataType_curie)}"
           obj_dd = """"#{obj.quad.obj_val}"#{dataType}"""
         msg_or_obj = """
-        <div id="#{obj.snippet_js_key}" class="message_wrapper">
+        <div id="#{obj.snippet_js_key}" class="message_wrapper" style="overflow:none;">
             <h3>subject</h3>
             <div class="edge_circle" style="background-color:#{m.edge.source.color};"></div>
             <p>#{@make_link(obj.quad.subj_uri)}</p>
