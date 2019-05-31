@@ -95,8 +95,11 @@ class CommandController
     qryJQElem = $('<div class="played command"><pre></pre></div>')
     qryJQElem.attr('id', id)
     queriesJQElem.append(qryJQElem)
-    qryJQElem.find('pre').text(qry) # rely on text() doing HTML encoding (to protect <, >, etc )
-    return
+    preJQElem = qryJQElem.find('pre')
+    preElem = preJQElem[0]
+    qryLogObj = {qryJQElem, preJQElem, preElem}
+    qryLogObj.preJQElem.text(qry) # rely on text() doing HTML encoding (to protect <, >, etc )
+    return qryLogObj
   make_command_history: ->
     @comdiv = d3.select(@container).append("div") # --- Add a container
     history = d3.select(@huviz.oldToUniqueTabSel['tabs-history'])

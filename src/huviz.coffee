@@ -3204,6 +3204,7 @@ class Huviz
       colorlog("skipping auto_discover_name_for('#{uri}') because")
       console.log(e)
       return
+    log_prefix = "# NOT BEING RUN YET auto_discover_name_for(#{uri})\n"
     if uri.startsWith("http://id.loc.gov/")
       # This is less than ideal because it uses the special knowledge
       # that the .skos.nt file is available. Unfortunately the only
@@ -3222,7 +3223,8 @@ class Huviz
       if uri.startsWith(expansion)
         [sparql, handler] = @make_sparql_name_query_and_handler(uri, expansion)
         #@ingest_quads_from_sparql_with_handler(sparql, handler)
-        @log_query(sparql)
+        timeout = @get_sparql_timeout_msec()
+        @log_query_with_timeout(log_prefix + sparql, timeout, 'purple') # TODO move this into where it get run
     if uri.startsWith("http://sws.geonames.org/") and
         @discover_geonames_as__widget.state in ['untried','looking','good'] and
         @discover_geonames_remaining > 0
@@ -3770,9 +3772,13 @@ class Huviz
         @reset_dataset_ontology_loader()
         #TODO Reset titles on page
 
+  log_query_with_timeout: (qry, timeout, fillColor, bgColor) ->
+    qryLogObj = @log_query(qry)
+    @animate_sparql_query(qryLogObj.preElem, timeout, fillColor, bgColor)
+    return qryLogObj
+
   log_query: (qry) =>
-    @gclui.push_sparqlQuery_onto_log(qry)
-    console.log(qry)
+    return @gclui.push_sparqlQuery_onto_log(qry)
 
   sparql_graph_query_and_show: (url, id, callback) =>
     qry = """
@@ -3781,7 +3787,6 @@ class Huviz
         GRAPH ?g { }
       }
     """
-    @log_query(qry)
     ###
     Reference: https://www.w3.org/TR/sparql11-protocol/
     1. query via GET
@@ -3860,10 +3865,13 @@ class Huviz
     graphSelector = "#sparqlGraphOptions-#{id}"
     $(graphSelector).parent().css('display', 'none')
     @sparqlQryInput_hide()
+    timeout = @get_sparql_timeout_msec()
+    qryLogObj = @log_query_with_timeout(qry, timeout)
 
     spinner = $("#sparqlGraphSpinner-#{id}")
     spinner.css('display','block')
     $.ajax
+        timeout: timeout
         type: ajax_settings.type
         url: ajax_settings.url
         headers: ajax_settings.headers
@@ -3911,7 +3919,8 @@ class Huviz
     @endpoint_loader.outstanding_requests = 0
     fromGraph = ''
 
-    if @endpoint_loader.endpoint_graph then fromGraph=" FROM <#{@endpoint_loader.endpoint_graph}> "
+    if @endpoint_loader.endpoint_graph
+      fromGraph=" FROM <#{@endpoint_loader.endpoint_graph}> "
     ###
     qry = """
     SELECT * #{fromGraph}
@@ -3946,8 +3955,8 @@ class Huviz
     }
     LIMIT #{node_limit}
     """
-
-    @log_query(qry)
+    timeout = @get_sparql_timeout_msec()
+    @log_query_with_timeout(qry, timeout)
     ajax_settings = {
       'method': 'GET'#'POST'
       'url': url + '?query=' + encodeURIComponent(qry)
@@ -3971,6 +3980,7 @@ class Huviz
     #console.log "URL: " + url + "  Graph: " + fromGraph + "  Subject: " + subject
     #console.log qry
     $.ajax
+        timeout: timeout
         method: ajax_settings.method
         url: ajax_settings.url
         headers: ajax_settings.headers
@@ -4018,7 +4028,8 @@ class Huviz
     }
     LIMIT #{node_limit}
     """
-    @log_query(qry)
+    timeout = @get_sparql_timeout_msec()
+    qryLogObj = @log_query_with_timeout(qry, timeout)
     ajax_settings = {
       'method': 'GET'#'POST'
       'url': url + '?query=' + encodeURIComponent(qry)
@@ -4030,6 +4041,7 @@ class Huviz
         'Content-Type' : 'application/sparql-query'
         'Accept': 'application/sparql-results+json'
     $.ajax
+        timeout: timeout
         method: ajax_settings.method
         url: ajax_settings.url
         headers: ajax_settings.headers
@@ -4155,6 +4167,7 @@ class Huviz
 
   add_nodes_from_SPARQL_Worker: (queryTarget) ->
     console.log("Make request for new query and load nodes")
+    timeout = @get_sparql_timeout_msec()
     @pfm_count('sparql')
     url = @endpoint_loader.value
     if @sparql_node_list then previous_nodes = @sparql_node_list else previous_nodes = []
@@ -4165,7 +4178,7 @@ class Huviz
     worker.addEventListener 'message', (e) =>
       #console.log e.data
       if e.data.method_name is 'log_query'
-        @log_query(e.data.qry)
+        qryLogObj = @log_query_with_timeout("#SPARQL_Worker\n"+e.data.qry, timeout)
         return
       else if e.data.method_name isnt 'accept_results'
         throw new Error("expecting either data.method = 'log_query' or 'accept_results'")
@@ -4190,6 +4203,7 @@ class Huviz
       url: url
       graph: graph
       limit: query_limit
+      timeout: timeout
       previous_nodes: previous_nodes)
 
   is_from_sparql: ->
@@ -5868,9 +5882,8 @@ class Huviz
     # Called every time the search starts to show countdown until timeout
     @endpoint_labels_JQElem.siblings('i').css('visibility','visible')
     overMsec ?= @get_sparql_timeout_msec()
-    fc = 'lightblue'
     elem = @endpoint_labels_JQElem[0]
-    @endpoint_label_search_anim = @animate_fill_graph(elem, overMsec, fc, bc)
+    @endpoint_label_search_anim = @animate_sparql_query(elem, overMsec, fc, bc)    
     # TODO upon timeout, style box with a color to indicate failure
     # TODO upon success, style the box with a color to indicate success
 
@@ -5891,6 +5904,10 @@ class Huviz
     window.cancelAnimationFrame(@endpoint_label_search_anim.animId)
     @endpoint_labels_JQElem.siblings('i').css('visibility','hidden')
     return
+
+  animate_sparql_query: (elem, overMsec, fillColor, bgColor) ->
+    fillColor ?= 'lightblue'
+    return @animate_fill_graph(elem, overMsec, fillColor, bgColor)
 
   animate_fill_graph: (elem, overMsec, fillColor, bgColor) ->
     # https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
@@ -5940,8 +5957,9 @@ class Huviz
     }
     LIMIT 20
     """  # " # for emacs syntax hilighting
-    @log_query(qry)
-    more = "&timeout=" + @get_sparql_timeout_msec()
+    timeout = @get_sparql_timeout_msec()
+    qryLogObj = @log_query_with_timeout(qry, timeout)
+    more = "&timeout=" + timeout
     ajax_settings = {
       'method': 'GET'
       'url': url + '?query=' + encodeURIComponent(qry) + more
@@ -7175,7 +7193,7 @@ class Huviz
           title: "Expose the 'Queries' tab to be able to monitor and debug SPARQL queries"
         input:
           type: "checkbox"
-          #checked: "checked"
+          checked: "checked"
     ,
       max_outstanding_sparql_requests:
         group: "SPARQL"
