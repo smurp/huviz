@@ -5927,7 +5927,8 @@ class Huviz
     spinner.css('visibility','visible')
     url = @endpoint_loader.value
     fromGraph = ''
-    if @endpoint_loader.endpoint_graph then fromGraph=" FROM <#{@endpoint_loader.endpoint_graph}> "
+    if @endpoint_loader.endpoint_graph
+      fromGraph=" FROM <#{@endpoint_loader.endpoint_graph}> "
     qry = """
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -5983,7 +5984,6 @@ class Huviz
           selections.push(this_result)
 
         response(selections)
-        #@parse_json_label_query_results(data)
       error: (jqxhr, textStatus, errorThrown) =>
         console.log(url, errorThrown)
         console.log(textStatus)
