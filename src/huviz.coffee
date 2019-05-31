@@ -5922,89 +5922,89 @@ class Huviz
     return 1000 * (@sparql_timeout or 5)
 
   populate_graphs_selector: (request, response) =>
-      @animate_endpoint_label_search()
-      spinner = @endpoint_labels_JQElem.siblings('i')
-      spinner.css('visibility','visible')
-      url = @endpoint_loader.value
-      fromGraph = ''
-      if @endpoint_loader.endpoint_graph then fromGraph=" FROM <#{@endpoint_loader.endpoint_graph}> "
-      qry = """
-      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-      PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-      SELECT * #{fromGraph}
-      WHERE {
-  	  ?sub rdfs:label|foaf:name ?obj .
-      filter regex(?obj,"^#{request.term}", "i")
-      }
-      LIMIT 20
-      """  # " # for emacs syntax hilighting
-      @log_query(qry)
-      more = "&timeout=" + @get_sparql_timeout_msec()
-      ajax_settings = {
-        'method': 'GET'
-        'url': url + '?query=' + encodeURIComponent(qry) + more
-        'headers' :
-          'Accept': 'application/sparql-results+json'
-      }
-      if url is "http://sparql.cwrc.ca/sparql" # Hack to make CWRC setup work properly
-        ajax_settings.headers =
-          'Content-Type' : 'application/sparql-query'
-          'Accept': 'application/sparql-results+json'
-      $.ajax
-          method: ajax_settings.method  # "type" used in eariler jquery
-          url: ajax_settings.url
-          headers: ajax_settings.headers
-          success: (data, textStatus, jqXHR) =>
-            #console.log jqXHR
-            #console.log data
-            json_check = typeof data
-            if json_check is 'string'
-              try
-                json_data = JSON.parse(data)
-              catch e
-                console.error(e)
-                console.log({data})
-                @endpoint_label_search_failure()
-            else
-              json_data = data
-            results = json_data.results.bindings
-            selections = []
-            console.info("There were #{results.length} results")
-            if results.length
-              @endpoint_label_search_success()
-            else
-              @endpoint_label_search_none()
-            # TODO maybe move spinner control into @kill_endpoint_label_search_anim()
-            spinner.css('visibility','hidden') #  happens regardless of result.length
-            for label in results
-              this_result = {
-                label: label.obj.value + " (#{label.sub.value})"
-                value: label.sub.value
-              }
-              selections.push(this_result)
+    @animate_endpoint_label_search()
+    spinner = @endpoint_labels_JQElem.siblings('i')
+    spinner.css('visibility','visible')
+    url = @endpoint_loader.value
+    fromGraph = ''
+    if @endpoint_loader.endpoint_graph then fromGraph=" FROM <#{@endpoint_loader.endpoint_graph}> "
+    qry = """
+    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+    SELECT * #{fromGraph}
+    WHERE {
+    ?sub rdfs:label|foaf:name ?obj .
+    filter regex(?obj,"^#{request.term}", "i")
+    }
+    LIMIT 20
+    """  # " # for emacs syntax hilighting
+    @log_query(qry)
+    more = "&timeout=" + @get_sparql_timeout_msec()
+    ajax_settings = {
+      'method': 'GET'
+      'url': url + '?query=' + encodeURIComponent(qry) + more
+      'headers' :
+        'Accept': 'application/sparql-results+json'
+    }
+    if url is "http://sparql.cwrc.ca/sparql" # Hack to make CWRC setup work properly
+      ajax_settings.headers =
+        'Content-Type' : 'application/sparql-query'
+        'Accept': 'application/sparql-results+json'
+    $.ajax
+        method: ajax_settings.method  # "type" used in eariler jquery
+        url: ajax_settings.url
+        headers: ajax_settings.headers
+        success: (data, textStatus, jqXHR) =>
+          #console.log jqXHR
+          #console.log data
+          json_check = typeof data
+          if json_check is 'string'
+            try
+              json_data = JSON.parse(data)
+            catch e
+              console.error(e)
+              console.log({data})
+              @endpoint_label_search_failure()
+          else
+            json_data = data
+          results = json_data.results.bindings
+          selections = []
+          console.info("There were #{results.length} results")
+          if results.length
+            @endpoint_label_search_success()
+          else
+            @endpoint_label_search_none()
+          # TODO maybe move spinner control into @kill_endpoint_label_search_anim()
+          spinner.css('visibility','hidden') #  happens regardless of result.length
+          for label in results
+            this_result = {
+              label: label.obj.value + " (#{label.sub.value})"
+              value: label.sub.value
+            }
+            selections.push(this_result)
 
-            response(selections)
-            #@parse_json_label_query_results(data)
-          error: (jqxhr, textStatus, errorThrown) =>
-            console.log(url, errorThrown)
-            console.log(textStatus)
-            console.log(jqxhr.responseText)
-            #@endpoint_label_search_timeout()
-            @endpoint_label_search_failure()
-            if not errorThrown
-              errorThrown = "Cross-Origin error"
-            msg = errorThrown + " while fetching " + url + " with query \n" + qry
-            #   for query <pre>#{qry}</pre> at
-            msg = """
-            <code>#{errorThrown}</code> with
-            <pre>#{jqxhr.responseText}</pre>
-            <a href="#{url}">#{url}</a>
-            """ # """
-            @hide_state_msg()
-            $('#'+@get_data_ontology_display_id()).remove()
-            @endpoint_labels_JQElem.siblings('i').css('visibility','hidden')
-            @blurt(msg, 'error')
+          response(selections)
+          #@parse_json_label_query_results(data)
+        error: (jqxhr, textStatus, errorThrown) =>
+          console.log(url, errorThrown)
+          console.log(textStatus)
+          console.log(jqxhr.responseText)
+          #@endpoint_label_search_timeout()
+          @endpoint_label_search_failure()
+          if not errorThrown
+            errorThrown = "Cross-Origin error"
+          msg = errorThrown + " while fetching " + url + " with query \n" + qry
+          #   for query <pre>#{qry}</pre> at
+          msg = """
+          <code>#{errorThrown}</code> with
+          <pre>#{jqxhr.responseText}</pre>
+          <a href="#{url}">#{url}</a>
+          """ # """
+          @hide_state_msg()
+          $('#'+@get_data_ontology_display_id()).remove()
+          @endpoint_labels_JQElem.siblings('i').css('visibility','hidden')
+          @blurt(msg, 'error')
 
   init_editc_or_not: ->
     @editui ?= new EditController(@)
