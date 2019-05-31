@@ -35,7 +35,6 @@ body, html {
   position: absolute;
   display: block;
   border-radius: 5px;
-  overflow: auto;
 }
 .contextMenu .header {
   /*background-color: #157fcc;*/
@@ -221,8 +220,9 @@ img.close_all_snippets_button {
 .ui-dialog .snippet.ui-dialog-content {
   padding-top: 0;
 }
-.edge_inspector div.message_wrapper {
+div.message_wrapper {
   padding: 0.5em 1em;
+  overflow: hidden;
 }
 
 .edge_inspector a{
