@@ -1673,7 +1673,6 @@ class Huviz
       @discover_names()
 
   reset_graph: ->
-    #@dump_current_settings("at top of reset_graph()")
     @G = {} # is this deprecated?
     @init_sets()
     @init_gclc()
@@ -2864,19 +2863,36 @@ class Huviz
 
   """
 
-  set_setting: (inputName, newVal) ->
-    input = @topJQElem.find("input[name='#{inputName}']")
-    input.val(newVal)
-    if this[inputName]?
-      this[inputName] = newVal
-    return newVal
+  adjust_setting: (input_or_id, new_value, old_value, skip_custom_handler) ->
+    # NOTE that old_value is only being provided by adjust_setting_if_needed()
+    input = null
+    setting_id = null
+    if typeof input_or_id is 'string'
+      input = @get_setting_input_JQElem(input_or_id)
+      setting_id = input_or_id
+    else
+      input = input_or_id
+      setting_id = input[0].name
+    theType = input.attr('type')
+    if theType in ['checkbox', 'radiobutton']
+      #new_value = new_value and 'checked' or null
+      input.prop('checked', new_value)
+    else
+      input.val(new_value)
+    if this[setting_id]?
+      this[setting_id] = new_value
+    @change_setting_to_from(setting_id, new_value, old_value, skip_custom_handler)
+    return new_value
+
+  get_setting_input_JQElem: (inputName) ->
+    return @topJQElem.find("[name='#{inputName}']")
 
   countdown_setting: (inputName) ->
-    input = @topJQElem.find("input[name='#{inputName}']")
+    input = @get_setting_input_JQElem(inputName)
     if input.val() < 1
       return 0
     newVal = input.val() - 1
-    return @set_setting(inputName, newVal)
+    return @adjust_setting(inputName, newVal)
 
   preset_discover_geonames_remaining: ->
     count = 0
@@ -2884,7 +2900,7 @@ class Huviz
       url = node.id
       if url.includes('sws.geonames.org')
         count++
-    return @set_setting('discover_geonames_remaining', count)
+    return @adjust_setting('discover_geonames_remaining', count)
 
   show_geonames_instructions: (params) =>
     #params =
@@ -6405,8 +6421,8 @@ class Huviz
               attr("position", "absolute")
     @svg.append("rect").attr("width", @width).attr("height", @height)
     @container = d3.select(@args.viscanvas_sel).node().parentNode
-    @init_settings_from_json()
-    @apply_settings(@args.settings)
+    @init_settings_to_defaults()
+    @adjust_settings_from_kv_list(@args.settings)
     if @use_fancy_cursor
       @text_cursor = new TextCursor(@args.viscanvas_sel, "")
       @install_update_pointer_togglers()
@@ -6604,15 +6620,16 @@ class Huviz
 
   # TODO add controls
   #   selected_border_thickness
+  #   show_cosmetic_tabs
   default_settings: [
-      reset_controls_to_default:
+      reset_settings_to_default:
+        class: "alpha_feature"
+        text: "Reset Settings"
         label:
-          title: "Reset all controls to default"
+          title: "Reset all settings to their defaults"
         input:
           type: "button"
-          label: "Reset All"
-          funct: "reset"
-          #style: "background-color: #303030"
+          label: "Reset"
     ,
       use_accordion_for_settings:
         text: "show Settings in accordion"
@@ -6990,25 +7007,6 @@ class Huviz
         input:
           type: "checkbox"   #checked: "checked"
     ,
-      prune_walk_nodes:
-        text: "Walk styles "
-        style: "display:none"
-        label:
-          title: "As path is walked, keep or prune connected nodes on selected steps"
-        input:
-          type: "select"
-        options : [
-            label: "Directional (pruned)"
-            value: "directional_path"
-            selected: true
-          ,
-            label: "Non-directional (pruned)"
-            value: "pruned_path"
-          ,
-            label: "Non-directional (unpruned)"
-            value: "hairy_path"
-        ]
-    ,
       show_hide_endpoint_loading:
         style: "display:none"
         class: "alpha_feature"
@@ -7028,6 +7026,7 @@ class Huviz
         options : [
             label: "Watermark"
             value: "subliminal"
+            selected: true
           ,
             label: "Bold Titles 1"
             value: "bold1"
@@ -7236,12 +7235,6 @@ class Huviz
           #checked: "checked"
     ]
 
-  dump_current_settings: (post) =>
-    @settings_JQElem.html('')
-    @init_settings_from_json()
-    @on_change_graph_title_style("subliminal")
-    @on_change_prune_walk_nodes("directional_path")
-
   auto_adjust_settings: ->
     # Try to tune the gravity, charge and link length to suit the data and the canvas size.
     return @
@@ -7257,7 +7250,7 @@ class Huviz
       @settings_groups[groupName] = group = @make_settings_group(groupName)
     return group
 
-  init_settings_from_json: =>
+  init_settings_to_defaults: =>
     # TODO rebuild this method without D3 using @settingsElem
     console.log "INININITIALIZE -----------"
     @settingsElem = document.querySelector(@args.settings_sel)
@@ -7303,9 +7296,6 @@ class Huviz
               inputElem.innerHTML = control.input.label
             if control.input.style?
               inputElem.setAttribute('style', control.input.style)
-            if control.input.funct?
-              inputElem.setAttribute('funct', control.input.funct)
-              $("button[funct='reset']").click(@dump_current_settings)
           else
             inputElem = @insertBeforeEnd(controlElem, """<input name="#{control_name}"></input>""")
             WidgetClass = null
@@ -7328,6 +7318,7 @@ class Huviz
           event_type = control.event_type or
               (control.input.type in ['checkbox','range','radio'] and 'input') or
               'change'
+
           if event_type is 'change'
             # These controls only update when enter is pressed or the focus changes.
             # Good for things like text fields which might not make sense until the user is 'done'.
@@ -7339,6 +7330,9 @@ class Huviz
             # This can be forced by setting the .event_type on the control_spec explicitly.
             #input.on("input", @update_graph_settings) # continuous updates
             inputElem.addEventListener('input', @update_graph_settings)
+          if control.input.type is 'button'
+            inputElem.addEventListener('click', @update_graph_settings)
+
         if control.label.title?
           @insertBeforeEnd(controlElem, '<div class="setting_explanation">' + control.label.title + '</div>')
     #$(@settingGroupsContainerElem).accordion()
@@ -7375,12 +7369,67 @@ class Huviz
       @updateWindow()
     @tick("Tick in update_graph_settings")
 
-  apply_settings: (settings) ->
-    for setting, value of settings
-      @set_setting(setting, value)
+  # ## Settings ##
+  #
+  # ### Nomenclature ###
+  #
+  # * changing a setting changes the property on the Huviz instance (but not the input)
+  # * adjusting a setting alters the input in the settings tab then changes it too
+  # * on_change_<setting_name> methods, if they exist, are called continuously upon INPUT changes
+
+  adjust_settings_from_list_of_specs: (setting_specs) ->
+    for setting_spec in setting_specs
+      for setting_name, control of setting_spec
+        value = null
+        if control.input?
+          if control.input.value?
+            value = control.input.value
+          if control.input.type is 'button'
+            #console.info("#{setting_name} is a button, so skipping")
+            continue
+          if control.input.type is 'checkbox'
+            if control.input.checked
+              value = true
+            else
+              value = false
+          if control.input.type is 'select'
+            for option in control.options
+              if option.selected
+                value = option.value
+                # TODO support select where more than one option is selected
+          if control.input.type is 'text'
+            value = control.input.value or '' # otherwise no adjustment happens
+        else
+          continue # skip settings without an input (eg *_preamble)
+        if value?
+          @adjust_setting_if_needed(setting_name, value)
+        else
+          console.info("#{setting_name} not handled by adjust_settings_from_list_of_specs()")
+          console.info("  default_value:",@get_setting_input_JQElem(setting_name).val())
+    return
+
+  adjust_settings_from_kv_list: (kv_list) ->
+    for setting, value of kv_list
+      @adjust_setting(setting, value)
       # TODO could it be that some of these need their handlers run? eg on_change_SOME_SETTING_NAME
       #@change_setting_to_from(setting, value)
       #console.warn("should adjust the Settings INPUT for #{setting} too")
+
+  adjust_setting_if_needed: (setting_name, new_value, skip_custom_handler) ->
+    input = @get_setting_input_JQElem(setting_name)
+    theType = input.attr('type')
+    if theType in ['checkbox', 'radiobutton']
+      old_value = input.prop('checked')
+    else
+      old_value = input.val()
+    equality = "because old_value: (#{old_value}) new_value: (#{new_value})"
+    if ""+old_value is ""+new_value # compare on string value because that is what inputs return
+      #console.warn("  no change required "+equality)
+      return # bail because no change is needed
+    #pretty_value = typeof value is 'string' and "'#{value}'" or value
+    console.log("change_setting_if_needed('#{setting_name}', #{new_value})")
+    console.info("  change required "+equality)
+    return @adjust_setting(input, new_value, old_value, skip_custom_handler)
 
   change_setting_to_from: (setting_name, new_value, old_value, skip_custom_handler) =>
     skip_custom_handler = skip_custom_handler? and skip_custom_handler or false
@@ -7397,6 +7446,17 @@ class Huviz
     else
       #console.log "change_setting_to_from() setting: #{setting_name} to:#{new_value}(#{typeof new_value}) from:#{old_value}(#{typeof old_value})"
       this[setting_name] = new_value
+
+  adjust_settings_from_defaults: ->
+    return @adjust_settings_from_list_of_specs(@default_settings)
+
+  on_change_reset_settings_to_default: (event) =>
+    console.clear()
+    console.group('reset_settings_to_default()...')
+    @adjust_settings_from_defaults()
+    @adjust_settings_from_kv_list(@args.settings)
+    console.groupEnd()
+    return
 
   # on_change handlers for the various settings which need them
   on_change_use_accordion_for_settings: (new_val, old_val) ->
@@ -7541,6 +7601,7 @@ class Huviz
   on_change_graph_custom_sub_title: (new_val) ->
     @ontology_watermark_JQElem.text(new_val)
 
+  # TODO use make_markdown_dialog() instead of alert()
   on_change_language_path: (new_val, old_val) ->
     try
       MultiString.set_langpath(new_val)
@@ -7560,9 +7621,6 @@ class Huviz
   on_change_color_nodes_as_pies: (new_val, old_val) ->  # TODO why this == window ??
     @color_nodes_as_pies = new_val
     @recolor_nodes()
-
-  on_change_prune_walk_nodes: (new_val, old_val) ->
-    @prune_walk_nodes = new_val
 
   on_change_show_hide_endpoint_loading: (new_val, old_val) ->
     if @endpoint_loader
@@ -7642,7 +7700,6 @@ class Huviz
       @disable_dataset_ontology_loader(data, onto)
     @show_state_msg("loading...")
     #@init_from_settings() # REVIEW remove init_from_settings?!?
-    #@dump_current_settings("after init_from_settings()")
     #@reset_graph()
     @show_state_msg(@data_uri)
     unless @G.subjects
