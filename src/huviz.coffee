@@ -5114,6 +5114,9 @@ class Huviz
       dialog_id = dialog_elem.getAttribute('id')
     console.info("TODO make hilight_dialog('#{dialog_id}') bring it to top and do a CSS animation")
     # an example CSS animation: Wiggle
+    $("##{dialog_id}").effect('shake')
+    #$("##{dialog_id}").parent().append("##{dialog_id}")
+    #$("##{dialog_id}").css("background-color", "red")
     #   https://codepen.io/theDeanH/pen/zBZXLN
 
   print_edge: (edge) ->
@@ -5125,6 +5128,8 @@ class Huviz
       context_no++
       if @currently_printed_snippets[edge_inspector_id]?
         @hilight_dialog(edge._inspector or edge_inspector_id)
+        console.log edge_inspector_id
+        #$("##{dialog_id}").parent().append("##{dialog_id}")
         continue
       me = this
       make_callback = (context_no, edge, context) =>
