@@ -3780,8 +3780,42 @@ class Huviz
   log_query: (qry) =>
     return @gclui.push_sparqlQuery_onto_log(qry)
 
+  run_little_test_query: ->
+    littleTestQuery = """SELECT * WHERE {?s ?o ?p} LIMIT 1"""
+
+    $.ajax
+      method: 'GET'
+      url: url + '?query=' + encodeURIComponent(littleTestQuery)
+      headers:
+        'Accept': 'application/sparql-results+json'
+      success: (data, textStatus, jqXHR) =>
+        console.log "This a little repsponse test: " + textStatus
+        console.log jqXHR
+        console.log jqXHR.getAllResponseHeaders(data)
+        console.log data
+      error: (jqxhr, textStatus, errorThrown) =>
+        console.log(url, errorThrown)
+        console.log jqXHR.getAllResponseHeaders(data)
+
+    # This is a quick test of the SPARQL Endpoint it should return
+    #   https://www.w3.org/TR/2013/REC-sparql11-service-description-20130321/#example-turtle
+    # $.ajax
+    #   method: 'GET'
+    #   url: url
+    #   headers:
+    #     'Accept': 'text/turtle'
+    #   success: (data, textStatus, jqXHR) =>
+    #     console.log "This Enpoint Test: " + textStatus
+    #     console.log jqXHR
+    #     console.log jqXHR.getAllResponseHeaders(data)
+    #     console.log data
+    #   error: (jqxhr, textStatus, errorThrown) =>
+    #     console.log(url, errorThrown)
+    #     console.log jqXHR.getAllResponseHeaders(data)
+
   sparql_graph_query_and_show: (url, id, callback) =>
     qry = """
+      # sparql_graph_query_and_show()
       SELECT ?g
       WHERE {
         GRAPH ?g { }
@@ -3826,37 +3860,6 @@ class Huviz
     #     'Content-Type': 'application/x-www-form-urlencoded'
     #     'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
     # }
-    #littleTestQuery = """SELECT * WHERE {?s ?o ?p} LIMIT 1"""
-
-    # $.ajax
-    #   method: 'GET'
-    #   url: url + '?query=' + encodeURIComponent(littleTestQuery)
-    #   headers:
-    #     'Accept': 'application/sparql-results+json'
-    #   success: (data, textStatus, jqXHR) =>
-    #     console.log "This a little repsponse test: " + textStatus
-    #     console.log jqXHR
-    #     console.log jqXHR.getAllResponseHeaders(data)
-    #     console.log data
-    #   error: (jqxhr, textStatus, errorThrown) =>
-    #     console.log(url, errorThrown)
-    #     console.log jqXHR.getAllResponseHeaders(data)
-
-    # This is a quick test of the SPARQL Endpoint it should return
-    #   https://www.w3.org/TR/2013/REC-sparql11-service-description-20130321/#example-turtle
-    # $.ajax
-    #   method: 'GET'
-    #   url: url
-    #   headers:
-    #     'Accept': 'text/turtle'
-    #   success: (data, textStatus, jqXHR) =>
-    #     console.log "This Enpoint Test: " + textStatus
-    #     console.log jqXHR
-    #     console.log jqXHR.getAllResponseHeaders(data)
-    #     console.log data
-    #   error: (jqxhr, textStatus, errorThrown) =>
-    #     console.log(url, errorThrown)
-    #     console.log jqXHR.getAllResponseHeaders(data)
 
     graphSelector = "#sparqlGraphOptions-#{id}"
     $(graphSelector).parent().css('display', 'none')
@@ -3914,38 +3917,19 @@ class Huviz
     url = @endpoint_loader.value
     @endpoint_loader.outstanding_requests = 0
     fromGraph = ''
-
     if @endpoint_loader.endpoint_graph
       fromGraph=" FROM <#{@endpoint_loader.endpoint_graph}> "
-    # qry = """
-    # SELECT * #{fromGraph}
-    # WHERE {
-    # {<#{subject}> ?p ?o} UNION
-    # {{<#{subject}> ?p ?o} . {?o ?p2 ?o2 . FILTER(?o != <#{subject}>)}}
-    # }
-    # LIMIT #{node_limit}
-    # """
-
-    # qry = """
-    # SELECT * #{fromGraph}
-    # WHERE {
-    # {<#{subject}> ?p ?o}
-    # UNION
-    # {{<#{subject}> ?p ?o} . {?o ?p2 ?o2 . FILTER(?o != <#{subject}>)}}
-    # UNION
-    # { ?s ?p <#{subject}>}
-    # }
-    # LIMIT #{node_limit}
-    # """
-
     qry = """
+    # load_endpoint_data_and_show('#{subject}')
     SELECT * #{fromGraph}
     WHERE {
       {<#{subject}> ?p ?o}
       UNION
-      {{<#{subject}> ?p ?o} . {?o ?p2 ?o2}}
-    UNION
-      {{?s3 ?p3 <#{subject}>} . {?s3 ?p4 ?o4 }}
+      {{<#{subject}> ?p ?o} .
+       {?o ?p2 ?o2}}
+      UNION
+      {{?s3 ?p3 <#{subject}>} .
+       {?s3 ?p4 ?o4 }}
     }
     LIMIT #{node_limit}
     """
@@ -3962,14 +3946,14 @@ class Huviz
         'Content-Type' : 'application/sparql-query'
         'Accept': 'application/sparql-results+json'
     ###
-    ajax_settings = {
-      'method': 'POST'
-      'url': url #+ '?query=' + encodeURIComponent(qry)
-      'data': qry
-      'headers' :
-        'Content-Type': 'application/sparql-query'
-        'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
-    }
+    # ajax_settings = {
+    #   'method': 'POST'
+    #   'url': url #+ '?query=' + encodeURIComponent(qry)
+    #   'data': qry
+    #   'headers' :
+    #     'Content-Type': 'application/sparql-query'
+    #     'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
+    # }
     ###
     #console.log "URL: " + url + "  Graph: " + fromGraph + "  Subject: " + subject
     #console.log qry
@@ -4005,35 +3989,52 @@ class Huviz
 
 
   load_new_endpoint_data_and_show: (subject, callback) -> # DEPRECIATED !!!!
-    node_limit = @endpoint_limit_JQElem.val()
+
     @p_total_sprql_requests++
     note = ''
-    url = @endpoint_loader.value
-    fromGraph = ''
-    if @endpoint_loader.endpoint_graph then fromGraph = " FROM <#{@endpoint_loader.endpoint_graph}> "
-    qry = """
-    SELECT * #{fromGraph}
-    WHERE {
-    {<#{subject}> ?p ?o}
-    UNION
-    {{<#{subject}> ?p ?o} . {?o ?p2 ?o2}}
-    UNION
-    {{?s3 ?p3 <#{subject}>} . {?s3 ?p4 ?o4 }}
-    }
-    LIMIT #{node_limit}
-    """
-    timeout = @get_sparql_timeout_msec()
-    qryLogObj = @log_query_with_timeout(qry, timeout)
-    ajax_settings = {
-      'method': 'GET'#'POST'
-      'url': url + '?query=' + encodeURIComponent(qry)
-      'headers' :
-        'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
-    }
-    if url is "http://sparql.cwrc.ca/sparql" # Hack to make CWRC setup work properly
-      ajax_settings.headers =
-        'Content-Type' : 'application/sparql-query'
-        'Accept': 'application/sparql-results+json'
+
+
+    # REMOVED STUFF THAT WAS THE SAME AS IN load_endpoint_data_and_show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     $.ajax
       timeout: timeout
       method: ajax_settings.method
@@ -5944,6 +5945,7 @@ class Huviz
     if @endpoint_loader.endpoint_graph
       fromGraph=" FROM <#{@endpoint_loader.endpoint_graph}> "
     qry = """
+    # populate_graphs_selector()
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX foaf: <http://xmlns.com/foaf/0.1/>
@@ -5953,7 +5955,7 @@ class Huviz
       filter regex(?obj,"^#{request.term}", "i")
     }
     LIMIT 20
-    """  # " # for emacs syntax hilighting
+    """                       # for emacs syntax hilighting  ---> "
     timeout = @get_sparql_timeout_msec()
     qryLogObj = @log_query_with_timeout(qry, timeout)
     more = "&timeout=" + timeout
