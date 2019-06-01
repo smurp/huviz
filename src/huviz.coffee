@@ -7513,7 +7513,6 @@ class Huviz
       # Keep calling this same method until tabs-sparqlQueries has been found
       setTimeout((() => @on_change_show_cosmetic_tabs(new_val, old_val)), 50)
       return
-    console.info('on_change_show_queries_tab()', new_val)
     # Showing the queries tab is a power-user thing so we hide boring tabs for convenience.
     if new_val
       if @tab_for_tabs_credit_JQElem?
@@ -7532,7 +7531,6 @@ class Huviz
       # Keep calling this same method until tabs-sparqlQueries has been found
       setTimeout((() => @on_change_show_queries_tab(new_val, old_val)), 50)
       return
-    console.info('on_change_show_queries_tab()', new_val)
     # Showing the queries tab is a power-user thing so we hide boring tabs for convenience.
     if new_val
       @tab_for_tabs_sparqlQueries_JQElem.show()
