@@ -7286,7 +7286,6 @@ class Huviz
 
   init_settings_to_defaults: =>
     # TODO rebuild this method without D3 using @settingsElem
-    console.log "INININITIALIZE -----------"
     @settingsElem = document.querySelector(@args.settings_sel)
     settings_input_sel = @args.settings_sel + ' input'
     @settings_cursor = new TextCursor(settings_input_sel, "")
@@ -7445,9 +7444,6 @@ class Huviz
   adjust_settings_from_kv_list: (kv_list) ->
     for setting, value of kv_list
       @adjust_setting(setting, value)
-      # TODO could it be that some of these need their handlers run? eg on_change_SOME_SETTING_NAME
-      #@change_setting_to_from(setting, value)
-      #console.warn("should adjust the Settings INPUT for #{setting} too")
 
   adjust_setting_if_needed: (setting_name, new_value, skip_custom_handler) ->
     input = @get_setting_input_JQElem(setting_name)
@@ -7485,7 +7481,6 @@ class Huviz
     return @adjust_settings_from_list_of_specs(@default_settings)
 
   on_change_reset_settings_to_default: (event) =>
-    console.clear()
     console.group('reset_settings_to_default()...')
     @adjust_settings_from_defaults()
     @adjust_settings_from_kv_list(@args.settings)
