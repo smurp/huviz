@@ -6650,7 +6650,6 @@ class Huviz
   #   show_cosmetic_tabs
   default_settings: [
       reset_settings_to_default:
-        class: "alpha_feature"
         text: "Reset Settings"
         label:
           title: "Reset all settings to their defaults"
@@ -6666,6 +6665,14 @@ class Huviz
           #checked: "checked"
           type: "checkbox"
         #style: "display:none"
+    ,
+      show_cosmetic_tabs:
+        text: "Show Cosmetic Tabs"
+        label:
+          title: "Expose the merely informational tabs such as 'Intro' and 'Credits'"
+        input:
+          type: "checkbox"
+          checked: "checked"
     ,
       focused_mag:
         group: "Labels"
@@ -7192,7 +7199,7 @@ class Huviz
           title: "Expose the 'Queries' tab to be able to monitor and debug SPARQL queries"
         input:
           type: "checkbox"
-          checked: "checked"
+          #checked: "checked"
     ,
       max_outstanding_sparql_requests:
         group: "SPARQL"
@@ -7506,6 +7513,25 @@ class Huviz
       @gclui.verb_sets.push(vset)
       @gclui.add_verb_set(vset)
 
+  on_change_show_cosmetic_tabs: (new_val, old_val) ->
+    if not @tab_for_tabs_sparqlQueries_JQElem?
+      # Keep calling this same method until tabs-sparqlQueries has been found
+      setTimeout((() => @on_change_show_cosmetic_tabs(new_val, old_val)), 50)
+      return
+    console.info('on_change_show_queries_tab()', new_val)
+    # Showing the queries tab is a power-user thing so we hide boring tabs for convenience.
+    if new_val
+      if @tab_for_tabs_credit_JQElem?
+        @tab_for_tabs_credit_JQElem.show()
+      if @tab_for_tabs_intro_JQElem?
+        @tab_for_tabs_intro_JQElem.show()
+    else
+      if @tab_for_tabs_credit_JQElem?
+        @tab_for_tabs_credit_JQElem.hide()
+      if @tab_for_tabs_intro_JQElem?
+        @tab_for_tabs_intro_JQElem.hide()
+    return
+
   on_change_show_queries_tab: (new_val, old_val) ->
     if not @tab_for_tabs_sparqlQueries_JQElem?
       # Keep calling this same method until tabs-sparqlQueries has been found
@@ -7515,16 +7541,8 @@ class Huviz
     # Showing the queries tab is a power-user thing so we hide boring tabs for convenience.
     if new_val
       @tab_for_tabs_sparqlQueries_JQElem.show()
-      if @tab_for_tabs_credit_JQElem?
-        @tab_for_tabs_credit_JQElem.hide()
-      if @tab_for_tabs_intro_JQElem?
-        @tab_for_tabs_intro_JQElem.hide()
     else
       @tab_for_tabs_sparqlQueries_JQElem.hide()
-      if @tab_for_tabs_credit_JQElem?
-        @tab_for_tabs_credit_JQElem.show()
-      if @tab_for_tabs_intro_JQElem?
-        @tab_for_tabs_intro_JQElem.show()
     return
 
   on_change_show_dangerous_datasets: (new_val, old_val) ->
