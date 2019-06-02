@@ -421,6 +421,8 @@ escapeHtml = (unsafe) ->
          .replace(/"/g, "&quot;")
          .replace(/'/g, "&#039;");
 
+noop = () -> # Yup, does nothing.  On purpose!
+
 class SettingsWidget
   constructor: (@huviz, @inputElem, state) ->
     @id = unique_id('widget_')
@@ -3205,7 +3207,7 @@ class Huviz
       colorlog("skipping auto_discover_name_for('#{uri}') because")
       console.log(e)
       return
-    log_prefix = "# NOT BEING RUN YET auto_discover_name_for(#{uri})\n"
+    log_prefix = "# NOT BEING RUN YET\n# auto_discover_name_for(#{uri})\n"
     if uri.startsWith("http://id.loc.gov/")
       # This is less than ideal because it uses the special knowledge
       # that the .skos.nt file is available. Unfortunately the only
@@ -3774,9 +3776,9 @@ class Huviz
         #TODO Reset titles on page
 
   log_query_with_timeout: (qry, timeout, fillColor, bgColor) ->
-    qryLogObj = @log_query(qry)
-    @animate_sparql_query(qryLogObj.preElem, timeout, fillColor, bgColor)
-    return qryLogObj
+    queryManager = @log_query(qry)
+    queryManager.anim = @animate_sparql_query(queryManager.preElem, timeout, fillColor, bgColor)
+    return queryManager
 
   log_query: (qry) =>
     return @gclui.push_sparqlQuery_onto_log(qry)
@@ -3814,25 +3816,23 @@ class Huviz
     #     console.log(url, errorThrown)
     #     console.log jqXHR.getAllResponseHeaders(data)
 
-  sparql_graph_query_and_show: (url, id, callback) =>
-    qry = """
-      # sparql_graph_query_and_show()
-      SELECT ?g
-      WHERE {
-        GRAPH ?g { }
-      }
-    """
+  run_managed_query_abstract: (qry, url, args) ->
     # Reference: https://www.w3.org/TR/sparql11-protocol/
-    # 1. query via GET
-    # 2. query via URL-encoded POST
-    # 3. query via POST directly -- Query String Parameters: default-graph-uri (0 or more); named-graph-uri (0 or more)
-    #                            -- Request Content Type: application/sparql-query
-    #                            -- Request Message Body: Unencoded SPARQL query string
+    args ?= {}
+    args.success_handler ?= noop
+    args.error_callback ?= noop
+    args.timeout ?= @get_sparql_timeout_msec()
 
+    return @log_query_with_timeout(qry, args.timeout)
+
+  run_managed_query_ajax: (qry, url, args) ->
+    queryManager = @run_managed_query_abstract(qry, url, args)
+    {success_handler, error_callback, timeout} = args
     # These POST settings work for: CWRC, WWI open, on DBpedia, and Open U.K. but not on Bio Database
+    more = "&timeout=" + timeout
     ajax_settings = { #TODO Currently this only works on CWRC Endpoint
-      'type': 'GET'
-      'url': url + '?query=' + encodeURIComponent(qry)
+      'method': 'GET'
+      'url': url + '?query=' + encodeURIComponent(qry) + more
       'headers' :
         # This is only required for CWRC - not accepted by some Endpoints
         #'Content-Type': 'application/sparql-query'
@@ -3842,43 +3842,66 @@ class Huviz
       ajax_settings.headers =
         'Content-Type' : 'application/sparql-query'
         'Accept': 'application/sparql-results+json'
-    # These POST settings work for: CWRC and WWI open, but not on DBpedia and Open U.K.
-    # ajax_settings = {
-    #   'type': 'POST'
-    #   'url': url
-    #   'data': qry
-    #   'headers' :
-    #     'Content-Type': 'application/sparql-query'
-    #     'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
-    # }
 
-    # ajax_settings = {
-    #   'type': 'GET'
-    #   'data': ''
-    #   'url': url + '?query=' + encodeURIComponent(qry)
-    #   'headers' :
-    #     #'Accept': 'application/sparql-results+json'
-    #     'Content-Type': 'application/x-www-form-urlencoded'
-    #     'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
-    # }
-
-    graphSelector = "#sparqlGraphOptions-#{id}"
-    $(graphSelector).parent().css('display', 'none')
-    @sparqlQryInput_hide()
-    timeout = @get_sparql_timeout_msec()
-    qryLogObj = @log_query_with_timeout(qry, timeout)
-
-    spinner = $("#sparqlGraphSpinner-#{id}")
-    spinner.css('display','block')
     $.ajax
       timeout: timeout
-      type: ajax_settings.type
+      method: ajax_settings.method
       url: ajax_settings.url
       headers: ajax_settings.headers
       success: (data, textStatus, jqXHR) =>
+        queryManager.anim.cancel()
+        if success_handler?
+          try
+            success_handler(data, textStatus, jqXHR, queryManager)
+          catch e
+            queryManager.colorQuery('pink')
+            queryManager.displayError(e)
+      error: (jqxhr, textStatus, errorThrown) =>
+        queryManager.anim.cancel()
+        queryManager.setErrorColor()
+        if not errorThrown
+          errorThrown = "Cross-Origin error"
+        msg = errorThrown + " while fetching " + url
+        #@hide_state_msg()
+        $('#'+@get_data_ontology_display_id()).remove()
+        queryManager.displayError(msg)
+        if @error_callback?
+          error_callback()
+
+    return queryManager
+
+  run_managed_query_worker: (qry, url, args) ->
+    queryManager = @run_managed_query_abstract(qry, url, args)
+    return queryManager
+
+
+  sparql_graph_query_and_show: (url, id, callback) =>
+    qry = """
+      # sparql_graph_query_and_show()
+      SELECT ?g
+      WHERE {
+        GRAPH ?g { }
+      }
+    """
+
+    # these are shared between success and error handlers
+    spinner = $("#sparqlGraphSpinner-#{id}")
+    spinner.css('display','block')
+    graphSelector = "#sparqlGraphOptions-#{id}"
+    $(graphSelector).parent().css('display', 'none')
+    @sparqlQryInput_hide()
+
+    make_success_handler = () =>
+      return (data, textStatus, jqXHR, queryManager) =>
         json_check = typeof data
-        if json_check is 'string' then json_data = JSON.parse(data) else json_data = data
+        if json_check is 'string'
+          json_data = JSON.parse(data)
+        else
+          json_data = data
+
         results = json_data.results.bindings
+        queryManager.setResultCount(results.length)
+
         graphsNotFound = jQuery.isEmptyObject(results[0])
         if graphsNotFound
           $(graphSelector).parent().css('display', 'none')
@@ -3891,18 +3914,16 @@ class Huviz
         $(graphSelector).parent().css('display', 'block')
         @reset_endpoint_form(true)
 
-      error: (jqxhr, textStatus, errorThrown) =>
-        console.log(url, errorThrown)
-        console.log jqXHR.getAllResponseHeaders(data)
+    make_error_callback = () =>
+      return () =>
         $(graphSelector).parent().css('display', 'none')
-        if not errorThrown
-          errorThrown = "Cross-Origin error"
-        msg = errorThrown + " while fetching " + url
-        @hide_state_msg()
-        $('#'+@get_data_ontology_display_id()).remove()
-        @blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
-        @reset_dataset_ontology_loader()
         spinner.css('visibility','hidden')
+        @reset_dataset_ontology_loader()
+
+    args =
+      success_handler: make_success_handler()
+      error_callback: make_error_callback()
+    @run_managed_query_ajax(qry, url, args)
 
   sparqlQryInput_hide: ->
     @sparqlQryInput_JQElem.hide() #css('display', 'none')
@@ -3934,41 +3955,16 @@ class Huviz
     }
     LIMIT #{node_limit}
     """
-    timeout = @get_sparql_timeout_msec()
-    @log_query_with_timeout(qry, timeout)
-    ajax_settings = {
-      'method': 'GET'#'POST'
-      'url': url + '?query=' + encodeURIComponent(qry)
-      'headers' :
-        'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
-    }
-    if url is "http://sparql.cwrc.ca/sparql" # Hack to make CWRC setup work properly
-      ajax_settings.headers =
-        'Content-Type' : 'application/sparql-query'
-        'Accept': 'application/sparql-results+json'
-    ###
-    # ajax_settings = {
-    #   'method': 'POST'
-    #   'url': url #+ '?query=' + encodeURIComponent(qry)
-    #   'data': qry
-    #   'headers' :
-    #     'Content-Type': 'application/sparql-query'
-    #     'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
-    # }
-    ###
-    #console.log "URL: " + url + "  Graph: " + fromGraph + "  Subject: " + subject
-    #console.log qry
-    $.ajax
-      timeout: timeout
-      method: ajax_settings.method
-      url: ajax_settings.url
-      headers: ajax_settings.headers
-      success: (data, textStatus, jqXHR) =>
-        #console.log jqXHR
-        #console.log data
+
+    make_success_handler = () =>
+      return (data, textStatus, jqXHR, queryManager) =>
         json_check = typeof data
-        if json_check is 'string' then json_data = JSON.parse(data) else json_data = data
-        @add_nodes_from_SPARQL(json_data, subject)
+        if json_check is 'string'
+          json_data = JSON.parse(data)
+        else
+          json_data = data
+        queryManager.setResultCount(json_data.length)
+        @add_nodes_from_SPARQL(json_data, subject, queryManager)
         endpoint = @endpoint_loader.value
         @dataset_loader.disable()
         @ontology_loader.disable()
@@ -3977,64 +3973,16 @@ class Huviz
         @update_go_button(disable)
         @big_go_button.hide()
         @after_file_loaded('sparql', callback)
-      error: (jqxhr, textStatus, errorThrown) =>
-        console.log(url, errorThrown)
-        console.log jqXHR.getAllResponseHeaders(data)
-        if not errorThrown
-          errorThrown = "Cross-Origin error"
-        msg = errorThrown + " while fetching " + url
-        @hide_state_msg()
-        $('#'+@get_data_ontology_display_id()).remove()
-        @blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
-        @reset_dataset_ontology_loader()
 
+    args =
+      success_handler: make_success_handler()
+    @run_managed_query_ajax(qry, url, args)
 
-  load_new_endpoint_data_and_show: (subject, callback) -> # DEPRECIATED !!!!
-
+  DEPRECATED_load_endpoint_data_and_show: (subject, callback) ->
     @p_total_sprql_requests++
     note = ''
 
-
     # REMOVED STUFF THAT WAS THE SAME AS IN load_endpoint_data_and_show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     $.ajax
       timeout: timeout
@@ -4070,14 +4018,16 @@ class Huviz
         @blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
         @reset_dataset_ontology_loader()
 
-  add_nodes_from_SPARQL: (json_data, subject) -> # DEPRECIATED !!!!
+  add_nodes_from_SPARQL: (json_data, subject, queryManager) ->
     data = ''
     context = "http://universal.org"
     plainLiteral = "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"
     #console.log json_data
     console.log "Adding node (i.e. fully exploring): " + subject
-    nodes_in_data = json_data.results.bindings
-    for node in nodes_in_data
+    results = json_data.results.bindings
+    if queryManager?
+      queryManager.setResultCount(results.length)
+    for node in results
       language = ''
       obj_type = "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
       if node.s
@@ -4166,7 +4116,11 @@ class Huviz
 
   add_nodes_from_SPARQL_Worker: (queryTarget) ->
     console.log("Make request for new query and load nodes")
+
     timeout = @get_sparql_timeout_msec()
+    queryManagerArgs = {timeout}
+    queryManager = null # so it can be seen across calls to the message listener
+
     @pfm_count('sparql')
     url = @endpoint_loader.value
     if @sparql_node_list then previous_nodes = @sparql_node_list else previous_nodes = []
@@ -4177,23 +4131,32 @@ class Huviz
     worker.addEventListener 'message', (e) =>
       #console.log e.data
       if e.data.method_name is 'log_query'
-        qryLogObj = @log_query_with_timeout("#SPARQL_Worker\n"+e.data.qry, timeout)
+        queryManager = @run_managed_query_abstract("#SPARQL_Worker\n"+e.data.qry, url, queryManagerArgs)
+        #queryManager = @log_query_with_timeout(, timeout)
         return
       else if e.data.method_name isnt 'accept_results'
-        throw new Error("expecting either data.method = 'log_query' or 'accept_results'")
+        error = new Error("expecting either data.method = 'log_query' or 'accept_results'")
+        queryManager.anim.cancel()
+        queryManager.displayError(error)
+        throw error
       add_fully_loaded = e.data.fully_loaded_index
       for quad in e.data.results
         #console.log quad
         @add_quad(quad)
-        @sparql_node_list.push quad  # Add the new quads to the official list of added quads
+        @sparql_node_list.push(quad)  # Add the new quads to the official list of added quads
         local_node_added++
-      console.log "Node Added Count: " + local_node_added
+      queryManager.setResultCount(local_node_added)
+      queryManager.anim.cancel()
+      if local_node_added
+        queryManager.setSuccessColor()
+      else
+        queryManager.setNoneColor()
       # Verify through the loaded nodes that they are all properly marked as fully_loaded
       for a_node, i in @all_set
         if a_node.id is queryTarget
           @all_set[i].fully_loaded = true
       @endpoint_loader.outstanding_requests = @endpoint_loader.outstanding_requests - 1
-      console.log "Resort the shelf"
+      #console.log "Resort the shelf"
       @shelved_set.resort()
       @tick("Tick in add_nodes_from_SPARQL_worker")
       @update_all_counts()
@@ -5578,11 +5541,9 @@ class Huviz
     @ontology_loader?last_val = null # clear the last_val so select_option works the first time
 
   update_dataset_forms: (e) =>
-    console.log e
     ont_val = $("##{@ontology_loader.select_id}").val()
     dat_val = $("##{@dataset_loader.select_id}").val()
     scr_val = $("##{@script_loader.select_id}").val()
-    console.log scr_val
     if ont_val is '' and dat_val is '' and scr_val is ''
       $("##{@endpoint_loader.uniq_id}").children('select').prop('disabled', false)
     else
@@ -5876,7 +5837,7 @@ class Huviz
     @endpoint_labels_JQElem.siblings('i').css('visibility','visible')
     overMsec ?= @get_sparql_timeout_msec()
     elem = @endpoint_labels_JQElem[0]
-    @endpoint_label_search_anim = @animate_sparql_query(elem, overMsec, fc, bc)    
+    @endpoint_label_search_anim = @animate_sparql_query(elem, overMsec, fc, bc)
     # TODO upon timeout, style box with a color to indicate failure
     # TODO upon success, style the box with a color to indicate success
 
@@ -5893,8 +5854,7 @@ class Huviz
     @endpoint_labels_JQElem.css('background', 'pink')
 
   kill_endpoint_label_search_anim: ->
-    @endpoint_label_search_anim.cancel = true
-    window.cancelAnimationFrame(@endpoint_label_search_anim.animId)
+    @endpoint_label_search_anim.cancel()
     @endpoint_labels_JQElem.siblings('i').css('visibility','hidden')
     return
 
@@ -5909,9 +5869,10 @@ class Huviz
     bgColor ?= 'white'
     animId = false
     go = (elem, overMsec, fillColor, bgColor) ->
-      anim = {elem, overMsec, fillColor, bgColor}
+      cancelled = false
+      anim = {elem, overMsec, fillColor, bgColor, cancelled}
       step = (nowMsec) ->
-        if anim.cancel
+        if anim.cancelled
           console.info('animate_fill_graph() cancelled')
           return
         if not anim.startMsec
@@ -5925,6 +5886,9 @@ class Huviz
         if anim.progressMsec < anim.overMsec
           anim.animId = requestAnimationFrame(step)
       anim.animId = requestAnimationFrame(step)
+      anim.cancel = () ->
+        anim.cancelled = true
+        window.cancelAnimationFrame(anim.animId)
       return anim
     return go(elem, overMsec, fillColor, bgColor)
 
@@ -5951,24 +5915,9 @@ class Huviz
     }
     LIMIT 20
     """                       # for emacs syntax hilighting  ---> "
-    timeout = @get_sparql_timeout_msec()
-    qryLogObj = @log_query_with_timeout(qry, timeout)
-    more = "&timeout=" + timeout
-    ajax_settings = {
-      'method': 'GET'
-      'url': url + '?query=' + encodeURIComponent(qry) + more
-      'headers' :
-        'Accept': 'application/sparql-results+json'
-    }
-    if url is "http://sparql.cwrc.ca/sparql" # Hack to make CWRC setup work properly
-      ajax_settings.headers =
-        'Content-Type' : 'application/sparql-query'
-        'Accept': 'application/sparql-results+json'
-    $.ajax
-      method: ajax_settings.method  # "type" used in eariler jquery
-      url: ajax_settings.url
-      headers: ajax_settings.headers
-      success: (data, textStatus, jqXHR) =>
+
+    make_success_handler = () =>
+      return (data, textStatus, jqXHR, queryManager) =>
         json_check = typeof data
         if json_check is 'string'
           try
@@ -5980,8 +5929,9 @@ class Huviz
         else
           json_data = data
         results = json_data.results.bindings
+        queryManager.setResultCount(results.length)
         selections = []
-        console.info("There were #{results.length} results")
+
         if results.length
           @endpoint_label_search_success()
         else
@@ -5994,12 +5944,10 @@ class Huviz
             value: label.sub.value
           }
           selections.push(this_result)
-
         response(selections)
-      error: (jqxhr, textStatus, errorThrown) =>
-        console.log(url, errorThrown)
-        console.log(textStatus)
-        console.log(jqxhr.responseText)
+
+    make_error_callback = () =>
+      return (jqxhr, textStatus, errorThrown) =>
         #@endpoint_label_search_timeout()
         @endpoint_label_search_failure()
         if not errorThrown
@@ -6015,6 +5963,11 @@ class Huviz
         $('#'+@get_data_ontology_display_id()).remove()
         @endpoint_labels_JQElem.siblings('i').css('visibility','hidden')
         @blurt(msg, 'error')
+
+    args =
+      success_handler: make_success_handler()
+      error_callback: make_error_callback()
+    @run_managed_query_ajax(qry, url, args)
 
   init_editc_or_not: ->
     @editui ?= new EditController(@)

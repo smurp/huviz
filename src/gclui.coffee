@@ -22,9 +22,12 @@ getRandomId = (prefix) ->
   max = 10000000000;
   prefix = prefix || 'id';
   return prefix + Math.floor(Math.random() * Math.floor(max))
+
 gcl = require('graphcommandlanguage')
 ColoredTreePicker = require('coloredtreepicker').ColoredTreePicker
+QueryManager = require('querymanager').QueryManager
 TreePicker = require('treepicker').TreePicker
+
 class CommandController
   constructor: (@huviz, @container, @hierarchy) ->
     if not @huviz.all_set.length
@@ -97,9 +100,10 @@ class CommandController
     queriesJQElem.append(qryJQElem)
     preJQElem = qryJQElem.find('pre')
     preElem = preJQElem[0]
-    qryLogObj = {qryJQElem, preJQElem, preElem}
-    qryLogObj.preJQElem.text(qry) # rely on text() doing HTML encoding (to protect <, >, etc )
-    return qryLogObj
+    preJQElem.text(qry) # rely on text() doing HTML encoding (to protect <, >, etc )
+    queryManager = new QueryManager(qry)
+    return Object.assign(queryManager, {qryJQElem, preJQElem, preElem})
+
   make_command_history: ->
     @comdiv = d3.select(@container).append("div") # --- Add a container
     history = d3.select(@huviz.oldToUniqueTabSel['tabs-history'])
