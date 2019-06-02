@@ -182,10 +182,7 @@
   color: #757575;
   margin-left: 0.5em;
 }
-.a_setting.reset_controls_to_default__setting {
-  height: 2em;
-}
-button[name='reset_controls_to_default'] {
+.a_setting button {
   float: right;
   clear: both;
 }
