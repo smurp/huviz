@@ -4,6 +4,10 @@ window.addEventListener('load',function(){
     huviz_top_sel: "#HUVIZ_TOP",
     show_edit: false,
     start_with_editing: false,
+    settings: {
+      show_queries_tab: true,
+      show_cosmetic_tabs: true
+    },
     // pass in the tab_specs to override the defaults_tab_specs
     tab_specs:
     [
@@ -19,7 +23,8 @@ window.addEventListener('load',function(){
         "title": "Academic, funding and technical credit",
         "text": "Credit",
         "bodyUrl": "/huviz/docs/credits.md"
-      }
+      },
+      'sparqlQueries'
     ],
     preload: [
       '/data/genres.json'

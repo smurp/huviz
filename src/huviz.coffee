@@ -421,6 +421,8 @@ escapeHtml = (unsafe) ->
          .replace(/"/g, "&quot;")
          .replace(/'/g, "&#039;");
 
+noop = () -> # Yup, does nothing.  On purpose!
+
 class SettingsWidget
   constructor: (@huviz, @inputElem, state) ->
     @id = unique_id('widget_')
@@ -516,6 +518,7 @@ orlando_human_term =
   seeking_object: 'Object node'
 
 class Huviz
+  hash: hash
   class_list: [] # FIXME remove
   HHH: {}
   edges_by_id: {}
@@ -560,7 +563,6 @@ class Huviz
   cy: 0
 
   snippet_body_em: .7
-  snippet_triple_em: .8
   line_length_min: 4
 
   # TODO figure out how to replace with the default_graph_control
@@ -685,27 +687,40 @@ class Huviz
     incoming ?= {}
     return Object.assign(Object.assign({}, defs), incoming)
 
-  default_dialog_args: {width:200, height:200, left:100, top:100, head_bg_color:'blue', classes: "contextMenu temp"}
+  default_dialog_args:
+    width:200
+    height:200
+    left:100
+    top:100
+    head_bg_color:'#157fcc'
+    classes: "contextMenu temp"
+
   gen_dialog_html: (contents, id, in_args) ->
     args = @compose_object_from_defaults_and_incoming(@default_dialog_args, in_args)
     #args = Object.assign(default_args, in_args)
     return """<div id="#{id}" class="#{args.classes} #{args.extraClasses}"
         style="display:block;top:#{args.top}px;left:#{args.left}px;max-width:#{args.width}px;max-height:#{args.height}px">
       <div class="header" style="background-color:#{args.head_bg_color};#{args.style}">
-        <button class="close_node_details" title="Close"><i class="far fa-window-close"></i></button>
+        <button class="close_node_details" title="Close"><i class="far fa-window-close" for="#{id}"></i></button>
       </div>
       #{contents}
     </div>""" # """ for emacs coffeescript mode
 
   make_dialog: (content_html, id, args) ->
-    id ?= @unique_id('dialog_')
+    id ?= @unique_id('dialog_')  # if you do not have an id, an id will be provided for you
     @addHTML(@gen_dialog_html(content_html, id, args))
     elem = document.querySelector('#'+id)
-    $(elem.querySelector(' .close_node_details')).on('click', @destroy_box)
-    $(elem).draggable()
+    $(elem).on('drag',@pop_div_to_top)
+    $(elem).draggable().resizable()
+    $(elem.querySelector(' .close_node_details')).on('click', args.close or @destroy_dialog)
     return elem
 
-  destroy_box: (e) ->
+  pop_div_to_top: (elem) ->
+    $(elem.currentTarget).parent().append(elem.currentTarget)
+    console.log elem
+
+  destroy_dialog: (e) ->
+    console.log "destroy_dialog"
     box = e.currentTarget.offsetParent
     $(box).remove()
 
@@ -885,7 +900,7 @@ class Huviz
       if @focused_node
         the_node = $("##{@focused_node.lid}")
         if the_node.html() then the_node.remove()
-        @render_node_info_box()
+        @render_node_info_box(@focused_node)
       else
         if $(".contextMenu.temp") then $(".contextMenu.temp").remove()
     else if @should_start_dragging()
@@ -941,7 +956,7 @@ class Huviz
           if edge.source.id in pair and edge.target.id in pair
             #console.log "PEEK edge.id is '" + edge.id + "'"
             edge.focused = true
-            @print_edge edge
+            @print_edge(edge)
           else
             edge.focused = false
     @tick("Tick in mousemove")
@@ -1035,10 +1050,14 @@ class Huviz
     @rightClickHold = true
     doesnt_exist = if @focused_node then true else false
     if @focused_node and doesnt_exist
-      @render_node_info_box()
+      @render_node_info_box(@focused_node)
 
-  render_node_info_box: () ->
-    all_names = Object.values(@focused_node.name)
+  render_node_info_box: (info_node) ->
+    node_inspector_id = "NODE_INSPECTOR__" + info_node.lid
+    if info_node._inspector?
+      @hilight_dialog(info_node._inspector)
+      return
+    all_names = Object.values(info_node.name)
     names_all_langs = ""
     note = ""
     color_headers = ""
@@ -1050,52 +1069,74 @@ class Huviz
       else
         names_all_langs = name
     other_types = ""
-    if (@focused_node._types.length > 1)
-      for node_type in @focused_node._types
-        if node_type != @focused_node.type
+    if (info_node._types.length > 1)
+      for node_type in info_node._types
+        if node_type != info_node.type
           if other_types
             other_types = other_types + ", " + node_type
           else
             other_types = node_type
       other_types = " (" + other_types + ")"
-    #console.log @focused_node
-    #console.log @focused_node.links_from.length
-    if (@focused_node.links_from.length > 0)
-      for link_from in @focused_node.links_from
-        target = @create_link_if_url(link_from.target.id)
-        node_out_links = node_out_links + "<li><i class='fas fa-long-arrow-alt-right'></i> <a href='#{link_from.predicate.id}' target='blank'>#{link_from.predicate.lid}</a> <i class='fas fa-long-arrow-alt-right'></i> #{target}</li>"
+    #console.log info_node
+    #console.log info_node.links_from.length
+    if (info_node.links_from.length > 0)
+      for link_from in info_node.links_from
+        [target_prefix, target] = @render_target_for_display(link_from.target)
+        node_out_links = node_out_links + """
+        <li><i class='fas fa-long-arrow-alt-right'></i>
+          <a href='#{link_from.predicate.id}' target='blank'>#{link_from.predicate.lid}</a>
+          #{target_prefix} #{target}
+        </li>
+          """ # """
       node_out_links = "<ul>" + node_out_links + "</ul>"
-    #console.log @focused_node
-    if @focused_node._colors
-      width = 100 / @focused_node._colors.length
-      for color in @focused_node._colors
-        color_headers = color_headers + "<div class='subHeader' style='background-color: #{color}; width: #{width}%;'></div>"
+    #console.log info_node
+    if info_node._colors
+      width = 100 / info_node._colors.length
+      for color in info_node._colors
+        color_headers = color_headers +
+          "<div class='subHeader' style='background-color: #{color}; width: #{width}%;'></div>"
     if @endpoint_loader.value
-      if @endpoint_loader.value and @focused_node.fully_loaded
+      if @endpoint_loader.value and info_node.fully_loaded
         note = "<p class='note'>Node Fully Loaded</span>"
       else
-        note = "<p class='note'><span class='label'>Note:</span> This node may not yet be fully loaded from remote server. Link details may not be accurate. Activate to load.</i>"
+        note = """<p class='note'><span class='label'>Note:</span>
+          This node may not yet be fully loaded from remote server.
+          Link details may not be accurate. Activate to load.</i>""" # """
 
     dialogArgs =
       width: @width * 0.50
       height: @height * 0.80
       top: d3.event.clientY
       left: d3.event.clientX
+      close: @close_node_inspector
 
-    if @focused_node
-      dialogArgs.head_bg_color = @focused_node.color
-      id_display = @create_link_if_url(@focused_node.id)
-      node_info = """
-        <p class='id_display'><span class='label'>id:</span> #{id_display}</p>
-        <p><span class='label'>name:</span> #{names_all_langs}</p>
-        <p><span class='label'>type(s):</span> #{@focused_node.type} #{other_types}</p>
-        <p><span class='label'>Links To:</span> #{@focused_node.links_to.length} <br>
-          <span class='label'>Links From:</span> #{@focused_node.links_from.length}</p>
-          #{note}
-          #{node_out_links}
+    if info_node
+      dialogArgs.head_bg_color = info_node.color
+      id_display = @create_link_if_url(info_node.id)
+      node_info_html = """
+        <div class="message_wrapper">
+          <p class='id_display'><span class='label'>id:</span> #{id_display}</p>
+          <p><span class='label'>name:</span> #{names_all_langs}</p>
+          <p><span class='label'>type(s):</span> #{info_node.type} #{other_types}</p>
+          <p><span class='label'>Links To:</span> #{info_node.links_to.length} <br>
+            <span class='label'>Links From:</span> #{info_node.links_from.length}</p>
+            #{note}
+            #{node_out_links}
+        </div>
         """ # """
 
-      @make_dialog(node_info, @unique_id(@focused_node.lid+'__'), dialogArgs)
+      info_node._inspector = @make_dialog(node_info_html, node_inspector_id, dialogArgs)
+      info_node._inspector.dataset.node_id = info_node.id
+    return
+
+  close_node_inspector: (event, ui) =>  # fat because it is called by click handler
+    box = event.currentTarget.offsetParent
+    node_id = box.dataset.node_id
+    if node_id?
+      node = @all_set.get_by('id', node_id)
+      if node?
+        delete node._inspector
+    @destroy_dialog(event)
     return
 
   create_link_if_url: (possible_link) ->
@@ -1105,6 +1146,19 @@ class Huviz
     else
       target = possible_link
 
+  render_target_for_display: (node) ->
+    if node.isLiteral
+      typeCURIE = node.type.replace('__',':')
+      lines = node.name.toString().split(/\r\n|\r|\n/)
+      showBlock = lines.length > 1 or node.name.toString().length > 30
+      colon = ":"
+      if showBlock
+        return [colon, """<blockquote title="#{typeCURIE}">#{node.name}</blockquote>"""]
+      else
+        return [colon, """<code title="#{typeCURIE}">#{node.name}</code>"""]
+    else
+      arrow = "<i class='fas fa-long-arrow-alt-right'></i>"
+      return [arrow, @create_link_if_url(node.id)]
 
   perform_current_command: (node) ->
     if @gclui.ready_to_perform()
@@ -1629,7 +1683,6 @@ class Huviz
       @discover_names()
 
   reset_graph: ->
-    #@dump_current_settings("at top of reset_graph()")
     @G = {} # is this deprecated?
     @init_sets()
     @init_gclc()
@@ -1862,8 +1915,13 @@ class Huviz
     if not focused
       return
     retval = (focused.lid or '') + ' '
-    if !focused.state?
-      console.error(retval + ' has no state!!! This is unpossible!!!! name:', focused.name)
+    if not focused.state?
+      msg = retval + ' has no state!!! This is unpossible!!!! name:'
+      focused._warnings ?= {}
+      if not focused._warnings[msg]
+        # warn each unique message once
+        console.warn(msg, focused.name)
+        focused._warnings[msg] = true
       return
     retval += focused.state.id
     return retval
@@ -2778,7 +2836,7 @@ class Huviz
   discover_geoname_name_msgs_threshold_ms: 5 * 1000 # msec betweeen repetition of a msg display
 
   # TODO eliminate all use of this version in favor of the markdown version
-  discover_geoname_name_instructions: """<span style="font-size:.7em">
+  discover_geoname_name_instructions: """
    Be sure to
      1) create a
         <a target="geonamesAcct"
@@ -2815,19 +2873,36 @@ class Huviz
 
   """
 
-  set_setting: (inputName, newVal) ->
-    input = @topJQElem.find("input[name='#{inputName}']")
-    input.val(newVal)
-    if this[inputName]?
-      this[inputName] = newVal
-    return newVal
+  adjust_setting: (input_or_id, new_value, old_value, skip_custom_handler) ->
+    # NOTE that old_value is only being provided by adjust_setting_if_needed()
+    input = null
+    setting_id = null
+    if typeof input_or_id is 'string'
+      input = @get_setting_input_JQElem(input_or_id)
+      setting_id = input_or_id
+    else
+      input = input_or_id
+      setting_id = input[0].name
+    theType = input.attr('type')
+    if theType in ['checkbox', 'radiobutton']
+      #new_value = new_value and 'checked' or null
+      input.prop('checked', new_value)
+    else
+      input.val(new_value)
+    if this[setting_id]?
+      this[setting_id] = new_value
+    @change_setting_to_from(setting_id, new_value, old_value, skip_custom_handler)
+    return new_value
+
+  get_setting_input_JQElem: (inputName) ->
+    return @topJQElem.find("[name='#{inputName}']")
 
   countdown_setting: (inputName) ->
-    input = @topJQElem.find("input[name='#{inputName}']")
+    input = @get_setting_input_JQElem(inputName)
     if input.val() < 1
       return 0
     newVal = input.val() - 1
-    return @set_setting(inputName, newVal)
+    return @adjust_setting(inputName, newVal)
 
   preset_discover_geonames_remaining: ->
     count = 0
@@ -2835,13 +2910,24 @@ class Huviz
       url = node.id
       if url.includes('sws.geonames.org')
         count++
-    return @set_setting('discover_geonames_remaining', count)
+    return @adjust_setting('discover_geonames_remaining', count)
 
-  show_geonames_instructions: =>
+  show_geonames_instructions: (params) =>
+    #params =
+    #  msg: "Check your email for confirmation msg"
+    # Usage:
+    #   show_geonames_instructions({msg:'Check your email for confirmation message.'})
     args =
       width: @width * 0.6
       height: @height * 0.6
     markdown = @discover_geoname_name_instructions_md
+    if params?
+      if params.msg?
+        markdown += """
+
+          #### Error:
+          <span style="color:red">#{params.msg}</span>
+           """
     @make_markdown_dialog(markdown, null, args)
 
   discover_geoname_name: (aUrl) ->
@@ -2904,13 +2990,10 @@ class Huviz
         if (widget = @discover_geonames_as__widget)
           state_at_start = widget.state
           if state_at_start in ['trying', 'looking']
-            #rem = @countdown_setting('discover_geonames_remaining')
-            #console.log('discover_geonames_remaining',rem,"after looking up",id)
-            #@countdown_setting('discover_geonames_remaining') # decrement now because we just used one up for this account
             if widget.state is 'trying'
               # we decrement remaining after successfully trying or before looking
-              @countdown_setting('discover_geonames_remaining')
-              @discover_geonames_as__widget.set_state('looking') # more remaining, go straight to looking
+              @countdown_setting('discover_geonames_remaining') # more remaining, go straight to looking
+              @discover_geonames_as__widget.set_state('looking')
             if widget.state is 'looking'
               if @discover_geonames_remaining > 0
                 # trigger again because they have been suspended
@@ -3035,6 +3118,86 @@ class Huviz
     @found_names ?= []
     @found_names.push(quad.o.value)
 
+  deprefix: (uri, prefix, expansion) ->
+    # Return uri replacing expansion with prefix if possible
+    return uri.replace(expansion, prefix)
+
+  make_sparql_name_for_getty: (uris, expansion, prefix) ->
+    # This is good stuff which should be made a bit more general
+    # for applicability beyond getty.edu
+    #   see https://github.com/cwrc/HuViz/issues/180#issuecomment-489557605
+    prefix ?= ':'
+    if not Array.isArray(uris)
+      uris = [uris]
+    if not uris.length
+      throw new Error('expecting uris to be an Array of length > 0')
+    if uris.length is 1 # so just match that one uri directly
+      subj_constraint = "BIND (?s AS <#{uris[0]}>)"
+    else # more than 1 so make a FILTER statement for the ?subj match
+      # Build a constraint for the subject
+      #   FILTER (?subj IN (:300073730, :300153822, :300153825))
+      subj_constraint = "FILTER (?s IN (" +
+        (@deprefix(uri, prefix, expansion) for uri in uris).join(', ') + "))"
+    return """
+      PREFIX #{prefix} <#{expansion}>
+      SELECT * {
+        ?subj gvp:prefLabelGVP [xl:literalForm ?label] .
+        #{subj_constraint}
+       }""" # """
+
+  make_sparql_name_query: (uris) ->
+    if uris.length is 1 # so just match that one uri directly
+      #subj_constraint = "BIND (<#{uris[0]}> AS ?subj)"
+      subj_constraint = "FILTER (?subj in (<#{uris[0]}>))"
+    else # more than 1 so make a FILTER statement for the ?subj match
+      # Build a constraint for the subject
+      #   FILTER (?subj IN (:300073730, :300153822, :300153825))
+      subj_constraint = "FILTER (?subj IN (" +
+        (@deprefix(uri, prefix, expansion) for uri in uris).join(', ') + "))"
+    return """
+      PREFIX dbr: <http://dbpedia.org/resource/>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+      CONSTRUCT {
+        ?subj ?pred ?obj .
+      }
+      WHERE {
+        ?subj ?pred ?obj .
+        FILTER (?pred IN (rdfs:label)) .
+        #{subj_constraint}
+       }""" # """
+    ###
+      PREFIX dbr: <http://dbpedia.org/resource/>
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+      CONSTRUCT {?sub ?pre ?obj}
+      WHERE {
+         ?sub ?pre ?obj .
+         FILTER (?sub IN (dbr:Robert_Tappan_Morris,dbr:Technical_University_of_Berlin)) .
+         FILTER (?pre IN (rdfs:label)) .
+      }
+    ###
+
+    ###
+     SELECT ?sub ?obj
+     WHERE {
+       ?sub rdfs:label|foaf:name ?obj .
+       FILTER (?sub IN (<http://dbpedia.org/page/Robert_Tappan_Morris>))
+     }
+    ###
+
+  make_sparql_name_handler: (uris) ->
+    return () => return
+
+  make_sparql_name_query_and_handler: (uri_or_uris) ->
+    if Array.isArray(uri_or_uris)
+      uris = uri_or_uris
+    else
+      uris = [uri_or_uris]
+    query = @make_sparql_name_query(uris)
+    handler = @make_sparql_name_handler(uris)
+    return [query, handler]
+
   auto_discover_name_for: (uri) ->
     if uri.startsWith('_') # skip "blank" nodes
       return
@@ -3044,6 +3207,7 @@ class Huviz
       colorlog("skipping auto_discover_name_for('#{uri}') because")
       console.log(e)
       return
+    log_prefix = "# NOT BEING RUN YET\n# auto_discover_name_for(#{uri})\n"
     if uri.startsWith("http://id.loc.gov/")
       # This is less than ideal because it uses the special knowledge
       # that the .skos.nt file is available. Unfortunately the only
@@ -3051,11 +3215,27 @@ class Huviz
       # there is no parser for that in HuViz yet.  Besides, they are huge.
       retval = @ingest_quads_from("#{uri}.skos.nt", @discover_labels(uri))
       #@auto_discover_header(uri, ['X-PrefLabel'], sendHeaders or [])
+    #for expansion in ["http://vocab.getty.edu/aat/", "http://vocab.getty.edu/ontology#"]
+    #  # Work was stopped on this when I realized that the CWRC ontology is no
+    #  # longer referencing Getty.  It is still good stuff, but should be deprioritized
+    #  # pending review.
+    #  if uri.startsWith(expansion) # TODO can this be more general? ie shorter?
+    #    sparql = @make_sparql_name_for_getty(uri, expansion)
+    #    @ingest_quads_from_sparql(sparql) # TODO this is not yet implemented
+    for expansion in ["http://dbpedia"]
+      if uri.startsWith(expansion)
+        [sparql, handler] = @make_sparql_name_query_and_handler(uri, expansion)
+        #@ingest_quads_from_sparql_with_handler(sparql, handler)
+        timeout = @get_sparql_timeout_msec()
+        @log_query_with_timeout(log_prefix + sparql, timeout, 'purple') # TODO move this into where it get run
     if uri.startsWith("http://sws.geonames.org/") and
         @discover_geonames_as__widget.state in ['untried','looking','good'] and
         @discover_geonames_remaining > 0
       @discover_geoname_name(aUrl)
     return
+
+  ingest_quads_from_sparql: (sparql) ->
+    console.info(sparql)
 
   discover_names_including: (includes) ->
     if @nameless_set # this might be before the set exists
@@ -3065,10 +3245,11 @@ class Huviz
   discover_names: (includes) ->
     #console.log('discover_names(',includes,') # of nameless:',@nameless_set.length)
     for node in @nameless_set
-      url = node.id
-      if not (includes? and not url.includes(includes))
+      uri = node.id
+      if not (includes? and not uri.includes(includes))
         # only if includes is specified but not found do we skip auto_discover_name_for
-        @auto_discover_name_for(node.id)
+        console.log('auto_discover_name_for',uri)
+        @auto_discover_name_for(uri)
     return
 
   make_qname: (uri) ->
@@ -3204,7 +3385,7 @@ class Huviz
             objKey = "#{subj_n.lid} #{pred_uri}"
             objId = synthIdFor(objKey)
             objId_explanation = "synthIdFor('#{objKey}') = #{objId}"
-            console.warn(objId_explanation)
+            #console.warn(objId_explanation)
           else
             objId = synthIdFor(objVal)
           literal_node = @get_or_create_node_by_id(objId, objVal, (isLiteral = true))
@@ -3594,57 +3775,17 @@ class Huviz
         @reset_dataset_ontology_loader()
         #TODO Reset titles on page
 
-  sparql_graph_query_and_show: (url, id, callback) =>
-    qry = """
-      SELECT ?g
-      WHERE {
-        GRAPH ?g { }
-      }
-    """
-    ###
-    Reference: https://www.w3.org/TR/sparql11-protocol/
-    1. query via GET
-    2. query via URL-encoded POST
-    3. query via POST directly -- Query String Parameters: default-graph-uri (0 or more); named-graph-uri (0 or more)
-                               -- Request Content Type: application/sparql-query
-                               -- Request Message Body: Unencoded SPARQL query string
-    ###
-    # These POST settings work for: CWRC, WWI open, on DBpedia, and Open U.K. but not on Bio Database
-    ajax_settings = { #TODO Currently this only works on CWRC Endpoint
-      'type': 'GET'
-      'url': url + '?query=' + encodeURIComponent(qry)
-      'headers' :
-        #'Content-Type': 'application/sparql-query'  # This is only required for CWRC - not accepted by some Endpoints
-        'Accept': 'application/sparql-results+json'
-    }
-    if url is "http://sparql.cwrc.ca/sparql" # Hack to make CWRC setup work properly
-      ajax_settings.headers =
-        'Content-Type' : 'application/sparql-query'
-        'Accept': 'application/sparql-results+json'
-    # These POST settings work for: CWRC and WWI open, but not on DBpedia and Open U.K.
-    ###
-    ajax_settings = {
-      'type': 'POST'
-      'url': url
-      'data': qry
-      'headers' :
-        'Content-Type': 'application/sparql-query'
-        'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
-    }
-    ###
-    ###
-    ajax_settings = {
-      'type': 'GET'
-      'data': ''
-      'url': url + '?query=' + encodeURIComponent(qry)
-      'headers' :
-        #'Accept': 'application/sparql-results+json'
-        'Content-Type': 'application/x-www-form-urlencoded'
-        'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
-    }
-    ###
-    #littleTestQuery = """SELECT * WHERE {?s ?o ?p} LIMIT 1"""
-    ###
+  log_query_with_timeout: (qry, timeout, fillColor, bgColor) ->
+    queryManager = @log_query(qry)
+    queryManager.anim = @animate_sparql_query(queryManager.preElem, timeout, fillColor, bgColor)
+    return queryManager
+
+  log_query: (qry) =>
+    return @gclui.push_sparqlQuery_onto_log(qry)
+
+  run_little_test_query: ->
+    littleTestQuery = """SELECT * WHERE {?s ?o ?p} LIMIT 1"""
+
     $.ajax
       method: 'GET'
       url: url + '?query=' + encodeURIComponent(littleTestQuery)
@@ -3658,61 +3799,131 @@ class Huviz
       error: (jqxhr, textStatus, errorThrown) =>
         console.log(url, errorThrown)
         console.log jqXHR.getAllResponseHeaders(data)
-    ###
-    ###
-    # This is a quick test of the SPARQL Endpoint it should return https://www.w3.org/TR/2013/REC-sparql11-service-description-20130321/#example-turtle
+
+    # This is a quick test of the SPARQL Endpoint it should return
+    #   https://www.w3.org/TR/2013/REC-sparql11-service-description-20130321/#example-turtle
+    # $.ajax
+    #   method: 'GET'
+    #   url: url
+    #   headers:
+    #     'Accept': 'text/turtle'
+    #   success: (data, textStatus, jqXHR) =>
+    #     console.log "This Enpoint Test: " + textStatus
+    #     console.log jqXHR
+    #     console.log jqXHR.getAllResponseHeaders(data)
+    #     console.log data
+    #   error: (jqxhr, textStatus, errorThrown) =>
+    #     console.log(url, errorThrown)
+    #     console.log jqXHR.getAllResponseHeaders(data)
+
+  run_managed_query_abstract: (qry, url, args) ->
+    # Reference: https://www.w3.org/TR/sparql11-protocol/
+    args ?= {}
+    args.success_handler ?= noop
+    args.error_callback ?= noop
+    args.timeout ?= @get_sparql_timeout_msec()
+
+    return @log_query_with_timeout(qry, args.timeout)
+
+  run_managed_query_ajax: (qry, url, args) ->
+    queryManager = @run_managed_query_abstract(qry, url, args)
+    {success_handler, error_callback, timeout} = args
+    # These POST settings work for: CWRC, WWI open, on DBpedia, and Open U.K. but not on Bio Database
+    more = "&timeout=" + timeout
+    ajax_settings = { #TODO Currently this only works on CWRC Endpoint
+      'method': 'GET'
+      'url': url + '?query=' + encodeURIComponent(qry) + more
+      'headers' :
+        # This is only required for CWRC - not accepted by some Endpoints
+        #'Content-Type': 'application/sparql-query'
+        'Accept': 'application/sparql-results+json'
+    }
+    if url is "http://sparql.cwrc.ca/sparql" # Hack to make CWRC setup work properly
+      ajax_settings.headers =
+        'Content-Type' : 'application/sparql-query'
+        'Accept': 'application/sparql-results+json'
+
     $.ajax
-      method: 'GET'
-      url: url
-      headers:
-        'Accept': 'text/turtle'
+      timeout: timeout
+      method: ajax_settings.method
+      url: ajax_settings.url
+      headers: ajax_settings.headers
       success: (data, textStatus, jqXHR) =>
-        console.log "This Enpoint Test: " + textStatus
-        console.log jqXHR
-        console.log jqXHR.getAllResponseHeaders(data)
-        console.log data
+        queryManager.anim.cancel()
+        if success_handler?
+          try
+            success_handler(data, textStatus, jqXHR, queryManager)
+          catch e
+            queryManager.colorQuery('pink')
+            queryManager.displayError(e)
       error: (jqxhr, textStatus, errorThrown) =>
-        console.log(url, errorThrown)
-        console.log jqXHR.getAllResponseHeaders(data)
-    ###
+        queryManager.anim.cancel()
+        queryManager.setErrorColor()
+        if not errorThrown
+          errorThrown = "Cross-Origin error"
+        msg = errorThrown + " while fetching " + url
+        #@hide_state_msg()
+        $('#'+@get_data_ontology_display_id()).remove()
+        queryManager.displayError(msg)
+        if @error_callback?
+          error_callback()
+
+    return queryManager
+
+  run_managed_query_worker: (qry, url, args) ->
+    queryManager = @run_managed_query_abstract(qry, url, args)
+    return queryManager
+
+
+  sparql_graph_query_and_show: (url, id, callback) =>
+    qry = """
+      # sparql_graph_query_and_show()
+      SELECT ?g
+      WHERE {
+        GRAPH ?g { }
+      }
+    """
+
+    # these are shared between success and error handlers
+    spinner = $("#sparqlGraphSpinner-#{id}")
+    spinner.css('display','block')
     graphSelector = "#sparqlGraphOptions-#{id}"
     $(graphSelector).parent().css('display', 'none')
     @sparqlQryInput_hide()
 
-    spinner = $("#sparqlGraphSpinner-#{id}")
-    spinner.css('display','block')
-    $.ajax
-        type: ajax_settings.type
-        url: ajax_settings.url
-        headers: ajax_settings.headers
-        success: (data, textStatus, jqXHR) =>
-          json_check = typeof data
-          if json_check is 'string' then json_data = JSON.parse(data) else json_data = data
-          results = json_data.results.bindings
-          graphsNotFound = jQuery.isEmptyObject(results[0])
-          if graphsNotFound
-            $(graphSelector).parent().css('display', 'none')
-            @reset_endpoint_form(true)
-            return
-          graph_options = "<option id='#{@unique_id()}' value='#{url}'> All Graphs </option>"
-          for graph in results
-            graph_options = graph_options + "<option id='#{@unique_id()}' value='#{graph.g.value}'>#{graph.g.value}</option>"
-          $("#sparqlGraphOptions-#{id}").html(graph_options)
-          $(graphSelector).parent().css('display', 'block')
-          @reset_endpoint_form(true)
+    make_success_handler = () =>
+      return (data, textStatus, jqXHR, queryManager) =>
+        json_check = typeof data
+        if json_check is 'string'
+          json_data = JSON.parse(data)
+        else
+          json_data = data
 
-        error: (jqxhr, textStatus, errorThrown) =>
-          console.log(url, errorThrown)
-          console.log jqXHR.getAllResponseHeaders(data)
+        results = json_data.results.bindings
+        queryManager.setResultCount(results.length)
+
+        graphsNotFound = jQuery.isEmptyObject(results[0])
+        if graphsNotFound
           $(graphSelector).parent().css('display', 'none')
-          if not errorThrown
-            errorThrown = "Cross-Origin error"
-          msg = errorThrown + " while fetching " + url
-          @hide_state_msg()
-          $('#'+@get_data_ontology_display_id()).remove()
-          @blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
-          @reset_dataset_ontology_loader()
-          spinner.css('visibility','hidden')
+          @reset_endpoint_form(true)
+          return
+        graph_options = "<option id='#{@unique_id()}' value='#{url}'> All Graphs </option>"
+        for graph in results
+          graph_options = graph_options + "<option id='#{@unique_id()}' value='#{graph.g.value}'>#{graph.g.value}</option>"
+        $("#sparqlGraphOptions-#{id}").html(graph_options)
+        $(graphSelector).parent().css('display', 'block')
+        @reset_endpoint_form(true)
+
+    make_error_callback = () =>
+      return () =>
+        $(graphSelector).parent().css('display', 'none')
+        spinner.css('visibility','hidden')
+        @reset_dataset_ontology_loader()
+
+    args =
+      success_handler: make_success_handler()
+      error_callback: make_error_callback()
+    @run_managed_query_ajax(qry, url, args)
 
   sparqlQryInput_hide: ->
     @sparqlQryInput_JQElem.hide() #css('display', 'none')
@@ -3728,161 +3939,95 @@ class Huviz
     url = @endpoint_loader.value
     @endpoint_loader.outstanding_requests = 0
     fromGraph = ''
-
-    if @endpoint_loader.endpoint_graph then fromGraph=" FROM <#{@endpoint_loader.endpoint_graph}> "
-    ###
+    if @endpoint_loader.endpoint_graph
+      fromGraph=" FROM <#{@endpoint_loader.endpoint_graph}> "
     qry = """
-    SELECT * #{fromGraph}
-    WHERE {
-    {<#{subject}> ?p ?o} UNION
-    {{<#{subject}> ?p ?o} . {?o ?p2 ?o2 . FILTER(?o != <#{subject}>)}}
-    }
-    LIMIT #{node_limit}
-    """
-    ###
-    ###
-    qry = """
-    SELECT * #{fromGraph}
-    WHERE {
-    {<#{subject}> ?p ?o}
-    UNION
-    {{<#{subject}> ?p ?o} . {?o ?p2 ?o2 . FILTER(?o != <#{subject}>)}}
-    UNION
-    { ?s ?p <#{subject}>}
-    }
-    LIMIT #{node_limit}
-    """
-    ###
-    qry = """
+    # load_endpoint_data_and_show('#{subject}')
     SELECT * #{fromGraph}
     WHERE {
       {<#{subject}> ?p ?o}
       UNION
-      {{<#{subject}> ?p ?o} . {?o ?p2 ?o2}}
-    UNION
-      {{?s3 ?p3 <#{subject}>} . {?s3 ?p4 ?o4 }}
+      {{<#{subject}> ?p ?o} .
+       {?o ?p2 ?o2}}
+      UNION
+      {{?s3 ?p3 <#{subject}>} .
+       {?s3 ?p4 ?o4 }}
     }
     LIMIT #{node_limit}
     """
 
-    ajax_settings = {
-      'method': 'GET'#'POST'
-      'url': url + '?query=' + encodeURIComponent(qry)
-      'headers' :
-        'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
-    }
-    if url is "http://sparql.cwrc.ca/sparql" # Hack to make CWRC setup work properly
-      ajax_settings.headers =
-        'Content-Type' : 'application/sparql-query'
-        'Accept': 'application/sparql-results+json'
-    ###
-    ajax_settings = {
-      'method': 'POST'
-      'url': url #+ '?query=' + encodeURIComponent(qry)
-      'data': qry
-      'headers' :
-        'Content-Type': 'application/sparql-query'
-        'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
-    }
-    ###
-    #console.log "URL: " + url + "  Graph: " + fromGraph + "  Subject: " + subject
-    #console.log qry
-    $.ajax
-        method: ajax_settings.method
-        url: ajax_settings.url
-        headers: ajax_settings.headers
-        success: (data, textStatus, jqXHR) =>
-          #console.log jqXHR
-          #console.log data
-          json_check = typeof data
-          if json_check is 'string' then json_data = JSON.parse(data) else json_data = data
-          @add_nodes_from_SPARQL(json_data, subject)
-          endpoint = @endpoint_loader.value
-          @dataset_loader.disable()
-          @ontology_loader.disable()
-          @replace_loader_display_for_endpoint(endpoint, @endpoint_loader.endpoint_graph)
-          disable = true
-          @update_go_button(disable)
-          @big_go_button.hide()
-          @after_file_loaded('sparql', callback)
-        error: (jqxhr, textStatus, errorThrown) =>
-          console.log(url, errorThrown)
-          console.log jqXHR.getAllResponseHeaders(data)
-          if not errorThrown
-            errorThrown = "Cross-Origin error"
-          msg = errorThrown + " while fetching " + url
-          @hide_state_msg()
-          $('#'+@get_data_ontology_display_id()).remove()
-          @blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
-          @reset_dataset_ontology_loader()
+    make_success_handler = () =>
+      return (data, textStatus, jqXHR, queryManager) =>
+        json_check = typeof data
+        if json_check is 'string'
+          json_data = JSON.parse(data)
+        else
+          json_data = data
+        queryManager.setResultCount(json_data.length)
+        @add_nodes_from_SPARQL(json_data, subject, queryManager)
+        endpoint = @endpoint_loader.value
+        @dataset_loader.disable()
+        @ontology_loader.disable()
+        @replace_loader_display_for_endpoint(endpoint, @endpoint_loader.endpoint_graph)
+        disable = true
+        @update_go_button(disable)
+        @big_go_button.hide()
+        @after_file_loaded('sparql', callback)
 
+    args =
+      success_handler: make_success_handler()
+    @run_managed_query_ajax(qry, url, args)
 
-  load_new_endpoint_data_and_show: (subject, callback) -> # DEPRECIATED !!!!
-    node_limit = @endpoint_limit_JQElem.val()
+  DEPRECATED_load_endpoint_data_and_show: (subject, callback) ->
     @p_total_sprql_requests++
     note = ''
-    url = @endpoint_loader.value
-    fromGraph = ''
-    if @endpoint_loader.endpoint_graph then fromGraph = " FROM <#{@endpoint_loader.endpoint_graph}> "
-    qry = """
-    SELECT * #{fromGraph}
-    WHERE {
-    {<#{subject}> ?p ?o}
-    UNION
-    {{<#{subject}> ?p ?o} . {?o ?p2 ?o2}}
-    UNION
-    {{?s3 ?p3 <#{subject}>} . {?s3 ?p4 ?o4 }}
-    }
-    LIMIT #{node_limit}
-    """
-    ajax_settings = {
-      'method': 'GET'#'POST'
-      'url': url + '?query=' + encodeURIComponent(qry)
-      'headers' :
-        'Accept': 'application/sparql-results+json; q=1.0, application/sparql-query, q=0.8'
-    }
-    if url is "http://sparql.cwrc.ca/sparql" # Hack to make CWRC setup work properly
-      ajax_settings.headers =
-        'Content-Type' : 'application/sparql-query'
-        'Accept': 'application/sparql-results+json'
-    $.ajax
-        method: ajax_settings.method
-        url: ajax_settings.url
-        headers: ajax_settings.headers
-        success: (data, textStatus, jqXHR) =>
-          #console.log jqXHR
-          #console.log "Query: " + subject
-          note = subject
-          if @p_display then @performance_dashboard('sparql_request', note)
-          #console.log qry
-          json_check = typeof data
-          if json_check is 'string' then json_data = JSON.parse(data) else json_data = data
-          #console.log "Json Array Size: " + json_data.results.bindings.length
-          @add_nodes_from_SPARQL(json_data, subject)
-          @shelved_set.resort()
-          @tick("Tick in load_new_endpoint_data_and_show success callback")
-          @update_all_counts()
-          @endpoint_loader.outstanding_requests = @endpoint_loader.outstanding_requests - 1
-          #console.log "Finished request: count now " + @endpoint_loader.outstanding_requests
-        error: (jqxhr, textStatus, errorThrown) =>
-          console.log(url, errorThrown)
-          console.log jqXHR.getAllResponseHeaders(data)
-          if not errorThrown
-            errorThrown = "Cross-Origin error"
-          msg = errorThrown + " while fetching " + url
-          @hide_state_msg()
-          $('#'+@get_data_ontology_display_id()).remove()
-          @blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
-          @reset_dataset_ontology_loader()
 
-  add_nodes_from_SPARQL: (json_data, subject) -> # DEPRECIATED !!!!
+    # REMOVED STUFF THAT WAS THE SAME AS IN load_endpoint_data_and_show()
+
+    $.ajax
+      timeout: timeout
+      method: ajax_settings.method
+      url: ajax_settings.url
+      headers: ajax_settings.headers
+      success: (data, textStatus, jqXHR) =>
+        #console.log jqXHR
+        #console.log "Query: " + subject
+        note = subject
+        if @p_display then @performance_dashboard('sparql_request', note)
+        #console.log qry
+        json_check = typeof data
+        if json_check is 'string'
+          json_data = JSON.parse(data)
+        else
+          json_data = data
+        #console.log "Json Array Size: " + json_data.results.bindings.length
+        @add_nodes_from_SPARQL(json_data, subject)
+        @shelved_set.resort()
+        @tick("Tick in load_new_endpoint_data_and_show success callback")
+        @update_all_counts()
+        @endpoint_loader.outstanding_requests = @endpoint_loader.outstanding_requests - 1
+        #console.log "Finished request: count now " + @endpoint_loader.outstanding_requests
+      error: (jqxhr, textStatus, errorThrown) =>
+        console.log(url, errorThrown)
+        console.log jqXHR.getAllResponseHeaders(data)
+        if not errorThrown
+          errorThrown = "Cross-Origin error"
+        msg = errorThrown + " while fetching " + url
+        @hide_state_msg()
+        $('#'+@get_data_ontology_display_id()).remove()
+        @blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
+        @reset_dataset_ontology_loader()
+
+  add_nodes_from_SPARQL: (json_data, subject, queryManager) ->
     data = ''
     context = "http://universal.org"
     plainLiteral = "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"
     #console.log json_data
     console.log "Adding node (i.e. fully exploring): " + subject
-    nodes_in_data = json_data.results.bindings
-    for node in nodes_in_data
+    results = json_data.results.bindings
+    if queryManager?
+      queryManager.setResultCount(results.length)
+    for node in results
       language = ''
       obj_type = "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
       if node.s
@@ -3940,8 +4085,9 @@ class Huviz
         @sparql_node_list.push q
         node_not_in_list = true
       else
-        # Check if node is in list - sparql_node_list is used to keep track of nodes that have already been
-        # loaded by a query so that they will not be added again through add_quad.
+        # Check if node is in list - sparql_node_list is used to keep track
+        # of nodes that have already been loaded by a query so that they
+        # will not be added again through add_quad.
         for snode in @sparql_node_list
           #TODO - This filtering statement doesn't seem tight (Will not catch nodes that HuViz creates - that's okay I think)
           if q.s is snode.s and q.p is snode.p and q.o.value is snode.o.value and q.o.type is snode.o.type and q.o.language is snode.o.language
@@ -3968,8 +4114,13 @@ class Huviz
         @add_quad(q, subject)
       #@dump_stats()
 
-  add_nodes_from_SPARQL_Worker : (queryTarget) ->
-    console.log "Make request for new query and load nodes"
+  add_nodes_from_SPARQL_Worker: (queryTarget) ->
+    console.log("Make request for new query and load nodes")
+
+    timeout = @get_sparql_timeout_msec()
+    queryManagerArgs = {timeout}
+    queryManager = null # so it can be seen across calls to the message listener
+
     @pfm_count('sparql')
     url = @endpoint_loader.value
     if @sparql_node_list then previous_nodes = @sparql_node_list else previous_nodes = []
@@ -3979,24 +4130,69 @@ class Huviz
     worker = new Worker('/huviz/sparql_ajax_query.js')
     worker.addEventListener 'message', (e) =>
       #console.log e.data
+      if e.data.method_name is 'log_query'
+        queryManager = @run_managed_query_abstract("#SPARQL_Worker\n"+e.data.qry, url, queryManagerArgs)
+        #queryManager = @log_query_with_timeout(, timeout)
+        return
+      else if e.data.method_name isnt 'accept_results'
+        error = new Error("expecting either data.method = 'log_query' or 'accept_results'")
+        queryManager.anim.cancel()
+        queryManager.displayError(error)
+        throw error
       add_fully_loaded = e.data.fully_loaded_index
       for quad in e.data.results
         #console.log quad
         @add_quad(quad)
-        @sparql_node_list.push quad  # Add the new quads to the official list of added quads
+        @sparql_node_list.push(quad)  # Add the new quads to the official list of added quads
         local_node_added++
-      console.log "Node Added Count: " + local_node_added
+      queryManager.setResultCount(local_node_added)
+      queryManager.anim.cancel()
+      if local_node_added
+        queryManager.setSuccessColor()
+      else
+        queryManager.setNoneColor()
       # Verify through the loaded nodes that they are all properly marked as fully_loaded
       for a_node, i in @all_set
         if a_node.id is queryTarget
           @all_set[i].fully_loaded = true
       @endpoint_loader.outstanding_requests = @endpoint_loader.outstanding_requests - 1
-      console.log "Resort the shelf"
+      #console.log "Resort the shelf"
       @shelved_set.resort()
       @tick("Tick in add_nodes_from_SPARQL_worker")
       @update_all_counts()
-    worker.postMessage({target:queryTarget, url:url, graph:graph, limit:query_limit, previous_nodes:previous_nodes})
+    worker.postMessage(
+      target: queryTarget
+      url: url
+      graph: graph
+      limit: query_limit
+      timeout: timeout
+      previous_nodes: previous_nodes)
 
+  is_from_sparql: ->
+    # force the return of a boolan with "not not"
+    return not not (@endpoint_loader? and @endpoint_loader.value) # This is part of a sparql set
+
+  get_neighbors_via_sparql: (chosen) ->
+    if not chosen.fully_loaded
+      # If there are more than certain number of requests, stop the process
+      maxReq = @max_outstanding_sparql_requests
+      if (@endpoint_loader.outstanding_requests < maxReq)
+        @endpoint_loader.outstanding_requests++
+        @add_nodes_from_SPARQL_Worker(chosen.id)
+        console.log("outstanding_requests: " + @endpoint_loader.outstanding_requests)
+      else
+        msg = "SPARQL requests capped at #{maxReq}"
+        @blurt(msg, 'alert')
+        # if $("#blurtbox").html()
+        #   #console.log "Don't add error message " + message
+        #   console.log "Request counter (over): " + @endpoint_loader.outstanding_requests
+        # else
+        #   #console.log "Error message " + message
+        #   msg = "There are more than 300 requests in the que. Restricting process. " + message
+        #   @blurt(msg, 'alert')
+        #   message = true
+        #   console.log "Request counter: " + @endpoint_loader.outstanding_requests
+    return
 
   # Deal with buggy situations where flashing the links on and off
   # fixes data structures.  Not currently needed.
@@ -4479,30 +4675,8 @@ class Huviz
     # If this chosen node is part of a SPARQL query set, then check if it is fully loaded
     # if it isn't then load and activate
     #console.log chosen
-    if @endpoint_loader? and @endpoint_loader.value # This is part of a sparql set
-      if not chosen.fully_loaded
-        #console.log "Time to make a new SPARQL query using: " + chosen.id + " - requests underway: " + @endpoint_loader.outstanding_requests
-        # If there are more than certain number of requests, stop the process
-
-        if (@endpoint_loader.outstanding_requests < 10)
-          #@endpoint_loader.outstanding_requests = @endpoint_loader.outstanding_requests + 1
-          @endpoint_loader.outstanding_requests++
-          #console.log "Less than 6 so go ahead " + message
-          #@load_new_endpoint_data_and_show(chosen.id)
-          # TEST of calling Worker for Ajax
-          @add_nodes_from_SPARQL_Worker(chosen.id)
-          console.log "Request counter: " + @endpoint_loader.outstanding_requests
-
-        else
-          if $("#blurtbox").html()
-            #console.log "Don't add error message " + message
-            console.log "Request counter (over): " + @endpoint_loader.outstanding_requests
-          else
-            #console.log "Error message " + message
-            msg = "There are more than 300 requests in the que. Restricting process. " + message
-            @blurt(msg, 'alert')
-            message = true
-            console.log "Request counter: " + @endpoint_loader.outstanding_requests
+    if @is_from_sparql()
+      @get_neighbors_via_sparql(chosen)
 
     # There is a flag .chosen in addition to the state 'linked'
     # because linked means it is in the graph
@@ -4775,7 +4949,7 @@ class Huviz
     @regenerate_english()
     @tick("Tick in toggle_selected")
 
-  # ========================================== SNIPPET (INFO BOX) UI =============================================================================
+  # ======== SNIPPET (INFO BOX) UI ==========================================
   get_snippet_url: (snippet_id) ->
     if snippet_id.match(/http\:/)
       return snippet_id
@@ -4791,12 +4965,18 @@ class Huviz
       which = "orlando"
     return "/snippet/#{which}/#{snippet_id}/"
 
+  make_edge_inspector_id: (edge) ->
+    id = edge.id.replace(new RegExp(' ','g'), '_')
+    #console.log("make_edge_inspector_id()", edge, '==>', id)
+    return id
+
   get_snippet_js_key: (snippet_id) ->
     # This is in case snippet_ids can not be trusted as javascript
     # property ids because they might have leading '-' or something.
     return "K_" + snippet_id
 
   get_snippet: (snippet_id, callback) ->
+    console.warn("get_snippet('#{snippet_id}') should no longer be called")
     snippet_js_key = @get_snippet_js_key(snippet_id)
     snippet_text = @snippet_db[snippet_js_key]
     url = @get_snippet_url(snippet_id)
@@ -4833,7 +5013,7 @@ class Huviz
       snip_div = @snippet_box.append('div').attr('class','snippet')
       snip_div.html(msg)
       $(snip_div[0][0]).addClass("snippet_dialog_box")
-      my_position = @get_next_snippet_position()
+      my_position = @get_next_snippet_position(obj.snippet_js_key)
       dialog_args =
         #maxHeight: @snippet_size
         minWidth: 400
@@ -4861,8 +5041,15 @@ class Huviz
       return
 
   snippet_positions_filled: {}
-  get_next_snippet_position: ->
+  snippet_position_str_to_obj: (str) ->
+    # convert "left+123 top+456" to {left: 123, top: 456}
+    [left, top] = str.replace(new RegExp('([a-z]*)\\+','g'),'').split(' ').map((c) -> parseInt(c))
+    return {left, top}
+  get_next_snippet_position_obj: (id) ->
+    return @snippet_position_str_to_obj(@get_next_snippet_position(id))
+  get_next_snippet_position: (id) ->
     # Fill the left edge, then the top edge, then diagonally from top-left
+    id ?= true
     height = @height
     width = @width
     left_full = false
@@ -4888,10 +5075,10 @@ class Huviz
         vinc = 30
         hoff = 0
         voff = 0
-    @snippet_positions_filled[retval] = true
+    @snippet_positions_filled[retval] = id
     return retval
 
-  # =============================================================================================================================
+  # =========================================================================
 
   remove_tags: (xml) ->
     xml.replace(XML_TAG_REGEX, " ").replace(MANY_SPACES_REGEX, " ")
@@ -4912,16 +5099,23 @@ class Huviz
     for edge in node.links_shown
       edge.focused = false
 
+  hilight_dialog: (dialog_elem) ->
+    if typeof(dialog_elem) is 'string'
+      throw new Error('hilight_dialog() expects an Elem, not '+dialog_elem)
+    else
+      dialog_id = dialog_elem.getAttribute('id')
+    parent = $("##{dialog_id}").parent().attr('id')
+    $("##{parent}").append($("##{dialog_id}").effect('shake'))
+
   print_edge: (edge) ->
     # @clear_snippets()
     context_no = 0
     for context in edge.contexts
-      snippet_js_key = @get_snippet_js_key(context.id)
+      edge_inspector_id = @make_edge_inspector_id(edge, context)
+      #snippet_js_key = @get_snippet_js_key(context.id)
       context_no++
-      if @currently_printed_snippets[snippet_js_key]?
-        # FIXME add the Subj--Pred--Obj line to the snippet for this edge
-        #   also bring such snippets to the top
-        console.log("  skipping because",@currently_printed_snippets[snippet_js_key])
+      if @currently_printed_snippets[edge_inspector_id]?
+        @hilight_dialog(edge._inspector or edge_inspector_id)
         continue
       me = this
       make_callback = (context_no, edge, context) =>
@@ -4933,10 +5127,10 @@ class Huviz
             snippet_text += '<br><code class="snippet_id">'+context.id+"</code>"
           snippet_id = context.id
           snippet_js_key = me.get_snippet_js_key snippet_id
-          if not me.currently_printed_snippets[snippet_js_key]?
-            me.currently_printed_snippets[snippet_js_key] = []
-          me.currently_printed_snippets[snippet_js_key].push(edge)
-          me.snippet_db[snippet_js_key] = snippet_text
+          if not me.currently_printed_snippets[edge_inspector_id]?
+            me.currently_printed_snippets[edge_inspector_id] = []
+          me.currently_printed_snippets[edge_inspector_id].push(edge)
+          me.snippet_db[edge_inspector_id] = snippet_text
           me.printed_edge = edge
           quad =
             subj_uri: edge.source.id
@@ -4947,6 +5141,7 @@ class Huviz
           else
             quad.obj_uri = edge.target.id
           me.push_snippet
+            edge_inspector_id: edge_inspector_id
             edge: edge
             pred_id: edge.predicate.lid
             pred_name: edge.predicate.name
@@ -4956,7 +5151,9 @@ class Huviz
             snippet_text: snippet_text
             no: context_no
             snippet_js_key: snippet_js_key
-      @get_snippet(context.id, make_callback(context_no, edge, context))
+      cb = make_callback(context_no, edge, context)
+      cb() # To get the old snippet fetcher working again, do the following instead:
+      #@get_snippet(context.id, cb)
 
   # The Verbs PRINT and REDACT show and hide snippets respectively
   print: (node) =>
@@ -5023,7 +5220,7 @@ class Huviz
 
       the_url = location.href.replace(location.hash, "") + hash
       the_title = document.title
-      window.history.pushState the_state, the_title, the_state
+      window.history.pushState(the_state, the_title, the_state)
 
   # TODO: remove this method
   restore_graph_state: (state) ->
@@ -5328,6 +5525,14 @@ class Huviz
       $(@get_or_create_sel_for_picker()).append(@big_go_button)
       @big_go_button.click(@visualize_dataset_using_ontology)
       @big_go_button.prop('disabled', true)
+    if @ontology_loader or @dataset_loader or @script_loader and not @big_go_button
+      ontology_selector = "##{@ontology_loader.select_id}"
+      $(ontology_selector).change(@update_dataset_forms)
+      dataset_selector = "##{@dataset_loader.select_id}"
+      $(dataset_selector).change(@update_dataset_forms)
+      script_selector = "##{@script_loader.select_id}"
+      $(script_selector).change(@update_dataset_forms)
+
     @init_datasetDB()
     @preload_datasets()
 
@@ -5335,8 +5540,17 @@ class Huviz
     # TODO remove this nullification of @last_val by fixing logic in select_option()
     @ontology_loader?last_val = null # clear the last_val so select_option works the first time
 
+  update_dataset_forms: (e) =>
+    ont_val = $("##{@ontology_loader.select_id}").val()
+    dat_val = $("##{@dataset_loader.select_id}").val()
+    scr_val = $("##{@script_loader.select_id}").val()
+    if ont_val is '' and dat_val is '' and scr_val is ''
+      $("##{@endpoint_loader.uniq_id}").children('select').prop('disabled', false)
+    else
+      $("##{@endpoint_loader.uniq_id}").children('select').prop('disabled', 'disabled')
+
   update_graph_form: (e) =>
-    #console.log e.currentTarget.value
+    console.log e.currentTarget.value
     @endpoint_loader.endpoint_graph = e.currentTarget.value
 
   visualize_dataset_using_ontology: (ignoreEvent, dataset, ontologies) =>
@@ -5362,8 +5576,8 @@ class Huviz
     # at this point data and onto are both objects with a .value key, containing url or fname
     if not (onto.value and data.value)
       console.debug(data, onto)
+      @update_dataset_forms()
       throw new Error("Now whoa-up pardner... both data and onto should have .value")
-
     @load_data_with_onto(data, onto, @after_visualize_dataset_using_ontology)
     @update_browser_title(data)
     @update_caption(data.value, onto.value)
@@ -5581,22 +5795,22 @@ class Huviz
     endpoint_limit_id = unique_id('endpoint_limit_')
     endpoint_labels_id = unique_id('endpoint_labels_')
     select_box = """
-      <div class='ui-widget' style='display:none;margin-top:5px;margin-left:10px;'>
+      <div class="ui-widget" style="display:none;margin-top:5px;margin-left:10px;">
         <label>Graphs: </label>
         <select id="sparqlGraphOptions-#{@endpoint_loader.select_id}">
         </select>
       </div>
       <div id="sparqlGraphSpinner-#{@endpoint_loader.select_id}"
-           style='display:none;font-style:italic;'>
-        <i class='fas fa-spinner fa-spin' style='margin: 10px 10px 0 50px;'></i>  Looking for graphs...
+           style="display:none;font-style:italic;">
+        <i class="fas fa-spinner fa-spin" style="margin: 10px 10px 0 50px;"></i>  Looking for graphs...
       </div>
       <div id="#{sparqlQryInput_id}" class="ui-widget sparqlQryInput"
-           style='display:none;margin-top:5px;margin-left:10px;color:#999;'>
-        <label for='#{endpoint_labels_id}'>Find: </label>
-        <input id='#{endpoint_labels_id}'>
-        <i class='fas fa-spinner fa-spin' style='visibility:hidden;margin-left: 5px;'></i>
-        <div><label for='#{endpoint_limit_id}'>Node Limit: </label>
-        <input id='#{endpoint_limit_id}' value='100'>
+           style="display:none;margin-top:5px;margin-left:10px;color:#999;">
+        <label for="#{endpoint_labels_id}">Find: </label>
+        <input id="#{endpoint_labels_id}">
+        <i class="fas fa-spinner fa-spin" style="visibility:hidden;margin-left: 5px;"></i>
+        <div><label for="#{endpoint_limit_id}">Node Limit: </label>
+        <input id="#{endpoint_limit_id}" value="100">
         </div>
       </div>
     """ # """
@@ -5605,65 +5819,155 @@ class Huviz
     @endpoint_labels_JQElem = $('#'+endpoint_labels_id)
     @endpoint_limit_JQElem = $('#'+endpoint_limit_id)
     fromGraph =''
-    @endpoint_labels_JQElem.autocomplete({minLength: 3, delay:500, position: {collision: "flip"}, source: @populate_graphs_selector})
+    @endpoint_labels_JQElem.on('input', @animate_endpoint_label_typing)
+    @endpoint_labels_JQElem.autocomplete
+      minLength: 3
+      delay:500
+      position: {collision: "flip"}
+      source: @populate_graphs_selector
+
+  animate_endpoint_label_typing: =>
+    # Called every time the user types a character to animate the countdown to sending a query
+    elem = @endpoint_labels_JQElem[0]
+    @endpoint_label_typing_anim = @animate_fill_graph(elem, 500, '#E7E7E7')
+    # TODO receive a handle to the animation so it can be killed when the search begins
+
+  animate_endpoint_label_search: (overMsec, fc, bc) =>
+    # Called every time the search starts to show countdown until timeout
+    @endpoint_labels_JQElem.siblings('i').css('visibility','visible')
+    overMsec ?= @get_sparql_timeout_msec()
+    elem = @endpoint_labels_JQElem[0]
+    @endpoint_label_search_anim = @animate_sparql_query(elem, overMsec, fc, bc)
+    # TODO upon timeout, style box with a color to indicate failure
+    # TODO upon success, style the box with a color to indicate success
+
+  endpoint_label_search_success: ->
+    @kill_endpoint_label_search_anim()
+    @endpoint_labels_JQElem.css('background', 'lightgreen')
+
+  endpoint_label_search_none: ->
+    @kill_endpoint_label_search_anim()
+    @endpoint_labels_JQElem.css('background', 'lightgrey')
+
+  endpoint_label_search_failure: ->
+    @kill_endpoint_label_search_anim()
+    @endpoint_labels_JQElem.css('background', 'pink')
+
+  kill_endpoint_label_search_anim: ->
+    @endpoint_label_search_anim.cancel()
+    @endpoint_labels_JQElem.siblings('i').css('visibility','hidden')
+    return
+
+  animate_sparql_query: (elem, overMsec, fillColor, bgColor) ->
+    fillColor ?= 'lightblue'
+    return @animate_fill_graph(elem, overMsec, fillColor, bgColor)
+
+  animate_fill_graph: (elem, overMsec, fillColor, bgColor) ->
+    # https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
+    overMsec ?= 2000
+    fillColor ?= 'yellow'
+    bgColor ?= 'white'
+    animId = false
+    go = (elem, overMsec, fillColor, bgColor) ->
+      cancelled = false
+      anim = {elem, overMsec, fillColor, bgColor, cancelled}
+      step = (nowMsec) ->
+        if anim.cancelled
+          console.info('animate_fill_graph() cancelled')
+          return
+        if not anim.startMsec
+          anim.startMsec = nowMsec
+        anim.progressMsec = nowMsec - anim.startMsec
+        fillPct = ((anim.overMsec - anim.progressMsec) / anim.overMsec) * 100
+        bgPct = 100 - fillPct
+        bg = "linear-gradient(to right, #{anim.fillColor} 0% #{bgPct}%, #{bgColor} #{bgPct}%, #{anim.bgColor} 100%)"
+        # console.log(bg, anim.startMsec, nowMsec, anim.progressMsec)
+        elem.style.background = bg
+        if anim.progressMsec < anim.overMsec
+          anim.animId = requestAnimationFrame(step)
+      anim.animId = requestAnimationFrame(step)
+      anim.cancel = () ->
+        anim.cancelled = true
+        window.cancelAnimationFrame(anim.animId)
+      return anim
+    return go(elem, overMsec, fillColor, bgColor)
+
+  get_sparql_timeout_msec: ->
+    return 1000 * (@sparql_timeout or 5)
 
   populate_graphs_selector: (request, response) =>
-      spinner = @endpoint_labels_JQElem.siblings('i')
-      spinner.css('visibility','visible')
-      url = @endpoint_loader.value
-      fromGraph = ''
-      if @endpoint_loader.endpoint_graph then fromGraph=" FROM <#{@endpoint_loader.endpoint_graph}> "
-      qry = """
-      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-      PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-      SELECT * #{fromGraph}
-      WHERE {
-  	  ?sub rdfs:label|foaf:name ?obj .
-      filter contains(?obj,"#{request.term}")
-      }
-      LIMIT 20
-      """  # " # for emacs syntax hilighting
-      ajax_settings = {
-        'method': 'GET'
-        'url': url + '?query=' + encodeURIComponent(qry)
-        'headers' :
-          'Accept': 'application/sparql-results+json'
-      }
-      if url is "http://sparql.cwrc.ca/sparql" # Hack to make CWRC setup work properly
-        ajax_settings.headers =
-          'Content-Type' : 'application/sparql-query'
-          'Accept': 'application/sparql-results+json'
-      $.ajax
-          method: ajax_settings.method  # "type" used in eariler jquery
-          url: ajax_settings.url
-          headers: ajax_settings.headers
-          success: (data, textStatus, jqXHR) =>
-            #console.log jqXHR
-            #console.log data
-            json_check = typeof data
-            if json_check is 'string' then json_data = JSON.parse(data) else json_data = data
-            results = json_data.results.bindings
-            selections = []
-            for label in results
-              this_result = {
-                label: label.obj.value + " (#{label.sub.value})"
-                value: label.sub.value
-              }
-              selections.push(this_result)
-              spinner.css('visibility','hidden')
-            response(selections)
-            #@parse_json_label_query_results(data)
-          error: (jqxhr, textStatus, errorThrown) =>
-            console.log(url, errorThrown)
-            console.log textStatus
-            if not errorThrown
-              errorThrown = "Cross-Origin error"
-            msg = errorThrown + " while fetching " + url
-            @hide_state_msg()
-            $('#'+@get_data_ontology_display_id()).remove()
-            @endpoint_labels_JQElem.siblings('i').css('visibility','hidden')
-            @blurt(msg, 'error')
+    @animate_endpoint_label_search()
+    spinner = @endpoint_labels_JQElem.siblings('i')
+    spinner.css('visibility','visible')
+    url = @endpoint_loader.value
+    fromGraph = ''
+    if @endpoint_loader.endpoint_graph
+      fromGraph=" FROM <#{@endpoint_loader.endpoint_graph}> "
+    qry = """
+    # populate_graphs_selector()
+    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+    SELECT * #{fromGraph}
+    WHERE {
+      ?sub rdfs:label|foaf:name ?obj .
+      filter regex(?obj,"^#{request.term}", "i")
+    }
+    LIMIT 20
+    """                       # for emacs syntax hilighting  ---> "
+
+    make_success_handler = () =>
+      return (data, textStatus, jqXHR, queryManager) =>
+        json_check = typeof data
+        if json_check is 'string'
+          try
+            json_data = JSON.parse(data)
+          catch e
+            console.error(e)
+            console.log({data})
+            @endpoint_label_search_failure()
+        else
+          json_data = data
+        results = json_data.results.bindings
+        queryManager.setResultCount(results.length)
+        selections = []
+
+        if results.length
+          @endpoint_label_search_success()
+        else
+          @endpoint_label_search_none()
+        # TODO maybe move spinner control into @kill_endpoint_label_search_anim()
+        spinner.css('visibility','hidden') #  happens regardless of result.length
+        for label in results
+          this_result = {
+            label: label.obj.value + " (#{label.sub.value})"
+            value: label.sub.value
+          }
+          selections.push(this_result)
+        response(selections)
+
+    make_error_callback = () =>
+      return (jqxhr, textStatus, errorThrown) =>
+        #@endpoint_label_search_timeout()
+        @endpoint_label_search_failure()
+        if not errorThrown
+          errorThrown = "Cross-Origin error"
+        msg = errorThrown + " while fetching " + url + " with query \n" + qry
+        #   for query <pre>#{qry}</pre> at
+        msg = """
+        <code>#{errorThrown}</code> with
+        <pre>#{jqxhr.responseText}</pre>
+        <a href="#{url}">#{url}</a>
+        """ # """
+        @hide_state_msg()
+        $('#'+@get_data_ontology_display_id()).remove()
+        @endpoint_labels_JQElem.siblings('i').css('visibility','hidden')
+        @blurt(msg, 'error')
+
+    args =
+      success_handler: make_success_handler()
+      error_callback: make_error_callback()
+    @run_managed_query_ajax(qry, url, args)
 
   init_editc_or_not: ->
     @editui ?= new EditController(@)
@@ -5781,6 +6085,11 @@ class Huviz
     title: "A tutorial"
     text: "Tutorial"
     bodyUrl: "/huviz/docs/tutorial.md"
+  ,
+    id: 'sparqlQueries'
+    cssClass: "tabs-sparqlQueries scrolling_tab"
+    title: "SPARQL Queries"
+    text: "Q"
   ]
 
   get_default_tab: (id) ->
@@ -5835,6 +6144,7 @@ class Huviz
       firstClass = t.cssClass.split(' ')[0]
       firstClass_ = firstClass.replace(/\-/, '_')
       id = @unique_id(firstClass + '_')
+      @tabs_class_to_id[firstClass] = id
       if @args.use_old_tab_ids
         id = firstClass
       idSel = '#' + id
@@ -5898,6 +6208,7 @@ class Huviz
     return elem.lastElementChild  # note, this only works right if html has one outer elem
 
   create_tabs: ->
+    @tabs_class_to_id = {}
     if not @args.tab_specs
       return
     # create <section id="tabs"...> programmatically, making unique ids along the way
@@ -5905,7 +6216,10 @@ class Huviz
     [html, jQElem_list] = @make_tabs_html()
     @addHTML(html)
     for pair in jQElem_list
-      @make_JQElem(pair[0], pair[1]) # make things like @tab_options_JQElem
+      contentAreaJQElem = @make_JQElem(pair[0], pair[1]) # make things like @tab_options_JQElem
+      tabKey = 'tab_for_' + pair[0]
+      tabSel = 'li [href="#' + contentAreaJQElem[0].id + '"]'
+      @make_JQElem(tabKey, tabSel) # make things like @tab_for_tab_options_JQElem
     return
 
   ensureTopElem: ->
@@ -5959,7 +6273,7 @@ class Huviz
       this[jqelem_id] = found
     else
       throw new Error(sel + ' not found')
-    return
+    return found
 
   make_JQElems: ->
     # Make jQuery elems like @viscanvas_JQElem and performance_dashboard_JQElem
@@ -6082,8 +6396,8 @@ class Huviz
               attr("position", "absolute")
     @svg.append("rect").attr("width", @width).attr("height", @height)
     @container = d3.select(@args.viscanvas_sel).node().parentNode
-    @init_settings_from_json()
-    @apply_settings(@args.settings)
+    @init_settings_to_defaults()
+    @adjust_settings_from_kv_list(@args.settings)
     if @use_fancy_cursor
       @text_cursor = new TextCursor(@args.viscanvas_sel, "")
       @install_update_pointer_togglers()
@@ -6281,14 +6595,15 @@ class Huviz
 
   # TODO add controls
   #   selected_border_thickness
+  #   show_cosmetic_tabs
   default_settings: [
-      reset_controls_to_default:
+      reset_settings_to_default:
+        text: "Reset Settings"
         label:
-          title: "Reset all controls to default"
+          title: "Reset all settings to their defaults"
         input:
           type: "button"
-          label: "Reset All"
-          #style: "background-color: #303030"
+          label: "Reset"
     ,
       use_accordion_for_settings:
         text: "show Settings in accordion"
@@ -6298,6 +6613,14 @@ class Huviz
           #checked: "checked"
           type: "checkbox"
         #style: "display:none"
+    ,
+      show_cosmetic_tabs:
+        text: "Show Cosmetic Tabs"
+        label:
+          title: "Expose the merely informational tabs such as 'Intro' and 'Credits'"
+        input:
+          type: "checkbox"
+          checked: "checked"
     ,
       focused_mag:
         group: "Labels"
@@ -6346,18 +6669,6 @@ class Huviz
       #    step: .1
       #    type: "range"
     #,
-      snippet_triple_em:
-        group: "Labels"
-        text: "snippet triple (em)"
-        label:
-          title: "the size of the snippet triples"
-        input:
-          value: .5
-          min: .2
-          max: 4
-          step: .1
-          type: "range"
-    ,
       charge:
         group: "Layout"
         text: "charge (-)"
@@ -6678,25 +6989,6 @@ class Huviz
         input:
           type: "checkbox"   #checked: "checked"
     ,
-      prune_walk_nodes:
-        text: "Walk styles "
-        style: "display:none"
-        label:
-          title: "As path is walked, keep or prune connected nodes on selected steps"
-        input:
-          type: "select"
-        options : [
-            label: "Directional (pruned)"
-            value: "directional_path"
-            selected: true
-          ,
-            label: "Non-directional (pruned)"
-            value: "pruned_path"
-          ,
-            label: "Non-directional (unpruned)"
-            value: "hairy_path"
-        ]
-    ,
       show_hide_endpoint_loading:
         style: "display:none"
         class: "alpha_feature"
@@ -6716,6 +7008,7 @@ class Huviz
         options : [
             label: "Watermark"
             value: "subliminal"
+            selected: true
           ,
             label: "Bold Titles 1"
             value: "bold1"
@@ -6846,6 +7139,42 @@ class Huviz
           type: "checkbox"
           checked: "checked"
     ,
+      show_queries_tab:
+        group: "SPARQL"
+        class: "alpha_feature"
+        text: "Show Queries Tab"
+        label:
+          title: "Expose the 'Queries' tab to be able to monitor and debug SPARQL queries"
+        input:
+          type: "checkbox"
+          #checked: "checked"
+    ,
+      max_outstanding_sparql_requests:
+        group: "SPARQL"
+        class: "alpha_feature"
+        text: "Max. Outstanding Requests"
+        label:
+          title: "Cap on the number of simultaneous SPARQL requests"
+        input:
+          value: 20
+          min: 1
+          max: 100
+          step: 1
+          type: "range"
+    ,
+      sparql_timeout:
+        group: "SPARQL"
+        class: "alpha_feature"
+        text: "Query timeout"
+        label:
+          title: "Number of seconds to run SPARQL queries before giving up."
+        input:
+          value: 10
+          min: 1
+          max: 30
+          step: 1
+          type: "range"
+    ,
       debug_shelf_angles_and_flipping:
         group: "Debugging"
         class: "alpha_feature"
@@ -6888,12 +7217,6 @@ class Huviz
           #checked: "checked"
     ]
 
-  dump_current_settings: (post) =>
-    @settings_JQElem.html('')
-    @init_settings_from_json()
-    @on_change_graph_title_style("subliminal")
-    @on_change_prune_walk_nodes("directional_path")
-
   auto_adjust_settings: ->
     # Try to tune the gravity, charge and link length to suit the data and the canvas size.
     return @
@@ -6909,7 +7232,7 @@ class Huviz
       @settings_groups[groupName] = group = @make_settings_group(groupName)
     return group
 
-  init_settings_from_json: =>
+  init_settings_to_defaults: =>
     # TODO rebuild this method without D3 using @settingsElem
     @settingsElem = document.querySelector(@args.settings_sel)
     settings_input_sel = @args.settings_sel + ' input'
@@ -6948,12 +7271,12 @@ class Huviz
               if opt.label?
                 optionElem.innerHTML = opt.label
           else if control.input.type is 'button'
+            #console.log "construct button: #{control.input.label}"
             inputElem = @insertBeforeEnd(controlElem, """<button type="button">(should set label)</button>""")
             if control.input.label?
               inputElem.innerHTML = control.input.label
             if control.input.style?
               inputElem.setAttribute('style', control.input.style)
-            inputElem.onClick = @dump_current_settings
           else
             inputElem = @insertBeforeEnd(controlElem, """<input name="#{control_name}"></input>""")
             WidgetClass = null
@@ -6976,6 +7299,7 @@ class Huviz
           event_type = control.event_type or
               (control.input.type in ['checkbox','range','radio'] and 'input') or
               'change'
+
           if event_type is 'change'
             # These controls only update when enter is pressed or the focus changes.
             # Good for things like text fields which might not make sense until the user is 'done'.
@@ -6987,6 +7311,9 @@ class Huviz
             # This can be forced by setting the .event_type on the control_spec explicitly.
             #input.on("input", @update_graph_settings) # continuous updates
             inputElem.addEventListener('input', @update_graph_settings)
+          if control.input.type is 'button'
+            inputElem.addEventListener('click', @update_graph_settings)
+
         if control.label.title?
           @insertBeforeEnd(controlElem, '<div class="setting_explanation">' + control.label.title + '</div>')
     #$(@settingGroupsContainerElem).accordion()
@@ -7023,12 +7350,64 @@ class Huviz
       @updateWindow()
     @tick("Tick in update_graph_settings")
 
-  apply_settings: (settings) ->
-    for setting, value of settings
-      @set_setting(setting, value)
-      # TODO could it be that some of these need their handlers run? eg on_change_SOME_SETTING_NAME
-      #@change_setting_to_from(setting, value)
-      #console.warn("should adjust the Settings INPUT for #{setting} too")
+  # ## Settings ##
+  #
+  # ### Nomenclature ###
+  #
+  # * changing a setting changes the property on the Huviz instance (but not the input)
+  # * adjusting a setting alters the input in the settings tab then changes it too
+  # * on_change_<setting_name> methods, if they exist, are called continuously upon INPUT changes
+
+  adjust_settings_from_list_of_specs: (setting_specs) ->
+    for setting_spec in setting_specs
+      for setting_name, control of setting_spec
+        value = null
+        if control.input?
+          if control.input.value?
+            value = control.input.value
+          if control.input.type is 'button'
+            #console.info("#{setting_name} is a button, so skipping")
+            continue
+          if control.input.type is 'checkbox'
+            if control.input.checked
+              value = true
+            else
+              value = false
+          if control.input.type is 'select'
+            for option in control.options
+              if option.selected
+                value = option.value
+                # TODO support select where more than one option is selected
+          if control.input.type is 'text'
+            value = control.input.value or '' # otherwise no adjustment happens
+        else
+          continue # skip settings without an input (eg *_preamble)
+        if value?
+          @adjust_setting_if_needed(setting_name, value)
+        else
+          console.info("#{setting_name} not handled by adjust_settings_from_list_of_specs()")
+          console.info("  default_value:",@get_setting_input_JQElem(setting_name).val())
+    return
+
+  adjust_settings_from_kv_list: (kv_list) ->
+    for setting, value of kv_list
+      @adjust_setting(setting, value)
+
+  adjust_setting_if_needed: (setting_name, new_value, skip_custom_handler) ->
+    input = @get_setting_input_JQElem(setting_name)
+    theType = input.attr('type')
+    if theType in ['checkbox', 'radiobutton']
+      old_value = input.prop('checked')
+    else
+      old_value = input.val()
+    equality = "because old_value: (#{old_value}) new_value: (#{new_value})"
+    if ""+old_value is ""+new_value # compare on string value because that is what inputs return
+      #console.warn("  no change required "+equality)
+      return # bail because no change is needed
+    #pretty_value = typeof value is 'string' and "'#{value}'" or value
+    console.log("change_setting_if_needed('#{setting_name}', #{new_value})")
+    console.info("  change required "+equality)
+    return @adjust_setting(input, new_value, old_value, skip_custom_handler)
 
   change_setting_to_from: (setting_name, new_value, old_value, skip_custom_handler) =>
     skip_custom_handler = skip_custom_handler? and skip_custom_handler or false
@@ -7045,6 +7424,16 @@ class Huviz
     else
       #console.log "change_setting_to_from() setting: #{setting_name} to:#{new_value}(#{typeof new_value}) from:#{old_value}(#{typeof old_value})"
       this[setting_name] = new_value
+
+  adjust_settings_from_defaults: ->
+    return @adjust_settings_from_list_of_specs(@default_settings)
+
+  on_change_reset_settings_to_default: (event) =>
+    console.group('reset_settings_to_default()...')
+    @adjust_settings_from_defaults()
+    @adjust_settings_from_kv_list(@args.settings)
+    console.groupEnd()
+    return
 
   # on_change handlers for the various settings which need them
   on_change_use_accordion_for_settings: (new_val, old_val) ->
@@ -7067,6 +7456,36 @@ class Huviz
       @gclui.verb_sets.push(vset)
       @gclui.add_verb_set(vset)
 
+  on_change_show_cosmetic_tabs: (new_val, old_val) ->
+    if not @tab_for_tabs_sparqlQueries_JQElem?
+      # Keep calling this same method until tabs-sparqlQueries has been found
+      setTimeout((() => @on_change_show_cosmetic_tabs(new_val, old_val)), 50)
+      return
+    # Showing the queries tab is a power-user thing so we hide boring tabs for convenience.
+    if new_val
+      if @tab_for_tabs_credit_JQElem?
+        @tab_for_tabs_credit_JQElem.show()
+      if @tab_for_tabs_intro_JQElem?
+        @tab_for_tabs_intro_JQElem.show()
+    else
+      if @tab_for_tabs_credit_JQElem?
+        @tab_for_tabs_credit_JQElem.hide()
+      if @tab_for_tabs_intro_JQElem?
+        @tab_for_tabs_intro_JQElem.hide()
+    return
+
+  on_change_show_queries_tab: (new_val, old_val) ->
+    if not @tab_for_tabs_sparqlQueries_JQElem?
+      # Keep calling this same method until tabs-sparqlQueries has been found
+      setTimeout((() => @on_change_show_queries_tab(new_val, old_val)), 50)
+      return
+    # Showing the queries tab is a power-user thing so we hide boring tabs for convenience.
+    if new_val
+      @tab_for_tabs_sparqlQueries_JQElem.show()
+    else
+      @tab_for_tabs_sparqlQueries_JQElem.hide()
+    return
+
   on_change_show_dangerous_datasets: (new_val, old_val) ->
     if new_val
       $('option.dangerous').show()
@@ -7084,13 +7503,13 @@ class Huviz
       $("input[name='charge']").attr('min', '-5000').attr('value', '-3000')
       $("input[name='link_distance']").attr('max', '500').attr('value', '200')
       @charge = -3000
-      @link_distance = 200
+      @link_distance = 200 # TODO use the method which updates settings...
     else
       node_display_type = ""
       $("input[name='charge']").attr('min', '-600').attr('value', '-200')
       $("input[name='link_distance']").attr('max', '200').attr('value', '29')
       @charge = -200
-      @link_distance = 29
+      @link_distance = 29 # TODO use the method which updates settings...
     @updateWindow()
 
   on_change_theme_colors: (new_val) ->
@@ -7107,7 +7526,6 @@ class Huviz
     #$("body").addClass renderStyles.themeName
     @topElem.style.backgroundColor = renderStyles.pageBg
     @topElem.classList.add(renderStyles.themeName)
-    console.log @topElem
     @updateWindow()
 
   on_change_display_label_cartouches: (new_val) ->
@@ -7169,6 +7587,7 @@ class Huviz
   on_change_graph_custom_sub_title: (new_val) ->
     @ontology_watermark_JQElem.text(new_val)
 
+  # TODO use make_markdown_dialog() instead of alert()
   on_change_language_path: (new_val, old_val) ->
     try
       MultiString.set_langpath(new_val)
@@ -7188,9 +7607,6 @@ class Huviz
   on_change_color_nodes_as_pies: (new_val, old_val) ->  # TODO why this == window ??
     @color_nodes_as_pies = new_val
     @recolor_nodes()
-
-  on_change_prune_walk_nodes: (new_val, old_val) ->
-    @prune_walk_nodes = new_val
 
   on_change_show_hide_endpoint_loading: (new_val, old_val) ->
     if @endpoint_loader
@@ -7213,7 +7629,7 @@ class Huviz
       @pfm_display = false
 
   on_change_discover_geonames_remaining: (new_val, old_val) ->
-    @discover_geonames_remaining = new_val
+    @discover_geonames_remaining = parseInt(new_val,10)
     @discover_names_including('sws.geonames.org')
 
   on_change_discover_geonames_as: (new_val, old_val) ->
@@ -7270,7 +7686,6 @@ class Huviz
       @disable_dataset_ontology_loader(data, onto)
     @show_state_msg("loading...")
     #@init_from_settings() # REVIEW remove init_from_settings?!?
-    #@dump_current_settings("after init_from_settings()")
     #@reset_graph()
     @show_state_msg(@data_uri)
     unless @G.subjects
@@ -7613,8 +8028,7 @@ class Orlando extends OntologicallyGrounded
 
   push_snippet: (msg_or_obj) ->
     obj = msg_or_obj
-    fontSize = @snippet_triple_em
-    if @snippet_box
+    if true #@snippet_box
       if typeof msg_or_obj isnt 'string'
         [msg_or_obj, m] = ["", msg_or_obj]  # swap them
         if obj.quad.obj_uri
@@ -7628,31 +8042,63 @@ class Orlando extends OntologicallyGrounded
             dataType = "^^#{@make_link(dataType_uri, dataType_curie)}"
           obj_dd = """"#{obj.quad.obj_val}"#{dataType}"""
         msg_or_obj = """
-        <div id="#{obj.snippet_js_key}">
-          <div style="font-size:#{fontSize}em">
+        <div id="#{obj.snippet_js_key}" class="message_wrapper" style="overflow:none;">
             <h3>subject</h3>
-            <div class="snip_circle" style="background-color:#{m.edge.source.color}; width: #{fontSize * 2.5}em; height: #{fontSize * 2.5}em;"></div>
-            <p style="margin-left: #{fontSize * 3.5}em">#{@make_link(obj.quad.subj_uri)}</p>
+            <div class="edge_circle" style="background-color:#{m.edge.source.color};"></div>
+            <p>#{@make_link(obj.quad.subj_uri)}</p>
 
             <h3>predicate </h3>
-            <div class="snip_arrow">
-              <div class="snip_arrow_stem" style="width: #{fontSize * 2}em; height: #{fontSize * 1}em; margin-top: #{fontSize * 0.75}em; background-color:#{m.edge.color};"></div>
-              <div class="snip_arrow_head" style="border-color: transparent transparent transparent #{m.edge.color};border-width: #{fontSize * 1.3}em 0 #{fontSize * 1.3}em #{fontSize * 2.3}em;"></div>
+            <div class="edge_arrow">
+              <div class="edge_arrow_stem" style="background-color:#{m.edge.color};"></div>
+              <div class="edge_arrow_head" style="border-color: transparent transparent transparent #{m.edge.color};"></div>
             </div>
-            <p class="pred" style="margin-left: #{fontSize * 4.8}em">#{@make_link(obj.quad.pred_uri)}</p>
+            <p class="pred">#{@make_link(obj.quad.pred_uri)}</p>
 
             <h3>object </h3>
-            <div class="snip_circle" style="background-color:#{m.edge.target.color}; width: #{fontSize * 2.5}em; height: #{fontSize * 2.5}em;"></div>
-            <p style="margin-left: #{fontSize * 3.5}em">#{obj_dd}</p>
+            <div class="edge_circle" style="background-color:#{m.edge.target.color};"></div>
+            <p>#{obj_dd}</p>
 
             <h3>source</h3>
-            <p style="margin-left: #{fontSize * 2.5}em">#{@make_link(obj.quad.graph_uri)}</p>
-          </div>
+            <p">#{@make_link(obj.quad.graph_uri)}</p>
         </div>
 
         """
         ## unconfuse emacs Coffee-mode: " """ ' '  "
-      super(obj, msg_or_obj) # fail back to super
+    pos = @get_next_snippet_position_obj(obj.edge_inspector_id)
+    dialogArgs =
+      width: @width
+      height: @height
+      extraClasses: "edge_inspector"
+      top: pos.top
+      left: pos.left
+      close: @close_edge_inspector
+    obj.edge._inspector = @make_dialog(msg_or_obj, obj.edge_inspector_id, dialogArgs)
+    obj.edge._inspector.dataset.edge_id = obj.edge.id
+
+  close_edge_inspector: (event, ui) =>
+    box = event.currentTarget.offsetParent
+    edge_id = box.dataset.edge_id
+    if edge_id?
+      edge = @edges_by_id[edge_id]
+      if edge?
+        delete edge._inspector
+    edge_inspector_id = event.target.getAttribute('for')
+    @remove_edge_inspector(edge_inspector_id)
+    @destroy_dialog(event)
+    return
+
+  remove_edge_inspector: (edge_inspector_id) ->
+    delete @currently_printed_snippets[edge_inspector_id]
+    @clear_snippet_position_filled_for(edge_inspector_id)
+    return
+
+  clear_snippet_position_filled_for: (match_id) ->
+    # delete the snippet_position_filled for match_id, so the position can be re-used
+    for pos, id of @snippet_positions_filled
+      if id is match_id
+        delete @snippet_positions_filled[pos]
+        break
+    return
 
   human_term: orlando_human_term
 

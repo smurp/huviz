@@ -182,10 +182,7 @@
   color: #757575;
   margin-left: 0.5em;
 }
-.a_setting.reset_controls_to_default__setting {
-  height: 2em;
-}
-button[name='reset_controls_to_default'] {
+.a_setting button {
   float: right;
   clear: both;
 }
@@ -297,9 +294,6 @@ select[name='graph_title_style'] {
   margin-right: 3px;
 }
 
-.snippet {
-  background-color: "lightgray";
-}
 /* -------- Loading Message Styles ------------ */
 #state_msg_box {
   width: 100%;

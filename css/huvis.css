@@ -35,7 +35,6 @@ body, html {
   position: absolute;
   display: block;
   border-radius: 5px;
-  overflow: auto;
 }
 .contextMenu .header {
   /*background-color: #157fcc;*/
@@ -221,35 +220,44 @@ img.close_all_snippets_button {
 .ui-dialog .snippet.ui-dialog-content {
   padding-top: 0;
 }
-.snippet a{
+div.message_wrapper {
+  padding: 0.5em 1em;
+  overflow: hidden;
+}
+
+.edge_inspector a{
   color: #0056b3;
 }
-.snippet h3 {
+.edge_inspector h3 {
   -webkit-text-size-adjust: none;
   text-transform: uppercase;
   margin-top: 1em;
   margin-bottom: 0.2em;
   clear: both;
   color: #555;
+  font-size: 0.8em;
 }
-.snippet p{
-  margin-inline-start: 0.5em;
+.edge_inspector p{
+  margin-inline-start: 1.4em;
   margin-top: 0em;
   margin-bottom: 0;
 }
-.snippet p.pred{
+.edge_inspector p.pred{
+  margin-inline-start: 2.3em;
 }
-.snippet .snip_circle{
+.edge_circle{
    background-color: #000;
    display: block;
    margin-right: 0.5em;
    border-radius: 50%;
    position: absolute;
+   height: 1em;
+   width: 1em;
 }
-.snippet .snip_arrow {
+.edge_arrow {
   position: absolute;
 }
-.snippet .snip_arrow_head{
+.edge_arrow_head{
   width: 0;
   height: 0;
   border-style: solid;
@@ -257,11 +265,13 @@ img.close_all_snippets_button {
   border-color: transparent transparent transparent #007bff;
   float: left;
   margin-right: 0.5em;
+  border-width: 0.8em 0 0.8em 0.8em;
 }
-.snippet .snip_arrow_stem {
+.edge_arrow_stem {
   width: 1em;
-  height: 0.7em;
+  height: 0.6em;
   float: left;
+  margin-top: .5em;
 }
 
 /* --------------- Performance Monitor ----------------- */
