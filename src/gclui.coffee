@@ -101,6 +101,7 @@ class CommandController
     preJQElem = qryJQElem.find('pre')
     preElem = preJQElem[0]
     preJQElem.text(qry) # rely on text() doing HTML encoding (to protect <, >, etc )
+    queriesJQElem.scrollTop(10000)
     queryManager = new QueryManager(qry)
     return Object.assign(queryManager, {qryJQElem, preJQElem, preElem})
 

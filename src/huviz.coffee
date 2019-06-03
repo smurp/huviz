@@ -3843,13 +3843,13 @@ class Huviz
         'Content-Type' : 'application/sparql-query'
         'Accept': 'application/sparql-results+json'
 
-    $.ajax
+    queryManager.xhr = $.ajax
       timeout: timeout
       method: ajax_settings.method
       url: ajax_settings.url
       headers: ajax_settings.headers
       success: (data, textStatus, jqXHR) =>
-        queryManager.anim.cancel()
+        queryManager.cancelAnimation()
         if success_handler?
           try
             success_handler(data, textStatus, jqXHR, queryManager)
@@ -3857,7 +3857,7 @@ class Huviz
             queryManager.colorQuery('pink')
             queryManager.displayError(e)
       error: (jqxhr, textStatus, errorThrown) =>
-        queryManager.anim.cancel()
+        queryManager.cancelAnimation()
         queryManager.setErrorColor()
         if not errorThrown
           errorThrown = "Cross-Origin error"
@@ -3865,8 +3865,8 @@ class Huviz
         #@hide_state_msg()
         $('#'+@get_data_ontology_display_id()).remove()
         queryManager.displayError(msg)
-        if @error_callback?
-          error_callback()
+        if error_callback?
+          error_callback(jqxhr, textStatus, errorThrown)
 
     return queryManager
 
@@ -3891,6 +3891,10 @@ class Huviz
     $(graphSelector).parent().css('display', 'none')
     @sparqlQryInput_hide()
 
+    handle_graphsNotFound = () =>
+      $(graphSelector).parent().css('display', 'none')
+      @reset_endpoint_form(true)
+
     make_success_handler = () =>
       return (data, textStatus, jqXHR, queryManager) =>
         json_check = typeof data
@@ -3904,8 +3908,7 @@ class Huviz
 
         graphsNotFound = jQuery.isEmptyObject(results[0])
         if graphsNotFound
-          $(graphSelector).parent().css('display', 'none')
-          @reset_endpoint_form(true)
+          handle_graphsNotFound()
           return
         graph_options = "<option id='#{@unique_id()}' value='#{url}'> All Graphs </option>"
         for graph in results
@@ -3915,15 +3918,17 @@ class Huviz
         @reset_endpoint_form(true)
 
     make_error_callback = () =>
-      return () =>
+      return (jqXHR, textStatus, errorThrown) =>
         $(graphSelector).parent().css('display', 'none')
         spinner.css('visibility','hidden')
-        @reset_dataset_ontology_loader()
+        #@reset_dataset_ontology_loader()
+        handle_graphsNotFound()
+        @reset_endpoint_form(true)
 
     args =
       success_handler: make_success_handler()
       error_callback: make_error_callback()
-    @run_managed_query_ajax(qry, url, args)
+    @sparql_graph_query_and_show_queryManager = @run_managed_query_ajax(qry, url, args)
 
   sparqlQryInput_hide: ->
     @sparqlQryInput_JQElem.hide() #css('display', 'none')
@@ -4136,7 +4141,7 @@ class Huviz
         return
       else if e.data.method_name isnt 'accept_results'
         error = new Error("expecting either data.method = 'log_query' or 'accept_results'")
-        queryManager.anim.cancel()
+        queryManager.cancelAnimation()
         queryManager.displayError(error)
         throw error
       add_fully_loaded = e.data.fully_loaded_index
@@ -4146,7 +4151,7 @@ class Huviz
         @sparql_node_list.push(quad)  # Add the new quads to the official list of added quads
         local_node_added++
       queryManager.setResultCount(local_node_added)
-      queryManager.anim.cancel()
+      queryManager.cancelAnimation()
       if local_node_added
         queryManager.setSuccessColor()
       else
@@ -5104,8 +5109,9 @@ class Huviz
       throw new Error('hilight_dialog() expects an Elem, not '+dialog_elem)
     else
       dialog_id = dialog_elem.getAttribute('id')
-    parent = $("##{dialog_id}").parent().attr('id')
-    $("##{parent}").append($("##{dialog_id}").effect('shake'))
+    $(dialog_elem).parent().append(dialog_elem) # bring to top
+    $(dialog_elem).effect('shake')
+    return
 
   print_edge: (edge) ->
     # @clear_snippets()
@@ -5822,9 +5828,9 @@ class Huviz
     @endpoint_labels_JQElem.on('input', @animate_endpoint_label_typing)
     @endpoint_labels_JQElem.autocomplete
       minLength: 3
-      delay:500
+      delay: 500
       position: {collision: "flip"}
-      source: @populate_graphs_selector
+      source: @search_sparql_by_label
 
   animate_endpoint_label_typing: =>
     # Called every time the user types a character to animate the countdown to sending a query
@@ -5834,7 +5840,7 @@ class Huviz
 
   animate_endpoint_label_search: (overMsec, fc, bc) =>
     # Called every time the search starts to show countdown until timeout
-    @endpoint_labels_JQElem.siblings('i').css('visibility','visible')
+    @start_graphs_selector_spinner()
     overMsec ?= @get_sparql_timeout_msec()
     elem = @endpoint_labels_JQElem[0]
     @endpoint_label_search_anim = @animate_sparql_query(elem, overMsec, fc, bc)
@@ -5855,7 +5861,7 @@ class Huviz
 
   kill_endpoint_label_search_anim: ->
     @endpoint_label_search_anim.cancel()
-    @endpoint_labels_JQElem.siblings('i').css('visibility','hidden')
+    @stop_graphs_selector_spinner()
     return
 
   animate_sparql_query: (elem, overMsec, fillColor, bgColor) ->
@@ -5895,23 +5901,48 @@ class Huviz
   get_sparql_timeout_msec: ->
     return 1000 * (@sparql_timeout or 5)
 
-  populate_graphs_selector: (request, response) =>
-    @animate_endpoint_label_search()
+  start_graphs_selector_spinner: ->
     spinner = @endpoint_labels_JQElem.siblings('i')
     spinner.css('visibility','visible')
+    return
+
+  stop_graphs_selector_spinner: ->
+    spinner = @endpoint_labels_JQElem.siblings('i')
+    spinner.css('visibility','hidden') #  happens regardless of result.length
+    return
+
+  euthanize_search_sparql_by_label: ->
+    if @search_sparql_by_label_queryManager?
+      @kill_endpoint_label_search_anim()
+      @search_sparql_by_label_queryManager.kill()
+      return true
+    return false
+
+  #  # Reading
+  #
+  #  Efficient Optimization and Processing of Queries over Text-rich Graph-structured Data
+  #    https://d-nb.info/1037189205/34
+  #
+  #  Alternatives to regex in SPARQL
+  #    https://www.cray.com/blog/dont-use-hammer-screw-nail-alternatives-regex-sparql/
+  search_sparql_by_label: (request, response) =>
+    @euthanize_search_sparql_by_label()
+    @animate_endpoint_label_search()
+    @start_graphs_selector_spinner()
     url = @endpoint_loader.value
     fromGraph = ''
     if @endpoint_loader.endpoint_graph
       fromGraph=" FROM <#{@endpoint_loader.endpoint_graph}> "
+
     qry = """
-    # populate_graphs_selector()
+    # search_sparql_by_label()
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-    SELECT * #{fromGraph}
+    SELECT DISTINCT * #{fromGraph}
     WHERE {
       ?sub rdfs:label|foaf:name ?obj .
-      filter regex(?obj,"^#{request.term}", "i")
+      FILTER (STRSTARTS(LCASE(?obj), "#{request.term.toLowerCase()}"))
     }
     LIMIT 20
     """                       # for emacs syntax hilighting  ---> "
@@ -5937,7 +5968,8 @@ class Huviz
         else
           @endpoint_label_search_none()
         # TODO maybe move spinner control into @kill_endpoint_label_search_anim()
-        spinner.css('visibility','hidden') #  happens regardless of result.length
+        @stop_graphs_selector_spinner()
+
         for label in results
           this_result = {
             label: label.obj.value + " (#{label.sub.value})"
@@ -5961,13 +5993,14 @@ class Huviz
         """ # """
         @hide_state_msg()
         $('#'+@get_data_ontology_display_id()).remove()
-        @endpoint_labels_JQElem.siblings('i').css('visibility','hidden')
+        @stop_graphs_selector_spinner()
         @blurt(msg, 'error')
 
     args =
       success_handler: make_success_handler()
       error_callback: make_error_callback()
-    @run_managed_query_ajax(qry, url, args)
+
+    @search_sparql_by_label_queryManager = @run_managed_query_ajax(qry, url, args)
 
   init_editc_or_not: ->
     @editui ?= new EditController(@)
@@ -7169,9 +7202,9 @@ class Huviz
         label:
           title: "Number of seconds to run SPARQL queries before giving up."
         input:
-          value: 10
+          value: 40
           min: 1
-          max: 30
+          max: 60
           step: 1
           type: "range"
     ,
