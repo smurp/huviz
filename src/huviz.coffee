@@ -5835,7 +5835,7 @@ class Huviz
 
   animate_endpoint_label_search: (overMsec, fc, bc) =>
     # Called every time the search starts to show countdown until timeout
-    @endpoint_labels_JQElem.siblings('i').css('visibility','visible')
+    @start_graphs_selector_spinner()
     overMsec ?= @get_sparql_timeout_msec()
     elem = @endpoint_labels_JQElem[0]
     @endpoint_label_search_anim = @animate_sparql_query(elem, overMsec, fc, bc)
@@ -5856,7 +5856,7 @@ class Huviz
 
   kill_endpoint_label_search_anim: ->
     @endpoint_label_search_anim.cancel()
-    @endpoint_labels_JQElem.siblings('i').css('visibility','hidden')
+    @stop_graphs_selector_spinner()
     return
 
   animate_sparql_query: (elem, overMsec, fillColor, bgColor) ->
@@ -5896,10 +5896,19 @@ class Huviz
   get_sparql_timeout_msec: ->
     return 1000 * (@sparql_timeout or 5)
 
-  populate_graphs_selector: (request, response) =>
-    @animate_endpoint_label_search()
+  start_graphs_selector_spinner: ->
     spinner = @endpoint_labels_JQElem.siblings('i')
     spinner.css('visibility','visible')
+    return
+
+  stop_graphs_selector_spinner: ->
+    spinner = @endpoint_labels_JQElem.siblings('i')
+    spinner.css('visibility','hidden') #  happens regardless of result.length
+    return
+
+  populate_graphs_selector: (request, response) =>
+    @animate_endpoint_label_search()
+    @start_graphs_selector_spinner()
     url = @endpoint_loader.value
     fromGraph = ''
     if @endpoint_loader.endpoint_graph
@@ -5938,7 +5947,8 @@ class Huviz
         else
           @endpoint_label_search_none()
         # TODO maybe move spinner control into @kill_endpoint_label_search_anim()
-        spinner.css('visibility','hidden') #  happens regardless of result.length
+        @stop_graphs_selector_spinner()
+
         for label in results
           this_result = {
             label: label.obj.value + " (#{label.sub.value})"
@@ -5962,7 +5972,7 @@ class Huviz
         """ # """
         @hide_state_msg()
         $('#'+@get_data_ontology_display_id()).remove()
-        @endpoint_labels_JQElem.siblings('i').css('visibility','hidden')
+        @stop_graphs_selector_spinner()
         @blurt(msg, 'error')
 
     args =
