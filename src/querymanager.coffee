@@ -10,6 +10,9 @@ class QueryManager
     @colorQuery('pink')
   setSuccessColor: () ->
     @colorQuery('lightgreen')
+  setKilledColor: () ->
+    @setNoneColor()
+    @preJQElem.css('color', 'white')
   displayError: (e) ->
     console.warn(e)
     @qryJQElem.append("""<div class="queryError">#{e}</div>""")
@@ -22,5 +25,14 @@ class QueryManager
       @setNoneColor()
     else if count > 0
       @setSuccessColor()
+  setXHR: (@xhr) ->
+  abortXHR: ->
+    @xhr.abort()
+  cancelAnimation: ->
+    @anim.cancel()
+  kill: ->
+    @abortXHR()
+    @cancelAnimation()
+    @setKilledColor()
 
 (exports ? this).QueryManager = QueryManager

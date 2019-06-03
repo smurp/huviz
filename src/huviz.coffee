@@ -3843,13 +3843,13 @@ class Huviz
         'Content-Type' : 'application/sparql-query'
         'Accept': 'application/sparql-results+json'
 
-    $.ajax
+    queryManager.xhr = $.ajax
       timeout: timeout
       method: ajax_settings.method
       url: ajax_settings.url
       headers: ajax_settings.headers
       success: (data, textStatus, jqXHR) =>
-        queryManager.anim.cancel()
+        queryManager.cancelAnimation()
         if success_handler?
           try
             success_handler(data, textStatus, jqXHR, queryManager)
@@ -3857,7 +3857,7 @@ class Huviz
             queryManager.colorQuery('pink')
             queryManager.displayError(e)
       error: (jqxhr, textStatus, errorThrown) =>
-        queryManager.anim.cancel()
+        queryManager.cancelAnimation()
         queryManager.setErrorColor()
         if not errorThrown
           errorThrown = "Cross-Origin error"
@@ -4136,7 +4136,7 @@ class Huviz
         return
       else if e.data.method_name isnt 'accept_results'
         error = new Error("expecting either data.method = 'log_query' or 'accept_results'")
-        queryManager.anim.cancel()
+        queryManager.cancelAnimation()
         queryManager.displayError(error)
         throw error
       add_fully_loaded = e.data.fully_loaded_index
@@ -4146,7 +4146,7 @@ class Huviz
         @sparql_node_list.push(quad)  # Add the new quads to the official list of added quads
         local_node_added++
       queryManager.setResultCount(local_node_added)
-      queryManager.anim.cancel()
+      queryManager.cancelAnimation()
       if local_node_added
         queryManager.setSuccessColor()
       else
@@ -5906,7 +5906,14 @@ class Huviz
     spinner.css('visibility','hidden') #  happens regardless of result.length
     return
 
+  euthanize_populate_graphs_selector: ->
+    if @populate_graphs_selector_queryManager?
+      @populate_graphs_selector_queryManager.kill()
+      return true
+    return false
+
   populate_graphs_selector: (request, response) =>
+    @euthanize_populate_graphs_selector()
     @animate_endpoint_label_search()
     @start_graphs_selector_spinner()
     url = @endpoint_loader.value
@@ -5978,7 +5985,8 @@ class Huviz
     args =
       success_handler: make_success_handler()
       error_callback: make_error_callback()
-    @run_managed_query_ajax(qry, url, args)
+
+    @populate_graphs_selector_queryManager = @run_managed_query_ajax(qry, url, args)
 
   init_editc_or_not: ->
     @editui ?= new EditController(@)
