@@ -6089,7 +6089,7 @@ class Huviz
     id: 'sparqlQueries'
     cssClass: "tabs-sparqlQueries scrolling_tab"
     title: "SPARQL Queries"
-    text: "Queries"
+    text: "Q"
   ]
 
   get_default_tab: (id) ->

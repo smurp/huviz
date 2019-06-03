@@ -6,7 +6,7 @@ window.addEventListener('load',function(){
     start_with_editing: false,
     settings: {
       show_queries_tab: true,
-      show_cosmetic_tabs: false
+      show_cosmetic_tabs: true
     },
     // pass in the tab_specs to override the defaults_tab_specs
     tab_specs:
