@@ -5825,7 +5825,7 @@ class Huviz
       minLength: 3
       delay: 500
       position: {collision: "flip"}
-      source: @populate_graphs_selector
+      source: @search_sparql_by_label
 
   animate_endpoint_label_typing: =>
     # Called every time the user types a character to animate the countdown to sending a query
@@ -5906,15 +5906,15 @@ class Huviz
     spinner.css('visibility','hidden') #  happens regardless of result.length
     return
 
-  euthanize_populate_graphs_selector: ->
-    if @populate_graphs_selector_queryManager?
+  euthanize_search_sparql_by_label: ->
+    if @search_sparql_by_label_queryManager?
       @kill_endpoint_label_search_anim()
-      @populate_graphs_selector_queryManager.kill()
+      @search_sparql_by_label_queryManager.kill()
       return true
     return false
 
-  populate_graphs_selector: (request, response) =>
-    @euthanize_populate_graphs_selector()
+  search_sparql_by_label: (request, response) =>
+    @euthanize_search_sparql_by_label()
     @animate_endpoint_label_search()
     @start_graphs_selector_spinner()
     url = @endpoint_loader.value
@@ -5922,7 +5922,7 @@ class Huviz
     if @endpoint_loader.endpoint_graph
       fromGraph=" FROM <#{@endpoint_loader.endpoint_graph}> "
     qry = """
-    # populate_graphs_selector()
+    # search_sparql_by_label()
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX foaf: <http://xmlns.com/foaf/0.1/>
@@ -5987,7 +5987,7 @@ class Huviz
       success_handler: make_success_handler()
       error_callback: make_error_callback()
 
-    @populate_graphs_selector_queryManager = @run_managed_query_ajax(qry, url, args)
+    @search_sparql_by_label_queryManager = @run_managed_query_ajax(qry, url, args)
 
   init_editc_or_not: ->
     @editui ?= new EditController(@)
