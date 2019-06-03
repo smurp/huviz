@@ -5823,7 +5823,7 @@ class Huviz
     @endpoint_labels_JQElem.on('input', @animate_endpoint_label_typing)
     @endpoint_labels_JQElem.autocomplete
       minLength: 3
-      delay:500
+      delay: 500
       position: {collision: "flip"}
       source: @populate_graphs_selector
 
@@ -5908,6 +5908,7 @@ class Huviz
 
   euthanize_populate_graphs_selector: ->
     if @populate_graphs_selector_queryManager?
+      @kill_endpoint_label_search_anim()
       @populate_graphs_selector_queryManager.kill()
       return true
     return false
