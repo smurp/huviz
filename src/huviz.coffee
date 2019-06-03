@@ -6806,7 +6806,7 @@ class Huviz
         input:
           value: 29
           min: 5
-          max: 200
+          max: 500
           step: 2
           type: "range"
     ,
@@ -7533,16 +7533,12 @@ class Huviz
   on_change_pill_display: (new_val) ->
     if new_val
       node_display_type = 'pills'
-      $("input[name='charge']").attr('min', '-5000').attr('value', '-3000')
-      $("input[name='link_distance']").attr('max', '500').attr('value', '200')
-      @charge = -3000
-      @link_distance = 200 # TODO use the method which updates settings...
+      @adjust_setting('charge', -3000)
+      @adjust_setting('link_distance', 200)
     else
       node_display_type = ""
-      $("input[name='charge']").attr('min', '-600').attr('value', '-200')
-      $("input[name='link_distance']").attr('max', '200').attr('value', '29')
-      @charge = -200
-      @link_distance = 29 # TODO use the method which updates settings...
+      @adjust_setting('charge', -210) # TODO use prior value or default value
+      @adjust_setting('link_distance', 29) # TODO use prior value or default value
     @updateWindow()
 
   on_change_theme_colors: (new_val) ->
