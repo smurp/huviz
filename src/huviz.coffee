@@ -7202,9 +7202,9 @@ class Huviz
         label:
           title: "Number of seconds to run SPARQL queries before giving up."
         input:
-          value: 40
+          value: 45
           min: 1
-          max: 60
+          max: 90
           step: 1
           type: "range"
     ,
