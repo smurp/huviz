@@ -1763,6 +1763,47 @@ class Huviz
     console.log "  showing_links:", node.showing_links
     console.log "  in_sets:", node.in_sets
 
+   # Return the nodes which can be seen and are worth checking for proximity, etc.
+  is_node_visible: (node) ->
+    return not @hidden_set.has(node)
+
+  # Return an array (not a SortedSet) of nodes which are visible
+  get_visible_subset: (super_set) ->
+    super_set ?= @all_set
+    retlist = []
+    for node in super_set
+      if @is_node_visible(node)
+        retlist.push(node)
+    return super_set
+
+  # # References:
+  # https://github.com/d3/d3-quadtree
+  #
+  # # Examples
+  #
+  # * http://bl.ocks.org/patricksurry/6478178
+  # * https://bl.ocks.org/mbostock/9078690
+  #
+  # # Status
+  #
+  # Having trouble getting access to the addAll method
+  WIP_find_node_or_edge_closest_to_pointer_using_quadtrees: ->
+    quadtree = d3.geom.quadtree()
+      .extent([[-1, -1], [@width + 1, @height + 1]])
+      .addAll(@get_visible_subset())
+    [mx, my] = @last_mouse_pos
+    qNodes = (qTree) ->
+      ret = []
+      qTree.visit (node, x0, y0, x1, y1) ->
+        node.x0 = x0
+        node.y0 = y0
+        node.x1 = x1
+        node.y1 = y1
+        ret.push(node)
+    data = qNodes(quadtree)
+    found = quadtree.find(mx, my)
+    debugger
+
   find_node_or_edge_closest_to_pointer: ->
     new_focused_node = null
     new_focused_edge = null
@@ -1781,7 +1822,7 @@ class Huviz
 
     # TODO build a spatial index!!!! OMG https://github.com/smurp/huviz/issues/25
     # Examine every node to find the closest one within the focus_threshold
-    @nodes.forEach (d, i) =>
+    @all_set.forEach (d, i) =>
       n_dist = distance(d.fisheye or d, @last_mouse_pos)
       #console.log(d)
       if n_dist < closest_dist
@@ -2498,6 +2539,7 @@ class Huviz
     @ctx.lineWidth = @edge_width # TODO(smurp) just edges should get this treatment
     @respect_single_chosen_node()
     @find_node_or_edge_closest_to_pointer()
+    #@WIP_find_node_or_edge_closest_to_pointer_using_quadtrees()
     @auto_change_verb()
     @on_tick_change_current_command_if_warranted()
     #@update_snippet() // not in use
