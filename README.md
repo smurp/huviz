@@ -78,11 +78,18 @@ The Verbs are the operations which move nodes between the various sets, ie sets 
     # Then do classic normal npm stuff
     npm install # install needed modules
 
-# Running the server during development
+
+# Running the server
+
+    npm start
+
+# Development
+
+## Running the server during development
 
     npm run dev
 
-# Runner CLI tests during development
+## Running CLI tests
 
     npm run watchTest
 
@@ -91,9 +98,25 @@ The Verbs are the operations which move nodes between the various sets, ie sets 
 
 uses https://www.npmjs.com/package/npm-watch https://www.npmjs.com/package/mocha
 
-# Running the server
+## Doing releases
 
-    npm start
+Per https://github.com/geddski/grunt-release
+
+### Patch Release:
+
+Two choices:
+
+* `npx grunt release`
+* `npx grunt release:patch`
+
+### Minor Release
+
+* `npx grunt release:minor`
+
+### Major Release
+
+* `npx grunt release:major`
+
 
 ## Installation (for running orlandoScrape.py)
 
