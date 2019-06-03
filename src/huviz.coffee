@@ -3865,8 +3865,8 @@ class Huviz
         #@hide_state_msg()
         $('#'+@get_data_ontology_display_id()).remove()
         queryManager.displayError(msg)
-        if @error_callback?
-          error_callback()
+        if error_callback?
+          error_callback(jqxhr, textStatus, errorThrown)
 
     return queryManager
 
@@ -3891,6 +3891,10 @@ class Huviz
     $(graphSelector).parent().css('display', 'none')
     @sparqlQryInput_hide()
 
+    handle_graphsNotFound = () =>
+      $(graphSelector).parent().css('display', 'none')
+      @reset_endpoint_form(true)
+
     make_success_handler = () =>
       return (data, textStatus, jqXHR, queryManager) =>
         json_check = typeof data
@@ -3904,8 +3908,7 @@ class Huviz
 
         graphsNotFound = jQuery.isEmptyObject(results[0])
         if graphsNotFound
-          $(graphSelector).parent().css('display', 'none')
-          @reset_endpoint_form(true)
+          handle_graphsNotFound()
           return
         graph_options = "<option id='#{@unique_id()}' value='#{url}'> All Graphs </option>"
         for graph in results
@@ -3915,15 +3918,17 @@ class Huviz
         @reset_endpoint_form(true)
 
     make_error_callback = () =>
-      return () =>
+      return (jqXHR, textStatus, errorThrown) =>
         $(graphSelector).parent().css('display', 'none')
         spinner.css('visibility','hidden')
-        @reset_dataset_ontology_loader()
+        #@reset_dataset_ontology_loader()
+        handle_graphsNotFound()
+        @reset_endpoint_form(true)
 
     args =
       success_handler: make_success_handler()
       error_callback: make_error_callback()
-    @run_managed_query_ajax(qry, url, args)
+    @sparql_graph_query_and_show_queryManager = @run_managed_query_ajax(qry, url, args)
 
   sparqlQryInput_hide: ->
     @sparqlQryInput_JQElem.hide() #css('display', 'none')
@@ -5913,6 +5918,13 @@ class Huviz
       return true
     return false
 
+  #  # Reading
+  #
+  #  Efficient Optimization and Processing of Queries over Text-rich Graph-structured Data
+  #    https://d-nb.info/1037189205/34
+  #
+  #  Alternatives to regex in SPARQL
+  #    https://www.cray.com/blog/dont-use-hammer-screw-nail-alternatives-regex-sparql/
   search_sparql_by_label: (request, response) =>
     @euthanize_search_sparql_by_label()
     @animate_endpoint_label_search()
@@ -5921,15 +5933,16 @@ class Huviz
     fromGraph = ''
     if @endpoint_loader.endpoint_graph
       fromGraph=" FROM <#{@endpoint_loader.endpoint_graph}> "
+
     qry = """
     # search_sparql_by_label()
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-    SELECT * #{fromGraph}
+    SELECT DISTINCT * #{fromGraph}
     WHERE {
       ?sub rdfs:label|foaf:name ?obj .
-      filter regex(?obj,"^#{request.term}", "i")
+      FILTER (STRSTARTS(LCASE(?obj), "#{request.term.toLowerCase()}"))
     }
     LIMIT 20
     """                       # for emacs syntax hilighting  ---> "
