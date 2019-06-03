@@ -5104,7 +5104,9 @@ class Huviz
       throw new Error('hilight_dialog() expects an Elem, not '+dialog_elem)
     else
       dialog_id = dialog_elem.getAttribute('id')
+    $(dialog_elem).parent().append(dialog_elem) # bring to top
     $(dialog_elem).effect('shake')
+    return
 
   print_edge: (edge) ->
     # @clear_snippets()
