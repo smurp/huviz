@@ -1805,6 +1805,7 @@ class Huviz
     debugger
 
   find_node_or_edge_closest_to_pointer: ->
+    @highwater('find_node_or_edge', true)
     new_focused_node = null
     new_focused_edge = null
     new_focused_idx = null
@@ -1834,7 +1835,8 @@ class Huviz
           focus_threshold = n_dist
           new_focused_idx = i
 
-    # Examine the center of every edge and make it the new_focused_edge if close enough and the closest thing
+    # Examine the center of every edge and make it the new_focused_edge
+    #   if close enough and the closest thing
     @links_set.forEach (e, i) =>
       if e.handle?
         e_dist = distance(e.handle, @last_mouse_pos)
@@ -1859,6 +1861,19 @@ class Huviz
 
     if seeking is 'object_node'
       @editui.set_object_node(new_focused_node)
+    @highwater('find_node_or_edge')
+    return
+
+  highwater: (id, start) ->
+    @highwatermarks ?= {}
+    hwm = @highwatermarks
+    if start?
+      hwm[id + '__'] = performance.now()
+    else
+      diff = performance.now() - hwm[id + '__']
+      hwm[id] ?= diff
+      if hwm[id] < diff
+        hwm[id] = diff
 
   DEPRECATED_showing_links_to_cursor_map:
     all: 'not-allowed'
@@ -1892,7 +1907,7 @@ class Huviz
     #console.log "set_focused_edge(#{new_focused_edge and new_focused_edge.id})"
     unless @focused_edge is new_focused_edge
       if @focused_edge? #and @focused_edge isnt new_focused_edge
-        console.log "removing focus from previous focused_edge"
+        #console.log "removing focus from previous focused_edge"
         @focused_edge.focused = false
         delete @focused_edge.source.focused_edge
         delete @focused_edge.target.focused_edge
@@ -2536,6 +2551,7 @@ class Huviz
           return
         else
           @clean_up_all_dirt_onceRunner.stats.runTick++
+    @highwater('maxtick', true)
     @ctx.lineWidth = @edge_width # TODO(smurp) just edges should get this treatment
     @respect_single_chosen_node()
     @find_node_or_edge_closest_to_pointer()
@@ -2561,6 +2577,7 @@ class Huviz
     @draw_focused_labels()
     @pfm_count('tick')
     @prior_node_and_state = @get_focused_node_and_its_state()
+    @highwater('maxtick')
     return
 
   rounded_rectangle: (x, y, w, h, radius, fill, stroke, alpha) ->
@@ -7267,6 +7284,7 @@ class Huviz
           title: "Feedback on what HuViz is doing"
         input:
           type: "checkbox"
+          checked: "checked"
     ,
       slow_it_down:
         group: "Debugging"
@@ -7924,6 +7942,8 @@ class Huviz
       <div class='feedback_module'><p>Number of Edges: <span id="noE">0</span></p></div>
       <div class='feedback_module'><p>Number of Predicates: <span id="noP">0</span></p></div>
       <div class='feedback_module'><p>Number of Classes: <span id="noC">0</span></p></div>
+      <div class='feedback_module'><p>find_nearest... (msec): <span id="highwater_find_node_or_edge">0</span></p></div>
+      <div class='feedback_module'><p>maxtick (msec): <span id="highwater_maxtick">0</span></p></div>
       #{@build_pfm_live_monitor('add_quad')}
       #{@build_pfm_live_monitor('hatch')}
       <div class='feedback_module'><p>Ticks in Session: <span id="noTicks">0</span></p></div>
@@ -7951,6 +7971,11 @@ class Huviz
     $("#noN").html("#{noN}")
     if @edge_count then noE = @edge_count else noE = 0
     $("#noE").html("#{noE}")
+    for k,v of @highwatermarks
+      continue if k.endsWith('__')
+      $("#highwater_#{k}").html(v.toFixed(2))
+    #$("#fnnoe").html("#{(@find_node_or_edge_max or 0).toFixed(2)}")
+    $("#maxtick").html("#{(@maxtick or 0).toFixed(2)}")
     if @predicate_set then noP = @predicate_set.length else noP = 0
     $("#noP").html("#{noP}")
     for item of @taxonomy #TODO Should improve this by avoiding recount every second
