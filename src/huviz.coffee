@@ -2511,29 +2511,41 @@ class Huviz
           quad.point.y += y
       return x1 > nx2 or x2 < nx1 or y1 > ny2 or y2 < ny1
 
-  respect_single_chosen_node: ->
+  # # The distinguished node
+  # There are phenomena which pertain to one and only one node: the distinguished_node.
+  # There may be only one.  There does not have to be one though.
+  #
+  # Which nodes might be distinguished?
+  #
+  # * If there is only one node in the chosen_set it becomes the distinguished_node
+  # * Being the terminal node in the walked_set is another way to become distinguished.
+  #
+  # What are the consequences of being distinguished?
+  #
+  # * the distinguished node is displayed pinned at the center of the graph
+  #
+  # To see to it that there is no distinguished node, call `@distinguish(null)`
+  administer_the_distinguished_node: ->
     dirty = false
+    only_chosen = null
+    rightfully_distinguished = null
     if @chosen_set.length is 1
-      chosen_node = @chosen_set[0]
-      if not chosen_node.pinned
-        cmd =
-          polar_coords:
-            range: 0
-            degrees: 0
-        @pin(chosen_node, cmd)
-        dirty = true
-        chosen_node.pinned_only_while_chosen = true
-
-    # Uncenter nodes which are no longer the only chosen node
-    for pinned_node in @pinned_set
-      if not pinned_node
-        continue # how can this even happen?
-      if pinned_node.pinned_only_while_chosen? and
-          (not pinned_node.chosen or @chosen_set.length isnt 1 or not @single_chosen)
-        @unpin(pinned_node)
-        dirty = true
-
-    if dirty
+      only_chosen = @chosen_set[0]
+    if @walked_set.length
+      terminal_walked = @walked_set[@walked_set.length - 1]
+    rightfully_distinguished = terminal_walked or only_chosen
+    if rightfully_distinguished?
+      if rightfully_distinguished._is_distinguished?
+        # no change is needed so we can quit now
+        return
+      if @center_the_distinguished_node
+        @pin_at_center(rightfully_distinguished)
+    emeritus = @distinguish(rightfully_distinguished)
+    if emeritus?
+      if @center_the_distinguished_node
+        @unpin(emeritus)
+    if emeritus or rightfully_distinguished
+      # there was a change, so update set counts
       @update_set_counts()
 
   tick: (msg) =>
@@ -2553,7 +2565,7 @@ class Huviz
           @clean_up_all_dirt_onceRunner.stats.runTick++
     @highwater('maxtick', true)
     @ctx.lineWidth = @edge_width # TODO(smurp) just edges should get this treatment
-    @respect_single_chosen_node()
+    @administer_the_distinguished_node()
     @find_node_or_edge_closest_to_pointer()
     #@WIP_find_node_or_edge_closest_to_pointer_using_quadtrees()
     @auto_change_verb()
@@ -4685,11 +4697,18 @@ class Huviz
     return false
 
   unpin: (node) ->
-    delete node.pinned_only_while_chosen # do it here in case of direct unpinning
+    # delete node.pinned_only_while_chosen # do it here in case of direct unpinning
     if node.fixed
       @pinned_set.remove(node)
       return true
     return false
+
+  pin_at_center: (node) ->
+    cmd =
+      polar_coords:
+        range: 0
+        degrees: 0
+    @pin(node, cmd)
 
   unlink: (unlinkee) ->
     # FIXME discover whether unlink is still needed
@@ -4737,12 +4756,12 @@ class Huviz
       console.log("shelving failed for", goner)
     goner
 
-  choose: (chosen) =>
+  choose: (chosen, callback_after_choosing) =>
     # If this chosen node is part of a SPARQL query set and not fully loaded then
     # fully load it and try this method again, via callback.
     if @is_from_sparql() and not chosen.fully_loaded
-      callback = () => @choose(chosen)
-      @get_neighbors_via_sparql(chosen, callback)
+      callback_after_getting_neighbors = () => @choose(chosen, callback_after_choosing)
+      @get_neighbors_via_sparql(chosen, callback_after_getting_neighbors)
       return
 
     # There is a flag .chosen in addition to the state 'linked'
@@ -4756,6 +4775,8 @@ class Huviz
     @show_links_to_node(chosen)
     @update_state(chosen)
     shownness = @update_showing_links(chosen)
+    if callback_after_choosing?
+      callback_after_choosing()
     chosen
 
   unchoose: (unchosen) =>
@@ -4852,14 +4873,15 @@ class Huviz
         # 3) start a new path because nextStep is not connected with the @walked_set
         @walkBackAll() # clean up the old path completely
 
+    do_after_chosen = () =>
+      if tooHairy # as promised we now deal with the previous terminal node
+        @shave(tooHairy) # ungraph the non-path nodes which were held in the graph by tooHairy
+
     # this should happen to every node added to @walked_set
     nextStep.walkedIdx0 = @walked_set.length # tell it what position it will have in the path
     if not nextStep.walked # It might already be in the path, if not...
       @walked_set.add(nextStep) # add it
-    @choose(nextStep) # finally, choose nextStep to make it hairy
-
-    if tooHairy # as promised we now deal with the last node
-      @shave(tooHairy) # ungraph the non-path nodes which were held in the graph by tooHairy
+    @choose(nextStep, do_after_chosen) # finally, choose nextStep to make it hairy
 
     return # so the javascript is not cluttered with confusing nonsense
 
@@ -4902,6 +4924,15 @@ class Huviz
       if larger - smaller is 1
         return true
     return false
+
+  distinguish: (node) ->
+    emeritus = @distinguished_node
+    if @distinguished_node
+      delete node._is_distinguished
+    if node?
+      node._is_distinguished = true
+    @distinguished_node = node
+    return emeritus
 
   hide: (goner) =>
     @unpin(goner)
@@ -6045,21 +6076,9 @@ class Huviz
 
     make_error_callback = () =>
       return (jqxhr, textStatus, errorThrown) =>
-        #@endpoint_label_search_timeout()
         @endpoint_label_search_failure()
-        if not errorThrown
-          errorThrown = "Cross-Origin error"
-        msg = errorThrown + " while fetching " + url + " with query \n" + qry
-        #   for query <pre>#{qry}</pre> at
-        msg = """
-        <code>#{errorThrown}</code> with
-        <pre>#{jqxhr.responseText}</pre>
-        <a href="#{url}">#{url}</a>
-        """ # """
-        @hide_state_msg()
         $('#'+@get_data_ontology_display_id()).remove()
         @stop_graphs_selector_spinner()
-        @blurt(msg, 'error')
 
     args =
       success_handler: make_success_handler()
@@ -7199,11 +7218,11 @@ class Huviz
           type: "checkbox"
           checked: "checked"
     ,
-      single_chosen:
+      center_the_distinguished_node:
         class: "alpha_feature"
-        text: "Single Active Node"
+        text: "Center the distinguished node"
         label:
-          title: "Only use verbs which have one chosen node at a time"
+          title: "Center the most interesting node"
         input:
           type: "checkbox"
           checked: "checked"
@@ -7736,8 +7755,8 @@ class Huviz
       if @discover_geonames_as__widget
         @discover_geonames_as__widget.set_state('empty')
 
-  on_change_single_chosen: (new_val, old_val) ->
-    @single_chosen = new_val
+  on_change_center_the_distinguished_node: (new_val, old_val) ->
+    @center_the_distinguished_node = new_val
     @tick()
 
   on_change_arrows_chosen: (new_val, old_val) ->
