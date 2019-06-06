@@ -4782,7 +4782,8 @@ class Huviz
     #   At first, before the verb Wander is executed on any node, we must
     # build a SortedSet of the nodes which were wasChosen to compare
     # with the SortedSet of nodes which are intendedToBeGraphed as a
-    # result of the Wander command which is being executed.
+    # result of the Wander command which is being executed. This method
+    # is called once, BEFORE iterating through the nodes being wander-ed.
     if not @wasChosen_set.clear()
       throw new Error("expecting wasChosen to be empty")
     for node in @chosen_set
@@ -4794,6 +4795,7 @@ class Huviz
     # by the Wander verb, it is time to remove wasChosen nodes which
     # are not nowChosen.  In other words, ungraph those nodes which
     # are no longer held in the graph by any recently wandered-to nodes.
+    # This method is called once, AFTER wander has been called on each node.
     wasRollCall = @wasChosen_set.roll_call()
     nowRollCall = @nowChosen_set.roll_call()
     removed = @wasChosen_set.filter (node) =>
@@ -4808,6 +4810,7 @@ class Huviz
     # Wander is just the same as Choose (AKA Activate) except afterward it deactivates the
     # nodes which were in the chosen_set before but are not in the set being wandered.
     # This is accomplished by wander__build_callback()
+    # See @wander__atFirst and @wander__atLast which are run before and after this one.
     return @choose(chosen)
 
   unwalk: (node) ->
@@ -7287,7 +7290,7 @@ class Huviz
           title: "Feedback on what HuViz is doing"
         input:
           type: "checkbox"
-          checked: "checked"
+          #checked: "checked"
     ,
       slow_it_down:
         group: "Debugging"
