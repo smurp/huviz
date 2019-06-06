@@ -4178,7 +4178,7 @@ class Huviz
         @add_quad(q, subject)
       #@dump_stats()
 
-  add_nodes_from_SPARQL_Worker: (queryTarget) ->
+  add_nodes_from_SPARQL_Worker: (queryTarget, callback) ->
     console.log("Make request for new query and load nodes")
 
     timeout = @get_sparql_timeout_msec()
@@ -4224,6 +4224,8 @@ class Huviz
       @shelved_set.resort()
       @tick("Tick in add_nodes_from_SPARQL_worker")
       @update_all_counts()
+      if callback?
+        callback()
     worker.postMessage(
       target: queryTarget
       url: url
@@ -4236,13 +4238,13 @@ class Huviz
     # force the return of a boolan with "not not"
     return not not (@endpoint_loader? and @endpoint_loader.value) # This is part of a sparql set
 
-  get_neighbors_via_sparql: (chosen) ->
+  get_neighbors_via_sparql: (chosen, callback) ->
     if not chosen.fully_loaded
       # If there are more than certain number of requests, stop the process
       maxReq = @max_outstanding_sparql_requests
       if (@endpoint_loader.outstanding_requests < maxReq)
         @endpoint_loader.outstanding_requests++
-        @add_nodes_from_SPARQL_Worker(chosen.id)
+        @add_nodes_from_SPARQL_Worker(chosen.id, callback)
         console.log("outstanding_requests: " + @endpoint_loader.outstanding_requests)
       else
         msg = "SPARQL requests capped at #{maxReq}"
@@ -4736,11 +4738,12 @@ class Huviz
     goner
 
   choose: (chosen) =>
-    # If this chosen node is part of a SPARQL query set, then check if it is fully loaded
-    # if it isn't then load and activate
-    #console.log chosen
-    if @is_from_sparql()
-      @get_neighbors_via_sparql(chosen)
+    # If this chosen node is part of a SPARQL query set and not fully loaded then
+    # fully load it and try this method again, via callback.
+    if @is_from_sparql() and not chosen.fully_loaded
+      callback = () => @choose(chosen)
+      @get_neighbors_via_sparql(chosen, callback)
+      return
 
     # There is a flag .chosen in addition to the state 'linked'
     # because linked means it is in the graph
@@ -7928,7 +7931,6 @@ class Huviz
 
   get_default_set_by_type: (node) ->
     return @shelved_set
-
 
   pfm_dashboard: () =>
     # Adding feedback monitor
