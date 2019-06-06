@@ -4927,8 +4927,8 @@ class Huviz
 
   distinguish: (node) ->
     emeritus = @distinguished_node
-    if @distinguished_node
-      delete node._is_distinguished
+    if @emeritus?
+      delete emeritus._is_distinguished
     if node?
       node._is_distinguished = true
     @distinguished_node = node
