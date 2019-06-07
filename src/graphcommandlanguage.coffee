@@ -242,7 +242,7 @@ class GraphCommand
         if atFirst?
           atFirst() # is called once before iterating through the nodes
         iter = (node) =>
-          retval = meth.call(@huviz, node, this)
+          retval = meth.call(@huviz, node) # call the verb
           #@huviz.tick() # TODO(smurp) move this out, or call every Nth node
         # REVIEW Must we check for nodes? Perhaps atLast dominates.
         if nodes?
