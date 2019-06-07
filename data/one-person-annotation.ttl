@@ -1,0 +1,47 @@
+@prefix dc: <http://purl.org/dc/terms/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ns0: <http://www.w3.org/ns/activitystreams#> .
+@prefix ns1: <http://www.w3.org/ns/oa#> .
+@prefix schema: <http://schema.org/> .
+@prefix ns2: <http://sparql.cwrc.ca/ontologies/cwrc#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dc11: <http://purl.org/dc/elements/1.1/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+<https://github.com/SusanBrown/testing-Gitwriter/blob/master/testJune2019-SB?TEI/text/body/div/p[3]/persName_20190607001941>
+  a <http://www.w3.org/ns/oa#Annotation> ;
+    dc:created "2019-06-07T04:19:41.048Z"^^xsd:dateTime ;
+      dc:creator <https://github.com/SusanBrown> ;
+        dc:issued "2019-06-07T04:31:56.908Z"^^xsd:dateTime ;
+          ns0:generator <https://cwrc-writer.cwrc.ca/> ;
+            ns1:hasBody <http://www.wikidata.org/entity/Q1777745> ;
+              ns1:hasTarget <https://github.com/SusanBrown/testing-Gitwriter/blob/master/testJune2019-SB?TEI/text/body/div/p[3]/persName_20190607001941#Target> ;
+                ns1:motivatedBy "oa:identifying"^^ns1:Motivation .
+
+<https://github.com/SusanBrown>
+  a <http://sparql.cwrc.ca/ontologies/cwrc#NaturalPerson>, schema:Person ;
+    ns2:hasName "Susan Brown"@en ;
+      foaf:nick "SusanBrown"@en .
+
+<https://cwrc-writer.cwrc.ca/>
+  a ns0:Application ;
+    schema:softwareVersion "1.0"@en ;
+      schema:url "https://cwrc-writer.cwrc.ca"@en ;
+        rdfs:label "CWRC Writer"@en .
+
+<http://www.wikidata.org/entity/Q1777745>
+  a ns2:NaturalPerson ;
+    dc11:format "text/html"@en .
+
+<https://github.com/SusanBrown/testing-Gitwriter/blob/master/testJune2019-SB?TEI/text/body/div/p[3]/persName_20190607001941#Target>
+  a ns1:SpecificResource ;
+    ns1:hasSelector <https://github.com/SusanBrown/testing-Gitwriter/blob/master/testJune2019-SB?TEI/text/body/div/p[3]/persName_20190607001941#Selector> ;
+      ns1:hasSource <https://github.com/SusanBrown/testing-Gitwriter/blob/master/testJune2019-SB> ;
+        ns1:renderedVia <https://cwrc-writer.cwrc.ca/> .
+
+<https://github.com/SusanBrown/testing-Gitwriter/blob/master/testJune2019-SB?TEI/text/body/div/p[3]/persName_20190607001941#Selector>
+  a ns1:XPathSelector ;
+    rdf:value "TEI/text/body/div/p[3]/persName"@en .
+
+<https://github.com/SusanBrown/testing-Gitwriter/blob/master/testJune2019-SB> a <dctypes:Text> .

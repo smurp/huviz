@@ -14,6 +14,17 @@
       "uri": "/data/name_lookup_demo.ttl",
       "label": "Name Lookup Demo",
       "ontology_label": "OWL Mini"
+    },
+    {
+      "uri": "/data/one-person-annotation.ttl",
+      "label": "One Person Annotation",
+      "ontology_label": "OWL Mini"
+    },
+    {
+      "uri": "/data/SampleFileMuchRDF.ttl",
+      "label": "Sample File Much RDF",
+      "ontology_label": "OWL Mini"
+
     }
   ],
   "defaults": {
