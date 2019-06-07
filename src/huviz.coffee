@@ -6035,9 +6035,10 @@ class Huviz
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+    PREFIX dbp: <http://dbpedia.org/ontology/>
     SELECT DISTINCT * #{fromGraph}
     WHERE {
-      ?sub rdfs:label|foaf:name ?obj .
+      ?sub rdfs:label|foaf:name|dbp:name ?obj .
       FILTER (STRSTARTS(LCASE(?obj), "#{request.term.toLowerCase()}"))
     }
     LIMIT 20
