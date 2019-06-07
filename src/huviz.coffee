@@ -7207,7 +7207,7 @@ class Huviz
           title: "Show edge labels adjacent to labelled nodes"
         input:
           type: "checkbox"
-          #checked: "checked"
+          checked: "checked"
     ,
       show_edges:
         class: "alpha_feature"
