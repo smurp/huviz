@@ -2,12 +2,7 @@
   "datasets": [
     {
       "uri": "/data/geoname_username_widget_states.ttl",
-      "label": "GeoNames Widget state machine",
-      "ontology_label": "OWL Mini"
-    },
-    {
-      "uri": "/data/simple_state_machine.ttl",
-      "label": "A simple state machine",
+      "label": "GeoNames Widget State Machine",
       "ontology_label": "OWL Mini"
     },
     {
@@ -24,7 +19,11 @@
       "uri": "/data/SampleFileMuchRDF.ttl",
       "label": "Sample File Much RDF",
       "ontology_label": "OWL Mini"
-
+    },
+    {
+      "uri": "/data/simple_state_machine.ttl",
+      "label": "Simple State Machine",
+      "ontology_label": "OWL Mini"
     }
   ],
   "defaults": {
