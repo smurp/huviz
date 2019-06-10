@@ -3913,6 +3913,10 @@ class Huviz
       ajax_settings.headers =
         'Content-Type' : 'application/sparql-query'
         'Accept': 'application/sparql-results+json'
+    if url.includes('wikidata')
+      # these don't solve CORS issues but could solve CORB issues
+      ajax_settings.headers.Accept = "text/tab-separated-values"
+      ajax_settings.headers.Accept = "text/csv"
 
     queryManager.xhr = $.ajax
       timeout: timeout
