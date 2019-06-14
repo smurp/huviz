@@ -5954,7 +5954,7 @@ class Huviz
     if not disable?
       if @script_loader.value
         disable = false
-      else @using_sparql()
+      else if @using_sparql()
         disable = false
       else
         ds_v = @dataset_loader.value
