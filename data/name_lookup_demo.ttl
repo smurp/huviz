@@ -1,3 +1,4 @@
+@prefix bcio: <https://w3id.org/BCI-ontology#> .
 @prefix dbo: <http://dbpedia.org/ontology/> .
 @prefix dbp: <http://dbpedia.org/property/> .
 @prefix dbr: <http://dbpedia.org/resource/> .
@@ -40,6 +41,9 @@ dbr:Gilbert_Ryle
 wde:Q1868
     rdf:type dbo:Philospher .
 
+bcio:EegDevice
+    owl:sameAs <http://wikipedia.org/wiki/EEG> .
+    
 #  rdfs:label "Paul Otlet" .
 
 

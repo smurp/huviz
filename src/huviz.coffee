@@ -3283,13 +3283,21 @@ class Huviz
       colorlog("skipping auto_discover_name_for('#{uri}') because")
       console.log(e)
       return
-    log_prefix = "# NOT BEING RUN YET\n# auto_discover_name_for(#{uri})\n"
-    if uri.startsWith("http://id.loc.gov/")
+
+    hasDomainName = (domainName) ->
+      return aUrl.hostname.endsWith(domainName)
+
+    if hasDomainName('cwrc.ca')
+      # We will skip these for now
+      return
+
+    if hasDomainName("http://id.loc.gov/")
       # This is less than ideal because it uses the special knowledge
       # that the .skos.nt file is available. Unfortunately the only
       # RDF file which is offered via content negotiation is .rdf and
       # there is no parser for that in HuViz yet.  Besides, they are huge.
       retval = @ingest_quads_from("#{uri}.skos.nt", @discover_labels(uri))
+      return
       #@auto_discover_header(uri, ['X-PrefLabel'], sendHeaders or [])
     #for expansion in ["http://vocab.getty.edu/aat/", "http://vocab.getty.edu/ontology#"]
     #  # Work was stopped on this when I realized that the CWRC ontology is no
@@ -3298,14 +3306,21 @@ class Huviz
     #  if uri.startsWith(expansion) # TODO can this be more general? ie shorter?
     #    sparql = @make_sparql_name_for_getty(uri, expansion)
     #    @ingest_quads_from_sparql(sparql) # TODO this is not yet implemented
-    for domainName, config of @ldf_domain_configs
-      comment = "auto_discover_name_for(#{uri})"
-      if aUrl.hostname.includes(domainName) # hostname is the FQDN
-        @run_ldf_name_query(uri, null, comment, config)
-    if uri.startsWith("http://sws.geonames.org/") and
+    if hasDomainName("sws.geonames.org") and
         @discover_geonames_as__widget.state in ['untried','looking','good'] and
         @discover_geonames_remaining > 0
       @discover_geoname_name(aUrl)
+      return
+    # As a final backstop we use LDF.  Why last? To spare the LDF server.
+    # The endpoint of authority is superior because it ought to be up to date.
+    for domainName, config of @ldf_domain_configs
+      comment = "auto_discover_name_for(#{uri})"
+      if domainName is '*'
+        @run_ldf_name_query(uri, null, comment, config)
+        return
+      else if hasDomainName(domainName) # hostname is the FQDN
+        @run_ldf_name_query(uri, null, comment, config)
+        return
     return
 
   discover_names_including: (includes) ->
@@ -3344,6 +3359,10 @@ class Huviz
       source: "http://fragments.dbpedia.org/2016-04/en"
     'viaf.org':
       source: "http://data.linkeddatafragments.org/viaf"
+    'getty.edu':
+      source: "http://data.linkeddatafragments.org/lov"
+    '*':
+      source: "http://data.linkeddatafragments.org/lov"
     #'wikidata.org':
     #  source: "https://query.wikidata.org/bigdata/ldf"
     # TODO handle "wikidata.org"

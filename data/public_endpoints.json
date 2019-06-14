@@ -15,6 +15,11 @@
       "description": "Multiple graphs available"
     },
     {
+      "uri": "https://lov.linkeddata.es/dataset/lov/sparql",
+      "label": "Linked Open Vocabularies",
+      "description": "An archive of ontologies"
+    },
+    {
       "uri": "https://query.wikidata.org/",
       "label": "WikiData Query Service (CORB Error)"
     },
