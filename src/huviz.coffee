@@ -152,6 +152,9 @@ unpad_md = (txt, pad) ->
   out = out_lines.join("\n")
   return out
 
+strip_surrounding_quotes = (s) ->
+  return s.replace(/\"$/,'').replace(/^\"/,'')
+
 wpad = undefined
 hpad = 10
 tau = Math.PI * 2
@@ -251,6 +254,7 @@ RDF_Class   = "http://www.w3.org/2000/01/rdf-schema#Class"
 RDF_subClassOf   = "http://www.w3.org/2000/01/rdf-schema#subClassOf"
 RDF_a       = 'a'
 RDFS_label  = "http://www.w3.org/2000/01/rdf-schema#label"
+SCHEMA_name = "http://schema.org/name"
 SKOS_prefLabel = "http://www.w3.org/2004/02/skos/core#prefLabel"
 XL_literalForm = "http://www.w3.org/2008/05/skos-xl#literalForm"
 TYPE_SYNS   = [RDF_type, RDF_a, 'rdfs:type', 'rdf:type']
@@ -258,7 +262,7 @@ THUMB_PREDS = [
   'http://dbpedia.org/ontology/thumbnail'
   'http://xmlns.com/foaf/0.1/thumbnail']
 NAME_SYNS = [
-  FOAF_name, RDFS_label, 'rdfs:label', 'name', SKOS_prefLabel, XL_literalForm
+  FOAF_name, RDFS_label, 'rdfs:label', 'name', SKOS_prefLabel, XL_literalForm, SCHEMA_name
   ]
 XML_TAG_REGEX = /(<([^>]+)>)/ig
 
@@ -717,7 +721,6 @@ class Huviz
 
   pop_div_to_top: (elem) ->
     $(elem.currentTarget).parent().append(elem.currentTarget)
-    console.log elem
 
   destroy_dialog: (e) ->
     console.log "destroy_dialog"
@@ -3236,7 +3239,9 @@ class Huviz
         ?subj ?pred ?obj .
         FILTER (?pred IN (rdfs:label)) .
         #{subj_constraint}
-       }""" # """
+      }
+      LIMIT 10
+      """ # """
     ###
       PREFIX dbr: <http://dbpedia.org/resource/>
       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -3258,7 +3263,7 @@ class Huviz
     ###
 
   make_sparql_name_handler: (uris) ->
-    return () => return
+    return noop
 
   make_sparql_name_query_and_handler: (uri_or_uris) ->
     if Array.isArray(uri_or_uris)
@@ -3293,20 +3298,15 @@ class Huviz
     #  if uri.startsWith(expansion) # TODO can this be more general? ie shorter?
     #    sparql = @make_sparql_name_for_getty(uri, expansion)
     #    @ingest_quads_from_sparql(sparql) # TODO this is not yet implemented
-    for expansion in ["http://dbpedia"]
-      if uri.startsWith(expansion)
-        [sparql, handler] = @make_sparql_name_query_and_handler(uri, expansion)
-        #@ingest_quads_from_sparql_with_handler(sparql, handler)
-        timeout = @get_sparql_timeout_msec()
-        @log_query_with_timeout(log_prefix + sparql, timeout, 'purple') # TODO move this into where it get run
+    for domainName, config of @ldf_domain_configs
+      comment = "auto_discover_name_for(#{uri})"
+      if aUrl.hostname.includes(domainName) # hostname is the FQDN
+        @run_ldf_name_query(uri, null, comment, config)
     if uri.startsWith("http://sws.geonames.org/") and
         @discover_geonames_as__widget.state in ['untried','looking','good'] and
         @discover_geonames_remaining > 0
       @discover_geoname_name(aUrl)
     return
-
-  ingest_quads_from_sparql: (sparql) ->
-    console.info(sparql)
 
   discover_names_including: (includes) ->
     if @nameless_set # this might be before the set exists
@@ -3322,6 +3322,188 @@ class Huviz
         console.log('auto_discover_name_for',uri)
         @auto_discover_name_for(uri)
     return
+
+  # ## Linked Data Fragments (LDF)
+  #
+  # Linked Data Fragments is a technique for performing efficient federated searches.
+  #
+  # http://linkeddatafragments.org/
+  #
+  # This implementation makes use of
+  #
+  #   https://github.com/smurp/comunica-ldf-client
+  #
+  # which is a fork of:
+  #   https://github.com/comunica/jQuery-Widget.js
+  #
+  # with the only real difference being a dist version of ldf-client-worker.min.js
+
+  ldf_domain_configs:
+    # source: is the LDF client context.sources.value values # see run_managed_query_ldf
+    'dbpedia.org':
+      source: "http://fragments.dbpedia.org/2016-04/en"
+    'viaf.org':
+      source: "http://data.linkeddatafragments.org/viaf"
+    #'wikidata.org':
+    #  source: "https://query.wikidata.org/bigdata/ldf"
+    # TODO handle "wikidata.org"
+
+  make_ldf_name_query: (uri) ->
+    return """
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+    PREFIX schema: <http://schema.org/>
+    SELECT *
+    WHERE {
+      {
+        BIND (foaf:name as ?p) .
+        <#{uri}> ?p ?o .
+      } UNION {
+        BIND (rdfs:label as ?p) .
+        <#{uri}> ?p ?o .
+      } UNION {
+        BIND (schema:name as ?p) .
+        <#{uri}> ?p ?o .
+      }
+    }
+    LIMIT 100""" # "
+
+  convert_N3_to_GreenTurtle: (n3_obj_term) ->
+    @greenturtleparser ?= new GreenerTurtle()
+    bare_obj_term = n3_obj_term
+    subj = 'http://example.com/subj'
+    pred = 'http://example.com/pred'
+    statement = "<#{subj}> <#{pred}> #{bare_obj_term} ."
+    try
+      graph = @greenturtleparser.parse(statement, "text/turtle")
+      # console.log("NUMBER OF OBJ", graph.subjects[subj].predicates[pred].objects.length)
+      retval = graph.subjects[subj].predicates[pred].objects.slice(-1)[0]
+    catch e
+      console.error(e)
+      retval =
+        value: strip_surrounding_quotes(n3_obj_term)
+        type: 'Literal'
+    return retval
+
+  ldf_name_result_handler: (result, queryManager) =>
+    if (spo = true)
+      q =
+        s: result['?s'] or queryManager.args.default_terms.s
+        p: result['?p'] or queryManager.args.default_terms.p
+        o: @convert_N3_to_GreenTurtle(result['?o'])
+        #qry: queryManager.qry
+      #console.table([q.o])
+      #console.info('ldf_name_result_handler()', q, result, queryManager)
+      @add_quad(q)
+
+  run_ldf_name_query: (uri, expansion, comment, server_config) ->
+    sparql = @make_ldf_name_query(uri, expansion)
+    comment = "# " + ( comment or "run_ldf_name_query(#{uri})") + "\n"
+    query = comment + sparql
+    args =
+      result_handler: @ldf_name_result_handler
+      server_config: server_config or {}
+      default_terms:
+        s: uri
+        p: RDFS_label
+    @run_managed_query_ldf(query, uri, args)
+
+  run_managed_query_ldf: (qry, url, args) ->
+    args ?= {}
+    args.worker ?= 'comunica'
+    args.success_handler ?= noop
+    queryManager = @run_managed_query_abstract(qry, url, args)
+    {success_handler, error_callback, timeout, result_handler, server_config} = args
+    server_config ?= {}
+    server_config.source ?= "http://fragments.dbpedia.org/2016-04/en"
+    sent = false
+    if args.worker is 'comunica'
+      ldf_worker = new Worker('/comunica-ldf-client/ldf-client-worker.min.js')
+      ldf_worker.postMessage
+        type: 'query'
+        query: qry
+        resultsToTree: false
+        context:
+          '@comunica/actor-http-memento:datetime': null
+          queryFormat: 'sparql'
+          sources: [
+            type: 'auto'
+            value: server_config.source
+            ]
+
+      ldf_worker.onmessage = (event) =>
+        queryManager.cancelAnimation()
+        d = event.data
+        {type, result} = d
+        switch type
+          when 'result'
+            queryManager.incrResultCount()
+            result_handler.call(this, result, queryManager)
+          when 'error'
+            queryManager.displayError(d)
+            queryManager.setErrorColor()
+          when 'end'
+            queryManager.finishCounting()
+          when 'queryInfo', 'log'
+            #console.log(type, event)
+          else
+            console.log("UNHANDLED", event)
+
+    # else
+    #   if args.worker is 'bundle'
+    #     ldf_worker = new Worker('/huviz/ldf_worker_bundle.js')
+    #   else
+    #     ldf_worker = new Worker('/js/ldf_worker.js')
+    #   ldf_worker.postMessage
+    #     fragmentsServerUri: 'http://fragments.dbpedia.org/2015/en'
+    #     query: qry
+
+    return queryManager
+
+  run_sparql_name_query: (uri, expansion, comment) -> # NOT IN USE ATM
+    [sparql, handler] = @make_sparql_name_query_and_handler(uri, expansion)
+    args =
+      success_handler: handler
+    comment = "# " + ( comment or "run_sparql_name_query(#{uri})") + "\n"
+    query = comment + sparql
+    @run_managed_query_ldf(query, uri, args)
+    #timeout = @get_sparql_timeout_msec()
+    # TODO move this into where it get run
+    #@log_query_with_timeout(log_prefix + sparql, timeout, 'purple')
+
+
+  ############# Examples and Tests START
+
+  make_wikidata_name_query: (uri, langs) ->
+    uri ?= 'wd:Q160302'
+    langs ?= "en" # comma delimited langs expected, eg "en,fr,de"
+    if uri.startsWith('http')
+      subj = "<#{uri}>"
+    else
+      subj = uri
+    if uri.startsWith('wd:')
+      prefixes = "PREFIX wd: <http://www.wikidata.org/entity/>"
+    else
+      prefixes = ""
+    return """
+    #{prefixes}
+    SELECT ?subj ?pred ?subjLabel
+    WHERE {
+      BIND (#{subj} as ?subj)
+      BIND (rdfs:label as ?pred)
+      SERVICE wikibase:label {
+        bd:serviceParam wikibase:language "#{langs}" .
+      }
+    }""" # "
+
+  test_json_fetch: (uri, success, err) ->
+    uri ?= 'https://www.wikidata.org/entity/Q12345.json'
+    success ?= (r) => console.log(r, r.json().then((json)=>console.log(JSON.stringify(json))))
+    err ?= (e) => console.log('OOF:',e)
+    fetch(uri).then(success).catch(err)
+    return
+
+  ############# Examples and Tests END
 
   make_qname: (uri) ->
     # TODO(smurp) dear god! this method name is lying (it is not even trying)
@@ -3894,7 +4076,9 @@ class Huviz
     args.error_callback ?= noop
     args.timeout ?= @get_sparql_timeout_msec()
 
-    return @log_query_with_timeout(qry, args.timeout)
+    queryManager = @log_query_with_timeout(qry, args.timeout)
+    queryManager.args = args
+    return queryManager
 
   run_managed_query_ajax: (qry, url, args) ->
     queryManager = @run_managed_query_abstract(qry, url, args)
@@ -3948,7 +4132,6 @@ class Huviz
   run_managed_query_worker: (qry, url, args) ->
     queryManager = @run_managed_query_abstract(qry, url, args)
     return queryManager
-
 
   sparql_graph_query_and_show: (url, id, callback) =>
     qry = """

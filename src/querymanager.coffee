@@ -1,7 +1,9 @@
-
 # A controller for the display of the lifecycle of a SPARQL Query
 class QueryManager
   constructor: (@qry) ->
+    @resultCount = 0
+  incrResultCount: ->
+    @resultCount++
   colorQuery: (color) ->
     @preJQElem.css('background', color)
   setNoneColor: () ->
@@ -18,6 +20,8 @@ class QueryManager
     @qryJQElem.append("""<div class="queryError">#{e}</div>""")
   displayResults: (results) ->
     @qryJQElem.append("""<div class="queryResults">#{results}</div>""")
+  finishCounting: ->
+    @setResultCount(@resultCount)
   setResultCount: (count) ->
     @resultCount = count
     @displayResults("result count: #{@resultCount}")

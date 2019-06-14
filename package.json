@@ -21,6 +21,7 @@
     "browserify": "^16.2.3",
     "coffeescript": "~1.12.7",
     "components-jqueryui": "git://github.com/components/jqueryui.git",
+    "comunica-ldf-client": "git://github.com/smurp/comunica-ldf-client.git",
     "d3": "~3.5.17",
     "ejs": "2.6.1",
     "express": "~2.5.0",
