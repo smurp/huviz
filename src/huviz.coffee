@@ -2469,8 +2469,8 @@ class Huviz
           if node.state.id is "graphed"
             cart_label = node.pretty_name
             ctx.measureText(cart_label).width #forces proper label measurement (?)
-            if @cartouches
-              @draw_cartouche(cart_label, focused_font_size, node.fisheye.x, node.fisheye.y)
+            if @paint_label_dropshadows
+              @paint_dropshadow(cart_label, focused_font_size, node.fisheye.x, node.fisheye.y)
           ctx.fillStyle = node.color # This is the mouseover highlight color when GRAPHED
           ctx.font = focused_font
           ctx.fillText "  " + node.pretty_name + "  ", node.fisheye.x, node.fisheye.y
@@ -2621,7 +2621,7 @@ class Huviz
       ctx.strokeStyle = stroke
       ctx.stroke()
 
-  draw_cartouche: (label, focused_font_size, x, y) ->
+  paint_dropshadow: (label, focused_font_size, x, y) ->
     ctx = @ctx
     width = @ctx.measureText(label).width * focused_font_size
     focused_font = "#{focused_font_size}em sans-serif"
@@ -2652,8 +2652,9 @@ class Huviz
           label += " (#{edge.contexts.length})"
     width = ctx.measureText(label).width
     height = @label_em * @focused_mag * 16
-    if @cartouches
-      @draw_cartouche(label, @label_em, edge.handle.x, edge.handle.y)
+    if @paint_label_dropshadows
+      if edge.handle?
+        @paint_dropshadow(label, @label_em, edge.handle.x, edge.handle.y)
     #ctx.fillStyle = '#666' #@shadow_color
     #ctx.fillText " " + label, edge.handle.x + @edge_x_offset + @shadow_offset, edge.handle.y + @shadow_offset
     ctx.fillStyle = edge.color
@@ -7219,11 +7220,11 @@ class Huviz
         input:
           type: "checkbox"
     ,
-      display_label_cartouches:
+      paint_label_dropshadows:
         group: "Styling"
-        text: "Background cartouches for labels"
+        text: "Draw drop-shadows behind labels"
         label:
-          title: "Remove backgrounds from focused labels"
+          title: "Make labels more visible when overlapping"
         input:
           type: "checkbox"
           checked: "checked"
@@ -7848,11 +7849,11 @@ class Huviz
     @topElem.classList.add(renderStyles.themeName)
     @updateWindow()
 
-  on_change_display_label_cartouches: (new_val) ->
+  on_change_paint_label_dropshadows: (new_val) ->
     if new_val
-      @cartouches = true
+      @paint_label_dropshadows = true
     else
-      @cartouches = false
+      @paint_label_dropshadows = false
     @updateWindow()
 
   on_change_display_shelf_clockwise: (new_val) ->
