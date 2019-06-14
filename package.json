@@ -38,6 +38,7 @@
   "devDependencies": {
     "chai": "~1.10.0",
     "coffeelint": "~1.7.1",
+    "docco": "^0.8.0",
     "eslint": "^5.16.0",
     "grunt": "~0.4.5",
     "grunt-cli": "1.2.0",
@@ -69,6 +70,7 @@
     "dev": "node ./node_modules/.bin/grunt dev",
     "start": "node server.js --git_commit_hash `git log --format=\"%h\" -n 1` --git_branch_name `git rev-parse --abbrev-ref HEAD`",
     "test": "node_modules/mocha/bin/mocha --require coffeescript/register --compilers coffee:coffeescript --reporter dot",
+    "buildSrcDocs": "npx docco -o srcdocs  server.coffee src/*.coffee | node bin/make_srcdocs_index.js > srcdocs/index.md && npx marked srcdocs/index.md > srcdocs/index.html",
     "watchTest": "npm-watch"
   }
 }

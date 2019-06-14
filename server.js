@@ -208,6 +208,12 @@
 
   app.use(express["static"](__dirname + '/images'));
 
+  app.use("/srcdocs", express["static"]("srcdocs", {
+    index: 'index.html',
+    redirect: true,
+    extensions: ['html']
+  }));
+
   port = nopts.port || nopts.argv.remain[0] || process.env.PORT || default_port;
 
   if (false && !nopts.skip_orlando) {

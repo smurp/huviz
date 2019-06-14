@@ -149,11 +149,19 @@ app.get("/tests", localOrCDN("/views/tests.html.ejs", {nopts: nopts}))
 app.get("/", localOrCDN("/views/huvis.html.ejs", {nopts: nopts}))
 app.use(express.static(__dirname + '/images')) # for /favicon.ico
 
+# serve /srcdocs/SUMUT.md files as raw markdown
+#app.use("/srcdocs/:d.md", express.static(__dirname + '/srcdocs'))
+#app.use("/srcdocs/:d", express.static(__dirname + '/srcdocs'))
+#app.get("/srcdocs/", (req, res) -> res.redirect("/srcdocs/index.html"))
+app.use("/srcdocs",
+  express.static("srcdocs", {index: 'index.html', redirect: true, extensions: ['html']}))
+
+
 port = nopts.port or nopts.argv.remain[0] or process.env.PORT or default_port
 
 # http://regexpal.com/
 if false and not nopts.skip_orlando
-  # 
+  #     
   app.get "/snippet/orlando/:id([A-Za-z0-9-_]+)/",
       createSnippetServer("orlando_all_entries_2013-03-04.xml", true)
 
