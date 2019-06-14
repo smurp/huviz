@@ -3416,7 +3416,6 @@ class Huviz
     {success_handler, error_callback, timeout, result_handler, server_config} = args
     server_config ?= {}
     server_config.source ?= "http://fragments.dbpedia.org/2016-04/en"
-    sent = false
     if args.worker is 'comunica'
       ldf_worker = new Worker('/comunica-ldf-client/ldf-client-worker.min.js')
       ldf_worker.postMessage
@@ -3460,6 +3459,9 @@ class Huviz
 
     return queryManager
 
+
+  # ## Examples and Tests START
+
   run_sparql_name_query: (uri, expansion, comment) -> # NOT IN USE ATM
     [sparql, handler] = @make_sparql_name_query_and_handler(uri, expansion)
     args =
@@ -3467,12 +3469,6 @@ class Huviz
     comment = "# " + ( comment or "run_sparql_name_query(#{uri})") + "\n"
     query = comment + sparql
     @run_managed_query_ldf(query, uri, args)
-    #timeout = @get_sparql_timeout_msec()
-    # TODO move this into where it get run
-    #@log_query_with_timeout(log_prefix + sparql, timeout, 'purple')
-
-
-  ############# Examples and Tests START
 
   make_wikidata_name_query: (uri, langs) ->
     uri ?= 'wd:Q160302'
@@ -3503,7 +3499,7 @@ class Huviz
     fetch(uri).then(success).catch(err)
     return
 
-  ############# Examples and Tests END
+  # ## QUAD Ingestion
 
   make_qname: (uri) ->
     # TODO(smurp) dear god! this method name is lying (it is not even trying)
@@ -3511,9 +3507,11 @@ class Huviz
 
   last_quad: {}
 
-  # add_quad is the standard entrypoint for all data sources
+  # ### `add_quad` is the standard entrypoint for all data sources
+  #
   # It is fires the events:
   #   newsubject
+
   object_value_types: {}
   unique_pids: {}
   add_quad: (quad, sprql_subj) ->  #sprq_sbj only used in SPARQL quieries
@@ -3653,7 +3651,7 @@ class Huviz
           @add_edge(edge)
           literal_node.fully_loaded = true # for sparql quieries to flag literals as fully_loaded
     # if SPARQL Endpoint loaded AND this is subject node then set current subject to true (i.e. fully loaded)
-    if @endpoint_loader? and @endpoint_loader.value
+    if @using_sparql()
       subj_n.fully_loaded = false # all nodes default to not being fully_loaded
       #if subj_n.id is sprql_subj# if it is the subject node then is fully_loaded
       #  subj_n.fully_loaded = true
@@ -4433,7 +4431,7 @@ class Huviz
       timeout: timeout
       previous_nodes: previous_nodes)
 
-  is_from_sparql: ->
+  using_sparql: ->
     # force the return of a boolan with "not not"
     return not not (@endpoint_loader? and @endpoint_loader.value) # This is part of a sparql set
 
@@ -4946,7 +4944,7 @@ class Huviz
   choose: (chosen, callback_after_choosing) =>
     # If this chosen node is part of a SPARQL query set and not fully loaded then
     # fully load it and try this method again, via callback.
-    if @is_from_sparql() and not chosen.fully_loaded
+    if @using_sparql() and not chosen.fully_loaded
       callback_after_getting_neighbors = () => @choose(chosen, callback_after_choosing)
       @get_neighbors_via_sparql(chosen, callback_after_getting_neighbors)
       return
@@ -5915,7 +5913,7 @@ class Huviz
     @gclui_JQElem.removeAttr("style","display:none")
 
   update_dataset_ontology_loader: =>
-    if not (@dataset_loader? and @ontology_loader?  and @endpoint_loader? and @script_loader?)
+    if not (@dataset_loader? and @ontology_loader?  and @endpoint_loader ?and @script_loader?)
       console.log("still building loaders...")
       return
     @set_ontology_from_dataset_if_possible()
@@ -5956,7 +5954,7 @@ class Huviz
     if not disable?
       if @script_loader.value
         disable = false
-      else if @endpoint_loader? and @endpoint_loader.value
+      else @using_sparql()
         disable = false
       else
         ds_v = @dataset_loader.value
