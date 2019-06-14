@@ -5913,7 +5913,7 @@ class Huviz
     @gclui_JQElem.removeAttr("style","display:none")
 
   update_dataset_ontology_loader: =>
-    if not (@dataset_loader? and @ontology_loader?  and @endpoint_loader ?and @script_loader?)
+    if not (@dataset_loader? and @ontology_loader?  and @endpoint_loader? and @script_loader?)
       console.log("still building loaders...")
       return
     @set_ontology_from_dataset_if_possible()
