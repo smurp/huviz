@@ -1,6 +1,7 @@
 
 express = require("express")
 ejs = require("ejs")
+morgan = require("morgan")
 
 # https://github.com/npm/nopt
 nopt = require("nopt")
@@ -33,7 +34,7 @@ switch process.env.NODE_ENV
   when 'development'
     console.log nopts
 
-app = express.createServer()
+app = express()
 
 # https://github.com/sstephenson/eco
 localOrCDN = (templatePath, data, options) ->
@@ -105,11 +106,12 @@ createSnippetServer = (xmlFileName, uppercase) ->
   fs.readFile(xmlFileName, makeXmlDoc)
   return getSnippetById
 
-app.configure ->
-  app.use express.logger()
+#app.configure ->
+if true
+  app.use(morgan('combined'))
   app.set("/views", __dirname + "/views")
   app.set("/views/tabs", path.join(__dirname, 'tabs', "views"))
-  app.use(app.router)
+  #app.use(app.router)
   app.use("/huviz", express.static(__dirname + '/lib'))
   app.use('/css', express.static(__dirname + '/css'))
   app.use('/jquery-ui-css',

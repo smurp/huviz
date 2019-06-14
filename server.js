@@ -1,9 +1,11 @@
 (function() {
-  var Stream, a, app, cooked_argv, createSnippetServer, ejs, express, fs, knownOpts, localOrCDN, nopt, nopts, path, port, shortHands;
+  var Stream, a, app, cooked_argv, createSnippetServer, ejs, express, fs, knownOpts, localOrCDN, morgan, nopt, nopts, path, port, shortHands;
 
   express = require("express");
 
   ejs = require("ejs");
+
+  morgan = require("morgan");
 
   nopt = require("nopt");
 
@@ -53,7 +55,7 @@
       console.log(nopts);
   }
 
-  app = express.createServer();
+  app = express();
 
   localOrCDN = function(templatePath, data, options) {
     var fullPath;
@@ -138,11 +140,10 @@
     return getSnippetById;
   };
 
-  app.configure(function() {
-    app.use(express.logger());
+  if (true) {
+    app.use(morgan('combined'));
     app.set("/views", __dirname + "/views");
     app.set("/views/tabs", path.join(__dirname, 'tabs', "views"));
-    app.use(app.router);
     app.use("/huviz", express["static"](__dirname + '/lib'));
     app.use('/css', express["static"](__dirname + '/css'));
     app.use('/jquery-ui-css', express["static"](__dirname + '/node_modules/components-jqueryui/themes/smoothness'));
@@ -179,8 +180,8 @@
     app.get("/", localOrCDN("/views/huvis.html.ejs", {
       nopts: nopts
     }));
-    return app.use(express["static"](__dirname + '/images'));
-  });
+    app.use(express["static"](__dirname + '/images'));
+  }
 
   port = nopts.port || nopts.argv.remain[0] || process.env.PORT || default_port;
 
