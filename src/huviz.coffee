@@ -4157,6 +4157,7 @@ class Huviz
       WHERE {
         GRAPH ?g { }
       }
+      ORDER BY ?g
     """
 
     # these are shared between success and error handlers
