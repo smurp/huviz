@@ -1,19 +1,19 @@
 (function() {
   var Stream, a, app, cooked_argv, createSnippetServer, ejs, express, fs, knownOpts, localOrCDN, morgan, nopt, nopts, path, port, shortHands;
 
-  express = require("express");
+  fs = require('fs');
+
+  path = require('path');
+
+  Stream = require("stream").Stream;
 
   ejs = require("ejs");
+
+  express = require("express");
 
   morgan = require("morgan");
 
   nopt = require("nopt");
-
-  Stream = require("stream").Stream;
-
-  fs = require('fs');
-
-  path = require('path');
 
   cooked_argv = (function() {
     var _i, _len, _ref, _results;
@@ -54,8 +54,6 @@
     case 'development':
       console.log(nopts);
   }
-
-  app = express();
 
   localOrCDN = function(templatePath, data, options) {
     var fullPath;
@@ -140,48 +138,75 @@
     return getSnippetById;
   };
 
-  if (true) {
-    app.use(morgan('combined'));
-    app.set("/views", __dirname + "/views");
-    app.set("/views/tabs", path.join(__dirname, 'tabs', "views"));
-    app.use("/huviz", express["static"](__dirname + '/lib'));
-    app.use('/css', express["static"](__dirname + '/css'));
-    app.use('/jquery-ui-css', express["static"](__dirname + '/node_modules/components-jqueryui/themes/smoothness'));
-    app.use('/jquery-ui', express["static"](__dirname + '/node_modules/components-jqueryui'));
-    app.use('/jquery', express["static"](__dirname + '/node_modules/jquery/dist'));
-    app.use('/jquery-simulate-ext__libs', express["static"](__dirname + '/node_modules/jquery-simulate-ext/libs'));
-    app.use('/jquery-simulate-ext__src', express["static"](__dirname + '/node_modules/jquery-simulate-ext/src'));
-    app.use('/d3', express["static"](__dirname + '/node_modules/d3'));
-    app.use('/comunica-ldf-client', express["static"](__dirname + '/node_modules/comunica-ldf-client/dist'));
-    app.use('/data', express["static"](__dirname + '/data'));
-    app.use('/js', express["static"](__dirname + '/js'));
-    app.use("/jsoutline", express["static"](__dirname + "/node_modules/jsoutline/lib"));
-    app.use('/vendor', express["static"](__dirname + '/vendor'));
-    app.use('/node_modules', express["static"](__dirname + '/node_modules'));
-    app.use('/mocha', express["static"](__dirname + '/node_modules/mocha'));
-    app.use('/chai', express["static"](__dirname + '/node_modules/chai'));
-    app.use('/marked', express["static"](__dirname + '/node_modules/marked'));
-    app.use('/huviz/docs', express["static"](__dirname + '/docs'));
-    app.get("/tab_tester", localOrCDN("/views/tab_tester.html", {
-      nopts: nopts
-    }));
-    app.get("/flower", localOrCDN("/views/flower.html.ejs", {
-      nopts: nopts
-    }));
-    app.get("/boxed", localOrCDN("/views/boxed.html.ejs", {
-      nopts: nopts
-    }));
-    app.get("/twoup", localOrCDN("/views/twoup.html.ejs", {
-      nopts: nopts
-    }));
-    app.get("/tests", localOrCDN("/views/tests.html.ejs", {
-      nopts: nopts
-    }));
-    app.get("/", localOrCDN("/views/huvis.html.ejs", {
-      nopts: nopts
-    }));
-    app.use(express["static"](__dirname + '/images'));
-  }
+  app = express();
+
+  app.use(morgan('combined'));
+
+  app.set("/views", __dirname + "/views");
+
+  app.set("/views/tabs", path.join(__dirname, 'tabs', "views"));
+
+  app.use("/huviz", express["static"](__dirname + '/lib'));
+
+  app.use('/css', express["static"](__dirname + '/css'));
+
+  app.use('/jquery-ui-css', express["static"](__dirname + '/node_modules/components-jqueryui/themes/smoothness'));
+
+  app.use('/jquery-ui', express["static"](__dirname + '/node_modules/components-jqueryui'));
+
+  app.use('/jquery', express["static"](__dirname + '/node_modules/jquery/dist'));
+
+  app.use('/jquery-simulate-ext__libs', express["static"](__dirname + '/node_modules/jquery-simulate-ext/libs'));
+
+  app.use('/jquery-simulate-ext__src', express["static"](__dirname + '/node_modules/jquery-simulate-ext/src'));
+
+  app.use('/d3', express["static"](__dirname + '/node_modules/d3'));
+
+  app.use('/comunica-ldf-client', express["static"](__dirname + '/node_modules/comunica-ldf-client/dist'));
+
+  app.use('/data', express["static"](__dirname + '/data'));
+
+  app.use('/js', express["static"](__dirname + '/js'));
+
+  app.use("/jsoutline", express["static"](__dirname + "/node_modules/jsoutline/lib"));
+
+  app.use('/vendor', express["static"](__dirname + '/vendor'));
+
+  app.use('/node_modules', express["static"](__dirname + '/node_modules'));
+
+  app.use('/mocha', express["static"](__dirname + '/node_modules/mocha'));
+
+  app.use('/chai', express["static"](__dirname + '/node_modules/chai'));
+
+  app.use('/marked', express["static"](__dirname + '/node_modules/marked'));
+
+  app.use('/huviz/docs', express["static"](__dirname + '/docs'));
+
+  app.get("/tab_tester", localOrCDN("/views/tab_tester.html", {
+    nopts: nopts
+  }));
+
+  app.get("/flower", localOrCDN("/views/flower.html.ejs", {
+    nopts: nopts
+  }));
+
+  app.get("/boxed", localOrCDN("/views/boxed.html.ejs", {
+    nopts: nopts
+  }));
+
+  app.get("/twoup", localOrCDN("/views/twoup.html.ejs", {
+    nopts: nopts
+  }));
+
+  app.get("/tests", localOrCDN("/views/tests.html.ejs", {
+    nopts: nopts
+  }));
+
+  app.get("/", localOrCDN("/views/huvis.html.ejs", {
+    nopts: nopts
+  }));
+
+  app.use(express["static"](__dirname + '/images'));
 
   port = nopts.port || nopts.argv.remain[0] || process.env.PORT || default_port;
 
