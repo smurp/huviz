@@ -240,6 +240,7 @@ window.log_click = () ->
 
 # http://dublincore.org/documents/dcmi-terms/
 DC_subject  = "http://purl.org/dc/terms/subject"
+DCE_title    = "http://purl.org/dc/elements/1.1/title"
 
 FOAF_Group  = "http://xmlns.com/foaf/0.1/Group"
 FOAF_Person = "http://xmlns.com/foaf/0.1/Person"
@@ -262,8 +263,8 @@ THUMB_PREDS = [
   'http://dbpedia.org/ontology/thumbnail'
   'http://xmlns.com/foaf/0.1/thumbnail']
 NAME_SYNS = [
-  FOAF_name, RDFS_label, 'rdfs:label', 'name', SKOS_prefLabel, XL_literalForm, SCHEMA_name
-  ]
+  FOAF_name, RDFS_label, 'rdfs:label', 'name', SKOS_prefLabel, XL_literalForm,
+  SCHEMA_name, DCE_title ]
 XML_TAG_REGEX = /(<([^>]+)>)/ig
 
 typeSigRE =
