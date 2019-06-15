@@ -3293,14 +3293,25 @@ class Huviz
       # We will skip these for now
       return
 
-    if hasDomainName("http://id.loc.gov/")
+    try_even_though_CORS_should_block = false
+
+    if hasDomainName("id.loc.gov")
       # This is less than ideal because it uses the special knowledge
       # that the .skos.nt file is available. Unfortunately the only
       # RDF file which is offered via content negotiation is .rdf and
       # there is no parser for that in HuViz yet.  Besides, they are huge.
       retval = @ingest_quads_from("#{uri}.skos.nt", @discover_labels(uri))
+      # This cool method would via a proxy but fails in the browser because
+      # full header access is blocked by XHR.
+      # `@auto_discover_header(uri, ['X-PrefLabel'], sendHeaders or [])`
       return
-      #@auto_discover_header(uri, ['X-PrefLabel'], sendHeaders or [])
+
+    if hasDomainName("vocab.getty.edu") and try_even_though_CORS_should_block
+      # This would work, but CORS blocks this.  Preserved in case sufficiently
+      # robust accounts are set up so the HuViz server could serve as a proxy.
+      downloadUrl = "http://vocab.getty.edu/download/nt?uri=#{encodeURIComponent(uri)}"
+      retval = @ingest_quads_from(downloadUrl, @discover_labels(uri))
+      return
     #for expansion in ["http://vocab.getty.edu/aat/", "http://vocab.getty.edu/ontology#"]
     #  # Work was stopped on this when I realized that the CWRC ontology is no
     #  # longer referencing Getty.  It is still good stuff, but should be deprioritized

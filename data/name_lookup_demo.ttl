@@ -2,11 +2,13 @@
 @prefix dbo: <http://dbpedia.org/ontology/> .
 @prefix dbp: <http://dbpedia.org/property/> .
 @prefix dbr: <http://dbpedia.org/resource/> .
+@prefix gvo: <http://vocab.getty.edu/ontology#> .
 @prefix locrel: <http://id.loc.gov/vocabulary/relators/> .
 @prefix locnam: <http://id.loc.gov/authorities/names/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix schema: <http://schema.org/> .
+@prefix ulan: <http://vocab.getty.edu/ulan/> .
 @prefix viaf: <http://viaf.org/viaf/> .
 @prefix wde: <http://www.wikidata.org/entity/> .
 
@@ -38,12 +40,16 @@ dbr:Gilbert_Ryle
   rdf:type dbo:Philosopher ;
   dbo:notableIdea dbr:Ordinary_language_philosophy.
 
-wde:Q1868
-    rdf:type dbo:Philospher .
+ulan:500244636  # "Paul Otlet"
+  rdf:type dbo:Philospher ;
+  owl:sameAs wde:Q1868 .
 
 bcio:EegDevice
     owl:sameAs <http://wikipedia.org/wiki/EEG> .
-    
+
+# gvo:aat2295_located_in
+# gvo:aat2336_has_associates
+
 #  rdfs:label "Paul Otlet" .
 
 
