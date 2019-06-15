@@ -4154,9 +4154,11 @@ class Huviz
   sparql_graph_query_and_show: (url, id, callback) =>
     qry = """
       # sparql_graph_query_and_show()
-      SELECT ?g
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      SELECT ?g ?label
       WHERE {
-        GRAPH ?g { }
+        GRAPH ?g { } .
+        OPTIONAL {?g rdfs:label ?label}
       }
       ORDER BY ?g
     """
@@ -4189,7 +4191,11 @@ class Huviz
           return
         graph_options = "<option id='#{@unique_id()}' value='#{url}'> All Graphs </option>"
         for graph in results
-          graph_options = graph_options + "<option id='#{@unique_id()}' value='#{graph.g.value}'>#{graph.g.value}</option>"
+          if graph.label?
+            label = " (#{graph.label.value})"
+          else
+            label = ''
+          graph_options = graph_options + "<option id='#{@unique_id()}' value='#{graph.g.value}'>#{graph.g.value}#{label}</option>"
         $("#sparqlGraphOptions-#{id}").html(graph_options)
         $(graphSelector).parent().css('display', 'block')
         @reset_endpoint_form(true)
