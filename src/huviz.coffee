@@ -8082,6 +8082,9 @@ class Huviz
     @discover_names_including('geonames.org')
 
   on_change_discover_geonames_as: (new_val, old_val) ->
+    if not @discover_geonames_as__widget?
+      setTimeout((() => @on_change_discover_goenames_as(new_val, old_val)), 50)
+      return
     @discover_geonames_as = new_val
     if new_val
       @discover_geonames_as__widget.set_state('untried')
