@@ -613,7 +613,6 @@ class Huviz
   nodeOrderAngle = 0.5
   node_display_type = ''
 
-  pfm_display: false
   pfm_data:
     tick:
       total_count: 0
@@ -1880,6 +1879,11 @@ class Huviz
       @editui.set_object_node(new_focused_node)
     @highwater('find_node_or_edge')
     return
+
+  highwater_incr: (id) ->
+    @highwatermarks ?= {}
+    hwm = @highwatermarks
+    hwm[id] = (hwm[id]? and hwm[id] or 0) + 1
 
   highwater: (id, start) ->
     @highwatermarks ?= {}
@@ -3298,7 +3302,8 @@ class Huviz
       colorlog("skipping auto_discover_name_for('#{uri}') because")
       console.log(e)
       return
-
+    @highwater_incr('discover_name')
+    colorlog("auto_discover_name_for('#{uri}') START")
     hasDomainName = (domainName) ->
       return aUrl.hostname.endsWith(domainName)
 
@@ -6790,7 +6795,7 @@ class Huviz
 
   constructor: (incoming_args) -> # Huviz
     @oldToUniqueTabSel = {}
-    #if @pfm_display is true
+    #if @show_performance_monitor is true
     #  @pfm_dashboard()
     @git_commit_hash = window.HUVIZ_GIT_COMMIT_HASH
     @args = @calculate_args(incoming_args)
@@ -7631,7 +7636,7 @@ class Huviz
         input:
           type: "checkbox"   #checked: "checked"
     ,
-      show_hide_performance_monitor:
+      show_performance_monitor:
         group: "Debugging"
         class: "alpha_feature"
         text: "Show Performance Monitor"
@@ -8060,17 +8065,17 @@ class Huviz
     else
       $(endpoint).css('display','none')
 
-  on_change_show_hide_performance_monitor: (new_val, old_val) ->
+  on_change_show_performance_monitor: (new_val, old_val) ->
     console.log "clicked performance monitor " + new_val + " " + old_val
     if new_val
       @performance_dashboard_JQElem.css('display','block')
-      @pfm_display = true
+      @show_performance_monitor = true
       @pfm_dashboard()
       @timerId = setInterval(@pfm_update, 1000)
     else
       clearInterval(@timerId)
       @performance_dashboard_JQElem.css('display','none').html('')
-      @pfm_display = false
+      @show_performance_monitor = false
 
   on_change_discover_geonames_remaining: (new_val, old_val) ->
     @discover_geonames_remaining = parseInt(new_val,10)
@@ -8298,6 +8303,7 @@ class Huviz
       <div class='feedback_module'><p>Number of Classes: <span id="noC">0</span></p></div>
       <div class='feedback_module'><p>find_nearest... (msec): <span id="highwater_find_node_or_edge">0</span></p></div>
       <div class='feedback_module'><p>maxtick (msec): <span id="highwater_maxtick">0</span></p></div>
+      <div class='feedback_module'><p>discover_name #: <span id="highwater_discover_name">0</span></p></div>
       #{@build_pfm_live_monitor('add_quad')}
       #{@build_pfm_live_monitor('hatch')}
       <div class='feedback_module'><p>Ticks in Session: <span id="noTicks">0</span></p></div>
@@ -8327,7 +8333,10 @@ class Huviz
     $("#noE").html("#{noE}")
     for k,v of @highwatermarks
       continue if k.endsWith('__')
-      $("#highwater_#{k}").html(v.toFixed(2))
+      val = v
+      if not Number.isInteger(v)
+        v = v.toFixed(2)
+      $("#highwater_#{k}").html(v)
     #$("#fnnoe").html("#{(@find_node_or_edge_max or 0).toFixed(2)}")
     $("#maxtick").html("#{(@maxtick or 0).toFixed(2)}")
     if @predicate_set then noP = @predicate_set.length else noP = 0
