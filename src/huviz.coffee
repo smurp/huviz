@@ -3001,7 +3001,7 @@ class Huviz
     count = 0
     for node in @nameless_set
       url = node.id
-      if url.includes('sws.geonames.org')
+      if url.includes('geonames.org')
         count++
     return @adjust_setting('discover_geonames_remaining', count)
 
@@ -3091,7 +3091,7 @@ class Huviz
               if @discover_geonames_remaining > 0
                 # trigger again because they have been suspended
                 # use setTimeout to give nodes a chance to update
-                again = () => @discover_names('sws.geonames.org')
+                again = () => @discover_names('geonames.org')
                 setTimeout(again, 100)
               else
                 @discover_geonames_as__widget.set_state('good') # no more remaining lookups permitted
@@ -7502,9 +7502,9 @@ class Huviz
         input:
           jsWidgetClass: GeoUserNameWidget
           type: "text"
+          #value: "huviz"
           value: "" # "smurp_nooron"
           size: "14"
-
           placeholder: "e.g. huviz"
     ,
       discover_geonames_remaining:
@@ -8079,13 +8079,13 @@ class Huviz
 
   on_change_discover_geonames_remaining: (new_val, old_val) ->
     @discover_geonames_remaining = parseInt(new_val,10)
-    @discover_names_including('sws.geonames.org')
+    @discover_names_including('geonames.org')
 
   on_change_discover_geonames_as: (new_val, old_val) ->
     @discover_geonames_as = new_val
     if new_val
       @discover_geonames_as__widget.set_state('untried')
-      @discover_names_including('sws.geonames.org')
+      @discover_names_including('geonames.org')
     else
       if @discover_geonames_as__widget
         @discover_geonames_as__widget.set_state('empty')
