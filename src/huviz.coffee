@@ -3346,7 +3346,7 @@ class Huviz
     #  if uri.startsWith(expansion) # TODO can this be more general? ie shorter?
     #    sparql = @make_sparql_name_for_getty(uri, expansion)
     #    @ingest_quads_from_sparql(sparql) # TODO this is not yet implemented
-    if hasDomainName("sws.geonames.org") and
+    if hasDomainName("geonames.org") and
         @discover_geonames_as__widget.state in ['untried','looking','good'] and
         @discover_geonames_remaining > 0
       @discover_geoname_name(aUrl)
