@@ -31,14 +31,13 @@ dbr:Berlin
 
 dbr:Ludwig_Wittgenstein
   rdf:type dbo:Philosopher ;
+  owl:sameAs viaf:24609378 ; # VIAF works too
   dbp:almaMater dbr:Technical_University_of_Berlin ;
   dbo:notableIdea dbr:Ordinary_language_philosophy ; # lookup label in dbpedia
   dbo:author dbr:Tractatus_Logico-Philosophicus .
 
 dbr:Tractatus_Logico-Philosophicus  # deal with owl
-  owl:sameAs
-    viaf:24609378 ,      # VIAF works too
-    locnam:n97086452 .   # lookup book title in LOC
+  owl:sameAs locnam:n97086452 .   # lookup book title in LOC
 
 # Demonstrates nothing useful, retire....
 # dbr:Gilbert_Ryle
