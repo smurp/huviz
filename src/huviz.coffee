@@ -7502,8 +7502,7 @@ class Huviz
         input:
           jsWidgetClass: GeoUserNameWidget
           type: "text"
-          #value: "huviz"
-          value: "" # "smurp_nooron"
+          value: "huviz"  # "smurp_nooron"
           size: "14"
           placeholder: "e.g. huviz"
     ,
