@@ -3,8 +3,9 @@
 @prefix dbp: <http://dbpedia.org/property/> .
 @prefix dbr: <http://dbpedia.org/resource/> .
 @prefix gvo: <http://vocab.getty.edu/ontology#> .
-@prefix locrel: <http://id.loc.gov/vocabulary/relators/> .
 @prefix locnam: <http://id.loc.gov/authorities/names/> .
+@prefix locrel: <http://id.loc.gov/vocabulary/relators/> .
+@prefix locsub: <http://id.loc.gov/authorities/subjects/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix schema: <http://schema.org/> .
@@ -14,8 +15,9 @@
 
 
 # Library of Congress Lookup is working nicely
-#   Richard Stallman a Programmer .
-locnam:n86110448 rdf:type locrel:prg .
+locnam:nr99004444
+  owl:sameAs dbr:Douglas_Engelbart ;
+  dbo:knownFor locsub:sh93009624 .  # the computer mouse
 
 # DBPedia name lookup of objects is working, but not yet predicates.
 dbr:Berlin
@@ -47,6 +49,7 @@ bcio:EegDevice # This is intended as a demo of LOV fallback lookup but it is fai
 
 ulan:500244636  # "Paul Otlet"
   dbo:knownFor dbr:Information_Science ;
+  dbo:influenced dbr:Douglas_Engelbart ;
   owl:sameAs wde:Q1868 .
 
 # gvo:aat2295_located_in
