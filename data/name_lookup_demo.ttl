@@ -2,6 +2,7 @@
 @prefix dbo: <http://dbpedia.org/ontology/> .
 @prefix dbp: <http://dbpedia.org/property/> .
 @prefix dbr: <http://dbpedia.org/resource/> .
+@prefix geo: <http://geonames.org/> .
 @prefix gvo: <http://vocab.getty.edu/ontology#> .
 @prefix locnam: <http://id.loc.gov/authorities/names/> .
 @prefix locrel: <http://id.loc.gov/vocabulary/relators/> .
@@ -15,13 +16,14 @@
 
 
 # Library of Congress Lookup is working nicely
-locnam:nr99004444
-  owl:sameAs dbr:Douglas_Engelbart ;
+locnam:nr99004444 # demonstrates loc: name lookup
+  owl:sameAs dbr:Douglas_Engelbart ; # demonstrates dbpedia name lookup
   dbo:knownFor locsub:sh93009624 .  # the computer mouse
 
 # DBPedia name lookup of objects is working, but not yet predicates.
 dbr:Berlin
   rdf:type dbo:PopulatedPlace ; # this has a label with a space, unlike City
+  owl:sameAs geo:2950159 ;
   dbo:CityOf
     dbr:Charlottenburg ,
     dbr:Technical_University_of_Berlin ,
@@ -38,19 +40,19 @@ dbr:Tractatus_Logico-Philosophicus  # deal with owl
     viaf:24609378 ,      # VIAF works too
     locnam:n97086452 .   # lookup book title in LOC
 
-# This confirms that subject names are looked up too.
-dbr:Gilbert_Ryle
-  rdf:type dbo:Philosopher ;
-  dbo:notableIdea dbr:Ordinary_language_philosophy.
-
+# Demonstrates nothing useful, retire....
+# dbr:Gilbert_Ryle
+#   rdf:type dbo:Philosopher ;
+#   dbo:notableIdea dbr:Ordinary_language_philosophy.
 
 bcio:EegDevice # This is intended as a demo of LOV fallback lookup but it is failing
     owl:sameAs <http://wikipedia.org/wiki/EEG> .
 
+# Demonstrates getty lookup
 ulan:500244636  # "Paul Otlet"
   dbo:knownFor dbr:Information_Science ;
   dbo:influenced dbr:Douglas_Engelbart ;
-  owl:sameAs wde:Q1868 .
+  owl:sameAs wde:Q1868 .  # Demonstrates WikiData lookup is FAILING
 
 # gvo:aat2295_located_in
 # gvo:aat2336_has_associates
