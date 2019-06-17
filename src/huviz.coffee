@@ -699,6 +699,7 @@ class Huviz
     top:100
     head_bg_color:'#157fcc'
     classes: "contextMenu temp"
+    title: ''
 
   gen_dialog_html: (contents, id, in_args) ->
     args = @compose_object_from_defaults_and_incoming(@default_dialog_args, in_args)
@@ -706,6 +707,7 @@ class Huviz
     return """<div id="#{id}" class="#{args.classes} #{args.extraClasses}"
         style="display:block;top:#{args.top}px;left:#{args.left}px;max-width:#{args.width}px;max-height:#{args.height}px">
       <div class="header" style="background-color:#{args.head_bg_color};#{args.style}">
+        <div class="dialog_title">#{args.title}</div>
         <button class="close_node_details" title="Close"><i class="far fa-window-close" for="#{id}"></i></button>
       </div>
       #{contents}
@@ -732,6 +734,17 @@ class Huviz
     args ?= {}
     args.extraClasses += " markdownDialog"
     return @make_dialog(marked(markdown or ''), id, args)
+
+  make_pre_dialog: (textToPre, id, args) ->
+    args ?= {}
+    args.extraClasses += " preformattedDialog"
+    return @make_dialog("<pre>#{textToPre}</pre>", id, args)
+
+  make_json_dialog: (json, id, args) ->
+    args ?= {}
+    args.extraClasses += " preformattedDialog"
+    jsonString = JSON.stringify(json, null, args.json_indent or 2)
+    return @make_dialog("<pre>#{jsonString}</pre>", id, args)
 
   unique_id: (prefix) ->
     prefix ?= 'uid_'
@@ -3289,11 +3302,15 @@ class Huviz
     hasDomainName = (domainName) ->
       return aUrl.hostname.endsWith(domainName)
 
+    # Set some variables in preparation for per-domain handling
+
+    try_even_though_CORS_should_block = false # TODO refactor when proxy is working
+    comment = "auto_discover_name_for(#{uri})"
+
     if hasDomainName('cwrc.ca')
       # We will skip these for now
+      console.warn("auto_discover_name_for('#{uri}') skipping cwrc.ca")
       return
-
-    try_even_though_CORS_should_block = false
 
     if hasDomainName("id.loc.gov")
       # This is less than ideal because it uses the special knowledge
@@ -3306,12 +3323,22 @@ class Huviz
       # `@auto_discover_header(uri, ['X-PrefLabel'], sendHeaders or [])`
       return
 
-    if hasDomainName("vocab.getty.edu") and try_even_though_CORS_should_block
-      # This would work, but CORS blocks this.  Preserved in case sufficiently
-      # robust accounts are set up so the HuViz server could serve as a proxy.
-      downloadUrl = "http://vocab.getty.edu/download/nt?uri=#{encodeURIComponent(uri)}"
-      retval = @ingest_quads_from(downloadUrl, @discover_labels(uri))
-      return
+    if hasDomainName("vocab.getty.edu")
+      if try_even_though_CORS_should_block
+        # This would work, but CORS blocks this.  Preserved in case sufficiently
+        # robust accounts are set up so the HuViz server could serve as a proxy.
+        downloadUrl = "http://vocab.getty.edu/download/nt?uri=#{encodeURIComponent(uri)}"
+        retval = @ingest_quads_from(downloadUrl, @discover_labels(uri))
+        return
+      else
+        # Alternative response datatypes are .json, .csv, .tsv and .xml
+        args =
+          success_handler: @name_tsv_success_handler
+          server_config:
+            source: 'http://vocab.getty.edu/sparql.tsv'
+        @run_sparql_name_query(uri, args)
+        return
+
     #for expansion in ["http://vocab.getty.edu/aat/", "http://vocab.getty.edu/ontology#"]
     #  # Work was stopped on this when I realized that the CWRC ontology is no
     #  # longer referencing Getty.  It is still good stuff, but should be deprioritized
@@ -3327,7 +3354,6 @@ class Huviz
     # As a final backstop we use LDF.  Why last? To spare the LDF server.
     # The endpoint of authority is superior because it ought to be up to date.
     for domainName, config of @ldf_domain_configs
-      comment = "auto_discover_name_for(#{uri})"
       if domainName is '*'
         @run_ldf_name_query(uri, null, comment, config)
         return
@@ -3350,6 +3376,64 @@ class Huviz
         console.log('auto_discover_name_for',uri)
         @auto_discover_name_for(uri)
     return
+
+  # ## SPARQL queries
+
+  run_sparql_name_query: (namelessUri, args, comment) ->
+    args ?= {}
+    query = "# " + ( comment or "run_ldf_name_query(#{namelessUri})") + "\n" +
+      @make_name_query(namelessUri, args.expansion)
+    defaults =
+      default_terms:
+        s: namelessUri
+        p: RDFS_label
+    args = @compose_object_from_defaults_and_incoming(defaults, args)
+    serverUri = args.server_config.source
+    @run_managed_query_ajax(query, serverUri, args)
+
+  # Receive a tsv of rows and call the `result_handler` to process each row.
+  #
+  # Data might look like:
+  # ```
+  # ?p ?o
+  # rdfs:label "Uncle Bob"
+  # rdfs:label "Uncle Sam"
+  # ```
+  #
+  # Meanwhile `result_handler` expects each row to be JSON like:
+  #
+  # ```json
+  # {'?p': 'rdfs:label', '?o': "Uncle Bob"}
+  # ```
+  name_tsv_success_handler: (data, textStatus, jqXHR, queryManager) =>
+    result_handler = queryManager.args.result_handler
+    result_handler ?= @name_result_handler
+    try
+      table = []
+      #@make_pre_dialog(data, null, {title:"name_tsv_success_handler"})
+      lines = data.split(/\r?\n/)
+      firstLine = lines.shift()
+      cols = firstLine.split("\t")
+      for line in lines
+        continue if not line
+        row = line.split("\t")
+        rowJson = _.zipObject(cols, row)
+        result_handler(rowJson, queryManager)
+        table.push(rowJson)
+    catch e
+      @make_json_dialog(table)
+      queryManager.displayError(e)
+    return
+
+  JUNK_PILE: (wft) ->                                                      
+    [sparql, handler] = @make_sparql_name_query_and_handler(uri, expansion)
+    args =
+      success_handler: handler
+    comment = "# " + ( comment or "run_sparql_name_query(#{uri})") + "\n"
+    query = comment + sparql
+    @run_managed_query_ajax(query, uri, args)
+
+
 
   # ## Linked Data Fragments (LDF)
   #
@@ -3380,7 +3464,7 @@ class Huviz
     #  source: "https://query.wikidata.org/bigdata/ldf"
     # TODO handle "wikidata.org"
 
-  make_ldf_name_query: (uri) ->
+  make_name_query: (uri) ->
     return """
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX foaf: <http://xmlns.com/foaf/0.1/>
@@ -3400,7 +3484,7 @@ class Huviz
     }
     LIMIT 100""" # "
 
-  convert_N3_to_GreenTurtle: (n3_obj_term) ->
+  convert_N3_obj_to_GreenTurtle: (n3_obj_term) ->
     @greenturtleparser ?= new GreenerTurtle()
     bare_obj_term = n3_obj_term
     subj = 'http://example.com/subj'
@@ -3408,33 +3492,62 @@ class Huviz
     statement = "<#{subj}> <#{pred}> #{bare_obj_term} ."
     try
       graph = @greenturtleparser.parse(statement, "text/turtle")
-      # console.log("NUMBER OF OBJ", graph.subjects[subj].predicates[pred].objects.length)
       retval = graph.subjects[subj].predicates[pred].objects.slice(-1)[0]
     catch e
+      console.log(n3_obj_term, n3_obj_term.split(''))
       console.error(e)
       retval =
         value: strip_surrounding_quotes(n3_obj_term)
         type: 'Literal'
     return retval
 
-  ldf_name_result_handler: (result, queryManager) =>
+  convert_bare_obj_to_GreenTurtle: (bare_term) =>
+    if bare_term[0] is '<'
+      return @convert_N3_obj_to_GreenTurtle(bare_term)
+    if bare_term.slice(-1)[0] isnt '"'
+      return @convert_N3_obj_to_GreenTurtle('"'+bare_term+'"')
+    msg = "bare_term: {#{bare_term}} not parseable by convert_bare_term_to_GreenTurtle"
+    #console.error(msg)
+    #console.error(bare_term.split())
+    throw new Error(msg)
+
+  convert_N3_uri_to_string: (n3Uri) =>
+    #console.warn("convert_N3_uri_to_string('#{n3Uri}')")
+    return n3Uri
+
+  convert_bare_uri_to_string: (bareUri) =>
+    if bareUri.startsWith('<')
+      bareUri =  bareUri.substr(1,bareUri.length-2)
+    #console.warn("convert_bare_uri_to_string('#{bareUri}')")
+    return bareUri
+
+  name_result_handler: (result, queryManager) =>
+    if queryManager.args.from_N3
+      result.from_n3 = true
+      parseObj = @convert_N3_obj_to_GreenTurtle
+      parseUri = @convert_N3_uri_to_string
+    else
+      parseObj = @convert_bare_obj_to_GreenTurtle
+      parseUri = @convert_bare_uri_to_string
     if (spo = true)
       q =
-        s: result['?s'] or queryManager.args.default_terms.s
-        p: result['?p'] or queryManager.args.default_terms.p
-        o: @convert_N3_to_GreenTurtle(result['?o'])
-        #qry: queryManager.qry
-      #console.table([q.o])
-      #console.info('ldf_name_result_handler()', q, result, queryManager)
-      @add_quad(q)
+        s: parseUri(result['?s'] or queryManager.args.default_terms.s)
+        p: parseUri(result['?p'] or queryManager.args.default_terms.p)
+        o: parseObj(result['?o'])
+      try
+        @add_quad(q)
+      catch error
+        #@make_json_dialog(result, null, {title: error.toString()})
+        console.warn(result)
+        console.error(error)
 
   run_ldf_name_query: (uri, expansion, comment, server_config) ->
-    sparql = @make_ldf_name_query(uri, expansion)
-    comment = "# " + ( comment or "run_ldf_name_query(#{uri})") + "\n"
-    query = comment + sparql
+    query = "# " + ( comment or "run_ldf_name_query(#{uri})") + "\n" +
+      @make_name_query(uri, expansion)
     args =
-      result_handler: @ldf_name_result_handler
+      result_handler: @name_result_handler
       server_config: server_config or {}
+      from_N3: true
       default_terms:
         s: uri
         p: RDFS_label
@@ -3493,14 +3606,6 @@ class Huviz
 
 
   # ## Examples and Tests START
-
-  run_sparql_name_query: (uri, expansion, comment) -> # NOT IN USE ATM
-    [sparql, handler] = @make_sparql_name_query_and_handler(uri, expansion)
-    args =
-      success_handler: handler
-    comment = "# " + ( comment or "run_sparql_name_query(#{uri})") + "\n"
-    query = comment + sparql
-    @run_managed_query_ldf(query, uri, args)
 
   make_wikidata_name_query: (uri, langs) ->
     uri ?= 'wd:Q160302'
@@ -4110,24 +4215,24 @@ class Huviz
     queryManager.args = args
     return queryManager
 
-  run_managed_query_ajax: (qry, url, args) ->
-    queryManager = @run_managed_query_abstract(qry, url, args)
+  run_managed_query_ajax: (qry, serverUrl, args) ->
+    queryManager = @run_managed_query_abstract(qry, serverUrl, args)
     {success_handler, error_callback, timeout} = args
     # These POST settings work for: CWRC, WWI open, on DBpedia, and Open U.K. but not on Bio Database
     more = "&timeout=" + timeout
     ajax_settings = { #TODO Currently this only works on CWRC Endpoint
       'method': 'GET'
-      'url': url + '?query=' + encodeURIComponent(qry) + more
+      'url': serverUrl + '?query=' + encodeURIComponent(qry) + more
       'headers' :
         # This is only required for CWRC - not accepted by some Endpoints
         #'Content-Type': 'application/sparql-query'
         'Accept': 'application/sparql-results+json'
     }
-    if url is "http://sparql.cwrc.ca/sparql" # Hack to make CWRC setup work properly
+    if serverUrl is "http://sparql.cwrc.ca/sparql" # Hack to make CWRC setup work properly
       ajax_settings.headers =
         'Content-Type' : 'application/sparql-query'
         'Accept': 'application/sparql-results+json'
-    if url.includes('wikidata')
+    if serverUrl.includes('wikidata')
       # these don't solve CORS issues but could solve CORB issues
       ajax_settings.headers.Accept = "text/tab-separated-values"
       ajax_settings.headers.Accept = "text/csv"
@@ -4150,7 +4255,7 @@ class Huviz
         queryManager.setErrorColor()
         if not errorThrown
           errorThrown = "Cross-Origin error"
-        msg = errorThrown + " while fetching " + url
+        msg = errorThrown + " while fetching " + serverUrl
         #@hide_state_msg()
         $('#'+@get_data_ontology_display_id()).remove()
         queryManager.displayError(msg)
@@ -4159,8 +4264,8 @@ class Huviz
 
     return queryManager
 
-  run_managed_query_worker: (qry, url, args) ->
-    queryManager = @run_managed_query_abstract(qry, url, args)
+  run_managed_query_worker: (qry, serverUrl, args) ->
+    queryManager = @run_managed_query_abstract(qry, serverUrl, args)
     return queryManager
 
   sparql_graph_query_and_show: (url, id, callback) =>
