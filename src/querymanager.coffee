@@ -18,6 +18,11 @@ class QueryManager
   displayError: (e) ->
     console.warn(e)
     @qryJQElem.append("""<div class="queryError">#{e}</div>""")
+  fatalError: (e) ->
+    @cancelAnimation()
+    @displayError(e)
+    @setErrorColor()
+    console.error(e)
   displayResults: (results) ->
     @qryJQElem.append("""<div class="queryResults">#{results}</div>""")
   finishCounting: ->

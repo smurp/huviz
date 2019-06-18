@@ -245,6 +245,8 @@ DCE_title    = "http://purl.org/dc/elements/1.1/title"
 FOAF_Group  = "http://xmlns.com/foaf/0.1/Group"
 FOAF_Person = "http://xmlns.com/foaf/0.1/Person"
 FOAF_name   = "http://xmlns.com/foaf/0.1/name"
+OSMT_name   = "https://wiki.openstreetmap.org/wiki/Key:name"
+OSMT_reg_name = "https://wiki.openstreetmap.org/wiki/Key:reg_name"
 OWL_Class   = "http://www.w3.org/2002/07/owl#Class"
 OWL_Thing   = "http://www.w3.org/2002/07/owl#Thing"
 OWL_ObjectProperty = "http://www.w3.org/2002/07/owl#ObjectProperty"
@@ -264,7 +266,7 @@ THUMB_PREDS = [
   'http://xmlns.com/foaf/0.1/thumbnail']
 NAME_SYNS = [
   FOAF_name, RDFS_label, 'rdfs:label', 'name', SKOS_prefLabel, XL_literalForm,
-  SCHEMA_name, DCE_title ]
+  SCHEMA_name, DCE_title, OSMT_reg_name, OSMT_name ]
 XML_TAG_REGEX = /(<([^>]+)>)/ig
 
 typeSigRE =
@@ -3117,8 +3119,9 @@ class Huviz
           # but all the deeper geoRecs (because they are new to this graph, presumably)
           # should be represented canonically (ie without 'https', 'www' or trailing slash).
           if not depth
-            if geoRec.geonameId isnt soughtId
-              console.warn("likely misalignment between representation of soughtId and found")
+            if geoRec.geonameId.toString() isnt soughtId
+              console.warn("likely misalignment between representation of soughtId and found",
+                           soughtId, "!=", geoRec.geonameId)
             subj = aUrl.toString()
           else
             subj = geoNamesRoot + '/' + geoRec.geonameId # + '/'
@@ -3315,7 +3318,7 @@ class Huviz
       console.log(e)
       return
     @highwater_incr('discover_name')
-    colorlog("auto_discover_name_for('#{uri}') START")
+
     hasDomainName = (domainName) ->
       return aUrl.hostname.endsWith(domainName)
 
@@ -3350,24 +3353,29 @@ class Huviz
       else
         # Alternative response datatypes are .json, .csv, .tsv and .xml
         args =
-          success_handler: @name_tsv_success_handler
           server_config:
             source: 'http://vocab.getty.edu/sparql.tsv'
         @run_sparql_name_query(uri, args)
         return
 
-    #for expansion in ["http://vocab.getty.edu/aat/", "http://vocab.getty.edu/ontology#"]
-    #  # Work was stopped on this when I realized that the CWRC ontology is no
-    #  # longer referencing Getty.  It is still good stuff, but should be deprioritized
-    #  # pending review.
-    #  if uri.startsWith(expansion) # TODO can this be more general? ie shorter?
-    #    sparql = @make_sparql_name_for_getty(uri, expansion)
-    #    @ingest_quads_from_sparql(sparql) # TODO this is not yet implemented
-    if hasDomainName("geonames.org") and
-        @discover_geonames_as__widget.state in ['untried','looking','good'] and
-        @discover_geonames_remaining > 0
-      @discover_geoname_name(aUrl)
+    if hasDomainName("openstreetmap.org")
+      args =
+        predicates: [OSMT_reg_name, OSMT_name]
+        server_config:
+          source: "https://sophox.org/sparql"
+      @run_sparql_name_query(uri, args)
       return
+
+    # ## Geonames
+    #
+    # Geonames has its own API and some complicated use limits so is treated
+    # very differently.
+    if hasDomainName("geonames.org")
+      if @discover_geonames_as__widget.state in ['untried','looking','good'] and
+          @discover_geonames_remaining > 0
+        @discover_geoname_name(aUrl)
+      return
+
     # As a final backstop we use LDF.  Why last? To spare the LDF server.
     # The endpoint of authority is superior because it ought to be up to date.
     for domainName, config of @ldf_domain_configs
@@ -3390,7 +3398,6 @@ class Huviz
       uri = node.id
       if not (includes? and not uri.includes(includes))
         # only if includes is specified but not found do we skip auto_discover_name_for
-        console.log('auto_discover_name_for', uri)
         @auto_discover_name_for(uri)
     return
 
@@ -3398,15 +3405,16 @@ class Huviz
 
   run_sparql_name_query: (namelessUri, args, comment) ->
     args ?= {}
-    query = "# " + ( comment or "run_ldf_name_query(#{namelessUri})") + "\n" +
-      @make_name_query(namelessUri, args.expansion)
+    args.query ?= "# " + ( comment or "run_sparql_name_query(#{namelessUri})") + "\n" +
+      @make_name_query(namelessUri, args)
     defaults =
+      success_handler: @generic_name_success_handler
       default_terms:
         s: namelessUri
         p: RDFS_label
     args = @compose_object_from_defaults_and_incoming(defaults, args)
-    serverUri = args.server_config.source
-    @run_managed_query_ajax(query, serverUri, args)
+    serverUri = args.server_config.source # TODO fix this smelliness
+    @run_managed_query_ajax(args.query, serverUri, args)
 
   # Receive a tsv of rows and call the `result_handler` to process each row.
   #
@@ -3422,13 +3430,17 @@ class Huviz
   # ```json
   # {'?p': 'rdfs:label', '?o': "Uncle Bob"}
   # ```
-  name_tsv_success_handler: (data, textStatus, jqXHR, queryManager) =>
+  tsv_name_success_handler: (data, textStatus, jqXHR, queryManager) =>
     result_handler = queryManager.args.result_handler
     result_handler ?= @name_result_handler
     try
       table = []
-      #@make_pre_dialog(data, null, {title:"name_tsv_success_handler"})
-      lines = data.split(/\r?\n/)
+      #@make_pre_dialog(data, null, {title:"tsv_name_success_handler"})
+      try
+        lines = data.split(/\r?\n/)
+      catch e
+        console.info("data:",data)
+        throw e
       firstLine = lines.shift()
       cols = firstLine.split("\t")
       for line in lines
@@ -3439,9 +3451,36 @@ class Huviz
         table.push(rowJson)
     catch e
       @make_json_dialog(table)
-      queryManager.displayError(e)
+      queryManager.fatalError(e)
     return
 
+  json_name_success_handler: (data, textStatus, jqXHR, queryManager) =>
+    result_handler = queryManager.args.result_handler
+    result_handler ?= @name_result_handler
+    try
+      table = []
+      for resultJson in data.results.bindings
+        continue if not resultJson
+        result_handler(resultJson, queryManager)
+        table.push(resultJson)
+    catch e
+      @make_json_dialog(table, null, {title: "table of results"})
+      queryManager.fatalError(e)
+    return
+
+  generic_name_success_handler: (data, textStatus, jqXHR, queryManager) =>
+    # this should be based on response header or a queryManager
+    resp_type = 'tsv'
+    resp_type = 'json' if data.head?
+    switch resp_type
+      when 'json'
+        success_handler = @json_name_success_handler
+      when 'tsv'
+        success_handler = @tsv_name_success_handler
+      else
+        throw new Error('no name_success_handler available')
+    success_handler(data, textStatus, jqXHR, queryManager)
+    return
 
   # ## Linked Data Fragments (LDF)
   #
@@ -3472,25 +3511,51 @@ class Huviz
     #  source: "https://query.wikidata.org/bigdata/ldf"
     # TODO handle "wikidata.org"
 
-  make_name_query: (uri) ->
-    return """
-    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-    PREFIX schema: <http://schema.org/>
-    SELECT *
-    WHERE {
-      {
-        BIND (foaf:name as ?p) .
-        <#{uri}> ?p ?o .
-      } UNION {
-        BIND (rdfs:label as ?p) .
-        <#{uri}> ?p ?o .
-      } UNION {
-        BIND (schema:name as ?p) .
-        <#{uri}> ?p ?o .
-      }
-    }
-    LIMIT 100""" # "
+  default_name_query_args:
+    predicates: [RDFS_label, FOAF_name, SCHEMA_name]
+    limit: 20 # set to `false` for no limit
+
+  # ### make_name_query()
+  #
+  # Generate a name lookup query for `uri`.  If the optional `args` object
+  # has an optional `predicates` list then those predicates are specifically
+  # looked up.  The default predicates are provided by `default_name_query_args`.
+  #
+  # The default query looks like:
+  # ```sparql
+  # SELECT *
+  # WHERE {
+  #   {
+  #     BIND (foaf:name as ?p) .
+  #     <#{uri}> ?p ?o .
+  #   } UNION {
+  #     BIND (rdfs:label as ?p) .
+  #     <#{uri}> ?p ?o .
+  #   } UNION {
+  #     BIND (schema:name as ?p) .
+  #     <#{uri}> ?p ?o .
+  #   }
+  # }
+  # LIMIT 20```
+  make_name_query: (uri, in_args) ->
+    args = @compose_object_from_defaults_and_incoming(@default_name_query_args, in_args)
+    {predicates} = args
+    lines = [
+      "SELECT *",
+      "WHERE {"]
+    pred_num = 0
+    for pred in predicates
+      if pred_num
+        lines.push('  UNION')
+      pred_num++
+      lines.push("  {")
+      lines.push("    BIND (<#{pred}> as ?p) .")
+      lines.push("    <#{uri}> ?p ?o .")
+      lines.push("  }")
+    lines.push("}")
+    if args.limit
+      lines.push("LIMIT #{args.limit}")
+    return lines.join("\n")
 
   convert_N3_obj_to_GreenTurtle: (n3_obj_term) ->
     @greenturtleparser ?= new GreenerTurtle()
@@ -3506,48 +3571,79 @@ class Huviz
       console.error(e)
       retval =
         value: strip_surrounding_quotes(n3_obj_term)
-        type: 'Literal'
+        type: 'Literal' # TODO make this legit
     return retval
 
-  convert_bare_obj_to_GreenTurtle: (bare_term) =>
+  convert_str_obj_to_GreenTurtle: (bare_term) =>
     if bare_term[0] is '<'
       return @convert_N3_obj_to_GreenTurtle(bare_term)
     if bare_term.slice(-1)[0] isnt '"'
       return @convert_N3_obj_to_GreenTurtle('"'+bare_term+'"')
-    msg = "bare_term: {#{bare_term}} not parseable by convert_bare_term_to_GreenTurtle"
-    #console.error(msg)
-    #console.error(bare_term.split())
+    msg = "bare_term: {#{bare_term}} not parseable by convert_str_term_to_GreenTurtle"
     throw new Error(msg)
 
   convert_N3_uri_to_string: (n3Uri) =>
     #console.warn("convert_N3_uri_to_string('#{n3Uri}')")
     return n3Uri
 
-  convert_bare_uri_to_string: (bareUri) =>
+  convert_str_uri_to_string: (bareUri) =>
     if bareUri.startsWith('<')
       bareUri =  bareUri.substr(1,bareUri.length-2)
-    #console.warn("convert_bare_uri_to_string('#{bareUri}')")
+    #console.warn("convert_str_uri_to_string('#{bareUri}')")
     return bareUri
 
+  convert_obj_obj_to_GreenTurtle: (jsObj) =>
+    # TODO convert the .type to a legit uri
+    return jsObj
+
+  convert_obj_uri_to_string: (jsObj) =>
+    # We are anticipating jsObj to have a .value
+    if jsObj.value?
+      return jsObj.value
+    if typeof jsObj isnt 'object'
+      return jsObj
+    throw new Error('expecting jsObj to have .value or be a literal')
+
   name_result_handler: (result, queryManager) =>
+    subj_term = result['?s'] or result['s'] or queryManager.args.default_terms.s
+    pred_term = result['?p'] or result['p'] or queryManager.args.default_terms.p
+    obj_term = result['?o'] or result['o']
+
+    # identify the result_type
     if queryManager.args.from_N3
-      result.from_n3 = true
-      parseObj = @convert_N3_obj_to_GreenTurtle
-      parseUri = @convert_N3_uri_to_string
+      result_type = 'n3'
+    else if obj_term.value?
+      # TODO this LOOKS like GreenTurtle.  Is it a standard?
+      #    It differs in that the .type is ['url','literal'] rather than an uri
+      result_type = 'obj'
     else
-      parseObj = @convert_bare_obj_to_GreenTurtle
-      parseUri = @convert_bare_uri_to_string
-    if (spo = true)
+      result_type = 'str'
+
+    # prepare parsers based on the result_type
+    switch result_type
+      when 'n3'
+        parseObj = @convert_N3_obj_to_GreenTurtle
+        parseUri = @convert_N3_uri_to_string
+      when 'obj'
+        parseObj = @convert_obj_obj_to_GreenTurtle
+        parseUri = @convert_obj_uri_to_string
+      when 'str' # TODO what should we call this?
+        parseObj = @convert_str_obj_to_GreenTurtle
+        parseUri = @convert_str_uri_to_string
+      else
+        console.error(result)
+        throw new Error('can not determine result_type')
+    try
       q =
-        s: parseUri(result['?s'] or queryManager.args.default_terms.s)
-        p: parseUri(result['?p'] or queryManager.args.default_terms.p)
-        o: parseObj(result['?o'])
-      try
-        @add_quad(q)
-      catch error
-        #@make_json_dialog(result, null, {title: error.toString()})
-        console.warn(result)
-        console.error(error)
+        s: parseUri(subj_term)
+        p: parseUri(pred_term)
+        o: parseObj(obj_term)
+      @add_quad(q)
+    catch error
+      #@make_json_dialog(result, null, {title: error.toString()})
+      console.warn(result)
+      console.error(error)
+    return
 
   run_ldf_name_query: (uri, expansion, comment, server_config) ->
     query = "# " + ( comment or "run_ldf_name_query(#{uri})") + "\n" +
@@ -3592,8 +3688,7 @@ class Huviz
             queryManager.incrResultCount()
             result_handler.call(this, result, queryManager)
           when 'error'
-            queryManager.displayError(d)
-            queryManager.setErrorColor()
+            queryManager.fatalError(d)
           when 'end'
             queryManager.finishCounting()
           when 'queryInfo', 'log'
@@ -3677,7 +3772,11 @@ class Huviz
     #     - *_lid: a "local id" eg subj_lid='atwoma'
     #console.log "HuViz.add_quad()", quad
     subj_uri = quad.s
+    if not subj_uri?
+      throw new Error("quad.s is undefined")
     pred_uri = quad.p
+    if not pred_uri?
+      throw new Error("quad.p is undefined")
     ctxid = quad.g || @DEFAULT_CONTEXT
     subj_lid = uniquer(subj_uri)  # FIXME rename uniquer to make_dom_safe_id
     @object_value_types[quad.o.type] = 1
@@ -4252,21 +4351,18 @@ class Huviz
       headers: ajax_settings.headers
       success: (data, textStatus, jqXHR) =>
         queryManager.cancelAnimation()
-        if success_handler?
-          try
-            success_handler(data, textStatus, jqXHR, queryManager)
-          catch e
-            queryManager.colorQuery('pink')
-            queryManager.displayError(e)
+        try
+          if not success_handler?
+            throw new Error("no success_handler provided")
+          success_handler(data, textStatus, jqXHR, queryManager)
+        catch e
+          queryManager.fatalError(e)
       error: (jqxhr, textStatus, errorThrown) =>
-        queryManager.cancelAnimation()
-        queryManager.setErrorColor()
         if not errorThrown
           errorThrown = "Cross-Origin error"
         msg = errorThrown + " while fetching " + serverUrl
-        #@hide_state_msg()
         $('#'+@get_data_ontology_display_id()).remove()
-        queryManager.displayError(msg)
+        queryManager.fatalError(msg)
         if error_callback?
           error_callback(jqxhr, textStatus, errorThrown)
 
@@ -4549,8 +4645,7 @@ class Huviz
         return
       else if e.data.method_name isnt 'accept_results'
         error = new Error("expecting either data.method = 'log_query' or 'accept_results'")
-        queryManager.cancelAnimation()
-        queryManager.displayError(error)
+        queryManager.fatalError(error)
         throw error
       add_fully_loaded = e.data.fully_loaded_index
       for quad in e.data.results
