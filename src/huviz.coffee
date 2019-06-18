@@ -1397,7 +1397,7 @@ class Huviz
       a_w = 2 # arrow width
       arr_side = Math.sqrt(a_l * a_l + a_w * a_w)
 
-      arrow_color = "#333" # clr
+      arrow_color = clr
       node_radius = @calc_node_radius(edge.target)
 
       arw_angl = Math.atan((yctrl - y2)/(xctrl - x2))
@@ -1413,6 +1413,19 @@ class Huviz
       xo2 = pnt_x + flip * arr_side * Math.cos(arw_angl - hd_angl)
       yo2 = pnt_y + flip * arr_side * Math.sin(arw_angl - hd_angl)
       @draw_triangle(pnt_x, pnt_y, arrow_color, xo1, yo1, xo2, yo2)
+
+  draw_self_edge_circle: (cx, cy, strclr, length, line_width, e) ->
+    console.log "#{strclr} #{length} #{line_width}"
+    console.log e
+    cx = cx - 5
+    cy = cy - 5
+    radius = 20
+    strclr = "black"
+    filclr = false #"pink"
+    start_angle = 0
+    end_angle = false
+    special_focus = false
+    @draw_circle(cx, cy, radius, strclr, filclr, start_angle, end_angle, special_focus)
 
   draw_disconnect_dropzone: ->
     @ctx.save()
@@ -2062,8 +2075,8 @@ class Huviz
     draw_n_n = {}
     for e in node.links_shown
       msg = ""
-      if e.source is node
-        continue
+      #if e.source is node
+        #continue
       if e.source.embryo
         msg += "source #{e.source.name} is embryo #{e.source.id}; "
         msg += e.id + " "
@@ -2088,8 +2101,12 @@ class Huviz
           line_width = edge_width
         line_width = line_width + (@line_edge_weight * e.contexts.length)
         #@show_message_once("will draw line() n_n:#{n_n} e.id:#{e.id}")
-        @draw_curvedline(e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x,
-                         e.target.fisheye.y, sway, e.color, e.contexts.length, line_width, e)
+        if (e.source.fisheye.x == e.target.fisheye.x) and (e.source.fisheye.y == e.target.fisheye.y)
+          @draw_self_edge_circle(e.source.fisheye.x, e.source.fisheye.y, e.color, e.contexts.length, line_width, e)
+        else
+          @draw_curvedline(e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x,
+                           e.target.fisheye.y, sway, e.color, e.contexts.length, line_width, e)
+
         if node.walked # ie is part of the walk path
           @draw_walk_edge_from(node, e, sway)
         sway++
@@ -3442,7 +3459,7 @@ class Huviz
       queryManager.displayError(e)
     return
 
-  JUNK_PILE: (wft) ->                                                      
+  JUNK_PILE: (wft) ->
     [sparql, handler] = @make_sparql_name_query_and_handler(uri, expansion)
     args =
       success_handler: handler
