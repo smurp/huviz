@@ -26,7 +26,8 @@ dbr:Berlin
   rdf:type dbo:PopulatedPlace ; # this has a label with a space, unlike City
   dbo:CityOf
     dbr:Charlottenburg ,
-    geo:2852217 , # GEO works too
+    geo:2852217 , # GEO works too (Prenzlauer-Berg)
+    <https://www.geonames.org/6698676/> , # note trailing / (Kaiser Willhelm Mem. Church)
     osmw:54525147 , # "Hochbunker Pallasstrasse" openstreetmaps NOT working
     dbr:Technical_University_of_Berlin ,
     dbr:Berliner_Dom .
