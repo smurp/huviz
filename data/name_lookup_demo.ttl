@@ -51,8 +51,9 @@ dbr:Tractatus_Logico-Philosophicus  # deal with owl
 #   rdf:type dbo:Philosopher ;
 #   dbo:notableIdea dbr:Ordinary_language_philosophy.
 
-bcio:EegDevice # This is intended as a demo of LOV fallback lookup but it is failing
-    owl:sameAs <http://wikipedia.org/wiki/EEG> .
+# This is a placeholder for a more interesting demo of LOV lookup.
+# bcio:EegDevice # This is intended as a demo of LOV fallback lookup but it is failing
+#     owl:sameAs <http://wikipedia.org/wiki/EEG> .
 
 # Demonstrates getty lookup
 ulan:500244636  # "Paul Otlet"
