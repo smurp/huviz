@@ -3025,6 +3025,7 @@ class Huviz
 
   discover_geoname_name: (aUrl) ->
     id = aUrl.pathname.replace(/\//g,'')
+    soughtId = id
     idInt = parseInt(id)
     userId = @discover_geonames_as
     k2p = @discover_geoname_key_to_predicate_mapping
@@ -3085,8 +3086,8 @@ class Huviz
           if state_at_start in ['trying', 'looking']
             if widget.state is 'trying'
               # we decrement remaining after successfully trying or before looking
-              @countdown_setting('discover_geonames_remaining') # more remaining, go straight to looking
-              @discover_geonames_as__widget.set_state('looking')
+              @countdown_setting('discover_geonames_remaining') # more remaining
+              @discover_geonames_as__widget.set_state('looking') # yes, fall through to looking
             if widget.state is 'looking'
               if @discover_geonames_remaining > 0
                 # trigger again because they have been suspended
@@ -3102,13 +3103,25 @@ class Huviz
             msg = "state_at_start = #{state_at_start} but it should only be looking or trying (nameless: #{@nameless_set.length})"
             #console.error(msg)
             #throw new Error(msg)
+        else
+          throw new Error("discover_geonames_as__widget is missing")
         geoNamesRoot = aUrl.origin
         deeperQuad = null
         greedily = @discover_geonames_greedily
         deeply = @discover_geonames_deeply
         depth = 0
         for geoRec in json.geonames by -1 # from most specific to most general
-          subj = geoNamesRoot + '/' + geoRec.geonameId + '/'
+          # Solution! The originally sought geoname (given by aUrl) should have
+          # its name injected back into the graph using the exact representation
+          # employed in aUrl (ie with or without 'https', 'www' and trailing slash)
+          # but all the deeper geoRecs (because they are new to this graph, presumably)
+          # should be represented canonically (ie without 'https', 'www' or trailing slash).
+          if not depth
+            if geoRec.geonameId isnt soughtId
+              console.warn("likely misalignment between representation of soughtId and found")
+            subj = aUrl.toString()
+          else
+            subj = geoNamesRoot + '/' + geoRec.geonameId # + '/'
           #console.log("discover_geoname_name(#{subj})")
           depth++
           soughtGeoname = (geoRec.geonameId is idInt)
@@ -3117,7 +3130,6 @@ class Huviz
             continue
           #console.table([{id: id, geonameId: geoRec.geonameId, name: geoRec.name}])
           name = (geoRec or {}).name
-
           placeQuad =
             s: subj
             p: RDF_type
@@ -3378,7 +3390,7 @@ class Huviz
       uri = node.id
       if not (includes? and not uri.includes(includes))
         # only if includes is specified but not found do we skip auto_discover_name_for
-        console.log('auto_discover_name_for',uri)
+        console.log('auto_discover_name_for', uri)
         @auto_discover_name_for(uri)
     return
 
@@ -8081,7 +8093,7 @@ class Huviz
     @discover_names_including('geonames.org')
 
   on_change_discover_geonames_as: (new_val, old_val) ->
-    if not @discover_geonames_as__widget?
+    if not @discover_geonames_as__widget? # Try later if not ready
       setTimeout((() => @on_change_discover_geonames_as(new_val, old_val)), 50)
       return
     @discover_geonames_as = new_val
