@@ -3442,15 +3442,6 @@ class Huviz
       queryManager.displayError(e)
     return
 
-  JUNK_PILE: (wft) ->                                                      
-    [sparql, handler] = @make_sparql_name_query_and_handler(uri, expansion)
-    args =
-      success_handler: handler
-    comment = "# " + ( comment or "run_sparql_name_query(#{uri})") + "\n"
-    query = comment + sparql
-    @run_managed_query_ajax(query, uri, args)
-
-
 
   # ## Linked Data Fragments (LDF)
   #
