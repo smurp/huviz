@@ -3370,16 +3370,14 @@ class Huviz
       else
         # Alternative response datatypes are .json, .csv, .tsv and .xml
         args =
-          server_config:
-            source: 'http://vocab.getty.edu/sparql.tsv'
+          serverUri: "http://vocab.getty.edu/sparql.tsv"
         @run_sparql_name_query(uri, args)
         return
 
     if hasDomainName("openstreetmap.org")
       args =
         predicates: [OSMT_reg_name, OSMT_name]
-        server_config:
-          source: "https://sophox.org/sparql"
+        serverUri: "https://sophox.org/sparql"
       @run_sparql_name_query(uri, args)
       return
 
@@ -3430,7 +3428,7 @@ class Huviz
         s: namelessUri
         p: RDFS_label
     args = @compose_object_from_defaults_and_incoming(defaults, args)
-    serverUri = args.server_config.source # TODO fix this smelliness
+    serverUri = args.serverUri
     @run_managed_query_ajax(args.query, serverUri, args)
 
   # Receive a tsv of rows and call the `result_handler` to process each row.
@@ -3516,14 +3514,10 @@ class Huviz
 
   ldf_domain_configs:
     # source: is the LDF client context.sources.value values # see run_managed_query_ldf
-    'dbpedia.org':
-      source: "http://fragments.dbpedia.org/2016-04/en"
-    'viaf.org':
-      source: "http://data.linkeddatafragments.org/viaf"
-    'getty.edu':
-      source: "http://data.linkeddatafragments.org/lov"
-    '*':
-      source: "http://data.linkeddatafragments.org/lov"
+    'dbpedia.org': "http://fragments.dbpedia.org/2016-04/en"
+    'viaf.org': "http://data.linkeddatafragments.org/viaf"
+    'getty.edu': "http://data.linkeddatafragments.org/lov"
+    '*': "http://data.linkeddatafragments.org/lov"
     #'wikidata.org':
     #  source: "https://query.wikidata.org/bigdata/ldf"
     # TODO handle "wikidata.org"
@@ -3662,12 +3656,12 @@ class Huviz
       console.error(error)
     return
 
-  run_ldf_name_query: (uri, expansion, comment, server_config) ->
+  run_ldf_name_query: (uri, expansion, comment, serverUri) ->
     query = "# " + ( comment or "run_ldf_name_query(#{uri})") + "\n" +
       @make_name_query(uri, expansion)
     args =
       result_handler: @name_result_handler
-      server_config: server_config or {}
+      serverUri: serverUri
       from_N3: true
       default_terms:
         s: uri
@@ -3679,9 +3673,8 @@ class Huviz
     args.worker ?= 'comunica'
     args.success_handler ?= noop
     queryManager = @run_managed_query_abstract(qry, url, args)
-    {success_handler, error_callback, timeout, result_handler, server_config} = args
-    server_config ?= {}
-    server_config.source ?= "http://fragments.dbpedia.org/2016-04/en"
+    {success_handler, error_callback, timeout, result_handler, serverUri} = args
+    serverUri ?= "http://fragments.dbpedia.org/2016-04/en"
     if args.worker is 'comunica'
       ldf_worker = new Worker('/comunica-ldf-client/ldf-client-worker.min.js')
       ldf_worker.postMessage
@@ -3693,7 +3686,7 @@ class Huviz
           queryFormat: 'sparql'
           sources: [
             type: 'auto'
-            value: server_config.source
+            value: serverUri
             ]
 
       ldf_worker.onmessage = (event) =>
