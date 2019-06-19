@@ -3370,7 +3370,7 @@ class Huviz
         # Alternative response datatypes are .json, .csv, .tsv and .xml
         args =
           namelessUri: uri
-          serverUri: "http://vocab.getty.edu/sparql.tsv"
+          serverUrl: "http://vocab.getty.edu/sparql.tsv"
         @run_sparql_name_query(args)
         return
 
@@ -3378,7 +3378,7 @@ class Huviz
       args =
         namelessUri: uri
         predicates: [OSMT_reg_name, OSMT_name]
-        serverUri: "https://sophox.org/sparql"
+        serverUrl: "https://sophox.org/sparql"
       @run_sparql_name_query(args)
       return
 
@@ -3394,10 +3394,10 @@ class Huviz
 
     # As a final backstop we use LDF.  Why last? To spare the LDF server.
     # The endpoint of authority is superior because it ought to be up to date.
-    for domainName, serverUri of @ldf_domain_configs
+    for domainName, serverUrl of @ldf_domain_configs
       args =
         namelessUri: uri
-        serverUri: serverUri
+        serverUrl: serverUrl
       if hasDomainName(domainName) or domainName is '*'
         @run_ldf_name_query(args)
         return
@@ -3430,7 +3430,7 @@ class Huviz
         s: namelessUri
         p: RDFS_label
     args = @compose_object_from_defaults_and_incoming(defaults, args)
-    @run_managed_query_ajax(args.query, args.serverUri, args)
+    @run_managed_query_ajax(args.query, args.serverUrl, args)
 
   # Receive a tsv of rows and call the `result_handler` to process each row.
   #
@@ -3669,15 +3669,15 @@ class Huviz
         s: namelessUri
         p: RDFS_label
     args = @compose_object_from_defaults_and_incoming(defaults, args)
-    @run_managed_query_ldf(args.query, args.serverUri, args)
+    @run_managed_query_ldf(args.query, args.serverUrl, args)
 
   run_managed_query_ldf: (qry, url, args) ->
     args ?= {}
     args.worker ?= 'comunica'
     args.success_handler ?= noop
     queryManager = @run_managed_query_abstract(args)
-    {success_handler, error_callback, timeout, result_handler, serverUri} = args
-    serverUri ?= "http://fragments.dbpedia.org/2016-04/en"
+    {success_handler, error_callback, timeout, result_handler, serverUrl} = args
+    serverUrl ?= "http://fragments.dbpedia.org/2016-04/en"
     if args.worker is 'comunica'
       ldf_worker = new Worker('/comunica-ldf-client/ldf-client-worker.min.js')
       ldf_worker.postMessage
@@ -3689,7 +3689,7 @@ class Huviz
           queryFormat: 'sparql'
           sources: [
             type: 'auto'
-            value: serverUri
+            value: serverUrl
             ]
 
       ldf_worker.onmessage = (event) =>
