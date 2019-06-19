@@ -3430,7 +3430,7 @@ class Huviz
         s: namelessUri
         p: RDFS_label
     args = @compose_object_from_defaults_and_incoming(defaults, args)
-    @run_managed_query_ajax(args.query, args.serverUrl, args)
+    @run_managed_query_ajax(args)
 
   # Receive a tsv of rows and call the `result_handler` to process each row.
   #
@@ -4335,14 +4335,15 @@ class Huviz
     queryManager.args = args
     return queryManager
 
-  run_managed_query_ajax: (qry, serverUrl, args) ->
+  run_managed_query_ajax: (args) ->
+    {query, serverUrl} = args
     queryManager = @run_managed_query_abstract(args)
     {success_handler, error_callback, timeout} = args
     # These POST settings work for: CWRC, WWI open, on DBpedia, and Open U.K. but not on Bio Database
     more = "&timeout=" + timeout
     ajax_settings = { #TODO Currently this only works on CWRC Endpoint
       'method': 'GET'
-      'url': serverUrl + '?query=' + encodeURIComponent(qry) + more
+      'url': serverUrl + '?query=' + encodeURIComponent(query) + more
       'headers' :
         # This is only required for CWRC - not accepted by some Endpoints
         #'Content-Type': 'application/sparql-query'
@@ -4449,7 +4450,7 @@ class Huviz
       error_callback: make_error_callback()
     args.query = qry
     args.serverUrl = url
-    @sparql_graph_query_and_show_queryManager = @run_managed_query_ajax(arg.query, args.serverUrl, args)
+    @sparql_graph_query_and_show_queryManager = @run_managed_query_ajax(args)
 
   sparqlQryInput_hide: ->
     @sparqlQryInput_JQElem.hide() #css('display', 'none')
@@ -4501,8 +4502,10 @@ class Huviz
         @after_file_loaded('sparql', callback)
 
     args =
+      query: qry
+      serverUrl: url
       success_handler: make_success_handler()
-    @run_managed_query_ajax(qry, url, args)
+    @run_managed_query_ajax(args)
 
   DEPRECATED_load_endpoint_data_and_show: (subject, callback) ->
     @p_total_sprql_requests++
@@ -6533,10 +6536,12 @@ class Huviz
         @stop_graphs_selector_spinner()
 
     args =
+      query: qry
+      serverUrl: url
       success_handler: make_success_handler()
       error_callback: make_error_callback()
 
-    @search_sparql_by_label_queryManager = @run_managed_query_ajax(qry, url, args)
+    @search_sparql_by_label_queryManager = @run_managed_query_ajax(args)
 
   init_editc_or_not: ->
     @editui ?= new EditController(@)
