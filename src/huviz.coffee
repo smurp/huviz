@@ -3677,7 +3677,7 @@ class Huviz
     args ?= {}
     args.worker ?= 'comunica'
     args.success_handler ?= noop
-    queryManager = @run_managed_query_abstract(qry, url, args)
+    queryManager = @run_managed_query_abstract(args)
     {success_handler, error_callback, timeout, result_handler, serverUri} = args
     serverUri ?= "http://fragments.dbpedia.org/2016-04/en"
     if args.worker is 'comunica'
@@ -4326,19 +4326,19 @@ class Huviz
     #     console.log(url, errorThrown)
     #     console.log jqXHR.getAllResponseHeaders(data)
 
-  run_managed_query_abstract: (qry, url, args) ->
+  run_managed_query_abstract: (args) ->
     # Reference: https://www.w3.org/TR/sparql11-protocol/
     args ?= {}
     args.success_handler ?= noop
     args.error_callback ?= noop
     args.timeout ?= @get_sparql_timeout_msec()
 
-    queryManager = @log_query_with_timeout(qry, args.timeout)
+    queryManager = @log_query_with_timeout(args.query, args.timeout)
     queryManager.args = args
     return queryManager
 
   run_managed_query_ajax: (qry, serverUrl, args) ->
-    queryManager = @run_managed_query_abstract(qry, serverUrl, args)
+    queryManager = @run_managed_query_abstract(args)
     {success_handler, error_callback, timeout} = args
     # These POST settings work for: CWRC, WWI open, on DBpedia, and Open U.K. but not on Bio Database
     more = "&timeout=" + timeout
@@ -4384,7 +4384,9 @@ class Huviz
     return queryManager
 
   run_managed_query_worker: (qry, serverUrl, args) ->
-    queryManager = @run_managed_query_abstract(qry, serverUrl, args)
+    args.query = qry
+    args.serverUrl = serverUrl
+    queryManager = @run_managed_query_abstract(args)
     return queryManager
 
   sparql_graph_query_and_show: (url, id, callback) =>
@@ -4447,7 +4449,9 @@ class Huviz
     args =
       success_handler: make_success_handler()
       error_callback: make_error_callback()
-    @sparql_graph_query_and_show_queryManager = @run_managed_query_ajax(qry, url, args)
+    args.query = qry
+    args.serverUrl = url
+    @sparql_graph_query_and_show_queryManager = @run_managed_query_ajax(arg.query, args.serverUrl, args)
 
   sparqlQryInput_hide: ->
     @sparqlQryInput_JQElem.hide() #css('display', 'none')
@@ -4655,7 +4659,9 @@ class Huviz
     worker.addEventListener 'message', (e) =>
       #console.log e.data
       if e.data.method_name is 'log_query'
-        queryManager = @run_managed_query_abstract("#SPARQL_Worker\n"+e.data.qry, url, queryManagerArgs)
+        queryManagerArgs.query = "#SPARQL_Worker\n"+e.data.qry
+        queryManagerArgs.serverUrl = url
+        queryManager = @run_managed_query_abstract(queryManagerArgs)
         #queryManager = @log_query_with_timeout(, timeout)
         return
       else if e.data.method_name isnt 'accept_results'
