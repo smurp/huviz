@@ -3342,7 +3342,6 @@ class Huviz
     # Set some variables in preparation for per-domain handling
 
     try_even_though_CORS_should_block = false # TODO refactor when proxy is working
-    comment = "auto_discover_name_for(#{uri})"
 
     if hasDomainName('cwrc.ca')
       # We will skip these for now
@@ -3393,12 +3392,14 @@ class Huviz
 
     # As a final backstop we use LDF.  Why last? To spare the LDF server.
     # The endpoint of authority is superior because it ought to be up to date.
-    for domainName, config of @ldf_domain_configs
+    for domainName, serverUri of @ldf_domain_configs
+      args =
+        serverUri: serverUri
       if domainName is '*'
-        @run_ldf_name_query(uri, null, comment, config)
+        @run_ldf_name_query(uri, args)
         return
       else if hasDomainName(domainName) # hostname is the FQDN
-        @run_ldf_name_query(uri, null, comment, config)
+        @run_ldf_name_query(uri, args)
         return
     return
 
@@ -3418,18 +3419,19 @@ class Huviz
 
   # ## SPARQL queries
 
-  run_sparql_name_query: (namelessUri, args, comment) ->
+  run_sparql_name_query: (namelessUri, args) ->
     args ?= {}
-    args.query ?= "# " + ( comment or "run_sparql_name_query(#{namelessUri})") + "\n" +
+    args.query ?= "# " +
+      ( args.comment or "run_sparql_name_query(#{namelessUri})") + "\n" +
       @make_name_query(namelessUri, args)
     defaults =
+      namelessUri: namelessUri
       success_handler: @generic_name_success_handler
       default_terms:
         s: namelessUri
         p: RDFS_label
     args = @compose_object_from_defaults_and_incoming(defaults, args)
-    serverUri = args.serverUri
-    @run_managed_query_ajax(args.query, serverUri, args)
+    @run_managed_query_ajax(args.query, args.serverUri, args)
 
   # Receive a tsv of rows and call the `result_handler` to process each row.
   #
@@ -3656,17 +3658,20 @@ class Huviz
       console.error(error)
     return
 
-  run_ldf_name_query: (uri, expansion, comment, serverUri) ->
-    query = "# " + ( comment or "run_ldf_name_query(#{uri})") + "\n" +
-      @make_name_query(uri, expansion)
-    args =
+  run_ldf_name_query: (namelessUri, args) ->
+    args ?= {}
+    args.query = "# " +
+      ( args.comment or "run_ldf_name_query(#{namelessUri})") + "\n" +
+      @make_name_query(namelessUri)
+    defaults =
+      namelessUri: namelessUri
       result_handler: @name_result_handler
-      serverUri: serverUri
       from_N3: true
       default_terms:
-        s: uri
+        s: namelessUri
         p: RDFS_label
-    @run_managed_query_ldf(query, uri, args)
+    args = @compose_object_from_defaults_and_incoming(defaults, args)
+    @run_managed_query_ldf(args.query, args.serverUri, args)
 
   run_managed_query_ldf: (qry, url, args) ->
     args ?= {}
