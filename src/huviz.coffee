@@ -3325,13 +3325,13 @@ class Huviz
     handler = @make_sparql_name_handler(uris)
     return [query, handler]
 
-  auto_discover_name_for: (uri) ->
-    if uri.startsWith('_') # skip "blank" nodes
+  auto_discover_name_for: (namelessUri) ->
+    if namelessUri.startsWith('_') # skip "blank" nodes
       return
     try
-      aUrl = new URL(uri)
+      aUrl = new URL(namelessUri)
     catch e
-      colorlog("skipping auto_discover_name_for('#{uri}') because")
+      colorlog("skipping auto_discover_name_for('#{namelessUri}') because")
       console.log(e)
       return
     @highwater_incr('discover_name')
@@ -3345,7 +3345,7 @@ class Huviz
 
     if hasDomainName('cwrc.ca')
       # We will skip these for now
-      console.warn("auto_discover_name_for('#{uri}') skipping cwrc.ca")
+      console.warn("auto_discover_name_for('#{namelessUri}') skipping cwrc.ca")
       return
 
     if hasDomainName("id.loc.gov")
@@ -3353,30 +3353,32 @@ class Huviz
       # that the .skos.nt file is available. Unfortunately the only
       # RDF file which is offered via content negotiation is .rdf and
       # there is no parser for that in HuViz yet.  Besides, they are huge.
-      retval = @ingest_quads_from("#{uri}.skos.nt", @discover_labels(uri))
+      retval = @ingest_quads_from("#{namelessUri}.skos.nt",
+                                  @discover_labels(namelessUri))
       # This cool method would via a proxy but fails in the browser because
       # full header access is blocked by XHR.
-      # `@auto_discover_header(uri, ['X-PrefLabel'], sendHeaders or [])`
+      # `@auto_discover_header(namelessUri, ['X-PrefLabel'], sendHeaders or [])`
       return
 
     if hasDomainName("vocab.getty.edu")
       if try_even_though_CORS_should_block
         # This would work, but CORS blocks this.  Preserved in case sufficiently
         # robust accounts are set up so the HuViz server could serve as a proxy.
-        downloadUrl = "http://vocab.getty.edu/download/nt?uri=#{encodeURIComponent(uri)}"
-        retval = @ingest_quads_from(downloadUrl, @discover_labels(uri))
+        serverUrl = "http://vocab.getty.edu/download/nt"
+        downloadUrl = "#{serverUrl}?uri=#{encodeURIComponent(namelessUri)}"
+        retval = @ingest_quads_from(downloadUrl, @discover_labels(namelessUri))
         return
       else
         # Alternative response datatypes are .json, .csv, .tsv and .xml
         args =
-          namelessUri: uri
+          namelessUri: namelessUri
           serverUrl: "http://vocab.getty.edu/sparql.tsv"
         @run_sparql_name_query(args)
         return
 
     if hasDomainName("openstreetmap.org")
       args =
-        namelessUri: uri
+        namelessUri: namelessUri
         predicates: [OSMT_reg_name, OSMT_name]
         serverUrl: "https://sophox.org/sparql"
       @run_sparql_name_query(args)
@@ -3396,7 +3398,7 @@ class Huviz
     # The endpoint of authority is superior because it ought to be up to date.
     for domainName, serverUrl of @ldf_domain_configs
       args =
-        namelessUri: uri
+        namelessUri: namelessUri
         serverUrl: serverUrl
       if hasDomainName(domainName) or domainName is '*'
         @run_ldf_name_query(args)
