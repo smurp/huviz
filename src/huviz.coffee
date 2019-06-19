@@ -6065,7 +6065,7 @@ class Huviz
       @big_go_button.attr('id', @big_go_button_id)
       $(@get_or_create_sel_for_picker()).append(@big_go_button)
       @big_go_button.click(@visualize_dataset_using_ontology)
-      @big_go_button.prop('disabled', true)
+      @disable_go_button()
     if @ontology_loader or @dataset_loader or @script_loader and not @big_go_button
       ontology_selector = "##{@ontology_loader.select_id}"
       $(ontology_selector).change(@update_dataset_forms)
@@ -6171,7 +6171,7 @@ class Huviz
       return
     @set_ontology_from_dataset_if_possible()
     ugb = () =>
-      @update_go_button()
+      @update_go_button() # TODO confirm that this should be disable_go_button
     setTimeout(ugb, 200)
 
   update_endpoint_form: (e) =>
@@ -6203,8 +6203,12 @@ class Huviz
     else
       @sparqlQryInput_hide()
 
-  disable_go_button: ->
+  disable_go_button: =>
     @update_go_button((disable = true))
+    return
+
+  enable_go_button: =>
+    @update_go_button((disable = false))
     return
 
   update_go_button: (disable) ->
