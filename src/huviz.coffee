@@ -3396,12 +3396,10 @@ class Huviz
     # The endpoint of authority is superior because it ought to be up to date.
     for domainName, serverUri of @ldf_domain_configs
       args =
+        namelessUri: uri
         serverUri: serverUri
-      if domainName is '*'
-        @run_ldf_name_query(uri, args)
-        return
-      else if hasDomainName(domainName) # hostname is the FQDN
-        @run_ldf_name_query(uri, args)
+      if hasDomainName(domainName) or domainName is '*'
+        @run_ldf_name_query(args)
         return
     return
 
@@ -3659,13 +3657,12 @@ class Huviz
       console.error(error)
     return
 
-  run_ldf_name_query: (namelessUri, args) ->
-    args ?= {}
+  run_ldf_name_query: (args) ->
+    {namelessUri} = args
     args.query = "# " +
       ( args.comment or "run_ldf_name_query(#{namelessUri})") + "\n" +
       @make_name_query(namelessUri)
     defaults =
-      namelessUri: namelessUri
       result_handler: @name_result_handler
       from_N3: true
       default_terms:
