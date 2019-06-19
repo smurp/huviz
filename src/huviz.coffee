@@ -4392,7 +4392,7 @@ class Huviz
     graphSelector = "#sparqlGraphOptions-#{id}"
     $(graphSelector).parent().css('display', 'none')
     @sparqlQryInput_hide()
-
+    @disable_go_button()
     handle_graphsNotFound = () =>
       $(graphSelector).parent().css('display', 'none')
       @reset_endpoint_form(true)
@@ -4482,8 +4482,7 @@ class Huviz
         @dataset_loader.disable()
         @ontology_loader.disable()
         @replace_loader_display_for_endpoint(endpoint, @endpoint_loader.endpoint_graph)
-        disable = true
-        @update_go_button(disable)
+        @disable_go_button()
         @big_go_button.hide()
         @after_file_loaded('sparql', callback)
 
@@ -6152,8 +6151,7 @@ class Huviz
 
   disable_dataset_ontology_loader: (data, onto) ->
     @replace_loader_display(data, onto)
-    disable = true
-    @update_go_button(disable)
+    @disable_go_button()
     @dataset_loader.disable()
     @ontology_loader.disable()
     @big_go_button.hide()
@@ -6204,6 +6202,10 @@ class Huviz
       @sparqlQryInput_show()
     else
       @sparqlQryInput_hide()
+
+  disable_go_button: ->
+    @update_go_button((disable = true))
+    return
 
   update_go_button: (disable) ->
     if not disable?
