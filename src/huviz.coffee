@@ -3339,10 +3339,6 @@ class Huviz
     hasDomainName = (domainName) ->
       return aUrl.hostname.endsWith(domainName)
 
-    # Set some variables in preparation for per-domain handling
-
-    try_even_though_CORS_should_block = false # TODO refactor when proxy is working
-
     if hasDomainName('cwrc.ca')
       # We will skip these for now
       console.warn("auto_discover_name_for('#{namelessUri}') skipping cwrc.ca")
@@ -3361,7 +3357,7 @@ class Huviz
       return
 
     if hasDomainName("vocab.getty.edu")
-      if try_even_though_CORS_should_block
+      if (try_even_though_CORS_should_block = false)
         # This would work, but CORS blocks this.  Preserved in case sufficiently
         # robust accounts are set up so the HuViz server could serve as a proxy.
         serverUrl = "http://vocab.getty.edu/download/nt"
@@ -3428,6 +3424,7 @@ class Huviz
       @make_name_query(namelessUri, args)
     defaults =
       success_handler: @generic_name_success_handler
+      result_handler: @name_result_handler
       default_terms:
         s: namelessUri
         p: RDFS_label
@@ -3450,7 +3447,6 @@ class Huviz
   # ```
   tsv_name_success_handler: (data, textStatus, jqXHR, queryManager) =>
     result_handler = queryManager.args.result_handler
-    result_handler ?= @name_result_handler
     try
       table = []
       #@make_pre_dialog(data, null, {title:"tsv_name_success_handler"})
@@ -3467,6 +3463,7 @@ class Huviz
         rowJson = _.zipObject(cols, row)
         result_handler(rowJson, queryManager)
         table.push(rowJson)
+      queryManager.setResultCount(table.length)
     catch e
       @make_json_dialog(table)
       queryManager.fatalError(e)
@@ -3474,13 +3471,13 @@ class Huviz
 
   json_name_success_handler: (data, textStatus, jqXHR, queryManager) =>
     result_handler = queryManager.args.result_handler
-    result_handler ?= @name_result_handler
     try
       table = []
       for resultJson in data.results.bindings
         continue if not resultJson
         result_handler(resultJson, queryManager)
         table.push(resultJson)
+      queryManager.setResultCount(table.length)
     catch e
       @make_json_dialog(table, null, {title: "table of results"})
       queryManager.fatalError(e)
@@ -3665,6 +3662,7 @@ class Huviz
       ( args.comment or "run_ldf_name_query(#{namelessUri})") + "\n" +
       @make_name_query(namelessUri)
     defaults =
+      success_handler: @generic_name_success_handler
       result_handler: @name_result_handler
       from_N3: true
       default_terms:
@@ -4327,7 +4325,8 @@ class Huviz
     {query, serverUrl} = args
     queryManager = @run_managed_query_abstract(args)
     {success_handler, error_callback, timeout} = args
-    # These POST settings work for: CWRC, WWI open, on DBpedia, and Open U.K. but not on Bio Database
+    # These POST settings work for: CWRC, WWI open, on DBpedia, and Open U.K.
+    # but not on Bio Database
     more = "&timeout=" + timeout
     ajax_settings = { #TODO Currently this only works on CWRC Endpoint
       'method': 'GET'
