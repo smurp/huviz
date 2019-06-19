@@ -3369,15 +3369,17 @@ class Huviz
       else
         # Alternative response datatypes are .json, .csv, .tsv and .xml
         args =
+          namelessUri: uri
           serverUri: "http://vocab.getty.edu/sparql.tsv"
-        @run_sparql_name_query(uri, args)
+        @run_sparql_name_query(args)
         return
 
     if hasDomainName("openstreetmap.org")
       args =
+        namelessUri: uri
         predicates: [OSMT_reg_name, OSMT_name]
         serverUri: "https://sophox.org/sparql"
-      @run_sparql_name_query(uri, args)
+      @run_sparql_name_query(args)
       return
 
     # ## Geonames
@@ -3419,13 +3421,12 @@ class Huviz
 
   # ## SPARQL queries
 
-  run_sparql_name_query: (namelessUri, args) ->
-    args ?= {}
+  run_sparql_name_query: (args) ->
+    {namelessUri} = args
     args.query ?= "# " +
       ( args.comment or "run_sparql_name_query(#{namelessUri})") + "\n" +
       @make_name_query(namelessUri, args)
     defaults =
-      namelessUri: namelessUri
       success_handler: @generic_name_success_handler
       default_terms:
         s: namelessUri
