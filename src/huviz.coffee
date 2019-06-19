@@ -4328,6 +4328,7 @@ class Huviz
     # These POST settings work for: CWRC, WWI open, on DBpedia, and Open U.K.
     # but not on Bio Database
     more = "&timeout=" + timeout
+    # TODO This should be decrufted
     ajax_settings = { #TODO Currently this only works on CWRC Endpoint
       'method': 'GET'
       'url': serverUrl + '?query=' + encodeURIComponent(query) + more
@@ -4353,8 +4354,6 @@ class Huviz
       success: (data, textStatus, jqXHR) =>
         queryManager.cancelAnimation()
         try
-          if not success_handler?
-            throw new Error("no success_handler provided")
           success_handler(data, textStatus, jqXHR, queryManager)
         catch e
           queryManager.fatalError(e)
@@ -4365,7 +4364,7 @@ class Huviz
         $('#'+@get_data_ontology_display_id()).remove()
         queryManager.fatalError(msg)
         if error_callback?
-          error_callback(jqxhr, textStatus, errorThrown)
+          error_callback(jqxhr, textStatus, errorThrown, queryManager)
 
     return queryManager
 
