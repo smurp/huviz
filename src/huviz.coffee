@@ -3514,7 +3514,7 @@ class Huviz
   # with the only real difference being a dist version of ldf-client-worker.min.js
 
   ldf_domain_configs:
-    # source: is the LDF client context.sources.value values # see run_managed_query_ldf
+    # values feed LDF client context.sources.value # see run_managed_query_ldf
     'dbpedia.org': "http://fragments.dbpedia.org/2016-04/en"
     'viaf.org': "http://data.linkeddatafragments.org/viaf"
     'getty.edu': "http://data.linkeddatafragments.org/lov"
@@ -3669,20 +3669,18 @@ class Huviz
         s: namelessUri
         p: RDFS_label
     args = @compose_object_from_defaults_and_incoming(defaults, args)
-    @run_managed_query_ldf(args.query, args.serverUrl, args)
+    @run_managed_query_ldf(args)
 
-  run_managed_query_ldf: (qry, url, args) ->
-    args ?= {}
+  run_managed_query_ldf: (args) ->
     args.worker ?= 'comunica'
-    args.success_handler ?= noop
     queryManager = @run_managed_query_abstract(args)
-    {success_handler, error_callback, timeout, result_handler, serverUrl} = args
+    {success_handler, error_callback, timeout, result_handler, serverUrl, query} = args
     serverUrl ?= "http://fragments.dbpedia.org/2016-04/en"
     if args.worker is 'comunica'
       ldf_worker = new Worker('/comunica-ldf-client/ldf-client-worker.min.js')
       ldf_worker.postMessage
         type: 'query'
-        query: qry
+        query: query
         resultsToTree: false
         context:
           '@comunica/actor-http-memento:datetime': null
