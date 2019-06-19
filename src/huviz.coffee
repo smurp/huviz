@@ -3672,52 +3672,40 @@ class Huviz
     @run_managed_query_ldf(args)
 
   run_managed_query_ldf: (args) ->
-    args.worker ?= 'comunica'
     queryManager = @run_managed_query_abstract(args)
     {success_handler, error_callback, timeout, result_handler, serverUrl, query} = args
-    serverUrl ?= "http://fragments.dbpedia.org/2016-04/en"
-    if args.worker is 'comunica'
-      ldf_worker = new Worker('/comunica-ldf-client/ldf-client-worker.min.js')
-      ldf_worker.postMessage
-        type: 'query'
-        query: query
-        resultsToTree: false
-        context:
-          '@comunica/actor-http-memento:datetime': null
-          queryFormat: 'sparql'
-          sources: [
-            type: 'auto'
-            value: serverUrl
-            ]
+    serverUrl ?= "http://fragments.dbpedia.org/2016-04/en" # TODO what?
+    ldf_worker = new Worker('/comunica-ldf-client/ldf-client-worker.min.js')
+    ldf_worker.postMessage
+      type: 'query'
+      query: query
+      resultsToTree: false  # TODO experiment with this
+      context:
+        '@comunica/actor-http-memento:datetime': null
+        queryFormat: 'sparql'
+        sources: [
+          type: 'auto'
+          value: serverUrl
+          ]
 
-      ldf_worker.onmessage = (event) =>
-        queryManager.cancelAnimation()
-        d = event.data
-        {type, result} = d
-        switch type
-          when 'result'
-            queryManager.incrResultCount()
-            result_handler.call(this, result, queryManager)
-          when 'error'
-            queryManager.fatalError(d)
-          when 'end'
-            queryManager.finishCounting()
-          when 'queryInfo', 'log'
-            #console.log(type, event)
-          else
-            console.log("UNHANDLED", event)
-
-    # else
-    #   if args.worker is 'bundle'
-    #     ldf_worker = new Worker('/huviz/ldf_worker_bundle.js')
-    #   else
-    #     ldf_worker = new Worker('/js/ldf_worker.js')
-    #   ldf_worker.postMessage
-    #     fragmentsServerUri: 'http://fragments.dbpedia.org/2015/en'
-    #     query: qry
+    ldf_worker.onmessage = (event) =>
+      queryManager.cancelAnimation()
+      d = event.data
+      {type, result} = d
+      switch type
+        when 'result'
+          queryManager.incrResultCount()
+          result_handler.call(this, result, queryManager)
+        when 'error'
+          queryManager.fatalError(d)
+        when 'end'
+          queryManager.finishCounting()
+        when 'queryInfo', 'log'
+          #console.log(type, event)
+        else
+          console.log("UNHANDLED", event)
 
     return queryManager
-
 
   # ## Examples and Tests START
 
