@@ -4492,45 +4492,6 @@ class Huviz
       success_handler: make_success_handler()
     @run_managed_query_ajax(args)
 
-  DEPRECATED_load_endpoint_data_and_show: (subject, callback) ->
-    @p_total_sprql_requests++
-    note = ''
-
-    # REMOVED STUFF THAT WAS THE SAME AS IN load_endpoint_data_and_show()
-
-    $.ajax
-      timeout: timeout
-      method: ajax_settings.method
-      url: ajax_settings.url
-      headers: ajax_settings.headers
-      success: (data, textStatus, jqXHR) =>
-        #console.log jqXHR
-        #console.log "Query: " + subject
-        note = subject
-        if @p_display then @performance_dashboard('sparql_request', note)
-        #console.log qry
-        json_check = typeof data
-        if json_check is 'string'
-          json_data = JSON.parse(data)
-        else
-          json_data = data
-        #console.log "Json Array Size: " + json_data.results.bindings.length
-        @add_nodes_from_SPARQL(json_data, subject)
-        @shelved_set.resort()
-        @tick("Tick in load_new_endpoint_data_and_show success callback")
-        @update_all_counts()
-        @endpoint_loader.outstanding_requests = @endpoint_loader.outstanding_requests - 1
-        #console.log "Finished request: count now " + @endpoint_loader.outstanding_requests
-      error: (jqxhr, textStatus, errorThrown) =>
-        console.log(url, errorThrown)
-        console.log jqXHR.getAllResponseHeaders(data)
-        if not errorThrown
-          errorThrown = "Cross-Origin error"
-        msg = errorThrown + " while fetching " + url
-        @hide_state_msg()
-        $('#'+@get_data_ontology_display_id()).remove()
-        @blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
-        @reset_dataset_ontology_loader()
 
   add_nodes_from_SPARQL: (json_data, subject, queryManager) ->
     data = ''
