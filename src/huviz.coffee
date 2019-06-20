@@ -4417,6 +4417,14 @@ class Huviz
     queryManager = @run_managed_query_abstract(args)
     return queryManager
 
+  sparql_graph_query_and_show__trigger: (url) =>
+    selectId = @endpoint_loader.select_id
+    @sparql_graph_query_and_show(url, selectId)
+    #console.log @dataset_loader
+    $("##{@dataset_loader.uniq_id}").children('select').prop('disabled', 'disabled')
+    $("##{@ontology_loader.uniq_id}").children('select').prop('disabled', 'disabled')
+    $("##{@script_loader.uniq_id}").children('select').prop('disabled', 'disabled')
+
   sparql_graph_query_and_show: (url, id, callback) =>
     qry = """
       # sparql_graph_query_and_show()
@@ -4428,7 +4436,7 @@ class Huviz
       }
       ORDER BY ?g
     """
-
+    #alert("sparql_graph_query_and_show() id: #{id}")
     # these are shared between success and error handlers
     spinner = $("#sparqlGraphSpinner-#{id}")
     spinner.css('display','block')
@@ -5835,8 +5843,10 @@ class Huviz
     defaults = preload_group.defaults or {}
     #console.log preload_group # THIS IS THE ITEMS IN A FILE (i.e. cwrc.json, generes.json)
     for ds_rec in preload_group.datasets
-      # If this preload_group has defaults apply them to the ds_rec if it is missing that value.
-      # We do not want to do ds_rec.__proto__ = defaults because then defaults are not ownProperty
+      # If this preload_group has defaults apply them to the ds_rec
+      # if it is missing that value.
+      # We do not want to do `ds_rec.__proto__ = defaults`
+      #  because then defaults are not ownProperty
       for k of defaults
         ds_rec[k] ?= defaults[k]
       @ensure_dataset(ds_rec, store_in_db)
@@ -5869,11 +5879,7 @@ class Huviz
     req = store.put(rsrcRec)
     req.onsuccess = (e) =>
       if rsrcRec.isEndpoint
-        @sparql_graph_query_and_show(e.srcElement.result, @endpoint_loader.select_id)
-        #console.log @dataset_loader
-        $("##{@dataset_loader.uniq_id}").children('select').prop('disabled', 'disabled')
-        $("##{@ontology_loader.uniq_id}").children('select').prop('disabled', 'disabled')
-        $("##{@script_loader.uniq_id}").children('select').prop('disabled', 'disabled')
+        @sparql_graph_query_and_show__trigger(e.srcElement.result)
       if rsrcRec.uri isnt e.target.result
         console.debug("rsrcRec.uri (#{rsrcRec.uri}) is expected to equal", e.target.result)
       callback(rsrcRec)
@@ -5996,12 +6002,12 @@ class Huviz
     console.groupEnd() # closing group called "preload_datasets"
 
   preload_endpoints: ->
-    console.log @args.preload_endpoints
+    console.log(@args.preload_endpoints)
     console.groupCollapsed("preload_endpoints")
     ####
     if @args.preload_endpoints
       for preload_group_or_uri in @args.preload_endpoints
-        console.log preload_group_or_uri
+        console.log(preload_group_or_uri)
         if typeof(preload_group_or_uri) is 'string' # the URL of a preload_group JSON
           #$.getJSON(preload_group_or_uri, null, @ensure_datasets_from_XHR)
           $.ajax
@@ -6414,7 +6420,7 @@ class Huviz
         <p><span class="dt_label">Ontology:</span> #{ontology.label}</p>
         """
     else if endpoint
-      add_reload_button = false
+      add_reload_button = true
       source_html = """
         <p><span class="dt_label">Endpoint:</span> #{endpoint.label}</p>
       """
@@ -6525,11 +6531,13 @@ class Huviz
     return
 
   set_dataset_with_uri: (uri) ->
+    # TODO use PickOrProvide.select_by_uri() as in query_from_seeking_limit()
     topSel = @args.huviz_top_sel
     option = $(topSel + ' option[value="' + uri + '"]')
     @dataset_loader.select_option(option)
 
   set_ontology_with_uri: (ontologyUri) ->
+    # TODO use PickOrProvide.select_by_uri() as in query_from_seeking_limit()
     topSel = @args.huviz_top_sel
     ontology_option = $(topSel + ' option[value="' + ontologyUri + '"]')
     @ontology_loader.select_option(ontology_option)
@@ -8622,6 +8630,33 @@ class Huviz
     @visualize_dataset_using_ontology({}, dataset, [ontology])
     return
 
+  endpoint_loader_is_quiet: ->
+    # TODO Replace with a Promise-based way to ensure the loader is ready.
+    # TODO Build it into PickOrProvide and use it in @load_with() too.
+    return @endpoint_loader? and @endpoint_loader.is_quiet(500)
+
+  query_from_seeking_limit: (querySpec) ->
+    {serverUrl, graphUrl, limit, subjectUrl} = querySpec
+    if not @endpoint_loader_is_quiet()
+      setTimeout((() => @query_from_seeking_limit(querySpec)), 50)
+      #throw new Error("endpoint_loader not ready")
+      return
+    @goto_tab(1)
+    if serverUrl?
+      @endpoint_loader.select_by_uri(serverUrl)
+      @sparql_graph_query_and_show__trigger(serverUrl)
+      finish_prep = () =>
+        if graphUrl?
+          @sparqlQryInput_show()
+          @sparqlGraphSelector_JQElem.val(graphUrl)
+        if limit?
+          @endpoint_limit_JQElem.val(limit)
+        if subjectUrl?
+          @endpoint_labels_JQElem.val(subjectUrl)
+        @big_go_button_onclick_sparql()
+      @sparql_graph_query_and_show_queryManager.when_done(finish_prep)
+    console.warn("query_WIP")
+
   # TODO: remove now that @get_or_create_node_by_id() sets type and name
   is_ready: (node) ->
     # Determine whether there is enough known about a node to make it visible
@@ -9084,7 +9119,25 @@ class PickOrProvide
     @add_group({label: "Your Own", id: @your_own_uid}, 'append')
     @add_option({label: "Provide New #{@label} ...", value: 'provide'}, @select_id)
     @add_option({label: "Pick or Provide...", canDelete: false}, @select_id, 'prepend')
-    @
+    @update_change_stamp()
+    return this
+
+  update_change_stamp: ->
+    @change_stamp = performance.now()
+
+  is_quiet: (msec) ->
+    msec ?= 200
+    if @change_stamp?
+      if (performance.now() - @change_stamp) > msec
+        return true
+    return false
+
+  select_by_uri: (targetUri) ->
+    option = $('#' + @select_id + ' option[value="' + targetUri + '"]')
+    if option.length isnt 1
+      throw new Error("#{targetUri} was not found")
+    @select_option(option)
+    return
 
   val: (val) ->
     console.log(this.constructor.name + '.val(' + (val and '"'+val+'"' or '') + ') for ' + this.opts.rsrcType + ' was ' + @pick_or_provide_select.val())
@@ -9136,6 +9189,7 @@ class PickOrProvide
     rsrcRec.rsrcType ?= @opts.rsrcType
     # rsrcRec.data ?= file_rec.data # we cannot add data because for uri we load each time
     @add_resource(rsrcRec, true)
+    @update_change_stamp()
     @update_state()
 
   add_local_file: (file_rec) =>

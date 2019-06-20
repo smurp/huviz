@@ -1,7 +1,18 @@
 # A controller for the display of the lifecycle of a SPARQL Query
 class QueryManager
   constructor: (@qry) ->
+    @set_state('new')
+    @listeners ?= []
     @resultCount = 0
+  set_state: (state) ->
+    @_state = state
+    if state is 'done'
+      @call_done_listeners()
+  when_done: (listener) ->
+    @listeners.push(listener)
+  call_done_listeners: ->
+    while (listener = @listeners.shift())
+      setTimeout(listener, 10)
   incrResultCount: ->
     @resultCount++
   colorQuery: (color) ->
@@ -19,6 +30,7 @@ class QueryManager
     console.warn(e)
     @qryJQElem.append("""<div class="queryError">#{e}</div>""")
   fatalError: (e) ->
+    @set_state('done')
     @cancelAnimation()
     @displayError(e)
     @setErrorColor()
@@ -28,6 +40,7 @@ class QueryManager
   finishCounting: ->
     @setResultCount(@resultCount)
   setResultCount: (count) ->
+    @set_state('done')
     @resultCount = count
     @displayResults("result count: #{@resultCount}")
     if count is 0

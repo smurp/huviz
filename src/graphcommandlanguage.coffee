@@ -227,9 +227,11 @@ class GraphCommand
           @huviz.tick()
         if nodes?
           async.each(nodes, iter, errorHandler)
-    else if @verbs[0] is 'load' # FIXME not very general, but it appears to be the sole exception
+    else if @verbs[0] is 'load'
       @huviz.load_with(@data_uri, @with_ontologies)
       console.log("load data_uri has returned")
+    else if @verbs[0] is 'query'
+      @huviz.query_from_seeking_limit(@sparqlQuery)
     else
       for meth in @get_methods() # find the methods on huviz which implement each verb
         if meth.callback
@@ -356,6 +358,23 @@ class GraphCommand
     @str = cmd_str
   toString: ->
     @str
+  parse_query_command: (parts) ->
+    keymap = { # from key in command url to key on querySpec passed to HuViz
+      query: 'serverUrl'
+      from: 'graphUrl'
+      limit: 'limit'
+      seeking: 'subjectUrl'
+      }
+    spec = {}
+    while parts.length
+      # find argName/argVal pairs
+      argName = keymap[parts.shift()]
+      argVal = unescape(parts.shift())
+      if argName?
+        spec[argName] = argVal
+      else
+        throw new Error("parse_query_command() failed at",parts.join(' '))
+    return spec
   parse: (cmd_str) ->
     parts = cmd_str.split(" ")
     verb = parts[0]
@@ -366,6 +385,8 @@ class GraphCommand
       if parts.length > 3
         # "load /data/bob.ttl with onto1.ttl onto2.ttl"
         cmd.with_ontologies = parts.slice(3,) # cdr
+    else if verb is 'query'
+      @sparqlQuery = @parse_query_command(parts)
     else
       subj = parts[1].replace(/\'/g,"")
       cmd.subjects = [{'id': subj}]
