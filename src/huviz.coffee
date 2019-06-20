@@ -4714,7 +4714,8 @@ class Huviz
         console.log("outstanding_requests: " + @endpoint_loader.outstanding_requests)
       else
         msg = "SPARQL requests capped at #{maxReq}"
-        @blurt(msg, 'alert')
+        #@blurt(msg, 'alert')
+        console.info(msg)
         # if $("#blurtbox").html()
         #   #console.log "Don't add error message " + message
         #   console.log "Request counter (over): " + @endpoint_loader.outstanding_requests
