@@ -6574,11 +6574,25 @@ class Huviz
       delay: 500
       position: {collision: "flip"}
       source: @search_sparql_by_label
-    @endpoint_labels_JQElem.on('autocompleteselect', @endpoint_labels_autocompleteselect)
+    @endpoint_labels_JQElem.on('autocompleteselect', @endpoint_labels__autocompleteselect)
+    @endpoint_labels_JQElem.on('change', @endpoint_labels__update)
 
-  endpoint_labels_autocompleteselect: (event) =>
+  # Called when the user selects an endpoint_labels autosuggestion
+  endpoint_labels__autocompleteselect: (event) =>
     # Hopefully having this handler engaged will not interfere with the autocomplete.
     @enable_go_button()
+    return true
+
+  endpoint_labels__update: (event) =>
+    # If the endpoint_labels field is left blank then permit LOAD of graph
+    if not @endpoint_labels_JQElem.val().length
+      @enable_go_button()
+    return true
+
+  endpoint_labels__focusout: (event) =>
+    # If endpoint_labels has content WITHOUT autocompleteselect then disable LOAD
+    if not @endpoint_labels_JQElem.val().length
+      @disable_go_button()
     return true
 
   allGraphsChosen: ->
@@ -6681,6 +6695,7 @@ class Huviz
     return
 
   euthanize_search_sparql_by_label: ->
+    @disable_go_button()
     if @search_sparql_by_label_queryManager?
       @kill_endpoint_label_search_anim()
       @search_sparql_by_label_queryManager.kill()
