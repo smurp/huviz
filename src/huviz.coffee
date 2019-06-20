@@ -3340,8 +3340,13 @@ class Huviz
       return aUrl.hostname.endsWith(domainName)
 
     if hasDomainName('cwrc.ca')
-      # We will skip these for now
       console.warn("auto_discover_name_for('#{namelessUri}') skipping cwrc.ca")
+      return
+      args =
+        namelessUri: namelessUri
+        #predicates: [OSMT_reg_name, OSMT_name]
+        serverUrl: "http://sparql.cwrc.ca/sparql"
+      @run_sparql_name_query(args)
       return
 
     if hasDomainName("id.loc.gov")
