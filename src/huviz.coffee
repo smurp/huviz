@@ -3504,9 +3504,12 @@ class Huviz
     console.log("response Content-Type:", jqXHR.getResponseHeader("content-type"))
     if data.head?
       resp_type = 'json'
-    else
-      # TODO this crude assumption is unwarranted
+    else if data.includes("\t")
+      # TODO base presumption of .tsv on something more definitive than finding one
       resp_type = 'tsv'
+    else
+      console.warn(data)
+      throw new Error("no idea what resp_type this data is")
     switch resp_type
       when 'json'
         success_handler = @json_name_success_handler
@@ -3609,7 +3612,13 @@ class Huviz
     if bare_term[0] is '<'
       return @convert_N3_obj_to_GreenTurtle(bare_term)
     if bare_term.slice(-1)[0] isnt '"'
-      return @convert_N3_obj_to_GreenTurtle('"'+bare_term+'"')
+      if bare_term.startsWith('"')
+        if bare_term.includes('@')
+          return @convert_N3_obj_to_GreenTurtle(bare_term)
+        else
+          # fall through to report error
+      else
+        return @convert_N3_obj_to_GreenTurtle('"'+bare_term+'"')
     msg = "bare_term: {#{bare_term}} not parseable by convert_str_term_to_GreenTurtle"
     throw new Error(msg)
 
