@@ -6284,14 +6284,14 @@ class Huviz
     # TODO this should add graph, item and limit only if needed
     endpoint =
       value: @endpoint_loader.value
-      label: @endpoint_loader.value + " TODO - get label"
+      label: @endpoint_loader.value # TODO get pretty label (or not?)
       limit: @endpoint_limit_JQElem.val()
       graph:
         value: @sparqlGraphSelector_JQElem.val()
-        label: @sparqlGraphSelector_JQElem.val() + " TODO - get label"
+        label: @sparqlGraphSelector_JQElem.val() # TODO get pretty label (or not?)
       item:
         value: @endpoint_labels_JQElem.val()
-        label: @endpoint_labels_JQElem.val() + " TODO - get label"
+        label: @endpoint_labels_JQElem.val() # TODO get pretty label (or not?)
     @disable_dataset_ontology_loader(null, null, endpoint)
     return
 
