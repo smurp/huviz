@@ -6576,6 +6576,7 @@ class Huviz
       source: @search_sparql_by_label
     @endpoint_labels_JQElem.on('autocompleteselect', @endpoint_labels__autocompleteselect)
     @endpoint_labels_JQElem.on('change', @endpoint_labels__update)
+    @endpoint_labels_JQElem.focusout(@endpoint_labels__focusout)
 
   # Called when the user selects an endpoint_labels autosuggestion
   endpoint_labels__autocompleteselect: (event) =>
@@ -6592,7 +6593,7 @@ class Huviz
   endpoint_labels__focusout: (event) =>
     # If endpoint_labels has content WITHOUT autocompleteselect then disable LOAD
     if not @endpoint_labels_JQElem.val().length
-      @disable_go_button()
+      @enable_go_button()
     return true
 
   allGraphsChosen: ->
