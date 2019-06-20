@@ -3629,6 +3629,7 @@ class Huviz
     else if jsObj.type is 'literal'
       jsObj.type = RDF_literal
       if (lang = jsObj['xml:lang'])
+        delete jsObj['xml:lang']
         jsObj.language = lang.toLowerCase() # REVIEW is lowercasing always right?
     return jsObj
 
