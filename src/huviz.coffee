@@ -7974,7 +7974,7 @@ class Huviz
         label:
           title: "Default value for the 'Node Limit'"
         input:
-          value: 80
+          value: 200
           min: 1
           max: 1000
           step: 10
