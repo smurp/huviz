@@ -6206,6 +6206,9 @@ class Huviz
     if endpoint_label_uri
       data = dataset or @endpoint_loader
       @load_endpoint_data_and_show(endpoint_label_uri)
+      # TODO ensure disable_dataset_ontology_loader() is only called once
+      console.warn("disable_dataset_ontology_loader() SHOULD BE CALLED ONLY ONCE")
+      @disable_dataset_ontology_loader_AUTOMATICALLY()
       @update_browser_title(data)
       @update_caption(data.value, data.endpoint_graph)
       return
