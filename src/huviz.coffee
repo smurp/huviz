@@ -241,7 +241,6 @@ window.log_click = () ->
 # http://dublincore.org/documents/dcmi-terms/
 DC_subject  = "http://purl.org/dc/terms/subject"
 DCE_title    = "http://purl.org/dc/elements/1.1/title"
-
 FOAF_Group  = "http://xmlns.com/foaf/0.1/Group"
 FOAF_Person = "http://xmlns.com/foaf/0.1/Person"
 FOAF_name   = "http://xmlns.com/foaf/0.1/name"
@@ -253,8 +252,8 @@ OWL_ObjectProperty = "http://www.w3.org/2002/07/owl#ObjectProperty"
 RDF_literal = "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"
 RDF_object  = "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
 RDF_type    = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-RDF_Class   = "http://www.w3.org/2000/01/rdf-schema#Class"
-RDF_subClassOf   = "http://www.w3.org/2000/01/rdf-schema#subClassOf"
+RDF_Class   = "http://www.w3.org/2000/01/rdf-schema#Class" # TODO rename RDFS_
+RDF_subClassOf   = "http://www.w3.org/2000/01/rdf-schema#subClassOf" # TODO rename RDFS_
 RDF_a       = 'a'
 RDFS_label  = "http://www.w3.org/2000/01/rdf-schema#label"
 SCHEMA_name = "http://schema.org/name"
@@ -3392,7 +3391,7 @@ class Huviz
 
     # As a final backstop we use LDF.  Why last? To spare the LDF server.
     # The endpoint of authority is superior because it ought to be up to date.
-    for domainName, serverUrl of @ldf_domain_configs
+    for domainName, serverUrl of @domain2ldfServer
       args =
         namelessUri: namelessUri
         serverUrl: serverUrl
@@ -3483,10 +3482,30 @@ class Huviz
       queryManager.fatalError(e)
     return
 
+  display_graph_success_handler: (data, textStatus, jqXHR, queryManager) =>
+    @disable_dataset_ontology_loader_AUTOMATICALLY()
+    # TODO @update_browser_title()
+    # TODO @update_caption()
+    @generic_name_success_handler(data, textStatus, jqXHR, queryManager)
+    @call_on_dataset_loaded()
+    return
+
+  generic_success_handler: (data, textStatus, jqXHR, queryManager) =>
+    @generic_name_success_handler(data, textStatus, jqXHR, queryManager)
+    return
+
   generic_name_success_handler: (data, textStatus, jqXHR, queryManager) =>
+    try
+      data = JSON.parse(data)
+    catch error
+      console.info("generic_success_handler tried and failed to treat data as json")
     # this should be based on response header or a queryManager
-    resp_type = 'tsv'
-    resp_type = 'json' if data.head?
+    console.log("response Content-Type:", jqXHR.getResponseHeader("content-type"))
+    if data.head?
+      resp_type = 'json'
+    else
+      # TODO this crude assumption is unwarranted
+      resp_type = 'tsv'
     switch resp_type
       when 'json'
         success_handler = @json_name_success_handler
@@ -3512,7 +3531,7 @@ class Huviz
   #
   # with the only real difference being a dist version of ldf-client-worker.min.js
 
-  ldf_domain_configs:
+  domain2ldfServer:
     # values feed LDF client context.sources.value # see run_managed_query_ldf
     'dbpedia.org': "http://fragments.dbpedia.org/2016-04/en"
     'viaf.org': "http://data.linkeddatafragments.org/viaf"
@@ -3605,6 +3624,12 @@ class Huviz
 
   convert_obj_obj_to_GreenTurtle: (jsObj) =>
     # TODO convert the .type to a legit uri
+    if jsObj.type is 'uri'
+      jsObj.type = RDF_object
+    else if jsObj.type is 'literal'
+      jsObj.type = RDF_literal
+      if (lang = jsObj['xml:lang'])
+        jsObj.language = lang.toLowerCase() # REVIEW is lowercasing always right?
     return jsObj
 
   convert_obj_uri_to_string: (jsObj) =>
@@ -3616,9 +3641,10 @@ class Huviz
     throw new Error('expecting jsObj to have .value or be a literal')
 
   name_result_handler: (result, queryManager) =>
-    subj_term = result['?s'] or result['s'] or queryManager.args.default_terms.s
-    pred_term = result['?p'] or result['p'] or queryManager.args.default_terms.p
-    obj_term = result['?o'] or result['o']
+    terms = queryManager.args.query_terms or queryManager.args.default_terms
+    subj_term = result['?s'] or result['s'] or terms.s
+    pred_term = result['?p'] or result['p'] or terms.p
+    obj_term = result['?o'] or result['o'] or terms.o
 
     # identify the result_type
     if queryManager.args.from_N3
@@ -3649,6 +3675,7 @@ class Huviz
         s: parseUri(subj_term)
         p: parseUri(pred_term)
         o: parseObj(obj_term)
+        g: terms.g
       @add_quad(q)
     catch error
       #@make_json_dialog(result, null, {title: error.toString()})
@@ -4392,10 +4419,12 @@ class Huviz
     graphSelector = "#sparqlGraphOptions-#{id}"
     $(graphSelector).parent().css('display', 'none')
     @sparqlQryInput_hide()
+    # LOAD button should be disabled while the search for graphs is happening
     @disable_go_button()
     handle_graphsNotFound = () =>
       $(graphSelector).parent().css('display', 'none')
       @reset_endpoint_form(true)
+      @enable_go_button()
 
     make_success_handler = () =>
       return (data, textStatus, jqXHR, queryManager) =>
@@ -4422,6 +4451,7 @@ class Huviz
         $("#sparqlGraphOptions-#{id}").html(graph_options)
         $(graphSelector).parent().css('display', 'block')
         @reset_endpoint_form(true)
+        @disable_go_button() # disable until a graph or term is picked
 
     make_error_callback = () =>
       return (jqXHR, textStatus, errorThrown) =>
@@ -6025,7 +6055,7 @@ class Huviz
       @big_go_button = $('<button class="big_go_button">LOAD</button>')
       @big_go_button.attr('id', @big_go_button_id)
       $(@get_or_create_sel_for_picker()).append(@big_go_button)
-      @big_go_button.click(@visualize_dataset_using_ontology)
+      @big_go_button.click(@big_go_button_onclick)
       @disable_go_button()
     if @ontology_loader or @dataset_loader or @script_loader and not @big_go_button
       ontology_selector = "##{@ontology_loader.select_id}"
@@ -6040,7 +6070,120 @@ class Huviz
 
     #@preload_endpoints()
     # TODO remove this nullification of @last_val by fixing logic in select_option()
-    @ontology_loader?last_val = null # clear the last_val so select_option works the first time
+    # clear the last_val so select_option works the first time
+    @ontology_loader?last_val = null
+
+  big_go_button_onclick: (event) =>
+    if @using_sparql()
+      return @big_go_button_onclick_sparql(event)
+    @visualize_dataset_using_ontology()
+    return
+
+  big_go_button_onclick_sparql: (event) ->
+    if @allGraphsChosen()
+      if (foundUri = @endpoint_labels_JQElem.val())
+        @visualize_dataset_using_ontology()
+        return
+      colorlog("IGNORING. The LOAD button should not even be clickable right now")
+      return
+    if (endpoint_label_uri = @endpoint_labels_JQElem.val())
+      @visualize_dataset_using_ontology()
+      return
+    if (graphUri = @sparqlGraphSelector_JQElem.val())
+      @displayTheChosenGraph(graphUri)
+      return
+    colorlog("IGNORING.  Neither graph nor endpoint_label is chosen.")
+    return
+
+  displayTheChosenGraph: (graphUri) ->
+    #alert("stub for displayTheChosenGraph('#{graphUri}')")
+    args =
+      success_handler: @display_graph_success_handler
+      result_handler: @name_result_handler
+      query_terms:
+        g: graphUri
+    # respect the limit provided by the user
+    if (limit = @endpoint_limit_JQElem.val())
+      args.limit = limit
+    args.query = @make_generic_query(args)
+    @run_generic_query(args)
+    return
+
+  # ## make_generic_query()
+  #
+  # The default query looks like:
+  # ```sparql
+  # SELECT *
+  # FROM <query_terms.g> # only present if query_terms.g provided
+  # WHERE {
+  #   <query_terms.s> ?p ?o .
+  # }
+  # LIMIT 20 # the value of args.limit, if present
+  # ```
+  make_generic_query: (in_args) ->
+    args = @compose_object_from_defaults_and_incoming(@default_name_query_args, in_args)
+    terms = args.query_terms or {}
+    lines = ["SELECT *"]
+    if terms.g?
+      lines.push("FROM <#{terms.g}>")
+    lines.push("WHERE {")
+    pattern = "  "
+    for term in 'spo'.split('')
+      val = terms[term]
+      if val?
+        pattern += "<#{val}> "
+      else
+        pattern += "?#{term} "
+    pattern += "."
+    lines.push(pattern)
+    lines.push("}")
+    if args.limit
+      lines.push("LIMIT #{args.limit}")
+    return lines.join("\n")
+
+  run_generic_query: (args) ->
+    serverSpec = @get_server_for_dataset(args.query_terms.g)
+    {serverType, serverUrl} = serverSpec
+    args.serverUrl = serverUrl
+    args.serverType = serverType
+    switch serverType
+      when 'ldf'
+        @run_managed_query_ldf(args)
+      when 'sparql'
+        @run_managed_query_ajax(args)
+      else
+        throw new Error("don't know how to handle serverType: '#{serverType}'")
+    return
+
+  domain2sparqlEndpoint:
+    'cwrc.ca': 'http://sparql.cwrc.ca/sparql'
+    'getty.edu': 'http://vocab.getty.edu/sparql.tsv'
+    'openstreetmap.org': 'https://sophox.org/sparql'
+
+  get_server_for_dataset: (datasetUri) ->
+    aUrl = new URL(datasetUri)
+    {domain} = aUrl
+    # Deal with the situation where the datasetUri sought is served
+    # by the server the user has chosen.
+    if @using_sparql() and @sparqlGraphSelector_JQElem.val() is datasetUri
+      serverType = 'sparql'
+      serverUrl = @endpoint_loader.value
+    # Otherwise, consult built-in hard-coded mappings from datasets to
+    # the servers they are available at.  First we look for matches
+    # based on the domain sought.
+    else if (serverUrl = @domain2sparqlEndpoint[domain])
+      serverType = 'sparql'
+    else if (serverUrl = @domain2sparqlEndpoint[domain])
+      serverType = 'ldf'
+    # Then try to find wildcard servers '*', if available.
+    # Give precedence to sparql over ldf.
+    else if (serverUrl = @domain2sparqlEndpoint['*'])
+      serverType = 'sparql'
+    else if (serverUrl = @domain2ldfServer['*'])
+      serverType = 'ldf'
+    else
+      throw new Error("a server could not be found for #{datasetUri}")
+    return {serverType, serverUrl}
 
   update_dataset_forms: (e) =>
     ont_val = $("##{@ontology_loader.select_id}").val()
@@ -6109,13 +6252,31 @@ class Huviz
       @gclui.ignore_predicate(pred_id)
     for pid in @predicates_to_ignore
       @gclui.ignore_predicate(pid)
+    return
 
-  disable_dataset_ontology_loader: (data, onto) ->
-    @replace_loader_display(data, onto)
+  disable_dataset_ontology_loader_AUTOMATICALLY: ->
+    # TODO to be AUTOMATIC(!!) handle dataset, ontology and script too
+    # TODO this should add graph, item and limit only if needed
+    endpoint =
+      value: @endpoint_loader.value
+      label: @endpoint_loader.value + " TODO - get label"
+      limit: @endpoint_limit_JQElem.val()
+      graph:
+        value: @sparqlGraphSelector_JQElem.val()
+        label: @sparqlGraphSelector_JQElem.val() + " TODO - get label"
+      item:
+        value: @endpoint_labels_JQElem.val()
+        label: @endpoint_labels_JQElem.val() + " TODO - get label"
+    @disable_dataset_ontology_loader(null, null, endpoint)
+    return
+
+  disable_dataset_ontology_loader: (data, onto, endpoint) ->
+    @replace_loader_display(data, onto, endpoint)
     @disable_go_button()
     @dataset_loader.disable()
     @ontology_loader.disable()
     @big_go_button.hide()
+    return
 
   reset_dataset_ontology_loader: ->
     $('#'+@get_data_ontology_display_id()).remove()
@@ -6125,9 +6286,11 @@ class Huviz
     @big_go_button.show()
     $("##{@dataset_loader.select_id} option[label='Pick or Provide...']").prop('selected', true)
     @gclui_JQElem.removeAttr("style","display:none")
+    return
 
   update_dataset_ontology_loader: =>
-    if not (@dataset_loader? and @ontology_loader?  and @endpoint_loader? and @script_loader?)
+    if not (@dataset_loader? and @ontology_loader? and
+            @endpoint_loader? and @script_loader?)
       console.log("still building loaders...")
       return
     @set_ontology_from_dataset_if_possible()
@@ -6190,9 +6353,18 @@ class Huviz
   get_reload_uri: ->
     return @reload_uri or new URL(window.location)
 
-  generate_reload_uri: (dataset, ontology) ->
-    @reload_uri =     uri = new URL(location)
-    uri.hash = "load+#{dataset.value}+with+#{ontology.value}"
+  generate_reload_uri: (dataset, ontology, endpoint) ->
+    @reload_uri = uri = new URL(document.location)
+    if dataset and ontology
+      uri.hash = "load+#{dataset.value}+with+#{ontology.value}"
+    else if endpoint
+      uri.hash = "query+"+encodeURIComponent(endpoint.value)
+      if endpoint.graph and endpoint.graph.value
+        uri.hash += "+from+"+encodeURIComponent(endpoint.graph.value)
+      if endpoint.item and endpoint.item.value
+        uri.hash += "+seeking+"+encodeURIComponent(endpoint.item.value)
+      if endpoint.limit
+        uri.hash += "+limit+"+encodeURIComponent(endpoint.limit)
     return uri
 
   get_data_ontology_display_id: ->
@@ -6202,25 +6374,68 @@ class Huviz
   hide_pickers: ->
     $(@pickersSel).attr("style","display:none")
 
-  replace_loader_display: (dataset, ontology) ->
-    @generate_reload_uri(dataset, ontology)
-    uri = @get_reload_uri()
+  replace_loader_display: (dataset, ontology, endpoint) ->
+    @generate_reload_uri(dataset, ontology, endpoint)
     @hide_pickers()
-    data_ontol_display = """
-    <div id="#{@get_data_ontology_display_id()}" class="data_ontology_display">
-      <p><span class="dt_label">Dataset:</span> #{dataset.label}</p>
-      <p><span class="dt_label">Ontology:</span> #{ontology.label}</p>
+    vis_src_args =
+      uri: @get_reload_uri()
+      dataset: dataset
+      ontology: ontology
+      endpoint: endpoint
+      script: "TODO include script stuff here"
+    @render_visualization_source_display(vis_src_args)
+    return
+
+  render_visualization_source_display: (vis_src_args) ->
+    {dataset, ontology, endpoint, script, uri} = vis_src_args
+    if dataset and ontology
+      add_reload_button = true
+      source_html = """
+        <p><span class="dt_label">Dataset:</span> #{dataset.label}</p>
+        <p><span class="dt_label">Ontology:</span> #{ontology.label}</p>
+        """
+    else if endpoint
+      add_reload_button = false
+      source_html = """
+        <p><span class="dt_label">Endpoint:</span> #{endpoint.label}</p>
+      """
+      if endpoint.graph
+        source_html += """
+        <p><span class="dt_label">Graph:</span> #{endpoint.graph.label}</p>
+      """
+      if endpoint.item
+        source_html += """
+        <p><span class="dt_label">Item:</span> #{endpoint.item.label}</p>
+      """
+      if endpoint.limit
+        source_html += """
+        <p><span class="dt_label">Limit:</span> #{endpoint.limit}</p>
+      """
+    else if script
+      source_html = """
+        <p><span class="dt_label">Script:</span> #{script}</p>
+      """
+    else
+      source_html = """
+        <p><span class="dt_label">Source:</span>TBD</p>
+      """
+    reload_html = """
       <p>
         <button title="Reload this data"
            onclick="location.replace('#{uri}');location.reload()"><i class="fas fa-redo"></i></button>
         <button title="Clear the graph and start over"
            onclick="location.assign(location.origin)"><i class="fas fa-times"></i></button>
       </p>
+    """
+    visualization_source_display = """
+    <div id="#{@get_data_ontology_display_id()}" class="data_ontology_display">
+      #{source_html}
+      #{add_reload_button and reload_html or ''}
       <br style="clear:both">
     </div>""" # """ the extra set of triple double quotes is for emacs coffescript mode
     sel = @oldToUniqueTabSel['huvis_controls']
     controls = document.querySelector(sel)
-    controls.insertAdjacentHTML('afterbegin', data_ontol_display)
+    controls.insertAdjacentHTML('afterbegin', visualization_source_display)
     return
 
   replace_loader_display_for_endpoint: (endpoint, graph) ->
@@ -6241,7 +6456,10 @@ class Huviz
 
   update_browser_title: (dataset) ->
     if dataset.value
-      document.title = dataset.label + " - Huvis Graph Visualization"
+      @set_browser_title(dataset.label)
+
+  set_browser_title: (label) ->
+    document.title = label + " - Huvis Graph Visualization"
 
   make_git_link: ->
     base = @args.git_base_url
@@ -6303,10 +6521,11 @@ class Huviz
     @sparqlQryInput_selector = "#" + sparqlQryInput_id
     endpoint_limit_id = unique_id('endpoint_limit_')
     endpoint_labels_id = unique_id('endpoint_labels_')
+    sparqlGraphSelectorId = "sparqlGraphOptions-#{@endpoint_loader.select_id}"
     select_box = """
       <div class="ui-widget" style="display:none;margin-top:5px;margin-left:10px;">
         <label>Graphs: </label>
-        <select id="sparqlGraphOptions-#{@endpoint_loader.select_id}">
+        <select id="#{sparqlGraphSelectorId}">
         </select>
       </div>
       <div id="sparqlGraphSpinner-#{@endpoint_loader.select_id}"
@@ -6327,6 +6546,8 @@ class Huviz
     @sparqlQryInput_JQElem = $(@sparqlQryInput_selector)
     @endpoint_labels_JQElem = $('#'+endpoint_labels_id)
     @endpoint_limit_JQElem = $('#'+endpoint_limit_id)
+    @sparqlGraphSelector_JQElem = $('#'+sparqlGraphSelectorId)
+    @sparqlGraphSelector_JQElem.change(@sparqlGraphSelector_onchange)
     fromGraph =''
     @endpoint_labels_JQElem.on('input', @animate_endpoint_label_typing)
     @endpoint_labels_JQElem.autocomplete
@@ -6334,6 +6555,32 @@ class Huviz
       delay: 500
       position: {collision: "flip"}
       source: @search_sparql_by_label
+    @endpoint_labels_JQElem.on('autocompleteselect', @endpoint_labels_autocompleteselect)
+
+  endpoint_labels_autocompleteselect: (event) =>
+    # Hopefully having this handler engaged will not interfere with the autocomplete.
+    @enable_go_button()
+    return true
+
+  allGraphsChosen: ->
+    # REVIEW what about the case where there were no graphs?
+    try
+      return @sparqlGraphSelector_JQElem.val() is @endpoint_loader.value
+    catch error
+      # REVIEW big handwave here! Assuming an error means something is missing
+      return false
+
+  # When a Graph is selected, we offer the LOAD button for full graph loading.
+  sparqlGraphSelector_onchange: (event) =>
+    if @allGraphsChosen()
+      # Apparently, 'All Graphs' was chosen.
+      # Disable the LOAD button because loading all data on a server is madness.
+      @disable_go_button()
+    else
+      # Some particular graph was apparently chosen.
+      # We enable the LOAD button so the whole graph may be loaded.
+      @enable_go_button()
+    return
 
   animate_endpoint_label_typing: =>
     # Called every time the user types a character to animate the countdown to sending a query
@@ -8211,8 +8458,6 @@ class Huviz
       #@disable_data_set_selector()
       @disable_dataset_ontology_loader(data, onto)
     @show_state_msg("loading...")
-    #@init_from_settings() # REVIEW remove init_from_settings?!?
-    #@reset_graph()
     @show_state_msg(@data_uri)
     unless @G.subjects
       @fetchAndShow(@data_uri, callback)
