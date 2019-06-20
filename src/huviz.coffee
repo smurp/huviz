@@ -2944,7 +2944,8 @@ class Huviz
       success: success
       failure: failure
 
-  discover_geoname_name_msgs_threshold_ms: 5 * 1000 # msec betweeen repetition of a msg display
+  # msec betweeen repetition of a msg display
+  discover_geoname_name_msgs_threshold_ms: 5 * 1000
 
   # TODO eliminate all use of this version in favor of the markdown version
   discover_geoname_name_instructions: """
@@ -6325,7 +6326,7 @@ class Huviz
     spinner = $("#sparqlGraphSpinner-#{@endpoint_loader.select_id}")
     spinner.css('display','none')
     @endpoint_labels_JQElem.prop('disabled', false).val("")
-    @endpoint_limit_JQElem.prop('disabled', false).val("100")
+    @endpoint_limit_JQElem.prop('disabled', false).val(@sparql_query_default_limit)
     if show
       @sparqlQryInput_show()
     else
@@ -6542,7 +6543,7 @@ class Huviz
         <input id="#{endpoint_labels_id}">
         <i class="fas fa-spinner fa-spin" style="visibility:hidden;margin-left: 5px;"></i>
         <div><label for="#{endpoint_limit_id}">Node Limit: </label>
-        <input id="#{endpoint_limit_id}" value="100">
+        <input id="#{endpoint_limit_id}" value="#{@sparql_query_default_limit}">
         </div>
       </div>
     """ # """
@@ -7950,6 +7951,19 @@ class Huviz
           min: 1
           max: 90
           step: 1
+          type: "range"
+    ,
+      sparql_query_default_limit:
+        group: "SPARQL"
+        class: "alpha_feature"
+        text: "Default Node Limit"
+        label:
+          title: "Default value for the 'Node Limit'"
+        input:
+          value: 80
+          min: 1
+          max: 1000
+          step: 10
           type: "range"
     ,
       debug_shelf_angles_and_flipping:
