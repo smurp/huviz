@@ -241,18 +241,19 @@ window.log_click = () ->
 # http://dublincore.org/documents/dcmi-terms/
 DC_subject  = "http://purl.org/dc/terms/subject"
 DCE_title    = "http://purl.org/dc/elements/1.1/title"
-
 FOAF_Group  = "http://xmlns.com/foaf/0.1/Group"
 FOAF_Person = "http://xmlns.com/foaf/0.1/Person"
 FOAF_name   = "http://xmlns.com/foaf/0.1/name"
+OSMT_name   = "https://wiki.openstreetmap.org/wiki/Key:name"
+OSMT_reg_name = "https://wiki.openstreetmap.org/wiki/Key:reg_name"
 OWL_Class   = "http://www.w3.org/2002/07/owl#Class"
 OWL_Thing   = "http://www.w3.org/2002/07/owl#Thing"
 OWL_ObjectProperty = "http://www.w3.org/2002/07/owl#ObjectProperty"
 RDF_literal = "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"
 RDF_object  = "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
 RDF_type    = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-RDF_Class   = "http://www.w3.org/2000/01/rdf-schema#Class"
-RDF_subClassOf   = "http://www.w3.org/2000/01/rdf-schema#subClassOf"
+RDF_Class   = "http://www.w3.org/2000/01/rdf-schema#Class" # TODO rename RDFS_
+RDF_subClassOf   = "http://www.w3.org/2000/01/rdf-schema#subClassOf" # TODO rename RDFS_
 RDF_a       = 'a'
 RDFS_label  = "http://www.w3.org/2000/01/rdf-schema#label"
 SCHEMA_name = "http://schema.org/name"
@@ -264,7 +265,7 @@ THUMB_PREDS = [
   'http://xmlns.com/foaf/0.1/thumbnail']
 NAME_SYNS = [
   FOAF_name, RDFS_label, 'rdfs:label', 'name', SKOS_prefLabel, XL_literalForm,
-  SCHEMA_name, DCE_title ]
+  SCHEMA_name, DCE_title, OSMT_reg_name, OSMT_name ]
 XML_TAG_REGEX = /(<([^>]+)>)/ig
 
 typeSigRE =
@@ -2991,7 +2992,8 @@ class Huviz
       success: success
       failure: failure
 
-  discover_geoname_name_msgs_threshold_ms: 5 * 1000 # msec betweeen repetition of a msg display
+  # msec betweeen repetition of a msg display
+  discover_geoname_name_msgs_threshold_ms: 5 * 1000
 
   # TODO eliminate all use of this version in favor of the markdown version
   discover_geoname_name_instructions: """
@@ -3182,8 +3184,9 @@ class Huviz
           # but all the deeper geoRecs (because they are new to this graph, presumably)
           # should be represented canonically (ie without 'https', 'www' or trailing slash).
           if not depth
-            if geoRec.geonameId isnt soughtId
-              console.warn("likely misalignment between representation of soughtId and found")
+            if geoRec.geonameId.toString() isnt soughtId
+              console.warn("likely misalignment between representation of soughtId and found",
+                           soughtId, "!=", geoRec.geonameId)
             subj = aUrl.toString()
           else
             subj = geoNamesRoot + '/' + geoRec.geonameId # + '/'
@@ -3370,28 +3373,28 @@ class Huviz
     handler = @make_sparql_name_handler(uris)
     return [query, handler]
 
-  auto_discover_name_for: (uri) ->
-    if uri.startsWith('_') # skip "blank" nodes
+  auto_discover_name_for: (namelessUri) ->
+    if namelessUri.startsWith('_') # skip "blank" nodes
       return
     try
-      aUrl = new URL(uri)
+      aUrl = new URL(namelessUri)
     catch e
-      colorlog("skipping auto_discover_name_for('#{uri}') because")
+      colorlog("skipping auto_discover_name_for('#{namelessUri}') because")
       console.log(e)
       return
     @highwater_incr('discover_name')
-    colorlog("auto_discover_name_for('#{uri}') START")
+
     hasDomainName = (domainName) ->
       return aUrl.hostname.endsWith(domainName)
 
-    # Set some variables in preparation for per-domain handling
-
-    try_even_though_CORS_should_block = false # TODO refactor when proxy is working
-    comment = "auto_discover_name_for(#{uri})"
-
     if hasDomainName('cwrc.ca')
-      # We will skip these for now
-      console.warn("auto_discover_name_for('#{uri}') skipping cwrc.ca")
+      console.warn("auto_discover_name_for('#{namelessUri}') skipping cwrc.ca")
+      return
+      args =
+        namelessUri: namelessUri
+        #predicates: [OSMT_reg_name, OSMT_name]
+        serverUrl: "http://sparql.cwrc.ca/sparql"
+      @run_sparql_name_query(args)
       return
 
     if hasDomainName("id.loc.gov")
@@ -3399,48 +3402,55 @@ class Huviz
       # that the .skos.nt file is available. Unfortunately the only
       # RDF file which is offered via content negotiation is .rdf and
       # there is no parser for that in HuViz yet.  Besides, they are huge.
-      retval = @ingest_quads_from("#{uri}.skos.nt", @discover_labels(uri))
+      retval = @ingest_quads_from("#{namelessUri}.skos.nt",
+                                  @discover_labels(namelessUri))
       # This cool method would via a proxy but fails in the browser because
       # full header access is blocked by XHR.
-      # `@auto_discover_header(uri, ['X-PrefLabel'], sendHeaders or [])`
+      # `@auto_discover_header(namelessUri, ['X-PrefLabel'], sendHeaders or [])`
       return
 
     if hasDomainName("vocab.getty.edu")
-      if try_even_though_CORS_should_block
+      if (try_even_though_CORS_should_block = false)
         # This would work, but CORS blocks this.  Preserved in case sufficiently
         # robust accounts are set up so the HuViz server could serve as a proxy.
-        downloadUrl = "http://vocab.getty.edu/download/nt?uri=#{encodeURIComponent(uri)}"
-        retval = @ingest_quads_from(downloadUrl, @discover_labels(uri))
+        serverUrl = "http://vocab.getty.edu/download/nt"
+        downloadUrl = "#{serverUrl}?uri=#{encodeURIComponent(namelessUri)}"
+        retval = @ingest_quads_from(downloadUrl, @discover_labels(namelessUri))
         return
       else
         # Alternative response datatypes are .json, .csv, .tsv and .xml
         args =
-          success_handler: @name_tsv_success_handler
-          server_config:
-            source: 'http://vocab.getty.edu/sparql.tsv'
-        @run_sparql_name_query(uri, args)
+          namelessUri: namelessUri
+          serverUrl: "http://vocab.getty.edu/sparql.tsv"
+        @run_sparql_name_query(args)
         return
 
-    #for expansion in ["http://vocab.getty.edu/aat/", "http://vocab.getty.edu/ontology#"]
-    #  # Work was stopped on this when I realized that the CWRC ontology is no
-    #  # longer referencing Getty.  It is still good stuff, but should be deprioritized
-    #  # pending review.
-    #  if uri.startsWith(expansion) # TODO can this be more general? ie shorter?
-    #    sparql = @make_sparql_name_for_getty(uri, expansion)
-    #    @ingest_quads_from_sparql(sparql) # TODO this is not yet implemented
-    if hasDomainName("geonames.org") and
-        @discover_geonames_as__widget.state in ['untried','looking','good'] and
-        @discover_geonames_remaining > 0
-      @discover_geoname_name(aUrl)
+    if hasDomainName("openstreetmap.org")
+      args =
+        namelessUri: namelessUri
+        predicates: [OSMT_reg_name, OSMT_name]
+        serverUrl: "https://sophox.org/sparql"
+      @run_sparql_name_query(args)
       return
+
+    # ## Geonames
+    #
+    # Geonames has its own API and some complicated use limits so is treated
+    # very differently.
+    if hasDomainName("geonames.org")
+      if @discover_geonames_as__widget.state in ['untried','looking','good'] and
+          @discover_geonames_remaining > 0
+        @discover_geoname_name(aUrl)
+      return
+
     # As a final backstop we use LDF.  Why last? To spare the LDF server.
     # The endpoint of authority is superior because it ought to be up to date.
-    for domainName, config of @ldf_domain_configs
-      if domainName is '*'
-        @run_ldf_name_query(uri, null, comment, config)
-        return
-      else if hasDomainName(domainName) # hostname is the FQDN
-        @run_ldf_name_query(uri, null, comment, config)
+    for domainName, serverUrl of @domain2ldfServer
+      args =
+        namelessUri: namelessUri
+        serverUrl: serverUrl
+      if hasDomainName(domainName) or domainName is '*'
+        @run_ldf_name_query(args)
         return
     return
 
@@ -3455,23 +3465,24 @@ class Huviz
       uri = node.id
       if not (includes? and not uri.includes(includes))
         # only if includes is specified but not found do we skip auto_discover_name_for
-        console.log('auto_discover_name_for', uri)
         @auto_discover_name_for(uri)
     return
 
   # ## SPARQL queries
 
-  run_sparql_name_query: (namelessUri, args, comment) ->
-    args ?= {}
-    query = "# " + ( comment or "run_ldf_name_query(#{namelessUri})") + "\n" +
-      @make_name_query(namelessUri, args.expansion)
+  run_sparql_name_query: (args) ->
+    {namelessUri} = args
+    args.query ?= "# " +
+      ( args.comment or "run_sparql_name_query(#{namelessUri})") + "\n" +
+      @make_name_query(namelessUri, args)
     defaults =
+      success_handler: @generic_name_success_handler
+      result_handler: @name_result_handler
       default_terms:
         s: namelessUri
         p: RDFS_label
     args = @compose_object_from_defaults_and_incoming(defaults, args)
-    serverUri = args.server_config.source
-    @run_managed_query_ajax(query, serverUri, args)
+    @run_managed_query_ajax(args)
 
   # Receive a tsv of rows and call the `result_handler` to process each row.
   #
@@ -3487,13 +3498,16 @@ class Huviz
   # ```json
   # {'?p': 'rdfs:label', '?o': "Uncle Bob"}
   # ```
-  name_tsv_success_handler: (data, textStatus, jqXHR, queryManager) =>
+  tsv_name_success_handler: (data, textStatus, jqXHR, queryManager) =>
     result_handler = queryManager.args.result_handler
-    result_handler ?= @name_result_handler
     try
       table = []
-      #@make_pre_dialog(data, null, {title:"name_tsv_success_handler"})
-      lines = data.split(/\r?\n/)
+      #@make_pre_dialog(data, null, {title:"tsv_name_success_handler"})
+      try
+        lines = data.split(/\r?\n/)
+      catch e
+        console.info("data:",data)
+        throw e
       firstLine = lines.shift()
       cols = firstLine.split("\t")
       for line in lines
@@ -3502,20 +3516,62 @@ class Huviz
         rowJson = _.zipObject(cols, row)
         result_handler(rowJson, queryManager)
         table.push(rowJson)
+      queryManager.setResultCount(table.length)
     catch e
       @make_json_dialog(table)
-      queryManager.displayError(e)
+      queryManager.fatalError(e)
     return
 
-  JUNK_PILE: (wft) ->
-    [sparql, handler] = @make_sparql_name_query_and_handler(uri, expansion)
-    args =
-      success_handler: handler
-    comment = "# " + ( comment or "run_sparql_name_query(#{uri})") + "\n"
-    query = comment + sparql
-    @run_managed_query_ajax(query, uri, args)
+  json_name_success_handler: (data, textStatus, jqXHR, queryManager) =>
+    result_handler = queryManager.args.result_handler
+    try
+      table = []
+      for resultJson in data.results.bindings
+        continue if not resultJson
+        result_handler(resultJson, queryManager)
+        table.push(resultJson)
+      queryManager.setResultCount(table.length)
+    catch e
+      @make_json_dialog(table, null, {title: "table of results"})
+      queryManager.fatalError(e)
+    return
 
+  display_graph_success_handler: (data, textStatus, jqXHR, queryManager) =>
+    @disable_dataset_ontology_loader_AUTOMATICALLY()
+    # TODO @update_browser_title()
+    # TODO @update_caption()
+    @generic_name_success_handler(data, textStatus, jqXHR, queryManager)
+    @call_on_dataset_loaded()
+    return
 
+  generic_success_handler: (data, textStatus, jqXHR, queryManager) =>
+    @generic_name_success_handler(data, textStatus, jqXHR, queryManager)
+    return
+
+  generic_name_success_handler: (data, textStatus, jqXHR, queryManager) =>
+    try
+      data = JSON.parse(data)
+    catch error
+      console.info("generic_success_handler tried and failed to treat data as json")
+    # this should be based on response header or a queryManager
+    console.log("response Content-Type:", jqXHR.getResponseHeader("content-type"))
+    if data.head?
+      resp_type = 'json'
+    else if data.includes("\t")
+      # TODO base presumption of .tsv on something more definitive than finding one
+      resp_type = 'tsv'
+    else
+      console.warn(data)
+      throw new Error("no idea what resp_type this data is")
+    switch resp_type
+      when 'json'
+        success_handler = @json_name_success_handler
+      when 'tsv'
+        success_handler = @tsv_name_success_handler
+      else
+        throw new Error('no name_success_handler available')
+    success_handler(data, textStatus, jqXHR, queryManager)
+    return
 
   # ## Linked Data Fragments (LDF)
   #
@@ -3532,39 +3588,61 @@ class Huviz
   #
   # with the only real difference being a dist version of ldf-client-worker.min.js
 
-  ldf_domain_configs:
-    # source: is the LDF client context.sources.value values # see run_managed_query_ldf
-    'dbpedia.org':
-      source: "http://fragments.dbpedia.org/2016-04/en"
-    'viaf.org':
-      source: "http://data.linkeddatafragments.org/viaf"
-    'getty.edu':
-      source: "http://data.linkeddatafragments.org/lov"
-    '*':
-      source: "http://data.linkeddatafragments.org/lov"
+  domain2ldfServer:
+    # values feed LDF client context.sources.value # see run_managed_query_ldf
+    'dbpedia.org': "http://fragments.dbpedia.org/2016-04/en"
+    'viaf.org': "http://data.linkeddatafragments.org/viaf"
+    'getty.edu': "http://data.linkeddatafragments.org/lov"
+    '*': "http://data.linkeddatafragments.org/lov"
     #'wikidata.org':
     #  source: "https://query.wikidata.org/bigdata/ldf"
     # TODO handle "wikidata.org"
 
-  make_name_query: (uri) ->
-    return """
-    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-    PREFIX schema: <http://schema.org/>
-    SELECT *
-    WHERE {
-      {
-        BIND (foaf:name as ?p) .
-        <#{uri}> ?p ?o .
-      } UNION {
-        BIND (rdfs:label as ?p) .
-        <#{uri}> ?p ?o .
-      } UNION {
-        BIND (schema:name as ?p) .
-        <#{uri}> ?p ?o .
-      }
-    }
-    LIMIT 100""" # "
+  default_name_query_args:
+    predicates: [RDFS_label, FOAF_name, SCHEMA_name]
+    limit: 20 # set to `false` for no limit
+
+  # ### make_name_query()
+  #
+  # Generate a name lookup query for `uri`.  If the optional `args` object
+  # has an optional `predicates` list then those predicates are specifically
+  # looked up.  The default predicates are provided by `default_name_query_args`.
+  #
+  # The default query looks like:
+  # ```sparql
+  # SELECT *
+  # WHERE {
+  #   {
+  #     BIND (foaf:name as ?p) .
+  #     <#{uri}> ?p ?o .
+  #   } UNION {
+  #     BIND (rdfs:label as ?p) .
+  #     <#{uri}> ?p ?o .
+  #   } UNION {
+  #     BIND (schema:name as ?p) .
+  #     <#{uri}> ?p ?o .
+  #   }
+  # }
+  # LIMIT 20```
+  make_name_query: (uri, in_args) ->
+    args = @compose_object_from_defaults_and_incoming(@default_name_query_args, in_args)
+    {predicates} = args
+    lines = [
+      "SELECT *",
+      "WHERE {"]
+    pred_num = 0
+    for pred in predicates
+      if pred_num
+        lines.push('  UNION')
+      pred_num++
+      lines.push("  {")
+      lines.push("    BIND (<#{pred}> as ?p) .")
+      lines.push("    <#{uri}> ?p ?o .")
+      lines.push("  }")
+    lines.push("}")
+    if args.limit
+      lines.push("LIMIT #{args.limit}")
+    return lines.join("\n")
 
   convert_N3_obj_to_GreenTurtle: (n3_obj_term) ->
     @greenturtleparser ?= new GreenerTurtle()
@@ -3580,112 +3658,145 @@ class Huviz
       console.error(e)
       retval =
         value: strip_surrounding_quotes(n3_obj_term)
-        type: 'Literal'
+        type: 'Literal' # TODO make this legit
     return retval
 
-  convert_bare_obj_to_GreenTurtle: (bare_term) =>
+  convert_str_obj_to_GreenTurtle: (bare_term) =>
     if bare_term[0] is '<'
       return @convert_N3_obj_to_GreenTurtle(bare_term)
     if bare_term.slice(-1)[0] isnt '"'
-      return @convert_N3_obj_to_GreenTurtle('"'+bare_term+'"')
-    msg = "bare_term: {#{bare_term}} not parseable by convert_bare_term_to_GreenTurtle"
-    #console.error(msg)
-    #console.error(bare_term.split())
+      if bare_term.startsWith('"')
+        if bare_term.includes('@')
+          return @convert_N3_obj_to_GreenTurtle(bare_term)
+        else
+          # fall through to report error
+      else
+        return @convert_N3_obj_to_GreenTurtle('"'+bare_term+'"')
+    msg = "bare_term: {#{bare_term}} not parseable by convert_str_term_to_GreenTurtle"
     throw new Error(msg)
 
   convert_N3_uri_to_string: (n3Uri) =>
     #console.warn("convert_N3_uri_to_string('#{n3Uri}')")
     return n3Uri
 
-  convert_bare_uri_to_string: (bareUri) =>
+  convert_str_uri_to_string: (bareUri) =>
     if bareUri.startsWith('<')
       bareUri =  bareUri.substr(1,bareUri.length-2)
-    #console.warn("convert_bare_uri_to_string('#{bareUri}')")
+    #console.warn("convert_str_uri_to_string('#{bareUri}')")
     return bareUri
 
-  name_result_handler: (result, queryManager) =>
-    if queryManager.args.from_N3
-      result.from_n3 = true
-      parseObj = @convert_N3_obj_to_GreenTurtle
-      parseUri = @convert_N3_uri_to_string
-    else
-      parseObj = @convert_bare_obj_to_GreenTurtle
-      parseUri = @convert_bare_uri_to_string
-    if (spo = true)
-      q =
-        s: parseUri(result['?s'] or queryManager.args.default_terms.s)
-        p: parseUri(result['?p'] or queryManager.args.default_terms.p)
-        o: parseObj(result['?o'])
-      try
-        @add_quad(q)
-      catch error
-        #@make_json_dialog(result, null, {title: error.toString()})
-        console.warn(result)
-        console.error(error)
+  convert_obj_obj_to_GreenTurtle: (jsObj) =>
+    # TODO convert the .type to a legit uri
+    if jsObj.type is 'uri'
+      jsObj.type = RDF_object
+    else if jsObj.type is 'literal'
+      jsObj.type = RDF_literal
+      if (lang = jsObj['xml:lang'])
+        delete jsObj['xml:lang']
+        jsObj.language = lang.toLowerCase() # REVIEW is lowercasing always right?
+    return jsObj
 
-  run_ldf_name_query: (uri, expansion, comment, server_config) ->
-    query = "# " + ( comment or "run_ldf_name_query(#{uri})") + "\n" +
-      @make_name_query(uri, expansion)
-    args =
+  convert_obj_uri_to_string: (jsObj) =>
+    # We are anticipating jsObj to have a .value
+    if jsObj.value?
+      return jsObj.value
+    if typeof jsObj isnt 'object'
+      return jsObj
+    throw new Error('expecting jsObj to have .value or be a literal')
+
+  name_result_handler: (result, queryManager) =>
+    terms = queryManager.args.query_terms or queryManager.args.default_terms
+    subj_term = result['?s'] or result['s'] or terms.s
+    pred_term = result['?p'] or result['p'] or terms.p
+    obj_term = result['?o'] or result['o'] or terms.o
+
+    # identify the result_type
+    if queryManager.args.from_N3
+      result_type = 'n3'
+    else if obj_term.value?
+      # TODO this LOOKS like GreenTurtle.  Is it a standard?
+      #    It differs in that the .type is ['url','literal'] rather than an uri
+      result_type = 'obj'
+    else
+      result_type = 'str'
+
+    # prepare parsers based on the result_type
+    switch result_type
+      when 'n3'
+        parseObj = @convert_N3_obj_to_GreenTurtle
+        parseUri = @convert_N3_uri_to_string
+      when 'obj'
+        parseObj = @convert_obj_obj_to_GreenTurtle
+        parseUri = @convert_obj_uri_to_string
+      when 'str' # TODO what should we call this?
+        parseObj = @convert_str_obj_to_GreenTurtle
+        parseUri = @convert_str_uri_to_string
+      else
+        console.error(result)
+        throw new Error('can not determine result_type')
+    try
+      q =
+        s: parseUri(subj_term)
+        p: parseUri(pred_term)
+        o: parseObj(obj_term)
+        g: terms.g
+      @add_quad(q)
+    catch error
+      #@make_json_dialog(result, null, {title: error.toString()})
+      console.warn(result)
+      console.error(error)
+    return
+
+  run_ldf_name_query: (args) ->
+    {namelessUri} = args
+    args.query = "# " +
+      ( args.comment or "run_ldf_name_query(#{namelessUri})") + "\n" +
+      @make_name_query(namelessUri)
+    defaults =
+      success_handler: @generic_name_success_handler
       result_handler: @name_result_handler
-      server_config: server_config or {}
       from_N3: true
       default_terms:
-        s: uri
+        s: namelessUri
         p: RDFS_label
-    @run_managed_query_ldf(query, uri, args)
+    args = @compose_object_from_defaults_and_incoming(defaults, args)
+    @run_managed_query_ldf(args)
 
-  run_managed_query_ldf: (qry, url, args) ->
-    args ?= {}
-    args.worker ?= 'comunica'
-    args.success_handler ?= noop
-    queryManager = @run_managed_query_abstract(qry, url, args)
-    {success_handler, error_callback, timeout, result_handler, server_config} = args
-    server_config ?= {}
-    server_config.source ?= "http://fragments.dbpedia.org/2016-04/en"
-    if args.worker is 'comunica'
-      ldf_worker = new Worker('/comunica-ldf-client/ldf-client-worker.min.js')
-      ldf_worker.postMessage
-        type: 'query'
-        query: qry
-        resultsToTree: false
-        context:
-          '@comunica/actor-http-memento:datetime': null
-          queryFormat: 'sparql'
-          sources: [
-            type: 'auto'
-            value: server_config.source
-            ]
+  run_managed_query_ldf: (args) ->
+    queryManager = @run_managed_query_abstract(args)
+    {success_handler, error_callback, timeout, result_handler, serverUrl, query} = args
+    serverUrl ?= "http://fragments.dbpedia.org/2016-04/en" # TODO what?
+    ldf_worker = new Worker('/comunica-ldf-client/ldf-client-worker.min.js')
+    ldf_worker.postMessage
+      type: 'query'
+      query: query
+      resultsToTree: false  # TODO experiment with this
+      context:
+        '@comunica/actor-http-memento:datetime': null
+        queryFormat: 'sparql'
+        sources: [
+          type: 'auto'
+          value: serverUrl
+          ]
 
-      ldf_worker.onmessage = (event) =>
-        queryManager.cancelAnimation()
-        d = event.data
-        {type, result} = d
-        switch type
-          when 'result'
-            queryManager.incrResultCount()
-            result_handler.call(this, result, queryManager)
-          when 'error'
-            queryManager.displayError(d)
-            queryManager.setErrorColor()
-          when 'end'
-            queryManager.finishCounting()
-          when 'queryInfo', 'log'
-            #console.log(type, event)
-          else
-            console.log("UNHANDLED", event)
-
-    # else
-    #   if args.worker is 'bundle'
-    #     ldf_worker = new Worker('/huviz/ldf_worker_bundle.js')
-    #   else
-    #     ldf_worker = new Worker('/js/ldf_worker.js')
-    #   ldf_worker.postMessage
-    #     fragmentsServerUri: 'http://fragments.dbpedia.org/2015/en'
-    #     query: qry
+    ldf_worker.onmessage = (event) =>
+      queryManager.cancelAnimation()
+      d = event.data
+      {type, result} = d
+      switch type
+        when 'result'
+          queryManager.incrResultCount()
+          result_handler.call(this, result, queryManager)
+        when 'error'
+          queryManager.fatalError(d)
+        when 'end'
+          queryManager.finishCounting()
+        when 'queryInfo', 'log'
+          #console.log(type, event)
+        else
+          console.log("UNHANDLED", event)
 
     return queryManager
-
 
   # ## Examples and Tests START
 
@@ -3751,7 +3862,11 @@ class Huviz
     #     - *_lid: a "local id" eg subj_lid='atwoma'
     #console.log "HuViz.add_quad()", quad
     subj_uri = quad.s
+    if not subj_uri?
+      throw new Error("quad.s is undefined")
     pred_uri = quad.p
+    if not pred_uri?
+      throw new Error("quad.p is undefined")
     ctxid = quad.g || @DEFAULT_CONTEXT
     subj_lid = uniquer(subj_uri)  # FIXME rename uniquer to make_dom_safe_id
     @object_value_types[quad.o.type] = 1
@@ -4286,25 +4401,28 @@ class Huviz
     #     console.log(url, errorThrown)
     #     console.log jqXHR.getAllResponseHeaders(data)
 
-  run_managed_query_abstract: (qry, url, args) ->
+  run_managed_query_abstract: (args) ->
     # Reference: https://www.w3.org/TR/sparql11-protocol/
     args ?= {}
     args.success_handler ?= noop
     args.error_callback ?= noop
     args.timeout ?= @get_sparql_timeout_msec()
 
-    queryManager = @log_query_with_timeout(qry, args.timeout)
+    queryManager = @log_query_with_timeout(args.query, args.timeout)
     queryManager.args = args
     return queryManager
 
-  run_managed_query_ajax: (qry, serverUrl, args) ->
-    queryManager = @run_managed_query_abstract(qry, serverUrl, args)
+  run_managed_query_ajax: (args) ->
+    {query, serverUrl} = args
+    queryManager = @run_managed_query_abstract(args)
     {success_handler, error_callback, timeout} = args
-    # These POST settings work for: CWRC, WWI open, on DBpedia, and Open U.K. but not on Bio Database
+    # These POST settings work for: CWRC, WWI open, on DBpedia, and Open U.K.
+    # but not on Bio Database
     more = "&timeout=" + timeout
+    # TODO This should be decrufted
     ajax_settings = { #TODO Currently this only works on CWRC Endpoint
       'method': 'GET'
-      'url': serverUrl + '?query=' + encodeURIComponent(qry) + more
+      'url': serverUrl + '?query=' + encodeURIComponent(query) + more
       'headers' :
         # This is only required for CWRC - not accepted by some Endpoints
         #'Content-Type': 'application/sparql-query'
@@ -4326,29 +4444,34 @@ class Huviz
       headers: ajax_settings.headers
       success: (data, textStatus, jqXHR) =>
         queryManager.cancelAnimation()
-        if success_handler?
-          try
-            success_handler(data, textStatus, jqXHR, queryManager)
-          catch e
-            queryManager.colorQuery('pink')
-            queryManager.displayError(e)
+        try
+          success_handler(data, textStatus, jqXHR, queryManager)
+        catch e
+          queryManager.fatalError(e)
       error: (jqxhr, textStatus, errorThrown) =>
-        queryManager.cancelAnimation()
-        queryManager.setErrorColor()
         if not errorThrown
           errorThrown = "Cross-Origin error"
         msg = errorThrown + " while fetching " + serverUrl
-        #@hide_state_msg()
         $('#'+@get_data_ontology_display_id()).remove()
-        queryManager.displayError(msg)
+        queryManager.fatalError(msg)
         if error_callback?
-          error_callback(jqxhr, textStatus, errorThrown)
+          error_callback(jqxhr, textStatus, errorThrown, queryManager)
 
     return queryManager
 
   run_managed_query_worker: (qry, serverUrl, args) ->
-    queryManager = @run_managed_query_abstract(qry, serverUrl, args)
+    args.query = qry
+    args.serverUrl = serverUrl
+    queryManager = @run_managed_query_abstract(args)
     return queryManager
+
+  sparql_graph_query_and_show__trigger: (url) =>
+    selectId = @endpoint_loader.select_id
+    @sparql_graph_query_and_show(url, selectId)
+    #console.log @dataset_loader
+    $("##{@dataset_loader.uniq_id}").children('select').prop('disabled', 'disabled')
+    $("##{@ontology_loader.uniq_id}").children('select').prop('disabled', 'disabled')
+    $("##{@script_loader.uniq_id}").children('select').prop('disabled', 'disabled')
 
   sparql_graph_query_and_show: (url, id, callback) =>
     qry = """
@@ -4361,17 +4484,19 @@ class Huviz
       }
       ORDER BY ?g
     """
-
+    #alert("sparql_graph_query_and_show() id: #{id}")
     # these are shared between success and error handlers
     spinner = $("#sparqlGraphSpinner-#{id}")
     spinner.css('display','block')
     graphSelector = "#sparqlGraphOptions-#{id}"
     $(graphSelector).parent().css('display', 'none')
     @sparqlQryInput_hide()
-
+    # LOAD button should be disabled while the search for graphs is happening
+    @disable_go_button()
     handle_graphsNotFound = () =>
       $(graphSelector).parent().css('display', 'none')
       @reset_endpoint_form(true)
+      @enable_go_button()
 
     make_success_handler = () =>
       return (data, textStatus, jqXHR, queryManager) =>
@@ -4398,6 +4523,7 @@ class Huviz
         $("#sparqlGraphOptions-#{id}").html(graph_options)
         $(graphSelector).parent().css('display', 'block')
         @reset_endpoint_form(true)
+        @disable_go_button() # disable until a graph or term is picked
 
     make_error_callback = () =>
       return (jqXHR, textStatus, errorThrown) =>
@@ -4410,7 +4536,9 @@ class Huviz
     args =
       success_handler: make_success_handler()
       error_callback: make_error_callback()
-    @sparql_graph_query_and_show_queryManager = @run_managed_query_ajax(qry, url, args)
+    args.query = qry
+    args.serverUrl = url
+    @sparql_graph_query_and_show_queryManager = @run_managed_query_ajax(args)
 
   sparqlQryInput_hide: ->
     @sparqlQryInput_JQElem.hide() #css('display', 'none')
@@ -4456,54 +4584,16 @@ class Huviz
         @dataset_loader.disable()
         @ontology_loader.disable()
         @replace_loader_display_for_endpoint(endpoint, @endpoint_loader.endpoint_graph)
-        disable = true
-        @update_go_button(disable)
+        @disable_go_button()
         @big_go_button.hide()
         @after_file_loaded('sparql', callback)
 
     args =
+      query: qry
+      serverUrl: url
       success_handler: make_success_handler()
-    @run_managed_query_ajax(qry, url, args)
+    @run_managed_query_ajax(args)
 
-  DEPRECATED_load_endpoint_data_and_show: (subject, callback) ->
-    @p_total_sprql_requests++
-    note = ''
-
-    # REMOVED STUFF THAT WAS THE SAME AS IN load_endpoint_data_and_show()
-
-    $.ajax
-      timeout: timeout
-      method: ajax_settings.method
-      url: ajax_settings.url
-      headers: ajax_settings.headers
-      success: (data, textStatus, jqXHR) =>
-        #console.log jqXHR
-        #console.log "Query: " + subject
-        note = subject
-        if @p_display then @performance_dashboard('sparql_request', note)
-        #console.log qry
-        json_check = typeof data
-        if json_check is 'string'
-          json_data = JSON.parse(data)
-        else
-          json_data = data
-        #console.log "Json Array Size: " + json_data.results.bindings.length
-        @add_nodes_from_SPARQL(json_data, subject)
-        @shelved_set.resort()
-        @tick("Tick in load_new_endpoint_data_and_show success callback")
-        @update_all_counts()
-        @endpoint_loader.outstanding_requests = @endpoint_loader.outstanding_requests - 1
-        #console.log "Finished request: count now " + @endpoint_loader.outstanding_requests
-      error: (jqxhr, textStatus, errorThrown) =>
-        console.log(url, errorThrown)
-        console.log jqXHR.getAllResponseHeaders(data)
-        if not errorThrown
-          errorThrown = "Cross-Origin error"
-        msg = errorThrown + " while fetching " + url
-        @hide_state_msg()
-        $('#'+@get_data_ontology_display_id()).remove()
-        @blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
-        @reset_dataset_ontology_loader()
 
   add_nodes_from_SPARQL: (json_data, subject, queryManager) ->
     data = ''
@@ -4618,13 +4708,14 @@ class Huviz
     worker.addEventListener 'message', (e) =>
       #console.log e.data
       if e.data.method_name is 'log_query'
-        queryManager = @run_managed_query_abstract("#SPARQL_Worker\n"+e.data.qry, url, queryManagerArgs)
+        queryManagerArgs.query = "#SPARQL_Worker\n"+e.data.qry
+        queryManagerArgs.serverUrl = url
+        queryManager = @run_managed_query_abstract(queryManagerArgs)
         #queryManager = @log_query_with_timeout(, timeout)
         return
       else if e.data.method_name isnt 'accept_results'
         error = new Error("expecting either data.method = 'log_query' or 'accept_results'")
-        queryManager.cancelAnimation()
-        queryManager.displayError(error)
+        queryManager.fatalError(error)
         throw error
       add_fully_loaded = e.data.fully_loaded_index
       for quad in e.data.results
@@ -4671,7 +4762,8 @@ class Huviz
         console.log("outstanding_requests: " + @endpoint_loader.outstanding_requests)
       else
         msg = "SPARQL requests capped at #{maxReq}"
-        @blurt(msg, 'alert')
+        #@blurt(msg, 'alert')
+        console.info(msg)
         # if $("#blurtbox").html()
         #   #console.log "Don't add error message " + message
         #   console.log "Request counter (over): " + @endpoint_loader.outstanding_requests
@@ -5800,8 +5892,10 @@ class Huviz
     defaults = preload_group.defaults or {}
     #console.log preload_group # THIS IS THE ITEMS IN A FILE (i.e. cwrc.json, generes.json)
     for ds_rec in preload_group.datasets
-      # If this preload_group has defaults apply them to the ds_rec if it is missing that value.
-      # We do not want to do ds_rec.__proto__ = defaults because then defaults are not ownProperty
+      # If this preload_group has defaults apply them to the ds_rec
+      # if it is missing that value.
+      # We do not want to do `ds_rec.__proto__ = defaults`
+      #  because then defaults are not ownProperty
       for k of defaults
         ds_rec[k] ?= defaults[k]
       @ensure_dataset(ds_rec, store_in_db)
@@ -5834,11 +5928,7 @@ class Huviz
     req = store.put(rsrcRec)
     req.onsuccess = (e) =>
       if rsrcRec.isEndpoint
-        @sparql_graph_query_and_show(e.srcElement.result, @endpoint_loader.select_id)
-        #console.log @dataset_loader
-        $("##{@dataset_loader.uniq_id}").children('select').prop('disabled', 'disabled')
-        $("##{@ontology_loader.uniq_id}").children('select').prop('disabled', 'disabled')
-        $("##{@script_loader.uniq_id}").children('select').prop('disabled', 'disabled')
+        @sparql_graph_query_and_show__trigger(e.srcElement.result)
       if rsrcRec.uri isnt e.target.result
         console.debug("rsrcRec.uri (#{rsrcRec.uri}) is expected to equal", e.target.result)
       callback(rsrcRec)
@@ -5961,12 +6051,12 @@ class Huviz
     console.groupEnd() # closing group called "preload_datasets"
 
   preload_endpoints: ->
-    console.log @args.preload_endpoints
+    console.log(@args.preload_endpoints)
     console.groupCollapsed("preload_endpoints")
     ####
     if @args.preload_endpoints
       for preload_group_or_uri in @args.preload_endpoints
-        console.log preload_group_or_uri
+        console.log(preload_group_or_uri)
         if typeof(preload_group_or_uri) is 'string' # the URL of a preload_group JSON
           #$.getJSON(preload_group_or_uri, null, @ensure_datasets_from_XHR)
           $.ajax
@@ -6036,8 +6126,8 @@ class Huviz
       @big_go_button = $('<button class="big_go_button">LOAD</button>')
       @big_go_button.attr('id', @big_go_button_id)
       $(@get_or_create_sel_for_picker()).append(@big_go_button)
-      @big_go_button.click(@visualize_dataset_using_ontology)
-      @big_go_button.prop('disabled', true)
+      @big_go_button.click(@big_go_button_onclick)
+      @disable_go_button()
     if @ontology_loader or @dataset_loader or @script_loader and not @big_go_button
       ontology_selector = "##{@ontology_loader.select_id}"
       $(ontology_selector).change(@update_dataset_forms)
@@ -6051,7 +6141,120 @@ class Huviz
 
     #@preload_endpoints()
     # TODO remove this nullification of @last_val by fixing logic in select_option()
-    @ontology_loader?last_val = null # clear the last_val so select_option works the first time
+    # clear the last_val so select_option works the first time
+    @ontology_loader?last_val = null
+
+  big_go_button_onclick: (event) =>
+    if @using_sparql()
+      return @big_go_button_onclick_sparql(event)
+    @visualize_dataset_using_ontology()
+    return
+
+  big_go_button_onclick_sparql: (event) ->
+    if @allGraphsChosen()
+      if (foundUri = @endpoint_labels_JQElem.val())
+        @visualize_dataset_using_ontology()
+        return
+      colorlog("IGNORING. The LOAD button should not even be clickable right now")
+      return
+    if (endpoint_label_uri = @endpoint_labels_JQElem.val())
+      @visualize_dataset_using_ontology()
+      return
+    if (graphUri = @sparqlGraphSelector_JQElem.val())
+      @displayTheChosenGraph(graphUri)
+      return
+    colorlog("IGNORING.  Neither graph nor endpoint_label is chosen.")
+    return
+
+  displayTheChosenGraph: (graphUri) ->
+    #alert("stub for displayTheChosenGraph('#{graphUri}')")
+    args =
+      success_handler: @display_graph_success_handler
+      result_handler: @name_result_handler
+      query_terms:
+        g: graphUri
+    # respect the limit provided by the user
+    if (limit = @endpoint_limit_JQElem.val())
+      args.limit = limit
+    args.query = @make_generic_query(args)
+    @run_generic_query(args)
+    return
+
+  # ## make_generic_query()
+  #
+  # The default query looks like:
+  # ```sparql
+  # SELECT *
+  # FROM <query_terms.g> # only present if query_terms.g provided
+  # WHERE {
+  #   <query_terms.s> ?p ?o .
+  # }
+  # LIMIT 20 # the value of args.limit, if present
+  # ```
+  make_generic_query: (in_args) ->
+    args = @compose_object_from_defaults_and_incoming(@default_name_query_args, in_args)
+    terms = args.query_terms or {}
+    lines = ["SELECT *"]
+    if terms.g?
+      lines.push("FROM <#{terms.g}>")
+    lines.push("WHERE {")
+    pattern = "  "
+    for term in 'spo'.split('')
+      val = terms[term]
+      if val?
+        pattern += "<#{val}> "
+      else
+        pattern += "?#{term} "
+    pattern += "."
+    lines.push(pattern)
+    lines.push("}")
+    if args.limit
+      lines.push("LIMIT #{args.limit}")
+    return lines.join("\n")
+
+  run_generic_query: (args) ->
+    serverSpec = @get_server_for_dataset(args.query_terms.g)
+    {serverType, serverUrl} = serverSpec
+    args.serverUrl = serverUrl
+    args.serverType = serverType
+    switch serverType
+      when 'ldf'
+        @run_managed_query_ldf(args)
+      when 'sparql'
+        @run_managed_query_ajax(args)
+      else
+        throw new Error("don't know how to handle serverType: '#{serverType}'")
+    return
+
+  domain2sparqlEndpoint:
+    'cwrc.ca': 'http://sparql.cwrc.ca/sparql'
+    'getty.edu': 'http://vocab.getty.edu/sparql.tsv'
+    'openstreetmap.org': 'https://sophox.org/sparql'
+
+  get_server_for_dataset: (datasetUri) ->
+    aUrl = new URL(datasetUri)
+    {domain} = aUrl
+    # Deal with the situation where the datasetUri sought is served
+    # by the server the user has chosen.
+    if @using_sparql() and @sparqlGraphSelector_JQElem.val() is datasetUri
+      serverType = 'sparql'
+      serverUrl = @endpoint_loader.value
+    # Otherwise, consult built-in hard-coded mappings from datasets to
+    # the servers they are available at.  First we look for matches
+    # based on the domain sought.
+    else if (serverUrl = @domain2sparqlEndpoint[domain])
+      serverType = 'sparql'
+    else if (serverUrl = @domain2sparqlEndpoint[domain])
+      serverType = 'ldf'
+    # Then try to find wildcard servers '*', if available.
+    # Give precedence to sparql over ldf.
+    else if (serverUrl = @domain2sparqlEndpoint['*'])
+      serverType = 'sparql'
+    else if (serverUrl = @domain2ldfServer['*'])
+      serverType = 'ldf'
+    else
+      throw new Error("a server could not be found for #{datasetUri}")
+    return {serverType, serverUrl}
 
   update_dataset_forms: (e) =>
     ont_val = $("##{@ontology_loader.select_id}").val()
@@ -6073,6 +6276,9 @@ class Huviz
     if endpoint_label_uri
       data = dataset or @endpoint_loader
       @load_endpoint_data_and_show(endpoint_label_uri)
+      # TODO ensure disable_dataset_ontology_loader() is only called once
+      console.warn("disable_dataset_ontology_loader() SHOULD BE CALLED ONLY ONCE")
+      @disable_dataset_ontology_loader_AUTOMATICALLY()
       @update_browser_title(data)
       @update_caption(data.value, data.endpoint_graph)
       return
@@ -6120,14 +6326,31 @@ class Huviz
       @gclui.ignore_predicate(pred_id)
     for pid in @predicates_to_ignore
       @gclui.ignore_predicate(pid)
+    return
 
-  disable_dataset_ontology_loader: (data, onto) ->
-    @replace_loader_display(data, onto)
-    disable = true
-    @update_go_button(disable)
+  disable_dataset_ontology_loader_AUTOMATICALLY: ->
+    # TODO to be AUTOMATIC(!!) handle dataset, ontology and script too
+    # TODO this should add graph, item and limit only if needed
+    endpoint =
+      value: @endpoint_loader.value
+      label: @endpoint_loader.value # TODO get pretty label (or not?)
+      limit: @endpoint_limit_JQElem.val()
+      graph:
+        value: @sparqlGraphSelector_JQElem.val()
+        label: @sparqlGraphSelector_JQElem.val() # TODO get pretty label (or not?)
+      item:
+        value: @endpoint_labels_JQElem.val()
+        label: @endpoint_labels_JQElem.val() # TODO get pretty label (or not?)
+    @disable_dataset_ontology_loader(null, null, endpoint)
+    return
+
+  disable_dataset_ontology_loader: (data, onto, endpoint) ->
+    @replace_loader_display(data, onto, endpoint)
+    @disable_go_button()
     @dataset_loader.disable()
     @ontology_loader.disable()
     @big_go_button.hide()
+    return
 
   reset_dataset_ontology_loader: ->
     $('#'+@get_data_ontology_display_id()).remove()
@@ -6137,14 +6360,16 @@ class Huviz
     @big_go_button.show()
     $("##{@dataset_loader.select_id} option[label='Pick or Provide...']").prop('selected', true)
     @gclui_JQElem.removeAttr("style","display:none")
+    return
 
   update_dataset_ontology_loader: =>
-    if not (@dataset_loader? and @ontology_loader?  and @endpoint_loader? and @script_loader?)
+    if not (@dataset_loader? and @ontology_loader? and
+            @endpoint_loader? and @script_loader?)
       console.log("still building loaders...")
       return
     @set_ontology_from_dataset_if_possible()
     ugb = () =>
-      @update_go_button()
+      @update_go_button() # TODO confirm that this should be disable_go_button
     setTimeout(ugb, 200)
 
   update_endpoint_form: (e) =>
@@ -6170,11 +6395,19 @@ class Huviz
     spinner = $("#sparqlGraphSpinner-#{@endpoint_loader.select_id}")
     spinner.css('display','none')
     @endpoint_labels_JQElem.prop('disabled', false).val("")
-    @endpoint_limit_JQElem.prop('disabled', false).val("100")
+    @endpoint_limit_JQElem.prop('disabled', false).val(@sparql_query_default_limit)
     if show
       @sparqlQryInput_show()
     else
       @sparqlQryInput_hide()
+
+  disable_go_button: =>
+    @update_go_button((disable = true))
+    return
+
+  enable_go_button: =>
+    @update_go_button((disable = false))
+    return
 
   update_go_button: (disable) ->
     if not disable?
@@ -6194,9 +6427,18 @@ class Huviz
   get_reload_uri: ->
     return @reload_uri or new URL(window.location)
 
-  generate_reload_uri: (dataset, ontology) ->
-    @reload_uri =     uri = new URL(location)
-    uri.hash = "load+#{dataset.value}+with+#{ontology.value}"
+  generate_reload_uri: (dataset, ontology, endpoint) ->
+    @reload_uri = uri = new URL(document.location)
+    if dataset and ontology
+      uri.hash = "load+#{dataset.value}+with+#{ontology.value}"
+    else if endpoint
+      uri.hash = "query+"+encodeURIComponent(endpoint.value)
+      if endpoint.graph and endpoint.graph.value
+        uri.hash += "+from+"+encodeURIComponent(endpoint.graph.value)
+      if endpoint.item and endpoint.item.value
+        uri.hash += "+seeking+"+encodeURIComponent(endpoint.item.value)
+      if endpoint.limit
+        uri.hash += "+limit+"+encodeURIComponent(endpoint.limit)
     return uri
 
   get_data_ontology_display_id: ->
@@ -6206,25 +6448,68 @@ class Huviz
   hide_pickers: ->
     $(@pickersSel).attr("style","display:none")
 
-  replace_loader_display: (dataset, ontology) ->
-    @generate_reload_uri(dataset, ontology)
-    uri = @get_reload_uri()
+  replace_loader_display: (dataset, ontology, endpoint) ->
+    @generate_reload_uri(dataset, ontology, endpoint)
     @hide_pickers()
-    data_ontol_display = """
-    <div id="#{@get_data_ontology_display_id()}" class="data_ontology_display">
-      <p><span class="dt_label">Dataset:</span> #{dataset.label}</p>
-      <p><span class="dt_label">Ontology:</span> #{ontology.label}</p>
+    vis_src_args =
+      uri: @get_reload_uri()
+      dataset: dataset
+      ontology: ontology
+      endpoint: endpoint
+      script: "TODO include script stuff here"
+    @render_visualization_source_display(vis_src_args)
+    return
+
+  render_visualization_source_display: (vis_src_args) ->
+    {dataset, ontology, endpoint, script, uri} = vis_src_args
+    if dataset and ontology
+      add_reload_button = true
+      source_html = """
+        <p><span class="dt_label">Dataset:</span> #{dataset.label}</p>
+        <p><span class="dt_label">Ontology:</span> #{ontology.label}</p>
+        """
+    else if endpoint
+      add_reload_button = true
+      source_html = """
+        <p><span class="dt_label">Endpoint:</span> #{endpoint.label}</p>
+      """
+      if endpoint.graph
+        source_html += """
+        <p><span class="dt_label">Graph:</span> #{endpoint.graph.label}</p>
+      """
+      if endpoint.item
+        source_html += """
+        <p><span class="dt_label">Item:</span> #{endpoint.item.label}</p>
+      """
+      if endpoint.limit
+        source_html += """
+        <p><span class="dt_label">Limit:</span> #{endpoint.limit}</p>
+      """
+    else if script
+      source_html = """
+        <p><span class="dt_label">Script:</span> #{script}</p>
+      """
+    else
+      source_html = """
+        <p><span class="dt_label">Source:</span>TBD</p>
+      """
+    reload_html = """
       <p>
         <button title="Reload this data"
            onclick="location.replace('#{uri}');location.reload()"><i class="fas fa-redo"></i></button>
         <button title="Clear the graph and start over"
            onclick="location.assign(location.origin)"><i class="fas fa-times"></i></button>
       </p>
+    """
+    visualization_source_display = """
+    <div id="#{@get_data_ontology_display_id()}" class="data_ontology_display">
+      #{source_html}
+      #{add_reload_button and reload_html or ''}
       <br style="clear:both">
     </div>""" # """ the extra set of triple double quotes is for emacs coffescript mode
     sel = @oldToUniqueTabSel['huvis_controls']
     controls = document.querySelector(sel)
-    controls.insertAdjacentHTML('afterbegin', data_ontol_display)
+    controls.insertAdjacentHTML('afterbegin', visualization_source_display)
     return
 
   replace_loader_display_for_endpoint: (endpoint, graph) ->
@@ -6245,7 +6530,10 @@ class Huviz
 
   update_browser_title: (dataset) ->
     if dataset.value
-      document.title = dataset.label + " - Huvis Graph Visualization"
+      @set_browser_title(dataset.label)
+
+  set_browser_title: (label) ->
+    document.title = label + " - Huvis Graph Visualization"
 
   make_git_link: ->
     base = @args.git_base_url
@@ -6292,11 +6580,13 @@ class Huviz
     return
 
   set_dataset_with_uri: (uri) ->
+    # TODO use PickOrProvide.select_by_uri() as in query_from_seeking_limit()
     topSel = @args.huviz_top_sel
     option = $(topSel + ' option[value="' + uri + '"]')
     @dataset_loader.select_option(option)
 
   set_ontology_with_uri: (ontologyUri) ->
+    # TODO use PickOrProvide.select_by_uri() as in query_from_seeking_limit()
     topSel = @args.huviz_top_sel
     ontology_option = $(topSel + ' option[value="' + ontologyUri + '"]')
     @ontology_loader.select_option(ontology_option)
@@ -6307,10 +6597,11 @@ class Huviz
     @sparqlQryInput_selector = "#" + sparqlQryInput_id
     endpoint_limit_id = unique_id('endpoint_limit_')
     endpoint_labels_id = unique_id('endpoint_labels_')
+    sparqlGraphSelectorId = "sparqlGraphOptions-#{@endpoint_loader.select_id}"
     select_box = """
       <div class="ui-widget" style="display:none;margin-top:5px;margin-left:10px;">
         <label>Graphs: </label>
-        <select id="sparqlGraphOptions-#{@endpoint_loader.select_id}">
+        <select id="#{sparqlGraphSelectorId}">
         </select>
       </div>
       <div id="sparqlGraphSpinner-#{@endpoint_loader.select_id}"
@@ -6323,7 +6614,7 @@ class Huviz
         <input id="#{endpoint_labels_id}">
         <i class="fas fa-spinner fa-spin" style="visibility:hidden;margin-left: 5px;"></i>
         <div><label for="#{endpoint_limit_id}">Node Limit: </label>
-        <input id="#{endpoint_limit_id}" value="100">
+        <input id="#{endpoint_limit_id}" value="#{@sparql_query_default_limit}">
         </div>
       </div>
     """ # """
@@ -6331,6 +6622,8 @@ class Huviz
     @sparqlQryInput_JQElem = $(@sparqlQryInput_selector)
     @endpoint_labels_JQElem = $('#'+endpoint_labels_id)
     @endpoint_limit_JQElem = $('#'+endpoint_limit_id)
+    @sparqlGraphSelector_JQElem = $('#'+sparqlGraphSelectorId)
+    @sparqlGraphSelector_JQElem.change(@sparqlGraphSelector_onchange)
     fromGraph =''
     @endpoint_labels_JQElem.on('input', @animate_endpoint_label_typing)
     @endpoint_labels_JQElem.autocomplete
@@ -6338,6 +6631,47 @@ class Huviz
       delay: 500
       position: {collision: "flip"}
       source: @search_sparql_by_label
+    @endpoint_labels_JQElem.on('autocompleteselect', @endpoint_labels__autocompleteselect)
+    @endpoint_labels_JQElem.on('change', @endpoint_labels__update)
+    @endpoint_labels_JQElem.focusout(@endpoint_labels__focusout)
+
+  # Called when the user selects an endpoint_labels autosuggestion
+  endpoint_labels__autocompleteselect: (event) =>
+    # Hopefully having this handler engaged will not interfere with the autocomplete.
+    @enable_go_button()
+    return true
+
+  endpoint_labels__update: (event) =>
+    # If the endpoint_labels field is left blank then permit LOAD of graph
+    if not @endpoint_labels_JQElem.val().length
+      @enable_go_button()
+    return true
+
+  endpoint_labels__focusout: (event) =>
+    # If endpoint_labels has content WITHOUT autocompleteselect then disable LOAD
+    if not @endpoint_labels_JQElem.val().length
+      @enable_go_button()
+    return true
+
+  allGraphsChosen: ->
+    # REVIEW what about the case where there were no graphs?
+    try
+      return @sparqlGraphSelector_JQElem.val() is @endpoint_loader.value
+    catch error
+      # REVIEW big handwave here! Assuming an error means something is missing
+      return false
+
+  # When a Graph is selected, we offer the LOAD button for full graph loading.
+  sparqlGraphSelector_onchange: (event) =>
+    if @allGraphsChosen()
+      # Apparently, 'All Graphs' was chosen.
+      # Disable the LOAD button because loading all data on a server is madness.
+      @disable_go_button()
+    else
+      # Some particular graph was apparently chosen.
+      # We enable the LOAD button so the whole graph may be loaded.
+      @enable_go_button()
+    return
 
   animate_endpoint_label_typing: =>
     # Called every time the user types a character to animate the countdown to sending a query
@@ -6419,6 +6753,7 @@ class Huviz
     return
 
   euthanize_search_sparql_by_label: ->
+    @disable_go_button()
     if @search_sparql_by_label_queryManager?
       @kill_endpoint_label_search_anim()
       @search_sparql_by_label_queryManager.kill()
@@ -6493,10 +6828,12 @@ class Huviz
         @stop_graphs_selector_spinner()
 
     args =
+      query: qry
+      serverUrl: url
       success_handler: make_success_handler()
       error_callback: make_error_callback()
 
-    @search_sparql_by_label_queryManager = @run_managed_query_ajax(qry, url, args)
+    @search_sparql_by_label_queryManager = @run_managed_query_ajax(args)
 
   init_editc_or_not: ->
     @editui ?= new EditController(@)
@@ -7703,6 +8040,19 @@ class Huviz
           step: 1
           type: "range"
     ,
+      sparql_query_default_limit:
+        group: "SPARQL"
+        class: "alpha_feature"
+        text: "Default Node Limit"
+        label:
+          title: "Default value for the 'Node Limit'"
+        input:
+          value: 200
+          min: 1
+          max: 1000
+          step: 10
+          type: "range"
+    ,
       debug_shelf_angles_and_flipping:
         group: "Debugging"
         class: "alpha_feature"
@@ -8213,8 +8563,6 @@ class Huviz
       #@disable_data_set_selector()
       @disable_dataset_ontology_loader(data, onto)
     @show_state_msg("loading...")
-    #@init_from_settings() # REVIEW remove init_from_settings?!?
-    #@reset_graph()
     @show_state_msg(@data_uri)
     unless @G.subjects
       @fetchAndShow(@data_uri, callback)
@@ -8330,6 +8678,33 @@ class Huviz
       value: ontology_uris[0]
     @visualize_dataset_using_ontology({}, dataset, [ontology])
     return
+
+  endpoint_loader_is_quiet: ->
+    # TODO Replace with a Promise-based way to ensure the loader is ready.
+    # TODO Build it into PickOrProvide and use it in @load_with() too.
+    return @endpoint_loader? and @endpoint_loader.is_quiet(500)
+
+  query_from_seeking_limit: (querySpec) ->
+    {serverUrl, graphUrl, limit, subjectUrl} = querySpec
+    if not @endpoint_loader_is_quiet()
+      setTimeout((() => @query_from_seeking_limit(querySpec)), 50)
+      #throw new Error("endpoint_loader not ready")
+      return
+    @goto_tab(1)
+    if serverUrl?
+      @endpoint_loader.select_by_uri(serverUrl)
+      @sparql_graph_query_and_show__trigger(serverUrl)
+      finish_prep = () =>
+        if graphUrl?
+          @sparqlQryInput_show()
+          @sparqlGraphSelector_JQElem.val(graphUrl)
+        if limit?
+          @endpoint_limit_JQElem.val(limit)
+        if subjectUrl?
+          @endpoint_labels_JQElem.val(subjectUrl)
+        @big_go_button_onclick_sparql()
+      @sparql_graph_query_and_show_queryManager.when_done(finish_prep)
+    console.warn("query_WIP")
 
   # TODO: remove now that @get_or_create_node_by_id() sets type and name
   is_ready: (node) ->
@@ -8793,7 +9168,25 @@ class PickOrProvide
     @add_group({label: "Your Own", id: @your_own_uid}, 'append')
     @add_option({label: "Provide New #{@label} ...", value: 'provide'}, @select_id)
     @add_option({label: "Pick or Provide...", canDelete: false}, @select_id, 'prepend')
-    @
+    @update_change_stamp()
+    return this
+
+  update_change_stamp: ->
+    @change_stamp = performance.now()
+
+  is_quiet: (msec) ->
+    msec ?= 200
+    if @change_stamp?
+      if (performance.now() - @change_stamp) > msec
+        return true
+    return false
+
+  select_by_uri: (targetUri) ->
+    option = $('#' + @select_id + ' option[value="' + targetUri + '"]')
+    if option.length isnt 1
+      throw new Error("#{targetUri} was not found")
+    @select_option(option)
+    return
 
   val: (val) ->
     console.log(this.constructor.name + '.val(' + (val and '"'+val+'"' or '') + ') for ' + this.opts.rsrcType + ' was ' + @pick_or_provide_select.val())
@@ -8845,6 +9238,7 @@ class PickOrProvide
     rsrcRec.rsrcType ?= @opts.rsrcType
     # rsrcRec.data ?= file_rec.data # we cannot add data because for uri we load each time
     @add_resource(rsrcRec, true)
+    @update_change_stamp()
     @update_state()
 
   add_local_file: (file_rec) =>
