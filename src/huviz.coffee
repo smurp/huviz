@@ -1452,13 +1452,23 @@ class Huviz
     @discard_radius * 1.1 > dist
 
   init_sets: ->
-    #  states: graphed,shelved,discarded,hidden,embryonic
-    #  embryonic: incomplete, not ready to be used
-    #  graphed: in the graph, connected to other nodes
-    #	 shelved: on the shelf, available for choosing
-    #	 discarded: in the discard zone, findable but ignored by show_links_*
-    #	 hidden: findable, but not displayed anywhere
-    #              	 (when found, will become shelved)
+    # #### states are mutually exclusive
+    #
+    #  * graphed: in the graph, connected to other nodes
+    #  * shelved: on the shelf, available for choosing
+    #  * discarded: in the discard zone, findable but ignored by show_links_*
+    #  * hidden: findable, but not displayed anywhere (when found, will become shelved)
+    #  * embryonic: incomplete, not ready to be used
+    #
+    # #### flags able to co-exist
+    #
+    # * chosen: (aka Activated) these nodes are graphed and pull other nodes into
+    #   the graph with them
+    # * selected: the predicates of the edges terminating at these nodes populate the
+    #   _predicate picker_ with the label **Edges of the Selected Nodes**
+    # * pinned: in the graph and at fixed positions
+    # * labelled: these nodes have their name (or id) showing all the time
+    # * nameless: these nodes do not have names which are distinct from their urls
 
     @nodes = SortedSet().named('all').
       sort_on("id").
@@ -8656,7 +8666,7 @@ class Huviz
           @endpoint_labels_JQElem.val(subjectUrl)
         @big_go_button_onclick_sparql()
       @sparql_graph_query_and_show_queryManager.when_done(finish_prep)
-    console.warn("query_WIP")
+    return
 
   # TODO: remove now that @get_or_create_node_by_id() sets type and name
   is_ready: (node) ->
