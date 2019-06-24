@@ -1416,9 +1416,6 @@ class Huviz
       @draw_triangle(pnt_x, pnt_y, arrow_color, xo1, yo1, xo2, yo2)
 
   draw_self_edge_circle: (cx, cy, strclr, length, line_width, e, arw_angle) ->
-    #console.log "#{strclr} #{length} #{line_width}"
-    #console.log e
-    #console.log @calc_node_radius(e.source)
     node_radius = @calc_node_radius(e.source)
     arw_radius = node_radius * 5
     #if (arw_radius > 75) then arw_radius = 75
@@ -1427,7 +1424,7 @@ class Huviz
     cx2 = cx + x_offset
     cy2 = cy + y_offset
     strclr = e.color
-    filclr = false #"pink"
+    filclr = false
     start_angle = 0
     end_angle = 0
     special_focus = false
@@ -1436,7 +1433,6 @@ class Huviz
     x_arrow_offset = Math.cos(arw_angle) * @calc_node_radius(e.source)
     y_arrow_offset = Math.sin(arw_angle) * @calc_node_radius(e.source)
 
-
     a_l = 8 # arrow length
     a_w = 2 # arrow width
     arr_side = Math.sqrt(a_l * a_l + a_w * a_w)
@@ -1444,13 +1440,11 @@ class Huviz
     arrow_color = e.color
     node_radius = @calc_node_radius(e.source)
 
-    #arw_angl = Math.atan((yctrl - y2)/(xctrl - x2))
-    arw_angl = arw_angle + 1 # 1 works well for small nodes, but gets increasingly out of target with larger - why?
+    arw_angl = arw_angle + 1
     x2 = cx
     y2 = cy
 
     hd_angl = Math.tan(a_w/a_l) # Adjusts the arrow shape
-    #if (xctrl < x2) then flip = -1 else flip = 1 # Flip sign depending on angle
     flip = 1
 
     arw_angl = arw_angle + 1.45
@@ -1466,8 +1460,10 @@ class Huviz
     xo2 = pnt_x + flip * arr_side * Math.cos(arw_angl - hd_angl - arrow_adjust)
     yo2 = pnt_y + flip * arr_side * Math.sin(arw_angl - hd_angl - arrow_adjust)
     @draw_triangle(pnt_x, pnt_y, arrow_color, xo1, yo1, xo2, yo2)
-
-
+    e.handle =
+      x: cx2 + x_offset
+      y: cy2 + y_offset
+    @draw_circle(e.handle.x, e.handle.y, (line_width/2), arrow_color)
 
   draw_disconnect_dropzone: ->
     @ctx.save()
@@ -2742,6 +2738,7 @@ class Huviz
     #ctx.fillStyle = '#666' #@shadow_color
     #ctx.fillText " " + label, edge.handle.x + @edge_x_offset + @shadow_offset, edge.handle.y + @shadow_offset
     ctx.fillStyle = edge.color
+    console.log edge
     ctx.fillText(" " + label, edge.handle.x + @edge_x_offset, edge.handle.y)
 
   update_snippet: ->
