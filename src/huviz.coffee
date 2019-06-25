@@ -1258,8 +1258,8 @@ class Huviz
     if filclr
       @ctx.fillStyle = filclr or "blue"
     @ctx.beginPath()
-    if incl_cntr
-      @ctx.moveTo(cx, cy) # so the arcs are wedges not chords
+    #if incl_cntr
+      #@ctx.moveTo(cx, cy) # so the arcs are wedges not chords
       # do not incl_cntr when drawing a whole circle
     @ctx.arc(cx, cy, radius, start_angle, end_angle, true)
     @ctx.closePath()
@@ -1415,18 +1415,55 @@ class Huviz
       yo2 = pnt_y + flip * arr_side * Math.sin(arw_angl - hd_angl)
       @draw_triangle(pnt_x, pnt_y, arrow_color, xo1, yo1, xo2, yo2)
 
-  draw_self_edge_circle: (cx, cy, strclr, length, line_width, e) ->
-    console.log "#{strclr} #{length} #{line_width}"
-    console.log e
-    cx = cx - 5
-    cy = cy - 5
-    radius = 20
-    strclr = "black"
-    filclr = false #"pink"
+  draw_self_edge_circle: (cx, cy, strclr, length, line_width, e, arw_angle) ->
+    node_radius = @calc_node_radius(e.source)
+    arw_radius = node_radius * 5
+    #if (arw_radius > 75) then arw_radius = 75
+    x_offset =  Math.cos(arw_angle) * arw_radius
+    y_offset = Math.sin(arw_angle) * arw_radius
+    cx2 = cx + x_offset
+    cy2 = cy + y_offset
+    strclr = e.color
+    filclr = false
     start_angle = 0
-    end_angle = false
+    end_angle = 0
     special_focus = false
-    @draw_circle(cx, cy, radius, strclr, filclr, start_angle, end_angle, special_focus)
+    @draw_circle(cx2, cy2, arw_radius, strclr, filclr, start_angle, end_angle, special_focus)
+
+    x_arrow_offset = Math.cos(arw_angle) * @calc_node_radius(e.source)
+    y_arrow_offset = Math.sin(arw_angle) * @calc_node_radius(e.source)
+
+    a_l = 8 # arrow length
+    a_w = 2 # arrow width
+    arr_side = Math.sqrt(a_l * a_l + a_w * a_w)
+
+    arrow_color = e.color
+    node_radius = @calc_node_radius(e.source)
+
+    arw_angl = arw_angle + 1
+    x2 = cx
+    y2 = cy
+
+    hd_angl = Math.tan(a_w/a_l) # Adjusts the arrow shape
+    flip = 1
+
+    arw_angl = arw_angle + 1.45
+    arrow_adjust = Math.atan(a_l/arw_radius)
+
+    pnt_x =  x2 + flip * node_radius * Math.cos(arw_angl)
+    pnt_y =  y2 + flip * node_radius * Math.sin(arw_angl)
+
+    arrow_base_x = x2 + flip * (node_radius + a_l) * Math.cos(arw_angl)
+    arrow_base_y = y2 + flip * (node_radius + a_l) * Math.sin(arw_angl)
+    xo1 = pnt_x + flip * arr_side * Math.cos(arw_angl + hd_angl - arrow_adjust)
+    yo1 = pnt_y + flip * arr_side * Math.sin(arw_angl + hd_angl - arrow_adjust)
+    xo2 = pnt_x + flip * arr_side * Math.cos(arw_angl - hd_angl - arrow_adjust)
+    yo2 = pnt_y + flip * arr_side * Math.sin(arw_angl - hd_angl - arrow_adjust)
+    @draw_triangle(pnt_x, pnt_y, arrow_color, xo1, yo1, xo2, yo2)
+    e.handle =
+      x: cx2 + x_offset
+      y: cy2 + y_offset
+    @draw_circle(e.handle.x, e.handle.y, (line_width/2), arrow_color)
 
   draw_disconnect_dropzone: ->
     @ctx.save()
@@ -2113,7 +2150,14 @@ class Huviz
         line_width = line_width + (@line_edge_weight * e.contexts.length)
         #@show_message_once("will draw line() n_n:#{n_n} e.id:#{e.id}")
         if (e.source.fisheye.x == e.target.fisheye.x) and (e.source.fisheye.y == e.target.fisheye.y)
-          @draw_self_edge_circle(e.source.fisheye.x, e.source.fisheye.y, e.color, e.contexts.length, line_width, e)
+          x2 = @width/2 # Find centre of draw area
+          y2 = @height/2
+          #arw_angle = Math.atan((e.source.fisheye.y - y2)/(e.source.fisheye.x - x2)) # find angle between node center and draw area center
+          arw_angle = Math.atan((e.source.fisheye.y - y2)/(e.source.fisheye.x - x2))
+          #console.log arw_angle
+          #console.log (e.source.fisheye.y - y2)/(e.source.fisheye.x - x2)
+          if (x2 > e.source.fisheye.x) then arw_angle = arw_angle + 3
+          @draw_self_edge_circle(e.source.fisheye.x, e.source.fisheye.y, e.color, e.contexts.length, line_width, e, arw_angle)
         else
           @draw_curvedline(e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x,
                            e.target.fisheye.y, sway, e.color, e.contexts.length, line_width, e)
@@ -2704,6 +2748,7 @@ class Huviz
     #ctx.fillStyle = '#666' #@shadow_color
     #ctx.fillText " " + label, edge.handle.x + @edge_x_offset + @shadow_offset, edge.handle.y + @shadow_offset
     ctx.fillStyle = edge.color
+    console.log edge
     ctx.fillText(" " + label, edge.handle.x + @edge_x_offset, edge.handle.y)
 
   update_snippet: ->
