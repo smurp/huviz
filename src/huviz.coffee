@@ -726,7 +726,6 @@ class Huviz
     $(elem.currentTarget).parent().append(elem.currentTarget)
 
   destroy_dialog: (e) ->
-    console.log "destroy_dialog"
     box = e.currentTarget.offsetParent
     $(box).remove()
 
@@ -927,7 +926,7 @@ class Huviz
     if @dragging
         @force.resume() # why?
         if not @args.skip_log_tick
-          console.log "Tick in @force.resume() mousemove"
+          console.log("Tick in @force.resume() mousemove")
         @move_node_to_point(@dragging, @last_mouse_pos)
         if @editui.is_state('connecting')
           @text_cursor.pause("", "drop on object node")
@@ -955,7 +954,7 @@ class Huviz
             else
               @text_cursor.set_text("drag subject node")
     if @peeking_node?
-      console.log "PEEKING at node: " + @peeking_node.id
+      # console.log "PEEKING at node: " + @peeking_node.id
       if @focused_node? and @focused_node isnt @peeking_node
         pair = [ @peeking_node.id, @focused_node.id ]
         #console.log "   PEEKING at edge between" + @peeking_node.id + " and " + @focused_node.id
@@ -993,7 +992,7 @@ class Huviz
         @run_verb_on_object('choose', @dragging)
       else if @nodes_pinnable
         if @editui.is_state('connecting') and (@dragging is @editui.subject_node)
-          console.log "not pinning subject_node when dropping"
+          console.log("not pinning subject_node when dropping")
         else if @dragging.fixed # aka pinned
           @run_verb_on_object('unpin', @dragging)
         else
@@ -1036,7 +1035,7 @@ class Huviz
       # TODO(smurp) are these still needed?
       @force.links(@links_set)
       if not @args.skip_log_tick
-        console.log "Tick in @force.links() mouseup"
+        console.log("Tick in @force.links() mouseup")
       @restart()
 
     return
@@ -1200,7 +1199,7 @@ class Huviz
       @canvas.height = @height
     @force.size [@mx, @my]
     if not @args.skip_log_tick
-      console.log "Tick in @force.size() updateWindow"
+      console.log("Tick in @force.size() updateWindow")
     # FIXME all selectors must be localized so if there are two huviz
     #       instances on a page they do not interact
     instance_container = @args.huviz_top_sel
@@ -1472,13 +1471,23 @@ class Huviz
     @discard_radius * 1.1 > dist
 
   init_sets: ->
-    #  states: graphed,shelved,discarded,hidden,embryonic
-    #  embryonic: incomplete, not ready to be used
-    #  graphed: in the graph, connected to other nodes
-    #	 shelved: on the shelf, available for choosing
-    #	 discarded: in the discard zone, findable but ignored by show_links_*
-    #	 hidden: findable, but not displayed anywhere
-    #              	 (when found, will become shelved)
+    # #### states are mutually exclusive
+    #
+    #  * graphed: in the graph, connected to other nodes
+    #  * shelved: on the shelf, available for choosing
+    #  * discarded: in the discard zone, findable but ignored by show_links_*
+    #  * hidden: findable, but not displayed anywhere (when found, will become shelved)
+    #  * embryonic: incomplete, not ready to be used
+    #
+    # #### flags able to co-exist
+    #
+    # * chosen: (aka Activated) these nodes are graphed and pull other nodes into
+    #   the graph with them
+    # * selected: the predicates of the edges terminating at these nodes populate the
+    #   _predicate picker_ with the label **Edges of the Selected Nodes**
+    # * pinned: in the graph and at fixed positions
+    # * labelled: these nodes have their name (or id) showing all the time
+    # * nameless: these nodes do not have names which are distinct from their urls
 
     @nodes = SortedSet().named('all').
       sort_on("id").
@@ -1743,7 +1752,7 @@ class Huviz
     @force.nodes(@nodes)
     @force.links(@links_set)
     if not @args.skip_log_tick
-      console.log "Tick in @force.nodes() reset_graph"
+      console.log("Tick in @force.nodes() reset_graph")
 
     # TODO move this SVG code to own renderer
     d3.select("#{@args.huviz_top_sel} .link").remove()
@@ -1759,7 +1768,7 @@ class Huviz
     @node.exit().remove()
     @force.start()
     if not @args.skip_log_tick
-      console.log "Tick in @force.start() reset_graph2"
+      console.log("Tick in @force.start() reset_graph2")
 
   set_node_radius_policy: (evt) ->
     # TODO(shawn) remove or replace this whole method
@@ -1769,8 +1778,8 @@ class Huviz
       @node_radius_policy = node_radius_policies[f]
     else if typeof f is typeof @set_node_radius_policy
       @node_radius_policy = f
-    else
-      console.log "f =", f
+    #else
+    #  console.log("f =", f)
 
   DEPRECATED_init_node_radius_policy: ->
     policy_box = d3.select("#huvis_controls").append("div", "node_radius_policy_box")
@@ -1982,7 +1991,7 @@ class Huviz
 
   @proposed_edge = null #initialization (no proposed edge active)
   set_proposed_edge: (new_proposed_edge) ->
-    console.log "Setting proposed edge...", new_proposed_edge
+    console.log("Setting proposed edge...", new_proposed_edge)
     if @proposed_edge
       delete @proposed_edge.proposed # remove .proposed flag from old one
     if new_proposed_edge
@@ -2802,7 +2811,7 @@ class Huviz
     @svg_restart() if @use_svg
     @force.start()
     if not @args.skip_log_tick
-      console.log "Tick in @force.start() restart"
+      console.log("Tick in @force.start() restart")
   show_last_mouse_pos: ->
     @draw_circle @last_mouse_pos[0], @last_mouse_pos[1], @focus_radius, "yellow"
   remove_ghosts: (e) ->
@@ -3839,7 +3848,7 @@ class Huviz
     #     - *_curie             eg pred_curie='rdfs:label'
     #     - *_uri               eg subj_uri='http://sparql.cwrc.ca/ontology/cwrc#NaturalPerson'
     #     - *_lid: a "local id" eg subj_lid='atwoma'
-    #console.log "HuViz.add_quad()", quad
+    #console.log("HuViz.add_quad()", quad)
     subj_uri = quad.s
     if not subj_uri?
       throw new Error("quad.s is undefined")
@@ -4139,8 +4148,8 @@ class Huviz
     quad_count = 0
     every = @report_every
     for subj_uri,frame of @G.subjects
-      #console.log "frame:",frame
-      #console.log frame.predicates
+      #console.log("frame:",frame)
+      #console.log(frame.predicates)
       for pred_id,pred of frame.predicates
         for obj in pred.objects
           # this is the right place to convert the ids (URIs) to CURIES
@@ -4188,11 +4197,11 @@ class Huviz
         else
           console.log(err)
 
-      #console.log "my_graph",@my_graph
+      #console.log("my_graph", @my_graph)
       console.log('===================================')
       for prop_name in ['predicates','subjects','objects']
         prop_obj = @my_graph[prop_name]
-        console.log prop_name,(key for key,value of prop_obj).length,prop_obj
+        console.log(prop_name,(key for key,value of prop_obj).length,prop_obj)
       console.log('===================================')
       #console.log "Predicates",(key for key,value of my_graph.predicates).length,my_graph.predicates
       #console.log "Subjects",my_graph.subjects.length,my_graph.subjects
@@ -4363,22 +4372,6 @@ class Huviz
       error: (jqxhr, textStatus, errorThrown) =>
         console.log(url, errorThrown)
         console.log jqXHR.getAllResponseHeaders(data)
-
-    # This is a quick test of the SPARQL Endpoint it should return
-    #   https://www.w3.org/TR/2013/REC-sparql11-service-description-20130321/#example-turtle
-    # $.ajax
-    #   method: 'GET'
-    #   url: url
-    #   headers:
-    #     'Accept': 'text/turtle'
-    #   success: (data, textStatus, jqXHR) =>
-    #     console.log "This Enpoint Test: " + textStatus
-    #     console.log jqXHR
-    #     console.log jqXHR.getAllResponseHeaders(data)
-    #     console.log data
-    #   error: (jqxhr, textStatus, errorThrown) =>
-    #     console.log(url, errorThrown)
-    #     console.log jqXHR.getAllResponseHeaders(data)
 
   run_managed_query_abstract: (args) ->
     # Reference: https://www.w3.org/TR/sparql11-protocol/
@@ -4578,8 +4571,8 @@ class Huviz
     data = ''
     context = "http://universal.org"
     plainLiteral = "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"
-    #console.log json_data
-    console.log "Adding node (i.e. fully exploring): " + subject
+    #console.log(json_data)
+    console.log("Adding node (i.e. fully exploring): " + subject)
     results = json_data.results.bindings
     if queryManager?
       queryManager.setResultCount(results.length)
@@ -4634,7 +4627,7 @@ class Huviz
       if language
         q.o.language = language
 
-      #console.log q
+      #console.log(q)
       #IF this is a new quad, then add it. Otherwise no.
       node_list_empty = @sparql_node_list.length
       if node_list_empty is 0 # Add first node (because list is empty)
@@ -4648,15 +4641,15 @@ class Huviz
           #TODO - This filtering statement doesn't seem tight (Will not catch nodes that HuViz creates - that's okay I think)
           if q.s is snode.s and q.p is snode.p and q.o.value is snode.o.value and q.o.type is snode.o.type and q.o.language is snode.o.language
             node_not_in_list = false
-            #console.log "Found it in list so will not send to add_quad"
+            #console.log("Found it in list so will not send to add_quad")
             if snode.s is subject or snode.o.value is subject#IF node is subject node IS already in list BUT fullly_loaded is false then set to true
               for a_node, i in @all_set
                 if a_node.id is subject
                    @all_set[i].fully_loaded = true
-                   #console.log "Found node for #{subject} so making it fully_loaded"
+                   #console.log("Found node for #{subject} so making it fully_loaded")
             #else if snode.o.value is subject
               #for a_node, i in @all_set
-                #console.log "compare: " + a_node.id + "   subject: " + subject
+                #console.log("compare: " + a_node.id + "   subject: " + subject)
                 #if a_node.id is subject
                    #@all_set[i].fully_loaded = true
                    #console.log "Found object node for #{subject} which should be fully_loaded"
@@ -4904,7 +4897,7 @@ class Huviz
     @update_state(n)
     @force.links(@links_set)
     if not @args.skip_log_tick
-      console.log "Tick in @force.links(@links_set) show_links_to_node"
+      console.log("Tick in @force.links(@links_set) show_links_to_node")
     @restart()
 
   update_state: (node) ->
@@ -4929,7 +4922,7 @@ class Huviz
     @update_state n
     @force.links(@links_set)
     if not @args.skip_log_tick
-      console.log "Tick in @force.links() hide_links_to_node"
+      console.log("Tick in @force.links() hide_links_to_node")
     @restart()
 
   show_links_from_node: (n, incl_discards) ->
@@ -5051,7 +5044,7 @@ class Huviz
 
   hatch: (node) ->
     # Take a node from being 'embryonic' to being a fully graphable node
-    #console.log node.id+" "+node.name+" is being hatched!"
+    #console.log(node.id+" "+node.name+" is being hatched!")
     node.lid = uniquer(node.id) # FIXME ensure uniqueness
     @embryonic_set.remove(node)
     new_set = @get_default_set_by_type(node)
@@ -5079,12 +5072,12 @@ class Huviz
     transient_node.charge = 20
     return transient_node
 
-  # TODO: remove this method
+  # REVIEW the need for this method.  Called by showGraph but is it called?
   make_nodes: (g, limit) ->
     limit = limit or 0
     count = 0
     for subj_uri,subj of g.subjects #my_graph.subjects
-      #console.log subj, g.subjects[subj]  if @verbosity >= @DEBUG
+      #console.log(subj, g.subjects[subj])  if @verbosity >= @DEBUG
       #console.log subj_uri
       #continue  unless subj.match(ids_to_show)
       subject = subj #g.subjects[subj]
@@ -5582,7 +5575,7 @@ class Huviz
   init_snippet_box: ->
     if d3.select('#snippet_box')[0].length > 0
       @snippet_box = d3.select('#snippet_box')
-      console.log "init_snippet_box"
+      console.log("init_snippet_box")
   remove_snippet: (snippet_id) ->
     key = @get_snippet_js_key(snippet_id)
     delete @currently_printed_snippets[key]
@@ -5591,7 +5584,7 @@ class Huviz
       console.log(slctr)
       @snippet_box.select(slctr).remove()
   push_snippet: (obj, msg) ->
-    console.log "push_snippet"
+    console.log("push_snippet")
     if @snippet_box
       snip_div = @snippet_box.append('div').attr('class','snippet')
       snip_div.html(msg)
@@ -5828,7 +5821,7 @@ class Huviz
 
   showGraph: (g) ->
     alert "showGraph called"
-    @make_nodes g
+    @make_nodes(g)
     @fire_showgraph_event() if window.CustomEvent?
     @restart()
 
@@ -5869,7 +5862,7 @@ class Huviz
   ensure_datasets: (preload_group, store_in_db) =>
     # note "fat arrow" so this can be an AJAX callback (see preload_datasets)
     defaults = preload_group.defaults or {}
-    #console.log preload_group # THIS IS THE ITEMS IN A FILE (i.e. cwrc.json, generes.json)
+    #console.log(preload_group) # THIS IS THE ITEMS IN A FILE (i.e. cwrc.json, generes.json)
     for ds_rec in preload_group.datasets
       # If this preload_group has defaults apply them to the ds_rec
       # if it is missing that value.
@@ -6011,7 +6004,7 @@ class Huviz
     #    }
     console.groupCollapsed("preload_datasets")
     # Adds preload options to datasetDB table
-    console.log @args.preload
+    console.log(@args.preload)
     if @args.preload
       for preload_group_or_uri in @args.preload
         if typeof(preload_group_or_uri) is 'string' # the URL of a preload_group JSON
@@ -6245,7 +6238,7 @@ class Huviz
       $("##{@endpoint_loader.uniq_id}").children('select').prop('disabled', 'disabled')
 
   update_graph_form: (e) =>
-    console.log e.currentTarget.value
+    console.log(e.currentTarget.value)
     @endpoint_loader.endpoint_graph = e.currentTarget.value
 
   visualize_dataset_using_ontology: (ignoreEvent, dataset, ontologies) =>
@@ -6362,10 +6355,10 @@ class Huviz
       $(graphSelector).parent().css('display', 'none')
       @reset_endpoint_form(false)
     else if e.currentTarget.value is 'provide'
-      console.log "update_endpoint_form ... select PROVIDE"
+      console.log("update_endpoint_form ... select PROVIDE")
     else
       @sparql_graph_query_and_show(e.currentTarget.value, e.currentTarget.id)
-      #console.log @dataset_loader
+      #console.log(@dataset_loader)
       $("##{@dataset_loader.uniq_id}").children('select').prop('disabled', 'disabled')
       $("##{@ontology_loader.uniq_id}").children('select').prop('disabled', 'disabled')
       $("##{@script_loader.uniq_id}").children('select').prop('disabled', 'disabled')
@@ -8471,7 +8464,7 @@ class Huviz
       $(endpoint).css('display','none')
 
   on_change_show_performance_monitor: (new_val, old_val) ->
-    console.log "clicked performance monitor " + new_val + " " + old_val
+    console.log("clicked performance monitor " + new_val + " " + old_val)
     if new_val
       @performance_dashboard_JQElem.css('display','block')
       @show_performance_monitor = true
@@ -8553,7 +8546,7 @@ class Huviz
   XXX_read_data_and_show: (filename, data) -> #Handles drag-and-dropped files
     # REVIEW is this no longer used?
     data = @local_file_data
-    #console.log data
+    #console.log(data)
     if filename.match(/.ttl$/)
       the_parser = @parseAndShowTTLData
     else if filename.match(/.nq$/)
@@ -8683,7 +8676,7 @@ class Huviz
           @endpoint_labels_JQElem.val(subjectUrl)
         @big_go_button_onclick_sparql()
       @sparql_graph_query_and_show_queryManager.when_done(finish_prep)
-    console.warn("query_WIP")
+    return
 
   # TODO: remove now that @get_or_create_node_by_id() sets type and name
   is_ready: (node) ->
