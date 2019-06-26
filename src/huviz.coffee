@@ -910,16 +910,7 @@ class Huviz
 
   mousemove: =>
     @last_mouse_pos = @get_mouse_point()
-    if @rightClickHold
-      @text_cursor.continue()
-      @text_cursor.set_text("Inspect")
-      if @focused_node
-        the_node = $("##{@focused_node.lid}")
-        if the_node.html() then the_node.remove()
-        @render_node_info_box(@focused_node)
-      else
-        if $(".contextMenu.temp") then $(".contextMenu.temp").remove()
-    else if @should_start_dragging()
+    if @should_start_dragging()
       @dragging = @focused_node
       if @args.drag_start_handler
         try
@@ -929,11 +920,10 @@ class Huviz
       if @editui.is_state('connecting')
         if @editui.subject_node isnt @dragging
           @editui.set_subject_node(@dragging)
-      if @dragging.state isnt @graphed_set isnt @rightClickHold
+      if @dragging.state isnt @graphed_set
         @graphed_set.acquire(@dragging)
 
-    if not @rightClickHold
-      if @dragging
+    if @dragging
         @force.resume() # why?
         if not @args.skip_log_tick
           console.log("Tick in @force.resume() mousemove")
@@ -955,7 +945,7 @@ class Huviz
             action = "discard"
           cursor_text = @make_cursor_text_while_dragging(action)
           @text_cursor.pause("", cursor_text)
-      else
+    else
         # TODO put block "if not @dragging and @mousedown_point and @focused_node and distance" here
         if @editui.is_state('connecting')
           if @editui.object_node or not @editui.subject_node
@@ -987,10 +977,7 @@ class Huviz
     @mousedown_point = false
     point = @get_mouse_point(d3_event)
     if d3.event.button is 2 # Right click event so don't alter selected state
-      @text_cursor.continue()
-      @text_cursor.set_text("Select")
       if @focused_node then $("##{@focused_node.lid}").removeClass("temp")
-      @rightClickHold = false
       return
     # if something was being dragged then handle the drop
     if @dragging
@@ -1060,10 +1047,6 @@ class Huviz
 
   mouseright: () =>
     d3.event.preventDefault()
-    @text_cursor.continue()
-    temp = null
-    @text_cursor.set_text("Inspect", temp, "#75c3fb")
-    @rightClickHold = true
     doesnt_exist = if @focused_node then true else false
     if @focused_node and doesnt_exist
       @render_node_info_box(@focused_node)
