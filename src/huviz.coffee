@@ -4317,19 +4317,23 @@ class Huviz
       the_parser = @parseAndShowTTLData # does not stream
     else if url.match(/.(nq|nt)/)
       the_parser = @parseAndShowNQ
-    #else if url.match(/.json/) #Currently JSON files not supported at read_data_and_show
-      #console.log "Fetch and show JSON File"
-      #the_parser = @parseAndShowJSON
+    else if url.match(/.jsonld$/)
+      the_parser = @parseAndShowJSONLD
     else #File not valid
       #abort with message
-      #NOTE This only catches URLs that do not have a valid file name; nothing about actual file format
+      # NOTE This only catches URLs that do not have a valid file name;
+      # nothing about actual file format
       msg = "Could not load #{url}. The data file format is not supported! " +
-            "Only files with TTL and NQ extensions are accepted."
+            "Only files with .jsonld, .ttl and .nq extensions are accepted."
       @hide_state_msg()
       @blurt(msg, 'error')
       $('#'+@get_data_ontology_display_id()).remove()
       @reset_dataset_ontology_loader()
       #@init_resource_menus()
+      return
+
+    if the_parser is @parseAndShowJSONLD
+      @parseAndShowJSONLD(url, callback)
       return
 
     # Deal with the case that the file is cached inside the datasetDB as a result
@@ -8810,6 +8814,23 @@ class Huviz
         @pfm_data["#{pfm_marker}"]["timed_count"] = [0.01]
         #console.log "Setting #{marker.label }to zero"
 
+  parseAndShowJSONLD: (uri) =>
+    try
+      aUri = new URL(uri)
+    catch error
+      # assuming that uri failed because it is just a local path
+      #   eg: /data/mariaEdgeworth.nquads
+      fullUri = document.location.origin + uri
+      aUri = new URL(fullUri)
+    worker = new Worker('/quaff-lod/quaff-lod-worker-bundle.js')
+    worker.addEventListener('message', @receive_jsonld)
+    worker.postMessage({url: aUri.toString()})
+
+  receive_jsonld: (event) =>
+    console.log("receive_jsonld()", event)
+    if event.data.type in ['alert', 'error']
+      alert(event.data.data)
+    #alert("receive_jsonld() " + event.data.uri)
 
 class OntologicallyGrounded extends Huviz
   # If OntologicallyGrounded then there is an associated ontology which informs

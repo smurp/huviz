@@ -1,6 +1,11 @@
 {
   "datasets": [
     {
+      "uri": "/data/Aguilar_Test.jsonld",
+      "label": "Aguilar JSON-LD Test",
+      "ontology_label": "OWL Mini"
+    },
+    {
       "uri": "/data/geoname_username_widget_states.ttl",
       "label": "GeoNames Widget State Machine",
       "ontology_label": "OWL Mini"

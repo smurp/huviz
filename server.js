@@ -164,6 +164,10 @@
 
   app.use('/comunica-ldf-client', express["static"](__dirname + '/node_modules/comunica-ldf-client/dist'));
 
+  app.use('/quaff-lod/quaff-lod-worker-bundle.js', localOrCDN("/node_modules/quaff-lod/quaff-lod-worker-bundle.js", {
+    nopts: nopts
+  }));
+
   app.use('/data', express["static"](__dirname + '/data'));
 
   app.use('/js', express["static"](__dirname + '/js'));
