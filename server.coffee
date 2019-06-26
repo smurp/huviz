@@ -135,7 +135,9 @@ app.use('/comunica-ldf-client', express.static(__dirname + '/node_modules/comuni
 # Ideally we would do this....
 # `app.use('/quaff-lod', express.static(__dirname + '/node_modules/quaff-lod/'))`
 # but that fails while quaff-lod is being referenced as a symlink in package.json
-app.use('/quaff-lod/quaff-lod-worker-bundle.js', localOrCDN("/node_modules/quaff-lod/quaff-lod-worker-bundle.js", {nopts: nopts}))
+quaff_module_path = process.env.QUAFF_PATH or "/node_modules/"
+app.use('/quaff-lod/quaff-lod-worker-bundle.js',
+    localOrCDN(quaff_module_path + "/quaff-lod/quaff-lod-worker-bundle.js", {nopts: nopts}))
 app.use('/data', express.static(__dirname + '/data'))
 app.use('/js', express.static(__dirname + '/js'))
 app.use("/jsoutline", express.static(__dirname + "/node_modules/jsoutline/lib"))

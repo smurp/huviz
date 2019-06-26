@@ -98,6 +98,26 @@ The Verbs are the operations which move nodes between the various sets, ie sets 
 
 uses https://www.npmjs.com/package/npm-watch https://www.npmjs.com/package/mocha
 
+## Developing `quaff-lod`
+
+
+Run the auto build process while you are editing `src/quaff-lod-worker.js`
+
+```sh
+$ cd quaff-lod
+$ npm run dev
+```
+
+Run the development version of huviz and tell it where to find the dev
+version of `quaff-lod`
+
+```sh
+$ cd huviz
+$ QUAFF_PATH=../quaff-lod/ npm run dev
+```
+
+ 
+
 ## Doing releases
 
 Per https://github.com/geddski/grunt-release
