@@ -3849,6 +3849,15 @@ class Huviz
     #     - *_uri               eg subj_uri='http://sparql.cwrc.ca/ontology/cwrc#NaturalPerson'
     #     - *_lid: a "local id" eg subj_lid='atwoma'
     #console.log("HuViz.add_quad()", quad)
+    #
+    # Expecting .o to either:
+    #   * represent an uri
+    #     - type: "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
+    #     - value: the uri
+    #   * represent a literal
+    #     - language: undefined OR a full language url
+    #     - type: an XMLSchema value
+    #     - value: the value in a string
     subj_uri = quad.s
     if not subj_uri?
       throw new Error("quad.s is undefined")
@@ -8806,14 +8815,55 @@ class Huviz
       fullUri = document.location.origin + uri
       aUri = new URL(fullUri)
     worker = new Worker('/quaff-lod/quaff-lod-worker-bundle.js')
-    worker.addEventListener('message', @receive_jsonld)
+    worker.addEventListener('message', @receive_quaff_lod)
     worker.postMessage({url: aUri.toString()})
 
-  receive_jsonld: (event) =>
-    console.log("receive_jsonld()", event)
-    if event.data.type in ['alert', 'error']
-      alert(event.data.data)
-    #alert("receive_jsonld() " + event.data.uri)
+  convert_quaff_obj_to_GreenTurtle: (raw) ->
+    # receive either
+    #   * an object
+    #     - value: a full URI
+    #     OR
+    #     - value: a short string (representing a blank node?)
+    #   * a literal
+    #     - value: a string
+    #     - datatype:
+    #        - value: XSD:???
+    #     - language: "" or a language
+    out =
+      value: raw.value
+    if raw.datatype
+      out.type = raw.datatype.value
+      if raw.language?
+        out.language = raw.language or null
+    else
+      out.type = raw.type or RDF_object
+    return out
+
+  receive_quaff_lod: (event) =>
+    # console.log("receive_jsonld()", event)
+    # if event.data.type in ['alert', 'error']
+    #   alert(event.data.data)
+    {subject, predicate, object, graph} = event.data
+    if not subject
+      # console.warn(event.data)
+      if event.data.type is "end"
+        @call_on_dataset_loaded()
+        return
+      return
+    else
+      o = @convert_quaff_obj_to_GreenTurtle(object)
+      ###
+      if not o.type is RDF_object
+        console.clear()
+        console.table([object, o])
+        #debugger
+      ###
+    q =
+      s: subject.value
+      p: predicate.value
+      o: o
+      g: graph.value
+    @add_quad(q)
 
 class OntologicallyGrounded extends Huviz
   # If OntologicallyGrounded then there is an associated ontology which informs
