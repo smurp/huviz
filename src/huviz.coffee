@@ -8852,12 +8852,6 @@ class Huviz
       return
     else
       o = @convert_quaff_obj_to_GreenTurtle(object)
-      ###
-      if not o.type is RDF_object
-        console.clear()
-        console.table([object, o])
-        #debugger
-      ###
     q =
       s: subject.value
       p: predicate.value
