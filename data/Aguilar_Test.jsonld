@@ -1,0 +1,2243 @@
+[ {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/e5b24111-5acb-41ac-9c8f-f3da15f7a543",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:37:19+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 3021,
+      "end" : 3025
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "wife"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/176da138-821c-43ac-ad98-fd4e2013a98e",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:38:14+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 5084,
+      "end" : 5099
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Caroline Bowles"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/045559e2-537c-40d9-b32d-8117c3a6e3b5",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:37:58+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 5773,
+      "end" : 5779
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "mother"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/b209cd84-3dc4-4fec-9eff-648b7aa64b34",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:37:58+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 6015,
+      "end" : 6021
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "mother"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/a56e38e6-674f-48db-9014-6a2f35f2f2ef",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:37:49+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 1289,
+      "end" : 1304
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Anna Maria Hall"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/0fc85c3e-a437-4abf-ad67-e3057ec40c79",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:36:46+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 7787,
+      "end" : 7792
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Grace"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/19c76de5-9443-41fd-bcea-693d39c27e6a",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "id" : "http://sws.geonames.org/2925533",
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:40:18+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 8273,
+      "end" : 8282
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Frankfurt"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/f2510c6c-ac1a-45ad-8689-cda9ed01b6b9",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 13,
+      "end" : 15
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/3d9247dc-a7d9-4a96-a189-6d26dc3d9c0f",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 3802,
+      "end" : 3804
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/3c688769-f11e-4b7d-9ed0-1c7b72080b01",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 2866,
+      "end" : 2868
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/64b55d70-581d-4c12-9344-0e16f4a7a655",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 2821,
+      "end" : 2823
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/32e04243-be58-4b1b-be2a-6f83d83630ab",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 8237,
+      "end" : 8239
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/cf8a01ee-462e-4708-9be4-8717ae6a0bed",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 7561,
+      "end" : 7563
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/7cd831ed-a1f6-4ff1-9cca-1d8ae4bf01da",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:35:29+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 2000,
+      "end" : 2030
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Sarah (Dias Fernandes) Aguilar"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/a6592191-3efb-49fa-8dc7-51ed669bc155",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:35:04+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 629,
+      "end" : 643
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Thomas Carlyle"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/b47c3590-edbb-42ff-95bd-2641f03f8b1e",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:36:22+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 3108,
+      "end" : 3113
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Henry"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/1e26a612-82dd-4376-b517-0e12df7de54e",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "id" : "http://sws.geonames.org/2647694",
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:30:40+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 5638,
+      "end" : 5645
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Hackney"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/7f174347-39c1-4b41-9669-ba017f44c2e5",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "id" : "http://sws.geonames.org/2647694",
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:30:40+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 3941,
+      "end" : 3948
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Hackney"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/53ba72d3-a298-42d6-a57a-ecd82143f2c6",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "id" : "http://sws.geonames.org/2647694",
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:30:40+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 5382,
+      "end" : 5389
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Hackney"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/064afd94-d867-478c-992a-ef59063dbe4b",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "id" : "http://sws.geonames.org/2647694",
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:30:40+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 28,
+      "end" : 35
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Hackney"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/28b3527c-f6a8-4d48-aad9-b75010e3c565",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 184,
+      "end" : 186
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/09f50147-f62c-4588-a196-b586931090f9",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 6777,
+      "end" : 6779
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/0ccaa0cb-6a35-448e-826c-f48f096fccd0",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 6232,
+      "end" : 6234
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/f892a22c-828d-47ed-96c3-2b7ccd67edd4",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 6010,
+      "end" : 6012
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/31c5c07e-965e-448e-86b6-44f9986e1a35",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 7928,
+      "end" : 7930
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/80fa22e0-64d6-4b1f-a0ac-2296432cdb52",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 7681,
+      "end" : 7683
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/cbda504a-0cb9-40e8-943d-21aaf1a53cfe",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:32:47+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 942,
+      "end" : 960
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Michael Galchinsky"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/fed48e27-b2eb-45db-a1c9-3d39fcf8e1d5",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "id" : "http://sws.geonames.org/2921044",
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:36:14+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 7716,
+      "end" : 7723
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Germany"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/2b94d159-bcab-4296-9614-c33766cc98ef",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:35:55+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 6422,
+      "end" : 6437
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Emanuel Aguilar"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/2ca96888-5845-4dbc-b51e-3934f2914a59",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:37:58+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 3704,
+      "end" : 3710
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "mother"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/96c3f12d-34ee-4636-810c-513245b555cb",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:36:46+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 2758,
+      "end" : 2763
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Grace"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/42784cea-1073-4409-945f-239bb1d8438f",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:39:05+00:00"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 1,
+      "end" : 12
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "2 June 1816"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/e6ef650a-5e57-4108-a461-a2d2b9d84701",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:38:22+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 5231,
+      "end" : 5244
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Walter Scott'"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/6098330f-5a56-4489-ad8e-1227a56d17b9",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:37:58+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 6609,
+      "end" : 6615
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "mother"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/9d180939-da90-4804-8354-ee5772cb578b",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:38:31+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 5439,
+      "end" : 5455
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Camilla Crosland"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/19ade432-bcb6-4c89-9a3d-8b2252c63d45",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:39:45+00:00"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 6393,
+      "end" : 6408
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "18 January 1845"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/64884707-fa9e-4c53-8396-766d4bbd3b37",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:39:38+00:00"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 6105,
+      "end" : 6116
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Around 1837"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/fbdcc009-2ac6-4b3a-ab2d-12716b481625",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 2149,
+      "end" : 2151
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/6804c20d-ab26-4806-a6c0-8366e12321ab",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 3370,
+      "end" : 3372
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/b3b1bc59-bcb8-4a3e-a560-2c7a4ed673b3",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 5722,
+      "end" : 5724
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/18db3dc7-af26-4602-b161-dd7352dc1f35",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 7274,
+      "end" : 7276
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/8a14864c-7306-4b05-bd81-e6f58b6bb477",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "id" : "http://sws.geonames.org/6269131",
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:35:11+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 466,
+      "end" : 473
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "England"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/139c848e-3dd9-4d26-9483-b6c1172e57bd",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:35:55+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 2342,
+      "end" : 2357
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Emanuel Aguilar"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/6d35ddf0-cee9-4bee-b168-c99398c1cb63",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:35:41+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 2182,
+      "end" : 2205
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Benjamin Dias Fernandez"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/25218186-6ad8-4619-832e-d9aaf0e7b454",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:37:58+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 3288,
+      "end" : 3294
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "mother"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/22a39027-ec56-4590-860a-622184fcd50e",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:37:58+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 6303,
+      "end" : 6309
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "mother"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/1b37b6ad-3ba5-4faa-892c-e1a31d89b3c2",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:37:58+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 7692,
+      "end" : 7698
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "mother"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/c753c9bb-0531-401d-81de-c29464ddfb74",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:37:58+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 7939,
+      "end" : 7945
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "mother"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/78502645-f165-49f2-817a-f49d67cfe2d6",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:36:07+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 2723,
+      "end" : 2730
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Emanuel"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/1d244f05-b0e3-4b4e-82f4-6581f84e4738",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "id" : "http://sws.geonames.org/2925533",
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:40:18+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 8074,
+      "end" : 8083
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Frankfurt"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/9a036f4e-bf07-4a59-a7a1-5674918a7cc1",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:39:17+00:00"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 3897,
+      "end" : 3911
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "September 1828"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/e93c9cba-e126-4896-a2fc-237aea5a63f1",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:39:32+00:00"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 5561,
+      "end" : 5571
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "March 1842"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/f37938df-32e0-41ce-9535-34e0df24c4c3",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "id" : "http://sws.geonames.org/2643743",
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:22+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 2537,
+      "end" : 2543
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "London"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/3f3c6fca-ca6d-4454-b3f7-da115b4ab13d",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "id" : "http://sws.geonames.org/2643743",
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:22+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 7193,
+      "end" : 7199
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "London"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/fca857fd-df1b-423c-85ec-9b4b5fca77b7",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "id" : "http://sws.geonames.org/6269131",
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:35:11+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 7704,
+      "end" : 7711
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "England"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/115d716c-6eed-4578-9f7f-197a3c4a303f",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "id" : "http://sws.geonames.org/2921044",
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:36:14+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 7577,
+      "end" : 7584
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Germany"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/8826192d-9a2c-4a9c-8f92-0efc76695460",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:37:49+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 5532,
+      "end" : 5547
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Anna Maria Hall"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/f94fc357-e8e7-4b4a-b20d-1c5d38161bc2",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:36:46+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 2043,
+      "end" : 2048
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Grace"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/37f329dd-0f0a-4fa0-a778-42f3c227be0d",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:39:23+00:00"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 5066,
+      "end" : 5076
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Early 1833"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/3ae0dd5e-42b2-4bee-b188-0092f2d6e69e",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:37:58+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 326,
+      "end" : 332
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "mother"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/518da2dc-5c39-4de7-8d7a-3f78789fe073",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:37:58+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 5583,
+      "end" : 5589
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "mother"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/b1fb65fe-ed6b-49d5-b065-d57e7f210c05",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 2293,
+      "end" : 2295
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/ea12a13b-5c78-430b-8daf-acebe1c39b67",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 1367,
+      "end" : 1369
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/a3e1f0fc-9da1-4c3a-9402-ae25773a5285",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 3504,
+      "end" : 3506
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/ac97e101-7339-4c81-a175-0cbb790b100f",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 2554,
+      "end" : 2556
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/9743bab1-5fac-472b-9132-12ad53d1804a",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 5268,
+      "end" : 5270
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/c2a6f4e5-9b4e-47ee-ad36-2c5f46fa4735",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 5077,
+      "end" : 5079
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/bab6c2f2-bae4-4855-a1dd-4e8eaf004bf4",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 5572,
+      "end" : 5574
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/985cdaa4-00c8-422e-a594-09dff77a56a1",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 6409,
+      "end" : 6411
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/01512442-ec4e-408d-a814-ca3a9f3232c5",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 6117,
+      "end" : 6119
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/a3beee46-cf4c-4e2e-96f8-b678ee81ad87",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "id" : "http://sws.geonames.org/2925533",
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:40:18+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 8407,
+      "end" : 8416
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Frankfurt"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/343651c8-928e-4179-b8b8-ef57fcb07cb6",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:40:40+00:00"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 8219,
+      "end" : 8236
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "16 September 1847"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/192ee1c9-7210-40ac-8ef7-2557adc95b69",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:40:29+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 8585,
+      "end" : 8598
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Marion Hartog"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/3642707c-2507-48c0-95b3-6f26ab7c5620",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:48+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 65,
+      "end" : 73
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Aguilars"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/742038f7-3e30-433f-b009-70ae4e426443",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "id" : "http://sws.geonames.org/2643743",
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:22+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 3958,
+      "end" : 3964
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "London"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/2d0cdc1d-c61a-4b8e-9aa5-7f785ec8a4dd",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "id" : "http://sws.geonames.org/2643743",
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:22+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 45,
+      "end" : 51
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "London"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/ab1820cc-9126-4e08-8705-570f26c9df08",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 2329,
+      "end" : 2331
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/5727963f-82f0-4885-b2a9-f72d7da71198",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 719,
+      "end" : 721
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/b46e901f-0301-434a-83fe-97c0b4c1bce0",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 361,
+      "end" : 363
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/f8b8d74e-099f-4f31-bf3a-6d0ebf8db790",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 3912,
+      "end" : 3914
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/a6ceb9fe-9e11-4251-abe0-55ffa926bddb",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 3234,
+      "end" : 3236
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/98cb6b6b-cc7a-4aab-81de-5400be3c81ba",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 3145,
+      "end" : 3147
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/23b26085-e1c0-4b9e-abb2-5ba39eed2da4",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 2979,
+      "end" : 2981
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/307a2228-adcf-4c0a-b1d7-0da78e626722",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 5331,
+      "end" : 5333
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/1f30c247-7fe0-45f2-97b2-b53570cf1faa",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:31:56+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 6496,
+      "end" : 6498
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "GA"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/5ab63c21-75ea-491d-a1cc-b71ba53cf5cd",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:35:49+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 2265,
+      "end" : 2277
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Isaac Leeser"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/97123448-9008-4547-a533-48bfbc0a9985",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:40:47+00:00"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 7662,
+      "end" : 7680
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "16 or 17 June 1847"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/99fdda5b-713d-4df7-b103-13a45e3c49ed",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "id" : "http://sws.geonames.org/2925533",
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:40:18+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 7586,
+      "end" : 7595
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Frankfurt"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/31fd4a3f-ea2c-495e-9e42-a8c24895a111",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "id" : "http://sws.geonames.org/2925533",
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:40:18+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 7849,
+      "end" : 7858
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Frankfurt"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/9eb669a2-fb10-446e-a655-4cdee915f915",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:36:22+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 2888,
+      "end" : 2893
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Henry"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/4ad58ca5-623e-4466-bb8a-c805233e2b01",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "id" : "http://sws.geonames.org/2921044",
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:36:14+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 2791,
+      "end" : 2798
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Germany"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/0041b105-0cb3-4173-adcc-dff51155577f",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "id" : "http://sws.geonames.org/2921044",
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:36:14+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 8284,
+      "end" : 8291
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Germany"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/0ef7e55c-bb7b-4ce0-a80c-15aa4dbb9194",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:36:07+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 3005,
+      "end" : 3012
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Emanuel"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/80d46299-c319-428a-b238-07424e248659",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:36:46+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 8662,
+      "end" : 8667
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Grace"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/424bf7e5-f0c7-41b8-93bb-14be5da18766",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:38:45+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 5515,
+      "end" : 5526
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Mary Howitt"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/f46d1abe-4f79-470b-8288-16e235f1c157",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:37:49+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 3340,
+      "end" : 3355
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Anna Maria Hall"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/d50de090-6387-4591-94e3-4b69da29be8e",
+  "type" : "Annotation",
+  "generator" : "https://recogito.pelagios.org/",
+  "generated" : "2018-12-12T16:56:37+00:00",
+  "body" : [ {
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2018-12-11T15:38:40+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/50040272-5cae-4e5a-b4a0-bc476a9d4daa",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 5499,
+      "end" : 5514
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Felicia Hemans,"
+    } ]
+  }
+} ]
