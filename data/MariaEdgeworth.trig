@@ -31,14 +31,14 @@ cwrc:educationSubjectAnnotationGraph {
   cwrc:MariaEdgeworth cwrc:hasEducationSubject ex:Dancing  .
   cwrc:MariaEdgeworth cwrc:hasEducationSubject ex:Embrodery  .
   cwrc:MariaEdgeworth cwrc:hasEducationSubject ex:HandWriting  .
-  cwrc:MariaEdgeworth oa:hasTarget cwrc:MariaEdgeworthAnnotationTarget  .
+  cwrc:MariaEdgeworthAnnotation0001 oa:hasTarget cwrc:MariaEdgeworth .
 
-  cwrc:MariaEdgeworthAnnotationTarget oa:hasSelector cwrc:MariaEdgeworthAnnotationTargetXpath   .
-  cwrc:MariaEdgeworthAnnotationTargetXpath a oa:XPathSelector  .
-  cwrc:MariaEdgeworthAnnotationTargetXpath rdf:value "/Biography/Div0/Div[4]/Education/Div2[1]"^^xsd:string  .
-  cwrc:MariaEdgeworthAnnotationTargetXpath oa:refinedBy cwrc:MariaEdgeworthAnnotationTargetTextSelector  .
-  cwrc:MariaEdgeworthAnnotationTargetTextSelector a oa:TextQuoteSelector  .
-  cwrc:MariaEdgeworthAnnotationTargetTextSelector oa:exact "Autumn 1775 to early 1781 ME attended …"  .
+  cwrc:MariaEdgeworthAnnotation0001 oa:hasSelector cwrc:MariaEdgeworthAnnotation0001Xpath   .
+  cwrc:MariaEdgeworthAnnotation0001Xpath a oa:XPathSelector  .
+  cwrc:MariaEdgeworthAnnotation0001Xpath rdf:value "/Biography/Div0/Div[4]/Education/Div2[1]"^^xsd:string  .
+  cwrc:MariaEdgeworthAnnotation0001Xpath oa:refinedBy cwrc:MariaEdgeworthAnnotation0001TextSelector  .
+  cwrc:MariaEdgeworthAnnotation0001TextSelector a oa:TextQuoteSelector  .
+  cwrc:MariaEdgeworthAnnotation0001TextSelector oa:exact "Autumn 1775 to early 1781 ME attended …"  .
 }
 
 
