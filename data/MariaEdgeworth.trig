@@ -16,6 +16,7 @@
 @prefix bds: <http://www.bigdata.com/rdf/search#> .
 @prefix ex: <http://example.com/> .
 @prefix oa: <http://www.w3.org/ns/oa#> .
+@prefix bogus: <http://example.com/bogus/> .
 
 #One will need to search through all graphs to find common subjects, in this cwrc:MariaEdgeworth which is the central subject we are refferring to
 # We might have a general graph for things that do not have a annotation context
@@ -39,6 +40,8 @@ cwrc:educationSubjectAnnotationGraph {
   cwrc:MariaEdgeworthAnnotation0001Xpath oa:refinedBy cwrc:MariaEdgeworthAnnotation0001TextSelector  .
   cwrc:MariaEdgeworthAnnotation0001TextSelector a oa:TextQuoteSelector  .
   cwrc:MariaEdgeworthAnnotation0001TextSelector oa:exact "Autumn 1775 to early 1781 ME attended …"  .
+
+  # cwrc:MariaEdgeworth bogus:hasAnnotation  "Autumn 1775 to early 1781 ME attended …"  .
 }
 
 
