@@ -2,22 +2,32 @@
   "datasets": [
     {
       "uri": "/data/Aguilar_Test.jsonld",
-      "label": "Aguilar JSON-LD Test",
+      "label": "Aguilar Annotations (JSON-LD)",
       "ontology_label": "OWL Mini"
     },
     {
       "uri": "/data/geoname_username_widget_states.ttl",
-      "label": "GeoNames Widget State Machine",
+      "label": "GeoNames Widget State Machine (TTL)",
+      "ontology_label": "OWL Mini"
+    },
+    {
+      "uri": "/data/MariaEdgeworth.trig",
+      "label": "Maria Edgeworth OA (TriG)",
+      "ontology_label": "OWL Mini"
+    },
+    {
+      "uri": "/data/rossetti.rdf",
+      "label": "Rossetti (RDF)",
       "ontology_label": "OWL Mini"
     },
     {
       "uri": "/data/name_lookup_demo.ttl",
-      "label": "Name Lookup Demo",
+      "label": "Name Lookup Demo (TTL)",
       "ontology_label": "OWL Mini"
     },
     {
       "uri": "/data/one-person-annotation.ttl",
-      "label": "One Person Annotation",
+      "label": "One Person Annotation (TTL)",
       "ontology_label": "OWL Mini"
     },
     {

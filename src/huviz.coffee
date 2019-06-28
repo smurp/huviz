@@ -3633,8 +3633,19 @@ class Huviz
     return lines.join("\n")
 
   convert_N3_obj_to_GreenTurtle: (n3_obj_term) ->
+    if typeof(n3_obj_term) is 'string'
+      bare_obj_term = n3_obj_term
+    else
+      bare_obj_term = n3_obj_term.id
+      if not bare_obj_term.startsWith('"') # it must be an uri
+        retval =
+          type: RDF_object
+          value: n3_obj_term.id
+        return retval
+      # the GreenTurtle parser seems to expect curies as types not full uri
+      bare_obj_term = bare_obj_term.replace("http://www.w3.org/2001/XMLSchema#","xsd:")
+      bare_obj_term = bare_obj_term.replace("^^xsd:string",'')
     @greenturtleparser ?= new GreenerTurtle()
-    bare_obj_term = n3_obj_term
     subj = 'http://example.com/subj'
     pred = 'http://example.com/pred'
     statement = "<#{subj}> <#{pred}> #{bare_obj_term} ."
@@ -3642,8 +3653,9 @@ class Huviz
       graph = @greenturtleparser.parse(statement, "text/turtle")
       retval = graph.subjects[subj].predicates[pred].objects.slice(-1)[0]
     catch e
-      console.log(n3_obj_term, n3_obj_term.split(''))
+      #console.log(n3_obj_term, n3_obj_term.split(''))
       console.error(e)
+      throw e
       retval =
         value: strip_surrounding_quotes(n3_obj_term)
         type: 'Literal' # TODO make this legit
@@ -4309,8 +4321,8 @@ class Huviz
       the_parser = @parseAndShowTTLData # does not stream
     else if url.match(/.(nq|nt)/)
       the_parser = @parseAndShowNQ
-    else if url.match(/.jsonld$/)
-      the_parser = @parseAndShowJSONLD
+    else if url.match(/.(jsonld|nq|nquads|nt|n3|trig|ttl|rdf|xml)$/)
+      the_parser = @parseAndShowFile
     else #File not valid
       #abort with message
       # NOTE This only catches URLs that do not have a valid file name;
@@ -4324,8 +4336,8 @@ class Huviz
       #@init_resource_menus()
       return
 
-    if the_parser is @parseAndShowJSONLD
-      @parseAndShowJSONLD(url, callback)
+    if the_parser is @parseAndShowFile
+      @parseAndShowFile(url, callback)
       return
 
     # Deal with the case that the file is cached inside the datasetDB as a result
@@ -8806,7 +8818,7 @@ class Huviz
         @pfm_data["#{pfm_marker}"]["timed_count"] = [0.01]
         #console.log "Setting #{marker.label }to zero"
 
-  parseAndShowJSONLD: (uri) =>
+  parseAndShowFile: (uri) =>
     try
       aUri = new URL(uri)
     catch error
@@ -8817,6 +8829,7 @@ class Huviz
     worker = new Worker('/quaff-lod/quaff-lod-worker-bundle.js')
     worker.addEventListener('message', @receive_quaff_lod)
     worker.postMessage({url: aUri.toString()})
+    return
 
   convert_quaff_obj_to_GreenTurtle: (raw) ->
     # receive either
@@ -8840,9 +8853,6 @@ class Huviz
     return out
 
   receive_quaff_lod: (event) =>
-    # console.log("receive_jsonld()", event)
-    # if event.data.type in ['alert', 'error']
-    #   alert(event.data.data)
     {subject, predicate, object, graph} = event.data
     if not subject
       # console.warn(event.data)
@@ -8850,13 +8860,22 @@ class Huviz
         @call_on_dataset_loaded()
         return
       return
+    if subject.id # from N3 not JsonLd or RdfXml
+      subj_uri = subject.id
+      pred_uri = predicate.id
+      o = @convert_N3_obj_to_GreenTurtle(object)
+      graph_uri = graph.id
     else
+      subj_uri = subject.value
+      pred_uri = predicate.value
       o = @convert_quaff_obj_to_GreenTurtle(object)
+      graph_uri = graph.value
+    #console.table({o, object})
     q =
-      s: subject.value
-      p: predicate.value
+      s: subj_uri
+      p: pred_uri
       o: o
-      g: graph.value
+      g: graph_uri
     @add_quad(q)
 
 class OntologicallyGrounded extends Huviz
