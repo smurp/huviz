@@ -8860,17 +8860,10 @@ class Huviz
         @call_on_dataset_loaded()
         return
       return
-    if subject.id # from N3 not JsonLd or RdfXml
-      subj_uri = subject.id
-      pred_uri = predicate.id
-      o = @convert_N3_obj_to_GreenTurtle(object)
-      graph_uri = graph.id
-    else
-      subj_uri = subject.value
-      pred_uri = predicate.value
-      o = @convert_quaff_obj_to_GreenTurtle(object)
-      graph_uri = graph.value
-    #console.table({o, object})
+    subj_uri = subject.value
+    pred_uri = predicate.value
+    o = @convert_quaff_obj_to_GreenTurtle(object)
+    graph_uri = graph.value
     q =
       s: subj_uri
       p: pred_uri
