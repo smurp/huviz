@@ -1,0 +1,45 @@
+
+@prefix marcrel: <http://id.loc.gov/vocabulary/relators/> .
+@prefix cwrc: <http://sparql.cwrc.ca/ontologies/cwrc#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix bf: <http://id.loc.gov/ontologies/bibframe/> .
+@prefix genre: <http://sparql.cwrc.ca/ontologies/genre#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix sesame: <http://www.openrdf.org/schema/sesame#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix fn: <http://www.w3.org/2005/xpath-functions#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix hint: <http://www.bigdata.com/queryHints#> .
+@prefix bd: <http://www.bigdata.com/rdf#> .
+@prefix bds: <http://www.bigdata.com/rdf/search#> .
+@prefix ex: <http://example.com/> .
+@prefix oa: <http://www.w3.org/ns/oa#> .
+@prefix bogus: <http://example.com/bogus/> .
+
+#One will need to search through all graphs to find common subjects, in this cwrc:MariaEdgeworth which is the central subject we are refferring to
+# We might have a general graph for things that do not have a annotation context
+cwrc:generalGraph {
+  cwrc:MariaEdgeworth rdfs:label "Maria Edgeworth" .
+  cwrc:MariaEdgeworth foaf:name "Edgeworth, Maria" .
+}
+
+
+# Things that do have a context will in exist separate graphs
+cwrc:educationSubjectAnnotationGraph {
+  cwrc:MariaEdgeworth cwrc:hasEducationSubject ex:Italian .
+  cwrc:MariaEdgeworth cwrc:hasEducationSubject ex:Dancing  .
+  cwrc:MariaEdgeworth cwrc:hasEducationSubject ex:Embrodery  .
+  cwrc:MariaEdgeworth cwrc:hasEducationSubject ex:HandWriting  .
+  cwrc:MariaEdgeworthAnnotation0001 oa:hasTarget cwrc:MariaEdgeworth .
+
+  cwrc:MariaEdgeworthAnnotation0001 oa:hasSelector cwrc:MariaEdgeworthAnnotation0001Xpath   .
+  cwrc:MariaEdgeworthAnnotation0001Xpath a oa:XPathSelector  .
+  cwrc:MariaEdgeworthAnnotation0001Xpath rdf:value "/Biography/Div0/Div[4]/Education/Div2[1]"^^xsd:string  .
+  cwrc:MariaEdgeworthAnnotation0001Xpath oa:refinedBy cwrc:MariaEdgeworthAnnotation0001TextSelector  .
+  cwrc:MariaEdgeworthAnnotation0001TextSelector a oa:TextQuoteSelector  .
+  cwrc:MariaEdgeworthAnnotation0001TextSelector oa:exact "Autumn 1775 to early 1781 ME attended …"  .
+
+  # cwrc:MariaEdgeworth bogus:hasAnnotation  "Autumn 1775 to early 1781 ME attended …"  .
+}

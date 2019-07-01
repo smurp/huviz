@@ -1,6 +1,6 @@
 {
   "name": "huviz",
-  "version": "0.30.1",
+  "version": "0.32.3",
   "license": "GPL-3.0-or-later",
   "repository": {
     "type": "git",
@@ -18,7 +18,6 @@
   "dependencies": {
     "@fnando/sparkline": "^0.3.10",
     "async": "~0.2.9",
-    "browserify": "^16.2.3",
     "coffeescript": "~1.12.7",
     "components-jqueryui": "git://github.com/components/jqueryui.git",
     "comunica-ldf-client": "git://github.com/smurp/comunica-ldf-client.git",
@@ -32,10 +31,12 @@
     "marked": "^0.3.5",
     "morgan": "^1.9.1",
     "nopt": "~3.0.0",
+    "quaff-lod": "smurp/quaff-lod#73c9115",
     "stitch": "~0.3.3"
   },
   "commentedOutDependencies": {},
   "devDependencies": {
+    "browserify": "^16.2.3",
     "chai": "~1.10.0",
     "coffeelint": "~1.7.1",
     "docco": "^0.8.0",

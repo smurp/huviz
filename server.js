@@ -1,5 +1,5 @@
 (function() {
-  var Stream, a, app, cooked_argv, createSnippetServer, ejs, express, fs, knownOpts, localOrCDN, morgan, nopt, nopts, path, port, shortHands;
+  var Stream, a, app, cooked_argv, createSnippetServer, ejs, express, fs, knownOpts, localOrCDN, morgan, nopt, nopts, path, port, quaff_module_path, shortHands;
 
   fs = require('fs');
 
@@ -163,6 +163,12 @@
   app.use('/d3', express["static"](__dirname + '/node_modules/d3'));
 
   app.use('/comunica-ldf-client', express["static"](__dirname + '/node_modules/comunica-ldf-client/dist'));
+
+  quaff_module_path = process.env.QUAFF_PATH || "/node_modules";
+
+  app.use('/quaff-lod/quaff-lod-worker-bundle.js', localOrCDN(quaff_module_path + "/quaff-lod/quaff-lod-worker-bundle.js", {
+    nopts: nopts
+  }));
 
   app.use('/data', express["static"](__dirname + '/data'));
 

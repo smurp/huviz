@@ -3633,8 +3633,19 @@ class Huviz
     return lines.join("\n")
 
   convert_N3_obj_to_GreenTurtle: (n3_obj_term) ->
+    if typeof(n3_obj_term) is 'string'
+      bare_obj_term = n3_obj_term
+    else
+      bare_obj_term = n3_obj_term.id
+      if not bare_obj_term.startsWith('"') # it must be an uri
+        retval =
+          type: RDF_object
+          value: n3_obj_term.id
+        return retval
+      # the GreenTurtle parser seems to expect curies as types not full uri
+      bare_obj_term = bare_obj_term.replace("http://www.w3.org/2001/XMLSchema#","xsd:")
+      bare_obj_term = bare_obj_term.replace("^^xsd:string",'')
     @greenturtleparser ?= new GreenerTurtle()
-    bare_obj_term = n3_obj_term
     subj = 'http://example.com/subj'
     pred = 'http://example.com/pred'
     statement = "<#{subj}> <#{pred}> #{bare_obj_term} ."
@@ -3642,8 +3653,9 @@ class Huviz
       graph = @greenturtleparser.parse(statement, "text/turtle")
       retval = graph.subjects[subj].predicates[pred].objects.slice(-1)[0]
     catch e
-      console.log(n3_obj_term, n3_obj_term.split(''))
+      #console.log(n3_obj_term, n3_obj_term.split(''))
       console.error(e)
+      throw e
       retval =
         value: strip_surrounding_quotes(n3_obj_term)
         type: 'Literal' # TODO make this legit
@@ -3849,6 +3861,15 @@ class Huviz
     #     - *_uri               eg subj_uri='http://sparql.cwrc.ca/ontology/cwrc#NaturalPerson'
     #     - *_lid: a "local id" eg subj_lid='atwoma'
     #console.log("HuViz.add_quad()", quad)
+    #
+    # Expecting .o to either:
+    #   * represent an uri
+    #     - type: "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
+    #     - value: the uri
+    #   * represent a literal
+    #     - language: undefined OR a full language url
+    #     - type: an XMLSchema value
+    #     - value: the value in a string
     subj_uri = quad.s
     if not subj_uri?
       throw new Error("quad.s is undefined")
@@ -4300,19 +4321,23 @@ class Huviz
       the_parser = @parseAndShowTTLData # does not stream
     else if url.match(/.(nq|nt)/)
       the_parser = @parseAndShowNQ
-    #else if url.match(/.json/) #Currently JSON files not supported at read_data_and_show
-      #console.log "Fetch and show JSON File"
-      #the_parser = @parseAndShowJSON
+    else if url.match(/.(jsonld|nq|nquads|nt|n3|trig|ttl|rdf|xml)$/)
+      the_parser = @parseAndShowFile
     else #File not valid
       #abort with message
-      #NOTE This only catches URLs that do not have a valid file name; nothing about actual file format
+      # NOTE This only catches URLs that do not have a valid file name;
+      # nothing about actual file format
       msg = "Could not load #{url}. The data file format is not supported! " +
-            "Only files with TTL and NQ extensions are accepted."
+            "Only files with .jsonld, .ttl and .nq extensions are accepted."
       @hide_state_msg()
       @blurt(msg, 'error')
       $('#'+@get_data_ontology_display_id()).remove()
       @reset_dataset_ontology_loader()
       #@init_resource_menus()
+      return
+
+    if the_parser is @parseAndShowFile
+      @parseAndShowFile(url, callback)
       return
 
     # Deal with the case that the file is cached inside the datasetDB as a result
@@ -6330,16 +6355,17 @@ class Huviz
     @dataset_loader.enable()
     @ontology_loader.enable()
     @big_go_button.show()
-    $("##{@dataset_loader.select_id} option[label='Pick or Provide...']").prop('selected', true)
+    $("##{@dataset_loader.select_id} option[label='Pick or Provide...']")
+       .prop('selected', true)
     @gclui_JQElem.removeAttr("style","display:none")
     return
 
-  update_dataset_ontology_loader: =>
+  update_dataset_ontology_loader: (args) =>
     if not (@dataset_loader? and @ontology_loader? and
             @endpoint_loader? and @script_loader?)
       console.log("still building loaders...")
       return
-    @set_ontology_from_dataset_if_possible()
+    @set_ontology_from_dataset_if_possible(args)
     ugb = () =>
       @update_go_button() # TODO confirm that this should be disable_go_button
     setTimeout(ugb, 200)
@@ -6532,7 +6558,12 @@ class Huviz
     @ontology_watermark_JQElem.text(ontology_str)
     return
 
-  set_ontology_from_dataset_if_possible: ->
+  set_ontology_from_dataset_if_possible: (args) =>
+    args ?= {}
+    if args.pickOrProvide is @ontology_loader # and @dataset_loader.value
+      # The ontology_loader being adjusted provoked this call.
+      # We do not want to override the adjustment just made by the user.
+      return
     if @dataset_loader.value # and not @ontology_loader.value
       option = @dataset_loader.get_selected_option()
       ontologyUri = option.data('ontologyUri')
@@ -6542,10 +6573,11 @@ class Huviz
       else
         @set_ontology_with_label(ontology_label)
     @ontology_loader.update_state()
+    return
 
   set_ontology_with_label: (ontology_label) ->
     topSel = @args.huviz_top_sel
-    sel = topSel + " [label='#{ontology_label}']"
+    sel = topSel + " option[label='#{ontology_label}']"
     for ont_opt in $(sel) # FIXME make this re-entrant
       @ontology_loader.select_option($(ont_opt))
       return
@@ -8793,6 +8825,58 @@ class Huviz
         @pfm_data["#{pfm_marker}"]["timed_count"] = [0.01]
         #console.log "Setting #{marker.label }to zero"
 
+  parseAndShowFile: (uri) =>
+    try
+      aUri = new URL(uri)
+    catch error
+      # assuming that uri failed because it is just a local path
+      #   eg: /data/mariaEdgeworth.nquads
+      fullUri = document.location.origin + uri
+      aUri = new URL(fullUri)
+    worker = new Worker('/quaff-lod/quaff-lod-worker-bundle.js')
+    worker.addEventListener('message', @receive_quaff_lod)
+    worker.postMessage({url: aUri.toString()})
+    return
+
+  convert_quaff_obj_to_GreenTurtle: (raw) ->
+    # receive either
+    #   * an object
+    #     - value: a full URI
+    #     OR
+    #     - value: a short string (representing a blank node?)
+    #   * a literal
+    #     - value: a string
+    #     - datatype:
+    #        - value: XSD:???
+    #     - language: "" or a language
+    out =
+      value: raw.value
+    if raw.datatype
+      out.type = raw.datatype.value
+      if raw.language?
+        out.language = raw.language or null
+    else
+      out.type = raw.type or RDF_object
+    return out
+
+  receive_quaff_lod: (event) =>
+    {subject, predicate, object, graph} = event.data
+    if not subject
+      # console.warn(event.data)
+      if event.data.type is "end"
+        @call_on_dataset_loaded()
+        return
+      return
+    subj_uri = subject.value
+    pred_uri = predicate.value
+    o = @convert_quaff_obj_to_GreenTurtle(object)
+    graph_uri = graph.value
+    q =
+      s: subj_uri
+      p: pred_uri
+      o: o
+      g: graph_uri
+    @add_quad(q)
 
 class OntologicallyGrounded extends Huviz
   # If OntologicallyGrounded then there is an associated ontology which informs
@@ -9161,7 +9245,9 @@ class PickOrProvide
     return
 
   val: (val) ->
-    console.log(this.constructor.name + '.val(' + (val and '"'+val+'"' or '') + ') for ' + this.opts.rsrcType + ' was ' + @pick_or_provide_select.val())
+    console.log(this.constructor.name
+        + '.val(' + (val and '"'+val+'"' or '') + ') for '
+        + this.opts.rsrcType + ' was ' + @pick_or_provide_select.val())
     @pick_or_provide_select.val(val)
     @refresh()
 
@@ -9190,7 +9276,11 @@ class PickOrProvide
         @pick_or_provide_select.val(new_val)
         @value = new_val
       else
+        # TODO should something be done here?
+        console.log("PickOrProvide:",this)
+        console.log("option:",option)
         console.warn("TODO should set option to nothing")
+    return
 
   add_uri: (uri_or_rec) =>
     if typeof uri_or_rec is 'string'
@@ -9297,6 +9387,7 @@ class PickOrProvide
     return opt[0]
 
   update_state: (callback) ->
+    old_value = @value
     raw_value = @pick_or_provide_select.val()
     selected_option = @get_selected_option()
     label_value = selected_option[0].label
@@ -9319,7 +9410,11 @@ class PickOrProvide
     # disable_the_delete_button = false  # uncomment to always show the delete button -- useful when bad data stored
     @form.find('.delete_option').prop('disabled', disable_the_delete_button)
     if callback?
-      callback()
+      args =
+        pickOrProvide: this
+        newValue: raw_value
+        oldValue: old_value
+      callback(args)
 
   find_or_append_form: ->
     if not $(@local_file_form_sel).length
