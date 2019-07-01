@@ -13,7 +13,7 @@
     {
       "uri": "/data/MariaEdgeworth.trig",
       "label": "Maria Edgeworth OA (TriG)",
-      "ontology_label": "OWL Mini"
+      "ontology_label": "Open Annotation"
     },
     {
       "uri": "/data/rossetti.rdf",
@@ -28,6 +28,11 @@
     {
       "uri": "/data/one-person-annotation.ttl",
       "label": "One Person Annotation (TTL)",
+      "ontology_label": "Open Annotation"
+    },
+    {
+      "uri": "/data/rossetti.rdf",
+      "label": "Rossetti (RDF)",
       "ontology_label": "OWL Mini"
     },
     {
