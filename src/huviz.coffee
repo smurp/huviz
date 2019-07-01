@@ -6355,16 +6355,17 @@ class Huviz
     @dataset_loader.enable()
     @ontology_loader.enable()
     @big_go_button.show()
-    $("##{@dataset_loader.select_id} option[label='Pick or Provide...']").prop('selected', true)
+    $("##{@dataset_loader.select_id} option[label='Pick or Provide...']")
+       .prop('selected', true)
     @gclui_JQElem.removeAttr("style","display:none")
     return
 
-  update_dataset_ontology_loader: =>
+  update_dataset_ontology_loader: (args) =>
     if not (@dataset_loader? and @ontology_loader? and
             @endpoint_loader? and @script_loader?)
       console.log("still building loaders...")
       return
-    @set_ontology_from_dataset_if_possible()
+    @set_ontology_from_dataset_if_possible(args)
     ugb = () =>
       @update_go_button() # TODO confirm that this should be disable_go_button
     setTimeout(ugb, 200)
@@ -6557,7 +6558,12 @@ class Huviz
     @ontology_watermark_JQElem.text(ontology_str)
     return
 
-  set_ontology_from_dataset_if_possible: ->
+  set_ontology_from_dataset_if_possible: (args) =>
+    args ?= {}
+    if args.pickOrProvide is @ontology_loader
+      # The ontology_loader being adjusted provoked this call.
+      # We do not want to override the adjustment just made by the user.
+      return
     if @dataset_loader.value # and not @ontology_loader.value
       option = @dataset_loader.get_selected_option()
       ontologyUri = option.data('ontologyUri')
@@ -6567,6 +6573,7 @@ class Huviz
       else
         @set_ontology_with_label(ontology_label)
     @ontology_loader.update_state()
+    return
 
   set_ontology_with_label: (ontology_label) ->
     topSel = @args.huviz_top_sel
@@ -9374,6 +9381,7 @@ class PickOrProvide
     return opt[0]
 
   update_state: (callback) ->
+    old_value = @value
     raw_value = @pick_or_provide_select.val()
     selected_option = @get_selected_option()
     label_value = selected_option[0].label
@@ -9396,7 +9404,11 @@ class PickOrProvide
     # disable_the_delete_button = false  # uncomment to always show the delete button -- useful when bad data stored
     @form.find('.delete_option').prop('disabled', disable_the_delete_button)
     if callback?
-      callback()
+      args =
+        pickOrProvide: this
+        newValue: raw_value
+        oldValue: old_value
+      callback(args)
 
   find_or_append_form: ->
     if not $(@local_file_form_sel).length
