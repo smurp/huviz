@@ -6560,7 +6560,7 @@ class Huviz
 
   set_ontology_from_dataset_if_possible: (args) =>
     args ?= {}
-    if args.pickOrProvide is @ontology_loader
+    if args.pickOrProvide is @ontology_loader # and @dataset_loader.value
       # The ontology_loader being adjusted provoked this call.
       # We do not want to override the adjustment just made by the user.
       return
@@ -6577,7 +6577,7 @@ class Huviz
 
   set_ontology_with_label: (ontology_label) ->
     topSel = @args.huviz_top_sel
-    sel = topSel + " [label='#{ontology_label}']"
+    sel = topSel + " option[label='#{ontology_label}']"
     for ont_opt in $(sel) # FIXME make this re-entrant
       @ontology_loader.select_option($(ont_opt))
       return
@@ -9245,7 +9245,9 @@ class PickOrProvide
     return
 
   val: (val) ->
-    console.log(this.constructor.name + '.val(' + (val and '"'+val+'"' or '') + ') for ' + this.opts.rsrcType + ' was ' + @pick_or_provide_select.val())
+    console.log(this.constructor.name
+        + '.val(' + (val and '"'+val+'"' or '') + ') for '
+        + this.opts.rsrcType + ' was ' + @pick_or_provide_select.val())
     @pick_or_provide_select.val(val)
     @refresh()
 
@@ -9274,7 +9276,11 @@ class PickOrProvide
         @pick_or_provide_select.val(new_val)
         @value = new_val
       else
+        # TODO should something be done here?
+        console.log("PickOrProvide:",this)
+        console.log("option:",option)
         console.warn("TODO should set option to nothing")
+    return
 
   add_uri: (uri_or_rec) =>
     if typeof uri_or_rec is 'string'
