@@ -6471,21 +6471,21 @@ class Huviz
     if dataset and ontology
       add_reload_button = true
       source_html = """
-        <p><span class="dt_label">Dataset:</span> #{dataset.label}</p>
-        <p><span class="dt_label">Ontology:</span> #{ontology.label}</p>
+        <p><span class="dt_label">Dataset:</span> <a href="dataset.value">#{dataset.label}</a></p>
+        <p><span class="dt_label">Ontology:</span> <a href="ontology.value">#{ontology.label}</a></p>
         """
     else if endpoint
       add_reload_button = true
       source_html = """
-        <p><span class="dt_label">Endpoint:</span> #{endpoint.label}</p>
+        <p><span class="dt_label">Endpoint:</span> <a href="endpoint.value">#{endpoint.label}</a></p>
       """
       if endpoint.graph
         source_html += """
-        <p><span class="dt_label">Graph:</span> #{endpoint.graph.label}</p>
+        <p><span class="dt_label">Graph:</span> <a href="endpoint.graph.value">#{endpoint.graph.label}</a></p>
       """
       if endpoint.item
         source_html += """
-        <p><span class="dt_label">Item:</span> #{endpoint.item.label}</p>
+        <p><span class="dt_label">Item:</span> <a href="endpoint.item.value">#{endpoint.item.label}</a></p>
       """
       if endpoint.limit
         source_html += """

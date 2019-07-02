@@ -126,7 +126,7 @@
 }
 /* ------------------- Setting Control Styles -------------------- */
 
-.huviz_tabs .settings { /* put them in the upper right, above the graph */
+.huviz_tabs .settings, .huviz_tabs .tabs-sparqlQueries { /* put them in the upper right, above the graph */
   right: .2em;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
