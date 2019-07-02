@@ -4752,11 +4752,14 @@ class Huviz
     # force the return of a boolan with "not not"
     return not not (@endpoint_loader? and @endpoint_loader.value) # This is part of a sparql set
 
+  outstanding_sparql_requests_are_capped: ->
+    return not (@endpoint_loader.outstanding_requests < @max_outstanding_sparql_requests)
+
   get_neighbors_via_sparql: (chosen, callback) ->
     if not chosen.fully_loaded
       # If there are more than certain number of requests, stop the process
       maxReq = @max_outstanding_sparql_requests
-      if (@endpoint_loader.outstanding_requests < maxReq)
+      if not @outstanding_sparql_requests_are_capped()
         @endpoint_loader.outstanding_requests++
         @add_nodes_from_SPARQL_Worker(chosen.id, callback)
         console.log("outstanding_requests: " + @endpoint_loader.outstanding_requests)
@@ -5262,7 +5265,9 @@ class Huviz
   choose: (chosen, callback_after_choosing) =>
     # If this chosen node is part of a SPARQL query set and not fully loaded then
     # fully load it and try this method again, via callback.
-    if @using_sparql() and not chosen.fully_loaded
+    if @using_sparql() and
+         not chosen.fully_loaded and
+         not @outstanding_sparql_requests_are_capped()
       callback_after_getting_neighbors = () => @choose(chosen, callback_after_choosing)
       @get_neighbors_via_sparql(chosen, callback_after_getting_neighbors)
       return
