@@ -4322,8 +4322,8 @@ class Huviz
     the_parser = @parseAndShowNQ #++++Why does the parser default to NQ?
     if url.match(/.ttl/)
       the_parser = @parseAndShowTTLData # does not stream
-    else if url.match(/.(nq|nt)/)
-      the_parser = @parseAndShowNQ
+    else if url.match(/.(nq|nt)/) # TODO Retire this in favor of parseAndShowFile
+      the_parser = @parseAndShowNQ 
     else if url.match(/.(jsonld|nq|nquads|nt|n3|trig|ttl|rdf|xml)$/)
       the_parser = @parseAndShowFile
     else #File not valid
