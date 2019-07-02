@@ -4331,7 +4331,7 @@ class Huviz
       # NOTE This only catches URLs that do not have a valid file name;
       # nothing about actual file format
       msg = "Could not load #{url}. The data file format is not supported! " +
-            "Only files with .jsonld, .ttl and .nq extensions are accepted."
+            "Only accepts jsonld|nq|nquads|nt|n3|trig|ttl|rdf|xml extensions."
       @hide_state_msg()
       @blurt(msg, 'error')
       $('#'+@get_data_ontology_display_id()).remove()
@@ -8868,7 +8868,9 @@ class Huviz
       # console.warn(event.data)
       if event.data.type is "end"
         @call_on_dataset_loaded()
-        return
+      else if event.data.type is "error"
+        console.log(event.data)
+        @blurt(event.data.data, "error")
       return
     subj_uri = subject.value
     pred_uri = predicate.value
