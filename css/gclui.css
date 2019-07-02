@@ -16,6 +16,15 @@
 .data_ontology_display {
   margin-bottom: 1px;
 }
+.data_ontology_display a {
+  color: #2966a3;
+  text-decoration: none;
+}
+.data_ontology_display a:hover {
+  color: #337fcc;
+  text-decoration: underline;
+}
+
 .predicates {
   margin-bottom: 50px;
   overflow-y: scroll;
