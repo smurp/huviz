@@ -1,5 +1,5 @@
 class Edge
-  constructor: (@source,@target,@predicate) ->
+  constructor: (@source, @target, @predicate, @graph) ->
     # FIXME if everything already has .lid then remove the test "not a.lid?"
     @id = (not a.lid? and a.id or a.lid for a in [@source, @predicate, @target]).join(' ')
     @lid = @id
