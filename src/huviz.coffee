@@ -3876,7 +3876,7 @@ class Huviz
     pred_uri = quad.p
     if not pred_uri?
       throw new Error("quad.p is undefined")
-    ctxid = quad.g || @DEFAULT_CONTEXT
+    ctxid = quad.g or @get_context()
     subj_lid = uniquer(subj_uri)  # FIXME rename uniquer to make_dom_safe_id
     @object_value_types[quad.o.type] = 1
     @unique_pids[pred_uri] = 1
@@ -4119,7 +4119,7 @@ class Huviz
     edge = @edges_by_id[edge_id]
     if not edge?
       @edge_count++
-      edge = new Edge(subj_n, obj_n, pred_n)
+      edge = new Edge(subj_n, obj_n, pred_n, cntx_n)
       @edges_by_id[edge_id] = edge
     return edge
 
@@ -4151,11 +4151,14 @@ class Huviz
 
   report_every: 100 # if 1 then more data shown
 
+  get_context: ->
+    return @data_uri or @DEFAULT_CONTEXT
+
   parseAndShowTTLData: (data, textStatus, callback) =>
     # modelled on parseAndShowNQStreamer
     #console.log("parseAndShowTTLData",data)
     parse_start_time = new Date()
-    context = "http://universal.org"
+    context = @get_context()
     if GreenerTurtle? and @turtle_parser is 'GreenerTurtle'
       #console.log("GreenTurtle() started")
       #@G = new GreenerTurtle().parse(data, "text/turtle")
@@ -4319,8 +4322,8 @@ class Huviz
     the_parser = @parseAndShowNQ #++++Why does the parser default to NQ?
     if url.match(/.ttl/)
       the_parser = @parseAndShowTTLData # does not stream
-    else if url.match(/.(nq|nt)/)
-      the_parser = @parseAndShowNQ
+    else if url.match(/.(nq|nt)/) # TODO Retire this in favor of parseAndShowFile
+      the_parser = @parseAndShowNQ 
     else if url.match(/.(jsonld|nq|nquads|nt|n3|trig|ttl|rdf|xml)$/)
       the_parser = @parseAndShowFile
     else #File not valid
@@ -4328,7 +4331,7 @@ class Huviz
       # NOTE This only catches URLs that do not have a valid file name;
       # nothing about actual file format
       msg = "Could not load #{url}. The data file format is not supported! " +
-            "Only files with .jsonld, .ttl and .nq extensions are accepted."
+            "Only accepts jsonld|nq|nquads|nt|n3|trig|ttl|rdf|xml extensions."
       @hide_state_msg()
       @blurt(msg, 'error')
       $('#'+@get_data_ontology_display_id()).remove()
@@ -4594,7 +4597,7 @@ class Huviz
 
   add_nodes_from_SPARQL: (json_data, subject, queryManager) ->
     data = ''
-    context = "http://universal.org"
+    context = @get_context()
     plainLiteral = "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"
     #console.log(json_data)
     console.log("Adding node (i.e. fully exploring): " + subject)
@@ -5737,7 +5740,7 @@ class Huviz
           quad =
             subj_uri: edge.source.id
             pred_uri: edge.predicate.id
-            graph_uri: @data_uri
+            graph_uri: edge.graph.id
           if edge.target.isLiteral
             quad.obj_val = edge.target.name.toString()
           else
@@ -8865,7 +8868,9 @@ class Huviz
       # console.warn(event.data)
       if event.data.type is "end"
         @call_on_dataset_loaded()
-        return
+      else if event.data.type is "error"
+        console.log(event.data)
+        @blurt(event.data.data, "error")
       return
     subj_uri = subject.value
     pred_uri = predicate.value
@@ -9157,7 +9162,7 @@ class Socrata extends Huviz
   parseAndShowJSON: (data) =>
     #TODO Currently not working/tested
     console.log("parseAndShowJSON",data)
-    g = @DEFAULT_CONTEXT
+    g = @data_uri or @DEFAULT_CONTEXT
 
     #  https://data.edmonton.ca/api/views/sthd-gad4/rows.json
 
