@@ -4323,7 +4323,7 @@ class Huviz
     if url.match(/.ttl/)
       the_parser = @parseAndShowTTLData # does not stream
     else if url.match(/.(nq|nt)/) # TODO Retire this in favor of parseAndShowFile
-      the_parser = @parseAndShowNQ 
+      the_parser = @parseAndShowNQ
     else if url.match(/.(jsonld|nq|nquads|nt|n3|trig|ttl|rdf|xml)$/)
       the_parser = @parseAndShowFile
     else #File not valid
@@ -6466,21 +6466,21 @@ class Huviz
     if dataset and ontology
       add_reload_button = true
       source_html = """
-        <p><span class="dt_label">Dataset:</span> <a href="dataset.value">#{dataset.label}</a></p>
-        <p><span class="dt_label">Ontology:</span> <a href="ontology.value">#{ontology.label}</a></p>
+        <p><span class="dt_label">Dataset:</span> <a href="#{dataset.value}">#{dataset.label}</a></p>
+        <p><span class="dt_label">Ontology:</span> <a href="#{ontology.value}">#{ontology.label}</a></p>
         """
     else if endpoint
       add_reload_button = true
       source_html = """
-        <p><span class="dt_label">Endpoint:</span> <a href="endpoint.value">#{endpoint.label}</a></p>
+        <p><span class="dt_label">Endpoint:</span> <a href="#{endpoint.value}">#{endpoint.label}</a></p>
       """
       if endpoint.graph
         source_html += """
-        <p><span class="dt_label">Graph:</span> <a href="endpoint.graph.value">#{endpoint.graph.label}</a></p>
+        <p><span class="dt_label">Graph:</span> <a href="#{endpoint.graph.value}">#{endpoint.graph.label}</a></p>
       """
       if endpoint.item
         source_html += """
-        <p><span class="dt_label">Item:</span> <a href="endpoint.item.value">#{endpoint.item.label}</a></p>
+        <p><span class="dt_label">Item:</span> <a href="#{endpoint.item.value}">#{endpoint.item.label}</a></p>
       """
       if endpoint.limit
         source_html += """
