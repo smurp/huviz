@@ -28,6 +28,7 @@ window.addEventListener('load',function(){
     ],
     preload: [
       '/data/genres.json'
+      , '/data/cwrc-writer.json'
       , '/data/ontologies.json'
       , '/data/open_anno.json'
       , '/data/experiments.json'
