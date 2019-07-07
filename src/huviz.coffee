@@ -6166,6 +6166,9 @@ class Huviz
       @visualize_dataset_using_ontology()
       return
     if (graphUri = @sparqlGraphSelector_JQElem.val())
+      if (spoQuery = @spo_query_JQElem.val())
+        @displayTheSpoQuery(spoQuery, graphUri)
+        return
       @displayTheChosenGraph(graphUri)
       return
     colorlog("IGNORING.  Neither graph nor endpoint_label is chosen.")
@@ -6182,6 +6185,18 @@ class Huviz
     if (limit = @endpoint_limit_JQElem.val())
       args.limit = limit
     args.query = @make_generic_query(args)
+    @run_generic_query(args)
+    return
+
+  displayTheSpoQuery: (spoQuery, graphUri) ->
+    args =
+      success_handler: @display_graph_success_handler
+      result_handler: @name_result_handler
+      query: spoQuery
+      query_terms:
+        g: graphUri
+    if (limit = @endpoint_limit_JQElem.val())
+      args.limit = limit
     @run_generic_query(args)
     return
 
@@ -6609,6 +6624,7 @@ class Huviz
     @sparqlQryInput_selector = "#" + sparqlQryInput_id
     endpoint_limit_id = unique_id('endpoint_limit_')
     endpoint_labels_id = unique_id('endpoint_labels_')
+    spo_query_id = unique_id('spo_query_')
     sparqlGraphSelectorId = "sparqlGraphOptions-#{@endpoint_loader.select_id}"
     select_box = """
       <div class="ui-widget" style="display:none;margin-top:5px;margin-left:10px;">
@@ -6627,6 +6643,8 @@ class Huviz
         <i class="fas fa-spinner fa-spin" style="visibility:hidden;margin-left: 5px;"></i>
         <div><label for="#{endpoint_limit_id}">Node Limit: </label>
         <input id="#{endpoint_limit_id}" value="#{@sparql_query_default_limit}">
+        <div><label for="#{spo_query_id}">(s,p,o) query: </label>
+        <textarea id="#{spo_query_id}" value="" placeholder="pick graph, then enter query producing s,p,o"></textarea>
         </div>
       </div>
     """ # """
@@ -6646,6 +6664,18 @@ class Huviz
     @endpoint_labels_JQElem.on('autocompleteselect', @endpoint_labels__autocompleteselect)
     @endpoint_labels_JQElem.on('change', @endpoint_labels__update)
     @endpoint_labels_JQElem.focusout(@endpoint_labels__focusout)
+
+    @spo_query_JQElem = $('#'+spo_query_id)
+    @spo_query_JQElem.on('update', @spo_query__update)
+
+  spo_query__update: (event) =>
+    # if there is a query, then permit LOAD of graph
+    if @spo_query_JQElem.length
+      @enable_go_button()
+    else
+      @disable_go_button()
+    return
+
 
   # Called when the user selects an endpoint_labels autosuggestion
   endpoint_labels__autocompleteselect: (event) =>
