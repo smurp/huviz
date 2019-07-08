@@ -5038,13 +5038,14 @@ class Huviz
   get_or_create_node_by_id: (uri, name, isLiteral) ->
     # FIXME OMG must standardize on .lid as the short local id, ie internal id
     #node_id = @make_qname(uri) # REVIEW: what about uri: ":" ie the current graph
-    node_id = uri
-    node = @nodes.get_by('id', node_id)
+    node = @nodes.get_by('id', uri)
     if not node?
-      node = @embryonic_set.get_by('id',node_id)
+      node = @embryonic_set.get_by('id', uri)
     if not node?
       # at this point the node is embryonic, all we know is its uri!
-      node = new Node(node_id, @use_lid_as_node_name)
+      node = new Node(uri)
+      if @use_lid_as_node_name and not node.name? and not name?
+        name = node.lid
       if isLiteral?
         node.isLiteral = isLiteral
       if not node.id?
@@ -7869,6 +7870,15 @@ class Huviz
         input:
           type: "checkbox"
           #checked: "checked"
+    ,
+      use_lid_as_node_name:
+        group: "Ontological"
+        text: "Use local-id as node name"
+        label:
+          title: "Use the local-id of a resource as its node name, permitting display of nodes nothing else is known about."
+        input:
+          type: "checkbox"
+          checked: "checked"
     ,
       make_nodes_for_literals:
         group: "Ontological"

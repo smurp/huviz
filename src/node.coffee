@@ -1,14 +1,12 @@
 uniquer = require("uniquer").uniquer
 
 class Node
-  constructor: (@id, use_lid_as_node_name) ->
+  constructor: (@id) ->
     @bub_txt = []
     @links_from = []
     @links_to = []
     @links_shown = []
     @lid = uniquer(@id)
-    if use_lid_as_node_name
-      @name = @lid # provide default name
   linked: false          # TODO(smurp) probably vestigal
   showing_links: "none"
   name: null
