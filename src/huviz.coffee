@@ -6166,6 +6166,7 @@ class Huviz
       @visualize_dataset_using_ontology()
       return
     if (graphUri = @sparqlGraphSelector_JQElem.val())
+      # TODO remove the requirement for a graphUri to be specified before the spoQuery is enabled.
       if (spoQuery = @spo_query_JQElem.val())
         @displayTheSpoQuery(spoQuery, graphUri)
         return
@@ -6644,7 +6645,8 @@ class Huviz
         <div><label for="#{endpoint_limit_id}">Node Limit: </label>
         <input id="#{endpoint_limit_id}" value="#{@sparql_query_default_limit}">
         <div><label for="#{spo_query_id}">(s,p,o) query: </label>
-        <textarea id="#{spo_query_id}" value="" placeholder="pick graph, then enter query producing s,p,o"></textarea>
+        <textarea id="#{spo_query_id}" value=""
+          placeholder="pick graph, then enter query producing s,p,o"></textarea>
         </div>
       </div>
     """ # """
