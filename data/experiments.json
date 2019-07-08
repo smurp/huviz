@@ -16,11 +16,6 @@
       "ontology_label": "Open Annotation"
     },
     {
-      "uri": "/data/rossetti.rdf",
-      "label": "Rossetti (RDF)",
-      "ontology_label": "OWL Mini"
-    },
-    {
       "uri": "/data/name_lookup_demo.ttl",
       "label": "Name Lookup Demo (TTL)",
       "ontology_label": "OWL Mini"
@@ -29,6 +24,11 @@
       "uri": "/data/one-person-annotation.ttl",
       "label": "One Person Annotation (TTL)",
       "ontology_label": "Open Annotation"
+    },
+    {
+      "uri": "/data/one_triple_one_edge.ttl",
+      "label": "One Triple, One Edge (TTL)",
+      "ontology_label": "OWL Mini"
     },
     {
       "uri": "/data/rossetti.rdf",
