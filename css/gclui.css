@@ -138,6 +138,11 @@
 }
 .command.played {
   background-color: #fcf59b;  /* legal pad yellow */
+
+}
+.tabs-sparqlQueries .command.played {
+  /*width: fit-content;*/
+  width: fit-content;
   background-color: #fff;
   color: #555;
   margin: 5px;
@@ -147,12 +152,9 @@
   box-shadow: 0px 1px 3px 1px rgba(201,201,201,1);
   padding: 0.2px;
 }
-.tabs-sparqlQueries .command.played {
-  width: fit-content;
-}
 
 .delete-command {
-  display:normal;
+  display: block;
   color: #777;
   font: 70% sans-serif;
   position: absolute;

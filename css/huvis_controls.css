@@ -126,7 +126,7 @@
 }
 /* ------------------- Setting Control Styles -------------------- */
 
-.huviz_tabs .settings, .huviz_tabs .tabs-sparqlQueries { /* put them in the upper right, above the graph */
+.huviz_tabs .settings/*, .huviz_tabs .tabs-sparqlQueries*/ { /* put them in the upper right, above the graph */
   right: .2em;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -138,6 +138,14 @@
   margin: 0;
   height: 95%;
 }
+.huviz_tabs .tabs-sparqlQueries {
+  right: .2em;
+  padding: 0;
+  margin: 0;
+  height: 95%;
+}
+
+
 .settingGroupsContainer .settingsGroup.ui-accordion-content {
   padding: 0.2em;
 }

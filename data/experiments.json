@@ -21,6 +21,11 @@
       "ontology_label": "OWL Mini"
     },
     {
+      "uri": "/data/nanopub_57.trig",
+      "label": "NanoPub 57",
+      "ontology_label": "OWL Mini"
+    },
+    {
       "uri": "/data/one-person-annotation.ttl",
       "label": "One Person Annotation (TTL)",
       "ontology_label": "Open Annotation"
