@@ -4000,6 +4000,9 @@ class Huviz
       #  subj_n.fully_loaded = true
       if subj_n.id is quad.subject # if it is the subject node then is fully_loaded
         subj_n.fully_loaded = true
+    if subj_n.embryo
+      # It is unprincipled to do this, but some subj_n were escaping development.
+      @develop(subj_n)
     @last_quad = quad
     @pfm_count('add_quad')
     return edge
