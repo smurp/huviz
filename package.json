@@ -1,6 +1,6 @@
 {
   "name": "huviz",
-  "version": "0.33.1",
+  "version": "0.33.2",
   "license": "GPL-3.0-or-later",
   "repository": {
     "type": "git",
@@ -31,7 +31,7 @@
     "marked": "^0.3.5",
     "morgan": "^1.9.1",
     "nopt": "~3.0.0",
-    "quaff-lod": "smurp/quaff-lod#180da4b",
+    "quaff-lod": "smurp/quaff-lod#9c933d6",
     "stitch": "~0.3.3"
   },
   "commentedOutDependencies": {},
