@@ -1,6 +1,6 @@
 {
   "name": "huviz",
-  "version": "0.33.0",
+  "version": "0.33.1",
   "license": "GPL-3.0-or-later",
   "repository": {
     "type": "git",
@@ -19,8 +19,8 @@
     "@fnando/sparkline": "^0.3.10",
     "async": "~0.2.9",
     "coffeescript": "~1.12.7",
-    "components-jqueryui": "git://github.com/components/jqueryui.git",
-    "comunica-ldf-client": "git://github.com/smurp/comunica-ldf-client.git",
+    "components-jqueryui": "components/jqueryui",
+    "comunica-ldf-client": "smurp/comunica-ldf-client",
     "d3": "~3.5.17",
     "ejs": "2.6.1",
     "express": "~4.17.1",
