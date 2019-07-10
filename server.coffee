@@ -51,65 +51,6 @@ localOrCDN = (templatePath, data, options) ->
       else
         res.send(str)
 
-createSnippetServer = (xmlFileName, uppercase) ->
-  libxmljs = require "libxmljs"       # https://github.com/polotek/libxmljs
-  # https://github.com/polotek/libxmljs/wiki/Document
-  #   NOTE attribute names and tag names are CASE SENSITIVE!!!!?!!???
-  if not uppercase? or uppercase
-    id_in_case = "ID"
-  else
-    id_in_case = "id"
-  doc = null
-  nodes_with_id = []
-  elems_by_id = {}
-  elems_idx_by_id = {}
-  makeXmlDoc = (err, data) ->
-    if err
-      console.error err
-    else
-      console.log "parsing #{xmlFileName}..."
-      started = new Date().getTime() / 1000
-      doc = libxmljs.parseXml(data.toString())
-      #doc = new dom().parseFromString(data.toString())
-      finished = new Date().getTime() / 1000
-      console.log "finished parsing #{xmlFileName} in #{finished - started} sec"
-
-      if true
-        console.log "finding IDs in #{xmlFileName}..."
-        started = new Date().getTime() / 1000
-        # http://stackoverflow.com/questions/4107831/an-xpath-query-that-returns-all-nodes-with-the-id-attribute-set
-        nodes_with_id = doc.find('//*[@' + id_in_case + ']')  #  //*[@ID]
-        #nodes_with_id = doc.find('//*[@ID!=""]')
-        count = nodes_with_id.length
-        finished = new Date().getTime() / 1000
-        console.log "finished parsing #{xmlFileName} in #{finished - started} sec found: #{count}"
-
-        if true
-          started = new Date().getTime() / 1000
-          for elem,i in nodes_with_id
-            thing = elem.get("@" + id_in_case);
-            id = thing.value() # @id  OR  @ID
-            #console.log "   ",id,i
-            elems_idx_by_id[id] = i
-          finished = new Date().getTime() / 1000
-          console.log "finished indexing #{xmlFileName} in #{finished - started} sec"
-
-  getSnippetById = (req, res) ->
-    if doc
-      started = new Date().getTime()
-      elem = nodes_with_id[elems_idx_by_id[req.params.id]]
-      finished = new Date().getTime()
-      sec = (finished - started) / 1000
-      if elem?
-        snippet = elem.toString()
-        res.send(snippet)
-      else
-        res.send("not found")
-    else
-      res.send("doc still parsing")
-  fs.readFile(xmlFileName, makeXmlDoc)
-  return getSnippetById
-
 # Now build the express app itself.
 
 app = express()
@@ -164,16 +105,6 @@ app.use("/srcdocs",
 
 
 port = nopts.port or nopts.argv.remain[0] or process.env.PORT or default_port
-
-# http://regexpal.com/
-if false and not nopts.skip_orlando
-  #     
-  app.get "/snippet/orlando/:id([A-Za-z0-9-_]+)/",
-      createSnippetServer("orlando_all_entries_2013-03-04.xml", true)
-
-if not nopts.skip_poetesses
-  app.get "/snippet/poetesses/:id([A-Za-z0-9-_]+)/",
-      createSnippetServer("poetesses_decomposed.xml", false)
 
 console.log("Starting server on port: #{port} localhost")
 app.listen(port, 'localhost')
