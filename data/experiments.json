@@ -41,13 +41,13 @@
       "ontology_label": "OWL Mini"
     },
     {
-      "uri": "/data/SampleFileMuchRDF.ttl",
-      "label": "Sample File Much RDF",
+      "uri": "/data/Running_state_machine.ttl",
+      "label": "Running State Machine",
       "ontology_label": "OWL Mini"
     },
     {
-      "uri": "/data/simple_state_machine.ttl",
-      "label": "Simple State Machine",
+      "uri": "/data/SampleFileMuchRDF.ttl",
+      "label": "Sample File Much RDF",
       "ontology_label": "OWL Mini"
     }
   ],
