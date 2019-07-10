@@ -1,0 +1,40 @@
+@prefix nanopub: <http://www.nanopub.org/nschema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix opm: <http://purl.org/net/opmv/ns#> .
+@prefix pav: <http://swan.mindinformatics.org/ontologies/1.2/pav/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sio: <http://semanticscience.org/resource/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix : <http://rdf.biosemantics.org/vocabularies/gene_disease_nanopub_example#> .
+
+:NanoPub_1_Head {
+  : a nanopub:Nanopublication ;
+   nanopub:hasAssertion :NanoPub_1_Assertion ;
+   nanopub:hasProvenance :NanoPub_1_Provenance ;
+   nanopub:hasPublicationInfo :NanoPub_1_Pubinfo .
+}
+
+:NanoPub_1_Assertion {
+  :Association_1 a sio:statistical-association ;
+  sio:has-measurement-value :Association_1_p_value ;
+  sio:refers-to <http://bio2rdf.org/geneid:55835>, <http://bio2rdf.org/omim:210600> ;
+  rdfs:comment "This association has p-value of 0.00066, has attribute gene CENPJ (Entrenz gene id 55835)
+        and attribute disease Seckel Syndrome (OMIM 210600)."@en .
+
+  :Association_1_p_value a sio:probability-value ;
+  sio:has-value "0.0000656211037469712"^^xsd:float .
+}
+
+:NanoPub_1_Provenance {
+  :NanoPub_1_Assertion opm:wasDerivedFrom <http://rdf.biosemantics.org/vocabularies/text_mining/gene_disease_concept_profiles_1980_2010> ;
+  opm:wasGeneratedBy <http://rdf.biosemantics.org/vocabularies/text_mining/gene_disease_concept_profiles_matching_1980_2010> .
+ }
+
+:NanoPub_1_Pubinfo {
+  : pav:authoredBy <http://www.researcherid.com/rid/B-6035-2012> ,
+       <http://www.researcherid.com/rid/B-5927-2012> .
+  : pav:createdBy <http://www.researcherid.com/rid/B-5852-2012> ;
+  dcterms:created "2012-03-28T11:32:30.758274Z"^^xsd:dateTime ;
+  dcterms:rights <http://creativecommons.org/licenses/by/3.0/> ;
+  dcterms:rightsHolder <http://biosemantics.org> .
+}

@@ -1,13 +1,26 @@
 {
   "datasets": [
     {
+      "uri": "http://sparql.cwrc.ca/ontology/cwrc.ttl",
+      "label": "CWRC Ontology"
+    },
+    {
+      "uri": "/data/foaf20140114.ttl",
+      "label": "Friend of a Friend (FOAF)"
+    },
+    {
+      "uri": "/data/uspin_html.ttl",
+      "label": "HTML Ontology from Uspin"
+    },
+    {
+      "uri": "/data/oa.ttl",
+      "label": "Open Annotation",
+      "title": "copied from https://www.w3.org/ns/oa.ttl"
+    },
+    {
       "uri": "https://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl",
       "label": "Orlando Ontology",
       "title": "Orlando Ontology (for older datasets)"
-    },
-    {
-      "uri": "http://sparql.cwrc.ca/ontology/cwrc.ttl",
-      "label": "CWRC Ontology"
     },
     {
       "uri": "/data/owl_mini.ttl",
@@ -18,13 +31,8 @@
       "label": "Schema.org (subset)"
     },
     {
-      "uri": "/data/foaf20140114.ttl",
-      "label": "Friend of a Friend (FOAF)"
-    },
-    {
-      "uri": "/data/oa.ttl",
-      "label": "Open Annotation",
-      "title": "copied from https://www.w3.org/ns/oa.ttl"
+      "uri": "https://raw.githubusercontent.com/whanley/names-data/master/tunisians-egypt-1881/tunisian-names-ontology.ttl",
+      "label": "Tunisian Names Ontology"
     },
     {
       "uri": "/data/video.ttl",
@@ -33,14 +41,6 @@
     {
       "uri": "http://vocab.deri.ie/void.ttl",
       "label": "Vocabulary of Interlinked Datasets (VoID)"
-    },
-    {
-      "uri": "/data/uspin_html.ttl",
-      "label": "HTML Ontology from Uspin"
-    },
-    {
-      "uri": "https://raw.githubusercontent.com/whanley/names-data/master/tunisians-egypt-1881/tunisian-names-ontology.ttl",
-      "label": "Tunisian Names Ontology"
     }
   ],
   "defaults": {

@@ -11,6 +11,9 @@
     <link href="/css/CRRT.css" rel="stylesheet" type="text/css">
     <link href="/css/gclui.css" rel="stylesheet" type="text/css">
     <link href="/css/help.css" rel="stylesheet" type="text/css">
+
+    <!--  this should be available in CDN and local versions -->
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js" integrity="sha256-7/yoZS3548fXSRXqc/xYzjsmuW3sFKzuvOCHd06Pmps=" crossorigin="anonymous"></script>
   <% if (nopts.is_local) { %>
     <!--
     <XXlink href="/css/debugging.css" rel="stylesheet"/>
@@ -27,7 +30,7 @@
     <script src="/jquery/jquery.js"></script>
     <script src="/jquery-ui/jquery-ui.min.js"></script>
     <script src="/d3/d3.js"></script>
-  <% } else { %>
+    <% } else { %>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>

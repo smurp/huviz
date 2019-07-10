@@ -1,0 +1,14 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix fsm: <https://example.com/> .
+
+#fsm:set_value a fsm:Transition .
+
+_:standing a fsm:State ;
+    rdfs:comment "Standing around, minding own business." .
+
+_:running a fsm:State ;
+    rdfs:comment "Stepping, with periodic flight" .
+
+_:standing fsm:start _:running .
+_:running fsm:stop _:standing .
+_:running fsm:run _:running .

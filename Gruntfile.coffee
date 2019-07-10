@@ -33,6 +33,7 @@ module.exports = (grunt) ->
         files: [
           'src/*.coffee',
           'js/*.js',
+          'lib/*.js',
           'Gruntfile.coffee',
           'server.coffee',
           'views/*.ejs',
@@ -49,10 +50,10 @@ module.exports = (grunt) ->
         npm: false
         github:
           repo: 'smurp/huviz'
-  grunt.loadNpmTasks 'grunt-contrib-coffee'
-  grunt.loadNpmTasks 'grunt-contrib-watch'
-  grunt.loadNpmTasks 'grunt-express-server'
-  grunt.loadNpmTasks 'grunt-release'
-  grunt.loadNpmTasks 'grunt-stitch'
-  grunt.registerTask 'default', ['express:prod']
-  grunt.registerTask 'dev', ['watch']
+  grunt.loadNpmTasks('grunt-contrib-coffee')
+  grunt.loadNpmTasks('grunt-contrib-watch')
+  grunt.loadNpmTasks('grunt-express-server')
+  grunt.loadNpmTasks('grunt-release')
+  grunt.loadNpmTasks('grunt-stitch')
+  grunt.registerTask('default', ['express:prod'])
+  grunt.registerTask('dev', ['watch'])

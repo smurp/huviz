@@ -1,18 +1,53 @@
 {
   "datasets": [
     {
-      "uri": "/data/geoname_username_widget_states.ttl",
-      "label": "GeoNames Widget state machine",
+      "uri": "/data/Aguilar_Test.jsonld",
+      "label": "Aguilar Annotations (JSON-LD)",
       "ontology_label": "OWL Mini"
     },
     {
-      "uri": "/data/simple_state_machine.ttl",
-      "label": "A simple state machine",
+      "uri": "/data/geoname_username_widget_states.ttl",
+      "label": "GeoNames Widget State Machine (TTL)",
       "ontology_label": "OWL Mini"
+    },
+    {
+      "uri": "/data/MariaEdgeworth.trig",
+      "label": "Maria Edgeworth OA (TriG)",
+      "ontology_label": "Open Annotation"
     },
     {
       "uri": "/data/name_lookup_demo.ttl",
-      "label": "Name Lookup Demo",
+      "label": "Name Lookup Demo (TTL)",
+      "ontology_label": "OWL Mini"
+    },
+    {
+      "uri": "/data/nanopub_57.trig",
+      "label": "NanoPub 57",
+      "ontology_label": "OWL Mini"
+    },
+    {
+      "uri": "/data/one-person-annotation.ttl",
+      "label": "One Person Annotation (TTL)",
+      "ontology_label": "Open Annotation"
+    },
+    {
+      "uri": "/data/one_triple_one_edge.ttl",
+      "label": "One Triple, One Edge (TTL)",
+      "ontology_label": "OWL Mini"
+    },
+    {
+      "uri": "/data/rossetti.rdf",
+      "label": "Rossetti (RDF)",
+      "ontology_label": "OWL Mini"
+    },
+    {
+      "uri": "/data/Running_state_machine.ttl",
+      "label": "Running State Machine",
+      "ontology_label": "OWL Mini"
+    },
+    {
+      "uri": "/data/SampleFileMuchRDF.ttl",
+      "label": "Sample File Much RDF",
       "ontology_label": "OWL Mini"
     }
   ],

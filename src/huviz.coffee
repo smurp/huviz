@@ -152,6 +152,9 @@ unpad_md = (txt, pad) ->
   out = out_lines.join("\n")
   return out
 
+strip_surrounding_quotes = (s) ->
+  return s.replace(/\"$/,'').replace(/^\"/,'')
+
 wpad = undefined
 hpad = 10
 tau = Math.PI * 2
@@ -237,20 +240,23 @@ window.log_click = () ->
 
 # http://dublincore.org/documents/dcmi-terms/
 DC_subject  = "http://purl.org/dc/terms/subject"
-
+DCE_title    = "http://purl.org/dc/elements/1.1/title"
 FOAF_Group  = "http://xmlns.com/foaf/0.1/Group"
 FOAF_Person = "http://xmlns.com/foaf/0.1/Person"
 FOAF_name   = "http://xmlns.com/foaf/0.1/name"
+OSMT_name   = "https://wiki.openstreetmap.org/wiki/Key:name"
+OSMT_reg_name = "https://wiki.openstreetmap.org/wiki/Key:reg_name"
 OWL_Class   = "http://www.w3.org/2002/07/owl#Class"
 OWL_Thing   = "http://www.w3.org/2002/07/owl#Thing"
 OWL_ObjectProperty = "http://www.w3.org/2002/07/owl#ObjectProperty"
 RDF_literal = "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"
 RDF_object  = "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
 RDF_type    = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-RDF_Class   = "http://www.w3.org/2000/01/rdf-schema#Class"
-RDF_subClassOf   = "http://www.w3.org/2000/01/rdf-schema#subClassOf"
+RDF_Class   = "http://www.w3.org/2000/01/rdf-schema#Class" # TODO rename RDFS_
+RDF_subClassOf   = "http://www.w3.org/2000/01/rdf-schema#subClassOf" # TODO rename RDFS_
 RDF_a       = 'a'
 RDFS_label  = "http://www.w3.org/2000/01/rdf-schema#label"
+SCHEMA_name = "http://schema.org/name"
 SKOS_prefLabel = "http://www.w3.org/2004/02/skos/core#prefLabel"
 XL_literalForm = "http://www.w3.org/2008/05/skos-xl#literalForm"
 TYPE_SYNS   = [RDF_type, RDF_a, 'rdfs:type', 'rdf:type']
@@ -258,8 +264,8 @@ THUMB_PREDS = [
   'http://dbpedia.org/ontology/thumbnail'
   'http://xmlns.com/foaf/0.1/thumbnail']
 NAME_SYNS = [
-  FOAF_name, RDFS_label, 'rdfs:label', 'name', SKOS_prefLabel, XL_literalForm
-  ]
+  FOAF_name, RDFS_label, 'rdfs:label', 'name', SKOS_prefLabel, XL_literalForm,
+  SCHEMA_name, DCE_title, OSMT_reg_name, OSMT_name ]
 XML_TAG_REGEX = /(<([^>]+)>)/ig
 
 typeSigRE =
@@ -608,7 +614,6 @@ class Huviz
   nodeOrderAngle = 0.5
   node_display_type = ''
 
-  pfm_display: false
   pfm_data:
     tick:
       total_count: 0
@@ -694,6 +699,7 @@ class Huviz
     top:100
     head_bg_color:'#157fcc'
     classes: "contextMenu temp"
+    title: ''
 
   gen_dialog_html: (contents, id, in_args) ->
     args = @compose_object_from_defaults_and_incoming(@default_dialog_args, in_args)
@@ -701,6 +707,7 @@ class Huviz
     return """<div id="#{id}" class="#{args.classes} #{args.extraClasses}"
         style="display:block;top:#{args.top}px;left:#{args.left}px;max-width:#{args.width}px;max-height:#{args.height}px">
       <div class="header" style="background-color:#{args.head_bg_color};#{args.style}">
+        <div class="dialog_title">#{args.title}</div>
         <button class="close_node_details" title="Close"><i class="far fa-window-close" for="#{id}"></i></button>
       </div>
       #{contents}
@@ -717,10 +724,8 @@ class Huviz
 
   pop_div_to_top: (elem) ->
     $(elem.currentTarget).parent().append(elem.currentTarget)
-    console.log elem
 
   destroy_dialog: (e) ->
-    console.log "destroy_dialog"
     box = e.currentTarget.offsetParent
     $(box).remove()
 
@@ -728,6 +733,17 @@ class Huviz
     args ?= {}
     args.extraClasses += " markdownDialog"
     return @make_dialog(marked(markdown or ''), id, args)
+
+  make_pre_dialog: (textToPre, id, args) ->
+    args ?= {}
+    args.extraClasses += " preformattedDialog"
+    return @make_dialog("<pre>#{textToPre}</pre>", id, args)
+
+  make_json_dialog: (json, id, args) ->
+    args ?= {}
+    args.extraClasses += " preformattedDialog"
+    jsonString = JSON.stringify(json, null, args.json_indent or 2)
+    return @make_dialog("<pre>#{jsonString}</pre>", id, args)
 
   unique_id: (prefix) ->
     prefix ?= 'uid_'
@@ -894,16 +910,7 @@ class Huviz
 
   mousemove: =>
     @last_mouse_pos = @get_mouse_point()
-    if @rightClickHold
-      @text_cursor.continue()
-      @text_cursor.set_text("Inspect")
-      if @focused_node
-        the_node = $("##{@focused_node.lid}")
-        if the_node.html() then the_node.remove()
-        @render_node_info_box(@focused_node)
-      else
-        if $(".contextMenu.temp") then $(".contextMenu.temp").remove()
-    else if @should_start_dragging()
+    if @should_start_dragging()
       @dragging = @focused_node
       if @args.drag_start_handler
         try
@@ -913,14 +920,13 @@ class Huviz
       if @editui.is_state('connecting')
         if @editui.subject_node isnt @dragging
           @editui.set_subject_node(@dragging)
-      if @dragging.state isnt @graphed_set isnt @rightClickHold
+      if @dragging.state isnt @graphed_set
         @graphed_set.acquire(@dragging)
 
-    if not @rightClickHold
-      if @dragging
+    if @dragging
         @force.resume() # why?
         if not @args.skip_log_tick
-          console.log "Tick in @force.resume() mousemove"
+          console.log("Tick in @force.resume() mousemove")
         @move_node_to_point(@dragging, @last_mouse_pos)
         if @editui.is_state('connecting')
           @text_cursor.pause("", "drop on object node")
@@ -939,7 +945,7 @@ class Huviz
             action = "discard"
           cursor_text = @make_cursor_text_while_dragging(action)
           @text_cursor.pause("", cursor_text)
-      else
+    else
         # TODO put block "if not @dragging and @mousedown_point and @focused_node and distance" here
         if @editui.is_state('connecting')
           if @editui.object_node or not @editui.subject_node
@@ -948,7 +954,7 @@ class Huviz
             else
               @text_cursor.set_text("drag subject node")
     if @peeking_node?
-      console.log "PEEKING at node: " + @peeking_node.id
+      # console.log "PEEKING at node: " + @peeking_node.id
       if @focused_node? and @focused_node isnt @peeking_node
         pair = [ @peeking_node.id, @focused_node.id ]
         #console.log "   PEEKING at edge between" + @peeking_node.id + " and " + @focused_node.id
@@ -971,10 +977,7 @@ class Huviz
     @mousedown_point = false
     point = @get_mouse_point(d3_event)
     if d3.event.button is 2 # Right click event so don't alter selected state
-      @text_cursor.continue()
-      @text_cursor.set_text("Select")
       if @focused_node then $("##{@focused_node.lid}").removeClass("temp")
-      @rightClickHold = false
       return
     # if something was being dragged then handle the drop
     if @dragging
@@ -989,7 +992,7 @@ class Huviz
         @run_verb_on_object('choose', @dragging)
       else if @nodes_pinnable
         if @editui.is_state('connecting') and (@dragging is @editui.subject_node)
-          console.log "not pinning subject_node when dropping"
+          console.log("not pinning subject_node when dropping")
         else if @dragging.fixed # aka pinned
           @run_verb_on_object('unpin', @dragging)
         else
@@ -1032,7 +1035,7 @@ class Huviz
       # TODO(smurp) are these still needed?
       @force.links(@links_set)
       if not @args.skip_log_tick
-        console.log "Tick in @force.links() mouseup"
+        console.log("Tick in @force.links() mouseup")
       @restart()
 
     return
@@ -1044,10 +1047,6 @@ class Huviz
 
   mouseright: () =>
     d3.event.preventDefault()
-    @text_cursor.continue()
-    temp = null
-    @text_cursor.set_text("Inspect", temp, "#75c3fb")
-    @rightClickHold = true
     doesnt_exist = if @focused_node then true else false
     if @focused_node and doesnt_exist
       @render_node_info_box(@focused_node)
@@ -1200,7 +1199,7 @@ class Huviz
       @canvas.height = @height
     @force.size [@mx, @my]
     if not @args.skip_log_tick
-      console.log "Tick in @force.size() updateWindow"
+      console.log("Tick in @force.size() updateWindow")
     # FIXME all selectors must be localized so if there are two huviz
     #       instances on a page they do not interact
     instance_container = @args.huviz_top_sel
@@ -1241,8 +1240,8 @@ class Huviz
     if filclr
       @ctx.fillStyle = filclr or "blue"
     @ctx.beginPath()
-    if incl_cntr
-      @ctx.moveTo(cx, cy) # so the arcs are wedges not chords
+    #if incl_cntr
+      #@ctx.moveTo(cx, cy) # so the arcs are wedges not chords
       # do not incl_cntr when drawing a whole circle
     @ctx.arc(cx, cy, radius, start_angle, end_angle, true)
     @ctx.closePath()
@@ -1381,7 +1380,7 @@ class Huviz
       a_w = 2 # arrow width
       arr_side = Math.sqrt(a_l * a_l + a_w * a_w)
 
-      arrow_color = "#333" # clr
+      arrow_color = clr
       node_radius = @calc_node_radius(edge.target)
 
       arw_angl = Math.atan((yctrl - y2)/(xctrl - x2))
@@ -1397,6 +1396,56 @@ class Huviz
       xo2 = pnt_x + flip * arr_side * Math.cos(arw_angl - hd_angl)
       yo2 = pnt_y + flip * arr_side * Math.sin(arw_angl - hd_angl)
       @draw_triangle(pnt_x, pnt_y, arrow_color, xo1, yo1, xo2, yo2)
+
+  draw_self_edge_circle: (cx, cy, strclr, length, line_width, e, arw_angle) ->
+    node_radius = @calc_node_radius(e.source)
+    arw_radius = node_radius * 5
+    #if (arw_radius > 75) then arw_radius = 75
+    x_offset =  Math.cos(arw_angle) * arw_radius
+    y_offset = Math.sin(arw_angle) * arw_radius
+    cx2 = cx + x_offset
+    cy2 = cy + y_offset
+    strclr = e.color
+    filclr = false
+    start_angle = 0
+    end_angle = 0
+    special_focus = false
+    @draw_circle(cx2, cy2, arw_radius, strclr, filclr, start_angle, end_angle, special_focus)
+
+    x_arrow_offset = Math.cos(arw_angle) * @calc_node_radius(e.source)
+    y_arrow_offset = Math.sin(arw_angle) * @calc_node_radius(e.source)
+
+    a_l = 8 # arrow length
+    a_w = 2 # arrow width
+    arr_side = Math.sqrt(a_l * a_l + a_w * a_w)
+
+    arrow_color = e.color
+    node_radius = @calc_node_radius(e.source)
+
+    arw_angl = arw_angle + 1
+    x2 = cx
+    y2 = cy
+
+    hd_angl = Math.tan(a_w/a_l) # Adjusts the arrow shape
+    flip = 1
+
+    arw_angl = arw_angle + 1.45
+    arrow_adjust = Math.atan(a_l/arw_radius)
+
+    pnt_x =  x2 + flip * node_radius * Math.cos(arw_angl)
+    pnt_y =  y2 + flip * node_radius * Math.sin(arw_angl)
+
+    arrow_base_x = x2 + flip * (node_radius + a_l) * Math.cos(arw_angl)
+    arrow_base_y = y2 + flip * (node_radius + a_l) * Math.sin(arw_angl)
+    xo1 = pnt_x + flip * arr_side * Math.cos(arw_angl + hd_angl - arrow_adjust)
+    yo1 = pnt_y + flip * arr_side * Math.sin(arw_angl + hd_angl - arrow_adjust)
+    xo2 = pnt_x + flip * arr_side * Math.cos(arw_angl - hd_angl - arrow_adjust)
+    yo2 = pnt_y + flip * arr_side * Math.sin(arw_angl - hd_angl - arrow_adjust)
+    @draw_triangle(pnt_x, pnt_y, arrow_color, xo1, yo1, xo2, yo2)
+    e.handle =
+      x: cx2 + x_offset
+      y: cy2 + y_offset
+    @draw_circle(e.handle.x, e.handle.y, (line_width/2), arrow_color)
 
   draw_disconnect_dropzone: ->
     @ctx.save()
@@ -1422,13 +1471,23 @@ class Huviz
     @discard_radius * 1.1 > dist
 
   init_sets: ->
-    #  states: graphed,shelved,discarded,hidden,embryonic
-    #  embryonic: incomplete, not ready to be used
-    #  graphed: in the graph, connected to other nodes
-    #	 shelved: on the shelf, available for choosing
-    #	 discarded: in the discard zone, findable but ignored by show_links_*
-    #	 hidden: findable, but not displayed anywhere
-    #              	 (when found, will become shelved)
+    # #### states are mutually exclusive
+    #
+    #  * graphed: in the graph, connected to other nodes
+    #  * shelved: on the shelf, available for choosing
+    #  * discarded: in the discard zone, findable but ignored by show_links_*
+    #  * hidden: findable, but not displayed anywhere (when found, will become shelved)
+    #  * embryonic: incomplete, not ready to be used
+    #
+    # #### flags able to co-exist
+    #
+    # * chosen: (aka Activated) these nodes are graphed and pull other nodes into
+    #   the graph with them
+    # * selected: the predicates of the edges terminating at these nodes populate the
+    #   _predicate picker_ with the label **Edges of the Selected Nodes**
+    # * pinned: in the graph and at fixed positions
+    # * labelled: these nodes have their name (or id) showing all the time
+    # * nameless: these nodes do not have names which are distinct from their urls
 
     @nodes = SortedSet().named('all').
       sort_on("id").
@@ -1693,7 +1752,7 @@ class Huviz
     @force.nodes(@nodes)
     @force.links(@links_set)
     if not @args.skip_log_tick
-      console.log "Tick in @force.nodes() reset_graph"
+      console.log("Tick in @force.nodes() reset_graph")
 
     # TODO move this SVG code to own renderer
     d3.select("#{@args.huviz_top_sel} .link").remove()
@@ -1709,7 +1768,7 @@ class Huviz
     @node.exit().remove()
     @force.start()
     if not @args.skip_log_tick
-      console.log "Tick in @force.start() reset_graph2"
+      console.log("Tick in @force.start() reset_graph2")
 
   set_node_radius_policy: (evt) ->
     # TODO(shawn) remove or replace this whole method
@@ -1719,8 +1778,8 @@ class Huviz
       @node_radius_policy = node_radius_policies[f]
     else if typeof f is typeof @set_node_radius_policy
       @node_radius_policy = f
-    else
-      console.log "f =", f
+    #else
+    #  console.log("f =", f)
 
   DEPRECATED_init_node_radius_policy: ->
     policy_box = d3.select("#huvis_controls").append("div", "node_radius_policy_box")
@@ -1763,7 +1822,49 @@ class Huviz
     console.log "  showing_links:", node.showing_links
     console.log "  in_sets:", node.in_sets
 
+   # Return the nodes which can be seen and are worth checking for proximity, etc.
+  is_node_visible: (node) ->
+    return not @hidden_set.has(node)
+
+  # Return an array (not a SortedSet) of nodes which are visible
+  get_visible_subset: (super_set) ->
+    super_set ?= @all_set
+    retlist = []
+    for node in super_set
+      if @is_node_visible(node)
+        retlist.push(node)
+    return super_set
+
+  # # References:
+  # https://github.com/d3/d3-quadtree
+  #
+  # # Examples
+  #
+  # * http://bl.ocks.org/patricksurry/6478178
+  # * https://bl.ocks.org/mbostock/9078690
+  #
+  # # Status
+  #
+  # Having trouble getting access to the addAll method
+  WIP_find_node_or_edge_closest_to_pointer_using_quadtrees: ->
+    quadtree = d3.geom.quadtree()
+      .extent([[-1, -1], [@width + 1, @height + 1]])
+      .addAll(@get_visible_subset())
+    [mx, my] = @last_mouse_pos
+    qNodes = (qTree) ->
+      ret = []
+      qTree.visit (node, x0, y0, x1, y1) ->
+        node.x0 = x0
+        node.y0 = y0
+        node.x1 = x1
+        node.y1 = y1
+        ret.push(node)
+    data = qNodes(quadtree)
+    found = quadtree.find(mx, my)
+    debugger
+
   find_node_or_edge_closest_to_pointer: ->
+    @highwater('find_node_or_edge', true)
     new_focused_node = null
     new_focused_edge = null
     new_focused_idx = null
@@ -1781,7 +1882,7 @@ class Huviz
 
     # TODO build a spatial index!!!! OMG https://github.com/smurp/huviz/issues/25
     # Examine every node to find the closest one within the focus_threshold
-    @nodes.forEach (d, i) =>
+    @all_set.forEach (d, i) =>
       n_dist = distance(d.fisheye or d, @last_mouse_pos)
       #console.log(d)
       if n_dist < closest_dist
@@ -1793,7 +1894,8 @@ class Huviz
           focus_threshold = n_dist
           new_focused_idx = i
 
-    # Examine the center of every edge and make it the new_focused_edge if close enough and the closest thing
+    # Examine the center of every edge and make it the new_focused_edge
+    #   if close enough and the closest thing
     @links_set.forEach (e, i) =>
       if e.handle?
         e_dist = distance(e.handle, @last_mouse_pos)
@@ -1818,6 +1920,24 @@ class Huviz
 
     if seeking is 'object_node'
       @editui.set_object_node(new_focused_node)
+    @highwater('find_node_or_edge')
+    return
+
+  highwater_incr: (id) ->
+    @highwatermarks ?= {}
+    hwm = @highwatermarks
+    hwm[id] = (hwm[id]? and hwm[id] or 0) + 1
+
+  highwater: (id, start) ->
+    @highwatermarks ?= {}
+    hwm = @highwatermarks
+    if start?
+      hwm[id + '__'] = performance.now()
+    else
+      diff = performance.now() - hwm[id + '__']
+      hwm[id] ?= diff
+      if hwm[id] < diff
+        hwm[id] = diff
 
   DEPRECATED_showing_links_to_cursor_map:
     all: 'not-allowed'
@@ -1851,7 +1971,7 @@ class Huviz
     #console.log "set_focused_edge(#{new_focused_edge and new_focused_edge.id})"
     unless @focused_edge is new_focused_edge
       if @focused_edge? #and @focused_edge isnt new_focused_edge
-        console.log "removing focus from previous focused_edge"
+        #console.log "removing focus from previous focused_edge"
         @focused_edge.focused = false
         delete @focused_edge.source.focused_edge
         delete @focused_edge.target.focused_edge
@@ -1871,7 +1991,7 @@ class Huviz
 
   @proposed_edge = null #initialization (no proposed edge active)
   set_proposed_edge: (new_proposed_edge) ->
-    console.log "Setting proposed edge...", new_proposed_edge
+    console.log("Setting proposed edge...", new_proposed_edge)
     if @proposed_edge
       delete @proposed_edge.proposed # remove .proposed flag from old one
     if new_proposed_edge
@@ -1985,8 +2105,8 @@ class Huviz
     draw_n_n = {}
     for e in node.links_shown
       msg = ""
-      if e.source is node
-        continue
+      #if e.source is node
+        #continue
       if e.source.embryo
         msg += "source #{e.source.name} is embryo #{e.source.id}; "
         msg += e.id + " "
@@ -2011,8 +2131,19 @@ class Huviz
           line_width = edge_width
         line_width = line_width + (@line_edge_weight * e.contexts.length)
         #@show_message_once("will draw line() n_n:#{n_n} e.id:#{e.id}")
-        @draw_curvedline(e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x,
-                         e.target.fisheye.y, sway, e.color, e.contexts.length, line_width, e)
+        if (e.source.fisheye.x == e.target.fisheye.x) and (e.source.fisheye.y == e.target.fisheye.y)
+          x2 = @width/2 # Find centre of draw area
+          y2 = @height/2
+          #arw_angle = Math.atan((e.source.fisheye.y - y2)/(e.source.fisheye.x - x2)) # find angle between node center and draw area center
+          arw_angle = Math.atan((e.source.fisheye.y - y2)/(e.source.fisheye.x - x2))
+          #console.log arw_angle
+          #console.log (e.source.fisheye.y - y2)/(e.source.fisheye.x - x2)
+          if (x2 > e.source.fisheye.x) then arw_angle = arw_angle + 3
+          @draw_self_edge_circle(e.source.fisheye.x, e.source.fisheye.y, e.color, e.contexts.length, line_width, e, arw_angle)
+        else
+          @draw_curvedline(e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x,
+                           e.target.fisheye.y, sway, e.color, e.contexts.length, line_width, e)
+
         if node.walked # ie is part of the walk path
           @draw_walk_edge_from(node, e, sway)
         sway++
@@ -2410,8 +2541,8 @@ class Huviz
           if node.state.id is "graphed"
             cart_label = node.pretty_name
             ctx.measureText(cart_label).width #forces proper label measurement (?)
-            if @cartouches
-              @draw_cartouche(cart_label, focused_font_size, node.fisheye.x, node.fisheye.y)
+            if @paint_label_dropshadows
+              @paint_dropshadow(cart_label, focused_font_size, node.fisheye.x, node.fisheye.y)
           ctx.fillStyle = node.color # This is the mouseover highlight color when GRAPHED
           ctx.font = focused_font
           ctx.fillText "  " + node.pretty_name + "  ", node.fisheye.x, node.fisheye.y
@@ -2455,29 +2586,41 @@ class Huviz
           quad.point.y += y
       return x1 > nx2 or x2 < nx1 or y1 > ny2 or y2 < ny1
 
-  respect_single_chosen_node: ->
+  # # The distinguished node
+  # There are phenomena which pertain to one and only one node: the distinguished_node.
+  # There may be only one.  There does not have to be one though.
+  #
+  # Which nodes might be distinguished?
+  #
+  # * If there is only one node in the chosen_set it becomes the distinguished_node
+  # * Being the terminal node in the walked_set is another way to become distinguished.
+  #
+  # What are the consequences of being distinguished?
+  #
+  # * the distinguished node is displayed pinned at the center of the graph
+  #
+  # To see to it that there is no distinguished node, call `@distinguish(null)`
+  administer_the_distinguished_node: ->
     dirty = false
+    only_chosen = null
+    rightfully_distinguished = null
     if @chosen_set.length is 1
-      chosen_node = @chosen_set[0]
-      if not chosen_node.pinned
-        cmd =
-          polar_coords:
-            range: 0
-            degrees: 0
-        @pin(chosen_node, cmd)
-        dirty = true
-        chosen_node.pinned_only_while_chosen = true
-
-    # Uncenter nodes which are no longer the only chosen node
-    for pinned_node in @pinned_set
-      if not pinned_node
-        continue # how can this even happen?
-      if pinned_node.pinned_only_while_chosen? and
-          (not pinned_node.chosen or @chosen_set.length isnt 1 or not @single_chosen)
-        @unpin(pinned_node)
-        dirty = true
-
-    if dirty
+      only_chosen = @chosen_set[0]
+    if @walked_set.length
+      terminal_walked = @walked_set[@walked_set.length - 1]
+    rightfully_distinguished = terminal_walked or only_chosen
+    if rightfully_distinguished?
+      if rightfully_distinguished._is_distinguished?
+        # no change is needed so we can quit now
+        return
+      if @center_the_distinguished_node
+        @pin_at_center(rightfully_distinguished)
+    emeritus = @distinguish(rightfully_distinguished)
+    if emeritus?
+      if @center_the_distinguished_node
+        @unpin(emeritus)
+    if emeritus or rightfully_distinguished
+      # there was a change, so update set counts
       @update_set_counts()
 
   tick: (msg) =>
@@ -2495,9 +2638,11 @@ class Huviz
           return
         else
           @clean_up_all_dirt_onceRunner.stats.runTick++
+    @highwater('maxtick', true)
     @ctx.lineWidth = @edge_width # TODO(smurp) just edges should get this treatment
-    @respect_single_chosen_node()
+    @administer_the_distinguished_node()
     @find_node_or_edge_closest_to_pointer()
+    #@WIP_find_node_or_edge_closest_to_pointer_using_quadtrees()
     @auto_change_verb()
     @on_tick_change_current_command_if_warranted()
     #@update_snippet() // not in use
@@ -2519,6 +2664,7 @@ class Huviz
     @draw_focused_labels()
     @pfm_count('tick')
     @prior_node_and_state = @get_focused_node_and_its_state()
+    @highwater('maxtick')
     return
 
   rounded_rectangle: (x, y, w, h, radius, fill, stroke, alpha) ->
@@ -2547,7 +2693,7 @@ class Huviz
       ctx.strokeStyle = stroke
       ctx.stroke()
 
-  draw_cartouche: (label, focused_font_size, x, y) ->
+  paint_dropshadow: (label, focused_font_size, x, y) ->
     ctx = @ctx
     width = @ctx.measureText(label).width * focused_font_size
     focused_font = "#{focused_font_size}em sans-serif"
@@ -2578,8 +2724,9 @@ class Huviz
           label += " (#{edge.contexts.length})"
     width = ctx.measureText(label).width
     height = @label_em * @focused_mag * 16
-    if @cartouches
-      @draw_cartouche(label, @label_em, edge.handle.x, edge.handle.y)
+    if @paint_label_dropshadows
+      if edge.handle?
+        @paint_dropshadow(label, @label_em, edge.handle.x, edge.handle.y)
     #ctx.fillStyle = '#666' #@shadow_color
     #ctx.fillText " " + label, edge.handle.x + @edge_x_offset + @shadow_offset, edge.handle.y + @shadow_offset
     ctx.fillStyle = edge.color
@@ -2664,7 +2811,7 @@ class Huviz
     @svg_restart() if @use_svg
     @force.start()
     if not @args.skip_log_tick
-      console.log "Tick in @force.start() restart"
+      console.log("Tick in @force.start() restart")
   show_last_mouse_pos: ->
     @draw_circle @last_mouse_pos[0], @last_mouse_pos[1], @focus_radius, "yellow"
   remove_ghosts: (e) ->
@@ -2833,7 +2980,8 @@ class Huviz
       success: success
       failure: failure
 
-  discover_geoname_name_msgs_threshold_ms: 5 * 1000 # msec betweeen repetition of a msg display
+  # msec betweeen repetition of a msg display
+  discover_geoname_name_msgs_threshold_ms: 5 * 1000
 
   # TODO eliminate all use of this version in favor of the markdown version
   discover_geoname_name_instructions: """
@@ -2908,7 +3056,7 @@ class Huviz
     count = 0
     for node in @nameless_set
       url = node.id
-      if url.includes('sws.geonames.org')
+      if url.includes('geonames.org')
         count++
     return @adjust_setting('discover_geonames_remaining', count)
 
@@ -2932,6 +3080,7 @@ class Huviz
 
   discover_geoname_name: (aUrl) ->
     id = aUrl.pathname.replace(/\//g,'')
+    soughtId = id
     idInt = parseInt(id)
     userId = @discover_geonames_as
     k2p = @discover_geoname_key_to_predicate_mapping
@@ -2992,13 +3141,13 @@ class Huviz
           if state_at_start in ['trying', 'looking']
             if widget.state is 'trying'
               # we decrement remaining after successfully trying or before looking
-              @countdown_setting('discover_geonames_remaining') # more remaining, go straight to looking
-              @discover_geonames_as__widget.set_state('looking')
+              @countdown_setting('discover_geonames_remaining') # more remaining
+              @discover_geonames_as__widget.set_state('looking') # yes, fall through to looking
             if widget.state is 'looking'
               if @discover_geonames_remaining > 0
                 # trigger again because they have been suspended
                 # use setTimeout to give nodes a chance to update
-                again = () => @discover_names('sws.geonames.org')
+                again = () => @discover_names('geonames.org')
                 setTimeout(again, 100)
               else
                 @discover_geonames_as__widget.set_state('good') # no more remaining lookups permitted
@@ -3009,13 +3158,26 @@ class Huviz
             msg = "state_at_start = #{state_at_start} but it should only be looking or trying (nameless: #{@nameless_set.length})"
             #console.error(msg)
             #throw new Error(msg)
+        else
+          throw new Error("discover_geonames_as__widget is missing")
         geoNamesRoot = aUrl.origin
         deeperQuad = null
         greedily = @discover_geonames_greedily
         deeply = @discover_geonames_deeply
         depth = 0
         for geoRec in json.geonames by -1 # from most specific to most general
-          subj = geoNamesRoot + '/' + geoRec.geonameId + '/'
+          # Solution! The originally sought geoname (given by aUrl) should have
+          # its name injected back into the graph using the exact representation
+          # employed in aUrl (ie with or without 'https', 'www' and trailing slash)
+          # but all the deeper geoRecs (because they are new to this graph, presumably)
+          # should be represented canonically (ie without 'https', 'www' or trailing slash).
+          if not depth
+            if geoRec.geonameId.toString() isnt soughtId
+              console.warn("likely misalignment between representation of soughtId and found",
+                           soughtId, "!=", geoRec.geonameId)
+            subj = aUrl.toString()
+          else
+            subj = geoNamesRoot + '/' + geoRec.geonameId # + '/'
           #console.log("discover_geoname_name(#{subj})")
           depth++
           soughtGeoname = (geoRec.geonameId is idInt)
@@ -3024,7 +3186,6 @@ class Huviz
             continue
           #console.table([{id: id, geonameId: geoRec.geonameId, name: geoRec.name}])
           name = (geoRec or {}).name
-
           placeQuad =
             s: subj
             p: RDF_type
@@ -3165,7 +3326,9 @@ class Huviz
         ?subj ?pred ?obj .
         FILTER (?pred IN (rdfs:label)) .
         #{subj_constraint}
-       }""" # """
+      }
+      LIMIT 10
+      """ # """
     ###
       PREFIX dbr: <http://dbpedia.org/resource/>
       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -3187,7 +3350,7 @@ class Huviz
     ###
 
   make_sparql_name_handler: (uris) ->
-    return () => return
+    return noop
 
   make_sparql_name_query_and_handler: (uri_or_uris) ->
     if Array.isArray(uri_or_uris)
@@ -3198,44 +3361,86 @@ class Huviz
     handler = @make_sparql_name_handler(uris)
     return [query, handler]
 
-  auto_discover_name_for: (uri) ->
-    if uri.startsWith('_') # skip "blank" nodes
+  auto_discover_name_for: (namelessUri) ->
+    if namelessUri.startsWith('_') # skip "blank" nodes
       return
     try
-      aUrl = new URL(uri)
+      aUrl = new URL(namelessUri)
     catch e
-      colorlog("skipping auto_discover_name_for('#{uri}') because")
+      colorlog("skipping auto_discover_name_for('#{namelessUri}') because")
       console.log(e)
       return
-    log_prefix = "# NOT BEING RUN YET\n# auto_discover_name_for(#{uri})\n"
-    if uri.startsWith("http://id.loc.gov/")
+    @highwater_incr('discover_name')
+
+    hasDomainName = (domainName) ->
+      return aUrl.hostname.endsWith(domainName)
+
+    if hasDomainName('cwrc.ca')
+      console.warn("auto_discover_name_for('#{namelessUri}') skipping cwrc.ca")
+      return
+      args =
+        namelessUri: namelessUri
+        #predicates: [OSMT_reg_name, OSMT_name]
+        serverUrl: "http://sparql.cwrc.ca/sparql"
+      @run_sparql_name_query(args)
+      return
+
+    if hasDomainName("id.loc.gov")
       # This is less than ideal because it uses the special knowledge
       # that the .skos.nt file is available. Unfortunately the only
       # RDF file which is offered via content negotiation is .rdf and
       # there is no parser for that in HuViz yet.  Besides, they are huge.
-      retval = @ingest_quads_from("#{uri}.skos.nt", @discover_labels(uri))
-      #@auto_discover_header(uri, ['X-PrefLabel'], sendHeaders or [])
-    #for expansion in ["http://vocab.getty.edu/aat/", "http://vocab.getty.edu/ontology#"]
-    #  # Work was stopped on this when I realized that the CWRC ontology is no
-    #  # longer referencing Getty.  It is still good stuff, but should be deprioritized
-    #  # pending review.
-    #  if uri.startsWith(expansion) # TODO can this be more general? ie shorter?
-    #    sparql = @make_sparql_name_for_getty(uri, expansion)
-    #    @ingest_quads_from_sparql(sparql) # TODO this is not yet implemented
-    for expansion in ["http://dbpedia"]
-      if uri.startsWith(expansion)
-        [sparql, handler] = @make_sparql_name_query_and_handler(uri, expansion)
-        #@ingest_quads_from_sparql_with_handler(sparql, handler)
-        timeout = @get_sparql_timeout_msec()
-        @log_query_with_timeout(log_prefix + sparql, timeout, 'purple') # TODO move this into where it get run
-    if uri.startsWith("http://sws.geonames.org/") and
-        @discover_geonames_as__widget.state in ['untried','looking','good'] and
-        @discover_geonames_remaining > 0
-      @discover_geoname_name(aUrl)
-    return
+      retval = @ingest_quads_from("#{namelessUri}.skos.nt",
+                                  @discover_labels(namelessUri))
+      # This cool method would via a proxy but fails in the browser because
+      # full header access is blocked by XHR.
+      # `@auto_discover_header(namelessUri, ['X-PrefLabel'], sendHeaders or [])`
+      return
 
-  ingest_quads_from_sparql: (sparql) ->
-    console.info(sparql)
+    if hasDomainName("vocab.getty.edu")
+      if (try_even_though_CORS_should_block = false)
+        # This would work, but CORS blocks this.  Preserved in case sufficiently
+        # robust accounts are set up so the HuViz server could serve as a proxy.
+        serverUrl = "http://vocab.getty.edu/download/nt"
+        downloadUrl = "#{serverUrl}?uri=#{encodeURIComponent(namelessUri)}"
+        retval = @ingest_quads_from(downloadUrl, @discover_labels(namelessUri))
+        return
+      else
+        # Alternative response datatypes are .json, .csv, .tsv and .xml
+        args =
+          namelessUri: namelessUri
+          serverUrl: "http://vocab.getty.edu/sparql.tsv"
+        @run_sparql_name_query(args)
+        return
+
+    if hasDomainName("openstreetmap.org")
+      args =
+        namelessUri: namelessUri
+        predicates: [OSMT_reg_name, OSMT_name]
+        serverUrl: "https://sophox.org/sparql"
+      @run_sparql_name_query(args)
+      return
+
+    # ## Geonames
+    #
+    # Geonames has its own API and some complicated use limits so is treated
+    # very differently.
+    if hasDomainName("geonames.org")
+      if @discover_geonames_as__widget.state in ['untried','looking','good'] and
+          @discover_geonames_remaining > 0
+        @discover_geoname_name(aUrl)
+      return
+
+    # As a final backstop we use LDF.  Why last? To spare the LDF server.
+    # The endpoint of authority is superior because it ought to be up to date.
+    for domainName, serverUrl of @domain2ldfServer
+      args =
+        namelessUri: namelessUri
+        serverUrl: serverUrl
+      if hasDomainName(domainName) or domainName is '*'
+        @run_ldf_name_query(args)
+        return
+    return
 
   discover_names_including: (includes) ->
     if @nameless_set # this might be before the set exists
@@ -3248,9 +3453,383 @@ class Huviz
       uri = node.id
       if not (includes? and not uri.includes(includes))
         # only if includes is specified but not found do we skip auto_discover_name_for
-        console.log('auto_discover_name_for',uri)
         @auto_discover_name_for(uri)
     return
+
+  # ## SPARQL queries
+
+  run_sparql_name_query: (args) ->
+    {namelessUri} = args
+    args.query ?= "# " +
+      ( args.comment or "run_sparql_name_query(#{namelessUri})") + "\n" +
+      @make_name_query(namelessUri, args)
+    defaults =
+      success_handler: @generic_name_success_handler
+      result_handler: @name_result_handler
+      default_terms:
+        s: namelessUri
+        p: RDFS_label
+    args = @compose_object_from_defaults_and_incoming(defaults, args)
+    @run_managed_query_ajax(args)
+
+  # Receive a tsv of rows and call the `result_handler` to process each row.
+  #
+  # Data might look like:
+  # ```
+  # ?p ?o
+  # rdfs:label "Uncle Bob"
+  # rdfs:label "Uncle Sam"
+  # ```
+  #
+  # Meanwhile `result_handler` expects each row to be JSON like:
+  #
+  # ```json
+  # {'?p': 'rdfs:label', '?o': "Uncle Bob"}
+  # ```
+  tsv_name_success_handler: (data, textStatus, jqXHR, queryManager) =>
+    result_handler = queryManager.args.result_handler
+    try
+      table = []
+      #@make_pre_dialog(data, null, {title:"tsv_name_success_handler"})
+      try
+        lines = data.split(/\r?\n/)
+      catch e
+        console.info("data:",data)
+        throw e
+      firstLine = lines.shift()
+      cols = firstLine.split("\t")
+      for line in lines
+        continue if not line
+        row = line.split("\t")
+        rowJson = _.zipObject(cols, row)
+        result_handler(rowJson, queryManager)
+        table.push(rowJson)
+      queryManager.setResultCount(table.length)
+    catch e
+      @make_json_dialog(table)
+      queryManager.fatalError(e)
+    return
+
+  json_name_success_handler: (data, textStatus, jqXHR, queryManager) =>
+    result_handler = queryManager.args.result_handler
+    try
+      table = []
+      for resultJson in data.results.bindings
+        continue if not resultJson
+        result_handler(resultJson, queryManager)
+        table.push(resultJson)
+      queryManager.setResultCount(table.length)
+    catch e
+      @make_json_dialog(table, null, {title: "table of results"})
+      queryManager.fatalError(e)
+    return
+
+  display_graph_success_handler: (data, textStatus, jqXHR, queryManager) =>
+    @disable_dataset_ontology_loader_AUTOMATICALLY()
+    # TODO @update_browser_title()
+    # TODO @update_caption()
+    @generic_name_success_handler(data, textStatus, jqXHR, queryManager)
+    @call_on_dataset_loaded()
+    return
+
+  generic_success_handler: (data, textStatus, jqXHR, queryManager) =>
+    @generic_name_success_handler(data, textStatus, jqXHR, queryManager)
+    return
+
+  generic_name_success_handler: (data, textStatus, jqXHR, queryManager) =>
+    try
+      data = JSON.parse(data)
+    catch error
+      console.info("generic_success_handler tried and failed to treat data as json")
+    # this should be based on response header or a queryManager
+    console.log("response Content-Type:", jqXHR.getResponseHeader("content-type"))
+    if data.head?
+      resp_type = 'json'
+    else if data.includes("\t")
+      # TODO base presumption of .tsv on something more definitive than finding one
+      resp_type = 'tsv'
+    else
+      console.warn(data)
+      throw new Error("no idea what resp_type this data is")
+    switch resp_type
+      when 'json'
+        success_handler = @json_name_success_handler
+      when 'tsv'
+        success_handler = @tsv_name_success_handler
+      else
+        throw new Error('no name_success_handler available')
+    success_handler(data, textStatus, jqXHR, queryManager)
+    return
+
+  # ## Linked Data Fragments (LDF)
+  #
+  # Linked Data Fragments is a technique for performing efficient federated searches.
+  #
+  # http://linkeddatafragments.org/
+  #
+  # This implementation makes use of
+  #
+  #   https://github.com/smurp/comunica-ldf-client
+  #
+  # which is a fork of:
+  #   https://github.com/comunica/jQuery-Widget.js
+  #
+  # with the only real difference being a dist version of ldf-client-worker.min.js
+
+  domain2ldfServer:
+    # values feed LDF client context.sources.value # see run_managed_query_ldf
+    'dbpedia.org': "http://fragments.dbpedia.org/2016-04/en"
+    'viaf.org': "http://data.linkeddatafragments.org/viaf"
+    'getty.edu': "http://data.linkeddatafragments.org/lov"
+    '*': "http://data.linkeddatafragments.org/lov"
+    #'wikidata.org':
+    #  source: "https://query.wikidata.org/bigdata/ldf"
+    # TODO handle "wikidata.org"
+
+  default_name_query_args:
+    predicates: [RDFS_label, FOAF_name, SCHEMA_name]
+    limit: 20 # set to `false` for no limit
+
+  # ### make_name_query()
+  #
+  # Generate a name lookup query for `uri`.  If the optional `args` object
+  # has an optional `predicates` list then those predicates are specifically
+  # looked up.  The default predicates are provided by `default_name_query_args`.
+  #
+  # The default query looks like:
+  # ```sparql
+  # SELECT *
+  # WHERE {
+  #   {
+  #     BIND (foaf:name as ?p) .
+  #     <#{uri}> ?p ?o .
+  #   } UNION {
+  #     BIND (rdfs:label as ?p) .
+  #     <#{uri}> ?p ?o .
+  #   } UNION {
+  #     BIND (schema:name as ?p) .
+  #     <#{uri}> ?p ?o .
+  #   }
+  # }
+  # LIMIT 20```
+  make_name_query: (uri, in_args) ->
+    args = @compose_object_from_defaults_and_incoming(@default_name_query_args, in_args)
+    {predicates} = args
+    lines = [
+      "SELECT *",
+      "WHERE {"]
+    pred_num = 0
+    for pred in predicates
+      if pred_num
+        lines.push('  UNION')
+      pred_num++
+      lines.push("  {")
+      lines.push("    BIND (<#{pred}> as ?p) .")
+      lines.push("    <#{uri}> ?p ?o .")
+      lines.push("  }")
+    lines.push("}")
+    if args.limit
+      lines.push("LIMIT #{args.limit}")
+    return lines.join("\n")
+
+  convert_N3_obj_to_GreenTurtle: (n3_obj_term) ->
+    if typeof(n3_obj_term) is 'string'
+      bare_obj_term = n3_obj_term
+    else
+      bare_obj_term = n3_obj_term.id
+      if not bare_obj_term.startsWith('"') # it must be an uri
+        retval =
+          type: RDF_object
+          value: n3_obj_term.id
+        return retval
+      # the GreenTurtle parser seems to expect curies as types not full uri
+      bare_obj_term = bare_obj_term.replace("http://www.w3.org/2001/XMLSchema#","xsd:")
+      bare_obj_term = bare_obj_term.replace("^^xsd:string",'')
+    @greenturtleparser ?= new GreenerTurtle()
+    subj = 'http://example.com/subj'
+    pred = 'http://example.com/pred'
+    statement = "<#{subj}> <#{pred}> #{bare_obj_term} ."
+    try
+      graph = @greenturtleparser.parse(statement, "text/turtle")
+      retval = graph.subjects[subj].predicates[pred].objects.slice(-1)[0]
+    catch e
+      #console.log(n3_obj_term, n3_obj_term.split(''))
+      console.error(e)
+      throw e
+      retval =
+        value: strip_surrounding_quotes(n3_obj_term)
+        type: 'Literal' # TODO make this legit
+    return retval
+
+  convert_str_obj_to_GreenTurtle: (bare_term) =>
+    if bare_term[0] is '<'
+      return @convert_N3_obj_to_GreenTurtle(bare_term)
+    if bare_term.slice(-1)[0] isnt '"'
+      if bare_term.startsWith('"')
+        if bare_term.includes('@')
+          return @convert_N3_obj_to_GreenTurtle(bare_term)
+        else
+          # fall through to report error
+      else
+        return @convert_N3_obj_to_GreenTurtle('"'+bare_term+'"')
+    msg = "bare_term: {#{bare_term}} not parseable by convert_str_term_to_GreenTurtle"
+    throw new Error(msg)
+
+  convert_N3_uri_to_string: (n3Uri) =>
+    #console.warn("convert_N3_uri_to_string('#{n3Uri}')")
+    return n3Uri
+
+  convert_str_uri_to_string: (bareUri) =>
+    if bareUri.startsWith('<')
+      bareUri =  bareUri.substr(1,bareUri.length-2)
+    #console.warn("convert_str_uri_to_string('#{bareUri}')")
+    return bareUri
+
+  convert_obj_obj_to_GreenTurtle: (jsObj) =>
+    # TODO convert the .type to a legit uri
+    if jsObj.type is 'uri'
+      jsObj.type = RDF_object
+    else if jsObj.type is 'literal'
+      jsObj.type = RDF_literal
+      if (lang = jsObj['xml:lang'])
+        delete jsObj['xml:lang']
+        jsObj.language = lang.toLowerCase() # REVIEW is lowercasing always right?
+    return jsObj
+
+  convert_obj_uri_to_string: (jsObj) =>
+    # We are anticipating jsObj to have a .value
+    if jsObj.value?
+      return jsObj.value
+    if typeof jsObj isnt 'object'
+      return jsObj
+    throw new Error('expecting jsObj to have .value or be a literal')
+
+  name_result_handler: (result, queryManager) =>
+    terms = queryManager.args.query_terms or queryManager.args.default_terms
+    subj_term = result['?s'] or result['s'] or terms.s
+    pred_term = result['?p'] or result['p'] or terms.p
+    obj_term = result['?o'] or result['o'] or terms.o
+
+    # identify the result_type
+    if queryManager.args.from_N3
+      result_type = 'n3'
+    else if obj_term.value?
+      # TODO this LOOKS like GreenTurtle.  Is it a standard?
+      #    It differs in that the .type is ['url','literal'] rather than an uri
+      result_type = 'obj'
+    else
+      result_type = 'str'
+
+    # prepare parsers based on the result_type
+    switch result_type
+      when 'n3'
+        parseObj = @convert_N3_obj_to_GreenTurtle
+        parseUri = @convert_N3_uri_to_string
+      when 'obj'
+        parseObj = @convert_obj_obj_to_GreenTurtle
+        parseUri = @convert_obj_uri_to_string
+      when 'str' # TODO what should we call this?
+        parseObj = @convert_str_obj_to_GreenTurtle
+        parseUri = @convert_str_uri_to_string
+      else
+        console.error(result)
+        throw new Error('can not determine result_type')
+    try
+      q =
+        s: parseUri(subj_term)
+        p: parseUri(pred_term)
+        o: parseObj(obj_term)
+        g: terms.g
+      @add_quad(q)
+    catch error
+      #@make_json_dialog(result, null, {title: error.toString()})
+      console.warn(result)
+      console.error(error)
+    return
+
+  run_ldf_name_query: (args) ->
+    {namelessUri} = args
+    args.query = "# " +
+      ( args.comment or "run_ldf_name_query(#{namelessUri})") + "\n" +
+      @make_name_query(namelessUri)
+    defaults =
+      success_handler: @generic_name_success_handler
+      result_handler: @name_result_handler
+      from_N3: true
+      default_terms:
+        s: namelessUri
+        p: RDFS_label
+    args = @compose_object_from_defaults_and_incoming(defaults, args)
+    @run_managed_query_ldf(args)
+
+  run_managed_query_ldf: (args) ->
+    queryManager = @run_managed_query_abstract(args)
+    {success_handler, error_callback, timeout, result_handler, serverUrl, query} = args
+    serverUrl ?= "http://fragments.dbpedia.org/2016-04/en" # TODO what?
+    ldf_worker = new Worker('/comunica-ldf-client/ldf-client-worker.min.js')
+    ldf_worker.postMessage
+      type: 'query'
+      query: query
+      resultsToTree: false  # TODO experiment with this
+      context:
+        '@comunica/actor-http-memento:datetime': null
+        queryFormat: 'sparql'
+        sources: [
+          type: 'auto'
+          value: serverUrl
+          ]
+
+    ldf_worker.onmessage = (event) =>
+      queryManager.cancelAnimation()
+      d = event.data
+      {type, result} = d
+      switch type
+        when 'result'
+          queryManager.incrResultCount()
+          result_handler.call(this, result, queryManager)
+        when 'error'
+          queryManager.fatalError(d)
+        when 'end'
+          queryManager.finishCounting()
+        when 'queryInfo', 'log'
+          #console.log(type, event)
+        else
+          console.log("UNHANDLED", event)
+
+    return queryManager
+
+  # ## Examples and Tests START
+
+  make_wikidata_name_query: (uri, langs) ->
+    uri ?= 'wd:Q160302'
+    langs ?= "en" # comma delimited langs expected, eg "en,fr,de"
+    if uri.startsWith('http')
+      subj = "<#{uri}>"
+    else
+      subj = uri
+    if uri.startsWith('wd:')
+      prefixes = "PREFIX wd: <http://www.wikidata.org/entity/>"
+    else
+      prefixes = ""
+    return """
+    #{prefixes}
+    SELECT ?subj ?pred ?subjLabel
+    WHERE {
+      BIND (#{subj} as ?subj)
+      BIND (rdfs:label as ?pred)
+      SERVICE wikibase:label {
+        bd:serviceParam wikibase:language "#{langs}" .
+      }
+    }""" # "
+
+  test_json_fetch: (uri, success, err) ->
+    uri ?= 'https://www.wikidata.org/entity/Q12345.json'
+    success ?= (r) => console.log(r, r.json().then((json)=>console.log(JSON.stringify(json))))
+    err ?= (e) => console.log('OOF:',e)
+    fetch(uri).then(success).catch(err)
+    return
+
+  # ## QUAD Ingestion
 
   make_qname: (uri) ->
     # TODO(smurp) dear god! this method name is lying (it is not even trying)
@@ -3258,9 +3837,11 @@ class Huviz
 
   last_quad: {}
 
-  # add_quad is the standard entrypoint for all data sources
+  # ### `add_quad` is the standard entrypoint for all data sources
+  #
   # It is fires the events:
   #   newsubject
+
   object_value_types: {}
   unique_pids: {}
   add_quad: (quad, sprql_subj) ->  #sprq_sbj only used in SPARQL quieries
@@ -3279,10 +3860,23 @@ class Huviz
     #     - *_curie             eg pred_curie='rdfs:label'
     #     - *_uri               eg subj_uri='http://sparql.cwrc.ca/ontology/cwrc#NaturalPerson'
     #     - *_lid: a "local id" eg subj_lid='atwoma'
-    #console.log "HuViz.add_quad()", quad
+    #console.log("HuViz.add_quad()", quad)
+    #
+    # Expecting .o to either:
+    #   * represent an uri
+    #     - type: "http://www.w3.org/1999/02/22-rdf-syntax-ns#object"
+    #     - value: the uri
+    #   * represent a literal
+    #     - language: undefined OR a full language url
+    #     - type: an XMLSchema value
+    #     - value: the value in a string
     subj_uri = quad.s
+    if not subj_uri?
+      throw new Error("quad.s is undefined")
     pred_uri = quad.p
-    ctxid = quad.g || @DEFAULT_CONTEXT
+    if not pred_uri?
+      throw new Error("quad.p is undefined")
+    ctxid = quad.g or @get_context()
     subj_lid = uniquer(subj_uri)  # FIXME rename uniquer to make_dom_safe_id
     @object_value_types[quad.o.type] = 1
     @unique_pids[pred_uri] = 1
@@ -3400,12 +3994,15 @@ class Huviz
           @add_edge(edge)
           literal_node.fully_loaded = true # for sparql quieries to flag literals as fully_loaded
     # if SPARQL Endpoint loaded AND this is subject node then set current subject to true (i.e. fully loaded)
-    if @endpoint_loader? and @endpoint_loader.value
+    if @using_sparql()
       subj_n.fully_loaded = false # all nodes default to not being fully_loaded
       #if subj_n.id is sprql_subj# if it is the subject node then is fully_loaded
       #  subj_n.fully_loaded = true
       if subj_n.id is quad.subject # if it is the subject node then is fully_loaded
         subj_n.fully_loaded = true
+    if subj_n.embryo
+      # It is unprincipled to do this, but some subj_n were escaping development.
+      @develop(subj_n)
     @last_quad = quad
     @pfm_count('add_quad')
     return edge
@@ -3525,7 +4122,7 @@ class Huviz
     edge = @edges_by_id[edge_id]
     if not edge?
       @edge_count++
-      edge = new Edge(subj_n, obj_n, pred_n)
+      edge = new Edge(subj_n, obj_n, pred_n, cntx_n)
       @edges_by_id[edge_id] = edge
     return edge
 
@@ -3557,11 +4154,14 @@ class Huviz
 
   report_every: 100 # if 1 then more data shown
 
+  get_context: ->
+    return @data_uri or @DEFAULT_CONTEXT
+
   parseAndShowTTLData: (data, textStatus, callback) =>
     # modelled on parseAndShowNQStreamer
     #console.log("parseAndShowTTLData",data)
     parse_start_time = new Date()
-    context = "http://universal.org"
+    context = @get_context()
     if GreenerTurtle? and @turtle_parser is 'GreenerTurtle'
       #console.log("GreenTurtle() started")
       #@G = new GreenerTurtle().parse(data, "text/turtle")
@@ -3575,8 +4175,8 @@ class Huviz
     quad_count = 0
     every = @report_every
     for subj_uri,frame of @G.subjects
-      #console.log "frame:",frame
-      #console.log frame.predicates
+      #console.log("frame:",frame)
+      #console.log(frame.predicates)
       for pred_id,pred of frame.predicates
         for obj in pred.objects
           # this is the right place to convert the ids (URIs) to CURIES
@@ -3624,11 +4224,11 @@ class Huviz
         else
           console.log(err)
 
-      #console.log "my_graph",@my_graph
+      #console.log("my_graph", @my_graph)
       console.log('===================================')
       for prop_name in ['predicates','subjects','objects']
         prop_obj = @my_graph[prop_name]
-        console.log prop_name,(key for key,value of prop_obj).length,prop_obj
+        console.log(prop_name,(key for key,value of prop_obj).length,prop_obj)
       console.log('===================================')
       #console.log "Predicates",(key for key,value of my_graph.predicates).length,my_graph.predicates
       #console.log "Subjects",my_graph.subjects.length,my_graph.subjects
@@ -3725,21 +4325,25 @@ class Huviz
     the_parser = @parseAndShowNQ #++++Why does the parser default to NQ?
     if url.match(/.ttl/)
       the_parser = @parseAndShowTTLData # does not stream
-    else if url.match(/.(nq|nt)/)
+    else if url.match(/.(nq|nt)/) # TODO Retire this in favor of parseAndShowFile
       the_parser = @parseAndShowNQ
-    #else if url.match(/.json/) #Currently JSON files not supported at read_data_and_show
-      #console.log "Fetch and show JSON File"
-      #the_parser = @parseAndShowJSON
+    else if url.match(/.(jsonld|nq|nquads|nt|n3|trig|ttl|rdf|xml)$/)
+      the_parser = @parseAndShowFile
     else #File not valid
       #abort with message
-      #NOTE This only catches URLs that do not have a valid file name; nothing about actual file format
+      # NOTE This only catches URLs that do not have a valid file name;
+      # nothing about actual file format
       msg = "Could not load #{url}. The data file format is not supported! " +
-            "Only files with TTL and NQ extensions are accepted."
+            "Only accepts jsonld|nq|nquads|nt|n3|trig|ttl|rdf|xml extensions."
       @hide_state_msg()
       @blurt(msg, 'error')
       $('#'+@get_data_ontology_display_id()).remove()
       @reset_dataset_ontology_loader()
       #@init_resource_menus()
+      return
+
+    if the_parser is @parseAndShowFile
+      @parseAndShowFile(url, callback)
       return
 
     # Deal with the case that the file is cached inside the datasetDB as a result
@@ -3800,48 +4404,41 @@ class Huviz
         console.log(url, errorThrown)
         console.log jqXHR.getAllResponseHeaders(data)
 
-    # This is a quick test of the SPARQL Endpoint it should return
-    #   https://www.w3.org/TR/2013/REC-sparql11-service-description-20130321/#example-turtle
-    # $.ajax
-    #   method: 'GET'
-    #   url: url
-    #   headers:
-    #     'Accept': 'text/turtle'
-    #   success: (data, textStatus, jqXHR) =>
-    #     console.log "This Enpoint Test: " + textStatus
-    #     console.log jqXHR
-    #     console.log jqXHR.getAllResponseHeaders(data)
-    #     console.log data
-    #   error: (jqxhr, textStatus, errorThrown) =>
-    #     console.log(url, errorThrown)
-    #     console.log jqXHR.getAllResponseHeaders(data)
-
-  run_managed_query_abstract: (qry, url, args) ->
+  run_managed_query_abstract: (args) ->
     # Reference: https://www.w3.org/TR/sparql11-protocol/
     args ?= {}
     args.success_handler ?= noop
     args.error_callback ?= noop
     args.timeout ?= @get_sparql_timeout_msec()
 
-    return @log_query_with_timeout(qry, args.timeout)
+    queryManager = @log_query_with_timeout(args.query, args.timeout)
+    queryManager.args = args
+    return queryManager
 
-  run_managed_query_ajax: (qry, url, args) ->
-    queryManager = @run_managed_query_abstract(qry, url, args)
+  run_managed_query_ajax: (args) ->
+    {query, serverUrl} = args
+    queryManager = @run_managed_query_abstract(args)
     {success_handler, error_callback, timeout} = args
-    # These POST settings work for: CWRC, WWI open, on DBpedia, and Open U.K. but not on Bio Database
+    # These POST settings work for: CWRC, WWI open, on DBpedia, and Open U.K.
+    # but not on Bio Database
     more = "&timeout=" + timeout
+    # TODO This should be decrufted
     ajax_settings = { #TODO Currently this only works on CWRC Endpoint
       'method': 'GET'
-      'url': url + '?query=' + encodeURIComponent(qry) + more
+      'url': serverUrl + '?query=' + encodeURIComponent(query) + more
       'headers' :
         # This is only required for CWRC - not accepted by some Endpoints
         #'Content-Type': 'application/sparql-query'
         'Accept': 'application/sparql-results+json'
     }
-    if url is "http://sparql.cwrc.ca/sparql" # Hack to make CWRC setup work properly
+    if serverUrl is "http://sparql.cwrc.ca/sparql" # Hack to make CWRC setup work properly
       ajax_settings.headers =
         'Content-Type' : 'application/sparql-query'
         'Accept': 'application/sparql-results+json'
+    if serverUrl.includes('wikidata')
+      # these don't solve CORS issues but could solve CORB issues
+      ajax_settings.headers.Accept = "text/tab-separated-values"
+      ajax_settings.headers.Accept = "text/csv"
 
     queryManager.xhr = $.ajax
       timeout: timeout
@@ -3850,50 +4447,59 @@ class Huviz
       headers: ajax_settings.headers
       success: (data, textStatus, jqXHR) =>
         queryManager.cancelAnimation()
-        if success_handler?
-          try
-            success_handler(data, textStatus, jqXHR, queryManager)
-          catch e
-            queryManager.colorQuery('pink')
-            queryManager.displayError(e)
+        try
+          success_handler(data, textStatus, jqXHR, queryManager)
+        catch e
+          queryManager.fatalError(e)
       error: (jqxhr, textStatus, errorThrown) =>
-        queryManager.cancelAnimation()
-        queryManager.setErrorColor()
         if not errorThrown
           errorThrown = "Cross-Origin error"
-        msg = errorThrown + " while fetching " + url
-        #@hide_state_msg()
+        msg = errorThrown + " while fetching " + serverUrl
         $('#'+@get_data_ontology_display_id()).remove()
-        queryManager.displayError(msg)
+        queryManager.fatalError(msg)
         if error_callback?
-          error_callback(jqxhr, textStatus, errorThrown)
+          error_callback(jqxhr, textStatus, errorThrown, queryManager)
 
     return queryManager
 
-  run_managed_query_worker: (qry, url, args) ->
-    queryManager = @run_managed_query_abstract(qry, url, args)
+  run_managed_query_worker: (qry, serverUrl, args) ->
+    args.query = qry
+    args.serverUrl = serverUrl
+    queryManager = @run_managed_query_abstract(args)
     return queryManager
 
+  sparql_graph_query_and_show__trigger: (url) =>
+    selectId = @endpoint_loader.select_id
+    @sparql_graph_query_and_show(url, selectId)
+    #console.log @dataset_loader
+    $("##{@dataset_loader.uniq_id}").children('select').prop('disabled', 'disabled')
+    $("##{@ontology_loader.uniq_id}").children('select').prop('disabled', 'disabled')
+    $("##{@script_loader.uniq_id}").children('select').prop('disabled', 'disabled')
 
   sparql_graph_query_and_show: (url, id, callback) =>
     qry = """
       # sparql_graph_query_and_show()
-      SELECT ?g
+      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+      SELECT ?g ?label
       WHERE {
-        GRAPH ?g { }
+        GRAPH ?g { } .
+        OPTIONAL {?g rdfs:label ?label}
       }
+      ORDER BY ?g
     """
-
+    #alert("sparql_graph_query_and_show() id: #{id}")
     # these are shared between success and error handlers
     spinner = $("#sparqlGraphSpinner-#{id}")
     spinner.css('display','block')
     graphSelector = "#sparqlGraphOptions-#{id}"
     $(graphSelector).parent().css('display', 'none')
     @sparqlQryInput_hide()
-
+    # LOAD button should be disabled while the search for graphs is happening
+    @disable_go_button()
     handle_graphsNotFound = () =>
       $(graphSelector).parent().css('display', 'none')
       @reset_endpoint_form(true)
+      @enable_go_button()
 
     make_success_handler = () =>
       return (data, textStatus, jqXHR, queryManager) =>
@@ -3912,10 +4518,15 @@ class Huviz
           return
         graph_options = "<option id='#{@unique_id()}' value='#{url}'> All Graphs </option>"
         for graph in results
-          graph_options = graph_options + "<option id='#{@unique_id()}' value='#{graph.g.value}'>#{graph.g.value}</option>"
+          if graph.label?
+            label = " (#{graph.label.value})"
+          else
+            label = ''
+          graph_options = graph_options + "<option id='#{@unique_id()}' value='#{graph.g.value}'>#{graph.g.value}#{label}</option>"
         $("#sparqlGraphOptions-#{id}").html(graph_options)
         $(graphSelector).parent().css('display', 'block')
         @reset_endpoint_form(true)
+        @disable_go_button() # disable until a graph or term is picked
 
     make_error_callback = () =>
       return (jqXHR, textStatus, errorThrown) =>
@@ -3928,7 +4539,9 @@ class Huviz
     args =
       success_handler: make_success_handler()
       error_callback: make_error_callback()
-    @sparql_graph_query_and_show_queryManager = @run_managed_query_ajax(qry, url, args)
+    args.query = qry
+    args.serverUrl = url
+    @sparql_graph_query_and_show_queryManager = @run_managed_query_ajax(args)
 
   sparqlQryInput_hide: ->
     @sparqlQryInput_JQElem.hide() #css('display', 'none')
@@ -3974,61 +4587,23 @@ class Huviz
         @dataset_loader.disable()
         @ontology_loader.disable()
         @replace_loader_display_for_endpoint(endpoint, @endpoint_loader.endpoint_graph)
-        disable = true
-        @update_go_button(disable)
+        @disable_go_button()
         @big_go_button.hide()
         @after_file_loaded('sparql', callback)
 
     args =
+      query: qry
+      serverUrl: url
       success_handler: make_success_handler()
-    @run_managed_query_ajax(qry, url, args)
+    @run_managed_query_ajax(args)
 
-  DEPRECATED_load_endpoint_data_and_show: (subject, callback) ->
-    @p_total_sprql_requests++
-    note = ''
-
-    # REMOVED STUFF THAT WAS THE SAME AS IN load_endpoint_data_and_show()
-
-    $.ajax
-      timeout: timeout
-      method: ajax_settings.method
-      url: ajax_settings.url
-      headers: ajax_settings.headers
-      success: (data, textStatus, jqXHR) =>
-        #console.log jqXHR
-        #console.log "Query: " + subject
-        note = subject
-        if @p_display then @performance_dashboard('sparql_request', note)
-        #console.log qry
-        json_check = typeof data
-        if json_check is 'string'
-          json_data = JSON.parse(data)
-        else
-          json_data = data
-        #console.log "Json Array Size: " + json_data.results.bindings.length
-        @add_nodes_from_SPARQL(json_data, subject)
-        @shelved_set.resort()
-        @tick("Tick in load_new_endpoint_data_and_show success callback")
-        @update_all_counts()
-        @endpoint_loader.outstanding_requests = @endpoint_loader.outstanding_requests - 1
-        #console.log "Finished request: count now " + @endpoint_loader.outstanding_requests
-      error: (jqxhr, textStatus, errorThrown) =>
-        console.log(url, errorThrown)
-        console.log jqXHR.getAllResponseHeaders(data)
-        if not errorThrown
-          errorThrown = "Cross-Origin error"
-        msg = errorThrown + " while fetching " + url
-        @hide_state_msg()
-        $('#'+@get_data_ontology_display_id()).remove()
-        @blurt(msg, 'error')  # trigger this by goofing up one of the URIs in cwrc_data.json
-        @reset_dataset_ontology_loader()
 
   add_nodes_from_SPARQL: (json_data, subject, queryManager) ->
     data = ''
-    context = "http://universal.org"
+    context = @get_context()
     plainLiteral = "http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral"
-    #console.log json_data
-    console.log "Adding node (i.e. fully exploring): " + subject
+    #console.log(json_data)
+    console.log("Adding node (i.e. fully exploring): " + subject)
     results = json_data.results.bindings
     if queryManager?
       queryManager.setResultCount(results.length)
@@ -4083,7 +4658,7 @@ class Huviz
       if language
         q.o.language = language
 
-      #console.log q
+      #console.log(q)
       #IF this is a new quad, then add it. Otherwise no.
       node_list_empty = @sparql_node_list.length
       if node_list_empty is 0 # Add first node (because list is empty)
@@ -4097,15 +4672,15 @@ class Huviz
           #TODO - This filtering statement doesn't seem tight (Will not catch nodes that HuViz creates - that's okay I think)
           if q.s is snode.s and q.p is snode.p and q.o.value is snode.o.value and q.o.type is snode.o.type and q.o.language is snode.o.language
             node_not_in_list = false
-            #console.log "Found it in list so will not send to add_quad"
+            #console.log("Found it in list so will not send to add_quad")
             if snode.s is subject or snode.o.value is subject#IF node is subject node IS already in list BUT fullly_loaded is false then set to true
               for a_node, i in @all_set
                 if a_node.id is subject
                    @all_set[i].fully_loaded = true
-                   #console.log "Found node for #{subject} so making it fully_loaded"
+                   #console.log("Found node for #{subject} so making it fully_loaded")
             #else if snode.o.value is subject
               #for a_node, i in @all_set
-                #console.log "compare: " + a_node.id + "   subject: " + subject
+                #console.log("compare: " + a_node.id + "   subject: " + subject)
                 #if a_node.id is subject
                    #@all_set[i].fully_loaded = true
                    #console.log "Found object node for #{subject} which should be fully_loaded"
@@ -4119,7 +4694,7 @@ class Huviz
         @add_quad(q, subject)
       #@dump_stats()
 
-  add_nodes_from_SPARQL_Worker: (queryTarget) ->
+  add_nodes_from_SPARQL_Worker: (queryTarget, callback) ->
     console.log("Make request for new query and load nodes")
 
     timeout = @get_sparql_timeout_msec()
@@ -4136,13 +4711,14 @@ class Huviz
     worker.addEventListener 'message', (e) =>
       #console.log e.data
       if e.data.method_name is 'log_query'
-        queryManager = @run_managed_query_abstract("#SPARQL_Worker\n"+e.data.qry, url, queryManagerArgs)
+        queryManagerArgs.query = "#SPARQL_Worker\n"+e.data.qry
+        queryManagerArgs.serverUrl = url
+        queryManager = @run_managed_query_abstract(queryManagerArgs)
         #queryManager = @log_query_with_timeout(, timeout)
         return
       else if e.data.method_name isnt 'accept_results'
         error = new Error("expecting either data.method = 'log_query' or 'accept_results'")
-        queryManager.cancelAnimation()
-        queryManager.displayError(error)
+        queryManager.fatalError(error)
         throw error
       add_fully_loaded = e.data.fully_loaded_index
       for quad in e.data.results
@@ -4165,6 +4741,8 @@ class Huviz
       @shelved_set.resort()
       @tick("Tick in add_nodes_from_SPARQL_worker")
       @update_all_counts()
+      if callback?
+        callback()
     worker.postMessage(
       target: queryTarget
       url: url
@@ -4173,21 +4751,25 @@ class Huviz
       timeout: timeout
       previous_nodes: previous_nodes)
 
-  is_from_sparql: ->
+  using_sparql: ->
     # force the return of a boolan with "not not"
     return not not (@endpoint_loader? and @endpoint_loader.value) # This is part of a sparql set
 
-  get_neighbors_via_sparql: (chosen) ->
+  outstanding_sparql_requests_are_capped: ->
+    return not (@endpoint_loader.outstanding_requests < @max_outstanding_sparql_requests)
+
+  get_neighbors_via_sparql: (chosen, callback) ->
     if not chosen.fully_loaded
       # If there are more than certain number of requests, stop the process
       maxReq = @max_outstanding_sparql_requests
-      if (@endpoint_loader.outstanding_requests < maxReq)
+      if not @outstanding_sparql_requests_are_capped()
         @endpoint_loader.outstanding_requests++
-        @add_nodes_from_SPARQL_Worker(chosen.id)
+        @add_nodes_from_SPARQL_Worker(chosen.id, callback)
         console.log("outstanding_requests: " + @endpoint_loader.outstanding_requests)
       else
         msg = "SPARQL requests capped at #{maxReq}"
-        @blurt(msg, 'alert')
+        #@blurt(msg, 'alert')
+        console.info(msg)
         # if $("#blurtbox").html()
         #   #console.log "Don't add error message " + message
         #   console.log "Request counter (over): " + @endpoint_loader.outstanding_requests
@@ -4349,7 +4931,7 @@ class Huviz
     @update_state(n)
     @force.links(@links_set)
     if not @args.skip_log_tick
-      console.log "Tick in @force.links(@links_set) show_links_to_node"
+      console.log("Tick in @force.links(@links_set) show_links_to_node")
     @restart()
 
   update_state: (node) ->
@@ -4374,7 +4956,7 @@ class Huviz
     @update_state n
     @force.links(@links_set)
     if not @args.skip_log_tick
-      console.log "Tick in @force.links() hide_links_to_node"
+      console.log("Tick in @force.links() hide_links_to_node")
     @restart()
 
   show_links_from_node: (n, incl_discards) ->
@@ -4459,13 +5041,14 @@ class Huviz
   get_or_create_node_by_id: (uri, name, isLiteral) ->
     # FIXME OMG must standardize on .lid as the short local id, ie internal id
     #node_id = @make_qname(uri) # REVIEW: what about uri: ":" ie the current graph
-    node_id = uri
-    node = @nodes.get_by('id', node_id)
+    node = @nodes.get_by('id', uri)
     if not node?
-      node = @embryonic_set.get_by('id',node_id)
+      node = @embryonic_set.get_by('id', uri)
     if not node?
       # at this point the node is embryonic, all we know is its uri!
-      node = new Node(node_id, @use_lid_as_node_name)
+      node = new Node(uri)
+      if @use_lid_as_node_name and not node.name? and not name?
+        name = node.lid
       if isLiteral?
         node.isLiteral = isLiteral
       if not node.id?
@@ -4496,7 +5079,7 @@ class Huviz
 
   hatch: (node) ->
     # Take a node from being 'embryonic' to being a fully graphable node
-    #console.log node.id+" "+node.name+" is being hatched!"
+    #console.log(node.id+" "+node.name+" is being hatched!")
     node.lid = uniquer(node.id) # FIXME ensure uniqueness
     @embryonic_set.remove(node)
     new_set = @get_default_set_by_type(node)
@@ -4524,12 +5107,12 @@ class Huviz
     transient_node.charge = 20
     return transient_node
 
-  # TODO: remove this method
+  # REVIEW the need for this method.  Called by showGraph but is it called?
   make_nodes: (g, limit) ->
     limit = limit or 0
     count = 0
     for subj_uri,subj of g.subjects #my_graph.subjects
-      #console.log subj, g.subjects[subj]  if @verbosity >= @DEBUG
+      #console.log(subj, g.subjects[subj])  if @verbosity >= @DEBUG
       #console.log subj_uri
       #continue  unless subj.match(ids_to_show)
       subject = subj #g.subjects[subj]
@@ -4624,11 +5207,18 @@ class Huviz
     return false
 
   unpin: (node) ->
-    delete node.pinned_only_while_chosen # do it here in case of direct unpinning
+    # delete node.pinned_only_while_chosen # do it here in case of direct unpinning
     if node.fixed
       @pinned_set.remove(node)
       return true
     return false
+
+  pin_at_center: (node) ->
+    cmd =
+      polar_coords:
+        range: 0
+        degrees: 0
+    @pin(node, cmd)
 
   unlink: (unlinkee) ->
     # FIXME discover whether unlink is still needed
@@ -4676,12 +5266,15 @@ class Huviz
       console.log("shelving failed for", goner)
     goner
 
-  choose: (chosen) =>
-    # If this chosen node is part of a SPARQL query set, then check if it is fully loaded
-    # if it isn't then load and activate
-    #console.log chosen
-    if @is_from_sparql()
-      @get_neighbors_via_sparql(chosen)
+  choose: (chosen, callback_after_choosing) =>
+    # If this chosen node is part of a SPARQL query set and not fully loaded then
+    # fully load it and try this method again, via callback.
+    if @using_sparql() and
+         not chosen.fully_loaded and
+         not @outstanding_sparql_requests_are_capped()
+      callback_after_getting_neighbors = () => @choose(chosen, callback_after_choosing)
+      @get_neighbors_via_sparql(chosen, callback_after_getting_neighbors)
+      return
 
     # There is a flag .chosen in addition to the state 'linked'
     # because linked means it is in the graph
@@ -4694,6 +5287,8 @@ class Huviz
     @show_links_to_node(chosen)
     @update_state(chosen)
     shownness = @update_showing_links(chosen)
+    if callback_after_choosing?
+      callback_after_choosing()
     chosen
 
   unchoose: (unchosen) =>
@@ -4720,7 +5315,8 @@ class Huviz
     #   At first, before the verb Wander is executed on any node, we must
     # build a SortedSet of the nodes which were wasChosen to compare
     # with the SortedSet of nodes which are intendedToBeGraphed as a
-    # result of the Wander command which is being executed.
+    # result of the Wander command which is being executed. This method
+    # is called once, BEFORE iterating through the nodes being wander-ed.
     if not @wasChosen_set.clear()
       throw new Error("expecting wasChosen to be empty")
     for node in @chosen_set
@@ -4732,6 +5328,7 @@ class Huviz
     # by the Wander verb, it is time to remove wasChosen nodes which
     # are not nowChosen.  In other words, ungraph those nodes which
     # are no longer held in the graph by any recently wandered-to nodes.
+    # This method is called once, AFTER wander has been called on each node.
     wasRollCall = @wasChosen_set.roll_call()
     nowRollCall = @nowChosen_set.roll_call()
     removed = @wasChosen_set.filter (node) =>
@@ -4746,6 +5343,7 @@ class Huviz
     # Wander is just the same as Choose (AKA Activate) except afterward it deactivates the
     # nodes which were in the chosen_set before but are not in the set being wandered.
     # This is accomplished by wander__build_callback()
+    # See @wander__atFirst and @wander__atLast which are run before and after this one.
     return @choose(chosen)
 
   unwalk: (node) ->
@@ -4787,14 +5385,15 @@ class Huviz
         # 3) start a new path because nextStep is not connected with the @walked_set
         @walkBackAll() # clean up the old path completely
 
+    do_after_chosen = () =>
+      if tooHairy # as promised we now deal with the previous terminal node
+        @shave(tooHairy) # ungraph the non-path nodes which were held in the graph by tooHairy
+
     # this should happen to every node added to @walked_set
     nextStep.walkedIdx0 = @walked_set.length # tell it what position it will have in the path
     if not nextStep.walked # It might already be in the path, if not...
       @walked_set.add(nextStep) # add it
-    @choose(nextStep) # finally, choose nextStep to make it hairy
-
-    if tooHairy # as promised we now deal with the last node
-      @shave(tooHairy) # ungraph the non-path nodes which were held in the graph by tooHairy
+    @choose(nextStep, do_after_chosen) # finally, choose nextStep to make it hairy
 
     return # so the javascript is not cluttered with confusing nonsense
 
@@ -4837,6 +5436,15 @@ class Huviz
       if larger - smaller is 1
         return true
     return false
+
+  distinguish: (node) ->
+    emeritus = @distinguished_node
+    if @emeritus?
+      delete emeritus._is_distinguished
+    if node?
+      node._is_distinguished = true
+    @distinguished_node = node
+    return emeritus
 
   hide: (goner) =>
     @unpin(goner)
@@ -5004,7 +5612,7 @@ class Huviz
   init_snippet_box: ->
     if d3.select('#snippet_box')[0].length > 0
       @snippet_box = d3.select('#snippet_box')
-      console.log "init_snippet_box"
+      console.log("init_snippet_box")
   remove_snippet: (snippet_id) ->
     key = @get_snippet_js_key(snippet_id)
     delete @currently_printed_snippets[key]
@@ -5013,7 +5621,7 @@ class Huviz
       console.log(slctr)
       @snippet_box.select(slctr).remove()
   push_snippet: (obj, msg) ->
-    console.log "push_snippet"
+    console.log("push_snippet")
     if @snippet_box
       snip_div = @snippet_box.append('div').attr('class','snippet')
       snip_div.html(msg)
@@ -5141,7 +5749,7 @@ class Huviz
           quad =
             subj_uri: edge.source.id
             pred_uri: edge.predicate.id
-            graph_uri: @data_uri
+            graph_uri: edge.graph.id
           if edge.target.isLiteral
             quad.obj_val = edge.target.name.toString()
           else
@@ -5250,7 +5858,7 @@ class Huviz
 
   showGraph: (g) ->
     alert "showGraph called"
-    @make_nodes g
+    @make_nodes(g)
     @fire_showgraph_event() if window.CustomEvent?
     @restart()
 
@@ -5291,10 +5899,12 @@ class Huviz
   ensure_datasets: (preload_group, store_in_db) =>
     # note "fat arrow" so this can be an AJAX callback (see preload_datasets)
     defaults = preload_group.defaults or {}
-    #console.log preload_group # THIS IS THE ITEMS IN A FILE (i.e. cwrc.json, generes.json)
+    #console.log(preload_group) # THIS IS THE ITEMS IN A FILE (i.e. cwrc.json, generes.json)
     for ds_rec in preload_group.datasets
-      # If this preload_group has defaults apply them to the ds_rec if it is missing that value.
-      # We do not want to do ds_rec.__proto__ = defaults because then defaults are not ownProperty
+      # If this preload_group has defaults apply them to the ds_rec
+      # if it is missing that value.
+      # We do not want to do `ds_rec.__proto__ = defaults`
+      #  because then defaults are not ownProperty
       for k of defaults
         ds_rec[k] ?= defaults[k]
       @ensure_dataset(ds_rec, store_in_db)
@@ -5327,11 +5937,7 @@ class Huviz
     req = store.put(rsrcRec)
     req.onsuccess = (e) =>
       if rsrcRec.isEndpoint
-        @sparql_graph_query_and_show(e.srcElement.result, @endpoint_loader.select_id)
-        #console.log @dataset_loader
-        $("##{@dataset_loader.uniq_id}").children('select').prop('disabled', 'disabled')
-        $("##{@ontology_loader.uniq_id}").children('select').prop('disabled', 'disabled')
-        $("##{@script_loader.uniq_id}").children('select').prop('disabled', 'disabled')
+        @sparql_graph_query_and_show__trigger(e.srcElement.result)
       if rsrcRec.uri isnt e.target.result
         console.debug("rsrcRec.uri (#{rsrcRec.uri}) is expected to equal", e.target.result)
       callback(rsrcRec)
@@ -5435,7 +6041,7 @@ class Huviz
     #    }
     console.groupCollapsed("preload_datasets")
     # Adds preload options to datasetDB table
-    console.log @args.preload
+    console.log(@args.preload)
     if @args.preload
       for preload_group_or_uri in @args.preload
         if typeof(preload_group_or_uri) is 'string' # the URL of a preload_group JSON
@@ -5454,12 +6060,12 @@ class Huviz
     console.groupEnd() # closing group called "preload_datasets"
 
   preload_endpoints: ->
-    console.log @args.preload_endpoints
+    console.log(@args.preload_endpoints)
     console.groupCollapsed("preload_endpoints")
     ####
     if @args.preload_endpoints
       for preload_group_or_uri in @args.preload_endpoints
-        console.log preload_group_or_uri
+        console.log(preload_group_or_uri)
         if typeof(preload_group_or_uri) is 'string' # the URL of a preload_group JSON
           #$.getJSON(preload_group_or_uri, null, @ensure_datasets_from_XHR)
           $.ajax
@@ -5529,8 +6135,8 @@ class Huviz
       @big_go_button = $('<button class="big_go_button">LOAD</button>')
       @big_go_button.attr('id', @big_go_button_id)
       $(@get_or_create_sel_for_picker()).append(@big_go_button)
-      @big_go_button.click(@visualize_dataset_using_ontology)
-      @big_go_button.prop('disabled', true)
+      @big_go_button.click(@big_go_button_onclick)
+      @disable_go_button()
     if @ontology_loader or @dataset_loader or @script_loader and not @big_go_button
       ontology_selector = "##{@ontology_loader.select_id}"
       $(ontology_selector).change(@update_dataset_forms)
@@ -5544,7 +6150,136 @@ class Huviz
 
     #@preload_endpoints()
     # TODO remove this nullification of @last_val by fixing logic in select_option()
-    @ontology_loader?last_val = null # clear the last_val so select_option works the first time
+    # clear the last_val so select_option works the first time
+    @ontology_loader?last_val = null
+
+  big_go_button_onclick: (event) =>
+    if @using_sparql()
+      return @big_go_button_onclick_sparql(event)
+    @visualize_dataset_using_ontology()
+    return
+
+  big_go_button_onclick_sparql: (event) ->
+    if @allGraphsChosen()
+      if (foundUri = @endpoint_labels_JQElem.val())
+        @visualize_dataset_using_ontology()
+        return
+      colorlog("IGNORING. The LOAD button should not even be clickable right now")
+      return
+    if (endpoint_label_uri = @endpoint_labels_JQElem.val())
+      @visualize_dataset_using_ontology()
+      return
+    if (graphUri = @sparqlGraphSelector_JQElem.val())
+      # TODO remove the requirement for a graphUri to be specified before the spoQuery is enabled.
+      if (spoQuery = @spo_query_JQElem.val())
+        @displayTheSpoQuery(spoQuery, graphUri)
+        return
+      @displayTheChosenGraph(graphUri)
+      return
+    colorlog("IGNORING.  Neither graph nor endpoint_label is chosen.")
+    return
+
+  displayTheChosenGraph: (graphUri) ->
+    #alert("stub for displayTheChosenGraph('#{graphUri}')")
+    args =
+      success_handler: @display_graph_success_handler
+      result_handler: @name_result_handler
+      query_terms:
+        g: graphUri
+    # respect the limit provided by the user
+    if (limit = @endpoint_limit_JQElem.val())
+      args.limit = limit
+    args.query = @make_generic_query(args)
+    @run_generic_query(args)
+    return
+
+  displayTheSpoQuery: (spoQuery, graphUri) ->
+    args =
+      success_handler: @display_graph_success_handler
+      result_handler: @name_result_handler
+      query: spoQuery
+      query_terms:
+        g: graphUri
+    if (limit = @endpoint_limit_JQElem.val())
+      args.limit = limit
+    @run_generic_query(args)
+    return
+
+  # ## make_generic_query()
+  #
+  # The default query looks like:
+  # ```sparql
+  # SELECT *
+  # FROM <query_terms.g> # only present if query_terms.g provided
+  # WHERE {
+  #   <query_terms.s> ?p ?o .
+  # }
+  # LIMIT 20 # the value of args.limit, if present
+  # ```
+  make_generic_query: (in_args) ->
+    args = @compose_object_from_defaults_and_incoming(@default_name_query_args, in_args)
+    terms = args.query_terms or {}
+    lines = ["SELECT *"]
+    if terms.g?
+      lines.push("FROM <#{terms.g}>")
+    lines.push("WHERE {")
+    pattern = "  "
+    for term in 'spo'.split('')
+      val = terms[term]
+      if val?
+        pattern += "<#{val}> "
+      else
+        pattern += "?#{term} "
+    pattern += "."
+    lines.push(pattern)
+    lines.push("}")
+    if args.limit
+      lines.push("LIMIT #{args.limit}")
+    return lines.join("\n")
+
+  run_generic_query: (args) ->
+    serverSpec = @get_server_for_dataset(args.query_terms.g)
+    {serverType, serverUrl} = serverSpec
+    args.serverUrl = serverUrl
+    args.serverType = serverType
+    switch serverType
+      when 'ldf'
+        @run_managed_query_ldf(args)
+      when 'sparql'
+        @run_managed_query_ajax(args)
+      else
+        throw new Error("don't know how to handle serverType: '#{serverType}'")
+    return
+
+  domain2sparqlEndpoint:
+    'cwrc.ca': 'http://sparql.cwrc.ca/sparql'
+    'getty.edu': 'http://vocab.getty.edu/sparql.tsv'
+    'openstreetmap.org': 'https://sophox.org/sparql'
+
+  get_server_for_dataset: (datasetUri) ->
+    aUrl = new URL(datasetUri)
+    {domain} = aUrl
+    # Deal with the situation where the datasetUri sought is served
+    # by the server the user has chosen.
+    if @using_sparql() and @sparqlGraphSelector_JQElem.val() is datasetUri
+      serverType = 'sparql'
+      serverUrl = @endpoint_loader.value
+    # Otherwise, consult built-in hard-coded mappings from datasets to
+    # the servers they are available at.  First we look for matches
+    # based on the domain sought.
+    else if (serverUrl = @domain2sparqlEndpoint[domain])
+      serverType = 'sparql'
+    else if (serverUrl = @domain2sparqlEndpoint[domain])
+      serverType = 'ldf'
+    # Then try to find wildcard servers '*', if available.
+    # Give precedence to sparql over ldf.
+    else if (serverUrl = @domain2sparqlEndpoint['*'])
+      serverType = 'sparql'
+    else if (serverUrl = @domain2ldfServer['*'])
+      serverType = 'ldf'
+    else
+      throw new Error("a server could not be found for #{datasetUri}")
+    return {serverType, serverUrl}
 
   update_dataset_forms: (e) =>
     ont_val = $("##{@ontology_loader.select_id}").val()
@@ -5556,7 +6291,7 @@ class Huviz
       $("##{@endpoint_loader.uniq_id}").children('select').prop('disabled', 'disabled')
 
   update_graph_form: (e) =>
-    console.log e.currentTarget.value
+    console.log(e.currentTarget.value)
     @endpoint_loader.endpoint_graph = e.currentTarget.value
 
   visualize_dataset_using_ontology: (ignoreEvent, dataset, ontologies) =>
@@ -5566,6 +6301,9 @@ class Huviz
     if endpoint_label_uri
       data = dataset or @endpoint_loader
       @load_endpoint_data_and_show(endpoint_label_uri)
+      # TODO ensure disable_dataset_ontology_loader() is only called once
+      console.warn("disable_dataset_ontology_loader() SHOULD BE CALLED ONLY ONCE")
+      @disable_dataset_ontology_loader_AUTOMATICALLY()
       @update_browser_title(data)
       @update_caption(data.value, data.endpoint_graph)
       return
@@ -5613,14 +6351,31 @@ class Huviz
       @gclui.ignore_predicate(pred_id)
     for pid in @predicates_to_ignore
       @gclui.ignore_predicate(pid)
+    return
 
-  disable_dataset_ontology_loader: (data, onto) ->
-    @replace_loader_display(data, onto)
-    disable = true
-    @update_go_button(disable)
+  disable_dataset_ontology_loader_AUTOMATICALLY: ->
+    # TODO to be AUTOMATIC(!!) handle dataset, ontology and script too
+    # TODO this should add graph, item and limit only if needed
+    endpoint =
+      value: @endpoint_loader.value
+      label: @endpoint_loader.value # TODO get pretty label (or not?)
+      limit: @endpoint_limit_JQElem.val()
+      graph:
+        value: @sparqlGraphSelector_JQElem.val()
+        label: @sparqlGraphSelector_JQElem.val() # TODO get pretty label (or not?)
+      item:
+        value: @endpoint_labels_JQElem.val()
+        label: @endpoint_labels_JQElem.val() # TODO get pretty label (or not?)
+    @disable_dataset_ontology_loader(null, null, endpoint)
+    return
+
+  disable_dataset_ontology_loader: (data, onto, endpoint) ->
+    @replace_loader_display(data, onto, endpoint)
+    @disable_go_button()
     @dataset_loader.disable()
     @ontology_loader.disable()
     @big_go_button.hide()
+    return
 
   reset_dataset_ontology_loader: ->
     $('#'+@get_data_ontology_display_id()).remove()
@@ -5628,16 +6383,19 @@ class Huviz
     @dataset_loader.enable()
     @ontology_loader.enable()
     @big_go_button.show()
-    $("##{@dataset_loader.select_id} option[label='Pick or Provide...']").prop('selected', true)
+    $("##{@dataset_loader.select_id} option[label='Pick or Provide...']")
+       .prop('selected', true)
     @gclui_JQElem.removeAttr("style","display:none")
+    return
 
-  update_dataset_ontology_loader: =>
-    if not (@dataset_loader? and @ontology_loader?  and @endpoint_loader? and @script_loader?)
+  update_dataset_ontology_loader: (args) =>
+    if not (@dataset_loader? and @ontology_loader? and
+            @endpoint_loader? and @script_loader?)
       console.log("still building loaders...")
       return
-    @set_ontology_from_dataset_if_possible()
+    @set_ontology_from_dataset_if_possible(args)
     ugb = () =>
-      @update_go_button()
+      @update_go_button() # TODO confirm that this should be disable_go_button
     setTimeout(ugb, 200)
 
   update_endpoint_form: (e) =>
@@ -5651,10 +6409,10 @@ class Huviz
       $(graphSelector).parent().css('display', 'none')
       @reset_endpoint_form(false)
     else if e.currentTarget.value is 'provide'
-      console.log "update_endpoint_form ... select PROVIDE"
+      console.log("update_endpoint_form ... select PROVIDE")
     else
       @sparql_graph_query_and_show(e.currentTarget.value, e.currentTarget.id)
-      #console.log @dataset_loader
+      #console.log(@dataset_loader)
       $("##{@dataset_loader.uniq_id}").children('select').prop('disabled', 'disabled')
       $("##{@ontology_loader.uniq_id}").children('select').prop('disabled', 'disabled')
       $("##{@script_loader.uniq_id}").children('select').prop('disabled', 'disabled')
@@ -5663,17 +6421,25 @@ class Huviz
     spinner = $("#sparqlGraphSpinner-#{@endpoint_loader.select_id}")
     spinner.css('display','none')
     @endpoint_labels_JQElem.prop('disabled', false).val("")
-    @endpoint_limit_JQElem.prop('disabled', false).val("100")
+    @endpoint_limit_JQElem.prop('disabled', false).val(@sparql_query_default_limit)
     if show
       @sparqlQryInput_show()
     else
       @sparqlQryInput_hide()
 
+  disable_go_button: =>
+    @update_go_button((disable = true))
+    return
+
+  enable_go_button: =>
+    @update_go_button((disable = false))
+    return
+
   update_go_button: (disable) ->
     if not disable?
       if @script_loader.value
         disable = false
-      else if @endpoint_loader? and @endpoint_loader.value
+      else if @using_sparql()
         disable = false
       else
         ds_v = @dataset_loader.value
@@ -5687,9 +6453,18 @@ class Huviz
   get_reload_uri: ->
     return @reload_uri or new URL(window.location)
 
-  generate_reload_uri: (dataset, ontology) ->
-    @reload_uri =     uri = new URL(location)
-    uri.hash = "load+#{dataset.value}+with+#{ontology.value}"
+  generate_reload_uri: (dataset, ontology, endpoint) ->
+    @reload_uri = uri = new URL(document.location)
+    if dataset and ontology
+      uri.hash = "load+#{dataset.value}+with+#{ontology.value}"
+    else if endpoint
+      uri.hash = "query+"+encodeURIComponent(endpoint.value)
+      if endpoint.graph and endpoint.graph.value
+        uri.hash += "+from+"+encodeURIComponent(endpoint.graph.value)
+      if endpoint.item and endpoint.item.value
+        uri.hash += "+seeking+"+encodeURIComponent(endpoint.item.value)
+      if endpoint.limit
+        uri.hash += "+limit+"+encodeURIComponent(endpoint.limit)
     return uri
 
   get_data_ontology_display_id: ->
@@ -5699,25 +6474,70 @@ class Huviz
   hide_pickers: ->
     $(@pickersSel).attr("style","display:none")
 
-  replace_loader_display: (dataset, ontology) ->
-    @generate_reload_uri(dataset, ontology)
-    uri = @get_reload_uri()
+  replace_loader_display: (dataset, ontology, endpoint) ->
+    @generate_reload_uri(dataset, ontology, endpoint)
     @hide_pickers()
-    data_ontol_display = """
-    <div id="#{@get_data_ontology_display_id()}" class="data_ontology_display">
-      <p><span class="dt_label">Dataset:</span> #{dataset.label}</p>
-      <p><span class="dt_label">Ontology:</span> #{ontology.label}</p>
+    vis_src_args =
+      uri: @get_reload_uri()
+      dataset: dataset
+      ontology: ontology
+      endpoint: endpoint
+      script: "TODO include script stuff here"
+    @render_visualization_source_display(vis_src_args)
+    return
+
+  render_visualization_source_display: (vis_src_args) ->
+    {dataset, ontology, endpoint, script, uri} = vis_src_args
+    if dataset and ontology
+      add_reload_button = true
+      source_html = """
+        <p><span class="dt_label">Dataset:</span> <a href="#{dataset.value}">#{dataset.label}</a></p>
+        <p><span class="dt_label">Ontology:</span> <a href="#{ontology.value}">#{ontology.label}</a></p>
+        """
+    else if endpoint
+      add_reload_button = true
+      source_html = """
+        <p><span class="dt_label">Endpoint:</span> <a href="#{endpoint.value}">#{endpoint.label}</a></p>
+      """
+      if endpoint.graph
+        source_html += """
+        <p><span class="dt_label">Graph:</span> <a href="#{endpoint.graph.value}">#{endpoint.graph.label}</a></p>
+      """
+      if endpoint.item
+        source_html += """
+        <p><span class="dt_label">Item:</span> <a href="#{endpoint.item.value}">#{endpoint.item.label}</a></p>
+      """
+      if endpoint.limit
+        source_html += """
+        <p><span class="dt_label">Limit:</span> #{endpoint.limit}</p>
+      """
+    else if script
+      source_html = """
+        <p><span class="dt_label">Script:</span> #{script}</p>
+      """
+    else
+      source_html = """
+        <p><span class="dt_label">Source:</span>TBD</p>
+      """
+    reload_html = """
       <p>
+        <button title="Copy shareable link"
+           onclick="alert('#{uri}')"><i class="fas fa-share"></i></button>
         <button title="Reload this data"
            onclick="location.replace('#{uri}');location.reload()"><i class="fas fa-redo"></i></button>
         <button title="Clear the graph and start over"
            onclick="location.assign(location.origin)"><i class="fas fa-times"></i></button>
       </p>
+    """
+    visualization_source_display = """
+    <div id="#{@get_data_ontology_display_id()}" class="data_ontology_display">
+      #{source_html}
+      #{add_reload_button and reload_html or ''}
       <br style="clear:both">
     </div>""" # """ the extra set of triple double quotes is for emacs coffescript mode
     sel = @oldToUniqueTabSel['huvis_controls']
     controls = document.querySelector(sel)
-    controls.insertAdjacentHTML('afterbegin', data_ontol_display)
+    controls.insertAdjacentHTML('afterbegin', visualization_source_display)
     return
 
   replace_loader_display_for_endpoint: (endpoint, graph) ->
@@ -5738,7 +6558,10 @@ class Huviz
 
   update_browser_title: (dataset) ->
     if dataset.value
-      document.title = dataset.label + " - Huvis Graph Visualization"
+      @set_browser_title(dataset.label)
+
+  set_browser_title: (label) ->
+    document.title = label + " - Huvis Graph Visualization"
 
   make_git_link: ->
     base = @args.git_base_url
@@ -5765,7 +6588,12 @@ class Huviz
     @ontology_watermark_JQElem.text(ontology_str)
     return
 
-  set_ontology_from_dataset_if_possible: ->
+  set_ontology_from_dataset_if_possible: (args) =>
+    args ?= {}
+    if args.pickOrProvide is @ontology_loader # and @dataset_loader.value
+      # The ontology_loader being adjusted provoked this call.
+      # We do not want to override the adjustment just made by the user.
+      return
     if @dataset_loader.value # and not @ontology_loader.value
       option = @dataset_loader.get_selected_option()
       ontologyUri = option.data('ontologyUri')
@@ -5775,21 +6603,24 @@ class Huviz
       else
         @set_ontology_with_label(ontology_label)
     @ontology_loader.update_state()
+    return
 
   set_ontology_with_label: (ontology_label) ->
     topSel = @args.huviz_top_sel
-    sel = topSel + " [label='#{ontology_label}']"
+    sel = topSel + " option[label='#{ontology_label}']"
     for ont_opt in $(sel) # FIXME make this re-entrant
       @ontology_loader.select_option($(ont_opt))
       return
     return
 
   set_dataset_with_uri: (uri) ->
+    # TODO use PickOrProvide.select_by_uri() as in query_from_seeking_limit()
     topSel = @args.huviz_top_sel
     option = $(topSel + ' option[value="' + uri + '"]')
     @dataset_loader.select_option(option)
 
   set_ontology_with_uri: (ontologyUri) ->
+    # TODO use PickOrProvide.select_by_uri() as in query_from_seeking_limit()
     topSel = @args.huviz_top_sel
     ontology_option = $(topSel + ' option[value="' + ontologyUri + '"]')
     @ontology_loader.select_option(ontology_option)
@@ -5800,10 +6631,12 @@ class Huviz
     @sparqlQryInput_selector = "#" + sparqlQryInput_id
     endpoint_limit_id = unique_id('endpoint_limit_')
     endpoint_labels_id = unique_id('endpoint_labels_')
+    spo_query_id = unique_id('spo_query_')
+    sparqlGraphSelectorId = "sparqlGraphOptions-#{@endpoint_loader.select_id}"
     select_box = """
       <div class="ui-widget" style="display:none;margin-top:5px;margin-left:10px;">
         <label>Graphs: </label>
-        <select id="sparqlGraphOptions-#{@endpoint_loader.select_id}">
+        <select id="#{sparqlGraphSelectorId}">
         </select>
       </div>
       <div id="sparqlGraphSpinner-#{@endpoint_loader.select_id}"
@@ -5816,7 +6649,10 @@ class Huviz
         <input id="#{endpoint_labels_id}">
         <i class="fas fa-spinner fa-spin" style="visibility:hidden;margin-left: 5px;"></i>
         <div><label for="#{endpoint_limit_id}">Node Limit: </label>
-        <input id="#{endpoint_limit_id}" value="100">
+        <input id="#{endpoint_limit_id}" value="#{@sparql_query_default_limit}">
+        <div><label for="#{spo_query_id}">(s,p,o) query: </label>
+        <textarea id="#{spo_query_id}" value=""
+          placeholder="pick graph, then enter query producing s,p,o"></textarea>
         </div>
       </div>
     """ # """
@@ -5824,6 +6660,8 @@ class Huviz
     @sparqlQryInput_JQElem = $(@sparqlQryInput_selector)
     @endpoint_labels_JQElem = $('#'+endpoint_labels_id)
     @endpoint_limit_JQElem = $('#'+endpoint_limit_id)
+    @sparqlGraphSelector_JQElem = $('#'+sparqlGraphSelectorId)
+    @sparqlGraphSelector_JQElem.change(@sparqlGraphSelector_onchange)
     fromGraph =''
     @endpoint_labels_JQElem.on('input', @animate_endpoint_label_typing)
     @endpoint_labels_JQElem.autocomplete
@@ -5831,6 +6669,59 @@ class Huviz
       delay: 500
       position: {collision: "flip"}
       source: @search_sparql_by_label
+    @endpoint_labels_JQElem.on('autocompleteselect', @endpoint_labels__autocompleteselect)
+    @endpoint_labels_JQElem.on('change', @endpoint_labels__update)
+    @endpoint_labels_JQElem.focusout(@endpoint_labels__focusout)
+
+    @spo_query_JQElem = $('#'+spo_query_id)
+    @spo_query_JQElem.on('update', @spo_query__update)
+
+  spo_query__update: (event) =>
+    # if there is a query, then permit LOAD of graph
+    if @spo_query_JQElem.length
+      @enable_go_button()
+    else
+      @disable_go_button()
+    return
+
+
+  # Called when the user selects an endpoint_labels autosuggestion
+  endpoint_labels__autocompleteselect: (event) =>
+    # Hopefully having this handler engaged will not interfere with the autocomplete.
+    @enable_go_button()
+    return true
+
+  endpoint_labels__update: (event) =>
+    # If the endpoint_labels field is left blank then permit LOAD of graph
+    if not @endpoint_labels_JQElem.val().length
+      @enable_go_button()
+    return true
+
+  endpoint_labels__focusout: (event) =>
+    # If endpoint_labels has content WITHOUT autocompleteselect then disable LOAD
+    if not @endpoint_labels_JQElem.val().length
+      @enable_go_button()
+    return true
+
+  allGraphsChosen: ->
+    # REVIEW what about the case where there were no graphs?
+    try
+      return @sparqlGraphSelector_JQElem.val() is @endpoint_loader.value
+    catch error
+      # REVIEW big handwave here! Assuming an error means something is missing
+      return false
+
+  # When a Graph is selected, we offer the LOAD button for full graph loading.
+  sparqlGraphSelector_onchange: (event) =>
+    if @allGraphsChosen()
+      # Apparently, 'All Graphs' was chosen.
+      # Disable the LOAD button because loading all data on a server is madness.
+      @disable_go_button()
+    else
+      # Some particular graph was apparently chosen.
+      # We enable the LOAD button so the whole graph may be loaded.
+      @enable_go_button()
+    return
 
   animate_endpoint_label_typing: =>
     # Called every time the user types a character to animate the countdown to sending a query
@@ -5912,6 +6803,7 @@ class Huviz
     return
 
   euthanize_search_sparql_by_label: ->
+    @disable_go_button()
     if @search_sparql_by_label_queryManager?
       @kill_endpoint_label_search_anim()
       @search_sparql_by_label_queryManager.kill()
@@ -5939,9 +6831,10 @@ class Huviz
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+    PREFIX dbp: <http://dbpedia.org/ontology/>
     SELECT DISTINCT * #{fromGraph}
     WHERE {
-      ?sub rdfs:label|foaf:name ?obj .
+      ?sub rdfs:label|foaf:name|dbp:name ?obj .
       FILTER (STRSTARTS(LCASE(?obj), "#{request.term.toLowerCase()}"))
     }
     LIMIT 20
@@ -5980,27 +6873,17 @@ class Huviz
 
     make_error_callback = () =>
       return (jqxhr, textStatus, errorThrown) =>
-        #@endpoint_label_search_timeout()
         @endpoint_label_search_failure()
-        if not errorThrown
-          errorThrown = "Cross-Origin error"
-        msg = errorThrown + " while fetching " + url + " with query \n" + qry
-        #   for query <pre>#{qry}</pre> at
-        msg = """
-        <code>#{errorThrown}</code> with
-        <pre>#{jqxhr.responseText}</pre>
-        <a href="#{url}">#{url}</a>
-        """ # """
-        @hide_state_msg()
         $('#'+@get_data_ontology_display_id()).remove()
         @stop_graphs_selector_spinner()
-        @blurt(msg, 'error')
 
     args =
+      query: qry
+      serverUrl: url
       success_handler: make_success_handler()
       error_callback: make_error_callback()
 
-    @search_sparql_by_label_queryManager = @run_managed_query_ajax(qry, url, args)
+    @search_sparql_by_label_queryManager = @run_managed_query_ajax(args)
 
   init_editc_or_not: ->
     @editui ?= new EditController(@)
@@ -6376,7 +7259,7 @@ class Huviz
 
   constructor: (incoming_args) -> # Huviz
     @oldToUniqueTabSel = {}
-    #if @pfm_display is true
+    #if @show_performance_monitor is true
     #  @pfm_dashboard()
     @git_commit_hash = window.HUVIZ_GIT_COMMIT_HASH
     @args = @calculate_args(incoming_args)
@@ -6806,7 +7689,7 @@ class Huviz
         input:
           value: 29
           min: 5
-          max: 200
+          max: 500
           step: 2
           type: "range"
     ,
@@ -6929,11 +7812,11 @@ class Huviz
         input:
           type: "checkbox"
     ,
-      display_label_cartouches:
+      paint_label_dropshadows:
         group: "Styling"
-        text: "Background cartouches for labels"
+        text: "Draw drop-shadows behind labels"
         label:
-          title: "Remove backgrounds from focused labels"
+          title: "Make labels more visible when overlapping"
         input:
           type: "checkbox"
           checked: "checked"
@@ -6992,6 +7875,15 @@ class Huviz
         input:
           type: "checkbox"
           #checked: "checked"
+    ,
+      use_lid_as_node_name:
+        group: "Ontological"
+        text: "Use local-id as node name"
+        label:
+          title: "Use the local-id of a resource as its node name, permitting display of nodes nothing else is known about."
+        input:
+          type: "checkbox"
+          checked: "checked"
     ,
       make_nodes_for_literals:
         group: "Ontological"
@@ -7083,9 +7975,8 @@ class Huviz
         input:
           jsWidgetClass: GeoUserNameWidget
           type: "text"
-          value: "" # "smurp_nooron"
+          value: "huviz"  # "smurp_nooron"
           size: "14"
-
           placeholder: "e.g. huviz"
     ,
       discover_geonames_remaining:
@@ -7123,7 +8014,7 @@ class Huviz
           title: "Show edge labels adjacent to labelled nodes"
         input:
           type: "checkbox"
-          #checked: "checked"
+          checked: "checked"
     ,
       show_edges:
         class: "alpha_feature"
@@ -7134,11 +8025,11 @@ class Huviz
           type: "checkbox"
           checked: "checked"
     ,
-      single_chosen:
+      center_the_distinguished_node:
         class: "alpha_feature"
-        text: "Single Active Node"
+        text: "Center the distinguished node"
         label:
-          title: "Only use verbs which have one chosen node at a time"
+          title: "Center the most interesting node"
         input:
           type: "checkbox"
           checked: "checked"
@@ -7150,7 +8041,7 @@ class Huviz
           title: "Displays directional arrowheads on the 'object' end of lines."
         input:
           type: "checkbox"
-          #checked: "checked"
+          checked: "checked"
     ,
       show_images_in_nodes:
         group: "Images"
@@ -7202,10 +8093,23 @@ class Huviz
         label:
           title: "Number of seconds to run SPARQL queries before giving up."
         input:
-          value: 40
+          value: 45
           min: 1
-          max: 60
+          max: 90
           step: 1
+          type: "range"
+    ,
+      sparql_query_default_limit:
+        group: "SPARQL"
+        class: "alpha_feature"
+        text: "Default Node Limit"
+        label:
+          title: "Default value for the 'Node Limit'"
+        input:
+          value: 200
+          min: 1
+          max: 1000
+          step: 10
           type: "range"
     ,
       debug_shelf_angles_and_flipping:
@@ -7217,7 +8121,7 @@ class Huviz
         input:
           type: "checkbox"   #checked: "checked"
     ,
-      show_hide_performance_monitor:
+      show_performance_monitor:
         group: "Debugging"
         class: "alpha_feature"
         text: "Show Performance Monitor"
@@ -7225,6 +8129,7 @@ class Huviz
           title: "Feedback on what HuViz is doing"
         input:
           type: "checkbox"
+          #checked: "checked"
     ,
       slow_it_down:
         group: "Debugging"
@@ -7533,16 +8438,12 @@ class Huviz
   on_change_pill_display: (new_val) ->
     if new_val
       node_display_type = 'pills'
-      $("input[name='charge']").attr('min', '-5000').attr('value', '-3000')
-      $("input[name='link_distance']").attr('max', '500').attr('value', '200')
-      @charge = -3000
-      @link_distance = 200 # TODO use the method which updates settings...
+      @adjust_setting('charge', -3000)
+      @adjust_setting('link_distance', 200)
     else
       node_display_type = ""
-      $("input[name='charge']").attr('min', '-600').attr('value', '-200')
-      $("input[name='link_distance']").attr('max', '200').attr('value', '29')
-      @charge = -200
-      @link_distance = 29 # TODO use the method which updates settings...
+      @adjust_setting('charge', -210) # TODO use prior value or default value
+      @adjust_setting('link_distance', 29) # TODO use prior value or default value
     @updateWindow()
 
   on_change_theme_colors: (new_val) ->
@@ -7561,11 +8462,11 @@ class Huviz
     @topElem.classList.add(renderStyles.themeName)
     @updateWindow()
 
-  on_change_display_label_cartouches: (new_val) ->
+  on_change_paint_label_dropshadows: (new_val) ->
     if new_val
-      @cartouches = true
+      @paint_label_dropshadows = true
     else
-      @cartouches = false
+      @paint_label_dropshadows = false
     @updateWindow()
 
   on_change_display_shelf_clockwise: (new_val) ->
@@ -7649,33 +8550,36 @@ class Huviz
     else
       $(endpoint).css('display','none')
 
-  on_change_show_hide_performance_monitor: (new_val, old_val) ->
-    console.log "clicked performance monitor " + new_val + " " + old_val
+  on_change_show_performance_monitor: (new_val, old_val) ->
+    console.log("clicked performance monitor " + new_val + " " + old_val)
     if new_val
       @performance_dashboard_JQElem.css('display','block')
-      @pfm_display = true
+      @show_performance_monitor = true
       @pfm_dashboard()
       @timerId = setInterval(@pfm_update, 1000)
     else
       clearInterval(@timerId)
       @performance_dashboard_JQElem.css('display','none').html('')
-      @pfm_display = false
+      @show_performance_monitor = false
 
   on_change_discover_geonames_remaining: (new_val, old_val) ->
     @discover_geonames_remaining = parseInt(new_val,10)
-    @discover_names_including('sws.geonames.org')
+    @discover_names_including('geonames.org')
 
   on_change_discover_geonames_as: (new_val, old_val) ->
+    if not @discover_geonames_as__widget? # Try later if not ready
+      setTimeout((() => @on_change_discover_geonames_as(new_val, old_val)), 50)
+      return
     @discover_geonames_as = new_val
     if new_val
       @discover_geonames_as__widget.set_state('untried')
-      @discover_names_including('sws.geonames.org')
+      @discover_names_including('geonames.org')
     else
       if @discover_geonames_as__widget
         @discover_geonames_as__widget.set_state('empty')
 
-  on_change_single_chosen: (new_val, old_val) ->
-    @single_chosen = new_val
+  on_change_center_the_distinguished_node: (new_val, old_val) ->
+    @center_the_distinguished_node = new_val
     @tick()
 
   on_change_arrows_chosen: (new_val, old_val) ->
@@ -7718,8 +8622,6 @@ class Huviz
       #@disable_data_set_selector()
       @disable_dataset_ontology_loader(data, onto)
     @show_state_msg("loading...")
-    #@init_from_settings() # REVIEW remove init_from_settings?!?
-    #@reset_graph()
     @show_state_msg(@data_uri)
     unless @G.subjects
       @fetchAndShow(@data_uri, callback)
@@ -7731,7 +8633,7 @@ class Huviz
   XXX_read_data_and_show: (filename, data) -> #Handles drag-and-dropped files
     # REVIEW is this no longer used?
     data = @local_file_data
-    #console.log data
+    #console.log(data)
     if filename.match(/.ttl$/)
       the_parser = @parseAndShowTTLData
     else if filename.match(/.nq$/)
@@ -7836,6 +8738,33 @@ class Huviz
     @visualize_dataset_using_ontology({}, dataset, [ontology])
     return
 
+  endpoint_loader_is_quiet: ->
+    # TODO Replace with a Promise-based way to ensure the loader is ready.
+    # TODO Build it into PickOrProvide and use it in @load_with() too.
+    return @endpoint_loader? and @endpoint_loader.is_quiet(500)
+
+  query_from_seeking_limit: (querySpec) ->
+    {serverUrl, graphUrl, limit, subjectUrl} = querySpec
+    if not @endpoint_loader_is_quiet()
+      setTimeout((() => @query_from_seeking_limit(querySpec)), 50)
+      #throw new Error("endpoint_loader not ready")
+      return
+    @goto_tab(1)
+    if serverUrl?
+      @endpoint_loader.select_by_uri(serverUrl)
+      @sparql_graph_query_and_show__trigger(serverUrl)
+      finish_prep = () =>
+        if graphUrl?
+          @sparqlQryInput_show()
+          @sparqlGraphSelector_JQElem.val(graphUrl)
+        if limit?
+          @endpoint_limit_JQElem.val(limit)
+        if subjectUrl?
+          @endpoint_labels_JQElem.val(subjectUrl)
+        @big_go_button_onclick_sparql()
+      @sparql_graph_query_and_show_queryManager.when_done(finish_prep)
+    return
+
   # TODO: remove now that @get_or_create_node_by_id() sets type and name
   is_ready: (node) ->
     # Determine whether there is enough known about a node to make it visible
@@ -7873,7 +8802,6 @@ class Huviz
   get_default_set_by_type: (node) ->
     return @shelved_set
 
-
   pfm_dashboard: () =>
     # Adding feedback monitor
     #   1. new instance in pfm_data (line 541)
@@ -7886,6 +8814,9 @@ class Huviz
       <div class='feedback_module'><p>Number of Edges: <span id="noE">0</span></p></div>
       <div class='feedback_module'><p>Number of Predicates: <span id="noP">0</span></p></div>
       <div class='feedback_module'><p>Number of Classes: <span id="noC">0</span></p></div>
+      <div class='feedback_module'><p>find_nearest... (msec): <span id="highwater_find_node_or_edge">0</span></p></div>
+      <div class='feedback_module'><p>maxtick (msec): <span id="highwater_maxtick">0</span></p></div>
+      <div class='feedback_module'><p>discover_name #: <span id="highwater_discover_name">0</span></p></div>
       #{@build_pfm_live_monitor('add_quad')}
       #{@build_pfm_live_monitor('hatch')}
       <div class='feedback_module'><p>Ticks in Session: <span id="noTicks">0</span></p></div>
@@ -7913,6 +8844,14 @@ class Huviz
     $("#noN").html("#{noN}")
     if @edge_count then noE = @edge_count else noE = 0
     $("#noE").html("#{noE}")
+    for k,v of @highwatermarks
+      continue if k.endsWith('__')
+      val = v
+      if not Number.isInteger(v)
+        v = v.toFixed(2)
+      $("#highwater_#{k}").html(v)
+    #$("#fnnoe").html("#{(@find_node_or_edge_max or 0).toFixed(2)}")
+    $("#maxtick").html("#{(@maxtick or 0).toFixed(2)}")
     if @predicate_set then noP = @predicate_set.length else noP = 0
     $("#noP").html("#{noP}")
     for item of @taxonomy #TODO Should improve this by avoiding recount every second
@@ -7941,6 +8880,60 @@ class Huviz
         @pfm_data["#{pfm_marker}"]["timed_count"] = [0.01]
         #console.log "Setting #{marker.label }to zero"
 
+  parseAndShowFile: (uri) =>
+    try
+      aUri = new URL(uri)
+    catch error
+      # assuming that uri failed because it is just a local path
+      #   eg: /data/mariaEdgeworth.nquads
+      fullUri = document.location.origin + uri
+      aUri = new URL(fullUri)
+    worker = new Worker('/quaff-lod/quaff-lod-worker-bundle.js')
+    worker.addEventListener('message', @receive_quaff_lod)
+    worker.postMessage({url: aUri.toString()})
+    return
+
+  convert_quaff_obj_to_GreenTurtle: (raw) ->
+    # receive either
+    #   * an object
+    #     - value: a full URI
+    #     OR
+    #     - value: a short string (representing a blank node?)
+    #   * a literal
+    #     - value: a string
+    #     - datatype:
+    #        - value: XSD:???
+    #     - language: "" or a language
+    out =
+      value: raw.value
+    if raw.datatype
+      out.type = raw.datatype.value
+      if raw.language?
+        out.language = raw.language or null
+    else
+      out.type = raw.type or RDF_object
+    return out
+
+  receive_quaff_lod: (event) =>
+    {subject, predicate, object, graph} = event.data
+    if not subject
+      # console.warn(event.data)
+      if event.data.type is "end"
+        @call_on_dataset_loaded()
+      else if event.data.type is "error"
+        console.log(event.data)
+        @blurt(event.data.data, "error")
+      return
+    subj_uri = subject.value
+    pred_uri = predicate.value
+    o = @convert_quaff_obj_to_GreenTurtle(object)
+    graph_uri = graph.value
+    q =
+      s: subj_uri
+      p: pred_uri
+      o: o
+      g: graph_uri
+    @add_quad(q)
 
 class OntologicallyGrounded extends Huviz
   # If OntologicallyGrounded then there is an associated ontology which informs
@@ -8221,7 +9214,7 @@ class Socrata extends Huviz
   parseAndShowJSON: (data) =>
     #TODO Currently not working/tested
     console.log("parseAndShowJSON",data)
-    g = @DEFAULT_CONTEXT
+    g = @data_uri or @DEFAULT_CONTEXT
 
     #  https://data.edmonton.ca/api/views/sthd-gad4/rows.json
 
@@ -8288,10 +9281,30 @@ class PickOrProvide
     @add_group({label: "Your Own", id: @your_own_uid}, 'append')
     @add_option({label: "Provide New #{@label} ...", value: 'provide'}, @select_id)
     @add_option({label: "Pick or Provide...", canDelete: false}, @select_id, 'prepend')
-    @
+    @update_change_stamp()
+    return this
+
+  update_change_stamp: ->
+    @change_stamp = performance.now()
+
+  is_quiet: (msec) ->
+    msec ?= 200
+    if @change_stamp?
+      if (performance.now() - @change_stamp) > msec
+        return true
+    return false
+
+  select_by_uri: (targetUri) ->
+    option = $('#' + @select_id + ' option[value="' + targetUri + '"]')
+    if option.length isnt 1
+      throw new Error("#{targetUri} was not found")
+    @select_option(option)
+    return
 
   val: (val) ->
-    console.log(this.constructor.name + '.val(' + (val and '"'+val+'"' or '') + ') for ' + this.opts.rsrcType + ' was ' + @pick_or_provide_select.val())
+    console.log(this.constructor.name
+        + '.val(' + (val and '"'+val+'"' or '') + ') for '
+        + this.opts.rsrcType + ' was ' + @pick_or_provide_select.val())
     @pick_or_provide_select.val(val)
     @refresh()
 
@@ -8320,7 +9333,11 @@ class PickOrProvide
         @pick_or_provide_select.val(new_val)
         @value = new_val
       else
+        # TODO should something be done here?
+        console.log("PickOrProvide:",this)
+        console.log("option:",option)
         console.warn("TODO should set option to nothing")
+    return
 
   add_uri: (uri_or_rec) =>
     if typeof uri_or_rec is 'string'
@@ -8340,6 +9357,7 @@ class PickOrProvide
     rsrcRec.rsrcType ?= @opts.rsrcType
     # rsrcRec.data ?= file_rec.data # we cannot add data because for uri we load each time
     @add_resource(rsrcRec, true)
+    @update_change_stamp()
     @update_state()
 
   add_local_file: (file_rec) =>
@@ -8426,6 +9444,7 @@ class PickOrProvide
     return opt[0]
 
   update_state: (callback) ->
+    old_value = @value
     raw_value = @pick_or_provide_select.val()
     selected_option = @get_selected_option()
     label_value = selected_option[0].label
@@ -8448,7 +9467,11 @@ class PickOrProvide
     # disable_the_delete_button = false  # uncomment to always show the delete button -- useful when bad data stored
     @form.find('.delete_option').prop('disabled', disable_the_delete_button)
     if callback?
-      callback()
+      args =
+        pickOrProvide: this
+        newValue: raw_value
+        oldValue: old_value
+      callback(args)
 
   find_or_append_form: ->
     if not $(@local_file_form_sel).length

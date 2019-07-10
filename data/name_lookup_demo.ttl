@@ -1,17 +1,65 @@
-@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
-@prefix locrel: <http://id.loc.gov/vocabulary/relators/> .
-@prefix locnam: <http://id.loc.gov/authorities/names/> .
-@prefix dbr: <http://dbpedia.org/resource/> .
+@prefix bcio: <https://w3id.org/BCI-ontology#> .
 @prefix dbo: <http://dbpedia.org/ontology/> .
+@prefix dbp: <http://dbpedia.org/property/> .
+@prefix dbr: <http://dbpedia.org/resource/> .
+@prefix geo: <http://geonames.org/> .
+@prefix gvo: <http://vocab.getty.edu/ontology#> .
+@prefix locnam: <http://id.loc.gov/authorities/names/> .
+@prefix locrel: <http://id.loc.gov/vocabulary/relators/> .
+@prefix locsub: <http://id.loc.gov/authorities/subjects/> .
+@prefix osmw: <https://www.openstreetmap.org/way/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix schema: <http://schema.org/> .
+@prefix ulan: <http://vocab.getty.edu/ulan/> .
+@prefix viaf: <http://viaf.org/viaf/> .
+@prefix wde: <http://www.wikidata.org/entity/> .
 
-locnam:n86110448 rdf:type locrel:prg, <http://dbpedia.org/class/yago/Programmer110481268> .
 
-dbr:Berlin dbo:CityOf dbr:Charlottenburg, dbr:Technical_University_of_Berlin .
+# Library of Congress Lookup is working nicely
+locnam:nr99004444 # demonstrates loc: name lookup
+  owl:sameAs dbr:Douglas_Engelbart ; # demonstrates dbpedia name lookup
+  dbo:knownFor locsub:sh93009624 .  # the computer mouse
 
-#dbr:Berlin dbo:CityOf dbr:U1_(Berlin_U-Bahn) .
+# DBPedia name lookup of objects is working, but not yet predicates.
+dbr:Berlin
+  rdf:type dbo:PopulatedPlace ; # this has a label with a space, unlike City
+  dbo:CityOf
+    dbr:Charlottenburg ,
+    geo:2852217 , # GEO works too (Prenzlauer-Berg)
+    # note the non-canonical use of https, www and trailing slash
+    <https://www.geonames.org/6698676/> , # Kaiser Willhelm Mem. Church
+    osmw:54525147 , # "Hochbunker Pallasstrasse" openstreetmaps NOT working
+    dbr:Technical_University_of_Berlin ,
+    dbr:Berliner_Dom .
 
+# Here is how to look up osm names
+# https://sophox.org/#%23%20auto_discover_name_for%28https%3A%2F%2Fwww.openstreetmap.org%2Fway%2F54525147%29%0APREFIX%20rdfs%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F2000%2F01%2Frdf-schema%23%3E%0APREFIX%20foaf%3A%20%3Chttp%3A%2F%2Fxmlns.com%2Ffoaf%2F0.1%2F%3E%0APREFIX%20schema%3A%20%3Chttp%3A%2F%2Fschema.org%2F%3E%0ASELECT%20%2a%0AWHERE%20%7B%0A%20%20%20%20%3Chttps%3A%2F%2Fwww.openstreetmap.org%2Fway%2F54525147%3E%20%3Fp%20%3Fo%20.%0A%7D%0ALIMIT%20100%0A
 
+dbr:Ludwig_Wittgenstein
+  rdf:type dbo:Philosopher ;
+  owl:sameAs viaf:24609378 ; # VIAF works too
+  dbp:almaMater dbr:Technical_University_of_Berlin ;
+  dbo:notableIdea dbr:Ordinary_language_philosophy ; # lookup label in dbpedia
+  dbo:author dbr:Tractatus_Logico-Philosophicus .
 
+dbr:Tractatus_Logico-Philosophicus  # deal with owl
+  owl:sameAs locnam:n97086452 .   # lookup book title in LOC
 
+# Demonstrates nothing useful, retire....
+# dbr:Gilbert_Ryle
+#   rdf:type dbo:Philosopher ;
+#   dbo:notableIdea dbr:Ordinary_language_philosophy.
 
+# This is a placeholder for a more interesting demo of LOV lookup.
+# bcio:EegDevice # This is intended as a demo of LOV fallback lookup but it is failing
+#     owl:sameAs <http://wikipedia.org/wiki/EEG> .
 
+# Demonstrates getty lookup
+ulan:500244636  # "Paul Otlet"
+  dbo:knownFor dbr:Information_Science ;
+  dbo:influenced dbr:Douglas_Engelbart ;
+  owl:sameAs wde:Q1868 .  # Demonstrates WikiData lookup is FAILING
+
+# gvo:aat2295_located_in
+# gvo:aat2336_has_associates

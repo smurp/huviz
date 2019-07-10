@@ -1,0 +1,54 @@
+{
+  "datasets": [
+    {
+      "uri": "/data/cwrc-writer-citation.jsonld",
+      "label": "CWRC-Writer Citation (JSONLD)"
+    },
+    {
+      "uri": "/data/cwrc-writer-correction.jsonld",
+      "label": "CWRC-Writer Correction (JSONLD)"
+    },
+    {
+      "uri": "/data/cwrc-writer-correction2.jsonld",
+      "label": "CWRC-Writer Correction2 (JSONLD)"
+    },
+    {
+      "uri": "/data/cwrc-writer-date.jsonld",
+      "label": "CWRC-Writer Date (JSONLD)"
+    },
+    {
+      "uri": "/data/cwrc-writer-keyword.jsonld",
+      "label": "CWRC-Writer Keyword (JSONLD)"
+    },
+    {
+      "uri": "/data/cwrc-writer-link.jsonld",
+      "label": "CWRC-Writer Link (JSONLD)"
+    },
+    {
+      "uri": "/data/cwrc-writer-note.jsonld",
+      "label": "CWRC-Writer Note (JSONLD)"
+    },
+    {
+      "uri": "/data/cwrc-writer-organization.jsonld",
+      "label": "CWRC-Writer Organization (JSONLD)"
+    },
+    {
+      "uri": "/data/cwrc-writer-person.jsonld",
+      "label": "CWRC-Writer Person (JSONLD)"
+    },
+    {
+      "uri": "/data/cwrc-writer-place.jsonld",
+      "label": "CWRC-Writer Place (JSONLD)"
+    },
+    {
+      "uri": "/data/cwrc-writer-title.jsonld",
+      "label": "CWRC-Writer Title (JSONLD)"
+    }
+  ],
+  "defaults": {
+    "isOntology": false,
+    "opt_group": "CWRC Writer",
+    "canDelete": false,
+    "ontology_label": "Open Annotation"
+  }
+}

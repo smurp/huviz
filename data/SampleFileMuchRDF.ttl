@@ -1,0 +1,63 @@
+@prefix ns0: <http://www.tei-c.org/ns/1.> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+[]
+  a <http://www.tei-c.org/ns/1.0TEI> ;
+  ns0:0teiHeader [
+    a ns0:0fileDesc ;
+    ns0:0titleStmt [ a ns0:0title ] ;
+    ns0:0publicationStmt [ a ns0:0p ] ;
+    ns0:0sourceDesc [ a ns0:0p ]
+  ], [
+    a ns0:0xenoData ;
+    rdf:RDF [ ], [ ], [ ], [ ], [ ], [ ], [ ], [ ], [ ], [ ], [ ], [ ], [ ], [ ], [ ], [ ]
+  ] ;
+  ns0:0text [
+    a ns0:0body ;
+    ns0:0div [
+      a ns0:0head ;
+      ns0:0title "Sample Letter - Bertrand Russell to Patricia Spence - October 21, 1935"
+    ], [
+      a ns0:0opener ;
+      ns0:0note [ a ns0:0p ], [ a ns0:0p ], [
+        a ns0:0p ;
+        ns0:0placeName "Oslo", "Bergen"
+      ] ;
+      ns0:0dateline [ a ns0:0date ] ;
+      ns0:0salute "Dearest -"
+    ], [
+      a ns0:0p ;
+      ns0:0placeName "Stockholm", "Copenhagen" ;
+      ns0:0persName "John"
+    ], [
+      a ns0:0p ;
+      ns0:0placeName "Oslo", "Bergen" ;
+      ns0:0persName "Brynjulf Bull" ;
+      ns0:0note [
+        a ns0:0bibl ;
+        ns0:0ref "" ;
+        ns0:0bibl [
+          a ns0:0bibl ;
+          ns0:0ref "" ;
+          ns0:0bibl [ a ns0:0ref ], [ a ns0:0orgName ]
+        ]
+      ], [ a ns0:0title ], [ a ns0:0persName ] ;
+      ns0:0pb "" ;
+      ns0:0title "Sunday Referee" ;
+      ns0:0choice [ a ns0:0sic ], [ a ns0:0corr ], "9" ;
+      ns0:0orgName "Anglo-Norwegian Society" ;
+      ns0:0ref "Bergen"
+    ], [ a ns0:0pb ], [
+      a ns0:0p ;
+      ns0:0orgName "Bull"
+    ], [
+      a ns0:0p ;
+      ns0:0seg [ a ns0:0term ]
+    ], [
+      a ns0:0closer ;
+      ns0:0salute "I love you very much -" ;
+      ns0:0signed """
+                        B
+                    """
+    ]
+  ] .
