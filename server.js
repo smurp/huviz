@@ -1,5 +1,5 @@
 (function() {
-  var Stream, a, app, cooked_argv, createSnippetServer, ejs, express, fs, knownOpts, localOrCDN, morgan, nopt, nopts, path, port, quaff_module_path, shortHands;
+  var Stream, a, app, cooked_argv, ejs, express, fs, knownOpts, localOrCDN, morgan, nopt, nopts, path, port, quaff_module_path, shortHands;
 
   fs = require('fs');
 
@@ -72,70 +72,6 @@
         });
       };
     })(this);
-  };
-
-  createSnippetServer = function(xmlFileName, uppercase) {
-    var doc, elems_by_id, elems_idx_by_id, getSnippetById, id_in_case, libxmljs, makeXmlDoc, nodes_with_id;
-    libxmljs = require("libxmljs");
-    if ((uppercase == null) || uppercase) {
-      id_in_case = "ID";
-    } else {
-      id_in_case = "id";
-    }
-    doc = null;
-    nodes_with_id = [];
-    elems_by_id = {};
-    elems_idx_by_id = {};
-    makeXmlDoc = function(err, data) {
-      var count, elem, finished, i, id, started, thing, _i, _len;
-      if (err) {
-        return console.error(err);
-      } else {
-        console.log("parsing " + xmlFileName + "...");
-        started = new Date().getTime() / 1000;
-        doc = libxmljs.parseXml(data.toString());
-        finished = new Date().getTime() / 1000;
-        console.log("finished parsing " + xmlFileName + " in " + (finished - started) + " sec");
-        if (true) {
-          console.log("finding IDs in " + xmlFileName + "...");
-          started = new Date().getTime() / 1000;
-          nodes_with_id = doc.find('//*[@' + id_in_case + ']');
-          count = nodes_with_id.length;
-          finished = new Date().getTime() / 1000;
-          console.log("finished parsing " + xmlFileName + " in " + (finished - started) + " sec found: " + count);
-          if (true) {
-            started = new Date().getTime() / 1000;
-            for (i = _i = 0, _len = nodes_with_id.length; _i < _len; i = ++_i) {
-              elem = nodes_with_id[i];
-              thing = elem.get("@" + id_in_case);
-              id = thing.value();
-              elems_idx_by_id[id] = i;
-            }
-            finished = new Date().getTime() / 1000;
-            return console.log("finished indexing " + xmlFileName + " in " + (finished - started) + " sec");
-          }
-        }
-      }
-    };
-    getSnippetById = function(req, res) {
-      var elem, finished, sec, snippet, started;
-      if (doc) {
-        started = new Date().getTime();
-        elem = nodes_with_id[elems_idx_by_id[req.params.id]];
-        finished = new Date().getTime();
-        sec = (finished - started) / 1000;
-        if (elem != null) {
-          snippet = elem.toString();
-          return res.send(snippet);
-        } else {
-          return res.send("not found");
-        }
-      } else {
-        return res.send("doc still parsing");
-      }
-    };
-    fs.readFile(xmlFileName, makeXmlDoc);
-    return getSnippetById;
   };
 
   app = express();
@@ -221,14 +157,6 @@
   }));
 
   port = nopts.port || nopts.argv.remain[0] || process.env.PORT || default_port;
-
-  if (false && !nopts.skip_orlando) {
-    app.get("/snippet/orlando/:id([A-Za-z0-9-_]+)/", createSnippetServer("orlando_all_entries_2013-03-04.xml", true));
-  }
-
-  if (!nopts.skip_poetesses) {
-    app.get("/snippet/poetesses/:id([A-Za-z0-9-_]+)/", createSnippetServer("poetesses_decomposed.xml", false));
-  }
 
   console.log("Starting server on port: " + port + " localhost");
 
