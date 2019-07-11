@@ -6522,7 +6522,7 @@ class Huviz
     reload_html = """
       <p>
         <button title="Copy shareable link"
-           onclick="alert('#{uri}')"><i class="fas fa-share"></i></button>
+           onclick="alert('#{uri}')"><i class="fas fa-share-alt"></i></button>
         <button title="Reload this data"
            onclick="location.replace('#{uri}');location.reload()"><i class="fas fa-redo"></i></button>
         <button title="Clear the graph and start over"
