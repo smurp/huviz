@@ -16,6 +16,11 @@
       "ontology_label": "Open Annotation"
     },
     {
+      "uri": "/data/MonicaMurphyExample.trig",
+      "label": "Monica Murphy Example (TriG)",
+      "ontology_label": "OWL Mini"
+    },
+    {
       "uri": "/data/name_lookup_demo.ttl",
       "label": "Name Lookup Demo (TTL)",
       "ontology_label": "OWL Mini"
