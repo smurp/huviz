@@ -209,4 +209,8 @@ See [data/test_q.nq](../master/data/test_1.nq)
 
 # Gallery
 
+![Demo of finite state machine diagram](./docs/running_graph.png?raw=true)
+
+![Demo of moderately dense graph](./docs/huviz_vwoolf_cluster.png?raw=true)
+
 ![Graph of 3191 nodes pulled from CWRC SPARQL](./docs/3191_nodes.png?raw=true)
