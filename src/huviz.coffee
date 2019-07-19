@@ -7885,7 +7885,7 @@ class Huviz
           title: "Use the local-id of a resource as its node name, permitting display of nodes nothing else is known about."
         input:
           type: "checkbox"
-          checked: "checked"
+          #checked: "checked"
     ,
       make_nodes_for_literals:
         group: "Ontological"
