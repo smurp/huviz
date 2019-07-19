@@ -1009,6 +1009,8 @@ class Huviz
 
     # this is the node being clickedRDF_literal
     if @focused_node # and @focused_node.state is @graphed_set
+      if window.location.hostname is 'localhost'
+        console.log(@focused_node)
       @perform_current_command(@focused_node)
       @tick("Tick in mouseup 2")
       return
