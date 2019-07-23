@@ -1,7 +1,0 @@
-# The missing link between Vermeersch and Mortier
-# Datasource: http://data.linkeddatafragments.org/ugent-biblio
-SELECT DISTINCT ?coauthorName {
-  ?publication1 dc:creator ?coauthor, [ foaf:name "Etienne Vermeersch" ].
-  ?publication2 dc:creator ?coauthor, [ foaf:name "Freddy Mortier" ].
-  ?coauthor foaf:name ?coauthorName.
-}

@@ -1,4 +1,0 @@
-@prefix dbpedia: <http://dbpedia.org/resource/>.
-@prefix dbpedia-owl: <http://dbpedia.org/ontology/>.
-
-dbpedia:John_Flaxman dbpedia-owl:birthPlace dbpedia:York.

@@ -1,4 +1,0 @@
-SELECT DISTINCT ?p WHERE {
-  ?s ?p ?o.
-}
-LIMIT 100

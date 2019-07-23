@@ -1,9 +1,0 @@
-CONSTRUCT {
-	?person dbpedia-owl:birthPlace ?city.
-}
-WHERE {
-	?person a dbpedia-owl:Artist;
-	        dbpedia-owl:birthPlace ?city.
-	?city dbpedia-owl:country ?country.
-	?country rdfs:label "Belgium"@en.
-}
