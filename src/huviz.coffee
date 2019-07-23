@@ -875,7 +875,7 @@ class Huviz
     #$(".like_input").val(str)
     @gclui.like_input.val(str)
     @gclui.handle_like_input()
-    #debugger if @DEBUG and str is ""
+    #console.log("error") #debugger if @DEBUG and str is ""
     return @
 
   toggle_expander: (id) ->
@@ -1861,7 +1861,7 @@ class Huviz
         ret.push(node)
     data = qNodes(quadtree)
     found = quadtree.find(mx, my)
-    debugger
+    console.log("error") #debugger
 
   find_node_or_edge_closest_to_pointer: ->
     @highwater('find_node_or_edge', true)

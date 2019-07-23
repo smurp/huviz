@@ -1,0 +1,5 @@
+select * where {
+?s1 <http://dbpedia.org/ontology/equipment> <http://dbpedia.org/resource/Helmet> . 
+?s1 <http://dbpedia.org/ontology/category> <http://dbpedia.org/resource/Winter_sport> .
+?s1 <http://purl.org/dc/terms/subject> <http://dbpedia.org/resource/Category:Team_sports>
+}
