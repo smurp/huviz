@@ -2861,7 +2861,8 @@ class Huviz
         parent_lid = "anything"
       @my_graph.predicates[pred_lid] = []
       @ensure_predicate_lineage(parent_lid)
-      pred_name = @ontology?label[pred_lid]
+      if @ontology.label
+        pred_name = @ontology.label[pred_lid]
       @fire_newpredicate_event(pid, pred_lid, parent_lid, pred_name)
 
   fire_newpredicate_event: (pred_uri, pred_lid, parent_lid, pred_name) ->
