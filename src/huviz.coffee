@@ -1861,7 +1861,7 @@ class Huviz
         ret.push(node)
     data = qNodes(quadtree)
     found = quadtree.find(mx, my)
-    debugger
+    throw new Error("under construction")
 
   find_node_or_edge_closest_to_pointer: ->
     @highwater('find_node_or_edge', true)
