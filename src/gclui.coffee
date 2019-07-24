@@ -118,54 +118,45 @@ class CommandController
 
     @scriptRewindButton = @scriptPlayerControls.append('button').
       attr('title','rewind to start').
-      attr('disabled', 'disabled').
-      on('click', @on_rewind_click)
-    @scriptRewindButton.
-      append('i').attr("class", "fa fa-fast-backward")
+      attr('disabled', 'disabled').on('click', @on_rewind_click)
+    @scriptRewindButton.append('i').
+      attr("class", "fa fa-fast-backward")
 
     @scriptBackButton = @scriptPlayerControls.append('button').
       attr('title','go back one step').
-      attr('disabled', 'disabled').
-      on('click', @on_backward_click)
+      attr('disabled', 'disabled').on('click', @on_backward_click)
     @scriptBackButton.append('i').attr("class", "fa fa-play fa-flip-horizontal")
 
     @scriptPlayButton = @scriptPlayerControls.append('button').
       attr('title','play script step by step').
-      attr('disabled', 'disabled').
-      on('click', @on_forward_click)
+      attr('disabled', 'disabled').on('click', @on_forward_click)
     @scriptPlayButton.append('i').attr("class", "fa fa-play")
 
     @scriptForwardButton = @scriptPlayerControls.append('button').
       attr('title','play script continuously').
-      attr('disabled', 'disabled').
-      #attr('style', 'display:none').
-      on('click', @on_fastforward_click)
+      attr('disabled', 'disabled').on('click', @on_fastforward_click)
     @scriptForwardButton.append('i').attr("class", "fa fa-fast-forward")
 
     @scriptDownloadButton = @scriptPlayerControls.append('button').
       attr('title','save script to file').
       attr('style', 'margin-left:1em').  # ;display:none
-      attr('disabled', 'disabled').
-      on('click', @on_downloadscript_hybrid_clicked)
+      attr('disabled', 'disabled').on('click', @on_downloadscript_hybrid_clicked)
     @scriptDownloadButton.append('i').attr("class", "fa fa-download")
       #.append('span').text('.txt')
 
     @scriptDownloadJsonButton = @scriptPlayerControls.append('button').
       attr('title','save script as .json').
-      attr('style', 'display:none').  # ;display:none
-      on('click', @on_downloadscript_json_clicked)
+      attr('style', 'display:none').on('click', @on_downloadscript_json_clicked)
     @scriptDownloadJsonButton.append('i').attr("class", "fa fa-download").
       append('span').text('.json')
 
     @scriptStashButton = @scriptPlayerControls.append('button').
       attr('title','save script to menu').
       attr('disabled', 'disabled').
-      attr('style', 'margin-left:.1em').
-      on('click', @on_stashscript_clicked)
+      attr('style', 'margin-left:.1em').on('click', @on_stashscript_clicked)
     @scriptStashButton.append('i').attr("class", "fa fa-bars")
       #.append('span').text('save to menu')
 
-    #history.append('div')
     @cmdlist = history.
       append('div').
       attr('class','commandlist')
@@ -178,6 +169,7 @@ class CommandController
     @future_cmdArgs = []
     @command_list = []
     @command_idx0 = 0
+
   reset_command_history: ->
     for record in @command_list
       record.elem.attr('class','command')
@@ -242,7 +234,7 @@ class CommandController
     theJSON = encodeURIComponent(@get_script_body_as_json())
     theHref = "data:text/json;charset=utf-8," + theJSON
     return theHref
-  make_hybrid_script_href: () ->
+  make_hybrid_script_href: ->
     theBod = encodeURIComponent(@get_script_body_as_hybrid())
     theHref = "data:text/plain;charset=utf-8," + theBod
     return theHref
@@ -290,7 +282,6 @@ class CommandController
       data: @get_script_body_as_hybrid()
     @huviz.script_loader.add_local_file(script_rec)
     return
-    
   on_rewind_click: () =>
     @reset_graph()
     @command_idx0 = 0
@@ -1439,5 +1430,5 @@ class CommandController
     if @chosen_set_id?
       @set_picker.set_direct_state(@chosen_set_id, 'unshowing')
       delete @chosen_set_id
-
+    
 (exports ? this).CommandController = CommandController
