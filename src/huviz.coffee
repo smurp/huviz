@@ -6152,7 +6152,8 @@ class Huviz
     #@preload_endpoints()
     # TODO remove this nullification of @last_val by fixing logic in select_option()
     # clear the last_val so select_option works the first time
-    @ontology_loader?last_val = null
+    if @ontology_loader.last_val
+      @ontology_loader.last_val = null
 
   big_go_button_onclick: (event) =>
     if @using_sparql()
