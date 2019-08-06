@@ -1354,6 +1354,7 @@ class CommandController
               pinned_set: [@huviz.pinned_set.label]
               nameless_set: [@huviz.nameless_set.label]
               walked_set: [@huviz.walked_set.label]
+              suppressed_set: [@huviz.suppressed_set.label]
               ]
     @set_picker_box = where.append('div')
         .classed('container',true)

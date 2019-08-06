@@ -244,6 +244,10 @@ DCE_title    = "http://purl.org/dc/elements/1.1/title"
 FOAF_Group  = "http://xmlns.com/foaf/0.1/Group"
 FOAF_Person = "http://xmlns.com/foaf/0.1/Person"
 FOAF_name   = "http://xmlns.com/foaf/0.1/name"
+OA_ = "http://www.w3.org/ns/oa#" # the prefix of the Open Annotation Ontology
+# OA_terms_regex was built with the help of:
+#   grep '^oa:' data/oa.ttl  | grep " a " | sort | sed 's/\ a\ .*//' | uniq | sed 's/^oa://' | tr '\n' '|'
+OA_terms_regex = /^(Annotation|Choice|CssSelector|CssStyle|DataPositionSelector|Direction|FragmentSelector|HttpRequestState|Motivation|PreferContainedDescriptions|PreferContainedIRIs|RangeSelector|ResourceSelection|Selector|SpecificResource|State|Style|SvgSelector|TextPositionSelector|TextQuoteSelector|TextualBody|TimeState|XPathSelector|annotationService|assessing|bodyValue|bookmarking|cachedSource|canonical|classifying|commenting|describing|editing|end|exact|hasBody|hasEndSelector|hasPurpose|hasScope|hasSelector|hasSource|hasStartSelector|hasState|hasTarget|highlighting|identifying|linking|ltrDirection|moderating|motivatedBy|prefix|processingLanguage|questioning|refinedBy|renderedVia|replying|rtlDirection|sourceDate|sourceDateEnd|sourceDateStart|start|styleClass|styledBy|suffix|tagging|textDirection|via)$/
 OSMT_name   = "https://wiki.openstreetmap.org/wiki/Key:name"
 OSMT_reg_name = "https://wiki.openstreetmap.org/wiki/Key:reg_name"
 OWL_Class   = "http://www.w3.org/2002/07/owl#Class"
@@ -522,6 +526,8 @@ orlando_human_term =
   specialize: 'Specialize'
   annotate: 'Annotate'
   seeking_object: 'Object node'
+  suppress: 'Suppress'
+  suppressed: 'Suppresssed'
 
 class Huviz
   hash: hash
@@ -1058,6 +1064,7 @@ class Huviz
     if info_node._inspector?
       @hilight_dialog(info_node._inspector)
       return
+    console.log("inspect node:", info_node)
     all_names = Object.values(info_node.name)
     names_all_langs = ""
     note = ""
@@ -1633,6 +1640,17 @@ class Huviz
       sort_on('walkedIdx0') # sort on index of position in the path; the 0 means zero-based idx
     @walked_set.docs = "Nodes in order of their walkedness"
 
+    @suppressed_set = SortedSet().named("suppressed").
+      sort_on("id").
+      labelled(@human_term.suppressed).
+      sub_of(@all_set).
+      isState()
+    @suppressed_set.docs = "
+      Nodes which are '#{@suppressed_set.label}' by a suppression algorithm
+      such as Suppress Annotation Entities.  Suppression is mutually exclusive
+      with Shelved, Discarded, Graphed and Hidden."
+    @suppressed_set.cleanup_verb = "shelve"
+
     @predicate_set = SortedSet().named("predicate").isFlag().sort_on("id")
     @context_set   = SortedSet().named("context").isFlag().sort_on("id")
     @context_set.docs = "The set of quad contexts."
@@ -1651,6 +1669,7 @@ class Huviz
       pinned_set: @pinned_set
       nameless_set: @nameless_set
       walked_set: @walked_set
+      suppressed_set: @suppressed_set
 
   get_set_by_id: (setId) ->
     setId = setId is 'fixed' and 'pinned' or setId # because pinned uses fixed as its 'name'
@@ -1690,7 +1709,8 @@ class Huviz
       console.log("not regenerating english because no taxonomy[#{root}]")
     return
 
-  get_or_create_taxon: (taxon_id) ->
+  get_or_create_taxon: (taxon_url) ->
+    taxon_id = taxon_url
     if not @taxonomy[taxon_id]?
       taxon = new Taxon(taxon_id)
       @taxonomy[taxon_id] = taxon
@@ -3903,7 +3923,7 @@ class Huviz
     pred_n = @get_or_create_predicate_by_id(pred_uri)
     cntx_n = @get_or_create_context_by_id(ctxid)
     if quad.p is RDF_subClassOf and @show_class_instance_edges
-      @try_to_set_node_type(subj_n, 'Class')
+      @try_to_set_node_type(subj_n, OWL_Class)
     # TODO: use @predicates_to_ignore instead OR rdfs:first and rdfs:rest
     if pred_uri.match(/\#(first|rest)$/)
       console.warn("add_quad() ignoring quad because pred_uri=#{pred_uri}", quad)
@@ -3917,9 +3937,9 @@ class Huviz
       obj_n = @get_or_create_node_by_id(quad.o.value)
       if quad.o.value is RDF_Class and @show_class_instance_edges
         # This weird operation is to ensure that the Class Class is a Class
-        @try_to_set_node_type(obj_n, 'Class')
+        @try_to_set_node_type(obj_n, OWL_Class)
       if quad.p is RDF_subClassOf and @show_class_instance_edges
-        @try_to_set_node_type(obj_n, 'Class')
+        @try_to_set_node_type(obj_n, OWL_Class)
       # We have a node for the object of the quad and this quad is relational
       # so there should be links made between this node and that node
       is_type = is_one_of(pred_uri, TYPE_SYNS)
@@ -3995,19 +4015,112 @@ class Huviz
           edge.color = @gclui.predicate_picker.get_color_forId_byName(pred_n.lid,'showing')
           @add_edge(edge)
           literal_node.fully_loaded = true # for sparql quieries to flag literals as fully_loaded
-    # if SPARQL Endpoint loaded AND this is subject node then set current subject to true (i.e. fully loaded)
+    # if the subject came from SPARQL then to true (i.e. fully loaded)
     if @using_sparql()
       subj_n.fully_loaded = false # all nodes default to not being fully_loaded
       #if subj_n.id is sprql_subj# if it is the subject node then is fully_loaded
       #  subj_n.fully_loaded = true
       if subj_n.id is quad.subject # if it is the subject node then is fully_loaded
         subj_n.fully_loaded = true
+
     if subj_n.embryo
       # It is unprincipled to do this, but some subj_n were escaping development.
       @develop(subj_n)
+
+    @consider_suppressing_edge_and_ends_re_OA(edge)
+
     @last_quad = quad
     @pfm_count('add_quad')
     return edge
+
+  consider_suppressing_edge_and_ends_re_OA: (edge) ->
+    # ## Purpose:
+    #
+    # Suppress (ie keep from appearing in the graph by policy) nodes and edges
+    # whose only purpose is to implement annotations.
+    #
+    # The exceptions to this are:
+    #
+    # * the object of an oa:exact predicate should NOT be suppressed
+    # * the oa:exact object should be depicted as having an edge of type '_:hasAnnotation'
+    # * the oa:hasTarget edge should be suppressed but a SYNTHETIC edge should be
+    #   put in its place which links the target of the [oa:hasTarget] edge to the
+    #   target of the [oa:exact] edge with [_:hasAnnotation]
+    #
+    # ## REVIEW:
+    #
+    # * discover if there are other predicates which should be treated like [oa:exact]
+    #
+    # ## Method:
+    #
+    # Place a node in the suppressed_set if any one of the following is true:
+    # * its edges are only in the OA vocab
+    # * it is in a taxon which is in the OA vocab
+    # * it only has edges connecting it to nodes which are instances of OA classes
+    #
+    # The other aspect of this strategy which is complicated is how to keep
+    # account of the relations between the nodes and edges in the subgraph
+    # of an Annotion, noting these considerations:
+    # * an Annotation may have 1 or more Targets
+    # * an Annotation may have 0 or more Bodies
+    # * Bodies and Targets may be connected directly to their Resources OR
+    # * the may be indirectly connected to Resources via ResourceSelection
+    # * multiple triples must be captured before a summary Edge can be created
+    # * some of those triples my participate in multiple summary Edges
+    # * during digestion some nodes may not have their subgraph membership known
+    # * some Annotations will not have an easy "summary object" (eg oa:exact value)
+    # * we will still want to be able to graph such Annotations
+    # * multiple Bodies for an Annotation should each be "summarized"
+    #
+    # Strategies:
+    #
+    # 1. build paths
+    #   * Nodes come to us randomly, so whenever one arrives knit it into a
+    #     path and check to see if the newly extended path now satisfies
+    #     conditions such as sufficiency for a) display b) closing
+    #   * challenges:
+    #     - how to express the logic for testing displayability and closability
+    #     - how to maintain the set of fragmentary paths
+    #   * references:
+    #     - is this like Nooron's AutoSem?
+
+    if not edge or not @suppress_annotation_edges
+      return
+    @suppress_node_re_OA_if_appropriate(edge.source)
+    # if edge.predicate.id is OA_exact # TODO once ids are urls then this is truer
+    if edge.predicate.lid is 'exact' # TODO ensure ids are urls then do the above...
+      @hasAnnotation_targets ?= []
+      if not (edge.target in @hasAnnotation_targets)
+        @hasAnnotation_targets.push(edge.target)
+      #alert("not suppressing the object of oa:exact: #{edge.target.lid}")
+      
+      return # edge.target should not be suppressed
+    suppressEdge = @in_OA_cached(edge.predicate) # WIP what????
+    @suppress_node_re_OA_if_appropriate(edge.target)
+    return
+
+  suppress_node_re_OA_if_appropriate: (node) ->
+    should_suppress = false
+    for taxon in node.taxons
+      if @in_OA_cached(taxon)
+        should_suppress = true
+        continue
+    if should_suppress
+      @suppress(node)
+    return
+
+  in_OA_cached: (thing) ->
+    if not thing._is_in_OA?
+      thing._is_in_OA = @in_OA_vocab(thing.id)
+    return thing._is_in_OA
+
+  in_OA_vocab: (url) ->
+    # Ideally it would be enough for url.startsWith to be tested for OA membership
+    # but until @ontology.domain and @ontology.range and such are using URLs as
+    # ids rather than "lids" (ie 'local' ids) we must also check for bare lids
+    # such as 'Annotation', 'TextQuoteSelector' and friends.
+    match = url.match(OA_terms_regex)
+    return url.startsWith(OA_) or match
 
   remove_from_nameless: (node) ->
     if node.nameless?
@@ -4105,8 +4218,8 @@ class Huviz
     @set_name(node, node.name)
 
   infer_edge_end_types: (edge) ->
-    edge.source.type = 'Thing' unless edge.source.type?
-    edge.target.type = 'Thing' unless edge.target.type?
+    edge.source.type ?= 'Thing'
+    edge.target.type ?= 'Thing'
     # infer type of source based on the range of the predicate
     ranges = @ontology.range[edge.predicate.lid]
     if ranges?
@@ -4144,6 +4257,9 @@ class Huviz
     null
 
   try_to_set_node_type: (node, type_uri) ->
+    # if not type_uri.includes(':')
+    #   debugger
+    #   throw new Error("try_to_set_node_type() expects an URL, not #{type_uri}")
     type_lid = uniquer(type_uri) # should ensure uniqueness
     if not node._types
       node._types = []
@@ -5246,7 +5362,8 @@ class Huviz
     goner
 
   undiscard: (prodigal) ->  # TODO(smurp) rename command to 'retrieve' ????
-    if @discarded_set.has(prodigal) # see test 'retrieving should only affect nodes which are discarded'
+    # see test 'retrieving should only affect nodes which are discarded'
+    if @discarded_set.has(prodigal)
       @shelved_set.acquire(prodigal)
       @update_showing_links(prodigal)
       @update_state(prodigal)
@@ -5267,6 +5384,15 @@ class Huviz
     if goner.links_shown.length > 0
       console.log("shelving failed for", goner)
     goner
+
+  suppress: (suppressee) =>
+    @unpin(suppressee)
+    @chosen_set.remove(suppressee)
+    @hide_node_links(suppressee)
+    @shelved_set.remove(suppressee)
+    @update_showing_links(suppressee)
+    @suppressed_set.acquire(suppressee)
+    suppressee
 
   choose: (chosen, callback_after_choosing) =>
     # If this chosen node is part of a SPARQL query set and not fully loaded then
@@ -5733,6 +5859,7 @@ class Huviz
       if @currently_printed_snippets[edge_inspector_id]?
         @hilight_dialog(edge._inspector or edge_inspector_id)
         continue
+      console.log("inspect edge:", edge)
       me = this
       make_callback = (context_no, edge, context) =>
         (err,data) =>
@@ -7510,6 +7637,7 @@ class Huviz
     spawn: 'SPAWN'
     specialize: 'SPECIALIZE'
     annotate: 'ANNOTATE'
+    suppress: "SUPPRESS"
 
   # TODO add controls
   #   selected_border_thickness
@@ -7915,6 +8043,16 @@ class Huviz
           title: """Show all a nodes types as colored pie pieces."""
         input:
           type: "checkbox"   #checked: "checked"
+    ,
+      suppress_annotation_edges:
+        group: "Annotation"
+        text: "Suppress Annotation Edges"
+        label:
+          title: """Do not show Open Annotation edges or nodes.
+          Summarize them as a hasAnnotation edge and enable the Annotation Inspector."""
+        input:
+          type: "checkbox"
+          #checked: "checked"
     ,
       show_hide_endpoint_loading:
         style: "display:none"
