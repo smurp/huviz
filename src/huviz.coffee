@@ -4371,6 +4371,7 @@ class Huviz
     cmd = new gcl.GraphCommand this,
       verbs: ['choose']
       classes: ['Thing']
+      every_class: true
     @gclc.run(cmd)
     @tick("Tick in choose_everything")
 
