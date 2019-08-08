@@ -1,72 +1,72 @@
 {
-   "@type" : "oa:Annotation",
-   "oa:hasTarget" : {
-      "@id" : "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019?TEI/text/body/div/head/title/persName_20190705085051#Target",
-      "@type" : "oa:SpecificResource",
-      "oa:hasSelector" : {
-         "rdf:value" : "TEI/text/body/div/head/title/persName",
-         "@id" : "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019?TEI/text/body/div/head/title/persName_20190705085051#Selector",
-         "@type" : "oa:XPathSelector"
-      },
-      "oa:hasSource" : {
-         "@id" : "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019",
-         "@type" : "dctypes:Text",
-         "format" : "text/xml"
-      },
-      "oa:renderedVia" : {
-         "schema:softwareVersion" : "1.0",
-         "@id" : "https://cwrc-writer.cwrc.ca/",
-         "rdfs:label" : "CWRC Writer",
-         "@type" : "as:Application"
-      }
-   },
-   "@id" : "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019?TEI/text/body/div/head/title/persName_20190705085051",
-   "oa:hasCertainty" : "cwrc:definite",
-   "dcterms:creator" : {
-      "cwrc:hasName" : "Mihaela Ilovan",
-      "@id" : "https://github.com/ilovan",
-      "foaf:nick" : "ilovan",
-      "@type" : [
-         "cwrc:NaturalPerson",
-         "schema:Person"
-      ]
-   },
-   "dcterms:created" : "2019-07-05T14:50:51.640Z",
    "as:generator" : {
+      "@type" : "as:Application",
       "schema:softwareVersion" : "1.0",
       "@id" : "https://cwrc-writer.cwrc.ca/",
-      "schema:url" : "https://cwrc-writer.cwrc.ca",
-      "@type" : "as:Application",
-      "rdfs:label" : "CWRC Writer"
+      "rdfs:label" : "CWRC Writer",
+      "schema:url" : "https://cwrc-writer.cwrc.ca"
    },
-   "oa:motivatedBy" : "oa:identifying",
+   "oa:hasCertainty" : "cwrc:definite",
    "@context" : {
-      "as" : "http://www.w3.org/ns/activitystreams#",
-      "schema" : "http://schema.org/",
+      "geo" : "http://www.geonames.org/ontology#",
+      "xsd" : "http://www.w3.org/2001/XMLSchema#",
       "dcterms" : "http://purl.org/dc/terms/",
-      "oa" : "http://www.w3.org/ns/oa#",
-      "dcterms:issued" : {
-         "@type" : "xsd:dateTime",
-         "@id" : "dcterms:issued"
-      },
-      "dc" : "http://purl.org/dc/elements/1.1/",
       "foaf" : "http://xmlns.com/foaf/0.1/",
+      "dc" : "http://purl.org/dc/elements/1.1/",
+      "as" : "http://www.w3.org/ns/activitystreams#",
       "cwrc" : "http://sparql.cwrc.ca/ontologies/cwrc#",
+      "dcterms:created" : {
+         "@id" : "dcterms:created",
+         "@type" : "xsd:dateTime"
+      },
       "oa:motivatedBy" : {
          "@type" : "oa:Motivation"
       },
-      "dcterms:created" : {
-         "@type" : "xsd:dateTime",
-         "@id" : "dcterms:created"
-      },
-      "geo" : "http://www.geonames.org/ontology#",
       "@language" : "en",
-      "xsd" : "http://www.w3.org/2001/XMLSchema#"
+      "dcterms:issued" : {
+         "@id" : "dcterms:issued",
+         "@type" : "xsd:dateTime"
+      },
+      "schema" : "http://schema.org/",
+      "oa" : "http://www.w3.org/ns/oa#"
    },
-   "dcterms:issued" : "2019-07-05T15:29:24.582Z",
+   "@id" : "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019?TEI/text/body/div/head/title/persName_20190808114055",
+   "dcterms:creator" : {
+      "foaf:nick" : "smurp",
+      "cwrc:hasName" : "Shawn Murphy",
+      "@type" : [
+         "cwrc:NaturalPerson",
+         "schema:Person"
+      ],
+      "@id" : "https://github.com/smurp"
+   },
    "oa:hasBody" : {
       "@id" : "http://www.wikidata.org/entity/Q33760",
-      "@type" : "cwrc:NaturalPerson",
-      "dc:format" : "text/html"
-   }
+      "dc:format" : "text/html",
+      "@type" : "cwrc:NaturalPerson"
+   },
+   "dcterms:created" : "2019-08-08T09:40:55.870Z",
+   "dcterms:issued" : "2019-08-08T13:39:55.859Z",
+   "oa:hasTarget" : {
+      "oa:hasSelector" : {
+         "@id" : "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019?TEI/text/body/div/head/title/persName_20190808114055#Selector",
+         "@type" : "oa:XPathSelector",
+         "rdf:value" : "TEI/text/body/div/head/title/persName"
+      },
+      "oa:renderedVia" : {
+         "rdfs:label" : "CWRC Writer",
+         "schema:softwareVersion" : "1.0",
+         "@type" : "as:Application",
+         "@id" : "https://cwrc-writer.cwrc.ca/"
+      },
+      "@type" : "oa:SpecificResource",
+      "oa:hasSource" : {
+         "@id" : "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019",
+         "dc:format" : "text/xml",
+         "@type" : "dctypes:Text"
+      },
+      "@id" : "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019?TEI/text/body/div/head/title/persName_20190808114055#Target"
+   },
+   "oa:motivatedBy" : "oa:identifying",
+   "@type" : "oa:Annotation"
 }
