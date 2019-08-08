@@ -22,7 +22,7 @@
 		},
 		"@language": "en"
 	},
-	"@id": "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019?TEI/text/body/div/p[2]/note_20190705085051",
+	"@id": "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019?TEI/text/body/div/p%5B2%5D/note_20190705085051",
 	"@type": "oa:Annotation",
 	"dcterms:created": "2019-07-05T14:50:51.652Z",
 	"dcterms:issued": "2019-07-05T15:29:24.586Z",
@@ -37,7 +37,7 @@
 	},
 	"oa:motivatedBy": "oa:describing",
 	"oa:hasTarget": {
-		"@id": "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019?TEI/text/body/div/p[2]/note_20190705085051#Target",
+		"@id": "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019?TEI/text/body/div/p%5B2%5D/note_20190705085051#Target",
 		"@type": "oa:SpecificResource",
 		"oa:hasSource": {
 			"@id": "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019",
@@ -51,7 +51,7 @@
 			"schema:softwareVersion": "1.0"
 		},
 		"oa:hasSelector": {
-			"@id": "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019?TEI/text/body/div/p[2]/note_20190705085051#Selector",
+			"@id": "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019?TEI/text/body/div/p%5B2%5D/note_20190705085051#Selector",
 			"@type": "oa:XPathSelector",
 			"rdf:value": "TEI/text/body/div/p[2]/note"
 		}
