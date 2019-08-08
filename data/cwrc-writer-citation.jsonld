@@ -22,7 +22,7 @@
         "schema": "http://schema.org/",
         "xsd": "http://www.w3.org/2001/XMLSchema#"
     },
-    "@id": "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019?TEI/text/body/div/p/note_20190705085051",
+    "@id": "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019?TEI/text/body/div/p/note_20190808114055",
     "@type": "oa:Annotation",
     "as:generator": {
         "@id": "https://cwrc-writer.cwrc.ca/",
@@ -31,42 +31,42 @@
         "schema:softwareVersion": "1.0",
         "schema:url": "https://cwrc-writer.cwrc.ca"
     },
-    "dcterms:created": "2019-07-05T14:50:51.651Z",
+    "dcterms:created": "2019-08-08T09:40:55.872Z",
     "dcterms:creator": {
-        "@id": "https://github.com/ilovan",
+        "@id": "https://github.com/smurp",
         "@type": [
             "cwrc:NaturalPerson",
             "schema:Person"
         ],
-        "cwrc:hasName": "Mihaela Ilovan",
-        "foaf:nick": "ilovan"
+        "cwrc:hasName": "Shawn Murphy",
+        "foaf:nick": "smurp"
     },
-    "dcterms:issued": "2019-07-05T15:29:24.585Z",
+    "dcterms:issued": "2019-08-08T13:39:55.860Z",
     "oa:hasBody": [
         {
             "@type": "cito:Citation",
-            "dc:format": "text/xml",
-            "rdf:value": "<note type=\"citation\"><bibl><ref target=\"http://viaf.org/viaf/215153063158619320006/\"></ref>this is a test citation</bibl></note>"
+            "dc:format": "text/html",
+            "rdf:value": "this is a test citation"
         },
         {
-            "@id": "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019?TEI/text/body/div/p/note_20190705085051#Cites",
+            "@id": "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019?TEI/text/body/div/p/note_20190808114055#Cites",
             "@type": "cito:Citation",
             "cito:hasCitationEvent": "cito:cites",
-            "cito:hasCitingEntity": "http://viaf.org/viaf/215153063158619320006/"
+            "cito:hasCitedEntity": "http://viaf.org/viaf/215153063158619320006/"
         }
     ],
     "oa:hasTarget": {
-        "@id": "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019?TEI/text/body/div/p/note_20190705085051#Target",
+        "@id": "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019?TEI/text/body/div/p/note_20190808114055#Target",
         "@type": "oa:SpecificResource",
         "oa:hasSelector": {
-            "@id": "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019?TEI/text/body/div/p/note_20190705085051#Selector",
+            "@id": "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019?TEI/text/body/div/p/note_20190808114055#Selector",
             "@type": "oa:XPathSelector",
             "rdf:value": "TEI/text/body/div/p/note"
         },
         "oa:hasSource": {
             "@id": "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019",
             "@type": "dctypes:Text",
-            "format": "text/xml"
+            "dc:format": "text/xml"
         },
         "oa:renderedVia": {
             "@id": "https://cwrc-writer.cwrc.ca/",

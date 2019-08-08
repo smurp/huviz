@@ -22,7 +22,7 @@
         "schema": "http://schema.org/",
         "xsd": "http://www.w3.org/2001/XMLSchema#"
     },
-    "@id": "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019?TEI/text/body/div/opener/dateline/date_20190705085051",
+    "@id": "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019?TEI/text/body/div/opener/dateline/date_20190808114055",
     "@type": "oa:Annotation",
     "as:generator": {
         "@id": "https://cwrc-writer.cwrc.ca/",
@@ -31,33 +31,33 @@
         "schema:softwareVersion": "1.0",
         "schema:url": "https://cwrc-writer.cwrc.ca"
     },
-    "dcterms:created": "2019-07-05T14:50:51.643Z",
+    "dcterms:created": "2019-08-08T09:40:55.870Z",
     "dcterms:creator": {
-        "@id": "https://github.com/ilovan",
+        "@id": "https://github.com/smurp",
         "@type": [
             "cwrc:NaturalPerson",
             "schema:Person"
         ],
-        "cwrc:hasName": "Mihaela Ilovan",
-        "foaf:nick": "ilovan"
+        "cwrc:hasName": "Shawn Murphy",
+        "foaf:nick": "smurp"
     },
-    "dcterms:issued": "2019-07-05T15:29:24.584Z",
+    "dcterms:issued": "2019-08-08T13:39:55.860Z",
     "oa:hasBody": {
         "@type": "xsd:date",
         "rdf:value": "1935-10-21"
     },
     "oa:hasTarget": {
-        "@id": "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019?TEI/text/body/div/opener/dateline/date_20190705085051#Target",
+        "@id": "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019?TEI/text/body/div/opener/dateline/date_20190808114055#Target",
         "@type": "oa:SpecificResource",
         "oa:hasSelector": {
-            "@id": "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019?TEI/text/body/div/opener/dateline/date_20190705085051#Selector",
+            "@id": "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019?TEI/text/body/div/opener/dateline/date_20190808114055#Selector",
             "@type": "oa:XPathSelector",
             "rdf:value": "TEI/text/body/div/opener/dateline/date"
         },
         "oa:hasSource": {
             "@id": "https://raw.githubusercontent.com/ilovan/Git-Writer-tests/master/LODtests/July2-2019",
             "@type": "dctypes:Text",
-            "format": "text/xml"
+            "dc:format": "text/xml"
         },
         "oa:renderedVia": {
             "@id": "https://cwrc-writer.cwrc.ca/",
