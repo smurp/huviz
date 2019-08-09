@@ -23,6 +23,10 @@
     {
       "uri": "https://raw.githubusercontent.com/cwrc/testData/master/sparqlOutputs/unitarian_novelist_biographies.ttl",
       "label": "Unitarian novelist biographies"
+    },
+    {
+      "uri": "/data/VirginiaWoolfSubjectCentricDH2019.ttl",
+      "label": "Virginia Woolf, subjectCentric, DH2019"
     }
   ],
   "defaults": {

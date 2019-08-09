@@ -1,9 +1,19 @@
 {
   "datasets": [
     {
+      "uri": "/data/cwrc-writer-citation.jsonld",
+      "label": "CWRC-Writer Citation (JSONLD)",
+      "ontology_label": "Open Annotation"
+    },
+    {
       "uri": "/data/Aguilar_Test.jsonld",
       "label": "Aguilar Annotations (JSON-LD)",
       "ontology_label": "OWL Mini"
+    },
+    {
+      "uri": "/data/cwrc-writer-person.jsonld",
+      "label": "CWRC-Writer Person (JSONLD)",
+      "ontology_label": "Open Annotation"
     },
     {
       "uri": "/data/geoname_username_widget_states.ttl",
@@ -14,6 +24,11 @@
       "uri": "/data/MariaEdgeworth.trig",
       "label": "Maria Edgeworth OA (TriG)",
       "ontology_label": "Open Annotation"
+    },
+    {
+      "uri": "/data/MonicaMurphyExample.trig",
+      "label": "Monica Murphy Example (TriG)",
+      "ontology_label": "OWL Mini"
     },
     {
       "uri": "/data/name_lookup_demo.ttl",
@@ -49,6 +64,11 @@
       "uri": "/data/SampleFileMuchRDF.ttl",
       "label": "Sample File Much RDF",
       "ontology_label": "OWL Mini"
+    },
+    {
+      "uri": "/data/textcommentonwebpage.trig",
+      "label": "Text Comment On Webpage (TriG)",
+      "ontology_label": "Open Annotation"
     }
   ],
   "defaults": {
