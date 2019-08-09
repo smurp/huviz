@@ -2926,6 +2926,13 @@ class Huviz
           if val?
             alert(val)
 
+  getTesterAndMunger: (discoArgs) ->
+    fallbackQuadTester = (q) => q?
+    fallbackQuadMunter = (q) => [q]
+    quadTester = discoArgs.quadTester or fallbackQuadTester
+    quadMunger = discoArgs.quadMunger or fallbackQuadMunger
+    return {quadTester, quadMunger}
+
   discovery_triple_ingestor_N3: (data, textStatus, request, discoArgs) =>
     # Purpose:
     #   THIS IS NOT YET IN USE.  THIS IS FOR WHEN WE SWITCH OVER TO N3
@@ -2939,8 +2946,7 @@ class Huviz
     #     quadMunger (OPTIONAL)
     #       returns an array of one or more quads inspired by each quad
     discoArgs ?= {}
-    quadTester = discoArgs.quadTester or (q) => q?
-    quadMunger = discoArgs.quadMunger or (q) => [q]
+    {quadTester, quadMunger} = @getTesterAndMunger(discoArgs)
     quad_count = 0
     parser = N3.Parser()
     parser.parse data, (err, quad, pref) =>
@@ -2962,8 +2968,7 @@ class Huviz
     #       returns an array of one or more quads inspired by each quad
     discoArgs ?= {}
     graphUri = discoArgs.graphUri
-    quadTester = discoArgs.quadTester or (q) => q?
-    quadMunger = discoArgs.quadMunger or (q) => [q]
+    {quadTester, quadMunger} = @getTesterAndMunger(discoArgs)
     dataset = new GreenerTurtle().parse(data, "text/turtle")
     for subj_uri, frame of dataset.subjects
       for pred_id, pred of frame.predicates
@@ -9812,3 +9817,4 @@ class DragAndDropLoaderOfScripts extends DragAndDropLoader
 (exports ? this).OntoViz = OntoViz
 #(exports ? this).Socrata = Socrata
 (exports ? this).Edge = Edge
+ 
