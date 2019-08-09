@@ -3459,15 +3459,6 @@ class Huviz
         @discover_geoname_name(aUrl)
       return
 
-    # As a final backstop we use LDF.  Why last? To spare the LDF server.
-    # The endpoint of authority is superior because it ought to be up to date.
-    for domainName, serverUrl of @domain2ldfServer
-      args =
-        namelessUri: namelessUri
-        serverUrl: serverUrl
-      if hasDomainName(domainName) or domainName is '*'
-        @run_ldf_name_query(args)
-        return
     return
 
   discover_names_including: (includes) ->
@@ -3588,31 +3579,6 @@ class Huviz
         throw new Error('no name_success_handler available')
     success_handler(data, textStatus, jqXHR, queryManager)
     return
-
-  # ## Linked Data Fragments (LDF)
-  #
-  # Linked Data Fragments is a technique for performing efficient federated searches.
-  #
-  # http://linkeddatafragments.org/
-  #
-  # This implementation makes use of
-  #
-  #   https://github.com/smurp/comunica-ldf-client
-  #
-  # which is a fork of:
-  #   https://github.com/comunica/jQuery-Widget.js
-  #
-  # with the only real difference being a dist version of ldf-client-worker.min.js
-
-  domain2ldfServer:
-    # values feed LDF client context.sources.value # see run_managed_query_ldf
-    'dbpedia.org': "http://fragments.dbpedia.org/2016-04/en"
-    'viaf.org': "http://data.linkeddatafragments.org/viaf"
-    'getty.edu': "http://data.linkeddatafragments.org/lov"
-    '*': "http://data.linkeddatafragments.org/lov"
-    #'wikidata.org':
-    #  source: "https://query.wikidata.org/bigdata/ldf"
-    # TODO handle "wikidata.org"
 
   default_name_query_args:
     predicates: [RDFS_label, FOAF_name, SCHEMA_name]
@@ -3775,56 +3741,6 @@ class Huviz
       console.error(error)
     return
 
-  run_ldf_name_query: (args) ->
-    {namelessUri} = args
-    args.query = "# " +
-      ( args.comment or "run_ldf_name_query(#{namelessUri})") + "\n" +
-      @make_name_query(namelessUri)
-    defaults =
-      success_handler: @generic_name_success_handler
-      result_handler: @name_result_handler
-      from_N3: true
-      default_terms:
-        s: namelessUri
-        p: RDFS_label
-    args = @compose_object_from_defaults_and_incoming(defaults, args)
-    @run_managed_query_ldf(args)
-
-  run_managed_query_ldf: (args) ->
-    queryManager = @run_managed_query_abstract(args)
-    {success_handler, error_callback, timeout, result_handler, serverUrl, query} = args
-    serverUrl ?= "http://fragments.dbpedia.org/2016-04/en" # TODO what?
-    ldf_worker = new Worker('/comunica-ldf-client/ldf-client-worker.min.js')
-    ldf_worker.postMessage
-      type: 'query'
-      query: query
-      resultsToTree: false  # TODO experiment with this
-      context:
-        '@comunica/actor-http-memento:datetime': null
-        queryFormat: 'sparql'
-        sources: [
-          type: 'auto'
-          value: serverUrl
-          ]
-
-    ldf_worker.onmessage = (event) =>
-      queryManager.cancelAnimation()
-      d = event.data
-      {type, result} = d
-      switch type
-        when 'result'
-          queryManager.incrResultCount()
-          result_handler.call(this, result, queryManager)
-        when 'error'
-          queryManager.fatalError(d)
-        when 'end'
-          queryManager.finishCounting()
-        when 'queryInfo', 'log'
-          #console.log(type, event)
-        else
-          console.log("UNHANDLED", event)
-
-    return queryManager
 
   # ## Examples and Tests START
 
@@ -6380,8 +6296,6 @@ class Huviz
     args.serverUrl = serverUrl
     args.serverType = serverType
     switch serverType
-      when 'ldf'
-        @run_managed_query_ldf(args)
       when 'sparql'
         @run_managed_query_ajax(args)
       else
@@ -6392,6 +6306,10 @@ class Huviz
     'cwrc.ca': 'http://sparql.cwrc.ca/sparql'
     'getty.edu': 'http://vocab.getty.edu/sparql.tsv'
     'openstreetmap.org': 'https://sophox.org/sparql'
+    'dbpedia.org': "http://fragments.dbpedia.org/2016-04/en"
+    'viaf.org': "http://data.linkeddatafragments.org/viaf"
+    'getty.edu': "http://data.linkeddatafragments.org/lov"
+    '*': "http://data.linkeddatafragments.org/lov"
 
   get_server_for_dataset: (datasetUri) ->
     aUrl = new URL(datasetUri)
@@ -6406,14 +6324,9 @@ class Huviz
     # based on the domain sought.
     else if (serverUrl = @domain2sparqlEndpoint[domain])
       serverType = 'sparql'
-    else if (serverUrl = @domain2sparqlEndpoint[domain])
-      serverType = 'ldf'
     # Then try to find wildcard servers '*', if available.
-    # Give precedence to sparql over ldf.
     else if (serverUrl = @domain2sparqlEndpoint['*'])
       serverType = 'sparql'
-    else if (serverUrl = @domain2ldfServer['*'])
-      serverType = 'ldf'
     else
       throw new Error("a server could not be found for #{datasetUri}")
     return {serverType, serverUrl}
