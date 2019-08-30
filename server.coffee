@@ -72,7 +72,6 @@ app.use('/jquery-simulate-ext__libs',
 app.use('/jquery-simulate-ext__src',
   express.static(__dirname + '/node_modules/jquery-simulate-ext/src'))
 app.use('/d3', express.static(__dirname + '/node_modules/d3'))
-app.use('/comunica-ldf-client', express.static(__dirname + '/node_modules/comunica-ldf-client/dist'))
 # Ideally we would do this....
 # `app.use('/quaff-lod', express.static(__dirname + '/node_modules/quaff-lod/'))`
 # but that fails while quaff-lod is being referenced as a symlink in package.json
