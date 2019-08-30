@@ -4795,8 +4795,11 @@ class Huviz
     tabs_width = 0
     if @tabsJQElem and @tabsJQElem.length > 0
       tabs_width = @tabsJQElem.width()
+    console.log @container
+    console.log @container.clientWidth
+    console.log "w_width: #{w_width} w. pad of #{pad}"
+    console.log "tabs_width: #{tabs_width}"
     @width = w_width - tabs_width
-
   # Should be refactored to be get_container_height
   get_container_height: (pad) ->
     pad = pad or hpad
@@ -7265,6 +7268,7 @@ class Huviz
     #  @pfm_dashboard()
     @git_commit_hash = window.HUVIZ_GIT_COMMIT_HASH
     @args = @calculate_args(incoming_args)
+    console.log @args
     @ensureTopElem()
     if @args.create_tabs_adjacent_to_selector
       @create_tabs()
