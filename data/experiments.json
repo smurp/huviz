@@ -69,6 +69,11 @@
       "uri": "/data/textcommentonwebpage.trig",
       "label": "Text Comment On Webpage (TriG)",
       "ontology_label": "Open Annotation"
+    },
+    {
+      "uri": "/data/twentyOldestVideos.ttl",
+      "label": "The 20 oldest videos on YouTube",
+      "ontology_label": "Open Annotation"
     }
   ],
   "defaults": {
