@@ -1,0 +1,149 @@
+[ {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/7b015a77-e890-4641-a5f7-cdc992216811",
+  "type" : "Annotation",
+  "generator" : {
+    "id" : "https://recogito.pelagios.org/",
+    "type" : "Software",
+    "name" : "Recogito",
+    "homepage" : "https://recogito.pelagios.org/"
+  },
+  "generated" : "2019-09-13T13:06:21+00:00",
+  "body" : [ {
+    "type" : "SpecificResource",
+    "value" : "http://sws.geonames.org/2950157",
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2019-03-27T20:05:29+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/e2e7374b-2fdc-4466-a594-ef1746a51706",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 4,
+      "end" : 10
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Berlin"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/5f87d8d1-354f-4233-89eb-422c4372969b",
+  "type" : "Annotation",
+  "generator" : {
+    "id" : "https://recogito.pelagios.org/",
+    "type" : "Software",
+    "name" : "Recogito",
+    "homepage" : "https://recogito.pelagios.org/"
+  },
+  "generated" : "2019-09-13T13:06:21+00:00",
+  "body" : [ {
+    "type" : "SpecificResource",
+    "value" : "http://sws.geonames.org/2921044",
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2019-03-27T20:06:31+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/e2e7374b-2fdc-4466-a594-ef1746a51706",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 375,
+      "end" : 382
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Germany"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/9ac740cb-b762-4fc2-8c2d-d7fd8402ff54",
+  "type" : "Annotation",
+  "generator" : {
+    "id" : "https://recogito.pelagios.org/",
+    "type" : "Software",
+    "name" : "Recogito",
+    "homepage" : "https://recogito.pelagios.org/"
+  },
+  "generated" : "2019-09-13T13:06:21+00:00",
+  "body" : [ {
+    "type" : "SpecificResource",
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2019-03-27T20:06:52+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/e2e7374b-2fdc-4466-a594-ef1746a51706",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 324,
+      "end" : 343
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Francois Mitterrand"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/4afd03ca-21f5-4872-a54d-9efbcc20b38a",
+  "type" : "Annotation",
+  "generator" : {
+    "id" : "https://recogito.pelagios.org/",
+    "type" : "Software",
+    "name" : "Recogito",
+    "homepage" : "https://recogito.pelagios.org/"
+  },
+  "generated" : "2019-09-13T13:06:21+00:00",
+  "body" : [ {
+    "type" : "SpecificResource",
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2019-03-27T20:07:02+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/e2e7374b-2fdc-4466-a594-ef1746a51706",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 351,
+      "end" : 359
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Thatcher"
+    } ]
+  }
+}, {
+  "@context" : "http://www.w3.org/ns/anno.jsonld",
+  "id" : "https://recogito.pelagios.org/annotation/44bc49ff-461b-4e2e-9130-20a26461d0e2",
+  "type" : "Annotation",
+  "generator" : {
+    "id" : "https://recogito.pelagios.org/",
+    "type" : "Software",
+    "name" : "Recogito",
+    "homepage" : "https://recogito.pelagios.org/"
+  },
+  "generated" : "2019-09-13T13:06:21+00:00",
+  "body" : [ {
+    "type" : "SpecificResource",
+    "value" : "http://sws.geonames.org/2950157",
+    "creator" : "https://recogito.pelagios.org/kimmartin",
+    "modified" : "2019-03-27T20:05:29+00:00",
+    "purpose" : "identifying"
+  } ],
+  "target" : {
+    "source" : "https://recogito.pelagios.org/part/e2e7374b-2fdc-4466-a594-ef1746a51706",
+    "type" : "Text",
+    "selector" : [ {
+      "type" : "TextPositionSelector",
+      "start" : 52,
+      "end" : 58
+    }, {
+      "type" : "TextQuoteSelector",
+      "exact" : "Berlin"
+    } ]
+  }
+} ]

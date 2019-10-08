@@ -51,6 +51,11 @@
       "ontology_label": "OWL Mini"
     },
     {
+      "uri": "/data/recogito_Favorites_hxwv6a6awnflgj.jsonld",
+      "label": "Recogito hxwv6a6awnflgj (JSONLD)",
+      "ontology_label": "Open Annotation"
+    },
+    {
       "uri": "/data/rossetti.rdf",
       "label": "Rossetti (RDF)",
       "ontology_label": "OWL Mini"
