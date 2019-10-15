@@ -52,7 +52,12 @@
     },
     {
       "uri": "/data/recogito_Favorites_hxwv6a6awnflgj.jsonld",
-      "label": "Recogito hxwv6a6awnflgj (JSONLD)",
+      "label": "Recogito Favorites (JSONLD)",
+      "ontology_label": "Open Annotation"
+    },
+    {
+      "uri": "/data/recogito_KenThompsonsPassword_8jcvxszm2bl5p2.jsonld",
+      "label": "Recogito KensPassword (JSONLD)",
       "ontology_label": "Open Annotation"
     },
     {
