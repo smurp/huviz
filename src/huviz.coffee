@@ -4834,10 +4834,10 @@ class Huviz
     tabs_width = 0
     if @tabsJQElem and @tabsJQElem.length > 0
       tabs_width = @tabsJQElem.width()
-    console.log @container
-    console.log @container.clientWidth
-    console.log "w_width: #{w_width} w. pad of #{pad}"
-    console.log "tabs_width: #{tabs_width}"
+    #console.log @container
+    #console.log @container.clientWidth
+    #console.log "w_width: #{w_width} w. pad of #{pad}"
+    #console.log "tabs_width: #{tabs_width}"
     @width = w_width - tabs_width
   # Should be refactored to be get_container_height
   get_container_height: (pad) ->
