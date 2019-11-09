@@ -3459,6 +3459,14 @@ class Huviz
         @discover_geoname_name(aUrl)
       return
 
+    if true # TODO avoid domains we are learning return no names
+      if serverSpec = @get_server_for_dataset(namelessUri)
+        args =
+          namelessUri: namelessUri
+          serverUrl: serverSpec.serverUrl
+        @run_sparql_name_query(args)
+        return
+
     return
 
   discover_names_including: (includes) ->
@@ -3561,15 +3569,17 @@ class Huviz
     catch error
       console.info("generic_success_handler tried and failed to treat data as json")
     # this should be based on response header or a queryManager
-    console.log("response Content-Type:", jqXHR.getResponseHeader("content-type"))
+    resp_content_type = jqXHR.getResponseHeader("content-type").split(';')[0]
     if data.head?
       resp_type = 'json'
     else if data.includes("\t")
       # TODO base presumption of .tsv on something more definitive than finding one
       resp_type = 'tsv'
     else
-      console.warn(data)
-      throw new Error("no idea what resp_type this data is")
+      # console.warn(data)
+      serverDesc = queryManager.args.serverUrl or "the server"
+      console.log(data)
+      throw new Error("no support for #{resp_content_type} just json or tsv for data coming from #{serverDesc}")
     switch resp_type
       when 'json'
         success_handler = @json_name_success_handler
@@ -6312,11 +6322,23 @@ class Huviz
     'dbpedia.org': "http://fragments.dbpedia.org/2016-04/en"
     'viaf.org': "http://data.linkeddatafragments.org/viaf"
     'getty.edu': "http://data.linkeddatafragments.org/lov"
+    #'wikidata.org': "https://query.wikidata.org"
     '*': "http://data.linkeddatafragments.org/lov"
 
   get_server_for_dataset: (datasetUri) ->
+    # Purpose:
+    #   Perform best effort to figure out a sparqlEndpoint for the datasetUri.
+    #   The following does not support domains which have more two parts.
+    #   For instance it would fail for keys like 'thingy.co.uk'
     aUrl = new URL(datasetUri)
-    {domain} = aUrl
+    {hostname} = aUrl
+    hostname_parts = hostname.split('.')
+    if hostname_parts.length > 2
+      while hostname_parts.length > 2
+        hostname_parts.shift()
+      domain = hostname_parts.join('.')
+    else
+      domain = hostname
     # Deal with the situation where the datasetUri sought is served
     # by the server the user has chosen.
     if @using_sparql() and @sparqlGraphSelector_JQElem.val() is datasetUri
