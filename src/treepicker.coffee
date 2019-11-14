@@ -39,7 +39,7 @@ class TreePicker
     if not @squash_case_during_sort?
       @squash_case_during_sort = true
     @id_to_elem = {}
-    @id_to_elem['/'] = elem
+    @id_to_elem['/'] = @elem
     @ids_in_arrival_order = [root]
     @id_is_abstract = {}
     @id_is_collapsed = {}
