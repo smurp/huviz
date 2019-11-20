@@ -3578,7 +3578,6 @@ class Huviz
     else
       # console.warn(data)
       serverDesc = queryManager.args.serverUrl or "the server"
-      console.log(data)
       throw new Error("no support for #{resp_content_type} just json or tsv for data coming from #{serverDesc}")
     switch resp_type
       when 'json'
