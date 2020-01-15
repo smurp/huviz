@@ -4024,17 +4024,29 @@ class Huviz
       if not (edge.target in @hasAnnotation_targets)
         @hasAnnotation_targets.push(edge.target)
       #alert("not suppressing the object of oa:exact: #{edge.target.lid}")
-      
       return # edge.target should not be suppressed
     suppressEdge = @in_OA_cached(edge.predicate) # WIP what????
     @suppress_node_re_OA_if_appropriate(edge.target)
     return
 
+  # Suppress this node if all its classes are in_OA.
+  # Notice that if some of its classes are not in_OA then presumably we should
+  # not suppress it because those classes make it "interesting to humans".
+  # This begs the question "How does in_OA() work?".
+  # Presumably the expectation of this
+  # method is that in_OA() checks to see if the class is defined in the OA
+  # ontology OR is one of those classes used by the OA ontology.
+  # Nodes should be suppressed if they are not of interest to the user
+  # because they are merely present as bookkeeping associated with OA.
+  # Nodes may be in one of these conditions:
+  # a) only typed as a class which the OA ontology explicitly uses (ie OA or a class OA uses)
+  # b) not typed as a class which the OA ontology uses
+  # If b) then the node is not suppressed
   suppress_node_re_OA_if_appropriate: (node) ->
-    should_suppress = false
+    should_suppress = true
     for taxon in node.taxons
-      if @in_OA_cached(taxon)
-        should_suppress = true
+      if not @in_OA_cached(taxon)
+        should_suppress = false
         continue
     if should_suppress
       @suppress(node)
@@ -4050,8 +4062,11 @@ class Huviz
     # but until @ontology.domain and @ontology.range and such are using URLs as
     # ids rather than "lids" (ie 'local' ids) we must also check for bare lids
     # such as 'Annotation', 'TextQuoteSelector' and friends.
+    # Notice that since OA_terms_regex
     match = url.match(OA_terms_regex)
-    return url.startsWith(OA_) or match
+    is_in = not not (url.startsWith(OA_) or match) # force boolean
+    console.info("#{url} is #{not is_in and 'NOT ' or ''}in OA")
+    return is_in
 
   remove_from_nameless: (node) ->
     if node.nameless?
@@ -5321,6 +5336,7 @@ class Huviz
     goner
 
   suppress: (suppressee) =>
+    console.log("suppress(",suppressee,")")
     @unpin(suppressee)
     @chosen_set.remove(suppressee)
     @hide_node_links(suppressee)
@@ -6075,10 +6091,10 @@ class Huviz
           #console.table(recs)
           # Reset the value of each loader to blank so
           # they show 'Pick or Provide...' not the last added entry.
-          @dataset_loader.val('')
-          @ontology_loader.val('')
-          @endpoint_loader.val('')
-          @script_loader.val('')
+          @dataset_loader.val()
+          @ontology_loader.val()
+          @endpoint_loader.val()
+          @script_loader.val()
           @update_dataset_ontology_loader()
           console.groupEnd() # closing group called "populate_menus_from_IndexedDB(why)"
           document.dispatchEvent( # TODO use 'huvis_controls' rather than document
@@ -6320,7 +6336,7 @@ class Huviz
     'openstreetmap.org': 'https://sophox.org/sparql'
     'dbpedia.org': "http://fragments.dbpedia.org/2016-04/en"
     'viaf.org': "http://data.linkeddatafragments.org/viaf"
-    'getty.edu': "http://data.linkeddatafragments.org/lov"
+    #'getty.edu': "http://data.linkeddatafragments.org/lov"
     #'wikidata.org': "https://query.wikidata.org"
     '*': "http://data.linkeddatafragments.org/lov"
 
@@ -7992,13 +8008,14 @@ class Huviz
     ,
       suppress_annotation_edges:
         group: "Annotation"
+        class: "alpha_feature"
         text: "Suppress Annotation Edges"
         label:
           title: """Do not show Open Annotation edges or nodes.
           Summarize them as a hasAnnotation edge and enable the Annotation Inspector."""
         input:
           type: "checkbox"
-          #checked: "checked"
+          checked: "checked"
     ,
       show_hide_endpoint_loading:
         style: "display:none"
