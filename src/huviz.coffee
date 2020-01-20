@@ -4024,7 +4024,7 @@ class Huviz
       if not (edge.target in @hasAnnotation_targets)
         @hasAnnotation_targets.push(edge.target)
       #alert("not suppressing the object of oa:exact: #{edge.target.lid}")
-      
+
       return # edge.target should not be suppressed
     suppressEdge = @in_OA_cached(edge.predicate) # WIP what????
     @suppress_node_re_OA_if_appropriate(edge.target)
@@ -7986,7 +7986,7 @@ class Huviz
         group: "Ontological"
         text: "Color nodes as pies"
         label:
-          title: """Show all a nodes types as colored pie pieces."""
+          title: """Show all a node's types as colored pie pieces."""
         input:
           type: "checkbox"   #checked: "checked"
     ,
@@ -9755,4 +9755,3 @@ class DragAndDropLoaderOfScripts extends DragAndDropLoader
 (exports ? this).OntoViz = OntoViz
 #(exports ? this).Socrata = Socrata
 (exports ? this).Edge = Edge
- 
