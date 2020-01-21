@@ -2352,7 +2352,7 @@ class Huviz
     focused_font_size = @label_em * browser_font_size * @focused_mag
     padding = focused_font_size * 0.5
     line_height = focused_font_size * 1.25 # set line height to 125%
-    max_len = 250
+    max_len = 300
     min_len = 100
     label_length = label_measure.width + 2 * padding
     num_lines_raw = label_length/max_len
@@ -2471,7 +2471,7 @@ class Huviz
             if not node.bub_txt.length or result
               @get_label_attributes(node)
             line_height = node.bub_txt[2]  # Line height calculated from text size ?
-            adjust_x = node.bub_txt[0] / 2 - line_height/2# Location of first line of text
+            adjust_x = node.bub_txt[0] / 2 - line_height/2 # Location of first line of text
             adjust_y = node.bub_txt[1] / 2 - line_height
             pill_width = node.bub_txt[0] # box size
             pill_height = node.bub_txt[1]
@@ -8002,7 +8002,7 @@ class Huviz
         group: "Ontological"
         text: "Color nodes as pies"
         label:
-          title: """Show all a nodes types as colored pie pieces."""
+          title: """Show all a node's types as colored pie pieces."""
         input:
           type: "checkbox"   #checked: "checked"
     ,
@@ -9772,4 +9772,3 @@ class DragAndDropLoaderOfScripts extends DragAndDropLoader
 (exports ? this).OntoViz = OntoViz
 #(exports ? this).Socrata = Socrata
 (exports ? this).Edge = Edge
- 
