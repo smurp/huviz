@@ -6445,7 +6445,8 @@ class Huviz
     return
 
   after_visualize_dataset_using_ontology: =>
-    @preset_discover_geonames_remaining()
+    if @discover_geonames_remaining # If this value is absent or zero then geonames lookup is suppressed
+      @preset_discover_geonames_remaining()
 
   load_script_from_db: (err, rsrcRec) =>
     if err?
@@ -8113,7 +8114,8 @@ class Huviz
         group: "Geonames"
         text: 'GeoNames Limit '
         label:
-          title: "The number of Remaining Geonames to look up"
+          title: """The number of Remaining Geonames to look up.
+          If zero before loading, then lookup is suppressed."""
         input:
           type: "integer"
           value: 20
