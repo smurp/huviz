@@ -3075,9 +3075,10 @@ class Huviz
 
   countdown_setting: (inputName) ->
     input = @get_setting_input_JQElem(inputName)
-    if input.val() < 1
+    val = input.val()
+    if val < 1
       return 0
-    newVal = input.val() - 1
+    newVal = val - 1
     return @adjust_setting(inputName, newVal)
 
   preset_discover_geonames_remaining: ->
@@ -3104,15 +3105,17 @@ class Huviz
           #### Error:
           <span style="color:red">#{params.msg}</span>
            """
+      if params.username?
+        markdown += """
+
+          #### Username:
+          <span style="color:blue">#{params.username}</span>
+           """
     @make_markdown_dialog(markdown, null, args)
 
   discover_geoname_name: (aUrl) ->
     id = aUrl.pathname.replace(/\//g,'')
-    soughtId = id
-    idInt = parseInt(id)
-    userId = @discover_geonames_as
-    k2p = @discover_geoname_key_to_predicate_mapping
-    url = "http://api.geonames.org/hierarchyJSON?geonameId=#{id}&username=#{userId}"
+    username = @discover_geonames_as
     if @discover_geonames_remaining < 1
       #console.warn("discover_geoname_name() should not be called when remaining is less than 1")
       return
@@ -3125,7 +3128,8 @@ class Huviz
           return false
         # We decrement remaining before looking or after successfully trying.
         # We do so before looking because we know that the username is good, so this will count.
-        # We do so after trying because we do not know until afterward that the username was good and whether it would count.
+        # We do so after trying because we do not know until afterward that the username
+        # was good and whether it would count.
         rem = @countdown_setting('discover_geonames_remaining')
         #console.info('discover_geoname_name() widget.state =', widget.state, "so decrementing remaining (#{rem}) early")
       else if widget.state is 'good'
@@ -3133,13 +3137,25 @@ class Huviz
           #console.info('aborting discover_geoname_name() because remaining =', @discover_geonames_remaining)
           return false
         @discover_geonames_as__widget.set_state('looking')
-        console.info('looking for',id,'using name',userId)
+        # console.info('looking for',id,'using name', username)
       else
-        console.warn("discover_goename_name() should not be called when widget.state =", widget.state)
+        console.warn("discover_geoname_name() should not be called when widget.state =", widget.state)
         return false
     @geonames_name_lookups_performed ?= 0
     @geonames_name_lookups_performed += 1
-    $.ajax
+    $.ajax(@make_geoname_ajax_closure(aUrl))
+    return
+
+  make_geoname_ajax_closure: (aUrl) ->
+    # This method makes the handlers for the geonames ajax call.
+    id = aUrl.pathname.replace(/\//g,'')
+    soughtId = id
+    idInt = parseInt(id)
+    username = @discover_geonames_as
+    k2p = @discover_geoname_key_to_predicate_mapping
+    url = "http://api.geonames.org/hierarchyJSON?geonameId=#{id}&username=#{username}"
+    # console.log("discover_geoname_name_SEARCH", aUrl.toString())
+    return {
       url: url
       error: (xhr, status, error) =>
         #console.log(xhr, status, error)
@@ -3148,20 +3164,22 @@ class Huviz
             @discover_geonames_as__widget.set_state('bad')
             @show_geonames_instructions()
       success: (json, textStatus, request) =>
+        # To test the receipt of an error condition, uncomment the next line
+        #  json.status = {message: "Oooh, you've been very bad!"}
         if json.status
           @discover_geoname_name_msgs ?= {}
+          params = {}
           if json.status.message
-            msg = """<dt style="font-size:.9em;color:red">#{json.status.message}</dt>""" +
-              @discover_geoname_name_instructions
-            if userId
-              msg = "#{userId} #{msg}"
+            params.msg = json.status.message
+            if username
+              params.username = username
           if (not @discover_geoname_name_msgs[msg]) or
               (@discover_geoname_name_msgs[msg] and
                Date.now() - @discover_geoname_name_msgs[msg] >
                 @discover_geoname_name_msgs_threshold_ms)
+            # In other words: do not spam the user with errors faster than threshold
             @discover_geoname_name_msgs[msg] = Date.now()
-            @make_dialog(msg)
-            #@show_state_msg(msg)
+            @show_geonames_instructions(params)
           return
         #subj = aUrl.toString()
         if (widget = @discover_geonames_as__widget)
@@ -3175,7 +3193,7 @@ class Huviz
               if @discover_geonames_remaining > 0
                 # trigger again because they have been suspended
                 # use setTimeout to give nodes a chance to update
-                again = () => @discover_names('geonames.org')
+                again = () => @discover_names_including('geonames.org')
                 setTimeout(again, 100)
               else
                 @discover_geonames_as__widget.set_state('good') # no more remaining lookups permitted
@@ -3214,6 +3232,7 @@ class Huviz
             continue
           #console.table([{id: id, geonameId: geoRec.geonameId, name: geoRec.name}])
           name = (geoRec or {}).name
+          # console.log("discover_geoname_name_SUCCESS", subj)
           placeQuad =
             s: subj
             p: RDF_type
@@ -3269,15 +3288,17 @@ class Huviz
             @inject_discovered_quad_for(containershipQuad, aUrl)
           deeperQuad = Object.assign({}, quad) # shallow copy
         return # from success
+      }
     return
 
   ###
+  # This is what a single geoRec from geonames.org looks like:
           "fcode" : "RGN",
           "adminCodes1" : {
              "ISO3166_2" : "ENG"
           },
           "adminName1" : "England",
-           "countryName" : "United Kingdom",
+          "countryName" : "United Kingdom",
           "fcl" : "L",
           "countryId" : "2635167",
           "adminCode1" : "ENG",
@@ -3389,7 +3410,7 @@ class Huviz
     handler = @make_sparql_name_handler(uris)
     return [query, handler]
 
-  auto_discover_name_for: (namelessUri) ->
+  auto_discover_name_for: (namelessUri, node) ->
     if namelessUri.startsWith('_') # skip "blank" nodes
       return
     try
@@ -3454,9 +3475,15 @@ class Huviz
     # Geonames has its own API and some complicated use limits so is treated
     # very differently.
     if hasDomainName("geonames.org")
+      if node and node.sought_name # so far only used by geonames but might be useful elsewhere
+        return # node is already having its name sought, so skip
       if @discover_geonames_as__widget.state in ['untried','looking','good'] and
           @discover_geonames_remaining > 0
+        node.sought_name = true
         @discover_geoname_name(aUrl)
+      #else
+      #  console.log("auto_discover_name_for(#{aUrl.toString()}) skipping because",
+      #              @discover_geonames_as__widget.state)
       return
 
     if true # TODO avoid domains we are learning return no names
@@ -3475,12 +3502,12 @@ class Huviz
     return
 
   discover_names: (includes) ->
-    #console.log('discover_names(',includes,') # of nameless:',@nameless_set.length)
+    # console.log('discover_names(',includes,') # of nameless:',@nameless_set.length)
     for node in @nameless_set
       uri = node.id
       if not (includes? and not uri.includes(includes))
         # only if includes is specified but not found do we skip auto_discover_name_for
-        @auto_discover_name_for(uri)
+        @auto_discover_name_for(uri, node)
     return
 
   # ## SPARQL queries
