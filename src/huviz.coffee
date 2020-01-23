@@ -8063,7 +8063,7 @@ class Huviz
           Summarize them as a hasAnnotation edge and enable the Annotation Inspector."""
         input:
           type: "checkbox"
-          checked: "checked"
+          #checked: "checked"
     ,
       show_hide_endpoint_loading:
         style: "display:none"
