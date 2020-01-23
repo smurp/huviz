@@ -473,7 +473,7 @@ class UsernameWidget extends SettingsWidget
       console.log("not bothering to change the state to",state,"cause it already is")
       return
     @state = state
-    console.log(state, @inputJQElem.val())
+    console.info(@constructor.name, "state:", state, 'username:', @inputJQElem.val())
     stateIcon = @state_to_state_icon[state]
     @stateIconJQElem.attr('class', "stateIcon fa " + stateIcon)
     color = @state_to_color[state]
