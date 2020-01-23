@@ -3592,7 +3592,7 @@ class Huviz
     try
       data = JSON.parse(data)
     catch error
-      console.info("generic_success_handler tried and failed to treat data as json")
+      #console.debug(queryManager.qry + "\n\ndid not return JSON")
     # this should be based on response header or a queryManager
     resp_content_type = jqXHR.getResponseHeader("content-type").split(';')[0]
     if data.head?
