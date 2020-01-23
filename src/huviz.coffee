@@ -3426,8 +3426,6 @@ class Huviz
       return aUrl.hostname.endsWith(domainName)
 
     if hasDomainName('cwrc.ca')
-      console.warn("auto_discover_name_for('#{namelessUri}') skipping cwrc.ca")
-      return
       args =
         namelessUri: namelessUri
         #predicates: [OSMT_reg_name, OSMT_name]
