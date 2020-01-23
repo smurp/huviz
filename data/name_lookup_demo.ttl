@@ -39,6 +39,7 @@ dbr:Berlin
 dbr:Ludwig_Wittgenstein
   rdf:type dbo:Philosopher ;
   owl:sameAs viaf:24609378 ; # VIAF works too
+  rdf:comment ""; # this is an intentionally empty literal per https://github.com/cwrc/HuViz/issues/358
   dbp:almaMater dbr:Technical_University_of_Berlin ;
   dbo:notableIdea dbr:Ordinary_language_philosophy ; # lookup label in dbpedia
   dbo:author dbr:Tractatus_Logico-Philosophicus .
