@@ -26,7 +26,8 @@ dbr:Berlin
   rdf:type dbo:PopulatedPlace ; # this has a label with a space, unlike City
   dbo:CityOf
     dbr:Charlottenburg ,
-    geo:2852217 , # GEO works too (Prenzlauer-Berg)
+    <http://sws.geonames.org/2852217> , # GEO works too (Prenzlauer-Berg)
+    <https://www.geonames.org/8334619/> , # GEO for (Stadtrandsiedlung Malchow) without the trailing slash
     # note the non-canonical use of https, www and trailing slash
     <https://www.geonames.org/6698676/> , # Kaiser Willhelm Mem. Church
     osmw:54525147 , # "Hochbunker Pallasstrasse" openstreetmaps NOT working
