@@ -3256,7 +3256,6 @@ class Huviz
             if not pred
               continue
             theType = RDF_literal
-
             if typeof value is 'number'
               # REVIEW are these right?
               if Number.isInteger(value)
@@ -6410,27 +6409,33 @@ class Huviz
     console.log(e.currentTarget.value)
     @endpoint_loader.endpoint_graph = e.currentTarget.value
 
-  turn_on_loading_notice: ->
-    # perhaps update the LOAD button to appear activated
+  turn_on_loading_notice_if_enabled: ->
+    # This will work even if the display_loading_notice setting UX is removed.
+    if not @display_loading_notice
+      return
+    setTimeout(@turn_on_loading_notice)
+
+  turn_on_loading_notice: =>
+    colorlog('turn_on_loading_notice()','green')
     @disable_go_button()
-    # perhaps display a loading message
+    # display a loading message
     @state_msg_box = $("#{@args.state_msg_box_sel}")
-    console.log "loading"
     #@show_state_msg("Loading....")
     txt = "Testing the Loading screen...."
     #@state_msg_box.html("<div class='msg_payload'>" + txt + "</div><div class='msg_backdrop'></div>")
     $("#HUVIZ_TOP").prepend("<div id='state_loading_box'><div class='msg_payload'>" + txt + "</div><div class='msg_backdrop'></div></div>")
     #@state_msg_box.show()
-    colorlog('turn_on_loading_notice()','green')
 
-  turn_off_loading_notice: ->
+  turn_off_loading_notice_if_enabled: ->
+    if not @display_loading_notice
+      return
+    colorlog('turn_off_loading_notice()','green')
     # turn off any stateful things like a loading message
     $("#state_loading_box").hide()
-    colorlog('turn_off_loading_notice()','green')
 
   visualize_dataset_using_ontology: (ignoreEvent, dataset, ontologies) =>
     colorlog('visualize_dataset_using_ontology()')
-    @turn_on_loading_notice()
+    @turn_on_loading_notice_if_enabled()
     @close_blurt_box()
     endpoint_label_uri = @endpoint_labels_JQElem.val()
     if endpoint_label_uri
@@ -6463,7 +6468,7 @@ class Huviz
     return
 
   after_visualize_dataset_using_ontology: =>
-    @turn_off_loading_notice()
+    @turn_off_loading_notice_if_enabled()
     if @discover_geonames_remaining # If this value is absent or zero then geonames lookup is suppressed
       @preset_discover_geonames_remaining()
 
@@ -8305,6 +8310,16 @@ class Huviz
         input:
           type: "checkbox"
           #checked: "checked"
+    ,
+      display_loading_notice:
+        group: "Debugging"
+        class: "alpha_feature"
+        text: "Display Loading Notice"
+        label:
+          title: "Display the loading_notice after the user presses LOAD"
+        input:
+          type: "checkbox"
+          # checked: "checked" # this should be OFF by default until it is pretty
     ]
 
   auto_adjust_settings: ->
