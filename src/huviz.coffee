@@ -6416,10 +6416,18 @@ class Huviz
     # perhaps update the LOAD button to appear activated
     @disable_go_button()
     # perhaps display a loading message
+    @state_msg_box = $("#{@args.state_msg_box_sel}")
+    console.log "loading"
+    #@show_state_msg("Loading....")
+    txt = "Testing the Loading screen...."
+    #@state_msg_box.html("<div class='msg_payload'>" + txt + "</div><div class='msg_backdrop'></div>")
+    $("#HUVIZ_TOP").prepend("<div id='state_loading_box'><div class='msg_payload'>" + txt + "</div><div class='msg_backdrop'></div></div>")
+    #@state_msg_box.show()
     colorlog('turn_on_loading_notice()','green')
 
   turn_off_loading_notice: ->
     # turn off any stateful things like a loading message
+    $("#state_loading_box").hide()
     colorlog('turn_off_loading_notice()','green')
 
   visualize_dataset_using_ontology: (ignoreEvent, dataset, ontologies) =>
@@ -7098,6 +7106,7 @@ class Huviz
 
   create_state_msg_box: () ->
     @state_msg_box = $("#state_msg_box")
+    #@state_msg_box = $("#{@args.state_msg_box_sel}")
     @hide_state_msg()
     #console.info @state_msg_box
 
@@ -8766,7 +8775,6 @@ class Huviz
     else
       #@disable_data_set_selector()
       @disable_dataset_ontology_loader(data, onto)
-    @show_state_msg("loading...")
     @show_state_msg(@data_uri)
     unless @G.subjects
       @fetchAndShow(@data_uri, callback)
