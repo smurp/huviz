@@ -303,7 +303,7 @@ select[name='graph_title_style'] {
 }
 
 /* -------- Loading Message Styles ------------ */
-#state_msg_box {
+#state_msg_box { 
   width: 100%;
   height: 100vh;
   margin: 0px;
