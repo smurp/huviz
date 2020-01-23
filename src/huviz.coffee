@@ -2516,6 +2516,7 @@ class Huviz
     focused_font_size = @label_em * @focused_mag
     focused_font = "#{focused_font_size}em sans-serif"
     focused_pill_font = "#{@label_em}em sans-serif"
+    default_text_for_empty_value = '“”'
     highlight_node = (node) =>
       if node.focused_node or node.focused_edge?
         if (node_display_type == 'pills')
@@ -4157,7 +4158,7 @@ class Huviz
     if len > 0
       node.pretty_name = node.name.substr(0, len) # truncate
     else
-      node.pretty_name = node.name
+      node.pretty_name = node.name or '“”'
     node.scroll_offset = 0
     return
 
@@ -6411,8 +6412,19 @@ class Huviz
     console.log(e.currentTarget.value)
     @endpoint_loader.endpoint_graph = e.currentTarget.value
 
+  turn_on_loading_notice: ->
+    # perhaps update the LOAD button to appear activated
+    @disable_go_button()
+    # perhaps display a loading message
+    colorlog('turn_on_loading_notice()','green')
+
+  turn_off_loading_notice: ->
+    # turn off any stateful things like a loading message
+    colorlog('turn_off_loading_notice()','green')
+
   visualize_dataset_using_ontology: (ignoreEvent, dataset, ontologies) =>
-    colorlog('visualize_dataset_using_ontology()', dataset, ontologies)
+    colorlog('visualize_dataset_using_ontology()')
+    @turn_on_loading_notice()
     @close_blurt_box()
     endpoint_label_uri = @endpoint_labels_JQElem.val()
     if endpoint_label_uri
@@ -6445,6 +6457,7 @@ class Huviz
     return
 
   after_visualize_dataset_using_ontology: =>
+    @turn_off_loading_notice()
     if @discover_geonames_remaining # If this value is absent or zero then geonames lookup is suppressed
       @preset_discover_geonames_remaining()
 
