@@ -6415,23 +6415,22 @@ class Huviz
       return
     setTimeout(@turn_on_loading_notice)
 
+  loading_notice_markdown: """
+    ## Loading....
+  """
+
   turn_on_loading_notice: =>
     colorlog('turn_on_loading_notice()','green')
     @disable_go_button()
-    # display a loading message
-    @state_msg_box = $("#{@args.state_msg_box_sel}")
-    #@show_state_msg("Loading....")
-    txt = "Testing the Loading screen...."
-    #@state_msg_box.html("<div class='msg_payload'>" + txt + "</div><div class='msg_backdrop'></div>")
-    $("#HUVIZ_TOP").prepend("<div id='state_loading_box'><div class='msg_payload'>" + txt + "</div><div class='msg_backdrop'></div></div>")
-    #@state_msg_box.show()
+    # TODO: it would be good if one could pass an argument to disable the close button
+    # TODO: display some stats about what is happening...
+    @my_loading_notice_dialog = @make_markdown_dialog(@loading_notice_markdown, null, {})
 
   turn_off_loading_notice_if_enabled: ->
     if not @display_loading_notice
       return
     colorlog('turn_off_loading_notice()','green')
-    # turn off any stateful things like a loading message
-    $("#state_loading_box").hide()
+    @my_loading_notice_dialog.remove()
 
   visualize_dataset_using_ontology: (ignoreEvent, dataset, ontologies) =>
     colorlog('visualize_dataset_using_ontology()')
@@ -8340,7 +8339,7 @@ class Huviz
           title: "Display the loading_notice after the user presses LOAD"
         input:
           type: "checkbox"
-          # checked: "checked" # this should be OFF by default until it is pretty
+          checked: "checked" # this should be OFF by default until it is pretty
     ]
 
   auto_adjust_settings: ->
