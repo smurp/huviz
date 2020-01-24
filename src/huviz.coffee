@@ -6664,7 +6664,7 @@ class Huviz
     reload_html = """
       <p>
         <button title="Copy shareable link"
-           onclick="alert('#{uri}')"><i class="fas fa-share-alt"></i></button>
+          class="show_shareable_link_dialog"><i class="fas fa-share-alt"></i></button>
         <button title="Reload this data"
            onclick="location.replace('#{uri}');location.reload()"><i class="fas fa-redo"></i></button>
         <button title="Clear the graph and start over"
@@ -6680,7 +6680,28 @@ class Huviz
     sel = @oldToUniqueTabSel['huvis_controls']
     controls = document.querySelector(sel)
     controls.insertAdjacentHTML('afterbegin', visualization_source_display)
+    shareable_link_button = controls.querySelector(".show_shareable_link_dialog")
+    show_shareable_link_closure = () => @show_shareable_link_dialog(uri)
+    shareable_link_button.onclick = show_shareable_link_closure
     return
+
+  show_shareable_link_dialog: (uri) =>
+    args = {}
+    shareLinkId = unique_id('lnk_')
+    shareLinkSel = "#"+shareLinkId
+    onclickCommand = [
+      "input=document.getElementById('#{shareLinkId}');",
+      "input.select();",
+      "input.setSelectionRange(0, 99999);",
+      "document.execCommand('copy',input);",
+      "return"].join(' ')
+    md = """
+      ## Shareable Link
+
+      <input type="text" id="#{shareLinkId}" class"urlToShare" value="#{uri}"/>
+      <button onclick="#{onclickCommand}" class="fa fa-copy"> Copy</button>
+        """
+    @make_markdown_dialog(md, null, args)
 
   replace_loader_display_for_endpoint: (endpoint, graph) ->
     $(@pickersSel).attr("style","display:none")
