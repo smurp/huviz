@@ -126,7 +126,11 @@ button.close_node_details img:hover{
   margin: 5px 5px 5px 35%;
 }
 
-
+.contextMenu .loadingNotice {
+  width: 200px;
+  padding: 30px 25px;
+  text-align: center;
+}
 /* --------------- SVG styles ----------------- */
 rect {
   fill: none;

@@ -6417,14 +6417,17 @@ class Huviz
 
   loading_notice_markdown: """
     ## Loading....
+    <div class="loadingNotice">Please wait</div>
   """
 
   turn_on_loading_notice: =>
     colorlog('turn_on_loading_notice()','green')
     @disable_go_button()
+    args = {width:550}
     # TODO: it would be good if one could pass an argument to disable the close button
     # TODO: display some stats about what is happening...
-    @my_loading_notice_dialog = @make_markdown_dialog(@loading_notice_markdown, null, {})
+    # TODO: I do not think that this information should be provided through the make_doalog method
+    @my_loading_notice_dialog = @make_markdown_dialog(@loading_notice_markdown, null, args)
 
   turn_off_loading_notice_if_enabled: ->
     if not @display_loading_notice
