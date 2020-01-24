@@ -6429,6 +6429,9 @@ class Huviz
   turn_off_loading_notice_if_enabled: ->
     if not @display_loading_notice
       return
+    setTimeout(@turn_off_loading_notice)
+
+  turn_off_loading_notice: =>
     colorlog('turn_off_loading_notice()','green')
     @my_loading_notice_dialog.remove()
 
@@ -9708,7 +9711,7 @@ class DragAndDropLoader
   tmpl: """
 	<form class="local_file_form" method="post" action="" enctype="multipart/form-data">
 	  <div class="box__input">
-	    <input class="box__file" type="file" name="files[]" id="file"
+	    <input class="box__file" type="file" name="files[]" 
              data-multiple-caption="{count} files selected" multiple />
 	    <label for="file"><span class="box__label">Choose a local file</span></label>
 	    <button class="box__upload_button" type="submit">Upload</button>
@@ -9748,8 +9751,6 @@ class DragAndDropLoader
     @form.find('.box__success').show()
     reader = new FileReader()
     reader.onload = (evt) =>
-      #console.log evt.target.result
-      #console.log("evt", evt)
       try
         #@huviz.read_data_and_show(firstFile.name, evt.target.result)
         if filename.match(/.(ttl|.nq)$/)
