@@ -4287,8 +4287,8 @@ class Huviz
     @after_file_loaded('stream', callback)
 
   dump_stats: ->
-    console.log("object_value_types:", @object_value_types)
-    console.log("unique_pids:", @unique_pids)
+    console.debug("object_value_types:", @object_value_types)
+    console.debug("unique_pids:", @unique_pids)
 
   parseAndShowTurtle: (data, textStatus) =>
     msg = "data was " + data.length + " bytes"
@@ -5713,10 +5713,10 @@ class Huviz
     $('.snippet_dialog_box').remove()
     return
 
-  init_snippet_box: ->
+  init_snippet_box: -> # REVIEW is this needed any more?
     if d3.select('#snippet_box')[0].length > 0
       @snippet_box = d3.select('#snippet_box')
-      console.log("init_snippet_box")
+
   remove_snippet: (snippet_id) ->
     key = @get_snippet_js_key(snippet_id)
     delete @currently_printed_snippets[key]
@@ -6088,7 +6088,7 @@ class Huviz
 
   populate_menus_from_IndexedDB: (why) ->
     # https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB#Using_a_cursor
-    console.log("populate_menus_from_IndexedDB(#{why})")
+    console.debug("populate_menus_from_IndexedDB(#{why})")
     datasetDB_objectStore = @datasetDB.transaction('datasets').objectStore('datasets')
     count = 0
     make_onsuccess_handler = (why) =>
@@ -7429,7 +7429,6 @@ class Huviz
     #  @pfm_dashboard()
     @git_commit_hash = window.HUVIZ_GIT_COMMIT_HASH
     @args = @calculate_args(incoming_args)
-    console.log @args
     @ensureTopElem()
     if @args.create_tabs_adjacent_to_selector
       @create_tabs()
@@ -9214,9 +9213,9 @@ class Orlando extends OntologicallyGrounded
       delay = 100
       onceDBReady = () =>
         onceDBReadyCount++
-        console.log('onceDBReady() call #' + onceDBReadyCount)
+        console.debug('onceDBReady() call #' + onceDBReadyCount)
         if @datasetDB?
-          console.log('finally! datasetDB is now ready')
+          console.debug('finally! datasetDB is now ready')
           @run_script_from_hash()
         else
           setTimeout(onceDBReady,delay) # causes this method to be run again, acting as an async loop
@@ -9491,9 +9490,9 @@ class PickOrProvide
     return
 
   val: (val) ->
-    console.log(this.constructor.name
-        + '.val(' + (val and '"'+val+'"' or '') + ') for '
-        + this.opts.rsrcType + ' was ' + @pick_or_provide_select.val())
+    console.debug(this.constructor.name +
+        '.val(' + (val and '"'+val+'"' or '') + ') for ' +
+        this.opts.rsrcType + ' was ' + @pick_or_provide_select.val())
     @pick_or_provide_select.val(val)
     @refresh()
 
@@ -9523,8 +9522,8 @@ class PickOrProvide
         @value = new_val
       else
         # TODO should something be done here?
-        console.log("PickOrProvide:",this)
-        console.log("option:",option)
+        console.debug("PickOrProvide:",this)
+        console.debug("option:",option)
         console.warn("TODO should set option to nothing")
     return
 
@@ -9711,7 +9710,7 @@ class DragAndDropLoader
   tmpl: """
 	<form class="local_file_form" method="post" action="" enctype="multipart/form-data">
 	  <div class="box__input">
-	    <input class="box__file" type="file" name="files[]" 
+	    <input class="box__file" type="file" name="files[]"
              data-multiple-caption="{count} files selected" multiple />
 	    <label for="file"><span class="box__label">Choose a local file</span></label>
 	    <button class="box__upload_button" type="submit">Upload</button>
