@@ -6688,7 +6688,7 @@ class Huviz
     return
 
   show_shareable_link_dialog: (uri) =>
-    args = {}
+    args = {width:550}
     shareLinkId = unique_id('lnk_')
     shareLinkSel = "#"+shareLinkId
     onclickCommand = [
@@ -6700,8 +6700,8 @@ class Huviz
     md = """
       ## Shareable Link
 
-      <input type="text" id="#{shareLinkId}" class"urlToShare" value="#{uri}"/>
-      <button onclick="#{onclickCommand}" class="fa fa-copy"> Copy</button>
+      <input type="text" id="#{shareLinkId}" class="urlToShare" value="#{uri}"/>
+      <button onclick="#{onclickCommand}" class="urlCopyButton"><i class="fa fa-copy" aria-hidden="true"></i> Copy</button>
         """
     @make_markdown_dialog(md, null, args)
 
