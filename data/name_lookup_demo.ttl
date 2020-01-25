@@ -10,6 +10,7 @@
 @prefix osmw: <https://www.openstreetmap.org/way/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix schema: <http://schema.org/> .
 @prefix ulan: <http://vocab.getty.edu/ulan/> .
 @prefix viaf: <http://viaf.org/viaf/> .
@@ -36,7 +37,8 @@ dbr:Berlin
     dbr:Berliner_Dom .
 
 <https://github.com/cwrc/HuViz/issues/360>
-    owl:seeAlso geo:8504780, geo:6545310 .
+  rdfs:label "nodes must be able to have the same name" ;
+  owl:seeAlso geo:8504780, geo:6545310 .
 
 geo:8504780 # Mitte, in Bielefeld, but with the same name as the one in Berlin
   dbo:comment "No, no, the one in Bielefeld!" .
