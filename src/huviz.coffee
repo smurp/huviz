@@ -6359,7 +6359,7 @@ class Huviz
     'cwrc.ca': 'http://sparql.cwrc.ca/sparql'
     'getty.edu': 'http://vocab.getty.edu/sparql.tsv'
     'openstreetmap.org': 'https://sophox.org/sparql'
-    'dbpedia.org': "http://fragments.dbpedia.org/2016-04/en"
+    'dbpedia.org': "http://dbpedia.org/sparql"
     'viaf.org': "http://data.linkeddatafragments.org/viaf"
     #'getty.edu': "http://data.linkeddatafragments.org/lov"
     #'wikidata.org': "https://query.wikidata.org"
