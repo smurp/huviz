@@ -3420,7 +3420,11 @@ class Huviz
     return [query, handler]
 
   auto_discover_name_for: (namelessUri, node) ->
+    #if not namelessUri.includes(':') # skip "blank" nodes
     if namelessUri.startsWith('_') # skip "blank" nodes
+      # FIXME                                                               
+      # Normally one would imagine that blank urls would start with _:      
+      # but it looks like the .id of such nodes has been stripped of the _: 
       return
     try
       aUrl = new URL(namelessUri)
@@ -3512,6 +3516,8 @@ class Huviz
     # console.log('discover_names(',includes,') # of nameless:',@nameless_set.length)
     for node in @nameless_set
       uri = node.id
+      if not uri.includes(':')
+        continue
       if not (includes? and not uri.includes(includes))
         # only if includes is specified but not found do we skip auto_discover_name_for
         @auto_discover_name_for(uri, node)
