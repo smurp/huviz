@@ -37,7 +37,6 @@ window.addEventListener('load',function(){
       //, '/data/publishing.json'
       //, '/data/individuals.json'
       , '/data/cwrc_data.json'
-      , '/data/prosopographies.json'
       , '/data/public_endpoints.json'
       , '/data/cwrc_endpoints.json'
     ]
