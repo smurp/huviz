@@ -9732,6 +9732,7 @@ class DragAndDropLoader
              data-multiple-caption="{count} files selected" multiple />
 	    <label for="file"><span class="box__label">Choose a local file</span></label>
 	    <button class="box__upload_button" type="submit">Upload</button>
+      <div class="option_break">---------------- OR ----------------</div>
       <div class="box__dragndrop" style="display:none"> Drop URL or file here</div>
 	  </div>
     <input type="url" class="box__uri" placeholder="Or enter URL here" />
