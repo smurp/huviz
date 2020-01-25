@@ -3112,6 +3112,8 @@ class Huviz
           #### Username:
           <span style="color:blue">#{params.username}</span>
            """
+    if params.markdown?
+      markdown = params.markdown
     @make_markdown_dialog(markdown, null, args)
 
   discover_geoname_name: (aUrl) ->
@@ -3168,12 +3170,19 @@ class Huviz
         # To test the receipt of an error condition, uncomment the next line
         #  json.status = {message: "Oooh, you've been very bad!"}
         if json.status
+          console.debug(json, textStatus, request, aUrl, url)
           @discover_geoname_name_msgs ?= {}
           params = {}
           if json.status.message
             params.msg = json.status.message
             if username
               params.username = username
+            if json.status.message.startsWith('For input string')
+              params.markdown = """
+              Geoname lookup failed for the url:
+
+              `#{aUrl.href}`
+              """
           if (not @discover_geoname_name_msgs[msg]) or
               (@discover_geoname_name_msgs[msg] and
                Date.now() - @discover_geoname_name_msgs[msg] >
