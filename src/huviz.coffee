@@ -6417,14 +6417,17 @@ class Huviz
 
   loading_notice_markdown: """
     ## Loading....
+    <div class="loadingNotice">Please wait</div>
   """
 
   turn_on_loading_notice: =>
     colorlog('turn_on_loading_notice()','green')
     @disable_go_button()
+    args = {width:550}
     # TODO: it would be good if one could pass an argument to disable the close button
     # TODO: display some stats about what is happening...
-    @my_loading_notice_dialog = @make_markdown_dialog(@loading_notice_markdown, null, {})
+    # TODO: I do not think that this information should be provided through the make_doalog method
+    @my_loading_notice_dialog = @make_markdown_dialog(@loading_notice_markdown, null, args)
 
   turn_off_loading_notice_if_enabled: ->
     if not @display_loading_notice
@@ -6688,7 +6691,7 @@ class Huviz
     return
 
   show_shareable_link_dialog: (uri) =>
-    args = {}
+    args = {width:550}
     shareLinkId = unique_id('lnk_')
     shareLinkSel = "#"+shareLinkId
     onclickCommand = [
@@ -6700,8 +6703,8 @@ class Huviz
     md = """
       ## Shareable Link
 
-      <input type="text" id="#{shareLinkId}" class"urlToShare" value="#{uri}"/>
-      <button onclick="#{onclickCommand}" class="fa fa-copy"> Copy</button>
+      <input type="text" id="#{shareLinkId}" class="urlToShare" value="#{uri}"/>
+      <button onclick="#{onclickCommand}" class="urlCopyButton"><i class="fa fa-copy" aria-hidden="true"></i> Copy</button>
         """
     @make_markdown_dialog(md, null, args)
 
