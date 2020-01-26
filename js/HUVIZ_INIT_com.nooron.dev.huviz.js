@@ -27,6 +27,14 @@ window.addEventListener('load',function(){
         "text": "Credit",
         "bodyUrl": "/huviz/docs/credits.md"
       },
+      /*
+      {
+        "cssClass": "tabs-tutorial scrolling_tab",
+        "title": "A HuViz Tutorial",
+        "text": "Tutorial",
+        "bodyUrl": "/huviz/docs/tutorial.md"
+      },
+      */
       'sparqlQueries'
     ],
     preload: [
