@@ -35,10 +35,13 @@ switch process.env.NODE_ENV
     console.log cooked_argv
 
 nopts = nopt(knownOpts, shortHands, cooked_argv, 2)
+nopts.huviz_init_file = "/js/HUVIZ_INIT_com.nooron.dev.huviz.js"
+#nopts.huviz_init_file = "/js/init_huvis.js"
 
 switch process.env.NODE_ENV
   when 'development'
-    console.log nopts
+    console.log(nopts)
+    console.log(process.env)
 
 # https://github.com/sstephenson/eco
 localOrCDN = (templatePath, data, options) ->
@@ -92,6 +95,7 @@ app.get("/flower", localOrCDN("/views/flower.html.ejs", {nopts: nopts}))
 app.get("/boxed", localOrCDN("/views/boxed.html.ejs", {nopts: nopts}))
 app.get("/twoup", localOrCDN("/views/twoup.html.ejs", {nopts: nopts}))
 app.get("/tests", localOrCDN("/views/tests.html.ejs", {nopts: nopts}))
+# app.get("/process_env.js", (req, res) => res.send("process_env="+process.env)) # serve process.env
 app.get("/", localOrCDN("/views/huvis.html.ejs", {nopts: nopts}))
 app.use(express.static(__dirname + '/images')) # for /favicon.ico
 

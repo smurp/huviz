@@ -50,9 +50,12 @@
 
   nopts = nopt(knownOpts, shortHands, cooked_argv, 2);
 
+  nopts.huviz_init_file = "/js/HUVIZ_INIT_com.nooron.dev.huviz.js";
+
   switch (process.env.NODE_ENV) {
     case 'development':
       console.log(nopts);
+      console.log(process.env);
   }
 
   localOrCDN = function(templatePath, data, options) {
