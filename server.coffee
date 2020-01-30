@@ -25,7 +25,7 @@ shortHands =
   faststart: ["--skip_orlando", "--skip_poetesses"]
   #faststart: []
 
-process.env.NODE_ENV ?= 'production'
+process.env.NODE_ENV ?= 'production' # REVIEW why is this needed? what is the proper default?
 switch process.env.NODE_ENV
   when 'development'
     cooked_argv.push("--faststart")
@@ -42,6 +42,7 @@ switch process.env.NODE_ENV
     console.log('development', nopts)
 
 # https://github.com/sstephenson/eco
+# REVIEW is this still needed?
 localOrCDN = (templatePath, data, options) ->
   options ?= {}
   fullPath = path.join(process.cwd(), templatePath)
@@ -64,9 +65,6 @@ app.use('/jquery-ui-css',
   express.static(__dirname + '/node_modules/components-jqueryui/themes/smoothness'))
 app.use('/jquery-ui',
   express.static(__dirname + '/node_modules/components-jqueryui'))
-# TODO use /jquery-ui/jquery-ui.js instead once "require not found is fixed"
-#   app.use('/jquery-ui',
-#     express.static(__dirname + '/node_modules/jquery-ui'))
 app.use('/jquery', express.static(__dirname + '/node_modules/jquery/dist'))
 app.use('/jquery-simulate-ext__libs',
   express.static(__dirname + '/node_modules/jquery-simulate-ext/libs'))
