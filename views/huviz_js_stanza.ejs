@@ -1,0 +1,8 @@
+    <% if (nopts.usecdn) { %>
+    <%- include('huviz_js_usecdn_deps_stanza') %>
+    <% } else { %>
+    <%- include('huviz_js_noncdn_deps_stanza') %>
+    <% } %>
+    <script src="/huviz/vendor/fisheye.js"></script>
+    <script src="/huviz/vendor/green_turtle.js"></script>
+    <script src="/huviz/huviz.js"></script>

@@ -16,7 +16,7 @@ nopt = require("nopt") # https://github.com/npm/nopt
 # process command line arguments
 cooked_argv = (a for a in process.argv)
 knownOpts =
-  is_local: Boolean
+  usecdn: Boolean
   skip_orlando: Boolean
   skip_poetesses: Boolean
   git_commit_hash: [String, null]
@@ -29,10 +29,11 @@ shortHands =
 switch process.env.NODE_ENV
   when 'development'
     cooked_argv.push("--faststart")
-    cooked_argv.push("--is_local")
     cooked_argv.push("--git_commit_hash")
     cooked_argv.push("8e3849b") # cafeb0b is funnier
     console.log(cooked_argv)
+  when 'production'
+    cooked_argv.push("--usecdn")
 
 nopts = nopt(knownOpts, shortHands, cooked_argv, 2)
 
@@ -57,8 +58,8 @@ app = express()
 app.use(morgan('combined'))
 app.set("/views", __dirname + "/views")
 app.set("/views/tabs", path.join(__dirname, 'tabs', "views"))
+app.use('/huviz/css', express.static(__dirname + '/css'))
 app.use("/huviz", express.static(__dirname + '/lib'))
-app.use('/css', express.static(__dirname + '/css'))
 app.use('/jquery-ui-css',
   express.static(__dirname + '/node_modules/components-jqueryui/themes/smoothness'))
 app.use('/jquery-ui',
@@ -81,7 +82,7 @@ app.use('/quaff-lod/quaff-lod-worker-bundle.js',
 app.use('/data', express.static(__dirname + '/data'))
 app.use('/js', express.static(__dirname + '/js'))
 app.use("/jsoutline", express.static(__dirname + "/node_modules/jsoutline/lib"))
-app.use('/vendor', express.static(__dirname + '/vendor'))
+app.use('/huviz/vendor', express.static(__dirname + '/vendor'))
 app.use('/node_modules', express.static(__dirname + '/node_modules'))
 app.use('/mocha', express.static(__dirname + '/node_modules/mocha'))
 app.use('/chai', express.static(__dirname + '/node_modules/chai'))

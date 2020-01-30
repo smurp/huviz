@@ -27,7 +27,7 @@
   })();
 
   knownOpts = {
-    is_local: Boolean,
+    usecdn: Boolean,
     skip_orlando: Boolean,
     skip_poetesses: Boolean,
     git_commit_hash: [String, null],
@@ -42,10 +42,12 @@
   switch (process.env.NODE_ENV) {
     case 'development':
       cooked_argv.push("--faststart");
-      cooked_argv.push("--is_local");
       cooked_argv.push("--git_commit_hash");
       cooked_argv.push("8e3849b");
       console.log(cooked_argv);
+      break;
+    case 'production':
+      cooked_argv.push("--usecdn");
   }
 
   nopts = nopt(knownOpts, shortHands, cooked_argv, 2);
@@ -54,8 +56,6 @@
     case 'development':
       console.log(nopts);
   }
-
-  console.log(process.env.NODE_ENV);
 
   localOrCDN = function(templatePath, data, options) {
     var fullPath;
@@ -84,9 +84,9 @@
 
   app.set("/views/tabs", path.join(__dirname, 'tabs', "views"));
 
-  app.use("/huviz", express["static"](__dirname + '/lib'));
+  app.use('/huviz/css', express["static"](__dirname + '/css'));
 
-  app.use('/css', express["static"](__dirname + '/css'));
+  app.use("/huviz", express["static"](__dirname + '/lib'));
 
   app.use('/jquery-ui-css', express["static"](__dirname + '/node_modules/components-jqueryui/themes/smoothness'));
 
@@ -112,7 +112,7 @@
 
   app.use("/jsoutline", express["static"](__dirname + "/node_modules/jsoutline/lib"));
 
-  app.use('/vendor', express["static"](__dirname + '/vendor'));
+  app.use('/huviz/vendor', express["static"](__dirname + '/vendor'));
 
   app.use('/node_modules', express["static"](__dirname + '/node_modules'));
 
