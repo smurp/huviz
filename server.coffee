@@ -25,6 +25,7 @@ shortHands =
   faststart: ["--skip_orlando", "--skip_poetesses"]
   #faststart: []
 
+process.env.NODE_ENV ?= 'production'
 switch process.env.NODE_ENV
   when 'development'
     cooked_argv.push("--faststart")
@@ -103,5 +104,5 @@ app.use(express.static(__dirname + '/images')) # for /favicon.ico
 app.use("/srcdocs",
   express.static("srcdocs", {index: 'index.html', redirect: true, extensions: ['html']}))
 port = nopts.port or nopts.argv.remain[0] or process.env.PORT or default_port
-console.log("Starting server on port: #{port} localhost")
+console.log("Starting server on localhost:#{port} NODE_ENV:#{process.env.NODE_ENV}")
 app.listen(port, 'localhost')

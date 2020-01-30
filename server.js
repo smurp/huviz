@@ -1,5 +1,5 @@
 (function() {
-  var Stream, a, app, cooked_argv, ejs, express, fs, knownOpts, localOrCDN, morgan, nopt, nopts, path, port, quaff_module_path, shortHands;
+  var Stream, a, app, cooked_argv, ejs, express, fs, knownOpts, localOrCDN, morgan, nopt, nopts, path, port, quaff_module_path, shortHands, _base;
 
   fs = require('fs');
 
@@ -39,6 +39,10 @@
     faststart: ["--skip_orlando", "--skip_poetesses"]
   };
 
+  if ((_base = process.env).NODE_ENV == null) {
+    _base.NODE_ENV = 'production';
+  }
+
   switch (process.env.NODE_ENV) {
     case 'development':
       cooked_argv.push("--faststart");
@@ -55,9 +59,6 @@
   switch (process.env.NODE_ENV) {
     case 'development':
       console.log('development', nopts);
-      break;
-    case 'production':
-      console.log('production', nopts);
   }
 
   localOrCDN = function(templatePath, data, options) {
@@ -163,7 +164,7 @@
 
   port = nopts.port || nopts.argv.remain[0] || process.env.PORT || default_port;
 
-  console.log("Starting server on port: " + port + " localhost");
+  console.log("Starting server on localhost:" + port + " NODE_ENV:" + process.env.NODE_ENV);
 
   app.listen(port, 'localhost');
 
