@@ -28,15 +28,13 @@
 
   knownOpts = {
     usecdn: Boolean,
-    skip_orlando: Boolean,
-    skip_poetesses: Boolean,
     git_commit_hash: [String, null],
     git_branch_name: [String, null],
     port: [Stream, Number]
   };
 
   shortHands = {
-    faststart: ["--skip_orlando", "--skip_poetesses"]
+    faststart: []
   };
 
   if ((_base = process.env).NODE_ENV == null) {

@@ -16,14 +16,11 @@ nopt = require("nopt") # https://github.com/npm/nopt
 cooked_argv = (a for a in process.argv)
 knownOpts =
   usecdn: Boolean
-  skip_orlando: Boolean
-  skip_poetesses: Boolean
   git_commit_hash: [String, null]
   git_branch_name: [String, null]
   port: [Stream, Number]
 shortHands =
-  faststart: ["--skip_orlando", "--skip_poetesses"]
-  #faststart: []
+  faststart: []
 
 process.env.NODE_ENV ?= 'production' # REVIEW why is this needed? what is the proper default?
 switch process.env.NODE_ENV
