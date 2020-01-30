@@ -54,7 +54,10 @@
 
   switch (process.env.NODE_ENV) {
     case 'development':
-      console.log(nopts);
+      console.log('development', nopts);
+      break;
+    case 'production':
+      console.log('production', nopts);
   }
 
   localOrCDN = function(templatePath, data, options) {
@@ -115,6 +118,8 @@
   app.use('/huviz/vendor', express["static"](__dirname + '/vendor'));
 
   app.use('/node_modules', express["static"](__dirname + '/node_modules'));
+
+  app.use('/huviz/async', express["static"](__dirname + '/node_modules/async/lib/'));
 
   app.use('/mocha', express["static"](__dirname + '/node_modules/mocha'));
 

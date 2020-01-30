@@ -12,7 +12,6 @@ express = require("express")
 morgan = require("morgan")
 nopt = require("nopt") # https://github.com/npm/nopt
 
-
 # process command line arguments
 cooked_argv = (a for a in process.argv)
 knownOpts =
@@ -39,7 +38,7 @@ nopts = nopt(knownOpts, shortHands, cooked_argv, 2)
 
 switch process.env.NODE_ENV
   when 'development'
-    console.log(nopts)
+    console.log('development', nopts)
 
 # https://github.com/sstephenson/eco
 localOrCDN = (templatePath, data, options) ->
@@ -84,6 +83,7 @@ app.use('/js', express.static(__dirname + '/js'))
 app.use("/jsoutline", express.static(__dirname + "/node_modules/jsoutline/lib"))
 app.use('/huviz/vendor', express.static(__dirname + '/vendor'))
 app.use('/node_modules', express.static(__dirname + '/node_modules'))
+app.use('/huviz/async', express.static(__dirname + '/node_modules/async/lib/'))
 app.use('/mocha', express.static(__dirname + '/node_modules/mocha'))
 app.use('/chai', express.static(__dirname + '/node_modules/chai'))
 app.use('/marked', express.static(__dirname + '/node_modules/marked'))
@@ -102,9 +102,6 @@ app.use(express.static(__dirname + '/images')) # for /favicon.ico
 #app.get("/srcdocs/", (req, res) -> res.redirect("/srcdocs/index.html"))
 app.use("/srcdocs",
   express.static("srcdocs", {index: 'index.html', redirect: true, extensions: ['html']}))
-
-
 port = nopts.port or nopts.argv.remain[0] or process.env.PORT or default_port
-
 console.log("Starting server on port: #{port} localhost")
 app.listen(port, 'localhost')
