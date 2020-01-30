@@ -55,6 +55,8 @@
       console.log(nopts);
   }
 
+  console.log(process.env.NODE_ENV);
+
   localOrCDN = function(templatePath, data, options) {
     var fullPath;
     if (options == null) {
