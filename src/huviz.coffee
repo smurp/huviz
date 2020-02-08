@@ -617,8 +617,7 @@ class Huviz
 
   renderStyles = themeStyles.light
   display_shelf_clockwise: true
-  nodeOrderAngle = 0.5
-  node_display_type = ''
+  nodeOrderAngle = 0.5 # TODO replace ' = ' with ': '
 
   pfm_data:
     tick:
@@ -2003,6 +2002,8 @@ class Huviz
         new_focused_edge.source.focused_edge = true
         new_focused_edge.target.focused_edge = true
       @focused_edge = new_focused_edge # blank it or set it
+      if not @use_fancy_cursor
+        return
       if @focused_edge?
         if @editui.is_state('connecting')
           @text_cursor.pause("", "edit this edge")
@@ -2010,6 +2011,7 @@ class Huviz
           @text_cursor.pause("", "show edge sources")
       else
         @text_cursor.continue()
+      return
 
   @proposed_edge = null #initialization (no proposed edge active)
   set_proposed_edge: (new_proposed_edge) ->
@@ -2263,7 +2265,7 @@ class Huviz
             # if the node d is in the @walked_set it needs special_focus
             special_focus = not not d.walked  # "not not" forces boolean
           # if 'pills' is selected; change node shape to rounded squares
-          if (node_display_type == 'pills')
+          if (@display_labels_as is 'pills')
             pill_width = node_radius * 2
             pill_height = node_radius * 2
             filclr = @get_node_color_or_color_list(d)
@@ -2426,7 +2428,7 @@ class Huviz
         ctx = @ctx
         ctx.textBaseline = "middle"
         # perhaps scrolling should happen here
-        #if not node_display_type and (node.focused_node or node.focused_edge?)
+        #if not @display_labels_as and (node.focused_node or node.focused_edge?)
         if node.focused_node or node.focused_edge?
           label = @scroll_pretty_name(node)
           ctx.fillStyle = node.color
@@ -2465,7 +2467,7 @@ class Huviz
             ctx.fillText("  " + node.pretty_name + "  ", 0, 0)
           ctx.restore()
         else
-          if (node_display_type == 'pills')
+          if (@display_labels_as is 'pills')
             node_font_size = node.bub_txt[4]
             result = node_font_size != @label_em
             if not node.bub_txt.length or result
@@ -2519,7 +2521,7 @@ class Huviz
     default_text_for_empty_value = '“”'
     highlight_node = (node) =>
       if node.focused_node or node.focused_edge?
-        if (node_display_type == 'pills')
+        if (@display_labels_as is 'pills')
           ctx.font = focused_pill_font
           node_font_size = node.bub_txt[4]
           result = node_font_size != @label_em
@@ -2767,12 +2769,16 @@ class Huviz
     @state_msg_box.show()
     @state_msg_box.html("<div class='msg_payload'>" + txt + "</div><div class='msg_backdrop'></div>")
     @state_msg_box.on('click', @hide_state_msg)
-    @text_cursor.pause("wait")
+    if @use_fancy_cursor
+      @text_cursor.pause("wait")
+    return
 
   hide_state_msg: () =>
     @state_msg_box.hide()
-    @text_cursor.continue()
+    if @use_fancy_cursor
+      @text_cursor.continue()
     #@text_cursor.set_cursor("default")
+    return
 
   svg_restart: ->
     # console.log "svg_restart()"
@@ -4166,7 +4172,8 @@ class Huviz
     #node.name ?= full_name  # set it if blank
     len = @truncate_labels_to
     if not len?
-      alert "len not set"
+      throw new Error("set_name('" + node.id + "', " + full_name + ", " + lang + ')')
+      return
     if len > 0
       node.pretty_name = node.name.substr(0, len) # truncate
     else
@@ -7112,13 +7119,14 @@ class Huviz
 
   before_running_command: ->
     # FIXME fix non-display of cursor and color changes
-    @text_cursor.set_cursor("wait")
-    #$("body").css "background-color", "red" # FIXME remove once it works!
-    #toggle_suspend_updates(true)
+    if @use_fancy_cursor
+      @text_cursor.set_cursor("wait")
+    return
 
   after_running_command: ->
     #toggle_suspend_updates(false)
-    @text_cursor.set_cursor("default")
+    if @use_fancy_cursor
+      @text_cursor.set_cursor("default")
     #$("body").css "background-color", renderStyles.pageBg # FIXME remove once it works!
     #$("body").addClass renderStyles.themeName
     @topElem.style.backgroundColor = renderStyles.pageBg
@@ -7496,10 +7504,17 @@ class Huviz
               attr("position", "absolute")
     @svg.append("rect").attr("width", @width).attr("height", @height)
     @container = d3.select(@args.viscanvas_sel).node().parentNode
-    @init_settings_to_defaults()
+    #if @use_fancy_cursor
+    #  @text_cursor = new TextCursor(@args.viscanvas_sel, "")
+    @init_settings_to_defaults().then(@complete_construction).catch(@catch_reject_init_settings)
+
+  catch_reject_init_settings: (wha) =>
+    console.error(wha)
+
+  complete_construction: (setting_resolutions) =>
+    #console.warn(setting_resolutions)
     @adjust_settings_from_kv_list(@args.settings)
     if @use_fancy_cursor
-      @text_cursor = new TextCursor(@args.viscanvas_sel, "")
       @install_update_pointer_togglers()
     @create_state_msg_box()
     @viscanvas = d3.select(@args.viscanvas_sel).html("").
@@ -7511,14 +7526,12 @@ class Huviz
     @reset_graph()
     @updateWindow()
     @ctx = @canvas.getContext("2d")
-    #console.log @ctx
     @mouse_receiver
       .on("mousemove", @mousemove)
       .on("mousedown", @mousedown)
       .on("mouseup", @mouseup)
       .on("contextmenu", @mouseright)
       #.on("mouseout", @mouseup) # FIXME what *should* happen on mouseout?
-
     @restart()
     @set_search_regex("")
     search_input = document.getElementById('search')
@@ -7980,14 +7993,24 @@ class Huviz
         input:
           type: "checkbox"
     ,
-      pill_display:
+      display_labels_as:
         group: "Labels"
-        text: "Display graph with boxed labels"
+        text: "Display Graph with Labels As..."
         label:
-          title: "Show boxed labels on graph"
+          title: "Select type of label display"
         input:
-          type: "checkbox"
-          #checked: "checked"
+          type: "select"
+        options : [
+            label: "Words"
+            value: "canvas"
+          ,
+            label: "Boxes"
+            value: "pills"
+            selected: true
+          #,
+          #  label: "div"
+          #  value: "div"
+        ]
     ,
       theme_colors:
         group: "Styling"
@@ -8379,18 +8402,20 @@ class Huviz
 
   init_settings_to_defaults: =>
     # TODO rebuild this method without D3 using @settingsElem
+    elemPromises = []
     @settingsElem = document.querySelector(@args.settings_sel)
     settings_input_sel = @args.settings_sel + ' input'
     @settings_cursor = new TextCursor(settings_input_sel, "")
     if @settings_cursor
       $(settings_input_sel).on("mouseover", @update_settings_cursor)
-      #$("input").on("mouseenter", @update_settings_cursor)
-      #$("input").on("mousemove", @update_settings_cursor)
     @settings = d3.select(@settingsElem)
     @settings.classed('settings',true)
     @settingGroupsContainerElem = @insertBeforeEnd(@settingsElem, '<div class="settingGroupsContainer"></div>')
     for control_spec in @default_settings
       for control_name, control of control_spec
+        # reset the values which will be used to initialize the setting input the user sees
+        initial_old_val = null
+        initial_new_val = null
         inputId = unique_id(control_name+'_')
         groupName = control.group or 'General'
         groupElem = @get_or_create_settings_group(groupName)
@@ -8403,20 +8428,19 @@ class Huviz
         if control.style?
           controlElem.setAttribute('style', control.style)
         if control.class?
-          #graph_control.attr('class', 'graph_control ' + control.class)
-          #controlElem.addAttribute('class', control.class)
           controlElem.classList.add(control.class)
         if control.input?
           if control.input.type is 'select'
             inputElem = @insertBeforeEnd(controlElem, """<select></select>""")
             for optIdx, opt of control.options
               optionElem = @insertBeforeEnd(inputElem, """<option value="#{opt.value}"></option>""")
+              initial_new_val ?= opt.value # default to the first option in case none is selected
               if opt.selected
                 optionElem.setAttribute('selected','selected')
+                initial_new_val = opt.value
               if opt.label?
                 optionElem.innerHTML = opt.label
           else if control.input.type is 'button'
-            #console.log "construct button: #{control.input.label}"
             inputElem = @insertBeforeEnd(controlElem, """<button type="button">(should set label)</button>""")
             if control.input.label?
               inputElem.innerHTML = control.input.label
@@ -8430,20 +8454,23 @@ class Huviz
                 WidgetClass = v
                 continue
               if k is 'value'
-                old_val = @[control_name]
-                @change_setting_to_from(control_name, v, old_val)
+                initial_old_val = @[control_name]
+                initial_new_val = v
               inputElem.setAttribute(k, v)
             if WidgetClass
               @[control_name + '__widget'] = new WidgetClass(this, inputElem)
             if control.input.type is 'checkbox'
-              value = control.input.checked?
-              @change_setting_to_from(control_name, value, undefined) #@[control_name].checked)
+              initial_new_val = not not control.input.checked?
             # TODO replace control.event_type with autodetecting on_change_ vs on_update_ method existence
           inputElem.setAttribute('id', inputId)
           inputElem.setAttribute('name', control_name)
-          event_type = control.event_type or
-              (control.input.type in ['checkbox','range','radio'] and 'input') or
-              'change'
+
+          event_type = control.event_type
+          if not event_type
+            if (control.input.type in ['checkbox','range','radio'])
+              event_type = 'input'
+            else
+              event_type = 'change'
 
           if event_type is 'change'
             # These controls only update when enter is pressed or the focus changes.
@@ -8458,12 +8485,22 @@ class Huviz
             inputElem.addEventListener('input', @update_graph_settings)
           if control.input.type is 'button'
             inputElem.addEventListener('click', @update_graph_settings)
+            continue # because buttons do not need any updating
 
+          execInitElem = (resolve, reject) =>
+            try
+              @change_setting_to_from(control_name, initial_new_val, initial_old_val)
+              resolve(control_name)
+            catch e
+              reject(e)
+          elemPromises.push(new Promise(execInitElem))
+        else
+          console.info(control_name + " has no input")
         if control.label.title?
           @insertBeforeEnd(controlElem, '<div class="setting_explanation">' + control.label.title + '</div>')
     #$(@settingGroupsContainerElem).accordion()
     #@insertBeforeEnd(@settingsElem, """<div class="buffer_space"></div>""")
-    return
+    return Promise.all(elemPromises)
 
   update_settings_cursor: (evt) =>
     cursor_text = (evt.target.value).toString()
@@ -8560,14 +8597,12 @@ class Huviz
     custom_handler_name = "on_change_" + setting_name
     custom_handler = @[custom_handler_name]
     if @settings_cursor
-      cursor_text = (new_value).toString()
-      #console.info("#{setting_name}: #{cursor_text}")
-      @settings_cursor.set_text(cursor_text)
+      if new_value?
+        cursor_text = (new_value).toString()
+        @settings_cursor.set_text(cursor_text)
     if custom_handler? and not skip_custom_handler
-      #console.log "change_setting_to_from() custom setting: #{setting_name} to:#{new_value}(#{typeof new_value}) from:#{old_value}(#{typeof old_value})"
       custom_handler.apply(@, [new_value, old_value])
     else
-      #console.log "change_setting_to_from() setting: #{setting_name} to:#{new_value}(#{typeof new_value}) from:#{old_value}(#{typeof old_value})"
       this[setting_name] = new_value
 
   adjust_settings_from_defaults: ->
@@ -8579,6 +8614,11 @@ class Huviz
     @adjust_settings_from_kv_list(@args.settings)
     console.groupEnd()
     return
+
+  on_change_use_fancy_cursor: (new_val, old_val) ->
+    @use_fancy_cursor = not not new_val
+    if @use_fancy_cursor and not @text_cursor # initialize the text_cursor
+      @text_cursor = new TextCursor(@args.viscanvas_sel, "")
 
   # on_change handlers for the various settings which need them
   on_change_use_accordion_for_settings: (new_val, old_val) ->
@@ -8642,13 +8682,12 @@ class Huviz
     else
       $('option.dangerous').hide()
 
-  on_change_pill_display: (new_val) ->
-    if new_val
-      node_display_type = 'pills'
+  on_change_display_labels_as: (new_val, old_val) ->
+    @display_labels_as = new_val
+    if new_val is 'pills'
       @adjust_setting('charge', -3000)
       @adjust_setting('link_distance', 200)
     else
-      node_display_type = ""
       @adjust_setting('charge', -210) # TODO use prior value or default value
       @adjust_setting('link_distance', 29) # TODO use prior value or default value
     @updateWindow()
@@ -8717,7 +8756,7 @@ class Huviz
       @topJQElem.find(".graph_custom_sub_title__setting").css('display', 'none')
       @topJQElem.find("a.git_commit_hash_watermark").css('display', 'inherit')
       @ontology_watermark_JQElem.attr('style', '')
-      @update_caption(@data_uri,@onto_uri)
+      @update_caption(@data_uri, @onto_uri)
     @dataset_watermark_JQElem.removeClass().addClass("dataset_watermark #{new_val}")
     @ontology_watermark_JQElem.removeClass().addClass("ontology_watermark #{new_val}")
 
@@ -8758,7 +8797,7 @@ class Huviz
       $(endpoint).css('display','none')
 
   on_change_show_performance_monitor: (new_val, old_val) ->
-    console.log("clicked performance monitor " + new_val + " " + old_val)
+    #console.log("clicked performance monitor " + new_val + " " + old_val)
     if new_val
       @performance_dashboard_JQElem.css('display','block')
       @show_performance_monitor = true
