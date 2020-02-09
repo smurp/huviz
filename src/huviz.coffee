@@ -6484,7 +6484,7 @@ class Huviz
     endpoint_label_uri = @endpoint_labels_JQElem.val()
     if endpoint_label_uri
       data = dataset or @endpoint_loader
-      @load_endpoint_data_and_show(endpoint_label_uri)
+      @load_endpoint_data_and_show(endpoint_label_uri, @after_visualize_dataset_using_ontology)
       # TODO ensure disable_dataset_ontology_loader() is only called once
       console.warn("disable_dataset_ontology_loader() SHOULD BE CALLED ONLY ONCE")
       @disable_dataset_ontology_loader_AUTOMATICALLY()
