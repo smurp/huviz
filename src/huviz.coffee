@@ -2418,6 +2418,8 @@ class Huviz
       # http://stackoverflow.com/questions/3167928/drawing-rotated-text-on-a-html5-canvas
       # http://diveintohtml5.info/canvas.html#text
       # http://stackoverflow.com/a/10337796/1234699
+
+      # REVIEW remove these variables if they are not used
       focused_font_size = @label_em * @focused_mag
       focused_font = "#{focused_font_size}em sans-serif"
       unfocused_font = "#{@label_em}em sans-serif"
@@ -2468,44 +2470,7 @@ class Huviz
           ctx.restore()
         else
           if (@display_labels_as is 'pills')
-            node_font_size = node.bub_txt[4]
-            result = node_font_size != @label_em
-            if not node.bub_txt.length or result
-              @get_label_attributes(node)
-            line_height = node.bub_txt[2]  # Line height calculated from text size ?
-            adjust_x = node.bub_txt[0] / 2 - line_height/2 # Location of first line of text
-            adjust_y = node.bub_txt[1] / 2 - line_height
-            pill_width = node.bub_txt[0] # box size
-            pill_height = node.bub_txt[1]
-
-            x = node.fisheye.x - pill_width/2
-            y = node.fisheye.y - pill_height/2
-            radius = 10 * @label_em
-            alpha = 1
-            outline = node.color
-            # change box edge thickness and fill if node selected
-            if node.focused_node or node.focused_edge?
-              ctx.lineWidth = 2
-              fill = "#f2f2f2"
-            else
-              ctx.lineWidth = 1
-              fill = "white"
-            @rounded_rectangle(x, y, pill_width, pill_height, radius, fill, outline, alpha)
-            ctx.fillStyle = "#000"
-            # Paint multi-line text
-            text = node.pretty_name
-            text_split = text.split(' ') # array of words
-            cuts = node.bub_txt[3]
-            print_label = ""
-            for text, i in text_split
-              if cuts and i in cuts
-                ctx.fillText print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y
-                adjust_y = adjust_y - line_height
-                print_label = text + " "
-              else
-                print_label = print_label + text + " "
-            if print_label # print last line, or single line if no cuts
-              ctx.fillText(print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y)
+            @update_canvas_pill(node, ctx)
           else if @display_labels_as is 'nodeLabels'
             @update_boxNG(node)
           else
@@ -2514,6 +2479,47 @@ class Huviz
       @shelved_set.forEach(label_node)
       @discarded_set.forEach(label_node)
       return
+
+  update_canvas_pill: (node, ctx) ->
+    node_font_size = node.bub_txt[4]
+    result = node_font_size != @label_em
+    if not node.bub_txt.length or result
+      @get_label_attributes(node)
+    line_height = node.bub_txt[2]  # Line height calculated from text size ?
+    adjust_x = node.bub_txt[0] / 2 - line_height/2 # Location of first line of text
+    adjust_y = node.bub_txt[1] / 2 - line_height
+    pill_width = node.bub_txt[0] # box size
+    pill_height = node.bub_txt[1]
+
+    x = node.fisheye.x - pill_width/2
+    y = node.fisheye.y - pill_height/2
+    radius = 10 * @label_em
+    alpha = 1
+    outline = node.color
+    # change box edge thickness and fill if node selected
+    if node.focused_node or node.focused_edge?
+      ctx.lineWidth = 2
+      fill = "#f2f2f2"
+    else
+      ctx.lineWidth = 1
+      fill = "white"
+    @rounded_rectangle(x, y, pill_width, pill_height, radius, fill, outline, alpha)
+    ctx.fillStyle = "#000"
+    # Paint multi-line text
+    text = node.pretty_name
+    text_split = text.split(' ') # array of words
+    cuts = node.bub_txt[3]
+    print_label = ""
+    for text, i in text_split
+      if cuts and i in cuts
+        ctx.fillText print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y
+        adjust_y = adjust_y - line_height
+        print_label = text + " "
+      else
+        print_label = print_label + text + " "
+    if print_label # print last line, or single line if no cuts
+      ctx.fillText(print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y)
+    return
 
   update_boxNG: (node) ->
     node.boxNG ?= @make_boxNG(node.pretty_name) # make sure it is there!
