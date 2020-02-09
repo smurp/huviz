@@ -73,7 +73,7 @@ app.use('/d3', express.static(__dirname + '/node_modules/d3'))
 # but that fails while quaff-lod is being referenced as a symlink in package.json
 quaff_module_path = process.env.QUAFF_PATH or path.join(__dirname,"node_modules","quaff-lod")
 app.use('/quaff-lod/quaff-lod-worker-bundle.js',
-    localOrCDN(quaff_module_path + "/quaff-lod-worker-bundle.js", {nopts: nopts}))
+    express.static(quaff_module_path + "/quaff-lod-worker-bundle.js"))
 app.use('/data', express.static(__dirname + '/data'))
 app.use('/js', express.static(__dirname + '/js'))
 app.use("/jsoutline", express.static(__dirname + "/node_modules/jsoutline/lib"))

@@ -104,9 +104,7 @@
 
   quaff_module_path = process.env.QUAFF_PATH || path.join(__dirname, "node_modules", "quaff-lod");
 
-  app.use('/quaff-lod/quaff-lod-worker-bundle.js', localOrCDN(quaff_module_path + "/quaff-lod-worker-bundle.js", {
-    nopts: nopts
-  }));
+  app.use('/quaff-lod/quaff-lod-worker-bundle.js', express["static"](quaff_module_path + "/quaff-lod-worker-bundle.js"));
 
   app.use('/data', express["static"](__dirname + '/data'));
 
