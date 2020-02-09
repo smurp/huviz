@@ -344,6 +344,7 @@ div.message_wrapper {
     padding: .2em;
     text-align: center;
     display: none;
+    user-select: none;
 }
 
 .boxNGs .boxNG {

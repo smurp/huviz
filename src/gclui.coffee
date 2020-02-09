@@ -1010,7 +1010,7 @@ class CommandController
     @future_cmdArgs.push(cmdArgs)
   push_future_onto_history: =>
     if @future_cmdArgs.length
-      @huviz.goto_tab(3)
+      @huviz.goto_tab('history')
       for cmdArgs in @future_cmdArgs
         @push_command_onto_history(@new_GraphCommand(cmdArgs))
       @reset_command_history()

@@ -7263,7 +7263,10 @@ class Huviz
     theTabs = """<ul class="the-tabs">"""
     theDivs = ""
     tab_specs = @args.tab_specs
+    @tab_id_to_idx = {}
+    idx = -1
     for t in tab_specs
+      idx++
       if typeof(t) is 'string'
         t = @get_default_tab(t)
       firstClass = t.cssClass.split(' ')[0]
@@ -7273,6 +7276,8 @@ class Huviz
       if @args.use_old_tab_ids
         id = firstClass
       idSel = '#' + id
+      tab_id = t.id
+      @tab_id_to_idx[tab_id] = idx
       @oldToUniqueTabSel[firstClass] = idSel
       theTabs += """<li><a href="#{idSel}" title="#{t.title}">#{t.text}</a></li>"""
       theDivs += """<div id="#{id}" class="#{t.cssClass}">#{t.kids or ''}</div>"""
@@ -7656,7 +7661,8 @@ class Huviz
 
   #### ---------------------  Utilities ---------------------------- #######
 
-  goto_tab: (tab_idx) ->
+  goto_tab: (tab_id) ->
+    tab_idx = @tab_id_to_idx[tab_id]
     @tabsJQElem.tabs(
       active: tab_idx
       collapsible: true)
@@ -8991,7 +8997,7 @@ class Huviz
       @init_webgl()
 
   load_with: (data_uri, ontology_uris) ->
-    @goto_tab(1) # go to Commands tab # FIXME: should be symbolic not int indexed
+    @goto_tab('commands') # go to Commands tab # FIXME: should be symbolic not int indexed
     basename = (uri) ->
       return uri.split('/').pop().split('.').shift() # the filename without the ext
     dataset =
@@ -9014,7 +9020,7 @@ class Huviz
       setTimeout((() => @query_from_seeking_limit(querySpec)), 50)
       #throw new Error("endpoint_loader not ready")
       return
-    @goto_tab(1)
+    @goto_tab('commands')
     if serverUrl?
       @endpoint_loader.select_by_uri(serverUrl)
       @sparql_graph_query_and_show__trigger(serverUrl)

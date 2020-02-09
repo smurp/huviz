@@ -12,18 +12,13 @@ window.addEventListener('load',function(){
     tab_specs:
     [
       {
+        "id": "intro",
         "cssClass": "tabs-intro scrolling_tab",
         "title": "Introduction and Usage",
         "text": "Intro",
         "moveSelector": "#contents_of_intro_tab"
       },
-      'commands','settings','history',
-      {
-        "cssClass": "tabs-credit scrolling_tab",
-        "title": "Academic, funding and technical credit",
-        "text": "Credit",
-        "bodyUrl": "/huviz/docs/credits.md"
-      },
+      'commands','settings','history','credits',
       'sparqlQueries'
     ],
     preload: [
