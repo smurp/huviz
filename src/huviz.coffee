@@ -8019,7 +8019,7 @@ class Huviz
             value: "pills"
             selected: true
           ,
-            label: "DIVs"
+            label: "Boxes NG (beta)"
             value: "nodeLabels"
         ]
     ,

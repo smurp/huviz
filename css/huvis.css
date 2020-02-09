@@ -338,14 +338,13 @@ div.message_wrapper {
 
 .nodeLabel {
     position: absolute;
-    background-color: red;
-    border: 1px;
+    border: 2px solid black;
     border-color: black;
+    border-radius: .4em;
     text-align: center;
-    display: normal;
+    display: none;
 }
 
 .nodeLabels .nodeLabel {
-    background-color: yellow;
-    display: normal;
+    display: inline;
 }
