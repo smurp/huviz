@@ -337,13 +337,12 @@ div.message_wrapper {
 }
 
 .boxNG {
-    position: absolute;
     border: .5px solid black;
-    border-color: black;
     border-radius: .4em;
-    padding: .2em;
-    text-align: center;
     display: none;
+    padding: .2em;
+    position: absolute;
+    text-align: center;
     user-select: none;
 }
 
