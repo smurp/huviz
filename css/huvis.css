@@ -336,7 +336,7 @@ div.message_wrapper {
   left: 0;
 }
 
-.nodeLabel {
+.boxNG {
     position: absolute;
     border: 2px solid black;
     border-color: black;
@@ -345,6 +345,6 @@ div.message_wrapper {
     display: none;
 }
 
-.nodeLabels .nodeLabel {
+.boxNGs .boxNG {
     display: inline;
 }

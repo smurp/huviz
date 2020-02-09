@@ -2471,7 +2471,7 @@ class Huviz
         else
           if (@display_labels_as is 'pills')
             @update_canvas_pill(node, ctx)
-          else if @display_labels_as is 'nodeLabels'
+          else if @display_labels_as is 'boxNGs'
             @update_boxNG(node)
           else
             ctx.fillText("  " + node.pretty_name + "  ", node.fisheye.x, node.fisheye.y)
@@ -2537,7 +2537,7 @@ class Huviz
     return
 
   make_boxNG: (text) ->
-    div = @addDivWithIdAndClasses(null, "nodeLabel", @viscanvas_elem)
+    div = @addDivWithIdAndClasses(null, "boxNG", @viscanvas_elem)
     div.innerHTML = text
     return div
 
@@ -8040,7 +8040,7 @@ class Huviz
             selected: true
           ,
             label: "Boxes NG (beta)"
-            value: "nodeLabels"
+            value: "boxNGs"
         ]
     ,
       theme_colors:
@@ -8715,11 +8715,11 @@ class Huviz
 
   on_change_display_labels_as: (new_val, old_val) ->
     @display_labels_as = new_val
-    if new_val is 'nodeLabels'
-      @viscanvas_JQElem.addClass('nodeLabels')
+    if new_val is 'boxNGs'
+      @viscanvas_JQElem.addClass('boxNGs')
     else
-      @viscanvas_JQElem.removeClass('nodeLabels')
-    if new_val in ['pills', 'nodeLabels']
+      @viscanvas_JQElem.removeClass('boxNGs')
+    if new_val in ['pills', 'boxNGs']
       @adjust_setting('charge', -3000)
       @adjust_setting('link_distance', 200)
     else
