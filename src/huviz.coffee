@@ -2407,6 +2407,7 @@ class Huviz
         (@label_graphed and node.state is @graphed_set) or
         dist_lt(@last_mouse_pos, node, @label_show_range) or
         (node.name? and node.name.match(@search_regex))) # FIXME make this a flag that gets updated ONCE when the regex changes not something deep in loop!!!
+
   draw_labels: ->
     if @use_svg
       label.attr "style", (d) ->
@@ -2414,6 +2415,7 @@ class Huviz
           ""
         else
           "display:none"
+
     if @use_canvas or @use_webgl
       # http://stackoverflow.com/questions/3167928/drawing-rotated-text-on-a-html5-canvas
       # http://diveintohtml5.info/canvas.html#text
