@@ -2507,9 +2507,7 @@ class Huviz
             if print_label # print last line, or single line if no cuts
               ctx.fillText(print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y)
           else if @display_labels_as is 'nodeLabels'
-            node.labelElem ?= @make_labelElem(node.pretty_name) # make sure it is there!
-            # TODO update the text in the labelElem when the name or language changes...
-            node.labelElem.setAttribute('style', "top:#{node.fisheye.y}px; left:#{node.fisheye.x}px")
+            @update_boxNG(node)
           else
             ctx.fillText("  " + node.pretty_name + "  ", node.fisheye.x, node.fisheye.y)
       @graphed_set.forEach(label_node)
@@ -2517,7 +2515,22 @@ class Huviz
       @discarded_set.forEach(label_node)
       return
 
-  make_labelElem: (text) ->
+  update_boxNG: (node) ->
+    node.boxNG ?= @make_boxNG(node.pretty_name) # make sure it is there!
+    # FIXME update the text in the boxNG when the name or language changes...
+    #   There are a couple of ways to do this...
+    #   1) update the boxNG text value when the value changes (RARE! FAST! RIGHT!)
+    #   2) check here each tick like this to see if it is needed (FREQUENT! SLOW! WRONG!)
+
+    # FIXME The update of position should only happen when the position has actually changed
+    #   Do this by rounding the fisheye to the nearest pixel at calculation time THEN
+    #   flagging the fisheye with a .dirty (or .moved) boolean at fisheye update time
+    #   then here only perform the following setAttribute when .dirty is true.
+    # WARNING the boxNGs might have a stale position until they become .dirty
+    node.boxNG.setAttribute('style', "top:#{node.fisheye.y}px; left:#{node.fisheye.x}px")
+    return
+
+  make_boxNG: (text) ->
     div = @addDivWithIdAndClasses(null, "nodeLabel", @viscanvas_elem)
     div.innerHTML = text
     return div
