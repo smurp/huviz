@@ -6478,11 +6478,14 @@ class Huviz
     @my_loading_notice_dialog.remove()
 
   visualize_dataset_using_ontology: (ignoreEvent, dataset, ontologies) =>
-    colorlog('visualize_dataset_using_ontology()')
+    # Either dataset and ontologies are passed in by HuViz.load_with() from a command
+    # or we are called with neither in which case get values from the SPARQL or SCRIPT loaders
 
+    colorlog('visualize_dataset_using_ontology()')
     @close_blurt_box()
-    endpoint_label_uri = @endpoint_labels_JQElem.val()
-    if endpoint_label_uri
+
+    # If we are loading from a SPARQL endpoint
+    if (endpoint_label_uri = @endpoint_labels_JQElem.val())
       @turn_on_loading_notice_if_enabled()
       data = dataset or @endpoint_loader
       @load_endpoint_data_and_show(endpoint_label_uri, @after_visualize_dataset_using_ontology)
@@ -6493,15 +6496,14 @@ class Huviz
       @update_caption(data.value, data.endpoint_graph)
       return
 
-    # Either dataset and ontologies are passed in by HuViz.load_with() from a command
-    #   or this method is called with neither in which case get values from the loaders
-    alreadyCommands = (@gclui.command_list? and @gclui.command_list.length)
+    # If we are loading from a SCRIPT
     alreadyCommands = @gclui.future_cmdArgs.length > 0
     if @script_loader.value and not alreadyCommands
       scriptUri = @script_loader.value
       @get_resource_from_db(scriptUri, @load_script_from_db)
       return
 
+    # Otherwise we are starting with a dataset and ontology
     @turn_on_loading_notice_if_enabled()
     onto = ontologies and ontologies[0] or @ontology_loader
     data = dataset or @dataset_loader
