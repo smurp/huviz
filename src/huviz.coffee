@@ -9151,7 +9151,7 @@ class Huviz
         @pfm_data["#{pfm_marker}"]["timed_count"] = [0.01]
         #console.log "Setting #{marker.label }to zero"
 
-  parseAndShowFile: (uri) =>
+  parseAndShowFile: (uri, callback) =>
     try
       aUri = new URL(uri)
     catch error
@@ -9161,6 +9161,18 @@ class Huviz
       aUri = new URL(fullUri)
     worker = new Worker('/quaff-lod/quaff-lod-worker-bundle.js')
     worker.addEventListener('message', @receive_quaff_lod)
+    trigger_callback = (event) =>
+      switch event.data.type
+        when 'end'
+          @call_on_dataset_loaded()
+          if callback?
+            callback()
+        when 'error'
+          @blurt(event.data.data, "error")
+        else
+          console.log("trigger_callback(event) did not know what to do with event.data:", event.data)
+      return
+    worker.addEventListener('message', trigger_callback) # a second listener for error and end
     worker.postMessage({url: aUri.toString()})
     return
 
@@ -9188,12 +9200,6 @@ class Huviz
   receive_quaff_lod: (event) =>
     {subject, predicate, object, graph} = event.data
     if not subject
-      # console.warn(event.data)
-      if event.data.type is "end"
-        @call_on_dataset_loaded()
-      else if event.data.type is "error"
-        console.log(event.data)
-        @blurt(event.data.data, "error")
       return
     subj_uri = subject.value
     pred_uri = predicate.value
