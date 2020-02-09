@@ -102,9 +102,9 @@
 
   app.use('/d3', express["static"](__dirname + '/node_modules/d3'));
 
-  quaff_module_path = process.env.QUAFF_PATH || "/node_modules";
+  quaff_module_path = process.env.QUAFF_PATH || path.join(__dirname, "node_modules", "quaff-lod");
 
-  app.use('/quaff-lod/quaff-lod-worker-bundle.js', localOrCDN(quaff_module_path + "/quaff-lod/quaff-lod-worker-bundle.js", {
+  app.use('/quaff-lod/quaff-lod-worker-bundle.js', localOrCDN(quaff_module_path + "/quaff-lod-worker-bundle.js", {
     nopts: nopts
   }));
 
