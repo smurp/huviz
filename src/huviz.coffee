@@ -6479,10 +6479,11 @@ class Huviz
 
   visualize_dataset_using_ontology: (ignoreEvent, dataset, ontologies) =>
     colorlog('visualize_dataset_using_ontology()')
-    @turn_on_loading_notice_if_enabled()
+
     @close_blurt_box()
     endpoint_label_uri = @endpoint_labels_JQElem.val()
     if endpoint_label_uri
+      @turn_on_loading_notice_if_enabled()
       data = dataset or @endpoint_loader
       @load_endpoint_data_and_show(endpoint_label_uri, @after_visualize_dataset_using_ontology)
       # TODO ensure disable_dataset_ontology_loader() is only called once
@@ -6491,6 +6492,7 @@ class Huviz
       @update_browser_title(data)
       @update_caption(data.value, data.endpoint_graph)
       return
+
     # Either dataset and ontologies are passed in by HuViz.load_with() from a command
     #   or this method is called with neither in which case get values from the loaders
     alreadyCommands = (@gclui.command_list? and @gclui.command_list.length)
@@ -6499,6 +6501,8 @@ class Huviz
       scriptUri = @script_loader.value
       @get_resource_from_db(scriptUri, @load_script_from_db)
       return
+
+    @turn_on_loading_notice_if_enabled()
     onto = ontologies and ontologies[0] or @ontology_loader
     data = dataset or @dataset_loader
     # at this point data and onto are both objects with a .value key, containing url or fname
