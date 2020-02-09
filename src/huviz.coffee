@@ -7349,7 +7349,6 @@ class Huviz
     @tabs_class_to_id = {}
     if not @args.tab_specs
       return
-    # create <section id="tabs"...> programmatically, making unique ids along the way
     elem = document.querySelector(@args.create_tabs_adjacent_to_selector)
     [html, jQElem_list] = @make_tabs_html()
     @addHTML(html)
@@ -7366,7 +7365,6 @@ class Huviz
       id = sel_to_id(@args.huviz_top_sel)
       classes = 'huviz_top'
       @addDivWithIDAndClasses(id, classes, body)
-      #@insertBeforeEnd(body, """<div id="#{@args.huviz_top_sel}"></div>""")
     @topElem = document.querySelector(@args.huviz_top_sel)
     @topJQElem = $(@topElem)
     return
@@ -7535,8 +7533,6 @@ class Huviz
               attr("position", "absolute")
     @svg.append("rect").attr("width", @width).attr("height", @height)
     @container = d3.select(@args.viscanvas_sel).node().parentNode
-    #if @use_fancy_cursor
-    #  @text_cursor = new TextCursor(@args.viscanvas_sel, "")
     @init_settings_to_defaults().then(@complete_construction).catch(@catch_reject_init_settings)
 
   catch_reject_init_settings: (wha) =>
