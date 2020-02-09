@@ -2508,6 +2508,7 @@ class Huviz
               ctx.fillText(print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y)
           else if @display_labels_as is 'nodeLabels'
             node.labelElem ?= @make_labelElem(node.pretty_name) # make sure it is there!
+            # TODO update the text in the labelElem when the name or language changes...
             node.labelElem.setAttribute('style', "top:#{node.fisheye.y}px; left:#{node.fisheye.x}px")
           else
             ctx.fillText("  " + node.pretty_name + "  ", node.fisheye.x, node.fisheye.y)
@@ -8699,7 +8700,7 @@ class Huviz
       @viscanvas_JQElem.addClass('nodeLabels')
     else
       @viscanvas_JQElem.removeClass('nodeLabels')
-    if new_val is 'pills'
+    if new_val in ['pills', 'nodeLabels']
       @adjust_setting('charge', -3000)
       @adjust_setting('link_distance', 200)
     else
