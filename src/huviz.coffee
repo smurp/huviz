@@ -578,6 +578,7 @@ class Huviz
   line_length_min: 4
 
   # TODO figure out how to replace with the default_graph_control
+  # TODO remove all of the following which are rendered redundant by settings
   link_distance: 29
   fisheye_zoom: 4.0
   peeking_line_thicker: 4
@@ -831,20 +832,6 @@ class Huviz
   move_node_to_point: (node, point) ->
     node.x = point[0]
     node.y = point[1]
-
-  click_node: (node_or_id) ->
-    # motivated by testing. Should this also be used by normal click handling?
-    console.warn("click_node() is deprecated")
-    if typeof node_or_id is 'string'
-      node = @nodes.get_by('id', node_or_id)
-    else
-      node = node_or_id
-    @set_focused_node(node)
-    evt = new MouseEvent "mouseup",
-      screenX: node.x
-      screenY: node.y
-    @canvas.dispatchEvent(evt)
-    return @
 
   click_verb: (id) ->
     verbs = $("#verb-#{id}")
