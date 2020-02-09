@@ -2505,13 +2505,21 @@ class Huviz
               else
                 print_label = print_label + text + " "
             if print_label # print last line, or single line if no cuts
-              ctx.fillText print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y
+              ctx.fillText(print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y)
+          else if @display_labels_as is 'nodeLabels'
+            node.labelElem ?= @make_labelElem(node.pretty_name) # make sure it is there!
+            node.labelElem.setAttribute('style', "top:#{node.fisheye.y}px; left:#{node.fisheye.x}px")
           else
-            ctx.fillText "  " + node.pretty_name + "  ", node.fisheye.x, node.fisheye.y
-
+            ctx.fillText("  " + node.pretty_name + "  ", node.fisheye.x, node.fisheye.y)
       @graphed_set.forEach(label_node)
       @shelved_set.forEach(label_node)
       @discarded_set.forEach(label_node)
+      return
+
+  make_labelElem: (text) ->
+    div = @addDivWithIdAndClasses(null, "nodeLabel", @viscanvas_elem)
+    div.innerHTML = text
+    return div
 
   draw_focused_labels: ->
     ctx = @ctx
@@ -7351,7 +7359,8 @@ class Huviz
     return @insertBeforeEnd(@topElem, html)
 
   addDivWithIdAndClasses: (id, classes, specialElem) ->
-    html = """<div id="#{sel_to_id(id)}" class="#{classes}"></div>"""
+    idHtml = id and """id="#{sel_to_id(id)}" """ or "" # html for the id, if there is one
+    html = """<div #{idHtml} class="#{classes}"></div>"""
     if specialElem
       return @insertBeforeEnd(specialElem, html)
     else
@@ -7521,6 +7530,8 @@ class Huviz
       append("canvas").
       attr("width", @width).
       attr("height", @height)
+    @make_JQElem('viscanvas', @args.viscanvas_sel) # --> @viscanvas_JQElem
+    @viscanvas_elem = document.querySelector(@args.viscanvas_sel)
     @canvas = @viscanvas[0][0]
     @mouse_receiver = @viscanvas
     @reset_graph()
@@ -8007,9 +8018,9 @@ class Huviz
             label: "Boxes"
             value: "pills"
             selected: true
-          #,
-          #  label: "div"
-          #  value: "div"
+          ,
+            label: "DIVs"
+            value: "nodeLabels"
         ]
     ,
       theme_colors:
@@ -8684,6 +8695,10 @@ class Huviz
 
   on_change_display_labels_as: (new_val, old_val) ->
     @display_labels_as = new_val
+    if new_val is 'nodeLabels'
+      @viscanvas_JQElem.addClass('nodeLabels')
+    else
+      @viscanvas_JQElem.removeClass('nodeLabels')
     if new_val is 'pills'
       @adjust_setting('charge', -3000)
       @adjust_setting('link_distance', 200)

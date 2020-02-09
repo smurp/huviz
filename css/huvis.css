@@ -335,3 +335,17 @@ div.message_wrapper {
   top: 0;
   left: 0;
 }
+
+.nodeLabel {
+    position: absolute;
+    background-color: red;
+    border: 1px;
+    border-color: black;
+    text-align: center;
+    display: normal;
+}
+
+.nodeLabels .nodeLabel {
+    background-color: yellow;
+    display: normal;
+}
