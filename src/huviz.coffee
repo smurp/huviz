@@ -2389,11 +2389,13 @@ class Huviz
     d.bub_txt = [width, height, line_height, text_cuts, font_size]
 
   should_show_label: (node) ->
-    (node.labelled or
-        node.focused_edge or
-        (@label_graphed and node.state is @graphed_set) or
-        dist_lt(@last_mouse_pos, node, @label_show_range) or
-        (node.name? and node.name.match(@search_regex))) # FIXME make this a flag that gets updated ONCE when the regex changes not something deep in loop!!!
+    return (
+      node.labelled or
+      node.focused_edge or
+      (@label_graphed and node.state is @graphed_set) or
+      dist_lt(@last_mouse_pos, node, @label_show_range) or
+      (node.name? and node.name.match(@search_regex)))
+      # FIXME make this a flag that gets updated ONCE when the regex changes not something deep in loop!!!
 
   draw_labels: ->
     if @use_svg
@@ -2415,7 +2417,10 @@ class Huviz
       focused_pill_font = "#{@label_em}em sans-serif"
 
       label_node = (node) =>
-        return unless @should_show_label(node)
+        if not @should_show_label(node)
+          if node.boxNG
+            @remove_boxNG(node)
+          return
         ctx = @ctx
         ctx.textBaseline = "middle"
         # perhaps scrolling should happen here
@@ -2464,6 +2469,7 @@ class Huviz
             @update_boxNG(node)
           else
             ctx.fillText("  " + node.pretty_name + "  ", node.fisheye.x, node.fisheye.y)
+        return
       @graphed_set.forEach(label_node)
       @shelved_set.forEach(label_node)
       @discarded_set.forEach(label_node)
@@ -2508,6 +2514,12 @@ class Huviz
         print_label = print_label + text + " "
     if print_label # print last line, or single line if no cuts
       ctx.fillText(print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y)
+    return
+
+  remove_boxNG: (node) ->
+    if node.boxNG?
+      node.boxNG.parentNode.removeChild(node.boxNG)
+      node['boxNG'] = undefined
     return
 
   update_boxNG: (node) ->
