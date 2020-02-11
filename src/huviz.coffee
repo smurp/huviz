@@ -7701,6 +7701,9 @@ class Huviz
 
   goto_tab: (tab_id) ->
     tab_idx = @tab_id_to_idx[tab_id]
+    if not tab_idx?
+      console.error("goto_tab(#{tab_id}) found no value in @tab_id_to_idx:", @tab_id_to_idx)
+      return
     @tabsJQElem.tabs(
       active: tab_idx
       collapsible: true)
