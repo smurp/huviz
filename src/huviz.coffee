@@ -7990,7 +7990,6 @@ class Huviz
       label_graphed:
         group: "Labels"
         text: "label graphed nodes"
-        style: "display:none"
         label:
           title: "whether graphed nodes are always labelled"
         input:
