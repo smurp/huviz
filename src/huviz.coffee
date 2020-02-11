@@ -498,6 +498,7 @@ orlando_human_term =
   graphed: 'Graphed'
   fixed: 'Pinned'
   labelled: 'Labelled'
+  matched: 'Matched'
   choose: 'Activate'
   unchoose: 'Deactivate'
   wander: 'Wander'
@@ -1605,6 +1606,13 @@ class Huviz
     @labelled_set.docs = "Nodes which have their labels permanently shown."
     @labelled_set.cleanup_verb = "unlabel"
 
+    @matched_set = SortedSet().named("matched").
+      sort_on("id").
+      labelled(@human_term.matched).
+      sub_of(@all_set).
+      isFlag('matched')
+    @matched_set.docs = "Nodes which match the 'matching' search term"
+
     @nameless_set = SortedSet().named("nameless").
       sort_on("id").
       labelled(@human_term.nameless).
@@ -1646,16 +1654,17 @@ class Huviz
     @selectable_sets =
       all_set: @all_set
       chosen_set: @chosen_set
+      discarded_set: @discarded_set
+      graphed_set: @graphed_set
+      hidden_set: @hidden_set
+      labelled_set: @labelled_set
+      matched_set: @matched_set
+      nameless_set: @nameless_set
+      pinned_set: @pinned_set
       selected_set: @selected_set
       shelved_set: @shelved_set
-      discarded_set: @discarded_set
-      hidden_set: @hidden_set
-      graphed_set: @graphed_set
-      labelled_set: @labelled_set
-      pinned_set: @pinned_set
-      nameless_set: @nameless_set
-      walked_set: @walked_set
       suppressed_set: @suppressed_set
+      walked_set: @walked_set
 
   get_set_by_id: (setId) ->
     setId = setId is 'fixed' and 'pinned' or setId # because pinned uses fixed as its 'name'
@@ -2390,12 +2399,11 @@ class Huviz
 
   should_show_label: (node) ->
     return (
-      node.labelled or
-      node.focused_edge or
-      (@label_graphed and node.state is @graphed_set) or
-      dist_lt(@last_mouse_pos, node, @label_show_range) or
-      (node.name? and node.name.match(@search_regex)))
-      # FIXME make this a flag that gets updated ONCE when the regex changes not something deep in loop!!!
+      node.labelled or # cheap tests come early
+      node.focused_edge or # show labels on nodes if they have a focused_edge
+      node.matched or # show labels on nodes in the matched set
+      (@label_graphed and node.state is @graphed_set) or # show graphed nodes when label_graphed
+      dist_lt(@last_mouse_pos, node, @label_show_range))
 
   draw_labels: ->
     if @use_svg
@@ -4973,10 +4981,24 @@ class Huviz
 
   set_search_regex: (text) ->
     @search_regex = new RegExp(text or "^$", "ig")
+    @add_matching_nodes_to_matched_set()
+    return
+
+  add_matching_nodes_to_matched_set: ->
+    @nodes.forEach (node, i) =>
+      if node.name.match(@search_regex)
+        if not node.matched
+          @matched_set.add(node)
+      else
+        if node.matched
+          @matched_set.remove(node)
+    @update_all_counts()
+    @tick() # show labels NOW
+    return
 
   update_searchterm: =>
-    text = $(this).text()
-    @set_search_regex text
+    text = @gclui.like_input.text()
+    @set_search_regex(text)
     @restart()
 
   dump_locations: (srch, verbose, func) ->
@@ -5294,15 +5316,16 @@ class Huviz
     @update_state(node)
     @update_showing_links(node)
 
-  hide_found_links: ->
+  hide_found_links: -> # TODO use it or lose it
     @nodes.forEach (node, i) =>
       if node.name.match(search_regex)
         @hide_node_links(node)
     @restart()
 
-  discard_found_nodes: ->
+  discard_found_nodes: -> # TODO use it or lose it
     @nodes.forEach (node, i) =>
-      @discard node  if node.name.match(search_regex)
+      if node.name.match(search_regex)
+        @discard(node)
     @restart()
 
   show_node_links: (node) ->
@@ -7573,9 +7596,6 @@ class Huviz
       #.on("mouseout", @mouseup) # FIXME what *should* happen on mouseout?
     @restart()
     @set_search_regex("")
-    search_input = document.getElementById('search')
-    if search_input
-      search_input.addEventListener("input", @update_searchterm)
     window.addEventListener("resize", @updateWindow)
     @tabsJQElem.on("resize", @updateWindow)
     $(@viscanvas).bind("_splitpaneparentresize", @updateWindow)

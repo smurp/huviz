@@ -922,7 +922,7 @@ class CommandController
     @like_input.attr('class', 'like_input')
     @like_input.attr('placeholder','node Name')
     @liking_all_mode = false # rename to @liking_mode
-    @like_input.on 'input', @handle_like_input
+    @like_input.on('input', @handle_like_input)
     @clear_like_button = @likediv.append('button').text('⌫')
     @clear_like_button.attr('type','button').classed('clear_like', true)
     @clear_like_button.attr('disabled','disabled')
@@ -937,6 +937,7 @@ class CommandController
     like_value = @get_like_string()
     like_has_a_value = not not like_value
     if like_has_a_value
+      @huviz.set_search_regex(like_value) # cause labels on matching nodes to be displayed
       @clear_like_button.attr('disabled', null)
       if @liking_all_mode #
         TODO = "update the selection based on the like value"
@@ -947,6 +948,7 @@ class CommandController
         @set_immediate_execution_mode(@is_verb_phrase_empty())
         @huviz.click_set("all") # ie choose the 'All' set
     else # like does not have a value
+      @huviz.set_search_regex('') # clear the labelling of matching nodes
       @clear_like_button.attr('disabled','disabled')
       if @liking_all_mode # but it DID
         TODO = "restore the state before liking_all_mode " + \
@@ -1335,17 +1337,18 @@ class CommandController
     where = label? and @control_label(label, where) or @comdiv
     @the_sets = # TODO build this automatically from huviz.selectable_sets
       'all_set': [@huviz.all_set.label,
-              selected_set: [@huviz.selected_set.label]
               chosen_set: [@huviz.chosen_set.label]
-              graphed_set: [@huviz.graphed_set.label]
-              shelved_set: [@huviz.shelved_set.label]
-              hidden_set: [@huviz.hidden_set.label]
               discarded_set: [@huviz.discarded_set.label]
+              graphed_set: [@huviz.graphed_set.label]
+              hidden_set: [@huviz.hidden_set.label]
               labelled_set: [@huviz.labelled_set.label]
-              pinned_set: [@huviz.pinned_set.label]
+              matched_set: [@huviz.matched_set.label]
               nameless_set: [@huviz.nameless_set.label]
-              walked_set: [@huviz.walked_set.label]
+              pinned_set: [@huviz.pinned_set.label]
+              selected_set: [@huviz.selected_set.label]
+              shelved_set: [@huviz.shelved_set.label]
               suppressed_set: [@huviz.suppressed_set.label]
+              walked_set: [@huviz.walked_set.label]
               ]
     @set_picker_box = where.append('div')
         .classed('container',true)
