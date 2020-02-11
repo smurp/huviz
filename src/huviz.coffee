@@ -8054,9 +8054,9 @@ class Huviz
     ,
       display_labels_as:
         group: "Labels"
-        text: "Display Graph with Labels As..."
+        text: "Display Labels As..."
         label:
-          title: "Select type of label display"
+          title: "Select type of graphed label display"
         input:
           type: "select"
         options : [
