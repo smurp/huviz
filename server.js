@@ -130,7 +130,7 @@
     nopts: nopts
   }));
 
-  app.get("/flower", localOrCDN("/views/flower.html.ejs", {
+  app.get("/search", localOrCDN("/views/search.html.ejs", {
     nopts: nopts
   }));
 
