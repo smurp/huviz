@@ -7577,12 +7577,7 @@ class Huviz
   catch_reject_init_settings: (wha) =>
     console.error(wha)
 
-  complete_construction: (setting_resolutions) =>
-    #console.warn(setting_resolutions)
-    @adjust_settings_from_kv_list(@args.settings)
-    if @use_fancy_cursor
-      @install_update_pointer_togglers()
-    @create_state_msg_box()
+  prepare_viscanvas: ->
     @viscanvas = d3.select(@args.viscanvas_sel).html("").
       append("canvas").
       attr("width", @width).
@@ -7590,7 +7585,15 @@ class Huviz
     @make_JQElem('viscanvas', @args.viscanvas_sel) # --> @viscanvas_JQElem
     @viscanvas_elem = document.querySelector(@args.viscanvas_sel)
     @canvas = @viscanvas[0][0]
-    @mouse_receiver = @viscanvas
+    return @viscanvas
+
+  complete_construction: (setting_resolutions) =>
+    #console.warn(setting_resolutions)
+    @adjust_settings_from_kv_list(@args.settings)
+    if @use_fancy_cursor
+      @install_update_pointer_togglers()
+    @create_state_msg_box()
+    @mouse_receiver = @prepare_viscanvas()
     @reset_graph()
     @updateWindow()
     @ctx = @canvas.getContext("2d")
