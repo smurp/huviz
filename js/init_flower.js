@@ -21,6 +21,7 @@ window.addEventListener('load',function(){
       , node_radius: 25
       , show_edges: false
       , single_chosen: true
+      , start_with_search_node: true
     },
     stay_square: false,
     //show_tabs: false,

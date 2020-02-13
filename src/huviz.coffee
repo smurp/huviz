@@ -2550,6 +2550,13 @@ class Huviz
     div.innerHTML = text
     return div
 
+  set_boxNG_editability: (node, truth) ->
+    if truth
+      node.boxNG.setAttribute('contenteditable', "")
+    else
+      node.boxNG.removeAttribute('contenteditable')
+    return
+
   draw_focused_labels: ->
     ctx = @ctx
     focused_font_size = @label_em * @focused_mag
@@ -7544,7 +7551,6 @@ class Huviz
     @off_center = false # FIXME expose this or make the amount a slider
     document.addEventListener('nextsubject', @onnextsubject)
     @init_snippet_box()  # FIXME not sure this does much useful anymore
-
     @mousedown_point = false
     @discard_point = [@cx,@cy] # FIXME refactor so ctrl_handle handles this
     @lariat_center = [@cx,@cy] #       and this....
@@ -7600,7 +7606,19 @@ class Huviz
     @tabsJQElem.on("resize", @updateWindow)
     $(@viscanvas).bind("_splitpaneparentresize", @updateWindow)
     @tabsJQElem.tabs({active: 0})
+    @maybe_start_with_search_node()
     @maybe_demo_round_img()
+    return
+
+  maybe_start_with_search_node: ->
+    if @start_with_search_node
+      setTimeout () =>
+        @collapse_tabs
+        @change_setting_to_from('display_labels_as', 'boxNGs')
+        @change_setting_to_from('show_class_instance_edges', true)
+        @make_search_node()
+        return
+    return
 
   maybe_demo_round_img: ->
     if not (@args.demo_round_img)
@@ -7614,6 +7632,27 @@ class Huviz
       console.warn("url:", @args.demo_round_img)
       console.debug(e)
     return
+
+  add_search_node_quads: ->
+    return @add_quad
+      s: '_:search_node'
+      p: RDFS_label
+      o:
+        type: RDF_literal
+        value: 'Search Node'
+    return @add_quad
+      s: '_:search_node'
+      p: RDF_type
+      o: OWL_Thing
+
+  make_search_node: ->
+    # add search node
+    @add_search_node_quads()
+    search_node = @all_set[0]
+    # activate node
+    @choose search_node, () =>
+      @label(search_node)
+      @set_boxNG_editability(search_node, true)
 
   create_blurtbox: ->
     blurtbox_id = @unique_id('blurtbox_')
@@ -8344,6 +8383,17 @@ class Huviz
         input:
           type: "checkbox"
           checked: "checked"
+    ,
+      start_with_search_node:
+        group: "SPARQL"
+        class: "alpha_feature"
+        text: "Start With Search Node"
+        style: "display:none"
+        label:
+          title: "Show a search field node as starting UX"
+        input:
+          type: "checkbox"
+          #checked: "checked"
     ,
       show_queries_tab:
         group: "SPARQL"
