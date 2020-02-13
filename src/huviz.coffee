@@ -8803,12 +8803,13 @@ class Huviz
       @viscanvas_JQElem.addClass('boxNGs')
     else
       @viscanvas_JQElem.removeClass('boxNGs')
-    if new_val in ['pills', 'boxNGs']
-      @adjust_setting('charge', -3000)
-      @adjust_setting('link_distance', 200)
-    else
-      @adjust_setting('charge', -210) # TODO use prior value or default value
-      @adjust_setting('link_distance', 29) # TODO use prior value or default value
+    if (boxes_change_settings = false)
+      if new_val in ['pills', 'boxNGs']
+        @adjust_setting('charge', -3000)
+        @adjust_setting('link_distance', 200)
+      else
+        @adjust_setting('charge', -210) # TODO use prior value or default value
+        @adjust_setting('link_distance', 29) # TODO use prior value or default value
     @updateWindow()
 
   on_change_theme_colors: (new_val) ->
