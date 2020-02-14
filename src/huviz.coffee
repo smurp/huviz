@@ -2021,14 +2021,18 @@ class Huviz
 
   install_update_pointer_togglers: ->
     console.warn("the update_pointer_togglers are being called too often")
-    d3.select("#huvis_controls").on "mouseover", () =>
-      @update_pointer = false
-      @text_cursor.pause("default")
-      #console.log "update_pointer: #{@update_pointer}"
-    d3.select("#huvis_controls").on "mouseout", () =>
-      @update_pointer = true
-      @text_cursor.continue()
-      #console.log "update_pointer: #{@update_pointer}"
+    d3.select("#huvis_controls").on("mouseout", @mouseout_of_huviz_controls)
+    d3.select("#huvis_controls").on("mouseover", @mouseover_of_huviz_controls)
+
+  mouseout_of_huviz_controls: =>
+    @update_pointer = true
+    @text_cursor.continue()
+    return
+
+  mouseover_of_huviz_controls: =>
+    @update_pointer = false
+    @text_cursor.pause("default")
+    return
 
   DEPRECATED_adjust_cursor: ->
     # http://css-tricks.com/almanac/properties/c/cursor/
