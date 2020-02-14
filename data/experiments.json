@@ -6,6 +6,24 @@
       "ontology_label": "OWL Mini"
     },
     {
+      "uri": "https://raw.githubusercontent.com/whanley/names-data/master/british-subjects-alexandria-1888/british-subjects-alexandria-1888.ttl",
+      "label": "British Subjects in Alexandria [1662/6700]",
+      "subjectCount": 1662,
+      "tripleCount": 6700,
+      "ontology_label": "OWL Mini",
+      "danger": true
+    },
+    {
+      "uri": "/data/cwrc-writer-citation.jsonld",
+      "label": "CWRC-Writer Citation (JSONLD)",
+      "ontology_label": "Open Annotation"
+    },
+    {
+      "uri": "/data/cwrc-writer-person.jsonld",
+      "label": "CWRC-Writer Person (JSONLD)",
+      "ontology_label": "Open Annotation"
+    },
+    {
       "uri": "/data/geoname_username_widget_states.ttl",
       "label": "GeoNames Widget State Machine (TTL)",
       "ontology_label": "OWL Mini"
@@ -41,6 +59,16 @@
       "ontology_label": "OWL Mini"
     },
     {
+      "uri": "/data/recogito_Favorites_hxwv6a6awnflgj.jsonld",
+      "label": "Recogito Favorites (JSONLD)",
+      "ontology_label": "Open Annotation"
+    },
+    {
+      "uri": "/data/recogito_KenThompsonsPassword_8jcvxszm2bl5p2.jsonld",
+      "label": "Recogito KensPassword (JSONLD)",
+      "ontology_label": "Open Annotation"
+    },
+    {
       "uri": "/data/rossetti.rdf",
       "label": "Rossetti (RDF)",
       "ontology_label": "OWL Mini"
@@ -54,7 +82,27 @@
       "uri": "/data/SampleFileMuchRDF.ttl",
       "label": "Sample File Much RDF",
       "ontology_label": "OWL Mini"
+    },
+    {
+      "uri": "/data/textcommentonwebpage.trig",
+      "label": "Text Comment On Webpage (TriG)",
+      "ontology_label": "Open Annotation"
+    },
+    {
+      "uri": "/data/twentyOldestVideos.ttl",
+      "label": "The 20 oldest videos on YouTube",
+      "ontology_label": "Open Annotation"
+    },
+    {
+      "uri": "https://raw.githubusercontent.com/whanley/names-data/master/tunisians-egypt-1881/tunisians-egypt-1881.ttl",
+      "label": "Tunisians in Egypt [1109/1445]",
+      "ontology_label": "Tunisian Names Ontology",
+      "subjectCount": 1109,
+      "tripleCount": 1445,
+      "title": "Tunisians in Alexandria",
+      "danger": false
     }
+
   ],
   "defaults": {
     "isOntology": false,

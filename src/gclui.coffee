@@ -118,54 +118,45 @@ class CommandController
 
     @scriptRewindButton = @scriptPlayerControls.append('button').
       attr('title','rewind to start').
-      attr('disabled', 'disabled').
-      on('click', @on_rewind_click)
-    @scriptRewindButton.
-      append('i').attr("class", "fa fa-fast-backward")
+      attr('disabled', 'disabled').on('click', @on_rewind_click)
+    @scriptRewindButton.append('i').
+      attr("class", "fa fa-fast-backward")
 
     @scriptBackButton = @scriptPlayerControls.append('button').
       attr('title','go back one step').
-      attr('disabled', 'disabled').
-      on('click', @on_backward_click)
+      attr('disabled', 'disabled').on('click', @on_backward_click)
     @scriptBackButton.append('i').attr("class", "fa fa-play fa-flip-horizontal")
 
     @scriptPlayButton = @scriptPlayerControls.append('button').
       attr('title','play script step by step').
-      attr('disabled', 'disabled').
-      on('click', @on_forward_click)
+      attr('disabled', 'disabled').on('click', @on_forward_click)
     @scriptPlayButton.append('i').attr("class", "fa fa-play")
 
     @scriptForwardButton = @scriptPlayerControls.append('button').
       attr('title','play script continuously').
-      attr('disabled', 'disabled').
-      #attr('style', 'display:none').
-      on('click', @on_fastforward_click)
+      attr('disabled', 'disabled').on('click', @on_fastforward_click)
     @scriptForwardButton.append('i').attr("class", "fa fa-fast-forward")
 
     @scriptDownloadButton = @scriptPlayerControls.append('button').
       attr('title','save script to file').
       attr('style', 'margin-left:1em').  # ;display:none
-      attr('disabled', 'disabled').
-      on('click', @on_downloadscript_hybrid_clicked)
+      attr('disabled', 'disabled').on('click', @on_downloadscript_hybrid_clicked)
     @scriptDownloadButton.append('i').attr("class", "fa fa-download")
       #.append('span').text('.txt')
 
     @scriptDownloadJsonButton = @scriptPlayerControls.append('button').
       attr('title','save script as .json').
-      attr('style', 'display:none').  # ;display:none
-      on('click', @on_downloadscript_json_clicked)
+      attr('style', 'display:none').on('click', @on_downloadscript_json_clicked)
     @scriptDownloadJsonButton.append('i').attr("class", "fa fa-download").
       append('span').text('.json')
 
     @scriptStashButton = @scriptPlayerControls.append('button').
       attr('title','save script to menu').
       attr('disabled', 'disabled').
-      attr('style', 'margin-left:.1em').
-      on('click', @on_stashscript_clicked)
+      attr('style', 'margin-left:.1em').on('click', @on_stashscript_clicked)
     @scriptStashButton.append('i').attr("class", "fa fa-bars")
       #.append('span').text('save to menu')
 
-    #history.append('div')
     @cmdlist = history.
       append('div').
       attr('class','commandlist')
@@ -178,6 +169,7 @@ class CommandController
     @future_cmdArgs = []
     @command_list = []
     @command_idx0 = 0
+
   reset_command_history: ->
     for record in @command_list
       record.elem.attr('class','command')
@@ -242,7 +234,7 @@ class CommandController
     theJSON = encodeURIComponent(@get_script_body_as_json())
     theHref = "data:text/json;charset=utf-8," + theJSON
     return theHref
-  make_hybrid_script_href: () ->
+  make_hybrid_script_href: ->
     theBod = encodeURIComponent(@get_script_body_as_hybrid())
     theHref = "data:text/plain;charset=utf-8," + theBod
     return theHref
@@ -290,7 +282,6 @@ class CommandController
       data: @get_script_body_as_hybrid()
     @huviz.script_loader.add_local_file(script_rec)
     return
-    
   on_rewind_click: () =>
     @reset_graph()
     @command_idx0 = 0
@@ -931,7 +922,7 @@ class CommandController
     @like_input.attr('class', 'like_input')
     @like_input.attr('placeholder','node Name')
     @liking_all_mode = false # rename to @liking_mode
-    @like_input.on 'input', @handle_like_input
+    @like_input.on('input', @handle_like_input)
     @clear_like_button = @likediv.append('button').text('⌫')
     @clear_like_button.attr('type','button').classed('clear_like', true)
     @clear_like_button.attr('disabled','disabled')
@@ -946,6 +937,7 @@ class CommandController
     like_value = @get_like_string()
     like_has_a_value = not not like_value
     if like_has_a_value
+      @huviz.set_search_regex(like_value) # cause labels on matching nodes to be displayed
       @clear_like_button.attr('disabled', null)
       if @liking_all_mode #
         TODO = "update the selection based on the like value"
@@ -956,6 +948,7 @@ class CommandController
         @set_immediate_execution_mode(@is_verb_phrase_empty())
         @huviz.click_set("all") # ie choose the 'All' set
     else # like does not have a value
+      @huviz.set_search_regex('') # clear the labelling of matching nodes
       @clear_like_button.attr('disabled','disabled')
       if @liking_all_mode # but it DID
         TODO = "restore the state before liking_all_mode " + \
@@ -1019,7 +1012,7 @@ class CommandController
     @future_cmdArgs.push(cmdArgs)
   push_future_onto_history: =>
     if @future_cmdArgs.length
-      @huviz.goto_tab(3)
+      @huviz.goto_tab('history')
       for cmdArgs in @future_cmdArgs
         @push_command_onto_history(@new_GraphCommand(cmdArgs))
       @reset_command_history()
@@ -1344,15 +1337,17 @@ class CommandController
     where = label? and @control_label(label, where) or @comdiv
     @the_sets = # TODO build this automatically from huviz.selectable_sets
       'all_set': [@huviz.all_set.label,
-              selected_set: [@huviz.selected_set.label]
               chosen_set: [@huviz.chosen_set.label]
-              graphed_set: [@huviz.graphed_set.label]
-              shelved_set: [@huviz.shelved_set.label]
-              hidden_set: [@huviz.hidden_set.label]
               discarded_set: [@huviz.discarded_set.label]
+              graphed_set: [@huviz.graphed_set.label]
+              hidden_set: [@huviz.hidden_set.label]
               labelled_set: [@huviz.labelled_set.label]
-              pinned_set: [@huviz.pinned_set.label]
+              matched_set: [@huviz.matched_set.label]
               nameless_set: [@huviz.nameless_set.label]
+              pinned_set: [@huviz.pinned_set.label]
+              selected_set: [@huviz.selected_set.label]
+              shelved_set: [@huviz.shelved_set.label]
+              suppressed_set: [@huviz.suppressed_set.label]
               walked_set: [@huviz.walked_set.label]
               ]
     @set_picker_box = where.append('div')
@@ -1439,5 +1434,5 @@ class CommandController
     if @chosen_set_id?
       @set_picker.set_direct_state(@chosen_set_id, 'unshowing')
       delete @chosen_set_id
-
+    
 (exports ? this).CommandController = CommandController

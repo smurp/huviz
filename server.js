@@ -1,5 +1,5 @@
 (function() {
-  var Stream, a, app, cooked_argv, ejs, express, fs, knownOpts, localOrCDN, morgan, nopt, nopts, path, port, quaff_module_path, shortHands;
+  var Stream, a, app, cooked_argv, ejs, express, fs, knownOpts, localOrCDN, morgan, nopt, nopts, path, port, quaff_module_path, shortHands, _base;
 
   fs = require('fs');
 
@@ -27,32 +27,36 @@
   })();
 
   knownOpts = {
-    is_local: Boolean,
-    skip_orlando: Boolean,
-    skip_poetesses: Boolean,
+    usecdn: Boolean,
     git_commit_hash: [String, null],
     git_branch_name: [String, null],
     port: [Stream, Number]
   };
 
   shortHands = {
-    faststart: ["--skip_orlando", "--skip_poetesses"]
+    faststart: []
   };
+
+  if ((_base = process.env).NODE_ENV == null) {
+    _base.NODE_ENV = 'production';
+  }
 
   switch (process.env.NODE_ENV) {
     case 'development':
       cooked_argv.push("--faststart");
-      cooked_argv.push("--is_local");
       cooked_argv.push("--git_commit_hash");
       cooked_argv.push("8e3849b");
       console.log(cooked_argv);
+      break;
+    case 'production':
+      cooked_argv.push("--usecdn");
   }
 
   nopts = nopt(knownOpts, shortHands, cooked_argv, 2);
 
   switch (process.env.NODE_ENV) {
     case 'development':
-      console.log(nopts);
+      console.log('development', nopts);
   }
 
   localOrCDN = function(templatePath, data, options) {
@@ -82,9 +86,9 @@
 
   app.set("/views/tabs", path.join(__dirname, 'tabs', "views"));
 
-  app.use("/huviz", express["static"](__dirname + '/lib'));
+  app.use('/huviz/css', express["static"](__dirname + '/css'));
 
-  app.use('/css', express["static"](__dirname + '/css'));
+  app.use("/huviz", express["static"](__dirname + '/lib'));
 
   app.use('/jquery-ui-css', express["static"](__dirname + '/node_modules/components-jqueryui/themes/smoothness'));
 
@@ -98,13 +102,9 @@
 
   app.use('/d3', express["static"](__dirname + '/node_modules/d3'));
 
-  app.use('/comunica-ldf-client', express["static"](__dirname + '/node_modules/comunica-ldf-client/dist'));
+  quaff_module_path = process.env.QUAFF_PATH || path.join(__dirname, "node_modules", "quaff-lod");
 
-  quaff_module_path = process.env.QUAFF_PATH || "/node_modules";
-
-  app.use('/quaff-lod/quaff-lod-worker-bundle.js', localOrCDN(quaff_module_path + "/quaff-lod/quaff-lod-worker-bundle.js", {
-    nopts: nopts
-  }));
+  app.use('/quaff-lod/quaff-lod-worker-bundle.js', express["static"](quaff_module_path + "/quaff-lod-worker-bundle.js"));
 
   app.use('/data', express["static"](__dirname + '/data'));
 
@@ -112,9 +112,11 @@
 
   app.use("/jsoutline", express["static"](__dirname + "/node_modules/jsoutline/lib"));
 
-  app.use('/vendor', express["static"](__dirname + '/vendor'));
+  app.use('/huviz/vendor', express["static"](__dirname + '/vendor'));
 
   app.use('/node_modules', express["static"](__dirname + '/node_modules'));
+
+  app.use('/huviz/async', express["static"](__dirname + '/node_modules/async/lib/'));
 
   app.use('/mocha', express["static"](__dirname + '/node_modules/mocha'));
 
@@ -128,7 +130,7 @@
     nopts: nopts
   }));
 
-  app.get("/flower", localOrCDN("/views/flower.html.ejs", {
+  app.get("/search", localOrCDN("/views/search.html.ejs", {
     nopts: nopts
   }));
 
@@ -166,7 +168,7 @@
 
   port = nopts.port || nopts.argv.remain[0] || process.env.PORT || default_port;
 
-  console.log("Starting server on port: " + port + " localhost");
+  console.log("Starting server on localhost:" + port + " NODE_ENV:" + process.env.NODE_ENV);
 
   app.listen(port, 'localhost');
 

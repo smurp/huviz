@@ -244,6 +244,10 @@ DCE_title    = "http://purl.org/dc/elements/1.1/title"
 FOAF_Group  = "http://xmlns.com/foaf/0.1/Group"
 FOAF_Person = "http://xmlns.com/foaf/0.1/Person"
 FOAF_name   = "http://xmlns.com/foaf/0.1/name"
+OA_ = "http://www.w3.org/ns/oa#" # the prefix of the Open Annotation Ontology
+# OA_terms_regex was built with the help of:
+#   grep '^oa:' data/oa.ttl  | grep " a " | sort | sed 's/\ a\ .*//' | uniq | sed 's/^oa://' | tr '\n' '|'
+OA_terms_regex = /^(Annotation|Choice|CssSelector|CssStyle|DataPositionSelector|Direction|FragmentSelector|HttpRequestState|Motivation|PreferContainedDescriptions|PreferContainedIRIs|RangeSelector|ResourceSelection|Selector|SpecificResource|State|Style|SvgSelector|TextPositionSelector|TextQuoteSelector|TextualBody|TimeState|XPathSelector|annotationService|assessing|bodyValue|bookmarking|cachedSource|canonical|classifying|commenting|describing|editing|end|exact|hasBody|hasEndSelector|hasPurpose|hasScope|hasSelector|hasSource|hasStartSelector|hasState|hasTarget|highlighting|identifying|linking|ltrDirection|moderating|motivatedBy|prefix|processingLanguage|questioning|refinedBy|renderedVia|replying|rtlDirection|sourceDate|sourceDateEnd|sourceDateStart|start|styleClass|styledBy|suffix|tagging|textDirection|via)$/
 OSMT_name   = "https://wiki.openstreetmap.org/wiki/Key:name"
 OSMT_reg_name = "https://wiki.openstreetmap.org/wiki/Key:reg_name"
 OWL_Class   = "http://www.w3.org/2002/07/owl#Class"
@@ -469,7 +473,7 @@ class UsernameWidget extends SettingsWidget
       console.log("not bothering to change the state to",state,"cause it already is")
       return
     @state = state
-    console.log(state, @inputJQElem.val())
+    console.info(@constructor.name, "state:", state, 'username:', @inputJQElem.val())
     stateIcon = @state_to_state_icon[state]
     @stateIconJQElem.attr('class', "stateIcon fa " + stateIcon)
     color = @state_to_color[state]
@@ -494,6 +498,7 @@ orlando_human_term =
   graphed: 'Graphed'
   fixed: 'Pinned'
   labelled: 'Labelled'
+  matched: 'Matched'
   choose: 'Activate'
   unchoose: 'Deactivate'
   wander: 'Wander'
@@ -522,6 +527,8 @@ orlando_human_term =
   specialize: 'Specialize'
   annotate: 'Annotate'
   seeking_object: 'Object node'
+  suppress: 'Suppress'
+  suppressed: 'Suppresssed'
 
 class Huviz
   hash: hash
@@ -572,6 +579,7 @@ class Huviz
   line_length_min: 4
 
   # TODO figure out how to replace with the default_graph_control
+  # TODO remove all of the following which are rendered redundant by settings
   link_distance: 29
   fisheye_zoom: 4.0
   peeking_line_thicker: 4
@@ -611,8 +619,7 @@ class Huviz
 
   renderStyles = themeStyles.light
   display_shelf_clockwise: true
-  nodeOrderAngle = 0.5
-  node_display_type = ''
+  nodeOrderAngle = 0.5 # TODO replace ' = ' with ': '
 
   pfm_data:
     tick:
@@ -826,20 +833,6 @@ class Huviz
   move_node_to_point: (node, point) ->
     node.x = point[0]
     node.y = point[1]
-
-  click_node: (node_or_id) ->
-    # motivated by testing. Should this also be used by normal click handling?
-    console.warn("click_node() is deprecated")
-    if typeof node_or_id is 'string'
-      node = @nodes.get_by('id', node_or_id)
-    else
-      node = node_or_id
-    @set_focused_node(node)
-    evt = new MouseEvent "mouseup",
-      screenX: node.x
-      screenY: node.y
-    @canvas.dispatchEvent(evt)
-    return @
 
   click_verb: (id) ->
     verbs = $("#verb-#{id}")
@@ -1058,6 +1051,7 @@ class Huviz
     if info_node._inspector?
       @hilight_dialog(info_node._inspector)
       return
+    console.log("inspect node:", info_node)
     all_names = Object.values(info_node.name)
     names_all_langs = ""
     note = ""
@@ -1612,6 +1606,13 @@ class Huviz
     @labelled_set.docs = "Nodes which have their labels permanently shown."
     @labelled_set.cleanup_verb = "unlabel"
 
+    @matched_set = SortedSet().named("matched").
+      sort_on("id").
+      labelled(@human_term.matched).
+      sub_of(@all_set).
+      isFlag('matched')
+    @matched_set.docs = "Nodes which match the 'matching' search term"
+
     @nameless_set = SortedSet().named("nameless").
       sort_on("id").
       labelled(@human_term.nameless).
@@ -1633,6 +1634,17 @@ class Huviz
       sort_on('walkedIdx0') # sort on index of position in the path; the 0 means zero-based idx
     @walked_set.docs = "Nodes in order of their walkedness"
 
+    @suppressed_set = SortedSet().named("suppressed").
+      sort_on("id").
+      labelled(@human_term.suppressed).
+      sub_of(@all_set).
+      isState()
+    @suppressed_set.docs = "
+      Nodes which are '#{@suppressed_set.label}' by a suppression algorithm
+      such as Suppress Annotation Entities.  Suppression is mutually exclusive
+      with Shelved, Discarded, Graphed and Hidden."
+    @suppressed_set.cleanup_verb = "shelve"
+
     @predicate_set = SortedSet().named("predicate").isFlag().sort_on("id")
     @context_set   = SortedSet().named("context").isFlag().sort_on("id")
     @context_set.docs = "The set of quad contexts."
@@ -1642,14 +1654,16 @@ class Huviz
     @selectable_sets =
       all_set: @all_set
       chosen_set: @chosen_set
+      discarded_set: @discarded_set
+      graphed_set: @graphed_set
+      hidden_set: @hidden_set
+      labelled_set: @labelled_set
+      matched_set: @matched_set
+      nameless_set: @nameless_set
+      pinned_set: @pinned_set
       selected_set: @selected_set
       shelved_set: @shelved_set
-      discarded_set: @discarded_set
-      hidden_set: @hidden_set
-      graphed_set: @graphed_set
-      labelled_set: @labelled_set
-      pinned_set: @pinned_set
-      nameless_set: @nameless_set
+      suppressed_set: @suppressed_set
       walked_set: @walked_set
 
   get_set_by_id: (setId) ->
@@ -1690,7 +1704,8 @@ class Huviz
       console.log("not regenerating english because no taxonomy[#{root}]")
     return
 
-  get_or_create_taxon: (taxon_id) ->
+  get_or_create_taxon: (taxon_url) ->
+    taxon_id = taxon_url
     if not @taxonomy[taxon_id]?
       taxon = new Taxon(taxon_id)
       @taxonomy[taxon_id] = taxon
@@ -1863,7 +1878,7 @@ class Huviz
         ret.push(node)
     data = qNodes(quadtree)
     found = quadtree.find(mx, my)
-    debugger
+    throw new Error("under construction")
 
   find_node_or_edge_closest_to_pointer: ->
     @highwater('find_node_or_edge', true)
@@ -1983,6 +1998,8 @@ class Huviz
         new_focused_edge.source.focused_edge = true
         new_focused_edge.target.focused_edge = true
       @focused_edge = new_focused_edge # blank it or set it
+      if not @use_fancy_cursor
+        return
       if @focused_edge?
         if @editui.is_state('connecting')
           @text_cursor.pause("", "edit this edge")
@@ -1990,6 +2007,7 @@ class Huviz
           @text_cursor.pause("", "show edge sources")
       else
         @text_cursor.continue()
+      return
 
   @proposed_edge = null #initialization (no proposed edge active)
   set_proposed_edge: (new_proposed_edge) ->
@@ -2243,7 +2261,7 @@ class Huviz
             # if the node d is in the @walked_set it needs special_focus
             special_focus = not not d.walked  # "not not" forces boolean
           # if 'pills' is selected; change node shape to rounded squares
-          if (node_display_type == 'pills')
+          if (@display_labels_as is 'pills')
             pill_width = node_radius * 2
             pill_height = node_radius * 2
             filclr = @get_node_color_or_color_list(d)
@@ -2332,7 +2350,7 @@ class Huviz
     focused_font_size = @label_em * browser_font_size * @focused_mag
     padding = focused_font_size * 0.5
     line_height = focused_font_size * 1.25 # set line height to 125%
-    max_len = 250
+    max_len = 300
     min_len = 100
     label_length = label_measure.width + 2 * padding
     num_lines_raw = label_length/max_len
@@ -2380,11 +2398,13 @@ class Huviz
     d.bub_txt = [width, height, line_height, text_cuts, font_size]
 
   should_show_label: (node) ->
-    (node.labelled or
-        node.focused_edge or
-        (@label_graphed and node.state is @graphed_set) or
-        dist_lt(@last_mouse_pos, node, @label_show_range) or
-        (node.name? and node.name.match(@search_regex))) # FIXME make this a flag that gets updated ONCE when the regex changes not something deep in loop!!!
+    return (
+      node.labelled or # cheap tests come early
+      node.focused_edge or # show labels on nodes if they have a focused_edge
+      node.matched or # show labels on nodes in the matched set
+      (@label_graphed and node.state is @graphed_set) or # show graphed nodes when label_graphed
+      dist_lt(@last_mouse_pos, node, @label_show_range))
+
   draw_labels: ->
     if @use_svg
       label.attr "style", (d) ->
@@ -2392,21 +2412,27 @@ class Huviz
           ""
         else
           "display:none"
+
     if @use_canvas or @use_webgl
       # http://stackoverflow.com/questions/3167928/drawing-rotated-text-on-a-html5-canvas
       # http://diveintohtml5.info/canvas.html#text
       # http://stackoverflow.com/a/10337796/1234699
+
+      # REVIEW remove these variables if they are not used
       focused_font_size = @label_em * @focused_mag
       focused_font = "#{focused_font_size}em sans-serif"
       unfocused_font = "#{@label_em}em sans-serif"
       focused_pill_font = "#{@label_em}em sans-serif"
 
       label_node = (node) =>
-        return unless @should_show_label(node)
+        if not @should_show_label(node)
+          if node.boxNG
+            @remove_boxNG(node)
+          return
         ctx = @ctx
         ctx.textBaseline = "middle"
         # perhaps scrolling should happen here
-        #if not node_display_type and (node.focused_node or node.focused_edge?)
+        #if not @display_labels_as and (node.focused_node or node.focused_edge?)
         if node.focused_node or node.focused_edge?
           label = @scroll_pretty_name(node)
           ctx.fillStyle = node.color
@@ -2445,60 +2471,101 @@ class Huviz
             ctx.fillText("  " + node.pretty_name + "  ", 0, 0)
           ctx.restore()
         else
-          if (node_display_type == 'pills')
-            node_font_size = node.bub_txt[4]
-            result = node_font_size != @label_em
-            if not node.bub_txt.length or result
-              @get_label_attributes(node)
-            line_height = node.bub_txt[2]  # Line height calculated from text size ?
-            adjust_x = node.bub_txt[0] / 2 - line_height/2# Location of first line of text
-            adjust_y = node.bub_txt[1] / 2 - line_height
-            pill_width = node.bub_txt[0] # box size
-            pill_height = node.bub_txt[1]
-
-            x = node.fisheye.x - pill_width/2
-            y = node.fisheye.y - pill_height/2
-            radius = 10 * @label_em
-            alpha = 1
-            outline = node.color
-            # change box edge thickness and fill if node selected
-            if node.focused_node or node.focused_edge?
-              ctx.lineWidth = 2
-              fill = "#f2f2f2"
-            else
-              ctx.lineWidth = 1
-              fill = "white"
-            @rounded_rectangle(x, y, pill_width, pill_height, radius, fill, outline, alpha)
-            ctx.fillStyle = "#000"
-            # Paint multi-line text
-            text = node.pretty_name
-            text_split = text.split(' ') # array of words
-            cuts = node.bub_txt[3]
-            print_label = ""
-            for text, i in text_split
-              if cuts and i in cuts
-                ctx.fillText print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y
-                adjust_y = adjust_y - line_height
-                print_label = text + " "
-              else
-                print_label = print_label + text + " "
-            if print_label # print last line, or single line if no cuts
-              ctx.fillText print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y
+          if (@display_labels_as is 'pills')
+            @update_canvas_pill(node, ctx)
+          else if @display_labels_as is 'boxNGs'
+            @update_boxNG(node)
           else
-            ctx.fillText "  " + node.pretty_name + "  ", node.fisheye.x, node.fisheye.y
-
+            ctx.fillText("  " + node.pretty_name + "  ", node.fisheye.x, node.fisheye.y)
+        return
       @graphed_set.forEach(label_node)
       @shelved_set.forEach(label_node)
       @discarded_set.forEach(label_node)
+      return
+
+  update_canvas_pill: (node, ctx) ->
+    node_font_size = node.bub_txt[4]
+    result = node_font_size != @label_em
+    if not node.bub_txt.length or result
+      @get_label_attributes(node)
+    line_height = node.bub_txt[2]  # Line height calculated from text size ?
+    adjust_x = node.bub_txt[0] / 2 - line_height/2 # Location of first line of text
+    adjust_y = node.bub_txt[1] / 2 - line_height
+    pill_width = node.bub_txt[0] # box size
+    pill_height = node.bub_txt[1]
+
+    x = node.fisheye.x - pill_width/2
+    y = node.fisheye.y - pill_height/2
+    radius = 10 * @label_em
+    alpha = 1
+    outline = node.color
+    # change box edge thickness and fill if node selected
+    if node.focused_node or node.focused_edge?
+      ctx.lineWidth = 2
+      fill = "#f2f2f2"
+    else
+      ctx.lineWidth = 1
+      fill = "white"
+    @rounded_rectangle(x, y, pill_width, pill_height, radius, fill, outline, alpha)
+    ctx.fillStyle = "#000"
+    # Paint multi-line text
+    text = node.pretty_name
+    text_split = text.split(' ') # array of words
+    cuts = node.bub_txt[3]
+    print_label = ""
+    for text, i in text_split
+      if cuts and i in cuts
+        ctx.fillText print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y
+        adjust_y = adjust_y - line_height
+        print_label = text + " "
+      else
+        print_label = print_label + text + " "
+    if print_label # print last line, or single line if no cuts
+      ctx.fillText(print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y)
+    return
+
+  remove_boxNG: (node) ->
+    if node.boxNG?
+      node.boxNG.parentNode.removeChild(node.boxNG)
+      node['boxNG'] = undefined
+    return
+
+  update_boxNG: (node) ->
+    node.boxNG ?= @make_boxNG(node.pretty_name) # make sure it is there!
+    # FIXME update the text in the boxNG when the name or language changes...
+    #   There are a couple of ways to do this...
+    #   1) update the boxNG text value when the value changes (RARE! FAST! RIGHT!)
+    #   2) check here each tick like this to see if it is needed (FREQUENT! SLOW! WRONG!)
+
+    # FIXME The update of position should only happen when the position has actually changed
+    #   Do this by rounding the fisheye to the nearest pixel at calculation time THEN
+    #   flagging the fisheye with a .dirty (or .moved) boolean at fisheye update time
+    #   then here only perform the following setAttribute when .dirty is true.
+    # WARNING the boxNGs might have a stale position until they become .dirty
+    node.boxNG.setAttribute('style', "top:#{node.fisheye.y}px; left:#{node.fisheye.x}px")
+    return
+
+  make_boxNG: (text) ->
+    div = @addDivWithIdAndClasses(null, "boxNG", @viscanvas_elem)
+    div.innerHTML = text
+    return div
+
+  set_boxNG_editability: (node, truth) ->
+    if truth
+      node.boxNG.setAttribute('contenteditable', "")
+    else
+      node.boxNG.removeAttribute('contenteditable')
+    return
 
   draw_focused_labels: ->
     ctx = @ctx
     focused_font_size = @label_em * @focused_mag
     focused_font = "#{focused_font_size}em sans-serif"
     focused_pill_font = "#{@label_em}em sans-serif"
+    default_text_for_empty_value = '“”'
     highlight_node = (node) =>
       if node.focused_node or node.focused_edge?
-        if (node_display_type == 'pills')
+        if (@display_labels_as is 'pills')
           ctx.font = focused_pill_font
           node_font_size = node.bub_txt[4]
           result = node_font_size != @label_em
@@ -2746,12 +2813,16 @@ class Huviz
     @state_msg_box.show()
     @state_msg_box.html("<div class='msg_payload'>" + txt + "</div><div class='msg_backdrop'></div>")
     @state_msg_box.on('click', @hide_state_msg)
-    @text_cursor.pause("wait")
+    if @use_fancy_cursor
+      @text_cursor.pause("wait")
+    return
 
   hide_state_msg: () =>
     @state_msg_box.hide()
-    @text_cursor.continue()
+    if @use_fancy_cursor
+      @text_cursor.continue()
     #@text_cursor.set_cursor("default")
+    return
 
   svg_restart: ->
     # console.log "svg_restart()"
@@ -2863,7 +2934,8 @@ class Huviz
         parent_lid = "anything"
       @my_graph.predicates[pred_lid] = []
       @ensure_predicate_lineage(parent_lid)
-      pred_name = @ontology?label[pred_lid]
+      if @ontology.label
+        pred_name = @ontology.label[pred_lid]
       @fire_newpredicate_event(pid, pred_lid, parent_lid, pred_name)
 
   fire_newpredicate_event: (pred_uri, pred_lid, parent_lid, pred_name) ->
@@ -2905,6 +2977,13 @@ class Huviz
           if val?
             alert(val)
 
+  getTesterAndMunger: (discoArgs) ->
+    fallbackQuadTester = (q) => q?
+    fallbackQuadMunter = (q) => [q]
+    quadTester = discoArgs.quadTester or fallbackQuadTester
+    quadMunger = discoArgs.quadMunger or fallbackQuadMunger
+    return {quadTester, quadMunger}
+
   discovery_triple_ingestor_N3: (data, textStatus, request, discoArgs) =>
     # Purpose:
     #   THIS IS NOT YET IN USE.  THIS IS FOR WHEN WE SWITCH OVER TO N3
@@ -2918,8 +2997,7 @@ class Huviz
     #     quadMunger (OPTIONAL)
     #       returns an array of one or more quads inspired by each quad
     discoArgs ?= {}
-    quadTester = discoArgs.quadTester or (q) => q?
-    quadMunger = discoArgs.quadMunger or (q) => [q]
+    {quadTester, quadMunger} = @getTesterAndMunger(discoArgs)
     quad_count = 0
     parser = N3.Parser()
     parser.parse data, (err, quad, pref) =>
@@ -2941,8 +3019,7 @@ class Huviz
     #       returns an array of one or more quads inspired by each quad
     discoArgs ?= {}
     graphUri = discoArgs.graphUri
-    quadTester = discoArgs.quadTester or (q) => q?
-    quadMunger = discoArgs.quadMunger or (q) => [q]
+    {quadTester, quadMunger} = @getTesterAndMunger(discoArgs)
     dataset = new GreenerTurtle().parse(data, "text/turtle")
     for subj_uri, frame of dataset.subjects
       for pred_id, pred of frame.predicates
@@ -3049,9 +3126,10 @@ class Huviz
 
   countdown_setting: (inputName) ->
     input = @get_setting_input_JQElem(inputName)
-    if input.val() < 1
+    val = input.val()
+    if val < 1
       return 0
-    newVal = input.val() - 1
+    newVal = val - 1
     return @adjust_setting(inputName, newVal)
 
   preset_discover_geonames_remaining: ->
@@ -3078,15 +3156,19 @@ class Huviz
           #### Error:
           <span style="color:red">#{params.msg}</span>
            """
+      if params.username?
+        markdown += """
+
+          #### Username:
+          <span style="color:blue">#{params.username}</span>
+           """
+    if params.markdown?
+      markdown = params.markdown
     @make_markdown_dialog(markdown, null, args)
 
   discover_geoname_name: (aUrl) ->
     id = aUrl.pathname.replace(/\//g,'')
-    soughtId = id
-    idInt = parseInt(id)
-    userId = @discover_geonames_as
-    k2p = @discover_geoname_key_to_predicate_mapping
-    url = "http://api.geonames.org/hierarchyJSON?geonameId=#{id}&username=#{userId}"
+    username = @discover_geonames_as
     if @discover_geonames_remaining < 1
       #console.warn("discover_geoname_name() should not be called when remaining is less than 1")
       return
@@ -3099,7 +3181,8 @@ class Huviz
           return false
         # We decrement remaining before looking or after successfully trying.
         # We do so before looking because we know that the username is good, so this will count.
-        # We do so after trying because we do not know until afterward that the username was good and whether it would count.
+        # We do so after trying because we do not know until afterward that the username
+        # was good and whether it would count.
         rem = @countdown_setting('discover_geonames_remaining')
         #console.info('discover_geoname_name() widget.state =', widget.state, "so decrementing remaining (#{rem}) early")
       else if widget.state is 'good'
@@ -3107,13 +3190,25 @@ class Huviz
           #console.info('aborting discover_geoname_name() because remaining =', @discover_geonames_remaining)
           return false
         @discover_geonames_as__widget.set_state('looking')
-        console.info('looking for',id,'using name',userId)
+        # console.info('looking for',id,'using name', username)
       else
-        console.warn("discover_goename_name() should not be called when widget.state =", widget.state)
+        console.warn("discover_geoname_name() should not be called when widget.state =", widget.state)
         return false
     @geonames_name_lookups_performed ?= 0
     @geonames_name_lookups_performed += 1
-    $.ajax
+    $.ajax(@make_geoname_ajax_closure(aUrl))
+    return
+
+  make_geoname_ajax_closure: (aUrl) ->
+    # This method makes the handlers for the geonames ajax call.
+    id = aUrl.pathname.replace(/\//g,'')
+    soughtId = id
+    idInt = parseInt(id)
+    username = @discover_geonames_as
+    k2p = @discover_geoname_key_to_predicate_mapping
+    url = "http://api.geonames.org/hierarchyJSON?geonameId=#{id}&username=#{username}"
+    # console.log("discover_geoname_name_SEARCH", aUrl.toString())
+    return {
       url: url
       error: (xhr, status, error) =>
         #console.log(xhr, status, error)
@@ -3122,20 +3217,29 @@ class Huviz
             @discover_geonames_as__widget.set_state('bad')
             @show_geonames_instructions()
       success: (json, textStatus, request) =>
+        # To test the receipt of an error condition, uncomment the next line
+        #  json.status = {message: "Oooh, you've been very bad!"}
         if json.status
+          console.debug(json, textStatus, request, aUrl, url)
           @discover_geoname_name_msgs ?= {}
+          params = {}
           if json.status.message
-            msg = """<dt style="font-size:.9em;color:red">#{json.status.message}</dt>""" +
-              @discover_geoname_name_instructions
-            if userId
-              msg = "#{userId} #{msg}"
+            params.msg = json.status.message
+            if username
+              params.username = username
+            if json.status.message.startsWith('For input string')
+              params.markdown = """
+              Geoname lookup failed for the url:
+
+              `#{aUrl.href}`
+              """
           if (not @discover_geoname_name_msgs[msg]) or
               (@discover_geoname_name_msgs[msg] and
                Date.now() - @discover_geoname_name_msgs[msg] >
                 @discover_geoname_name_msgs_threshold_ms)
+            # In other words: do not spam the user with errors faster than threshold
             @discover_geoname_name_msgs[msg] = Date.now()
-            @make_dialog(msg)
-            #@show_state_msg(msg)
+            @show_geonames_instructions(params)
           return
         #subj = aUrl.toString()
         if (widget = @discover_geonames_as__widget)
@@ -3149,7 +3253,7 @@ class Huviz
               if @discover_geonames_remaining > 0
                 # trigger again because they have been suspended
                 # use setTimeout to give nodes a chance to update
-                again = () => @discover_names('geonames.org')
+                again = () => @discover_names_including('geonames.org')
                 setTimeout(again, 100)
               else
                 @discover_geonames_as__widget.set_state('good') # no more remaining lookups permitted
@@ -3188,6 +3292,7 @@ class Huviz
             continue
           #console.table([{id: id, geonameId: geoRec.geonameId, name: geoRec.name}])
           name = (geoRec or {}).name
+          # console.log("discover_geoname_name_SUCCESS", subj)
           placeQuad =
             s: subj
             p: RDF_type
@@ -3210,7 +3315,6 @@ class Huviz
             if not pred
               continue
             theType = RDF_literal
-
             if typeof value is 'number'
               # REVIEW are these right?
               if Number.isInteger(value)
@@ -3243,15 +3347,17 @@ class Huviz
             @inject_discovered_quad_for(containershipQuad, aUrl)
           deeperQuad = Object.assign({}, quad) # shallow copy
         return # from success
+      }
     return
 
   ###
+  # This is what a single geoRec from geonames.org looks like:
           "fcode" : "RGN",
           "adminCodes1" : {
              "ISO3166_2" : "ENG"
           },
           "adminName1" : "England",
-           "countryName" : "United Kingdom",
+          "countryName" : "United Kingdom",
           "fcl" : "L",
           "countryId" : "2635167",
           "adminCode1" : "ENG",
@@ -3363,8 +3469,12 @@ class Huviz
     handler = @make_sparql_name_handler(uris)
     return [query, handler]
 
-  auto_discover_name_for: (namelessUri) ->
+  auto_discover_name_for: (namelessUri, node) ->
+    #if not namelessUri.includes(':') # skip "blank" nodes
     if namelessUri.startsWith('_') # skip "blank" nodes
+      # FIXME                                                               
+      # Normally one would imagine that blank urls would start with _:      
+      # but it looks like the .id of such nodes has been stripped of the _: 
       return
     try
       aUrl = new URL(namelessUri)
@@ -3378,8 +3488,6 @@ class Huviz
       return aUrl.hostname.endsWith(domainName)
 
     if hasDomainName('cwrc.ca')
-      console.warn("auto_discover_name_for('#{namelessUri}') skipping cwrc.ca")
-      return
       args =
         namelessUri: namelessUri
         #predicates: [OSMT_reg_name, OSMT_name]
@@ -3428,20 +3536,25 @@ class Huviz
     # Geonames has its own API and some complicated use limits so is treated
     # very differently.
     if hasDomainName("geonames.org")
+      if node and node.sought_name # so far only used by geonames but might be useful elsewhere
+        return # node is already having its name sought, so skip
       if @discover_geonames_as__widget.state in ['untried','looking','good'] and
           @discover_geonames_remaining > 0
+        node.sought_name = true
         @discover_geoname_name(aUrl)
+      #else
+      #  console.log("auto_discover_name_for(#{aUrl.toString()}) skipping because",
+      #              @discover_geonames_as__widget.state)
       return
 
-    # As a final backstop we use LDF.  Why last? To spare the LDF server.
-    # The endpoint of authority is superior because it ought to be up to date.
-    for domainName, serverUrl of @domain2ldfServer
-      args =
-        namelessUri: namelessUri
-        serverUrl: serverUrl
-      if hasDomainName(domainName) or domainName is '*'
-        @run_ldf_name_query(args)
+    if true # TODO avoid domains we are learning return no names
+      if serverSpec = @get_server_for_dataset(namelessUri)
+        args =
+          namelessUri: namelessUri
+          serverUrl: serverSpec.serverUrl
+        @run_sparql_name_query(args)
         return
+
     return
 
   discover_names_including: (includes) ->
@@ -3450,12 +3563,14 @@ class Huviz
     return
 
   discover_names: (includes) ->
-    #console.log('discover_names(',includes,') # of nameless:',@nameless_set.length)
+    # console.log('discover_names(',includes,') # of nameless:',@nameless_set.length)
     for node in @nameless_set
       uri = node.id
+      if not uri.includes(':')
+        continue
       if not (includes? and not uri.includes(includes))
         # only if includes is specified but not found do we skip auto_discover_name_for
-        @auto_discover_name_for(uri)
+        @auto_discover_name_for(uri, node)
     return
 
   # ## SPARQL queries
@@ -3542,17 +3657,18 @@ class Huviz
     try
       data = JSON.parse(data)
     catch error
-      console.info("generic_success_handler tried and failed to treat data as json")
+      #console.debug(queryManager.qry + "\n\ndid not return JSON")
     # this should be based on response header or a queryManager
-    console.log("response Content-Type:", jqXHR.getResponseHeader("content-type"))
+    resp_content_type = jqXHR.getResponseHeader("content-type").split(';')[0]
     if data.head?
       resp_type = 'json'
     else if data.includes("\t")
       # TODO base presumption of .tsv on something more definitive than finding one
       resp_type = 'tsv'
     else
-      console.warn(data)
-      throw new Error("no idea what resp_type this data is")
+      # console.warn(data)
+      serverDesc = queryManager.args.serverUrl or "the server"
+      throw new Error("no support for #{resp_content_type} just json or tsv for data coming from #{serverDesc}")
     switch resp_type
       when 'json'
         success_handler = @json_name_success_handler
@@ -3562,31 +3678,6 @@ class Huviz
         throw new Error('no name_success_handler available')
     success_handler(data, textStatus, jqXHR, queryManager)
     return
-
-  # ## Linked Data Fragments (LDF)
-  #
-  # Linked Data Fragments is a technique for performing efficient federated searches.
-  #
-  # http://linkeddatafragments.org/
-  #
-  # This implementation makes use of
-  #
-  #   https://github.com/smurp/comunica-ldf-client
-  #
-  # which is a fork of:
-  #   https://github.com/comunica/jQuery-Widget.js
-  #
-  # with the only real difference being a dist version of ldf-client-worker.min.js
-
-  domain2ldfServer:
-    # values feed LDF client context.sources.value # see run_managed_query_ldf
-    'dbpedia.org': "http://fragments.dbpedia.org/2016-04/en"
-    'viaf.org': "http://data.linkeddatafragments.org/viaf"
-    'getty.edu': "http://data.linkeddatafragments.org/lov"
-    '*': "http://data.linkeddatafragments.org/lov"
-    #'wikidata.org':
-    #  source: "https://query.wikidata.org/bigdata/ldf"
-    # TODO handle "wikidata.org"
 
   default_name_query_args:
     predicates: [RDFS_label, FOAF_name, SCHEMA_name]
@@ -3749,56 +3840,6 @@ class Huviz
       console.error(error)
     return
 
-  run_ldf_name_query: (args) ->
-    {namelessUri} = args
-    args.query = "# " +
-      ( args.comment or "run_ldf_name_query(#{namelessUri})") + "\n" +
-      @make_name_query(namelessUri)
-    defaults =
-      success_handler: @generic_name_success_handler
-      result_handler: @name_result_handler
-      from_N3: true
-      default_terms:
-        s: namelessUri
-        p: RDFS_label
-    args = @compose_object_from_defaults_and_incoming(defaults, args)
-    @run_managed_query_ldf(args)
-
-  run_managed_query_ldf: (args) ->
-    queryManager = @run_managed_query_abstract(args)
-    {success_handler, error_callback, timeout, result_handler, serverUrl, query} = args
-    serverUrl ?= "http://fragments.dbpedia.org/2016-04/en" # TODO what?
-    ldf_worker = new Worker('/comunica-ldf-client/ldf-client-worker.min.js')
-    ldf_worker.postMessage
-      type: 'query'
-      query: query
-      resultsToTree: false  # TODO experiment with this
-      context:
-        '@comunica/actor-http-memento:datetime': null
-        queryFormat: 'sparql'
-        sources: [
-          type: 'auto'
-          value: serverUrl
-          ]
-
-    ldf_worker.onmessage = (event) =>
-      queryManager.cancelAnimation()
-      d = event.data
-      {type, result} = d
-      switch type
-        when 'result'
-          queryManager.incrResultCount()
-          result_handler.call(this, result, queryManager)
-        when 'error'
-          queryManager.fatalError(d)
-        when 'end'
-          queryManager.finishCounting()
-        when 'queryInfo', 'log'
-          #console.log(type, event)
-        else
-          console.log("UNHANDLED", event)
-
-    return queryManager
 
   # ## Examples and Tests START
 
@@ -3903,7 +3944,7 @@ class Huviz
     pred_n = @get_or_create_predicate_by_id(pred_uri)
     cntx_n = @get_or_create_context_by_id(ctxid)
     if quad.p is RDF_subClassOf and @show_class_instance_edges
-      @try_to_set_node_type(subj_n, 'Class')
+      @try_to_set_node_type(subj_n, OWL_Class)
     # TODO: use @predicates_to_ignore instead OR rdfs:first and rdfs:rest
     if pred_uri.match(/\#(first|rest)$/)
       console.warn("add_quad() ignoring quad because pred_uri=#{pred_uri}", quad)
@@ -3917,9 +3958,9 @@ class Huviz
       obj_n = @get_or_create_node_by_id(quad.o.value)
       if quad.o.value is RDF_Class and @show_class_instance_edges
         # This weird operation is to ensure that the Class Class is a Class
-        @try_to_set_node_type(obj_n, 'Class')
+        @try_to_set_node_type(obj_n, OWL_Class)
       if quad.p is RDF_subClassOf and @show_class_instance_edges
-        @try_to_set_node_type(obj_n, 'Class')
+        @try_to_set_node_type(obj_n, OWL_Class)
       # We have a node for the object of the quad and this quad is relational
       # so there should be links made between this node and that node
       is_type = is_one_of(pred_uri, TYPE_SYNS)
@@ -3995,19 +4036,127 @@ class Huviz
           edge.color = @gclui.predicate_picker.get_color_forId_byName(pred_n.lid,'showing')
           @add_edge(edge)
           literal_node.fully_loaded = true # for sparql quieries to flag literals as fully_loaded
-    # if SPARQL Endpoint loaded AND this is subject node then set current subject to true (i.e. fully loaded)
+    # if the subject came from SPARQL then to true (i.e. fully loaded)
     if @using_sparql()
       subj_n.fully_loaded = false # all nodes default to not being fully_loaded
       #if subj_n.id is sprql_subj# if it is the subject node then is fully_loaded
       #  subj_n.fully_loaded = true
       if subj_n.id is quad.subject # if it is the subject node then is fully_loaded
         subj_n.fully_loaded = true
+
     if subj_n.embryo
       # It is unprincipled to do this, but some subj_n were escaping development.
       @develop(subj_n)
+
+    @consider_suppressing_edge_and_ends_re_OA(edge)
+
     @last_quad = quad
     @pfm_count('add_quad')
     return edge
+
+  consider_suppressing_edge_and_ends_re_OA: (edge) ->
+    # ## Purpose:
+    #
+    # Suppress (ie keep from appearing in the graph by policy) nodes and edges
+    # whose only purpose is to implement annotations.
+    #
+    # The exceptions to this are:
+    #
+    # * the object of an oa:exact predicate should NOT be suppressed
+    # * the oa:exact object should be depicted as having an edge of type '_:hasAnnotation'
+    # * the oa:hasTarget edge should be suppressed but a SYNTHETIC edge should be
+    #   put in its place which links the target of the [oa:hasTarget] edge to the
+    #   target of the [oa:exact] edge with [_:hasAnnotation]
+    #
+    # ## REVIEW:
+    #
+    # * discover if there are other predicates which should be treated like [oa:exact]
+    #
+    # ## Method:
+    #
+    # Place a node in the suppressed_set if any one of the following is true:
+    # * its edges are only in the OA vocab
+    # * it is in a taxon which is in the OA vocab
+    # * it only has edges connecting it to nodes which are instances of OA classes
+    #
+    # The other aspect of this strategy which is complicated is how to keep
+    # account of the relations between the nodes and edges in the subgraph
+    # of an Annotion, noting these considerations:
+    # * an Annotation may have 1 or more Targets
+    # * an Annotation may have 0 or more Bodies
+    # * Bodies and Targets may be connected directly to their Resources OR
+    # * the may be indirectly connected to Resources via ResourceSelection
+    # * multiple triples must be captured before a summary Edge can be created
+    # * some of those triples my participate in multiple summary Edges
+    # * during digestion some nodes may not have their subgraph membership known
+    # * some Annotations will not have an easy "summary object" (eg oa:exact value)
+    # * we will still want to be able to graph such Annotations
+    # * multiple Bodies for an Annotation should each be "summarized"
+    #
+    # Strategies:
+    #
+    # 1. build paths
+    #   * Nodes come to us randomly, so whenever one arrives knit it into a
+    #     path and check to see if the newly extended path now satisfies
+    #     conditions such as sufficiency for a) display b) closing
+    #   * challenges:
+    #     - how to express the logic for testing displayability and closability
+    #     - how to maintain the set of fragmentary paths
+    #   * references:
+    #     - is this like Nooron's AutoSem?
+
+    if not edge or not @suppress_annotation_edges
+      return
+    @suppress_node_re_OA_if_appropriate(edge.source)
+    # if edge.predicate.id is OA_exact # TODO once ids are urls then this is truer
+    if edge.predicate.lid is 'exact' # TODO ensure ids are urls then do the above...
+      @hasAnnotation_targets ?= []
+      if not (edge.target in @hasAnnotation_targets)
+        @hasAnnotation_targets.push(edge.target)
+      #alert("not suppressing the object of oa:exact: #{edge.target.lid}")
+      return # edge.target should not be suppressed
+    suppressEdge = @in_OA_cached(edge.predicate) # WIP what????
+    @suppress_node_re_OA_if_appropriate(edge.target)
+    return
+
+  # Suppress this node if all its classes are in_OA.
+  # Notice that if some of its classes are not in_OA then presumably we should
+  # not suppress it because those classes make it "interesting to humans".
+  # This begs the question "How does in_OA() work?".
+  # Presumably the expectation of this
+  # method is that in_OA() checks to see if the class is defined in the OA
+  # ontology OR is one of those classes used by the OA ontology.
+  # Nodes should be suppressed if they are not of interest to the user
+  # because they are merely present as bookkeeping associated with OA.
+  # Nodes may be in one of these conditions:
+  # a) only typed as a class which the OA ontology explicitly uses (ie OA or a class OA uses)
+  # b) not typed as a class which the OA ontology uses
+  # If b) then the node is not suppressed
+  suppress_node_re_OA_if_appropriate: (node) ->
+    should_suppress = true
+    for taxon in node.taxons
+      if not @in_OA_cached(taxon)
+        should_suppress = false
+        continue
+    if should_suppress
+      @suppress(node)
+    return
+
+  in_OA_cached: (thing) ->
+    if not thing._is_in_OA?
+      thing._is_in_OA = @in_OA_vocab(thing.id)
+    return thing._is_in_OA
+
+  in_OA_vocab: (url) ->
+    # Ideally it would be enough for url.startsWith to be tested for OA membership
+    # but until @ontology.domain and @ontology.range and such are using URLs as
+    # ids rather than "lids" (ie 'local' ids) we must also check for bare lids
+    # such as 'Annotation', 'TextQuoteSelector' and friends.
+    # Notice that since OA_terms_regex
+    match = url.match(OA_terms_regex)
+    is_in = not not (url.startsWith(OA_) or match) # force boolean
+    console.info("#{url} is #{not is_in and 'NOT ' or ''}in OA")
+    return is_in
 
   remove_from_nameless: (node) ->
     if node.nameless?
@@ -4067,11 +4216,12 @@ class Huviz
     #node.name ?= full_name  # set it if blank
     len = @truncate_labels_to
     if not len?
-      alert "len not set"
+      throw new Error("set_name('" + node.id + "', " + full_name + ", " + lang + ')')
+      return
     if len > 0
       node.pretty_name = node.name.substr(0, len) # truncate
     else
-      node.pretty_name = node.name
+      node.pretty_name = node.name or '“”'
     node.scroll_offset = 0
     return
 
@@ -4105,8 +4255,8 @@ class Huviz
     @set_name(node, node.name)
 
   infer_edge_end_types: (edge) ->
-    edge.source.type = 'Thing' unless edge.source.type?
-    edge.target.type = 'Thing' unless edge.target.type?
+    edge.source.type ?= 'Thing'
+    edge.target.type ?= 'Thing'
     # infer type of source based on the range of the predicate
     ranges = @ontology.range[edge.predicate.lid]
     if ranges?
@@ -4144,6 +4294,9 @@ class Huviz
     null
 
   try_to_set_node_type: (node, type_uri) ->
+    # if not type_uri.includes(':')
+    #   debugger
+    #   throw new Error("try_to_set_node_type() expects an URL, not #{type_uri}")
     type_lid = uniquer(type_uri) # should ensure uniqueness
     if not node._types
       node._types = []
@@ -4200,8 +4353,8 @@ class Huviz
     @after_file_loaded('stream', callback)
 
   dump_stats: ->
-    console.log("object_value_types:", @object_value_types)
-    console.log("unique_pids:", @unique_pids)
+    console.debug("object_value_types:", @object_value_types)
+    console.debug("unique_pids:", @unique_pids)
 
   parseAndShowTurtle: (data, textStatus) =>
     msg = "data was " + data.length + " bytes"
@@ -4255,6 +4408,7 @@ class Huviz
     cmd = new gcl.GraphCommand this,
       verbs: ['choose']
       classes: ['Thing']
+      every_class: true
     @gclc.run(cmd)
     @tick("Tick in choose_everything")
 
@@ -4795,8 +4949,11 @@ class Huviz
     tabs_width = 0
     if @tabsJQElem and @tabsJQElem.length > 0
       tabs_width = @tabsJQElem.width()
+    #console.log @container
+    #console.log @container.clientWidth
+    #console.log "w_width: #{w_width} w. pad of #{pad}"
+    #console.log "tabs_width: #{tabs_width}"
     @width = w_width - tabs_width
-
   # Should be refactored to be get_container_height
   get_container_height: (pad) ->
     pad = pad or hpad
@@ -4831,10 +4988,24 @@ class Huviz
 
   set_search_regex: (text) ->
     @search_regex = new RegExp(text or "^$", "ig")
+    @add_matching_nodes_to_matched_set()
+    return
+
+  add_matching_nodes_to_matched_set: ->
+    @nodes.forEach (node, i) =>
+      if node.name.match(@search_regex)
+        if not node.matched
+          @matched_set.add(node)
+      else
+        if node.matched
+          @matched_set.remove(node)
+    @update_all_counts()
+    @tick() # show labels NOW
+    return
 
   update_searchterm: =>
-    text = $(this).text()
-    @set_search_regex text
+    text = @gclui.like_input.text()
+    @set_search_regex(text)
     @restart()
 
   dump_locations: (srch, verbose, func) ->
@@ -5152,15 +5323,16 @@ class Huviz
     @update_state(node)
     @update_showing_links(node)
 
-  hide_found_links: ->
+  hide_found_links: -> # TODO use it or lose it
     @nodes.forEach (node, i) =>
       if node.name.match(search_regex)
         @hide_node_links(node)
     @restart()
 
-  discard_found_nodes: ->
+  discard_found_nodes: -> # TODO use it or lose it
     @nodes.forEach (node, i) =>
-      @discard node  if node.name.match(search_regex)
+      if node.name.match(search_regex)
+        @discard(node)
     @restart()
 
   show_node_links: (node) ->
@@ -5246,7 +5418,8 @@ class Huviz
     goner
 
   undiscard: (prodigal) ->  # TODO(smurp) rename command to 'retrieve' ????
-    if @discarded_set.has(prodigal) # see test 'retrieving should only affect nodes which are discarded'
+    # see test 'retrieving should only affect nodes which are discarded'
+    if @discarded_set.has(prodigal)
       @shelved_set.acquire(prodigal)
       @update_showing_links(prodigal)
       @update_state(prodigal)
@@ -5267,6 +5440,16 @@ class Huviz
     if goner.links_shown.length > 0
       console.log("shelving failed for", goner)
     goner
+
+  suppress: (suppressee) =>
+    console.log("suppress(",suppressee,")")
+    @unpin(suppressee)
+    @chosen_set.remove(suppressee)
+    @hide_node_links(suppressee)
+    @shelved_set.remove(suppressee)
+    @update_showing_links(suppressee)
+    @suppressed_set.acquire(suppressee)
+    suppressee
 
   choose: (chosen, callback_after_choosing) =>
     # If this chosen node is part of a SPARQL query set and not fully loaded then
@@ -5611,10 +5794,10 @@ class Huviz
     $('.snippet_dialog_box').remove()
     return
 
-  init_snippet_box: ->
+  init_snippet_box: -> # REVIEW is this needed any more?
     if d3.select('#snippet_box')[0].length > 0
       @snippet_box = d3.select('#snippet_box')
-      console.log("init_snippet_box")
+
   remove_snippet: (snippet_id) ->
     key = @get_snippet_js_key(snippet_id)
     delete @currently_printed_snippets[key]
@@ -5733,6 +5916,7 @@ class Huviz
       if @currently_printed_snippets[edge_inspector_id]?
         @hilight_dialog(edge._inspector or edge_inspector_id)
         continue
+      console.log("inspect edge:", edge)
       me = this
       make_callback = (context_no, edge, context) =>
         (err,data) =>
@@ -5985,7 +6169,7 @@ class Huviz
 
   populate_menus_from_IndexedDB: (why) ->
     # https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB#Using_a_cursor
-    console.log("populate_menus_from_IndexedDB(#{why})")
+    console.debug("populate_menus_from_IndexedDB(#{why})")
     datasetDB_objectStore = @datasetDB.transaction('datasets').objectStore('datasets')
     count = 0
     make_onsuccess_handler = (why) =>
@@ -6013,10 +6197,10 @@ class Huviz
           #console.table(recs)
           # Reset the value of each loader to blank so
           # they show 'Pick or Provide...' not the last added entry.
-          @dataset_loader.val('')
-          @ontology_loader.val('')
-          @endpoint_loader.val('')
-          @script_loader.val('')
+          @dataset_loader.val()
+          @ontology_loader.val()
+          @endpoint_loader.val()
+          @script_loader.val()
           @update_dataset_ontology_loader()
           console.groupEnd() # closing group called "populate_menus_from_IndexedDB(why)"
           document.dispatchEvent( # TODO use 'huvis_controls' rather than document
@@ -6153,7 +6337,8 @@ class Huviz
     #@preload_endpoints()
     # TODO remove this nullification of @last_val by fixing logic in select_option()
     # clear the last_val so select_option works the first time
-    @ontology_loader?last_val = null
+    if @ontology_loader.last_val
+      @ontology_loader.last_val = null
 
   big_go_button_onclick: (event) =>
     if @using_sparql()
@@ -6245,8 +6430,6 @@ class Huviz
     args.serverUrl = serverUrl
     args.serverType = serverType
     switch serverType
-      when 'ldf'
-        @run_managed_query_ldf(args)
       when 'sparql'
         @run_managed_query_ajax(args)
       else
@@ -6257,10 +6440,26 @@ class Huviz
     'cwrc.ca': 'http://sparql.cwrc.ca/sparql'
     'getty.edu': 'http://vocab.getty.edu/sparql.tsv'
     'openstreetmap.org': 'https://sophox.org/sparql'
+    'dbpedia.org': "http://dbpedia.org/sparql"
+    'viaf.org': "http://data.linkeddatafragments.org/viaf"
+    #'getty.edu': "http://data.linkeddatafragments.org/lov"
+    #'wikidata.org': "https://query.wikidata.org"
+    '*': "http://data.linkeddatafragments.org/lov"
 
   get_server_for_dataset: (datasetUri) ->
+    # Purpose:
+    #   Perform best effort to figure out a sparqlEndpoint for the datasetUri.
+    #   The following does not support domains which have more two parts.
+    #   For instance it would fail for keys like 'thingy.co.uk'
     aUrl = new URL(datasetUri)
-    {domain} = aUrl
+    {hostname} = aUrl
+    hostname_parts = hostname.split('.')
+    if hostname_parts.length > 2
+      while hostname_parts.length > 2
+        hostname_parts.shift()
+      domain = hostname_parts.join('.')
+    else
+      domain = hostname
     # Deal with the situation where the datasetUri sought is served
     # by the server the user has chosen.
     if @using_sparql() and @sparqlGraphSelector_JQElem.val() is datasetUri
@@ -6271,14 +6470,9 @@ class Huviz
     # based on the domain sought.
     else if (serverUrl = @domain2sparqlEndpoint[domain])
       serverType = 'sparql'
-    else if (serverUrl = @domain2sparqlEndpoint[domain])
-      serverType = 'ldf'
     # Then try to find wildcard servers '*', if available.
-    # Give precedence to sparql over ldf.
     else if (serverUrl = @domain2sparqlEndpoint['*'])
       serverType = 'sparql'
-    else if (serverUrl = @domain2ldfServer['*'])
-      serverType = 'ldf'
     else
       throw new Error("a server could not be found for #{datasetUri}")
     return {serverType, serverUrl}
@@ -6296,27 +6490,63 @@ class Huviz
     console.log(e.currentTarget.value)
     @endpoint_loader.endpoint_graph = e.currentTarget.value
 
+  turn_on_loading_notice_if_enabled: ->
+    # This will work even if the display_loading_notice setting UX is removed.
+    if not @display_loading_notice
+      return
+    setTimeout(@turn_on_loading_notice)
+
+  loading_notice_markdown: """
+    ## Loading....
+    <div class="loadingNotice">Please wait</div>
+  """
+
+  turn_on_loading_notice: =>
+    colorlog('turn_on_loading_notice()','green')
+    @disable_go_button()
+    args = {width:550}
+    # TODO: it would be good if one could pass an argument to disable the close button
+    # TODO: display some stats about what is happening...
+    # TODO: I do not think that this information should be provided through the make_doalog method
+    @my_loading_notice_dialog = @make_markdown_dialog(@loading_notice_markdown, null, args)
+
+  turn_off_loading_notice_if_enabled: ->
+    if not @display_loading_notice
+      return
+    setTimeout(@turn_off_loading_notice)
+
+  turn_off_loading_notice: =>
+    colorlog('turn_off_loading_notice()','green')
+    @my_loading_notice_dialog.remove()
+
   visualize_dataset_using_ontology: (ignoreEvent, dataset, ontologies) =>
-    colorlog('visualize_dataset_using_ontology()', dataset, ontologies)
+    # Either dataset and ontologies are passed in by HuViz.load_with() from a command
+    # or we are called with neither in which case get values from the SPARQL or SCRIPT loaders
+
+    colorlog('visualize_dataset_using_ontology()')
     @close_blurt_box()
-    endpoint_label_uri = @endpoint_labels_JQElem.val()
-    if endpoint_label_uri
+
+    # If we are loading from a SPARQL endpoint
+    if (endpoint_label_uri = @endpoint_labels_JQElem.val())
+      @turn_on_loading_notice_if_enabled()
       data = dataset or @endpoint_loader
-      @load_endpoint_data_and_show(endpoint_label_uri)
+      @load_endpoint_data_and_show(endpoint_label_uri, @after_visualize_dataset_using_ontology)
       # TODO ensure disable_dataset_ontology_loader() is only called once
       console.warn("disable_dataset_ontology_loader() SHOULD BE CALLED ONLY ONCE")
       @disable_dataset_ontology_loader_AUTOMATICALLY()
       @update_browser_title(data)
       @update_caption(data.value, data.endpoint_graph)
       return
-    # Either dataset and ontologies are passed in by HuViz.load_with() from a command
-    #   or this method is called with neither in which case get values from the loaders
-    alreadyCommands = (@gclui.command_list? and @gclui.command_list.length)
+
+    # If we are loading from a SCRIPT
     alreadyCommands = @gclui.future_cmdArgs.length > 0
     if @script_loader.value and not alreadyCommands
       scriptUri = @script_loader.value
       @get_resource_from_db(scriptUri, @load_script_from_db)
       return
+
+    # Otherwise we are starting with a dataset and ontology
+    @turn_on_loading_notice_if_enabled()
     onto = ontologies and ontologies[0] or @ontology_loader
     data = dataset or @dataset_loader
     # at this point data and onto are both objects with a .value key, containing url or fname
@@ -6330,7 +6560,9 @@ class Huviz
     return
 
   after_visualize_dataset_using_ontology: =>
-    @preset_discover_geonames_remaining()
+    @turn_off_loading_notice_if_enabled()
+    if @discover_geonames_remaining # If this value is absent or zero then geonames lookup is suppressed
+      @preset_discover_geonames_remaining()
 
   load_script_from_db: (err, rsrcRec) =>
     if err?
@@ -6524,7 +6756,7 @@ class Huviz
     reload_html = """
       <p>
         <button title="Copy shareable link"
-           onclick="alert('#{uri}')"><i class="fas fa-share-alt"></i></button>
+          class="show_shareable_link_dialog"><i class="fas fa-share-alt"></i></button>
         <button title="Reload this data"
            onclick="location.replace('#{uri}');location.reload()"><i class="fas fa-redo"></i></button>
         <button title="Clear the graph and start over"
@@ -6540,7 +6772,28 @@ class Huviz
     sel = @oldToUniqueTabSel['huvis_controls']
     controls = document.querySelector(sel)
     controls.insertAdjacentHTML('afterbegin', visualization_source_display)
+    shareable_link_button = controls.querySelector(".show_shareable_link_dialog")
+    show_shareable_link_closure = () => @show_shareable_link_dialog(uri)
+    shareable_link_button.onclick = show_shareable_link_closure
     return
+
+  show_shareable_link_dialog: (uri) =>
+    args = {width:550}
+    shareLinkId = unique_id('lnk_')
+    shareLinkSel = "#"+shareLinkId
+    onclickCommand = [
+      "input=document.getElementById('#{shareLinkId}');",
+      "input.select();",
+      "input.setSelectionRange(0, 99999);",
+      "document.execCommand('copy',input);",
+      "return"].join(' ')
+    md = """
+      ## Shareable Link
+
+      <input type="text" id="#{shareLinkId}" class="urlToShare" value="#{uri}"/>
+      <button onclick="#{onclickCommand}" class="urlCopyButton"><i class="fa fa-copy" aria-hidden="true"></i> Copy</button>
+        """
+    @make_markdown_dialog(md, null, args)
 
   replace_loader_display_for_endpoint: (endpoint, graph) ->
     $(@pickersSel).attr("style","display:none")
@@ -6931,13 +7184,14 @@ class Huviz
 
   before_running_command: ->
     # FIXME fix non-display of cursor and color changes
-    @text_cursor.set_cursor("wait")
-    #$("body").css "background-color", "red" # FIXME remove once it works!
-    #toggle_suspend_updates(true)
+    if @use_fancy_cursor
+      @text_cursor.set_cursor("wait")
+    return
 
   after_running_command: ->
     #toggle_suspend_updates(false)
-    @text_cursor.set_cursor("default")
+    if @use_fancy_cursor
+      @text_cursor.set_cursor("default")
     #$("body").css "background-color", renderStyles.pageBg # FIXME remove once it works!
     #$("body").addClass renderStyles.themeName
     @topElem.style.backgroundColor = renderStyles.pageBg
@@ -6969,6 +7223,7 @@ class Huviz
 
   create_state_msg_box: () ->
     @state_msg_box = $("#state_msg_box")
+    #@state_msg_box = $("#{@args.state_msg_box_sel}")
     @hide_state_msg()
     #console.info @state_msg_box
 
@@ -7056,7 +7311,10 @@ class Huviz
     theTabs = """<ul class="the-tabs">"""
     theDivs = ""
     tab_specs = @args.tab_specs
+    @tab_id_to_idx = {}
+    idx = -1
     for t in tab_specs
+      idx++
       if typeof(t) is 'string'
         t = @get_default_tab(t)
       firstClass = t.cssClass.split(' ')[0]
@@ -7066,6 +7324,8 @@ class Huviz
       if @args.use_old_tab_ids
         id = firstClass
       idSel = '#' + id
+      tab_id = t.id
+      @tab_id_to_idx[tab_id] = idx
       @oldToUniqueTabSel[firstClass] = idSel
       theTabs += """<li><a href="#{idSel}" title="#{t.title}">#{t.text}</a></li>"""
       theDivs += """<div id="#{id}" class="#{t.cssClass}">#{t.kids or ''}</div>"""
@@ -7129,7 +7389,6 @@ class Huviz
     @tabs_class_to_id = {}
     if not @args.tab_specs
       return
-    # create <section id="tabs"...> programmatically, making unique ids along the way
     elem = document.querySelector(@args.create_tabs_adjacent_to_selector)
     [html, jQElem_list] = @make_tabs_html()
     @addHTML(html)
@@ -7146,7 +7405,6 @@ class Huviz
       id = sel_to_id(@args.huviz_top_sel)
       classes = 'huviz_top'
       @addDivWithIDAndClasses(id, classes, body)
-      #@insertBeforeEnd(body, """<div id="#{@args.huviz_top_sel}"></div>""")
     @topElem = document.querySelector(@args.huviz_top_sel)
     @topJQElem = $(@topElem)
     return
@@ -7161,7 +7419,8 @@ class Huviz
     return @insertBeforeEnd(@topElem, html)
 
   addDivWithIdAndClasses: (id, classes, specialElem) ->
-    html = """<div id="#{sel_to_id(id)}" class="#{classes}"></div>"""
+    idHtml = id and """id="#{sel_to_id(id)}" """ or "" # html for the id, if there is one
+    html = """<div #{idHtml} class="#{classes}"></div>"""
     if specialElem
       return @insertBeforeEnd(specialElem, html)
     else
@@ -7292,7 +7551,6 @@ class Huviz
     @off_center = false # FIXME expose this or make the amount a slider
     document.addEventListener('nextsubject', @onnextsubject)
     @init_snippet_box()  # FIXME not sure this does much useful anymore
-
     @mousedown_point = false
     @discard_point = [@cx,@cy] # FIXME refactor so ctrl_handle handles this
     @lariat_center = [@cx,@cy] #       and this....
@@ -7314,39 +7572,56 @@ class Huviz
               attr("position", "absolute")
     @svg.append("rect").attr("width", @width).attr("height", @height)
     @container = d3.select(@args.viscanvas_sel).node().parentNode
-    @init_settings_to_defaults()
-    @adjust_settings_from_kv_list(@args.settings)
-    if @use_fancy_cursor
-      @text_cursor = new TextCursor(@args.viscanvas_sel, "")
-      @install_update_pointer_togglers()
-    @create_state_msg_box()
+    @init_settings_to_defaults().then(@complete_construction).catch(@catch_reject_init_settings)
+
+  catch_reject_init_settings: (wha) =>
+    console.error(wha)
+
+  prepare_viscanvas: ->
     @viscanvas = d3.select(@args.viscanvas_sel).html("").
       append("canvas").
       attr("width", @width).
       attr("height", @height)
+    @make_JQElem('viscanvas', @args.viscanvas_sel) # --> @viscanvas_JQElem
+    @viscanvas_elem = document.querySelector(@args.viscanvas_sel)
     @canvas = @viscanvas[0][0]
-    @mouse_receiver = @viscanvas
+    return @viscanvas
+
+  complete_construction: (setting_resolutions) =>
+    #console.warn(setting_resolutions)
+    @adjust_settings_from_kv_list(@args.settings)
+    if @use_fancy_cursor
+      @install_update_pointer_togglers()
+    @create_state_msg_box()
+    @mouse_receiver = @prepare_viscanvas()
     @reset_graph()
     @updateWindow()
     @ctx = @canvas.getContext("2d")
-    #console.log @ctx
     @mouse_receiver
       .on("mousemove", @mousemove)
       .on("mousedown", @mousedown)
       .on("mouseup", @mouseup)
       .on("contextmenu", @mouseright)
       #.on("mouseout", @mouseup) # FIXME what *should* happen on mouseout?
-
     @restart()
     @set_search_regex("")
-    search_input = document.getElementById('search')
-    if search_input
-      search_input.addEventListener("input", @update_searchterm)
     window.addEventListener("resize", @updateWindow)
     @tabsJQElem.on("resize", @updateWindow)
     $(@viscanvas).bind("_splitpaneparentresize", @updateWindow)
     @tabsJQElem.tabs({active: 0})
+    @maybe_start_with_search_node()
     @maybe_demo_round_img()
+    return
+
+  maybe_start_with_search_node: ->
+    if @start_with_search_node
+      setTimeout () =>
+        @collapse_tabs
+        @change_setting_to_from('display_labels_as', 'boxNGs')
+        @change_setting_to_from('show_class_instance_edges', true)
+        @make_search_node()
+        return
+    return
 
   maybe_demo_round_img: ->
     if not (@args.demo_round_img)
@@ -7360,6 +7635,27 @@ class Huviz
       console.warn("url:", @args.demo_round_img)
       console.debug(e)
     return
+
+  add_search_node_quads: ->
+    return @add_quad
+      s: '_:search_node'
+      p: RDFS_label
+      o:
+        type: RDF_literal
+        value: 'Search Node'
+    return @add_quad
+      s: '_:search_node'
+      p: RDF_type
+      o: OWL_Thing
+
+  make_search_node: ->
+    # add search node
+    @add_search_node_quads()
+    search_node = @all_set[0]
+    # activate node
+    @choose search_node, () =>
+      @label(search_node)
+      @set_boxNG_editability(search_node, true)
 
   create_blurtbox: ->
     blurtbox_id = @unique_id('blurtbox_')
@@ -7445,7 +7741,11 @@ class Huviz
 
   #### ---------------------  Utilities ---------------------------- #######
 
-  goto_tab: (tab_idx) ->
+  goto_tab: (tab_id) ->
+    tab_idx = @tab_id_to_idx[tab_id]
+    if not tab_idx?
+      console.error("goto_tab(#{tab_id}) found no value in @tab_id_to_idx:", @tab_id_to_idx)
+      return
     @tabsJQElem.tabs(
       active: tab_idx
       collapsible: true)
@@ -7510,6 +7810,7 @@ class Huviz
     spawn: 'SPAWN'
     specialize: 'SPECIALIZE'
     annotate: 'ANNOTATE'
+    suppress: "SUPPRESS"
 
   # TODO add controls
   #   selected_border_thickness
@@ -7605,7 +7906,7 @@ class Huviz
         label:
           title: "the attractive force keeping nodes centered"
         input:
-          value: 0.50
+          value: 0.75
           min: 0
           max: 1
           step: 0.025
@@ -7734,7 +8035,6 @@ class Huviz
       label_graphed:
         group: "Labels"
         text: "label graphed nodes"
-        style: "display:none"
         label:
           title: "whether graphed nodes are always labelled"
         input:
@@ -7797,14 +8097,24 @@ class Huviz
         input:
           type: "checkbox"
     ,
-      pill_display:
+      display_labels_as:
         group: "Labels"
-        text: "Display graph with boxed labels"
+        text: "Display Labels As..."
         label:
-          title: "Show boxed labels on graph"
+          title: "Select type of graphed label display"
         input:
-          type: "checkbox"
-          #checked: "checked"
+          type: "select"
+        options : [
+            label: "Words"
+            value: "canvas"
+          ,
+            label: "Boxes"
+            value: "pills"
+            selected: true
+          ,
+            label: "Boxes NG (beta)"
+            value: "boxNGs"
+        ]
     ,
       theme_colors:
         group: "Styling"
@@ -7912,9 +8222,20 @@ class Huviz
         group: "Ontological"
         text: "Color nodes as pies"
         label:
-          title: """Show all a nodes types as colored pie pieces."""
+          title: """Show all a node's types as colored pie pieces."""
         input:
           type: "checkbox"   #checked: "checked"
+    ,
+      suppress_annotation_edges:
+        group: "Annotation"
+        class: "alpha_feature"
+        text: "Suppress Annotation Edges"
+        label:
+          title: """Do not show Open Annotation edges or nodes.
+          Summarize them as a hasAnnotation edge and enable the Annotation Inspector."""
+        input:
+          type: "checkbox"
+          #checked: "checked"
     ,
       show_hide_endpoint_loading:
         style: "display:none"
@@ -7985,7 +8306,8 @@ class Huviz
         group: "Geonames"
         text: 'GeoNames Limit '
         label:
-          title: "The number of Remaining Geonames to look up"
+          title: """The number of Remaining Geonames to look up.
+          If zero before loading, then lookup is suppressed."""
         input:
           type: "integer"
           value: 20
@@ -8064,6 +8386,17 @@ class Huviz
         input:
           type: "checkbox"
           checked: "checked"
+    ,
+      start_with_search_node:
+        group: "SPARQL"
+        class: "alpha_feature"
+        text: "Start With Search Node"
+        style: "display:none"
+        label:
+          title: "Show a search field node as starting UX"
+        input:
+          type: "checkbox"
+          #checked: "checked"
     ,
       show_queries_tab:
         group: "SPARQL"
@@ -8155,6 +8488,16 @@ class Huviz
         input:
           type: "checkbox"
           #checked: "checked"
+    ,
+      display_loading_notice:
+        group: "Debugging"
+        class: "alpha_feature"
+        text: "Display Loading Notice"
+        label:
+          title: "Display the loading_notice after the user presses LOAD"
+        input:
+          type: "checkbox"
+          checked: "checked" # this should be OFF by default until it is pretty
     ]
 
   auto_adjust_settings: ->
@@ -8174,18 +8517,20 @@ class Huviz
 
   init_settings_to_defaults: =>
     # TODO rebuild this method without D3 using @settingsElem
+    elemPromises = []
     @settingsElem = document.querySelector(@args.settings_sel)
     settings_input_sel = @args.settings_sel + ' input'
     @settings_cursor = new TextCursor(settings_input_sel, "")
     if @settings_cursor
       $(settings_input_sel).on("mouseover", @update_settings_cursor)
-      #$("input").on("mouseenter", @update_settings_cursor)
-      #$("input").on("mousemove", @update_settings_cursor)
     @settings = d3.select(@settingsElem)
     @settings.classed('settings',true)
     @settingGroupsContainerElem = @insertBeforeEnd(@settingsElem, '<div class="settingGroupsContainer"></div>')
     for control_spec in @default_settings
       for control_name, control of control_spec
+        # reset the values which will be used to initialize the setting input the user sees
+        initial_old_val = null
+        initial_new_val = null
         inputId = unique_id(control_name+'_')
         groupName = control.group or 'General'
         groupElem = @get_or_create_settings_group(groupName)
@@ -8198,20 +8543,19 @@ class Huviz
         if control.style?
           controlElem.setAttribute('style', control.style)
         if control.class?
-          #graph_control.attr('class', 'graph_control ' + control.class)
-          #controlElem.addAttribute('class', control.class)
           controlElem.classList.add(control.class)
         if control.input?
           if control.input.type is 'select'
             inputElem = @insertBeforeEnd(controlElem, """<select></select>""")
             for optIdx, opt of control.options
               optionElem = @insertBeforeEnd(inputElem, """<option value="#{opt.value}"></option>""")
+              initial_new_val ?= opt.value # default to the first option in case none is selected
               if opt.selected
                 optionElem.setAttribute('selected','selected')
+                initial_new_val = opt.value
               if opt.label?
                 optionElem.innerHTML = opt.label
           else if control.input.type is 'button'
-            #console.log "construct button: #{control.input.label}"
             inputElem = @insertBeforeEnd(controlElem, """<button type="button">(should set label)</button>""")
             if control.input.label?
               inputElem.innerHTML = control.input.label
@@ -8225,20 +8569,23 @@ class Huviz
                 WidgetClass = v
                 continue
               if k is 'value'
-                old_val = @[control_name]
-                @change_setting_to_from(control_name, v, old_val)
+                initial_old_val = @[control_name]
+                initial_new_val = v
               inputElem.setAttribute(k, v)
             if WidgetClass
               @[control_name + '__widget'] = new WidgetClass(this, inputElem)
             if control.input.type is 'checkbox'
-              value = control.input.checked?
-              @change_setting_to_from(control_name, value, undefined) #@[control_name].checked)
+              initial_new_val = not not control.input.checked?
             # TODO replace control.event_type with autodetecting on_change_ vs on_update_ method existence
           inputElem.setAttribute('id', inputId)
           inputElem.setAttribute('name', control_name)
-          event_type = control.event_type or
-              (control.input.type in ['checkbox','range','radio'] and 'input') or
-              'change'
+
+          event_type = control.event_type
+          if not event_type
+            if (control.input.type in ['checkbox','range','radio'])
+              event_type = 'input'
+            else
+              event_type = 'change'
 
           if event_type is 'change'
             # These controls only update when enter is pressed or the focus changes.
@@ -8253,12 +8600,22 @@ class Huviz
             inputElem.addEventListener('input', @update_graph_settings)
           if control.input.type is 'button'
             inputElem.addEventListener('click', @update_graph_settings)
+            continue # because buttons do not need any updating
 
+          execInitElem = (resolve, reject) =>
+            try
+              @change_setting_to_from(control_name, initial_new_val, initial_old_val)
+              resolve(control_name)
+            catch e
+              reject(e)
+          elemPromises.push(new Promise(execInitElem))
+        else
+          console.info(control_name + " has no input")
         if control.label.title?
           @insertBeforeEnd(controlElem, '<div class="setting_explanation">' + control.label.title + '</div>')
     #$(@settingGroupsContainerElem).accordion()
     #@insertBeforeEnd(@settingsElem, """<div class="buffer_space"></div>""")
-    return
+    return Promise.all(elemPromises)
 
   update_settings_cursor: (evt) =>
     cursor_text = (evt.target.value).toString()
@@ -8355,14 +8712,12 @@ class Huviz
     custom_handler_name = "on_change_" + setting_name
     custom_handler = @[custom_handler_name]
     if @settings_cursor
-      cursor_text = (new_value).toString()
-      #console.info("#{setting_name}: #{cursor_text}")
-      @settings_cursor.set_text(cursor_text)
+      if new_value?
+        cursor_text = (new_value).toString()
+        @settings_cursor.set_text(cursor_text)
     if custom_handler? and not skip_custom_handler
-      #console.log "change_setting_to_from() custom setting: #{setting_name} to:#{new_value}(#{typeof new_value}) from:#{old_value}(#{typeof old_value})"
       custom_handler.apply(@, [new_value, old_value])
     else
-      #console.log "change_setting_to_from() setting: #{setting_name} to:#{new_value}(#{typeof new_value}) from:#{old_value}(#{typeof old_value})"
       this[setting_name] = new_value
 
   adjust_settings_from_defaults: ->
@@ -8374,6 +8729,11 @@ class Huviz
     @adjust_settings_from_kv_list(@args.settings)
     console.groupEnd()
     return
+
+  on_change_use_fancy_cursor: (new_val, old_val) ->
+    @use_fancy_cursor = not not new_val
+    if @use_fancy_cursor and not @text_cursor # initialize the text_cursor
+      @text_cursor = new TextCursor(@args.viscanvas_sel, "")
 
   # on_change handlers for the various settings which need them
   on_change_use_accordion_for_settings: (new_val, old_val) ->
@@ -8437,15 +8797,19 @@ class Huviz
     else
       $('option.dangerous').hide()
 
-  on_change_pill_display: (new_val) ->
-    if new_val
-      node_display_type = 'pills'
-      @adjust_setting('charge', -3000)
-      @adjust_setting('link_distance', 200)
+  on_change_display_labels_as: (new_val, old_val) ->
+    @display_labels_as = new_val
+    if new_val is 'boxNGs'
+      @viscanvas_JQElem.addClass('boxNGs')
     else
-      node_display_type = ""
-      @adjust_setting('charge', -210) # TODO use prior value or default value
-      @adjust_setting('link_distance', 29) # TODO use prior value or default value
+      @viscanvas_JQElem.removeClass('boxNGs')
+    if (boxes_change_settings = false)
+      if new_val in ['pills', 'boxNGs']
+        @adjust_setting('charge', -3000)
+        @adjust_setting('link_distance', 200)
+      else
+        @adjust_setting('charge', -210) # TODO use prior value or default value
+        @adjust_setting('link_distance', 29) # TODO use prior value or default value
     @updateWindow()
 
   on_change_theme_colors: (new_val) ->
@@ -8512,7 +8876,7 @@ class Huviz
       @topJQElem.find(".graph_custom_sub_title__setting").css('display', 'none')
       @topJQElem.find("a.git_commit_hash_watermark").css('display', 'inherit')
       @ontology_watermark_JQElem.attr('style', '')
-      @update_caption(@data_uri,@onto_uri)
+      @update_caption(@data_uri, @onto_uri)
     @dataset_watermark_JQElem.removeClass().addClass("dataset_watermark #{new_val}")
     @ontology_watermark_JQElem.removeClass().addClass("ontology_watermark #{new_val}")
 
@@ -8553,7 +8917,7 @@ class Huviz
       $(endpoint).css('display','none')
 
   on_change_show_performance_monitor: (new_val, old_val) ->
-    console.log("clicked performance monitor " + new_val + " " + old_val)
+    #console.log("clicked performance monitor " + new_val + " " + old_val)
     if new_val
       @performance_dashboard_JQElem.css('display','block')
       @show_performance_monitor = true
@@ -8623,7 +8987,6 @@ class Huviz
     else
       #@disable_data_set_selector()
       @disable_dataset_ontology_loader(data, onto)
-    @show_state_msg("loading...")
     @show_state_msg(@data_uri)
     unless @G.subjects
       @fetchAndShow(@data_uri, callback)
@@ -8728,7 +9091,7 @@ class Huviz
       @init_webgl()
 
   load_with: (data_uri, ontology_uris) ->
-    @goto_tab(1) # go to Commands tab # FIXME: should be symbolic not int indexed
+    @goto_tab('commands') # go to Commands tab # FIXME: should be symbolic not int indexed
     basename = (uri) ->
       return uri.split('/').pop().split('.').shift() # the filename without the ext
     dataset =
@@ -8751,7 +9114,7 @@ class Huviz
       setTimeout((() => @query_from_seeking_limit(querySpec)), 50)
       #throw new Error("endpoint_loader not ready")
       return
-    @goto_tab(1)
+    @goto_tab('commands')
     if serverUrl?
       @endpoint_loader.select_by_uri(serverUrl)
       @sparql_graph_query_and_show__trigger(serverUrl)
@@ -8882,7 +9245,7 @@ class Huviz
         @pfm_data["#{pfm_marker}"]["timed_count"] = [0.01]
         #console.log "Setting #{marker.label }to zero"
 
-  parseAndShowFile: (uri) =>
+  parseAndShowFile: (uri, callback) =>
     try
       aUri = new URL(uri)
     catch error
@@ -8892,6 +9255,18 @@ class Huviz
       aUri = new URL(fullUri)
     worker = new Worker('/quaff-lod/quaff-lod-worker-bundle.js')
     worker.addEventListener('message', @receive_quaff_lod)
+    trigger_callback = (event) =>
+      switch event.data.type
+        when 'end'
+          @call_on_dataset_loaded()
+          if callback?
+            callback()
+        when 'error'
+          @blurt(event.data.data, "error")
+        else
+          console.log("trigger_callback(event) did not know what to do with event.data:", event.data)
+      return
+    worker.addEventListener('message', trigger_callback) # a second listener for error and end
     worker.postMessage({url: aUri.toString()})
     return
 
@@ -8919,12 +9294,6 @@ class Huviz
   receive_quaff_lod: (event) =>
     {subject, predicate, object, graph} = event.data
     if not subject
-      # console.warn(event.data)
-      if event.data.type is "end"
-        @call_on_dataset_loaded()
-      else if event.data.type is "error"
-        console.log(event.data)
-        @blurt(event.data.data, "error")
       return
     subj_uri = subject.value
     pred_uri = predicate.value
@@ -9027,9 +9396,9 @@ class Orlando extends OntologicallyGrounded
       delay = 100
       onceDBReady = () =>
         onceDBReadyCount++
-        console.log('onceDBReady() call #' + onceDBReadyCount)
+        console.debug('onceDBReady() call #' + onceDBReadyCount)
         if @datasetDB?
-          console.log('finally! datasetDB is now ready')
+          console.debug('finally! datasetDB is now ready')
           @run_script_from_hash()
         else
           setTimeout(onceDBReady,delay) # causes this method to be run again, acting as an async loop
@@ -9304,9 +9673,9 @@ class PickOrProvide
     return
 
   val: (val) ->
-    console.log(this.constructor.name
-        + '.val(' + (val and '"'+val+'"' or '') + ') for '
-        + this.opts.rsrcType + ' was ' + @pick_or_provide_select.val())
+    console.debug(this.constructor.name +
+        '.val(' + (val and '"'+val+'"' or '') + ') for ' +
+        this.opts.rsrcType + ' was ' + @pick_or_provide_select.val())
     @pick_or_provide_select.val(val)
     @refresh()
 
@@ -9336,8 +9705,8 @@ class PickOrProvide
         @value = new_val
       else
         # TODO should something be done here?
-        console.log("PickOrProvide:",this)
-        console.log("option:",option)
+        console.debug("PickOrProvide:",this)
+        console.debug("option:",option)
         console.warn("TODO should set option to nothing")
     return
 
@@ -9524,7 +9893,7 @@ class DragAndDropLoader
   tmpl: """
 	<form class="local_file_form" method="post" action="" enctype="multipart/form-data">
 	  <div class="box__input">
-	    <input class="box__file" type="file" name="files[]" id="file"
+	    <input class="box__file" type="file" name="files[]"
              data-multiple-caption="{count} files selected" multiple />
 	    <label for="file"><span class="box__label">Choose a local file</span></label>
 	    <button class="box__upload_button" type="submit">Upload</button>
@@ -9564,8 +9933,6 @@ class DragAndDropLoader
     @form.find('.box__success').show()
     reader = new FileReader()
     reader.onload = (evt) =>
-      #console.log evt.target.result
-      #console.log("evt", evt)
       try
         #@huviz.read_data_and_show(firstFile.name, evt.target.result)
         if filename.match(/.(ttl|.nq)$/)

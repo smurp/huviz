@@ -120,7 +120,6 @@ $ cd huviz
 $ QUAFF_PATH=../quaff-lod/ npm run dev
 ```
 
- 
 
 ## Doing releases
 

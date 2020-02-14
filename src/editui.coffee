@@ -138,7 +138,7 @@ class EditController extends FiniteStateMachine
 
   toggle_edit_form: () =>
     toggleEditMode = @con.getAttribute("edit")
-    #debugger
+    #console.log("error") #debugger
     if toggleEditMode is 'no' #toggle switched to edit mode, then show form
       @show_verbs()
       @show_form()
@@ -292,7 +292,7 @@ class EditController extends FiniteStateMachine
     console.log ("add_proposed_quad() " + q.s + " " + q.p + " " +q.o.value)
     edge = @huviz.add_quad(q)
     if not edge
-      debugger
+      console.log("error") #debugger
     @huviz.set_proposed_edge(edge)
     @huviz.show_link(edge)
     @proposed_quad = q

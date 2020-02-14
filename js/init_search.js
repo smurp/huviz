@@ -1,26 +1,22 @@
 window.addEventListener('load',function(){
   huviz = require('huviz');
   var hvz = new huviz.Orlando({
-    default_node_url: '/huviz/docs/cwrc_logo.png',
-    //default_node_url: '/huviz/docs/sshrc_logo_en2.png',
-    //default_node_url: '/huviz/docs/sshrc_logo_en2.png',
-    demo_round_img: '/huviz/docs/test_img_portrait.png',
-    //demo_round_img: 'http://i3.ytimg.com/vi/LeAltgu_pbM/hqdefault.jpg',
-    huviz_top_sel: "#FLOWER_TOP",
+    huviz_top_sel: "#SEARCH_TOP",
     settings: {
       charge: -600
-      , shelf_radius: 1
       , fisheye_zoom: 1
       , fisheye_radius: 0
       , gravity: 1
       , link_distance: 0
       , make_nodes_for_literals: false
-      //, theme_colors: 'dark'
-      , show_thumbs_dont_graph: true
-      , show_images_in_nodes: true
       , node_radius: 25
-      , show_edges: false
+      //, shelf_radius: 1
+      , show_images_in_nodes: true
+      , show_thumbs_dont_graph: true
       , single_chosen: true
+      , show_edges: true
+      , start_with_search_node: true
+      //, theme_colors: 'dark'
     },
     stay_square: false,
     //show_tabs: false,
@@ -35,7 +31,6 @@ window.addEventListener('load',function(){
       , '/data/publishing.json'
       , '/data/individuals.json'
       , '/data/cwrc_data.json'
-      , '/data/prosopographies.json'
       , '/data/public_endpoints.json'
       , '/data/cwrc_endpoints.json'
     ]

@@ -1,0 +1,26 @@
+@prefix oa: <http://www.w3.org/ns/oa#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+
+@prefix oax: <http://example.com/oax#> .
+@prefix cnt: <http://example.com/cnt#> .
+@prefix x: <http://example.com/x#> .
+
+<https://www.w3.org/community/openannotation/wiki/TextCommentOnWebPage> {
+  <x:MyAnno> a oax:Comment ;  # this was the only oax: smurp kept
+    oa:hasTarget <urn:uuid:0BE74782-503C-4D2D-B51E-A91C6C268847> ;
+    oa:hasBody <urn:uuid:CEB9FD94-6779-4257-B992-C853617CB791> ;
+    oa:annotatedBy <mailto:Bob> .
+
+  <urn:uuid:0BE74782-503C-4D2D-B51E-A91C6C268847> a oa:SpecificResource ;
+    oa:hasSource <http://www.w3.org/DesignIssues/LinkedData.html> ;
+    oa:hasSelector <urn:uuid:6F998D6C-84C0-4ACE-903D-D2C3BD058C0C> .
+
+  <urn:uuid:6F998D6C-84C0-4ACE-903D-D2C3BD058C0C> a oa:TextQuoteSelector ;
+    oa:exact "Semantic Web" ;
+    oa:prefix "Linked Data The" ;
+    oa:suffix "isn't just about putting data on the web." .
+
+  <urn:uuid:CEB9FD94-6779-4257-B992-C853617CB791> a cnt:ContentAsText ;
+    dc:format "text/plain" ;
+    cnt:chars "Hey Tim, good idea that Semantic Web!" .
+}
