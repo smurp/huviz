@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+  body,
+  html {
+    margin: 0;
+    width: 100%;
+    height: 100%
+  }
+  .divs div {
+    border-radius: 50%;
+    background: red;
+    position: absolute;
+  }
+</style>
+
+<body>
+  <script src="https://d3js.org/d3.v3.min.js"></script>
+  <script src="https://d3js.org/d3-color.v1.min.js"></script>
+  <script src="https://d3js.org/d3-hsv.v0.1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.js"></script>
+
+  <script>
+    var width = $('body').width(),
+      height = $('body').height(),
+      padding = 4, // separation between nodes
+      maxRadius = 8;
+
+    var n = 2000, // total number of nodes
+      m = 30; // number of distinct clusters
+
+    var color = d3.scale.category10()
+      .domain(d3.range(m));
+
+    var xPos = d3.scale.ordinal()
+      .domain(d3.range(m))
+      .rangePoints([width, width], 1);
+
+    var x =
+      d3.scale.linear()
+      .domain([0, width])
+      .range([0, width]);
+
+    var y =
+      d3.scale.linear()
+      .domain([0, height])
+      .range([0, height]);
+
+    var nodes = d3.range(n).map(function() {
+      var i = Math.floor(Math.random() * m),
+        v = (i + 1) / m * -Math.log(Math.random());
+      return {
+        radius: Math.random() * maxRadius + 3,
+        color: color(d3.color("hsla(44,50%,50%)")),
+        cx: xPos(i),
+        cy: height
+      };
+    });
+
+    var force = d3.layout.force()
+      .nodes(nodes)
+      .size([width, height])
+      .gravity(0)
+      .charge(0)
+      .on("tick", tick)
+      .start();
+
+    var $body = d3.select("body")
+      .append("div").attr('class', 'divs')
+      .attr('style', function(d) {
+        return 'width: ' + width + 'px; height: ' + height + 'px;';
+      });
+
+    var $div = $body.selectAll("div")
+      .data(nodes)
+      .enter()
+      .append("div")
+      .text(function(d,i){return i})    
+      .attr('style', function(d) {
+        return 'width: ' + (d.radius * 2) + 'px; height: ' + (d.radius * 2) + 'px; margin-left: -' + d.radius + 'px; margin-top: -' + d.radius + 'px;';
+      })
+      .call(force.drag);
+
+    function tick(e) {
+  $div
+    .each(gravity(.2 * e.alpha))
+    .each(collide(.5))
+    .style('left', function(d) {
+      d.x = x(Math.max(d.radius, Math.min(width - d.radius, d.x)))
+      return d.x  + 'px';
+    })
+    .style('top', function(d) {
+      d.y=y(Math.max(d.radius, Math.min(height - d.radius, d.y)));
+      return d.y + "px"
+    });
+    }
+
+     // Move nodes toward cluster focus.
+    function gravity(alpha) {
+      return function(d) {
+        d.y += (d.cy - d.y) * alpha;
+        d.x += (d.cx - d.x) * alpha;
+      };
+    }
+
+     // Resolve collisions between nodes.
+    function collide(alpha) {
+      var quadtree = d3.geom.quadtree(nodes);
+      return function(d) {
+        var r = d.radius + maxRadius + padding,
+          nx1 = d.x - r,
+          nx2 = d.x + r,
+          ny1 = d.y - r,
+          ny2 = d.y + r;
+        quadtree.visit(function(quad, x1, y1, x2, y2) {
+          if (quad.point && (quad.point !== d)) {
+            var x = d.x - quad.point.x,
+              y = d.y - quad.point.y,
+              l = Math.sqrt(x * x + y * y),
+              r = d.radius + quad.point.radius + (d.color !== quad.point.color) * padding;
+            if (l < r) {
+              l = (l - r) / l * alpha;
+              d.x -= x *= l;
+              d.y -= y *= l;
+              quad.point.x += x;
+              quad.point.y += y;
+            }
+          }
+          return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
+        });
+      };
+    }
+  </script>
+</body>

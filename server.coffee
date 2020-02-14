@@ -1,5 +1,5 @@
 
-# # HuViz Server
+# # huviz Server
 #
 # First we load standard node modules
 fs = require('fs')
@@ -92,6 +92,8 @@ app.get("/tab_tester", localOrCDN("/views/tab_tester.html", {nopts: nopts}))
 app.get("/flower", localOrCDN("/views/flower.html.ejs", {nopts: nopts}))
 app.get("/boxed", localOrCDN("/views/boxed.html.ejs", {nopts: nopts}))
 app.get("/twoup", localOrCDN("/views/twoup.html.ejs", {nopts: nopts}))
+app.get("/d3div", localOrCDN("/views/d3div.html.ejs", {nopts: nopts}))
+app.get("/getalong", localOrCDN("/views/getalong.html.ejs", {nopts: nopts}))
 app.get("/tests", localOrCDN("/views/tests.html.ejs", {nopts: nopts}))
 app.get("/", localOrCDN("/views/huvis.html.ejs", {nopts: nopts}))
 app.use(express.static(__dirname + '/images')) # for /favicon.ico
