@@ -142,10 +142,6 @@
     nopts: nopts
   }));
 
-  app.get("/d3div", localOrCDN("/views/d3div.html.ejs", {
-    nopts: nopts
-  }));
-
   app.get("/getalong", localOrCDN("/views/getalong.html.ejs", {
     nopts: nopts
   }));
