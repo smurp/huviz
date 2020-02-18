@@ -349,3 +349,7 @@ div.message_wrapper {
 .boxNGs .boxNG {
     display: inline;
 }
+
+.boxNG.focusedNode {
+    text-decoration: underline wavy red
+}

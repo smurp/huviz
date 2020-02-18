@@ -164,6 +164,8 @@ distance = (p1, p2) ->
   y = (p1.y or p1[1]) - (p2.y or p2[1])
   Math.sqrt x * x + y * y
 dist_lt = (mouse, d, thresh) ->
+  window.dist_lt_called ?= 0
+  window.dist_lt_called++
   x = mouse[0] - d.x
   y = mouse[1] - d.y
   Math.sqrt(x * x + y * y) < thresh
@@ -1000,10 +1002,8 @@ class Huviz
       @tick("Tick in mouseup 1")
       return
 
-    # this is the node being clickedRDF_literal
-    if @focused_node # and @focused_node.state is @graphed_set
-      if window.location.hostname is 'localhost'
-        console.log(@focused_node)
+    # this is the node being clicked
+    if @focused_node
       @perform_current_command(@focused_node)
       @tick("Tick in mouseup 2")
       return
@@ -1013,25 +1013,6 @@ class Huviz
       #@update_snippet() # useful when hover-shows-snippet
       @print_edge(@focused_edge)
       return
-
-    # it was a drag, not a click
-    drag_dist = distance(point, @mousedown_point)
-    #if drag_dist > @drag_dist_threshold
-    #  console.log "drag detection probably bugged",point,@mousedown_point,drag_dist
-    #  return
-
-    if @focused_node
-      unless @focused_node.state is @graphed_set
-        @run_verb_on_object('choose', @focused_node)
-      else if @focused_node.showing_links is "all"
-        @run_verb_on_object('print', @focused_node)
-      else
-        @run_verb_on_object('choose', @focused_node)
-      # TODO(smurp) are these still needed?
-      @force.links(@links_set)
-      if not @args.skip_log_tick
-        console.log("Tick in @force.links() mouseup")
-      @restart()
 
     return
 
@@ -1962,6 +1943,8 @@ class Huviz
     none: 'pointer'
 
   set_focused_node: (node) -> # node might be null
+    if node
+      console.warn("set_focused_node(#{node.id})", node.focused_node and "already")
     if @focused_node is node
       return # no change so skip
     if @focused_node
@@ -1977,10 +1960,10 @@ class Huviz
       node.focused_node = true
     @focused_node = node # might be null
     if @focused_node
-      #console.log("focused_node:", @focused_node)
       @gclui.engage_transient_verb_if_needed("select") # select is default verb
     else
       @gclui.disengage_transient_verb_if_needed()
+    return
 
   set_focused_edge: (new_focused_edge) ->
     if @proposed_edge and @focused_edge # TODO why bail now???
@@ -2023,6 +2006,7 @@ class Huviz
     console.warn("the update_pointer_togglers are being called too often")
     d3.select("#huvis_controls").on("mouseout", @mouseout_of_huviz_controls)
     d3.select("#huvis_controls").on("mouseover", @mouseover_of_huviz_controls)
+    return
 
   mouseout_of_huviz_controls: =>
     @update_pointer = true
@@ -2535,7 +2519,13 @@ class Huviz
     return
 
   update_boxNG: (node) ->
-    node.boxNG ?= @make_boxNG(node.pretty_name) # make sure it is there!
+    # update whether boxNG is being shown
+    if @should_display_boxNG(node)
+      node.boxNG ?= @make_boxNG(node) # make sure it is there!
+    else
+      @remove_boxNG(node) # we delete it if it is not needed
+      return
+
     # FIXME update the text in the boxNG when the name or language changes...
     #   There are a couple of ways to do this...
     #   1) update the boxNG text value when the value changes (RARE! FAST! RIGHT!)
@@ -2546,13 +2536,66 @@ class Huviz
     #   flagging the fisheye with a .dirty (or .moved) boolean at fisheye update time
     #   then here only perform the following setAttribute when .dirty is true.
     # WARNING the boxNGs might have a stale position until they become .dirty
+
+    # Update the POSITION of the boxNG
     node.boxNG.setAttribute('style', "top:#{node.fisheye.y}px; left:#{node.fisheye.x}px")
+
+    # Update the styling of boxNG
+    elemIsFocusedNode = node.boxNG.className.includes('focusedNode')
+    if node.focused_node
+      if not elemIsFocusedNode
+        colorlog("addClass('focusedNode')")
+        $(node.boxNG).addClass('focusedNode')
+    else
+      if elemIsFocusedNode
+        colorlog("removeClass('focusedNode')")
+        $(node.boxNG).removeClass('focusedNode')
     return
 
-  make_boxNG: (text) ->
+  make_boxNG: (node) ->
     div = @addDivWithIdAndClasses(null, "boxNG", @viscanvas_elem)
-    div.innerHTML = text
+    div.innerHTML = node.pretty_name
+    # make closures so the node is passed to the handlers without lookup
+    div.onmousedown = (evt) => @mousedown_boxNG(evt, node)
+    div.onmouseout = (evt) => @mouseout_boxNG(evt, node)
+    div.onmouseenter = (evt) => @mouseenter_boxNG(evt, node)
+    div.onmouseup = (evt) => @mouseup_boxNG(evt, node)
     return div
+
+  mousedown_boxNG: (evt, node) =>
+    console.log('mousedown_boxNG', node.id)
+    d3.event = evt
+    @mousedown()
+    @update_boxNG(node)
+    return
+
+  mouseout_boxNG: (evt, node) =>
+    console.log('mouseout_boxNG', node.id)
+    d3.event = evt
+    evt.stopPropagation()
+    if node.focused_node
+      @set_focused_node()
+    @update_boxNG(node)
+    return
+
+  mouseenter_boxNG: (evt, node) =>
+    console.log('mouseenter_boxNG', node.id)
+    d3.event = evt
+    evt.stopPropagation()
+    @set_focused_node(node)
+    @update_boxNG(node)
+    return
+
+  mouseup_boxNG: (evt, node) =>
+    console.log('mouseup_boxNG', node.id)
+    d3.event = evt
+    evt.stopPropagation()
+    @mouseup()
+    @update_boxNG(node)
+    return
+
+  should_display_boxNG: (node) ->
+    return node.state is @graphed_set
 
   set_boxNG_editability: (node, truth) ->
     if truth
@@ -2611,7 +2654,7 @@ class Huviz
             ctx.fillText print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y
         else
           label = @scroll_pretty_name(node)
-          if node.state.id is "graphed"
+          if node.state is @graphed_set
             cart_label = node.pretty_name
             ctx.measureText(cart_label).width #forces proper label measurement (?)
             if @paint_label_dropshadows
@@ -5119,6 +5162,11 @@ class Huviz
     if node.state isnt @graphed_set and node.links_shown.length > 0
       #console.debug("update_state() had to @graphed_set.acquire(#{node.name})",node)
       @graphed_set.acquire(node)
+    if node.state in [@discarded_set, @hidden_set, @shelved_set]
+      @remove_boxNG(node)
+      if node.focused_node
+        @set_focused_node()
+    return
 
   hide_links_to_node: (n) ->
     n.links_to.forEach (e, i) =>
@@ -5418,6 +5466,7 @@ class Huviz
     @discarded_set.acquire(goner)
     shown = @update_showing_links(goner)
     @unselect(goner)
+    #console.warn("newly calling update_state(goner) within discard(#{goner.ld})")
     #@update_state(goner)
     goner
 
@@ -5441,6 +5490,8 @@ class Huviz
     @hide_node_links(goner)
     @shelved_set.acquire(goner)
     shownness = @update_showing_links(goner)
+    console.warn("calling update_state(goner) within shelve(#{goner.lid})")
+    @update_state(goner)
     if goner.links_shown.length > 0
       console.log("shelving failed for", goner)
     goner
@@ -8114,10 +8165,10 @@ class Huviz
           ,
             label: "Boxes"
             value: "pills"
-            selected: true
           ,
             label: "Boxes NG (beta)"
             value: "boxNGs"
+            selected: true
         ]
     ,
       theme_colors:
