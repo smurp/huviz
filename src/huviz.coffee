@@ -2513,8 +2513,8 @@ class Huviz
     return
 
   remove_boxNG: (node) ->
-    if node.boxNG?
-      node.boxNG.parentNode.removeChild(node.boxNG)
+    if (elem = node.boxNG)
+      elem.parentNode.removeChild(elem)
       node['boxNG'] = undefined
     return
 
@@ -2537,30 +2537,33 @@ class Huviz
     #   then here only perform the following setAttribute when .dirty is true.
     # WARNING the boxNGs might have a stale position until they become .dirty
 
+    elem = node.boxNG
+
     # Update the POSITION of the boxNG
-    node.boxNG.setAttribute('style', "top:#{node.fisheye.y}px; left:#{node.fisheye.x}px")
+    elem.setAttribute('style', "top:#{node.fisheye.y}px; left:#{node.fisheye.x}px")
 
     # Update the styling of boxNG
-    elemIsFocusedNode = node.boxNG.className.includes('focusedNode')
+    elemIsFocusedNode = elem.className.includes('focusedNode')
+    jqElem = $(elem)
     if node.focused_node
       if not elemIsFocusedNode
         colorlog("addClass('focusedNode')")
-        $(node.boxNG).addClass('focusedNode')
+        jqElem.addClass('focusedNode')
     else
       if elemIsFocusedNode
         colorlog("removeClass('focusedNode')")
-        $(node.boxNG).removeClass('focusedNode')
+        jqElem.removeClass('focusedNode')
     return
 
   make_boxNG: (node) ->
-    div = @addDivWithIdAndClasses(null, "boxNG", @viscanvas_elem)
-    div.innerHTML = node.pretty_name
+    elem = @addDivWithIdAndClasses(null, "boxNG", @viscanvas_elem)
+    elem.innerHTML = node.pretty_name
     # make closures so the node is passed to the handlers without lookup
-    div.onmousedown = (evt) => @mousedown_boxNG(evt, node)
-    div.onmouseout = (evt) => @mouseout_boxNG(evt, node)
-    div.onmouseenter = (evt) => @mouseenter_boxNG(evt, node)
-    div.onmouseup = (evt) => @mouseup_boxNG(evt, node)
-    return div
+    elem.onmousedown = (evt) => @mousedown_boxNG(evt, node)
+    elem.onmouseout = (evt) => @mouseout_boxNG(evt, node)
+    elem.onmouseenter = (evt) => @mouseenter_boxNG(evt, node)
+    elem.onmouseup = (evt) => @mouseup_boxNG(evt, node)
+    return elem
 
   mousedown_boxNG: (evt, node) =>
     console.log('mousedown_boxNG', node.id)
