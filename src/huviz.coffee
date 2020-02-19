@@ -1958,7 +1958,7 @@ class Huviz
         svg_node = node[0][new_focused_idx]
         d3.select(svg_node).classed("focused_node", true)
       node.focused_node = true
-    @focused_node = node # might be null
+    @focused_node = node or false # might be null
     if @focused_node
       @gclui.engage_transient_verb_if_needed("select") # select is default verb
     else
@@ -2553,6 +2553,7 @@ class Huviz
       if elemIsFocusedNode
         colorlog("removeClass('focusedNode')")
         jqElem.removeClass('focusedNode')
+        #console.error(jqElem)
     return
 
   make_boxNG: (node) ->
@@ -2582,6 +2583,7 @@ class Huviz
     return
 
   mouseenter_boxNG: (evt, node) =>
+    #console.clear()
     console.log('mouseenter_boxNG', node.id)
     d3.event = evt
     evt.stopPropagation()
@@ -7952,7 +7954,7 @@ class Huviz
         label:
           title: "the repulsive charge betweeen nodes"
         input:
-          value: -210
+          value: -560
           min: -600
           max: -1
           step: 1
@@ -7964,7 +7966,7 @@ class Huviz
         label:
           title: "the attractive force keeping nodes centered"
         input:
-          value: 0.75
+          value: 0.1
           min: 0
           max: 1
           step: 0.025
@@ -8048,7 +8050,7 @@ class Huviz
         label:
           title: "how long the lines are"
         input:
-          value: 29
+          value: 109
           min: 5
           max: 500
           step: 2
