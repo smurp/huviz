@@ -344,6 +344,7 @@ div.message_wrapper {
     position: absolute;
     text-align: center;
     user-select: none;
+    background-color: white;
 }
 
 .boxNGs .boxNG {
@@ -351,5 +352,5 @@ div.message_wrapper {
 }
 
 .boxNG.focusedNode {
-    text-decoration: underline wavy red
+    background-color: #f2f2f2;
 }

@@ -1862,6 +1862,7 @@ class Huviz
     throw new Error("under construction")
 
   find_node_or_edge_closest_to_pointer: ->
+    #console.log('find_node_or_edge_closest_to_pointer()')
     @highwater('find_node_or_edge', true)
     new_focused_node = null
     new_focused_edge = null
@@ -1913,7 +1914,8 @@ class Huviz
       if @draw_circle_around_focused
         @draw_circle(closest_point.x, closest_point.y, @node_radius * 3, "red")
 
-    @set_focused_node(new_focused_node)
+    if @display_labels_as isnt 'boxNG'
+      @set_focused_node(new_focused_node)
     @set_focused_edge(new_focused_edge)
 
     if seeking is 'object_node'
@@ -1945,6 +1947,8 @@ class Huviz
   set_focused_node: (node) -> # node might be null
     if node
       console.warn("set_focused_node(#{node.id})", node.focused_node and "already")
+    if node is false
+      throw new Error('node should be null not false')
     if @focused_node is node
       return # no change so skip
     if @focused_node
@@ -1952,13 +1956,13 @@ class Huviz
       if @use_svg
         d3.select(".focused_node").classed("focused_node", false)
       #@unscroll_pretty_name(@focused_node)
-      @focused_node.focused_node = false
+      @focused_node.focused_node = null
     if node
       if @use_svg
         svg_node = node[0][new_focused_idx]
         d3.select(svg_node).classed("focused_node", true)
       node.focused_node = true
-    @focused_node = node or false # might be null
+    @focused_node = node or null # ensure null is the new value if no node
     if @focused_node
       @gclui.engage_transient_verb_if_needed("select") # select is default verb
     else
@@ -1969,28 +1973,29 @@ class Huviz
     if @proposed_edge and @focused_edge # TODO why bail now???
       return
     #console.log "set_focused_edge(#{new_focused_edge and new_focused_edge.id})"
-    unless @focused_edge is new_focused_edge
-      if @focused_edge? #and @focused_edge isnt new_focused_edge
-        #console.log "removing focus from previous focused_edge"
-        @focused_edge.focused = false
-        delete @focused_edge.source.focused_edge
-        delete @focused_edge.target.focused_edge
-      if new_focused_edge?
-        # FIXME add use_svg stanza
-        new_focused_edge.focused = true
-        new_focused_edge.source.focused_edge = true
-        new_focused_edge.target.focused_edge = true
-      @focused_edge = new_focused_edge # blank it or set it
-      if not @use_fancy_cursor
-        return
-      if @focused_edge?
-        if @editui.is_state('connecting')
-          @text_cursor.pause("", "edit this edge")
-        else
-          @text_cursor.pause("", "show edge sources")
-      else
-        @text_cursor.continue()
+    if @focused_edge is new_focused_edge
+      return # no change so skip
+    if @focused_edge? #and @focused_edge isnt new_focused_edge
+      #console.log "removing focus from previous focused_edge"
+      @focused_edge.focused = false
+      delete @focused_edge.source.focused_edge
+      delete @focused_edge.target.focused_edge
+    if new_focused_edge?
+      # FIXME add use_svg stanza as in set_focused_node
+      new_focused_edge.focused = true
+      new_focused_edge.source.focused_edge = true
+      new_focused_edge.target.focused_edge = true
+    @focused_edge = new_focused_edge # blank it or set it
+    if not @use_fancy_cursor
       return
+    if @focused_edge?
+      if @editui.is_state('connecting')
+        @text_cursor.pause("", "edit this edge")
+      else
+        @text_cursor.pause("", "show edge sources")
+    else
+      @text_cursor.continue()
+    return
 
   @proposed_edge = null #initialization (no proposed edge active)
   set_proposed_edge: (new_proposed_edge) ->
@@ -2503,7 +2508,7 @@ class Huviz
     print_label = ""
     for text, i in text_split
       if cuts and i in cuts
-        ctx.fillText print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y
+        ctx.fillText(print_label.slice(0, -1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y)
         adjust_y = adjust_y - line_height
         print_label = text + " "
       else
@@ -2545,15 +2550,37 @@ class Huviz
     # Update the styling of boxNG
     elemIsFocusedNode = elem.className.includes('focusedNode')
     jqElem = $(elem)
+    @style_boxNG_jqElem(node, jqElem)
     if node.focused_node
       if not elemIsFocusedNode
-        colorlog("addClass('focusedNode')")
-        jqElem.addClass('focusedNode')
+        @focus_boxNG_jqElem(node, jqElem)
     else
       if elemIsFocusedNode
-        colorlog("removeClass('focusedNode')")
-        jqElem.removeClass('focusedNode')
-        #console.error(jqElem)
+        @unfocus_boxNG_jqElem(node, jqElem)
+    return
+
+  style_boxNG_jqElem: (node, jqElem) ->
+    css = {}
+    css['color'] = node.color
+    css['font-size'] = @label_em + 'em'
+    css['z-index'] = 0
+    jqElem.css(css)
+    return
+
+  focus_boxNG_jqElem: (node, jqElem) ->
+    colorlog("addClass('focusedNode')")
+    jqElem.addClass('focusedNode')
+    css = {}
+    css['color'] = node.color
+    css['font-size'] = (@label_em * @focused_mag) + 'em'
+    css['z-index'] = 10000 # FIXME maybe this should be a continuously incrementing value?
+    jqElem.css(css)
+    return
+
+  unfocus_boxNG_jqElem: (node, jqElem) ->
+    colorlog("removeClass('focusedNode')")
+    jqElem.removeClass('focusedNode')
+    console.error(jqElem)
     return
 
   make_boxNG: (node) ->
@@ -2583,7 +2610,7 @@ class Huviz
     return
 
   mouseenter_boxNG: (evt, node) =>
-    #console.clear()
+    console.clear()
     console.log('mouseenter_boxNG', node.id)
     d3.event = evt
     evt.stopPropagation()
@@ -2650,13 +2677,13 @@ class Huviz
           print_label = ""
           for text, i in text_split
             if cuts and i in cuts
-              ctx.fillText print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y
+              ctx.fillText(print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y)
               adjust_y = adjust_y - line_height
               print_label = text + " "
             else
               print_label = print_label + text + " "
           if print_label # print last line, or single line if no cuts
-            ctx.fillText print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y
+            ctx.fillText(print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y)
         else
           label = @scroll_pretty_name(node)
           if node.state is @graphed_set
