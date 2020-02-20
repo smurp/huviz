@@ -2254,7 +2254,7 @@ class Huviz
             # if the node d is in the @walked_set it needs special_focus
             special_focus = not not d.walked  # "not not" forces boolean
           # if 'pills' is selected; change node shape to rounded squares
-          if (@display_labels_as is 'pills')
+          if @display_labels_as is 'pills'
             pill_width = node_radius * 2
             pill_height = node_radius * 2
             filclr = @get_node_color_or_color_list(d)
@@ -2547,15 +2547,16 @@ class Huviz
     # Update the POSITION of the boxNG
     elem.setAttribute('style', "top:#{node.fisheye.y}px; left:#{node.fisheye.x}px")
 
-    # Update the styling of boxNG
-    elemIsFocusedNode = elem.className.includes('focusedNode')
+    # Update the STYLING of boxNG
     jqElem = $(elem)
     @style_boxNG_jqElem(node, jqElem)
-    if node.focused_node
-      if not elemIsFocusedNode
+    elemShouldAppearFocused = node.focused_node or node.focused_edge
+    elemAppearsFocused = elem.className.includes('focusedNode')
+    needsFixing = elemAppearsFocused isnt elemShouldAppearFocused
+    if needsFixing
+      if elemShouldAppearFocused
         @focus_boxNG_jqElem(node, jqElem)
-    else
-      if elemIsFocusedNode
+      else
         @unfocus_boxNG_jqElem(node, jqElem)
     return
 
@@ -2568,7 +2569,7 @@ class Huviz
     return
 
   focus_boxNG_jqElem: (node, jqElem) ->
-    colorlog("addClass('focusedNode')")
+    #colorlog("addClass('focusedNode')")
     jqElem.addClass('focusedNode')
     css = {}
     css['color'] = node.color
@@ -2578,9 +2579,9 @@ class Huviz
     return
 
   unfocus_boxNG_jqElem: (node, jqElem) ->
-    colorlog("removeClass('focusedNode')")
+    #colorlog("removeClass('focusedNode')")
     jqElem.removeClass('focusedNode')
-    console.error(jqElem)
+    #console.error(jqElem)
     return
 
   make_boxNG: (node) ->
@@ -2627,7 +2628,7 @@ class Huviz
     return
 
   should_display_boxNG: (node) ->
-    return node.state is @graphed_set
+    return node.state is @graphed_set or node.focused_edge?
 
   set_boxNG_editability: (node, truth) ->
     if truth
@@ -2684,6 +2685,8 @@ class Huviz
               print_label = print_label + text + " "
           if print_label # print last line, or single line if no cuts
             ctx.fillText(print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y)
+        else if (@display_labels_as is 'boxNGs')
+          @update_boxNG(node)
         else
           label = @scroll_pretty_name(node)
           if node.state is @graphed_set
@@ -2694,6 +2697,7 @@ class Huviz
           ctx.fillStyle = node.color # This is the mouseover highlight color when GRAPHED
           ctx.font = focused_font
           ctx.fillText "  " + node.pretty_name + "  ", node.fisheye.x, node.fisheye.y
+      return
     @graphed_set.forEach(highlight_node)
 
   clear_canvas: ->
@@ -2860,6 +2864,7 @@ class Huviz
       for edge in @links_set
         if edge.target.labelled or edge.source.labelled
           @draw_edge_label(edge)
+    return
 
   draw_edge_label: (edge) ->
     ctx = @ctx
@@ -2875,10 +2880,9 @@ class Huviz
     if @paint_label_dropshadows
       if edge.handle?
         @paint_dropshadow(label, @label_em, edge.handle.x, edge.handle.y)
-    #ctx.fillStyle = '#666' #@shadow_color
-    #ctx.fillText " " + label, edge.handle.x + @edge_x_offset + @shadow_offset, edge.handle.y + @shadow_offset
     ctx.fillStyle = edge.color
     ctx.fillText(" " + label, edge.handle.x + @edge_x_offset, edge.handle.y)
+    return
 
   update_snippet: ->
     if @show_snippets_constantly and @focused_edge? and @focused_edge isnt @printed_edge
