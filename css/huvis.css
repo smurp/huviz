@@ -356,3 +356,9 @@ div.message_wrapper {
     //text-decoration: line-through red;
 }
 
+.noBoxes .boxNG {
+    border: none;
+    margin-top: -0.8em;
+    margin-left: .3em;
+}
+

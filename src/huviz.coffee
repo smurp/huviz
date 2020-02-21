@@ -960,7 +960,7 @@ class Huviz
             @print_edge(edge)
           else
             edge.focused = false
-    if @display_labels_as is 'boxNGs'
+    if @display_labels_as.includes('boxNGs')
       if @dragging
         @update_boxNG(@dragging)
     else
@@ -2471,7 +2471,7 @@ class Huviz
         else
           if (@display_labels_as is 'pills')
             @update_canvas_pill(node, ctx)
-          else if @display_labels_as is 'boxNGs'
+          else if @display_labels_as.includes('boxNGs')
             @update_boxNG(node)
           else
             ctx.fillText("  " + node.pretty_name + "  ", node.fisheye.x, node.fisheye.y)
@@ -2716,7 +2716,7 @@ class Huviz
               print_label = print_label + text + " "
           if print_label # print last line, or single line if no cuts
             ctx.fillText(print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y)
-        else if (@display_labels_as is 'boxNGs')
+        else if (@display_labels_as.includes('boxNGs'))
           @update_boxNG(node)
         else
           label = @scroll_pretty_name(node)
@@ -8228,7 +8228,7 @@ class Huviz
           type: "select"
         options : [
             label: "Words"
-            value: "canvas"
+            value: "boxNGs noBoxes"
           ,
             label: "Boxes"
             value: "pills"
@@ -8921,10 +8921,14 @@ class Huviz
 
   on_change_display_labels_as: (new_val, old_val) ->
     @display_labels_as = new_val
-    if new_val is 'boxNGs'
-      @viscanvas_JQElem.addClass('boxNGs')
+    if new_val?
+      if new_val.includes('boxNGs')
+        @viscanvas_JQElem.addClass('boxNGs')
+      if new_val.includes('noBoxes')
+        @viscanvas_JQElem.addClass('noBoxes')
     else
       @viscanvas_JQElem.removeClass('boxNGs')
+      @viscanvas_JQElem.removeClass('noBoxes')
     if (boxes_change_settings = false)
       if new_val in ['pills', 'boxNGs']
         @adjust_setting('charge', -3000)
