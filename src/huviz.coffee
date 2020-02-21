@@ -960,7 +960,12 @@ class Huviz
             @print_edge(edge)
           else
             edge.focused = false
-    @tick("Tick in mousemove")
+    if @display_labels_as is 'boxNGs'
+      if @dragging
+        @update_boxNG(@dragging)
+    else
+      @tick("Tick in mousemove")
+    return
 
   mousedown: =>
     @mousedown_point = @get_mouse_point()
@@ -992,7 +997,7 @@ class Huviz
           @run_verb_on_object('unpin', @dragging)
         else
           @run_verb_on_object('pin', @dragging)
-      @dragging = false
+      @dragging = null
       @text_cursor.continue()
       return
 
@@ -1946,7 +1951,7 @@ class Huviz
 
   set_focused_node: (node) -> # node might be null
     if node
-      console.warn("set_focused_node(#{node.id})", node.focused_node and "already")
+      console.debug("set_focused_node(#{node.id})", node.focused_node and "already")
     if node is false
       throw new Error('node should be null not false')
     if @focused_node is node
@@ -1999,7 +2004,7 @@ class Huviz
 
   @proposed_edge = null #initialization (no proposed edge active)
   set_proposed_edge: (new_proposed_edge) ->
-    console.log("Setting proposed edge...", new_proposed_edge)
+    console.info("Setting proposed edge...", new_proposed_edge)
     if @proposed_edge
       delete @proposed_edge.proposed # remove .proposed flag from old one
     if new_proposed_edge
@@ -2543,9 +2548,7 @@ class Huviz
     # WARNING the boxNGs might have a stale position until they become .dirty
 
     elem = node.boxNG
-
-    # Update the POSITION of the boxNG
-    elem.setAttribute('style', "top:#{node.fisheye.y}px; left:#{node.fisheye.x}px")
+    @move_boxNG_if_needed(node, elem)
 
     # Update the STYLING of boxNG
     jqElem = $(elem)
@@ -2558,6 +2561,21 @@ class Huviz
         @focus_boxNG_jqElem(node, jqElem)
       else
         @unfocus_boxNG_jqElem(node, jqElem)
+    return
+
+  move_boxNG_if_needed: (node, elem) ->
+    # Update the POSITION of the boxNG
+    fish_x = Math.round(node.fisheye.x)
+    fish_y = Math.round(node.fisheye.y)
+    nodeMoved = false
+    if elem.offsetLeft isnt fish_x
+      nodeMoved = true
+      console.debug("elem.offsetLeft (#{typeof elem.offsetLeft})", elem.offsetLeft, "!=", fish_x)
+    else if elem.offsetTop isnt fish_y
+      nodeMoved = true
+      console.debug("elem.offsetTop", elem.offsetTop, "!=", fish_y)
+    if nodeMoved
+      elem.setAttribute('style', "top:#{fish_y}px; left:#{fish_x}px")
     return
 
   style_boxNG_jqElem: (node, jqElem) ->
@@ -2588,31 +2606,41 @@ class Huviz
     elem = @addDivWithIdAndClasses(null, "boxNG", @viscanvas_elem)
     elem.innerHTML = node.pretty_name
     # make closures so the node is passed to the handlers without lookup
+    elem.onmousemove = (evt) => @mousemove_boxNG(evt, node)
     elem.onmousedown = (evt) => @mousedown_boxNG(evt, node)
     elem.onmouseout = (evt) => @mouseout_boxNG(evt, node)
     elem.onmouseenter = (evt) => @mouseenter_boxNG(evt, node)
     elem.onmouseup = (evt) => @mouseup_boxNG(evt, node)
     return elem
 
-  mousedown_boxNG: (evt, node) =>
-    console.log('mousedown_boxNG', node.id)
+  mousemove_boxNG: (evt, node) =>
+    console.debug('mousemove_boxNG', node.id)
+    #@highwater_incr('mousemove_boxNG')
     d3.event = evt
-    @mousedown()
+    evt.stopPropagation()
+    @mousemove()
     @update_boxNG(node)
     return
 
+  mousedown_boxNG: (evt, node) =>
+    console.debug('mousedown_boxNG', node.id)
+    d3.event = evt
+    @mousedown()
+    #@update_boxNG(node)
+    return
+
   mouseout_boxNG: (evt, node) =>
-    console.log('mouseout_boxNG', node.id)
+    console.debug('mouseout_boxNG', node.id)
     d3.event = evt
     evt.stopPropagation()
     if node.focused_node
       @set_focused_node()
     @update_boxNG(node)
+    setTimeout(@tick)
     return
 
   mouseenter_boxNG: (evt, node) =>
-    console.clear()
-    console.log('mouseenter_boxNG', node.id)
+    console.debug('mouseenter_boxNG', node.id)
     d3.event = evt
     evt.stopPropagation()
     @set_focused_node(node)
@@ -2620,7 +2648,7 @@ class Huviz
     return
 
   mouseup_boxNG: (evt, node) =>
-    console.log('mouseup_boxNG', node.id)
+    console.debug('mouseup_boxNG', node.id)
     d3.event = evt
     evt.stopPropagation()
     @mouseup()
@@ -2628,7 +2656,10 @@ class Huviz
     return
 
   should_display_boxNG: (node) ->
-    return node.state is @graphed_set or node.focused_edge?
+    return (node.state is @graphed_set or node.focused_edge?) and @is_in_viewport(node)
+
+  is_in_viewport: (node) ->
+    return (0 < node.fisheye.x < @width) and (0 < node.fisheye.y < @height)
 
   set_boxNG_editability: (node, truth) ->
     if truth
