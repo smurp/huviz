@@ -8227,10 +8227,13 @@ class Huviz
         input:
           type: "select"
         options : [
-            label: "Words"
+            label: "Words (classic)"
+            value: "canvas"
+          ,
+            label: "Words NG (beta)"
             value: "boxNGs noBoxes"
           ,
-            label: "Boxes"
+            label: "Boxes (classic)"
             value: "pills"
           ,
             label: "Boxes NG (beta)"
