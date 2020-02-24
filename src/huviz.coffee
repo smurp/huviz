@@ -9334,12 +9334,16 @@ class Huviz
     time = Date.now()
     class_count = 0
     # update static markers
-    if @nodes then noN = @nodes.length else noN = 0
+    if @nodes
+      noN = @nodes.length
+    else
+      noN = 0
     $("#noN").html("#{noN}")
     if @edge_count then noE = @edge_count else noE = 0
     $("#noE").html("#{noE}")
     for k,v of @highwatermarks
-      continue if k.endsWith('__')
+      if k.endsWith('__')
+        continue
       val = v
       if not Number.isInteger(v)
         v = v.toFixed(2)
@@ -9355,23 +9359,31 @@ class Huviz
     $("#noTicks").html("#{@pfm_data.tick.total_count}")
     $("#noAddQuad").html("#{@pfm_data.add_quad.total_count}")
     $("#noSparql").html("#{@pfm_data.sparql.total_count}")
-    if @endpoint_loader then noOR = @endpoint_loader.outstanding_requests else noOR = 0
+    if @endpoint_loader
+      noOR = @endpoint_loader.outstanding_requests
+    else
+      noOR = 0
     $("#noOR").html("#{noOR}")
 
     for pfm_marker of @pfm_data
-      marker = @pfm_data["#{pfm_marker}"]
+      marker = @pfm_data[pfm_marker]
       old_count = marker.prev_total_count
       new_count = marker.total_count
       calls_per_second = Math.round(new_count - old_count)
-      if @pfm_data["#{pfm_marker}"]["timed_count"] and (@pfm_data["#{pfm_marker}"]["timed_count"].length > 0)
+      if marker.timed_count and (marker.timed_count.length > 0)
         #console.log marker.label + "  " + calls_per_second
-        if (@pfm_data["#{pfm_marker}"]["timed_count"].length > 60) then @pfm_data["#{pfm_marker}"]["timed_count"].shift()
-        @pfm_data["#{pfm_marker}"].timed_count.push(calls_per_second)
-        @pfm_data["#{pfm_marker}"].prev_total_count = new_count + 0.01
+        if (marker.timed_count.length > 60)
+          marker.timed_count.shift()
+        marker.timed_count.push(calls_per_second)
+        marker.prev_total_count = new_count + 0.01
         #console.log "#pfm_#{pfm_marker}"
-        sparkline.sparkline(document.querySelector("#pfm_#{pfm_marker}"), @pfm_data["#{pfm_marker}"].timed_count)
-      else if (@pfm_data["#{pfm_marker}"]["timed_count"])
-        @pfm_data["#{pfm_marker}"]["timed_count"] = [0.01]
+        pfm_marker_sel = "#pfm_#{pfm_marker}"
+        if (marker_elem = document.querySelector(pfm_marker_sel))
+          sparkline.sparkline(marker_elem, marker.timed_count)
+        else
+          throw new Error("#pfm_#{pfm_marker} matches no elements")
+      else if (marker.timed_count)
+        marker.timed_count = [0.01]
         #console.log "Setting #{marker.label }to zero"
 
   parseAndShowFile: (uri, callback) =>
