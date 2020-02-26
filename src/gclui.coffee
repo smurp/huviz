@@ -848,7 +848,7 @@ class CommandController
     #    "____ every Thing."
     #    "shelve every Person."
     @nextcommandstr = @nextcommand.append('code')
-    $(@nextcommandstr[0][0]).addClass('nextcommand_str')
+    $(@nextcommandstr.node()).addClass('nextcommand_str')
 
     if @nextcommand_prompts_visible and @nextcommand_str_visible
       @nextcommand.append('hr')
@@ -864,14 +864,14 @@ class CommandController
     @nextcommand_suffix_phrase.attr('class','suffix_phrase')
 
     if @nextcommand_prompts_visible
-      $(@nextcommand_prompts[0][0]).show()
+      $(@nextcommand_prompts.node()).show()
     else
-      $(@nextcommand_prompts[0][0]).hide()
+      $(@nextcommand_prompts.node()).hide()
 
     if @nextcommand_str_visible
-      $(@nextcommandstr[0][0]).show()
+      $(@nextcommandstr.node()).show()
     else
-      $(@nextcommandstr[0][0]).hide()
+      $(@nextcommandstr.node()).hide()
 
     @nextcommand_working = @nextcommand.append('div').attr('class','cmd-spinner')
     @nextcommand_working.style('float:right; color:red; display:none;')
@@ -982,9 +982,9 @@ class CommandController
   disable_doit_button: ->
     @doit_butt.attr('disabled','disabled')
   hide_doit_button: ->
-    $(@doit_butt[0][0]).hide()
+    $(@doit_butt.node()).hide()
   show_doit_button: ->
-    $(@doit_butt[0][0]).show()
+    $(@doit_butt.node()).show()
   set_immediate_execution_mode: (which) ->
     if which
       @hide_doit_button()
@@ -1004,7 +1004,7 @@ class CommandController
   clear_like: ->
     @huviz.like_string()
   get_like_string: ->
-    @like_input[0][0].value
+    @like_input.node().value
   push_command: (cmd) ->
     throw new Error('DEPRECATED')
     @push_command_onto_history(cmd)
@@ -1122,7 +1122,7 @@ class CommandController
           args.classes = (class_name for class_name in @engaged_taxons)
         if @huviz.selected_set.length > 0
           args.sets = ['selected']
-    like_str = (@like_input[0][0].value or "").trim()
+    like_str = (@like_input.node().value or "").trim()
     if like_str
       args.like = like_str
     @command = @new_GraphCommand(args)
@@ -1164,20 +1164,20 @@ class CommandController
     if @nextcommand_prompts_visible or true # NEEDED BY huviz_test.js
       @nextcommand_verb_phrase.text(@command.verb_phrase)
       if @command.verb_phrase_ready
-        $(@nextcommand_verb_phrase[0][0]).
+        $(@nextcommand_verb_phrase.node()).
           addClass('nextcommand_prompt_ready').
           removeClass('nextcommand_prompt_unready')
       else
-        $(@nextcommand_verb_phrase[0][0]).
+        $(@nextcommand_verb_phrase.node()).
           removeClass('nextcommand_prompt_ready').
           addClass('nextcommand_prompt_unready')
       @nextcommand_noun_phrase.text(@command.noun_phrase)
       if @command.noun_phrase_ready
-        $(@nextcommand_noun_phrase[0][0]).
+        $(@nextcommand_noun_phrase.node()).
           addClass('nextcommand_prompt_ready').
           removeClass('nextcommand_prompt_unready')
       else
-        $(@nextcommand_noun_phrase[0][0]).
+        $(@nextcommand_noun_phrase.node()).
           removeClass('nextcommand_prompt_ready').
           addClass('nextcommand_prompt_unready')
       @nextcommand_suffix_phrase.text(@command.suffix_phrase)

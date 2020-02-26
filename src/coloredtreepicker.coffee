@@ -117,7 +117,7 @@ class ColoredTreePicker extends TreePicker
     retval = {}
     if verbose
       console.log "RECOLOR"
-    branch = @elem[0][0].children[0]
+    branch = @elem.node().children[0]
     @recolor_recurse_DOM(retval, recursor, branch, "")
     return retval
   recolor_recurse_DOM: (retval, recursor, branch, indent) ->

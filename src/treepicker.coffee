@@ -58,10 +58,10 @@ class TreePicker
     @elem.attr("id")
   shield: ->
     if not @_shield
-      d3.select(@elem[0][0]).style('position','relative')
-      @_shield = d3.select(@elem[0][0]).insert('div')
+      d3.select(@elem.node()).style('position','relative')
+      @_shield = d3.select(@elem.node()).insert('div')
       @_shield.classed('shield',true)
-    rect = d3.select(@elem[0][0]).node().getBoundingClientRect()
+    rect = d3.select(@elem.node()).node().getBoundingClientRect()
     styles =
       display: 'block'
       width: "#{rect.width}px"
@@ -86,7 +86,7 @@ class TreePicker
     return @id_to_children[parent_id] or []
   get_container_elem_within_id: (an_id) ->
     # the div with class='container' holding class='contents' divs
-    content_elem = @id_to_elem[an_id][0][0]
+    content_elem = @id_to_elem[an_id].node()
     return content_elem.querySelector('.container')
   resort_recursively: (an_id) ->
     an_id ?= '/' # if an_id not provided, then sort the root
@@ -99,7 +99,7 @@ class TreePicker
     for child_id in kids_ids
       @resort_recursively(child_id)
       val = @get_comparison_value(child_id, @id_to_name[child_id])
-      child_elem = @id_to_elem[child_id][0][0]
+      child_elem = @id_to_elem[child_id].node()
       @update_label_for_node(child_id, child_elem)
       val_elem_pairs.push([val, child_elem])
     val_elem_pairs.sort(sort_by_first_item)
@@ -127,7 +127,7 @@ class TreePicker
     return this_term
   add_alphabetically: (i_am_in, node_id, label) ->
     label_lower = label.toLowerCase()
-    container = i_am_in[0][0]
+    container = i_am_in.node()
     this_term = @get_comparison_value(node_id, label)
     for elem in container.children
       other_term = @get_comparison_value(elem.id, @id_to_name[elem.id])
@@ -212,7 +212,7 @@ class TreePicker
       listener.call(this, id, new_state, elem, args) # now this==picker not the event
   get_or_create_container: (contents) ->
     r = contents.select(".container")
-    if r[0][0] isnt null
+    if r.node() isnt null
       return r
     contents.append('div').attr('class','container')
   get_top: ->
@@ -240,7 +240,7 @@ class TreePicker
     branch[new_id] = [name or new_id]
     @id_to_name[new_id] = name
     parent = @id_to_elem[parent_id] or @elem
-    container = d3.select(@get_or_create_container(parent)[0][0])
+    container = d3.select(@get_or_create_container(parent).node())
     if @needs_expander
       @get_or_create_expander(parent,parent_id)
     @show_tree(branch, container, listener)
@@ -249,7 +249,7 @@ class TreePicker
   get_or_create_expander: (thing, id) ->
     if thing? and thing
       r = thing.select(".expander")
-      if r[0][0] isnt null
+      if r.node() isnt null
         return r
       exp = thing.select(".treepicker-label").
           append('span').
@@ -259,7 +259,7 @@ class TreePicker
       picker = this
       exp.on 'click', () => # TODO: make this function a method on the class
         d3.event.stopPropagation()
-        id2 = exp[0][0].parentNode.parentNode.getAttribute("id")
+        id2 = exp.node().parentNode.parentNode.getAttribute("id")
         if id2 isnt id
           console.error("expander.click() #{id} <> #{id2}")
         if @id_is_collapsed[id2]
@@ -286,9 +286,9 @@ class TreePicker
         @expand_by_id(id)
   get_or_create_payload: (thing) ->
     if thing? and thing
-      thing_id = thing[0][0].id
+      thing_id = thing.node().id
       r = thing.select("##{thing_id} > .treepicker-label > .payload")
-      if r[0][0] isnt null
+      if r.node() isnt null
         return r
       thing.select(".treepicker-label").append('span').classed("payload", true)
   set_payload: (id, value) ->
