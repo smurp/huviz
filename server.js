@@ -150,6 +150,10 @@
     nopts: nopts
   }));
 
+  app.get("/forcetoy", localOrCDN("/views/forcetoy.html", {
+    nopts: nopts
+  }));
+
   app.get("/", localOrCDN("/views/huvis.html.ejs", {
     nopts: nopts
   }));

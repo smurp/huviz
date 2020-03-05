@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+  <title>Force layout (with links)</title>
+</head>
+
+<style>
+  circle {
+      fill: cadetblue;
+  }
+  line {
+      stroke: #ccc;
+  }
+  text {
+      text-anchor: middle;
+      font-family: "Helvetica Neue", Helvetica, sans-serif;
+      fill: #666;
+      font-size: 16px;
+  }
+  #legend {
+      z-index: 100;
+      position: absolute;
+      bottom: 0em;
+      right: 0em;
+  }
+</style>
+
+<body>
+  <div id="legend">
+    <button id="count"></button>
+    <button id="makeGraph"></button>
+    keys: <code>esc</code> to reset
+    <code>space</code> to stop/start
+    <code>s</code> to shake
+    <code>g</code> for graph/tree
+  </div>
+  <div id="content">
+    <svg>
+      <g class="links"></g>
+      <g class="nodes"></g>
+    </svg>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@5.15.0/dist/d3.min.js"></script>
+  <script src="/js/forcetoy.js"></script>
+</body>
+</html>

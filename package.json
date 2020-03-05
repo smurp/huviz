@@ -24,7 +24,7 @@
     "async": "~0.2.9",
     "coffeescript": "~1.12.7",
     "components-jqueryui": "components/jqueryui",
-    "d3": "~3.5.17",
+    "d3": "~5.15.0",
     "ejs": "2.6.1",
     "express": "~4.17.1",
     "jquery": ">=3.4.0",

@@ -27,7 +27,7 @@ switch process.env.NODE_ENV
   when 'development'
     cooked_argv.push("--faststart")
     cooked_argv.push("--git_commit_hash")
-    cooked_argv.push("8e3849b") # cafeb0b is funnier
+    cooked_argv.push("8e3849b")
     console.log(cooked_argv)
   when 'production'
     cooked_argv.push("--usecdn")
@@ -90,6 +90,7 @@ app.get("/boxed", localOrCDN("/views/boxed.html.ejs", {nopts: nopts}))
 app.get("/twoup", localOrCDN("/views/twoup.html.ejs", {nopts: nopts}))
 app.get("/getalong", localOrCDN("/views/getalong.html.ejs", {nopts: nopts}))
 app.get("/tests", localOrCDN("/views/tests.html.ejs", {nopts: nopts}))
+app.get("/forcetoy", localOrCDN("/views/forcetoy.html", {nopts: nopts}))
 app.get("/", localOrCDN("/views/huvis.html.ejs", {nopts: nopts}))
 app.use(express.static(__dirname + '/images')) # for /favicon.ico
 
