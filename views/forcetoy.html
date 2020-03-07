@@ -18,21 +18,22 @@
       font-size: 16px;
   }
   #legend {
+      content: "keys:";
       z-index: 100;
       position: absolute;
       bottom: 0em;
-      right: 0em;
+      left: 0em;
   }
 </style>
 
 <body>
   <div id="legend">
+    <div><code>esc</code> to reset</div>
+    <div><code>space</code> to stop/start</div>
+    <div><code>g</code> for graph/tree</div>
+    <div><code>s</code> to shake</div>
     <button id="count"></button>
     <button id="makeGraph"></button>
-    keys: <code>esc</code> to reset
-    <code>space</code> to stop/start
-    <code>s</code> to shake
-    <code>g</code> for graph/tree
   </div>
   <div id="content">
     <svg>
