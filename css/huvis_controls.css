@@ -216,6 +216,12 @@
   font-style: italic;
 }
 
+.a_setting.deprecated_feature {
+  color: orange;
+  font-style: bold;
+  text-decoration: line-through;
+}
+
 .huviz_tabs .huvis_controls {
     padding: 0.4em;
     padding-bottom: 0.2em;
