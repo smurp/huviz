@@ -21,8 +21,8 @@
       content: "keys:";
       z-index: 100;
       position: absolute;
-      bottom: 0em;
-      left: 0em;
+      bottom: .5em;
+      left: .5em;
   }
 </style>
 
@@ -30,10 +30,10 @@
   <div id="legend">
     <div><code>esc</code> to reset</div>
     <div><code>space</code> to stop/start</div>
-    <div><code>g</code> for graph/tree</div>
+    <div><code>g</code> toggles graph/tree</div>
+    <div><code>i</code> for distanceMax = Infinity</div>
+    <div><code>k</code> for distanceMax reset or increase</div>
     <div><code>s</code> to shake</div>
-    <button id="count"></button>
-    <button id="makeGraph"></button>
   </div>
   <div id="content">
     <svg>

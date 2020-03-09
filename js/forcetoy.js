@@ -29,9 +29,36 @@ var links = [
 ]
 
 var linkz = d3.forceLink().links(links);
+
+function box_force() {
+  /*
+    https://tomroth.com.au/fdg-bounding-box/
+
+    This approach has the disadvantage that nodes just
+    gather crudely on the perimeter.  Superior would
+    be a repulsive force which is a function of distance.
+  */
+  
+  var radius = 10;
+  for (var i = 0, n = nodes.length; i < n; ++i) {
+    curr_node = nodes[i];
+    curr_node.x = Math.max(radius, Math.min(width - radius, curr_node.x));
+    curr_node.y = Math.max(radius, Math.min(height - radius, curr_node.y));
+  }
+
+}
+
+var manyBody = d3.forceManyBody();
+var distanceMax = Infinity;
+
+function updateManyBody() {
+    manyBody.strength(charge).distanceMax(distanceMax);
+}
+
 var simulation = d3.forceSimulation(nodes)
-    .force('charge', d3.forceManyBody().strength(charge))
+    .force('charge', manyBody)
     .force('center', d3.forceCenter(width / 2, height / 2))
+    //.force('box_force', box_force)
     .force('link', linkz)
     .on('tick', ticked);
 
@@ -81,18 +108,38 @@ function updateNodes() {
   u.exit().remove()
 }
 
+function getMinDim() {
+  return Math.min(width, height);
+}
+
+function getOrMakeLozenge(id, tag) {
+  if (!elems[id]) { // find element if predefined in html
+    elems[id] = document.getElementById(id);
+  }
+  if (!elems[id]) { // if not predefined, make and cache it
+    var legend = document.getElementById('legend');
+    var elem = document.createElement(tag || 'button');
+    elems[id] = legend.insertAdjacentElement('beforeend',elem);
+    elems[id].setAttribute('id', id);
+  }
+  return elems[id];  // either it was predefined or newly made
+}
+
+function displayLozenge(id, val) {
+  var elem = getOrMakeLozenge(id, 'button');
+  elem.innerText = val;
+}
+
 function updateUX() {
-  if (!elems.count) {
-    elems.count = document.getElementById('count')
-  }
-  if (!elems.makeGraph) {
-    elems.makeGraph = document.getElementById('makeGraph')
-  }
   if (shouldUpdateUX) {
     shouldUpdateUX = false;
-    elems.makeGraph.innerText = makeGraph && 'graph' || 'tree';
+    displayLozenge('makeGraph', makeGraph && 'graph' || 'tree');
   }
-  elems.count.innerText = nodes.length;
+  displayLozenge('count', nodes.length);
+  displayLozenge('distanceMax',
+                 "distanceMax = " +
+                 (distanceMax / getMinDim()).toFixed(2) +
+                 " * minDim");
 }
 
 function ticked() {
@@ -170,6 +217,19 @@ document.addEventListener('keydown', (e) => {
     reset();
   } else if (e.key == 's') {
     shake(2);
+  } else if (e.key == 'i') {
+    distanceMax = Infinity;
+    updateManyBody();
+  } else if (e.key == 'k') {
+    if (distanceMax == Infinity) {
+      distanceMax = getMinDim() / 16;
+    } else {
+      distanceMax = distanceMax * 1.5;
+    }
+    if (distanceMax > getMinDim()) {
+      distanceMax = Infinity;
+    }
+    updateManyBody();
   } else if (e.key == 'g') {
     makeGraph = !makeGraph;
     shouldUpdateUX = true;
