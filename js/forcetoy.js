@@ -224,7 +224,7 @@ document.addEventListener('keydown', (e) => {
     if (distanceMax == Infinity) {
       distanceMax = getMinDim() / 16;
     } else {
-      distanceMax = distanceMax * 1.5;
+      distanceMax = distanceMax * 1.25;
     }
     if (distanceMax > getMinDim()) {
       distanceMax = Infinity;
