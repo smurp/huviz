@@ -30,7 +30,7 @@ var links = [
 
 var linkz = d3.forceLink().links(links);
 
-function box_force() {
+function boxForce() {
   /*
     https://tomroth.com.au/fdg-bounding-box/
 
@@ -58,7 +58,7 @@ function updateManyBody() {
 var simulation = d3.forceSimulation(nodes)
     .force('charge', manyBody)
     .force('center', d3.forceCenter(width / 2, height / 2))
-    //.force('box_force', box_force)
+    //.force('boxForce', boxForce)
     .force('link', linkz)
     .on('tick', ticked);
 
@@ -153,7 +153,7 @@ function reset() {
   links = [];
 }
 
-function maybe_reset() {
+function maybeReset() {
   if (nodes.length > resetLimit) {
     reset();
   }
@@ -167,7 +167,7 @@ function restartAfterChange() {
 }
 
 function spawn() {
-  maybe_reset();
+  maybeReset();
   var nextChar = String.fromCharCode(nodes.length + unicodeStart);
   var link = {source: Math.floor(nodes.length/5),
               target: nodes.length};
