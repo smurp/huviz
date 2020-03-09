@@ -889,7 +889,7 @@ class Huviz
     return "#{@human_term[drag_or_drop] or drag_or_drop} to #{@human_term[action] or action}"
 
   get_mouse_point: (d3_event) ->
-    d3_event ?= @mouse_receiver[0][0]
+    d3_event ?= @mouse_receiver.node()
     return d3.mouse(d3_event)
 
   should_start_dragging: ->
@@ -904,6 +904,7 @@ class Huviz
         distance(@last_mouse_pos, @mousedown_point) > @drag_dist_threshold
 
   mousemove: =>
+    @d3simulation.alpha(0.1).restart()
     @last_mouse_pos = @get_mouse_point()
     if @should_start_dragging()
       @dragging = @focused_node
@@ -919,7 +920,7 @@ class Huviz
         @graphed_set.acquire(@dragging)
 
     if @dragging
-        @force.resume() # why?
+        @sim_restart()  #        @force.resume() # why?
         if not @args.skip_log_tick
           console.log("Tick in @force.resume() mousemove")
         @move_node_to_point(@dragging, @last_mouse_pos)
@@ -960,12 +961,15 @@ class Huviz
             @print_edge(edge)
           else
             edge.focused = false
-    if @display_labels_as.includes('boxNGs')
+    if @should_display_labels_as('boxNGs')
       if @dragging
         @update_boxNG(@dragging)
     else
       @tick("Tick in mousemove")
     return
+
+  should_display_labels_as: (which) ->
+    return @display_labels_as.includes(which)
 
   mousedown: =>
     @mousedown_point = @get_mouse_point()
@@ -973,7 +977,7 @@ class Huviz
 
   mouseup: =>
     window.log_click()
-    d3_event = @mouse_receiver[0][0]
+    d3_event = @mouse_receiver.node()
     @mousedown_point = false
     point = @get_mouse_point(d3_event)
     if d3.event.button is 2 # Right click event so don't alter selected state
@@ -1179,7 +1183,9 @@ class Huviz
     if @canvas
       @canvas.width = @width
       @canvas.height = @height
-    @force.size [@mx, @my]
+
+    console.info("must implement d3v4 force.size")
+    #@force.size [@mx, @my]
     if not @args.skip_log_tick
       console.log("Tick in @force.size() updateWindow")
     # FIXME all selectors must be localized so if there are two huviz
@@ -1752,11 +1758,31 @@ class Huviz
     @indexed_dbservice()  # REVIEW is this needed?
     @init_indexddbstorage() # REVIEW and this?
 
-    @force.nodes(@nodes)
-    @force.links(@links_set)
+    @d3simulation.nodes(@graphed_set or [])
+    @update_d3links()
+    @d3links = d3.forceLink().links(@links_set)
+    @update_d3forceManyBody()
+    @d3simulation.force('charge', @d3forceManyBody)
+    @d3simulation.force('center', d3.forceCenter(@width/2,@height/2))
+    @d3simulation.force('link', @d3links)
+    #@d3simulation.forceCollide(() => 20)
+
     if not @args.skip_log_tick
       console.log("Tick in @force.nodes() reset_graph")
 
+    @reset_svg()
+    @sim_restart()
+    if not @args.skip_log_tick
+      console.log("Tick in @force.start() reset_graph2")
+
+  update_d3forceManyBody: ->
+    console.warn("distanceMax", @distanceMax)
+    @d3forceManyBody = d3.forceManyBody().strength(-50).distanceMax(@distanceMax)
+    return
+
+  reset_svg: ->
+    console.debug('@reset_svg() is a NOOP')
+    return
     # TODO move this SVG code to own renderer
     d3.select("#{@args.huviz_top_sel} .link").remove()
     d3.select("#{@args.huviz_top_sel} .node").remove()
@@ -1764,14 +1790,11 @@ class Huviz
     @node = @svg.selectAll("#{@args.huviz_top_sel} .node")
     @link = @svg.selectAll("#{@args.huviz_top_sel} .link") # looks bogus, see @link assignment below
     @lariat = @svg.selectAll("#{@args.huviz_top_sel} .lariat")
-
     @link = @link.data(@links_set)
     @link.exit().remove()
     @node = @node.data(@nodes)
     @node.exit().remove()
-    @force.start()
-    if not @args.skip_log_tick
-      console.log("Tick in @force.start() reset_graph2")
+    return
 
   set_node_radius_policy: (evt) ->
     # TODO(shawn) remove or replace this whole method
@@ -1866,8 +1889,18 @@ class Huviz
     found = quadtree.find(mx, my)
     throw new Error("under construction")
 
+  find_node_or_edge_closest_to_pointer_using_d3: ->
+    if @should_display_labels_as('boxNGs') # FIXME re-examine whether this operation should be performed when boxNGs
+      return
+    [x,y] = @last_mouse_pos
+    closest_node = @d3simulation.find(x,y,@focus_threshold)
+    if closest_node
+      @set_focused_node(closest_node)
+
   find_node_or_edge_closest_to_pointer: ->
     #console.log('find_node_or_edge_closest_to_pointer()')
+    @find_node_or_edge_closest_to_pointer_using_d3()
+    return
     @highwater('find_node_or_edge', true)
     new_focused_node = null
     new_focused_edge = null
@@ -1919,7 +1952,7 @@ class Huviz
       if @draw_circle_around_focused
         @draw_circle(closest_point.x, closest_point.y, @node_radius * 3, "red")
 
-    if @display_labels_as isnt 'boxNG'
+    if not @should_display_labels_as('boxNGs')
       @set_focused_node(new_focused_node)
     @set_focused_edge(new_focused_edge)
 
@@ -2091,11 +2124,15 @@ class Huviz
     if not @graphed_set.has(node)  # slower
     #if node.showing_links is 'none' # faster
       return
+    if not node.x or not node.y and false
+      node.x = node.px
+      node.y = node.py
     node.fisheye = @fisheye(node)
 
   apply_fisheye: ->
     @links_set.forEach (e) =>
-      e.target.fisheye = @fisheye(e.target)  unless e.target.fisheye
+      if not e.target.fisheye
+        e.target.fisheye = @fisheye(e.target)
 
     if @use_svg
       link.attr("x1", (d) ->
@@ -2118,7 +2155,8 @@ class Huviz
   draw_edges_from: (node) ->
     num_edges = node.links_to.length
     #@show_message_once "draw_edges_from(#{node.id}) "+ num_edges
-    return unless num_edges
+    if not num_edges
+      return
 
     draw_n_n = {}
     for e in node.links_shown
@@ -2259,7 +2297,9 @@ class Huviz
             # if the node d is in the @walked_set it needs special_focus
             special_focus = not not d.walked  # "not not" forces boolean
           # if 'pills' is selected; change node shape to rounded squares
-          if @display_labels_as is 'pills'
+          if @should_display_labels_as('pills')
+            #if node.boxNG
+            #  @remove_boxNG(node)
             pill_width = node_radius * 2
             pill_height = node_radius * 2
             filclr = @get_node_color_or_color_list(d)
@@ -2469,9 +2509,9 @@ class Huviz
             ctx.fillText("  " + node.pretty_name + "  ", 0, 0)
           ctx.restore()
         else
-          if (@display_labels_as is 'pills')
+          if @should_display_labels_as('pills')
             @update_canvas_pill(node, ctx)
-          else if @display_labels_as.includes('boxNGs')
+          else if @should_display_labels_as('boxNGs')
             @update_boxNG(node)
           else
             ctx.fillText("  " + node.pretty_name + "  ", node.fisheye.x, node.fisheye.y)
@@ -2676,7 +2716,7 @@ class Huviz
     default_text_for_empty_value = '“”'
     highlight_node = (node) =>
       if node.focused_node or node.focused_edge?
-        if (@display_labels_as is 'pills')
+        if @should_display_labels_as('pills')
           ctx.font = focused_pill_font
           node_font_size = node.bub_txt[4]
           result = node_font_size != @label_em
@@ -2716,7 +2756,7 @@ class Huviz
               print_label = print_label + text + " "
           if print_label # print last line, or single line if no cuts
             ctx.fillText(print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y)
-        else if (@display_labels_as.includes('boxNGs'))
+        else if @should_display_labels_as('boxNGs')
           @update_boxNG(node)
         else
           label = @scroll_pretty_name(node)
@@ -2807,6 +2847,8 @@ class Huviz
       @update_set_counts()
 
   tick: (msg) =>
+    #if @d3simulation and @d3simulation.alpha() < 0.1
+    #  return
     if not @ctx?
       return
     if typeof msg is 'string' and not @args.skip_log_tick
@@ -2822,7 +2864,7 @@ class Huviz
         else
           @clean_up_all_dirt_onceRunner.stats.runTick++
     @highwater('maxtick', true)
-    @ctx.lineWidth = @edge_width # TODO(smurp) just edges should get this treatment
+    @ctx.lineWidth = @edge_width # TODO(smurp) just for edge borders, make one for nodes
     @administer_the_distinguished_node()
     @find_node_or_edge_closest_to_pointer()
     #@WIP_find_node_or_edge_closest_to_pointer_using_quadtrees()
@@ -2837,7 +2879,8 @@ class Huviz
       @position_nodes_by_packing()
     else
       @position_nodes_by_force()
-    @apply_fisheye()
+    #console.debug('apply_fisheye is commented out')
+    #@apply_fisheye()
     @draw_edges()
     @draw_nodes()
     @draw_shelf()
@@ -2994,9 +3037,15 @@ class Huviz
   webgl_restart: ->
     links_set.forEach (d) =>
       @add_webgl_line d
-  restart: ->
-    @svg_restart() if @use_svg
-    @force.start()
+  restart: -> # TODO rename to restart_d3simulation ; harmonize with @reset_graph() name
+    if @use_svg
+      @svg_restart()
+    if @d3simulation? and @graphed_set?
+      @d3simulation.nodes(@graphed_set)
+      @d3simulation.force('link').links(@links_set)
+      @d3simulation.alpha(0.3).restart()
+    else
+      console.warn("@d3simulation is",@d3simulation)
     if not @args.skip_log_tick
       console.log("Tick in @force.start() restart")
   show_last_mouse_pos: ->
@@ -5053,9 +5102,10 @@ class Huviz
 
   # Deal with buggy situations where flashing the links on and off
   # fixes data structures.  Not currently needed.
-  show_and_hide_links_from_node: (d) ->
-    @show_links_from_node d
-    @hide_links_from_node d
+  show_and_hide_links_from_node: (node) ->
+    @show_links_from_node(node)
+    @hide_links_from_node(node)
+    return
 
   get_container_width: (pad) ->
     pad = pad or hpad
@@ -5216,7 +5266,7 @@ class Huviz
       @show_link(e, incl_discards)
     @update_showing_links(n)
     @update_state(n)
-    @force.links(@links_set)
+    @update_d3links()
     if not @args.skip_log_tick
       console.log("Tick in @force.links(@links_set) show_links_to_node")
     @restart()
@@ -5237,16 +5287,16 @@ class Huviz
 
   hide_links_to_node: (n) ->
     n.links_to.forEach (e, i) =>
-      @remove_from e, n.links_shown
-      @remove_from e, e.source.links_shown
+      @remove_from(e, n.links_shown)
+      @remove_from(e, e.source.links_shown)
       e.unshow()
-      @links_set.remove e
-      @remove_ghosts e
-      @update_state e.source
-      @update_showing_links e.source
-      @update_showing_links e.target
-    @update_state n
-    @force.links(@links_set)
+      @links_set.remove(e)
+      @remove_ghosts(e)
+      @update_state(e.source)
+      @update_showing_links(e.source)
+      @update_showing_links(e.target)
+    @update_state(n)
+    @update_d3links()
     if not @args.skip_log_tick
       console.log("Tick in @force.links() hide_links_to_node")
     @restart()
@@ -5258,26 +5308,33 @@ class Huviz
     n.links_from.forEach (e, i) =>
       @show_link(e, incl_discards)
     @update_state(n)
-    @force.links(@links_set)
+    @update_d3links()
     if not @args.skip_log_tick
       console.log("Tick in @force.links() show_links_from_node")
     @restart()
+    return
 
   hide_links_from_node: (n) ->
     n.links_from.forEach (e, i) =>
-      @remove_from e, n.links_shown
-      @remove_from e, e.target.links_shown
+      @remove_from(e, n.links_shown)
+      @remove_from(e, e.target.links_shown)
       e.unshow()
-      @links_set.remove e
-      @remove_ghosts e
-      @update_state e.target
-      @update_showing_links e.source
-      @update_showing_links e.target
+      @links_set.remove(e)
+      @remove_ghosts(e)
+      @update_state(e.target)
+      @update_showing_links(e.source)
+      @update_showing_links(e.target)
 
-    @force.links(@links_set)
+    #@force.links(@links_set)
+    @update_d3links()
     if not @args.skip_log_tick
       console.log("Tick in @force.links hide_links_from_node")
     @restart()
+
+  update_d3links: ->
+    if @d3links?
+      @d3links.links(@links_set)
+      #@d3simulation.restart()
 
   attach_predicate_to_its_parent: (a_pred) ->
     parent_id = @ontology.subPropertyOf[a_pred.lid] or 'anything'
@@ -5932,7 +5989,7 @@ class Huviz
     if @snippet_box
       snip_div = @snippet_box.append('div').attr('class','snippet')
       snip_div.html(msg)
-      $(snip_div[0][0]).addClass("snippet_dialog_box")
+      $(snip_div.node()).addClass("snippet_dialog_box")
       my_position = @get_next_snippet_position(obj.snippet_js_key)
       dialog_args =
         #maxHeight: @snippet_size
@@ -5949,7 +6006,7 @@ class Huviz
           return
 
       dlg = $(snip_div).dialog(dialog_args)
-      elem = dlg[0][0]
+      elem = dlg.node()
       elem.setAttribute("id",obj.snippet_js_key)
       bomb_parent = $(elem).parent().
         select(".ui-dialog-titlebar").children().first()
@@ -6102,9 +6159,9 @@ class Huviz
     if dirty
       @update_state(node)
       @update_showing_links(node)
-      @force.alpha(0.1)
+      @d3simulation.alphaTarget(0.1)
       if not @args.skip_log_tick
-        console.log("Tick in @force.alpha draw_edge_regarding")
+        console.log("Tick in  @draw_edge_regarding")
     return
 
   undraw_edge_regarding: (node, predicate_lid) =>
@@ -6123,7 +6180,7 @@ class Huviz
     if dirty
       @update_state(node)
       @update_showing_links(node)
-      @force.alpha(0.1)
+      @d3simulation.alphaTarget(0.1)
     return
 
   update_history: ->
@@ -6697,7 +6754,8 @@ class Huviz
     @init_resource_menus()
     if not @gclui?
       # @oldToUniqueTabSel['huvis_controls'] ???
-      @gclui = new CommandController(this,d3.select(@args.gclui_sel)[0][0],@hierarchy)
+      dom_node = d3.select(@args.gclui_sel).node()
+      @gclui = new CommandController(this, dom_node, @hierarchy)
     window.addEventListener('showgraph', @register_gclc_prefixes)
     window.addEventListener('newpredicate', @gclui.handle_newpredicate)
     if not @show_class_instance_edges
@@ -7672,29 +7730,53 @@ class Huviz
     @create_caption()
     @off_center = false # FIXME expose this or make the amount a slider
     document.addEventListener('nextsubject', @onnextsubject)
-    @init_snippet_box()  # FIXME not sure this does much useful anymore
+    #@init_snippet_box()  # FIXME not sure this does much useful anymore
     @mousedown_point = false
     @discard_point = [@cx,@cy] # FIXME refactor so ctrl_handle handles this
     @lariat_center = [@cx,@cy] #       and this....
     @node_radius_policy = node_radius_policies[default_node_radius_policy]
     @currently_printed_snippets = {}
-    @fill = d3.scale.category20()
-    @force = d3.layout.force().
-             size([@width,@height]).
-             nodes([]).
-             linkDistance(@link_distance).
-             charge(@get_charge).
-             gravity(@gravity).
-             on("tick", @tick)
+    #@fill = d3.scale.category20()
+    # Examples:
+    #   d3-force testing ground (v4)
+    #     https://bl.ocks.org/steveharoz/8c3e2524079a8c440df60c1ab72b5d03
+    #   Force Simulation (v4)
+    #     https://bl.ocks.org/HarryStevens/f636199a46fc4b210fbca3b1dc4ef372
+    @initialize_d3_force_simulation()
     @update_fisheye()
+    @initialize_svg()
+    @container = d3.select(@args.viscanvas_sel).node().parentNode
+    @init_settings_to_defaults().then(@complete_construction).catch(@catch_reject_init_settings)
+
+  initialize_svg: ->
     @svg = d3.select(@args.vissvg_sel).
               append("svg").
               attr("width", @width).
               attr("height", @height).
               attr("position", "absolute")
     @svg.append("rect").attr("width", @width).attr("height", @height)
-    @container = d3.select(@args.viscanvas_sel).node().parentNode
-    @init_settings_to_defaults().then(@complete_construction).catch(@catch_reject_init_settings)
+    return
+
+
+  initialize_d3_force_simulation: ->
+    @d3simulation = d3.forceSimulation()
+    #@force = @d3simulation.force('link')
+    console.info("must implement d3v4 linkDistance, charge, size and gravity")
+    console.warn('https://github.com/d3/d3/blob/master/CHANGES.md#forces-d3-force')
+    # https://github.com/d3/d3-force/blob/v1.2.1/README.md#_force
+    @d3simulation.nodes([]).on('tick',@tick)
+
+    #         nodes([])
+    #         size([@width,@height]).
+    #         distance(@link_distance).
+    #         charge(@get_charge).
+    #         gravity(@gravity).
+    #         on("tick", @tick)
+
+  sim_restart: ->
+    console.debug('d3simulation.restart()')
+    @d3simulation.restart()
+    return
 
   catch_reject_init_settings: (wha) =>
     console.error(wha)
@@ -7706,7 +7788,7 @@ class Huviz
       attr("height", @height)
     @make_JQElem('viscanvas', @args.viscanvas_sel) # --> @viscanvas_JQElem
     @viscanvas_elem = document.querySelector(@args.viscanvas_sel)
-    @canvas = @viscanvas[0][0]
+    @canvas = @viscanvas_elem.querySelector('canvas')
     return @viscanvas
 
   complete_construction: (setting_resolutions) =>
@@ -7882,7 +7964,8 @@ class Huviz
       circular().
       radius(@fisheye_radius).
       distortion(@fisheye_zoom)
-    @force.linkDistance(@link_distance).gravity(@gravity)
+    #@d3simulation.linkDistance(@link_distance).gravity(@gravity)
+    console.warn("must implement d3v4 linkDistance and gravity")
     if not @args.skip_log_tick
       console.log("Tick in @force.linkDistance... update_fisheye")
 
@@ -8025,10 +8108,24 @@ class Huviz
       gravity:
         group: "Layout"
         text: "gravity"
+        class: "deprecated_feature"
         label:
           title: "the attractive force keeping nodes centered"
         input:
           value: 0.1
+          min: 0
+          max: 1
+          step: 0.025
+          type: "range"
+    ,
+      distanceMax:
+        group: "Layout"
+        text: "distanceMax scaled"
+        class: "alpha_feature"
+        label:
+          title: "The maximum distance between nodes."
+        input:
+          value: 1
           min: 0
           max: 1
           step: 0.025
@@ -8848,6 +8945,16 @@ class Huviz
   adjust_settings_from_defaults: ->
     return @adjust_settings_from_list_of_specs(@default_settings)
 
+  on_change_distanceMax: (val) ->
+    if val is 1
+      @distanceMax = Infinity
+    else
+      @distanceMax = val * @graph_region_radius
+    @update_d3forceManyBody()
+    if @d3force
+      @d3force.restart()
+    return
+
   on_change_reset_settings_to_default: (event) =>
     console.group('reset_settings_to_default()...')
     @adjust_settings_from_defaults()
@@ -9322,13 +9429,13 @@ class Huviz
     @performance_dashboard_JQElem.html(message + warning)
 
   build_pfm_live_monitor: (name) =>
-    label = @pfm_data["#{name}"]["label"]
-    monitor = "<div class='feedback_module'>#{label}: <svg id='pfm_#{name}' class='sparkline' width='200px' height='50px' stroke-width='1'></svg></div>"
-    return monitor
+    return """<div class='feedback_module'>#{@pfm_data[name].label}:
+                    <svg id='pfm_#{name}' class='sparkline' width='200px' height='50px' stroke-width='1'></svg>
+                 </div>"""
 
   pfm_count: (name) =>
     # Incriment the global count for 'name' variable (then used to update live counters)
-    @pfm_data["#{name}"].total_count++
+    @pfm_data[name].total_count++
 
   pfm_update: () =>
     time = Date.now()

@@ -206,7 +206,7 @@ class GraphCommand
     return @regarding? and @regarding.length > 0
   execute: ->
     @huviz.show_state_msg(@as_msg())
-    @huviz.force.stop()
+    @huviz.d3simulation.stop()
     regarding_required = @regarding_required()
     nodes = @get_nodes()
     console.log("%c#{@str}", "color:blue;font-size:1.5em;", "on #{nodes.length} nodes")
@@ -256,7 +256,7 @@ class GraphCommand
             callback() # atLast is called once, after the verb has been called on each node
     @huviz.clean_up_all_dirt_once()
     @huviz.hide_state_msg()
-    @huviz.force.start()
+    @huviz.d3simulation.restart()
     @huviz.tick("Tick in graphcommandlanguage")
     return
   get_pretty_verbs: ->
