@@ -29,25 +29,6 @@ var links = [
 ]
 
 var linkz = d3.forceLink().links(links);
-
-function boxForce() {
-  /*
-    https://tomroth.com.au/fdg-bounding-box/
-
-    This approach has the disadvantage that nodes just
-    gather crudely on the perimeter.  Superior would
-    be a repulsive force which is a function of distance.
-  */
-  
-  var radius = 10;
-  for (var i = 0, n = nodes.length; i < n; ++i) {
-    curr_node = nodes[i];
-    curr_node.x = Math.max(radius, Math.min(width - radius, curr_node.x));
-    curr_node.y = Math.max(radius, Math.min(height - radius, curr_node.y));
-  }
-
-}
-
 var manyBody = d3.forceManyBody();
 var distanceMax = Infinity;
 
@@ -58,7 +39,6 @@ function updateManyBody() {
 var simulation = d3.forceSimulation(nodes)
     .force('charge', manyBody)
     .force('center', d3.forceCenter(width / 2, height / 2))
-    //.force('boxForce', boxForce)
     .force('link', linkz)
     .on('tick', ticked);
 
