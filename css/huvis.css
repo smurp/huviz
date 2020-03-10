@@ -353,7 +353,7 @@ div.message_wrapper {
 
 .boxNG.focusedNode {
     background-color: #f2f2f2;
-    text-decoration: line-through red;
+    //text-decoration: line-through red;
 }
 
 .noBoxes .boxNG {
