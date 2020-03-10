@@ -1780,6 +1780,11 @@ class Huviz
     @d3forceManyBody = d3.forceManyBody().strength(-50).distanceMax(@distanceMax)
     return
 
+  d3simulation_shake: (spazLevel) ->
+    spazLevel ?= .4
+    if @d3simulation?
+      @d3simulation.alpha(spazLevel).restart()
+
   reset_svg: ->
     console.debug('@reset_svg() is a NOOP')
     return
@@ -2588,11 +2593,12 @@ class Huviz
     # WARNING the boxNGs might have a stale position until they become .dirty
 
     elem = node.boxNG
-    @move_boxNG_if_needed(node, elem)
+    jqElem = $(elem)
+
+    # Update the POSITION of boxNG
+    @move_boxNG_if_needed(node, elem, jqElem)
 
     # Update the STYLING of boxNG
-    jqElem = $(elem)
-    @style_boxNG_jqElem(node, jqElem)
     elemShouldAppearFocused = node.focused_node or node.focused_edge
     elemAppearsFocused = elem.className.includes('focusedNode')
     needsFixing = elemAppearsFocused isnt elemShouldAppearFocused
@@ -2601,39 +2607,44 @@ class Huviz
         @focus_boxNG_jqElem(node, jqElem)
       else
         @unfocus_boxNG_jqElem(node, jqElem)
+        @style_boxNG_jqElem(node, jqElem)
     return
 
-  move_boxNG_if_needed: (node, elem) ->
+  move_boxNG_if_needed: (node, elem, jqElem) ->
     # Update the POSITION of the boxNG
     fish_x = Math.round(node.fisheye.x)
     fish_y = Math.round(node.fisheye.y)
     nodeMoved = false
     if elem.offsetLeft isnt fish_x
       nodeMoved = true
-      console.debug("elem.offsetLeft (#{typeof elem.offsetLeft})", elem.offsetLeft, "!=", fish_x)
+      #console.debug("elem.offsetLeft (#{typeof elem.offsetLeft})", elem.offsetLeft, "!=", fish_x)
     else if elem.offsetTop isnt fish_y
       nodeMoved = true
-      console.debug("elem.offsetTop", elem.offsetTop, "!=", fish_y)
-    if nodeMoved
-      elem.setAttribute('style', "top:#{fish_y}px; left:#{fish_x}px")
+      #console.debug("elem.offsetTop", elem.offsetTop, "!=", fish_y)
+    if nodeMoved # it is easier to let jquery do this modification job
+      jqElem.css('top', fish_y + 'px')
+      jqElem.css('left', fish_x + 'px')
     return
 
-  style_boxNG_jqElem: (node, jqElem) ->
-    css = {}
-    css['color'] = node.color
-    css['font-size'] = @label_em + 'em'
-    css['z-index'] = 0
+  style_boxNG_jqElem: (node, jqElem, css) ->
+    css ?= {}
+    css['color'] ?= node.color
+    font_size = @label_em
+    if node.selected?
+      font_size = @label_em * @selected_mag
+    font_size = font_size + 'em'
+    css['font-size'] ?= font_size # this will NOT override the size for focused_node
+    css['z-index'] ?= 0
     jqElem.css(css)
     return
 
-  focus_boxNG_jqElem: (node, jqElem) ->
-    #colorlog("addClass('focusedNode')")
+  focus_boxNG_jqElem: (node, jqElem, css) ->
     jqElem.addClass('focusedNode')
-    css = {}
-    css['color'] = node.color
-    css['font-size'] = (@label_em * @focused_mag) + 'em'
+    css ?= {}
+    font_size = @label_em * @focused_mag
+    css['font-size'] = font_size + 'em'
     css['z-index'] = 10000 # FIXME maybe this should be a continuously incrementing value?
-    jqElem.css(css)
+    @style_boxNG_jqElem(node, jqElem, css)
     return
 
   unfocus_boxNG_jqElem: (node, jqElem) ->
@@ -8050,9 +8061,9 @@ class Huviz
         group: "Labels"
         text: "focused label mag"
         input:
-          value: 1.4
+          value: 1.8
           min: 1
-          max: 3
+          max: 6
           step: .1
           type: 'range'
         label:
@@ -8076,9 +8087,9 @@ class Huviz
         label:
           title: "the size of the font"
         input:
-          value: .9
+          value: .7
           min: .1
-          max: 4
+          max: 6
           step: .05
           type: 'range'
     ,
@@ -8125,7 +8136,7 @@ class Huviz
         label:
           title: "The maximum distance between nodes."
         input:
-          value: 1
+          value: .5
           min: 0
           max: 1
           step: 0.025
@@ -8951,8 +8962,8 @@ class Huviz
     else
       @distanceMax = val * @graph_region_radius
     @update_d3forceManyBody()
-    if @d3force
-      @d3force.restart()
+    if @d3forceManyBody?
+      @d3simulation_shake()
     return
 
   on_change_reset_settings_to_default: (event) =>
