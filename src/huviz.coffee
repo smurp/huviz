@@ -2302,9 +2302,10 @@ class Huviz
             # if the node d is in the @walked_set it needs special_focus
             special_focus = not not d.walked  # "not not" forces boolean
           # if 'pills' is selected; change node shape to rounded squares
+          if not @should_display_labels_as('boxNGs')
+            if d.boxNG
+              @remove_boxNG(d)
           if @should_display_labels_as('pills')
-            #if node.boxNG
-            #  @remove_boxNG(node)
             pill_width = node_radius * 2
             pill_height = node_radius * 2
             filclr = @get_node_color_or_color_list(d)
