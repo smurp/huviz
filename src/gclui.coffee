@@ -1038,8 +1038,8 @@ class CommandController
     @disable_play_buttons()
     elem.text(cmd.str+"\n") # add CR for downloaded scripts
     delete_button = elem.append('a')
-    delete_button.attr('class','delete-command')
-    delete_button.on('click',() => @delete_script_command_by_id(cmd.id))
+    delete_button.attr('class', 'delete-command')
+    delete_button.on('click', () => @delete_script_command_by_id(cmd.id))
     @update_script_buttons()
   clear_unreplayed_commands_if_needed: ->
     while @command_idx0 < @command_list.length
@@ -1052,14 +1052,12 @@ class CommandController
         break
     return
   delete_script_command_by_idx: (idx) ->
-    elem_and_cmd = @command_list.splice(idx, 1)[0]
-    #alert("about to delete: " + elem_and_cmd.cmd.str)
-    elem = elem_and_cmd.elem[0]
-    if not elem or not elem[0]
+    elem_and_cmd = @command_list.splice(idx, 1)[0] # remove elem_and_cmd from command_list
+    elem = elem_and_cmd.elem.node()
+    if not elem
+      console.warn("delete_script_command_by_idx(#{idx}) failed to find elem in", elem_and_cmd)
       return
-    orphan = elem[0]
-    pops = orphan.parentNode
-    pops.removeChild(orphan)
+    elem.remove()
     if idx < @command_idx0
       @command_idx0--
     if @command_idx0 < 0
