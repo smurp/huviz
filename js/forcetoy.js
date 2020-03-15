@@ -7,18 +7,20 @@
 
  */
 var width = window.innerWidth, height = window.innerHeight;
-var intervalMsec = 33;
-var resetLimit = 4000;
+var intervalMsec = 333;
+var resetLimit = 20;
 var unicodeStart = 10000;
 var makeGraph = false;
 var shouldUpdateUX = true;
-var charge = -20;
+var simulation;
+var clockInterval;
+var charge = -90;
 var elems = {};
 window.runner = false;
 
-var svgElem = document.querySelector('svg');
-svgElem.setAttribute('height', height);
-svgElem.setAttribute('width', width);
+var graphElem = document.querySelector('#content');
+graphElem.setAttribute('height', height);
+graphElem.setAttribute('width', width);
 
 var nodes = [
   {name: '√', fixed: true},
@@ -31,59 +33,170 @@ var links = [
 var linkz = d3.forceLink().links(links);
 var manyBody = d3.forceManyBody();
 var distanceMax = Infinity;
+  /*
+    CSS, SVG and Canvas coordinate systems are all
+      0
+    0 ┼──────────── X
+      │
+      │
+      │
+      Y
 
+    * https://javascript.info/coordinates
+    * https://www.dashingd3js.com/using-the-svg-coordinate-space
+    * https://developer.mozilla.org/en-US/docs/Web/CSS/CSSOM_View/Coordinate_systems
+    * https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes
+
+    * https://en.wikipedia.org/wiki/Arrows_(Unicode_block)
+    * https://en.wikipedia.org/wiki/Box-drawing_character
+
+    * https://math.stackexchange.com/questions/1201337/finding-the-angle-between-two-points
+    * https://en.wikipedia.org/wiki/Atan2
+    * https://en.wikipedia.org/wiki/Inverse_trigonometric_functions
+    * https://en.wikipedia.org/wiki/Special_right_triangle
+
+    b │ a
+   ───┼───
+    c │ d
+   */
+
+function distance(a, b) {
+  var w = b.x - a.x;
+  var h = b.y - a.y;
+  return Math.sqrt(w*w + h*h)
+}
+function test(res, bail) {
+  var s = `expected: ${res.expected} ≠ actual: ${res.actual}`;
+  if (res.msg) {
+    s = `msg: ${res.msg} ` + s;
+  }
+  if (res.actual == res.expected) {
+    console.info(s);
+    return false;
+  } else {
+    if (bail) {
+      throw new Error(s);
+    } else {
+      console.error(s);
+      return true
+    }
+  }
+}
+function testDistance() {
+  test({actual: distance({x: 0, y: 0},
+                         {x: 400, y: 300}),
+        expected: 500});
+  test({actual: distance({x: 0, y: 300},
+                         {x: 0, y: 0}),
+        expected: 300});
+  test({actual: distance({x: 0, y: -400},
+                         {x: 0, y: 0}),
+        expected: 400});
+}
+var degPerRad = 180/Math.PI;
+function angle(a, b) {
+  // https://en.wikipedia.org/wiki/Atan2
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const rads = Math.atan2(dy, dx); // - Math.PI/2;
+  const adj = (rads > 0) && 360 || 0;
+  const degs = adj - Math.round((rads * degPerRad));
+  //console.log({dx, dy, adj, rads, degs});
+  return degs + "deg";
+}
+function testAngle(bail) {
+  const o = {x: 0, y: 0};
+  const a = {x: 50, y: -50};
+  const b = {x: -50, y: -50};
+  const c = {x: -50, y: 50};
+  const d = {x: 50, y: 50};
+  test({actual: angle(b, a),
+        msg: '→',
+        expected: '0deg'}, bail)
+  test({actual: angle(o, a),
+        msg: '↗',
+        expected: '45deg'}, bail)
+  test({actual: angle(d, a),
+        msg: '↑',
+        expected: '90deg'}, bail)
+  test({actual: angle(o, b),
+        msg: '↖',
+        expected: '135deg'}, bail)
+  test({actual: angle(a, b),
+        msg: '←',
+        expected: '180deg'}, bail)
+  test({actual: angle(o, c),
+        msg: '↙',
+        expected: '225deg'}, bail)
+  test({actual: angle(b, c),
+        msg: '↓',
+        expected: '270deg'}, bail)
+  test({actual: angle(o, d),
+        msg: '↘',
+        expected: '315deg'}, bail)
+
+  test({actual: true,
+        expected: false})
+}
 function updateManyBody() {
     manyBody.strength(charge).distanceMax(distanceMax);
 }
 
-var simulation = d3.forceSimulation(nodes)
+function startSimulation() {
+  simulation = d3.forceSimulation(nodes)
     .force('charge', manyBody)
     .force('center', d3.forceCenter(width / 2, height / 2))
     .force('link', linkz)
     .on('tick', ticked);
+}
 
 function updateLinks() {
   var u = d3.select('.links')
-      .selectAll('line')
+      .selectAll('div')
       .data(links)
 
   u.enter()
-    .append('line')
+    .append('div')
     .merge(u)
-    .attr('x1', function(d) {
-      return d.source.x
-    })
-    .attr('y1', function(d) {
-      return d.source.y
-    })
-    .attr('x2', function(d) {
-      return d.target.x
-    })
-    .attr('y2', function(d) {
-      return d.target.y
+    .attr('style', function(link) {
+      var lefty, righty;
+      if (link.source.x <= link.target.x) {
+        lefty = link.source;
+        righty = link.target;
+      } else {
+        lefty = link.target;
+        righty = link.source;
+      }
+      lefty = link.source;
+      righty = link.target;
+      const left = Math.floor(lefty.x);
+      const top = Math.floor(lefty.y);
+      const length = Math.floor(distance(lefty, righty));
+      const degrees = angle(lefty, righty);
+      return `left:${left}px; ` +
+        `top:${top}px; ` +
+        `width:${length}px; ` +
+        `transform: rotate(${degrees})`
     })
   u.exit().remove()
 }
 
+
+
 function updateNodes() {
   u = d3.select('.nodes')
-    .selectAll('text')
+    .selectAll('div')
     .data(nodes)
 
   u.enter()
-    .append('text')
+    .append('div')
     .text(function(d) {
       return d.name
     })
     .merge(u)
-    .attr('x', function(d) {
-      return d.x
-    })
-    .attr('y', function(d) {
-      return d.y
-    })
-    .attr('dy', function(d) {
-      return 5
+    .attr('style', function(d) {
+      return `left:${+Math.floor(d.x)}px; ` +
+             `top:${Math.floor(d.y)}px`
     })
   u.exit().remove()
 }
@@ -191,7 +304,10 @@ function stopOrStart() {
 document.addEventListener('keydown', (e) => {
   console.log(`key: '${e.key}' pressed`);
   if (e.key == ' ') {
-    stopOrStart();
+    if (simulation) {
+      stopOrStart();
+    }
+    toggleClock();
     e.preventDefault(); // prevent scroll
   } else if (e.key == 'Escape') {
     reset();
@@ -218,4 +334,60 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-stopOrStart();
+function sec2deg(sec) {
+  return (((6 * sec) + 270) % 360);
+}
+function min2deg(min) {
+  return ((15 * min) + 270) % 360;
+}
+
+function startClock() {
+  clockInterval = setInterval(() => {
+
+    const sec = (new Date()).getSeconds();
+    const secAsDeg = sec2deg(sec);
+    const secAsRad = ((secAsDeg)/30)*Math.PI;
+    const secAngle = angle({x:0, y:0},
+                       {x:Math.sin(secAsRad),
+                        y:Math.cos(secAsRad)});
+    //console.log({deg, deg2});
+
+    const elem = document.querySelector('.clockSec > div');
+    const style =
+          `left:400px; top:300px; ` +
+          `width:250px; height:1px; background-color: red; ` +
+          `transform:rotate(${secAsDeg}deg)`;
+    elem.setAttribute('style', style);
+    elem.innerHTML = `__ °:${secAngle} min:${sec}`;
+
+    const min = (new Date()).getMinutes();
+    const minAsDeg = min2deg(min);
+    const minAsRad = ((minAsDeg)/30)*Math.PI;
+    const minAngle = angle({x:0, y:0},
+                       {x:Math.sin(minAsRad),
+                        y:Math.cos(minAsRad)});
+
+    const elem2 = document.querySelector('.clockMin > div');
+    const style2 =
+          `left:400px; top:300px; ` +
+          `width:4px; height:100px; background-color: blue; ` +
+          `transform:rotate(${minAngle})`;
+    elem2.setAttribute('style', style2);
+    elem2.innerHTML = `__ °:${minAngle} min:${min}`;
+  }, 3);
+}
+
+function toggleClock() {
+  if (clockInterval) {
+    clearInterval(clockInterval);
+    clockInterval = null;
+  } else {
+    startClock();
+  }
+}
+//testDistance();
+//testAngle();
+//startClock();
+//startSimulation();
+//stopOrStart();
+

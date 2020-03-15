@@ -5,17 +5,48 @@
 </head>
 
 <style>
-  circle {
-      fill: cadetblue;
+  #content {
+      border-thickness: 1px;
+      border-color: #33333300;
+      //padding: 1em;
   }
-  line {
-      stroke: #ccc;
+  .nodes {
+      position: absolute;
+      width: 100%;
+      height: 100%;
   }
-  text {
-      text-anchor: middle;
-      font-family: "Helvetica Neue", Helvetica, sans-serif;
-      fill: #666;
-      font-size: 16px;
+  .links,
+  .triangle,
+  .clock {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+  }
+  .triangle {
+      display: block; // block | none
+  }
+  .nodes > div {
+      position: relative;
+      background-color: #FFA9;
+      width: 1em;
+      // baseline-shift: -.5em;
+      margin-left: -.5em;
+      margin-top: -.5em;
+  }
+  .links > div,
+  .triangle > div,
+  .clockSec > div,
+  .clockMin > div {
+      background-color: black;
+      font-family: monospace;
+      text-align: right;
+      position: absolute;
+      height: 1px;
+      display: block;
+      margin: 0px;
+      border: 0px;
+      padding: 0px;
+      transform-origin: 0 0;
   }
   #legend {
       content: "keys:";
@@ -36,10 +67,23 @@
     <div><code>s</code> to shake</div>
   </div>
   <div id="content">
-    <svg>
-      <g class="links"></g>
-      <g class="nodes"></g>
-    </svg>
+    <div class="triangle">
+      <div style="left:0px; top:0px; width:500px; transform:translate(0px, 0px) rotate(36.87deg); background-color:red"></div>
+      <div style="left:0px; top:0px; width:400px; transform:translate(0px, 300px) rotate(0deg); background-color: blue"></div>
+      <div style="left:0px; top:0px; width:300px; transform:translate(0px, 0px) rotate(90deg); background-color: green"></div>
+    </div>
+
+    <div class="clockSec">
+      <div></div>
+    </div>
+
+    <div class="clockMin">
+      <div></div>
+    </div>
+
+
+    <div class="links"></div>
+    <div class="nodes"></div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/d3@5.15.0/dist/d3.min.js"></script>
