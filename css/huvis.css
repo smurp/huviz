@@ -344,7 +344,7 @@ div.message_wrapper {
     position: absolute;
     text-align: center;
     user-select: none;
-    background-color: rgb(255,255,255, .5);
+    background-color: rgb(255,255,255, .9);
 }
 
 .boxNGs .boxNG {
