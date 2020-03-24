@@ -162,13 +162,13 @@ distance = (p1, p2) ->
   p2 = p2 || [0,0]
   x = (p1.x or p1[0]) - (p2.x or p2[0])
   y = (p1.y or p1[1]) - (p2.y or p2[1])
-  Math.sqrt x * x + y * y
+  return Math.sqrt(x * x + y * y)
 dist_lt = (mouse, d, thresh) ->
   window.dist_lt_called ?= 0
   window.dist_lt_called++
   x = mouse[0] - d.x
   y = mouse[1] - d.y
-  Math.sqrt(x * x + y * y) < thresh
+  return Math.sqrt(x * x + y * y) < thresh
 hash = (str) ->
   # https://github.com/darkskyapp/string-hash/blob/master/index.js
   hsh = 5381
@@ -203,6 +203,7 @@ BASE57 = "23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 BASE10 = "0123456789"
 int_to_base = (intgr) ->
   convert(""+intgr, BASE10, BASE57)
+
 synthIdFor = (str) ->
   # return a short random hash suitable for use as DOM/JS id
   return 'h'+int_to_base(hash(str)).substr(0,6)
@@ -7978,6 +7979,7 @@ class Huviz
       distortion(@fisheye_zoom)
     #@d3simulation.linkDistance(@link_distance).gravity(@gravity)
     console.warn("must implement d3v4 linkDistance and gravity")
+    # https://stackoverflow.com/questions/16567750/does-d3-js-force-layout-allow-dynamic-linkdistance
     if not @args.skip_log_tick
       console.log("Tick in @force.linkDistance... update_fisheye")
 
