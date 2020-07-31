@@ -12,6 +12,8 @@ variables:
   SECRET_DETECTION_DISABLED: 1
   POSTGRES_ENABLED: "false"
 #  STAGING_ENABLED: 1
+  K8S_SECRET_PORT: 5000
+  PORT: 5000
 
 include:
   - template: Auto-DevOps.gitlab-ci.yml
