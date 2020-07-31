@@ -154,10 +154,10 @@
     extensions: ['html']
   }));
 
-  port = nopts.port || nopts.argv.remain[0] || process.env.PORT || default_port;
+  port = nopts.port || nopts.argv.remain[0] || process.env.PORT || 5000;
 
-  console.log("Starting server on port: " + port + " localhost");
+  console.log("Starting server on port: " + port);
 
-  app.listen(port, 'localhost');
+  app.listen(port, '0.0.0.0');
 
 }).call(this);
