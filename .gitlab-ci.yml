@@ -19,6 +19,12 @@ include:
   - template: Auto-DevOps.gitlab-ci.yml
 
 # override some of the deploy parameters
+staging:
+  stage: deploy
+  environment:
+    name: staging
+    url: https://huviz.$KUBE_INGRESS_BASE_DOMAIN
+
 production_manual:
   stage: deploy
   environment:
