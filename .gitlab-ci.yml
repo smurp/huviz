@@ -19,7 +19,7 @@ include:
   - template: Auto-DevOps.gitlab-ci.yml
 
 # override some of the deploy parameters
-production:
+production_manual:
   stage: deploy
   environment:
     name: production
