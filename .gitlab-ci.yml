@@ -20,13 +20,13 @@ include:
 
 # override some of the deploy parameters
 staging:
-  stage: Staging
+  stage: staging
   environment:
     name: staging
     url: https://huviz.$KUBE_INGRESS_BASE_DOMAIN
 
 production_manual:
-  stage: Production
+  stage: production
   environment:
     name: production
     url: https://huviz.$KUBE_INGRESS_BASE_DOMAIN
