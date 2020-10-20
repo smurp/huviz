@@ -39,7 +39,6 @@ nopts.huviz_init_file = "/js/HUVIZ_INIT_com.nooron.dev.huviz.js"
 switch process.env.NODE_ENV
   when 'development'
     console.log(nopts)
-    console.log(process.env)
 
 # https://github.com/sstephenson/eco
 # REVIEW is this still needed?
