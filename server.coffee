@@ -33,10 +33,13 @@ switch process.env.NODE_ENV
     cooked_argv.push("--usecdn")
 
 nopts = nopt(knownOpts, shortHands, cooked_argv, 2)
+nopts.huviz_init_file = "/js/HUVIZ_INIT_com.nooron.dev.huviz.js"
+#nopts.huviz_init_file = "/js/init_huvis.js"
 
 switch process.env.NODE_ENV
   when 'development'
-    console.log('development', nopts)
+    console.log(nopts)
+    console.log(process.env)
 
 # https://github.com/sstephenson/eco
 # REVIEW is this still needed?
@@ -91,6 +94,7 @@ app.get("/twoup", localOrCDN("/views/twoup.html.ejs", {nopts: nopts}))
 app.get("/getalong", localOrCDN("/views/getalong.html.ejs", {nopts: nopts}))
 app.get("/tests", localOrCDN("/views/tests.html.ejs", {nopts: nopts}))
 app.get("/forcetoy", localOrCDN("/views/forcetoy.html", {nopts: nopts}))
+# app.get("/process_env.js", (req, res) => res.send("process_env="+process.env)) # serve process.env
 app.get("/", localOrCDN("/views/huvis.html.ejs", {nopts: nopts}))
 app.use(express.static(__dirname + '/images')) # for /favicon.ico
 
