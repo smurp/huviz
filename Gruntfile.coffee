@@ -34,7 +34,6 @@ module.exports = (grunt) ->
           'js/*.js',
           'lib/*.js',
           'Gruntfile.coffee',
-          'server.coffee',
           'views/*.ejs',
           'views/*.js']
         tasks: ['coffee', 'stitch', 'express:dev']

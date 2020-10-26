@@ -25,6 +25,7 @@
     "coffeescript": "~1.12.7",
     "components-jqueryui": "components/jqueryui",
     "d3": "~5.15.0",
+    "decaffeinate": "^6.1.3",
     "ejs": "2.6.1",
     "express": "~4.17.1",
     "jquery": ">=3.4.0",
