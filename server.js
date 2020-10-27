@@ -122,6 +122,6 @@ app.use(express.static(__dirname + '/images')); // for /favicon.ico
 //app.get("/srcdocs/", (req, res) -> res.redirect("/srcdocs/index.html"))
 app.use("/srcdocs",
   express.static("srcdocs", {index: 'index.html', redirect: true, extensions: ['html']}));
-const port = nopts.port || nopts.argv.remain[0] || process.env.PORT || default_port;
+const port = nopts.port || nopts.argv.remain[0] || process.env.PORT || 5000;
 console.log(`Starting server on localhost:${port} NODE_ENV:${process.env.NODE_ENV}`);
 app.listen(port, 'localhost');
