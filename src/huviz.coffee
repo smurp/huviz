@@ -109,7 +109,8 @@
 #  67) TASK: add verbs pin/unpin (using polar coords to record placement)
 #
 
-uniquer = require("uniquer").uniquer # FIXME rename to make_dom_safe_id
+# uniquer = require("uniquer").uniquer # FIXME rename to make_dom_safe_id
+# import uniquer from 'uniquer.js';
 gcl = require('graphcommandlanguage')
 #asyncLoop = require('asynchronizer').asyncLoop
 CommandController = require('gclui').CommandController
@@ -121,8 +122,10 @@ Edge = require('edge').Edge
 GraphCommandLanguageCtrl = require('graphcommandlanguage').GraphCommandLanguageCtrl
 GreenerTurtle = require('greenerturtle').GreenerTurtle
 Node = require('node').Node
-Predicate = require('predicate').Predicate
-Taxon = require('taxon').Taxon
+# Predicate = require('predicate').Predicate
+# import {Predicate} from 'predicate.js';
+# Taxon = require('taxon').Taxon
+# import {Taxon} from 'taxon.js';
 TextCursor = require('textcursor').TextCursor
 
 MultiString.set_langpath('en:fr') # TODO make this a setting

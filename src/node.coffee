@@ -1,4 +1,5 @@
-uniquer = require("uniquer").uniquer
+# uniquer = require("uniquer").uniquer
+# import uniquer from 'uniquer.js';
 
 class Node
   constructor: (@id) ->
