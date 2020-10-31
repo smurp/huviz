@@ -1,9 +1,5 @@
 module.exports = (grunt) ->
   grunt.initConfig
-    coffee:
-      compile:
-        files:
-          'server.js': 'server.coffee'
     express:
       options:
         port: 9997
@@ -37,7 +33,7 @@ module.exports = (grunt) ->
           'Gruntfile.coffee',
           'views/*.ejs',
           'views/*.js']
-        tasks: ['coffee', 'stitch', 'express:dev']
+        tasks: ['stitch', 'express:dev']
         options:
           atBegin: true
           debounceDelay: 250
