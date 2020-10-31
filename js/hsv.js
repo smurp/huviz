@@ -1,7 +1,7 @@
 function hsv2rgb(hue, sat, val) {
     // See
     //    http://en.wikipedia.org/wiki/HSL_and_HSV
-    // from: 
+    // from:
     //    http://www.actionscript.org/forums/archive/index.php3/t-15155.html
     // see also:
     //    http://www.webreference.com/programming/javascript/mk/column3/creating/cp_mini_gradient_details.png
