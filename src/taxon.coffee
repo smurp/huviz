@@ -1,4 +1,4 @@
-angliciser = require('angliciser').angliciser
+# import angliciser from 'angliciser.js' // TODO use as module
 TreeCtrl = require('treectrl').TreeCtrl
 
 class Taxon extends TreeCtrl

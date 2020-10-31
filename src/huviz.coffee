@@ -108,7 +108,7 @@
 #  66) BUG: #load+/data/ballrm.nq fails to populate the predicate picker
 #  67) TASK: add verbs pin/unpin (using polar coords to record placement)
 #
-angliciser = require('angliciser').angliciser
+
 uniquer = require("uniquer").uniquer # FIXME rename to make_dom_safe_id
 gcl = require('graphcommandlanguage')
 #asyncLoop = require('asynchronizer').asyncLoop

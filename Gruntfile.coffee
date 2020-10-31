@@ -19,6 +19,7 @@ module.exports = (grunt) ->
       options:
         paths: ['src']
         dependencies: [
+          'js/angliciser.js',
           'js/sortedset.js',
           'js/hsv.js',
           'js/hsl.js',

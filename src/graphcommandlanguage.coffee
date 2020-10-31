@@ -1,4 +1,4 @@
-angliciser = require('angliciser').angliciser
+# import angliciser from 'angliciser.js' // TODO use as module
 #gvcl = require('gvcl') #.GVCL
 class GCLTest
   constructor: (@runner, @spec) ->
