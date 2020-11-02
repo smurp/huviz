@@ -1,9 +1,4 @@
 /*
- * decaffeinate suggestions:
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-/*
 TreeCtrl controls TreePicker states: showing, unshowing, mixed for direct and indirect.
 
  Elements may be in one of these states:
