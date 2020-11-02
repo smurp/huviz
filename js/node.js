@@ -2,10 +2,10 @@
 
 class Node {
   static initClass() {
-    this.prototype.linked = false;          // TODO(smurp) probably vestigal
+    this.prototype.linked = false; // TODO(smurp) probably vestigal
     this.prototype.showing_links = "none";
     this.prototype.name = null;
-    this.prototype.s = null;                // TODO(smurp) rename Node.s to Node.subject, should be optional
+    this.prototype.s = null; // TODO(smurp) .s to .subject, should be optional
     this.prototype.type = null;
   }
   constructor(id) {
