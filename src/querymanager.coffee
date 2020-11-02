@@ -8,37 +8,48 @@ class QueryManager
     @_state = state
     if state is 'done'
       @call_done_listeners()
+    return
   when_done: (listener) ->
     @listeners.push(listener)
+    return
   call_done_listeners: ->
     while (listener = @listeners.shift())
       setTimeout(listener, 10)
-  incrResultCount: ->
-    @resultCount++
+    return
+  incrResultCount: -> # TODO delete if unused
+    return @resultCount++
   styleQuery: (color, style) ->
     @preJQElem.css('background', color).addClass(style)
+    return
   setNoneColor: () ->
     @styleQuery('#d3d3d357','result-none') # no result 'light grey'
+    return
   setErrorColor: () ->
     @styleQuery('#f9e7ea', 'result-error') # Error 'pink'
+    return
   setSuccessColor: () ->
     @styleQuery('#e6f9e6','result-success') # Success 'green'
+    return
   setKilledColor: () ->
     @setNoneColor()
     @preJQElem.css('color', 'white').addClass('result-empty')
+    return
   displayError: (e) ->
     console.warn(e)
     @qryJQElem.append("""<div class="query-error">#{e}</div>""")
+    return
   fatalError: (e) ->
     @set_state('done')
     @cancelAnimation()
     @displayError(e)
     @setErrorColor()
-    #console.error(e)
+    return
   displayResults: (results) ->
     @qryJQElem.append("""<div class="query-results">#{results}</div>""")
+    return
   finishCounting: ->
     @setResultCount(@resultCount)
+    return
   setResultCount: (count) ->
     @set_state('done')
     @resultCount = count
@@ -47,14 +58,19 @@ class QueryManager
       @setNoneColor()
     else if count > 0
       @setSuccessColor()
+    return
   setXHR: (@xhr) ->
+    return
   abortXHR: ->
     @xhr.abort()
+    return
   cancelAnimation: ->
     @anim.cancel()
+    return
   kill: ->
     @abortXHR()
     @cancelAnimation()
     @setKilledColor()
+    return
 
 (exports ? this).QueryManager = QueryManager
