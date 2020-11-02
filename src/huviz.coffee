@@ -118,10 +118,10 @@ EditController = require('editui').EditController
 #FiniteStateMachine = require('fsm').FiniteStateMachine
 IndexedDBService = require('indexeddbservice').IndexedDBService
 IndexedDBStorageController = require('indexeddbstoragecontroller').IndexedDBStorageController
-Edge = require('edge').Edge
+# import Edge from 'edge.js'; // TODO convert to module
+# import {Node} from 'node.js'; // TODO convert to module
 GraphCommandLanguageCtrl = require('graphcommandlanguage').GraphCommandLanguageCtrl
 GreenerTurtle = require('greenerturtle').GreenerTurtle
-# import {node} from 'node.js'; // TODO convert to module
 # Predicate = require('predicate').Predicate
 # import {Predicate} from 'predicate.js';
 # Taxon = require('taxon').Taxon

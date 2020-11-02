@@ -23,6 +23,7 @@ module.exports = (grunt) ->
           'js/sortedset.js',
           'js/hsv.js',
           'js/hsl.js',
+          'js/edge.js',
           'js/node.js',
           'js/quadParser.js',
           'js/multistring.js',
