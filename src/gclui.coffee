@@ -87,6 +87,7 @@ class CommandController
     @disengage_all_verbs()
     @reset_command_history()
     @engaged_taxons = []
+    return
   prepare_tabs_sparqlQueries: ->
     # populate @huviz.tabs_sparqlQueries_JQElem with needed furniture
     return
@@ -104,7 +105,6 @@ class CommandController
     queriesJQElem.scrollTop(10000)
     queryManager = new QueryManager(qry)
     return Object.assign(queryManager, {qryJQElem, preJQElem, preElem})
-
   make_command_history: ->
     @comdiv = d3.select(@container).append("div") # --- Add a container
     history = d3.select(@huviz.oldToUniqueTabSel['tabs-history'])
@@ -169,10 +169,11 @@ class CommandController
     @future_cmdArgs = []
     @command_list = []
     @command_idx0 = 0
-
+    return
   reset_command_history: ->
     for record in @command_list
       record.elem.attr('class','command')
+    return
   get_downloadscript_name: (ext) ->
     return @lastScriptName or ('HuVizScript.' + ext)
   get_script_prefix: ->
@@ -286,30 +287,37 @@ class CommandController
     @reset_graph()
     @command_idx0 = 0
     @update_script_buttons()
+    return
   on_backward_click: () =>
     forward_to_idx = @command_idx0 - 1
     @on_rewind_click()
     @on_fastforward_click(forward_to_idx)
+    return
   on_forward_click: () =>
     @play_old_command_by_idx(@command_idx0)
     @command_idx0++
     @update_script_buttons()
+    return
   on_fastforward_click: (forward_to_idx) =>
     forward_to_idx ?= @command_list.length
     while @command_idx0 < forward_to_idx
       @on_forward_click()
+    return
   play_old_command_by_idx: (idx) ->
     record = @command_list[idx]
     record.elem.attr('class', 'command played')
     @play_old_command(record.cmd)
+    return
   play_old_command: (cmd) ->
     cmd.skip_history = true
     cmd.skip_history_remove = true
     @huviz.run_command(cmd)
+    return
   install_listeners: () ->
     window.addEventListener 'changePredicate', @predicate_picker.onChangeState
     window.addEventListener 'changeTaxon', @taxon_picker.onChangeState
     window.addEventListener 'changeEnglish', @onChangeEnglish
+    return
   on_dataset_loaded: (evt) =>
     if not evt.done?
       $(@container).show()
@@ -318,6 +326,7 @@ class CommandController
       @huviz.hide_state_msg()
       # FIXME is there a standards-based way to prevent this happening three times?
       evt.done = true
+    return
   show_succession_of_hints: ->
     # Show the reminders, give them close buttons which reveal them in series
     $(".hints.hint_set").show()
@@ -331,6 +340,7 @@ class CommandController
           return false # so not all close buttons are pressed at once
     $(".hints > .a_hint").hide()
     $(".hints > .a_hint").first().show()
+    return
   select_the_initial_set: =>
     @OLD_select_the_initial_set()
     return
@@ -371,11 +381,13 @@ class CommandController
         #alert('check_until_then() is done')
         thenCallback.call()
     intervalId = setInterval(nag, 30)
+    return
   init_editor_data: ->
     # operations common to the constructor and reset_editor
     @shown_edges_by_predicate = {}
     @unshown_edges_by_predicate = {}
     @engaged_taxons = [] # new SortedSet()
+    return
   reset_editor: ->
     @clear_like()
     @disengage_all_verbs()
@@ -383,21 +395,26 @@ class CommandController
     @clear_all_sets()
     @init_editor_data()
     @update_command()
+    return
   disengage_command: ->
     @clear_like()
     @disengage_all_verbs()
     @disengage_all_sets()
     @update_command()
+    return
   disengage_all: ->
     @clear_like()
     @disengage_all_sets()
     @disengage_all_verbs()
     @update_command()
+    return
   add_clear_both: (target) ->
     # keep taxonomydiv from being to the right of the verbdiv
     target.append('div').attr('style','clear:both')
+    return
   ignore_predicate: (pred_id) ->
     @predicates_ignored.push(pred_id)
+    return
   handle_newpredicate: (e) =>
     pred_uri = e.detail.pred_uri
     parent_lid = e.detail.parent_lid
@@ -408,14 +425,17 @@ class CommandController
         pred_name ?= pred_lid.match(/([\w\d\_\-]+)$/g)[0]
         @add_predicate(pred_lid, parent_lid, pred_name)
         @recolor_edges_and_predicates_eventually(e)
+    return
   recolor_edges_and_predicates_eventually: ->
     if @recolor_edges_and_predicates_eventually_id?
       # console.log "defer edges_and_predicates",@recolor_edges_and_predicates_eventually_id
       clearTimeout(@recolor_edges_and_predicates_eventually_id)
     @recolor_edges_and_predicates_eventually_id = setTimeout(@recolor_edges_and_predicates, 300)
+    return
   recolor_edges_and_predicates: (evt) =>
     @predicate_picker.recolor_now()
     @recolor_edges() # FIXME should only run after the predicate set has settled for some time
+    return
   resort_pickers: ->
     if @taxon_picker?
       # propagate the labels according to the currently preferred language
@@ -454,11 +474,13 @@ class CommandController
     @predicates_JQElem = $(@predicates_id)
     @predicates_JQElem.addClass("predicates ui-resizable").append("<br class='clear'>")
     @predicates_JQElem.resizable(handles: 's')
+    return
   add_predicate: (pred_lid, parent_lid, pred_name) =>
     #if pred_lid in @predicates_to_ignore
     #  return
     @predicate_picker.add(pred_lid, parent_lid, pred_name, @handle_on_predicate_clicked)
     @make_predicate_proposable(pred_lid)
+    return
   make_predicate_proposable: (pred_lid) ->
     predicate_ctl = @predicate_picker.id_to_elem[pred_lid]
     predicate_ctl.on 'mouseenter', () =>
@@ -478,10 +500,12 @@ class CommandController
       @prepare_command(@build_command())
       #@prepare_command(@new_GraphCommand( {}))
       return
+    return
   handle_on_predicate_clicked: (pred_id, new_state, elem, args) =>
     @start_working()
     setTimeout () => # run asynchronously so @start_working() can get a head start
       @on_predicate_clicked(pred_id, new_state, elem, args)
+    return
   on_predicate_clicked: (pred_id, new_state, elem, args) =>
     skip_history = not args or not args.original_click
     if new_state is 'showing'
@@ -496,6 +520,7 @@ class CommandController
       skip_history: skip_history)
     @prepare_command(cmd)
     @huviz.run_command(@command)
+    return
   recolor_edges: (evt) =>
     count = 0
     for node in @huviz.all_set
@@ -503,6 +528,7 @@ class CommandController
         count++
         pred_n_js_id = edge.predicate.id
         edge.color = @predicate_picker.get_color_forId_byName(pred_n_js_id, 'showing')
+    return
   build_taxon_picker: (label, where) ->
     id = 'classes'
     title =
@@ -533,6 +559,7 @@ class CommandController
     @make_taxon_proposable(taxon_id)
     @taxon_picker.recolor_now()
     @huviz.recolor_nodes()
+    return
   make_taxon_proposable: (taxon_id) ->
     taxon_ctl = @taxon_picker.id_to_elem[taxon_id]
     taxon_ctl.on 'mouseenter', (evt) =>
@@ -560,15 +587,18 @@ class CommandController
     #console.log("%c#{@object_phrase}",'color:orange;font-size:2em')
     @prepare_command(@build_command())
     @update_command()
+    return
   handle_on_taxon_clicked: (id, new_state, elem, args) =>
     @start_working()
     setTimeout () => # run asynchronously so @start_working() can get a head start
       @on_taxon_clicked(id, new_state, elem, args)
+    return
   set_taxa_click_storm_callback: (callback) ->
     if @taxa_click_storm_callback?
       throw new Error("taxa_click_storm_callback already defined")
     else
       @taxa_click_storm_callback = callback
+    return
   taxa_being_clicked_increment: ->
     if not @taxa_being_clicked?
       @taxa_being_clicked = 0
@@ -576,7 +606,7 @@ class CommandController
     return
   taxa_being_clicked_decrement: ->
     if not @taxa_being_clicked?
-      throw new Error("taxa_being_clicked_decrement() has apparently been called before taxa_being_clicked_increment()")
+      throw new Error("taxa_being_clicked_decrement() has been called before taxa_being_clicked_increment()")
     #@taxa_being_clicked ?= 1
     #console.log("taxa_being_clicked_decrement() before:", @taxa_being_clicked)
     @taxa_being_clicked--
@@ -588,11 +618,11 @@ class CommandController
         @taxa_click_storm_callback.call(document)
         @taxa_click_storm_callback = null
       #@taxa_click_storm_length = 0
+    return
     #else
     #  blurt(@taxa_being_clicked, null, true)
     #  @taxa_click_storm_length ?= 0
     #  @taxa_click_storm_length++
-    #
   make_run_transient_and_cleanup_callback: (because) ->
     return (err) =>
       if err
@@ -672,11 +702,11 @@ class CommandController
       @huviz.run_command(cmd, @make_run_transient_and_cleanup_callback(because))
       because = {}  # clear the because
     @update_command()
-    return
+    return # from on_taxon_clicked
   unselect_node_class: (node_class) ->
     # removes node_class from @engaged_taxons
     @engaged_taxons = @engaged_taxons.filter (eye_dee) ->
-      eye_dee isnt node_class
+      return eye_dee isnt node_class
     # # Elements may be in one of these states:
     #   mixed      - some instances of the node class are selected, but not all
     #   unshowing  - a light color indicating nothing of that type is selected
@@ -686,6 +716,7 @@ class CommandController
     #
     #   hidden     - TBD: not sure when hidden is appropriate
     #   emphasized - TBD: mark the class of the focused_node
+    return
   make_verb_sets: ->
     @verb_sets = [ # mutually exclusive within each set
         choose: @huviz.human_term.choose
@@ -710,6 +741,7 @@ class CommandController
       ]
     if @huviz.show_hunt_verb
       @verb_sets.push({hunt: @huviz.human_term.hunt})
+    return
     #,
     #  print: 'print'
     #  redact: 'redact'
@@ -718,8 +750,7 @@ class CommandController
     #  show: 'reveal'
     #  suppress: 'suppress'
     #  specify: 'specify'
-      #emphasize: 'emphasize'
-
+    #  emphasize: 'emphasize'
   auto_change_verb_tests:
     select: (node) ->
       if node.selected?
@@ -774,6 +805,7 @@ class CommandController
       @huviz.set_cursor_for_verbs(@engaged_verbs)
     else # no verbs are engaged
       @huviz.set_cursor_for_verbs([])
+    return
   verbs_requiring_regarding:
     ['show','suppress','emphasize','deemphasize']
   verbs_override: # when overriding ones are selected, others are unselected
@@ -876,6 +908,7 @@ class CommandController
     @nextcommand_working = @nextcommand.append('div').attr('class','cmd-spinner')
     @nextcommand_working.style('float:right; color:red; display:none;')
     @build_submit()
+    return
 
   working_timeout: 500 # msec
   start_working: ->
@@ -887,20 +920,24 @@ class CommandController
       #console.log "start_working()"
       @show_working_on()
     @already_working = setTimeout(@stop_working, @working_timeout)
+    return
   stop_working: =>
     @show_working_off()
     @already_working = undefined
+    return
   show_working_on: (cmd)->
     #console.log "show_working_on()"
     if cmd? and not cmd.skip_history
       @push_command_onto_history(cmd)
     @nextcommand_working.attr('class','fa fa-spinner fa-spin') # PREFERRED fa-2x
     @nextcommand.attr('class','nextcommand command cmd-working')
+    return
   show_working_off: ->
     #console.log "show_working_off()"
     @nextcommand_working.attr('class','')
     @nextcommand.attr('class','nextcommand command')
     #@nextcommand.attr('style','background-color:yellow') # PREFERRED
+    return
 
   build_depth: () ->
     @depthdiv.text('Activate/Wander Depth:').classed("control_label activate_depth", true)
@@ -913,6 +950,7 @@ class CommandController
     @depth_input.attr('min','1')
     @depth_input.attr('max','9')
     @depth_input.attr('value','1')
+    return
 
   build_like: () ->
     @likediv.text('matching:').classed("control_label", true)
@@ -928,10 +966,12 @@ class CommandController
     @clear_like_button.attr('disabled','disabled')
     @clear_like_button.attr('title','clear the "matching" field')
     @clear_like_button.on 'click', @handle_clear_like
+    return
 
   handle_clear_like: (evt) =>
     @like_input.property('value','')
     @handle_like_input()
+    return
 
   handle_like_input: (evt) =>
     like_value = @get_like_string()
@@ -965,6 +1005,7 @@ class CommandController
       else # nothing has happened, so
         TODO = "do nothing ????"
     @update_command(evt)
+    return
 
   build_submit: () ->
     @doit_butt = @nextcommand.append('span').append("input").
@@ -977,39 +1018,50 @@ class CommandController
         @huviz.run_command(@command)
         #@huviz.update_all_counts()  # TODO Try to remove this, should be auto
     @set_immediate_execution_mode(true)
+    return
   enable_doit_button: ->
     @doit_butt.attr('disabled',null)
+    return
   disable_doit_button: ->
     @doit_butt.attr('disabled','disabled')
+    return
   hide_doit_button: ->
     $(@doit_butt.node()).hide()
+    return
   show_doit_button: ->
     $(@doit_butt.node()).show()
+    return
   set_immediate_execution_mode: (which) ->
     if which
       @hide_doit_button()
     else
       @show_doit_button()
     @immediate_execution_mode = which
+    return
   update_immediate_execution_mode_as_warranted: ->
     @set_immediate_execution_mode(@should_be_immediate_execution_mode())
-
+    return
   disengage_all_verbs: =>
     for vid in @engaged_verbs
       @disengage_verb(vid)
+    return
   unselect_all_node_classes: ->
     for nid in @engaged_taxons
       @unselect_node_class(nid)
       @taxon_picker.set_direct_state(nid, 'unshowing')
+    return
   clear_like: ->
     @huviz.like_string()
+    return
   get_like_string: ->
-    @like_input.node().value
+    return @like_input.node().value
   push_command: (cmd) ->
     throw new Error('DEPRECATED')
     @push_command_onto_history(cmd)
+    return
   push_cmdArgs_onto_future: (cmdArgs) ->
     @future_cmdArgs.push(cmdArgs)
+    return
   push_future_onto_history: =>
     if @future_cmdArgs.length
       @huviz.goto_tab('history')
@@ -1018,6 +1070,7 @@ class CommandController
       @reset_command_history()
       @command_idx0 = 0
       @update_script_buttons()
+    return
   push_command_onto_history: (cmd) ->
     # Maybe the command_pointer is in the middle of the command_list and here
     # we are trying to run a new command -- so we need to dispose of the remaining
@@ -1041,6 +1094,7 @@ class CommandController
     delete_button.attr('class', 'delete-command')
     delete_button.on('click', () => @delete_script_command_by_id(cmd.id))
     @update_script_buttons()
+    return
   clear_unreplayed_commands_if_needed: ->
     while @command_idx0 < @command_list.length
       @delete_script_command_by_idx(@command_list.length - 1)
@@ -1063,6 +1117,7 @@ class CommandController
     if @command_idx0 < 0
       @command_idx0 = 0
     @update_script_buttons()
+    return
   update_script_buttons: ->
     if @command_list.length > 1
       @enable_save_buttons()
@@ -1076,24 +1131,31 @@ class CommandController
       @enable_back_buttons()
     if @command_idx0 <= 0
       @disable_back_buttons()
+    return
   disable_play_buttons: ->
     @scriptPlayButton.attr('disabled', 'disabled')
     @scriptForwardButton.attr('disabled', 'disabled')
+    return
   enable_play_buttons: ->
     @scriptForwardButton.attr('disabled', null)
     @scriptPlayButton.attr('disabled', null)
+    return
   disable_back_buttons: ->
     @scriptBackButton.attr('disabled', 'disabled')
     @scriptRewindButton.attr('disabled', 'disabled')
+    return
   enable_back_buttons: ->
     @scriptBackButton.attr('disabled', null)
     @scriptRewindButton.attr('disabled', null)
+    return
   disable_save_buttons: ->
     @scriptDownloadButton.attr('disabled', 'disabled')
     @scriptStashButton.attr('disabled', 'disabled')
+    return
   enable_save_buttons: ->
     @scriptDownloadButton.attr('disabled', null)
     @scriptStashButton.attr('disabled', null)
+    return
   build_command: ->
     args =
       verbs: []
@@ -1124,14 +1186,16 @@ class CommandController
     if like_str
       args.like = like_str
     @command = @new_GraphCommand(args)
+    return @command
   is_proposed: ->
-    @proposed_verb or @proposed_set or @proposed_taxon
+    return @proposed_verb or @proposed_set or @proposed_taxon
   update_command: (because) =>
     #console.log("update_command()", because)
     because = because or {}
     @huviz.show_state_msg("update_command")
     @run_any_immediate_command(because)
     @huviz.hide_state_msg()
+    return
   run_any_immediate_command: (because) ->
     #console.log("run_any_immediate_command()", because)
     ready = @prepare_command(@build_command())
@@ -1149,6 +1213,7 @@ class CommandController
     @huviz.update_all_counts()
     @perform_any_cleanup(because)
     @show_working_off()
+    return
   perform_any_cleanup: (because) ->
     #console.log("perform_any_cleanup()",because)
     if because? and because.cleanup
@@ -1188,7 +1253,7 @@ class CommandController
     return @command.ready
   ready_to_perform: () ->
     permit_multi_select = true
-    (@transient_verb_engaged is 'unselect') or
+    return (@transient_verb_engaged is 'unselect') or
       (not @object_phrase and (@engaged_verbs.length > 0)) or
       (permit_multi_select and
        (@engaged_verbs.length is 1 and @engaged_verbs[0] is 'select'))
@@ -1196,6 +1261,7 @@ class CommandController
     @verb_pretty_name = {}
     for vset in @verb_sets
       @add_verb_set(vset)
+    return
   add_verb_set: (vset) ->
     alternatives = @verbdiv.append('div').attr('class','alternates')
     for id,label of vset
@@ -1236,12 +1302,14 @@ class CommandController
   engage_transient_verb_if_needed: (verb_id) ->
     if @engaged_verbs.length is 0 and not @are_non_transient_verbs()
       @engage_verb(verb_id, true)
+    return
 
   disengage_transient_verb_if_needed: ->
     if @transient_verb_engaged
       @disengage_verb(@transient_verb_engaged)
       @huviz.set_cursor_for_verbs(@engaged_verbs)
       @update_command()
+    return
 
   engage_verb: (verb_id, transient) ->
     if transient
@@ -1254,12 +1322,14 @@ class CommandController
         @disengage_verb(vid)
     if not (verb_id in @engaged_verbs)
       @engaged_verbs.push(verb_id)
+    return
   disengage_verb: (verb_id, transient) ->
     @engaged_verbs = @engaged_verbs.filter((verb) -> verb isnt verb_id) # remove verb_id
     @verb_control[verb_id].classed('engaged',false)
     if verb_id is @transient_verb_engaged
       @transient_verb_engaged = false
       @verb_control[verb_id].classed('transient', false)
+    return
   verb_control: {}
   build_verb_picker: (id,label,alternatives) ->
     vbctl = alternatives.append('div').attr("class","verb")
@@ -1271,6 +1341,7 @@ class CommandController
     that = @
     vbctl.on 'click', () =>
       @handle_on_verb_clicked(id, vbctl)
+      return
     vbctl.on 'mouseenter', () -> # tell user what will happen if this verb is clicked
       elem = d3.select(this)
       click_would_engage = not elem.classed('engaged')
@@ -1286,6 +1357,7 @@ class CommandController
       # or there are more than one engaged_verbs.
       #click_would_leave_a_verb_phrase = click_would_engage or that.engaged_verbs.length > 1
       that.update_command(because)
+      return
     vbctl.on 'mouseleave', () ->
       elem = d3.select(this)
       leaving_verb_id = elem.classed('engaged')
@@ -1293,11 +1365,15 @@ class CommandController
         verb_leaving: leaving_verb_id
       that.proposed_verb = null
       that.update_command(because)
+      return
+    return
 
   handle_on_verb_clicked: (id, elem) =>
     @start_working()
     setTimeout () => # run asynchronously so @start_working() can get a head start
       @on_verb_clicked(id, elem)
+      return
+    return
 
   on_verb_clicked: (id, elem) ->
     newstate = not elem.classed('engaged')
@@ -1319,6 +1395,7 @@ class CommandController
     if not @engaged_verbs? or @engaged_verbs.length is 0
       @huviz.set_cursor_for_verbs([])
     @update_command(because)
+    return
 
   run_script: (script) ->
     # We recognize a couple of different visible "space-illustrating characters" as spaces.
@@ -1330,6 +1407,7 @@ class CommandController
     script = script.replace(/[\u237D\u2420]/g," ")
     @huviz.gclc.run(script)
     @huviz.update_all_counts()
+    return
   build_set_picker: (label, where) ->
     # FIXME populate @the_sets from @huviz.selectable_sets
     where = label? and @control_label(label, where) or @comdiv
@@ -1362,6 +1440,7 @@ class CommandController
     for id, a_set of @huviz.selectable_sets
       if a_set.docs?
         @set_picker.set_title(id, a_set.docs)
+    return
   make_sets_proposable: () ->
     make_listeners = (id, a_set) => # fat arrow carries this to @
       set_ctl = @set_picker.id_to_elem[id]
@@ -1373,10 +1452,13 @@ class CommandController
         @update_command()
     for id, a_set of @huviz.selectable_sets
       make_listeners(id, a_set)
+    return
   handle_on_set_picked: (set_id, new_state) =>
     @start_working()
     setTimeout () => # run asynchronously so @start_working() can get a head start
       @on_set_picked(set_id, new_state)
+      return
+    return
   on_set_picked: (set_id, new_state) ->
     @clear_set_picker() # TODO consider in relation to liking_all_mode
     @set_picker.set_direct_state(set_id, new_state)
@@ -1403,6 +1485,7 @@ class CommandController
       @huviz.run_command(cmd, @make_run_transient_and_cleanup_callback(because))
       because = {}
     @update_command()
+    return
 
   disengage_all_sets: =>
     # TODO harmonize disengage_all_sets() and clear_all_sets() or document difference
@@ -1410,6 +1493,7 @@ class CommandController
       @on_set_picked(@chosen_set_id, "unshowing")
       delete @chosen_set_id
       delete @chosen_set
+    return
   clear_all_sets: =>
     skip_sets = ['shelved_set']
     for set_key, set_label of @the_sets.all_set[1]
@@ -1424,14 +1508,18 @@ class CommandController
     return
   on_set_count_update: (set_id, count) =>
     @set_picker.set_payload(set_id, count)
+    return
   on_taxon_count_update: (taxon_id, count) ->
     @taxon_picker.set_payload(taxon_id, count)
+    return
   on_predicate_count_update: (pred_lid, count) ->
     @predicate_picker.set_payload(pred_lid, count)
+    return
   clear_set_picker: () ->
     if @chosen_set_id?
       @set_picker.set_direct_state(@chosen_set_id, 'unshowing')
       delete @chosen_set_id
+    return
 
 (exports ? this).CommandController = CommandController
 # export {CommandController}; // TODO convert to module
