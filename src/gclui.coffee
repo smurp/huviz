@@ -24,9 +24,9 @@ getRandomId = (prefix) ->
   return prefix + Math.floor(Math.random() * Math.floor(max))
 
 # import {GraphCommand} from 'graphcommandlanguage.js'; // TODO convert to module
-ColoredTreePicker = require('coloredtreepicker').ColoredTreePicker
+# import {ColoredTreePicker} from 'coloredtreepicker.js'; // TODO convert to module
+# import {TreePicker} from 'treepicker.js'; // TODO convert to module
 QueryManager = require('querymanager').QueryManager
-TreePicker = require('treepicker').TreePicker
 
 class CommandController
   constructor: (@huviz, @container, @hierarchy) ->

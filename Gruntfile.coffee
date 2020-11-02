@@ -18,6 +18,8 @@ module.exports = (grunt) ->
           'js/angliciser.js',
           'js/graphcommandlanguage.js',
           'js/uniquer.js',
+          'js/treepicker.js',
+          'js/coloredtreepicker.js',
           'js/treectrl.js',
           'js/predicate.js',
           'js/taxon.js',
