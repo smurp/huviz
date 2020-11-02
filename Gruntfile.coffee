@@ -25,6 +25,7 @@ module.exports = (grunt) ->
           'js/predicate.js',
           'js/taxon.js',
           'js/sortedset.js',
+          'js/gclui.js',
           'js/hsv.js',
           'js/hsl.js',
           'js/edge.js',

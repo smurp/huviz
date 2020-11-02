@@ -111,13 +111,12 @@
 
 # uniquer = require("uniquer").uniquer # FIXME rename to make_dom_safe_id
 # import uniquer from 'uniquer.js';
-#asyncLoop = require('asynchronizer').asyncLoop
-CommandController = require('gclui').CommandController
 EditController = require('editui').EditController
 #FiniteStateMachine = require('fsm').FiniteStateMachine
 IndexedDBService = require('indexeddbservice').IndexedDBService
 IndexedDBStorageController = require('indexeddbstoragecontroller').IndexedDBStorageController
 GreenerTurtle = require('greenerturtle').GreenerTurtle
+# import {CommandController} from 'gclui.js'; // TODO convert to module
 # import {GraphCommand, GraphCommandLanguageCtrl} from 'graphcommandlanguage.js'; // TODO convert to module
 # import Edge from 'edge.js'; // TODO convert to module
 # import {Node} from 'node.js'; // TODO convert to module
