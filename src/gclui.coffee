@@ -23,7 +23,7 @@ getRandomId = (prefix) ->
   prefix = prefix || 'id';
   return prefix + Math.floor(Math.random() * Math.floor(max))
 
-gcl = require('graphcommandlanguage')
+# import {GraphCommand} from 'graphcommandlanguage.js'; // TODO convert to module
 ColoredTreePicker = require('coloredtreepicker').ColoredTreePicker
 QueryManager = require('querymanager').QueryManager
 TreePicker = require('treepicker').TreePicker
@@ -66,7 +66,7 @@ class CommandController
       label.attr('title',title)
     return outer
   new_GraphCommand: (args) ->
-    return new gcl.GraphCommand(@huviz, args)
+    return new GraphCommand(@huviz, args)
   reset_graph: ->
     ###
     * unhide all
@@ -1390,12 +1390,12 @@ class CommandController
         set_added: set_id
         cleanup: @disengage_all_sets # the method to call to clear
       if hasVerbs
-        cmd = new gcl.GraphCommand @huviz,
+        cmd = new GraphCommand @huviz,
             verbs: @engaged_verbs # ['select']
             sets: [@chosen_set.id]
     else if new_state is 'unshowing'
       @taxon_picker.unshield()
-      XXXcmd = new gcl.GraphCommand @huviz,
+      XXXcmd = new GraphCommand @huviz,
           verbs: ['unselect']
           sets: [@chosen_set.id]
       @disengage_all_sets()
@@ -1417,7 +1417,7 @@ class CommandController
         continue
       the_set = @huviz[set_key]
       cleanup_verb = the_set.cleanup_verb
-      cmd = new gcl.GraphCommand @huviz,
+      cmd = new GraphCommand @huviz,
         verbs: [cleanup_verb]
         sets: [the_set.id]
       @huviz.run_command(cmd)
@@ -1432,5 +1432,6 @@ class CommandController
     if @chosen_set_id?
       @set_picker.set_direct_state(@chosen_set_id, 'unshowing')
       delete @chosen_set_id
-    
+
 (exports ? this).CommandController = CommandController
+# export {CommandController}; // TODO convert to module

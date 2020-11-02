@@ -111,15 +111,14 @@
 
 # uniquer = require("uniquer").uniquer # FIXME rename to make_dom_safe_id
 # import uniquer from 'uniquer.js';
-gcl = require('graphcommandlanguage')
 #asyncLoop = require('asynchronizer').asyncLoop
 CommandController = require('gclui').CommandController
 EditController = require('editui').EditController
 #FiniteStateMachine = require('fsm').FiniteStateMachine
 IndexedDBService = require('indexeddbservice').IndexedDBService
 IndexedDBStorageController = require('indexeddbstoragecontroller').IndexedDBStorageController
-GraphCommandLanguageCtrl = require('graphcommandlanguage').GraphCommandLanguageCtrl
 GreenerTurtle = require('greenerturtle').GreenerTurtle
+# import {GraphCommand, GraphCommandLanguageCtrl} from 'graphcommandlanguage.js'; // TODO convert to module
 # import Edge from 'edge.js'; // TODO convert to module
 # import {Node} from 'node.js'; // TODO convert to module
 # import {Predicate} from 'predicate.js'; // TODO convert to module
@@ -1149,7 +1148,7 @@ class Huviz
 
   perform_current_command: (node) ->
     if @gclui.ready_to_perform()
-      cmd = new gcl.GraphCommand this,
+      cmd = new GraphCommand this,
         verbs: @gclui.engaged_verbs
         subjects: [node]
       @run_command(cmd)
@@ -1731,7 +1730,7 @@ class Huviz
       @gclui.taxon_picker.expand_by_id(id)
 
   do: (args) ->
-    cmd = new gcl.GraphCommand(this, args)
+    cmd = new GraphCommand(this, args)
     @gclc.run(cmd)
 
   reset_data: ->
@@ -4582,7 +4581,7 @@ class Huviz
     $("#status").text ""
 
   choose_everything: =>
-    cmd = new gcl.GraphCommand this,
+    cmd = new GraphCommand this,
       verbs: ['choose']
       classes: ['Thing']
       every_class: true
@@ -5899,7 +5898,7 @@ class Huviz
         verbs: ['show']
         regarding: [pred_uri]
         sets: [@shelved_set.id]
-      cmd = new gcl.GraphCommand(this, cmdArgs)
+      cmd = new GraphCommand(this, cmdArgs)
       @run_command(cmd)
       @clean_up_all_dirt_once()
 
@@ -7373,7 +7372,7 @@ class Huviz
       subjects: [@get_handle subject]
     if verb is 'pin'
       args.polar_coords = @get_polar_coords_of(subject)
-    cmd = new gcl.GraphCommand(this, args)
+    cmd = new GraphCommand(this, args)
     @run_command(cmd)
 
   before_running_command: ->
