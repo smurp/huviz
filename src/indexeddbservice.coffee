@@ -1,4 +1,4 @@
-#
+
 class IndexedDBService
   constructor: (@huviz) ->
     @dbName = @get_dbName()
@@ -12,12 +12,15 @@ class IndexedDBService
       #alert(e.toString())
       if callback?
         callback(e)
+      return
     del_req.onsuccess = (e) =>
       #alert("done deleting #{dbname}")
       if dbname is @dbName
         @nstoreDB = undefined
       if callback?
         callback()
+      return
+    return
 
   initialize_db: (callback) ->
     indexedDB = window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB
@@ -29,6 +32,7 @@ class IndexedDBService
       @nstoreDB = db
       if cb?
         cb(err)
+      return
 
     if @nstoreDB?
       msg = "nstoreDB already exists with name #{@dbName}"
@@ -40,11 +44,13 @@ class IndexedDBService
       req.onsuccess = (evt) =>
         console.debug("onsuccess #{@dbName}")
         when_done(req.result, "success", callback)
+        return
 
       req.onerror = (evt) =>
         console.error("IndexDB Error: " + evt.target.error.message)
         if callback?
           callback(evt.target.error)
+        return
 
       req.onupgradeneeded = (evt) =>
         db = evt.target.result
@@ -66,6 +72,7 @@ class IndexedDBService
           store.transaction.oncomplete = (evt) =>
             when_done(db, "onupgradeneeded", callback)
             console.debug("transactions are complete")
+        return
     return
 
   dbName_default: 'nstoreDB'
@@ -83,6 +90,6 @@ class IndexedDBService
     #trx.onerror = (e) =>
     #  console.log(e)
     #  alert "add_dataset(spogis) error!!!"
-
+    return
 
 (exports ? this).IndexedDBService = IndexedDBService
