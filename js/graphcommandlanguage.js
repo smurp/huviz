@@ -606,4 +606,3 @@ class GraphCommandLanguageCtrl {
 }
 
 // export {GraphCommandLanguageCtrl, GraphCommand, GCLTest, GCLTestSuite}
-

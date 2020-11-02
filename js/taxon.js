@@ -1,11 +1,5 @@
-/*
- * decaffeinate suggestions:
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 // import angliciser from 'angliciser.js' // TODO use as module
-// import TreeCtrl from 'treectrl.js'
+// import TreeCtrl from 'treectrl.js' // TODO use as module
 
 class Taxon extends TreeCtrl {
   static initClass() {
