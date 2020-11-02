@@ -121,7 +121,7 @@ IndexedDBStorageController = require('indexeddbstoragecontroller').IndexedDBStor
 Edge = require('edge').Edge
 GraphCommandLanguageCtrl = require('graphcommandlanguage').GraphCommandLanguageCtrl
 GreenerTurtle = require('greenerturtle').GreenerTurtle
-Node = require('node').Node
+# import {node} from 'node.js';
 # Predicate = require('predicate').Predicate
 # import {Predicate} from 'predicate.js';
 # Taxon = require('taxon').Taxon
