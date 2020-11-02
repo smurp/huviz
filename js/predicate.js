@@ -1,13 +1,5 @@
-/*
- * decaffeinate suggestions:
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-// TreeCtrl = require('treectrl').TreeCtrl
-// import TreeCtrl from 'treectrl.js'
-// uniquer = require("uniquer").uniquer
-// import uniquer from 'uniquer.js';
+// import TreeCtrl from 'treectrl.js'; // TODO convert to module
+// import uniquer from 'uniquer.js'; // TODO convert to module
 
 class Predicate extends TreeCtrl {
   static initClass() {
@@ -64,5 +56,4 @@ class Predicate extends TreeCtrl {
 }
 Predicate.initClass();
 
-// (exports ? this).Predicate = Predicate
-// export {Predicate}
+// export {Predicate}  // TODO convert to module

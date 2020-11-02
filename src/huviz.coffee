@@ -118,14 +118,12 @@ EditController = require('editui').EditController
 #FiniteStateMachine = require('fsm').FiniteStateMachine
 IndexedDBService = require('indexeddbservice').IndexedDBService
 IndexedDBStorageController = require('indexeddbstoragecontroller').IndexedDBStorageController
-# import Edge from 'edge.js'; // TODO convert to module
-# import {Node} from 'node.js'; // TODO convert to module
 GraphCommandLanguageCtrl = require('graphcommandlanguage').GraphCommandLanguageCtrl
 GreenerTurtle = require('greenerturtle').GreenerTurtle
-# Predicate = require('predicate').Predicate
-# import {Predicate} from 'predicate.js';
-# Taxon = require('taxon').Taxon
-# import {Taxon} from 'taxon.js';
+# import Edge from 'edge.js'; // TODO convert to module
+# import {Node} from 'node.js'; // TODO convert to module
+# import {Predicate} from 'predicate.js'; // TODO convert to module
+# import {Taxon} from 'taxon.js'; // TODO convert to module
 TextCursor = require('textcursor').TextCursor
 
 MultiString.set_langpath('en:fr') # TODO make this a setting
