@@ -20,6 +20,7 @@ class EditController extends FiniteStateMachine
         target: 'disabled'
       enable:
         target: 'prepared'
+    return
 
   on__prepare: ->
     if @userValid is true and not @con #document.getElementsByClassName("edit-controls")[0] is undefined
@@ -49,19 +50,24 @@ class EditController extends FiniteStateMachine
       @subject_input = @formFields[0]
       @predicate_input = @formFields[1]
       @object_input = @formFields[2]
+    return
 
   hide: ->
     $(@con).hide()
+    return
   show: ->
     $(@con).show()
+    return
 
   on__disable: ->
     @hide_verbs()
     @hide_form()
+    return
 
   on__enable: ->
     @show_verbs()
     @show_form()
+    return
 
   get_verb_set: ->
     return {
@@ -74,18 +80,21 @@ class EditController extends FiniteStateMachine
   add_verbs: ->
     vset = @get_verb_set()
     @huviz.gclui.verb_sets.unshift(vset)
-    @huviz.gclui.add_verb_set(vset, (prepend = true))
+    return @huviz.gclui.add_verb_set(vset, (prepend = true))
 
   ensure_verbs: ->
     if not @my_verbs
       @my_verbs = @add_verbs()
       @hide_verbs()
+    return
 
   hide_verbs: ->
     @my_verbs.style('display','none')
+    return
 
   show_verbs: ->
     @my_verbs.style('display','flex')
+    return
 
   create_edit_form: (toggleEdit) ->
     formNode = document.createElement('form')
@@ -95,6 +104,7 @@ class EditController extends FiniteStateMachine
     formNode.innerHTML += '<button class="clearForm" type="button">Clear</button>'
     toggleEdit.appendChild(formNode)
     @set_predicate_selector()
+    return
 
   set_predicate_selector: () ->
     #console.log("setting predicate selector in edit form")
@@ -119,22 +129,26 @@ class EditController extends FiniteStateMachine
         my: "left bottom"
         at: "left top"
     )
+    return
 
   update_predicate_picked: (event, ui) ->
     #if event.type is 'autocompletechange'
     new_pred_value = @predicate_input.value
     console.log("#{new_pred_value} is new predicate")
     @validate_proposed_edge()
+    return
 
   hide_form: ->
     @con.setAttribute("edit","no")
     @con.classList.remove("edit-mode")
     #@huviz.set_edit_mode(false)
+    return
 
   show_form: ->
     @con.setAttribute("edit","yes")
     @con.classList.add("edit-mode")
     #@huviz.set_edit_mode(true)
+    return
 
   toggle_edit_form: () =>
     toggleEditMode = @con.getAttribute("edit")
@@ -145,6 +159,7 @@ class EditController extends FiniteStateMachine
     if toggleEditMode is 'yes' #toggle switched to normal mode, then hide form
       @hide_verbs()
       @hide_form()
+    return
 
   validate_edit_form: (evt) ->
     form = @controls
@@ -158,6 +173,7 @@ class EditController extends FiniteStateMachine
       else
         saveButton.disabled = false
     @adjust_object_datatype()
+    return
 
   predicate_is_DatatypeProperty: () ->
     # The job of figuring this out is best done in a method because:
@@ -185,6 +201,7 @@ class EditController extends FiniteStateMachine
     # if the predicate is of DatatypeProperty then
     #  0. replace placeholder to reflect data type needed in object
     #  1. object field will only accpet input according to appropriate type (i.e. literal string, number or date)
+    return
 
   save_edit_form: () ->
     form = @controls
@@ -209,6 +226,7 @@ class EditController extends FiniteStateMachine
       form.elements[i].value = ''
     saveButton.disabled = true
     #@proposed_quad = null #set to false (no focused edge)
+    return
 
   clear_edit_form: () ->
     form = @controls
@@ -224,6 +242,7 @@ class EditController extends FiniteStateMachine
     @set_object_node()
     saveButton.disabled = true
     # TODO why on calling this function does the ability to drag nodes to fill form disabled?
+    return
 
   set_subject_node: (node) ->
     if @subject_node is node
@@ -234,6 +253,7 @@ class EditController extends FiniteStateMachine
     @subject_input.setAttribute("value",new_value)
     @validate_edit_form()
     @validate_proposed_edge()
+    return
 
   set_object_node: (node) -> # either a node or undefined
     if @object_node is node
@@ -244,6 +264,7 @@ class EditController extends FiniteStateMachine
     @object_input.setAttribute("value",new_value)
     @validate_edit_form()
     @validate_proposed_edge()
+    return
 
   validate_proposed_edge: () -> # type = subject or object
     console.log('validate_proposed_edge()')
@@ -275,6 +296,7 @@ class EditController extends FiniteStateMachine
         return
       console.log("... accepting: <s:#{q.s}, p:#{q.p}, o:#{q.o.value}>")
       @set_proposed_quad(q)
+    return
 
   quads_match: (a, b) ->
     return (a.s is b.s) and (a.p is b.p) and (a.o.value is b.o.value)
@@ -287,6 +309,7 @@ class EditController extends FiniteStateMachine
     @add_proposed_quad(new_q)
     @huviz.tick() # tell the graph to repaint itself
     console.log "Tick in editui.coffee set_proposed_quad"
+    return
 
   add_proposed_quad: (q) ->
     console.log ("add_proposed_quad() " + q.s + " " + q.p + " " +q.o.value)
@@ -296,6 +319,7 @@ class EditController extends FiniteStateMachine
     @huviz.set_proposed_edge(edge)
     @huviz.show_link(edge)
     @proposed_quad = q
+    return
 
   remove_proposed_quad: ->
     old_edge = @huviz.proposed_edge
@@ -307,5 +331,6 @@ class EditController extends FiniteStateMachine
       @huviz.delete_edge(old_edge)
       #delete @huviz.edges_by_id[old_edge]
     @proposed_quad = null
+    return
 
   (exports ? this).EditController = EditController

@@ -109,13 +109,12 @@
 #  67) TASK: add verbs pin/unpin (using polar coords to record placement)
 #
 
-# uniquer = require("uniquer").uniquer # FIXME rename to make_dom_safe_id
-# import uniquer from 'uniquer.js';
 EditController = require('editui').EditController
 #FiniteStateMachine = require('fsm').FiniteStateMachine
 IndexedDBService = require('indexeddbservice').IndexedDBService
 IndexedDBStorageController = require('indexeddbstoragecontroller').IndexedDBStorageController
 GreenerTurtle = require('greenerturtle').GreenerTurtle
+# import {uniquer} from 'uniquer.js'; // TODO convert to module # FIXME rename to make_dom_safe_id
 # import {CommandController} from 'gclui.js'; // TODO convert to module
 # import {GraphCommand, GraphCommandLanguageCtrl} from 'graphcommandlanguage.js'; // TODO convert to module
 # import Edge from 'edge.js'; // TODO convert to module
