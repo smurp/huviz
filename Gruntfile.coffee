@@ -25,6 +25,7 @@ module.exports = (grunt) ->
           'js/hsl.js',
           'js/edge.js',
           'js/node.js',
+          'js/textcursor.js',
           'js/quadParser.js',
           'js/multistring.js',
           'js/oncerunner.js',

@@ -124,7 +124,7 @@ GreenerTurtle = require('greenerturtle').GreenerTurtle
 # import {Node} from 'node.js'; // TODO convert to module
 # import {Predicate} from 'predicate.js'; // TODO convert to module
 # import {Taxon} from 'taxon.js'; // TODO convert to module
-TextCursor = require('textcursor').TextCursor
+# import {TextCursor} from 'textcursor.js';
 
 MultiString.set_langpath('en:fr') # TODO make this a setting
 
