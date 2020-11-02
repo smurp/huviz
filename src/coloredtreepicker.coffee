@@ -72,9 +72,11 @@ class ColoredTreePicker extends TreePicker
   add: (id,parent_id,name,listener) ->
     super(id,parent_id,name,listener)
     # FIXME @recolor_now() unless handled externally
+    return
   recolor_now: =>
     @id_to_colors = @recolor()
     @update_css()
+    return
   get_my_style_id: () ->
     return "#{@get_my_id()}_colors"
   update_css: ->
@@ -135,13 +137,13 @@ class ColoredTreePicker extends TreePicker
           if class_str.indexOf("treepicker-label") > -1
             continue
           @recolor_recurse_DOM(retval, recursor, elem, indent + " |")
-    retval
+    return retval
   container_regex: new RegExp("container")
   contents_regex: new RegExp("contents")
-  recolor_node: (retval, recursor, id, elem_raw, indent) ->
+  recolor_node: (a_node, recursor, id, elem_raw, indent) ->
     elem = d3.select(elem_raw)
     if @is_abstract(id)
-      retval[id] =
+      a_node[id] =
         unshowing:  hsl2rgb(0, 0, L_unshowing)
         showing:     hsl2rgb(0, 0, L_showing)
         emphasizing: hsl2rgb(0, 0, L_emphasizing)
@@ -151,14 +153,15 @@ class ColoredTreePicker extends TreePicker
       #   Adding 1 ensures different first and last colors, since 0 == 360
       hue = ((recursor.i + .5)/(recursor.count + 1)) * 360
       recursor.i++ # post-increment to stay in the range below 360
-      retval[id] =
+      a_node[id] =
         unshowing:   hsl2rgb(hue, S_all, L_unshowing)
         showing:     hsl2rgb(hue, S_all, L_showing)
         emphasizing: hsl2rgb(hue, S_all, L_emphasizing)
       if verbose and recursor.i in [1, recursor.count + 1]
-        console.info(id, recursor, hue, retval[id])
+        console.info(id, recursor, hue, a_node[id])
     if verbose
-      console.log(indent + " - - - recolor_node("+id+")",retval[id].unshowing)
+      console.log(indent + " - - - recolor_node("+id+")", a_node[id].unshowing)
+    return
   get_current_color_forId: (id) ->
     state = @id_to_state[true][id]
     return @get_color_forId_byName(id, state)
@@ -167,24 +170,27 @@ class ColoredTreePicker extends TreePicker
     colors = @id_to_colors[id]
     if colors?
       return colors[state_name]
-    #else
-    #  msg = "get_color_forId_byName(" + id + ") failed because @id_to_colors[id] not found"
-    #  return 'pink'
+    console.warn("no colors found for id: " + id)
+    return
   click_handler: () =>
     id = super()
     @style_with_kid_color_summary_if_needed(id)
+    return
   style_with_kid_color_summary_if_needed: (id) ->
     if @should_be_colored_by_kid_summary(id)
       @style_with_kid_color_summary(id)
+    return
   should_be_colored_by_kid_summary: (id) ->
     return not @is_leaf(id) and @id_is_collapsed[id]
   collapse_by_id: (id) ->
     super(id)
     @style_with_kid_color_summary_if_needed(id)
+    return
   expand_by_id: (id) ->
     if @should_be_colored_by_kid_summary(id)
       @id_to_elem[id].attr("style", "") # clear style set by set_gradient_style
     super(id)
+    return
   summarize_kid_colors: (id, color_list) ->
     color_list = color_list or []
     kids = @id_to_children[id]
@@ -202,16 +208,18 @@ class ColoredTreePicker extends TreePicker
       color_list.push(color_list[0])
     if color_list.length
       @set_gradient_style(id,color_list)
+    return
   set_gradient_style: (id, kid_colors) ->
     colors = kid_colors.join(', ')
     style = "background-color: transparent;"
     style += " background: linear-gradient(45deg, #{colors})"
     @id_to_elem[id].attr("style", style)
+    return
   set_payload: (id, value) ->
     super(id, value)
     # REVIEW it works but is this the right time to do this?
     # ensure collapsed nodes have summary colors updated
     @style_with_kid_color_summary_if_needed(id)
-
+    return
 
 (exports ? this).ColoredTreePicker = ColoredTreePicker

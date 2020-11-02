@@ -74,13 +74,14 @@ class TreePicker
     @
   set_abstract: (id) ->
     @id_is_abstract[id] = true
+    return
   get_abstract_count: ->
     return Object.keys(@id_is_abstract).length
   is_abstract: (id) -> # ie class has no direct instances but maybe subclasses
     tmp = @id_is_abstract[id]
-    tmp? and tmp
+    return tmp? and tmp
   uri_to_js_id: (uri) ->
-    uniquer(uri)
+    return uniquer(uri)
   get_childrens_ids: (parent_id) ->
     parent_id ?= '/' # if no parent indicated, return root's kids
     return @id_to_children[parent_id] or []
@@ -117,6 +118,7 @@ class TreePicker
     label_elem = node_elem.querySelector('p.treepicker-label span.label')
     if label_elem?
       label_elem.textContent = @id_to_name[node_id]
+    return
   get_comparison_value: (node_id, label) ->
     if @use_name_as_label
       this_term = (label or node_id)
@@ -134,9 +136,9 @@ class TreePicker
       if (other_term > this_term)
         return @add_to_elem_before(i_am_in, node_id, "#"+elem.id, label)
     # fall through and append if it comes before nothing
-    @add_to_elem_before(i_am_in, node_id, undefined, label)
+    return @add_to_elem_before(i_am_in, node_id, undefined, label)
   add_to_elem_before: (i_am_in, node_id, before, label) ->
-    i_am_in.insert('div', before). # insert just appends if before is undef
+    return i_am_in.insert('div', before). # insert just appends if before is undef
         attr('class','contents').
         attr('id',node_id)
   show_tree: (tree, i_am_in, listener, top) ->
@@ -161,6 +163,7 @@ class TreePicker
           for css_class in @extra_classes
             my_contents.classed(css_class, true)
         @show_tree(rest[1], my_contents, listener, false)
+    return
   click_handler: () =>
     picker = this
     elem = d3.select(d3.event.target)
@@ -175,6 +178,7 @@ class TreePicker
   handle_click: (id) =>
     # If this is called then id itself was itself click, not triggered by recursion
     @go_to_next_state(id, @get_next_state_args(id))
+    return
   get_next_state_args: (id) ->
     elem = @id_to_elem[id]
     if not elem
@@ -200,6 +204,7 @@ class TreePicker
     listener = @click_listener
     send_leafward = @id_is_collapsed[id]
     @effect_click(id, args.new_state, send_leafward, listener, args)
+    return
   effect_click: (id, new_state, send_leafward, listener, args) ->
     if send_leafward
       kids = @id_to_children[id]
@@ -210,6 +215,7 @@ class TreePicker
     if listener?  # TODO(shawn) replace with custom event?
       elem = @id_to_elem[id]
       listener.call(this, id, new_state, elem, args) # now this==picker not the event
+    return
   get_or_create_container: (contents) ->
     r = contents.select(".container")
     if r.node() isnt null
@@ -222,6 +228,7 @@ class TreePicker
       @id_to_name[id] = name
     else
       @id_to_name[id] = id
+    return
   add: (new_id, parent_id, name, listener) ->
     @ids_in_arrival_order.push(new_id)
     parent_id = parent_id? and parent_id or @get_top()
@@ -244,6 +251,7 @@ class TreePicker
     if @needs_expander
       @get_or_create_expander(parent,parent_id)
     @show_tree(branch, container, listener)
+    return
   collapser_str: "▼" # 0x25bc
   expander_str: "▶" # 0x25b6
   get_or_create_expander: (thing, id) ->
@@ -273,6 +281,7 @@ class TreePicker
     exp = elem.select(".expander")
     exp.text(@expander_str)
     @update_payload_by_id(id)
+    return
   expand_by_id: (id) ->
     @id_is_collapsed[id] = false
     elem = @id_to_elem[id]
@@ -280,10 +289,12 @@ class TreePicker
     exp = elem.select(".expander")
     exp.text(@collapser_str)
     @update_payload_by_id(id)
+    return
   expand_all: ->
     for id, collapsed of @id_is_collapsed
       if collapsed
         @expand_by_id(id)
+    return
   get_or_create_payload: (thing) ->
     if thing? and thing
       thing_id = thing.node().id
@@ -291,6 +302,7 @@ class TreePicker
       if r.node() isnt null
         return r
       thing.select(".treepicker-label").append('span').classed("payload", true)
+    return
   set_payload: (id, value) ->
     elem = @id_to_elem[id]
     if not elem? #and elem isnt null
@@ -302,10 +314,12 @@ class TreePicker
         payload.text(value)
       else
         payload.remove()
+    return
   set_title: (id, title) ->
     elem = @id_to_elem[id]
     if elem?
       elem.attr("title", title)
+    return
   set_direct_state: (id, state, old_state) ->
     if not old_state?
       old_state = @id_to_state[true][id]
@@ -318,6 +332,7 @@ class TreePicker
       elem.classed("treepicker-#{old_state}", false)
     if state?
       elem.classed("treepicker-#{state}", true)
+    return
   set_indirect_state: (id, state, old_state) ->
     if not state?
       console.error("#{@get_my_id()}.set_indirect_state()",
@@ -333,10 +348,12 @@ class TreePicker
       elem.classed("treepicker-indirect-#{old_state}",false)
     if state?
       elem.classed("treepicker-indirect-#{state}",true)
+    return
   set_both_states_by_id: (id, direct_state, indirect_state, old_state, old_indirect_state) ->
     @set_direct_state(id, direct_state, old_state)
     @set_indirect_state(id, indirect_state, old_indirect_state)
     # the responsibility for knowing that parent state should change is Taxons
+    return
   is_leaf: (id) ->
     return (not @id_to_children[id]?) or @id_to_children[id].length is 0
   update_parent_indirect_state: (id) ->
@@ -360,6 +377,7 @@ class TreePicker
       #  console.info("#{@get_my_id()}.update_parent_indirect_state()",id, "still state:", new_parent_indirect_state)
       # console.info("#{@get_my_id()}.update_parent_indirect_state()", {parent_id: parent_id, parent_indirect_state: parent_indirect_state, child_indirect_state: child_indirect_state, new_parent_indirect_state: new_parent_indirect_state})
       @update_parent_indirect_state(parent_id)
+    return
   calc_new_indirect_state: (id) ->
     # If every time a node has its direct state change it tells its
     # parent to check whether the parents direct children share that
@@ -407,6 +425,7 @@ class TreePicker
       @id_to_payload_expanded[det.target_id] = det.payload
     if update
       @update_payload_by_id(det.target_id)
+    return
   update_payload_by_id: (id) ->
     if @id_is_collapsed[id]
       payload = @id_to_payload_collapsed[id]
@@ -416,5 +435,6 @@ class TreePicker
       payload =  @id_to_payload_expanded[id]
       if payload?
         @set_payload(id, payload)
+    return
 
 (exports ? this).TreePicker = TreePicker
