@@ -17,6 +17,7 @@ module.exports = (grunt) ->
         dependencies: [
           'js/angliciser.js',
           'js/graphcommandlanguage.js',
+          'js/querymanager.js',
           'js/uniquer.js',
           'js/treepicker.js',
           'js/coloredtreepicker.js',
