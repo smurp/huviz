@@ -27,8 +27,7 @@ Possible Bug: it appears that <div class="container" id="classes"> has a redunda
               It is unclear why this is needed.  Containers should not directly hold containers.
 ###
 
-# uniquer = require("uniquer").uniquer
-# import uniquer from 'uniquer.js';
+# import uniquer from 'uniquer.js'; // TODO convert to module
 
 class TreePicker
   constructor: (@elem, root, extra_classes, @needs_expander, @use_name_as_label, @squash_case_during_sort, @style_context_selector) ->
