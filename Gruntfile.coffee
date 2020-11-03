@@ -23,6 +23,7 @@ module.exports = (grunt) ->
           'js/uniquer.js',
           'js/treepicker.js',
           'js/fsm.js',
+          'js/editui.js',
           'js/coloredtreepicker.js',
           'js/treectrl.js',
           'js/predicate.js',
