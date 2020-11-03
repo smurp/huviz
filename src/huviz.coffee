@@ -111,7 +111,7 @@
 
 EditController = require('editui').EditController
 #FiniteStateMachine = require('fsm').FiniteStateMachine
-IndexedDBService = require('indexeddbservice').IndexedDBService
+# import {IndexedDBService} from 'indexeddbservice.js'; // TODO convert to module
 IndexedDBStorageController = require('indexeddbstoragecontroller').IndexedDBStorageController
 GreenerTurtle = require('greenerturtle').GreenerTurtle
 # import {uniquer} from 'uniquer.js'; // TODO convert to module # FIXME rename to make_dom_safe_id

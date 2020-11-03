@@ -1,4 +1,4 @@
-indexdDBstore = require('indexeddbservice')
+# import {IndexedDBService} from 'indexeddbservice.js'; // TODO convert to module FIXME is this needed?
 
 class IndexedDBStorageController
   constructor: (@huviz, @dbs) ->

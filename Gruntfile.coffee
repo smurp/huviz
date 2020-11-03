@@ -16,6 +16,7 @@ module.exports = (grunt) ->
         paths: ['src']
         dependencies: [
           'js/angliciser.js',
+          'js/indexeddbservice.js',
           'js/graphcommandlanguage.js',
           'js/querymanager.js',
           'js/uniquer.js',
