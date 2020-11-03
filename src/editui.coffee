@@ -1,6 +1,6 @@
 # Edit UI - Jan 2017
 
-FiniteStateMachine = require('fsm').FiniteStateMachine
+# import {FiniteStateMachine} from 'fsm.js'; // TODO convert to module
 # import {IndexedDBStorageController} from 'indexeddbstoragecontroller'; // TODO convert to module
 
 class EditController extends FiniteStateMachine

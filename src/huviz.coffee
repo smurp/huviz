@@ -111,7 +111,6 @@
 
 EditController = require('editui').EditController
 GreenerTurtle = require('greenerturtle').GreenerTurtle
-# FiniteStateMachine = require('fsm').FiniteStateMachine
 # import {uniquer} from 'uniquer.js'; // TODO convert to module # FIXME rename to make_dom_safe_id
 # import {CommandController} from 'gclui.js'; // TODO convert to module
 # import {Edge} from 'edge.js'; // TODO convert to module
