@@ -1,7 +1,7 @@
 # Edit UI - Jan 2017
 
 FiniteStateMachine = require('fsm').FiniteStateMachine
-indexdDBstore = require('indexeddbstoragecontroller')
+# import {IndexedDBStorageController} from 'indexeddbstoragecontroller'; // TODO convert to module
 
 class EditController extends FiniteStateMachine
   constructor: (@huviz) ->
@@ -211,7 +211,7 @@ class EditController extends FiniteStateMachine
       elem = form.elements[i]
       console.log(elem.name + ": " + elem.value)
       tuple.push(elem.value)
-    assrtSave = new indexdDBstore.IndexedDBStorageController(@huviz)
+    assrtSave = new IndexedDBStorageController(@huviz)
     console.log(assrtSave)
     quad =
       s: tuple[0]
@@ -333,4 +333,4 @@ class EditController extends FiniteStateMachine
     @proposed_quad = null
     return
 
-  (exports ? this).EditController = EditController
+(exports ? this).EditController = EditController

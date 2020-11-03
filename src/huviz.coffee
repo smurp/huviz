@@ -110,14 +110,14 @@
 #
 
 EditController = require('editui').EditController
-#FiniteStateMachine = require('fsm').FiniteStateMachine
-# import {IndexedDBService} from 'indexeddbservice.js'; // TODO convert to module
-IndexedDBStorageController = require('indexeddbstoragecontroller').IndexedDBStorageController
 GreenerTurtle = require('greenerturtle').GreenerTurtle
+# FiniteStateMachine = require('fsm').FiniteStateMachine
 # import {uniquer} from 'uniquer.js'; // TODO convert to module # FIXME rename to make_dom_safe_id
 # import {CommandController} from 'gclui.js'; // TODO convert to module
+# import {Edge} from 'edge.js'; // TODO convert to module
 # import {GraphCommand, GraphCommandLanguageCtrl} from 'graphcommandlanguage.js'; // TODO convert to module
-# import Edge from 'edge.js'; // TODO convert to module
+# import {IndexedDBService} from 'indexeddbservice.js'; // TODO convert to module
+# import {IndexedDBStorageController} from 'indexeddbstoragecontroller.js'; // TODO convert to module
 # import {Node} from 'node.js'; // TODO convert to module
 # import {Predicate} from 'predicate.js'; // TODO convert to module
 # import {Taxon} from 'taxon.js'; // TODO convert to module
