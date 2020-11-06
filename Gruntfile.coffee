@@ -16,7 +16,7 @@ module.exports = (grunt) ->
         paths: ['src']
         dependencies: [
           'js/angliciser.js',
-          'js/greener_turtle.js',
+          'js/greenerturtle.js',
           'js/indexeddbservice.js',
           'js/indexeddbstoragecontroller.js',
           'js/graphcommandlanguage.js',
