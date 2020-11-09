@@ -95,6 +95,8 @@ The Verbs are the operations which move nodes between the various sets, ie sets 
 
 ## Running CLI tests
 
+THIS IS CURRENTLY DISABLED during the decaffeination process.
+
     npm run watchTest
 
     # bail on first error
