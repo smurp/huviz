@@ -13,7 +13,7 @@ module.exports = (grunt) ->
           node_env: "production"
     stitch:
       options:
-        paths: ['src']
+        #paths: ['src']
         dependencies: [
           'js/angliciser.js',
           'js/greenerturtle.js',
@@ -39,18 +39,18 @@ module.exports = (grunt) ->
           'js/quadParser.js',
           'js/multistring.js',
           'js/oncerunner.js',
-          'js/gvcl.js']
+          'js/gvcl.js',
+          'js/huviz_decaf.js']
         dest: 'lib/huviz.js'
     watch:
       scripts:
         files: [
-          'src/*.coffee',
           'js/*.js',
           'lib/*.js',
           'Gruntfile.coffee',
           'views/*.ejs',
           'views/*.js']
-        tasks: ['stitch', 'express:dev']
+        tasks: ['express:dev']
         options:
           atBegin: true
           debounceDelay: 250
@@ -62,10 +62,10 @@ module.exports = (grunt) ->
         npm: false
         github:
           repo: 'smurp/huviz'
-  grunt.loadNpmTasks('grunt-contrib-coffee')
+  #grunt.loadNpmTasks('grunt-contrib-coffee')
   grunt.loadNpmTasks('grunt-contrib-watch')
   grunt.loadNpmTasks('grunt-express-server')
   grunt.loadNpmTasks('grunt-release')
-  grunt.loadNpmTasks('grunt-stitch')
+  #grunt.loadNpmTasks('grunt-stitch')
   grunt.registerTask('default', ['express:prod'])
   grunt.registerTask('dev', ['watch'])

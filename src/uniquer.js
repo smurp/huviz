@@ -15,5 +15,4 @@ const uniquer = function(str) {
   }
   return retval;
 };
-// (exports ? this).uniquer = uniquer
-// export uniquer
+// export {uniquer}; // TODO convert to module

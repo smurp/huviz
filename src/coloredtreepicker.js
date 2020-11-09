@@ -1,11 +1,3 @@
-/*
- * decaffeinate suggestions:
- * DS002: Fix invalid constructor
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-
 // import {TreePicker} from 'treepicker.js'; // TODO convert to module
 
 /*
@@ -270,4 +262,4 @@ ${ctxSel}#${id}.treepicker-indirect-mixed.treepicker-collapse {
 }
 ColoredTreePicker.initClass();
 
-// export {ColoredTreePicker}
+// export {ColoredTreePicker}; // TODO convert to module

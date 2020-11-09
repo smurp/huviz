@@ -51,7 +51,7 @@
 
  */
 var SortedSet = function(){
-  if (arguments.callee) {arguments.callee.NUMBER_OF_COPIES += 1;}
+  // if (arguments.callee) {arguments.callee.NUMBER_OF_COPIES += 1;}
   if (typeof window != 'undefined') {
     if (!window.NUM_SORTEDSET){window.NUM_SORTEDSET = 0}
     window.NUM_SORTEDSET += 1;
@@ -488,7 +488,7 @@ var SortedSet = function(){
 // but as a set of adornments on an Array instances, thereby incurring
 // the burden of each such copy carrying its own copies of the SortedSet
 // methods with it.  See https://github.com/cwrc/HuViz/issues/259
-SortedSet.NUMBER_OF_COPIES = 0;
+// SortedSet.NUMBER_OF_COPIES = 0;
 
 // These tests are included in the module to simplify testing in the browser.
 var SortedSets_tests = function(verbose){

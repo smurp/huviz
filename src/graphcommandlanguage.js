@@ -605,4 +605,4 @@ class GraphCommandLanguageCtrl {
   }
 }
 
-// export {GraphCommandLanguageCtrl, GraphCommand, GCLTest, GCLTestSuite}
+// export {GraphCommandLanguageCtrl, GraphCommand, GCLTest, GCLTestSuite}; // TODO convert to module

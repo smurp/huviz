@@ -27,8 +27,6 @@ TreeCtrl controls TreePicker states: showing, unshowing, mixed for direct and in
  * collapse
  * pick (click?)
  and Model verbs such as:
-
-
 */
 class TreeCtrl {
   constructor(id) {
@@ -195,5 +193,4 @@ class TreeCtrl {
   }
 }
 
-// (exports ? this).TreeCtrl = TreeCtrl
-// export {TreeCtrl}
+// export {TreeCtrl}; // TODO convert to module

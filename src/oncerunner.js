@@ -58,4 +58,4 @@ OnceRunner.prototype.makeWrapper = function(callback) {
   };
 };
 
-(typeof exports !== "undefined" && exports !== null ? exports : this).OnceRunner = OnceRunner;
+// export {OnceRunner}; // TODO convert to module

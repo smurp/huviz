@@ -140,4 +140,4 @@ class TextCursor {
 }
 TextCursor.initClass();
 
-// export {TextCursor}
+// export {TextCursor}; // TODO convert to module

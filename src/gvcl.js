@@ -1,5 +1,9 @@
 (function() {
   /*
+    This is currently NOT IN USE.
+
+    It is a start on a proper parser for the command language for HuViz.
+
     Select every Thing except Penguin .
     Activate Person .
     Wander and Label NationalHeritage .

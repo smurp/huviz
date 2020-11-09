@@ -1,5 +1,5 @@
-// import angliciser from 'angliciser.js' // TODO use as module
-// import TreeCtrl from 'treectrl.js' // TODO use as module
+// import angliciser from 'angliciser.js' // TODO convert to module
+// import TreeCtrl from 'treectrl.js' // TODO convert to module
 
 class Taxon extends TreeCtrl {
   static initClass() {
@@ -123,5 +123,4 @@ class Taxon extends TreeCtrl {
 }
 Taxon.initClass();
 
-// (exports ? this).Taxon = Taxon
-// export {Taxon}
+// export {Taxon}; // TODO convert to module
