@@ -91,13 +91,13 @@ The Verbs are the operations which move nodes between the various sets, ie sets 
 
 ## Running the server during development
 
-    npm run dev
+    npm run watch
 
 ## Running CLI tests
 
 THIS IS CURRENTLY DISABLED during the decaffeination process.
 
-    npm run watchTest
+    npm run watch
 
     # bail on first error
     BAIL=1 npm run watchTest
@@ -111,7 +111,7 @@ Run the auto build process while you are editing `src/quaff-lod-worker.js`
 
 ```sh
 $ cd quaff-lod
-$ npm run dev
+$ npm run watch
 ```
 
 Run the development version of huviz and tell it where to find the dev
@@ -119,7 +119,7 @@ version of `quaff-lod`
 
 ```sh
 $ cd huviz
-$ QUAFF_PATH=../quaff-lod/ npm run dev
+$ QUAFF_PATH=../quaff-lod/ npm run watch
 ```
 
 

@@ -5,14 +5,13 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 
-const chai = require("chai");
+//const chai = require("chai");
+import chai from 'chai';
 const {
   expect
 } = chai;
 
-const {
-  FiniteStateMachine
-} = require('../src/fsm');
+import FiniteStateMachine from '../lib/huviz.js';
 
 describe("FiniteStateMachine", function() {
   class MyFSM extends FiniteStateMachine {

@@ -1,6 +1,7 @@
 {
   "name": "huviz",
-  "version": "0.37.0",
+  "version": "0.38.0",
+
   "license": "GPL-3.0-or-later",
   "repository": {
     "type": "git",
@@ -15,6 +16,7 @@
     "Wolf Maul",
     "John Simpson <john.simpson@ualberta.ca>"
   ],
+  "type": "module",
   "config": {
     "jsInOrder": "src/angliciser.js src/greenerturtle.js src/indexeddbservice.js src/indexeddbstoragecontroller.js src/graphcommandlanguage.js src/querymanager.js src/uniquer.js src/treepicker.js src/fsm.js src/editui.js src/coloredtreepicker.js src/treectrl.js src/predicate.js src/taxon.js src/sortedset.js src/gclui.js src/hsv.js src/hsl.js src/edge.js src/node.js src/textcursor.js src/quadParser.js src/multistring.js src/oncerunner.js src/huviz.js"
   },
@@ -47,12 +49,14 @@
     "onchange": "^7.1.0"
   },
   "scripts": {
-    "build:js": "cat $npm_package_config_jsInOrder > lib/huviz.js && echo \"export {Orlando};\" >> lib/huviz.js",
+    "build:js": "cat $npm_package_config_jsInOrder > lib/huviz.js",
+    "watch:dev": "onchange -i -k server.js lib/huviz.js package.json -- npm start",
     "watch:js": "onchange --await-write-finish 2000 'src/*.js' -- npm run build:js",
+    "PAUSED:watch:test": "onchange 'lib/huviz.js' -- npm test",
     "watch": "npm-run-all --parallel watch:*",
-    "dev": "onchange 'lib/huviz.js' -- npm start",
     "start": "node server.js --git_commit_hash `git log --format=\"%h\" -n 1` --git_branch_name `git rev-parse --abbrev-ref HEAD`",
     "test": "mocha --reporter dot",
+
     "DEPRECATED:buildSrcDocs": "npx docco -o srcdocs  server.coffee src/*.coffee | node bin/make_srcdocs_index.js > srcdocs/index.md && npx marked srcdocs/index.md > srcdocs/index.html"
   }
 }

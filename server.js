@@ -9,17 +9,17 @@
 // # huviz Server
 //
 // First we load standard node modules
-const fs = require('fs');
-const path = require('path');
-const {
-  Stream
-} = require("stream");
+import fs from 'fs';
+import path from 'path';
+import {Stream} from 'stream';
 
 // Then load diverse modules
-const ejs = require("ejs");
-const express = require("express");
-const morgan = require("morgan");
-const nopt = require("nopt"); // https://github.com/npm/nopt
+import ejs from 'ejs';
+import express from 'express';
+import morgan from 'morgan';
+import nopt from 'nopt'; // https://github.com/npm/nopt
+
+const __dirname = process.cwd();
 
 // process command line arguments
 const cooked_argv = (Array.from(process.argv));
