@@ -18,7 +18,7 @@
   ],
   "type": "module",
   "config": {
-    "jsInOrder": "src/angliciser.js src/greenerturtle.js src/indexeddbservice.js src/indexeddbstoragecontroller.js src/graphcommandlanguage.js src/querymanager.js src/uniquer.js src/treepicker.js src/fsm.js src/editui.js src/coloredtreepicker.js src/treectrl.js src/predicate.js src/taxon.js src/sortedset.js src/gclui.js src/hsv.js src/hsl.js src/edge.js src/node.js src/textcursor.js src/quadParser.js src/multistring.js src/oncerunner.js src/dndloader.js src/huviz.js"
+    "jsInOrder": "src/angliciser.js src/greenerturtle.js src/indexeddbservice.js src/indexeddbstoragecontroller.js src/graphcommandlanguage.js src/querymanager.js src/uniquer.js src/treepicker.js src/fsm.js src/editui.js src/coloredtreepicker.js src/treectrl.js src/predicate.js src/taxon.js src/sortedset.js src/gclui.js src/hsv.js src/hsl.js src/edge.js src/node.js src/textcursor.js src/quadParser.js src/multistring.js src/oncerunner.js src/dndloader.js src/settings.js src/huviz.js"
   },
   "main": "lib/huviz.js",
   "dependencies": {
