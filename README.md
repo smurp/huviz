@@ -8,6 +8,7 @@ huviz
 
 # Installation
 
+* [LINCS Production](https://huviz.lincsproject.ca/)
 * [Production](http://huviz.dev.nooron.com/)
 * [Beta](http://beta.huviz.dev.nooron.com/)
 * [Alpha](http://alpha.huviz.dev.nooron.com/)
