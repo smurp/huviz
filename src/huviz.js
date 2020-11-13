@@ -511,7 +511,7 @@ const orlando_human_term = {
   suppressed: 'Suppresssed'
 };
 
-var Huviz = (function() {
+export Huviz = (function() {
   let renderStyles = undefined;
   let nodeOrderAngle = undefined;
   Huviz = class Huviz {
@@ -10726,7 +10726,7 @@ class OntologicallyGrounded extends Huviz {
   }
 }
 
-class Orlando extends OntologicallyGrounded {
+export class Orlando extends OntologicallyGrounded {
   static initClass() {
 
     this.prototype.HHH = {};
@@ -10866,5 +10866,3 @@ class Orlando extends OntologicallyGrounded {
   }
 }
 Orlando.initClass();
-
-export {Orlando, FiniteStateMachine};

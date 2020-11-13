@@ -42,7 +42,7 @@
 // Notes:
 //   suitable for use as a mixin
 //   https://coffeescript-cookbook.github.io/chapters/classes_and_objects/mixins
-class FiniteStateMachine {
+export class FiniteStateMachine {
   call_method_by_name(meth_name) {
     let meth;
     if (meth = this[meth_name]) {
