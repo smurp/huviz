@@ -11,7 +11,7 @@ const {
   expect
 } = chai;
 
-import FiniteStateMachine from '../src/fsm.js';
+import {FiniteStateMachine} from '../src/fsm.js';
 
 describe("FiniteStateMachine", function() {
   class MyFSM extends FiniteStateMachine {
