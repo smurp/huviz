@@ -1,10 +1,14 @@
 {
   "name": "huviz",
-  "version": "0.34.1",
+  "version": "0.35.5",
   "license": "GPL-3.0-or-later",
   "repository": {
     "type": "git",
     "url": "http://github.com/smurp/huviz.git"
+  },
+  "engines": {
+    "node": ">=12.13.0",
+    "npm": ">=6.0.0"
   },
   "author": "Shawn Murphy <smurp@smurp.com> (http://smurp.com)",
   "contributors": [
@@ -12,7 +16,7 @@
     "John Simpson <john.simpson@ualberta.ca>"
   ],
   "config": {
-    "port": "9998"
+    "port": "5000"
   },
   "main": "lib/huviz.js",
   "dependencies": {
@@ -20,7 +24,6 @@
     "async": "~0.2.9",
     "coffeescript": "~1.12.7",
     "components-jqueryui": "components/jqueryui",
-    "comunica-ldf-client": "smurp/comunica-ldf-client",
     "d3": "~3.5.17",
     "ejs": "2.6.1",
     "express": "~4.17.1",

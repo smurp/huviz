@@ -229,7 +229,6 @@ class GraphCommand
           async.each(nodes, iter, errorHandler)
     else if @verbs[0] is 'load'
       @huviz.load_with(@data_uri, @with_ontologies)
-      console.log("load data_uri has returned")
     else if @verbs[0] is 'query'
       @huviz.query_from_seeking_limit(@sparqlQuery)
     else

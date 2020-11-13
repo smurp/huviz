@@ -4,8 +4,7 @@ huviz
 ![Image](./graph_ex1.png?raw=true)
 
 # Demonstration Sites
-=======
-**/cwrc/HuViz** is a fork of [/smurp/huviz](https://github.com/smurp/huviz)
+**/cwrc/HuViz** is a fork of [/smurp/huviz](https://github.com/smurp/huviz) where development occurs
 
 # Installation
 
@@ -208,5 +207,17 @@ See [data/test_q.nq](../master/data/test_1.nq)
     ./extractOrlandoTagInfo.py --compact --outfile orlando_tag_tree.json
 
 # Gallery
+
+### [Finite state machine](http://alpha.huviz.dev.nooron.com/#load+/data/Running_state_machine.ttl+with+/data/owl_mini.ttl)
+
+![Demo of finite state machine diagram](./docs/running_graph.png?raw=true)
+
+
+### [Demo of CWRC subject-centric data](http://alpha.huviz.dev.nooron.com/#load+/data/VirginiaWoolfSubjectCentricDH2019.ttl+with+http://sparql.cwrc.ca/ontology/cwrc.ttl)
+
+![Demo of moderately dense graph](./docs/huviz_vwoolf_cluster.png?raw=true)
+
+
+### 3191 Nodes
 
 ![Graph of 3191 nodes pulled from CWRC SPARQL](./docs/3191_nodes.png?raw=true)

@@ -6,9 +6,9 @@ class Taxon extends TreeCtrl
   # Taxon actually contains Nodes directly, unlike TaxonAbstract (what a doof!)
   suspend_updates: false
   custom_event_name: 'changeTaxon'
-  constructor: (@id) ->
+  constructor: (@id, @lid) ->
     super()
-    @lid = @id # FIXME @lid should be local @id should be uri, no?
+    @lid ?= @id # FIXME @lid should be local @id should be uri, no?
     # FIXME try again to conver Taxon into a subclass of SortedSet
     #   Motivations
     #     1) remove redundancy of .register() and .add()
@@ -41,6 +41,8 @@ class Taxon extends TreeCtrl
     # but the .taxon on node gives it access to the methods on the taxon.
     # Perhaps taxon should be a super of SortedSet rather than a facade.
     # Should Taxon delegate to SortedSet?
+    node.taxons ?= []
+    node.taxons.push(this)
     node.taxon = this
     @acquire(node)
   acquire: (node) ->

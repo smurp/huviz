@@ -244,6 +244,10 @@ DCE_title    = "http://purl.org/dc/elements/1.1/title"
 FOAF_Group  = "http://xmlns.com/foaf/0.1/Group"
 FOAF_Person = "http://xmlns.com/foaf/0.1/Person"
 FOAF_name   = "http://xmlns.com/foaf/0.1/name"
+OA_ = "http://www.w3.org/ns/oa#" # the prefix of the Open Annotation Ontology
+# OA_terms_regex was built with the help of:
+#   grep '^oa:' data/oa.ttl  | grep " a " | sort | sed 's/\ a\ .*//' | uniq | sed 's/^oa://' | tr '\n' '|'
+OA_terms_regex = /^(Annotation|Choice|CssSelector|CssStyle|DataPositionSelector|Direction|FragmentSelector|HttpRequestState|Motivation|PreferContainedDescriptions|PreferContainedIRIs|RangeSelector|ResourceSelection|Selector|SpecificResource|State|Style|SvgSelector|TextPositionSelector|TextQuoteSelector|TextualBody|TimeState|XPathSelector|annotationService|assessing|bodyValue|bookmarking|cachedSource|canonical|classifying|commenting|describing|editing|end|exact|hasBody|hasEndSelector|hasPurpose|hasScope|hasSelector|hasSource|hasStartSelector|hasState|hasTarget|highlighting|identifying|linking|ltrDirection|moderating|motivatedBy|prefix|processingLanguage|questioning|refinedBy|renderedVia|replying|rtlDirection|sourceDate|sourceDateEnd|sourceDateStart|start|styleClass|styledBy|suffix|tagging|textDirection|via)$/
 OSMT_name   = "https://wiki.openstreetmap.org/wiki/Key:name"
 OSMT_reg_name = "https://wiki.openstreetmap.org/wiki/Key:reg_name"
 OWL_Class   = "http://www.w3.org/2002/07/owl#Class"
@@ -522,6 +526,8 @@ orlando_human_term =
   specialize: 'Specialize'
   annotate: 'Annotate'
   seeking_object: 'Object node'
+  suppress: 'Suppress'
+  suppressed: 'Suppresssed'
 
 class Huviz
   hash: hash
@@ -1009,6 +1015,8 @@ class Huviz
 
     # this is the node being clickedRDF_literal
     if @focused_node # and @focused_node.state is @graphed_set
+      if window.location.hostname is 'localhost'
+        console.log(@focused_node)
       @perform_current_command(@focused_node)
       @tick("Tick in mouseup 2")
       return
@@ -1056,6 +1064,7 @@ class Huviz
     if info_node._inspector?
       @hilight_dialog(info_node._inspector)
       return
+    console.log("inspect node:", info_node)
     all_names = Object.values(info_node.name)
     names_all_langs = ""
     note = ""
@@ -1631,6 +1640,17 @@ class Huviz
       sort_on('walkedIdx0') # sort on index of position in the path; the 0 means zero-based idx
     @walked_set.docs = "Nodes in order of their walkedness"
 
+    @suppressed_set = SortedSet().named("suppressed").
+      sort_on("id").
+      labelled(@human_term.suppressed).
+      sub_of(@all_set).
+      isState()
+    @suppressed_set.docs = "
+      Nodes which are '#{@suppressed_set.label}' by a suppression algorithm
+      such as Suppress Annotation Entities.  Suppression is mutually exclusive
+      with Shelved, Discarded, Graphed and Hidden."
+    @suppressed_set.cleanup_verb = "shelve"
+
     @predicate_set = SortedSet().named("predicate").isFlag().sort_on("id")
     @context_set   = SortedSet().named("context").isFlag().sort_on("id")
     @context_set.docs = "The set of quad contexts."
@@ -1649,6 +1669,7 @@ class Huviz
       pinned_set: @pinned_set
       nameless_set: @nameless_set
       walked_set: @walked_set
+      suppressed_set: @suppressed_set
 
   get_set_by_id: (setId) ->
     setId = setId is 'fixed' and 'pinned' or setId # because pinned uses fixed as its 'name'
@@ -1688,7 +1709,8 @@ class Huviz
       console.log("not regenerating english because no taxonomy[#{root}]")
     return
 
-  get_or_create_taxon: (taxon_id) ->
+  get_or_create_taxon: (taxon_url) ->
+    taxon_id = taxon_url
     if not @taxonomy[taxon_id]?
       taxon = new Taxon(taxon_id)
       @taxonomy[taxon_id] = taxon
@@ -1861,7 +1883,7 @@ class Huviz
         ret.push(node)
     data = qNodes(quadtree)
     found = quadtree.find(mx, my)
-    debugger
+    throw new Error("under construction")
 
   find_node_or_edge_closest_to_pointer: ->
     @highwater('find_node_or_edge', true)
@@ -2330,7 +2352,7 @@ class Huviz
     focused_font_size = @label_em * browser_font_size * @focused_mag
     padding = focused_font_size * 0.5
     line_height = focused_font_size * 1.25 # set line height to 125%
-    max_len = 250
+    max_len = 300
     min_len = 100
     label_length = label_measure.width + 2 * padding
     num_lines_raw = label_length/max_len
@@ -2449,7 +2471,7 @@ class Huviz
             if not node.bub_txt.length or result
               @get_label_attributes(node)
             line_height = node.bub_txt[2]  # Line height calculated from text size ?
-            adjust_x = node.bub_txt[0] / 2 - line_height/2# Location of first line of text
+            adjust_x = node.bub_txt[0] / 2 - line_height/2 # Location of first line of text
             adjust_y = node.bub_txt[1] / 2 - line_height
             pill_width = node.bub_txt[0] # box size
             pill_height = node.bub_txt[1]
@@ -2494,6 +2516,7 @@ class Huviz
     focused_font_size = @label_em * @focused_mag
     focused_font = "#{focused_font_size}em sans-serif"
     focused_pill_font = "#{@label_em}em sans-serif"
+    default_text_for_empty_value = '“”'
     highlight_node = (node) =>
       if node.focused_node or node.focused_edge?
         if (node_display_type == 'pills')
@@ -2861,7 +2884,8 @@ class Huviz
         parent_lid = "anything"
       @my_graph.predicates[pred_lid] = []
       @ensure_predicate_lineage(parent_lid)
-      pred_name = @ontology?label[pred_lid]
+      if @ontology.label
+        pred_name = @ontology.label[pred_lid]
       @fire_newpredicate_event(pid, pred_lid, parent_lid, pred_name)
 
   fire_newpredicate_event: (pred_uri, pred_lid, parent_lid, pred_name) ->
@@ -2903,6 +2927,13 @@ class Huviz
           if val?
             alert(val)
 
+  getTesterAndMunger: (discoArgs) ->
+    fallbackQuadTester = (q) => q?
+    fallbackQuadMunter = (q) => [q]
+    quadTester = discoArgs.quadTester or fallbackQuadTester
+    quadMunger = discoArgs.quadMunger or fallbackQuadMunger
+    return {quadTester, quadMunger}
+
   discovery_triple_ingestor_N3: (data, textStatus, request, discoArgs) =>
     # Purpose:
     #   THIS IS NOT YET IN USE.  THIS IS FOR WHEN WE SWITCH OVER TO N3
@@ -2916,8 +2947,7 @@ class Huviz
     #     quadMunger (OPTIONAL)
     #       returns an array of one or more quads inspired by each quad
     discoArgs ?= {}
-    quadTester = discoArgs.quadTester or (q) => q?
-    quadMunger = discoArgs.quadMunger or (q) => [q]
+    {quadTester, quadMunger} = @getTesterAndMunger(discoArgs)
     quad_count = 0
     parser = N3.Parser()
     parser.parse data, (err, quad, pref) =>
@@ -2939,8 +2969,7 @@ class Huviz
     #       returns an array of one or more quads inspired by each quad
     discoArgs ?= {}
     graphUri = discoArgs.graphUri
-    quadTester = discoArgs.quadTester or (q) => q?
-    quadMunger = discoArgs.quadMunger or (q) => [q]
+    {quadTester, quadMunger} = @getTesterAndMunger(discoArgs)
     dataset = new GreenerTurtle().parse(data, "text/turtle")
     for subj_uri, frame of dataset.subjects
       for pred_id, pred of frame.predicates
@@ -3047,9 +3076,10 @@ class Huviz
 
   countdown_setting: (inputName) ->
     input = @get_setting_input_JQElem(inputName)
-    if input.val() < 1
+    val = input.val()
+    if val < 1
       return 0
-    newVal = input.val() - 1
+    newVal = val - 1
     return @adjust_setting(inputName, newVal)
 
   preset_discover_geonames_remaining: ->
@@ -3076,15 +3106,17 @@ class Huviz
           #### Error:
           <span style="color:red">#{params.msg}</span>
            """
+      if params.username?
+        markdown += """
+
+          #### Username:
+          <span style="color:blue">#{params.username}</span>
+           """
     @make_markdown_dialog(markdown, null, args)
 
   discover_geoname_name: (aUrl) ->
     id = aUrl.pathname.replace(/\//g,'')
-    soughtId = id
-    idInt = parseInt(id)
-    userId = @discover_geonames_as
-    k2p = @discover_geoname_key_to_predicate_mapping
-    url = "http://api.geonames.org/hierarchyJSON?geonameId=#{id}&username=#{userId}"
+    username = @discover_geonames_as
     if @discover_geonames_remaining < 1
       #console.warn("discover_geoname_name() should not be called when remaining is less than 1")
       return
@@ -3097,7 +3129,8 @@ class Huviz
           return false
         # We decrement remaining before looking or after successfully trying.
         # We do so before looking because we know that the username is good, so this will count.
-        # We do so after trying because we do not know until afterward that the username was good and whether it would count.
+        # We do so after trying because we do not know until afterward that the username
+        # was good and whether it would count.
         rem = @countdown_setting('discover_geonames_remaining')
         #console.info('discover_geoname_name() widget.state =', widget.state, "so decrementing remaining (#{rem}) early")
       else if widget.state is 'good'
@@ -3105,13 +3138,25 @@ class Huviz
           #console.info('aborting discover_geoname_name() because remaining =', @discover_geonames_remaining)
           return false
         @discover_geonames_as__widget.set_state('looking')
-        console.info('looking for',id,'using name',userId)
+        # console.info('looking for',id,'using name', username)
       else
-        console.warn("discover_goename_name() should not be called when widget.state =", widget.state)
+        console.warn("discover_geoname_name() should not be called when widget.state =", widget.state)
         return false
     @geonames_name_lookups_performed ?= 0
     @geonames_name_lookups_performed += 1
-    $.ajax
+    $.ajax(@make_geoname_ajax_closure(aUrl))
+    return
+
+  make_geoname_ajax_closure: (aUrl) ->
+    # This method makes the handlers for the geonames ajax call.
+    id = aUrl.pathname.replace(/\//g,'')
+    soughtId = id
+    idInt = parseInt(id)
+    username = @discover_geonames_as
+    k2p = @discover_geoname_key_to_predicate_mapping
+    url = "http://api.geonames.org/hierarchyJSON?geonameId=#{id}&username=#{username}"
+    # console.log("discover_geoname_name_SEARCH", aUrl.toString())
+    return {
       url: url
       error: (xhr, status, error) =>
         #console.log(xhr, status, error)
@@ -3120,20 +3165,22 @@ class Huviz
             @discover_geonames_as__widget.set_state('bad')
             @show_geonames_instructions()
       success: (json, textStatus, request) =>
+        # To test the receipt of an error condition, uncomment the next line
+        #  json.status = {message: "Oooh, you've been very bad!"}
         if json.status
           @discover_geoname_name_msgs ?= {}
+          params = {}
           if json.status.message
-            msg = """<dt style="font-size:.9em;color:red">#{json.status.message}</dt>""" +
-              @discover_geoname_name_instructions
-            if userId
-              msg = "#{userId} #{msg}"
+            params.msg = json.status.message
+            if username
+              params.username = username
           if (not @discover_geoname_name_msgs[msg]) or
               (@discover_geoname_name_msgs[msg] and
                Date.now() - @discover_geoname_name_msgs[msg] >
                 @discover_geoname_name_msgs_threshold_ms)
+            # In other words: do not spam the user with errors faster than threshold
             @discover_geoname_name_msgs[msg] = Date.now()
-            @make_dialog(msg)
-            #@show_state_msg(msg)
+            @show_geonames_instructions(params)
           return
         #subj = aUrl.toString()
         if (widget = @discover_geonames_as__widget)
@@ -3147,7 +3194,7 @@ class Huviz
               if @discover_geonames_remaining > 0
                 # trigger again because they have been suspended
                 # use setTimeout to give nodes a chance to update
-                again = () => @discover_names('geonames.org')
+                again = () => @discover_names_including('geonames.org')
                 setTimeout(again, 100)
               else
                 @discover_geonames_as__widget.set_state('good') # no more remaining lookups permitted
@@ -3186,6 +3233,7 @@ class Huviz
             continue
           #console.table([{id: id, geonameId: geoRec.geonameId, name: geoRec.name}])
           name = (geoRec or {}).name
+          # console.log("discover_geoname_name_SUCCESS", subj)
           placeQuad =
             s: subj
             p: RDF_type
@@ -3208,7 +3256,6 @@ class Huviz
             if not pred
               continue
             theType = RDF_literal
-
             if typeof value is 'number'
               # REVIEW are these right?
               if Number.isInteger(value)
@@ -3241,15 +3288,17 @@ class Huviz
             @inject_discovered_quad_for(containershipQuad, aUrl)
           deeperQuad = Object.assign({}, quad) # shallow copy
         return # from success
+      }
     return
 
   ###
+  # This is what a single geoRec from geonames.org looks like:
           "fcode" : "RGN",
           "adminCodes1" : {
              "ISO3166_2" : "ENG"
           },
           "adminName1" : "England",
-           "countryName" : "United Kingdom",
+          "countryName" : "United Kingdom",
           "fcl" : "L",
           "countryId" : "2635167",
           "adminCode1" : "ENG",
@@ -3361,7 +3410,7 @@ class Huviz
     handler = @make_sparql_name_handler(uris)
     return [query, handler]
 
-  auto_discover_name_for: (namelessUri) ->
+  auto_discover_name_for: (namelessUri, node) ->
     if namelessUri.startsWith('_') # skip "blank" nodes
       return
     try
@@ -3376,8 +3425,6 @@ class Huviz
       return aUrl.hostname.endsWith(domainName)
 
     if hasDomainName('cwrc.ca')
-      console.warn("auto_discover_name_for('#{namelessUri}') skipping cwrc.ca")
-      return
       args =
         namelessUri: namelessUri
         #predicates: [OSMT_reg_name, OSMT_name]
@@ -3426,20 +3473,25 @@ class Huviz
     # Geonames has its own API and some complicated use limits so is treated
     # very differently.
     if hasDomainName("geonames.org")
+      if node and node.sought_name # so far only used by geonames but might be useful elsewhere
+        return # node is already having its name sought, so skip
       if @discover_geonames_as__widget.state in ['untried','looking','good'] and
           @discover_geonames_remaining > 0
+        node.sought_name = true
         @discover_geoname_name(aUrl)
+      #else
+      #  console.log("auto_discover_name_for(#{aUrl.toString()}) skipping because",
+      #              @discover_geonames_as__widget.state)
       return
 
-    # As a final backstop we use LDF.  Why last? To spare the LDF server.
-    # The endpoint of authority is superior because it ought to be up to date.
-    for domainName, serverUrl of @domain2ldfServer
-      args =
-        namelessUri: namelessUri
-        serverUrl: serverUrl
-      if hasDomainName(domainName) or domainName is '*'
-        @run_ldf_name_query(args)
+    if true # TODO avoid domains we are learning return no names
+      if serverSpec = @get_server_for_dataset(namelessUri)
+        args =
+          namelessUri: namelessUri
+          serverUrl: serverSpec.serverUrl
+        @run_sparql_name_query(args)
         return
+
     return
 
   discover_names_including: (includes) ->
@@ -3448,12 +3500,12 @@ class Huviz
     return
 
   discover_names: (includes) ->
-    #console.log('discover_names(',includes,') # of nameless:',@nameless_set.length)
+    # console.log('discover_names(',includes,') # of nameless:',@nameless_set.length)
     for node in @nameless_set
       uri = node.id
       if not (includes? and not uri.includes(includes))
         # only if includes is specified but not found do we skip auto_discover_name_for
-        @auto_discover_name_for(uri)
+        @auto_discover_name_for(uri, node)
     return
 
   # ## SPARQL queries
@@ -3540,17 +3592,18 @@ class Huviz
     try
       data = JSON.parse(data)
     catch error
-      console.info("generic_success_handler tried and failed to treat data as json")
+      #console.debug(queryManager.qry + "\n\ndid not return JSON")
     # this should be based on response header or a queryManager
-    console.log("response Content-Type:", jqXHR.getResponseHeader("content-type"))
+    resp_content_type = jqXHR.getResponseHeader("content-type").split(';')[0]
     if data.head?
       resp_type = 'json'
     else if data.includes("\t")
       # TODO base presumption of .tsv on something more definitive than finding one
       resp_type = 'tsv'
     else
-      console.warn(data)
-      throw new Error("no idea what resp_type this data is")
+      # console.warn(data)
+      serverDesc = queryManager.args.serverUrl or "the server"
+      throw new Error("no support for #{resp_content_type} just json or tsv for data coming from #{serverDesc}")
     switch resp_type
       when 'json'
         success_handler = @json_name_success_handler
@@ -3560,31 +3613,6 @@ class Huviz
         throw new Error('no name_success_handler available')
     success_handler(data, textStatus, jqXHR, queryManager)
     return
-
-  # ## Linked Data Fragments (LDF)
-  #
-  # Linked Data Fragments is a technique for performing efficient federated searches.
-  #
-  # http://linkeddatafragments.org/
-  #
-  # This implementation makes use of
-  #
-  #   https://github.com/smurp/comunica-ldf-client
-  #
-  # which is a fork of:
-  #   https://github.com/comunica/jQuery-Widget.js
-  #
-  # with the only real difference being a dist version of ldf-client-worker.min.js
-
-  domain2ldfServer:
-    # values feed LDF client context.sources.value # see run_managed_query_ldf
-    'dbpedia.org': "http://fragments.dbpedia.org/2016-04/en"
-    'viaf.org': "http://data.linkeddatafragments.org/viaf"
-    'getty.edu': "http://data.linkeddatafragments.org/lov"
-    '*': "http://data.linkeddatafragments.org/lov"
-    #'wikidata.org':
-    #  source: "https://query.wikidata.org/bigdata/ldf"
-    # TODO handle "wikidata.org"
 
   default_name_query_args:
     predicates: [RDFS_label, FOAF_name, SCHEMA_name]
@@ -3747,56 +3775,6 @@ class Huviz
       console.error(error)
     return
 
-  run_ldf_name_query: (args) ->
-    {namelessUri} = args
-    args.query = "# " +
-      ( args.comment or "run_ldf_name_query(#{namelessUri})") + "\n" +
-      @make_name_query(namelessUri)
-    defaults =
-      success_handler: @generic_name_success_handler
-      result_handler: @name_result_handler
-      from_N3: true
-      default_terms:
-        s: namelessUri
-        p: RDFS_label
-    args = @compose_object_from_defaults_and_incoming(defaults, args)
-    @run_managed_query_ldf(args)
-
-  run_managed_query_ldf: (args) ->
-    queryManager = @run_managed_query_abstract(args)
-    {success_handler, error_callback, timeout, result_handler, serverUrl, query} = args
-    serverUrl ?= "http://fragments.dbpedia.org/2016-04/en" # TODO what?
-    ldf_worker = new Worker('/comunica-ldf-client/ldf-client-worker.min.js')
-    ldf_worker.postMessage
-      type: 'query'
-      query: query
-      resultsToTree: false  # TODO experiment with this
-      context:
-        '@comunica/actor-http-memento:datetime': null
-        queryFormat: 'sparql'
-        sources: [
-          type: 'auto'
-          value: serverUrl
-          ]
-
-    ldf_worker.onmessage = (event) =>
-      queryManager.cancelAnimation()
-      d = event.data
-      {type, result} = d
-      switch type
-        when 'result'
-          queryManager.incrResultCount()
-          result_handler.call(this, result, queryManager)
-        when 'error'
-          queryManager.fatalError(d)
-        when 'end'
-          queryManager.finishCounting()
-        when 'queryInfo', 'log'
-          #console.log(type, event)
-        else
-          console.log("UNHANDLED", event)
-
-    return queryManager
 
   # ## Examples and Tests START
 
@@ -3901,7 +3879,7 @@ class Huviz
     pred_n = @get_or_create_predicate_by_id(pred_uri)
     cntx_n = @get_or_create_context_by_id(ctxid)
     if quad.p is RDF_subClassOf and @show_class_instance_edges
-      @try_to_set_node_type(subj_n, 'Class')
+      @try_to_set_node_type(subj_n, OWL_Class)
     # TODO: use @predicates_to_ignore instead OR rdfs:first and rdfs:rest
     if pred_uri.match(/\#(first|rest)$/)
       console.warn("add_quad() ignoring quad because pred_uri=#{pred_uri}", quad)
@@ -3915,9 +3893,9 @@ class Huviz
       obj_n = @get_or_create_node_by_id(quad.o.value)
       if quad.o.value is RDF_Class and @show_class_instance_edges
         # This weird operation is to ensure that the Class Class is a Class
-        @try_to_set_node_type(obj_n, 'Class')
+        @try_to_set_node_type(obj_n, OWL_Class)
       if quad.p is RDF_subClassOf and @show_class_instance_edges
-        @try_to_set_node_type(obj_n, 'Class')
+        @try_to_set_node_type(obj_n, OWL_Class)
       # We have a node for the object of the quad and this quad is relational
       # so there should be links made between this node and that node
       is_type = is_one_of(pred_uri, TYPE_SYNS)
@@ -3993,19 +3971,127 @@ class Huviz
           edge.color = @gclui.predicate_picker.get_color_forId_byName(pred_n.lid,'showing')
           @add_edge(edge)
           literal_node.fully_loaded = true # for sparql quieries to flag literals as fully_loaded
-    # if SPARQL Endpoint loaded AND this is subject node then set current subject to true (i.e. fully loaded)
+    # if the subject came from SPARQL then to true (i.e. fully loaded)
     if @using_sparql()
       subj_n.fully_loaded = false # all nodes default to not being fully_loaded
       #if subj_n.id is sprql_subj# if it is the subject node then is fully_loaded
       #  subj_n.fully_loaded = true
       if subj_n.id is quad.subject # if it is the subject node then is fully_loaded
         subj_n.fully_loaded = true
+
     if subj_n.embryo
       # It is unprincipled to do this, but some subj_n were escaping development.
       @develop(subj_n)
+
+    @consider_suppressing_edge_and_ends_re_OA(edge)
+
     @last_quad = quad
     @pfm_count('add_quad')
     return edge
+
+  consider_suppressing_edge_and_ends_re_OA: (edge) ->
+    # ## Purpose:
+    #
+    # Suppress (ie keep from appearing in the graph by policy) nodes and edges
+    # whose only purpose is to implement annotations.
+    #
+    # The exceptions to this are:
+    #
+    # * the object of an oa:exact predicate should NOT be suppressed
+    # * the oa:exact object should be depicted as having an edge of type '_:hasAnnotation'
+    # * the oa:hasTarget edge should be suppressed but a SYNTHETIC edge should be
+    #   put in its place which links the target of the [oa:hasTarget] edge to the
+    #   target of the [oa:exact] edge with [_:hasAnnotation]
+    #
+    # ## REVIEW:
+    #
+    # * discover if there are other predicates which should be treated like [oa:exact]
+    #
+    # ## Method:
+    #
+    # Place a node in the suppressed_set if any one of the following is true:
+    # * its edges are only in the OA vocab
+    # * it is in a taxon which is in the OA vocab
+    # * it only has edges connecting it to nodes which are instances of OA classes
+    #
+    # The other aspect of this strategy which is complicated is how to keep
+    # account of the relations between the nodes and edges in the subgraph
+    # of an Annotion, noting these considerations:
+    # * an Annotation may have 1 or more Targets
+    # * an Annotation may have 0 or more Bodies
+    # * Bodies and Targets may be connected directly to their Resources OR
+    # * the may be indirectly connected to Resources via ResourceSelection
+    # * multiple triples must be captured before a summary Edge can be created
+    # * some of those triples my participate in multiple summary Edges
+    # * during digestion some nodes may not have their subgraph membership known
+    # * some Annotations will not have an easy "summary object" (eg oa:exact value)
+    # * we will still want to be able to graph such Annotations
+    # * multiple Bodies for an Annotation should each be "summarized"
+    #
+    # Strategies:
+    #
+    # 1. build paths
+    #   * Nodes come to us randomly, so whenever one arrives knit it into a
+    #     path and check to see if the newly extended path now satisfies
+    #     conditions such as sufficiency for a) display b) closing
+    #   * challenges:
+    #     - how to express the logic for testing displayability and closability
+    #     - how to maintain the set of fragmentary paths
+    #   * references:
+    #     - is this like Nooron's AutoSem?
+
+    if not edge or not @suppress_annotation_edges
+      return
+    @suppress_node_re_OA_if_appropriate(edge.source)
+    # if edge.predicate.id is OA_exact # TODO once ids are urls then this is truer
+    if edge.predicate.lid is 'exact' # TODO ensure ids are urls then do the above...
+      @hasAnnotation_targets ?= []
+      if not (edge.target in @hasAnnotation_targets)
+        @hasAnnotation_targets.push(edge.target)
+      #alert("not suppressing the object of oa:exact: #{edge.target.lid}")
+      return # edge.target should not be suppressed
+    suppressEdge = @in_OA_cached(edge.predicate) # WIP what????
+    @suppress_node_re_OA_if_appropriate(edge.target)
+    return
+
+  # Suppress this node if all its classes are in_OA.
+  # Notice that if some of its classes are not in_OA then presumably we should
+  # not suppress it because those classes make it "interesting to humans".
+  # This begs the question "How does in_OA() work?".
+  # Presumably the expectation of this
+  # method is that in_OA() checks to see if the class is defined in the OA
+  # ontology OR is one of those classes used by the OA ontology.
+  # Nodes should be suppressed if they are not of interest to the user
+  # because they are merely present as bookkeeping associated with OA.
+  # Nodes may be in one of these conditions:
+  # a) only typed as a class which the OA ontology explicitly uses (ie OA or a class OA uses)
+  # b) not typed as a class which the OA ontology uses
+  # If b) then the node is not suppressed
+  suppress_node_re_OA_if_appropriate: (node) ->
+    should_suppress = true
+    for taxon in node.taxons
+      if not @in_OA_cached(taxon)
+        should_suppress = false
+        continue
+    if should_suppress
+      @suppress(node)
+    return
+
+  in_OA_cached: (thing) ->
+    if not thing._is_in_OA?
+      thing._is_in_OA = @in_OA_vocab(thing.id)
+    return thing._is_in_OA
+
+  in_OA_vocab: (url) ->
+    # Ideally it would be enough for url.startsWith to be tested for OA membership
+    # but until @ontology.domain and @ontology.range and such are using URLs as
+    # ids rather than "lids" (ie 'local' ids) we must also check for bare lids
+    # such as 'Annotation', 'TextQuoteSelector' and friends.
+    # Notice that since OA_terms_regex
+    match = url.match(OA_terms_regex)
+    is_in = not not (url.startsWith(OA_) or match) # force boolean
+    console.info("#{url} is #{not is_in and 'NOT ' or ''}in OA")
+    return is_in
 
   remove_from_nameless: (node) ->
     if node.nameless?
@@ -4069,7 +4155,7 @@ class Huviz
     if len > 0
       node.pretty_name = node.name.substr(0, len) # truncate
     else
-      node.pretty_name = node.name
+      node.pretty_name = node.name or '“”'
     node.scroll_offset = 0
     return
 
@@ -4103,8 +4189,8 @@ class Huviz
     @set_name(node, node.name)
 
   infer_edge_end_types: (edge) ->
-    edge.source.type = 'Thing' unless edge.source.type?
-    edge.target.type = 'Thing' unless edge.target.type?
+    edge.source.type ?= 'Thing'
+    edge.target.type ?= 'Thing'
     # infer type of source based on the range of the predicate
     ranges = @ontology.range[edge.predicate.lid]
     if ranges?
@@ -4142,6 +4228,9 @@ class Huviz
     null
 
   try_to_set_node_type: (node, type_uri) ->
+    # if not type_uri.includes(':')
+    #   debugger
+    #   throw new Error("try_to_set_node_type() expects an URL, not #{type_uri}")
     type_lid = uniquer(type_uri) # should ensure uniqueness
     if not node._types
       node._types = []
@@ -4253,6 +4342,7 @@ class Huviz
     cmd = new gcl.GraphCommand this,
       verbs: ['choose']
       classes: ['Thing']
+      every_class: true
     @gclc.run(cmd)
     @tick("Tick in choose_everything")
 
@@ -4793,8 +4883,11 @@ class Huviz
     tabs_width = 0
     if @tabsJQElem and @tabsJQElem.length > 0
       tabs_width = @tabsJQElem.width()
+    #console.log @container
+    #console.log @container.clientWidth
+    #console.log "w_width: #{w_width} w. pad of #{pad}"
+    #console.log "tabs_width: #{tabs_width}"
     @width = w_width - tabs_width
-
   # Should be refactored to be get_container_height
   get_container_height: (pad) ->
     pad = pad or hpad
@@ -5244,7 +5337,8 @@ class Huviz
     goner
 
   undiscard: (prodigal) ->  # TODO(smurp) rename command to 'retrieve' ????
-    if @discarded_set.has(prodigal) # see test 'retrieving should only affect nodes which are discarded'
+    # see test 'retrieving should only affect nodes which are discarded'
+    if @discarded_set.has(prodigal)
       @shelved_set.acquire(prodigal)
       @update_showing_links(prodigal)
       @update_state(prodigal)
@@ -5265,6 +5359,16 @@ class Huviz
     if goner.links_shown.length > 0
       console.log("shelving failed for", goner)
     goner
+
+  suppress: (suppressee) =>
+    console.log("suppress(",suppressee,")")
+    @unpin(suppressee)
+    @chosen_set.remove(suppressee)
+    @hide_node_links(suppressee)
+    @shelved_set.remove(suppressee)
+    @update_showing_links(suppressee)
+    @suppressed_set.acquire(suppressee)
+    suppressee
 
   choose: (chosen, callback_after_choosing) =>
     # If this chosen node is part of a SPARQL query set and not fully loaded then
@@ -5731,6 +5835,7 @@ class Huviz
       if @currently_printed_snippets[edge_inspector_id]?
         @hilight_dialog(edge._inspector or edge_inspector_id)
         continue
+      console.log("inspect edge:", edge)
       me = this
       make_callback = (context_no, edge, context) =>
         (err,data) =>
@@ -6011,10 +6116,10 @@ class Huviz
           #console.table(recs)
           # Reset the value of each loader to blank so
           # they show 'Pick or Provide...' not the last added entry.
-          @dataset_loader.val('')
-          @ontology_loader.val('')
-          @endpoint_loader.val('')
-          @script_loader.val('')
+          @dataset_loader.val()
+          @ontology_loader.val()
+          @endpoint_loader.val()
+          @script_loader.val()
           @update_dataset_ontology_loader()
           console.groupEnd() # closing group called "populate_menus_from_IndexedDB(why)"
           document.dispatchEvent( # TODO use 'huvis_controls' rather than document
@@ -6151,7 +6256,8 @@ class Huviz
     #@preload_endpoints()
     # TODO remove this nullification of @last_val by fixing logic in select_option()
     # clear the last_val so select_option works the first time
-    @ontology_loader?last_val = null
+    if @ontology_loader.last_val
+      @ontology_loader.last_val = null
 
   big_go_button_onclick: (event) =>
     if @using_sparql()
@@ -6243,8 +6349,6 @@ class Huviz
     args.serverUrl = serverUrl
     args.serverType = serverType
     switch serverType
-      when 'ldf'
-        @run_managed_query_ldf(args)
       when 'sparql'
         @run_managed_query_ajax(args)
       else
@@ -6255,10 +6359,26 @@ class Huviz
     'cwrc.ca': 'http://sparql.cwrc.ca/sparql'
     'getty.edu': 'http://vocab.getty.edu/sparql.tsv'
     'openstreetmap.org': 'https://sophox.org/sparql'
+    'dbpedia.org': "http://fragments.dbpedia.org/2016-04/en"
+    'viaf.org': "http://data.linkeddatafragments.org/viaf"
+    #'getty.edu': "http://data.linkeddatafragments.org/lov"
+    #'wikidata.org': "https://query.wikidata.org"
+    '*': "http://data.linkeddatafragments.org/lov"
 
   get_server_for_dataset: (datasetUri) ->
+    # Purpose:
+    #   Perform best effort to figure out a sparqlEndpoint for the datasetUri.
+    #   The following does not support domains which have more two parts.
+    #   For instance it would fail for keys like 'thingy.co.uk'
     aUrl = new URL(datasetUri)
-    {domain} = aUrl
+    {hostname} = aUrl
+    hostname_parts = hostname.split('.')
+    if hostname_parts.length > 2
+      while hostname_parts.length > 2
+        hostname_parts.shift()
+      domain = hostname_parts.join('.')
+    else
+      domain = hostname
     # Deal with the situation where the datasetUri sought is served
     # by the server the user has chosen.
     if @using_sparql() and @sparqlGraphSelector_JQElem.val() is datasetUri
@@ -6269,14 +6389,9 @@ class Huviz
     # based on the domain sought.
     else if (serverUrl = @domain2sparqlEndpoint[domain])
       serverType = 'sparql'
-    else if (serverUrl = @domain2sparqlEndpoint[domain])
-      serverType = 'ldf'
     # Then try to find wildcard servers '*', if available.
-    # Give precedence to sparql over ldf.
     else if (serverUrl = @domain2sparqlEndpoint['*'])
       serverType = 'sparql'
-    else if (serverUrl = @domain2ldfServer['*'])
-      serverType = 'ldf'
     else
       throw new Error("a server could not be found for #{datasetUri}")
     return {serverType, serverUrl}
@@ -6294,8 +6409,33 @@ class Huviz
     console.log(e.currentTarget.value)
     @endpoint_loader.endpoint_graph = e.currentTarget.value
 
+  turn_on_loading_notice_if_enabled: ->
+    # This will work even if the display_loading_notice setting UX is removed.
+    if not @display_loading_notice
+      return
+    setTimeout(@turn_on_loading_notice)
+
+  turn_on_loading_notice: =>
+    colorlog('turn_on_loading_notice()','green')
+    @disable_go_button()
+    # display a loading message
+    @state_msg_box = $("#{@args.state_msg_box_sel}")
+    #@show_state_msg("Loading....")
+    txt = "Testing the Loading screen...."
+    #@state_msg_box.html("<div class='msg_payload'>" + txt + "</div><div class='msg_backdrop'></div>")
+    $("#HUVIZ_TOP").prepend("<div id='state_loading_box'><div class='msg_payload'>" + txt + "</div><div class='msg_backdrop'></div></div>")
+    #@state_msg_box.show()
+
+  turn_off_loading_notice_if_enabled: ->
+    if not @display_loading_notice
+      return
+    colorlog('turn_off_loading_notice()','green')
+    # turn off any stateful things like a loading message
+    $("#state_loading_box").hide()
+
   visualize_dataset_using_ontology: (ignoreEvent, dataset, ontologies) =>
-    colorlog('visualize_dataset_using_ontology()', dataset, ontologies)
+    colorlog('visualize_dataset_using_ontology()')
+    @turn_on_loading_notice_if_enabled()
     @close_blurt_box()
     endpoint_label_uri = @endpoint_labels_JQElem.val()
     if endpoint_label_uri
@@ -6328,7 +6468,9 @@ class Huviz
     return
 
   after_visualize_dataset_using_ontology: =>
-    @preset_discover_geonames_remaining()
+    @turn_off_loading_notice_if_enabled()
+    if @discover_geonames_remaining # If this value is absent or zero then geonames lookup is suppressed
+      @preset_discover_geonames_remaining()
 
   load_script_from_db: (err, rsrcRec) =>
     if err?
@@ -6522,7 +6664,7 @@ class Huviz
     reload_html = """
       <p>
         <button title="Copy shareable link"
-           onclick="alert('#{uri}')"><i class="fas fa-share"></i></button>
+           onclick="alert('#{uri}')"><i class="fas fa-share-alt"></i></button>
         <button title="Reload this data"
            onclick="location.replace('#{uri}');location.reload()"><i class="fas fa-redo"></i></button>
         <button title="Clear the graph and start over"
@@ -6967,6 +7109,7 @@ class Huviz
 
   create_state_msg_box: () ->
     @state_msg_box = $("#state_msg_box")
+    #@state_msg_box = $("#{@args.state_msg_box_sel}")
     @hide_state_msg()
     #console.info @state_msg_box
 
@@ -7263,6 +7406,7 @@ class Huviz
     #  @pfm_dashboard()
     @git_commit_hash = window.HUVIZ_GIT_COMMIT_HASH
     @args = @calculate_args(incoming_args)
+    console.log @args
     @ensureTopElem()
     if @args.create_tabs_adjacent_to_selector
       @create_tabs()
@@ -7508,6 +7652,7 @@ class Huviz
     spawn: 'SPAWN'
     specialize: 'SPECIALIZE'
     annotate: 'ANNOTATE'
+    suppress: "SUPPRESS"
 
   # TODO add controls
   #   selected_border_thickness
@@ -7883,7 +8028,7 @@ class Huviz
           title: "Use the local-id of a resource as its node name, permitting display of nodes nothing else is known about."
         input:
           type: "checkbox"
-          checked: "checked"
+          #checked: "checked"
     ,
       make_nodes_for_literals:
         group: "Ontological"
@@ -7910,9 +8055,20 @@ class Huviz
         group: "Ontological"
         text: "Color nodes as pies"
         label:
-          title: """Show all a nodes types as colored pie pieces."""
+          title: """Show all a node's types as colored pie pieces."""
         input:
           type: "checkbox"   #checked: "checked"
+    ,
+      suppress_annotation_edges:
+        group: "Annotation"
+        class: "alpha_feature"
+        text: "Suppress Annotation Edges"
+        label:
+          title: """Do not show Open Annotation edges or nodes.
+          Summarize them as a hasAnnotation edge and enable the Annotation Inspector."""
+        input:
+          type: "checkbox"
+          #checked: "checked"
     ,
       show_hide_endpoint_loading:
         style: "display:none"
@@ -7983,7 +8139,8 @@ class Huviz
         group: "Geonames"
         text: 'GeoNames Limit '
         label:
-          title: "The number of Remaining Geonames to look up"
+          title: """The number of Remaining Geonames to look up.
+          If zero before loading, then lookup is suppressed."""
         input:
           type: "integer"
           value: 20
@@ -8014,7 +8171,7 @@ class Huviz
           title: "Show edge labels adjacent to labelled nodes"
         input:
           type: "checkbox"
-          checked: "checked"
+          #checked: "checked"
     ,
       show_edges:
         class: "alpha_feature"
@@ -8153,6 +8310,16 @@ class Huviz
         input:
           type: "checkbox"
           #checked: "checked"
+    ,
+      display_loading_notice:
+        group: "Debugging"
+        class: "alpha_feature"
+        text: "Display Loading Notice"
+        label:
+          title: "Display the loading_notice after the user presses LOAD"
+        input:
+          type: "checkbox"
+          # checked: "checked" # this should be OFF by default until it is pretty
     ]
 
   auto_adjust_settings: ->
@@ -8621,7 +8788,6 @@ class Huviz
     else
       #@disable_data_set_selector()
       @disable_dataset_ontology_loader(data, onto)
-    @show_state_msg("loading...")
     @show_state_msg(@data_uri)
     unless @G.subjects
       @fetchAndShow(@data_uri, callback)

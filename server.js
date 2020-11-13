@@ -98,8 +98,6 @@
 
   app.use('/d3', express["static"](__dirname + '/node_modules/d3'));
 
-  app.use('/comunica-ldf-client', express["static"](__dirname + '/node_modules/comunica-ldf-client/dist'));
-
   quaff_module_path = process.env.QUAFF_PATH || "/node_modules";
 
   app.use('/quaff-lod/quaff-lod-worker-bundle.js', localOrCDN(quaff_module_path + "/quaff-lod/quaff-lod-worker-bundle.js", {
@@ -156,10 +154,10 @@
     extensions: ['html']
   }));
 
-  port = nopts.port || nopts.argv.remain[0] || process.env.PORT || default_port;
+  port = nopts.port || nopts.argv.remain[0] || process.env.PORT || 5000;
 
-  console.log("Starting server on port: " + port + " localhost");
+  console.log("Starting server on port: " + port);
 
-  app.listen(port, 'localhost');
+  app.listen(port, '0.0.0.0');
 
 }).call(this);

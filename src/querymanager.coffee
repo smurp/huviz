@@ -34,7 +34,7 @@ class QueryManager
     @cancelAnimation()
     @displayError(e)
     @setErrorColor()
-    console.error(e)
+    #console.error(e)
   displayResults: (results) ->
     @qryJQElem.append("""<div class="query-results">#{results}</div>""")
   finishCounting: ->
