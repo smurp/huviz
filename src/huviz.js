@@ -511,9 +511,7 @@ const orlando_human_term = {
   suppressed: 'Suppresssed'
 };
 
-export Huviz = (function() {
-  let renderStyles = undefined;
-  let nodeOrderAngle = undefined;
+var Huviz = (function() {
   Huviz = class Huviz {
     static initClass() {
       this.prototype.hash = hash;
@@ -597,9 +595,9 @@ export Huviz = (function() {
       this.prototype.discard_center = [0,0];
       this.prototype.lariat_center = [0,0];
       this.prototype.last_mouse_pos = [ 0, 0];
-      renderStyles = themeStyles.light;
+      this.prototype.renderStyles = themeStyles.light;
       this.prototype.display_shelf_clockwise = true;
-      nodeOrderAngle = 0.5; // TODO replace ' = ' with ': '
+      this.prototype.nodeOrderAngle = 0.5;
       this.prototype.pfm_data = {
         tick: {
           total_count: 0,
@@ -1789,14 +1787,14 @@ Link details may not be accurate. Activate to load.</i>`; // """
     draw_disconnect_dropzone() {
       this.ctx.save();
       this.ctx.lineWidth = this.graph_radius * 0.1;
-      this.draw_circle(this.lariat_center[0], this.lariat_center[1], this.graph_radius, renderStyles.shelfColor);
+      this.draw_circle(this.lariat_center[0], this.lariat_center[1], this.graph_radius, this.renderStyles.shelfColor);
       this.ctx.restore();
     }
 
     draw_discard_dropzone() {
       this.ctx.save();
       this.ctx.lineWidth = this.discard_radius * 0.1;
-      this.draw_circle(this.discard_center[0], this.discard_center[1], this.discard_radius, "", renderStyles.discardColor);
+      this.draw_circle(this.discard_center[0], this.discard_center[1], this.discard_radius, "", this.renderStyles.discardColor);
       this.ctx.restore();
     }
 
@@ -2761,7 +2759,7 @@ with Shelved, Discarded, Graphed and Hidden.`;
         //clockwise = false
         // 0 or 1 starts at 6, 0.5 starts at 12, 0.75 starts at 9, 0.25 starts at 3
         let rad;
-        const start = 1 - nodeOrderAngle;
+        const start = 1 - this.nodeOrderAngle;
         if (this.display_shelf_clockwise) {
           rad = tau * (start - (i / num));
         } else {
@@ -2773,7 +2771,7 @@ with Shelved, Discarded, Graphed and Hidden.`;
         node.fisheye = this.fisheye(node);
         if (this.use_canvas) {
           const filclrs = this.get_node_color_or_color_list(
-            node, renderStyles.nodeHighlightOutline);
+            node, this.renderStyles.nodeHighlightOutline);
           this.draw_pie(node.fisheye.x, node.fisheye.y,
                     this.calc_node_radius(node),
                     node.color || "yellow",
@@ -2807,7 +2805,7 @@ with Shelved, Discarded, Graphed and Hidden.`;
             const node_radius = this.calc_node_radius(d);
             let stroke_color = d.color || 'yellow';
             if (d.chosen != null) {
-              stroke_color = renderStyles.nodeHighlightOutline;
+              stroke_color = this.renderStyles.nodeHighlightOutline;
               // if the node d is in the @walked_set it needs special_focus
               special_focus = !!d.walked;  // "not not" forces boolean
             }
@@ -2897,7 +2895,7 @@ with Shelved, Discarded, Graphed and Hidden.`;
           ctx.arc(display_image_size/2, display_image_size/2,
                   display_image_size/2, 0, 2 * Math.PI, false);
           ctx.clip();
-          ctx.fillStyle = renderStyles.pageBg;
+          ctx.fillStyle = this.renderStyles.pageBg;
           ctx.fill();
 
           if (origImage.width > origImage.height) {  // Landscape image
@@ -3030,7 +3028,7 @@ with Shelved, Discarded, Graphed and Hidden.`;
             ctx.fillStyle = node.color;
             ctx.font = focused_font;
           } else {
-            ctx.fillStyle = renderStyles.labelColor; //"white" is default
+            ctx.fillStyle = this.renderStyles.labelColor; //"white" is default
             ctx.font = unfocused_font;
           }
           if ((node.fisheye == null)) {
@@ -3563,7 +3561,7 @@ with Shelved, Discarded, Graphed and Hidden.`;
       const focused_font = `${focused_font_size}em sans-serif`;
       const height = this.label_em * this.focused_mag * 16;
       ctx.font = focused_font;
-      ctx.strokeStyle = renderStyles.pageBg;
+      ctx.strokeStyle = this.renderStyles.pageBg;
       ctx.lineWidth = 5;
       ctx.strokeText("  " + label + "  ", x, y);
     }
@@ -8825,10 +8823,10 @@ LIMIT 20\
       if (this.use_fancy_cursor) {
         this.text_cursor.set_cursor("default");
       }
-      //$("body").css "background-color", renderStyles.pageBg # FIXME remove once it works!
-      //$("body").addClass renderStyles.themeName
-      this.topElem.style.backgroundColor = renderStyles.pageBg;
-      this.topElem.classList.add(renderStyles.themeName);
+      //$("body").css "background-color", this.renderStyles.pageBg # FIXME remove once it works!
+      //$("body").addClass this.renderStyles.themeName
+      this.topElem.style.backgroundColor = this.renderStyles.pageBg;
+      this.topElem.classList.add(this.renderStyles.themeName);
 
       this.update_all_counts();
       this.clean_up_all_dirt_once();
@@ -10001,19 +9999,19 @@ LIMIT 20\
 
     on_change_theme_colors(new_val) {
       if (new_val) {
-        renderStyles = themeStyles.dark;
+        this.renderStyles = themeStyles.dark;
         //$("body").removeClass themeStyles.light.themeName
         this.topElem.classList.remove(themeStyles.light.themeName);
       } else {
-        renderStyles = themeStyles.light;
+        this.renderStyles = themeStyles.light;
         //$("body").removeClass themeStyles.dark.themeName
         this.topElem.classList.remove(themeStyles.light.themeName);
       }
       //@update_graph_settings()
-      //$("body").css "background-color", renderStyles.pageBg
-      //$("body").addClass renderStyles.themeName
-      this.topElem.style.backgroundColor = renderStyles.pageBg;
-      this.topElem.classList.add(renderStyles.themeName);
+      //$("body").css "background-color", this.renderStyles.pageBg
+      //$("body").addClass this.renderStyles.themeName
+      this.topElem.style.backgroundColor = this.renderStyles.pageBg;
+      this.topElem.classList.add(this.renderStyles.themeName);
       this.updateWindow();
     }
 
@@ -10036,7 +10034,7 @@ LIMIT 20\
     }
 
     on_change_choose_node_display_angle(new_val) {
-      nodeOrderAngle = new_val;
+      this.nodeOrderAngle = new_val;
       this.updateWindow();
     }
 
