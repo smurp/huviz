@@ -13,6 +13,9 @@ huviz
 * [Beta](http://beta.huviz.dev.nooron.com/)
 * [Alpha](http://alpha.huviz.dev.nooron.com/)
 
+# Wireframes for future directions
+
+https://balsamiq.cloud/senbj2i/ppkgzk1
 
 # What is HuViz?
 
@@ -54,14 +57,12 @@ The Verbs are the operations which move nodes between the various sets, ie sets 
 * Pin / Unpin
 
 
-
 # Installation
 
     # Install huviz from github
     git clone https://github.com/smurp/huviz.git
 
 ## Installation (for running the server)
-
 
     # install NodeJS using NVM for most flexibility
     # known to work on NodeJS >= v6.11.3
