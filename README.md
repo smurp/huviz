@@ -3,26 +3,33 @@ huviz
 
 ![Image](./graph_ex1.png?raw=true)
 
-# Demonstration Sites
-**/cwrc/HuViz** is a fork of [/smurp/huviz](https://github.com/smurp/huviz) where development occurs
+# What is HuViz?
 
-# Installation
+HuViz is a Semantic Web graph visualization engine which uses a powerful system of interactions which can
+be captured to produce replayable scripts.  It is rather like SQL (the Structured Query Language) but applied
+to the task of creating graph visualizations.  It runs as a stand-alone site and can be integrated into
+other sites as a visualizer for their graph content.
+
+## Deployments
 
 * [LINCS Production](https://huviz.lincsproject.ca/)
 * [Production](http://huviz.dev.nooron.com/)
 * [Beta](http://beta.huviz.dev.nooron.com/)
 * [Alpha](http://alpha.huviz.dev.nooron.com/)
 
-# Wireframes for future directions
+# Development and Issues
+
+* Development occurs at: https://github.com/smurp/huviz
+* Issues are maintained at:
+  - https://gitlab.com/calincs/access/HuViz/-/issues
+     * related to http://lincsproject.ca
+  - https://github.com/smurp/huviz/issues
+     * low-level issues
+     * relating to integrations, embedding and so on
+
+## Wireframes for future directions
 
 https://balsamiq.cloud/senbj2i/ppkgzk1
-
-# What is HuViz?
-
-HuViz is a Semantic Web graph visualization system which uses a powerful system of interactions which can
-be captured to produce replayable scripts.  It is rather like SQL (the Structured Query Language) but applied
-to the task of creating graph visualizations.
-
 
 ## Sets
 
@@ -39,7 +46,6 @@ The commands in HuViz can be thought of as moving nodes around among various set
 * Pinned -- the nodes which have been pinned in particular places on the graph
 * Selected -- the nodes which have their named edges cataloged in the box labelled "Edges of the Selected Nodes" for the Draw verb to work on
 * Shelved -- the nodes which are kept, disconnected, on display on the sorted, circular "Shelf" around the central graph
-
 
 ## Verbs
 
@@ -59,7 +65,7 @@ The Verbs are the operations which move nodes between the various sets, ie sets 
 
 # Installation
 
-    # Install huviz from github
+## Install huviz from github
     git clone https://github.com/smurp/huviz.git
 
 ## Installation (for running the server)
