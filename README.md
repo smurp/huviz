@@ -10,6 +10,10 @@ be captured to produce replayable scripts.  It is rather like SQL (the Structure
 to the task of creating graph visualizations.  It runs as a stand-alone site and can be integrated into
 other sites as a visualizer for their graph content.
 
+## Pages about HuViz
+
+* http://smurp.github.io/huviz/
+
 ## Deployments
 
 * [LINCS Production](https://huviz.lincsproject.ca/)
