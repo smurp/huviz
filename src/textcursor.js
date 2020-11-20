@@ -1,6 +1,6 @@
 // Usage:
 //   txtcrsr = new TextCursor(".graph_control input", "click input for fun")
-class TextCursor {
+export class TextCursor {
   static initClass() {
     this.prototype.fontFillStyle = "black";
     this.prototype.bgFillStyle = "Yellow";
@@ -139,5 +139,3 @@ class TextCursor {
   }
 }
 TextCursor.initClass();
-
-// export {TextCursor}; // TODO convert to module

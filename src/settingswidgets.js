@@ -2,7 +2,9 @@
  * These SettingsWidget classes used to be in src/huviz.js nee src/huviz.coffee
  */
 
-class SettingsWidget {
+import {uniquer, unique_id} from './uniquer.js';
+
+export class SettingsWidget {
   constructor(huviz, inputElem, state) {
     this.huviz = huviz;
     this.inputElem = inputElem;
@@ -15,7 +17,7 @@ class SettingsWidget {
   }
 }
 
-class UsernameWidget extends SettingsWidget {
+export class UsernameWidget extends SettingsWidget {
   static initClass() {
     // https://fontawesome.com/v4.7.0/examples/#animated explains animations fa-spin (continuous) and fa-pulse (8-step)
     this.prototype.state_to_state_icon = {
@@ -63,12 +65,10 @@ class UsernameWidget extends SettingsWidget {
 }
 UsernameWidget.initClass();
 
-class GeoUserNameWidget extends UsernameWidget {
+export class GeoUserNameWidget extends UsernameWidget {
   constructor() {
     super(...arguments);
     this.stateIconJQElem.on('click', this.huviz.show_geonames_instructions);
     this.userIconJQElem.on('click', this.huviz.show_geonames_instructions);
   }
 }
-
-// export {SettingsWidget, UsernameWidget, GeoUserNameWidget}; // TODO convert to module

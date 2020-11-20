@@ -27,9 +27,9 @@ Possible Bug: it appears that <div class="container" id="classes"> has a redunda
               It is unclear why this is needed.  Containers should not directly hold containers.
 */
 
-// import uniquer from 'uniquer.js'; // TODO convert to module
+import {uniquer} from './uniquer.js'; // TODO convert to module
 
-class TreePicker {
+export class TreePicker {
   static initClass() {
     this.prototype.collapser_str = "▼"; // 0x25bc
     this.prototype.expander_str = "▶";
@@ -551,5 +551,3 @@ class TreePicker {
   }
 }
 TreePicker.initClass();
-
-// export {TreePicker}; // TODO convert to module

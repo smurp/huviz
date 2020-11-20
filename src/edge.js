@@ -1,4 +1,4 @@
-class Edge {
+export class Edge {
   static initClass() {
     this.prototype.color = "lightgrey";
   }

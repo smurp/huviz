@@ -6,10 +6,10 @@
  */
 // Edit UI - Jan 2017
 
-// import {FiniteStateMachine} from 'fsm.js'; // TODO convert to module
-// import {IndexedDBStorageController} from 'indexeddbstoragecontroller'; // TODO convert to module
+import {FiniteStateMachine} from './fsm.js'; // TODO convert to module
+import {IndexedDBStorageController} from './indexeddbstoragecontroller.js'; // TODO convert to module
 
-class EditController extends FiniteStateMachine {
+export class EditController extends FiniteStateMachine {
   constructor(huviz) {
     super();
     this.toggle_edit_form = this.toggle_edit_form.bind(this);

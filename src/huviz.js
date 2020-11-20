@@ -118,18 +118,25 @@
 //  67) TASK: add verbs pin/unpin (using polar coords to record placement)
 //
 
-// import {uniquer} from 'uniquer.js'; // TODO convert to module # FIXME rename to make_dom_safe_id
-// import {CommandController} from 'gclui.js'; // TODO convert to module
-// import {Edge} from 'edge.js'; // TODO convert to module
-// import {EditController} from 'editui.js'; // TODO convert to module
-// import {GraphCommand, GraphCommandLanguageCtrl} from 'graphcommandlanguage.js'; // TODO convert to module
-// import {GreenerTurtle} from 'greenerturtle.js'; # TODO convert to module
-// import {IndexedDBService} from 'indexeddbservice.js'; // TODO convert to module
-// import {IndexedDBStorageController} from 'indexeddbstoragecontroller.js'; // TODO convert to module
-// import {Node} from 'node.js'; // TODO convert to module
-// import {Predicate} from 'predicate.js'; // TODO convert to module
-// import {Taxon} from 'taxon.js'; // TODO convert to module
-// import {TextCursor} from 'textcursor.js'; // TODO convert to module
+import {PickOrProvide, PickOrProvideScript, DragAndDropLoader, DragAndDropLoaderOfScripts} from './dndloader.js';
+import {Edge} from './edge.js';
+import {EditController} from './editui.js'; // TODO convert to module
+import {CommandController} from './gclui.js'; // TODO convert to module
+import {GraphCommand, GraphCommandLanguageCtrl} from './graphcommandlanguage.js'; // TODO convert to module
+import {GreenerTurtle} from './greenerturtle.js'; // TODO convert to module
+import {IndexedDBService} from './indexeddbservice.js'; // TODO convert to module
+import {IndexedDBStorageController} from './indexeddbstoragecontroller.js'; // TODO convert to module
+import {MultiString} from './multistring.js';
+import {Node} from './node.js'; // TODO convert to module
+import {OnceRunner} from './oncerunner.js';
+import {Predicate} from './predicate.js'; // TODO convert to module
+import {Quad, RdfUri, RdfObject, parseQuadLine} from './quadParser.js';
+import {DEFAULT_SETTINGS} from './settings.js';
+import {SettingsWidget, UsernameWidget, GeoUserNameWidget} from './settingswidgets.js';
+import {SortedSet} from './sortedset.js';
+import {Taxon} from './taxon.js'; // TODO convert to module
+import {TextCursor} from './textcursor.js'; // TODO convert to module
+import {uniquer, unique_id} from './uniquer.js'; // TODO convert to module # FIXME rename to make_dom_safe_id
 
 MultiString.set_langpath('en:fr'); // TODO make this a setting
 
@@ -216,13 +223,18 @@ const convert = function(src, srctable, desttable) {
 };
 const BASE57 = "23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 const BASE10 = "0123456789";
-const int_to_base = intgr => convert(""+intgr, BASE10, BASE57);
-
-const synthIdFor = str => // return a short random hash suitable for use as DOM/JS id
-'h' + int_to_base(hash(str)).substr(0,6);
+const int_to_base = function(intgr){
+  return convert(""+intgr, BASE10, BASE57);
+}
+const synthIdFor = function(str) {
+  // return a short random hash suitable for use as DOM/JS id
+  return 'h' + int_to_base(hash(str)).substr(0,6);
+}
 window.synthIdFor = synthIdFor;
-const unescape_unicode = u => // pre-escape any existing quotes so when JSON.parse does not get confused
-JSON.parse('"' + u.replace('"', '\\"') + '"');
+const unescape_unicode = function(u) {
+  // pre-escape any existing quotes so when JSON.parse does not get confused
+  return JSON.parse('"' + u.replace('"', '\\"') + '"');
+}
 
 var linearize = function(msgRecipient, streamoid) {
   if (streamoid.idx === 0) {
@@ -242,15 +254,14 @@ var linearize = function(msgRecipient, streamoid) {
   }
 };
 
-const ident = data => data;
+const ident = function(data) {
+  return data;
+}
 
-const unique_id = function(prefix) {
-  if (prefix == null) { prefix = 'uid_'; }
-  return prefix + Math.random().toString(36).substr(2,10);
-};
-
-const sel_to_id = selector => // remove the leading hash to make a selector into an id
-selector.replace(/^\#/, '');
+const sel_to_id = function(selector) {
+  // remove the leading hash to make a selector into an id
+  return selector.replace(/^\#/, '');
+}
 
 window.log_click = function() {
   console.log("%cCLICK", "color:red;font-size:1.8em");
@@ -373,7 +384,6 @@ const MANY_SPACES_REGEX = /\s{2,}/g;
 const UNDEFINED = undefined;
 const start_with_http = new RegExp("http", "ig");
 const ids_to_show = start_with_http;
-
 const PEEKING_COLOR = "darkgray";
 
 const themeStyles = {
@@ -394,7 +404,6 @@ const themeStyles = {
     "nodeHighlightOutline": "white"
   }
 };
-
 
 const id_escape = function(an_id) {
   let retval = an_id.replace(/\:/g,'_');
@@ -10616,7 +10625,7 @@ ${this.build_pfm_live_monitor('sparql')}\
 };
 Huviz.initClass();
 
-class OntologicallyGrounded extends Huviz {
+export class OntologicallyGrounded extends Huviz {
   // If OntologicallyGrounded then there is an associated ontology which informs
   // the TaxonPicker and the PredicatePicker, rather than the pickers only
   // being informed by implicit ontological hints such as

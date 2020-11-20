@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="781px" preserveAspectRatio="none" style="width:618px;height:781px;" version="1.1" viewBox="0 0 618 781" width="618px" zoomAndPan="magnify"><defs/><g><ellipse cx="446.5399" cy="305.242" fill="#F8F8F8" rx="41.8909" ry="13.242" style="stroke: #383838; stroke-width: 0.5;"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="55" x="419.0399" y="308.9842">angliciser</text><!--MD5=[c85f6d4caefce92acd9ac3fe1e6380c2]
+entity _coloredtreepicker--><rect fill="#F8F8F8" height="34.4844" rx="3" ry="3" style="stroke: #000000; stroke-width: 0.5;" width="120" x="202.649" y="736"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="100" x="212.649" y="758.0059">coloredtreepicker</text><!--MD5=[68f424e333f01539f4809daa1e86d0f0]
+entity _dndloader--><rect fill="#F8F8F8" height="34.4844" rx="3" ry="3" style="stroke: #000000; stroke-width: 0.5;" width="77" x="50.6494" y="439"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="57" x="60.6494" y="461.0059">dndloader</text><!--MD5=[88c490e9164e48e33bb1acceb2aacd6d]
+entity _edge--><rect fill="#F8F8F8" height="34.4844" rx="3" ry="3" style="stroke: #000000; stroke-width: 0.5;" width="48" x="65.1494" y="387"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="28" x="75.1494" y="409.0059">edge</text><!--MD5=[2e8c035363463292a2a2d5ce12b2c02c]
+entity _editui--><rect fill="#F8F8F8" height="34.4844" rx="3" ry="3" style="stroke: #000000; stroke-width: 0.5;" width="51" x="63.6494" y="639"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="31" x="73.6494" y="661.0059">editui</text><!--MD5=[85e828cec410b55b18bc9d950a8a5ef8]
+entity _fsm--><rect fill="#F8F8F8" height="34.4844" rx="3" ry="3" style="stroke: #000000; stroke-width: 0.5;" width="42" x="241.649" y="594"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="22" x="251.649" y="616.0059">fsm</text><!--MD5=[4086444eb55f169405db08ef307d9d70]
+entity _gclui--><rect fill="#F8F8F8" height="34.4844" rx="3" ry="3" style="stroke: #000000; stroke-width: 0.5;" width="47" x="65.6494" y="691"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="27" x="75.6494" y="713.0059">gclui</text><!--MD5=[995c6bd86ece32814d0ce502d3a43650]
+entity _graphcommandlanguage--><rect fill="#F8F8F8" height="34.4844" rx="3" ry="3" style="stroke: #000000; stroke-width: 0.5;" width="162" x="181.649" y="292"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="142" x="191.649" y="314.0059">graphcommandlanguage</text><!--MD5=[78e51e3f01a585ec427433fb7dc601b3]
+entity _greenerturtle--><rect fill="#F8F8F8" height="34.4844" rx="3" ry="3" style="stroke: #000000; stroke-width: 0.5;" width="92" x="43.1494" y="335"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="72" x="53.1494" y="357.0059">greenerturtle</text><ellipse cx="89.2413" cy="25.242" fill="#F8F8F8" rx="22.0919" ry="13.242" style="stroke: #383838; stroke-width: 0.5;"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="27" x="75.7413" y="28.9842">gvcl</text><ellipse cx="446.5668" cy="753.9342" fill="#F8F8F8" rx="15.4178" ry="12.9342" style="stroke: #383838; stroke-width: 0.5;"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="17" x="438.0668" y="757.6764">hsl</text><ellipse cx="88.9129" cy="69.242" fill="#F8F8F8" rx="19.2635" ry="13.242" style="stroke: #383838; stroke-width: 0.5;"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="23" x="77.4129" y="72.9842">hsv</text><!--MD5=[c17c2e27dcac3cee95af133266e055c4]
+entity _huviz--><rect fill="#F8F8F8" height="34.4844" rx="3" ry="3" style="stroke: #000000; stroke-width: 0.5;" width="55" x="61.6494" y="195"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="35" x="71.6494" y="217.0059">huviz</text><!--MD5=[0ec5cfff40ac86c6e424ea8c83617c61]
+entity _indexeddbservice--><rect fill="#F8F8F8" height="34.4844" rx="3" ry="3" style="stroke: #000000; stroke-width: 0.5;" width="119" x="387.149" y="388"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="99" x="397.149" y="410.0059">indexeddbservice</text><!--MD5=[af43522a83a3894ea69d66d18845e476]
+entity _indexeddbstoragecontroller--><rect fill="#F8F8F8" height="34.4844" rx="3" ry="3" style="stroke: #000000; stroke-width: 0.5;" width="177" x="174.149" y="481"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="157" x="184.149" y="503.0059">indexeddbstoragecontroller</text><ellipse cx="89.0758" cy="304.242" fill="#F8F8F8" rx="45.4264" ry="13.242" style="stroke: #383838; stroke-width: 0.5;"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="60" x="59.0758" y="307.9842">multistring</text><!--MD5=[a1220b791bfdf8d2fcff6a69a8402a50]
+entity _node--><rect fill="#F8F8F8" height="34.4844" rx="3" ry="3" style="stroke: #000000; stroke-width: 0.5;" width="49" x="422.149" y="336"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="29" x="432.149" y="358.0059">node</text><ellipse cx="89.1113" cy="260.242" fill="#F8F8F8" rx="48.9619" ry="13.242" style="stroke: #383838; stroke-width: 0.5;"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="65" x="56.6113" y="263.9842">oncerunner</text><!--MD5=[1acd4c73490d50fea545701d86a6f02a]
+entity _ontoviz--><rect fill="#F8F8F8" height="34.4844" rx="3" ry="3" style="stroke: #000000; stroke-width: 0.5;" width="70" x="227.649" y="8"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="50" x="237.649" y="30.0059">ontoviz</text><!--MD5=[8bd7f295a0ce07e47a21f34eba561762]
+entity _predicate--><rect fill="#F8F8F8" height="34.4844" rx="3" ry="3" style="stroke: #000000; stroke-width: 0.5;" width="73" x="226.149" y="150"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="53" x="236.149" y="172.0059">predicate</text><ellipse cx="88.9042" cy="556.242" fill="#F8F8F8" rx="48.2548" ry="13.242" style="stroke: #383838; stroke-width: 0.5;"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="64" x="56.9042" y="559.9842">quadParser</text><!--MD5=[bdeb9b27363b218ec700e114faa1f575]
+entity _querymanager--><rect fill="#F8F8F8" height="34.4844" rx="3" ry="3" style="stroke: #000000; stroke-width: 0.5;" width="101" x="212.149" y="646"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="81" x="222.149" y="668.0059">querymanager</text><!--MD5=[df354d2524069015f910758bbbe80e8a]
+entity _settings--><rect fill="#F8F8F8" height="34.4844" rx="3" ry="3" style="stroke: #000000; stroke-width: 0.5;" width="66" x="56.1494" y="587"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="46" x="66.1494" y="609.0059">settings</text><!--MD5=[698519afe8ef840e9874c8356e39c7e3]
+entity _settingswidgets--><rect fill="#F8F8F8" height="34.4844" rx="3" ry="3" style="stroke: #000000; stroke-width: 0.5;" width="110" x="207.649" y="429"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="90" x="217.649" y="451.0059">settingswidgets</text><!--MD5=[b2685753d20aee33b1198430d4ca6153]
+entity _socrata--><rect fill="#F8F8F8" height="34.4844" rx="3" ry="3" style="stroke: #000000; stroke-width: 0.5;" width="71" x="227.149" y="60"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="51" x="237.149" y="82.0059">socrata</text><!--MD5=[54ff41620e670ad663e6c1b91bbeac92]
+entity _sortedset--><rect fill="#F8F8F8" height="34.4844" rx="3" ry="3" style="stroke: #000000; stroke-width: 0.5;" width="75" x="409.149" y="240"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="55" x="419.149" y="262.0059">sortedset</text><!--MD5=[319f27bc800d444a751a01b2683199e4]
+entity _taxon--><rect fill="#F8F8F8" height="34.4844" rx="3" ry="3" style="stroke: #000000; stroke-width: 0.5;" width="52" x="236.649" y="240"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="32" x="246.649" y="262.0059">taxon</text><!--MD5=[90aed9b54c4f2d78720c94aa7e57e608]
+entity _textcursor--><rect fill="#F8F8F8" height="34.4844" rx="3" ry="3" style="stroke: #000000; stroke-width: 0.5;" width="78" x="50.1494" y="491"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="58" x="60.1494" y="513.0059">textcursor</text><!--MD5=[ceba8e24a112afc51c5fe49531598f36]
+entity _treectrl--><rect fill="#F8F8F8" height="34.4844" rx="3" ry="3" style="stroke: #000000; stroke-width: 0.5;" width="60" x="416.649" y="188"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="40" x="426.649" y="210.0059">treectrl</text><!--MD5=[c4d596e948cbed671d412ad21a22ac4a]
+entity _treepicker--><rect fill="#F8F8F8" height="34.4844" rx="3" ry="3" style="stroke: #000000; stroke-width: 0.5;" width="76" x="408.649" y="689"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="56" x="418.649" y="711.0059">treepicker</text><ellipse cx="574.8475" cy="353.242" fill="#F8F8F8" rx="32.6985" ry="13.242" style="stroke: #383838; stroke-width: 0.5;"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="42" x="553.8475" y="356.9842">uniquer</text><!--MD5=[5cd249406984a5cc838d707d05280374]
+link _coloredtreepicker to hsl--><path d="M322.74,753.3247 C358.25,753.5198 401.184,753.7557 425.764,753.8907 " fill="none" id="_coloredtreepicker-&gt;hsl" style="stroke: #000000; stroke-width: 0.5;"/><polygon fill="#000000" points="431.015,753.9196,422.0368,749.8708,426.0151,753.8925,421.9934,757.8707,431.015,753.9196" style="stroke: #000000; stroke-width: 0.5;"/><!--MD5=[aa63334a7eb54a4d8e25fa7ab8740525]
+link _coloredtreepicker to _treepicker--><path d="M322.74,737.7404 C349.097,730.9339 379.544,723.0713 403.54,716.8745 " fill="none" id="_coloredtreepicker-&gt;_treepicker" style="stroke: #000000; stroke-width: 0.5;"/><polygon fill="#000000" points="408.558,715.5784,398.8438,713.9555,403.7168,716.8284,400.8438,721.7014,408.558,715.5784" style="stroke: #000000; stroke-width: 0.5;"/><!--MD5=[a30baaf1f5525220c49869b40c8172a6]
+link _editui to _fsm--><path d="M114.721,649.553 C147.074,641.063 203.672,626.213 236.373,617.632 " fill="none" id="_editui-&gt;_fsm" style="stroke: #000000; stroke-width: 0.5;"/><polygon fill="#000000" points="241.408,616.311,231.6877,614.7249,236.5716,617.5794,233.7171,622.4633,241.408,616.311" style="stroke: #000000; stroke-width: 0.5;"/><!--MD5=[7a5d0419302720763152f26417e90ab3]
+link _editui to _indexeddbstoragecontroller--><path d="M114.781,645.064 C122.673,640.95 131.169,635.835 138.149,630 C157.801,613.574 157.041,604.06 174.149,585 C195.302,561.435 221.201,536.077 239.312,518.853 " fill="none" id="_editui-&gt;_indexeddbstoragecontroller" style="stroke: #000000; stroke-width: 0.5;"/><polygon fill="#000000" points="243.282,515.089,233.9986,518.3781,239.6534,518.529,239.5026,524.1838,243.282,515.089" style="stroke: #000000; stroke-width: 0.5;"/><!--MD5=[f941d9f8ed439ca0b18e22352ae94bbf]
+link _gclui to _coloredtreepicker--><path d="M112.923,713.9757 C134.456,719.6258 167.798,728.3743 197.459,736.1571 " fill="none" id="_gclui-&gt;_coloredtreepicker" style="stroke: #000000; stroke-width: 0.5;"/><polygon fill="#000000" points="202.567,737.4973,194.8781,731.3426,197.731,736.2274,192.8462,739.0802,202.567,737.4973" style="stroke: #000000; stroke-width: 0.5;"/><!--MD5=[87b71bbd7c7e51674aee4d8d213c4dfd]
+link _gclui to _graphcommandlanguage--><path d="M112.891,700.8597 C122.165,696.7953 132.108,690.7277 138.149,682 C205.045,585.355 128.155,528.166 174.149,420 C189.245,384.498 218.8,350.738 239.361,329.97 " fill="none" id="_gclui-&gt;_graphcommandlanguage" style="stroke: #000000; stroke-width: 0.5;"/><polygon fill="#000000" points="243.09,326.246,233.8955,329.776,239.5523,329.7794,239.5489,335.4362,243.09,326.246" style="stroke: #000000; stroke-width: 0.5;"/><!--MD5=[94edbdfe38f378104ff793902e80a452]
+link _gclui to _querymanager--><path d="M112.923,702.0243 C136.794,695.7608 175.176,685.6897 206.969,677.3475 " fill="none" id="_gclui-&gt;_querymanager" style="stroke: #000000; stroke-width: 0.5;"/><polygon fill="#000000" points="212.012,676.0244,202.2916,674.4388,207.1756,677.293,204.3214,682.177,212.012,676.0244" style="stroke: #000000; stroke-width: 0.5;"/><!--MD5=[71af8658dd215183f4594b4f0638118a]
+link _gclui to _treepicker--><path d="M112.657,707.8734 C170.936,707.5455 327.492,706.6647 403.327,706.2381 " fill="none" id="_gclui-&gt;_treepicker" style="stroke: #000000; stroke-width: 0.5;"/><polygon fill="#000000" points="408.645,706.2082,399.6223,702.2597,403.6451,706.2368,399.668,710.2596,408.645,706.2082" style="stroke: #000000; stroke-width: 0.5;"/><!--MD5=[180e44a801c72b313cfac1c6dee1f477]
+link _graphcommandlanguage to angliciser--><path d="M343.742,307.24 C362.756,306.822 382.415,306.39 399.332,306.018 " fill="none" id="_graphcommandlanguage-&gt;angliciser" style="stroke: #000000; stroke-width: 0.5;"/><polygon fill="#000000" points="404.491,305.905,395.4052,302.104,399.4922,306.015,395.5812,310.102,404.491,305.905" style="stroke: #000000; stroke-width: 0.5;"/><!--MD5=[0efe7eb2c13d8101a1669ca619d526fd]
+link _graphcommandlanguage to _sortedset--><path d="M323.243,291.973 C349.665,284.424 380.114,275.724 404.033,268.89 " fill="none" id="_graphcommandlanguage-&gt;_sortedset" style="stroke: #000000; stroke-width: 0.5;"/><polygon fill="#000000" points="409.034,267.461,399.2813,266.0882,404.2265,268.835,401.4797,273.7802,409.034,267.461" style="stroke: #000000; stroke-width: 0.5;"/><!--MD5=[7710c5335812acb0ea2698ca9a3eda09]
+link _huviz to _dndloader--><path d="M61.4927,218.969 C47.082,224.158 30.7174,232.857 22.1494,247 C2.1138,280.071 2.1138,387.929 22.1494,421 C27.701,430.164 36.5257,437.042 45.9714,442.161 " fill="none" id="_huviz-&gt;_dndloader" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="#000000" points="50.6466,444.535,44.4335,436.8932,46.1886,442.2709,40.8109,444.0259,50.6466,444.535" style="stroke: #000000; stroke-width: 1.0;"/><!--MD5=[0a19c39635a92762a7be9d9130041a5d]
+link _huviz to _edge--><path d="M61.4927,218.969 C47.082,224.158 30.7174,232.857 22.1494,247 C8.1014,270.188 8.1014,345.812 22.1494,369 C30.3859,382.595 45.8273,391.161 59.8118,396.413 " fill="none" id="_huviz-&gt;_edge" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="#000000" points="64.882,398.201,57.7246,391.4355,60.1666,396.5381,55.064,398.9801,64.882,398.201" style="stroke: #000000; stroke-width: 1.0;"/><!--MD5=[7c5eb97fb3d0511e7c515fe8c5e2c9a9]
+link _huviz to _editui--><path d="M61.4927,218.969 C47.082,224.158 30.7174,232.857 22.1494,247 C0.6169,282.542 0.6169,585.458 22.1494,621 C30.1437,634.196 44.9252,642.653 58.5743,647.941 " fill="none" id="_huviz-&gt;_editui" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="#000000" points="63.537,649.748,56.4502,642.9086,58.8391,648.0363,53.7115,650.4252,63.537,649.748" style="stroke: #000000; stroke-width: 1.0;"/><!--MD5=[78c92fafc734451d0c4222f6f659630a]
+link _huviz to _gclui--><path d="M61.4927,218.969 C47.082,224.158 30.7174,232.857 22.1494,247 C9.8862,267.242 9.8862,652.758 22.1494,673 C30.5804,686.9163 46.5604,695.5625 60.7997,700.7791 " fill="none" id="_huviz-&gt;_gclui" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="#000000" points="65.5485,702.4194,58.3476,695.7003,60.8225,700.787,55.7357,703.2619,65.5485,702.4194" style="stroke: #000000; stroke-width: 1.0;"/><!--MD5=[45b54291284970458bed53f428aad9bc]
+link _huviz to _graphcommandlanguage--><path d="M116.766,223.985 C124.079,227.907 131.75,232.651 138.149,238 C157.801,254.426 152.902,268.698 174.149,283 C177.74,285.417 181.561,287.614 185.521,289.611 " fill="none" id="_huviz-&gt;_graphcommandlanguage" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="#000000" points="190.229,291.864,183.8378,284.3705,185.719,289.7054,180.3841,291.5866,190.229,291.864" style="stroke: #000000; stroke-width: 1.0;"/><!--MD5=[611afdb953935b80d86a045e5a20c8c3]
+link _huviz to _greenerturtle--><path d="M61.4927,218.969 C47.082,224.158 30.7174,232.857 22.1494,247 C6.0288,273.609 6.0288,290.391 22.1494,317 C26.1826,323.657 31.9435,329.109 38.415,333.555 " fill="none" id="_huviz-&gt;_greenerturtle" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="#000000" points="42.9963,336.476,37.5565,328.2657,38.7798,333.7887,33.2568,335.0121,42.9963,336.476" style="stroke: #000000; stroke-width: 1.0;"/><!--MD5=[b5066780bb50e7eb53d192028117f15c]
+link _huviz to _indexeddbservice--><path d="M116.892,221.629 C124.73,225.614 132.66,230.984 138.149,238 C177.472,288.261 125.757,335.399 174.149,377 C204.267,402.891 311.357,406.88 381.699,406.549 " fill="none" id="_huviz-&gt;_indexeddbservice" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="#000000" points="387.12,406.515,378.095,402.5716,382.1201,406.5464,378.1453,410.5715,387.12,406.515" style="stroke: #000000; stroke-width: 1.0;"/><!--MD5=[b8419d487ca96138f60f566e4a1586cd]
+link _huviz to _indexeddbstoragecontroller--><path d="M116.823,221.056 C124.852,225.045 132.911,230.561 138.149,238 C198.731,324.034 104.9799,392.706 174.149,472 C175.881,473.985 177.757,475.823 179.751,477.522 " fill="none" id="_huviz-&gt;_indexeddbstoragecontroller" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="#000000" points="184.002,480.822,179.3462,472.1431,180.0526,477.7557,174.4401,478.4621,184.002,480.822" style="stroke: #000000; stroke-width: 1.0;"/><!--MD5=[cf2b9d99b2fde8f9ac8fe3818c591fa6]
+link _huviz to multistring--><path d="M61.4927,218.969 C47.082,224.158 30.7174,232.857 22.1494,247 C16.1617,256.883 16.0742,263.17 22.1494,273 C28.1094,282.644 37.9496,289.324 48.277,293.938 " fill="none" id="_huviz-&gt;multistring" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="#000000" points="53.0441,295.915,46.2636,288.7718,48.4257,293.9992,43.1983,296.1613,53.0441,295.915" style="stroke: #000000; stroke-width: 1.0;"/><!--MD5=[576ad3665183860786542bc172304814]
+link _huviz to _node--><path d="M116.97,222.233 C124.627,226.206 132.434,231.416 138.149,238 C168.293,272.726 137.288,307.508 174.149,335 C246.967,389.308 363.581,372.184 417.108,360.299 " fill="none" id="_huviz-&gt;_node" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="#000000" points="422.088,359.168,412.4252,357.2629,417.2124,360.2765,414.1988,365.0638,422.088,359.168" style="stroke: #000000; stroke-width: 1.0;"/><!--MD5=[c316f54a23eccd85694cacab9137e8a6]
+link _huviz to oncerunner--><path d="M89.1494,229.165 C89.1494,233.316 89.1494,237.467 89.1494,241.617 " fill="none" id="_huviz-&gt;oncerunner" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="#000000" points="89.1494,246.875,93.1494,237.875,89.1494,241.875,85.1494,237.875,89.1494,246.875" style="stroke: #000000; stroke-width: 1.0;"/><!--MD5=[53eaa73e9beaed2f6e00aaef30b9a17d]
+link _huviz to _predicate--><path d="M116.946,204.969 C144.846,197.648 188.885,186.093 221.057,177.651 " fill="none" id="_huviz-&gt;_predicate" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="#000000" points="226.114,176.324,216.3937,174.7379,221.2776,177.5924,218.4231,182.4763,226.114,176.324" style="stroke: #000000; stroke-width: 1.0;"/><!--MD5=[bc42dcbe4b21fcf3c326d926fe3eabe6]
+link _huviz to quadParser--><path d="M61.4927,218.969 C47.082,224.158 30.7174,232.857 22.1494,247 C6.1439,273.419 5.9101,498.724 22.1494,525 C27.9341,534.36 37.3741,540.928 47.3671,545.525 " fill="none" id="_huviz-&gt;quadParser" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="#000000" points="51.9863,547.501,45.285,540.2834,47.3893,545.5344,42.1384,547.6386,51.9863,547.501" style="stroke: #000000; stroke-width: 1.0;"/><!--MD5=[ef4f53580943ebda46b8452c1e3fea4a]
+link _huviz to _settings--><path d="M61.4927,218.969 C47.082,224.158 30.7174,232.857 22.1494,247 C3.6107,277.6 3.6107,538.4 22.1494,569 C28.6944,579.803 39.7889,587.431 51.0867,592.743 " fill="none" id="_huviz-&gt;_settings" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="#000000" points="55.9283,594.88,49.3102,587.5861,51.3542,592.8608,46.0795,594.9047,55.9283,594.88" style="stroke: #000000; stroke-width: 1.0;"/><!--MD5=[0c21caadf211326c87ff1b7e37a323ba]
+link _huviz to _settingswidgets--><path d="M116.837,221.353 C124.768,225.342 132.766,230.783 138.149,238 C184.589,300.252 124.765,349.057 174.149,409 C181.674,418.134 191.854,425.054 202.61,430.284 " fill="none" id="_huviz-&gt;_settingswidgets" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="#000000" points="207.249,432.423,200.7521,425.0209,202.7088,430.3286,197.4011,432.2853,207.249,432.423" style="stroke: #000000; stroke-width: 1.0;"/><!--MD5=[38ff69355a392520dfa6bb4e13bad1f0]
+link _huviz to _sortedset--><path d="M116.659,212.222 C164.056,212.996 266.304,216.385 351.149,231 C368.626,234.01 387.535,238.879 403.813,243.593 " fill="none" id="_huviz-&gt;_sortedset" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="#000000" points="408.776,245.049,401.2658,238.6775,403.9781,243.6416,399.014,246.354,408.776,245.049" style="stroke: #000000; stroke-width: 1.0;"/><!--MD5=[19bae500a9ad4dd5ac0c01e4595e6366]
+link _huviz to _taxon--><path d="M116.946,219.031 C147.976,227.173 198.969,240.553 231.397,249.062 " fill="none" id="_huviz-&gt;_taxon" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="#000000" points="236.436,250.384,228.7456,244.2312,231.5996,249.1153,226.7156,251.9694,236.436,250.384" style="stroke: #000000; stroke-width: 1.0;"/><!--MD5=[f06c90f6ce968f3d0df0990a2e51a62b]
+link _huviz to _textcursor--><path d="M61.4927,218.969 C47.082,224.158 30.7174,232.857 22.1494,247 C9.1378,268.477 9.1378,451.523 22.1494,473 C27.5841,481.971 36.1556,488.751 45.3757,493.835 " fill="none" id="_huviz-&gt;_textcursor" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="#000000" points="49.9431,496.197,43.7857,488.5103,45.5017,493.9006,40.1114,495.6166,49.9431,496.197" style="stroke: #000000; stroke-width: 1.0;"/><!--MD5=[3a6f22ad93df00ce9fd9dc9592f22562]
+link _huviz to uniquer--><path d="M103.78,194.933 C118.859,177.557 144.921,151.698 174.149,141 C243.458,115.633 447.569,105.106 506.149,150 C565.113,195.188 573.144,293.688 573.836,334.606 " fill="none" id="_huviz-&gt;uniquer" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="#000000" points="573.889,339.76,577.7962,330.7193,573.8376,334.7603,569.7966,330.8016,573.889,339.76" style="stroke: #000000; stroke-width: 1.0;"/><!--MD5=[c4773edaa6d8e63a11de9e435cd61aba]
+link _indexeddbstoragecontroller to _indexeddbservice--><path d="M329.528,480.99 C336.958,478.322 344.309,475.328 351.149,472 C376.874,459.485 403.186,440.193 421.491,425.518 " fill="none" id="_indexeddbstoragecontroller-&gt;_indexeddbservice" style="stroke: #000000; stroke-width: 0.5;"/><polygon fill="#000000" points="425.504,422.273,415.991,424.8232,421.6166,425.4175,421.0222,431.0431,425.504,422.273" style="stroke: #000000; stroke-width: 0.5;"/><!--MD5=[a2ca38879bb953ea5390095996b88ddb]
+link _node to uniquer--><path d="M471.349,353 C489.75,353 515.599,353 536.709,353 " fill="none" id="_node-&gt;uniquer" style="stroke: #000000; stroke-width: 0.5;"/><polygon fill="#000000" points="541.966,353,532.966,349,536.966,353,532.966,357,541.966,353" style="stroke: #000000; stroke-width: 0.5;"/><!--MD5=[93ed82f8c79f28d038d68c50d730322f]
+link _predicate to _sortedset--><path d="M299.158,176.032 C315.659,181.101 335.126,188.369 351.149,198 C369.752,209.182 368.995,219.104 387.149,231 C392.557,234.544 398.528,237.819 404.526,240.766 " fill="none" id="_predicate-&gt;_sortedset" style="stroke: #000000; stroke-width: 0.5;"/><polygon fill="#000000" points="409.11,242.954,402.7121,235.4662,404.598,240.7995,399.2648,242.6854,409.11,242.954" style="stroke: #000000; stroke-width: 0.5;"/><!--MD5=[248000c19addd84d3bd8fd9a624f4569]
+link _predicate to _treectrl--><path d="M299.173,174.417 C331.675,181.203 379.446,191.177 411.507,197.871 " fill="none" id="_predicate-&gt;_treectrl" style="stroke: #000000; stroke-width: 0.5;"/><polygon fill="#000000" points="416.513,198.917,408.5197,193.1632,411.6184,197.8958,406.8858,200.9945,416.513,198.917" style="stroke: #000000; stroke-width: 0.5;"/><!--MD5=[28310eee2fca0e95a76e2266f3caba5f]
+link _predicate to uniquer--><path d="M299.235,157.713 C350.256,146.639 444.793,134.724 506.149,179 C557.488,216.047 569.78,297.905 572.723,334.588 " fill="none" id="_predicate-&gt;uniquer" style="stroke: #000000; stroke-width: 0.5;"/><polygon fill="#000000" points="573.093,339.662,576.4267,330.3945,572.7287,334.6753,568.448,330.9773,573.093,339.662" style="stroke: #000000; stroke-width: 0.5;"/><!--MD5=[98be6845be905518450252ae93d07b4f]
+link _settings to _settingswidgets--><path d="M122.57,590.798 C128.344,587.312 133.871,583.07 138.149,578 C170.235,539.975 138.296,506.496 174.149,472 C182.072,464.377 192.126,458.977 202.575,455.153 " fill="none" id="_settings-&gt;_settingswidgets" style="stroke: #000000; stroke-width: 0.5;"/><polygon fill="#000000" points="207.398,453.506,197.5883,452.6291,202.6663,455.1218,200.1736,460.1998,207.398,453.506" style="stroke: #000000; stroke-width: 0.5;"/><!--MD5=[151ebb7b97156e44f60a81716f179c47]
+link _settingswidgets to uniquer--><path d="M317.77,454.185 C369.037,459.363 446.797,460.377 506.149,431 C532.782,417.818 553.249,388.953 564.353,370.275 " fill="none" id="_settingswidgets-&gt;uniquer" style="stroke: #000000; stroke-width: 0.5;"/><polygon fill="#000000" points="566.973,365.761,558.9955,371.5368,564.463,370.0853,565.9144,375.5528,566.973,365.761" style="stroke: #000000; stroke-width: 0.5;"/><!--MD5=[fc90fe1503a3a89654081b9607cd7cce]
+link _taxon to angliciser--><path d="M288.956,263.674 C320.142,271.899 373.371,285.938 409.021,295.34 " fill="none" id="_taxon-&gt;angliciser" style="stroke: #000000; stroke-width: 0.5;"/><polygon fill="#000000" points="414.149,296.692,406.4658,290.5301,409.3141,295.4176,404.4267,298.2659,414.149,296.692" style="stroke: #000000; stroke-width: 0.5;"/><!--MD5=[e718b0c18ad25aacf97ca456a9ede7e1]
+link _taxon to _sortedset--><path d="M288.956,257 C318.653,257 368.337,257 403.797,257 " fill="none" id="_taxon-&gt;_sortedset" style="stroke: #000000; stroke-width: 0.5;"/><polygon fill="#000000" points="408.922,257,399.922,253,403.922,257,399.922,261,408.922,257" style="stroke: #000000; stroke-width: 0.5;"/><!--MD5=[85533fe774a186ff7ac61a8548acf24f]
+link _taxon to _treectrl--><path d="M288.956,249.77 C320.794,240.673 375.605,225.013 411.232,214.833 " fill="none" id="_taxon-&gt;_treectrl" style="stroke: #000000; stroke-width: 0.5;"/><polygon fill="#000000" points="416.345,213.373,406.5922,212.0009,411.5376,214.7474,408.7912,219.6928,416.345,213.373" style="stroke: #000000; stroke-width: 0.5;"/><!--MD5=[2ff73aa3b99096fa975781b07659832c]
+link _treepicker to uniquer--><path d="M453.727,688.9741 C474.956,629.498 545.692,431.326 567.315,370.746 " fill="none" id="_treepicker-&gt;uniquer" style="stroke: #000000; stroke-width: 0.5;"/><polygon fill="#000000" points="569.02,365.969,562.2282,373.1014,567.3398,370.6782,569.763,375.7898,569.02,365.969" style="stroke: #000000; stroke-width: 0.5;"/><!--MD5=[d6a3172dff1eddc9799eb40c22a3dc34]
+link <b>gvcl</b> to <b>hsv</b>--><!--MD5=[d5fcc95865112b69530db3bc24e523b9]
+link <b>gvcl</b> to _ontoviz--><!--MD5=[f5b7b88db9ca67dfdc2269afca6c2ec9]
+link _ontoviz to _socrata--><script type="text/plantuml"><![CDATA[MD5=[2600e28d5a57a3eb779dc46ef35c32d8]
+@startuml
+
+scale max 1920 width
+left to right direction
+
+skinparam nodesep 18
+skinparam ranksep 36
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Tahoma
+skinparam defaultFontSize 12
+skinparam roundCorner 6
+skinparam dpi 150
+skinparam arrowColor black
+skinparam arrowThickness 0.5
+skinparam packageTitleAlignment left
+
+skinparam usecase {
+  borderThickness 0.5
+}
+
+skinparam rectangle {
+  borderThickness 0.5
+}
+
+skinparam component {
+  borderThickness 1
+}
+
+
+(angliciser)
+rectangle "coloredtreepicker" as _coloredtreepicker
+rectangle "dndloader" as _dndloader
+rectangle "edge" as _edge
+rectangle "editui" as _editui
+rectangle "fsm" as _fsm
+rectangle "gclui" as _gclui
+rectangle "graphcommandlanguage" as _graphcommandlanguage
+rectangle "greenerturtle" as _greenerturtle
+(<b>gvcl</b>)
+(hsl)
+(<b>hsv</b>)
+rectangle "<b>huviz</b>" as _huviz
+rectangle "indexeddbservice" as _indexeddbservice
+rectangle "indexeddbstoragecontroller" as _indexeddbstoragecontroller
+(multistring)
+rectangle "node" as _node
+(oncerunner)
+rectangle "<b>ontoviz</b>" as _ontoviz
+rectangle "predicate" as _predicate
+(quadParser)
+rectangle "querymanager" as _querymanager
+rectangle "settings" as _settings
+rectangle "settingswidgets" as _settingswidgets
+rectangle "<b>socrata</b>" as _socrata
+rectangle "sortedset" as _sortedset
+rectangle "taxon" as _taxon
+rectangle "textcursor" as _textcursor
+rectangle "treectrl" as _treectrl
+rectangle "treepicker" as _treepicker
+(uniquer)
+
+
+_coloredtreepicker --> (hsl)
+_coloredtreepicker --> _treepicker
+_editui --> _fsm
+_editui --> _indexeddbstoragecontroller
+_gclui --> _coloredtreepicker
+_gclui --> _graphcommandlanguage
+_gclui --> _querymanager
+_gclui --> _treepicker
+_graphcommandlanguage --> (angliciser)
+_graphcommandlanguage --> _sortedset
+_huviz -[thickness=1]> _dndloader
+_huviz -[thickness=1]> _edge
+_huviz -[thickness=1]> _editui
+_huviz -[thickness=1]> _gclui
+_huviz -[thickness=1]> _graphcommandlanguage
+_huviz -[thickness=1]> _greenerturtle
+_huviz -[thickness=1]> _indexeddbservice
+_huviz -[thickness=1]> _indexeddbstoragecontroller
+_huviz -[thickness=1]> (multistring)
+_huviz -[thickness=1]> _node
+_huviz -[thickness=1]> (oncerunner)
+_huviz -[thickness=1]> _predicate
+_huviz -[thickness=1]> (quadParser)
+_huviz -[thickness=1]> _settings
+_huviz -[thickness=1]> _settingswidgets
+_huviz -[thickness=1]> _sortedset
+_huviz -[thickness=1]> _taxon
+_huviz -[thickness=1]> _textcursor
+_huviz -[thickness=1]> (uniquer)
+_indexeddbstoragecontroller --> _indexeddbservice
+_node --> (uniquer)
+_predicate --> _sortedset
+_predicate --> _treectrl
+_predicate --> (uniquer)
+_settings --> _settingswidgets
+_settingswidgets --> (uniquer)
+_taxon --> (angliciser)
+_taxon --> _sortedset
+_taxon --> _treectrl
+_treepicker --> (uniquer)
+
+@enduml
+
+
+' View and edit on https://arkit.pro
+]]></script></g></svg>

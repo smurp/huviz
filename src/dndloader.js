@@ -1,7 +1,5 @@
 
-// DragAndDropLoader, DragAndDropLoaderOfScripts, PickOrProvide, PickOrProvideScript used to be in src/huviz.js
-
-class PickOrProvide {
+export class PickOrProvide {
   static initClass() {
     this.prototype.tmpl = `\
 <form id="UID" class="pick_or_provide_form" method="post" action="" enctype="multipart/form-data">
@@ -323,7 +321,7 @@ class PickOrProvide {
 }
 PickOrProvide.initClass();
 
-class PickOrProvideScript extends PickOrProvide {
+export class PickOrProvideScript extends PickOrProvide {
   constructor() {
     super(...arguments);
     this.onchange = this.onchange.bind(this);
@@ -336,7 +334,7 @@ class PickOrProvideScript extends PickOrProvide {
 }
 
 // inspiration: https://css-tricks.com/drag-and-drop-file-uploading/
-class DragAndDropLoader {
+export class DragAndDropLoader {
   static initClass() {
     this.prototype.tmpl = `\
 <form class="local_file_form" method="post" action="" enctype="multipart/form-data">
@@ -482,7 +480,7 @@ class DragAndDropLoader {
 }
 DragAndDropLoader.initClass();
 
-class DragAndDropLoaderOfScripts extends DragAndDropLoader {
+export class DragAndDropLoaderOfScripts extends DragAndDropLoader {
   load_file(firstFile) {
     const filename = firstFile.name;
     this.form.find('.box__success').text(firstFile.name); //TODO Are these lines still needed?
@@ -517,5 +515,3 @@ class DragAndDropLoaderOfScripts extends DragAndDropLoader {
     return true; // ie success REVIEW is this true?
   }
 }
-
-// export {DragAndDropLoader, DragAndDropLoaderOfScripts, PickOrProvide, PickOrProvideScript}; // TODO convert to module

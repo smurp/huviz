@@ -17,12 +17,12 @@ const getRandomId = function(prefix) {
   return prefix + Math.floor(Math.random() * Math.floor(max));
 };
 
-// import {GraphCommand} from 'graphcommandlanguage.js'; // TODO convert to module
-// import {ColoredTreePicker} from 'coloredtreepicker.js'; // TODO convert to module
-// import {TreePicker} from 'treepicker.js'; // TODO convert to module
-// import {QueryManager} from 'querymanager.js'; // TODO convert to module
+import {GraphCommand} from './graphcommandlanguage.js'; // TODO convert to module
+import {ColoredTreePicker} from './coloredtreepicker.js';
+import {TreePicker} from './treepicker.js'; // TODO convert to module
+import {QueryManager} from './querymanager.js'; // TODO convert to module
 
-class CommandController {
+export class CommandController {
   static initClass() {
       //,
       //  print: 'print'
@@ -1785,4 +1785,3 @@ of the classes indicated.`,
 }
 CommandController.initClass();
 
-// export {CommandController}; // TODO convert to module

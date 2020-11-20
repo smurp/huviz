@@ -1,6 +1,7 @@
 // OntoViz is deprecated, but left for Shawn's reference.
+// import {Huviz} from './huviz.js';
 
-class OntoViz extends Huviz {
+export class OntoViz extends Huviz {
   static initClass() { //OntologicallyGrounded
     this.prototype.human_term = orlando_human_term;
     this.prototype.HHH = { // hardcoded hierarchy hints, kv pairs of subClass to superClass

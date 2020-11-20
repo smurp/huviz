@@ -28,7 +28,7 @@ TreeCtrl controls TreePicker states: showing, unshowing, mixed for direct and in
  * pick (click?)
  and Model verbs such as:
 */
-class TreeCtrl {
+export class TreeCtrl {
   constructor(id) {
     this.id = id;
     this.state = 'empty';

@@ -148,3 +148,7 @@ $ QUAFF_PATH=../quaff-lod/ npm run watch
 ### 3191 Nodes
 
 ![Graph of 3191 nodes pulled from CWRC SPARQL](./docs/3191_nodes.png?raw=true)
+
+# System Diagram
+
+![HuViz System Diagram](./docs/huviz_system_diagram.svg)

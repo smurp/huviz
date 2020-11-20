@@ -4,7 +4,7 @@
  * The Socrata class was originally in huviz.js
  */
 
-var Socrata = (function() {
+export var Socrata = (function() {
   let categories = undefined;
   Socrata = class Socrata extends Huviz {
     static initClass() {

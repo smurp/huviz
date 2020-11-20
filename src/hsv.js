@@ -1,4 +1,4 @@
-function hsv2rgb(hue, sat, val) {
+export function hsv2rgb(hue, sat, val) {
   // See
   //    http://en.wikipedia.org/wiki/HSL_and_HSV
   // from:

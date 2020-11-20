@@ -1,6 +1,6 @@
-// import uniquer from 'uniquer.js'; // TODO convert to module
+import {uniquer} from './uniquer.js'; // TODO convert to module
 
-class Node {
+export class Node {
   static initClass() {
     this.prototype.linked = false; // TODO(smurp) probably vestigal
     this.prototype.showing_links = "none";

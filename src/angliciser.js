@@ -3,7 +3,7 @@
 //  angliciser(['a']) ==> "a"#
 //  angliciser([]) ==> ""
 
-function angliciser(lst, and_or_or) {
+export function angliciser(lst, and_or_or) {
   const b = and_or_or;
   and_or_or = ((and_or_or == null) && " and ") || and_or_or; // uh really?! so one can pass in " or "
   if ((b != null) && (and_or_or !== b)) {
@@ -24,5 +24,3 @@ function angliciser(lst, and_or_or) {
   });
   return english;
 }
-
-// export angliciser;

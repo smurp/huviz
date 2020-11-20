@@ -1,6 +1,6 @@
-// import {IndexedDBService} from 'indexeddbservice.js'; // TODO convert to module FIXME is this needed?
+import {IndexedDBService} from './indexeddbservice.js'; // TODO convert to module FIXME is this needed?
 
-class IndexedDBStorageController {
+export class IndexedDBStorageController {
   constructor(huviz, dbs) {
     this.huviz = huviz;
     this.dbs = dbs;
@@ -46,5 +46,4 @@ class IndexedDBStorageController {
   }
 }
 
-// (exports ? this).IndexedDBStorageController = IndexedDBStorageController
 // export IndexedDBStorageController; // TODO convert to modules

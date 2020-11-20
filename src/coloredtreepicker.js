@@ -1,4 +1,5 @@
-// import {TreePicker} from 'treepicker.js'; // TODO convert to module
+import {TreePicker} from './treepicker.js'; // TODO convert to module
+import {hsl2rgb} from './hsl.js';
 
 /*
  *     ColoredTreePicker is a widget for displaying and manipulating a hierarchy
@@ -64,7 +65,7 @@ const L_emphasizing = 0.5;
 const S_all = 0.5;
 const verbose = false;
 
-class ColoredTreePicker extends TreePicker {
+export class ColoredTreePicker extends TreePicker {
   static initClass() {
     this.prototype.container_regex = new RegExp("container");
     this.prototype.contents_regex = new RegExp("contents");
@@ -262,4 +263,3 @@ ${ctxSel}#${id}.treepicker-indirect-mixed.treepicker-collapse {
 }
 ColoredTreePicker.initClass();
 
-// export {ColoredTreePicker}; // TODO convert to module

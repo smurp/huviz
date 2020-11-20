@@ -1,5 +1,5 @@
 // FIXME this should be renamed to make_dom_safe_id()
-const uniquer = function(str) {
+export const uniquer = function(str) {
   let retval;
   const m = str.match(/([\w\d\_\-]+)$/g);
   if (m) {
@@ -15,4 +15,8 @@ const uniquer = function(str) {
   }
   return retval;
 };
-// export {uniquer}; // TODO convert to module
+
+export function unique_id(prefix) {
+  if (prefix == null) { prefix = 'uid_'; }
+  return prefix + Math.random().toString(36).substr(2,10);
+};

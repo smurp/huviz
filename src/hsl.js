@@ -3,7 +3,7 @@
  *   https://en.wikipedia.org/wiki/HSL_and_HSV#Converting_to_RGB
  *     Unfortunately this is seriously buggy!
  */
-function hsl2rgb(H, S, L) {
+export function hsl2rgb(H, S, L) {
   var input_s = "hsl2rgb(" + [H, S, L].toString() + ")";
   /*
    * H ∈ [0°, 360°)

@@ -1,5 +1,5 @@
 // based on https://github.com/talis/rdfquads.js
-function Quad(subject,pred,obj,graph) {
+export function Quad(subject,pred,obj,graph) {
   this.s = new RdfUri(subject);
   this.p = new RdfUri(pred);
   this.o = new RdfObject(obj);
@@ -15,7 +15,7 @@ Quad.prototype.toNQuadString = function() {
 
 var uriRegex = /<([^>]*)>/ ;
 
-function RdfUri(url) {
+export function RdfUri(url) {
   self = this;
   var match = url.match(uriRegex);
   if (match) {
@@ -28,7 +28,7 @@ RdfUri.prototype.toString = function() {
   return this.raw;
 }
 
-function RdfObject(val) {
+export function RdfObject(val) {
   self = this;
   var match = val.match(uriRegex);
   if (match) {
@@ -52,7 +52,7 @@ RdfObject.prototype.isLiteral = function() {
 var quadRegex = /\s*(<[^>]*>|_:[A-Za-z][A-Za-z0-9]*)\s*(<[^>]*>)\s*(".*"?|<[^>]*>|_:[A-Za-z][A-Za-z0-9]*)\s*(<[^>]*>).*\s*\.\s*\#*.*$/ ;
 var isComment = /^\s*\/\// ;
 
-function parseQuadLine(line) {
+export function parseQuadLine(line) {
   if (line == null || line === "" || line.match(isComment)) {
     return null;
   } else {

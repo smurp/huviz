@@ -1,6 +1,6 @@
 "use strict";
 
-function OnceRunner(verbosity, name) {
+export function OnceRunner(verbosity, name) {
   this.verbosity = verbosity || 0;
   this.profileName = (name || 'OnceRunner') + '_' + (new Date()).toISOString();
   this.active = false;
@@ -57,5 +57,3 @@ OnceRunner.prototype.makeWrapper = function(callback) {
     self.firstCallTime = null; // an execution has happened so reset
   };
 };
-
-// export {OnceRunner}; // TODO convert to module

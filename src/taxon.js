@@ -1,7 +1,9 @@
-// import angliciser from 'angliciser.js' // TODO convert to module
-// import TreeCtrl from 'treectrl.js' // TODO convert to module
 
-class Taxon extends TreeCtrl {
+import {angliciser} from './angliciser.js';
+import {SortedSet} from './sortedset.js';
+import {TreeCtrl} from './treectrl.js';
+
+export class Taxon extends TreeCtrl {
   static initClass() {
     // as Predicate is to Edge, Taxon is to Node, ie: type or class or whatever
     // Taxon actually contains Nodes directly, unlike TaxonAbstract (what a doof!)

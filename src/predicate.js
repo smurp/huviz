@@ -1,7 +1,9 @@
-// import TreeCtrl from 'treectrl.js'; // TODO convert to module
-// import uniquer from 'uniquer.js'; // TODO convert to module
 
-class Predicate extends TreeCtrl {
+import {SortedSet} from './sortedset.js';
+import {TreeCtrl} from './treectrl.js';
+import {uniquer} from './uniquer.js';
+
+export class Predicate extends TreeCtrl {
   static initClass() {
     this.prototype.custom_event_name = 'changePredicate';
   }
@@ -56,4 +58,3 @@ class Predicate extends TreeCtrl {
 }
 Predicate.initClass();
 
-// export {Predicate}  // TODO convert to module

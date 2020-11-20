@@ -6,8 +6,10 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-// import angliciser from 'angliciser.js' // TODO use as module
-class GCLTest {
+import {angliciser} from './angliciser.js';
+import {SortedSet} from './sortedset.js';
+
+export class GCLTest {
   constructor(runner, spec) {
     this.runner = runner;
     this.spec = spec;
@@ -40,7 +42,7 @@ class GCLTest {
   }
 }
 
-class GCLTestSuite {
+export class GCLTestSuite {
   /*
    * callback = function(){
    *    this.expect(this.graph_ctrl.nodes.length,7);
@@ -106,7 +108,7 @@ class GCLTestSuite {
   }
 }
 
-class GraphCommand {
+export class GraphCommand {
   static initClass() {
     this.prototype.missing = '____';
   }
@@ -544,7 +546,7 @@ class GraphCommand {
 }
 GraphCommand.initClass();
 
-class GraphCommandLanguageCtrl {
+export class GraphCommandLanguageCtrl {
   constructor(huviz) {
     this.execute = this.execute.bind(this);
     this.huviz = huviz;

@@ -1,4 +1,4 @@
-class IndexedDBService {
+export class IndexedDBService {
   static initClass() {
     this.prototype.dbName_default = 'nstoreDB';
     this.prototype.dbVer = 2;

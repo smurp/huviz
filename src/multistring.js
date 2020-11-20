@@ -44,7 +44,7 @@ MultiString
       ANY other language if present -- in that priority order.
 */
 
-function MultiString() {
+export function MultiString() {
   var i;
   if (arguments.length == 0) {
     this.set_val_lang()
@@ -151,6 +151,8 @@ MultiString.set_langpath('ANY:NOLANG'); // set the default langpath
 MultiString.prototype.behead = function(){
   return this.substr(1);
 }
+/*
 if (typeof module !== 'undefined' && module.exports) {
   module.exports.MultiString = MultiString;
 }
+*/

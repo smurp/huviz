@@ -1,5 +1,5 @@
 // A controller for the display of the lifecycle of a SPARQL Query
-class QueryManager {
+export class QueryManager {
   constructor(qry) {
     this.qry = qry;
     this.set_state('new');
@@ -81,5 +81,3 @@ class QueryManager {
     this.setKilledColor();
   }
 }
-
-// export {QueryManager}; // TODO convert to module

@@ -50,7 +50,7 @@
     "use strict";
 
  */
-var SortedSet = function(){
+export function SortedSet() {
   // if (arguments.callee) {arguments.callee.NUMBER_OF_COPIES += 1;}
   if (typeof window != 'undefined') {
     if (!window.NUM_SORTEDSET){window.NUM_SORTEDSET = 0}
@@ -491,7 +491,7 @@ var SortedSet = function(){
 // SortedSet.NUMBER_OF_COPIES = 0;
 
 // These tests are included in the module to simplify testing in the browser.
-var SortedSets_tests = function(verbose){
+export var SortedSets_tests = function(verbose){
   verbose = verbose || false;
   var n = function(a,b){
     if (a == b) return 0;

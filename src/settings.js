@@ -1,5 +1,6 @@
+import {GeoUserNameWidget} from './settingswidgets.js';
 
-const DEFAULT_SETTINGS = [{
+export const DEFAULT_SETTINGS = [{
   reset_settings_to_default: {
       text: "Reset Settings",
       label: {
@@ -959,5 +960,3 @@ If zero before loading, then lookup is suppressed.`
     }
   } // this should be OFF by default until it is pretty
 ];
-
-// export {DEFAULT_SETTINGS}; // TODO convert to module

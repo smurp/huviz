@@ -1,5 +1,5 @@
-// import {GreenTurtle} from 'vendor/green_turtle.js'; // TODO convert to module
-var GreenerTurtle = function(){
+//import {GreenTurtle} from 'vendor/green_turtle.js'; // TODO convert to module
+export var GreenerTurtle = function(){
   var verbosity = false;
   var obj_has_type = function(obj, typ) {
     return obj.type === typ;
