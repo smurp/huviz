@@ -69,11 +69,9 @@
 //  93) BUG: toggling a predicate should toggle indirect-mixed on its supers
 //  92) BUG: non-empty predicates should not have payload '0/0' after kid click
 //  94) TASK: show_msg() during command.run to inform user and prevent clicks
-//  95) TASK: get /orlonto.html working smoothly again
 //  90) BUG: english is no longer minimal
 //  91) BUG: mocha async being misused re done(), so the passes count is wrong
 //  86) BUG: try_to_set_node_type: only permit subtypes to override supertypes
-//  87) BUG: solve node.type vs node.taxon sync problem (see orlonto)
 //  46) TASK: impute node type based on predicates via ontology DONE???
 //  53) PERF: should_show_label should not have search_regex in inner loop
 //  65) BUG: hidden nodes are not fully ignored on the shelf so shelved nodes
