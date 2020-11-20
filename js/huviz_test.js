@@ -10,8 +10,8 @@
 */
 
 
-ORLANDO_ONTOLOGY_URI = "http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl";
-EDITUI_DBNAME = 'nstoreDB_test';
+const ORLANDO_ONTOLOGY_URI = "http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl";
+const EDITUI_DBNAME = 'nstoreDB_test';
 
 var expect = chai.expect;
 
@@ -209,7 +209,9 @@ var getStyle = function(className) {
     }
 };
 
-window.huviz = require('huviz');
+//window.huviz = require('huviz');
+import * as huviz from '/huviz/huviz.js';
+/*
 var setup_jsoutline = function() {
   console.group("jsoutline setup");
   window.treepicker = require('treepicker');
@@ -228,6 +230,7 @@ var setup_jsoutline = function() {
   console.groupEnd();
 };
 //setup_jsoutline();
+*/
 
 var get_nextcommand_str = function() {
   return $(".nextcommand_str").text();
