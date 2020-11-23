@@ -6,18 +6,7 @@
     <link href="/mocha/mocha.css" rel="stylesheet"/>
     <link href="/huviz/css/huviz_test.css" rel="stylesheet"/>
     <link href="/huviz/css/debugging.css" rel="stylesheet"/>
-    <style>
-      #XXXXpredicates {
-        overflow-y: scroll;
-        max-height: 20em;
-      }
-    </style>
-    <script>
-      window.module = {};
-    </script>
     <script src="/jsoutline/jsoutline.js"></script>
-    <%- include('huviz_js_stanza', nopts) %>
-
   </head>
   <body>
     <div id="snippet_box">
@@ -45,15 +34,6 @@
       </h1>
       <h2>HuViz Test Suite</h2>
       <h6>(currently works best in Google Chrome)</h6>
-      <div class="huviz-versions">
-        <a href="http://orlando.dev.semandra.com/tests"
-           class="git-branch-is-master <% if (nopts.git_branch_name == 'master') { %>current-git-branch<% } %>">production</a>
-        <a href="http://beta.orlando.dev.semandra.com/tests"
-           class="git-branch-is-beta  <% if (nopts.git_branch_name == 'beta') { %>current-git-branch<% } %>">beta</a>
-        <a href="http://alpha.orlando.dev.semandra.com/tests"
-           class="git-branch-is-alpha  <% if (nopts.git_branch_name == 'alpha') { %>current-git-branch<% } %>">alpha</a>
-        <a href="/tests">tests</a>
-      </div>
       <p>This interface provides access to a suite of tests of HuViz.</p>
 
     </div>
@@ -95,27 +75,9 @@
     <pre id="status"></pre>
     <div id="state_msg_box" style="display:none"></div>
 
+    <%- include('huviz_js_stanza', nopts) %>
     <script src="/chai/chai.js"></script>
     <script src="/mocha/mocha.js"></script>
-    <script>
-      var mocha_box_args = {
-        "title":"test suite",
-        "maxHeight": 800,
-        "minWidth": 500,
-        "position": {"at": "left top", "of": window}
-      };
-      dlg = $("#mocha_box").dialog(mocha_box_args);
-      mocha.setup('bdd');
-      window.addEventListener('load',function(){
-        mocha.run();
-      });
-    </script>
     <script src="/js/huviz_test.js" type="module"></script>
-
-    <script>
-      document.addEventListener('touchmove', function(e) {
-        e.preventDefault();
-      }, false);
-    </script>
   </body>
 </html>

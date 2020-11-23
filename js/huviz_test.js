@@ -1,3 +1,8 @@
+//import {expect} from '/chai/chai.js';
+//import * as mocha from '/mocha/mocha.js';
+import * as huviz from '/huviz/huviz.js';
+
+var expect = chai.expect();
 /*
 
   This suite has some problems:
@@ -9,19 +14,25 @@
 
 */
 
-
 const ORLANDO_ONTOLOGY_URI = "http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl";
 const EDITUI_DBNAME = 'nstoreDB_test';
 
-var expect = chai.expect;
+var mocha_box_args = {
+  "title":"test suite",
+  "maxHeight": 800,
+  "minWidth": 500,
+  "position": {"at": "left top", "of": window}
+};
+var dlg = $("#mocha_box").dialog(mocha_box_args);
+mocha.setup('bdd');
+window.addEventListener('load',function(){
+  mocha.run();
+});
 
-// It would be great if this code could be written in coffeescript.
-// This might offer clues:
-//   http://rzrsharp.net/2012/08/01/client-side-testing-insanity.html
-// though this is likely irrelevant.
-
-//  This looks like a great post, should check for good ideas:
-//  http://www.redotheweb.com/2013/01/15/functional-testing-for-nodejs-using-mocha-and-zombie-js.html
+document.addEventListener('touchmove', function(e) {
+  // TODO it would be great if Shawn had documented the movitvation for this :-)
+  e.preventDefault();
+}, false);
 
 var pause_msec = 3;
 var say = function(msg, done) {
@@ -209,8 +220,6 @@ var getStyle = function(className) {
     }
 };
 
-//window.huviz = require('huviz');
-import * as huviz from '/huviz/huviz.js';
 /*
 var setup_jsoutline = function() {
   console.group("jsoutline setup");
