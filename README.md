@@ -12,7 +12,7 @@ other sites as a visualizer for their graph content.
 
 ## Pages about HuViz
 
-* http://smurp.github.io/huviz/
+* [http://smurp.github.io/huviz/](http://smurp.github.io/huviz/)
 
 ## Deployments
 
@@ -23,17 +23,17 @@ other sites as a visualizer for their graph content.
 
 # Development and Issues
 
-* Development occurs at: https://github.com/smurp/huviz
+* Development occurs at: [https://github.com/smurp/huviz](https://github.com/smurp/huviz)
 * Issues are maintained at:
-  - https://gitlab.com/calincs/access/HuViz/-/issues
-     * related to http://lincsproject.ca
-  - https://github.com/smurp/huviz/issues
+  - [https://gitlab.com/calincs/access/HuViz/-/issues](https://gitlab.com/calincs/access/HuViz/-/issues)
+     * related to [http://lincsproject.ca](http://lincsproject.ca)
+  - [https://github.com/smurp/huviz/issues](https://github.com/smurp/huviz/issues)
      * low-level issues
      * relating to integrations, embedding and so on
 
 ## Wireframes for future directions
 
-https://balsamiq.cloud/senbj2i/ppkgzk1
+[https://balsamiq.cloud/senbj2i/ppkgzk1](https://balsamiq.cloud/senbj2i/ppkgzk1)
 
 ## Sets
 
@@ -113,7 +113,7 @@ THIS IS CURRENTLY DISABLED during the decaffeination process.
     # bail on first error
     BAIL=1 npm run watchTest
 
-uses https://www.npmjs.com/package/npm-watch https://www.npmjs.com/package/mocha
+uses [https://www.npmjs.com/package/npm-watch](https://www.npmjs.com/package/npm-watch) and [https://www.npmjs.com/package/mocha](https://www.npmjs.com/package/mocha)
 
 ## Developing `quaff-lod`
 
