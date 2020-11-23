@@ -2,15 +2,7 @@
 <html>
   <head>
     <title>Huvis Graph Visualization</title>
-
     <%- include('huviz_css_stanza', nopts) %>
-
-    <!--
-    <XXlink href="/huviz/css/debugging.css" rel="stylesheet"/>
-      -->
-    <script>
-       window.module = {};
-    </script>
   <% if (nopts.git_commit_hash) { %>
     <script type="text/javascript">
       window.HUVIZ_GIT_COMMIT_HASH = "<%= nopts.git_commit_hash %>";
