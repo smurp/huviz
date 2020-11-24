@@ -1,5 +1,3 @@
-//import {expect} from '/chai/chai.js';
-//import * as mocha from '/mocha/mocha.js';
 import * as huviz from '/huviz/huviz.js';
 
 var expect = chai.expect();
@@ -358,7 +356,7 @@ describe("HuViz Tests", function() {
       return function() { return next; }
     };
     let delete_dbs = function(deletable_dbs) {
-      for (dbname of deletable_dbs) {
+      for (const dbname of deletable_dbs) {
         //done = nest_cb(done);
         blurt(`queue <b>${dbname}</b> for deletion`);
         let del_req = window.indexedDB.deleteDatabase(dbname);
@@ -376,13 +374,55 @@ describe("HuViz Tests", function() {
     delete_dbs('dataDB2 datasets nstoreDB_test2 nstoreDB_test'.split(' '));
 
     window.HVZ = new huviz.Orlando({
+      huviz_top_sel: "#HUVIZ_TOP",
+      show_edit: false,
+      start_with_editing: false,
+      settings: {
+        show_cosmetic_tabs: true,
+        show_queries_tab: true
+      },
+      editui__dbName: EDITUI_DBNAME,
+      // pass in the tab_specs to override the defaults_tab_specs
+      tab_specs:
+      [
+        {
+          "id": "intro",
+          "cssClass": "tabs-intro scrolling_tab",
+          "title": "Introduction and Usage",
+          "text": "Intro",
+          "moveSelector": "#contents_of_intro_tab"
+        },
+        'commands','settings','history','credits',
+        'sparqlQueries'
+      ],
+      preload: [
+        //'/data/genres.json'
+        //, '/data/cwrc-writer.json'
+        '/data/ontologies.json'
+        //, '/data/open_anno.json'
+        , '/data/experiments.json'
+        //, '/data/organizations.json'
+        //, '/data/periodicals.json'
+        //, '/data/publishing.json'
+        , '/data/individuals.json'
+        //, '/data/cwrc_data.json'
+        //, '/data/public_endpoints.json'
+        //, '/data/cwrc_endpoints.json'
+      ]
+
+      /*
+
+      // THESE VALUES ARE PRESERVED HERE
+      // WHILE WE DUST OFF THE TESTS
+
       viscanvas_sel: "#viscanvas",
       gclui_sel: "#gclui",
       graph_controls_sel: '#tabs-options',
-      //display_reset: true,
+      display_reset: true,
       dataset_loader__append_to_sel: ".unselectable",
       ontology_loader__append_to_sel: ".unselectable",
       endpoint_loader__append_to_sel: ".unselectable",
+
       preload: [{
         datasets: [{uri: ORLANDO_ONTOLOGY_URI,
                     label: 'OrlandoOntology',
@@ -397,6 +437,9 @@ describe("HuViz Tests", function() {
       }],
       display_reset: true,
       editui__dbName: EDITUI_DBNAME
+
+      */
+
     });
     document.addEventListener('dataset_ontology_loader_ready', function() {
       HVZ.dataset_loader.val("/data/shakwi.nq");

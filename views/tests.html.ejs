@@ -15,66 +15,7 @@
         </div>
       </div>
     </div>
-  <section role="controls" id="tabs">
-    <ul style="font-size:80%">
-       <li><a href="#tabs-help" title="Introduction and Usage">Help</a></li>
-       <li><a href="#tabs-options" title="Fine tune sizes, lengths and thicknesses.">Settings</a></li>
-       <li><a href="#huvis_controls" title="Power tools for controlling the graph with commands consisting of verbs and nouns.">Commands</a></li>
-       <li><a href="#tabs-history" title="The history of commands">History</a></li>
-       <li><a href="#tabs-hide" title="Shrink this menu for maximum room to play.">‾‾‾</a></li>
-    </ul>
-    <div id="tabs-help" class="scrolling_tab">
-      <h1 class="git-branch-is-<%= nopts.git_branch_name %>">
-        HuViz
-        <% if (nopts.git_commit_hash) { %>
-          <sup class="git_commit_hash">
-            <a target="huviz_version" href="https://github.com/smurp/huviz/commit/<%= nopts.git_commit_hash %>"><%= nopts.git_commit_hash %></a>
-          </sup>
-        <% } %>
-      </h1>
-      <h2>HuViz Test Suite</h2>
-      <h6>(currently works best in Google Chrome)</h6>
-      <p>This interface provides access to a suite of tests of HuViz.</p>
-
-    </div>
-    <div id="tabs-history" class="scrolling_tab">
-    </div>
-    <div id="tabs-options">
-    </div>
-    <div id="huvis_controls">
-      <div class="unselectable">
-        <label title="which file to load">
-          <select
-              name="data_set" class="file_picker"
-              style="display:none"
-              onchange="HVZ.load_file(this)"
-              title="data sets are in order of increasing complexity">
-   	    <option value=""> -- pick -- </option>
-            <option title="R.M. Ballantyne -- all attributes -- 14 nodes; 60 edges; 17 predicates">/data/ballrm.nq</option>
-            <option title="Maria Abdy -- all attributes -- 68 nodes; 308 edges; 37 predicates">/data/abdyma.nq</option>
-            <option title="William Shakespeare -- basic relational predicates -- 41 nodes; 46 edges; 21 predicates ">/data/shakwi.nq</option>
-            <option title="Brontes -- all attributes -- 423 node; 666 edges; 43 predicates">/data/brontes.nq</option>
-            <option title="Margaret Atwood -- all attributes -- 444 nodes; 2325 edges; 41 predicates">/data/atwoma.nq</option>
-            <option title="Early Writers:  573 nodes; edges 835; predicates 52">/data/early_writers.nq</option>
-            <option title="The Poetesses -- all attributes -- 1735 nodes; 1646 edges; 11 predicates">/data/poetesses.nq</option>
-            <option title="Relations -- all writers -- basic relational predicates -- DANGER! -- 6897 nodes; edges 11761; predicates 10">/data/relations.nq</option>
-          </select>
-        </label>
-        <span>
-          <button id="reset_btn" style="display:none" type="button" onclick="HVZ.reset_data(this)">
-            reset
-          </button>
-        </span>
-      </div>
-
-      <div id="gclui"></div>
-    </div>
-  </section>
-    <div id="vis" class="underneath" style="z-index:-3"></div>
-    <div id="viscanvas" class="underneath"></div>
-    <pre id="status"></pre>
-    <div id="state_msg_box" style="display:none"></div>
-
+    <div id="HUVIZ_TOP" class="HUVIZ_TOP huviz_wrapper"></div>
     <%- include('huviz_js_stanza', nopts) %>
     <script src="/chai/chai.js"></script>
     <script src="/mocha/mocha.js"></script>
