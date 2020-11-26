@@ -455,7 +455,7 @@ var has_predicate_value = function(subject, predicate, value) {
   return false;
 };
 
-const is_a_main_node = (d) {
+const is_a_main_node = function(d) {
   return (BLANK_HACK && (d.s.id[7] !== "/")) || (!BLANK_HACK && (d.s.id[0] !== "_"));
 };
 
