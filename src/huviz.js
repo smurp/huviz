@@ -143,10 +143,6 @@ import {uniquer, unique_id} from './uniquer.js'; // TODO rename to make_dom_safe
 
 MultiString.set_langpath('en:fr'); // TODO make this a setting
 
-// It is as if these imports were happening but they are being stitched in instead
-//   OnceRunner = require('oncerunner').OnceRunner
-//   TODO document the other examples of requires that are being "stitched in"
-
 const colorlog = function(msg, color, size) {
   if (color == null) { color = "red"; }
   if (size == null) { size = "1.2em"; }
@@ -172,7 +168,9 @@ const unpad_md = function(txt, pad) {
   return out;
 };
 
-const strip_surrounding_quotes = s => s.replace(/\"$/,'').replace(/^\"/,'');
+const strip_surrounding_quotes = function(s) {
+  return s.replace(/\"$/,'').replace(/^\"/,'');
+};
 
 const hpad = 10;
 const tau = Math.PI * 2;
@@ -440,7 +438,9 @@ const node_radius_policies = {
 //default_node_radius_policy = "equal dots"
 const default_node_radius_policy = "node radius by links";
 
-const has_type = (subject, typ) => has_predicate_value(subject, RDF_type, typ);
+const has_type = function(subject, typ) {
+  return has_predicate_value(subject, RDF_type, typ);
+};
 
 var has_predicate_value = function(subject, predicate, value) {
   const pre = subject.predicates[predicate];
@@ -458,22 +458,28 @@ var has_predicate_value = function(subject, predicate, value) {
   return false;
 };
 
-const is_a_main_node = d => (BLANK_HACK && (d.s.id[7] !== "/")) || (!BLANK_HACK && (d.s.id[0] !== "_"));
+const is_a_main_node = function(d) {
+  return (BLANK_HACK && (d.s.id[7] !== "/")) || (!BLANK_HACK && (d.s.id[0] !== "_"));
+};
 
 const is_node_to_always_show = is_a_main_node;
 
-const is_one_of = (itm, array) => array.indexOf(itm) > -1;
+const is_one_of = function(itm, array) {
+  return array.indexOf(itm) > -1;
+};
 
 window.blurt = function(str, type, noButton) {
   throw new Error('global blurt() is defunct, use @blurt() on HuViz');
 };
 
-const escapeHtml = unsafe => unsafe
-     .replace(/&/g, "&amp;")
-     .replace(/</g, "&lt;")
-     .replace(/>/g, "&gt;")
-     .replace(/"/g, "&quot;")
-     .replace(/'/g, "&#039;");
+const escapeHtml = function(unsafe) {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+};
 
 const noop = function() {}; // Yup, does nothing.  On purpose!
 
@@ -3919,7 +3925,7 @@ with Shelved, Discarded, Graphed and Hidden.`;
   }
 
   make_triple_ingestor(discoArgs) {
-    return (data, textStatus, request) => {
+    return function(data, textStatus, request) {
       return this.discovery_triple_ingestor_GreenTurtle(data, textStatus, request, discoArgs);
     };
   }
@@ -5418,7 +5424,7 @@ SERVICE wikibase:label {
       console.log("n3", N3);
       const predicates = {};
       const parser = N3.Parser();
-      parser.parse(data, (err,trip,pref) => {
+      parser.parse(data, (err, trip, pref) => {
         console.log(trip);
         if (pref) {
           console.log(pref);
@@ -5487,7 +5493,7 @@ SERVICE wikibase:label {
     };
     const worker = new Worker('/huviz/xhr_readlines_worker.js');
     let quad_count = 0;
-    worker.addEventListener('message', e => {
+    worker.addEventListener('message', (e) => {
       let msg = null;
       if (e.data.event === 'line') {
         quad_count++;
@@ -6021,7 +6027,7 @@ LIMIT ${node_limit}\
     let local_node_added = 0;
     const query_limit = 1000; //@endpoint_limit_JQElem.val()
     const worker = new Worker('/huviz/sparql_ajax_query.js');
-    worker.addEventListener('message', e => {
+    worker.addEventListener('message', (e) => {
       //console.log e.data
       if (e.data.method_name === 'log_query') {
         queryManagerArgs.query = "#SPARQL_Worker\n"+e.data.qry;
@@ -6821,7 +6827,7 @@ LIMIT ${node_limit}\
     // This method is called once, AFTER wander has been called on each node.
     const wasRollCall = this.wasChosen_set.roll_call();
     const nowRollCall = this.nowChosen_set.roll_call();
-    const removed = this.wasChosen_set.filter(node => {
+    const removed = this.wasChosen_set.filter((node) => {
       return !this.nowChosen_set.includes(node);
     });
     for (let node of removed) {
@@ -7221,7 +7227,7 @@ LIMIT ${node_limit}\
   }
   snippet_position_str_to_obj(str) {
     // convert "left+123 top+456" to {left: 123, top: 456}
-    const [left, top] = Array.from(str.replace(new RegExp('([a-z]*)\\+','g'),'').split(' ').map(c => parseInt(c)));
+    const [left, top] = Array.from(str.replace(new RegExp('([a-z]*)\\+','g'),'').split(' ').map((c) => parseInt(c)));
     return {left, top};
   }
 
@@ -7457,7 +7463,7 @@ LIMIT ${node_limit}\
     if (!state) { return; }
     if (state.chosen_node_ids) {
       this.reset_graph();
-      state.chosen_node_ids.forEach(chosen_id => {
+      state.chosen_node_ids.forEach((chosen_id) => {
         const chosen = get_or_make_node(chosen_id);
         if (chosen) { return this.choose(chosen); }
       });
@@ -7504,7 +7510,7 @@ LIMIT ${node_limit}\
       this.dbName = 'datasetDB';
       this.dbVersion = 2;
       const request = indexedDB.open(this.dbName, this.dbVersion);
-      request.onsuccess = evt => {
+      request.onsuccess = (evt) => {
         this.datasetDB = request.result;
         this.datasetDB.onerror = err => {
           return alert(`Database error: ${e.target.errorCode}`);
@@ -7512,13 +7518,13 @@ LIMIT ${node_limit}\
         //alert "onsuccess"
         return this.populate_menus_from_IndexedDB('onsuccess');
       };
-      request.onerror = err => {
+      request.onerror = (err) => {
         return alert(`unable to init ${this.dbName}`);
       };
-      request.onupgradeneeded = event => {
+      request.onupgradeneeded = (event) => {
         const db = event.target.result;
         const objectStore = db.createObjectStore("datasets", {keyPath: 'uri'});
-        objectStore.transaction.oncomplete = evt => {
+        objectStore.transaction.oncomplete = (evt) => {
           this.datasetDB = db;
           // alert "onupgradeneeded"
           this.populate_menus_from_IndexedDB('onupgradeneeded');
@@ -7569,16 +7575,16 @@ LIMIT ${node_limit}\
 
   add_resource_to_db(rsrcRec, callback) {
     const trx = this.datasetDB.transaction('datasets', "readwrite");
-    trx.oncomplete = e => {
+    trx.oncomplete = (e) => {
       return console.log(`${rsrcRec.uri} added!`);
     };
-    trx.onerror = e => {
+    trx.onerror = (e) => {
       console.log(e);
       return alert(`add_resource(${rsrcRec.uri}) error!!!`);
     };
     const store = trx.objectStore('datasets');
     const req = store.put(rsrcRec);
-    req.onsuccess = e => {
+    req.onsuccess = (e) => {
       if (rsrcRec.isEndpoint) {
         this.sparql_graph_query_and_show__trigger(e.srcElement.result);
       }
@@ -7591,31 +7597,31 @@ LIMIT ${node_limit}\
 
   remove_dataset_from_db(dataset_uri, callback) {
     const trx = this.datasetDB.transaction('datasets', "readwrite");
-    trx.oncomplete = e => {
+    trx.oncomplete = (e) => {
       return console.log(`${dataset_uri} deleted`);
     };
-    trx.onerror = e => {
+    trx.onerror = (e) => {
       console.log(e);
       return alert(`remove_dataset_from_db(${dataset_uri}) error!!!`);
     };
     const store = trx.objectStore('datasets');
     const req = store.delete(dataset_uri);
-    req.onsuccess = e => {
+    req.onsuccess = (e) => {
       if (callback != null) {
         callback(dataset_uri);
       }
     };
-    req.onerror = e => {
+    req.onerror = (e) => {
       console.debug(e);
     };
   }
 
   get_resource_from_db(rsrcUri, callback) {
     const trx = this.datasetDB.transaction('datasets', "readwrite");
-    trx.oncomplete = evt => {
+    trx.oncomplete = (evt) => {
       return console.log(`get_resource_from_db('${rsrcUri}') complete, either by success or error`);
     };
-    trx.onerror = err => {
+    trx.onerror = (err) => {
       console.log(err);
       if (callback != null) {
         callback(err, null);
@@ -7626,12 +7632,12 @@ LIMIT ${node_limit}\
     };
     const store = trx.objectStore('datasets');
     const req = store.get(rsrcUri);
-    req.onsuccess = event => {
+    req.onsuccess = (event) => {
       if (callback != null) {
         callback(null, event.target.result);
       }
     };
-    req.onerror = err => {
+    req.onerror = (err) => {
       console.debug(`get_resource_from_db('${rsrcUri}') onerror ==>`,err);
       if (callback) {
         callback(err, null);
@@ -7646,7 +7652,7 @@ LIMIT ${node_limit}\
     console.debug(`populate_menus_from_IndexedDB(${why})`);
     const datasetDB_objectStore = this.datasetDB.transaction('datasets').objectStore('datasets');
     let count = 0;
-    const make_onsuccess_handler = why => {
+    const make_onsuccess_handler = (why) => {
       const recs = [];
       return event => {
         const cursor = event.target.result;
@@ -8992,7 +8998,7 @@ LIMIT 20\
   withUriDo(url, sel, processor) {
     const xhr = new XMLHttpRequest();
     xhr.open("GET", url, true);
-    xhr.onload = e => {
+    xhr.onload = (e) => {
       if (xhr.readyState === 4) {
         if (xhr.status === 200) {
           if (processor == null) { processor = (url.endsWith('.md') && marked) || ident; }
@@ -9002,7 +9008,7 @@ LIMIT 20\
         }
       }
     };
-    xhr.onerror = e => console.error(xhr.statusText);
+    xhr.onerror = (e) => console.error(xhr.statusText);
     xhr.send(null);
   }
 
@@ -10352,8 +10358,9 @@ LIMIT 20\
 
   load_with(data_uri, ontology_uris) {
     this.goto_tab('commands'); // go to Commands tab # FIXME: should be symbolic not int indexed
-    const basename = uri => // the filename without the ext
-    uri.split('/').pop().split('.').shift();
+    const basename = (uri) => { // the filename without the ext
+      return uri.split('/').pop().split('.').shift();
+    }
     const dataset = {
       label: basename(data_uri),
       value: data_uri
@@ -10565,7 +10572,7 @@ ${this.build_pfm_live_monitor('sparql')}\
     }
     const worker = new Worker('/quaff-lod/quaff-lod-worker-bundle.js');
     worker.addEventListener('message', this.receive_quaff_lod);
-    const trigger_callback = event => {
+    const trigger_callback = (event) => {
       switch (event.data.type) {
         case 'end':
           this.call_on_dataset_loaded();
