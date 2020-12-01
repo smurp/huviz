@@ -33,7 +33,8 @@ other sites as a visualizer for their graph content.
 
 ## Wireframes for future directions
 
-[https://balsamiq.cloud/senbj2i/ppkgzk1](https://balsamiq.cloud/senbj2i/ppkgzk1)
+* [HuViz Overview](https://balsamiq.cloud/senbj2i/ppkgzk1)
+* [Tab Details](https://balsamiq.cloud/su7hynz/p1rmtj6/r8AA1)
 
 ## Sets
 
