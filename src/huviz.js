@@ -118,25 +118,28 @@
 //  67) TASK: add verbs pin/unpin (using polar coords to record placement)
 //
 
-import {PickOrProvide, PickOrProvideScript, DragAndDropLoader, DragAndDropLoaderOfScripts} from './dndloader.js';
+import {
+  PickOrProvide, PickOrProvideScript,
+  DragAndDropLoader, DragAndDropLoaderOfScripts
+} from './dndloader.js';
 import {Edge} from './edge.js';
-import {EditController} from './editui.js'; // TODO convert to module
-import {CommandController} from './gclui.js'; // TODO convert to module
-import {GraphCommand, GraphCommandLanguageCtrl} from './graphcommandlanguage.js'; // TODO convert to module
-import {GreenerTurtle} from './greenerturtle.js'; // TODO convert to module
-import {IndexedDBService} from './indexeddbservice.js'; // TODO convert to module
-import {IndexedDBStorageController} from './indexeddbstoragecontroller.js'; // TODO convert to module
+import {EditController} from './editui.js';
+import {CommandController} from './gclui.js';
+import {GraphCommand, GraphCommandLanguageCtrl} from './graphcommandlanguage.js';
+import {GreenerTurtle} from './greenerturtle.js';
+import {IndexedDBService} from './indexeddbservice.js';
+import {IndexedDBStorageController} from './indexeddbstoragecontroller.js';
 import {MultiString} from './multistring.js';
-import {Node} from './node.js'; // TODO convert to module
+import {Node} from './node.js';
 import {OnceRunner} from './oncerunner.js';
-import {Predicate} from './predicate.js'; // TODO convert to module
+import {Predicate} from './predicate.js';
 import {Quad, RdfUri, RdfObject, parseQuadLine} from './quadParser.js';
 import {DEFAULT_SETTINGS} from './settings.js';
 import {SettingsWidget, UsernameWidget, GeoUserNameWidget} from './settingswidgets.js';
 import {SortedSet} from './sortedset.js';
-import {Taxon} from './taxon.js'; // TODO convert to module
-import {TextCursor} from './textcursor.js'; // TODO convert to module
-import {uniquer, unique_id} from './uniquer.js'; // TODO convert to module # FIXME rename to make_dom_safe_id
+import {Taxon} from './taxon.js';
+import {TextCursor} from './textcursor.js';
+import {uniquer, unique_id} from './uniquer.js'; // TODO rename to make_dom_safe_id
 
 MultiString.set_langpath('en:fr'); // TODO make this a setting
 
