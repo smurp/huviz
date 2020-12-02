@@ -109,6 +109,7 @@ app.get("/tab_tester", localOrCDN("/views/tab_tester.html", {nopts}));
 app.get("/search", localOrCDN("/views/search.html.ejs", {nopts}));
 app.get("/boxed", localOrCDN("/views/boxed.html.ejs", {nopts}));
 app.get("/twoup", localOrCDN("/views/twoup.html.ejs", {nopts}));
+app.get("/historymockup", localOrCDN("/views/historymockup.html.ejs", {nopts}));
 app.get("/getalong", localOrCDN("/views/getalong.html.ejs", {nopts}));
 app.get("/tests", localOrCDN("/views/tests.html.ejs", {nopts}));
 app.get("/forcetoy", localOrCDN("/views/forcetoy.html", {nopts}));
