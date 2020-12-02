@@ -1,12 +1,68 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
     <title>Huvis History Mockup</title>
+    <style>
+      .commandHistory {
+	  padding:1em;
+	  border-style: solid;
+	  border-radius: 0.3em;
+	  background-color: white;
+      }
+      .command{
+	  background-color: rgb(235, 245, 255);
+	  height: 2.2em;
+	  padding: .1em;
+      }
+      .command.played {
+	  background-color: #fcf59b;
+      }
+    </style>
   </head>
   <body id="body" style="background-color:grey">
-    <div class="commandBox">
-      <div class="">
-      </div>
+    <div class="commandHistory">
+      <div class="control_label" style="display:inline">Command History</div>
+	<div class="scriptPlayerControls">
+	  <button title="rewind to start">
+	    <i class="fa fa-fast-backward"></i>
+	  </button>
+	  <button title="go back one step">
+	    <i class="fa fa-play fa-flip-horizontal"></i>
+	  </button>
+	  <button title="play script step by step">
+	    <i class="fa fa-play"></i>
+	  </button>
+	  <button title="play script continuously">
+	    <i class="fa fa-fast-forward"></i>
+	  </button>
+	  <button title="save script to file" style="margin-left:1em">
+	    <i class="fa fa-download"></i>
+	  </button>
+	  <button title="save script as .json" style="display:none">
+	    <i class="fa fa-download"><span>.json</span></i>
+	  </button>
+	  <button title="save script to menu">
+	    <i class="fa fa-bars"></i>
+	  </button>
+	</div>
+	<div>
+	  <div class="control_label">Current Command</div>
+	</div>
+	<div>
+	  <div class="nextcommand command">
+	    <code class="nextcommand_str" style="display: none;">____ the Selected set .</code>
+	    <code class="nextcommand_prompt">
+	      <span class="verb_phrase nextcommand_prompt_unready">VERB </span>
+	      <span class="noun_phrase nextcommand_prompt_ready">the Selected set</span>
+	      <span class="suffix_phrase"> .</span>
+	    </code>
+	    <div class=""></div>
+	    <span>
+	      <input style="float: right; display: none;" type="submit" value="GO!" class="doit_button" disabled="disabled">
+	    </span>
+	  </div>
+	</div>
     </div>
   </body>
 </html>
