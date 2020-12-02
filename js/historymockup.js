@@ -16,9 +16,12 @@ function leaveSet(evt) {
   }
 }
 function maybeExecuteCommand() {
-  if (currentCommand.verb && currentCommand.noun) {
-    var command = currentCommand.verb + ' ' + currentCommand.noun + ' .';
+  var {noun, verb, verbReady, nounReady} = currentCommand;
+  if (verb && noun && verbReady && nounReady) {
+    var command = verb + ' ' + noun + ' .';
     commandHistory.insertAdjacentHTML('afterbegin', `<div class="played command">${command}</div>`);
+    setNextVerb(null, false);
+    setNextNoun(null, false);
   }
   console.log(currentCommand);
 }
@@ -52,12 +55,12 @@ function setNextNoun(val, ready) {
 }
 function onreadyHandler() {
   console.log('onreadyHandler');
-  document.querySelectorAll(".verbs").forEach((aVerb) => {
+  document.querySelectorAll(".verbs > button").forEach((aVerb) => {
     aVerb.onclick = clickVerb;
     aVerb.onmouseleave = leaveVerb;
     aVerb.onmouseover = overVerb;
   });
-  document.querySelectorAll(".sets").forEach((aSet) => {
+  document.querySelectorAll(".sets > button").forEach((aSet) => {
     aSet.onclick = clickSet;
     aSet.onmouseleave = leaveSet;
     aSet.onmouseover = overSet;
