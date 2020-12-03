@@ -18,14 +18,16 @@
 	  background-color: #fcf59b;
       }
       .ready {
-	  background-color: green;
+	  background-color: lightgreen;
       }
       .unready {
-	  background-color: pink;
+	  background-color: lightpink;
       }
       .nextcommand {
-          /* height: 2.2em; */
+          /*
+             height: 2.2em;
           background-color: rgb(235, 245, 255);
+         */
       }
       .command > .verb_phrase,
       .command > ._phrase {
@@ -43,6 +45,9 @@
       }
       .noun_phrase {
           margin-left: .3em;
+      }
+      .nextcommand_prompt {
+          height: 1em;
       }
       .allcommands {
           margin-top: 3px;
@@ -92,7 +97,7 @@
         <div class="allcommands">
 	  <div class="nextcommand command">
 	    <code class="nextcommand_str" style="display: none;"></code>
-	    <div class="nextcommand_prompt">
+	    <div class="nextcommand_prompt unready">
 	      <span class="verb_phrase nextcommand_prompt_unready"></span>
 	      <span class="noun_phrase nextcommand_prompt_unready"></span>
 	      <span class="suffix_phrase"></span>
