@@ -17,6 +17,12 @@
       .played {
 	  background-color: #fcf59b;
       }
+      .ready {
+	  background-color: green;
+      }
+      .unready {
+	  background-color: pink;
+      }
       .nextcommand {
           /* height: 2.2em; */
           background-color: rgb(235, 245, 255);
@@ -95,7 +101,7 @@
         </div>
     </div>
 
-    <div class="verbs picker">
+    <div class="verbs picker" data-speech="verb">
       Verbs:<br/>
       <button>Activate</button>
       <button>Select</button>
@@ -112,7 +118,7 @@
       <button>Unpin</button>
     </div>
     
-    <div class="sets picker">
+    <div class="sets picker" data-speech="noun">
       Sets:<br/>
       <button>Activate</button><br/>
       <button>Discarded</button><br/>
