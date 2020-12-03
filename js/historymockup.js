@@ -1,77 +1,92 @@
 var allcommands, commandHistory, nextCommand, nextNoun, nextVerb;
-var currentCommand = {};
+var currentCommand = {perm:{}, temp:{}};
 
-function clickVerb(evt) {
-  setNextVerb(evt.target.innerText, true);
+function onreadyHandler() {
+  console.log('onreadyHandler');
+  document.querySelectorAll(".verbs > button").forEach((aVerb) => {
+    aVerb.onclick = handleEvery;
+    aVerb.onmouseleave = handleEvery;
+    aVerb.onmouseover = handleEvery;
+  });
+  document.querySelectorAll(".sets > button").forEach((aSet) => {
+    aSet.onclick = handleEvery;
+    aSet.onmouseleave = handleEvery;
+    aSet.onmouseover = handleEvery;
+  });
+  // get just first instances of the mentioned classes
+  nextVerb = document.querySelector('.verb_phrase'); 
+  nextNoun = document.querySelector('.noun_phrase');
+  currentCommand.elem = {
+    noun: nextNoun,
+    verb: nextVerb};
+  commandHistory = document.querySelector('.commandHistory');
+  nextCommand = document.querySelector('.nextcommand');
+  allcommands = document.querySelector('.allcommands');
 }
-function clickSet(evt) {
-  setNextNoun(evt.target.innerText, true);
+
+function handleEvery(evt) {
+  var speech = evt.target.parentNode.dataset.speech, // noun | verb
+      val = evt.target.innerText, // Actviate | Pin | Graphed | etc
+      event = evt.type; // click | mouseenter | mouseleave
+  setNext(speech, val, event);
 }
-function leaveVerb(evt) {
-  if (!currentCommand.verbReady) {
-    setNextVerb(null, false);
+
+function setNext(speech, val="", event) {
+  var elem = currentCommand.elem[speech];
+  var newVal = val;
+  switch (event) {
+  case 'mouseover':
+    // When entering, the user should be warned what will happen if they click.
+    currentCommand.temp[speech] = val;
+    break
+  case 'click':
+    // By clicking the user is conveying they choose this one.
+    // Unless this val had already been the choosen one, then unchoose it.
+    if (currentCommand.perm[speech] == val) {
+      currentCommand.perm[speech] = null;
+    } else {
+      currentCommand.perm[speech] = val;
+    }
+    currentCommand.temp[speech] = null;
+    break;
+  case 'mouseleave':
+    newVal = currentCommand.perm[speech] || null; // fall back to the perm value
+    break;
+  default:
+    // completely wipe the part of speech like: setNext('verb')
+    newVal = '';
+    currentCommand.perm[speech] = null;
+    currentCommand.temp[speech] = null;
   }
-}
-function leaveSet(evt) {
-  if (!currentCommand.nounReady) {
-    setNextNoun(null, false);
-  }
-}
-function maybeExecuteCommand() {
-  var {noun, verb, verbReady, nounReady} = currentCommand;
-  if (verb && noun && verbReady && nounReady) {
-    var command = verb + ' ' + noun + ' .';
-    nextCommand.insertAdjacentHTML('beforebegin', `<div class="played command">${command}</div>`);
-    setNextVerb(null, false);
-    setNextNoun(null, false);
-  }
-  console.log(currentCommand);
-  nextCommand.scrollIntoView();
-}
-function overVerb(evt) {
-  setNextVerb(evt.target.innerText);
-}
-function overSet(evt) {
-  setNextNoun(evt.target.innerText);
-}
-function setNext(elem, val, ready) {
-  elem.innerText = val;
-  if (ready) {
+  console.log('setNext', {speech, val, event, newVal});
+  elem.innerText = newVal;
+  if (newVal) {
     elem.classList.add('nextcommand_prompt_ready');
     elem.classList.remove('nextcommand_prompt_unready');
   } else {
     elem.classList.add('nextcommand_prompt_unready');
     elem.classList.remove('nextcommand_prompt_ready');
   }
+  maybeExecute(speech);
 }
-function setNextVerb(val, ready) {
-  currentCommand.verb = val;
-  currentCommand.verbReady = ready;
-  setNext(nextVerb, val, ready);
-  maybeExecuteCommand();
+
+function maybeExecute(speech) {
+  var cc = currentCommand;
+  var noun = cc.perm.noun || cc.temp.noun;
+  var verb = cc.perm.verb || cc.temp.verb;
+  if (cc.perm.noun && cc.perm.verb) {
+    var command = verb + ' ' + noun + ' .';
+    nextCommand.insertAdjacentHTML(
+      'beforebegin',
+      `<div class="played command">${command}</div>`);
+    setNext(speech);
+  } else if (verb && noun) {
+    nextCommand.classList.add('ready');
+  } else {
+    nextCommand.classList.add('unready');
+  }
+  //console.log("maybeExecute", currentCommand);
+  nextCommand.scrollIntoView();
 }
-function setNextNoun(val, ready) {
-  currentCommand.noun = val;
-  currentCommand.nounReady = ready;
-  setNext(nextNoun, val, ready);
-  maybeExecuteCommand();
-}
-function onreadyHandler() {
-  console.log('onreadyHandler');
-  document.querySelectorAll(".verbs > button").forEach((aVerb) => {
-    aVerb.onclick = clickVerb;
-    aVerb.onmouseleave = leaveVerb;
-    aVerb.onmouseover = overVerb;
-  });
-  document.querySelectorAll(".sets > button").forEach((aSet) => {
-    aSet.onclick = clickSet;
-    aSet.onmouseleave = leaveSet;
-    aSet.onmouseover = overSet;
-  });
-  nextVerb = document.querySelector('.verb_phrase'); // get just first instance of class
-  nextNoun = document.querySelector('.noun_phrase'); // get just first instance of class
-  commandHistory = document.querySelector('.commandHistory');
-  nextCommand = document.querySelector('.nextcommand');
-  allcommands = document.querySelector('.allcommands');
-}
+
 window.onload = onreadyHandler;
