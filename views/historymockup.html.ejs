@@ -5,19 +5,56 @@
     <title>Huvis History Mockup</title>
     <style>
       .commandHistory {
-	  padding:1em;
+	  padding: 1em;
 	  border-style: solid;
 	  border-radius: 0.3em;
 	  background-color: white;
       }
       .command{
-	  background-color: rgb(235, 245, 255);
-	  height: 2.2em;
 	  padding: .1em;
+          margin: .15em;
       }
-      .command.played {
+      .played {
 	  background-color: #fcf59b;
       }
+      .nextcommand {
+          /* height: 2.2em; */
+          background-color: rgb(235, 245, 255);
+      }
+      .command > .verb_phrase,
+      .command > ._phrase {
+          border-style: solid;
+          height: 1em;
+      }
+      .nextcommand_prompt_unready {
+	  float: left;
+          width: 4em;
+          height: 1em;
+          border-bottom: 1px solid black;
+      }
+      .nextcommand_prompt_ready {
+          float: left;
+      }
+      .noun_phrase {
+          margin-left: .3em;
+      }
+      .allcommands {
+          margin-top: 3px;
+          border: .8px solid grey;
+          overflow: scroll;
+          border-radius: .3em;
+          padding: 1px;
+          height: 5em;
+          /* https://www.cssmatic.com/box-shadow */
+          -webkit-box-shadow: inset 3px 0px 8px 9px rgba(0,0,0,0.25);
+          -moz-box-shadow: inset 3px 0px 8px 9px rgba(0,0,0,0.25);
+          box-shadow: inset 3px 0px 8px 9px rgba(0,0,0,0.25);
+      }
+      /* just for this mockup */
+      body {
+          width: 25em;
+      }
+
     </style>
   </head>
   <body id="body" style="background-color:grey">
@@ -46,53 +83,46 @@
 	    <i class="fa fa-bars"></i>
 	  </button>
 	</div>
-	<div class="nextcommand command">
-	  <code class="nextcommand_str" style="display: none;"></code>
-	  <code class="nextcommand_prompt">
-	    <span class="verb_phrase nextcommand_prompt_ready"></span>
-	    <span class="noun_phrase nextcommand_prompt_unready"></span>
-	    <span class="suffix_phrase"></span>
-	  </code>
-	  <div class="">
+        <div class="allcommands">
+	  <div class="nextcommand command">
+	    <code class="nextcommand_str" style="display: none;"></code>
+	    <div class="nextcommand_prompt">
+	      <span class="verb_phrase nextcommand_prompt_unready"></span>
+	      <span class="noun_phrase nextcommand_prompt_unready"></span>
+	      <span class="suffix_phrase"></span>
+	    </div>
 	  </div>
-	  <span>
-	    <input style="float: right; display: none;" type="submit" value="GO!" class="doit_button" disabled="disabled">
-	  </span>
-	</div>
+        </div>
     </div>
 
-
-
-
-
-
-
-    
-    <style>
-      span {
-	  float: left;
-          width: 8em;
-          background-color: red;
-          border-bottom: 1px solid black;
-      }
-      #currentCommand {
-          height: 1.5em;
-          width: 12em;
-          background-color: rgb(235, 245, 255);
-      }
-      .picker {
-          margin-top: 5em
-      }
-    </style>
     <div class="verbs picker">
-      Verbs:
+      Verbs:<br/>
       <button>Activate</button>
+      <button>Select</button>
+      <button>Label</button>
+      <button>Shelve</button>
+      <button>Discard</button>
       <button>Pin</button>
+      <br/>
+      <button>Deactivate</button>
+      <button>Unselect</button>
+      <button>Unlabel</button>
+      <button>Hide</button>
+      <button>Retrieve</button>
+      <button>Unpin</button>
     </div>
+    
     <div class="sets picker">
-      Sets:
-      <button>Selected</button>
-      <button>Graphed</button>
+      Sets:<br/>
+      <button>Activate</button><br/>
+      <button>Discarded</button><br/>
+      <button>Graphed</button><br/>
+      <button>Hidden</button><br/>
+      <button>Labelled</button><br/>
+      <button>Pinned</button><br/>
+      <button>Selected</button><br/>
+      <button>Shelved</button><br/>
+      <button>Walked</button><br/>
     </div>
     <script src="/js/historymockup.js"></script>
   </body>

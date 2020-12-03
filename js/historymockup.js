@@ -1,4 +1,4 @@
-var commandHistory, nextVerb, nextNoun;
+var allcommands, commandHistory, nextCommand, nextNoun, nextVerb;
 var currentCommand = {};
 
 function clickVerb(evt) {
@@ -8,7 +8,9 @@ function clickSet(evt) {
   setNextNoun(evt.target.innerText, true);
 }
 function leaveVerb(evt) {
-  setNextVerb(null, false);
+  if (!currentCommand.verbReady) {
+    setNextVerb(null, false);
+  }
 }
 function leaveSet(evt) {
   if (!currentCommand.nounReady) {
@@ -19,11 +21,12 @@ function maybeExecuteCommand() {
   var {noun, verb, verbReady, nounReady} = currentCommand;
   if (verb && noun && verbReady && nounReady) {
     var command = verb + ' ' + noun + ' .';
-    commandHistory.insertAdjacentHTML('afterbegin', `<div class="played command">${command}</div>`);
+    nextCommand.insertAdjacentHTML('beforebegin', `<div class="played command">${command}</div>`);
     setNextVerb(null, false);
     setNextNoun(null, false);
   }
   console.log(currentCommand);
+  nextCommand.scrollIntoView();
 }
 function overVerb(evt) {
   setNextVerb(evt.target.innerText);
@@ -68,5 +71,7 @@ function onreadyHandler() {
   nextVerb = document.querySelector('.verb_phrase'); // get just first instance of class
   nextNoun = document.querySelector('.noun_phrase'); // get just first instance of class
   commandHistory = document.querySelector('.commandHistory');
+  nextCommand = document.querySelector('.nextcommand');
+  allcommands = document.querySelector('.allcommands');
 }
 window.onload = onreadyHandler;
