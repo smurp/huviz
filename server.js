@@ -16,6 +16,7 @@ import {Stream} from 'stream';
 // Then load diverse modules
 import ejs from 'ejs';
 import express from 'express';
+import marked from 'marked';
 import morgan from 'morgan';
 import nopt from 'nopt'; // https://github.com/npm/nopt
 
@@ -71,6 +72,25 @@ const localOrCDN = function(templatePath, data, options) {
   };
 };
 
+function moreMenu(req, res) {
+  res.send(marked(`
+## HuViz More...
+
+### Tests and Demos
+* [forcetoy](/more/forcetoy)
+* [getalong](/more/getalong)
+* [historymockup](/more/historymockup)
+* [tests](/more/tests)
+
+### Need converting to ES6 Modules
+* [boxed](/more/boxed)
+* [search](/more/search)
+* [twoup](/more/twoup)
+
+[back](/)
+`));
+}
+
 // Now build the express app itself.
 
 const app = express();
@@ -106,15 +126,18 @@ app.use('/chai', express.static(__dirname + '/node_modules/chai'));
 app.use('/marked', express.static(__dirname + '/node_modules/marked'));
 app.use('/huviz/docs', express.static(__dirname + '/docs'));
 app.get("/tab_tester", localOrCDN("/views/tab_tester.html", {nopts}));
-app.get("/search", localOrCDN("/views/search.html.ejs", {nopts}));
-app.get("/boxed", localOrCDN("/views/boxed.html.ejs", {nopts}));
-app.get("/twoup", localOrCDN("/views/twoup.html.ejs", {nopts}));
-app.get("/historymockup", localOrCDN("/views/historymockup.html.ejs", {nopts}));
-app.get("/getalong", localOrCDN("/views/getalong.html.ejs", {nopts}));
-app.get("/tests", localOrCDN("/views/tests.html.ejs", {nopts}));
-app.get("/forcetoy", localOrCDN("/views/forcetoy.html", {nopts}));
+app.get("/more", moreMenu);
+app.get("/more/boxed", localOrCDN("/views/boxed.html.ejs", {nopts}));
+app.get("/more/forcetoy", localOrCDN("/views/forcetoy.html", {nopts}));
+app.get("/more/getalong", localOrCDN("/views/getalong.html.ejs", {nopts}));
+app.get("/more/historymockup", localOrCDN("/views/historymockup.html.ejs", {nopts}));
+app.get("/more/search", localOrCDN("/views/search.html.ejs", {nopts}));
+app.get("/more/twoup", localOrCDN("/views/twoup.html.ejs", {nopts}));
+app.get("/more/tests", localOrCDN("/views/tests.html.ejs", {nopts}));
 // app.get("/process_env.js", (req, res) => res.send("process_env="+process.env)) # serve process.env
 app.get("/", localOrCDN("/views/huvis.html.ejs", {nopts}));
+
+
 app.use(express.static(__dirname + '/images')); // for /favicon.ico
 
 // serve /srcdocs/SUMUT.md files as raw markdown
