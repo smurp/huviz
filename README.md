@@ -13,6 +13,7 @@ other sites as a visualizer for their graph content.
 ## Pages about HuViz
 
 * [http://smurp.github.io/huviz/](http://smurp.github.io/huviz/)
+* [https://nooron.com/#huviz](https://nooron.com/#huviz)
 
 ## Deployments
 
@@ -35,6 +36,7 @@ other sites as a visualizer for their graph content.
 
 * [HuViz Overview](https://balsamiq.cloud/senbj2i/ppkgzk1)
 * [Tab Details](https://balsamiq.cloud/su7hynz/p1rmtj6/r8AA1)
+* [History Mockup](http://alpha.huviz.dev.nooron.com/more/historymockup)
 
 ## Sets
 
