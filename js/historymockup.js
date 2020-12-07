@@ -1,4 +1,4 @@
-var allcommands, commandHistory, nextCommand, nextcommand_prompt;
+var allcommands, commandHistory, grow_shrink, nextCommand, nextcommand_prompt;
 var currentCommand = {perm:{}, temp:{}};
 
 function onreadyHandler() {
@@ -22,6 +22,8 @@ function onreadyHandler() {
   nextCommand = document.querySelector('.nextcommand');
   allcommands = document.querySelector('.allcommands');
   nextcommand_prompt = document.querySelector('.nextcommand_prompt');
+  grow_shrink = document.querySelector(".grow_shrink_history");
+  grow_shrink.onclick = handleGrowShrink;
 }
 
 function handleEvery(evt) {
@@ -99,6 +101,17 @@ function execute(speech, verb, noun) {
     'beforebegin',
     `<div class="played command">${command_str}</div>`);
   setNext(speech); // knock out the recently clicked part of speech
+}
+
+function handleGrowShrink(evt) {
+  var isShrunk = evt.target.classList.contains('fa-angle-double-down');
+  if (isShrunk) {
+    evt.target.classList.replace('fa-angle-double-down','fa-angle-double-up')
+    allcommands.classList.replace("shrunken", "grown");
+  } else {
+    evt.target.classList.replace('fa-angle-double-up','fa-angle-double-down')
+    allcommands.classList.replace("grown", "shrunken");
+  }
 }
 
 window.onload = onreadyHandler;

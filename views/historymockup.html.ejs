@@ -55,16 +55,19 @@
           overflow: scroll;
           border-radius: .3em;
           padding: 1px;
-          height: 5em;
           /* https://www.cssmatic.com/box-shadow */
           -webkit-box-shadow: inset 3px 0px 8px 9px rgba(0,0,0,0.25);
           -moz-box-shadow: inset 3px 0px 8px 9px rgba(0,0,0,0.25);
           box-shadow: inset 3px 0px 8px 9px rgba(0,0,0,0.25);
       }
+      .allcommands.grown {
+          height: 20em;
+      }
+      .allcommands.shrunken {
+          height: 5em;
+      }
       .grow_shrink_history {
-          position: relative;
-          bottom: 0px;
-          right: 0px;
+          float: right;
       }
       /* just for this mockup */
       body {
@@ -98,8 +101,9 @@
 	  <button title="save script to menu">
 	    <i class="fa fa-bars"></i>
 	  </button>
+          <i class="grow_shrink_history fa fa-angle-double-down"></i>
 	</div>
-        <div class="allcommands">
+        <div class="allcommands shrunken">
 	  <div class="nextcommand command">
 	    <code class="nextcommand_str" style="display: none;"></code>
 	    <div class="nextcommand_prompt unready">
@@ -109,7 +113,6 @@
 	    </div>
 	  </div>
         </div>
-        <i class="grow_shrink_history fa fa-angle-double-down"></i>
     </div>
 
     <div class="verbs picker" data-speech="verb">
