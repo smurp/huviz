@@ -2617,7 +2617,7 @@ with Shelved, Discarded, Graphed and Hidden.`;
   }
 
   on_tick_change_current_command_if_warranted() {
-    // It is warranted if we are hovering over nodes and the last state and this stat differ.
+    // It is warranted if we are hovering over nodes and the last state and this state differ.
     // The status of the current command might change even if the mouse has not moved, because
     // for instance the graph has wiggled around under a stationary mouse.  For that reason
     // it is legit to go to the trouble of updating the command on the tick.  When though?
