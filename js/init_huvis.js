@@ -1,6 +1,6 @@
 import * as huviz from '/huviz/huviz.js';
 window.addEventListener('load',function(){
-  new huviz.Orlando({
+  return window.HVZ = new huviz.Orlando({
     huviz_top_sel: "#HUVIZ_TOP",
     show_edit: false,
     start_with_editing: false,
