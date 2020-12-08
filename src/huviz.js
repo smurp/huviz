@@ -1285,7 +1285,8 @@ ${contents}
       } else if (this.dragging.links_shown.length === 0) {
         this.run_verb_on_object('choose', this.dragging);
       } else if (this.nodes_pinnable) {
-        if (this.editui.is_state('connecting') && (this.dragging === this.editui.subject_node)) {
+        if (this.editui.is_state('connecting')
+            && (this.dragging === this.editui.subject_node)) {
           console.log("not pinning subject_node when dropping");
         } else if (this.dragging.fixed) { // aka pinned
           this.run_verb_on_object('unpin', this.dragging);
@@ -1298,7 +1299,9 @@ ${contents}
       return;
     }
 
-    if (this.editui.is_state('connecting') && this.focused_node && this.editui.object_datatype_is_literal) {
+    if (this.editui.is_state('connecting')
+        && this.focused_node
+        && this.editui.object_datatype_is_literal) {
       this.editui.set_subject_node(this.focused_node);
       //console.log("edit mode and focused note and editui is literal")
       this.tick("Tick in mouseup 1");
@@ -1318,7 +1321,6 @@ ${contents}
       this.print_edge(this.focused_edge);
       return;
     }
-
   }
 
   log_mouse_activity(label) {
@@ -2276,6 +2278,7 @@ with Shelved, Discarded, Graphed and Hidden.`;
 
    // Return the nodes which can be seen and are worth checking for proximity, etc.
   is_node_visible(node) {
+    // TODO add check against suppressed too
     return !this.hidden_set.has(node);
   }
 
@@ -2302,48 +2305,82 @@ with Shelved, Discarded, Graphed and Hidden.`;
   // # Status
   //
   // Having trouble getting access to the addAll method
-  WIP_find_node_or_edge_closest_to_pointer_using_quadtrees() {
-    const quadtree = d3.geom.quadtree()
-      .extent([[-1, -1], [this.width + 1, this.height + 1]])
-      .addAll(this.get_visible_subset());
-    const [mx, my] = Array.from(this.last_mouse_pos);
-    const qNodes = function(qTree) {
-      const ret = [];
-      return qTree.visit(function(node, x0, y0, x1, y1) {
-        node.x0 = x0;
-        node.y0 = y0;
-        node.x1 = x1;
-        node.y1 = y1;
-        return ret.push(node);
-      });
+  find_node_or_edge_closest_to_pointer_using_quadtrees() {
+    var visibleNodes = this.get_visible_subset();
+    var visibleEdges = this.links_set;
+    var numVisible = visibleNodes.length;
+
+    let seeking = null; // holds property name of the thing we are seeking: 'focused_node'/'object_node'/null
+    if (this.dragging) {
+      if (!this.editui.is_state('connecting')) {
+        return;
+      }
+      seeking = "object_node";
+    } else {
+      seeking = "focused_node";
+    }
+
+    const getXfromNodeOrEdge = (d) => {
+      if (d.handle) { return d.handle.x; } // for edges
+      return d.x || 0;                     // for nodes
     };
-    const data = qNodes(quadtree);
-    const found = quadtree.find(mx, my);
-    throw new Error("under construction");
+    const getYfromNodeOrEdge = (d) => {
+      if (d.handle) { return d.handle.y; }
+      return d.y || 0;
+    };
+    const quadtree = d3.quadtree(). // define a quadtree
+          x( getXfromNodeOrEdge ).
+          y( getYfromNodeOrEdge );
+    visibleNodes.forEach((n) => {   // add all visible nodes
+      return quadtree.add(n);
+    });
+    visibleEdges.forEach((e) => {   // and all visible edges
+      return quadtree.add(e);
+    });
+    const [mx, my] = this.last_mouse_pos;
+    const found = quadtree.find(mx, my, this.focus_threshold); // find closest node or edge within threshold
+    var new_focused_edge = null;
+    var new_focused_node = null;
+    if (found) {
+      if (found.constructor.name == 'Node') {
+        new_focused_node = found;
+      } else {
+        new_focused_edge = found;
+        seeking = null; // we found an edge, not a node
+      }
+      if (this.draw_circle_around_focused) {
+        this.draw_circle(getXfromNodeOrEdge(found), getYfromNodeOrEdge(found), this.node_radius * 3, "red")
+      }
+    }
+    // if (!this.should_display_labels_as('boxNGs')) {
+      this.set_focused_node(new_focused_node);
+    // }
+    this.set_focused_edge(new_focused_edge);
+
+    if (seeking === 'object_node') {
+      this.editui.set_object_node(new_focused_node);
+    }
+    this.highwater('find_node_or_edge');
   }
 
-  find_node_or_edge_closest_to_pointer_using_d3() {
-    if (this.should_display_labels_as('boxNGs')) { // FIXME re-examine whether this operation should be performed when boxNGs
+  DEFUNCT_find_node_or_edge_closest_to_pointer_using_d3() {
+    // FIXME re-examine whether this operation should be performed when boxNGs
+    if (this.should_display_labels_as('boxNGs')) {
       return;
     }
     const [x,y] = Array.from(this.last_mouse_pos);
-    const closest_node = this.d3simulation.find(x,y,this.focus_threshold);
+    const closest_node = this.d3simulation.find(x, y, this.focus_threshold);
     if (closest_node) {
       this.set_focused_node(closest_node);
     }
   }
 
-  find_node_or_edge_closest_to_pointer() {
-    //console.log('find_node_or_edge_closest_to_pointer()')
-    this.find_node_or_edge_closest_to_pointer_using_d3();
-    return;
+  DEFUNCT_find_node_or_edge_closest_to_pointer() {
     this.highwater('find_node_or_edge', true);
     let new_focused_node = null;
     let new_focused_edge = null;
     let new_focused_idx = null;
-    let {
-      focus_threshold
-    } = this;
+    let { focus_threshold } = this;
     let closest_dist = this.width;
     let closest_point = null;
 
@@ -3251,7 +3288,7 @@ with Shelved, Discarded, Graphed and Hidden.`;
   }
 
   mousemove_boxNG(evt, node) {
-    console.debug('mousemove_boxNG', node.id);
+    //console.debug('mousemove_boxNG', node.id);
     //@highwater_incr('mousemove_boxNG')
     d3.event = evt;
     evt.stopPropagation();
@@ -3494,8 +3531,12 @@ with Shelved, Discarded, Graphed and Hidden.`;
     if (true) {
       if (this.clean_up_all_dirt_onceRunner != null) {
         if (this.clean_up_all_dirt_onceRunner.active) {
-          if (this.clean_up_all_dirt_onceRunner.stats.runTick == null) { this.clean_up_all_dirt_onceRunner.stats.runTick = 0; }
-          if (this.clean_up_all_dirt_onceRunner.stats.skipTick == null) { this.clean_up_all_dirt_onceRunner.stats.skipTick = 0; }
+          if (this.clean_up_all_dirt_onceRunner.stats.runTick == null) {
+            this.clean_up_all_dirt_onceRunner.stats.runTick = 0;
+          }
+          if (this.clean_up_all_dirt_onceRunner.stats.skipTick == null) {
+            this.clean_up_all_dirt_onceRunner.stats.skipTick = 0;
+          }
           this.clean_up_all_dirt_onceRunner.stats.skipTick++;
           return;
         } else {
@@ -3506,8 +3547,8 @@ with Shelved, Discarded, Graphed and Hidden.`;
     this.highwater('maxtick', true);
     this.ctx.lineWidth = this.edge_width; // TODO(smurp) just for edge borders, make one for nodes
     this.administer_the_distinguished_node();
-    this.find_node_or_edge_closest_to_pointer();
-    //@WIP_find_node_or_edge_closest_to_pointer_using_quadtrees()
+    //this.find_node_or_edge_closest_to_pointer();
+    this.find_node_or_edge_closest_to_pointer_using_quadtrees()
     this.auto_change_verb();
     this.on_tick_change_current_command_if_warranted();
     //@update_snippet() // not in use
@@ -3520,7 +3561,6 @@ with Shelved, Discarded, Graphed and Hidden.`;
     } else {
       this.position_nodes_by_force();
     }
-    //console.debug('apply_fisheye is commented out')
     //@apply_fisheye()
     this.draw_edges();
     this.draw_nodes();
@@ -9684,9 +9724,7 @@ LIMIT 20\
           inputElem.setAttribute('id', inputId);
           inputElem.setAttribute('name', control_name);
 
-          let {
-            event_type
-          } = control;
+          let { event_type } = control;
           if (!event_type) {
             if (['checkbox','range','radio'].includes(control.input.type)) {
               event_type = 'input';
