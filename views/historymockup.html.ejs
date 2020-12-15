@@ -69,11 +69,84 @@
       .grow_shrink_history {
           float: right;
       }
+      .engaged {
+          background-color: royalblue;
+          color: white;
+      }
+      .button-x button:not(.engaged) {
+          display: none;
+      }
+      .button-x button.engaged {
+          background-color: lightblue;
+          color: royalblue;
+      }
       /* just for this mockup */
       body {
           width: 25em;
       }
 
+      .lateral-verbs button {
+          border-radius: 0.5em;
+      }
+
+      /* triple-toggle mockup styles */
+.button-main {
+    position: relative;
+    display: inline-block;
+    height: 3.4em;
+}
+
+.button-main button {
+    outline: none;
+}
+
+.button-group {
+    z-index: 1;
+    //font-size: 100px;
+}
+
+.button-group button {
+    border: 1px solid black;
+    cursor: pointer;
+    display: block;
+    width: 100%;
+    padding-left: 0.3em;
+    padding-right: 0.3em;
+}
+
+.button-group button:not(:last-child) {
+    padding-top: 0.2em;
+    padding-bottom: 0.6em;
+    border-top-right-radius: 0.5em;
+    border-top-left-radius: 0.5em;
+    border-bottom: none;
+}
+
+.button-group button:last-child {
+    padding-top: 0.6em;
+    padding-bottom: 0.2em;
+    border-bottom-right-radius: 0.5em;
+    border-bottom-left-radius: 0.5em;
+}
+
+.button-x {
+    z-index: 2;
+    width: 1.1em;
+    margin: 0;
+    position: relative;
+    top: 50%;
+    left: 50%;
+    transform: translate(-0.5em, -3.95em);
+    height: 0px;
+}
+
+.button-x button{
+    border: 1px solid black;
+    border-radius: 1em;
+    cursor: pointer;
+    padding: 0em 0.25em;
+}
+      
     </style>
   </head>
   <body id="body" style="background-color:grey">
@@ -115,6 +188,7 @@
         </div>
     </div>
 
+    <!--
     <div class="verbs picker" data-speech="verb">
       Verbs:<br/>
       <button>Activate</button>
@@ -130,6 +204,63 @@
       <button>Hide</button>
       <button>Retrieve</button>
       <button>Unpin</button>
+    </div>
+    -->
+
+    <div class="verbs picker" data-speech="verb">
+      Verbs:<br/>
+      <div class="button-main">
+        <div class="button-group">
+          <button type="button">Activate</button>
+          <button type="button">Deactivate</button>
+        </div>
+        <div class="button-x">
+          <button type="button">X</button>
+        </div>
+      </div>
+      <div class="button-main">
+        <div class="button-group">
+          <button type="button">Select</button>
+          <button type="button">Deselect</button>
+        </div>
+        <div class="button-x">
+          <button type="button">X</button>
+        </div>
+      </div>
+      <div class="button-main">
+        <div class="button-group">
+          <button type="button">Label</button>
+          <button type="button">Unlabel</button>
+        </div>
+        <div class="button-x">
+          <button type="button">X</button>
+        </div>
+      </div>
+      <div class="button-main">
+        <div class="button-group">
+          <button type="button">Discard</button>
+          <button type="button">Retrieve</button>
+        </div>
+        <div class="button-x">
+          <button type="button">X</button>
+        </div>
+      </div>
+      <div class="button-main">
+        <div class="button-group">
+          <button type="button">Pin</button>
+          <button type="button">Unpin</button>
+        </div>
+        <div class="button-x">
+          <button type="button">X</button>
+        </div>
+      </div>
+
+      <div class="lateral-verbs">
+        <button> Walk </button>
+        <button> Wander </button>
+        <button> Shelve </button>
+        <button> Hide </button>
+      </div>
     </div>
 
     <div class="sets picker" data-speech="noun">
