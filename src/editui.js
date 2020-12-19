@@ -1,3 +1,4 @@
+
 /*
  * decaffeinate suggestions:
  * DS202: Simplify dynamic range loops
@@ -19,11 +20,14 @@ export class EditController extends FiniteStateMachine {
     //@userValid = false
     this.ensure_verbs();
     this.build_transitions();
-    this.state = null;
+    this.state = 'not_editing';
   }
 
   build_transitions() {
     this.transitions = {
+      start: {
+        target: 'not_editing',
+      },
       prepare: {
         target: 'prepared'
       },
@@ -384,4 +388,3 @@ export class EditController extends FiniteStateMachine {
   }
 }
 
-// export {EditController}; // TODO convert to module

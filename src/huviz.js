@@ -8819,9 +8819,11 @@ LIMIT 20\
   }
 
   init_editc_or_not() {
-    if (this.editui == null) { this.editui = new EditController(this); }
+    if (this.editui == null) {
+      this.editui = new EditController(this);
+    }
     this.editui.id = 'EditUI';
-    this.editui.transit('prepare');
+    this.editui.transit('start'); // was prepare
     if (this.args.show_edit) {
       this.editui.show();
     } else {

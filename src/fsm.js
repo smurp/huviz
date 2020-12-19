@@ -103,6 +103,3 @@ export class FiniteStateMachine {
     }
   }
 }
-
-// export {FiniteStateMachine}; // TODO convert to module
-
