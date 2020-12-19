@@ -21,6 +21,7 @@ export function angliciser(lst, and_or_or) {
         }
       }
     }
+    english += itm;
   });
   return english;
 }
