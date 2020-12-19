@@ -147,8 +147,12 @@ export class GraphCommand {
     } else {
       args = args_or_str;
     }
-    if (args.skip_history == null) { args.skip_history = false; }
-    if (args.every_class == null) { args.every_class = false; }
+    if (args.skip_history == null) {
+      args.skip_history = false;
+    }
+    if (args.every_class == null) {
+      args.every_class = false;
+    }
     for (let argn in args) {
       const argv = args[argn];
       this[argn] = argv;
@@ -166,7 +170,6 @@ export class GraphCommand {
     if (node) {
       return node;
     }
-
     const tried = [node_spec];
     const id_parts = node_spec.split(':'); // REVIEW curie? uri?
     if (id_parts.length > 1) {
@@ -323,6 +326,8 @@ export class GraphCommand {
       }
     } else if (this.verbs[0] === 'load') {
       this.huviz.load_with(this.data_uri, this.with_ontologies);
+    } else if (this.verbs[0] === 'run') {
+      console.warn("TODO implement the ability to run scripts from the URL");
     } else if (this.verbs[0] === 'query') {
       this.huviz.query_from_seeking_limit(this.sparqlQuery);
     } else {
