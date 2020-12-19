@@ -10594,7 +10594,6 @@ ${this.build_pfm_live_monitor('sparql')}\
         marker.timed_count = [0.01];
       }
     }
-        //console.log "Setting #{marker.label }to zero"
   }
 
   parseAndShowFile(uri, callback) {
@@ -10719,7 +10718,8 @@ export class OntologicallyGrounded extends Huviz {
     const {
       ontology
     } = this;
-    if ((typeof GreenerTurtle !== 'undefined' && GreenerTurtle !== null) && (this.turtle_parser === 'GreenerTurtle')) {
+    if ((typeof GreenerTurtle !== 'undefined' && GreenerTurtle !== null) &&
+        (this.turtle_parser === 'GreenerTurtle')) {
       this.raw_ontology = new GreenerTurtle().parse(data, "text/turtle");
       for (let subj_uri in this.raw_ontology.subjects) {
         const frame = this.raw_ontology.subjects[subj_uri];
@@ -10779,15 +10779,12 @@ export class OntologicallyGrounded extends Huviz {
 }
 
 export class Orlando extends OntologicallyGrounded {
-  static initClass() {
-
-    this.prototype.HHH = {};
-
-    this.prototype.human_term = orlando_human_term;
-  }
   // These are the Orlando specific methods layered on Huviz.
   // These ought to be made more data-driven.
-
+  static initClass() {
+    this.prototype.HHH = {};
+    this.prototype.human_term = orlando_human_term;
+  }
   constructor() {
     super(...arguments);
     this.close_edge_inspector = this.close_edge_inspector.bind(this);

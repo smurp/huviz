@@ -221,7 +221,9 @@ export class GraphCommand {
         //nodes.push(node)
     if (this.classes) {
       for (let class_name of this.classes) {
-        const the_set = this.huviz.taxonomy[class_name] != null ? this.huviz.taxonomy[class_name].get_instances() : undefined;
+        const the_set = (this.huviz.taxonomy[class_name] != null
+                         ? this.huviz.taxonomy[class_name].get_instances()
+                         : undefined);
         if (the_set != null) {
           var n;
           if (like_regex) {
@@ -434,7 +436,8 @@ export class GraphCommand {
         if (this.except_subjects) {
           obj_phrase += ' except ' + angliciser(((() => {
             const result = [];
-            for (subj of this.subjects) {               result.push(subj.lid);
+            for (subj of this.subjects) {
+              result.push(subj.lid);
             }
             return result;
           })()));
@@ -442,7 +445,8 @@ export class GraphCommand {
       } else if (this.subjects) {
         obj_phrase = angliciser(((() => {
           const result1 = [];
-          for (subj of this.subjects) {             result1.push(subj.lid || subj);
+          for (subj of this.subjects) {
+            result1.push(subj.lid || subj);
           }
           return result1;
         })()));
@@ -569,8 +573,6 @@ export class GraphCommandLanguageCtrl {
       this.commands = [script];
     }
     const retval = this.execute(callback);
-    //console.log "commands:"
-    //console.log @commands
     this.huviz.after_running_command(this);
     return retval;
   }
@@ -585,7 +587,8 @@ export class GraphCommandLanguageCtrl {
     return cmd.execute(); // TODO this might not need returning
   }
   execute(callback) {
-    if ((this.commands.length > 0) && (typeof this.commands[0] === 'string') && this.commands[0].match(/^load /)) {
+    if ((this.commands.length > 0) && (typeof this.commands[0] === 'string') &&
+        this.commands[0].match(/^load /)) {
       //console.log("initial execute", @commands)
       this.run_one(this.commands.shift());
       //setTimeout @execute, 2000
@@ -606,5 +609,3 @@ export class GraphCommandLanguageCtrl {
     }
   }
 }
-
-// export {GraphCommandLanguageCtrl, GraphCommand, GCLTest, GCLTestSuite}; // TODO convert to module
