@@ -10750,7 +10750,7 @@ export class OntologicallyGrounded extends Huviz {
               if ((ontology.range[subj_lid] == null)) {
                 ontology.range[subj_lid] = [];
               }
-              if (!(ontology.range.includes(obj_lid))) {
+              if (!(ontology.range[obj_lid])) {
                 ontology.range[subj_lid].push(obj_lid);
               }
             } else if (['subClassOf', 'subClass'].includes(pred_lid)) {
