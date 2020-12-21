@@ -314,7 +314,7 @@ export class GraphCommand {
       //  console.log("DONE .execute()")
     if (regarding_required) {
       for (meth of this.get_predicate_methods()) {
-        iter = node => {
+        iter = (node) => {
           for (let pred of this.regarding) {
             const retval = meth.call(this.huviz, node, pred);
           }
@@ -348,7 +348,7 @@ export class GraphCommand {
         if (atFirst != null) {
           atFirst(); // is called once before iterating through the nodes
         }
-        iter = node => {
+        iter = (node) => {
           let retval;
           return retval = meth.call(this.huviz, node); // call the verb
         };
