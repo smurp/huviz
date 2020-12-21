@@ -1,7 +1,8 @@
 import {GeoUserNameWidget} from './settingswidgets.js';
 
-export const DEFAULT_SETTINGS = [{
-  reset_settings_to_default: {
+export const DEFAULT_SETTINGS = [
+  {
+    reset_settings_to_default: {
       text: "Reset Settings",
       label: {
         title: "Reset all settings to their defaults"
@@ -884,6 +885,20 @@ If zero before loading, then lookup is suppressed.`
         max: 1000,
         step: 10,
         type: "range"
+      }
+    }
+  }
+  , {
+    combine_command_history: {
+      group: "Debugging",
+      class: "alpha_feature",
+      text: "Put history on command tab",
+      label: {
+	title: "Combine the history tab with the command tab"
+      },
+      input: {
+	type: "checkbox"
+	, checked: "checked"
       }
     }
   }
