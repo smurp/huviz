@@ -87,7 +87,8 @@ export class CommandController {
     };
     this.prototype.verbs_requiring_regarding =
       ['show','suppress','emphasize','deemphasize'];
-    this.prototype.verbs_override = { // when overriding ones are selected, others are unselected
+    this.prototype.verbs_override = {
+      // when overriding ones are selected, others are unselected
       choose: ['discard', 'unchoose', 'shelve', 'hide', 'wander', 'walk'],
       wander: ['choose', 'unchoose', 'discard', 'shelve', 'hide', 'walk'],
       walk: ['choose', 'unchoose', 'discard', 'shelve', 'hide', 'wander'],
@@ -223,7 +224,8 @@ of the classes indicated.`,
     //@node_pickers = @comdiv.append('div')
     this.node_pickers = this.comdiv.append('div').attr("id","node_pickers");
     this.set_picker_box_parent = this.build_set_picker("Sets",this.node_pickers);
-    this.taxon_picker_box_parent = this.build_taxon_picker("Class Selector",this.node_pickers);
+    this.taxon_picker_box_parent = this.build_taxon_picker(
+      "Class Selector", this.node_pickers);
     this.add_clear_both(this.comdiv);
     this.likediv = this.taxon_picker_box_parent.append('div');
     this.build_predicate_picker("Edges of the Selected Nodes");
@@ -299,7 +301,8 @@ of the classes indicated.`,
       attr('class','control_label').
       html(command_history_label).
       attr('style', 'display:inline');
-    this.scriptPlayerControls = history.append('div').attr('class','scriptPlayerControls');
+    this.scriptPlayerControls = history.append('div').attr(
+      'class','scriptPlayerControls');
     //  attr('style','position: relative;  float:right')
 
     this.scriptRewindButton = this.scriptPlayerControls.append('button').
@@ -691,7 +694,9 @@ of the classes indicated.`,
       "Faint color: no edges are shown -- click to show all\n" +
       "Stripey color: some edges shown -- click to show all\n" +
       "Hidden: no edges among the selected nodes";
-    const where = ((label != null) && this.control_label(label,this.comdiv,title)) || this.comdiv;
+    const where = (
+      (label != null) &&
+        this.control_label(label,this.comdiv,title)) || this.comdiv;
     this.predicatebox = where.append('div')
         .classed('container', true)
         .attr('id', this.predicates_id);
@@ -715,7 +720,8 @@ of the classes indicated.`,
   add_predicate(pred_lid, parent_lid, pred_name) {
     //if pred_lid in @predicates_to_ignore
     //  return
-    this.predicate_picker.add(pred_lid, parent_lid, pred_name, this.handle_on_predicate_clicked);
+    this.predicate_picker.add(
+      pred_lid, parent_lid, pred_name, this.handle_on_predicate_clicked);
     this.make_predicate_proposable(pred_lid);
   }
   make_predicate_proposable(pred_lid) {
@@ -768,7 +774,8 @@ of the classes indicated.`,
       for (let edge of node.links_from) {
         count++;
         const pred_n_js_id = edge.predicate.id;
-        edge.color = this.predicate_picker.get_color_forId_byName(pred_n_js_id, 'showing');
+        edge.color = this.predicate_picker.get_color_forId_byName(
+          pred_n_js_id, 'showing');
       }
     }
   }
@@ -779,7 +786,8 @@ of the classes indicated.`,
       "Medium color: all nodes are selected -- click to select none\n" +
       "Faint color: no nodes are selected -- click to select all\n" +
       "Stripey color: some nodes are selected -- click to select all\n";
-    where = ((label != null) && this.control_label(label, where, title)) || this.comdiv;
+    where = ((label != null)
+             && this.control_label(label, where, title)) || this.comdiv;
     this.taxon_box = where.append('div')
         .classed('container', true)
         .attr('id', id);
@@ -800,7 +808,8 @@ of the classes indicated.`,
     return where;
   }
   add_taxon(taxon_id, parent_lid, class_name, taxon) {
-    this.taxon_picker.add(taxon_id, parent_lid, class_name, this.handle_on_taxon_clicked);
+    this.taxon_picker.add(taxon_id, parent_lid, class_name,
+                          this.handle_on_taxon_clicked);
     this.make_taxon_proposable(taxon_id);
     this.taxon_picker.recolor_now();
     this.huviz.recolor_nodes();
@@ -960,7 +969,8 @@ of the classes indicated.`,
     }
     this.taxon_picker.style_with_kid_color_summary_if_needed(taxonId);
     if (cmd != null) {
-      this.huviz.run_command(cmd, this.make_run_transient_and_cleanup_callback(because));
+      this.huviz.run_command(
+        cmd, this.make_run_transient_and_cleanup_callback(because));
       var because = {};  // clear the because
     }
     this.update_command();
@@ -980,7 +990,8 @@ of the classes indicated.`,
     //   emphasized - TBD: mark the class of the focused_node
   }
   make_verb_sets() {
-    this.verb_sets = [{ // mutually exclusive within each set
+    this.verb_sets = [
+      { // mutually exclusive within each set
         choose: this.huviz.human_term.choose,
         unchoose: this.huviz.human_term.unchoose,
         wander: this.huviz.human_term.wander,
@@ -1006,7 +1017,7 @@ of the classes indicated.`,
         pin: this.huviz.human_term.pin,
         unpin: this.huviz.human_term.unpin
       }
-      ];
+    ];
     if (this.huviz.show_hunt_verb) {
       this.verb_sets.push({hunt: this.huviz.human_term.hunt});
     }
@@ -1118,7 +1129,8 @@ of the classes indicated.`,
   }
 
   build_depth() {
-    this.depthdiv.text('Activate/Wander Depth:').classed("control_label activate_depth", true);
+    this.depthdiv.text('Activate/Wander Depth:').
+      classed("control_label activate_depth", true);
     this.depthdiv.style('display','none');//('display','inline-block')
     this.depthdiv.style('white-space','nowrap');
     this.depth_input = this.depthdiv.append('input');
@@ -1171,7 +1183,7 @@ of the classes indicated.`,
       this.huviz.set_search_regex(''); // clear the labelling of matching nodes
       this.clear_like_button.attr('disabled','disabled');
       if (this.liking_all_mode) { // but it DID
-        TODO = "restore the state before liking_all_mode " + 
+        TODO = "restore the state before liking_all_mode " +
         "eg select a different set or disable all set selection";
         //alert(TODO+" was: #{@chosen_set_before_liking_all}")
         if (this.chosen_set_before_liking_all) {
@@ -1201,7 +1213,7 @@ of the classes indicated.`,
         return this.huviz.run_command(this.command);
       }
     });
-        //@huviz.update_all_counts()  # TODO Try to remove this, should be auto
+    //@huviz.update_all_counts()  # TODO Try to remove this, should be auto
     this.set_immediate_execution_mode(true);
   }
   enable_doit_button() {
@@ -1305,7 +1317,8 @@ of the classes indicated.`,
     const elem_and_cmd = this.command_list.splice(idx, 1)[0]; // remove elem_and_cmd from command_list
     const elem = elem_and_cmd.elem.node();
     if (!elem) {
-      console.warn(`delete_script_command_by_idx(${idx}) failed to find elem in`, elem_and_cmd);
+      console.warn(`delete_script_command_by_idx(${idx}) failed to find elem in`,
+                   elem_and_cmd);
       return;
     }
     elem.remove();
@@ -1414,7 +1427,8 @@ of the classes indicated.`,
   run_any_immediate_command(because) {
     //console.log("run_any_immediate_command()", because)
     const ready = this.prepare_command(this.build_command());
-    if (ready && this.huviz.doit_asap && this.immediate_execution_mode && !this.is_proposed()) {
+    if (ready && this.huviz.doit_asap &&
+        this.immediate_execution_mode && !this.is_proposed()) {
       this.perform_current_command(because);
     }
   }
@@ -1679,7 +1693,8 @@ of the classes indicated.`,
     this.set_picker_box = where.append('div')
         .classed('container',true)
         .attr('id', 'sets');
-    this.set_picker = new TreePicker(this.set_picker_box, 'all', ['treepicker-vertical']);
+    this.set_picker = new TreePicker(
+      this.set_picker_box, 'all', ['treepicker-vertical']);
     this.set_picker.click_listener = this.handle_on_set_picked;
     this.set_picker.show_tree(this.the_sets, this.set_picker_box);
     this.populate_all_set_docs();
@@ -1747,7 +1762,8 @@ of the classes indicated.`,
       this.disengage_all_sets();
     }
     if (cmd != null) {
-      this.huviz.run_command(cmd, this.make_run_transient_and_cleanup_callback(because));
+      this.huviz.run_command(
+        cmd, this.make_run_transient_and_cleanup_callback(because));
       because = {};
     }
     this.update_command();
@@ -1796,4 +1812,3 @@ of the classes indicated.`,
   }
 }
 CommandController.initClass();
-
