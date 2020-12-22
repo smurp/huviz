@@ -151,7 +151,7 @@ of the classes indicated.`,
       unpin: "u",
       hunt: "X"
     };
-  
+
     this.prototype.working_timeout = 500;
     this.prototype.nextcommand_prompts_visible = true;
     this.prototype.nextcommand_str_visible = false;
@@ -206,9 +206,12 @@ of the classes indicated.`,
       $(".hints").append($(".hint_set").contents());
     }
     this.style_context_selector = this.huviz.get_picker_style_context_selector();
+    this.comdiv = d3.select(this.container).append("div"); // --- Add a container
     this.make_command_history();
     this.prepare_tabs_sparqlQueries();
-    this.control_label("Current Command");
+    if (!this.huviz.combine_command_history) {
+      this.control_label("Current Command");
+    }
     this.nextcommandbox = this.comdiv.append('div');
     this.make_verb_sets();
     this.control_label("Verbs");
@@ -280,8 +283,13 @@ of the classes indicated.`,
     return Object.assign(queryManager, {qryJQElem, preJQElem, preElem});
   }
   make_command_history() {
-    this.comdiv = d3.select(this.container).append("div"); // --- Add a container
-    const history = d3.select(this.huviz.oldToUniqueTabSel['tabs-history']);
+    var history;
+    if (!this.huviz.combine_command_history) {
+      history = d3.select(this.huviz.oldToUniqueTabSel['tabs-history']);
+    } else {
+      this.huviz.tab_for_tabs_history_JQElem.hide();
+      history = this.comdiv;
+    }
     this.cmdtitle = history.
       append('div').
       attr('class','control_label').
@@ -1000,8 +1008,8 @@ of the classes indicated.`,
     }
   }
   should_be_immediate_mode() {
-    return !this.is_verb_phrase_empty() && 
-      this.is_command_object_empty() && 
+    return !this.is_verb_phrase_empty() &&
+      this.is_command_object_empty() &&
       !this.liking_all_mode;
   }
   is_command_object_empty() {
