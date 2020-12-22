@@ -912,9 +912,10 @@ If zero before loading, then lookup is suppressed.`
       },
       input: {
         type: "checkbox"
+        //, checked: "checked"
       }
     }
-  }   //checked: "checked"
+  }
   , {
     show_performance_monitor: {
       group: "Debugging",
@@ -928,7 +929,6 @@ If zero before loading, then lookup is suppressed.`
       }
     }
   }
-        //checked: "checked"
   , {
     slow_it_down: {
       group: "Debugging",
@@ -959,7 +959,6 @@ If zero before loading, then lookup is suppressed.`
       }
     }
   }
-        //checked: "checked"
   , {
     display_loading_notice: {
       group: "Debugging",
