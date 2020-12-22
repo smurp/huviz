@@ -38,7 +38,38 @@
 .alternates {
   float:left;
 }
+/* New alternate verb styling starts here */
+.alternates .verb {
+  margin:1px 2px 4px 0;
+  cursor: pointer;
+  padding: 3px 4px;
+  border-radius: 3px;
+}
 
+.alternates .verb:not(:last-child) {
+  margin-bottom:0px;
+  border-top:1px solid #eee;
+  border-right:1px solid #aaa;
+  border-left:1px solid #eee;
+  border-bottom: none;
+  border-top-right-radius: 0.5em;
+  border-top-left-radius: 0.5em;
+  border-bottom-right-radius: 0px;
+  border-bottom-left-radius: 0px;
+}
+
+.alternates .verb:last-child {
+  margin-top:0px;
+  border-top:1px solid #aaa;
+  border-right:1px solid #aaa;
+  border-left:1px solid #eee;
+  border-bottom:1px solid #aaa;
+  border-bottom-right-radius: 0.5em;
+  border-bottom-left-radius: 0.5em;
+  border-top-right-radius: 0px;
+  border-top-left-radius: 0px;
+}
+/* New alternate verb styling ends here */
 .verb {
   margin:1px 2px 4px 0;
   cursor: pointer;
@@ -65,12 +96,12 @@
 }
 
 .engaged {
-  background-color: #ddd;
+  background-color: royalblue;
   border-top:1px solid #aaa;
   border-right:1px solid #eee;
   border-left:1px solid #aaa;
   border-bottom:1px solid #eee;
-  color: #222;
+  color: white;
 }
 .verb:hover {
   background-color: #ccc;
