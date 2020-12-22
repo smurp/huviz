@@ -207,12 +207,14 @@ of the classes indicated.`,
     }
     this.style_context_selector = this.huviz.get_picker_style_context_selector();
     this.comdiv = d3.select(this.container).append("div"); // --- Add a container
-    this.make_command_history();
-    this.prepare_tabs_sparqlQueries();
     if (!this.huviz.combine_command_history) {
       this.control_label("Current Command");
     }
     this.nextcommandbox = this.comdiv.append('div');
+    this.nextcommandbox.classed('combined_command_history',    // set this class
+                                this.huviz.combine_command_history);  // if true
+    this.make_command_history();
+    this.prepare_tabs_sparqlQueries();
     this.make_verb_sets();
     this.control_label("Verbs");
     this.verbdiv = this.comdiv.append('div').attr('class','verbs');
@@ -283,17 +285,19 @@ of the classes indicated.`,
     return Object.assign(queryManager, {qryJQElem, preJQElem, preElem});
   }
   make_command_history() {
-    var history;
+    var history, command_history_label;
     if (!this.huviz.combine_command_history) {
       history = d3.select(this.huviz.oldToUniqueTabSel['tabs-history']);
+      command_history_label = 'Command History';
     } else {
       this.huviz.tab_for_tabs_history_JQElem.hide();
-      history = this.comdiv; // keep only this for feature flag combine_command_history
+      history = this.nextcommandbox; // keep only this for feature flag combine_command_history
+      command_history_label = 'Commands';
     }
     this.cmdtitle = history.
       append('div').
       attr('class','control_label').
-      html('Command History').
+      html(command_history_label).
       attr('style', 'display:inline');
     this.scriptPlayerControls = history.append('div').attr('class','scriptPlayerControls');
     //  attr('style','position: relative;  float:right')
