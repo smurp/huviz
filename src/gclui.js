@@ -1373,8 +1373,7 @@ of the classes indicated.`,
     this.scriptStashButton.attr('disabled', null);
   }
   build_command() {
-    const args =
-      {verbs: []};
+    const args = {verbs: []};
     args.object_phrase = this.object_phrase;
     if (this.engaged_verbs.length > 0) {
       for (let v of this.engaged_verbs) {
@@ -1440,7 +1439,7 @@ of the classes indicated.`,
         console.log(Math.round((Date.now() - start) / 1000));
       }
     }
-      //alert("About to execute:\n  "+@command.str)
+    //alert("About to execute:\n  "+@command.str)
     this.command.execute();
     this.huviz.update_all_counts();
     this.perform_any_cleanup(because);

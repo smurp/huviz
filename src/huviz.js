@@ -5509,11 +5509,13 @@ SERVICE wikibase:label {
   }
 
   choose_everything() {
-    const cmd = new GraphCommand(this, {
-      verbs: ['choose'],
-      classes: ['Thing'],
-      every_class: true
-    }
+    const cmd = new GraphCommand(
+      this,
+      {
+        verbs: ['choose'],
+        classes: ['Thing'],
+        every_class: true
+      }
     );
     this.gclc.run(cmd);
     this.tick("Tick in choose_everything");
