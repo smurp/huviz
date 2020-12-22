@@ -1507,6 +1507,7 @@ of the classes indicated.`,
       this.verb_pretty_name[id] = label;
       this.build_verb_picker(id,label,alternatives);
     }
+    alternatives.append('div').attr('class', 'x-button').text('X');
     this.verb_pretty_name['load'] = this.huviz.human_term.load;
     this.verb_pretty_name['hunt'] = this.huviz.human_term.hunt;
     this.verb_pretty_name['draw'] = this.huviz.human_term.draw;
