@@ -364,6 +364,7 @@ export class GraphCommand {
             }
             this.huviz.gclui.set;
             callback(); // atLast is called once, after the verb has been called on each node
+            this.huviz.tick(); // so commands caused by button presses get rendered
           }
         }
       }
