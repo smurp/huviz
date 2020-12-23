@@ -36,7 +36,7 @@
 }
 
 .alternates {
-  float:left;
+  display: inline-block;
   position: relative;
 }
 /* New alternate verb styling starts here */
@@ -83,7 +83,7 @@
   top: 50%;
   left: 50%;
   height: 0px;
-  /*  display: inline; */
+  /* display: inline; */
   display: none;
   border: 1px solid black;
   border-radius: 1em;

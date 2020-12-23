@@ -1529,7 +1529,8 @@ of the classes indicated.`,
       // Put the pairs within their own ".alternates" within ".verbs < .pairs"
       const alternatesElem = verb_pairs.append('div').attr('class','alternates');
       containerElem = alternatesElem.append('div').attr('class', 'pair');
-      alternatesElem.append('div').attr('class', 'x-button').text('X');
+      const x_butt = alternatesElem.append('div').attr('class', 'x-button');
+      x_butt.append('button').text('X');
       returnElem = alternatesElem;
     } else {
       console.warn("",vset);
