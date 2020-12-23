@@ -1511,17 +1511,28 @@ of the classes indicated.`,
   }
   add_verb_set(vset) {
     const {verb_pairs, verb_singletons} = this;
-    var containerElem;
+    var containerElem, returnElem;
+    const isEmpty = Object.keys(vset).length == 0;
     const isSingle = Object.keys(vset).length == 1;
-    console.log((isSingle ? 'singleton' : 'pair'), vset, verb_pairs.constructor.name);
+    const isPair = Object.keys(vset).length == 2;
+    const isGroup = Object.keys(vset).length > 2;
+    const which = isEmpty ? 'empty' : (
+      isSingle ? 'singleton' : (
+        isPair ? 'pair' : (
+          isGroup ? 'group' : 'unknown')));
+    console.log(which, vset);
     if (isSingle) {
       // Put all the singletons directly within ".verbs < .singletons"
       containerElem = verb_singletons;
-    } else {
+      returnElem = containerElem;
+    } else if (isPair || isGroup) {
       // Put the pairs within their own ".alternates" within ".verbs < .pairs"
       const alternatesElem = verb_pairs.append('div').attr('class','alternates');
       containerElem = alternatesElem.append('div').attr('class', 'pair');
       alternatesElem.append('div').attr('class', 'x-button').text('X');
+      returnElem = alternatesElem;
+    } else {
+      console.warn("",vset);
     }
     for (let id in vset) {
       const label = vset[id];
@@ -1533,7 +1544,7 @@ of the classes indicated.`,
     this.verb_pretty_name['hunt'] = this.huviz.human_term.hunt;
     this.verb_pretty_name['draw'] = this.huviz.human_term.draw;
     this.verb_pretty_name['undraw'] = this.huviz.human_term.undraw;
-    return containerElem; // might not be ignored
+    return returnElem; // used by EditController
   }
   get_verbs_overridden_by(verb_id) {
     const override = this.verbs_override[verb_id] || [];
