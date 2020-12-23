@@ -1502,29 +1502,24 @@ of the classes indicated.`,
        ((this.engaged_verbs.length === 1) && (this.engaged_verbs[0] === 'select')));
   }
   build_verb_form() {
+    this.verb_pairs = this.verbdiv.append('div').attr('class', 'pairs');
+    this.verb_singletons = this.verbdiv.append('divs').attr('class', 'singletons');
     this.verb_pretty_name = {};
-    //var pairs = d3.select(this.verbdiv.append('div').attr('class', 'pairs').node());
-    var pairs = this.verbdiv.append('div').attr('class', 'pairs');
-    //var singletons = d3.select(this.verbdiv.append('divs').attr('class', 'singletons').node());
-    var singletons = this.verbdiv.append('divs').attr('class', 'singletons');
     for (let vset of this.verb_sets) {
-      this.add_verb_set(vset, pairs, singletons);
+      this.add_verb_set(vset);
     }
   }
-  add_verb_set(vset, pairs, singletons) {
+  add_verb_set(vset) {
+    const {verb_pairs, verb_singletons} = this;
     var containerElem;
     const isSingle = Object.keys(vset).length == 1;
-    console.log((isSingle ? 'singleton' : 'pair'), vset, pairs.constructor.name);
-    if (!singletons) {
-      console.log("ignoring add_verb_set() call from EditController");
-      return this.verbdiv;
-    }
+    console.log((isSingle ? 'singleton' : 'pair'), vset, verb_pairs.constructor.name);
     if (isSingle) {
       // Put all the singletons directly within ".verbs < .singletons"
-      containerElem = singletons;
+      containerElem = verb_singletons;
     } else {
       // Put the pairs within their own ".alternates" within ".verbs < .pairs"
-      const alternatesElem = pairs.append('div').attr('class','alternates');
+      const alternatesElem = verb_pairs.append('div').attr('class','alternates');
       containerElem = alternatesElem.append('div').attr('class', 'pair');
       alternatesElem.append('div').attr('class', 'x-button').text('X');
     }

@@ -101,7 +101,7 @@ export class EditController extends FiniteStateMachine {
     let prepend;
     const vset = this.get_verb_set();
     this.huviz.gclui.verb_sets.unshift(vset);
-    return this.huviz.gclui.add_verb_set(vset, (prepend = true));
+    return this.huviz.gclui.add_verb_set(vset);
   }
 
   ensure_verbs() {
