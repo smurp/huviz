@@ -5056,7 +5056,8 @@ SERVICE wikibase:label {
           } else {
             objId = synthIdFor(objVal);
           }
-          const literal_node = this.get_or_create_node_by_id(objId, objVal, (isLiteral = true));
+          const literal_node = this.get_or_create_node_by_id(
+            objId, objVal, (isLiteral = true));
           this.try_to_set_node_type(literal_node, simpleType);
           literal_node.__dataType = quad.o.type;
           this.develop(literal_node);
@@ -5396,7 +5397,9 @@ SERVICE wikibase:label {
     //console.log("parseAndShowTTLData",data)
     const parse_start_time = new Date();
     const context = this.get_context();
-    if ((typeof GreenerTurtle !== 'undefined' && GreenerTurtle !== null) && (this.turtle_parser === 'GreenerTurtle')) {
+    if ((typeof GreenerTurtle !== 'undefined'
+         && GreenerTurtle !== null)
+        && (this.turtle_parser === 'GreenerTurtle')) {
       //console.log("GreenTurtle() started")
       //@G = new GreenerTurtle().parse(data, "text/turtle")
       try {
@@ -5451,7 +5454,9 @@ SERVICE wikibase:label {
     let msg = "data was " + data.length + " bytes";
     const parse_start_time = new Date();
 
-    if ((typeof GreenerTurtle !== 'undefined' && GreenerTurtle !== null) && (this.turtle_parser === 'GreenerTurtle')) {
+    if ((typeof GreenerTurtle !== 'undefined'
+         && GreenerTurtle !== null)
+        && (this.turtle_parser === 'GreenerTurtle')) {
       this.G = new GreenerTurtle().parse(data, "text/turtle");
       console.log("GreenTurtle");
 
@@ -5521,7 +5526,10 @@ SERVICE wikibase:label {
     this.tick("Tick in choose_everything");
   }
 
-  remove_framing_quotes(s) { return s.replace(/^\"/,"").replace(/\"$/,""); }
+  remove_framing_quotes(s) {
+    return s.replace(/^\"/,"").replace(/\"$/,"");
+  }
+
   parseAndShowNQStreamer(uri, callback) {
     // turning a blob (data) into a stream
     //   http://stackoverflow.com/questions/4288759/asynchronous-for-cycle-in-javascript
@@ -5612,8 +5620,9 @@ SERVICE wikibase:label {
       //abort with message
       // NOTE This only catches URLs that do not have a valid file name;
       // nothing about actual file format
+      // TODO ext list should be data driven
       msg = `Could not load ${url}. The data file format is not supported! ` +
-            "Only accepts jsonld|nq|nquads|nt|n3|trig|ttl|rdf|xml extensions.";
+        "Only accepts jsonld|nq|nquads|nt|n3|trig|ttl|rdf|xml extensions.";
       this.hide_state_msg();
       this.blurt(msg, 'error');
       $('#'+this.get_data_ontology_display_id()).remove();
@@ -5915,7 +5924,8 @@ LIMIT ${node_limit}\
         const endpoint = this.endpoint_loader.value;
         this.dataset_loader.disable();
         this.ontology_loader.disable();
-        this.replace_loader_display_for_endpoint(endpoint, this.endpoint_loader.endpoint_graph);
+        this.replace_loader_display_for_endpoint(
+          endpoint, this.endpoint_loader.endpoint_graph);
         this.disable_go_button();
         this.big_go_button.hide();
         return this.after_file_loaded('sparql', callback);
@@ -6017,7 +6027,11 @@ LIMIT ${node_limit}\
         // will not be added again through add_quad.
         for (let snode of this.sparql_node_list) {
           //TODO - This filtering statement doesn't seem tight (Will not catch nodes that HuViz creates - that's okay I think)
-          if ((q.s === snode.s) && (q.p === snode.p) && (q.o.value === snode.o.value) && (q.o.type === snode.o.type) && (q.o.language === snode.o.language)) {
+          if ((q.s === snode.s)
+              && (q.p === snode.p)
+              && (q.o.value === snode.o.value)
+              && (q.o.type === snode.o.type)
+              && (q.o.language === snode.o.language)) {
             node_not_in_list = false;
             //console.log("Found it in list so will not send to add_quad")
             if ((snode.s === subject) || (snode.o.value === subject)) {//IF node is subject node IS already in list BUT fullly_loaded is false then set to true
@@ -6028,7 +6042,7 @@ LIMIT ${node_limit}\
                  }
               }
             }
-                   //console.log("Found node for #{subject} so making it fully_loaded")
+            //console.log("Found node for #{subject} so making it fully_loaded")
             //else if snode.o.value is subject
               //for a_node, i in @all_set
                 //console.log("compare: " + a_node.id + "   subject: " + subject)
@@ -6048,7 +6062,7 @@ LIMIT ${node_limit}\
         this.add_quad(q, subject);
       }
     }
-      //@dump_stats()
+    //this.dump_stats()
   }
 
   add_nodes_from_SPARQL_Worker(queryTarget, callback) {
@@ -6061,7 +6075,11 @@ LIMIT ${node_limit}\
 
     this.pfm_count('sparql');
     const url = this.endpoint_loader.value;
-    if (this.sparql_node_list) { previous_nodes = this.sparql_node_list; } else { previous_nodes = []; }
+    if (this.sparql_node_list) {
+      previous_nodes = this.sparql_node_list;
+    } else {
+      previous_nodes = [];
+    }
     const graph = this.endpoint_loader.endpoint_graph;
     let local_node_added = 0;
     const query_limit = 1000; //@endpoint_limit_JQElem.val()
@@ -6120,7 +6138,8 @@ LIMIT ${node_limit}\
 
   using_sparql() {
     // force the return of a boolan with "not not"
-    return !!((this.endpoint_loader != null) && this.endpoint_loader.value); // This is part of a sparql set
+    return !!((this.endpoint_loader != null)
+              && this.endpoint_loader.value); // This is part of a sparql set
   }
 
   outstanding_sparql_requests_are_capped() {
@@ -6134,7 +6153,8 @@ LIMIT ${node_limit}\
       if (!this.outstanding_sparql_requests_are_capped()) {
         this.endpoint_loader.outstanding_requests++;
         this.add_nodes_from_SPARQL_Worker(chosen.id, callback);
-        console.log("outstanding_requests: " + this.endpoint_loader.outstanding_requests);
+        console.log("outstanding_requests: " +
+                    this.endpoint_loader.outstanding_requests);
       } else {
         const msg = `SPARQL requests capped at ${maxReq}`;
         //@blurt(msg, 'alert')
@@ -6161,7 +6181,11 @@ LIMIT ${node_limit}\
 
   get_container_width(pad) {
     pad = pad || hpad;
-    const w_width = (this.container.clientWidth || window.innerWidth || document.documentElement.clientWidth || document.clientWidth) - pad;
+    const w_width = (
+      this.container.clientWidth
+        || window.innerWidth
+        || document.documentElement.clientWidth
+        || document.clientWidth) - pad;
     let tabs_width = 0;
     if (this.tabsJQElem && (this.tabsJQElem.length > 0)) {
       tabs_width = this.tabsJQElem.width();
@@ -6175,7 +6199,11 @@ LIMIT ${node_limit}\
   // Should be refactored to be get_container_height
   get_container_height(pad) {
     pad = pad || hpad;
-    this.height = (this.container.clientHeight || window.innerHeight || document.documentElement.clientHeight || document.clientHeight) - pad;
+    this.height = (
+      this.container.clientHeight
+        || window.innerHeight
+        || document.documentElement.clientHeight
+        || document.clientHeight) - pad;
     if (this.args.stay_square) {
       this.height = this.width;
     }
@@ -6318,7 +6346,9 @@ LIMIT ${node_limit}\
 
   // FIXME it looks like incl_discards is not needed and could be removed
   show_link(edge, incl_discards) {
-    if ((!incl_discards) && ((edge.target.state === this.discarded_set) || (edge.source.state === this.discarded_set))) {
+    if ((!incl_discards) &&
+        ((edge.target.state === this.discarded_set)
+         || (edge.source.state === this.discarded_set))) {
       return;
     }
     this.add_to(edge, edge.source.links_shown);
@@ -6362,12 +6392,14 @@ LIMIT ${node_limit}\
       this.shelved_set.acquire(node);
       this.unpin(node);
     }
-      //console.debug("update_state() had to @shelved_set.acquire(#{node.name})",node)
+    //console.debug("update_state() had to @shelved_set.acquire(#{node.name})",node)
     if ((node.state !== this.graphed_set) && (node.links_shown.length > 0)) {
       //console.debug("update_state() had to @graphed_set.acquire(#{node.name})",node)
       this.graphed_set.acquire(node);
     }
-    if ([this.discarded_set, this.hidden_set, this.shelved_set].includes(node.state)) {
+    if ([this.discarded_set,
+         this.hidden_set,
+         this.shelved_set].includes(node.state)) {
       this.remove_boxNG(node);
       if (node.focused_node) {
         this.set_focused_node();
@@ -6796,7 +6828,9 @@ LIMIT ${node_limit}\
     if (this.using_sparql() &&
          !chosen.fully_loaded &&
          !this.outstanding_sparql_requests_are_capped()) {
-      const callback_after_getting_neighbors = () => this.choose(chosen, callback_after_choosing);
+      const callback_after_getting_neighbors = () => {
+        this.choose(chosen, callback_after_choosing);
+      }
       this.get_neighbors_via_sparql(chosen, callback_after_getting_neighbors);
       return;
     }
