@@ -6065,7 +6065,7 @@ LIMIT ${node_limit}\
     //this.dump_stats()
   }
 
-  add_nodes_from_SPARQL_Worker(queryTarget, callback) {
+  add_nodes_from_SPARQL_Worker(queryTarget, cmd, callback) {
     let previous_nodes;
     console.log("Make request for new query and load nodes");
 
@@ -6146,13 +6146,13 @@ LIMIT ${node_limit}\
     return !(this.endpoint_loader.outstanding_requests < this.max_outstanding_sparql_requests);
   }
 
-  get_neighbors_via_sparql(chosen, callback) {
+  get_neighbors_via_sparql(chosen, cmd, callback) {
     if (!chosen.fully_loaded) {
       // If there are more than certain number of requests, stop the process
       const maxReq = this.max_outstanding_sparql_requests;
       if (!this.outstanding_sparql_requests_are_capped()) {
         this.endpoint_loader.outstanding_requests++;
-        this.add_nodes_from_SPARQL_Worker(chosen.id, callback);
+        this.add_nodes_from_SPARQL_Worker(chosen.id, cmd, callback);
         console.log("outstanding_requests: " +
                     this.endpoint_loader.outstanding_requests);
       } else {
@@ -6161,15 +6161,6 @@ LIMIT ${node_limit}\
         console.info(msg);
       }
     }
-        // if $("#blurtbox").html()
-        //   #console.log "Don't add error message " + message
-        //   console.log "Request counter (over): " + @endpoint_loader.outstanding_requests
-        // else
-        //   #console.log "Error message " + message
-        //   msg = "There are more than 300 requests in the que. Restricting process. " + message
-        //   @blurt(msg, 'alert')
-        //   message = true
-        //   console.log "Request counter: " + @endpoint_loader.outstanding_requests
   }
 
   // Deal with buggy situations where flashing the links on and off
@@ -6822,16 +6813,16 @@ LIMIT ${node_limit}\
     return suppressee;
   }
 
-  choose(chosen, callback_after_choosing) {
+  choose(chosen, cmd, callback_after_choosing) {
     // If this chosen node is part of a SPARQL query set and not fully loaded then
     // fully load it and try this method again, via callback.
     if (this.using_sparql() &&
          !chosen.fully_loaded &&
          !this.outstanding_sparql_requests_are_capped()) {
       const callback_after_getting_neighbors = () => {
-        this.choose(chosen, callback_after_choosing);
+        this.choose(chosen, cmd, callback_after_choosing);
       }
-      this.get_neighbors_via_sparql(chosen, callback_after_getting_neighbors);
+      this.get_neighbors_via_sparql(chosen, cmd, callback_after_getting_neighbors);
       return;
     }
 
@@ -6946,13 +6937,13 @@ LIMIT ${node_limit}\
     return this.walkBackTo(null);
   }
 
-  walk(nextStep) {
+  walk(nextStep, cmd) {
     let tooHairy = null;
     if (nextStep.walked) {
       // 1) if this node already in @walked_set then remove inwtervening nodes
       // ie it is already in the path so walk back to it
-      this.walkBackTo(nextStep); // stop displaying those old links
-      this.choose(nextStep);
+      this.walkBackTo(nextStep, cmd); // stop displaying those old links
+      this.choose(nextStep, cmd);
       return;
     }
 
@@ -6978,8 +6969,8 @@ LIMIT ${node_limit}\
     if (!nextStep.walked) { // It might already be in the path, if not...
       this.walked_set.add(nextStep); // add it
     }
-    this.choose(nextStep, do_after_chosen); // finally, choose nextStep to make it hairy
-
+    // finally, choose nextStep to make it hairy
+    this.choose(nextStep, cmd, do_after_chosen);
      // so the javascript is not cluttered with confusing nonsense
   }
 
@@ -9519,7 +9510,8 @@ LIMIT 20\
     this.add_search_node_quads();
     const search_node = this.all_set[0];
     // activate node
-    return this.choose(search_node, () => {
+    var mockCmd = {};
+    return this.choose(search_node, mockCmd, () => {
       this.label(search_node);
       return this.set_boxNG_editability(search_node, true);
     });

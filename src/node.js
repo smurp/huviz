@@ -22,6 +22,9 @@ export class Node {
   set_subject(s) {
     this.s = s;
   }
+  /*
+   * point() returns or sets and returns the current location
+   */
   point(point) {
     if (point != null) {
       this.x = point[0];
@@ -29,6 +32,9 @@ export class Node {
     }
     return [this.x,this.y];
   }
+  /*
+   * prev_point() returns or sets and returns the prior location
+   */
   prev_point(point) {
     if (point != null) {
       this.px = point[0];

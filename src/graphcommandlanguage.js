@@ -294,12 +294,12 @@ export class GraphCommand {
     return (this.regarding != null) && (this.regarding.length > 0);
   }
   execute() {
-    let iter, meth;
     this.huviz.show_state_msg(this.as_msg());
     this.huviz.d3simulation.stop();
     const regarding_required = this.regarding_required();
     const nodes = this.get_nodes();
-    console.log(`%c${this.str}`, "color:blue;font-size:1.5em;", `on ${nodes.length} nodes`);
+    console.log(`%c${this.str}`, "color:blue;font-size:1.5em;",
+                `on ${nodes.length} nodes`);
     const errorHandler = function(err_arg) {
       //alert("WOOT! command has executed")
       if (err_arg != null) {
@@ -310,12 +310,13 @@ export class GraphCommand {
         throw err_arg;
       }
     };
-      //else
-      //  console.log("DONE .execute()")
     if (regarding_required) {
-      for (meth of this.get_predicate_methods()) {
-        iter = (node) => {
+      for (let meth of this.get_predicate_methods()) {
+        let iter = (node) => {
           for (let pred of this.regarding) {
+            /*
+             * Verbs about predicates take a second argument: the predicate.
+             */
             const retval = meth.call(this.huviz, node, pred);
           }
           return this.huviz.tick();
@@ -331,40 +332,48 @@ export class GraphCommand {
     } else if (this.verbs[0] === 'query') {
       this.huviz.query_from_seeking_limit(this.sparqlQuery);
     } else {
-      for (meth of this.get_methods()) { // find the methods on huviz which implement each verb
+      for (let meth of this.get_methods()) { // find methods for the verbs
         var callback;
         if (meth.callback) {
-          ({
-            callback
-          } = meth);
+          callback = meth.callback;
         } else if (meth.build_callback) {
           callback = meth.build_callback(this, nodes);
         } else {
           callback = errorHandler;
         }
-        const {
-          atFirst
-        } = meth;
+        const { atFirst } = meth;
         if (atFirst != null) {
           atFirst(); // is called once before iterating through the nodes
         }
-        iter = (node) => {
-          let retval;
-          return retval = meth.call(this.huviz, node); // call the verb
+        let iter = (node) => {
+          /*
+           * Verbs about nodes take a second argument: the GraphCommand.
+           * TODO: convert ALL verbs (see regarding_required above) to take the
+           *       GraphCommand as the SECOND argument and
+           *       callback (if any) as the third argument
+           * Verbs which take a cmd (ie this) take it second
+           *   pin(node, cmd)
+           * Verbs which take a callback, take it last
+           *   choose(node, ignoreCmd, cb) takes a callback
+           * This permits verbs which take more arguments.
+           * Additional args are sent between the 2nd and the last.
+           */
+          return meth.call(this.huviz, node, this);
         };
-          //@huviz.tick() # TODO(smurp) move this out, or call every Nth node
+        //@huviz.tick() # TODO(smurp) move this out, or call every Nth node
         // REVIEW Must we check for nodes? Perhaps atLast dominates.
+        const cmd = this;
         if (nodes != null) {
           var USE_ASYNC;
           if (USE_ASYNC = false) {
             async.each(nodes, iter, callback);
           } else {
             for (let node of nodes) {
-              iter(node);
+              iter(node, cmd);
             }
-            this.huviz.gclui.set;
+            this.huviz.gclui.set; // REVIEW This is a noop. What was the intent?
             callback(); // atLast is called once, after the verb has been called on each node
-            this.huviz.tick(); // so commands caused by button presses get rendered
+            this.huviz.tick(); // force immediate rendering after each verb
           }
         }
       }
