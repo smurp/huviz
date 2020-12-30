@@ -1518,7 +1518,7 @@ Link details may not be accurate. Activate to load.</i>`; // """
       this.canvas.height = this.height;
     }
 
-    console.info("must implement d3v4 force.size");
+    //console.info("must implement d3v4 force.size");
     //@force.size [@mx, @my]
     if (!this.args.skip_log_tick) {
       console.log("Tick in @force.size() updateWindow");
@@ -2173,10 +2173,8 @@ with Shelved, Discarded, Graphed and Hidden.`;
     this.update_d3links();
     this.d3links = d3.forceLink().links(this.links_set);
     this.update_d3forceManyBody();
-    this.d3simulation.force('charge', this.d3forceManyBody);
     this.d3simulation.force('center', d3.forceCenter(this.width/2,this.height/2));
     this.d3simulation.force('link', this.d3links);
-    //@d3simulation.forceCollide(() => 20)
 
     if (!this.args.skip_log_tick) {
       console.log("Tick in @force.nodes() reset_graph");
@@ -2778,14 +2776,15 @@ with Shelved, Discarded, Graphed and Hidden.`;
         //e.target.fisheye = @fisheye(e.target)  unless e.target.fisheye
         if (!e.gl) { this.add_webgl_line(e); }
         const l = e.gl;
-
         //
         //	  if (e.source.fisheye.x != e.target.fisheye.x &&
         //	      e.source.fisheye.y != e.target.fisheye.y){
         //	      alert(e.id + " edge has a length");
         //	  }
         //
-        this.mv_line(l, e.source.fisheye.x, e.source.fisheye.y, e.target.fisheye.x, e.target.fisheye.y);
+        this.mv_line(l,
+                     e.source.fisheye.x, e.source.fisheye.y,
+                     e.target.fisheye.x, e.target.fisheye.y);
         return this.dump_line(l);
       });
     }
