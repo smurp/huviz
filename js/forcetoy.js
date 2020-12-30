@@ -50,18 +50,10 @@ function updateLinks() {
   u.enter()
     .append('line')
     .merge(u)
-    .attr('x1', function(d) {
-      return d.source.x
-    })
-    .attr('y1', function(d) {
-      return d.source.y
-    })
-    .attr('x2', function(d) {
-      return d.target.x
-    })
-    .attr('y2', function(d) {
-      return d.target.y
-    })
+    .attr('x1', (d) => d.source.x)
+    .attr('y1', (d) => d.source.y)
+    .attr('x2', (d) => d.target.x)
+    .attr('y2', (d) => d.target.y)
   u.exit().remove()
 }
 
@@ -72,19 +64,11 @@ function updateNodes() {
 
   u.enter()
     .append('text')
-    .text(function(d) {
-      return d.name
-    })
+    .text((d) => d.name)
     .merge(u)
-    .attr('x', function(d) {
-      return d.x
-    })
-    .attr('y', function(d) {
-      return d.y
-    })
-    .attr('dy', function(d) {
-      return 5
-    })
+    .attr('x', (d) => d.x)
+    .attr('y', (d) => d.y)
+    .attr('dy', (d) => 5)
   u.exit().remove()
 }
 
