@@ -99,6 +99,7 @@ export const DEFAULT_SETTINGS = [
     //    type: "range"
   //,
     charge: {
+      class: "deprecated_feature",
       group: "Layout",
       text: "charge (-)",
       label: {
@@ -131,10 +132,78 @@ export const DEFAULT_SETTINGS = [
     }
   }
   , {
+    linkDistance: {
+      group: "Layout",
+      html_text: '<a href="https://github.com/d3/d3-force#link_distance" target="extDocs">link distance</a> ',
+      class: "alpha_feature",
+      label: {
+        title: "Link distance as proportion of the minimum window radius."
+      },
+      input: {
+        value: .1,
+        min: .01,
+        max: 1,
+        step: 0.01,
+        type: "range"
+      }
+    }
+  }
+  , {
+    linkStrength: {
+      group: "Layout",
+      html_text: '<a href="https://github.com/d3/d3-force#link_strength" target="extDocs">link strength</a> ',
+      class: "alpha_feature",
+      label: {
+        title: "Link strength ?????."
+      },
+      input: {
+        value: .8,
+        min: 0,
+        max: 2,
+        step: 0.02,
+        type: "range"
+      }
+    }
+  }
+  , {
+    collideRadiusFactor: {
+      group: "Layout",
+      html_text: '<a href="https://github.com/d3/d3-force#collide_radius" target="extDocs">collide radius</a> ',
+      class: "alpha_feature",
+      label: {
+        title: "Collide radius as a factor of node radius."
+      },
+      input: {
+        value: 2,
+        min: 1,
+        max: 5,
+        step: 0.2,
+        type: "range"
+      }
+    }
+  }
+  , {
+    collideStrength: {
+      group: "Layout",
+      html_text: '<a href="https://github.com/d3/d3-force#collide_strength" target="extDocs">collide strength</a> ',
+      class: "alpha_feature",
+      label: {
+        title: "Collide strength."
+      },
+      input: {
+        value: .5,
+        min: 0,
+        max: 1,
+        step: 0.02,
+        type: "range"
+      }
+    }
+  }
+  , {
     distanceMax: {
+      class: "deprecated_feature",
       group: "Layout",
       text: "distanceMax scaled",
-      class: "alpha_feature",
       label: {
         title: "The maximum distance between nodes."
       },
@@ -247,6 +316,7 @@ export const DEFAULT_SETTINGS = [
     link_distance: {
       group: "Layout",
       text: "link distance",
+      class: "deprecated_feature",
       label: {
         title: "how long the lines are"
       },
