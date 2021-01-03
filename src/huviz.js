@@ -1517,7 +1517,9 @@ Link details may not be accurate. Activate to load.</i>`; // """
       this.canvas.width = this.width;
       this.canvas.height = this.height;
     }
-
+    if (this.d3forceCenter) {
+      this.d3forceCenter = this.update_d3forceCenter();
+    }
     //console.info("must implement d3v4 force.size");
     //@force.size [@mx, @my]
     if (!this.args.skip_log_tick) {
@@ -1657,7 +1659,9 @@ Link details may not be accurate. Activate to load.</i>`; // """
     let start_angle = 0;
     for (let filclr of filclrs) {
       const end_angle = start_angle + arc;
-      this.draw_circle(cx, cy, radius, strclr, filclr, end_angle, start_angle, special_focus);
+      this.draw_circle(cx, cy, radius,
+                       strclr, filclr,
+                       end_angle, start_angle, special_focus);
       start_angle = start_angle + arc;
     }
   }
@@ -1761,7 +1765,10 @@ Link details may not be accurate. Activate to load.</i>`; // """
     const start_angle = 0;
     const end_angle = 0;
     const special_focus = false;
-    this.draw_circle(cx2, cy2, arw_radius, strclr, filclr, start_angle, end_angle, special_focus);
+    // REVIEW do start_angle and end_angle differ in order from other invocations?
+    this.draw_circle(cx2, cy2, arw_radius,
+                     strclr, filclr,
+                     start_angle, end_angle, special_focus);
 
     const x_arrow_offset = Math.cos(arw_angle) * this.calc_node_radius(e.source);
     const y_arrow_offset = Math.sin(arw_angle) * this.calc_node_radius(e.source);
@@ -1803,14 +1810,16 @@ Link details may not be accurate. Activate to load.</i>`; // """
   draw_disconnect_dropzone() {
     this.ctx.save();
     this.ctx.lineWidth = this.graph_radius * 0.1;
-    this.draw_circle(this.lariat_center[0], this.lariat_center[1], this.graph_radius, this.renderStyles.shelfColor);
+    this.draw_circle(this.lariat_center[0], this.lariat_center[1], this.graph_radius,
+                     this.renderStyles.shelfColor);
     this.ctx.restore();
   }
 
   draw_discard_dropzone() {
     this.ctx.save();
     this.ctx.lineWidth = this.discard_radius * 0.1;
-    this.draw_circle(this.discard_center[0], this.discard_center[1], this.discard_radius, "", this.renderStyles.discardColor);
+    this.draw_circle(this.discard_center[0], this.discard_center[1],
+                     this.discard_radius, "", this.renderStyles.discardColor);
     this.ctx.restore();
   }
 
@@ -2200,10 +2209,15 @@ with Shelved, Discarded, Graphed and Hidden.`;
     // https://github.com/d3/d3-force#centering
     var force = null;
     if (use) {
-      force = d3.forceCenter(this.width/2, this.height/2);
+      force = this.update_d3forceCenter();
     }
     this.d3forceCenter = force;
     this.d3simulation.force('center', force);
+  }
+
+  update_d3forceCenter() {
+    //return d3.forceCenter(this.width/2, this.height/2);
+    return d3.forceCenter(this.cx, this.cy);
   }
 
   use_d3forceCollide(use = true) {
@@ -6794,6 +6808,15 @@ LIMIT ${node_limit}\
     this.labelled_set.remove(anonymized);
   }
 
+  /*
+    Called with node but no point unfixes the point.
+    // https://github.com/d3/d3-force#simulation_nodes
+   */
+  fix_at_point(node, point = []) {
+    node.fx = point[0]
+    node.fy = point[1]
+  }
+
   get_point_from_polar_coords(polar) {
     const {range, degrees} = polar;
     const radians = (2 * Math.PI * (degrees - 90)) / 360;
@@ -6805,7 +6828,8 @@ LIMIT ${node_limit}\
     if (node.state === this.graphed_set) {
       if ((cmd != null) && cmd.polar_coords) {
         const pin_point = this.get_point_from_polar_coords(cmd.polar_coords);
-        node.prev_point(pin_point);
+        node.prev_point(pin_point); // REVIEW why? perhaps not needed in D3V5+
+        this.fix_at_point(node, pin_point);
       }
       this.pinned_set.add(node);
       return true;
@@ -6817,6 +6841,7 @@ LIMIT ${node_limit}\
     // delete node.pinned_only_while_chosen # do it here in case of direct unpinning
     if (node.fixed) {
       this.pinned_set.remove(node);
+      this.fix_at_point(node); // empty set represents no point
       return true;
     }
     return false;
