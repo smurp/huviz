@@ -500,7 +500,7 @@
   height: clamp(2rem, 15vh, 8rem);
 }
 .shrunk .commandhistory {
-  height: 2em;
+  height: 2.8em;
 }
 .grow_shrink_history {
   float: right;
