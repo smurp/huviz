@@ -199,7 +199,7 @@ ${ctxSel}#${id}.treepicker-indirect-mixed.treepicker-collapse {
     if (colors != null) {
       return colors[state_name];
     }
-    console.warn("no colors found for id: " + id);
+    console.debug("no colors found for id: " + id);
   }
   click_handler() {
     const id = super.click_handler();
