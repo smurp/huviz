@@ -1095,7 +1095,7 @@ of the classes indicated.`,
     } else {
       this.nextcommand = this.nextcommandbox.append('div');
     }
-    this.nextcommand.attr('class','nextcommand command');
+    this.nextcommand.attr('class','nextcommand command inset_shadow');
     // Where the full command string to appear as plain text, eg:
     //    "____ every Thing."
     //    "shelve every Person."
