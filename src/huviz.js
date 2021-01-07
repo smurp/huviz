@@ -3435,7 +3435,8 @@ with Shelved, Discarded, Graphed and Hidden.`;
   }
 
   is_in_viewport(node) {
-    return (0 < node.fisheye.x && node.fisheye.x < this.width) && (0 < node.fisheye.y && node.fisheye.y < this.height);
+    return (0 < node.fisheye.x && node.fisheye.x < this.width)
+      && (0 < node.fisheye.y && node.fisheye.y < this.height);
   }
 
   set_boxNG_editability(node, truth) {
@@ -3465,8 +3466,10 @@ with Shelved, Discarded, Graphed and Hidden.`;
           if (!node.bub_txt.length || result) {
             this.get_label_attributes(node);
           }
-          const line_height = node.bub_txt[2];  // Line height calculated from text size ?
-          const adjust_x = (node.bub_txt[0] / 2) - (line_height/2);// Location of first line of text
+          // Line height calculated from text size ?
+          const line_height = node.bub_txt[2];
+          // Location of first line of text
+          const adjust_x = (node.bub_txt[0] / 2) - (line_height/2);
           let adjust_y = (node.bub_txt[1] / 2) - line_height;
           const pill_width = node.bub_txt[0]; // box size
           const pill_height = node.bub_txt[1];
@@ -3484,7 +3487,9 @@ with Shelved, Discarded, Graphed and Hidden.`;
             ctx.lineWidth = 1;
             fill = "white";
           }
-          this.rounded_rectangle(x, y, pill_width, pill_height, radius, fill, outline, alpha);
+          this.rounded_rectangle(x, y,
+                                 pill_width, pill_height,
+                                 radius, fill, outline, alpha);
           ctx.fillStyle = "#000";
           // Paint multi-line text
           let text = node.pretty_name;
@@ -3494,7 +3499,9 @@ with Shelved, Discarded, Graphed and Hidden.`;
           for (let i = 0; i < text_split.length; i++) {
             text = text_split[i];
             if (cuts && cuts.includes(i)) {
-              ctx.fillText(print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y);
+              ctx.fillText(print_label.slice(0,-1),
+                           node.fisheye.x - adjust_x,
+                           node.fisheye.y - adjust_y);
               adjust_y = adjust_y - line_height;
               print_label = text + " ";
             } else {
@@ -3502,7 +3509,9 @@ with Shelved, Discarded, Graphed and Hidden.`;
             }
           }
           if (print_label) { // print last line, or single line if no cuts
-            ctx.fillText(print_label.slice(0,-1), node.fisheye.x - adjust_x, node.fisheye.y - adjust_y);
+            ctx.fillText(print_label.slice(0,-1),
+                         node.fisheye.x - adjust_x,
+                         node.fisheye.y - adjust_y);
           }
         } else if (this.should_display_labels_as('boxNGs')) {
           this.update_boxNG(node);
@@ -3512,10 +3521,13 @@ with Shelved, Discarded, Graphed and Hidden.`;
             const cart_label = node.pretty_name;
             ctx.measureText(cart_label).width; //forces proper label measurement (?)
             if (this.paint_label_dropshadows) {
-              this.paint_dropshadow(cart_label, focused_font_size, node.fisheye.x, node.fisheye.y);
+              this.paint_dropshadow(cart_label, focused_font_size,
+                                    node.fisheye.x,
+                                    node.fisheye.y);
             }
           }
-          ctx.fillStyle = node.color; // This is the mouseover highlight color when GRAPHED
+          // This is the mouseover highlight color when GRAPHED
+          ctx.fillStyle = node.color;
           ctx.font = focused_font;
           ctx.fillText("  " + node.pretty_name + "  ", node.fisheye.x, node.fisheye.y);
         }
