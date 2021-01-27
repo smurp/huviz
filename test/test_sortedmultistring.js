@@ -1,10 +1,13 @@
 "use strict";
 
-var chai = require("chai");
-var expect = chai.expect;
+import chai from 'chai';
+const {
+  expect
+} = chai;
 
-var MultiString = require('../js/multistring').MultiString;
-var SortedSet = require('../js/sortedset').SortedSet;
+
+import {MultiString} from '../src/multistring.js';
+import {SortedSet} from '../src/sortedset.js';
 
 var as_labels = function(acc, obj) {
   //console.error("acc:",acc,"obj:",obj);

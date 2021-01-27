@@ -5,7 +5,6 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 
-//const chai = require("chai");
 import chai from 'chai';
 const {
   expect

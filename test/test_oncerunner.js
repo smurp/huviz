@@ -1,9 +1,10 @@
 "use strict";
+import chai from 'chai';
+const {
+  expect
+} = chai;
 
-var chai = require('chai');
-var expect = chai.expect;
-
-var OnceRunner = require('../js/oncerunner').OnceRunner;
+import {OnceRunner} from '../src/oncerunner.js';
 
 describe('OnceRunner', function() {
   it("clears superceded call attempts", function(done) {
