@@ -27,6 +27,7 @@
     "d3": "~5.15.0",
     "ejs": "2.6.1",
     "express": "~4.17.1",
+    "express-fileupload": "^1.2.1",
     "jquery": ">=3.4.0",
     "jquery-simulate-ext": "1.3.0",
     "jsoutline": "git://github.com/smurp/jsoutline.git",
@@ -57,9 +58,11 @@
     "watch:dev": "onchange -i -k server.js lib/huviz.js package.json -- npm start",
     "watch:js": "onchange --await-write-finish 2000 'src/*.js' package.json -- npm run build",
     "PAUSED:watch:test": "onchange 'lib/huviz.js' -- npm test",
-    "watch": "npm-run-all --parallel watch:*",
     "start": "node server.js --git_commit_hash `git log --format=\"%h\" -n 1` --git_branch_name `git rev-parse --abbrev-ref HEAD`",
-    "test": "mocha --reporter dot",
+    "test": "mocha --reporter spec",
+    "watch": "npm-run-all --parallel watch:*",
+    "watchTest": "onchange -i -k server lib/huviz.js package.json test/* -- npm run test",
+    "watchTestFSM": "onchange -i -k server lib/huviz.js package.json test/* -- npm run test -- --grep FiniteState",
     "DEPRECATED:buildSrcDocs": "npx docco -o srcdocs  server.coffee src/*.coffee | node bin/make_srcdocs_index.js > srcdocs/index.md && npx marked srcdocs/index.md > srcdocs/index.html"
   }
 }

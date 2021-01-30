@@ -42,6 +42,29 @@ describe("FiniteStateMachine", function() {
   }
   MyFSM.initClass();
 
+  class TTLFSM extends FiniteStateMachine {
+    constructor() {
+      super();
+      var ttl = `
+         @prefix st: <https://example.com/state/> .
+         @prefix st: <https://example.com/transition/> .
+
+         st:        tr:start     st:noVid .
+         st:noVid   tr:mouseover st:inVid .
+         #st:inVid   tr:mousedown st:noVid .
+         st:inVid   tr:mousedown st:adjBeg .
+         st:adjBeg  tr:mousemove st:adjBeg .
+         st:adjBeg  tr:mouseup   st:haveBeg .
+         st:haveBeg tr:mousedown st:adjEnd .
+         st:adjEnd  tr:mousemove st:adjEnd .
+         st:adjEnd  tr:mouseup   st:haveBegEnd .
+       `;
+      this.trace = [];
+      this.parseMachineTTL(ttl);
+    }
+  }
+
+/*
   it("runs transition and state methods", function() {
     const fsm = new MyFSM(1);
     fsm.trace = [];
@@ -59,11 +82,36 @@ describe("FiniteStateMachine", function() {
     fsm.throw_log_or_ignore = 'throw';
     expect(() => fsm.transit('MISSING')).to.throw('MyFSM has no transition with id MISSING');
   });
-  return it("can throw errors when no handling happens", function() {
+  it("can throw errors when no handling happens", function() {
     const fsm = new MyFSM(1);
     fsm.transitions.hasNoHandlers = {target: 'Erewhon'};
     fsm.throw_log_or_ignore = 'throw';
     const func = () => fsm.transit('hasNoHandlers');
     expect(func).to.throw('MyFSM had neither on__hasNoHandlers exit__undefined or enter__Erewhon');
+  });
+*/
+
+  it("can build machines from TTL specifications", function() {
+    const fsm = new TTLFSM();
+    const actualStates = new Set(Object.keys(fsm._states));
+    expect(actualStates).to.have.all.keys(
+      'st_', 'st_noVid', 'st_inVid', 'st_adjBeg', 'st_haveBeg', 'st_adjEnd');
+  });
+  it("starts on state st_ by default", () => {
+    const fsm = new TTLFSM();
+    expect(fsm.get_state()).to.equal('st_');
+  });
+  it("steps through transitions deterministically", () => {
+    const fsm = new TTLFSM();
+    fsm.transit('tr_start');
+    expect(fsm.get_state()).to.equal('st_noVid');
+    fsm.transit('tr_mouseover');
+    fsm.transit('tr_mousedown');
+    fsm.transit('tr_mousemove');
+    fsm.transit('tr_mouseup');
+    fsm.transit('tr_mousedown');
+    fsm.transit('tr_mousemove');
+    fsm.transit('tr_mouseup');
+    expect(fsm.get_state()).to.equal('st_haveBegEnd');
   });
 });

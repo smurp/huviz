@@ -24,6 +24,21 @@ export class EditController extends FiniteStateMachine {
   }
 
   build_transitions() {
+    /*
+      This state machine is under construction and currently incoherent.
+      This TTL is an attempt to re-express the legacy .transitions
+     */
+    var ttl = `
+         @prefix st: <https://example.com/state/> .
+         @prefix st: <https://example.com/transition/> .
+
+         st:              tr:start     st:not_editing .
+         st:not_editing   tr:enable    st:prepared .
+         st:enabled       tr:disable   st:disabled .
+         st:MYSTERY       tr:prepare   st:prepared .
+    `;
+    this.parseMachineTTL(ttl);
+    /*
     this.transitions = {
       start: {
         target: 'not_editing',
@@ -38,9 +53,10 @@ export class EditController extends FiniteStateMachine {
         target: 'prepared'
       }
     };
+    */
   }
 
-  on__prepare() {
+  on__tr_prepare() {
     if ((this.userValid === true) && !this.con) { //document.getElementsByClassName("edit-controls")[0] is undefined
       this.con = document.createElement("div");
       this.con.className = "edit-controls loggedIn";
@@ -70,22 +86,20 @@ export class EditController extends FiniteStateMachine {
       this.object_input = this.formFields[2];
     }
   }
+  on__tr_disable() {
+    this.hide_verbs();
+    this.hide_form();
+  }
+  on__tr_enable() {
+    this.show_verbs();
+    this.show_form();
+  }
 
   hide() {
     $(this.con).hide();
   }
   show() {
     $(this.con).show();
-  }
-
-  on__disable() {
-    this.hide_verbs();
-    this.hide_form();
-  }
-
-  on__enable() {
-    this.show_verbs();
-    this.show_form();
   }
 
   get_verb_set() {
