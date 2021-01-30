@@ -56,7 +56,7 @@ export class EditController extends FiniteStateMachine {
     */
   }
 
-  on__tr_prepare() {
+  on__prepare() {
     if ((this.userValid === true) && !this.con) { //document.getElementsByClassName("edit-controls")[0] is undefined
       this.con = document.createElement("div");
       this.con.className = "edit-controls loggedIn";
@@ -86,11 +86,11 @@ export class EditController extends FiniteStateMachine {
       this.object_input = this.formFields[2];
     }
   }
-  on__tr_disable() {
+  on__disable() {
     this.hide_verbs();
     this.hide_form();
   }
-  on__tr_enable() {
+  on__enable() {
     this.show_verbs();
     this.show_form();
   }

@@ -21,7 +21,7 @@ function strip(s) {
 
 // https://stackoverflow.com/a/42250080  a Mixin strategy
 export class FiniteStateMachine {
-  parseMachineTTL(ttl, defaultFirstStateId = 'st_') {
+  parseMachineTTL(ttl, defaultFirstStateId = '') {
     /*
      * This is not a fully general TTL parser.
      * It expects
@@ -57,14 +57,16 @@ export class FiniteStateMachine {
       if (!line.length || line.startsWith('@')) { return }
       var match = line.match(
         /^(?<subj>st:\w*)\s+(?<pred>tr:\w+)\s+(?<obj>st:\w*)\s*\.$/);
+      //console.log({line, match});
       if (match && match.length) {
         var trx = match.groups;
-        var fromStateId = trx.subj.replace(':','_');
-        firstStateId = firstStateId || fromStateId;
-        var transId = trx.pred.replace(':','_');
-        var toStateId = trx.obj.replace(':','_');
+        var fromStateId = trx.subj.replace('st:', '');
+        if (firstStateId == undefined) {
+          firstStateId = fromStateId;
+        }
+        var transId = trx.pred.replace('tr:','');
+        var toStateId = trx.obj.replace('st:','');
         var fromStateObj = this.get_or_create_state(fromStateId);
-        //console.log({line, fromStateId, transId, toStateId});
         if (fromStateObj[transId]) {
           throw new Error([`${fromStateId}-${transId}-${toStateId}`,
                            `COLLIDES WITH`,
@@ -77,6 +79,7 @@ export class FiniteStateMachine {
     if (firstStateId != defaultFirstStateId) {
       console.warn(`${firstStateId} <> ${defaultFirstStateId}`);
     }
+    //console.log(`ABOUT TO INIT STATE using set_state('${firstStateId}')`)
     this.set_state(firstStateId);
   }
   get_or_create_state(state_id, returnCreated=false) {

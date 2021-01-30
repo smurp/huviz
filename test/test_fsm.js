@@ -95,23 +95,23 @@ describe("FiniteStateMachine", function() {
     const fsm = new TTLFSM();
     const actualStates = new Set(Object.keys(fsm._states));
     expect(actualStates).to.have.all.keys(
-      'st_', 'st_noVid', 'st_inVid', 'st_adjBeg', 'st_haveBeg', 'st_adjEnd');
+      '', 'noVid', 'inVid', 'adjBeg', 'haveBeg', 'adjEnd');
   });
-  it("starts on state st_ by default", () => {
+  it("starts on state '' by default", () => {
     const fsm = new TTLFSM();
-    expect(fsm.get_state()).to.equal('st_');
+    expect(fsm.get_state()).to.equal('');
   });
   it("steps through transitions deterministically", () => {
     const fsm = new TTLFSM();
-    fsm.transit('tr_start');
-    expect(fsm.get_state()).to.equal('st_noVid');
-    fsm.transit('tr_mouseover');
-    fsm.transit('tr_mousedown');
-    fsm.transit('tr_mousemove');
-    fsm.transit('tr_mouseup');
-    fsm.transit('tr_mousedown');
-    fsm.transit('tr_mousemove');
-    fsm.transit('tr_mouseup');
-    expect(fsm.get_state()).to.equal('st_haveBegEnd');
+    fsm.transit('start');
+    expect(fsm.get_state()).to.equal('noVid');    expect(fsm.get_state()).to.equal('noVid');
+    fsm.transit('mouseover');
+    fsm.transit('mousedown');
+    fsm.transit('mousemove');
+    fsm.transit('mouseup');
+    fsm.transit('mousedown');
+    fsm.transit('mousemove');
+    fsm.transit('mouseup');
+    expect(fsm.get_state()).to.equal('haveBegEnd');
   });
 });
