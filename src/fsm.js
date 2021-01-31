@@ -10,7 +10,7 @@
 
  All three kinds of methods are optional.  If no method of any kind is found
  during a transition then a message is either thrown, logged or ignored based
- on the value of this.throw_log_or_ignore
+ on the value of this.throw_or_return
 
  If there is an array at this.trace then the names of the method are pushed
  onto it as they are called.
@@ -57,7 +57,6 @@ export class FiniteStateMachine {
       if (!line.length || line.startsWith('@')) { return }
       var match = line.match(
         /^(?<subj>st:\w*)\s+(?<pred>tr:\w+)\s+(?<obj>st:\w*)\s*\.$/);
-      //console.log({line, match});
       if (match && match.length) {
         var trx = match.groups;
         var fromStateId = trx.subj.replace('st:', '');
@@ -80,7 +79,7 @@ export class FiniteStateMachine {
       console.warn(`${firstStateId} <> ${defaultFirstStateId}`);
     }
     //console.log(`ABOUT TO INIT STATE using set_state('${firstStateId}')`)
-    this.set_state(firstStateId);
+    this.set_state(firstStateId); // normally '' but could be something else
   }
   get_or_create_state(state_id, returnCreated=false) {
     this.ensure_states();
@@ -137,12 +136,15 @@ export class FiniteStateMachine {
     return this.constructor.name + " had neither " +
            `on__${trans_id} exit__${old_state} or enter__${new_state}`;
   }
-  throw_log_or_ignore_msg(msg) {
-    const throw_log_or_ignore = this.throw_log_or_ignore || 'ignore';
-    if (throw_log_or_ignore === 'throw') {
+  throw_or_return_msg(msg) {
+    const throw_or_return = this.throw_or_return || 'return';
+    if (throw_or_return === 'throw') {
       throw new Error(msg);
-    } else if (throw_log_or_ignore === 'log') {
-      console.warn(msg);
+    } else if (throw_or_return.startsWith('return')) {
+      if (throw_or_return == 'returnAndWarn') {
+        console.warn(msg);
+      }
+      return msg;
     }
   }
   transit(transId) {
@@ -155,19 +157,26 @@ export class FiniteStateMachine {
     var currentStateId = this.get_state();
     var currentStateObj = this._states[currentStateId];
     if (currentStateObj) {
-      let called = this.exit_state();  // call exit__<currentStateId> if it exists
-      called = this.call_method_by_name('on__'+transId) || called; // call on__<transId> if it exists
       var targetStateId = currentStateObj[transId];
       if (!targetStateId) {
-        this.throw_log_or_ignore_msg(`${this.constructor.name} has no state with id ${currentStateId}`);
+        return this.throw_or_return_msg(
+          `${currentStateId} has no transition with id ${transId}`);
       }
-      called = this.set_state(targetStateId) || called;  // call exit__<targetStateId>
+      // call exit__<currentStateId> if it exists
+      let called = this.exit_state();
+      // call on__<transId> if it exists
+      called = this.call_method_by_name('on__'+transId) || called;
+      // call exit__<targetStateId>
+      called = this.set_state(targetStateId) || called;
       if (!called) {
         const msg = this.make_noop_msg(transId, currentStateId, targetStateId);
-        this.throw_log_or_ignore_msg(msg);
+        return this.throw_or_return_msg(msg);
       }
+      return called;
     } else {
-      this.throw_log_or_ignore_msg(`${this.constructor.name} has no state with id ${currentStateId}`);
+      this.throw_or_return_msg(
+        `${this.constructor.name} has no state with id ${currentStateId}`);
     }
+
   }
 }

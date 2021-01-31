@@ -15,7 +15,7 @@ import {FiniteStateMachine} from '../src/fsm.js';
 describe("FiniteStateMachine", function() {
   class MyFSM extends FiniteStateMachine {
     static initClass() {
-      this.prototype.throw_log_or_ignore = 'ignore';
+      this.prototype.throw_or_return = 'ignore';
       this.prototype.trace = true;
       this.prototype.transitions = {
         prepare: {
@@ -79,13 +79,13 @@ describe("FiniteStateMachine", function() {
   });
   it("can throw errors for missing transitions", function() {
     const fsm = new MyFSM(1);
-    fsm.throw_log_or_ignore = 'throw';
+    fsm.throw_or_return = 'throw';
     expect(() => fsm.transit('MISSING')).to.throw('MyFSM has no transition with id MISSING');
   });
   it("can throw errors when no handling happens", function() {
     const fsm = new MyFSM(1);
     fsm.transitions.hasNoHandlers = {target: 'Erewhon'};
-    fsm.throw_log_or_ignore = 'throw';
+    fsm.throw_or_return = 'throw';
     const func = () => fsm.transit('hasNoHandlers');
     expect(func).to.throw('MyFSM had neither on__hasNoHandlers exit__undefined or enter__Erewhon');
   });
@@ -104,7 +104,7 @@ describe("FiniteStateMachine", function() {
   it("steps through transitions deterministically", () => {
     const fsm = new TTLFSM();
     fsm.transit('start');
-    expect(fsm.get_state()).to.equal('noVid');    expect(fsm.get_state()).to.equal('noVid');
+    expect(fsm.get_state()).to.equal('noVid');
     fsm.transit('mouseover');
     fsm.transit('mousedown');
     fsm.transit('mousemove');
@@ -113,5 +113,12 @@ describe("FiniteStateMachine", function() {
     fsm.transit('mousemove');
     fsm.transit('mouseup');
     expect(fsm.get_state()).to.equal('haveBegEnd');
+  });
+  it("transit() returns message if invalid transition is attempted", () => {
+    const fsm = new TTLFSM();
+    fsm.transit('start');
+    expect(fsm.get_state()).to.equal('noVid');
+    fsm.transit('mouseover');
+    expect(fsm.transit('BOGUS')).to.equal("inVid has no transition with id BOGUS");
   });
 });
