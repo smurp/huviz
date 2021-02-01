@@ -1,3 +1,4 @@
+
 /*
  * decaffeinate suggestions:
  * DS102: Remove unnecessary code created because of implicit returns
@@ -121,4 +122,19 @@ describe("FiniteStateMachine", function() {
     fsm.transit('mouseover');
     expect(fsm.transit('BOGUS')).to.equal("inVid has no transition with id BOGUS");
   });
+  it("passes events to state and transition handlers", () => {
+    class TrackerFSM extends TTLFSM {
+      exit__inVid   (evt) {evt.tour += " exit"}
+      on__mousedown (evt) {evt.tour += " mousedown"}
+      enter__adjBeg (evt) {evt.tour += " enter"}
+    }
+    const fsm = new TrackerFSM();
+    fsm.transit('start');
+    expect(fsm.get_state()).to.equal('noVid');
+    fsm.transit('mouseover');
+    var payload = {tour: 'mousedown'};
+    fsm.transit('mousedown', payload);
+    expect(payload.tour).to.equal("mousedown exit mousedown enter");
+  });
+
 });

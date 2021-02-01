@@ -4,9 +4,10 @@
  It supports optional methods for every transition and for become/leav a state.
 
  There are three kinds of methods:
- 1. on__TRANSITID called upon the commencement of the transition
- 2. exit__STATEID called when leaving a state
- 3. enter__STATEID called when becoming a state
+
+ 1. exit__STATEID called when leaving the old state
+ 2. on__TRANSITID called between exit__oldStateId and enter__newStateId
+ 3. enter__STATEID called when becoming the new state
 
  All three kinds of methods are optional.  If no method of any kind is found
  during a transition then a message is either thrown, logged or ignored based
@@ -100,11 +101,11 @@ export class FiniteStateMachine {
       this._states = {};
     }
   }
-  call_method_by_name(meth_name) {
+  call_method_by_name(meth_name, evt) {
     let meth;
     if (meth = this[meth_name]) {
     //if (meth = Reflect.get(this, meth_name))
-      meth.call(this);
+      meth.call(this, evt);
       if (this.trace) {
         this.trace.push(meth_name + ' called');
       }
@@ -116,15 +117,15 @@ export class FiniteStateMachine {
     }
     return false;
   }
-  set_state(state) {
+  set_state(state, evt) {
     // call a method when arriving at the new state, if it exists
-    const called = this.call_method_by_name('enter__' + state);
-    this.state = state; // set after calling meth_name so the old state is available to it
+    const called = this.call_method_by_name('enter__' + state, evt);
+    this.state = state; // set after calling meth_name so the old state is avail
     return called;
   }
-  exit_state() {
+  exit_state(evt) {
     // call a method when leaving the old state, if it exists
-    return this.call_method_by_name('exit__' + this.state);
+    return this.call_method_by_name('exit__' + this.state, evt);
   }
   get_state() {
     return this.state;
@@ -147,7 +148,7 @@ export class FiniteStateMachine {
       return msg;
     }
   }
-  transit(transId) {
+  transit(transId, evt) {
     /*
       Call methods (if they exist) in the order:
       1) exit__<currentStateId>
@@ -163,11 +164,11 @@ export class FiniteStateMachine {
           `${currentStateId} has no transition with id ${transId}`);
       }
       // call exit__<currentStateId> if it exists
-      let called = this.exit_state();
+      let called = this.exit_state(evt);
       // call on__<transId> if it exists
-      called = this.call_method_by_name('on__'+transId) || called;
+      called = this.call_method_by_name('on__'+transId, evt) || called;
       // call exit__<targetStateId>
-      called = this.set_state(targetStateId) || called;
+      called = this.set_state(targetStateId, evt) || called;
       if (!called) {
         const msg = this.make_noop_msg(transId, currentStateId, targetStateId);
         return this.throw_or_return_msg(msg);
