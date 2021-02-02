@@ -65,6 +65,16 @@ describe("FiniteStateMachine", function() {
     }
   }
 
+  class TrackerFSM extends TTLFSM {
+    exit__inVid             (evt) {evt.tour += " exit"}
+    on__mousedown           (evt) {evt.tour += " on"}
+    enter__adjBeg           (evt) {evt.tour += " enter"}
+  }
+
+  class WhenFSM extends TrackerFSM {
+      when__inVid__mousedown  (evt) {evt.tour += " when"} // should dominate on__mousedown
+    }
+
 /*
   it("runs transition and state methods", function() {
     const fsm = new MyFSM(1);
@@ -123,18 +133,21 @@ describe("FiniteStateMachine", function() {
     expect(fsm.transit('BOGUS')).to.equal("inVid has no transition with id BOGUS");
   });
   it("passes events to state and transition handlers", () => {
-    class TrackerFSM extends TTLFSM {
-      exit__inVid   (evt) {evt.tour += " exit"}
-      on__mousedown (evt) {evt.tour += " mousedown"}
-      enter__adjBeg (evt) {evt.tour += " enter"}
-    }
     const fsm = new TrackerFSM();
     fsm.transit('start');
     expect(fsm.get_state()).to.equal('noVid');
     fsm.transit('mouseover');
     var payload = {tour: 'mousedown'};
     fsm.transit('mousedown', payload);
-    expect(payload.tour).to.equal("mousedown exit mousedown enter");
+    expect(payload.tour).to.equal("mousedown exit on enter");
+  });
+  it("should have when__CURSTATE__TRANS run instead of on__TRANS", () => {
+    const when_fsm = new WhenFSM();
+    when_fsm.transit('start');
+    when_fsm.transit('mouseover');
+    var when_payload = {tour: 'mousedown'};
+    when_fsm.transit('mousedown', when_payload);
+    expect(when_payload.tour).to.equal("mousedown exit when enter");
   });
 
 });

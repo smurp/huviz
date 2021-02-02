@@ -165,8 +165,14 @@ export class FiniteStateMachine {
       }
       // call exit__<currentStateId> if it exists
       let called = this.exit_state(evt);
-      // call on__<transId> if it exists
-      called = this.call_method_by_name('on__'+transId, evt) || called;
+      var when_meth_name = `when__${currentStateId}__${transId}`;
+      if (this[when_meth_name]) {
+        // call when__<currentStateId>__<transId>
+        called = this.call_method_by_name(when_meth_name, evt) || called;
+      } else {
+        // call on__<transId> if it exists
+        called = this.call_method_by_name('on__'+transId, evt) || called;
+      }
       // call exit__<targetStateId>
       called = this.set_state(targetStateId, evt) || called;
       if (!called) {
