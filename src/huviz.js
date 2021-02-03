@@ -7983,9 +7983,13 @@ LIMIT ${node_limit}\
         const pickersId = this.unique_id('pickers_');
         this.pickersSel = '#' + pickersId;
         if (huvis_controls_sel = this.oldToUniqueTabSel['huvis_controls']) {
-          if (this.huvis_controls_elem == null) { this.huvis_controls_elem = document.querySelector(huvis_controls_sel); }
+          if (this.huvis_controls_elem == null) {
+            this.huvis_controls_elem = document.querySelector(huvis_controls_sel);
+          }
           if (this.huvis_controls_elem) {
-            this.huvis_controls_elem.insertAdjacentHTML('beforeend', `<div id="${pickersId}"></div>`);
+            this.huvis_controls_elem.insertAdjacentHTML(
+              'beforeend',
+              `<div id="${pickersId}"></div>`);
           }
         }
       }
@@ -8035,7 +8039,9 @@ LIMIT ${node_limit}\
       this.big_go_button.click(this.big_go_button_onclick);
       this.disable_go_button();
     }
-    if (this.ontology_loader || this.dataset_loader || (this.script_loader && !this.big_go_button)) {
+    if (this.ontology_loader
+        || this.dataset_loader
+        || (this.script_loader && !this.big_go_button)) {
       const ontology_selector = `#${this.ontology_loader.select_id}`;
       $(ontology_selector).change(this.update_dataset_forms);
       const dataset_selector = `#${this.dataset_loader.select_id}`;
@@ -8255,6 +8261,21 @@ LIMIT ${node_limit}\
   turn_off_loading_notice() {
     colorlog('turn_off_loading_notice()','green');
     this.my_loading_notice_dialog.remove();
+  }
+
+  visualize_dataset_using_ontology_and_script(ignoreEvent, dataset, ontologies, scripts) {
+    // preload scripts, if any, then visualize
+    if (scripts && scripts.length) {
+      const script = {
+        label: basename(scripts[0]),
+        value: scripts[0]
+      }
+      if (scripts.length > 1) {
+        console.log("only loading the first script of", scripts)
+      }
+      this.script_loader.value = scripts[0];
+    }
+    this.visualize_dataset_using_ontology(ignoreEvent, dataset, ontologies);
   }
 
   visualize_dataset_using_ontology(ignoreEvent, dataset, ontologies) {
@@ -8554,27 +8575,35 @@ ${(add_reload_button && reload_html) || ''}
     const controls = document.querySelector(sel);
     controls.insertAdjacentHTML('afterbegin', visualization_source_display);
     const shareable_link_button = controls.querySelector(".show_shareable_link_dialog");
-    const show_shareable_link_closure = () => this.show_shareable_link_dialog(uri);
-    shareable_link_button.onclick = show_shareable_link_closure;
+    //const show_shareable_link_closure = () => this.show_shareable_link_dialog(uri);
+    shareable_link_button.onclick = () => this.show_shareable_links(uri);
   }
 
-  show_shareable_link_dialog(uri) {
-    const args = {width:550};
-    const shareLinkId = unique_id('lnk_');
-    const shareLinkSel = "#"+shareLinkId;
+  show_shareable_links_dialog(uri, big_title="Shareable Link") {
+    const scriptUri = `${uri}+run+/WHATEVER`;
+    const md = `\
+## ${big_title}
+
+Just load this dataset:
+${this.make_copy_url_button(uri)}
+
+Play Script to Here:
+${this.make_copy_url_button(scriptUri)}
+`;
+    this.make_markdown_dialog(md, null, args);
+  }
+
+  make_copy_url_button(uri) {
     const onclickCommand = [
-      `input=document.getElementById('${shareLinkId}');`,
+      `input=this;`, // document.getElementById('${shareLinkId}');`,
       "input.select();",
       "input.setSelectionRange(0, 99999);",
       "document.execCommand('copy',input);",
       "return"].join(' ');
-    const md = `\
-## Shareable Link
-
-<input type="text" id="${shareLinkId}" class="urlToShare" value="${uri}"/>
-<button onclick="${onclickCommand}" class="urlCopyButton"><i class="fa fa-copy" aria-hidden="true"></i> Copy</button>\
-`;
-    this.make_markdown_dialog(md, null, args);
+    return `<input type="text" id="shareLinkId" class="urlToShare" value="${uri}"/>
+            <button onclick="${onclickCommand}" class="urlCopyButton">
+              <i class="fa fa-copy" aria-hidden="true"></i> Copy
+            </button>`;
   }
 
   replace_loader_display_for_endpoint(endpoint, graph) {
@@ -9445,7 +9474,7 @@ LIMIT 20\
     this.reset_endpoint_form = this.reset_endpoint_form.bind(this);
     this.disable_go_button = this.disable_go_button.bind(this);
     this.enable_go_button = this.enable_go_button.bind(this);
-    this.show_shareable_link_dialog = this.show_shareable_link_dialog.bind(this);
+    this.show_shareable_links = this.show_shareable_links_dialog.bind(this);
     this.set_ontology_from_dataset_if_possible = this.set_ontology_from_dataset_if_possible.bind(this);
     this.build_sparql_form = this.build_sparql_form.bind(this);
     this.spo_query__update = this.spo_query__update.bind(this);
@@ -10579,7 +10608,7 @@ LIMIT 20\
     }
   }
 
-  load_with(data_uri, ontology_uris) {
+  load_with(data_uri, ontology_uris, script_uris) {
     this.goto_tab('commands'); // go to Commands tab # FIXME: should be symbolic not int indexed
     const basename = (uri) => { // the filename without the ext
       return uri.split('/').pop().split('.').shift();

@@ -326,7 +326,7 @@ export class GraphCommand {
         }
       }
     } else if (this.verbs[0] === 'load') {
-      this.huviz.load_with(this.data_uri, this.with_ontologies);
+      this.huviz.load_with(this.data_uri, this.with_ontologies, this.run_scripts);
     } else if (this.verbs[0] === 'run') {
       console.warn("TODO implement the ability to run scripts from the URL");
     } else if (this.verbs[0] === 'query') {
@@ -544,9 +544,12 @@ export class GraphCommand {
     cmd.verbs = [verb];
     if (verb === 'load') {
       cmd.data_uri = parts[1];
-      if (parts.length > 3) {
-        // "load /data/bob.ttl with onto1.ttl onto2.ttl"
-        cmd.with_ontologies = parts.slice(3); // cdr
+      if (parts[2] == 'with') {
+        cmd.with_ontologies = [parts[3]];
+      }
+      cmd.run_scripts = [];
+      if (parts[4] == 'run') {
+        cmd.run_scripts = [parts[5]];
       }
     } else if (verb === 'query') {
       this.sparqlQuery = this.parse_query_command(parts);

@@ -16,6 +16,7 @@ import {Stream} from 'stream';
 // Then load diverse modules
 import ejs from 'ejs';
 import express from 'express';
+import fileUpload from 'express-fileupload';
 import marked from 'marked';
 import morgan from 'morgan';
 import nopt from 'nopt'; // https://github.com/npm/nopt
@@ -91,10 +92,36 @@ function moreMenu(req, res) {
 `));
 }
 
+function publishScriptPOST(req, res) {
+  // https://github.com/richardgirges/express-fileupload/tree/master/example#basic-file-upload
+
+  if (!req.files || Object.keys(req.files).length === 0) {
+    return res.status(400).send('No files were uploaded.');
+  }
+
+  // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
+  let scriptFile = req.files.scriptFile;
+  var location = "/scripts/" + scriptFile.md5 + '.txt';
+  var uploadPath = path.join(__dirname, 'UPLOADS', location);
+
+  // Use the mv() method to place the file somewhere on your server
+  scriptFile.mv(uploadPath, function(err) {
+    if (err) {
+      console.log(err);
+      return res.status(500).send(err);
+    } else {
+      console.log("responding " + scriptFile.md5)
+      res.setHeader("location", location)
+      res.end();
+    }
+  });
+}
+
 // Now build the express app itself.
 
 const app = express();
 app.use(morgan('combined'));
+app.use(fileUpload({useTempFiles: true, tempFileDir: '/tmp/' /*, debug: true */}));
 app.set("/views", __dirname + "/views");
 app.set("/views/tabs", path.join(__dirname, 'tabs', "views"));
 app.use('/huviz/css', express.static(__dirname + '/css'));
@@ -116,6 +143,8 @@ const quaff_module_path = process.env.QUAFF_PATH || path.join(__dirname,"node_mo
 app.use('/quaff-lod/quaff-lod-worker-bundle.js',
     express.static(quaff_module_path + "/quaff-lod-worker-bundle.js"));
 app.use('/data', express.static(__dirname + '/data'));
+app.use('/scripts', express.static(path.join(__dirname, 'UPLOADS', 'scripts')));
+app.post("/scripts", publishScriptPOST);
 app.use('/js', express.static(__dirname + '/js'));
 app.use("/jsoutline", express.static(__dirname + "/node_modules/jsoutline/lib"));
 app.use('/huviz/vendor', express.static(__dirname + '/vendor'));

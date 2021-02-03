@@ -165,6 +165,7 @@ of the classes indicated.`,
     this.on_downloadscript_hybrid_clicked = this.on_downloadscript_hybrid_clicked.bind(this);
     this.on_downloadscript_type = this.on_downloadscript_type.bind(this);
     this.on_stashscript_clicked = this.on_stashscript_clicked.bind(this);
+    this.on_publishscript_clicked = this.on_publishscript_clicked.bind(this);
     this.on_rewind_click = this.on_rewind_click.bind(this);
     this.on_backward_click = this.on_backward_click.bind(this);
     this.on_forward_click = this.on_forward_click.bind(this);
@@ -330,7 +331,7 @@ of the classes indicated.`,
     this.scriptForwardButton.append('i').attr("class", "fa fa-fast-forward");
 
     this.scriptDownloadButton = this.scriptPlayerControls.append('button').
-      attr('title','save script to file').
+      attr('title','save script to local file').
       attr('style', 'margin-left:1em').  // ;display:none
       attr('disabled', 'disabled').on('click', this.on_downloadscript_hybrid_clicked);
     this.scriptDownloadButton.append('i').attr("class", "fa fa-download");
@@ -345,9 +346,15 @@ of the classes indicated.`,
     this.scriptStashButton = this.scriptPlayerControls.append('button').
       attr('title','save script to menu').
       attr('disabled', 'disabled').
-      attr('style', 'margin-left:.1em').on('click', this.n_stashscript_clicked);
+      attr('style', 'margin-left:.1em').on('click', this.on_stashscript_clicked);
     this.scriptStashButton.append('i').attr("class", "fa fa-bars");
-      //.append('span').text('save to menu')
+    //.append('span').text('save to menu')
+
+    this.scriptPublishButton = this.scriptPlayerControls.append('button').
+      attr('title','publish script for others to run').
+      attr('disabled', 'disabled').
+      attr('style', 'margin-left:.1em').on('click', this.on_publishscript_clicked);
+    this.scriptPublishButton.append('i').attr("class", "fa fa-share"); // consider: fa-upload
 
     this.cmdlist = history.
       append('div').
@@ -524,6 +531,36 @@ of the classes indicated.`,
     };
     this.huviz.script_loader.add_local_file(script_rec);
   }
+  on_publishscript_clicked() {
+    const scriptFileType = 'hybrid';
+    const ext = 'txt';
+    const thisName = prompt(
+      "What would you like to call this script in your menu?",
+      this.get_downloadscript_name(ext || scriptFileType));
+    if (!thisName) {
+      return;
+    }
+    this.lastScriptName = thisName;
+    let timestamp_ext = ((new Date()).toISOString()). // "2021-01-19T12:04:14.855Z"
+        replace(/:/g,''). // remove all -
+        replace(/-/g,''). // remove all :
+        slice(0, -5) + // remove the dot the milliseconds and Z
+        `Z.${ext}` ; // add Z.txt
+    let fname_w_timestamp = thisName.replace(`.${ext}`, '_' + timestamp_ext)
+    const script_rec = {
+      uri: fname_w_timestamp,
+      opt_group: 'Your Own',
+      data: this.get_script_body_as_hybrid()
+    };
+    this.publish_script(script_rec, (err, location) => {
+      if (err) {
+        console.error(err);
+      } else {
+        let published_url = window.location.origin + "/#run+" + location;
+        this.huviz.show_shareable_link_dialog(published_url, "Shareable Script Link");
+      }
+    });
+  }
   on_rewind_click() {
     this.reset_graph();
     this.command_idx0 = 0;
@@ -544,6 +581,24 @@ of the classes indicated.`,
     while (this.command_idx0 < forward_to_idx) {
       this.on_forward_click();
     }
+  }
+  publish_script(script_rec, callback) {
+    // script_rec keys: uri, opt_group, data
+    console.log("publish_script", script_rec);
+    var formData = new FormData()
+    var srcObj = [script_rec.data];
+    srcObj.name = () => {return script_rec.fname_w_timestamp};
+    var blob = new File(srcObj, {
+      type: "text/plain",
+      tempFilePath:  script_rec.fname_w_timestamp});
+    formData.append('scriptFile', blob);
+    var request = new XMLHttpRequest();
+    request.onload = (resp) => {
+      callback(null, request.getResponseHeader('Location'));
+    }
+    var publishScriptPostUrl = window.location.origin + "/scripts";
+    request.open("POST", publishScriptPostUrl);
+    request.send(formData);
   }
   play_old_command_by_idx(idx) {
     const record = this.command_list[idx];
@@ -1403,10 +1458,12 @@ of the classes indicated.`,
   disable_save_buttons() {
     this.scriptDownloadButton.attr('disabled', 'disabled');
     this.scriptStashButton.attr('disabled', 'disabled');
+    this.scriptPublishButton.attr('disabled', 'disabled');
   }
   enable_save_buttons() {
     this.scriptDownloadButton.attr('disabled', null);
     this.scriptStashButton.attr('disabled', null);
+    this.scriptPublishButton.attr('disabled', null);
   }
   build_command() {
     const args = {verbs: []};
