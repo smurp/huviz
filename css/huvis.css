@@ -109,7 +109,7 @@ button.close_node_details img:hover{
 }
 
 .contextMenu .urlToShare {
-  width:200px;
+  width: 90%;
   padding: 6px;
 }
 
@@ -363,7 +363,7 @@ div.message_wrapper {
     margin-left: .3em;
 }
 
-#shareLinkId.urlToShare {
+.urlToShare {
     border: 0.5px solid black;
     overflow-wrap: anywhere;
     width: 90%;
@@ -372,5 +372,9 @@ div.message_wrapper {
 
 .shareableLinkDialog {
     height: fit-content;
-    
+    max-width: 20%;
+}
+
+#sharableLinkText {
+    padding-left: 1em;
 }
