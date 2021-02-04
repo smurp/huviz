@@ -369,3 +369,8 @@ div.message_wrapper {
     width: 90%;
     margin-left: 1em;
 }
+
+.shareableLinkDialog {
+    height: fit-content;
+    
+}
