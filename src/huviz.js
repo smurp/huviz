@@ -8581,8 +8581,9 @@ ${(add_reload_button && reload_html) || ''}
 
   show_shareable_links_dialog(uri, big_title="Shareable Link") {
     const scriptUri = `${uri}+run+/WHATEVER`;
+    const args = {width:550};
     const md = `\
-## ${big_title}
+<h3>${big_title}</h3>
 
 Just load this dataset:
 ${this.make_copy_url_button(uri)}
@@ -8590,7 +8591,7 @@ ${this.make_copy_url_button(uri)}
 Play Script to Here:
 ${this.make_copy_url_button(scriptUri)}
 `;
-    this.make_markdown_dialog(md, null, args);
+    this.make_dialog(md, null, args);
   }
 
   make_copy_url_button(uri) {
@@ -8600,7 +8601,7 @@ ${this.make_copy_url_button(scriptUri)}
       "input.setSelectionRange(0, 99999);",
       "document.execCommand('copy',input);",
       "return"].join(' ');
-    return `<input type="text" id="shareLinkId" class="urlToShare" value="${uri}"/>
+    return `<div id="shareLinkId" class="urlToShare">${uri}</div>
             <button onclick="${onclickCommand}" class="urlCopyButton">
               <i class="fa fa-copy" aria-hidden="true"></i> Copy
             </button>`;

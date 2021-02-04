@@ -363,3 +363,9 @@ div.message_wrapper {
     margin-left: .3em;
 }
 
+#shareLinkId.urlToShare {
+    border: 0.5px solid black;
+    overflow-wrap: anywhere;
+    width: 90%;
+    margin-left: 1em;
+}
