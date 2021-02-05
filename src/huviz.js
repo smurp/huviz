@@ -4716,7 +4716,7 @@ LIMIT 10\
       for (let line of lines) {
         if (!line) { continue; }
         const row = line.split("\t");
-        const rowJson = _.zipObject(cols, row);
+        const rowJson = _.zipObject(cols, row); //   https://lodash.com/docs/4.17.15#zipObject
         result_handler(rowJson, queryManager);
         table.push(rowJson);
       }
