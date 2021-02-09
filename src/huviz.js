@@ -8290,7 +8290,8 @@ LIMIT ${node_limit}\
     if (endpoint_label_uri = this.endpoint_labels_JQElem.val()) {
       this.turn_on_loading_notice_if_enabled();
       data = dataset || this.endpoint_loader;
-      this.load_endpoint_data_and_show(endpoint_label_uri, this.after_visualize_dataset_using_ontology);
+      this.load_endpoint_data_and_show(endpoint_label_uri,
+                                       this.after_visualize_dataset_using_ontology);
       // TODO ensure disable_dataset_ontology_loader() is only called once
       console.warn("disable_dataset_ontology_loader() SHOULD BE CALLED ONLY ONCE");
       this.disable_dataset_ontology_loader_AUTOMATICALLY();
@@ -8335,6 +8336,21 @@ LIMIT ${node_limit}\
     } else {
       this.load_script_from_JSON(this.parse_script_file(rsrcRec.data, rsrcRec.uri));
     }
+  }
+
+  load_script_from_uri(scriptUri) {
+    $.ajax({
+      url: scriptUri,
+      async: false,
+      //success: this.receive_script_from_ajax,
+      success: (data, textStatus) => {
+        var scriptJson = this.parse_script_file(data, scriptUri);
+        this.load_script_from_JSON(scriptJson);
+      },
+      error: (jqxhr, textStatus, errorThrown) => {
+        this.show_state_msg(errorThrown + " while fetching script" + scriptUri);
+      }
+    });
   }
 
   init_gclc() {
@@ -10550,6 +10566,13 @@ LIMIT 20\
   }
 
   get_script_from_hash() {
+    /*
+     * Purpose:
+     *   Accepts scripts in the form of commands in the url, like:
+     *     #Activate+the+All+set;
+     * Status:
+     *   no automated tests
+     */
     let script = location.hash;
     script = (((script == null) || (script === "#")) && "") || script.replace(/^#/,"");
     script = script.replace(/\+/g," ");
@@ -10589,8 +10612,7 @@ LIMIT 20\
     //      * Followed by the comment on a line of its own
     //      * Followed by the .json version of the script, for trivial parsing
     //   2) Commands as they appear in the Command History
-    // The thinking is that, ultimately, version 1) will be required until the
-    // parser for the textual version is complete.
+    // We should be able to stop emitting 1) when the parser for 2) is complete.
     const lines = data.split('\n');
     while (lines.length) {
       const line = lines.shift();
@@ -10630,7 +10652,7 @@ LIMIT 20\
   }
 
   load_with(data_uri, ontology_uris, script_uris) {
-    this.goto_tab('commands'); // go to Commands tab # FIXME: should be symbolic not int indexed
+    this.goto_tab('commands');
     const basename = (uri) => { // the filename without the ext
       return uri.split('/').pop().split('.').shift();
     }
@@ -10642,6 +10664,14 @@ LIMIT 20\
       label: basename(ontology_uris[0]),
       value: ontology_uris[0]
     };
+    if (script_uris && script_uris.length > 0) {
+      const origin = document.location.origin;
+      var script = script_uris[0];
+      if (script.startsWith('/')) {
+        script = origin + script;
+      }
+      this.load_script_from_uri(script);
+    }
     this.visualize_dataset_using_ontology({}, dataset, [ontology]);
   }
 
@@ -10936,7 +10966,7 @@ export class OntologicallyGrounded extends Huviz {
       return;
     }
     $.ajax({
-      url,
+      url, // TODO uhh, isn't this a syntax error?
       async: false,
       success: this.parseTTLOntology,
       error: (jqxhr, textStatus, errorThrown) => {
