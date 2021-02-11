@@ -1362,6 +1362,12 @@ of the classes indicated.`,
       this.reset_command_history();
       this.command_idx0 = 0;
       this.update_script_buttons();
+      if (this.command_list.length) {
+        this.huviz.goto_tab('commands');
+        setTimeout(this.on_fastforward_click);
+      } else {
+        console.log("nothing to run");
+      }
     }
   }
   push_command_onto_history(cmd) {

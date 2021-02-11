@@ -8342,7 +8342,6 @@ LIMIT ${node_limit}\
     $.ajax({
       url: scriptUri,
       async: false,
-      //success: this.receive_script_from_ajax,
       success: (data, textStatus) => {
         var scriptJson = this.parse_script_file(data, scriptUri);
         this.load_script_from_JSON(scriptJson);
