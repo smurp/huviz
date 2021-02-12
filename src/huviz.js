@@ -8622,8 +8622,6 @@ ${this.make_copy_url_button(scriptUri, "Play Script to Here:", "scriptLinkId")}
   }
 
   make_copy_url_button(uri, title, myId) {
-//    var myId = `id_${Date.now()}`;
-//    console.log({myId});
     const onclickCommand = `
       input=document.getElementById('${myId}');
       sel = window.getSelection();
@@ -8646,8 +8644,6 @@ ${this.make_copy_url_button(scriptUri, "Play Script to Here:", "scriptLinkId")}
   replace_loader_display_for_endpoint(endpoint, graph) {
     let print_graph;
     $(this.pickersSel).attr("style","display:none");
-    //uri = new URL(location)
-    //uri.hash = "load+#{dataset.value}+with+#{ontology.value}"
     if (graph) {
       print_graph = `<p><span class='dt_label'>Graph:</span> ${graph}</p>`;
     } else {
