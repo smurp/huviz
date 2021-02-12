@@ -8639,6 +8639,7 @@ ${this.make_copy_url_button(scriptUri, "Play Script to Here:", "scriptLinkId")}
             <button onclick="${onclickCommand}" class="urlCopyButton">
               <i class="fa fa-copy" aria-hidden="true"></i> Copy
             </button>
+            <button onclick="location.assign('${uri}');location.reload()">Go</button>
             `;
   }
 
