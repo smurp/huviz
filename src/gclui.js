@@ -1327,7 +1327,13 @@ of the classes indicated.`,
       this.update_script_buttons();
       if (this.command_list.length) {
         this.huviz.goto_tab('commands');
-        setTimeout(this.on_fastforward_click);
+        setTimeout(() => {
+          this.on_fastforward_click();
+          // The following hack just makes a little change to a setting which
+          // affects the graph.  Otherwise all the nodes pile up at the origin.
+          var ld = this.huviz.linkDistance * 1.01;
+          this.huviz.on_change_linkDistance(ld);
+        });
       } else {
         console.log("nothing to run");
       }
