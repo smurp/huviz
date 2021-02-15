@@ -10652,14 +10652,20 @@ LIMIT 20\
     const basename = (uri) => { // the filename without the ext
       return uri.split('/').pop().split('.').shift();
     }
-    const dataset = {
-      label: basename(data_uri),
-      value: data_uri
-    };
-    const ontology = {
-      label: basename(ontology_uris[0]),
-      value: ontology_uris[0]
-    };
+    var dataset;
+    if (data_uri) {
+      dataset = {
+        label: basename(data_uri),
+        value: data_uri
+      };
+    }
+    var ontology;
+    if (ontology_uris) {
+      ontology = {
+        label: basename(ontology_uris[0]),
+        value: ontology_uris[0]
+      };
+    }
     if (script_uris && script_uris.length > 0) {
       const origin = document.location.origin;
       var script = script_uris[0];

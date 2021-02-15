@@ -328,7 +328,8 @@ export class GraphCommand {
     } else if (this.verbs[0] === 'load') {
       this.huviz.load_with(this.data_uri, this.with_ontologies, this.run_scripts);
     } else if (this.verbs[0] === 'run') {
-      console.warn("TODO implement the ability to run scripts from the URL");
+      this.huviz.load_with(this.data_uri, this.with_ontologies, this.run_scripts);
+      //console.warn("TODO implement the ability to run scripts from the URL");
     } else if (this.verbs[0] === 'query') {
       this.huviz.query_from_seeking_limit(this.sparqlQuery);
     } else {
@@ -550,6 +551,13 @@ export class GraphCommand {
       cmd.run_scripts = [];
       if (parts[4] == 'run') {
         cmd.run_scripts = [parts[5]];
+      }
+    } else if (verb === 'run') {
+      // This is required but not sufficient to make support urls like:
+      //    http://localhost:5000/#run+/scripts/SCRIPTFNAME.txt
+      // See HuViz load_with()
+      if (parts[1]) {
+        cmd.run_scripts = [parts[1]];
       }
     } else if (verb === 'query') {
       this.sparqlQuery = this.parse_query_command(parts);
