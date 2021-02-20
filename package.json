@@ -34,6 +34,7 @@
     "ldf-client": "^2.0.5",
     "marked": "^0.6.2",
     "morgan": "^1.9.1",
+    "node-fetch": "^2.6.1",
     "nopt": "~3.0.0",
     "quaff-lod": "smurp/quaff-lod",
     "rollup": "^2.33.3",

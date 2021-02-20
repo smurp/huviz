@@ -5844,6 +5844,7 @@ SERVICE wikibase:label {
   }
 
   run_managed_query_ajax(args) {
+    var use_proxy = false;
     const {query, serverUrl} = args;
     const queryManager = this.run_managed_query_abstract(args);
     const {success_handler, error_callback, timeout} = args;
@@ -5868,6 +5869,11 @@ SERVICE wikibase:label {
     }
     if (serverUrl.includes('wikidata')) {
       // TODO shorten timeout when seeking "graphs" for there are none
+    }
+    if (use_proxy) { // put this last so other tweaks can trigger the proxy
+      var proxy_url = window.location.origin + "/SPARQLPROXY/";
+      console.log({proxy_url});
+      ajax_settings.url = proxy_url + ajax_settings.url;
     }
 
     queryManager.xhr = $.ajax({

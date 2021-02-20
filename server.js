@@ -21,6 +21,9 @@ import marked from 'marked';
 import morgan from 'morgan';
 import nopt from 'nopt'; // https://github.com/npm/nopt
 
+// then local modules
+import {sparqlproxy} from './js/sparqlproxy.js';
+
 const __dirname = process.cwd();
 
 // process command line arguments
@@ -165,7 +168,7 @@ app.get("/more/twoup", localOrCDN("/views/twoup.html.ejs", {nopts}));
 app.get("/more/tests", localOrCDN("/views/tests.html.ejs", {nopts}));
 // app.get("/process_env.js", (req, res) => res.send("process_env="+process.env)) # serve process.env
 app.get("/", localOrCDN("/views/huvis.html.ejs", {nopts}));
-
+app.get("/SPARQLPROXY/:target", sparqlproxy);
 
 app.use(express.static(__dirname + '/images')); // for /favicon.ico
 
