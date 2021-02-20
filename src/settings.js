@@ -950,9 +950,9 @@ If zero before loading, then lookup is suppressed.`
         title: "Default value for the 'Node Limit'"
       },
       input: {
-        value: 200,
+        value: 20,
         min: 1,
-        max: 1000,
+        max: 100,
         step: 10,
         type: "range"
       }

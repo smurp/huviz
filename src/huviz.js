@@ -5867,9 +5867,7 @@ SERVICE wikibase:label {
       };
     }
     if (serverUrl.includes('wikidata')) {
-      // these don't solve CORS issues but could solve CORB issues
-      ajax_settings.headers.Accept = "text/tab-separated-values";
-      ajax_settings.headers.Accept = "text/csv";
+      // TODO shorten timeout when seeking "graphs" for there are none
     }
 
     queryManager.xhr = $.ajax({
