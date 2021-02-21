@@ -940,18 +940,24 @@ Here is how:
   gen_dialog_html(contents, id, in_args) {
     const args = this.compose_object_from_defaults_and_incoming(this.default_dialog_args, in_args);
     //args = Object.assign(default_args, in_args)
-    return `<div id="${id}" class="${args.classes} ${args.extraClasses}"
-  style="display:block;top:${args.top}px;left:${args.left}px;">
-<div class="header" style="background-color:${args.head_bg_color};${args.style}">
-  <div class="dialog_title">${args.title}</div>
-  <button class="close_node_details" title="Close"><i class="far fa-window-close" for="${id}"></i></button>
-</div>
-${contents}
-</div>`; // """ for emacs coffeescript mode
+    return `\
+      <div id="${id}" class="${args.classes} ${args.extraClasses}"
+        style="display:block;top:${args.top}px;left:${args.left}px;">
+        <div class="header" style="background-color:${args.head_bg_color};${args.style}">
+          <div class="dialog_title">${args.title}</div>
+          <button class="close_node_details" title="Close">
+            <i class="far fa-window-close" for="${id}"></i>
+          </button>
+        </div>
+        ${contents}
+      </div>`;
   }
 
   make_dialog(content_html, id, args) {
-    if (id == null) { id = this.unique_id('dialog_'); }  // if you do not have an id, an id will be provided for you
+    if (id == null) {
+      // if you do not have an id, an id will be provided for you
+      id = this.unique_id('dialog_');
+    }
     this.addHTML(this.gen_dialog_html(content_html, id, args));
     const elem = document.querySelector('#'+id);
     $(elem).on('drag',this.pop_div_to_top);
@@ -1415,17 +1421,15 @@ Link details may not be accurate. Activate to load.</i>`; // """
       dialogArgs.head_bg_color = info_node.color;
       const id_display = this.create_link_if_url(info_node.id);
       const node_info_html = `\
-<div class="message_wrapper">
-<p class='id_display'><span class='label'>id:</span> ${id_display}</p>
-<p><span class='label'>name:</span> ${names_all_langs}</p>
-<p><span class='label'>type(s):</span> ${info_node.type} ${other_types}</p>
-<p><span class='label'>Links To:</span> ${info_node.links_to.length} <br>
-  <span class='label'>Links From:</span> ${info_node.links_from.length}</p>
-  ${note}
-  ${node_out_links}
-</div>\
-`; // """
-
+        <div class="message_wrapper">
+        <p class='id_display'><span class='label'>id:</span> ${id_display}</p>
+        <p><span class='label'>name:</span> ${names_all_langs}</p>
+        <p><span class='label'>type(s):</span> ${info_node.type} ${other_types}</p>
+        <p><span class='label'>Links To:</span> ${info_node.links_to.length} <br>
+          <span class='label'>Links From:</span> ${info_node.links_from.length}</p>
+          ${note}
+          ${node_out_links}
+        </div>`;
       info_node._inspector = this.make_dialog(node_info_html, node_inspector_id, dialogArgs);
       info_node._inspector.dataset.node_id = info_node.id;
     }
@@ -3787,7 +3791,8 @@ with Shelved, Discarded, Graphed and Hidden.`;
       txt = this.msg_history;
     }
     this.state_msg_box.show();
-    this.state_msg_box.html("<div class='msg_payload'>" + txt + "</div><div class='msg_backdrop'></div>");
+    this.state_msg_box.html("<div class='msg_payload'>" + txt +
+                            "</div><div class='msg_backdrop'></div>");
     this.state_msg_box.on('click', this.hide_state_msg);
     if (this.use_fancy_cursor) {
       this.text_cursor.pause("wait");
@@ -5868,6 +5873,7 @@ SERVICE wikibase:label {
       };
     }
     if (serverUrl.includes('wikidata')) {
+      // https://www.mediawiki.org/wiki/Wikidata_Query_Service/User_Manual#Standalone_service
       // TODO shorten timeout when seeking "graphs" for there are none
     }
     if (use_proxy) { // put this last so other tweaks can trigger the proxy
@@ -8548,48 +8554,47 @@ LIMIT ${node_limit}\
     } else if (endpoint) {
       add_reload_button = true;
       source_html = `\
-<p><span class="dt_label">Endpoint:</span> <a href="${endpoint.value}">${endpoint.label}</a></p>\
-`;
+        <p>
+          <span class="dt_label">Endpoint:</span>
+          <a href="${endpoint.value}">${endpoint.label}</a>
+        </p>`;
       if (endpoint.graph) {
         source_html += `\
-<p><span class="dt_label">Graph:</span> <a href="${endpoint.graph.value}">${endpoint.graph.label}</a></p>\
-`;
+          <p>
+            <span class="dt_label">Graph:</span>
+            <a href="${endpoint.graph.value}">${endpoint.graph.label}</a>
+          </p>`;
       }
       if (endpoint.item) {
         source_html += `\
-<p><span class="dt_label">Item:</span> <a href="${endpoint.item.value}">${endpoint.item.label}</a></p>\
-`;
+          <p>
+            <span class="dt_label">Item:</span>
+            <a href="${endpoint.item.value}">${endpoint.item.label}</a>
+          </p>`;
       }
       if (endpoint.limit) {
-        source_html += `\
-<p><span class="dt_label">Limit:</span> ${endpoint.limit}</p>\
-`;
+        source_html += `<p><span class="dt_label">Limit:</span> ${endpoint.limit}</p>`;
       }
     } else if (script) {
-      source_html = `\
-<p><span class="dt_label">Script:</span> ${script}</p>\
-`;
+      source_html = `<p><span class="dt_label">Script:</span> ${script}</p>`;
     } else {
-      source_html = `\
-<p><span class="dt_label">Source:</span>TBD</p>\
-`;
+      source_html = `<p><span class="dt_label">Source:</span>TBD</p>`;
     }
     const reload_html = `\
-<p>
-<button title="Copy shareable link"
-  class="show_shareable_link_dialog"><i class="fas fa-share-alt"></i></button>
-<button title="Reload this data"
-   onclick="location.replace('${uri}');location.reload()"><i class="fas fa-redo"></i></button>
-<button title="Clear the graph and start over"
-   onclick="location.assign(location.origin)"><i class="fas fa-times"></i></button>
-</p>\
-`;
+      <p>
+        <button title="Copy shareable link"
+          class="show_shareable_link_dialog"><i class="fas fa-share-alt"></i></button>
+        <button title="Reload this data"
+           onclick="location.replace('${uri}');location.reload()"><i class="fas fa-redo"></i></button>
+        <button title="Clear the graph and start over"
+           onclick="location.assign(location.origin)"><i class="fas fa-times"></i></button>
+      </p>`;
     const visualization_source_display = `\
-<div id="${this.get_data_ontology_display_id()}" class="data_ontology_display">
-${source_html}
-${(add_reload_button && reload_html) || ''}
-<br style="clear:both">
-</div>`; // """ the extra set of triple double quotes is for emacs coffescript mode
+      <div id="${this.get_data_ontology_display_id()}" class="data_ontology_display">
+        ${source_html}
+        ${(add_reload_button && reload_html) || ''}
+        <br style="clear:both">
+      </div>`;
     const sel = this.oldToUniqueTabSel['huvis_controls'];
     const controls = document.querySelector(sel);
     controls.insertAdjacentHTML('afterbegin', visualization_source_display);
@@ -8615,14 +8620,13 @@ ${(add_reload_button && reload_html) || ''}
 
   show_shareable_links_dialog_eventually(uri, big_title="Shareable Link", scriptUri) {
     const args = {width:550, extraClasses:'shareableLinkDialog'};
-    const md = `\
-<h3>${big_title}</h3>
+    const html = `\
+      <h3>${big_title}</h3>
 
-${this.make_copy_url_button(uri, "Just load this dataset:", "uriLinkId")}
+      ${this.make_copy_url_button(uri, "Just load this dataset:", "uriLinkId")}
 
-${this.make_copy_url_button(scriptUri, "Play Script to Here:", "scriptLinkId")}
-`;
-    this.make_dialog(md, null, args);
+      ${this.make_copy_url_button(scriptUri, "Play Script to Here:", "scriptLinkId")}`;
+    this.make_dialog(html, null, args);
   }
 
   make_copy_url_button(uri, title, myId) {
@@ -8654,11 +8658,11 @@ ${this.make_copy_url_button(scriptUri, "Play Script to Here:", "scriptLinkId")}
       print_graph = "";
     }
     const data_ontol_display = `\
-<div id="${this.get_data_ontology_display_id()}">
-<p><span class="dt_label">Endpoint:</span> ${endpoint}</p>
-${print_graph}
-<br style="clear:both">
-</div>`;
+      <div id="${this.get_data_ontology_display_id()}">
+      <p><span class="dt_label">Endpoint:</span> ${endpoint}</p>
+      ${print_graph}
+      <br style="clear:both">
+      </div>`;
     $("#huvis_controls").prepend(data_ontol_display);
   }
 
@@ -8675,8 +8679,8 @@ ${print_graph}
   make_git_link() {
     const base = this.args.git_base_url;
     return `<a class="git_commit_hash_watermark subliminal"
-target="huviz_version"  tabindex="-1"
-href="${base}${this.git_commit_hash}">${this.git_commit_hash}</a>`; // """
+               target="huviz_version"  tabindex="-1"
+               href="${base}${this.git_commit_hash}">${this.git_commit_hash}</a>`; 
   }
 
   create_caption() {
@@ -8751,31 +8755,32 @@ href="${base}${this.git_commit_hash}">${this.git_commit_hash}</a>`; // """
     const spo_query_id = unique_id('spo_query_');
     const sparqlGraphSelectorId = `sparqlGraphOptions-${this.endpoint_loader.select_id}`;
     const select_box = `\
-<div class="ui-widget" style="display:none;margin-top:5px;margin-left:10px;">
-  <label>Graphs: </label>
-  <select id="${sparqlGraphSelectorId}">
-  </select>
-</div>
-<div id="sparqlGraphSpinner-${this.endpoint_loader.select_id}"
-   style="display:none;font-style:italic;">
-  <i class="fas fa-spinner fa-spin" style="margin: 10px 10px 0 50px;"></i>  Looking for graphs...
-</div>
-<div id="${sparqlQryInput_id}" class="ui-widget sparqlQryInput"
-   style="display:none;margin-top:5px;margin-left:10px;color:#999;">
-  <label for="${endpoint_labels_id}">Find: </label>
-  <input id="${endpoint_labels_id}">
-  <i class="fas fa-spinner fa-spin" style="visibility:hidden;margin-left: 5px;"></i>
-  <div>
-    <label for="${endpoint_limit_id}">Node Limit: </label>
-    <input id="${endpoint_limit_id}" value="${this.sparql_query_default_limit}">
-  </div>
-  <div>
-    <label for="${spo_query_id}">(s,p,o) query: </label>
-    <textarea id="${spo_query_id}" value=""
-      placeholder="pick graph, then enter query producing s,p,o"></textarea>
-  </div>
-</div>\
-`; // """
+      <div class="ui-widget" style="display:none;margin-top:5px;margin-left:10px;">
+        <label>Graphs: </label>
+        <select id="${sparqlGraphSelectorId}">
+        </select>
+      </div>
+      <div id="sparqlGraphSpinner-${this.endpoint_loader.select_id}"
+         style="display:none;font-style:italic;">
+        <i class="fas fa-spinner fa-spin" style="margin: 10px 10px 0 50px;"></i>
+        Looking for graphs...
+      </div>
+      <div id="${sparqlQryInput_id}" class="ui-widget sparqlQryInput"
+         style="display:none;margin-top:5px;margin-left:10px;color:#999;">
+        <label for="${endpoint_labels_id}">Find: </label>
+        <input id="${endpoint_labels_id}">
+        <i class="fas fa-spinner fa-spin" style="visibility:hidden;margin-left: 5px;"></i>
+        <div>
+          <label for="${endpoint_limit_id}">Node Limit: </label>
+          <input id="${endpoint_limit_id}" value="${this.sparql_query_default_limit}">
+        </div>
+        <div>
+          <label for="${spo_query_id}">(s,p,o) query: </label>
+          <textarea id="${spo_query_id}" value=""
+            placeholder="pick graph, then enter query producing s,p,o"></textarea>
+        </div>
+      </div>\
+      `;
     $(this.pickersSel).append(select_box);
     this.sparqlQryInput_JQElem = $(this.sparqlQryInput_selector);
     this.endpoint_labels_JQElem = $('#'+endpoint_labels_id);
@@ -9784,15 +9789,16 @@ LIMIT 20\
   create_collapse_expand_handles() {
     const ctrl_handle_id = sel_to_id(this.args.ctrl_handle_sel);
     const html = `\
-<div class="expand_cntrl" style="visibility:hidden">
-<i class="fa fa-angle-double-left"></i></div>
-<div class="collapse_cntrl">
-<i class="fa fa-angle-double-right"></i></div>
-<div id="${ctrl_handle_id}"
-   class="ctrl_handle ui-resizable-handle ui-resizable-w">
- <div class="ctrl_handle_grip">o</div>
-</div>\
-`; // """ this comment is to help emacs coffeescript mode
+      <div class="expand_cntrl" style="visibility:hidden">
+        <i class="fa fa-angle-double-left"></i>
+      </div>
+      <div class="collapse_cntrl">
+        <i class="fa fa-angle-double-right"></i>
+      </div>
+      <div id="${ctrl_handle_id}"
+         class="ctrl_handle ui-resizable-handle ui-resizable-w">
+         <div class="ctrl_handle_grip">o</div>
+      </div>`;
     this.tabsJQElem.prepend(html);
     this.expandCtrlJQElem = this.tabsJQElem.find(".expand_cntrl");
     this.expandCtrlJQElem.click(this.expand_tabs).on("click", this.updateWindow);
@@ -9878,7 +9884,8 @@ LIMIT 20\
     }
     this.settings = d3.select(this.settingsElem);
     this.settings.classed('settings',true);
-    this.settingGroupsContainerElem = this.insertBeforeEnd(this.settingsElem, '<div class="settingGroupsContainer"></div>');
+    this.settingGroupsContainerElem = this.insertBeforeEnd(
+      this.settingsElem, '<div class="settingGroupsContainer"></div>');
     for (let control_spec of this.default_settings) {
       for (var control_name in control_spec) {
         // reset the values which will be used to initialize the setting input the user sees
@@ -9888,8 +9895,10 @@ LIMIT 20\
         const inputId = unique_id(control_name+'_');
         const groupName = control.group || 'General';
         const groupElem = this.get_or_create_settings_group(groupName);
-        const controlElem = this.insertBeforeEnd(groupElem, `<div class="a_setting ${control_name}__setting"></div>`);
-        const labelElem = this.insertBeforeEnd(controlElem, `<label for="${inputId}"></label>`);
+        const controlElem = this.insertBeforeEnd(
+          groupElem, `<div class="a_setting ${control_name}__setting"></div>`);
+        const labelElem = this.insertBeforeEnd(
+          controlElem, `<label for="${inputId}"></label>`);
         if (control.text != null) {
           labelElem.innerHTML = control.text;
         }
@@ -9908,8 +9917,12 @@ LIMIT 20\
             inputElem = this.insertBeforeEnd(controlElem, "<select></select>");
             for (let optIdx in control.options) {
               const opt = control.options[optIdx];
-              const optionElem = this.insertBeforeEnd(inputElem, `<option value="${opt.value}"></option>`);
-              if (initial_new_val == null) { initial_new_val = opt.value; } // default to the first option in case none is selected
+              const optionElem = this.insertBeforeEnd(
+                inputElem, `<option value="${opt.value}"></option>`);
+              if (initial_new_val == null) {
+                // default to the first option in case none is selected
+                initial_new_val = opt.value;
+              }
               if (opt.selected) {
                 optionElem.setAttribute('selected','selected');
                 initial_new_val = opt.value;
@@ -9919,7 +9932,8 @@ LIMIT 20\
               }
             }
           } else if (control.input.type === 'button') {
-            inputElem = this.insertBeforeEnd(controlElem, "<button type=\"button\">(should set label)</button>");
+            inputElem = this.insertBeforeEnd(
+              controlElem, "<button type=\"button\">(should set label)</button>");
             if (control.input.label != null) {
               inputElem.innerHTML = control.input.label;
             }
@@ -9991,7 +10005,8 @@ LIMIT 20\
           console.info(control_name + " has no input");
         }
         if (control.label.title != null) {
-          this.insertBeforeEnd(controlElem, '<div class="setting_explanation">' + control.label.title + '</div>');
+          this.insertBeforeEnd(
+           controlElem, '<div class="setting_explanation">' + control.label.title + '</div>');
         }
       }
     }
@@ -10112,8 +10127,8 @@ LIMIT 20\
       old_value = input.val();
     }
     const equality = `because old_value: (${old_value}) new_value: (${new_value})`;
-    if ((""+old_value) === (""+new_value)) { // compare on string value because that is what inputs return
-      //console.warn("  no change required "+equality)
+    if ((""+old_value) === (""+new_value)) {
+      // compare on string value because that is what inputs return
       return; // bail because no change is needed
     }
     //pretty_value = typeof value is 'string' and "'#{value}'" or value
@@ -10769,29 +10784,33 @@ LIMIT 20\
     //   3. add #{@build_pfm_live_monitor('name')} into message below
     const warning = "";
     const message = `\
-<div class='feedback_module'><p>Triples Added: <span id="noAddQuad">0</span></p></div>
-<div class='feedback_module'><p>Number of Nodes: <span id="noN">0</span></p></div>
-<div class='feedback_module'><p>Number of Edges: <span id="noE">0</span></p></div>
-<div class='feedback_module'><p>Number of Predicates: <span id="noP">0</span></p></div>
-<div class='feedback_module'><p>Number of Classes: <span id="noC">0</span></p></div>
-<div class='feedback_module'><p>find_nearest... (msec): <span id="highwater_find_node_or_edge">0</span></p></div>
-<div class='feedback_module'><p>maxtick (msec): <span id="highwater_maxtick">0</span></p></div>
-<div class='feedback_module'><p>discover_name #: <span id="highwater_discover_name">0</span></p></div>
-${this.build_pfm_live_monitor('add_quad')}
-${this.build_pfm_live_monitor('hatch')}
-<div class='feedback_module'><p>Ticks in Session: <span id="noTicks">0</span></p></div>
-${this.build_pfm_live_monitor('tick')}
-<div class='feedback_module'><p>Total SPARQL Requests: <span id="noSparql">0</span></p></div>
-<div class='feedback_module'><p>Outstanding SPARQL Requests: <span id="noOR">0</span></p></div>
-${this.build_pfm_live_monitor('sparql')}\
-`;
+      <div class='feedback_module'><p>Triples Added: <span id="noAddQuad">0</span></p></div>
+      <div class='feedback_module'><p>Number of Nodes: <span id="noN">0</span></p></div>
+      <div class='feedback_module'><p>Number of Edges: <span id="noE">0</span></p></div>
+      <div class='feedback_module'><p>Number of Predicates: <span id="noP">0</span></p></div>
+      <div class='feedback_module'><p>Number of Classes: <span id="noC">0</span></p></div>
+      <div class='feedback_module'>
+        <p>find_nearest... (msec): <span id="highwater_find_node_or_edge">0</span></p>
+      </div>
+      <div class='feedback_module'><p>maxtick (msec): <span id="highwater_maxtick">0</span></p></div>
+      <div class='feedback_module'>
+        <p>discover_name #: <span id="highwater_discover_name">0</span></p>
+      </div>
+      ${this.build_pfm_live_monitor('add_quad')}
+      ${this.build_pfm_live_monitor('hatch')}
+      <div class='feedback_module'><p>Ticks in Session: <span id="noTicks">0</span></p></div>
+      ${this.build_pfm_live_monitor('tick')}
+      <div class='feedback_module'><p>Total SPARQL Requests: <span id="noSparql">0</span></p></div>
+      <div class='feedback_module'><p>Outstanding SPARQL Requests: <span id="noOR">0</span></p></div>
+      ${this.build_pfm_live_monitor('sparql')}`;
     this.performance_dashboard_JQElem.html(message + warning);
   }
 
   build_pfm_live_monitor(name) {
-    return `<div class='feedback_module'>${this.pfm_data[name].label}:
- <svg id='pfm_${name}' class='sparkline' width='200px' height='50px' stroke-width='1'></svg>
-</div>`;
+    return `\
+      <div class='feedback_module'>${this.pfm_data[name].label}:
+        <svg id='pfm_${name}' class='sparkline' width='200px' height='50px' stroke-width='1'></svg>
+      </div>`;
   }
 
   pfm_count(name) {
@@ -11117,27 +11136,27 @@ export class Orlando extends OntologicallyGrounded {
           obj_dd = `"${obj.quad.obj_val}"${dataType}`;
         }
         msg_or_obj = `\
-<div id="${obj.snippet_js_key}" class="message_wrapper" style="overflow:none;">
-    <h3>subject</h3>
-    <div class="edge_circle" style="background-color:${m.edge.source.color};"></div>
-    <p>${this.make_link(obj.quad.subj_uri)}</p>
+          <div id="${obj.snippet_js_key}" class="message_wrapper" style="overflow:none;">
+            <h3>subject</h3>
+            <div class="edge_circle" style="background-color:${m.edge.source.color};"></div>
+            <p>${this.make_link(obj.quad.subj_uri)}</p>
 
-    <h3>predicate </h3>
-    <div class="edge_arrow">
-      <div class="edge_arrow_stem" style="background-color:${m.edge.color};"></div>
-      <div class="edge_arrow_head" style="border-color: transparent transparent transparent ${m.edge.color};"></div>
-    </div>
-    <p class="pred">${this.make_link(obj.quad.pred_uri)}</p>
+            <h3>predicate </h3>
+            <div class="edge_arrow">
+              <div class="edge_arrow_stem" style="background-color:${m.edge.color};"></div>
+              <div class="edge_arrow_head"
+                style="border-color: transparent transparent transparent ${m.edge.color};"></div>
+            </div>
+            <p class="pred">${this.make_link(obj.quad.pred_uri)}</p>
 
-    <h3>object </h3>
-    <div class="edge_circle" style="background-color:${m.edge.target.color};"></div>
-    <p>${obj_dd}</p>
+            <h3>object </h3>
+            <div class="edge_circle" style="background-color:${m.edge.target.color};"></div>
+            <p>${obj_dd}</p>
 
-    <h3>source</h3>
-    <p">${this.make_link(obj.quad.graph_uri)}</p>
-</div>
-\
-`;
+            <h3>source</h3>
+            <p">${this.make_link(obj.quad.graph_uri)}</p>
+          </div>\
+        `;
       }
     }
 
