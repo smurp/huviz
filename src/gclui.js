@@ -208,10 +208,12 @@ of the classes indicated.`,
     }
     this.style_context_selector = this.huviz.get_picker_style_context_selector();
     this.comdiv = d3.select(this.container).append("div"); // --- Add a container
+    this.comdiv.classed('comdiv');
     if (!this.huviz.combine_command_history) {
       this.control_label("Current Command");
     }
     this.nextcommandbox_parent = this.comdiv.append('div');
+    this.nextcommandbox_parent.classed("combined_command_history_parent", true);
     this.nextcommandbox = this.nextcommandbox_parent.append('div');
     this.nextcommandbox.classed('combined_command_history',    // set this class
                                 this.huviz.combine_command_history);  // if true
@@ -219,18 +221,22 @@ of the classes indicated.`,
     this.make_command_history();
     this.prepare_tabs_sparqlQueries();
     this.make_verb_sets();
-    this.control_label("Verbs");
-    this.verbdiv = this.comdiv.append('div').attr('class','verbs');
+    var verbs_parent = this.control_label("Verbs");
+    verbs_parent.classed('verbs_box_parent', true);
+    //this.verbdiv = this.comdiv.append('div').attr('class','verbs');
+    this.verbdiv = verbs_parent.append('div').attr('class','verbs');
     this.depthdiv = this.comdiv.append('div');
     this.add_clear_both(this.comdiv);
     //@node_pickers = @comdiv.append('div')
-    this.node_pickers = this.comdiv.append('div').attr("id","node_pickers");
-    this.set_picker_box_parent = this.build_set_picker("Sets",this.node_pickers);
+
+    this.set_picker_box_parent = this.build_set_picker("Sets", this.comdiv);
+        this.node_pickers = this.comdiv.append('div').attr("id","node_pickers");
+    this.add_clear_both(this.comdiv);
     this.taxon_picker_box_parent = this.build_taxon_picker(
       "Class Selector", this.node_pickers);
-    this.add_clear_both(this.comdiv);
-    this.likediv = this.taxon_picker_box_parent.append('div');
-    this.build_predicate_picker("Edges of the Selected Nodes");
+    //this.add_clear_both(this.comdiv);
+    this.likediv = this.set_picker_box_parent.append('div');
+    this.build_predicate_picker("Edges of the Selected Nodes", this.node_pickers);
     this.init_editor_data();
     this.build_form();
     this.update_command();
@@ -728,8 +734,9 @@ of the classes indicated.`,
       //@predicate_picker?.resort_recursively()
     //@set_picker?.resort_recursively()
   }
-  build_predicate_picker(label) {
+  build_predicate_picker(label, parent) {
     let extra_classes, needs_expander, squash_case, use_name_as_label;
+    parent = parent || this.comdiv;
     this.predicates_id = this.huviz.unique_id('predicates_');
     const title =
       "Medium color: all edges shown -- click to show none\n" +
@@ -738,7 +745,9 @@ of the classes indicated.`,
       "Hidden: no edges among the selected nodes";
     const where = (
       (label != null) &&
-        this.control_label(label,this.comdiv,title)) || this.comdiv;
+        this.control_label(label,parent,title)) || this.comdiv;
+    console.log("where",where.node().outerHTML)
+    where.classed('predicate_picker_box_parent',true)
     this.predicatebox = where.append('div')
         .classed('container', true)
         .attr('id', this.predicates_id);

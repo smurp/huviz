@@ -356,12 +356,18 @@
   cursor: inherit;
 }
 .set_picker_box_parent {
-  float: left;
-  width: 32%;
+  /* float: left; 
+    width: 32%;
+    transform: rotate(270deg);
+*/
 }
 .taxon_picker_box_parent {
+  float: left;
+  width: 48%
+}
+.predicate_picker_box_parent {
   float: right;
-  width: 66%
+  width: 48%
 }
 .nextcommand_command {
   -webkit-touch-callout: initial;
