@@ -226,16 +226,15 @@ of the classes indicated.`,
     //this.verbdiv = this.comdiv.append('div').attr('class','verbs');
     this.verbdiv = verbs_parent.append('div').attr('class','verbs');
     this.depthdiv = this.comdiv.append('div');
-    this.add_clear_both(this.comdiv);
-    //@node_pickers = @comdiv.append('div')
-
+    this.search_box_parent = this.comdiv.append('div').classed('search_box_parent', true);
+    this.likediv = this.search_box_parent.append('div');
+    this.build_like();
     this.set_picker_box_parent = this.build_set_picker("Sets", this.comdiv);
         this.node_pickers = this.comdiv.append('div').attr("id","node_pickers");
     this.add_clear_both(this.comdiv);
     this.taxon_picker_box_parent = this.build_taxon_picker(
       "Class Selector", this.node_pickers);
     //this.add_clear_both(this.comdiv);
-    this.likediv = this.set_picker_box_parent.append('div');
     this.build_predicate_picker("Edges of the Selected Nodes", this.node_pickers);
     this.init_editor_data();
     this.build_form();
@@ -1115,7 +1114,7 @@ of the classes indicated.`,
   build_form() {
     this.build_verb_form();
     this.build_depth();
-    this.build_like();
+
     if (this.huviz.combine_command_history) {
       this.nextcommand = this.cmdlist.append('div');
       this.nextcommand.classed('inset_shadow', true);
