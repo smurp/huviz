@@ -355,12 +355,7 @@
   background: darkgray;
   cursor: inherit;
 }
-.set_picker_box_parent {
-  /* float: left; 
-    width: 32%;
-    transform: rotate(270deg);
-*/
-}
+
 .taxon_picker_box_parent {
   float: left;
   width: 48%
@@ -520,3 +515,113 @@
 .scriptPlayerControls [disabled]{
   cursor:not-allowed;
 }
+
+
+
+
+/*
+
+TODO move this style_of_set_picker stuff to a new css file
+
+SOLUTION: https://stackoverflow.com/a/47860039
+
+It looks like this style_of_set_picker problem might need MATH.
+
+Here are a few resources with hints in this direction:
+
+  https://css-tricks.com/solving-last-item-problem-circular-distribution-partially-overlapping-items/
+
+*/
+
+
+/* style_of_set_picker = wrenched */
+.set_picker_box_parent.wrenched > .control_label::after{
+    content: "(wrenched)";
+    margin-left: 1em;
+}
+.set_picker_box_parent.wrenched > #sets.container {
+    display: table;
+    height: 9.3em;
+}
+..set_picker_box_parent.wrenched .contents {
+    padding: 50% 0;
+    /*   height: 0; */
+}
+.set_picker_box_parent.wrenched > #sets .treepicker-label {
+  display: block;
+  transform-origin: top left;
+  transform: rotate(-75deg) translate(-100%);
+  border: 1px solid black;
+  margin-top: -50%;
+  white-space: nowrap;
+}
+
+
+/* style_of_set_picker = tipped */
+.set_picker_box_parent.tipped > .control_label::after{
+    content: "(tipped)";
+    margin-left: 1em;
+}
+.set_picker_box_parent.tipped #sets.container {
+    display: inline-flex;
+    height: 9.3em;
+}
+.set_picker_box_parent.tipped > #sets .treepicker-label {
+  transform-origin: top left;
+  transform: rotate(-75deg) translate(-100%);
+  border: 1px solid black;
+  margin: .35em;
+  border-radius: .2em;
+  float: left;
+  display: inline-grid;
+  height: 1.2em;
+  width: 2em;
+  white-space: nowrap;
+}
+
+
+/* style_of_set_picker = canted */
+.set_picker_box_parent.canted > .control_label::after{
+    content: "(canted)";
+    margin-left: 1em;
+}
+.set_picker_box_parent.canted #sets.container {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-evenly;
+    flex-direction: row;
+    height: 9.3em;
+}
+.set_picker_box_parent.canted > #sets .treepicker-label {
+  transform-origin: top left;
+  transform: rotate(-75deg) translate(-140%, 1.1em);
+  border: 1px solid black;
+  margin: .35em;
+  border-radius: .2em;
+}
+
+
+/* style_of_set_picker = torqued */
+.set_picker_box_parent.torqued > .control_label::after{
+    content: "(torqued)";
+    margin-left: 1em;
+}
+.set_picker_box_parent.torqued > #sets.container {
+  --move-sets-up: -8.5em;
+  --move-sets-left: 8.5em;
+  transform: translate(var(--move-sets-left), var(--move-sets-up)) rotate(270deg);
+}
+.set_picker_box_parent.torqued > #sets .treepicker-label {
+  display: block;
+  margin-left: .3em;
+  height: 1.2em;
+  padding:1px;
+  transform: rotate(16deg) translate(1em, 0em);
+  border: 1px solid black;
+  border-radius: .3em;
+}
+.set_picker_box_parent.torqued {
+  height: 9.3em;
+}
+
+/* style_of_set_picker END */

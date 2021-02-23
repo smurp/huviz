@@ -1037,10 +1037,69 @@ If zero before loading, then lookup is suppressed.`
       label: {
         title: "Display the loading_notice after the user presses LOAD"
       },
-      input: {
+      input: { // this should be OFF by default until it is pretty
         type: "checkbox",
         checked: "checked"
       }
     }
-  } // this should be OFF by default until it is pretty
+  }
+  , {
+    torque_the_sets: {
+      group: "Feature Flags",
+      class: "alpha_feature",
+      text: "Torque the Sets",
+      label: {
+        title: "Rotate the Sets around by 90deg"
+      },
+      input: {
+        type: "checkbox"
+        //, checked: "checked"
+      }
+    }
+  }
+  , {
+    style_of_set_picker: {
+      group: "Feature Flags",
+      class: "alpha_feature",
+      text: "Style of Set Picker...",
+      label: {
+        title: "How the Set Picker is styled"
+      },
+      input: {
+        type: "select"
+      },
+      options : [
+        {
+          label: "Classic"
+          , value: "classic"
+          , selected: true
+        }
+        , {
+          label: "Canted (alpha)"
+          , value: "canted"
+
+        }
+        , {
+          label: "Wrenched (alpha)"
+          , value: "wrenched"
+
+        }
+        , {
+          label: "Horizontal (pre-alpha)"
+          , value: "horiz-sets"
+          
+        }
+        , {
+          label: "Tipped (alpha)"
+          , value: "tipped"
+
+        }
+        , {
+          label: "Torqued (alpha)"
+          , value: "torqued"
+
+        }
+      ]
+    }
+  }
 ];

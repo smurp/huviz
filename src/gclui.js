@@ -1775,6 +1775,9 @@ of the classes indicated.`,
   }
   build_set_picker(label, where) {
     // FIXME populate @the_sets from @huviz.selectable_sets
+    var {style_of_set_picker} = this.huviz;
+    var torque_the_sets = style_of_set_picker != 'classic';
+    //torque_the_sets = true;
     where = ((label != null) && this.control_label(label, where)) || this.comdiv;
     this.the_sets = { // TODO build this automatically from huviz.selectable_sets
       'all_set': [this.huviz.all_set.label, {
@@ -1793,6 +1796,16 @@ of the classes indicated.`,
             }
               ]
     };
+    if (torque_the_sets) {
+      //this.the_sets.all_set[0] = 'ALL'; // make this first
+      var all_set = this.the_sets.all_set;
+      for (let k_v of Object.entries(all_set[1])) {
+        var [k, v] = k_v;
+        delete all_set[k];
+        this.the_sets[k] = v;
+      }
+      this.the_sets.all_set.pop();
+    }
     this.set_picker_box = where.append('div')
         .classed('container',true)
         .attr('id', 'sets');
@@ -1802,7 +1815,7 @@ of the classes indicated.`,
     this.set_picker.show_tree(this.the_sets, this.set_picker_box);
     this.populate_all_set_docs();
     this.make_sets_proposable();
-    where.classed("set_picker_box_parent",true);
+    where.classed(`set_picker_box_parent ${style_of_set_picker}`,true);
     return where;
   }
   populate_all_set_docs() {
