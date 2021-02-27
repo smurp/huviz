@@ -193,7 +193,11 @@
   position: relative;
   cursor: default;
   padding-right: 1em;
-  z-index: -1; /* so inset_shadow covers them */
+  /* AARRG!!!                                                  
+       z-index: -1                                             
+         This is needed so inset_shadow covers the commands    
+         BUT then the delete buttons no longer work;           
+  */
 }
 .command.played {
   background-color: #fcf59b;  /* legal pad yellow */
