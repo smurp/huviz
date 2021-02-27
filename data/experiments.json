@@ -1,11 +1,6 @@
 {
   "datasets": [
     {
-      "uri": "/data/Aguilar_Test.jsonld",
-      "label": "Aguilar Annotations (JSON-LD)",
-      "ontology_label": "OWL Mini"
-    },
-    {
       "uri": "https://raw.githubusercontent.com/whanley/names-data/master/british-subjects-alexandria-1888/british-subjects-alexandria-1888.ttl",
       "label": "British Subjects in Alexandria [1662/6700]",
       "subjectCount": 1662,
