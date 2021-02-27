@@ -550,6 +550,27 @@ of the classes indicated.`,
       this.on_forward_click();
     }
   }
+  on_play_to_script_command_by_id(id) {
+    // play the script to the command with the given id
+    // There are 3 possible states: current command_idx0 is before, after or equal to idx
+    const idx = this.get_command_idx_by_id(id);
+    //console.log(`on_play_to_script_command_by_id(${id}) idx=${idx}`, this.command_idx0);
+    if (idx == null || idx == this.command_idx0) return; // already there, ignore!
+    if (idx < this.command_idx0) { // go back
+      this.on_rewind_click();
+    }
+    this.on_fastforward_click(idx);
+  }
+  get_command_idx_by_id(id) {
+    // we scan for idx rather than memo it on the cmds because they can be moved and deleted
+    var idx = 0;
+    while (this.command_list.length > idx) {
+      var cmd_and_elem = this.command_list[idx];
+      idx++;
+      if (cmd_and_elem.cmd.id == id) return idx;
+    }
+    return null;
+  }
   publish_script(script_rec, callback) {
     // script_rec keys: uri, opt_group, data
     console.log("publish_script", script_rec);
@@ -1337,10 +1358,12 @@ of the classes indicated.`,
         this.huviz.goto_tab('commands');
         setTimeout(() => {
           this.on_fastforward_click();
-          // The following hack just makes a little change to a setting which
-          // affects the graph.  Otherwise all the nodes pile up at the origin.
+          // TODO move this hack to own method on HuViz
+          // HACK ON
+          // Make small change to a setting, so nodes do not pile up at the origin.
           var ld = this.huviz.linkDistance * 1.01;
           this.huviz.on_change_linkDistance(ld);
+          // HACK OFF
         });
       } else {
         console.log("nothing to run");
@@ -1355,7 +1378,8 @@ of the classes indicated.`,
     cmd.id = getRandomId('cmd');
     const elem = this.oldcommands.append('div').
       attr('class','played command').
-      attr('id',cmd.id);
+          attr('id',cmd.id);
+    var elemNode = elem.node();
     this.commandhistory_JQElem.scrollTop(this.commandhistory_JQElem.scrollHeight);
     const elem_and_cmd = {
       elem,
@@ -1367,7 +1391,9 @@ of the classes indicated.`,
     // we are appending to the end of the script, playing is no longer valid, so...
     this.disable_play_buttons();
     elem.text(cmd.str+"\n"); // add CR for downloaded scripts
-    elem.node().scrollIntoView();
+    elemNode.scrollIntoView();
+    //elemNode.on('click', (evt) => {alert(cmd.str)});
+    elem.on('click', () => this.on_play_to_script_command_by_id(cmd.id));
     const delete_button = elem.append('a');
     delete_button.attr('class', 'delete-command');
     delete_button.on('click', () => this.delete_script_command_by_id(cmd.id));
