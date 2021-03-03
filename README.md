@@ -22,6 +22,11 @@ other sites as a visualizer for their graph content.
 * [Beta](http://beta.huviz.dev.nooron.com/)
 * [Alpha](http://alpha.huviz.dev.nooron.com/)
 
+## Papers and Presentations Mentioning HuViz
+* [Software Integration in the Digital Humanities](https://www.canarie.ca/wp-content/uploads/16-Brown-Ilovan.pdf)
+* [HuViz: From _Orlando_ to CWRC... And Beyond!](https://dblp.org/rec/conf/dihu/MartinLBMS18.html)
+* [REED London and the Promise of Critical Infrastructure](https://dh2018.adho.org/en/reed-london-and-the-promise-of-critical-infrastructure/)
+
 # Development and Issues
 
 * Development occurs at: [https://github.com/smurp/huviz](https://github.com/smurp/huviz)
