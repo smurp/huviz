@@ -1,14 +1,6 @@
 {
   "datasets": [
     {
-      "uri": "https://raw.githubusercontent.com/whanley/names-data/master/british-subjects-alexandria-1888/british-subjects-alexandria-1888.ttl",
-      "label": "British Subjects in Alexandria [1662/6700]",
-      "subjectCount": 1662,
-      "tripleCount": 6700,
-      "ontology_label": "OWL Mini",
-      "danger": true
-    },
-    {
       "uri": "/data/cwrc-writer-citation.jsonld",
       "label": "CWRC-Writer Citation (JSONLD)",
       "ontology_label": "Open Annotation"
@@ -39,9 +31,9 @@
       "ontology_label": "OWL Mini"
     },
     {
-      "uri": "/data/nanopub_57.trig",
-      "label": "NanoPub 57",
-      "ontology_label": "OWL Mini"
+      "uri": "/data/nanopub_gene_assoc_disease.trig",
+      "label": "NanoPub Gene Assoc Disease",
+      "ontology_label": "NanoPub"
     },
     {
       "uri": "/data/one-person-annotation.ttl",

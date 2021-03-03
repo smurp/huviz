@@ -17,6 +17,10 @@
       "label": "HTML Ontology from Uspin"
     },
     {
+      "uri": "/data/nschema.ttl",
+      "label": "NanoPub"
+    },
+    {
       "uri": "/data/oa.ttl",
       "label": "Open Annotation",
       "title": "copied from https://www.w3.org/ns/oa.ttl"
