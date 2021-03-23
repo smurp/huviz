@@ -43,6 +43,10 @@
       "label": "Tunisian Names Ontology"
     },
     {
+      "uri": "https://raw.githubusercontent.com/cfoster/xmllondon-rdf/master/common-vocabularies/vcard.ttl",
+      "label": "vCard - 2006"
+    },
+    {
       "uri": "/data/video.ttl",
       "label": "Video Ontology (VidOnt)"
     },
