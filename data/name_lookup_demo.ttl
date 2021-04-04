@@ -26,12 +26,20 @@ dbr:Berlin
   rdf:type dbo:PopulatedPlace ; # this has a label with a space, unlike City
   dbo:CityOf
     dbr:Charlottenburg ,
-    geo:2852217 , # GEO works too (Prenzlauer-Berg)
+    <http://sws.geonames.org/2852217> , # GEO works too (Prenzlauer-Berg)
+    <https://www.geonames.org/8334619/> , # GEO for (Stadtrandsiedlung Malchow) without the trailing slash
+    geo:6545310 , # Mitte, in Berlin
     # note the non-canonical use of https, www and trailing slash
     <https://www.geonames.org/6698676/> , # Kaiser Willhelm Mem. Church
     osmw:54525147 , # "Hochbunker Pallasstrasse" openstreetmaps NOT working
     dbr:Technical_University_of_Berlin ,
     dbr:Berliner_Dom .
+
+<https://github.com/cwrc/HuViz/issues/360>
+    owl:seeAlso geo:8504780, geo:6545310 .
+
+geo:8504780 # Mitte, in Bielefeld, but with the same name as the one in Berlin
+  dbo:comment "No, no, the one in Bielefeld!" .
 
 # Here is how to look up osm names
 # https://sophox.org/#%23%20auto_discover_name_for%28https%3A%2F%2Fwww.openstreetmap.org%2Fway%2F54525147%29%0APREFIX%20rdfs%3A%20%3Chttp%3A%2F%2Fwww.w3.org%2F2000%2F01%2Frdf-schema%23%3E%0APREFIX%20foaf%3A%20%3Chttp%3A%2F%2Fxmlns.com%2Ffoaf%2F0.1%2F%3E%0APREFIX%20schema%3A%20%3Chttp%3A%2F%2Fschema.org%2F%3E%0ASELECT%20%2a%0AWHERE%20%7B%0A%20%20%20%20%3Chttps%3A%2F%2Fwww.openstreetmap.org%2Fway%2F54525147%3E%20%3Fp%20%3Fo%20.%0A%7D%0ALIMIT%20100%0A

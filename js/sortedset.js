@@ -52,7 +52,7 @@
  */
 var SortedSet = function(){
   if (arguments.callee) {arguments.callee.NUMBER_OF_COPIES += 1;}
-  if (window) {
+  if (typeof window != 'undefined') {
     if (!window.NUM_SORTEDSET){window.NUM_SORTEDSET = 0}
     window.NUM_SORTEDSET += 1;
   }
@@ -101,7 +101,10 @@ var SortedSet = function(){
     array._verify_cmp(av, bv, retval);
     return retval;
   }
-  array._cmp = function(a, b) {
+  array._cmp_classic = function(a, b) {
+    /*
+      Classic does NOT handle dupes
+     */
     var f_or_k = array._f_or_k,
         av = (''+(a && a[f_or_k]) || ''),
         bv = (''+(b && b[f_or_k]) || '');
@@ -109,6 +112,16 @@ var SortedSet = function(){
     var acase = array.case_insensitive && av.toLowerCase() || av,
         bcase = array.case_insensitive && bv.toLowerCase() || bv;
     return (acase < bcase) && -1 || ((acase > bcase) && 1 || 0);
+  }
+  array._cmp = function(a, b) {
+    var f_or_k = array._f_or_k,
+        av = (''+(a && a[f_or_k]) || ''),
+        bv = (''+(b && b[f_or_k]) || '');
+    // xcase are squashed iff needed
+    var acase = array.case_insensitive && av.toLowerCase() || av,
+        bcase = array.case_insensitive && bv.toLowerCase() || bv;
+    return (acase < bcase) && -1 || ((acase > bcase) && 1 || 0) ||
+           ((a.id < b.id) && -1) || ((a.id > b.id) && 1 || 0);
   }
   array._verify_cmp = function(av, bv, retval) {
     var dir = ['less than', 'equal to', 'greater than'][retval+1],
@@ -318,15 +331,22 @@ var SortedSet = function(){
     //console.log("c:", c, array.is_sorted());
     if (c > -1){  // it was found
       duds = array.splice(c, 1);  // remove itm into the duds array (expecting length == 1)
-      if (true) { // report because
-        var because = ((duds.length != 1) && (""+ duds.length + " removed, not 1")) ||
-            ((duds[0] != itm) && (duds[0].lid + " was removed instead of " + itm.lid)) || "";
+      if (true) { // confirm correctness
+        var because;
+        if (duds.length != 1) {
+          because = "removed "+ duds.length + " instead of exactly 1 item";
+        } else if (duds[0] != itm) {
+          because = duds[0].id + " was removed instead of " + itm.id;
+          console.debug(itm.id, 'was', itm[array._f_or_k], 'but',
+                        duds[0].id, 'was' , duds[0][array._f_or_k],
+                        'which might appear the same without being the same object')
+        } else {
+          because = ""; // there was no error
+        }
         if (because) {
-          console.log(itm[array._f_or_k], '??', duds[0][array._f_or_k])
           var msg = "remove failed at idx " + c + " to splice " + itm.id +
               " out of "+ array.label + " because "+ because;
-          console.debug(msg);
-          //throw new Error(msg);
+          throw new Error(msg);
         }
       }
     } else {
@@ -356,7 +376,7 @@ var SortedSet = function(){
       return array[idx];
     }
   };
-  array.get_by = function(key,val){
+  array.get_by = function(key, val){
     var o = {};
     o[key] = val;
     return this.get(o);
@@ -370,13 +390,16 @@ var SortedSet = function(){
      * If ret_ins_idx (ie "RETurn the INSertion INdeX") is true then
      * instead of returning -1 upon failure, it returns the index at which
      * sought should be inserted to keep the array sorted.
+     *
+     * SortedSet must be capable of containing multiple itm which have the same key.
+     * It is assumed that the key .id is available when distinguishing itemss.  See _cmp
      */
     ret_ins_idx = ret_ins_idx || false;
     var step = 0;
     var seeking = true;
     if (array.length < 1) {
       if (ret_ins_idx) {
-	return {idx:0};
+	return {idx: 0};
       }
       return -1;
     }
@@ -484,7 +507,15 @@ var SortedSets_tests = function(verbose){
   a_d = SortedSet(a,d).sort_on('id'),
   ints = SortedSet(0,1,2,3,4,5,6,7,8,10).sort_on(n),
   even = SortedSet(0,2,4,6,8,10).sort_on(n),
-  some_dupes = SortedSet(0,1,2,2,5,7,2,9).sort_on(n);
+  some_dupes = SortedSet(0,1,2,2,5,7,2,9).sort_on(n),
+
+  a1 = {id:1, name:'Alice'},
+  a2 = {id:2, name:'Alice'},
+  a3 = {id:3, name:'Alice'},
+  a4 = {id:4, name:'Alice'},
+  b5 = {id:5, name:'Bob'},
+  b6 = {id:6, name:'Bob'},
+  dupe_names = SortedSet().sort_on('name');
 
   function expect(stmt,want){
     var got = eval(stmt);
@@ -535,8 +566,44 @@ var SortedSets_tests = function(verbose){
   expect("a_d.binary_search(b)",1);
   expect("a_d.binary_search(d)",2);
   expect("a_d.add(c)",0);
+  expect("dupe_names.add(a2)", 0);
+  expect("dupe_names.add(a1)", 0);
+  expect("12 * 12", 144);
+  expect("dupe_names.length", 2);
+
+  expect("dupe_names.roll_call()", '1, 2');
+  expect("dupe_names.binary_search({'name':'Alice'})", 1);
+
+  expect("dupe_names.add(a4)", 2);
+  expect("dupe_names.length", 3);
+  expect("dupe_names.roll_call()", '1, 2, 4');
+
+  expect("dupe_names.add(b6)", 3);
+  expect("dupe_names.roll_call()", '1, 2, 4, 6');
+
+  expect("dupe_names.add(b5)", 3);
+  expect("dupe_names.roll_call()", '1, 2, 4, 5, 6');
+
+  expect("dupe_names._cmp(b5, b5)", 0);
+  expect("dupe_names._cmp(a4, b5)", -1);
+  expect("dupe_names._cmp(b5, a4)", 1);
+
+  expect("dupe_names._cmp(b5, b6)", -1);
+  expect("dupe_names._cmp(b6, b5)", 1);
+  expect("dupe_names._cmp(b5, a1)", 1);
+
+  expect("dupe_names.remove(b5).id", 5);
+  expect("dupe_names.remove(a2).id", 2);
+  expect("dupe_names.roll_call()", '1, 4, 6');
+
+  expect("'ran to completion'.split(' ').join(' ')", 'ran to completion');
 };
-//Sortedsets_tests();
+/*
+ * Here is a handy way to watch the tests:
+ *   nodemon -w js/sortedset.js --exec  node js/sortedset.js
+ * Uncomment next line to run tests.  Silence is success.
+ */
+//    SortedSets_tests();
 if (typeof module !== 'undefined' && module.exports) {
   module.exports.SortedSet = SortedSet;
 }

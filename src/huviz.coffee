@@ -473,7 +473,7 @@ class UsernameWidget extends SettingsWidget
       console.log("not bothering to change the state to",state,"cause it already is")
       return
     @state = state
-    console.log(state, @inputJQElem.val())
+    console.info(@constructor.name, "state:", state, 'username:', @inputJQElem.val())
     stateIcon = @state_to_state_icon[state]
     @stateIconJQElem.attr('class', "stateIcon fa " + stateIcon)
     color = @state_to_color[state]
@@ -7748,7 +7748,7 @@ class Huviz
         label:
           title: "the attractive force keeping nodes centered"
         input:
-          value: 0.50
+          value: 0.75
           min: 0
           max: 1
           step: 0.025
