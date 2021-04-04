@@ -3,23 +3,45 @@ huviz
 
 ![Image](./graph_ex1.png?raw=true)
 
-# Demonstration Sites
+# What is HuViz?
 
-**/cwrc/HuViz** is a fork of [/smurp/huviz](https://github.com/smurp/huviz) where development occurs
+HuViz is a Semantic Web graph visualization engine which uses a powerful system of interactions which can
+be captured to produce replayable scripts.  It is rather like SQL (the Structured Query Language) but applied
+to the task of creating graph visualizations.  It runs as a stand-alone site and can be integrated into
+other sites as a visualizer for their graph content.
 
-# Installation
+## Pages about HuViz
 
+* [http://smurp.github.io/huviz/](http://smurp.github.io/huviz/)
+* [https://nooron.com/#huviz](https://nooron.com/#huviz)
+
+## Deployments
+
+* [LINCS Production](https://huviz.lincsproject.ca/)
 * [Production](http://huviz.dev.nooron.com/)
 * [Beta](http://beta.huviz.dev.nooron.com/)
 * [Alpha](http://alpha.huviz.dev.nooron.com/)
 
+## Papers and Presentations Mentioning HuViz
+* [Software Integration in the Digital Humanities](https://www.canarie.ca/wp-content/uploads/16-Brown-Ilovan.pdf)
+* [HuViz: From _Orlando_ to CWRC... And Beyond!](https://dblp.org/rec/conf/dihu/MartinLBMS18.html)
+* [REED London and the Promise of Critical Infrastructure](https://dh2018.adho.org/en/reed-london-and-the-promise-of-critical-infrastructure/)
 
-# What is HuViz?
+# Development and Issues
 
-HuViz is a Semantic Web graph visualization system which uses a powerful system of interactions which can
-be captured to produce replayable scripts.  It is rather like SQL (the Structured Query Language) but applied
-to the task of creating graph visualizations.
+* Development occurs at: [https://github.com/smurp/huviz](https://github.com/smurp/huviz)
+* Issues are maintained at:
+  - [https://gitlab.com/calincs/access/HuViz/-/issues](https://gitlab.com/calincs/access/HuViz/-/issues)
+     * related to [http://lincsproject.ca](http://lincsproject.ca)
+  - [https://github.com/smurp/huviz/issues](https://github.com/smurp/huviz/issues)
+     * low-level issues
+     * relating to integrations, embedding and so on
 
+## Wireframes for future directions
+
+* [HuViz Overview](https://balsamiq.cloud/senbj2i/ppkgzk1)
+* [Tab Details](https://balsamiq.cloud/su7hynz/p1rmtj6/r8AA1)
+* [History Mockup](http://alpha.huviz.dev.nooron.com/more/historymockup)
 
 ## Sets
 
@@ -37,7 +59,6 @@ The commands in HuViz can be thought of as moving nodes around among various set
 * Selected -- the nodes which have their named edges cataloged in the box labelled "Edges of the Selected Nodes" for the Draw verb to work on
 * Shelved -- the nodes which are kept, disconnected, on display on the sorted, circular "Shelf" around the central graph
 
-
 ## Verbs
 
 The Verbs are the operations which move nodes between the various sets, ie sets of nodes in particular states.
@@ -54,14 +75,12 @@ The Verbs are the operations which move nodes between the various sets, ie sets 
 * Pin / Unpin
 
 
-
 # Installation
 
-    # Install huviz from github
+## Install huviz from github
     git clone https://github.com/smurp/huviz.git
 
 ## Installation (for running the server)
-
 
     # install NodeJS using NVM for most flexibility
     # known to work on NodeJS >= v6.11.3
@@ -91,16 +110,18 @@ The Verbs are the operations which move nodes between the various sets, ie sets 
 
 ## Running the server during development
 
-    npm run dev
+    npm run watch
 
 ## Running CLI tests
 
-    npm run watchTest
+THIS IS CURRENTLY DISABLED during the decaffeination process.
+
+    npm run watch
 
     # bail on first error
     BAIL=1 npm run watchTest
 
-uses https://www.npmjs.com/package/npm-watch https://www.npmjs.com/package/mocha
+uses [https://www.npmjs.com/package/npm-watch](https://www.npmjs.com/package/npm-watch) and [https://www.npmjs.com/package/mocha](https://www.npmjs.com/package/mocha)
 
 ## Developing `quaff-lod`
 
@@ -109,7 +130,7 @@ Run the auto build process while you are editing `src/quaff-lod-worker.js`
 
 ```sh
 $ cd quaff-lod
-$ npm run dev
+$ npm run watch
 ```
 
 Run the development version of huviz and tell it where to find the dev
@@ -117,95 +138,8 @@ version of `quaff-lod`
 
 ```sh
 $ cd huviz
-$ QUAFF_PATH=../quaff-lod/ npm run dev
+$ QUAFF_PATH=../quaff-lod/ npm run watch
 ```
-
- 
-
-## Doing releases
-
-Per https://github.com/geddski/grunt-release
-
-### Patch Release:
-
-Two choices:
-
-* `npx grunt release`
-* `npx grunt release:patch`
-
-### Minor Release
-
-* `npx grunt release:minor`
-
-### Major Release
-
-* `npx grunt release:major`
-
-
-## Installation (for running orlandoScrape.py)
-
-    # On OSX Mavericks install homebrew
-    http://crosstown.coolestguidesontheplanet.com/os-x/55
-
-
-    # If you want to run
-    # On OSX you should set up pyenv-virtualenv
-    https://github.com/yyuu/pyenv-virtualenv
-
-    # Make a virtualenv
-    pyenv virtualenv huvizenv
-
-    # use it
-    echo "PYENV_VERSION=huvizenv" > .python-version
-
-    # install the python requirements
-    pip install -r requirements.txt
-
-### Operating orlandoScrape.py
-
-    --limit 2
-        limit the number of writers processed
-
-
-### Converting XML to Turtle (TTL)
-
-    ./orlandoScrape.py --outfile data/test_20.ttl  --limit 20 -v
-
-See [data/test_20.ttl](../master/data/test_20.ttl)
-
-### Converting XML to [NQuads](http://www.w3.org/TR/n-quads/)
-
-    ./orlandoScrape.py  --outfile data/test_1.nq   --limit 1
-
-See [data/test_q.nq](../master/data/test_1.nq)
-
-
-### Converting XML to JSON
-
-  How to produce the full JSON output as `orlando_all_entries_2013-03-04.json` (the default behaviour):
-
-    ./orlandoScrape.py --infile orlando_all_entries_2013-03-04.xml --outfile orlando_all_entries_2013-03-04.json  --regexes orlando2RDFregex4.txt
-
-
-  How to produce the poetess JSON output as `orlando_poetesses_2013-02-12.json`:
-
-    ./orlandoScrape.py --infile orlando_poetesses_2013-02-12.xml --outfile orlando_poetesses_2013-02-12.json  --regexes orlando2RDFregex4.txt
-
-  How to produce orlando_timeline.json
-
-    egrep 'dateOf|standardName' orlando2RDFregex4.txt > orlando_timeline.regex
-    ./orlandoScrape.py --infile orlando_all_entries_2013-03-04.xml --outfile orlando_timeline.json --regex orlando_timeline.regex -v
-
-
-### Running the Orlando timeline locally
-
-    git clone https://github.com/smurp/huviz
-    python -m SimpleHTTPServer
-    open http://localhost:8000/timeline.html
-
-### Generating tag_tree.json
-
-    ./extractOrlandoTagInfo.py --compact --outfile orlando_tag_tree.json
 
 # Gallery
 
@@ -222,3 +156,7 @@ See [data/test_q.nq](../master/data/test_1.nq)
 ### 3191 Nodes
 
 ![Graph of 3191 nodes pulled from CWRC SPARQL](./docs/3191_nodes.png?raw=true)
+
+# System Diagram
+
+![HuViz System Diagram](./docs/huviz_system_diagram.svg)

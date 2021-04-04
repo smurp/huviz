@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+  <title>ForceToy</title>
+</head>
+
+<style>
+  circle {
+      fill: cadetblue;
+  }
+  line {
+      stroke: #ccc;
+  }
+  text {
+      text-anchor: middle;
+      font-family: "Helvetica Neue", Helvetica, sans-serif;
+      fill: #666;
+      font-size: 16px;
+  }
+  #legend {
+      content: "keys:";
+      z-index: 100;
+      position: absolute;
+      bottom: .5em;
+      left: .5em;
+  }
+</style>
+
+<body>
+  <div id="legend">
+    <div><code>esc</code> to reset</div>
+    <div><code>space</code> to stop/start</div>
+    <div><code>g</code> toggles graph/tree</div>
+    <div><code>i</code> for distanceMax = Infinity</div>
+    <div><code>k</code> for distanceMax reset or increase</div>
+    <div><code>s</code> to shake</div>
+  </div>
+  <div id="content">
+    <svg>
+      <g class="links"></g>
+      <g class="nodes"></g>
+    </svg>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/d3@5.15.0/dist/d3.min.js"></script>
+  <script src="/js/forcetoy.js"></script>
+</body>
+</html>

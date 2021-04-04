@@ -1,10 +1,13 @@
 "use strict";
 
-var chai = require("chai");
-var expect = chai.expect;
+import chai from 'chai';
+const {
+  expect
+} = chai;
 
-var MultiString = require('../js/multistring').MultiString;
-var SortedSet = require('../js/sortedset').SortedSet;
+
+import {MultiString} from '../src/multistring.js';
+import {SortedSet} from '../src/sortedset.js';
 
 var as_labels = function(acc, obj) {
   //console.error("acc:",acc,"obj:",obj);
@@ -162,18 +165,18 @@ describe("MultiString and SortedSet work together", function() {
         //console.log('randIdx:',randIdx, 'rmId:',rmId, 'dud:',dud);
       }
     }
-    console.log('langpath:en INITIAL');
-    rand.dump();
+    //console.log('langpath:en INITIAL');
+    //rand.dump();
 
-    console.log('langpath:fr');
+    //console.log('langpath:fr');
     MultiString.set_langpath('fr:ANY:NOLANG');
     rand.resort();
-    rand.dump();
+    //rand.dump();
 
-    console.log('langpath:en');
+    //console.log('langpath:en');
     MultiString.set_langpath('en:ANY:NOLANG');
     rand.resort();
-    rand.dump();
+    //rand.dump();
   });
   it("random name arrival of MultiStrings", function() {
     MultiString.set_langpath('en:ANY:NOLANG');
@@ -190,7 +193,7 @@ describe("MultiString and SortedSet work together", function() {
       randType = get_random_element(types);
       randLang = languages[Math.round(Math.random()*3)];
       randName = Math.random().toString(36).substr(2,10);
-      console.log(randTask,i);
+      //console.log(randTask,i);
       if (randTask == 'name') {
         // add a new name to an existing node
         node = get_random_element(shelved);
@@ -223,21 +226,20 @@ describe("MultiString and SortedSet work together", function() {
         throw new Error('there should be a randTask');
       }
     }
-    console.log('langpath:en INITIAL');
+    //console.log('langpath:en INITIAL');
     //all.dump();
 
-    console.log({all: all.length, embryo: embryo.length, shelved: shelved.length});
-    
-    console.log('langpath:fr');
+    //console.log({all: all.length, embryo: embryo.length, shelved: shelved.length});
+    //console.log('langpath:fr');
     MultiString.set_langpath('fr:ANY:NOLANG');
     shelved.resort();
-    console.log(shelved.name_call());
-    shelved.dump();
+    //console.log(shelved.name_call());
+    //shelved.dump();
 
-    console.log('langpath:en');
+    //console.log('langpath:en');
     MultiString.set_langpath('en:ANY:NOLANG');
     shelved.resort();
-    console.log(shelved.name_call());
+    //console.log(shelved.name_call());
     shelved.dump();
   });
 

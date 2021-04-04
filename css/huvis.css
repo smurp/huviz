@@ -108,7 +108,29 @@ button.close_node_details img:hover{
   color: #555;
 }
 
+.contextMenu .urlToShare {
+  width: 90%;
+  padding: 6px;
+}
 
+.contextMenu .urlCopyButton {
+  margin: 1px 2px 4px 0;
+  border-top: 1px solid #eee;
+  border-right: 1px solid #aaa;
+  border-left: 1px solid #eee;
+  border-bottom: 1px solid #aaa;
+  background-color: #f5f5f5;
+  border-radius: 3px;
+  color: #666;
+  padding: 6px;
+  margin: 5px 5px 5px 35%;
+}
+
+.contextMenu .loadingNotice {
+  width: 200px;
+  padding: 30px 25px;
+  text-align: center;
+}
 /* --------------- SVG styles ----------------- */
 rect {
   fill: none;
@@ -312,4 +334,47 @@ div.message_wrapper {
   position: absolute;
   top: 0;
   left: 0;
+}
+
+.boxNG {
+    border: .5px solid black;
+    border-radius: .4em;
+    display: none;
+    padding: .2em;
+    position: absolute;
+    text-align: center;
+    user-select: none;
+    background-color: rgb(255,255,255, .9);
+    box-shadow: 3px 3px 3px 0px #000000;
+}
+
+.boxNGs .boxNG {
+    display: inline;
+}
+
+.boxNG.focusedNode {
+    background-color: #f2f2f2;
+    //text-decoration: line-through red;
+}
+
+.noBoxes .boxNG {
+    border: none;
+    margin-top: -0.8em;
+    margin-left: .3em;
+}
+
+.urlToShare {
+    border: 0.5px solid black;
+    overflow-wrap: anywhere;
+    width: 90%;
+    margin-left: 1em;
+}
+
+.shareableLinkDialog {
+    height: fit-content;
+    max-width: 20%;
+}
+
+#sharableLinkText {
+    padding-left: 1em;
 }

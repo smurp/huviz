@@ -5,12 +5,20 @@
       "label": "CWRC Ontology"
     },
     {
+      "uri": "https://raw.githubusercontent.com/federicomorando/linkedcoins/master/cidoc-crm-core_5.0.1.ttl",
+      "label": "CIDOC-CRM 5.0.1"
+    },
+    {
       "uri": "/data/foaf20140114.ttl",
       "label": "Friend of a Friend (FOAF)"
     },
     {
       "uri": "/data/uspin_html.ttl",
       "label": "HTML Ontology from Uspin"
+    },
+    {
+      "uri": "/data/nschema.ttl",
+      "label": "NanoPub"
     },
     {
       "uri": "/data/oa.ttl",
@@ -33,6 +41,10 @@
     {
       "uri": "https://raw.githubusercontent.com/whanley/names-data/master/tunisians-egypt-1881/tunisian-names-ontology.ttl",
       "label": "Tunisian Names Ontology"
+    },
+    {
+      "uri": "https://raw.githubusercontent.com/cfoster/xmllondon-rdf/master/common-vocabularies/vcard.ttl",
+      "label": "vCard - 2006"
     },
     {
       "uri": "/data/video.ttl",

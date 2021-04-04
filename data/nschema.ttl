@@ -1,0 +1,22 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix rdfg: <http://www.w3.org/2004/03/trix/rdfg-1/>.
+@prefix owl: <http://www.w3.org/2002/07/owl#>.
+@prefix np: <http://www.nanopub.org/nschema#>.
+
+np:Nanopublication rdf:type owl:Class.
+np:Assertion rdfs:subClassOf rdfg:Graph.
+np:Provenance rdfs:subClassOf rdfg:Graph.
+np:PublicationInfo rdfs:subClassOf rdfg:Graph.
+
+np:hasAssertion a owl:FunctionalProperty.
+np:hasAssertion rdfs:domain np:Nanopublication.
+np:hasAssertion rdfs:range np:Assertion.
+
+np:hasProvenance a owl:FunctionalProperty.
+np:hasProvenance rdfs:domain np:Nanopublication.
+np:hasProvenance rdfs:range np:Provenance.
+
+np:hasPublicationInfo a owl:FunctionalProperty.
+np:hasPublicationInfo rdfs:domain np:Nanopublication.
+np:hasPublicationInfo rdfs:range np:PublicationInfo. 

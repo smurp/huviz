@@ -1,163 +1,183 @@
-(function() {
-  var Stream, a, app, cooked_argv, ejs, express, fs, knownOpts, localOrCDN, morgan, nopt, nopts, path, port, quaff_module_path, shortHands;
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
 
-  fs = require('fs');
+// # huviz Server
+//
+// First we load standard node modules
+import fs from 'fs';
+import path from 'path';
+import {Stream} from 'stream';
 
-  path = require('path');
+// Then load diverse modules
+import ejs from 'ejs';
+import express from 'express';
+import fileUpload from 'express-fileupload';
+import marked from 'marked';
+import morgan from 'morgan';
+import nopt from 'nopt'; // https://github.com/npm/nopt
 
-  Stream = require("stream").Stream;
+// then local modules
+import {sparqlproxy} from './js/sparqlproxy.js';
 
-  ejs = require("ejs");
+const __dirname = process.cwd();
 
-  express = require("express");
+// process command line arguments
+const cooked_argv = (Array.from(process.argv));
+const knownOpts = {
+  usecdn: Boolean,
+  git_commit_hash: [String, null],
+  git_branch_name: [String, null],
+  port: [Stream, Number]
+};
+const shortHands =
+  {faststart: []};
 
-  morgan = require("morgan");
+if (process.env.NODE_ENV == null) { process.env.NODE_ENV = 'production'; } // REVIEW why is this needed? what is the proper default?
+switch (process.env.NODE_ENV) {
+  case 'development':
+    cooked_argv.push("--faststart");
+    cooked_argv.push("--git_commit_hash");
+    cooked_argv.push("8e3849b");
+    console.log(cooked_argv);
+    break;
+  case 'production':
+    cooked_argv.push("--usecdn");
+    break;
+}
 
-  nopt = require("nopt");
+const nopts = nopt(knownOpts, shortHands, cooked_argv, 2);
+nopts.huviz_init_file = "/js/HUVIZ_INIT_com.nooron.dev.huviz.js";
+//nopts.huviz_init_file = "/js/init_huvis.js"
 
-  cooked_argv = (function() {
-    var _i, _len, _ref, _results;
-    _ref = process.argv;
-    _results = [];
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      a = _ref[_i];
-      _results.push(a);
-    }
-    return _results;
-  })();
+switch (process.env.NODE_ENV) {
+  case 'development':
+    console.log(nopts);
+    break;
+}
 
-  knownOpts = {
-    is_local: Boolean,
-    skip_orlando: Boolean,
-    skip_poetesses: Boolean,
-    git_commit_hash: [String, null],
-    git_branch_name: [String, null],
-    port: [Stream, Number]
+// https://github.com/sstephenson/eco
+// REVIEW is this still needed?
+const localOrCDN = function(templatePath, data, options) {
+  if (options == null) { options = {}; }
+  const fullPath = path.join(process.cwd(), templatePath);
+  return (req, res) => {
+    return ejs.renderFile(fullPath, data, options, (err, str) => {
+      if (err) {
+        return res.send(err);
+      } else {
+        return res.send(str);
+      }
+    });
   };
+};
 
-  shortHands = {
-    faststart: ["--skip_orlando", "--skip_poetesses"]
-  };
+function moreMenu(req, res) {
+  res.send(marked(`
+## HuViz More...
 
-  switch (process.env.NODE_ENV) {
-    case 'development':
-      cooked_argv.push("--faststart");
-      cooked_argv.push("--is_local");
-      cooked_argv.push("--git_commit_hash");
-      cooked_argv.push("8e3849b");
-      console.log(cooked_argv);
+### Tests and Demos
+* [forcetoy](/more/forcetoy)
+* [getalong](/more/getalong)
+* [historymockup](/more/historymockup)
+* [tests](/more/tests)
+
+### Need converting to ES6 Modules
+* [boxed](/more/boxed)
+* [search](/more/search)
+* [twoup](/more/twoup)
+
+[back](/)
+`));
+}
+
+function publishScriptPOST(req, res) {
+  // https://github.com/richardgirges/express-fileupload/tree/master/example#basic-file-upload
+
+  if (!req.files || Object.keys(req.files).length === 0) {
+    return res.status(400).send('No files were uploaded.');
   }
 
-  nopts = nopt(knownOpts, shortHands, cooked_argv, 2);
+  // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
+  let scriptFile = req.files.scriptFile;
+  var location = "/scripts/" + scriptFile.md5 + '.txt';
+  var uploadPath = path.join(__dirname, 'UPLOADS', location);
 
-  switch (process.env.NODE_ENV) {
-    case 'development':
-      console.log(nopts);
-  }
-
-  localOrCDN = function(templatePath, data, options) {
-    var fullPath;
-    if (options == null) {
-      options = {};
+  // Use the mv() method to place the file somewhere on your server
+  scriptFile.mv(uploadPath, function(err) {
+    if (err) {
+      console.log(err);
+      return res.status(500).send(err);
+    } else {
+      console.log("responding " + scriptFile.md5)
+      res.setHeader("location", location)
+      res.end();
     }
-    fullPath = path.join(process.cwd(), templatePath);
-    return (function(_this) {
-      return function(req, res) {
-        return ejs.renderFile(fullPath, data, options, function(err, str) {
-          if (err) {
-            return res.send(err);
-          } else {
-            return res.send(str);
-          }
-        });
-      };
-    })(this);
-  };
+  });
+}
 
-  app = express();
+// Now build the express app itself.
 
-  app.use(morgan('combined'));
+const app = express();
+app.use(morgan('combined'));
+app.use(fileUpload({useTempFiles: true, tempFileDir: '/tmp/' /*, debug: true */}));
+app.set("/views", __dirname + "/views");
+app.set("/views/tabs", path.join(__dirname, 'tabs', "views"));
+app.use('/huviz/css', express.static(__dirname + '/css'));
+app.use("/huviz", express.static(__dirname + '/lib'));
+app.use('/jquery-ui-css',
+  express.static(__dirname + '/node_modules/components-jqueryui/themes/smoothness'));
+app.use('/jquery-ui',
+  express.static(__dirname + '/node_modules/components-jqueryui'));
+app.use('/jquery', express.static(__dirname + '/node_modules/jquery/dist'));
+app.use('/jquery-simulate-ext__libs',
+  express.static(__dirname + '/node_modules/jquery-simulate-ext/libs'));
+app.use('/jquery-simulate-ext__src',
+  express.static(__dirname + '/node_modules/jquery-simulate-ext/src'));
+app.use('/d3', express.static(__dirname + '/node_modules/d3'));
+// Ideally we would do this....
+// `app.use('/quaff-lod', express.static(__dirname + '/node_modules/quaff-lod/'))`
+// but that fails while quaff-lod is being referenced as a symlink in package.json
+const quaff_module_path = process.env.QUAFF_PATH || path.join(__dirname,"node_modules","quaff-lod");
+app.use('/quaff-lod/quaff-lod-worker-bundle.js',
+    express.static(quaff_module_path + "/quaff-lod-worker-bundle.js"));
+app.use('/data', express.static(__dirname + '/data'));
+app.use('/scripts', express.static(path.join(__dirname, 'UPLOADS', 'scripts')));
+app.post("/scripts", publishScriptPOST);
+app.use('/js', express.static(__dirname + '/js'));
+app.use("/jsoutline", express.static(__dirname + "/node_modules/jsoutline/lib"));
+app.use('/huviz/vendor', express.static(__dirname + '/vendor'));
+app.use('/node_modules', express.static(__dirname + '/node_modules'));
+app.use('/huviz/async', express.static(__dirname + '/node_modules/async/lib/'));
+app.use('/mocha', express.static(__dirname + '/node_modules/mocha'));
+app.use('/chai', express.static(__dirname + '/node_modules/chai'));
+app.use('/marked', express.static(__dirname + '/node_modules/marked'));
+app.use('/huviz/docs', express.static(__dirname + '/docs'));
+app.get("/tab_tester", localOrCDN("/views/tab_tester.html", {nopts}));
+app.get("/more", moreMenu);
+app.get("/more/boxed", localOrCDN("/views/boxed.html.ejs", {nopts}));
+app.get("/more/forcetoy", localOrCDN("/views/forcetoy.html", {nopts}));
+app.get("/more/getalong", localOrCDN("/views/getalong.html.ejs", {nopts}));
+app.get("/more/historymockup", localOrCDN("/views/historymockup.html.ejs", {nopts}));
+app.get("/more/search", localOrCDN("/views/search.html.ejs", {nopts}));
+app.get("/more/twoup", localOrCDN("/views/twoup.html.ejs", {nopts}));
+app.get("/more/tests", localOrCDN("/views/tests.html.ejs", {nopts}));
+// app.get("/process_env.js", (req, res) => res.send("process_env="+process.env)) # serve process.env
+app.get("/", localOrCDN("/views/huvis.html.ejs", {nopts}));
+app.get("/SPARQLPROXY/:target", sparqlproxy);
 
-  app.set("/views", __dirname + "/views");
+app.use(express.static(__dirname + '/images')); // for /favicon.ico
 
-  app.set("/views/tabs", path.join(__dirname, 'tabs', "views"));
-
-  app.use("/huviz", express["static"](__dirname + '/lib'));
-
-  app.use('/css', express["static"](__dirname + '/css'));
-
-  app.use('/jquery-ui-css', express["static"](__dirname + '/node_modules/components-jqueryui/themes/smoothness'));
-
-  app.use('/jquery-ui', express["static"](__dirname + '/node_modules/components-jqueryui'));
-
-  app.use('/jquery', express["static"](__dirname + '/node_modules/jquery/dist'));
-
-  app.use('/jquery-simulate-ext__libs', express["static"](__dirname + '/node_modules/jquery-simulate-ext/libs'));
-
-  app.use('/jquery-simulate-ext__src', express["static"](__dirname + '/node_modules/jquery-simulate-ext/src'));
-
-  app.use('/d3', express["static"](__dirname + '/node_modules/d3'));
-
-  quaff_module_path = process.env.QUAFF_PATH || "/node_modules";
-
-  app.use('/quaff-lod/quaff-lod-worker-bundle.js', localOrCDN(quaff_module_path + "/quaff-lod/quaff-lod-worker-bundle.js", {
-    nopts: nopts
-  }));
-
-  app.use('/data', express["static"](__dirname + '/data'));
-
-  app.use('/js', express["static"](__dirname + '/js'));
-
-  app.use("/jsoutline", express["static"](__dirname + "/node_modules/jsoutline/lib"));
-
-  app.use('/vendor', express["static"](__dirname + '/vendor'));
-
-  app.use('/node_modules', express["static"](__dirname + '/node_modules'));
-
-  app.use('/mocha', express["static"](__dirname + '/node_modules/mocha'));
-
-  app.use('/chai', express["static"](__dirname + '/node_modules/chai'));
-
-  app.use('/marked', express["static"](__dirname + '/node_modules/marked'));
-
-  app.use('/huviz/docs', express["static"](__dirname + '/docs'));
-
-  app.get("/tab_tester", localOrCDN("/views/tab_tester.html", {
-    nopts: nopts
-  }));
-
-  app.get("/flower", localOrCDN("/views/flower.html.ejs", {
-    nopts: nopts
-  }));
-
-  app.get("/boxed", localOrCDN("/views/boxed.html.ejs", {
-    nopts: nopts
-  }));
-
-  app.get("/twoup", localOrCDN("/views/twoup.html.ejs", {
-    nopts: nopts
-  }));
-
-  app.get("/tests", localOrCDN("/views/tests.html.ejs", {
-    nopts: nopts
-  }));
-
-  app.get("/", localOrCDN("/views/huvis.html.ejs", {
-    nopts: nopts
-  }));
-
-  app.use(express["static"](__dirname + '/images'));
-
-  app.use("/srcdocs", express["static"]("srcdocs", {
-    index: 'index.html',
-    redirect: true,
-    extensions: ['html']
-  }));
-
-  port = nopts.port || nopts.argv.remain[0] || process.env.PORT || default_port;
-
-  console.log("Starting server on port: " + port + " localhost");
-
-  app.listen(port, 'localhost');
-
-}).call(this);
+// serve /srcdocs/SUMUT.md files as raw markdown
+//app.use("/srcdocs/:d.md", express.static(__dirname + '/srcdocs'))
+//app.use("/srcdocs/:d", express.static(__dirname + '/srcdocs'))
+//app.get("/srcdocs/", (req, res) -> res.redirect("/srcdocs/index.html"))
+app.use("/srcdocs",
+  express.static("srcdocs", {index: 'index.html', redirect: true, extensions: ['html']}));
+const port = nopts.port || nopts.argv.remain[0] || process.env.PORT || 5000;
+console.log(`Starting server on localhost:${port} NODE_ENV:${process.env.NODE_ENV}`);
+app.listen(port, 'localhost');

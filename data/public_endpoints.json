@@ -20,8 +20,8 @@
       "description": "An archive of ontologies"
     },
     {
-      "uri": "https://query.wikidata.org/",
-      "label": "WikiData Query Service (CORB Error)"
+      "uri": "https://query.wikidata.org/sparql",
+      "label": "WikiData Query Service"
     },
     {
       "uri": "http://ldf.fi/ww1lod/sparql",

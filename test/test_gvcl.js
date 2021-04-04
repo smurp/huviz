@@ -1,7 +1,10 @@
 "use strict";
-var chai = require("chai");
-var expect = chai.expect;
-var GVCL = require('../js/gvcl').GVCL;
+/*
+import chai from 'chai';
+const {
+  expect
+} = chai;
+import {GVCL} from '../src/gvcl.js';
 
 describe("GVCL", function() {
   this.bail(process.env.BAIL || false);
@@ -22,3 +25,4 @@ describe("GVCL", function() {
     expect(selThing.ast).to.be.ok();
   })
 });
+*/

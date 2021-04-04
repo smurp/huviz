@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+    <title>Huvis History Mockup</title>
+    <style>
+      .commandHistory {
+	  padding: 1em;
+	  border-style: solid;
+	  border-radius: 0.3em;
+	  background-color: white;
+      }
+      .command{
+	  padding: .1em;
+          margin: .15em;
+      }
+      .played {
+	  background-color: #fcf59b;
+      }
+      .ready {
+	  background-color: lightgreen;
+      }
+      .unready {
+	  background-color: lightpink;
+      }
+      .nextcommand {
+          /*
+             height: 2.2em;
+          background-color: rgb(235, 245, 255);
+         */
+      }
+      .command > .verb_phrase,
+      .command > ._phrase {
+          border-style: solid;
+          height: 1em;
+      }
+      .nextcommand_prompt_unready {
+	  float: left;
+          width: 4em;
+          height: 1em;
+          border-bottom: 1px solid black;
+      }
+      .nextcommand_prompt_ready {
+          float: left;
+      }
+      .noun_phrase {
+          margin-left: .3em;
+      }
+      .nextcommand_prompt {
+          height: 1em;
+      }
+      .allcommands {
+          margin-top: 3px;
+          border: .8px solid grey;
+          overflow: scroll;
+          border-radius: .3em;
+          padding: 1px;
+          /* https://www.cssmatic.com/box-shadow */
+          -webkit-box-shadow: inset 3px 0px 8px 9px rgba(0,0,0,0.25);
+          -moz-box-shadow: inset 3px 0px 8px 9px rgba(0,0,0,0.25);
+          box-shadow: inset 3px 0px 8px 9px rgba(0,0,0,0.25);
+      }
+      .allcommands.grown {
+          height: 20em;
+      }
+      .allcommands.shrunken {
+          height: 5em;
+      }
+      .grow_shrink_history {
+          float: right;
+      }
+      .engaged {
+          background-color: royalblue;
+          color: white;
+      }
+      .button-x button:not(.engaged) {
+          display: none;
+      }
+      .button-x button.engaged {
+          background-color: lightblue;
+          color: royalblue;
+      }
+      /* just for this mockup */
+      body {
+          width: 25em;
+      }
+
+      .lateral-verbs button {
+          border-radius: 0.5em;
+      }
+
+      /* triple-toggle mockup styles */
+.button-main {
+    position: relative;
+    display: inline-block;
+    height: 3.4em;
+}
+
+.button-main button {
+    outline: none;
+}
+
+.button-group {
+    z-index: 1;
+    //font-size: 100px;
+}
+
+.button-group button {
+    border: 1px solid black;
+    cursor: pointer;
+    display: block;
+    width: 100%;
+    padding-left: 0.3em;
+    padding-right: 0.3em;
+}
+
+.button-group button:not(:last-child) {
+    padding-top: 0.2em;
+    padding-bottom: 0.6em;
+    border-top-right-radius: 0.5em;
+    border-top-left-radius: 0.5em;
+    border-bottom: none;
+}
+
+.button-group button:last-child {
+    padding-top: 0.6em;
+    padding-bottom: 0.2em;
+    border-bottom-right-radius: 0.5em;
+    border-bottom-left-radius: 0.5em;
+}
+
+.button-x {
+    z-index: 2;
+    width: 1.1em;
+    margin: 0;
+    position: relative;
+    top: 50%;
+    left: 50%;
+    transform: translate(-0.5em, -3.95em);
+    height: 0px;
+}
+
+.button-x button{
+    border: 1px solid black;
+    border-radius: 1em;
+    cursor: pointer;
+    padding: 0em 0.25em;
+}
+      
+    </style>
+  </head>
+  <body id="body" style="background-color:grey">
+    <div class="commandHistory">
+      <div class="control_label" style="display:inline">Command History</div>
+	<div class="scriptPlayerControls">
+	  <button title="rewind to start">
+	    <i class="fa fa-fast-backward"></i>
+	  </button>
+	  <button title="go back one step">
+	    <i class="fa fa-play fa-flip-horizontal"></i>
+	  </button>
+	  <button title="play script step by step">
+	    <i class="fa fa-play"></i>
+	  </button>
+	  <button title="play script continuously">
+	    <i class="fa fa-fast-forward"></i>
+	  </button>
+	  <button title="save script to file" style="margin-left:1em">
+	    <i class="fa fa-download"></i>
+	  </button>
+	  <button title="save script as .json" style="display:none">
+	    <i class="fa fa-download"><span>.json</span></i>
+	  </button>
+	  <button title="save script to menu">
+	    <i class="fa fa-bars"></i>
+	  </button>
+          <i class="grow_shrink_history fa fa-angle-double-down"></i>
+	</div>
+        <div class="allcommands shrunken">
+	  <div class="nextcommand command">
+	    <code class="nextcommand_str" style="display: none;"></code>
+	    <div class="nextcommand_prompt unready">
+	      <span class="verb_phrase nextcommand_prompt_unready"></span>
+	      <span class="noun_phrase nextcommand_prompt_unready"></span>
+	      <span class="suffix_phrase"></span>
+	    </div>
+	  </div>
+        </div>
+    </div>
+
+    <!--
+    <div class="verbs picker" data-speech="verb">
+      Verbs:<br/>
+      <button>Activate</button>
+      <button>Select</button>
+      <button>Label</button>
+      <button>Shelve</button>
+      <button>Discard</button>
+      <button>Pin</button>
+      <br/>
+      <button>Deactivate</button>
+      <button>Unselect</button>
+      <button>Unlabel</button>
+      <button>Hide</button>
+      <button>Retrieve</button>
+      <button>Unpin</button>
+    </div>
+    -->
+
+    <div class="verbs picker" data-speech="verb">
+      Verbs:<br/>
+      <div class="button-main">
+        <div class="button-group">
+          <button type="button">Activate</button>
+          <button type="button">Deactivate</button>
+        </div>
+        <div class="button-x">
+          <button type="button">X</button>
+        </div>
+      </div>
+      <div class="button-main">
+        <div class="button-group">
+          <button type="button">Select</button>
+          <button type="button">Deselect</button>
+        </div>
+        <div class="button-x">
+          <button type="button">X</button>
+        </div>
+      </div>
+      <div class="button-main">
+        <div class="button-group">
+          <button type="button">Label</button>
+          <button type="button">Unlabel</button>
+        </div>
+        <div class="button-x">
+          <button type="button">X</button>
+        </div>
+      </div>
+      <div class="button-main">
+        <div class="button-group">
+          <button type="button">Discard</button>
+          <button type="button">Retrieve</button>
+        </div>
+        <div class="button-x">
+          <button type="button">X</button>
+        </div>
+      </div>
+      <div class="button-main">
+        <div class="button-group">
+          <button type="button">Pin</button>
+          <button type="button">Unpin</button>
+        </div>
+        <div class="button-x">
+          <button type="button">X</button>
+        </div>
+      </div>
+
+      <div class="lateral-verbs">
+        <button> Walk </button>
+        <button> Wander </button>
+        <button> Shelve </button>
+        <button> Hide </button>
+      </div>
+    </div>
+
+    <div class="sets picker" data-speech="noun">
+      Sets:<br/>
+      <button>Activated</button><br/>
+      <button>Discarded</button><br/>
+      <button>Graphed</button><br/>
+      <button>Hidden</button><br/>
+      <button>Labelled</button><br/>
+      <button>Pinned</button><br/>
+      <button>Selected</button><br/>
+      <button>Shelved</button><br/>
+      <button>Walked</button><br/>
+    </div>
+    <script src="/js/historymockup.js"></script>
+  </body>
+</html>

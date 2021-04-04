@@ -1,3 +1,6 @@
+import * as huviz from '/huviz/huviz.js';
+
+var expect = chai.expect();
 /*
 
   This suite has some problems:
@@ -9,19 +12,25 @@
 
 */
 
+const ORLANDO_ONTOLOGY_URI = "http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl";
+const EDITUI_DBNAME = 'nstoreDB_test';
 
-ORLANDO_ONTOLOGY_URI = "http://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl";
-EDITUI_DBNAME = 'nstoreDB_test';
+var mocha_box_args = {
+  "title":"test suite",
+  "maxHeight": 800,
+  "minWidth": 500,
+  "position": {"at": "left top", "of": window}
+};
+var dlg = $("#mocha_box").dialog(mocha_box_args);
+mocha.setup('bdd');
+window.addEventListener('load',function(){
+  mocha.run();
+});
 
-var expect = chai.expect;
-
-// It would be great if this code could be written in coffeescript.
-// This might offer clues:
-//   http://rzrsharp.net/2012/08/01/client-side-testing-insanity.html
-// though this is likely irrelevant.
-
-//  This looks like a great post, should check for good ideas:
-//  http://www.redotheweb.com/2013/01/15/functional-testing-for-nodejs-using-mocha-and-zombie-js.html
+document.addEventListener('touchmove', function(e) {
+  // TODO it would be great if Shawn had documented the movitvation for this :-)
+  e.preventDefault();
+}, false);
 
 var pause_msec = 3;
 var say = function(msg, done) {
@@ -209,7 +218,7 @@ var getStyle = function(className) {
     }
 };
 
-window.huviz = require('huviz');
+/*
 var setup_jsoutline = function() {
   console.group("jsoutline setup");
   window.treepicker = require('treepicker');
@@ -228,6 +237,7 @@ var setup_jsoutline = function() {
   console.groupEnd();
 };
 //setup_jsoutline();
+*/
 
 var get_nextcommand_str = function() {
   return $(".nextcommand_str").text();
@@ -346,7 +356,7 @@ describe("HuViz Tests", function() {
       return function() { return next; }
     };
     let delete_dbs = function(deletable_dbs) {
-      for (dbname of deletable_dbs) {
+      for (const dbname of deletable_dbs) {
         //done = nest_cb(done);
         blurt(`queue <b>${dbname}</b> for deletion`);
         let del_req = window.indexedDB.deleteDatabase(dbname);
@@ -364,13 +374,55 @@ describe("HuViz Tests", function() {
     delete_dbs('dataDB2 datasets nstoreDB_test2 nstoreDB_test'.split(' '));
 
     window.HVZ = new huviz.Orlando({
+      huviz_top_sel: "#HUVIZ_TOP",
+      show_edit: false,
+      start_with_editing: false,
+      settings: {
+        show_cosmetic_tabs: true,
+        show_queries_tab: true
+      },
+      editui__dbName: EDITUI_DBNAME,
+      // pass in the tab_specs to override the defaults_tab_specs
+      tab_specs:
+      [
+        {
+          "id": "intro",
+          "cssClass": "tabs-intro scrolling_tab",
+          "title": "Introduction and Usage",
+          "text": "Intro",
+          "moveSelector": "#contents_of_intro_tab"
+        },
+        'commands','settings','history','credits',
+        'sparqlQueries'
+      ],
+      preload: [
+        //'/data/genres.json'
+        //, '/data/cwrc-writer.json'
+        '/data/ontologies.json'
+        //, '/data/open_anno.json'
+        , '/data/experiments.json'
+        //, '/data/organizations.json'
+        //, '/data/periodicals.json'
+        //, '/data/publishing.json'
+        , '/data/individuals.json'
+        //, '/data/cwrc_data.json'
+        //, '/data/public_endpoints.json'
+        //, '/data/cwrc_endpoints.json'
+      ]
+
+      /*
+
+      // THESE VALUES ARE PRESERVED HERE
+      // WHILE WE DUST OFF THE TESTS
+
       viscanvas_sel: "#viscanvas",
       gclui_sel: "#gclui",
       graph_controls_sel: '#tabs-options',
-      //display_reset: true,
+      display_reset: true,
       dataset_loader__append_to_sel: ".unselectable",
       ontology_loader__append_to_sel: ".unselectable",
       endpoint_loader__append_to_sel: ".unselectable",
+
       preload: [{
         datasets: [{uri: ORLANDO_ONTOLOGY_URI,
                     label: 'OrlandoOntology',
@@ -385,6 +437,9 @@ describe("HuViz Tests", function() {
       }],
       display_reset: true,
       editui__dbName: EDITUI_DBNAME
+
+      */
+
     });
     document.addEventListener('dataset_ontology_loader_ready', function() {
       HVZ.dataset_loader.val("/data/shakwi.nq");

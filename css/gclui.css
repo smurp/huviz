@@ -36,9 +36,67 @@
 }
 
 .alternates {
-  float:left;
+  display: inline-block;
+  position: relative;
+}
+/* New alternate verb styling starts here */
+.alternates .verb {
+  margin:1px 2px 4px 0;
+  cursor: pointer;
+  padding: 3px 4px;
+  border-radius: 3px;
 }
 
+.alternates .verb:not(:last-child) {
+  margin-bottom:0px;
+  border-top:1px solid #eee;
+  border-right:1px solid #aaa;
+  border-left:1px solid #eee;
+  border-bottom: none;
+  border-top-right-radius: 0.5em;
+  border-top-left-radius: 0.5em;
+  border-bottom-right-radius: 0px;
+  border-bottom-left-radius: 0px;
+  padding-top: 0.1em;
+  padding-bottom: 0.6em;
+}
+
+.alternates .verb:last-child {
+  margin-top:0px;
+  border-top:1px solid #aaa;
+  border-right:1px solid #aaa;
+  border-left:1px solid #eee;
+  border-bottom:1px solid #aaa;
+  border-bottom-right-radius: 0.5em;
+  border-bottom-left-radius: 0.5em;
+  border-top-right-radius: 0px;
+  border-top-left-radius: 0px;
+  padding-bottom: 0.1em;
+  padding-top: 0.6em;
+}
+
+.alternates .x-button {
+  z-index: 2;
+  width: 1.1em;
+  margin: 0;
+  position: relative;
+  top: 50%;
+  left: 50%;
+  height: 0px;
+  /* display: inline; */
+  display: none;
+  border: 1px solid black;
+  border-radius: 1em;
+  cursor: pointer;
+  padding: 0em 0.25em;
+}
+
+.singletons .verb {
+    /* line the singletons up in a row */
+    display: inline;
+}
+
+/* New alternate verb styling ends here */
 .verb {
   margin:1px 2px 4px 0;
   cursor: pointer;
@@ -65,12 +123,12 @@
 }
 
 .engaged {
-  background-color: #ddd;
+  background-color: royalblue;
   border-top:1px solid #aaa;
   border-right:1px solid #eee;
   border-left:1px solid #aaa;
   border-bottom:1px solid #eee;
-  color: #222;
+  color: white;
 }
 .verb:hover {
   background-color: #ccc;
@@ -112,6 +170,10 @@
   padding: 0.5em;
 }
 
+.command.played {
+    cursor: pointer;
+}
+
 .command.played .query-results{
   margin-left: 1em;
 }
@@ -135,6 +197,11 @@
   position: relative;
   cursor: default;
   padding-right: 1em;
+  /* AARRG!!!                                                  
+       z-index: -1                                             
+         This is needed so inset_shadow covers the commands    
+         BUT then the delete buttons no longer work;           
+  */
 }
 .command.played {
   background-color: #fcf59b;  /* legal pad yellow */
@@ -163,6 +230,7 @@
   text-shadow: 0 1px 0 #fff;
   top: 3px;
   cursor: pointer;
+  z-index: 500; /* why does this not work? */
 }
 .delete-command::after {
   content: "x";
@@ -203,7 +271,16 @@
   color: white;
 }
 .commandhistory {
-  overflow-y: scroll;
+    overflow-y: scroll;
+    resize: vertical;
+    min-height: 1.5em;
+}
+.commandhistory, .nextcommand {
+  /* the box  styling */
+  box-shadow: inset 2px 1px 10px 1px rgba(0,0,0,0.25);
+  border-radius: .3em;
+  border: .8px solid grey;
+  margin-top: 1px;
 }
 .commandhistory .command{
   padding: .2em .4em;
@@ -286,13 +363,14 @@
   background: darkgray;
   cursor: inherit;
 }
-.set_picker_box_parent {
-  float: left;
-  width: 32%;
-}
+
 .taxon_picker_box_parent {
+  float: left;
+  width: 48%
+}
+.predicate_picker_box_parent {
   float: right;
-  width: 66%
+  width: 48%
 }
 .nextcommand_command {
   -webkit-touch-callout: initial;
@@ -427,3 +505,132 @@
 .pick_or_provide_form button:disabled{
   display: none;
 }
+.commandlist {
+  overflow: scroll;
+}
+.grown .commandhistory {
+  height: clamp(2rem, 15vh, 8rem);
+}
+.shrunk .commandhistory {
+  height: 2.8em;
+}
+.grow_shrink_history {
+  float: right;
+}
+.scriptPlayerControls * {
+  cursor:pointer;
+}
+.scriptPlayerControls [disabled]{
+  cursor:not-allowed;
+}
+
+
+
+
+/*
+
+TODO move this style_of_set_picker stuff to a new css file
+
+SOLUTION: https://stackoverflow.com/a/47860039
+
+It looks like this style_of_set_picker problem might need MATH.
+
+Here are a few resources with hints in this direction:
+
+  https://css-tricks.com/solving-last-item-problem-circular-distribution-partially-overlapping-items/
+  https://stackoverflow.com/questions/16301625/rotated-elements-in-css-that-affect-their-parents-height-correctly
+  https://stackoverflow.com/questions/20626685/better-way-to-set-distance-between-flexbox-items
+*/
+
+
+/* style_of_set_picker = wrenched */
+.set_picker_box_parent.wrenched > .control_label::after{
+    content: "(wrenched)";
+    margin-left: 1em;
+}
+.set_picker_box_parent.wrenched > #sets.container {
+    display: table;
+    height: 9.3em;
+}
+..set_picker_box_parent.wrenched .contents {
+    padding: 50% 0;
+    /*   height: 0; */
+}
+.set_picker_box_parent.wrenched > #sets .treepicker-label {
+  display: block;
+  transform-origin: top left;
+  transform: rotate(-75deg) translate(-100%);
+  border: 1px solid black;
+  margin-top: -50%;
+  white-space: nowrap;
+}
+
+
+/* style_of_set_picker = tipped */
+.set_picker_box_parent.tipped > .control_label::after{
+    content: "(tipped)";
+    margin-left: 1em;
+}
+.set_picker_box_parent.tipped #sets.container {
+    display: inline-flex;
+    height: 9.3em;
+}
+.set_picker_box_parent.tipped > #sets .treepicker-label {
+  transform-origin: top left;
+  transform: rotate(-75deg) translate(-100%);
+  border: 1px solid black;
+  margin: .35em;
+  border-radius: .2em;
+  float: left;
+  display: inline-grid;
+  height: 1.2em;
+  width: 2em;
+  white-space: nowrap;
+}
+
+
+/* style_of_set_picker = canted */
+.set_picker_box_parent.canted > .control_label::after{
+    content: "(canted)";
+    margin-left: 1em;
+}
+.set_picker_box_parent.canted #sets.container {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-evenly;
+    flex-direction: row;
+    height: 9.3em;
+}
+.set_picker_box_parent.canted > #sets .treepicker-label {
+  transform-origin: top left;
+  transform: rotate(-75deg) translate(-140%, 1.1em);
+  border: 1px solid black;
+  margin: .35em;
+  border-radius: .2em;
+}
+
+
+/* style_of_set_picker = torqued */
+.set_picker_box_parent.torqued > .control_label::after{
+    content: "(torqued)";
+    margin-left: 1em;
+}
+.set_picker_box_parent.torqued > #sets.container {
+  --move-sets-up: -8.5em;
+  --move-sets-left: 8.5em;
+  transform: translate(var(--move-sets-left), var(--move-sets-up)) rotate(270deg);
+}
+.set_picker_box_parent.torqued > #sets .treepicker-label {
+  display: block;
+  margin-left: .3em;
+  height: 1.2em;
+  padding:1px;
+  transform: rotate(16deg) translate(1em, 0em);
+  border: 1px solid black;
+  border-radius: .3em;
+}
+.set_picker_box_parent.torqued {
+  height: 9.3em;
+}
+
+/* style_of_set_picker END */

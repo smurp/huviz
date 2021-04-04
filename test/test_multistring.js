@@ -1,10 +1,12 @@
 "use strict";
 
-var chai = require("chai");
-var expect = chai.expect;
+import chai from 'chai';
+const {
+  expect
+} = chai;
 
-var MultiString = require('../js/multistring').MultiString;
-var SortedSet = require('../js/sortedset').SortedSet;
+import {MultiString} from '../src/multistring.js';
+import {SortedSet} from '../src/sortedset.js';
 
 // Array.includes polyfill per MDN (Mozilla Developer Network)
 // https://tc39.github.io/ecma262/#sec-array.prototype.includes
@@ -120,4 +122,3 @@ describe("MultiString", function() {
       "ALL not respected");
   })
 });
-

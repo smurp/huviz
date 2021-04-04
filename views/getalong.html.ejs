@@ -1,0 +1,54 @@
+<!doctype html>
+<head>
+  <title>http://bl.ocks.org/sxv/4491174</title>
+  <style>
+    body { margin: 0; }
+    canvas, svg, .divs {
+        position: absolute;
+        top: 6em;
+        left: 0;
+    }
+    rect { fill: transparent; }
+    .divs div {
+        border-radius: 50%;
+        background: red;
+        position: absolute;
+    }
+    form {
+        background-color: yellow;
+    }
+  </style>
+  <script src="https://d3js.org/d3.v3.min.js"></script>
+</head>
+<body>
+  <script src="/js/getalong.js"></script>
+  <div>
+    <form method="GET" style="z-index:1000">
+      <input type="range" max=2000 min=1 value=10 id="svg" name="svg"/>
+      <label for="svg" style="background-color:blue; color:white">svg</label><br/>
+
+      <input type="range" max=2000 min=1 value=10 id="canvas" name="canvas"/>
+      <label for="canvas"  style="background-color:black; color:white">canvas</label><br/>
+
+      <input type="range" max=2000 min=1 value=10 id="div" name="div"/>
+      <label for="div" style="background-color:red; color:white">div</label>
+      <input type="checkbox" name="text"/><label>text?</label><br/>
+      <button type="submit">GO</button><input type="reset"/>
+    </form>
+  </div>
+  <script>
+    var params = new URL(document.location).searchParams;
+    document.querySelectorAll('input').forEach(input => {
+      if (input.type != 'range') {
+        return;
+      }
+      input.oninput = (evt) => {
+        var id = evt.target.id;
+        var sel = 'label[for='+id+']';
+        //console.log(sel)
+        document.querySelector(sel).innerText = id + " (" + event.target.value + ")";
+      }
+      input.value = params.get(input.id) || 100;
+    });
+  </script>
+</body>
