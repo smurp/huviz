@@ -170,7 +170,7 @@ app.get("/more/tests", localOrCDN("/views/tests.html.ejs", {nopts}));
 app.get("/", localOrCDN("/views/huvis.html.ejs", {nopts}));
 app.get("/SPARQLPROXY/:target", sparqlproxy);
 
-app.use(express.static(__dirname + '/images')); // for /favicon.ico
+app.use('/images', express.static(__dirname + '/images')); // for /favicon.ico
 
 // serve /srcdocs/SUMUT.md files as raw markdown
 //app.use("/srcdocs/:d.md", express.static(__dirname + '/srcdocs'))
