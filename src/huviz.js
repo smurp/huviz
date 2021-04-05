@@ -119,7 +119,7 @@
 //
 
 import {
-  PickOrProvide, PickOrProvideScript,
+  PickOrProvide, PickOrProvideScript, //PickOrProvide2Script,
   DragAndDropLoader, DragAndDropLoaderOfScripts
 } from './dndloader.js';
 import {Edge} from './edge.js';
@@ -8362,8 +8362,15 @@ LIMIT ${node_limit}\
     });
   }
 
+  makeResourceMenuDialog() {
+    this.floatyMenu = new document.createElement('div');
+    this.floatyMenu.classList.add('resource-menu');
+    
+  }
+
   init_gclc() {
     this.gclc = new GraphCommandLanguageCtrl(this);
+    //this.makeResourceMenuDialog()
     this.init_resource_menus();
     if ((this.gclui == null)) {
       // @oldToUniqueTabSel['huvis_controls'] ???
