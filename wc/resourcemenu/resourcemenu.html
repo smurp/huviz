@@ -1,19 +1,20 @@
 <template id="resource-menu">
   <style>
-    rXXXesource-menu {
-        background-color: blue;
-        z-index: 100000;
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        border: 5px solid red;
-        padding: 10px;
+    :root {
+    }
+    * {
+        --big-xy: clamp(50vh,500px,1000px);
+        --lil-xy: calc(var(--big-xy) * .66);
+        --hed-h: calc((var(--big-xy) - var(--lil-xy)) / 2.2);
+        --logo-xy: calc(var(--hed-h) * .80);
+        --logo-pad: calc((var(--hed-h) - var(--logo-xy)) / 2.2);
+        --fntsiz: calc(var(--lil-xy)/26);
+        font-size: var(--fntsiz);
     }
     #logo {
-        padding-top: 1vh;
-        width: 6vh;
-        height: 6vh;
+        padding-top: var(--logo-pad);
+        width: var(--logo-xy);
+        height: var(--logo-xy);
         left: 50%;
     }
     .ring {
@@ -37,10 +38,11 @@
         background-size: cover;
         background-clip: border-box;
 
-        width: 50vw;
-        height:50vh;
+        width: var(--big-xy);
+        height: var(--big-xy);
         border: 1px dashed green;
     }
+    /*
     lilbox {
         position:absolute;
         left: 50%;
@@ -48,6 +50,7 @@
         transform: translate(-50%, -50%);
         z-index: 10;
     }
+   */
     .uptop {
         position:absolute;
         left:50%;
@@ -57,14 +60,19 @@
     header, footer, main { border: 1px dotted grey; }
     header, footer {
         z-index: 10;
-        height: 8vh;
+        height: var(--hed-h);
         text-align: center;
         text-valign: center;
     }
     main {
-        width: 32vw;
-        height: 32vw;
+        width: var(--lil-xy);
+        height: var(--lil-xy);
     }
+    header::before {
+        content: calc(""+ var(--big-xy));
+        font-style: italic;
+    }
+
     dl,dt, dd {
         margin: 0;
         padding: 0;
@@ -75,7 +83,7 @@
     dl dt {
         clear: left;
         float: left;
-        width: 7vw;
+        width: var(--hed-h);;
     }
     dt {
     }
@@ -89,7 +97,7 @@
     }
     p {
         text-align: center;
-        font-size: small;
+        font-size: 85%;
     }
   </style>
   <bigbox>
@@ -98,7 +106,7 @@
         <img id="logo" src="/images/HuVizLogoBlackRim.png"/>
       </header>
       <main class="front">
-        <h3>Welcome</h3>
+        <h1>HuViz</h1>
         <p>
           The Humanities Visualizer (HuViz) lets you explore the semantic
           relationships in linked datasets through interactive graphs.
@@ -117,10 +125,10 @@
         </dl>
       </main>
       <main class="dataset" style="display:none">
-        <h3>Dataset</h3>
+        <h2>Dataset</h2>
       </main>
       <main class="ontology" style="display:none">
-        <h3>Dataset</h3>
+        <h2>Dataset</h2>
         <p>Pick a dataset or ontology to visualize, or load your own</p>
         <slot id="">
         </slot>

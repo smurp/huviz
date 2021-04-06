@@ -3,7 +3,7 @@
   https://css-tricks.com/styling-web-components/
 
 */
-import {FiniteStateMachine} from './src/fsm.js';
+import {FiniteStateMachine} from '../../src/fsm.js';
 
 class ResMenFSM extends FiniteStateMachine {
   constructor(resMen) {
