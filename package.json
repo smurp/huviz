@@ -58,7 +58,7 @@
     "build:js": "rollup  -i src/huviz.js --file lib/huviz.js --no-treeshake",
     "watch": "npm-run-all --parallel watch:*",
     "watch:dev": "onchange -i -k server.js lib/huviz.js package.json -- npm start",
-    "watch:js": "onchange --await-write-finish 2000 'src/*.js' package.json -- npm run build",
+    "watch:js": "onchange --await-write-finish 2000 'src/*.js' 'wc/**/*' package.json -- npm run build",
     "PAUSED:watch:test": "onchange 'lib/huviz.js' -- npm test",
     "start": "node server.js --git_commit_hash `git log --format=\"%h\" -n 1` --git_branch_name `git rev-parse --abbrev-ref HEAD`",
     "test": "mocha --reporter spec",

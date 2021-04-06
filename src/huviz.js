@@ -141,6 +141,10 @@ import {Taxon} from './taxon.js';
 import {TextCursor} from './textcursor.js';
 import {uniquer, unique_id} from './uniquer.js'; // TODO rename to make_dom_safe_id
 
+/* Set up the WebComponents */
+import {ResourceMenu} from '../wc/resourcemenu/resourcemenu.js';
+customElements.define('resource-menu', ResourceMenu);
+
 MultiString.set_langpath('en:fr'); // TODO make this a setting
 
 const colorlog = function(msg, color, size) {
@@ -8363,14 +8367,13 @@ LIMIT ${node_limit}\
   }
 
   makeResourceMenuDialog() {
-    this.floatyMenu = new document.createElement('div');
-    this.floatyMenu.classList.add('resource-menu');
-    
+    let TOP = document.getElementById('HUVIZ_TOP');
+    TOP.insertAdjacentHTML('beforeend','<resource-menu></resource-menu>');
   }
 
   init_gclc() {
     this.gclc = new GraphCommandLanguageCtrl(this);
-    //this.makeResourceMenuDialog()
+    this.makeResourceMenuDialog()
     this.init_resource_menus();
     if ((this.gclui == null)) {
       // @oldToUniqueTabSel['huvis_controls'] ???

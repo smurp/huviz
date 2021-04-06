@@ -1,0 +1,135 @@
+<template id="resource-menu">
+  <style>
+    rXXXesource-menu {
+        background-color: blue;
+        z-index: 100000;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        border: 5px solid red;
+        padding: 10px;
+    }
+    #logo {
+        padding-top: 1vh;
+        width: 6vh;
+        height: 6vh;
+        left: 50%;
+    }
+    .ring {
+        z-index: -1;
+    }
+    h1, h2, h3, h4, h5, h6 {
+        text-align: center;
+    }
+    button {
+        border-radius: .5em;
+    }
+    bigbox {
+        /* center this bad boy */
+        position:absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+
+        /* https://developer.mozilla.org/en-US/docs/Web/CSS/background-image */
+        background-image: url(/images/node_ring.png);
+        background-size: cover;
+        background-clip: border-box;
+
+        width: 50vw;
+        height:50vh;
+        border: 1px dashed green;
+    }
+    lilbox {
+        position:absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 10;
+    }
+    .uptop {
+        position:absolute;
+        left:50%;
+        top:-10%;
+        transform: translate(30%,30%);
+    }
+    header, footer, main { border: 1px dotted grey; }
+    header, footer {
+        z-index: 10;
+        height: 8vh;
+        text-align: center;
+        text-valign: center;
+    }
+    main {
+        width: 32vw;
+        height: 32vw;
+    }
+    dl,dt, dd {
+        margin: 0;
+        padding: 0;
+    }
+    dl {
+        display: inline;
+    }
+    dl dt {
+        clear: left;
+        float: left;
+        width: 7vw;
+    }
+    dt {
+    }
+    dt, dd {
+        margin: 1em;
+    }
+    dt > button {
+        border-radius: .7em;
+        background-color: white;
+        float: right;
+    }
+    p {
+        text-align: center;
+        font-size: small;
+    }
+  </style>
+  <bigbox>
+    <lilbox>
+      <header>
+        <img id="logo" src="/images/HuVizLogoBlackRim.png"/>
+      </header>
+      <main class="front">
+        <h3>Welcome</h3>
+        <p>
+          The Humanities Visualizer (HuViz) lets you explore the semantic
+          relationships in linked datasets through interactive graphs.
+        </p>
+        <dl compact>
+          <!--
+            <dt><b>New Here?</b></dt>
+            <dd>Start exploring with a mini or Harry Potter dataset</dd>
+            -->
+          <dt><button id="gotoDataset">Dataset</button></dt>
+          <dd>Pick a preloaded dataset, or load your own file</dd>
+          <dt><button id="gotoScript">Script</button></dt>
+          <dd>Load a script from an earlier HuViz Session</dd>
+          <dt><button id="gotoSparql">SPARQL</button></dt>
+          <dd>Search a linked open datraset</dd>
+        </dl>
+      </main>
+      <main class="dataset" style="display:none">
+        <h3>Dataset</h3>
+      </main>
+      <main class="ontology" style="display:none">
+        <h3>Dataset</h3>
+        <p>Pick a dataset or ontology to visualize, or load your own</p>
+        <slot id="">
+        </slot>
+      </main>
+      <footer>
+        <button>Tour</button>
+        <button>About</button>
+        <button>Help</button>
+      </footer>
+    </lilbox>
+  </bigbox>
+</template>
