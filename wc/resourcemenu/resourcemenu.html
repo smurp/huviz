@@ -5,7 +5,9 @@
     * {
         --big-xy: clamp(50vh,500px,1000px);
         --lil-xy: calc(var(--big-xy) * .66);
-        --hed-h: calc((var(--big-xy) - var(--lil-xy)) / 2.2);
+        --dif-xy: calc(var(--big-xy) - var(--lil-xy));
+        --hlf-dif-xy: calc(var(--dif-xy) / 2);
+        --hed-h: calc(var(--dif-xy) / 2.2);
         --logo-xy: calc(var(--hed-h) * .80);
         --logo-pad: calc((var(--hed-h) - var(--logo-xy)) / 2.2);
         --fntsiz: calc(var(--lil-xy)/26);
@@ -57,10 +59,16 @@
         top:-10%;
         transform: translate(30%,30%);
     }
-    header, footer, main { border: 1px dotted grey; }
+    header, footer, main {
+        /*  TEMP */
+        border: 1px dotted grey;
+        position: relative;
+        left: var(--hlf-dif-xy);
+    }
     header, footer {
         z-index: 10;
         height: var(--hed-h);
+        width: var(--lil-xy);
         text-align: center;
         text-valign: center;
     }
@@ -68,11 +76,6 @@
         width: var(--lil-xy);
         height: var(--lil-xy);
     }
-    header::before {
-        content: calc(""+ var(--big-xy));
-        font-style: italic;
-    }
-
     dl,dt, dd {
         margin: 0;
         padding: 0;
@@ -105,7 +108,7 @@
       <header>
         <img id="logo" src="/images/HuVizLogoBlackRim.png"/>
       </header>
-      <main class="front">
+      <main class="onFront">
         <h1>HuViz</h1>
         <p>
           The Humanities Visualizer (HuViz) lets you explore the semantic
@@ -124,10 +127,10 @@
           <dd>Search a linked open datraset</dd>
         </dl>
       </main>
-      <main class="dataset" style="display:none">
+      <main class="onDataset" style="display:none">
         <h2>Dataset</h2>
       </main>
-      <main class="ontology" style="display:none">
+      <main class="onOntology" style="display:none">
         <h2>Dataset</h2>
         <p>Pick a dataset or ontology to visualize, or load your own</p>
         <slot id="">
