@@ -1,6 +1,7 @@
 <template id="resource-menu">
   <style>
     :root {
+        /* Why does putting custom properties here not work? */
     }
     * {
         --big-xy: clamp(50vh,500px,1000px);
@@ -18,6 +19,15 @@
         width: var(--logo-xy);
         height: var(--logo-xy);
         left: 50%;
+    }
+    #esc::before {
+        content: 'x';
+        position: absolute;
+        top: 0em;
+        right: .5em;
+        cursor: pointer;
+        border: 0px;
+        font-size: large;
     }
     .ring {
         z-index: -1;
@@ -44,15 +54,6 @@
         height: var(--big-xy);
         border: 1px dashed green;
     }
-    /*
-    lilbox {
-        position:absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 10;
-    }
-   */
     .uptop {
         position:absolute;
         left:50%;
@@ -60,7 +61,9 @@
         transform: translate(30%,30%);
     }
     header, footer, main {
-        /*  TEMP */
+        /*  TEMP
+
+       */
         border: 1px dotted grey;
         position: relative;
         left: var(--hlf-dif-xy);
@@ -109,6 +112,7 @@
         <img id="logo" src="/images/HuVizLogoBlackRim.png"/>
       </header>
       <main class="onFront">
+        <i id="esc"></i>
         <h1>HuViz</h1>
         <p>
           The Humanities Visualizer (HuViz) lets you explore the semantic
@@ -123,24 +127,28 @@
           <dd>Pick a preloaded dataset, or load your own file</dd>
           <dt><button id="gotoScript">Script</button></dt>
           <dd>Load a script from an earlier HuViz Session</dd>
-          <dt><button id="gotoSparql">SPARQL</button></dt>
+          <dt><button id="gotoSPARQL">SPARQL</button></dt>
           <dd>Search a linked open datraset</dd>
         </dl>
       </main>
       <main class="onDataset" style="display:none">
+        <i id="esc"></i>
         <h2>Dataset</h2>
         <p>Pick a dataset or ontology to visualize, or load your own</p>
       </main>
       <main class="onScript" style="display:none">
+        <i id="esc"></i>
         <h2>Scripts</h2>
       </main>
       <main class="onSPARQL" style="display:none">
+        <i id="esc"></i>
         <h2>SPARQL</h2>
       </main>
       <footer>
         <button>Tour</button>
         <button>About</button>
         <button>Help</button>
+        <button>Credit</button>
       </footer>
     </lilbox>
   </bigbox>

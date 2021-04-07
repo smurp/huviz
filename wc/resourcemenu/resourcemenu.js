@@ -3,51 +3,73 @@
   https://css-tricks.com/styling-web-components/
 
 */
-import {FiniteStateMachine} from '../../src/fsm.js';
-
-class ResMenFSM extends FiniteStateMachine {
-  constructor(resMen) {
-    super();
-    this.resMen = resMen;
-    this.trace = [];
-    var ttl = `
+import {FSMMixin, FiniteStateMachine} from '../../src/fsm.js';
+var resMenFSMTTL= `
          @prefix st: <https://example.com/state/> .
          @prefix st: <https://example.com/transition/> .
 
-         st:         tr:start            st:atIntro .
-         st:atIntro  tr:click__dataset   st:inDataset .
-         st:atIntro  tr:click__script    st:inScript .
-         st:atIntro  tr:click__sparql    st:inSparql .
+         st:           tr:start         st:onFront .
+         st:onFront    tr:gotoDataset   st:onDataset .
+         st:onFront    tr:gotoScript    st:onScript .
+         st:onFront    tr:gotoSPARQL    st:onSPARQL .
 
-         st:inVid   tr:mousedown st:adjBeg .
-         st:adjBeg  tr:mousemove st:adjBeg .
-         st:adjBeg  tr:mouseup   st:haveBeg .
-         st:haveBeg tr:mousedown st:adjEnd .
-         st:adjEnd  tr:mousemove st:adjEnd .
-         st:adjEnd  tr:mouseup   st:haveBegEnd .
+         st:onFront    tr:esc           st:END .
+         st:onDataset  tr:esc           st:onFront .
+         st:onScript   tr:esc           st:onFront .
+         st:onSPARQL   tr:esc           st:onFront .
        `;
-    this.parseMachineTTL(ttl);
-  }
-  on__start() {
-    this.resMen.showMain('dataset')
-  }
-}
 
-export class ResourceMenu extends HTMLElement {
+
+
+export class ResourceMenu extends FSMMixin(HTMLElement) {
   constructor() {
     super();
-    this.fsm = new ResMenFSM(this);
+    this.parseMachineTTL(resMenFSMTTL);
+    this._debug = true;
     const template = document
           .getElementById('resource-menu')
           .content;
     const shadowRoot = this.attachShadow({mode: 'open'})
           .appendChild(template.cloneNode(true));
+    this.addIDClickListeners('main, button, [id]', this.clickListener.bind(this));
+    this.transit('start');
+  }
+  clickListener(evt) {
+    let targetId = evt.target.id;
+    //console.debug({evt, targetId});
+    if (targetId) {
+      try {
+        this.transit(targetId, evt);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    console.debug(`final state: ${this.get_state()}`, evt.target);
+  }
+  addIDClickListeners(selector, handler) {
+    /*
+      Button ids are transition ids.
+      HTMLElement ids are states
+    */
+    this.shadowRoot.querySelectorAll(selector).forEach((item) => {
+      console.debug("addEventListener", {item});
+      item.addEventListener('click', handler);
+    })
+  }
+  enter__(evt, stateId) {
+    if (stateId && stateId.length) { // ignore empty string
+      this.showMain(stateId);
+    } else {
+      console.warn(`enter__() is a noop when stateId==${stateId}`);
+    }
+  }
+  enter__END(evt, stateId) {
+    this.parentNode.removeChild(this);
   }
   showMain(which) {
-    this.querySelectorAll('main').forEach((main) => {
-      console.error(main);
+    this.shadowRoot.querySelectorAll('main').forEach((main) => {
       if (main.classList.contains(which)) {
-        main.style.display = 'inherit';
+        main.style.display = 'block';
       } else {
         main.style.display = 'none';
       }

@@ -113,7 +113,6 @@ export let FSMMixin = (superclass) => class extends superclass {
       this.trace.push(msg);
     }
   }
-
   call_method_by_name(meth_name, evt, stateOrTransitId) {
     let meth;
     if (meth = this[meth_name]) {
@@ -184,9 +183,13 @@ export let FSMMixin = (superclass) => class extends superclass {
   transit(transId, evt) {
     /*
       Call methods (if they exist) in the order:
-      1) exit__<currentStateId>
-      2) on__<transId>
-      3) enter__<targetStateId>
+      1) CALL exit__<currentStateId>()
+           OR exit__()
+      2) CALL when__<currentStateId>__<transId>()
+           OR on__<transId>()
+           OR on__()
+      3) CALL enter__<targetStateId>()
+           OR enter__()
     */
     var currentStateId = this.get_state();
     var currentStateObj = this._states[currentStateId];
@@ -197,20 +200,24 @@ export let FSMMixin = (superclass) => class extends superclass {
           `${currentStateId} has no transition with id ${transId}`);
       }
       // call exit__<currentStateId> if it exists
-      let called = this.exit_state(evt, currentStateId);
+      var calledExit, calledWhen, calledOn, calledEnter;
+      calledExit = this.exit_state(evt, currentStateId);
       var when_meth_name = `when__${currentStateId}__${transId}`;
-      if (this[when_meth_name]) {
-        // call when__<currentStateId>__<transId>
-        called = this.call_method_by_name(when_meth_name, evt) || called;
-      } else {
+      calledWhen = this.call_method_by_name(when_meth_name, evt);
+      if (!calledWhen) {
         // call on__<transId> if it exists
-        called = this.on_transition(evt, transId, called);
+        calledOn = this.on_transition(evt, transId, false);
       }
       // call exit__<targetStateId>
-      called = this.set_state(targetStateId, evt) || called;
+      calledEnter = this.set_state(targetStateId, evt);
+      var called = calledExit || calledWhen || calledOn || calledEnter;
       if (!called) {
         const msg = this.make_noop_msg(transId, currentStateId, targetStateId);
         return this.throw_or_return_msg(msg);
+      }
+      if (evt.stopPropagation) {
+        console.log('stopPropagation()');
+        evt.stopPropagation();
       }
       return called;
     } else {
