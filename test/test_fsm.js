@@ -77,28 +77,6 @@ describe("FiniteStateMachine", function() {
       when__inVid__mousedown  (evt) {evt.tour += " when"} // should dominate on__mousedown
   }
 
-  class RPS_FSM extends FiniteStateMachine {
-    constructor() {
-      super();
-      var ttl = `
-         @prefix st: <https://example.com/state/> .
-         @prefix st: <https://example.com/transition/> .
-
-         st:          tr:start         st:rock .
-         st:rock      tr:beatScissors  st:scissors .
-         st:scissors  tr:beatPaper     st:paper .
-         st:paper     tr:beatRock      st:rock .
-       `;
-      this.trace = [];
-      this.parseMachineTTL(ttl);
-    }
-    //exit__             (evt, stateId) {evt.tour += " exit__"}
-    //on__               (evt) {evt.tour += " on__"}
-    enter__            (evt, stateId) {evt.tour += ` enter__(${stateId})`}
-  }
-
-
-
 /*
   it("runs transition and state methods", function() {
     const fsm = new MyFSM(1);
@@ -163,7 +141,7 @@ describe("FiniteStateMachine", function() {
     fsm.transit('mouseover');
     var payload = {tour: 'mousedown'};
     fsm.transit('mousedown', payload);
-    expect(payload.tour).to.equal("mousedown exit on enter");
+    expect(payload.tour).to.equal("mousedown exit enter");
   });
   it("should have when__CURSTATE__TRANS run instead of on__TRANS", () => {
     const when_fsm = new WhenFSM();
@@ -173,16 +151,47 @@ describe("FiniteStateMachine", function() {
     when_fsm.transit('mousedown', when_payload);
     expect(when_payload.tour).to.equal("mousedown exit when enter");
   });
-  it("should run enter__ as fallback when specific handler missing", () => {
-    const rps_fsm = new RPS_FSM();
+  it("should run enter__ when specific handlers missing", () => {
+    class MyFSM extends FiniteStateMachine {
+      enter__(evt, stateId) {
+        evt.tour += ` enter__(${stateId})`
+      }
+      enter__scissors(evt, stateId) {
+        evt.tour += ` enter__scissors()`
+      }
+    }
+    var myFSM = new MyFSM();
+    myFSM.parseMachineTTL(`
+       st:          tr:start  st:rock .
+       st:rock      tr:smash  st:scissors .
+       st:scissors  tr:cut    st:paper. `);
     var payload = {tour: ''};
-    rps_fsm.transit('start', payload);
-    rps_fsm.transit('beatScissors', payload);
-    rps_fsm.transit('beatPaper', payload);
-    rps_fsm.transit('beatRock', payload);
-    //console.log(rps_fsm.trace);
+    myFSM.transit('start', payload);
+    myFSM.transit('smash', payload);
+    myFSM.transit('cut', payload);
     expect(payload.tour).to.equal(
-      " enter__(rock) enter__(scissors) enter__(paper) enter__(rock)");
+      " enter__(rock) enter__scissors() enter__(paper)");
+  });
+  it("should run exit__ when specific handlers missing", () => {
+    class MyFSM extends FiniteStateMachine {
+      exit__(evt, stateId) {
+        evt.tour += ` exit__(${stateId})`
+      }
+      exit__scissors(evt, stateId) {
+        evt.tour += ` exit__scissors()`
+      }
+    }
+    var myFSM = new MyFSM();
+    myFSM.parseMachineTTL(`
+       st:          tr:start  st:rock .
+       st:rock      tr:smash  st:scissors .
+       st:scissors  tr:cut    st:paper. `);
+    var payload = {tour: ''};
+    myFSM.transit('start', payload);
+    myFSM.transit('smash', payload);
+    myFSM.transit('cut', payload);
+    expect(payload.tour).to.equal(
+      " exit__() exit__(rock) exit__scissors()");
   });
 
 });

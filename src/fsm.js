@@ -121,17 +121,36 @@ export let FSMMixin = (superclass) => class extends superclass {
   }
   set_state(stateId, evt) {
     // call a method when arriving at the new state, if it exists
+    var called = this.enter_state(evt, stateId);
+    this.state = stateId; // set after calling meth_name so the old stateId is avail
+    return called;
+  }
+  exit_state(evt, stateId) {
+    // call a method when leaving the old state, if it exists
+    var called;
+    var prefix = 'exit__';
+    called = this.call_method_by_name(prefix + stateId, evt, stateId);
+    if (!called) {
+      called = this.call_method_by_name(prefix, evt, stateId);
+    }
+    return called;
+  }
+  on_transition(evt, transId, called) {
+    if (!called) {
+      called = this.call_method_by_name('on__'+transId, evt) || called;
+    } else {
+      called = this.call_method_by_name('on__', evt) || called;
+      // do not catch any error, let it get caught normally
+    }
+    return called;
+  }
+  enter_state(evt, stateId) {
     var called;
     called = this.call_method_by_name('enter__' + stateId, evt, stateId);
     if (!called) {
       called = this.call_method_by_name('enter__', evt, stateId);
     }
-    this.state = stateId; // set after calling meth_name so the old stateId is avail
     return called;
-  }
-  exit_state(evt) {
-    // call a method when leaving the old state, if it exists
-    return this.call_method_by_name('exit__' + this.state, evt, this.state);
   }
   get_state() {
     return this.state;
@@ -170,19 +189,14 @@ export let FSMMixin = (superclass) => class extends superclass {
           `${currentStateId} has no transition with id ${transId}`);
       }
       // call exit__<currentStateId> if it exists
-      let called = this.exit_state(evt, );
+      let called = this.exit_state(evt, currentStateId);
       var when_meth_name = `when__${currentStateId}__${transId}`;
       if (this[when_meth_name]) {
         // call when__<currentStateId>__<transId>
         called = this.call_method_by_name(when_meth_name, evt) || called;
       } else {
         // call on__<transId> if it exists
-        try {
-          called = this.call_method_by_name('on__'+transId, evt) || called;
-        } catch(err) {
-          called = this.call_method_by_name('on__', evt) || called;
-          // do not catch any error, let it get caught normally
-        }
+        called = this.on_transition(evt, transId, called);
       }
       // call exit__<targetStateId>
       called = this.set_state(targetStateId, evt) || called;
