@@ -108,7 +108,7 @@ describe("FiniteStateMachine", function() {
     const fsm = new TTLFSM();
     const actualStates = new Set(Object.keys(fsm._states));
     expect(actualStates).to.have.all.keys(
-      '', 'noVid', 'inVid', 'adjBeg', 'haveBeg', 'adjEnd');
+      '', 'noVid', 'inVid', 'adjBeg', 'haveBeg', 'adjEnd', 'haveBegEnd');
   });
   it("starts on state '' by default", () => {
     const fsm = new TTLFSM();

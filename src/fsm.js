@@ -75,6 +75,7 @@ export let FSMMixin = (superclass) => class extends superclass {
                           ].join(' '))
         }
         fromStateObj[transId] = toStateId;
+        var toStateObj = this.get_or_create_state(toStateId); // just to ensure it exists
       }
     });
     if (firstStateId != defaultFirstStateId) {
@@ -99,14 +100,16 @@ export let FSMMixin = (superclass) => class extends superclass {
   }
   ensure_states() {
     if (!this._states) {
-      // ensure t
       this._states = {};
     }
   }
   call_method_by_name(meth_name, evt, stateOrTransitId) {
     let meth;
     if (meth = this[meth_name]) {
-    //if (meth = Reflect.get(this, meth_name))
+      //if (meth = Reflect.get(this, meth_name))
+      if (this._FSM_show_called_methods) {
+        console.debug(`called ${this.constructor.name}.${meth_name}()`);
+      }
       meth.call(this, evt, stateOrTransitId);
       if (this.trace) {
         this.trace.push(meth_name + ' called');
