@@ -103,7 +103,9 @@ export let FSMMixin = (superclass) => class extends superclass {
       this._states = {};
     }
   }
-  _debug_or_trace(msg) {
+  _debug_or_trace(which, meth_name, id) {
+    var showId = meth_name.endsWith('_') && id || '';
+    var msg = `${which} ${this.constructor.name}.${meth_name}(${showId})`;
     if (this._debug) {
       console.debug(msg);
     }
@@ -115,14 +117,14 @@ export let FSMMixin = (superclass) => class extends superclass {
   call_method_by_name(meth_name, evt, stateOrTransitId) {
     let meth;
     if (meth = this[meth_name]) {
-      this._debug_or_trace(`called ${this.constructor.name}.${meth_name}()`);
+      this._debug_or_trace(`called`, meth_name, stateOrTransitId);
       meth.call(this, evt, stateOrTransitId);
       if (this.trace) {
         this.trace.push(meth_name + ' called');
       }
       return true;
     } else {
-      this._debug_or_trace(`missed ${this.constructor.name}.${meth_name}()`);
+      this._debug_or_trace('missed', meth_name, stateOrTransitId);
     }
     return false;
   }
