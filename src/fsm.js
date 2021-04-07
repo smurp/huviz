@@ -136,10 +136,9 @@ export let FSMMixin = (superclass) => class extends superclass {
     return called;
   }
   on_transition(evt, transId, called) {
+    called = this.call_method_by_name('on__'+transId, evt) || called;
     if (!called) {
-      called = this.call_method_by_name('on__'+transId, evt) || called;
-    } else {
-      called = this.call_method_by_name('on__', evt) || called;
+      called = this.call_method_by_name('on__', evt, transId) || called;
       // do not catch any error, let it get caught normally
     }
     return called;
