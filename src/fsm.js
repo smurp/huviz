@@ -20,8 +20,9 @@ function strip(s) {
   return s.replace(/^\s+|\s+$/g, '');
 }
 
+// https://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/
 // https://stackoverflow.com/a/42250080  a Mixin strategy
-export class FiniteStateMachine {
+export let FSMMixin = (superclass) => class extends superclass {
   parseMachineTTL(ttl, defaultFirstStateId = '') {
     /*
      * This is not a fully general TTL parser.
@@ -80,7 +81,8 @@ export class FiniteStateMachine {
       console.warn(`${firstStateId} <> ${defaultFirstStateId}`);
     }
     //console.log(`ABOUT TO INIT STATE using set_state('${firstStateId}')`)
-    this.set_state(firstStateId); // normally '' but could be something else
+    var bogusEvent = {};
+    this.set_state(firstStateId, bogusEvent); // normally '' but could be something else
   }
   get_or_create_state(state_id, returnCreated=false) {
     this.ensure_states();
@@ -101,11 +103,11 @@ export class FiniteStateMachine {
       this._states = {};
     }
   }
-  call_method_by_name(meth_name, evt) {
+  call_method_by_name(meth_name, evt, stateOrTransitId) {
     let meth;
     if (meth = this[meth_name]) {
     //if (meth = Reflect.get(this, meth_name))
-      meth.call(this, evt);
+      meth.call(this, evt, stateOrTransitId);
       if (this.trace) {
         this.trace.push(meth_name + ' called');
       }
@@ -117,15 +119,19 @@ export class FiniteStateMachine {
     }
     return false;
   }
-  set_state(state, evt) {
+  set_state(stateId, evt) {
     // call a method when arriving at the new state, if it exists
-    const called = this.call_method_by_name('enter__' + state, evt);
-    this.state = state; // set after calling meth_name so the old state is avail
+    var called;
+    called = this.call_method_by_name('enter__' + stateId, evt, stateId);
+    if (!called) {
+      called = this.call_method_by_name('enter__', evt, stateId);
+    }
+    this.state = stateId; // set after calling meth_name so the old stateId is avail
     return called;
   }
   exit_state(evt) {
     // call a method when leaving the old state, if it exists
-    return this.call_method_by_name('exit__' + this.state, evt);
+    return this.call_method_by_name('exit__' + this.state, evt, this.state);
   }
   get_state() {
     return this.state;
@@ -164,14 +170,19 @@ export class FiniteStateMachine {
           `${currentStateId} has no transition with id ${transId}`);
       }
       // call exit__<currentStateId> if it exists
-      let called = this.exit_state(evt);
+      let called = this.exit_state(evt, );
       var when_meth_name = `when__${currentStateId}__${transId}`;
       if (this[when_meth_name]) {
         // call when__<currentStateId>__<transId>
         called = this.call_method_by_name(when_meth_name, evt) || called;
       } else {
         // call on__<transId> if it exists
-        called = this.call_method_by_name('on__'+transId, evt) || called;
+        try {
+          called = this.call_method_by_name('on__'+transId, evt) || called;
+        } catch(err) {
+          called = this.call_method_by_name('on__', evt) || called;
+          // do not catch any error, let it get caught normally
+        }
       }
       // call exit__<targetStateId>
       called = this.set_state(targetStateId, evt) || called;
@@ -184,6 +195,8 @@ export class FiniteStateMachine {
       this.throw_or_return_msg(
         `${this.constructor.name} has no state with id ${currentStateId}`);
     }
-
   }
-}
+};
+
+// Also export a plain class which is NOT a Mixin
+export class FiniteStateMachine extends FSMMixin(Object) {}
