@@ -143,7 +143,7 @@ describe("FiniteStateMachine", function() {
     fsm.transit('mousedown', payload);
     expect(payload.tour).to.equal("mousedown exit on enter");
   });
-  it("should have when__CURSTATE__TRANS run instead of on__TRANS", () => {
+  it("should run when__<currStateId>__<transId>() instead of on__<transId>()", () => {
     const when_fsm = new WhenFSM();
     when_fsm.transit('start');
     when_fsm.transit('mouseover');
@@ -196,7 +196,7 @@ describe("FiniteStateMachine", function() {
     expect(payload.tour).to.equal(
       " on__(start) on__(smash) on__cut() on__(cover)");
   });
-  it("should try to run exit__() when exit_<stateId>() missing", () => {
+  it("should try to run exit__() when exit__<stateId>() missing", () => {
     class MyFSM extends FiniteStateMachine {
       exit__(evt, stateId) {
         evt.tour += ` exit__(${stateId})`
