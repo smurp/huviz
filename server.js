@@ -14,6 +14,8 @@ import path from 'path';
 import {Stream} from 'stream';
 
 // Then load diverse modules
+import dotenv from 'dotenv';
+dotenv.config();
 import ejs from 'ejs';
 import express from 'express';
 import fileUpload from 'express-fileupload';
@@ -179,5 +181,6 @@ app.use('/images', express.static(__dirname + '/images')); // for /favicon.ico
 app.use("/srcdocs",
   express.static("srcdocs", {index: 'index.html', redirect: true, extensions: ['html']}));
 const port = nopts.port || nopts.argv.remain[0] || process.env.PORT || 5000;
-console.log(`Starting server on localhost:${port} NODE_ENV:${process.env.NODE_ENV}`);
-app.listen(port, 'localhost');
+const address = process.env.IP_ADDRESS || 'localhost';
+console.log(`Starting server on ${address}:${port} NODE_ENV:${process.env.NODE_ENV}`);
+app.listen(port, address);
