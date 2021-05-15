@@ -1,7 +1,7 @@
 {
   "datasets": [
     {
-      "uri": "http://sparql.cwrc.ca/sparql",
+      "uri": "http://sparql.cwrc.ca/sparql/",
       "label": "CWRC SPARQL",
       "ontology_label": "CWRC Ontology"
     }
