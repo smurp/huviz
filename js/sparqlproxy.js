@@ -46,11 +46,11 @@ function conveyHeaders(to, from, only, prefix='conveying') {
 
 export async function sparqlproxy(req, res) {
   var {url} = req;
-  console.log({url});
+  //console.log({url});
   res.setHeader('Access-Control-Allow-Origin', '*');
   //var targetUrl = url.replace(PROXY_PREFIX, '');
   var targetUrl = req.params.target;
-  console.log(targetUrl);
+  //console.log({targetUrl});
   res.statusCode = 200;
   const remoteResponse = await fetch(targetUrl, {
     headers: proxyRequestHeaders(req)});
