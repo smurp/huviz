@@ -6,6 +6,14 @@ export class QueryManager {
     if (this.listeners == null) { this.listeners = []; }
     this.resultCount = 0;
   }
+  set args(args) {
+    this._args = args;
+    console.warn('QueryManager', {args});
+    this.displayArgs(args);
+  }
+  get args() {
+    return this._args;
+  }
   set_state(state) {
     this._state = state;
     if (state === 'done') {
@@ -53,6 +61,13 @@ export class QueryManager {
   displayResults(results) {
     this.qryJQElem.append(`<div class="query-results">${results}</div>`);
   }
+  displayArgs(args) {
+    this.qryJQElem.append(`
+     <details>
+       <summary>args</summary>
+       <pre>${JSON.stringify(args,null,4)}</pre>
+     </details>`);
+  }
   finishCounting() {
     this.setResultCount(this.resultCount);
   }
@@ -68,6 +83,7 @@ export class QueryManager {
   }
   setXHR(xhr) {
     this.xhr = xhr;
+    console.warn('QueryManager',{xhr});
   }
   abortXHR() {
     this.xhr.abort();

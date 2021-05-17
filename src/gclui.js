@@ -17,10 +17,10 @@ const getRandomId = function(prefix) {
   return prefix + Math.floor(Math.random() * Math.floor(max));
 };
 
-import {GraphCommand} from './graphcommandlanguage.js'; // TODO convert to module
+import {GraphCommand} from './graphcommandlanguage.js';
 import {ColoredTreePicker} from './coloredtreepicker.js';
-import {TreePicker} from './treepicker.js'; // TODO convert to module
-import {QueryManager} from './querymanager.js'; // TODO convert to module
+import {TreePicker} from './treepicker.js';
+import {QueryManager} from './querymanager.js';
 
 export class CommandController {
   static initClass() {

@@ -5886,7 +5886,7 @@ SERVICE wikibase:label {
       ajax_settings.url = proxy_url + ajax_settings.url;
     }
     console.log({ajax_settings});
-    queryManager.xhr = $.ajax({
+    queryManager.setXHR($.ajax({
       timeout,
       method: ajax_settings.method,
       url: ajax_settings.url,
@@ -5912,7 +5912,7 @@ SERVICE wikibase:label {
           return error_callback(jqxhr, textStatus, errorThrown, queryManager);
         }
       }
-    });
+    }));
 
     return queryManager;
   }
