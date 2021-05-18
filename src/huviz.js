@@ -8136,6 +8136,7 @@ LIMIT ${node_limit}\
       // TODO remove the requirement for a graphUri to be specified before the spoQuery is enabled.
       let spoQuery;
       if (spoQuery = this.spo_query_JQElem.val()) {
+        spoQuery = this.applyNodeLimit(spoQuery);
         this.displayTheSpoQuery(spoQuery, graphUri);
         return;
       }
@@ -8850,7 +8851,6 @@ LIMIT ${node_limit}\
     this.endpoint_labels_JQElem.on('autocompleteselect', this.endpoint_labels__autocompleteselect);
     this.endpoint_labels_JQElem.on('change', this.endpoint_labels__update);
     this.endpoint_labels_JQElem.focusout(this.endpoint_labels__focusout);
-
     this.spo_query_JQElem = $('#'+spo_query_id);
     this.spo_query_JQElem.on('update', this.spo_query__update);
   }
@@ -9012,6 +9012,16 @@ LIMIT ${node_limit}\
     return false;
   }
 
+  applyNodeLimit(qry) {
+    // Apply LIMIT value from form if provided OR do nothing if query contains LIMIT
+    const nodeLimit = this.endpoint_limit_JQElem.val();
+    const alreadyLimited = (qry.toLowerCase()).match(/limit /);
+    if (nodeLimit && !alreadyLimited) {
+      return qry + ` LIMIT ${nodeLimit}`;
+    }
+    return qry;
+  }
+
   //  # Reading
   //
   //  Efficient Optimization and Processing of Queries over Text-rich Graph-structured Data
@@ -9024,6 +9034,11 @@ LIMIT ${node_limit}\
   //      Bottom line: string matching cannot be expected to perform well without full text index
   //      Jena 1.x has LARQ
   //      Jena 2.11.0 has jena-text
+  //  Web SPARQL Interfaces
+  //    https://query.wikidata.org/
+  //    https://dbpedia.org/sparql
+  //    https://fuseki.lincsproject.ca/dataset.html
+
   search_sparql_by_label(request, response) {
     this.euthanize_search_sparql_by_label();
     this.animate_endpoint_label_search();
@@ -9032,11 +9047,6 @@ LIMIT ${node_limit}\
     let fromGraph = '';
     if (this.endpoint_loader.endpoint_graph) {
       fromGraph=` FROM <${this.endpoint_loader.endpoint_graph}> `;
-    }
-    const nodeLimit = this.endpoint_limit_JQElem.val();
-    let limitNumber = '';
-    if (nodeLimit) {
-      limitNumber = `LIMIT ${nodeLimit}`;
     }
     const sought = request.term.toLowerCase();
     let qry = `# search_sparql_by_label("${sought}")
@@ -9061,8 +9071,8 @@ WHERE {
     FILTER contains(LCASE(?obj), "${sought}")
    }
 }
-${limitNumber}
 `;
+    qry = this.applyNodeLimit(qry);
     /*
       // https://stackoverflow.com/questions/66417040/
       //    how-to-query-wikidata-using-sparql-using-entity-names-and-also-check-alternative
