@@ -1,7 +1,7 @@
 {
   "datasets": [
     {
-      "uri": "http://aksw.org/sparql",
+      "uri": "https://aksw.org/sparql",
       "label": "Agile Knowledge Engineering and Semantic Web"
     },
     {
