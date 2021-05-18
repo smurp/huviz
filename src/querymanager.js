@@ -8,7 +8,6 @@ export class QueryManager {
   }
   set args(args) {
     this._args = args;
-    console.warn('QueryManager', {args});
     this.displayArgs(args);
   }
   get args() {

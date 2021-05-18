@@ -5903,7 +5903,6 @@ SERVICE wikibase:label {
       var proxy_url = window.location.origin + "/SPARQLPROXY/";
       ajax_settings.url = proxy_url + ajax_settings.url;
     }
-    console.log({ajax_settings});
     queryManager.setXHR($.ajax({
       timeout: timeout,
       method: method,
@@ -8279,7 +8278,7 @@ LIMIT ${node_limit}\
   }
 
   update_graph_form(e) {
-    console.log(e.currentTarget.value);
+    // console.log(e.currentTarget.value);
     this.endpoint_loader.endpoint_graph = e.currentTarget.value;
   }
 
