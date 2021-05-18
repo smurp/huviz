@@ -5804,9 +5804,9 @@ SERVICE wikibase:label {
     });
   }
 
-  log_query_with_timeout(qry, timeout, fillColor, bgColor) {
+  log_query_with_timeout(qry, timeout) {
     const queryManager = this.log_query(qry);
-    queryManager.anim = this.animate_sparql_query(queryManager.preElem, timeout, fillColor, bgColor);
+    queryManager.anim = this.animate_sparql_query(queryManager.preElem, timeout);
     return queryManager;
   }
 
@@ -5836,12 +5836,25 @@ SERVICE wikibase:label {
     });
   }
 
-  run_managed_query_abstract(args) {
+  initializeQueryManager(args) {
+    /*
+      Initializes a SPARQL query with a QueryManager.
+
+      @param {object} args Arguments to configure a managed SPARQL query.
+     */
     // Reference: https://www.w3.org/TR/sparql11-protocol/
-    if (args == null) { args = {}; }
-    if (args.success_handler == null) { args.success_handler = noop; }
-    if (args.error_callback == null) { args.error_callback = noop; }
-    if (args.timeout == null) { args.timeout = this.get_sparql_timeout_msec(); }
+    var default_args = {
+      use_proxy: false,
+      method: 'GET',
+      timeout: this.get_sparql_timeout_msec(),
+      success_handler: (data, textStatus, jqXHR) => {
+        console.warn('implement success_handler')
+      },
+      error_callback: (jqxhr, textStatus, errorThrown, queryManager) => {
+        console.warn('implement error_callback', errorThrown) ;
+      }
+    };
+    args = Object.assign(default_args, args || {});
 
     const queryManager = this.log_query_with_timeout(args.query, args.timeout);
     queryManager.args = args;
@@ -5849,18 +5862,24 @@ SERVICE wikibase:label {
   }
 
   run_managed_query_ajax(args) {
-    var default_args = {use_proxy: false, method: 'GET'};
-    args = Object.assign(default_args, args || {});
-    const {use_proxy, query, serverUrl} = args;
-    const queryManager = this.run_managed_query_abstract(args);
-    const {success_handler, error_callback, timeout, method} = args;
+    //var {query, serverUrl} = args;
+    var queryManager = this.initializeQueryManager(args);
+    //var {success_handler, error_callback, timeout, method} = args;
+    var {
+      success_handler
+      , error_callback
+      , method
+      , query
+      , serverUrl
+      , timeout
+      , use_proxy
+    } = queryManager.args;
+
     // These POST settings work for: CWRC, WWI open, on DBpedia, and Open U.K.
     // but not on Bio Database
-    const more = "&timeout=" + timeout;
     // TODO This should be decrufted
     const ajax_settings = { //TODO Currently this only works on CWRC Endpoint
-      'method': method,
-      'url': serverUrl + '?query=' + encodeURIComponent(query) + more,
+      'url': serverUrl + '?query=' + encodeURIComponent(query) + "&timeout=" + timeout,
       'headers' : {
         // This is only required for CWRC - not accepted by some Endpoints
         //'Content-Type': 'application/sparql-query'
@@ -5874,7 +5893,7 @@ SERVICE wikibase:label {
         'Accept': 'application/sparql-results+json'
       };
       */
-      ajax_settings.method = 'POST';
+      method = 'POST';
     }
     if (serverUrl.includes('wikidata')) {
       // https://www.mediawiki.org/wiki/Wikidata_Query_Service/User_Manual#Standalone_service
@@ -5882,21 +5901,20 @@ SERVICE wikibase:label {
     }
     if (use_proxy) { // put this last so other tweaks can trigger the proxy
       var proxy_url = window.location.origin + "/SPARQLPROXY/";
-      console.log({proxy_url});
       ajax_settings.url = proxy_url + ajax_settings.url;
     }
     console.log({ajax_settings});
     queryManager.setXHR($.ajax({
-      timeout,
-      method: ajax_settings.method,
+      timeout: timeout,
+      method: method,
       url: ajax_settings.url,
       headers: ajax_settings.headers,
       success: (data, textStatus, jqXHR) => {
         queryManager.cancelAnimation();
         try {
-          return success_handler(data, textStatus, jqXHR, queryManager);
+          success_handler(data, textStatus, jqXHR, queryManager);
         } catch (e) {
-          return queryManager.fatalError(e);
+          queryManager.fatalError(e);
         }
       },
       error: (jqxhr, textStatus, errorThrown) => {
@@ -5920,22 +5938,33 @@ SERVICE wikibase:label {
   run_managed_query_worker(qry, serverUrl, args) {
     args.query = qry;
     args.serverUrl = serverUrl;
-    const queryManager = this.run_managed_query_abstract(args);
+    const queryManager = this.initializeQueryManager(args);
     return queryManager;
+  }
+
+  get_datasetJSON_from_endpoint_loader_option(selector) {
+    var option = this.endpoint_loader.querySelector(selector);
+    if (!option) return {};
+    return Object.assign({}, option.dataset);
   }
 
   sparql_graph_query_and_show__trigger(url) {
     const selectId = this.endpoint_loader.select_id;
-    this.sparql_graph_query_and_show(url, selectId);
+    var endpointJSON = this.get_datasetJSON_from_endpoint_loader_option(`[value=${url}]`);
+    if (!endpointJSON.id) {
+      endpointJSON.id = selectId; // REVIEW should this be the id of the option itself?
+    }
+    this.sparql_graph_query_and_show(url, endpointJSON);
     //console.log @dataset_loader
     $(`#${this.dataset_loader.uniq_id}`).children('select').prop('disabled', 'disabled');
     $(`#${this.ontology_loader.uniq_id}`).children('select').prop('disabled', 'disabled');
     $(`#${this.script_loader.uniq_id}`).children('select').prop('disabled', 'disabled');
   }
 
-  sparql_graph_query_and_show(url, id, callback) {
+  sparql_graph_query_and_show(url, datasetJSON, callback) {
+    var {id, skip_graph_search} = datasetJSON
     const qry = `\
-# sparql_graph_query_and_show()
+# sparql_graph_query_and_show("${url}")
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT ?g ?label
 WHERE {
@@ -5944,7 +5973,6 @@ OPTIONAL {?g rdfs:label ?label}
 }
 ORDER BY ?g\
 `;
-    //alert("sparql_graph_query_and_show() id: #{id}")
     // these are shared between success and error handlers
     const spinner = $(`#sparqlGraphSpinner-${id}`);
     spinner.css('display','block');
@@ -6002,7 +6030,7 @@ ORDER BY ?g\
         spinner.css('visibility','hidden');
         //@reset_dataset_ontology_loader()
         handle_graphsNotFound();
-        return this.reset_endpoint_form(true);
+        this.reset_endpoint_form(true);
       };
     };
 
@@ -6012,6 +6040,9 @@ ORDER BY ?g\
     };
     args.query = qry;
     args.serverUrl = url;
+    if (skip_graph_search) {
+      args.timeout = 1; //msec
+    }
     this.sparql_graph_query_and_show_queryManager = this.run_managed_query_ajax(args);
   }
 
@@ -6229,7 +6260,7 @@ LIMIT ${node_limit}\
       if (e.data.method_name === 'log_query') {
         queryManagerArgs.query = "#SPARQL_Worker\n"+e.data.qry;
         queryManagerArgs.serverUrl = url;
-        queryManager = this.run_managed_query_abstract(queryManagerArgs);
+        queryManager = this.initializeQueryManager(queryManagerArgs);
         //queryManager = @log_query_with_timeout(, timeout)
         return;
       } else if (e.data.method_name !== 'accept_results') {
@@ -7774,6 +7805,7 @@ LIMIT ${node_limit}\
     // if it has a time then a user added it therefore canDelete
     if (rsrcRec.canDelete == null) { rsrcRec.canDelete = !(rsrcRec.time == null); }
     if (rsrcRec.label == null) { rsrcRec.label = uri.split('/').reverse()[0]; }
+    //if (rsrcRec.skip_graph_search == null) { rsrcRec.skip_graph_search = null; }
     if (rsrcRec.isOntology) {
       if (this.ontology_loader) {
         this.ontology_loader.add_resource(rsrcRec, store_in_db);
@@ -7790,11 +7822,11 @@ LIMIT ${node_limit}\
   add_resource_to_db(rsrcRec, callback) {
     const trx = this.datasetDB.transaction('datasets', "readwrite");
     trx.oncomplete = (e) => {
-      return console.log(`${rsrcRec.uri} added!`);
+      console.log(`${rsrcRec.uri} added!`);
     };
     trx.onerror = (e) => {
       console.log(e);
-      return alert(`add_resource(${rsrcRec.uri}) error!!!`);
+      alert(`add_resource(${rsrcRec.uri}) error!!!`);
     };
     const store = trx.objectStore('datasets');
     const req = store.put(rsrcRec);
@@ -8457,7 +8489,15 @@ LIMIT ${node_limit}\
     } else if (e.currentTarget.value === 'provide') {
       console.log("update_endpoint_form ... select PROVIDE");
     } else {
-      this.sparql_graph_query_and_show(e.currentTarget.value, e.currentTarget.id);
+      // find the selected OPTION
+      var selectedOption = e.currentTarget.querySelector('option:checked');
+      var endpointDataset;
+      var endpointJSON = {id: e.currentTarget.id}
+      if (selectedOption) {
+        endpointDataset = selectedOption.dataset;
+        endpointJSON = Object.assign(endpointJSON, endpointDataset);
+      }
+      this.sparql_graph_query_and_show(e.currentTarget.value, endpointJSON);
       //console.log(@dataset_loader)
       $(`#${this.dataset_loader.uniq_id}`).children('select').prop('disabled', 'disabled');
       $(`#${this.ontology_loader.uniq_id}`).children('select').prop('disabled', 'disabled');
@@ -8763,9 +8803,8 @@ LIMIT ${node_limit}\
     const spo_query_id = unique_id('spo_query_');
     const sparqlGraphSelectorId = `sparqlGraphOptions-${this.endpoint_loader.select_id}`;
     const spo_placeholder =
-         `SELECT ?subject ?predicate ?object
-         WHERE {
-           ?subject ?predicate ?object
+         `SELECT * {
+           ?s ?p ?o .
          }`.replace(/         /g,'');
     const select_box = `\
       <div class="ui-widget" style="display:none;margin-top:5px;margin-left:10px;">
@@ -8909,8 +8948,7 @@ LIMIT ${node_limit}\
     this.stop_graphs_selector_spinner();
   }
 
-  animate_sparql_query(elem, overMsec, fillColor, bgColor) {
-    if (fillColor == null) { fillColor = 'lightblue'; }
+  animate_sparql_query(elem, overMsec, fillColor='lightblue', bgColor='white') {
     return this.animate_fill_graph(elem, overMsec, fillColor, bgColor);
   }
 
@@ -8982,6 +9020,11 @@ LIMIT ${node_limit}\
   //
   //  Alternatives to regex in SPARQL
   //    https://www.cray.com/blog/dont-use-hammer-screw-nail-alternatives-regex-sparql/
+  //  Efficient String Matching While Ignoring Case
+  //    https://stackoverflow.com/questions/10660030/
+  //      Bottom line: string matching cannot be expected to perform well without full text index
+  //      Jena 1.x has LARQ
+  //      Jena 2.11.0 has jena-text 
   search_sparql_by_label(request, response) {
     this.euthanize_search_sparql_by_label();
     this.animate_endpoint_label_search();
@@ -8991,21 +9034,28 @@ LIMIT ${node_limit}\
     if (this.endpoint_loader.endpoint_graph) {
       fromGraph=` FROM <${this.endpoint_loader.endpoint_graph}> `;
     }
-
-    const qry = `\
-# search_sparql_by_label()
+    const sought = request.term.toLowerCase();
+    const qry = `
+# search_sparql_by_label("${sought}")
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 PREFIX dbp: <http://dbpedia.org/ontology/>
 SELECT DISTINCT * ${fromGraph}
 WHERE {
-?sub rdfs:label|foaf:name|dbp:name ?obj .
-FILTER (STRSTARTS(LCASE(?obj), "${request.term.toLowerCase()}"))
+  {
+  ?sub rdfs:label ?obj .
+  FILTER contains(LCASE(?obj), "${sought}")
+  } UNION {
+  ?sub foaf:name|dbp:name ?obj .
+  FILTER contains(LCASE(?obj), "${sought}")
+  } UNION {
+  ?sub dbp:name ?obj .
+  FILTER contains(LCASE(?obj), "${sought}")
+  }
 }
-LIMIT 20\
-`;                       // for emacs syntax hilighting  ---> "
-
+LIMIT 20
+`;
     const make_success_handler = () => {
       return (data, textStatus, jqXHR, queryManager) => {
         let json_data;

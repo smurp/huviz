@@ -174,7 +174,7 @@ export class PickOrProvide {
       uri
     } = rsrcRec;
     rsrcRec.value = rsrcRec.uri;
-    this.add_option(rsrcRec, this.pickable_uid);
+    var opt = this.add_option(rsrcRec, this.pickable_uid);
     this.pick_or_provide_select.val(uri);
     this.refresh();
   }
@@ -228,13 +228,15 @@ export class PickOrProvide {
         $(opt).attr(k, opt_rec[k]);
       }
     }
-    for (k of ['isUri', 'canDelete', 'ontologyUri', 'ontology_label']) { // TODO standardize on _
+    var opt_elem = opt[0]
+    for (k of ['isUri', 'canDelete', 'ontologyUri',
+               'ontology_label', 'skip_graph_search']) { // TODO standardize on _
       if (opt_rec[k] != null) {
         const val = opt_rec[k];
-        $(opt).data(k, val);
+        opt_elem.dataset[k] = val;
       }
     }
-    return opt[0];
+    return opt_elem;
   }
 
   update_state(callback) {

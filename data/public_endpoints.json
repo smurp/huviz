@@ -21,7 +21,8 @@
     },
     {
       "uri": "https://query.wikidata.org/sparql",
-      "label": "WikiData Query Service"
+      "label": "WikiData Query Service",
+      "skip_graph_search": true
     },
     {
       "uri": "http://ldf.fi/ww1lod/sparql",
