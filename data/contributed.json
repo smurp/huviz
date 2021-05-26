@@ -1,0 +1,30 @@
+{
+  "datasets": [
+    {
+      "uri": "https://raw.githubusercontent.com/cwrc/testData/master/demoData/WoolfsOrlando.ttl",
+      "label": "WoolfsOrlando"
+    },
+    {
+      "uri": "https://raw.githubusercontent.com/cwrc/testData/master/qa/AmyLevy/LevyBioTriples.ttl",
+      "label": "Levy Biography Triples"
+    },
+    {
+      "uri": "https://raw.githubusercontent.com/cwrc/testData/master/demoData/CanAuthorsBiography.ttl",
+      "label": "CDNAuthorsBiography"
+    },
+    {
+      "uri": "https://raw.githubusercontent.com/cwrc/testData/master/sparqlOutputs/jewish_novelist_biographies.ttl",
+      "label": "Jewish novelist biographies"
+    },
+    {
+      "uri": "https://raw.githubusercontent.com/cwrc/testData/master/sparqlOutputs/unitarian_novelist_biographies.ttl",
+      "label": "Unitarian novelist biographies"
+    }
+  ],
+  "defaults": {
+    "isOntology": false,
+    "opt_group": "Contributed",
+    "canDelete": false,
+    "ontology_label": "CWRC Ontology"
+  }
+}

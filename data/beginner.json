@@ -1,0 +1,19 @@
+{
+  "datasets": [
+    {
+      "uri": "/data/cwrc-writer-citation.jsonld",
+      "label": "Mini"
+    },
+    {
+      "uri": "https://raw.githubusercontent.com/alliyya/huviz_demo_data/master/Harry%20Potter/hp_rdf_data.ttl",
+      "label": "Harry Potter",
+      "ontology_label": "Harry Potter Terms"
+    }
+  ],
+  "defaults": {
+    "isOntology": false,
+    "opt_group": "Beginner",
+    "canDelete": false,
+    "ontology_label": "Open Annotation"
+  }
+}

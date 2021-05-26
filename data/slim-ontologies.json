@@ -1,0 +1,40 @@
+{
+  "datasets": [
+    {
+      "uri": "https://raw.githubusercontent.com/alliyya/huviz_demo_data/master/Harry%20Potter/hp_wd_terms.ttl",
+      "label": "Harry Potter Terms"
+    },
+    {
+      "uri": "https://raw.githubusercontent.com/federicomorando/linkedcoins/master/cidoc-crm-core_5.0.1.ttl",
+      "label": "CIDOC-CRM 5.0.1"
+    },
+    {
+      "uri": "/data/foaf20140114.ttl",
+      "label": "Friend of a Friend (FOAF)"
+    },
+    {
+      "uri": "/data/oa.ttl",
+      "label": "Open Annotation",
+      "title": "copied from https://www.w3.org/ns/oa.ttl"
+    },
+    {
+      "uri": "https://cwrc.ca/ontologies/OrlandoOntology-2015-11-16.ttl",
+      "label": "Orlando Ontology",
+      "title": "Orlando Ontology (for older datasets)"
+    },
+    {
+      "uri": "/data/owl_mini.ttl",
+      "label": "OWL Mini"
+    },
+    {
+      "uri": "/data/schema.org.ttl",
+      "label": "Schema.org (subset)"
+    }
+  ],
+  "defaults": {
+    "isOntology": true,
+    "opt_group": "Ontologies",
+    "ontology_label": "OWL Mini",
+    "canDelete": false
+  }
+}

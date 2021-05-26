@@ -24,16 +24,18 @@ window.addEventListener('load',function(){
       'sparqlQueries'
     ],
     preload: [
-      '/data/genres.json'
-      , '/data/cwrc-writer.json'
-      , '/data/ontologies.json'
+      //'/data/genres.json'
+      //, '/data/cwrc-writer.json'
+      "/data/beginner.json",
+      , "/data/contributed.json"
+      , '/data/slim-ontologies.json'
       //, '/data/open_anno.json'
-      , '/data/experiments.json'
+      //, '/data/experiments.json'
       //, '/data/organizations.json'
       //, '/data/periodicals.json'
       //, '/data/publishing.json'
       //, '/data/individuals.json'
-      , '/data/cwrc_data.json'
+      //, '/data/cwrc_data.json'
       , '/data/public_endpoints.json'
       , '/data/cwrc_endpoints.json'
     ]
