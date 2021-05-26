@@ -22,6 +22,13 @@ function strip(s) {
 
 // https://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/
 // https://stackoverflow.com/a/42250080  a Mixin strategy
+
+
+/*
+  Usage:
+      class WhateverWithFSM extends FSMMixin(Whatever) {}
+      class SubclassOfFiniteStateMachine extends FiniteStateMachine {}
+ */
 export let FSMMixin = (superclass) => class extends superclass {
   parseMachineTTL(ttl, defaultFirstStateId = '') {
     /*
@@ -216,7 +223,6 @@ export let FSMMixin = (superclass) => class extends superclass {
         return this.throw_or_return_msg(msg);
       }
       if (evt.stopPropagation) {
-        console.log('stopPropagation()');
         evt.stopPropagation();
       }
       return called;

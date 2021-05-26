@@ -1,10 +1,22 @@
 
+import {uniquer, unique_id} from './uniquer.js'; // TODO rename to make_dom_safe_id
+
+function hide(elem) {
+  elem.style['display'] = 'none';
+}
+function show(elem) {
+  elem.style['display'] = null;
+}
+
 export class PickOrProvide {
   static initClass() {
     this.prototype.tmpl = `\
-<form id="UID" class="pick_or_provide_form" method="post" action="" enctype="multipart/form-data">
-      <span class="pick_or_provide_label">REPLACE_WITH_LABEL</span>
-      <select name="pick_or_provide"></select>
+    <form id="UID" class="pick_or_provide_form" method="post" action="" enctype="multipart/form-data">
+      <!--
+        <span class="pick_or_provide_label">REPLACE_WITH_LABEL</span>
+        -->
+      <Xselect name="pick_or_provide"></Xselect>
+      <div class="pick_or_provide"></div>
       <button type="button" class="delete_option"><i class="fa fa-trash" style="font-size: 1.2em;"></i></button>
     </form>\
 `;
@@ -12,6 +24,7 @@ export class PickOrProvide {
   }
 
   constructor(huviz, append_to_sel, label, css_class, isOntology, isEndpoint, opts) {
+    this.containingElem = huviz;
     this.add_uri = this.add_uri.bind(this);
     this.add_local_file = this.add_local_file.bind(this);
     this.add_resource_option = this.add_resource_option.bind(this);
@@ -19,26 +32,44 @@ export class PickOrProvide {
     this.get_selected_option = this.get_selected_option.bind(this);
     this.delete_selected_option = this.delete_selected_option.bind(this);
     this.huviz = huviz;
-    this.append_to_sel = append_to_sel;
+    if (typeof(append_to_sel) == typeof('')) {
+      this.append_to = document.querySelector(append_to_sel);
+    } else {
+      this.append_to = append_to_sel;
+    }
     this.label = label;
     this.css_class = css_class;
     this.isOntology = isOntology;
     this.isEndpoint = isEndpoint;
     this.opts = opts;
     if (this.opts == null) { this.opts = {}; }
-    this.uniq_id = this.huviz.unique_id();
-    this.select_id = this.huviz.unique_id();
-    this.pickable_uid = this.huviz.unique_id();
-    this.your_own_uid = this.huviz.unique_id();
+    this.uniq_id = unique_id();
+    this.select_id = unique_id();
+    this.pickable_uid = unique_id();
+    this.your_own_uid = unique_id();
     this.find_or_append_form();
     const dndLoaderClass = this.opts.dndLoaderClass || DragAndDropLoader;
-    this.drag_and_drop_loader = new dndLoaderClass(this.huviz, this.append_to_sel, this);
-    this.drag_and_drop_loader.form.hide();
+    this.drag_and_drop_loader = new dndLoaderClass(this.huviz, this.append_to, this);
+    hide(this.drag_and_drop_loader.form);
     //@add_group({label: "-- Pick #{@label} --", id: @pickable_uid})
-    this.add_group({label: "Your Own", id: this.your_own_uid}, 'append');
-    this.add_option({label: `Provide New ${this.label} ...`, value: 'provide'}, this.select_id);
-    this.add_option({label: "Pick or Provide...", canDelete: false}, this.select_id, 'prepend');
+    //console.warn("SUPPRESSING 'Your Own'")
+    this.add_group({label: "Your Own", id: this.your_own_uid}, 'beforeend');
+    console.warn(`SUPPRESSING 'Provide New ${this.label}'`)
+    //this.add_option({label: `Provide New ${this.label} ...`, value: 'provide'}, this.select_id);
+    console.warn("SUPPRESSING 'Pick or Provide'")
+    //this.add_option({label: "Pick or Provide...", canDelete: false}, this.select_id, 'afterbegin');
     this.update_change_stamp();
+  }
+
+  querySelector(sel) {
+    //return this.containingElem.querySelector(sel);
+    var container = this.containingElem.shadowRoot ||  this.containingElem;
+    return container.querySelector(sel);
+  }
+
+  querySelectorAll(sel) {
+    var container = this.containingElem.shadowRoot ||  this.containingElem;
+    return container.querySelectorAll(sel);
   }
 
   update_change_stamp() {
@@ -66,25 +97,27 @@ export class PickOrProvide {
   val(val) {
     console.debug(this.constructor.name +
         '.val(' + ((val && ('"'+val+'"')) || '') + ') for ' +
-        this.opts.rsrcType + ' was ' + this.pick_or_provide_select.val());
-    this.pick_or_provide_select.val(val);
+        this.opts.rsrcType + ' was ' + this.value);
+    //this.pick_or_provide_select.value = val;
+    this.old_value = this.value;
+    this.value = val;
     this.refresh();
   }
 
   disable() {
-    this.pick_or_provide_select.prop('disabled', true);
-    this.form.find('.delete_option').hide();
+    this.pick_or_provide_select.setAttribute('disabled', true);
+    hide(this.form.querySelector('.delete_option'))
   }
 
   enable() {
-    this.pick_or_provide_select.prop('disabled', false);
-    this.form.find('.delete_option').show();
+    this.pick_or_provide_select.setAttribute('disabled', false);
+    show(this.form.querySelector('.delete_option'))
   }
 
   select_option(option) {
-    const new_val = option.val();
+    const new_val = option.value;
     //console.table([{last_val: @last_val, new_val: new_val}])
-    const cur_val = this.pick_or_provide_select.val();
+    const cur_val = this.pick_or_provide_select.value;
     // TODO remove last_val = null in @init_resource_menus() by fixing logic below
     //   What is happening is that the AJAX loading of preloads means that
     //   it is as if each of the new datasets is being selected as it is
@@ -96,7 +129,7 @@ export class PickOrProvide {
     if (this.last_val !== new_val) {
       this.last_val = new_val;
       if (new_val) {
-        this.pick_or_provide_select.val(new_val);
+        this.pick_or_provide_select.value = new_val
         this.value = new_val;
       } else {
         // TODO should something be done here?
@@ -122,7 +155,8 @@ export class PickOrProvide {
     if (rsrcRec.isUri == null) { rsrcRec.isUri = true; }
     if (rsrcRec.title == null) { rsrcRec.title = rsrcRec.uri; }
     if (rsrcRec.canDelete == null) { rsrcRec.canDelete = !(rsrcRec.time == null); }
-    if (rsrcRec.label == null) { rsrcRec.label = rsrcRec.uri.split('/').reverse()[0] || rsrcRec.uri; }
+    if (rsrcRec.label == null) {
+      rsrcRec.label = rsrcRec.uri.split('/').reverse()[0] || rsrcRec.uri; }
     if (rsrcRec.label === "sparql") { rsrcRec.label = rsrcRec.uri; }
     if (rsrcRec.rsrcType == null) { rsrcRec.rsrcType = this.opts.rsrcType; }
     // rsrcRec.data ?= file_rec.data # we cannot add data because for uri we load each time
@@ -170,98 +204,113 @@ export class PickOrProvide {
   }
 
   add_resource_option(rsrcRec) { // TODO rename to rsrcRec
-    const {
-      uri
-    } = rsrcRec;
-    rsrcRec.value = rsrcRec.uri;
+    const { uri } = rsrcRec;
+    rsrcRec.value = uri;
     this.add_option(rsrcRec, this.pickable_uid);
-    this.pick_or_provide_select.val(uri);
+    this.pick_or_provide_select.setAttribute('value',uri);
     this.refresh();
   }
 
-  add_group(grp_rec, which) {
-    if (which == null) { which = 'append'; }
-    const optgrp = $(`<optgroup label="${grp_rec.label}" id="${grp_rec.id || this.huviz.unique_id()}"></optgroup>`);
-    if (which === 'prepend') {
-      this.pick_or_provide_select.prepend(optgrp);
-    } else {
-      this.pick_or_provide_select.append(optgrp);
+  add_group(grp_rec, position) {
+    if (position == null) { position = 'beforeend'; }
+    if (position == 'prepend' || position == '') {
+      throw new Error(`using jquery arg ${position}`);
     }
-    return optgrp;
+    var id = grp_rec.id || unique_id();
+    var optgrpstr = `<div class="optgrp" title="${grp_rec.label}"
+                          id="${id}"><h3>${grp_rec.label}</h3></div>`;
+    this.pick_or_provide_select.insertAdjacentHTML(position, optgrpstr);
+    return this.querySelector(`#${id}`);
   }
 
-  add_option(opt_rec, parent_uid, pre_or_append) {
+  add_option(opt_rec, parent_uid, position) {
     let k;
-    if (pre_or_append == null) { pre_or_append = 'append'; }
+    if (position == null) { position = 'beforeend'; }
     if ((opt_rec.label == null)) {
       console.log("missing .label on", opt_rec);
     }
-    if (this.pick_or_provide_select.find(`option[value='${opt_rec.value}']`).length) {
+    if (this.pick_or_provide_select.querySelector(`div[title='${opt_rec.value}']`)) {
       //alert "add_option() #{opt_rec.value} collided"
       return;
     }
-    const opt_str = `<option id="${this.huviz.unique_id()}"></option>`;
-    const opt = $(opt_str);
+    var opt = document.createElement('span');
+    opt.id = unique_id();
     const opt_group_label = opt_rec.opt_group;
     if (opt_group_label) {
-      let opt_group = this.pick_or_provide_select.find(`optgroup[label='${opt_group_label}']`);
-      //console.log(opt_group_label, opt_group.length) #, opt_group[0])
-      if (!opt_group.length) {
-        //@huviz.blurt("adding '#{opt_group_label}'")
-        opt_group = this.add_group({label: opt_group_label}, 'prepend');
+      let opt_group = this.pick_or_provide_select.querySelector(
+        `div[title='${opt_group_label}']`);
+      if (!opt_group) {
+        console.log(`adding '${opt_group_label}'`)
+        opt_group = this.add_group({label: opt_group_label}, 'beforeend');
       }
-        // opt_group = $('<optgroup></optgroup>')
-        // opt_group.attr('label', opt_group_label)
-        // @pick_or_provide_select.append(opt_group)
-      //if not opt_group.length
-      //  @huviz.blurt('  but it does not yet exist')
-      opt_group.append(opt);
+      opt_group.insertAdjacentElement('beforeend', opt);
     } else { // There is no opt_group_label, so this is a top level entry, ie a group, etc
-      if (pre_or_append === 'append') {
-        $(`#${parent_uid}`).append(opt);
-      } else {
-        $(`#${parent_uid}`).prepend(opt);
-      }
+      var dest = this.querySelector(`#${parent_uid}`);
+      dest.insertAdjacentElement(position, opt);
     }
+    opt.innerText = opt_rec.label;
     for (k of ['value', 'title', 'class', 'id', 'style', 'label']) {
       if (opt_rec[k] != null) {
-        $(opt).attr(k, opt_rec[k]);
+        opt.setAttribute(k, opt_rec[k]);  //$(opt).attr(k, opt_rec[k]);
       }
     }
     for (k of ['isUri', 'canDelete', 'ontologyUri', 'ontology_label']) { // TODO standardize on _
       if (opt_rec[k] != null) {
         const val = opt_rec[k];
-        $(opt).data(k, val);
+        opt.dataset[k] = val;  // $(opt).data(k, val);
       }
     }
-    return opt[0];
+    opt.addEventListener('click', this.option_click_listener.bind(this));
+    opt.classList.add('pick_or_provide_item')
+    return opt; //opt[0];
+  }
+  setSelectedId(id) {
+    this.selectedId = id;
+  }
+  setSelectedElem(elem) {
+    this.setSelectedId(elem && elem.id)
+    this.old_selectedElem = this.selectedElem;
+    this.selectedElem = elem;
+    let val = elem && elem.getAttribute('value');
+    console.log(`setSelectedElem ${this.label} to ${val}`);
+    this.val(val);
+  }
+  option_click_listener(evt) {
+    this.setSelectedElem(evt.target);
+    this.containingElem.set_ontology_from_dataset_if_possible();
   }
 
   update_state(callback) {
-    const old_value = this.value;
-    const raw_value = this.pick_or_provide_select.val();
-    const selected_option = this.get_selected_option();
-    const label_value = selected_option[0].label;
-    const the_options = this.pick_or_provide_select.find("option");
-    const kid_cnt = the_options.length;
+    const old_value = this.old_value;
+    const raw_value = this.value
+    const selected = this.selectedElem;
+    if (!selected) {
+      console.debug('nothing selected');
+      return
+    }
+    const label_value = selected.getAttribute('label');
+    //const the_options = this.pick_or_provide_select.querySelectorAll("option");
+    //const kid_cnt = the_options.length;
     //console.log("#{@label}.update_state() raw_value: #{raw_value} kid_cnt: #{kid_cnt}")
     if (raw_value === 'provide') {
-      this.drag_and_drop_loader.form.show();
+      show(this.drag_and_drop_loader.form)
       this.state = 'awaiting_dnd';
       this.value = undefined;
     } else {
-      this.drag_and_drop_loader.form.hide();
+      hide(this.drag_and_drop_loader.form);
       this.state = 'has_value';
       this.value = raw_value;
       this.label = label_value;
     }
     let disable_the_delete_button = true;
     if (this.value != null) {
-      const canDelete = selected_option.data('canDelete');
+      const canDelete = selected.dataset.canDelete;
       disable_the_delete_button = !canDelete;
     }
-    // disable_the_delete_button = false  # uncomment to always show the delete button -- useful when bad data stored
-    this.form.find('.delete_option').prop('disabled', disable_the_delete_button);
+    // disable_the_delete_button = false
+    // uncomment to always show the delete button -- useful when bad data stored
+    this.form.querySelector('.delete_option').
+      setAttribute('disabled', disable_the_delete_button);
     if (callback != null) {
       const args = {
         pickOrProvide: this,
@@ -273,18 +322,29 @@ export class PickOrProvide {
   }
 
   find_or_append_form() {
+    /*
+    console.warn(`
     if (!$(this.local_file_form_sel).length) {
       $(this.append_to_sel).append(this.tmpl.replace('REPLACE_WITH_LABEL', this.label).replace('UID',this.uniq_id));
     }
-    this.form = $(`#${this.uniq_id}`);
-    this.pick_or_provide_select = this.form.find("select[name='pick_or_provide']");
-    this.pick_or_provide_select.attr('id',this.select_id);
+    `);
+    */
+    var form_sel = `#${this.uniq_id}`;
+    if (!this.form) {
+      var filledTmpl = this.tmpl.replace('REPLACE_WITH_LABEL', this.label).replace('UID',this.uniq_id);
+      this.append_to.insertAdjacentHTML('beforeend', filledTmpl);
+      this.form = this.append_to.querySelector(form_sel);  // this.form = $(`#${this.uniq_id}`);
+    } else {
+      return this.form;
+    }
+    this.pick_or_provide_select = this.form.querySelector("div.pick_or_provide");
+    this.pick_or_provide_select.setAttribute('id', this.select_id);
     //console.debug @css_class,@pick_or_provide_select
-    this.pick_or_provide_select.change(this.onchange);
-    this.delete_option_button = this.form.find('.delete_option');
-    this.delete_option_button.click(this.delete_selected_option);
-    this.form.find('.delete_option').prop('disabled', true); // disabled initially
-    //console.info "form", @form
+    this.pick_or_provide_select.onchange = this.onchange.bind(this);
+    this.delete_option_button = this.form.querySelector('.delete_option');
+    this.delete_option_button.onclick = this.delete_selected_option.bind(this);
+    this.form.querySelector('.delete_option').setAttribute('disabled', true); // disabled initially
+    return this.form;
   }
 
   onchange(e) {
@@ -293,7 +353,7 @@ export class PickOrProvide {
   }
 
   get_selected_option() {
-    return this.pick_or_provide_select.find('option:selected'); // just one CAN be selected
+    return this.selectedElem;
   }
 
   delete_selected_option(e) {
@@ -316,7 +376,8 @@ export class PickOrProvide {
   }
 
   refresh() {
-    this.update_state(this.huviz.update_dataset_ontology_loader);
+    let cb = this.huviz.update_dataset_ontology_loader.bind(this);
+    this.update_state(cb);
   }
 }
 PickOrProvide.initClass();
@@ -337,7 +398,7 @@ export class PickOrProvideScript extends PickOrProvide {
 export class DragAndDropLoader {
   static initClass() {
     this.prototype.tmpl = `\
-<form class="local_file_form" method="post" action="" enctype="multipart/form-data">
+<form id="REPLACE_ID" class="local_file_form" method="post" action="" enctype="multipart/form-data">
   <div class="box__input">
     <input class="box__file" type="file" name="files[]"
                data-multiple-caption="{count} files selected" multiple />
@@ -349,21 +410,25 @@ export class DragAndDropLoader {
   <div class="box__uploading" style="display:none">Uploading&hellip;</div>
   <div class="box__success" style="display:none">Done!</div>
   <div class="box__error" style="display:none">Error! <span></span>.</div>
-    </form>\
+</form>
 `;
   }
 
   constructor(huviz, append_to_sel, picker) {
     this.huviz = huviz;
-    this.append_to_sel = append_to_sel;
+    if (typeof(append_to_sel) == typeof('')) {
+      this.append_to = document.querySelector(append_to_sel);
+    } else {
+      this.append_to = append_to_sel;
+    }
     this.picker = picker;
-    this.local_file_form_id = this.huviz.unique_id();
+    this.local_file_form_id = unique_id();
     this.local_file_form_sel = `#${this.local_file_form_id}`;
     this.find_or_append_form();
     if (this.supports_file_dnd()) {
-      this.form.show();
-      this.form.addClass('supports-dnd');
-      this.form.find(".box__dragndrop").show();
+      this.form.style['display'] = 'none';
+      this.form.classList.add('supports-dnd');
+      this.form.querySelector(".box__dragndrop").style['display'] = 'none';
     }
   }
 
@@ -379,15 +444,15 @@ export class DragAndDropLoader {
     //@form.find('.box__success').show()
     //TODO SHOULD selection be added to the picker here, or wait for after successful?
     this.picker.add_uri({uri: firstUri, opt_group: 'Your Own'});
-    this.form.hide();
+    hide(this.form)
     return true; // ie success
   }
 
   load_file(firstFile) {
     this.huviz.local_file_data = "empty";
     const filename = firstFile.name;
-    this.form.find('.box__success').text(firstFile.name); //TODO Are these lines still needed?
-    this.form.find('.box__success').show();
+    this.form.querySelector('.box__success').innerText = firstFile.name; //TODO Are these lines still needed?
+    show(this.form.querySelector('.box__success'));
     const reader = new FileReader();
     reader.onload = evt => {
       try {
@@ -400,16 +465,16 @@ export class DragAndDropLoader {
           });
           //@huviz.local_file_data = evt.target.result  # REVIEW remove all uses of local_file_data?!?
         } else {
-          //$("##{@dataset_loader.select_id} option[label='Pick or Provide...']").prop('selected', true)
+          //$("##{@dataset_loader.select_id} option[label='Pick or Provide...']").setAttribute('selected', true)
           this.huviz.blurt(`Unknown file format. Unable to parse '${filename}'. ` +
                 "Only .ttl and .nq files supported.", 'alert');
           this.huviz.reset_dataset_ontology_loader();
-          return $('.delete_option').attr('style','');
+          this.querySelector('.delete_option').setAttribute('style','');
         }
       } catch (e) {
         const msg = e.toString();
         //@form.find('.box__error').show()
-        //@form.find('.box__error').text(msg)
+        //@form.find('.box__error').innerText = msg
         return this.huviz.blurt(msg, 'error');
       }
     };
@@ -418,46 +483,58 @@ export class DragAndDropLoader {
   }
 
   find_or_append_form() {
-    const num_dnd_form = $(this.local_file_form_sel).length;
-    if (!num_dnd_form) {
-      const elem = $(this.tmpl);
-      $(this.append_to_sel).append(elem);
-      elem.attr('id', this.local_file_form_id);
+    const form_id = this.local_file_form_id;
+    const form_sel = this.local_file_form_sel;
+    var dnd_form = this.append_to.querySelector(form_sel);
+    if (!dnd_form) {
+      var tmpl = this.tmpl.replace('REPLACE_ID', form_id);
+      this.append_to.insertAdjacentHTML('beforeend', tmpl);
+      dnd_form = this.append_to.querySelector(form_sel);
     }
-    this.form = $(this.local_file_form_sel);
-    this.form.on('submit unfocus', evt => {
-      const uri_field = this.form.find('.box__uri');
-      const uri = uri_field.val();
+    this.form = dnd_form;
+    var h1 =  (evt) => {
+      const uri_field = this.form.querySelector('.box__uri');
+      const uri = uri_field.value;
       if (uri_field[0].checkValidity()) {
-        uri_field.val('');
+        uri_field.value = '';
         this.load_uri(uri);
       }
       return false;
-    });
-    this.form.on('drag dragstart dragend dragover dragenter dragleave drop', evt => {
+    }
+    'submit unfocus'.split(' ').forEach((e) => dnd_form.addEventListener(e, h1));
+
+    var h2 = (evt) => {
       //console.clear()
       evt.preventDefault();
-      return evt.stopPropagation();
+      evt.stopPropagation();
+    };
+    'drag dragstart dragend dragover dragenter dragleave drop'.split(' ').forEach((e) => {
+      dnd_form.addEventListener(e, h2)
     });
-    this.form.on('dragover dragenter', () => {
-      this.form.addClass('is-dragover');
-      return console.log("addClass('is-dragover')");
-    });
-    this.form.on('dragleave dragend drop', () => {
-      return this.form.removeClass('is-dragover');
-    });
-    this.form.on('drop', e => {
+
+    var h3 = () => {
+      this.form.classList.add('is-dragover');
+      console.log("classList.add('is-dragover')");
+    };
+    'dragover dragenter'.split(' ').forEach((e) => dnd_form.addEventListener(e, h3));
+
+    var h4 = () => {
+      this.form.removeClass('is-dragover');
+    }
+    'dragleave dragend drop'.split(' ').forEach((e) => dnd_form.addEventListener(e, h4));
+
+    var h5 = (e) => {
       console.log(e);
       console.log("e:", e.originalEvent.dataTransfer);
-      this.form.find('.box__input').hide();
+      hide(this.form.querySelector('.box__input'))
       const droppedUris = e.originalEvent.dataTransfer.getData("text/uri-list").split("\n");
       console.log("droppedUris",droppedUris);
       const firstUri = droppedUris[0];
       if (firstUri.length) {
         if (this.load_uri(firstUri)) {
-          this.form.find(".box__success").text('');
+          this.form.querySelector(".box__success").innerText = '';
           this.picker.refresh();
-          this.form.hide();
+          hide(this.form)
           return;
         }
       }
@@ -466,16 +543,17 @@ export class DragAndDropLoader {
       if (droppedFiles.length) {
         const firstFile = droppedFiles[0];
         if (this.load_file(firstFile)) {
-          this.form.find(".box__success").text('');
+          this.form.querySelector(".box__success").innerText = '';
           this.picker.refresh();
-          this.form.hide();
+          hide(this.form);
           return;
         }
       }
       // the drop operation failed to result in loaded data, so show 'drop here' msg
-      this.form.find('.box__input').show();
-      return this.picker.refresh();
-    });
+      show(this.form.querySelector('.box__input'));
+      this.picker.refresh();
+    };
+    dnd_form.addEventListener('drop', h5);
   }
 }
 DragAndDropLoader.initClass();
@@ -483,8 +561,9 @@ DragAndDropLoader.initClass();
 export class DragAndDropLoaderOfScripts extends DragAndDropLoader {
   load_file(firstFile) {
     const filename = firstFile.name;
-    this.form.find('.box__success').text(firstFile.name); //TODO Are these lines still needed?
-    this.form.find('.box__success').show();
+    //TODO Are these lines still needed?
+    this.form.querySelector('.box__success').innerText = firstFile.name;
+    show(this.form.querySelector('.box__success'));
     const reader = new FileReader();
     reader.onload = evt => {
       try {
@@ -498,16 +577,16 @@ export class DragAndDropLoaderOfScripts extends DragAndDropLoader {
           this.picker.add_local_file(file_rec);
           //@huviz.local_file_data = evt.target.result
         } else {
-          //$("##{@dataset_loader.select_id} option[label='Pick or Provide...']").prop('selected', true)
+          //$("##{@dataset_loader.select_id} option[label='Pick or Provide...']").setAttribute('selected', true)
           this.huviz.blurt(`Unknown file format. Unable to parse '${filename}'. ` +
                 "Only .txt and .huviz files supported.", 'alert');
           this.huviz.reset_dataset_ontology_loader();
-          $('.delete_option').attr('style','');
+          this.querySelector('.delete_option').setAttribute('style','');
         }
       } catch (err) {
         const msg = err.toString();
         //@form.find('.box__error').show()
-        //@form.find('.box__error').text(msg)
+        //@form.find('.box__error').innerText = msg)
         this.huviz.blurt(msg, 'error');
       }
     };

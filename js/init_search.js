@@ -21,7 +21,7 @@ window.addEventListener('load',function(){
     stay_square: false,
     //show_tabs: false,
     //hide_fullscreen_button: true,
-    tab_specs: ['commands','settings','history'],
+    tab_specs: ['commands', 'settings', 'history'],
     preload: [
       '/data/genres.json'
       , '/data/ontologies.json'

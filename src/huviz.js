@@ -118,10 +118,6 @@
 //  67) TASK: add verbs pin/unpin (using polar coords to record placement)
 //
 
-import {
-  PickOrProvide, PickOrProvideScript, //PickOrProvide2Script,
-  DragAndDropLoader, DragAndDropLoaderOfScripts
-} from './dndloader.js';
 import {Edge} from './edge.js';
 import {EditController} from './editui.js';
 import {CommandController} from './gclui.js';
@@ -885,6 +881,179 @@ Here is how:
     this.prototype.default_settings = DEFAULT_SETTINGS;
     // recognize that changing this will likely break old hybrid HuVizScripts
     this.prototype.json_script_marker = "# JSON FOLLOWS";
+  }
+
+  constructor(incoming_args) { // Huviz
+    this.like_string = this.like_string.bind(this);
+    this.mousemove = this.mousemove.bind(this);
+    this.mousedown = this.mousedown.bind(this);
+    this.mouseup = this.mouseup.bind(this);
+    this.mouseright = this.mouseright.bind(this);
+    this.close_node_inspector = this.close_node_inspector.bind(this);
+    this.updateWindow = this.updateWindow.bind(this);
+    this.get_charge = this.get_charge.bind(this);
+    this.get_gravity = this.get_gravity.bind(this);
+    this.mouseout_of_huviz_controls = this.mouseout_of_huviz_controls.bind(this);
+    this.mouseover_of_huviz_controls = this.mouseover_of_huviz_controls.bind(this);
+    this.mousemove_boxNG = this.mousemove_boxNG.bind(this);
+    this.mousedown_boxNG = this.mousedown_boxNG.bind(this);
+    this.mouseout_boxNG = this.mouseout_boxNG.bind(this);
+    this.mouseenter_boxNG = this.mouseenter_boxNG.bind(this);
+    this.mouseup_boxNG = this.mouseup_boxNG.bind(this);
+    this.tick = this.tick.bind(this);
+    this.hide_state_msg = this.hide_state_msg.bind(this);
+    this.discovery_triple_ingestor_N3 = this.discovery_triple_ingestor_N3.bind(this);
+    this.discovery_triple_ingestor_GreenTurtle = this.discovery_triple_ingestor_GreenTurtle.bind(this);
+    this.make_triple_ingestor = this.make_triple_ingestor.bind(this);
+    this.discover_labels = this.discover_labels.bind(this);
+    this.ingest_quads_from = this.ingest_quads_from.bind(this);
+    this.show_geonames_instructions = this.show_geonames_instructions.bind(this);
+    this.tsv_name_success_handler = this.tsv_name_success_handler.bind(this);
+    this.json_name_success_handler = this.json_name_success_handler.bind(this);
+    this.display_graph_success_handler = this.display_graph_success_handler.bind(this);
+    this.generic_success_handler = this.generic_success_handler.bind(this);
+    this.generic_name_success_handler = this.generic_name_success_handler.bind(this);
+    this.convert_str_obj_to_GreenTurtle = this.convert_str_obj_to_GreenTurtle.bind(this);
+    this.convert_N3_uri_to_string = this.convert_N3_uri_to_string.bind(this);
+    this.convert_str_uri_to_string = this.convert_str_uri_to_string.bind(this);
+    this.convert_obj_obj_to_GreenTurtle = this.convert_obj_obj_to_GreenTurtle.bind(this);
+    this.convert_obj_uri_to_string = this.convert_obj_uri_to_string.bind(this);
+    this.name_result_handler = this.name_result_handler.bind(this);
+    this.parseAndShowTTLData = this.parseAndShowTTLData.bind(this);
+    this.parseAndShowTurtle = this.parseAndShowTurtle.bind(this);
+    this.choose_everything = this.choose_everything.bind(this);
+    this.parse_and_show_NQ_file = this.parse_and_show_NQ_file.bind(this);
+    this.DUMPER = this.DUMPER.bind(this);
+    this.log_query = this.log_query.bind(this);
+    /*
+    this.sparql_graph_query_and_show__trigger = this.sparql_graph_query_and_show__trigger.bind(this);
+    this.sparql_graph_query_and_show = this.sparql_graph_query_and_show.bind(this);
+    */
+    this.update_searchterm = this.update_searchterm.bind(this);
+    this.clean_up_dirty_predicates = this.clean_up_dirty_predicates.bind(this);
+    this.clean_up_all_dirt = this.clean_up_all_dirt.bind(this);
+    this.shelve = this.shelve.bind(this);
+    this.suppress = this.suppress.bind(this);
+    this.choose = this.choose.bind(this);
+    this.unchoose = this.unchoose.bind(this);
+    this.wander__atFirst = this.wander__atFirst.bind(this);
+    this.wander__atLast = this.wander__atLast.bind(this);
+    this.wander = this.wander.bind(this);
+    this.walk = this.walk.bind(this);
+    this.hide = this.hide.bind(this);
+    this.select = this.select.bind(this);
+    this.unselect = this.unselect.bind(this);
+    this.animate_hunt = this.animate_hunt.bind(this);
+    this.hunt = this.hunt.bind(this);
+    this.clear_snippets = this.clear_snippets.bind(this);
+    this.peek = this.peek.bind(this);
+    this.print = this.print.bind(this);
+    this.redact = this.redact.bind(this);
+    this.draw_edge_regarding = this.draw_edge_regarding.bind(this);
+    this.undraw_edge_regarding = this.undraw_edge_regarding.bind(this);
+    this.register_gclc_prefixes = this.register_gclc_prefixes.bind(this);
+    /*
+    this.ensure_datasets = this.ensure_datasets.bind(this);
+    this.ensure_datasets_from_XHR = this.ensure_datasets_from_XHR.bind(this);
+    */
+    this.big_go_button_onclick = this.big_go_button_onclick.bind(this);
+    this.update_dataset_forms = this.update_dataset_forms.bind(this);
+    this.update_graph_form = this.update_graph_form.bind(this);
+    this.turn_on_loading_notice = this.turn_on_loading_notice.bind(this);
+    this.turn_off_loading_notice = this.turn_off_loading_notice.bind(this);
+    this.visualize_dataset_using_ontology = this.visualize_dataset_using_ontology.bind(this);
+    this.after_visualize_dataset_using_ontology = this.after_visualize_dataset_using_ontology.bind(this);
+    this.load_script_from_db = this.load_script_from_db.bind(this);
+    /*
+    this.update_endpoint_form = this.update_endpoint_form.bind(this);
+    this.reset_endpoint_form = this.reset_endpoint_form.bind(this);
+    this.disable_go_button = this.disable_go_button.bind(this);
+    this.enable_go_button = this.enable_go_button.bind(this);
+    */
+    this.show_shareable_links = this.show_shareable_links_dialog.bind(this);
+    /*
+    this.build_sparql_form = this.build_sparql_form.bind(this);
+    this.spo_query__update = this.spo_query__update.bind(this);
+    */
+    this.endpoint_labels__autocompleteselect = this.endpoint_labels__autocompleteselect.bind(this);
+    this.endpoint_labels__update = this.endpoint_labels__update.bind(this);
+    this.endpoint_labels__focusout = this.endpoint_labels__focusout.bind(this);
+    this.sparqlGraphSelector_onchange = this.sparqlGraphSelector_onchange.bind(this);
+    this.animate_endpoint_label_typing = this.animate_endpoint_label_typing.bind(this);
+    this.animate_endpoint_label_search = this.animate_endpoint_label_search.bind(this);
+    this.search_sparql_by_label = this.search_sparql_by_label.bind(this);
+    this.catch_reject_init_settings = this.catch_reject_init_settings.bind(this);
+    this.complete_construction = this.complete_construction.bind(this);
+    this.blurt = this.blurt.bind(this);
+    this.close_blurt_box = this.close_blurt_box.bind(this);
+    this.fullscreen = this.fullscreen.bind(this);
+    this.collapse_tabs = this.collapse_tabs.bind(this);
+    this.expand_tabs = this.expand_tabs.bind(this);
+    this.init_settings_to_defaults = this.init_settings_to_defaults.bind(this);
+    this.update_settings_cursor = this.update_settings_cursor.bind(this);
+    this.update_graph_settings = this.update_graph_settings.bind(this);
+    this.change_graph_settings = this.change_graph_settings.bind(this);
+    this.change_setting_to_from = this.change_setting_to_from.bind(this);
+    this.on_change_reset_settings_to_default = this.on_change_reset_settings_to_default.bind(this);
+    this.pfm_dashboard = this.pfm_dashboard.bind(this);
+    this.build_pfm_live_monitor = this.build_pfm_live_monitor.bind(this);
+    this.pfm_count = this.pfm_count.bind(this);
+    this.pfm_update = this.pfm_update.bind(this);
+    this.parseAndShowFile = this.parseAndShowFile.bind(this);
+    this.receive_quaff_lod = this.receive_quaff_lod.bind(this);
+    this.oldToUniqueTabSel = {};
+    //if @show_performance_monitor is true
+    //  @pfm_dashboard()
+    this.git_commit_hash = window.HUVIZ_GIT_COMMIT_HASH;
+    this.args = this.calculate_args(incoming_args);
+    this.ensureTopElem();
+    if (this.args.create_tabs_adjacent_to_selector) {
+      this.create_tabs();
+    }
+    this.tabsJQElem = $('#' + this.tabs_id);
+    if (!this.args.show_tabs) {
+      this.collapse_tabs();
+    }
+    this.replace_human_term_spans(this.tabs_id);
+    if (this.args.add_to_HVZ) {
+      if ((window.HVZ == null)) {
+        window.HVZ = [];
+      }
+      window.HVZ.push(this);
+    }
+
+    // FIXME Simplify this whole settings_sel and 'settings' thing
+    //       The settings should just be built right on settings_JQElem
+    if (this.args.settings_sel == null) { this.args.settings_sel = this.oldToUniqueTabSel['settings']; }
+
+    this.create_blurtbox();
+    this.ensure_divs();
+    this.make_JQElems();
+    this.create_collapse_expand_handles();
+    if (!this.args.hide_fullscreen_button) {
+      this.create_fullscreen_handle();
+    }
+    this.init_ontology();
+    this.create_caption();
+    this.off_center = false; // FIXME expose this or make the amount a slider
+    document.addEventListener('nextsubject', this.onnextsubject);
+    //@init_snippet_box()  # FIXME not sure this does much useful anymore
+    this.mousedown_point = false;
+    this.discard_point = [this.cx,this.cy]; // FIXME refactor so ctrl_handle handles this
+    this.lariat_center = [this.cx,this.cy]; //       and this....
+    this.node_radius_policy = node_radius_policies[default_node_radius_policy];
+    this.currently_printed_snippets = {};
+    //@fill = d3.scale.category20()
+    // Examples:
+    //   d3-force testing ground (v4)
+    //     https://bl.ocks.org/steveharoz/8c3e2524079a8c440df60c1ab72b5d03
+    //   Force Simulation (v4)
+    //     https://bl.ocks.org/HarryStevens/f636199a46fc4b210fbca3b1dc4ef372
+    this.initialize_d3_force_simulation();
+    this.update_fisheye();
+    this.initialize_svg();
+    this.container = d3.select(this.args.viscanvas_sel).node().parentNode;
+    this.init_settings_to_defaults().then(this.complete_construction).catch(this.catch_reject_init_settings);
   }
 
   how_heavy_are(n, label, cb) {
@@ -3891,8 +4060,8 @@ with Shelved, Discarded, Graphed and Hidden.`;
       this.d3simulation.nodes(this.graphed_set);
       this.d3simulation.force('link').links(this.links_set);
       this.d3simulation.alpha(0.3).restart();
-    } else {
-      console.warn("@d3simulation is",this.d3simulation);
+    //} else {
+    //  console.warn("@d3simulation is",this.d3simulation);
     }
     if (!this.args.skip_log_tick) {
       console.log("Tick in @force.start() restart");
@@ -5922,159 +6091,6 @@ SERVICE wikibase:label {
     return queryManager;
   }
 
-  sparql_graph_query_and_show__trigger(url) {
-    const selectId = this.endpoint_loader.select_id;
-    this.sparql_graph_query_and_show(url, selectId);
-    //console.log @dataset_loader
-    $(`#${this.dataset_loader.uniq_id}`).children('select').prop('disabled', 'disabled');
-    $(`#${this.ontology_loader.uniq_id}`).children('select').prop('disabled', 'disabled');
-    $(`#${this.script_loader.uniq_id}`).children('select').prop('disabled', 'disabled');
-  }
-
-  sparql_graph_query_and_show(url, id, callback) {
-    const qry = `\
-# sparql_graph_query_and_show()
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-SELECT ?g ?label
-WHERE {
-GRAPH ?g { } .
-OPTIONAL {?g rdfs:label ?label}
-}
-ORDER BY ?g\
-`;
-    //alert("sparql_graph_query_and_show() id: #{id}")
-    // these are shared between success and error handlers
-    const spinner = $(`#sparqlGraphSpinner-${id}`);
-    spinner.css('display','block');
-    const graphSelector = `#sparqlGraphOptions-${id}`;
-    $(graphSelector).parent().css('display', 'none');
-    this.sparqlQryInput_hide();
-    // LOAD button should be disabled while the search for graphs is happening
-    this.disable_go_button();
-    const handle_graphsNotFound = () => {
-      $(graphSelector).parent().css('display', 'none');
-      this.reset_endpoint_form(true);
-      return this.enable_go_button();
-    };
-
-    const make_success_handler = () => {
-      return (data, textStatus, jqXHR, queryManager) => {
-        let json_data;
-        const json_check = typeof data;
-        if (json_check === 'string') {
-          json_data = JSON.parse(data);
-        } else {
-          json_data = data;
-        }
-
-        const results = json_data.results.bindings;
-        queryManager.setResultCount(results.length);
-
-        const graphsNotFound = jQuery.isEmptyObject(results[0]);
-        if (graphsNotFound) {
-          handle_graphsNotFound();
-          return;
-        }
-        let graph_options = `<option id='${this.unique_id()}' value='${url}'> All Graphs </option>`;
-        for (let graph of results) {
-          var label;
-          if (graph.label != null) {
-            label = ` (${graph.label.value})`;
-          } else {
-            label = '';
-          }
-          graph_options = graph_options + `<option id='${this.unique_id()}' value='${graph.g.value}'>${graph.g.value}${label}</option>`;
-        }
-        $(`#sparqlGraphOptions-${id}`).html(graph_options);
-        $(graphSelector).parent().css('display', 'block');
-        this.reset_endpoint_form(true);
-        return this.disable_go_button(); // disable until a graph or term is picked
-      };
-    };
-
-    const make_error_callback = () => {
-      return (jqXHR, textStatus, errorThrown) => {
-        $(graphSelector).parent().css('display', 'none');
-        spinner.css('visibility','hidden');
-        //@reset_dataset_ontology_loader()
-        handle_graphsNotFound();
-        return this.reset_endpoint_form(true);
-      };
-    };
-
-    const args = {
-      success_handler: make_success_handler(),
-      error_callback: make_error_callback()
-    };
-    args.query = qry;
-    args.serverUrl = url;
-    this.sparql_graph_query_and_show_queryManager = this.run_managed_query_ajax(args);
-  }
-
-  sparqlQryInput_hide() {
-    this.sparqlQryInput_JQElem.hide(); //css('display', 'none')
-  }
-
-  sparqlQryInput_show() {
-    this.sparqlQryInput_JQElem.show();
-    this.sparqlQryInput_JQElem.css({'color': 'inherit'} );
-  }
-
-  load_endpoint_data_and_show(subject, callback) {
-    this.sparql_node_list = [];
-    this.pfm_count('sparql');
-    //if @p_display then @performance_dashboard('sparql_request')
-    const node_limit = this.endpoint_limit_JQElem.val();
-    const url = this.endpoint_loader.value;
-    this.endpoint_loader.outstanding_requests = 0;
-    let fromGraph = '';
-    if (this.endpoint_loader.endpoint_graph) {
-      fromGraph=` FROM <${this.endpoint_loader.endpoint_graph}> `;
-    }
-    const qry = `\
-# load_endpoint_data_and_show('${subject}')
-SELECT * ${fromGraph}
-WHERE {
-{<${subject}> ?p ?o}
-UNION
-{{<${subject}> ?p ?o} .
- {?o ?p2 ?o2}}
-UNION
-{{?s3 ?p3 <${subject}>} .
- {?s3 ?p4 ?o4 }}
-}
-LIMIT ${node_limit}\
-`;
-
-    const make_success_handler = () => {
-      return (data, textStatus, jqXHR, queryManager) => {
-        let json_data;
-        const json_check = typeof data;
-        if (json_check === 'string') {
-          json_data = JSON.parse(data);
-        } else {
-          json_data = data;
-        }
-        queryManager.setResultCount(json_data.length);
-        this.add_nodes_from_SPARQL(json_data, subject, queryManager);
-        const endpoint = this.endpoint_loader.value;
-        this.dataset_loader.disable();
-        this.ontology_loader.disable();
-        this.replace_loader_display_for_endpoint(
-          endpoint, this.endpoint_loader.endpoint_graph);
-        this.disable_go_button();
-        this.big_go_button.hide();
-        return this.after_file_loaded('sparql', callback);
-      };
-    };
-
-    const args = {
-      query: qry,
-      serverUrl: url,
-      success_handler: make_success_handler()
-    };
-    this.run_managed_query_ajax(args);
-  }
 
   add_nodes_from_SPARQL(json_data, subject, queryManager) {
     const data = '';
@@ -7709,380 +7725,15 @@ LIMIT ${node_limit}\
   }
 
   // https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB
-  init_datasetDB() {
-    const {
-      indexedDB
-    } = window; // || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || null
-    if (!indexedDB) {
-      console.log("indexedDB not available");
-    }
-    if (!this.datasetDB && indexedDB) {
-      this.dbName = 'datasetDB';
-      this.dbVersion = 2;
-      const request = indexedDB.open(this.dbName, this.dbVersion);
-      request.onsuccess = (evt) => {
-        this.datasetDB = request.result;
-        this.datasetDB.onerror = err => {
-          return alert(`Database error: ${e.target.errorCode}`);
-        };
-        //alert "onsuccess"
-        return this.populate_menus_from_IndexedDB('onsuccess');
-      };
-      request.onerror = (err) => {
-        return alert(`unable to init ${this.dbName}`);
-      };
-      request.onupgradeneeded = (event) => {
-        const db = event.target.result;
-        const objectStore = db.createObjectStore("datasets", {keyPath: 'uri'});
-        objectStore.transaction.oncomplete = (evt) => {
-          this.datasetDB = db;
-          // alert "onupgradeneeded"
-          this.populate_menus_from_IndexedDB('onupgradeneeded');
-        };
-      };
-    }
-  }
 
-  ensure_datasets(preload_group, store_in_db) {
-    // note "fat arrow" so this can be an AJAX callback (see preload_datasets)
-    const defaults = preload_group.defaults || {};
-    //console.log(preload_group) # THIS IS THE ITEMS IN A FILE (i.e. cwrc.json, generes.json)
-    for (let ds_rec of preload_group.datasets) {
-      // If this preload_group has defaults apply them to the ds_rec
-      // if it is missing that value.
-      // We do not want to do `ds_rec.__proto__ = defaults`
-      //  because then defaults are not ownProperty
-      for (let k in defaults) {
-        if (ds_rec[k] == null) { ds_rec[k] = defaults[k]; }
-      }
-      this.ensure_dataset(ds_rec, store_in_db);
-    }
-  }
-
-  ensure_dataset(rsrcRec, store_in_db) {
-    // ensure the dataset is in the database and the correct
-    const {
-      uri
-    } = rsrcRec;
-    if (rsrcRec.time == null) { rsrcRec.time = new Date().toString(); }
-    if (rsrcRec.title == null) { rsrcRec.title = uri; }
-    if (rsrcRec.isUri == null) { rsrcRec.isUri = !!uri.match(/^(http|ftp)/); }
-    // if it has a time then a user added it therefore canDelete
-    if (rsrcRec.canDelete == null) { rsrcRec.canDelete = !(rsrcRec.time == null); }
-    if (rsrcRec.label == null) { rsrcRec.label = uri.split('/').reverse()[0]; }
-    if (rsrcRec.isOntology) {
-      if (this.ontology_loader) {
-        this.ontology_loader.add_resource(rsrcRec, store_in_db);
-      }
-    }
-    if (this.dataset_loader && !rsrcRec.isEndpoint) {
-      this.dataset_loader.add_resource(rsrcRec, store_in_db);
-    }
-    if (rsrcRec.isEndpoint && this.endpoint_loader) {
-      this.endpoint_loader.add_resource(rsrcRec, store_in_db);
-    }
-  }
-
-  add_resource_to_db(rsrcRec, callback) {
-    const trx = this.datasetDB.transaction('datasets', "readwrite");
-    trx.oncomplete = (e) => {
-      return console.log(`${rsrcRec.uri} added!`);
-    };
-    trx.onerror = (e) => {
-      console.log(e);
-      return alert(`add_resource(${rsrcRec.uri}) error!!!`);
-    };
-    const store = trx.objectStore('datasets');
-    const req = store.put(rsrcRec);
-    req.onsuccess = (e) => {
-      if (rsrcRec.isEndpoint) {
-        this.sparql_graph_query_and_show__trigger(e.srcElement.result);
-      }
-      if (rsrcRec.uri !== e.target.result) {
-        console.debug(`rsrcRec.uri (${rsrcRec.uri}) is expected to equal`, e.target.result);
-      }
-      callback(rsrcRec);
-    };
-  }
-
-  remove_dataset_from_db(dataset_uri, callback) {
-    const trx = this.datasetDB.transaction('datasets', "readwrite");
-    trx.oncomplete = (e) => {
-      return console.log(`${dataset_uri} deleted`);
-    };
-    trx.onerror = (e) => {
-      console.log(e);
-      return alert(`remove_dataset_from_db(${dataset_uri}) error!!!`);
-    };
-    const store = trx.objectStore('datasets');
-    const req = store.delete(dataset_uri);
-    req.onsuccess = (e) => {
-      if (callback != null) {
-        callback(dataset_uri);
-      }
-    };
-    req.onerror = (e) => {
-      console.debug(e);
-    };
-  }
-
-  get_resource_from_db(rsrcUri, callback) {
-    const trx = this.datasetDB.transaction('datasets', "readwrite");
-    trx.oncomplete = (evt) => {
-      return console.log(`get_resource_from_db('${rsrcUri}') complete, either by success or error`);
-    };
-    trx.onerror = (err) => {
-      console.log(err);
-      if (callback != null) {
-        callback(err, null);
-      } else {
-        alert(`get_resource_from_db(${rsrcUri}) error!!!`);
-        throw err;
-      }
-    };
-    const store = trx.objectStore('datasets');
-    const req = store.get(rsrcUri);
-    req.onsuccess = (event) => {
-      if (callback != null) {
-        callback(null, event.target.result);
-      }
-    };
-    req.onerror = (err) => {
-      console.debug(`get_resource_from_db('${rsrcUri}') onerror ==>`,err);
-      if (callback) {
-        callback(err, null);
-      } else {
-        throw err;
-      }
-    };
-  }
-
-  populate_menus_from_IndexedDB(why) {
-    // https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB#Using_a_cursor
-    console.debug(`populate_menus_from_IndexedDB(${why})`);
-    const datasetDB_objectStore = this.datasetDB.transaction('datasets').objectStore('datasets');
-    let count = 0;
-    const make_onsuccess_handler = (why) => {
-      const recs = [];
-      return event => {
-        const cursor = event.target.result;
-        if (cursor) {
-          count++;
-          const rec = cursor.value;
-          recs.push(rec);
-          const legacyDataset = (!rec.isOntology && !rec.rsrcType);
-          const legacyOntology = (!!rec.isOntology);
-          if (['dataset', 'ontology'].includes(rec.rsrcType) || legacyDataset || legacyOntology) {
-            // both datasets and ontologies appear in the dataset menu, for visualization
-            this.dataset_loader.add_resource_option(rec);
-          }
-          if ((rec.rsrcType === 'ontology') || legacyOntology) {
-            // only datasets are added to the dataset menu
-            this.ontology_loader.add_resource_option(rec);
-          }
-          if (rec.rsrcType === 'script') {
-            this.script_loader.add_resource_option(rec);
-          }
-          if (rec.rsrcType === 'endpoint') {
-            this.endpoint_loader.add_resource_option(rec);
-          }
-          return cursor.continue();
-        } else { // when there are no (or NO MORE) entries, ie FINALLY
-          //console.table(recs)
-          // Reset the value of each loader to blank so
-          // they show 'Pick or Provide...' not the last added entry.
-          this.dataset_loader.val();
-          this.ontology_loader.val();
-          this.endpoint_loader.val();
-          this.script_loader.val();
-          this.update_dataset_ontology_loader();
-          console.groupEnd(); // closing group called "populate_menus_from_IndexedDB(why)"
-          return document.dispatchEvent( // TODO use 'huvis_controls' rather than document
-            new Event('dataset_ontology_loader_ready'));
-        }
-      };
-    };
-          //alert "#{count} entries saved #{why}"
-    if (this.dataset_loader != null) {
-      datasetDB_objectStore.openCursor().onsuccess = make_onsuccess_handler(why);
-    }
-  }
-
-  preload_datasets() {
-    // If present args.preload is expected to be a list or urls or objects.
-    // Whether literal object or JSON urls the object structure is expected to be:
-    //   { 'datasets': [
-    //        {
-    //         'uri': "/data/byroau.nq",     // url of dataset .ttl or .nq
-    //         'label': "Augusta Ada Brown", // label of OPTION in SELECT
-    //         'isOntology': false,          // optional, if true it goes in Onto menu
-    //         'opt_group': "Individuals",   // user-defined label for menu subsection
-    //         'canDelete':   false,         // meaningful only for recs in datasetsDB
-    //         'ontologyUri': '/data/orlando.ttl' // url of ontology
-    //         }
-    //                  ],
-    //     'defaults': {}  # optional, may contain default values for the keys above
-    //    }
-    console.groupCollapsed("preload_datasets");
-    // Adds preload options to datasetDB table
-    console.log(this.args.preload);
-    if (this.args.preload) {
-      for (var preload_group_or_uri of this.args.preload) {
-        if (typeof(preload_group_or_uri) === 'string') { // the URL of a preload_group JSON
-          //$.getJSON(preload_group_or_uri, null, @ensure_datasets_from_XHR)
-          $.ajax({
-            async: false,
-            url: preload_group_or_uri,
-            success: (data, textStatus) => {
-              return this.ensure_datasets_from_XHR(data);
-            },
-            error(jqxhr, textStatus, errorThrown) {
-              return console.error(preload_group_or_uri + " " +textStatus+" "+errorThrown.toString());
-            }
-          });
-        } else if (typeof(preload_group_or_uri) === 'object') { // a preload_group object
-          this.ensure_datasets(preload_group_or_uri);
-        } else {
-          console.error("bad member of @args.preload:", preload_group_or_uri);
-        }
-      }
-    }
-    console.groupEnd(); // closing group called "preload_datasets"
-  }
-
-  preload_endpoints() {
-    console.log(this.args.preload_endpoints);
-    console.groupCollapsed("preload_endpoints");
-    //###
-    if (this.args.preload_endpoints) {
-      for (var preload_group_or_uri of this.args.preload_endpoints) {
-        console.log(preload_group_or_uri);
-        if (typeof(preload_group_or_uri) === 'string') { // the URL of a preload_group JSON
-          //$.getJSON(preload_group_or_uri, null, @ensure_datasets_from_XHR)
-          $.ajax({
-            async: false,
-            url: preload_group_or_uri,
-            success: (data, textStatus) => {
-              return this.ensure_datasets_from_XHR(data);
-            },
-            error(jqxhr, textStatus, errorThrown) {
-              return console.error(preload_group_or_uri + " " +textStatus+" "+errorThrown.toString());
-            }
-          });
-        } else if (typeof(preload_group_or_uri) === 'object') { // a preload_group object
-          this.ensure_datasets(preload_group_or_uri);
-        } else {
-          console.error("bad member of @args.preload:", preload_group_or_uri);
-        }
-      }
-    }
-    console.groupEnd();
-    //###
-  }
-
-  ensure_datasets_from_XHR(preload_group) {
-    this.ensure_datasets(preload_group, false); // false means DO NOT store_in_db
-  }
-
-  get_menu_by_rsrcType(rsrcType) {
-    return this[rsrcType+'_loader']; // eg rsrcType='script' ==> @script_loader
-  }
-
-  get_or_create_sel_for_picker(specificSel) {
-    // if specificSel is defined, return it, otherwise return the selector of a thin
-    let sel = specificSel;
-    if ((sel == null)) {
-      if ((this.pickersSel == null)) {
-        let huvis_controls_sel;
-        const pickersId = this.unique_id('pickers_');
-        this.pickersSel = '#' + pickersId;
-        if (huvis_controls_sel = this.oldToUniqueTabSel['huvis_controls']) {
-          if (this.huvis_controls_elem == null) {
-            this.huvis_controls_elem = document.querySelector(huvis_controls_sel);
-          }
-          if (this.huvis_controls_elem) {
-            this.huvis_controls_elem.insertAdjacentHTML(
-              'beforeend',
-              `<div id="${pickersId}"></div>`);
-          }
-        }
-      }
-      sel = this.pickersSel;
-    }
-    return sel;
-  }
-
-  init_resource_menus() {
-    // REVIEW See views/huviz.html.eco to set dataset_loader__append_to_sel and similar
-    let sel;
-    if (!this.dataset_loader && this.args.make_pickers) {
-      sel = this.get_or_create_sel_for_picker(this.args.dataset_loader__append_to_sel);
-      this.dataset_loader = new PickOrProvide(this, sel,
-        'Dataset', 'DataPP', false, false,
-        {rsrcType: 'dataset'});
-    }
-    if (!this.ontology_loader && this.args.make_pickers) {
-      sel = this.get_or_create_sel_for_picker(this.args.ontology_loader__append_to_sel);
-      this.ontology_loader = new PickOrProvide(this, sel,
-        'Ontology', 'OntoPP', true, false,
-        {rsrcType: 'ontology'});
-    }
-    if (!this.script_loader && this.args.make_pickers) {
-      sel = this.get_or_create_sel_for_picker(this.args.script_loader__append_to_sel);
-      this.script_loader = new PickOrProvideScript(this, sel,
-        'Script', 'ScriptPP', false, false,
-        {dndLoaderClass: DragAndDropLoaderOfScripts, rsrcType: 'script'});
-    }
-    if (!this.endpoint_loader && this.args.make_pickers) {
-      sel = this.get_or_create_sel_for_picker(this.args.endpoint_loader__append_to_sel);
-      this.endpoint_loader = new PickOrProvide(this, sel,
-        'Sparql', 'EndpointPP', false, true,
-        {rsrcType: 'endpoint'});
-    }
-      //@endpoint_loader.outstanding_requests = 0
-    if (this.endpoint_loader && !this.big_go_button) {
-      this.build_sparql_form();
-      const endpoint_selector = `#${this.endpoint_loader.select_id}`;
-      $(endpoint_selector).change(this.update_endpoint_form);
-    }
-    if (this.ontology_loader && !this.big_go_button) {
-      this.big_go_button_id = this.unique_id('goButton_');
-      this.big_go_button = $('<button class="big_go_button">LOAD</button>');
-      this.big_go_button.attr('id', this.big_go_button_id);
-      $(this.get_or_create_sel_for_picker()).append(this.big_go_button);
-      this.big_go_button.click(this.big_go_button_onclick);
-      this.disable_go_button();
-    }
-    if (this.ontology_loader
-        || this.dataset_loader
-        || (this.script_loader && !this.big_go_button)) {
-      const ontology_selector = `#${this.ontology_loader.select_id}`;
-      $(ontology_selector).change(this.update_dataset_forms);
-      const dataset_selector = `#${this.dataset_loader.select_id}`;
-      $(dataset_selector).change(this.update_dataset_forms);
-      const script_selector = `#${this.script_loader.select_id}`;
-      $(script_selector).change(this.update_dataset_forms);
-    }
-
-    this.init_datasetDB();
-    this.preload_datasets();
-
-    //@preload_endpoints()
-    // TODO remove this nullification of @last_val by fixing logic in select_option()
-    // clear the last_val so select_option works the first time
-    if (this.ontology_loader.last_val) {
-      this.ontology_loader.last_val = null;
-    }
-  }
-
-  big_go_button_onclick(event) {
+  big_go_button_onclick() {
     if (this.using_sparql()) {
-      return this.big_go_button_onclick_sparql(event);
+      return this.big_go_button_onclick_sparql();
     }
     this.visualize_dataset_using_ontology();
   }
 
-  big_go_button_onclick_sparql(event) {
+  big_go_button_onclick_sparql() {
     let endpoint_label_uri, graphUri;
     if (this.allGraphsChosen()) {
       let foundUri;
@@ -8232,6 +7883,8 @@ LIMIT ${node_limit}\
   }
 
   update_dataset_forms(e) {
+    console.error('reimplement update_dataset_forms');
+    return;
     const ont_val = $(`#${this.ontology_loader.select_id}`).val();
     const dat_val = $(`#${this.dataset_loader.select_id}`).val();
     const scr_val = $(`#${this.script_loader.select_id}`).val();
@@ -8257,7 +7910,7 @@ LIMIT ${node_limit}\
 
   turn_on_loading_notice() {
     colorlog('turn_on_loading_notice()','green');
-    this.disable_go_button();
+    //this.disable_go_button();
     const args = {width:550};
     // TODO: it would be good if one could pass an argument to disable the close button
     // TODO: display some stats about what is happening...
@@ -8277,22 +7930,25 @@ LIMIT ${node_limit}\
     this.my_loading_notice_dialog.remove();
   }
 
+  visualize_dataset_using_ontology(ignoreEvent, dataset, ontologies) {
+    this.visualize_dataset_using_ontology_and_script(ignoreEvent, dataset, ontologies);
+  }
+
   visualize_dataset_using_ontology_and_script(ignoreEvent, dataset, ontologies, scripts) {
     // preload scripts, if any, then visualize
+    /* 
     if (scripts && scripts.length) {
-      const script = {
-        label: basename(scripts[0]),
-        value: scripts[0]
-      }
+      const script = scripts[0];
       if (scripts.length > 1) {
         console.log("only loading the first script of", scripts)
       }
+      this.script_loader = this.script_loader || {}; // THIS IS A HACK, see ResourceMen
       this.script_loader.value = scripts[0];
     }
     this.visualize_dataset_using_ontology(ignoreEvent, dataset, ontologies);
-  }
+    */
 
-  visualize_dataset_using_ontology(ignoreEvent, dataset, ontologies) {
+
     // Either dataset and ontologies are passed in by HuViz.load_with() from a command
     // or we are called with neither in which case get values from the SPARQL or SCRIPT loaders
 
@@ -8301,7 +7957,8 @@ LIMIT ${node_limit}\
     this.close_blurt_box();
 
     // If we are loading from a SPARQL endpoint
-    if (endpoint_label_uri = this.endpoint_labels_JQElem.val()) {
+    console.warn('figure out how to load sparql');
+    if (false && (endpoint_label_uri = this.endpoint_labels_JQElem.val())) {
       this.turn_on_loading_notice_if_enabled();
       data = dataset || this.endpoint_loader;
       this.load_endpoint_data_and_show(endpoint_label_uri,
@@ -8316,16 +7973,20 @@ LIMIT ${node_limit}\
 
     // If we are loading from a SCRIPT
     const alreadyCommands = this.gclui.future_cmdArgs.length > 0;
-    if (this.script_loader.value && !alreadyCommands) {
+    console.error('reimplement script loading for dataset and onto picking');
+    /*
+    if (this.script_loader && this.script_loader.value && !alreadyCommands) {
       const scriptUri = this.script_loader.value;
       this.get_resource_from_db(scriptUri, this.load_script_from_db);
       return;
     }
+    */
 
     // Otherwise we are starting with a dataset and ontology
     this.turn_on_loading_notice_if_enabled();
-    const onto = (ontologies && ontologies[0]) || this.ontology_loader;
-    data = dataset || this.dataset_loader;
+    //const onto = (ontologies && //ontologies[0]) || this.ontology_loader;
+    const onto = ontologies[0]
+    data = dataset; //|| this.dataset_loader;
     // at this point data and onto are both objects with a .value key, containing url or fname
     if (!(onto.value && data.value)) {
       console.debug(data, onto);
@@ -8369,12 +8030,25 @@ LIMIT ${node_limit}\
   makeResourceMenuDialog() {
     let TOP = document.getElementById('HUVIZ_TOP');
     TOP.insertAdjacentHTML('beforeend','<resource-menu></resource-menu>');
+    this.resourceMenu = TOP.querySelector('resource-menu');
+    this.resourceMenu.registerHuViz(this);
+    /*
+    var shad = this.resourceMenu.shadowRoot;
+    this.args.dataset_loader__append_to_sel = shad.querySelector('#datasetHere');
+    this.args.ontology_loader__append_to_sel = shad.querySelector('#ontologyHere');
+    this.args.script_loader__append_to_sel = shad.querySelector('#scriptHere');
+    this.args.endpoint_loader__append_to_sel = shad.querySelector('#endpointHere');
+    */
+  }
+
+  query_from_seeking_limits(query) {
+    this.resourceMenu.query_from_seeking_limits(query);
   }
 
   init_gclc() {
     this.gclc = new GraphCommandLanguageCtrl(this);
     this.makeResourceMenuDialog()
-    this.init_resource_menus();
+    //this.init_resource_menus();
     if ((this.gclui == null)) {
       // @oldToUniqueTabSel['huvis_controls'] ???
       const dom_node = d3.select(this.args.gclui_sel).node();
@@ -8416,94 +8090,13 @@ LIMIT ${node_limit}\
 
   disable_dataset_ontology_loader(data, onto, endpoint) {
     this.replace_loader_display(data, onto, endpoint);
+    this.resourceMenu.style.display = 'none';
+    /*
     this.disable_go_button();
     this.dataset_loader.disable();
     this.ontology_loader.disable();
     this.big_go_button.hide();
-  }
-
-  reset_dataset_ontology_loader() {
-    $('#'+this.get_data_ontology_display_id()).remove();
-    //Enable dataset loader and reset to default setting
-    this.dataset_loader.enable();
-    this.ontology_loader.enable();
-    this.big_go_button.show();
-    $(`#${this.dataset_loader.select_id} option[label='Pick or Provide...']`)
-       .prop('selected', true);
-    this.gclui_JQElem.removeAttr("style","display:none");
-  }
-
-  update_dataset_ontology_loader(args) {
-    if (!((this.dataset_loader != null) && (this.ontology_loader != null) &&
-            (this.endpoint_loader != null) && (this.script_loader != null))) {
-      console.log("still building loaders...");
-      return;
-    }
-    this.set_ontology_from_dataset_if_possible(args);
-    const ugb = () => {
-      return this.update_go_button(); // TODO confirm that this should be disable_go_button
-    };
-    setTimeout(ugb, 200);
-  }
-
-  update_endpoint_form(e) {
-    //check if there are any endpoint selections available
-    const graphSelector = `#sparqlGraphOptions-${e.currentTarget.id}`;
-    $(graphSelector).change(this.update_graph_form);
-    if (e.currentTarget.value === '') {
-      $(`#${this.dataset_loader.uniq_id}`).children('select').prop('disabled', false);
-      $(`#${this.ontology_loader.uniq_id}`).children('select').prop('disabled', false);
-      $(`#${this.script_loader.uniq_id}`).children('select').prop('disabled', false);
-      $(graphSelector).parent().css('display', 'none');
-      this.reset_endpoint_form(false);
-    } else if (e.currentTarget.value === 'provide') {
-      console.log("update_endpoint_form ... select PROVIDE");
-    } else {
-      this.sparql_graph_query_and_show(e.currentTarget.value, e.currentTarget.id);
-      //console.log(@dataset_loader)
-      $(`#${this.dataset_loader.uniq_id}`).children('select').prop('disabled', 'disabled');
-      $(`#${this.ontology_loader.uniq_id}`).children('select').prop('disabled', 'disabled');
-      $(`#${this.script_loader.uniq_id}`).children('select').prop('disabled', 'disabled');
-    }
-  }
-
-  reset_endpoint_form(show) {
-    const spinner = $(`#sparqlGraphSpinner-${this.endpoint_loader.select_id}`);
-    spinner.css('display','none');
-    this.endpoint_labels_JQElem.prop('disabled', false).val("");
-    this.endpoint_limit_JQElem.prop('disabled', false).val(this.sparql_query_default_limit);
-    if (show) {
-      this.sparqlQryInput_show();
-    } else {
-      this.sparqlQryInput_hide();
-    }
-  }
-
-  disable_go_button() {
-    let disable;
-    this.update_go_button((disable = true));
-  }
-
-  enable_go_button() {
-    let disable;
-    this.update_go_button((disable = false));
-  }
-
-  update_go_button(disable) {
-    if ((disable == null)) {
-      if (this.script_loader.value) {
-        disable = false;
-      } else if (this.using_sparql()) {
-        disable = false;
-      } else {
-        const ds_v = this.dataset_loader.value;
-        const on_v = this.ontology_loader.value;
-        //console.log("DATASET: #{ds_v}\nONTOLOGY: #{on_v}")
-        disable = (!(ds_v && on_v)) || ([ds_v, on_v].includes('provide'));
-        const ds_on = `${ds_v} AND ${on_v}`;
-      }
-    }
-    this.big_go_button.prop('disabled', disable);
+    */
   }
 
   get_reload_uri() {
@@ -8713,114 +8306,21 @@ LIMIT ${node_limit}\
     this.ontology_watermark_JQElem.text(ontology_str);
   }
 
-  set_ontology_from_dataset_if_possible(args) {
-    if (args == null) { args = {}; }
-    if (args.pickOrProvide === this.ontology_loader) { // and @dataset_loader.value
-      // The ontology_loader being adjusted provoked this call.
-      // We do not want to override the adjustment just made by the user.
-      return;
-    }
-    if (this.dataset_loader.value) { // and not @ontology_loader.value
-      const option = this.dataset_loader.get_selected_option();
-      const ontologyUri = option.data('ontologyUri');
-      const ontology_label = option.data('ontology_label'); //default set in group json file
-      if (ontologyUri) { // let the uri (if present) dominate the label
-        this.set_ontology_with_uri(ontologyUri);
-      } else {
-        this.set_ontology_with_label(ontology_label);
-      }
-    }
-    this.ontology_loader.update_state();
-  }
 
-  set_ontology_with_label(ontology_label) {
-    const topSel = this.args.huviz_top_sel;
-    const sel = topSel + ` option[label='${ontology_label}']`;
-    for (let ont_opt of $(sel)) { // FIXME make this re-entrant
-      this.ontology_loader.select_option($(ont_opt));
-      return;
-    }
-  }
+                                                                                      
+                                                                                      
+                                                                                      
+                                                                                      
+                                                                                      
+                                                                                      
+                                                                                      
+                                                                                      
+                                                                                      
+                                                                                      
+                                                                                      
+                                                                                      
 
-  set_dataset_with_uri(uri) {
-    // TODO use PickOrProvide.select_by_uri() as in query_from_seeking_limit()
-    const topSel = this.args.huviz_top_sel;
-    const option = $(topSel + ' option[value="' + uri + '"]');
-    this.dataset_loader.select_option(option);
-  }
 
-  set_ontology_with_uri(ontologyUri) {
-    // TODO use PickOrProvide.select_by_uri() as in query_from_seeking_limit()
-    const topSel = this.args.huviz_top_sel;
-    const ontology_option = $(topSel + ' option[value="' + ontologyUri + '"]');
-    this.ontology_loader.select_option(ontology_option);
-  }
-
-  build_sparql_form() {
-    this.sparqlId = unique_id();
-    const sparqlQryInput_id = `sparqlQryInput_${this.sparqlId}`;
-    this.sparqlQryInput_selector = "#" + sparqlQryInput_id;
-    const endpoint_limit_id = unique_id('endpoint_limit_');
-    const endpoint_labels_id = unique_id('endpoint_labels_');
-    const spo_query_id = unique_id('spo_query_');
-    const sparqlGraphSelectorId = `sparqlGraphOptions-${this.endpoint_loader.select_id}`;
-    const select_box = `\
-      <div class="ui-widget" style="display:none;margin-top:5px;margin-left:10px;">
-        <label>Graphs: </label>
-        <select id="${sparqlGraphSelectorId}">
-        </select>
-      </div>
-      <div id="sparqlGraphSpinner-${this.endpoint_loader.select_id}"
-         style="display:none;font-style:italic;">
-        <i class="fas fa-spinner fa-spin" style="margin: 10px 10px 0 50px;"></i>
-        Looking for graphs...
-      </div>
-      <div id="${sparqlQryInput_id}" class="ui-widget sparqlQryInput"
-         style="display:none;margin-top:5px;margin-left:10px;color:#999;">
-        <label for="${endpoint_labels_id}">Find: </label>
-        <input id="${endpoint_labels_id}">
-        <i class="fas fa-spinner fa-spin" style="visibility:hidden;margin-left: 5px;"></i>
-        <div>
-          <label for="${endpoint_limit_id}">Node Limit: </label>
-          <input id="${endpoint_limit_id}" value="${this.sparql_query_default_limit}">
-        </div>
-        <div>
-          <label for="${spo_query_id}">(s,p,o) query: </label>
-          <textarea id="${spo_query_id}" value=""
-            placeholder="pick graph, then enter query producing s,p,o"></textarea>
-        </div>
-      </div>\
-      `;
-    $(this.pickersSel).append(select_box);
-    this.sparqlQryInput_JQElem = $(this.sparqlQryInput_selector);
-    this.endpoint_labels_JQElem = $('#'+endpoint_labels_id);
-    this.endpoint_limit_JQElem = $('#'+endpoint_limit_id);
-    this.sparqlGraphSelector_JQElem = $('#'+sparqlGraphSelectorId);
-    this.sparqlGraphSelector_JQElem.change(this.sparqlGraphSelector_onchange);
-    const fromGraph ='';
-    this.endpoint_labels_JQElem.on('input', this.animate_endpoint_label_typing);
-    this.endpoint_labels_JQElem.autocomplete({
-      minLength: 3,
-      delay: 500,
-      position: {collision: "flip"},
-      source: this.search_sparql_by_label
-    });
-    this.endpoint_labels_JQElem.on('autocompleteselect', this.endpoint_labels__autocompleteselect);
-    this.endpoint_labels_JQElem.on('change', this.endpoint_labels__update);
-    this.endpoint_labels_JQElem.focusout(this.endpoint_labels__focusout);
-
-    this.spo_query_JQElem = $('#'+spo_query_id);
-    this.spo_query_JQElem.on('update', this.spo_query__update);
-  }
-
-  spo_query__update(event) {
-    // if there is a query, then permit LOAD of graph
-    if (this.spo_query_JQElem.length) {
-      this.enable_go_button();
-    } else {
-      this.disable_go_button();
-    }
-  }
 
   // Called when the user selects an endpoint_labels autosuggestion
   endpoint_labels__autocompleteselect(event) {
@@ -9057,6 +8557,16 @@ LIMIT 20\
 
     this.search_sparql_by_label_queryManager = this.run_managed_query_ajax(args);
   }
+                                                                                      
+                                                                                      
+                                                                                      
+                                                                                      
+                                                                                      
+                                                                                      
+                                                                                      
+                                                                                      
+                                                                                      
+                                                                                      
 
   init_editc_or_not() {
     if (this.editui == null) {
@@ -9442,173 +8952,6 @@ LIMIT 20\
       args.create_tabs_adjacent_to_selector = args.huviz_top_sel;
     }
     return args;
-  }
-
-  constructor(incoming_args) { // Huviz
-    this.like_string = this.like_string.bind(this);
-    this.mousemove = this.mousemove.bind(this);
-    this.mousedown = this.mousedown.bind(this);
-    this.mouseup = this.mouseup.bind(this);
-    this.mouseright = this.mouseright.bind(this);
-    this.close_node_inspector = this.close_node_inspector.bind(this);
-    this.updateWindow = this.updateWindow.bind(this);
-    this.get_charge = this.get_charge.bind(this);
-    this.get_gravity = this.get_gravity.bind(this);
-    this.mouseout_of_huviz_controls = this.mouseout_of_huviz_controls.bind(this);
-    this.mouseover_of_huviz_controls = this.mouseover_of_huviz_controls.bind(this);
-    this.mousemove_boxNG = this.mousemove_boxNG.bind(this);
-    this.mousedown_boxNG = this.mousedown_boxNG.bind(this);
-    this.mouseout_boxNG = this.mouseout_boxNG.bind(this);
-    this.mouseenter_boxNG = this.mouseenter_boxNG.bind(this);
-    this.mouseup_boxNG = this.mouseup_boxNG.bind(this);
-    this.tick = this.tick.bind(this);
-    this.hide_state_msg = this.hide_state_msg.bind(this);
-    this.discovery_triple_ingestor_N3 = this.discovery_triple_ingestor_N3.bind(this);
-    this.discovery_triple_ingestor_GreenTurtle = this.discovery_triple_ingestor_GreenTurtle.bind(this);
-    this.make_triple_ingestor = this.make_triple_ingestor.bind(this);
-    this.discover_labels = this.discover_labels.bind(this);
-    this.ingest_quads_from = this.ingest_quads_from.bind(this);
-    this.show_geonames_instructions = this.show_geonames_instructions.bind(this);
-    this.tsv_name_success_handler = this.tsv_name_success_handler.bind(this);
-    this.json_name_success_handler = this.json_name_success_handler.bind(this);
-    this.display_graph_success_handler = this.display_graph_success_handler.bind(this);
-    this.generic_success_handler = this.generic_success_handler.bind(this);
-    this.generic_name_success_handler = this.generic_name_success_handler.bind(this);
-    this.convert_str_obj_to_GreenTurtle = this.convert_str_obj_to_GreenTurtle.bind(this);
-    this.convert_N3_uri_to_string = this.convert_N3_uri_to_string.bind(this);
-    this.convert_str_uri_to_string = this.convert_str_uri_to_string.bind(this);
-    this.convert_obj_obj_to_GreenTurtle = this.convert_obj_obj_to_GreenTurtle.bind(this);
-    this.convert_obj_uri_to_string = this.convert_obj_uri_to_string.bind(this);
-    this.name_result_handler = this.name_result_handler.bind(this);
-    this.parseAndShowTTLData = this.parseAndShowTTLData.bind(this);
-    this.parseAndShowTurtle = this.parseAndShowTurtle.bind(this);
-    this.choose_everything = this.choose_everything.bind(this);
-    this.parse_and_show_NQ_file = this.parse_and_show_NQ_file.bind(this);
-    this.DUMPER = this.DUMPER.bind(this);
-    this.log_query = this.log_query.bind(this);
-    this.sparql_graph_query_and_show__trigger = this.sparql_graph_query_and_show__trigger.bind(this);
-    this.sparql_graph_query_and_show = this.sparql_graph_query_and_show.bind(this);
-    this.update_searchterm = this.update_searchterm.bind(this);
-    this.clean_up_dirty_predicates = this.clean_up_dirty_predicates.bind(this);
-    this.clean_up_all_dirt = this.clean_up_all_dirt.bind(this);
-    this.shelve = this.shelve.bind(this);
-    this.suppress = this.suppress.bind(this);
-    this.choose = this.choose.bind(this);
-    this.unchoose = this.unchoose.bind(this);
-    this.wander__atFirst = this.wander__atFirst.bind(this);
-    this.wander__atLast = this.wander__atLast.bind(this);
-    this.wander = this.wander.bind(this);
-    this.walk = this.walk.bind(this);
-    this.hide = this.hide.bind(this);
-    this.select = this.select.bind(this);
-    this.unselect = this.unselect.bind(this);
-    this.animate_hunt = this.animate_hunt.bind(this);
-    this.hunt = this.hunt.bind(this);
-    this.clear_snippets = this.clear_snippets.bind(this);
-    this.peek = this.peek.bind(this);
-    this.print = this.print.bind(this);
-    this.redact = this.redact.bind(this);
-    this.draw_edge_regarding = this.draw_edge_regarding.bind(this);
-    this.undraw_edge_regarding = this.undraw_edge_regarding.bind(this);
-    this.register_gclc_prefixes = this.register_gclc_prefixes.bind(this);
-    this.ensure_datasets = this.ensure_datasets.bind(this);
-    this.ensure_datasets_from_XHR = this.ensure_datasets_from_XHR.bind(this);
-    this.big_go_button_onclick = this.big_go_button_onclick.bind(this);
-    this.update_dataset_forms = this.update_dataset_forms.bind(this);
-    this.update_graph_form = this.update_graph_form.bind(this);
-    this.turn_on_loading_notice = this.turn_on_loading_notice.bind(this);
-    this.turn_off_loading_notice = this.turn_off_loading_notice.bind(this);
-    this.visualize_dataset_using_ontology = this.visualize_dataset_using_ontology.bind(this);
-    this.after_visualize_dataset_using_ontology = this.after_visualize_dataset_using_ontology.bind(this);
-    this.load_script_from_db = this.load_script_from_db.bind(this);
-    this.update_dataset_ontology_loader = this.update_dataset_ontology_loader.bind(this);
-    this.update_endpoint_form = this.update_endpoint_form.bind(this);
-    this.reset_endpoint_form = this.reset_endpoint_form.bind(this);
-    this.disable_go_button = this.disable_go_button.bind(this);
-    this.enable_go_button = this.enable_go_button.bind(this);
-    this.show_shareable_links = this.show_shareable_links_dialog.bind(this);
-    this.set_ontology_from_dataset_if_possible = this.set_ontology_from_dataset_if_possible.bind(this);
-    this.build_sparql_form = this.build_sparql_form.bind(this);
-    this.spo_query__update = this.spo_query__update.bind(this);
-    this.endpoint_labels__autocompleteselect = this.endpoint_labels__autocompleteselect.bind(this);
-    this.endpoint_labels__update = this.endpoint_labels__update.bind(this);
-    this.endpoint_labels__focusout = this.endpoint_labels__focusout.bind(this);
-    this.sparqlGraphSelector_onchange = this.sparqlGraphSelector_onchange.bind(this);
-    this.animate_endpoint_label_typing = this.animate_endpoint_label_typing.bind(this);
-    this.animate_endpoint_label_search = this.animate_endpoint_label_search.bind(this);
-    this.search_sparql_by_label = this.search_sparql_by_label.bind(this);
-    this.catch_reject_init_settings = this.catch_reject_init_settings.bind(this);
-    this.complete_construction = this.complete_construction.bind(this);
-    this.blurt = this.blurt.bind(this);
-    this.close_blurt_box = this.close_blurt_box.bind(this);
-    this.fullscreen = this.fullscreen.bind(this);
-    this.collapse_tabs = this.collapse_tabs.bind(this);
-    this.expand_tabs = this.expand_tabs.bind(this);
-    this.init_settings_to_defaults = this.init_settings_to_defaults.bind(this);
-    this.update_settings_cursor = this.update_settings_cursor.bind(this);
-    this.update_graph_settings = this.update_graph_settings.bind(this);
-    this.change_graph_settings = this.change_graph_settings.bind(this);
-    this.change_setting_to_from = this.change_setting_to_from.bind(this);
-    this.on_change_reset_settings_to_default = this.on_change_reset_settings_to_default.bind(this);
-    this.pfm_dashboard = this.pfm_dashboard.bind(this);
-    this.build_pfm_live_monitor = this.build_pfm_live_monitor.bind(this);
-    this.pfm_count = this.pfm_count.bind(this);
-    this.pfm_update = this.pfm_update.bind(this);
-    this.parseAndShowFile = this.parseAndShowFile.bind(this);
-    this.receive_quaff_lod = this.receive_quaff_lod.bind(this);
-    this.oldToUniqueTabSel = {};
-    //if @show_performance_monitor is true
-    //  @pfm_dashboard()
-    this.git_commit_hash = window.HUVIZ_GIT_COMMIT_HASH;
-    this.args = this.calculate_args(incoming_args);
-    this.ensureTopElem();
-    if (this.args.create_tabs_adjacent_to_selector) {
-      this.create_tabs();
-    }
-    this.tabsJQElem = $('#' + this.tabs_id);
-    if (!this.args.show_tabs) {
-      this.collapse_tabs();
-    }
-    this.replace_human_term_spans(this.tabs_id);
-    if (this.args.add_to_HVZ) {
-      if ((window.HVZ == null)) {
-        window.HVZ = [];
-      }
-      window.HVZ.push(this);
-    }
-
-    // FIXME Simplify this whole settings_sel and 'settings' thing
-    //       The settings should just be built right on settings_JQElem
-    if (this.args.settings_sel == null) { this.args.settings_sel = this.oldToUniqueTabSel['settings']; }
-
-    this.create_blurtbox();
-    this.ensure_divs();
-    this.make_JQElems();
-    this.create_collapse_expand_handles();
-    if (!this.args.hide_fullscreen_button) {
-      this.create_fullscreen_handle();
-    }
-    this.init_ontology();
-    this.create_caption();
-    this.off_center = false; // FIXME expose this or make the amount a slider
-    document.addEventListener('nextsubject', this.onnextsubject);
-    //@init_snippet_box()  # FIXME not sure this does much useful anymore
-    this.mousedown_point = false;
-    this.discard_point = [this.cx,this.cy]; // FIXME refactor so ctrl_handle handles this
-    this.lariat_center = [this.cx,this.cy]; //       and this....
-    this.node_radius_policy = node_radius_policies[default_node_radius_policy];
-    this.currently_printed_snippets = {};
-    //@fill = d3.scale.category20()
-    // Examples:
-    //   d3-force testing ground (v4)
-    //     https://bl.ocks.org/steveharoz/8c3e2524079a8c440df60c1ab72b5d03
-    //   Force Simulation (v4)
-    //     https://bl.ocks.org/HarryStevens/f636199a46fc4b210fbca3b1dc4ef372
-    this.initialize_d3_force_simulation();
-    this.update_fisheye();
-    this.initialize_svg();
-    this.container = d3.select(this.args.viscanvas_sel).node().parentNode;
-    this.init_settings_to_defaults().then(this.complete_construction).catch(this.catch_reject_init_settings);
   }
 
   initialize_svg() {
@@ -10607,12 +9950,12 @@ LIMIT 20\
     return script;
   }
 
-  adjust_menus_from_load_cmd(cmd) {
+  adjust_menus_from_load_cmd(cmd) { // move to resourcemenu
     // Adjust the dataset and ontology loaders to match the cmd
     if (cmd.ontologies && (cmd.ontologies.length > 0) && !this.ontology_loader.value) {
-      this.set_ontology_with_uri(cmd.ontologies[0]);
+      this.resourcemenu.set_ontology_with_uri(cmd.ontologies[0]);
       if (cmd.data_uri && !this.dataset_loader.value) {
-        this.set_dataset_with_uri(cmd.data_uri);
+        this.resourcemenu.set_dataset_with_uri(cmd.data_uri);
         return true;
       }
     }
@@ -10706,39 +10049,6 @@ LIMIT 20\
     this.visualize_dataset_using_ontology({}, dataset, [ontology]);
   }
 
-  endpoint_loader_is_quiet() {
-    // TODO Replace with a Promise-based way to ensure the loader is ready.
-    // TODO Build it into PickOrProvide and use it in @load_with() too.
-    return (this.endpoint_loader != null) && this.endpoint_loader.is_quiet(500);
-  }
-
-  query_from_seeking_limit(querySpec) {
-    const {serverUrl, graphUrl, limit, subjectUrl} = querySpec;
-    if (!this.endpoint_loader_is_quiet()) {
-      setTimeout((() => this.query_from_seeking_limit(querySpec)), 50);
-      //throw new Error("endpoint_loader not ready")
-      return;
-    }
-    this.goto_tab('commands');
-    if (serverUrl != null) {
-      this.endpoint_loader.select_by_uri(serverUrl);
-      this.sparql_graph_query_and_show__trigger(serverUrl);
-      const finish_prep = () => {
-        if (graphUrl != null) {
-          this.sparqlQryInput_show();
-          this.sparqlGraphSelector_JQElem.val(graphUrl);
-        }
-        if (limit != null) {
-          this.endpoint_limit_JQElem.val(limit);
-        }
-        if (subjectUrl != null) {
-          this.endpoint_labels_JQElem.val(subjectUrl);
-        }
-        return this.big_go_button_onclick_sparql();
-      };
-      this.sparql_graph_query_and_show_queryManager.when_done(finish_prep);
-    }
-  }
 
   // TODO: remove now that @get_or_create_node_by_id() sets type and name
   is_ready(node) {
@@ -11089,24 +10399,10 @@ export class Orlando extends OntologicallyGrounded {
   constructor() {
     super(...arguments);
     this.close_edge_inspector = this.close_edge_inspector.bind(this);
-    if (window.indexedDB) {
-      let onceDBReadyCount = 0;
-      const delay = 100;
-      var onceDBReady = () => {
-        onceDBReadyCount++;
-        console.debug('onceDBReady() call #' + onceDBReadyCount);
-        if (this.datasetDB != null) {
-          console.debug('finally! datasetDB is now ready');
-          return this.run_script_from_hash();
-        } else {
-          return setTimeout(onceDBReady,delay); // causes this method to be run again, acting as an async loop
-        }
-      };
-      setTimeout(onceDBReady,delay);
-    } else {
-      // REVIEW not sure if this is worth doing (are we requiring indexedDB absolutely?)
-      this.run_script_from_hash();
-    }
+  }
+
+  proceed_onceDBReady() {
+    this.run_script_from_hash();
   }
 
   get_default_set_by_type(node) {

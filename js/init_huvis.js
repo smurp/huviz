@@ -11,6 +11,7 @@ window.addEventListener('load',function(){
     // pass in the tab_specs to override the defaults_tab_specs
     tab_specs:
     [
+      /*
       {
         "id": "intro",
         "cssClass": "tabs-intro scrolling_tab",
@@ -18,6 +19,7 @@ window.addEventListener('load',function(){
         "text": "Intro",
         "moveSelector": "#contents_of_intro_tab"
       },
+      */
       'commands','settings','history','credits',
       'sparqlQueries'
     ],
