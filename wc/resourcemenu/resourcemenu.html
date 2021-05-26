@@ -52,7 +52,7 @@
 
         width: var(--big-xy);
         height: var(--big-xy);
-        border: 1px dashed green;
+        /* border: 1px dashed green; */
     }
     .uptop {
         position:absolute;
@@ -64,7 +64,7 @@
         /*  TEMP
 
        */
-        border: 1px dotted grey;
+        /* border: 1px dotted grey; */
         position: relative;
         left: var(--hlf-dif-xy);
     }
@@ -134,7 +134,9 @@
     .optgrp > h3::after {
         content: ":"
     }
-
+    .onFront #esc {
+        display: none; /* close button not needed on front */
+    }
   </style>
   <bigbox>
     <lilbox>
