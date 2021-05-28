@@ -23,6 +23,9 @@ var resMenFSMTTL= `
          st:onDataset  tr:esc           st:onFront .
          st:onScript   tr:esc           st:onFront .
          st:onSPARQL   tr:esc           st:onFront .
+         st:onSPARQLDetail  tr:esc      st:onSPARQL .
+
+         st:onSPARQL   tr:pick          st:onSPARQLDetail .
        `;
 
 export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
@@ -38,6 +41,7 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     this.addIDClickListeners('main, button, [id]', this.clickListener.bind(this));
     this.transit('start',{});
     //.this.transit('gotoDataset',{}); console.error('hard-coded transit("gotoDataset") to ease development')
+    this.transit('gotoSPARQL',{}); console.error('hard-coded transit("gotoSPARQL") to ease development')
   }
   blurt(...stuff) {
     this.huviz.blurt(___stuff);
@@ -104,6 +108,32 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     });
   }
 
+  handleLoaderClickInResourceMenu(whichLoader, evt) {
+    switch (whichLoader) {
+    case this.dataset_loader:
+      this.set_ontology_from_dataset_if_possible();
+      break;
+    case this.endpoint_loader:
+      this.transit('pick', evt);
+      console.error("implement state change to sparqlDetails");
+      break;
+
+    default:
+      console.warn(whichLoader, "ignored by handleLoaderClickInResourceMenu()");
+    }
+  }
+
+  update_resource_menu(args) {
+    if (!((this.dataset_loader != null) &&
+          (this.ontology_loader != null) &&
+          (this.endpoint_loader != null) &&
+          (this.script_loader != null))) {
+      console.log("still building loaders...");
+      return;
+    }
+    this.set_ontology_from_dataset_if_possible(args);
+  }
+
   set_ontology_from_dataset_if_possible(args) {
     if (args == null) { args = {}; }
     if (args.pickOrProvide === this.ontology_loader) { // and @dataset_loader.value
@@ -112,7 +142,7 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
       return;
     }
     if (this.dataset_loader.value) { // and not @ontology_loader.value
-      const option = this.dataset_loader.get_selected_option();
+      const option = this.dataset_loader.getSelectedElem();
       const ontologyUri = option.dataset['ontologyUri'];
       const ontology_label = option.dataset['ontology_label']; //default set in group json file
       if (ontologyUri) { // let the uri (if present) dominate the label
@@ -170,20 +200,5 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
 
   set_ontology_with_uri(seek) {
     this.set_SOMETHING_by_selector(this.ontology_loader, `[value='${seek}']`);
-  }
-
-  update_dataset_ontology_loader(args) {
-    if (!((this.dataset_loader != null) &&
-          (this.ontology_loader != null) &&
-          (this.endpoint_loader != null) &&
-          (this.script_loader != null))) {
-      console.log("still building loaders...");
-      return;
-    }
-    this.set_ontology_from_dataset_if_possible(args);
-    const ugb = () => {
-      return this.update_go_button(); // TODO confirm that this should be disable_go_button
-    };
-    setTimeout(ugb, 200);
   }
 }

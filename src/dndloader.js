@@ -29,8 +29,8 @@ export class PickOrProvide {
     this.add_local_file = this.add_local_file.bind(this);
     this.add_resource_option = this.add_resource_option.bind(this);
     this.onchange = this.onchange.bind(this);
-    this.get_selected_option = this.get_selected_option.bind(this);
-    this.delete_selected_option = this.delete_selected_option.bind(this);
+    this.getSelectedElem = this.getSelectedElem.bind(this);
+    this.deleteSelectedElem = this.deleteSelectedElem.bind(this);
     this.huviz = huviz;
     if (typeof(append_to_sel) == typeof('')) {
       this.append_to = document.querySelector(append_to_sel);
@@ -51,13 +51,9 @@ export class PickOrProvide {
     const dndLoaderClass = this.opts.dndLoaderClass || DragAndDropLoader;
     this.drag_and_drop_loader = new dndLoaderClass(this.huviz, this.append_to, this);
     hide(this.drag_and_drop_loader.form);
-    //@add_group({label: "-- Pick #{@label} --", id: @pickable_uid})
-    //console.warn("SUPPRESSING 'Your Own'")
     this.add_group({label: "Your Own", id: this.your_own_uid}, 'beforeend');
     console.warn(`SUPPRESSING 'Provide New ${this.label}'`)
-    //this.add_option({label: `Provide New ${this.label} ...`, value: 'provide'}, this.select_id);
     console.warn("SUPPRESSING 'Pick or Provide'")
-    //this.add_option({label: "Pick or Provide...", canDelete: false}, this.select_id, 'afterbegin');
     this.update_change_stamp();
   }
 
@@ -254,7 +250,8 @@ export class PickOrProvide {
         opt.setAttribute(k, opt_rec[k]);  //$(opt).attr(k, opt_rec[k]);
       }
     }
-    for (k of ['isUri', 'canDelete', 'ontologyUri', 'ontology_label']) { // TODO standardize on _
+    // TODO standardize on snake-case rather than camelCase
+    for (k of ['isUri', 'canDelete', 'ontologyUri', 'ontology_label']) {
       if (opt_rec[k] != null) {
         const val = opt_rec[k];
         opt.dataset[k] = val;  // $(opt).data(k, val);
@@ -277,7 +274,7 @@ export class PickOrProvide {
   }
   option_click_listener(evt) {
     this.setSelectedElem(evt.target);
-    this.containingElem.set_ontology_from_dataset_if_possible();
+    this.containingElem.handleLoaderClickInResourceMenu(this, evt);
   }
 
   update_state(callback) {
@@ -322,18 +319,12 @@ export class PickOrProvide {
   }
 
   find_or_append_form() {
-    /*
-    console.warn(`
-    if (!$(this.local_file_form_sel).length) {
-      $(this.append_to_sel).append(this.tmpl.replace('REPLACE_WITH_LABEL', this.label).replace('UID',this.uniq_id));
-    }
-    `);
-    */
     var form_sel = `#${this.uniq_id}`;
     if (!this.form) {
-      var filledTmpl = this.tmpl.replace('REPLACE_WITH_LABEL', this.label).replace('UID',this.uniq_id);
+      var filledTmpl = this.tmpl.replace('REPLACE_WITH_LABEL', this.label).
+          replace('UID',this.uniq_id);
       this.append_to.insertAdjacentHTML('beforeend', filledTmpl);
-      this.form = this.append_to.querySelector(form_sel);  // this.form = $(`#${this.uniq_id}`);
+      this.form = this.append_to.querySelector(form_sel);
     } else {
       return this.form;
     }
@@ -342,7 +333,7 @@ export class PickOrProvide {
     //console.debug @css_class,@pick_or_provide_select
     this.pick_or_provide_select.onchange = this.onchange.bind(this);
     this.delete_option_button = this.form.querySelector('.delete_option');
-    this.delete_option_button.onclick = this.delete_selected_option.bind(this);
+    this.delete_option_button.onclick = this.deleteSelectedElem.bind(this);
     this.form.querySelector('.delete_option').setAttribute('disabled', true); // disabled initially
     return this.form;
   }
@@ -352,31 +343,30 @@ export class PickOrProvide {
     this.refresh();
   }
 
-  get_selected_option() {
+  getSelectedElem() {
     return this.selectedElem;
   }
 
-  delete_selected_option(e) {
+  deleteSelectedElem(e) {
     e.stopPropagation();
-    const selected_option = this.get_selected_option();
-    const val = selected_option.attr('value');
+    const selectedElem = this.getSelectedElem();
+    const val = selectedElem.getAttribute('value');
     if (val != null) {
       this.huviz.remove_dataset_from_db(this.value);
-      this.delete_option(selected_option);
+      this.delete_option(selectedElem);
       this.update_state();
     }
-      //  @value = null
   }
 
   delete_option(opt_elem) {
     const uri = opt_elem.attr('value');
     this.huviz.remove_dataset_from_db(uri);
     opt_elem.remove();
-    this.huviz.update_dataset_ontology_loader();
+    this.huviz.update_resource_menu();
   }
 
   refresh() {
-    let cb = this.huviz.update_dataset_ontology_loader.bind(this);
+    let cb = this.huviz.update_resource_menu.bind(this);
     this.update_state(cb);
   }
 }

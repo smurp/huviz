@@ -200,7 +200,7 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
           this.ontology_loader.val();
           this.endpoint_loader.val();
           this.script_loader.val();
-          this.update_dataset_ontology_loader();
+          this.update_resource_menu();
           console.groupEnd(); // closing group called "populate_menus_from_IndexedDB(why)"
           return document.dispatchEvent( // TODO use 'huvis_controls' rather than document
             new Event('dataset_ontology_loader_ready'));
@@ -670,19 +670,6 @@ LIMIT ${node_limit}\
     $(`#${this.dataset_loader.select_id} option[label='Pick or Provide...']`)
        .prop('selected', true);
     this.gclui_JQElem.removeAttr("style","display:none");
-  }
-
-  update_dataset_ontology_loader(args) {
-    if (!((this.dataset_loader != null) && (this.ontology_loader != null) &&
-            (this.endpoint_loader != null) && (this.script_loader != null))) {
-      console.log("still building loaders...");
-      return;
-    }
-    this.huviz.set_ontology_from_dataset_if_possible(args);
-    const ugb = () => {
-      return this.update_go_button(); // TODO confirm that this should be disable_go_button
-    };
-    setTimeout(ugb, 200);
   }
 
   update_endpoint_form(e) {
