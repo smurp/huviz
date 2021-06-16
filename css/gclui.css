@@ -1,6 +1,6 @@
 :root {
-    --engaged-button-bg-color: royalblue;
-    --engaged-button-txt-color: white;
+  --engaged-button-bg-color: royalblue;
+  --engaged-button-txt-color: white;
 }
 
 .gclui {
@@ -386,10 +386,10 @@
   user-select: initial;
 }
 .nextcommand_prompt_ready {
-  color: #888;
+  background-color: lightgreen;
 }
 .nextcommand_prompt_unready {
-  color: grey;
+  background-color: lightpink;
   font-style: italic;
 }
 .nextcommand_prompt_proposed {
