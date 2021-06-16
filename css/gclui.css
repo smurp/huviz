@@ -1,3 +1,8 @@
+:root {
+    --engaged-button-bg-color: royalblue;
+    --engaged-button-txt-color: white;
+}
+
 .gclui {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -123,12 +128,12 @@
 }
 
 .engaged {
-  background-color: royalblue;
+  background-color: var(--engaged-button-bg-color);
+  color: var(--engaged-button-txt-color);
   border-top:1px solid #aaa;
   border-right:1px solid #eee;
   border-left:1px solid #aaa;
   border-bottom:1px solid #eee;
-  color: white;
 }
 .verb:hover {
   background-color: #ccc;
@@ -481,10 +486,11 @@
   border-right: 1px solid #aaa;
   border-left: 1px solid #eee;
   border-bottom: 1px solid #aaa;
-  background-color: #f5f5f5;
+  background-color: var(--engaged-button-bg-color);
+  color: var(--engaged-button-txt-color);
   padding: 3px 4px;
   border-radius: 3px;
-  color: #666;
+
 }
 .big_go_button:hover {
   background-color: #ddd;
