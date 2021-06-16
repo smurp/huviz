@@ -8471,7 +8471,7 @@ LIMIT ${node_limit}\
     }
     this.set_ontology_from_dataset_if_possible(args);
     const ugb = () => {
-      return this.update_go_button(); // TODO confirm that this should be disable_go_button
+      this.update_go_button(); // TODO confirm that this should be disable_go_button
     };
     setTimeout(ugb, 200);
   }
