@@ -48,13 +48,13 @@
 }
 
 .huviz_tabs .ui-widget-header {
-    border-top: none;
-    border-left: none;
-    border-right: none;
-    /*background: #157fcc url(images/ui-bg_highlight-soft_75_cccccc_1x100.png) 50% 50% repeat-x;*/
-    background: #157fcc 50% 50% repeat-x;
-    color: #222222;
-    font-weight: bold;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  /*background: #157fcc url(images/ui-bg_highlight-soft_75_cccccc_1x100.png) 50% 50% repeat-x;*/
+  background: #157fcc 50% 50% repeat-x;
+  color: #222222;
+  font-weight: bold;
 }
 .tabs-help {
   position: absolute;
@@ -145,11 +145,9 @@
   height: 95%;
 }
 
-
 .settingGroupsContainer .settingsGroup.ui-accordion-content {
   padding: 0.2em;
 }
-
 
 .settingsGroup {
   color: #555;
@@ -223,13 +221,13 @@
 }
 
 .huviz_tabs .huvis_controls {
-    padding: 0.4em;
-    padding-bottom: 0.2em;
+  padding: 0.4em;
+  padding-bottom: 0.2em;
 }
 
 .huviz_tabs .huvis_controls {
-    padding: 0.4em;
-    padding-bottom: 0.2em;
+  padding: 0.4em;
+  padding-bottom: 0.2em;
 }
 
 /* Attribution Information */
@@ -366,13 +364,12 @@ progress[value]::-webkit-progress-bar {
 }
 progress[value]::-webkit-progress-value {
   background-image:
-	   -webkit-linear-gradient(top,
-	                           rgba(255, 255, 255, .25),
-	                           rgba(0, 0, 0, .25)),
-	   -webkit-linear-gradient(left, green, green);
-
-    border-radius: 2px;
-    background-size: 35px 20px, 100% 100%, 100% 100%;
+    -webkit-linear-gradient(top,
+	                    rgba(255, 255, 255, .25),
+	                    rgba(0, 0, 0, .25)),
+    -webkit-linear-gradient(left, green, green);
+  border-radius: 2px;
+  background-size: 35px 20px, 100% 100%, 100% 100%;
 }
 progress[value]::-moz-progress-bar {
   background-image:
@@ -425,11 +422,11 @@ a.git_commit_hash_watermark {
 }
 
 .blurtbox {
-   overflow:auto;
-   font-family:monospace;
-   list-style:none;
-   padding-left: 1em;
-   margin-right: 1em;
+  overflow:auto;
+  font-family:monospace;
+  list-style:none;
+  padding-left: 1em;
+  margin-right: 1em;
 }
 .blurtbox p{
   margin-left:1em;
@@ -566,52 +563,52 @@ a.git_commit_hash_watermark {
 }
 
 .theme_black .subliminal {
-    color: #373737;
+  color: #373737;
 }
 
 /*------ Background title styles-----*/
 /* a color just adjacent to the background color, for just barely visible text in watermarks */
 
 .subliminal {
-    color: #D7D7D7;
+  color: #D7D7D7;
 }
 .dataset_watermark.bold1 {
-    color: #333333;
-    font-weight: bold;
-    font-size: 120%;
-    display:block;
+  color: #333333;
+  font-weight: bold;
+  font-size: 120%;
+  display:block;
 }
 .theme_black .dataset_watermark.bold1 {
-    color: #DDDDDD;
+  color: #DDDDDD;
 }
 .dataset_watermark.bold2 {
-    color: #333333;
-    font-weight: bold;
-    font-size: 120%;
-    padding-right: 1em;
+  color: #333333;
+  font-weight: bold;
+  font-size: 120%;
+  padding-right: 1em;
 }
 .ontology_watermark.bold2 {
-    color: #333333;
+  color: #333333;
 }
 .theme_black .dataset_watermark.bold2, .theme_black .ontology_watermark.bold2{
-    color: #DDDDDD;
+  color: #DDDDDD;
 }
 .dataset_watermark.custom {
-    color: #333333;
-    font-weight: bold;
-    font-size: 120%;
-    display:block;
+  color: #333333;
+  font-weight: bold;
+  font-size: 120%;
+  display:block;
 }
 .ontology_watermark.custom {
-    color: #333333;
-    font-size: 100%;
-    display:block;
+  color: #333333;
+  font-size: 100%;
+  display:block;
 }
 .theme_black .dataset_watermark.custom {
-    color: #DDDDDD;
+  color: #DDDDDD;
 }
 .theme_black .ontology_watermark.custom {
-    color: #DDDDDD;
+  color: #DDDDDD;
 }
 
 /* cope with absence of =80x80 in npm marked Markdown support */
@@ -624,48 +621,48 @@ a.git_commit_hash_watermark {
   padding: 5px;
 }
 .tabs-credit h1 {
-    display: block;
-    font-size: 1.3em;
-    padding-top: 0.1em;
-    padding-bottom: 0.2em;
-    padding-top: 0px;
-    padding-bottom: 0px;
-    font-weight: medium;
+  display: block;
+  font-size: 1.3em;
+  padding-top: 0.1em;
+  padding-bottom: 0.2em;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  font-weight: medium;
 }
 .tabs-credit h2,h3 {
-    text-align: left;
-    display: inline-block;
-    font-size: 1.05em;
-    margin-top: 0.3em;
-    padding-bottom: 0.1em;
-    margin-top: 0px;
-    margin-bottom: 0px;
-    font-weight: bold;
+  text-align: left;
+  display: inline-block;
+  font-size: 1.05em;
+  margin-top: 0.3em;
+  padding-bottom: 0.1em;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  font-weight: bold;
 }
 .tabs-credit ul {
-    padding: 0px;
-    margin: 0px;
-    margin-left: 1em;
-    margin-bottom: .8em;
+  padding: 0px;
+  margin: 0px;
+  margin-left: 1em;
+  margin-bottom: .8em;
 }
 #tabs-credit li {
-    margin: 5px;
+  margin: 5px;
 }
 
 /* tabs-intro styling */
 
 .tabs-intro p {
-    margin-top: .2em;
-    text-indent: 1.2em;
+  margin-top: .2em;
+  text-indent: 1.2em;
 }
 .tabs-intro ul {
-    margin-top: .5em;
-    margin-bottom: .5em;
-    font-family: Courier;
-    font-size: 90%;
+  margin-top: .5em;
+  margin-bottom: .5em;
+  font-family: Courier;
+  font-size: 90%;
 }
 .tabs-intro ul {
-    list-style: none outside none;
+  list-style: none outside none;
 }
 
 /*------------------ Misc Styles -----------------*/

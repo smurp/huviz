@@ -97,8 +97,8 @@
 }
 
 .singletons .verb {
-    /* line the singletons up in a row */
-    display: inline;
+  /* line the singletons up in a row */
+  display: inline;
 }
 
 /* New alternate verb styling ends here */
@@ -176,7 +176,7 @@
 }
 
 .command.played {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .command.played .query-results{
@@ -210,7 +210,6 @@
 }
 .command.played {
   background-color: #fcf59b;  /* legal pad yellow */
-
 }
 .tabs-sparqlQueries .command.played {
   /*width: fit-content;*/
@@ -276,9 +275,9 @@
   color: white;
 }
 .commandhistory {
-    overflow-y: scroll;
-    resize: vertical;
-    min-height: 1.5em;
+  overflow-y: scroll;
+  resize: vertical;
+  min-height: 1.5em;
 }
 .commandhistory, .nextcommand {
   /* the box  styling */
@@ -305,7 +304,7 @@
   overflow:auto;
 }
 .treepicker-showing {
-    background-color: tan;
+  background-color: tan;
 }
 /* display: inline-block and white-space: nowrap */
 .treepicker-hidden {
@@ -368,7 +367,6 @@
   background: darkgray;
   cursor: inherit;
 }
-
 .taxon_picker_box_parent {
   float: left;
   width: 48%
@@ -396,7 +394,6 @@
   color: red;
   font-style: bold;
 }
-
 .close_hint {
   background-color: red;
   color: white;
@@ -428,11 +425,9 @@
 .box__error {
   display: none;
 }
-
 .box__error {
   background-color: red;
 }
-
 .local_file_form.is-dragover {
   background-color: green;
 }
@@ -490,7 +485,6 @@
   color: var(--engaged-button-txt-color);
   padding: 3px 4px;
   border-radius: 3px;
-
 }
 .big_go_button:hover {
   background-color: #ddd;
@@ -500,7 +494,6 @@
   color:#ccc;
   background-color: inherit;
   border-color: #ddd;
-
 }
 .pick_or_provide_form button:enabled{
   color: #9c1111;
@@ -551,16 +544,16 @@ Here are a few resources with hints in this direction:
 
 /* style_of_set_picker = wrenched */
 .set_picker_box_parent.wrenched > .control_label::after{
-    content: "(wrenched)";
-    margin-left: 1em;
+  content: "(wrenched)";
+  margin-left: 1em;
 }
 .set_picker_box_parent.wrenched > #sets.container {
-    display: table;
-    height: 9.3em;
+  display: table;
+  height: 9.3em;
 }
 ..set_picker_box_parent.wrenched .contents {
-    padding: 50% 0;
-    /*   height: 0; */
+  padding: 50% 0;
+  /*   height: 0; */
 }
 .set_picker_box_parent.wrenched > #sets .treepicker-label {
   display: block;
@@ -574,12 +567,12 @@ Here are a few resources with hints in this direction:
 
 /* style_of_set_picker = tipped */
 .set_picker_box_parent.tipped > .control_label::after{
-    content: "(tipped)";
-    margin-left: 1em;
+  content: "(tipped)";
+  margin-left: 1em;
 }
 .set_picker_box_parent.tipped #sets.container {
-    display: inline-flex;
-    height: 9.3em;
+  display: inline-flex;
+  height: 9.3em;
 }
 .set_picker_box_parent.tipped > #sets .treepicker-label {
   transform-origin: top left;
@@ -594,18 +587,17 @@ Here are a few resources with hints in this direction:
   white-space: nowrap;
 }
 
-
 /* style_of_set_picker = canted */
 .set_picker_box_parent.canted > .control_label::after{
-    content: "(canted)";
-    margin-left: 1em;
+  content: "(canted)";
+  margin-left: 1em;
 }
 .set_picker_box_parent.canted #sets.container {
-    display: flex;
-    flex-wrap: nowrap;
-    justify-content: space-evenly;
-    flex-direction: row;
-    height: 9.3em;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-evenly;
+  flex-direction: row;
+  height: 9.3em;
 }
 .set_picker_box_parent.canted > #sets .treepicker-label {
   transform-origin: top left;
@@ -615,11 +607,10 @@ Here are a few resources with hints in this direction:
   border-radius: .2em;
 }
 
-
 /* style_of_set_picker = torqued */
 .set_picker_box_parent.torqued > .control_label::after{
-    content: "(torqued)";
-    margin-left: 1em;
+  content: "(torqued)";
+  margin-left: 1em;
 }
 .set_picker_box_parent.torqued > #sets.container {
   --move-sets-up: -8.5em;
