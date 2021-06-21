@@ -6009,7 +6009,7 @@ SERVICE wikibase:label {
     });
   }
 
-  run_managed_query_abstract(args) {
+  initializeQueryManager(args) {
     // Reference: https://www.w3.org/TR/sparql11-protocol/
     if (args == null) { args = {}; }
     if (args.success_handler == null) { args.success_handler = noop; }
@@ -6022,28 +6022,38 @@ SERVICE wikibase:label {
   }
 
   run_managed_query_ajax(args) {
-    var use_proxy = false;
-    const {query, serverUrl} = args;
-    const queryManager = this.run_managed_query_abstract(args);
-    const {success_handler, error_callback, timeout} = args;
+    //var {query, serverUrl} = args;
+    var queryManager = this.initializeQueryManager(args);
+    //var {success_handler, error_callback, timeout, method} = args;
+    var {
+      success_handler
+      , error_callback
+      , method
+      , query
+      , serverUrl
+      , timeout
+      , use_proxy
+    } = queryManager.args;
+
     // These POST settings work for: CWRC, WWI open, on DBpedia, and Open U.K.
     // but not on Bio Database
-    const more = "&timeout=" + timeout;
     // TODO This should be decrufted
     const ajax_settings = { //TODO Currently this only works on CWRC Endpoint
-      'method': 'GET',
-      'url': serverUrl + '?query=' + encodeURIComponent(query) + more,
+      'url': serverUrl + '?query=' + encodeURIComponent(query) + "&timeout=" + timeout,
       'headers' : {
         // This is only required for CWRC - not accepted by some Endpoints
         //'Content-Type': 'application/sparql-query'
         'Accept': 'application/sparql-results+json'
       }
     };
-    if (serverUrl === "http://sparql.cwrc.ca/sparql") { // Hack to make CWRC setup work properly
+    if (serverUrl.includes("lincsproject")) { // Hack to make CWRC setup work properly
+      /*
       ajax_settings.headers = {
         'Content-Type' : 'application/sparql-query',
         'Accept': 'application/sparql-results+json'
       };
+      */
+      method = 'POST';
     }
     if (serverUrl.includes('wikidata')) {
       // https://www.mediawiki.org/wiki/Wikidata_Query_Service/User_Manual#Standalone_service
@@ -6051,26 +6061,26 @@ SERVICE wikibase:label {
     }
     if (use_proxy) { // put this last so other tweaks can trigger the proxy
       var proxy_url = window.location.origin + "/SPARQLPROXY/";
-      console.log({proxy_url});
       ajax_settings.url = proxy_url + ajax_settings.url;
     }
-
-    queryManager.xhr = $.ajax({
-      timeout,
-      method: ajax_settings.method,
+    queryManager.setXHR($.ajax({
+      timeout: timeout,
+      method: method,
       url: ajax_settings.url,
       headers: ajax_settings.headers,
       success: (data, textStatus, jqXHR) => {
         queryManager.cancelAnimation();
         try {
-          return success_handler(data, textStatus, jqXHR, queryManager);
+          success_handler(data, textStatus, jqXHR, queryManager);
         } catch (e) {
-          return queryManager.fatalError(e);
+          queryManager.fatalError(e);
         }
       },
       error: (jqxhr, textStatus, errorThrown) => {
         if (!errorThrown) {
-          errorThrown = "Cross-Origin error";
+          errorThrown = "no error message";
+          var responseHeaders = jqxhr.getAllResponseHeaders();
+          console.log({textStatus, responseHeaders});
         }
         const msg = errorThrown + " while fetching " + serverUrl;
         $('#'+this.get_data_ontology_display_id()).remove();
@@ -6079,7 +6089,7 @@ SERVICE wikibase:label {
           return error_callback(jqxhr, textStatus, errorThrown, queryManager);
         }
       }
-    });
+    }));
 
     return queryManager;
   }
@@ -6087,7 +6097,7 @@ SERVICE wikibase:label {
   run_managed_query_worker(qry, serverUrl, args) {
     args.query = qry;
     args.serverUrl = serverUrl;
-    const queryManager = this.run_managed_query_abstract(args);
+    const queryManager = this.initializeQueryManager(args);
     return queryManager;
   }
 
@@ -6241,7 +6251,7 @@ SERVICE wikibase:label {
       if (e.data.method_name === 'log_query') {
         queryManagerArgs.query = "#SPARQL_Worker\n"+e.data.qry;
         queryManagerArgs.serverUrl = url;
-        queryManager = this.run_managed_query_abstract(queryManagerArgs);
+        queryManager = this.initializeQueryManager(queryManagerArgs);
         //queryManager = @log_query_with_timeout(, timeout)
         return;
       } else if (e.data.method_name !== 'accept_results') {
@@ -7733,7 +7743,7 @@ SERVICE wikibase:label {
     this.visualize_dataset_using_ontology();
   }
 
-  big_go_button_onclick_sparql() {
+    big_go_button_onclick_sparql(event) {
     let endpoint_label_uri, graphUri;
     if (this.allGraphsChosen()) {
       let foundUri;
@@ -7752,6 +7762,7 @@ SERVICE wikibase:label {
       // TODO remove the requirement for a graphUri to be specified before the spoQuery is enabled.
       let spoQuery;
       if (spoQuery = this.spo_query_JQElem.val()) {
+        spoQuery = this.applyNodeLimit(spoQuery);
         this.displayTheSpoQuery(spoQuery, graphUri);
         return;
       }
@@ -7896,7 +7907,7 @@ SERVICE wikibase:label {
   }
 
   update_graph_form(e) {
-    console.log(e.currentTarget.value);
+    //console.log(e.currentTarget.value);
     this.endpoint_loader.endpoint_graph = e.currentTarget.value;
   }
 
@@ -8405,8 +8416,7 @@ SERVICE wikibase:label {
     this.stop_graphs_selector_spinner();
   }
 
-  animate_sparql_query(elem, overMsec, fillColor, bgColor) {
-    if (fillColor == null) { fillColor = 'lightblue'; }
+  animate_sparql_query(elem, overMsec, fillColor='lightblue', bgColor='white') {
     return this.animate_fill_graph(elem, overMsec, fillColor, bgColor);
   }
 
@@ -8471,6 +8481,16 @@ SERVICE wikibase:label {
     return false;
   }
 
+  applyNodeLimit(qry) {
+    // Apply LIMIT value from form if provided OR do nothing if query contains LIMIT
+    const nodeLimit = this.endpoint_limit_JQElem.val();
+    const alreadyLimited = (qry.toLowerCase()).match(/limit /);
+    if (nodeLimit && !alreadyLimited) {
+      return qry + ` LIMIT ${nodeLimit}`;
+    }
+    return qry;
+  }
+
   //  # Reading
   //
   //  Efficient Optimization and Processing of Queries over Text-rich Graph-structured Data
@@ -8478,6 +8498,16 @@ SERVICE wikibase:label {
   //
   //  Alternatives to regex in SPARQL
   //    https://www.cray.com/blog/dont-use-hammer-screw-nail-alternatives-regex-sparql/
+  //  Efficient String Matching While Ignoring Case
+  //    https://stackoverflow.com/questions/10660030/
+  //      Bottom line: string matching cannot be expected to perform well without full text index
+  //      Jena 1.x has LARQ
+  //      Jena 2.11.0 has jena-text
+  //  Web SPARQL Interfaces
+  //    https://query.wikidata.org/
+  //    https://dbpedia.org/sparql
+  //    https://fuseki.lincsproject.ca/dataset.html
+
   search_sparql_by_label(request, response) {
     this.euthanize_search_sparql_by_label();
     this.animate_endpoint_label_search();
@@ -8487,20 +8517,40 @@ SERVICE wikibase:label {
     if (this.endpoint_loader.endpoint_graph) {
       fromGraph=` FROM <${this.endpoint_loader.endpoint_graph}> `;
     }
-
-    const qry = `\
-# search_sparql_by_label()
+    const sought = request.term.toLowerCase();
+    let qry = `# search_sparql_by_label("${sought}")
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 PREFIX dbp: <http://dbpedia.org/ontology/>
-SELECT DISTINCT * ${fromGraph}
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT DISTINCT ?sub ?pred ?obj ${fromGraph}
 WHERE {
-?sub rdfs:label|foaf:name|dbp:name ?obj .
-FILTER (STRSTARTS(LCASE(?obj), "${request.term.toLowerCase()}"))
+  ?sub ?pred ?obj . {
+    ?sub rdfs:label ?obj .
+    FILTER contains(LCASE(?obj), "${sought}")
+   } UNION {
+    ?sub skos:altLabel ?obj .
+    FILTER contains(LCASE(?obj), "${sought}")
+   } UNION {
+    ?sub foaf:name ?obj .
+    FILTER contains(LCASE(?obj), "${sought}")
+   } UNION {
+    ?sub dbp:name ?obj .
+    FILTER contains(LCASE(?obj), "${sought}")
+   }
 }
-LIMIT 20\
-`;                       // for emacs syntax hilighting  ---> "
+`;
+    qry = this.applyNodeLimit(qry);
+    /*
+      // https://stackoverflow.com/questions/66417040/
+      //    how-to-query-wikidata-using-sparql-using-entity-names-and-also-check-alternative
+      SELECT ?item ?prefLabel
+      WHERE {
+         values ?prefLabel {"AirAsia Philippines"@en}
+         ?item rdfs:label|skos:altLabel ?prefLabel.
+      }
+     */
 
     const make_success_handler = () => {
       return (data, textStatus, jqXHR, queryManager) => {

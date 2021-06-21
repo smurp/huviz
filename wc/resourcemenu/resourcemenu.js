@@ -12,7 +12,7 @@ customElements.define('pick-or-provide', PickOrProvidePanel);
 
 var resMenFSMTTL= `
          @prefix st: <https://example.com/state/> .
-         @prefix st: <https://example.com/transition/> .
+         @prefix tr: <https://example.com/transition/> .
 
          st:           tr:start         st:onFront .
          st:onFront    tr:gotoDataset   st:onDataset .
@@ -25,7 +25,9 @@ var resMenFSMTTL= `
          st:onSPARQL   tr:esc           st:onFront .
          st:onSPARQLDetail  tr:esc      st:onSPARQL .
 
-         st:onSPARQL   tr:pick          st:onSPARQLDetail .
+         st:onSPARQL   tr:pick         st:onSPARQLDetail .
+         st:onHelp     tr:esc          st:onFront .
+         st:onCredits  tr:esc          st:onFront .
        `;
 
 export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
@@ -41,7 +43,11 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     this.addIDClickListeners('main, button, [id]', this.clickListener.bind(this));
     this.transit('start',{});
     //.this.transit('gotoDataset',{}); console.error('hard-coded transit("gotoDataset") to ease development')
-    this.transit('gotoSPARQL',{}); console.error('hard-coded transit("gotoSPARQL") to ease development')
+                                                      
+                                                      
+    this.transit('gotoSPARQL',{}); console.error('hard-coded transit("gotoSPARQL") to ease development');
+                                                      
+                                                      
   }
   blurt(...stuff) {
     this.huviz.blurt(___stuff);
@@ -56,7 +62,7 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     args.script_loader__append_to_sel = this.querySelector('#scriptHere');
     args.endpoint_loader__append_to_sel = this.querySelector('#endpointHere');
 
-    this.init_resource_menus(args);
+    this.init_resource_menus(args); // add {dataset,ontology,script,endpoint}_loader
     this.huviz.collapse_tabs();
   }
   registerPickOrProvide() {

@@ -91,11 +91,11 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
   add_resource_to_db(rsrcRec, callback) {
     const trx = this.datasetDB.transaction('datasets', "readwrite");
     trx.oncomplete = (e) => {
-      return console.log(`${rsrcRec.uri} added!`);
+      console.log(`${rsrcRec.uri} added!`);
     };
     trx.onerror = (e) => {
       console.log(e);
-      return alert(`add_resource(${rsrcRec.uri}) error!!!`);
+      alert(`add_resource(${rsrcRec.uri}) error!!!`);
     };
     const store = trx.objectStore('datasets');
     const req = store.put(rsrcRec);
@@ -347,8 +347,15 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
       //@endpoint_loader.outstanding_requests = 0
     if (this.endpoint_loader && !this.big_go_button) {
       this.build_sparql_form();
-      const endpoint_selector = `#${this.endpoint_loader.select_id}`;
-      $(endpoint_selector).change(this.update_endpoint_form);
+      //const endpoint_selector = `#${this.endpoint_loader.select_id}`;
+      const endpoint_selector = `#sparqlDetailHere`;
+      const sparqlDetailElem = this.querySelector(endpoint_selector);
+      const sparqlDetailTemplate = document.getElementById('sparql-ux');
+      const content = sparqlDetailTemplate?.content; // nullish coalescence
+      if (content) {
+        sparqlDetailElem.appendChild(content);
+      }
+      //$(endpoint_selector).change(this.update_endpoint_form);
     }
     if (this.ontology_loader && !this.big_go_button) {
       this.big_go_button_id = unique_id('goButton_');
@@ -388,6 +395,10 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
     const endpoint_labels_id = unique_id('endpoint_labels_');
     const spo_query_id = unique_id('spo_query_');
     const sparqlGraphSelectorId = `sparqlGraphOptions-${this.endpoint_loader.select_id}`;
+    const spo_placeholder =
+         `SELECT * {
+           ?s ?p ?o .
+         }`.replace(/         /g,'');
     const select_box = `\
       <div class="ui-widget" style="display:none;margin-top:5px;margin-left:10px;">
         <label>Graphs: </label>
@@ -409,11 +420,12 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
           <input id="${endpoint_limit_id}" value="${this.sparql_query_default_limit}">
         </div>
         <div>
-          <label for="${spo_query_id}">(s,p,o) query: </label>
-          <textarea id="${spo_query_id}" value=""
-            placeholder="pick graph, then enter query producing s,p,o"></textarea>
+          <label for="${spo_query_id}">(s,p,o) query: </label><br/>
+          <textarea id="${spo_query_id}" value="" style="width:90%" rows="5"
+            placeholder="${spo_placeholder}"></textarea>
+          <p><i>pick graph, then enter query producing one or more <code>s,p,o</code></i></p>
         </div>
-      </div>\
+      </div>
       `;
     $(this.pickersSel).append(select_box);
     this.sparqlQryInput_JQElem = $(this.sparqlQryInput_selector);
@@ -432,7 +444,6 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
     this.endpoint_labels_JQElem.on('autocompleteselect', this.endpoint_labels__autocompleteselect);
     this.endpoint_labels_JQElem.on('change', this.endpoint_labels__update);
     this.endpoint_labels_JQElem.focusout(this.endpoint_labels__focusout);
-
     this.spo_query_JQElem = $('#'+spo_query_id);
     this.spo_query_JQElem.on('update', this.spo_query__update);
   }
@@ -482,9 +493,10 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
     $(`#${this.script_loader.uniq_id}`).children('select').prop('disabled', 'disabled');
   }
 
-  sparql_graph_query_and_show(url, id, callback) {
+  sparql_graph_query_and_show(url, datasetJSON, callback) {
+    var {id, skip_graph_search} = datasetJSON
     const qry = `\
-# sparql_graph_query_and_show()
+# sparql_graph_query_and_show("${url}")
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT ?g ?label
 WHERE {
@@ -493,7 +505,6 @@ OPTIONAL {?g rdfs:label ?label}
 }
 ORDER BY ?g\
 `;
-    //alert("sparql_graph_query_and_show() id: #{id}")
     // these are shared between success and error handlers
     const spinner = $(`#sparqlGraphSpinner-${id}`);
     spinner.css('display','block');
@@ -505,7 +516,7 @@ ORDER BY ?g\
     const handle_graphsNotFound = () => {
       $(graphSelector).parent().css('display', 'none');
       this.reset_endpoint_form(true);
-      return this.enable_go_button();
+      this.enable_go_button();
     };
 
     const make_success_handler = () => {
@@ -534,12 +545,14 @@ ORDER BY ?g\
           } else {
             label = '';
           }
-          graph_options = graph_options + `<option id='${this.unique_id()}' value='${graph.g.value}'>${graph.g.value}${label}</option>`;
+          graph_options = graph_options +
+            `<option id="${this.unique_id()}" value="${graph.g.value}">` +
+            `${graph.g.value}${label}</option>`;
         }
         $(`#sparqlGraphOptions-${id}`).html(graph_options);
         $(graphSelector).parent().css('display', 'block');
         this.reset_endpoint_form(true);
-        return this.disable_go_button(); // disable until a graph or term is picked
+        this.disable_go_button(); // disable until a graph or term is picked
       };
     };
 
@@ -549,7 +562,7 @@ ORDER BY ?g\
         spinner.css('visibility','hidden');
         //@reset_dataset_ontology_loader()
         handle_graphsNotFound();
-        return this.reset_endpoint_form(true);
+        this.reset_endpoint_form(true);
       };
     };
 
@@ -559,6 +572,9 @@ ORDER BY ?g\
     };
     args.query = qry;
     args.serverUrl = url;
+    if (skip_graph_search) {
+      args.timeout = 1; //msec
+    }
     this.sparql_graph_query_and_show_queryManager = this.run_managed_query_ajax(args);
   }
 
@@ -685,7 +701,15 @@ LIMIT ${node_limit}\
     } else if (e.currentTarget.value === 'provide') {
       console.log("update_endpoint_form ... select PROVIDE");
     } else {
-      this.sparql_graph_query_and_show(e.currentTarget.value, e.currentTarget.id);
+      // find the selected OPTION
+      var selectedOption = e.currentTarget.querySelector('option:checked');
+      var endpointDataset;
+      var endpointJSON = {id: e.currentTarget.id}
+      if (selectedOption) {
+        endpointDataset = selectedOption.dataset;
+        endpointJSON = Object.assign(endpointJSON, endpointDataset);
+      }
+      this.sparql_graph_query_and_show(e.currentTarget.value, endpointJSON);
       //console.log(@dataset_loader)
       $(`#${this.dataset_loader.uniq_id}`).children('select').prop('disabled', 'disabled');
       $(`#${this.ontology_loader.uniq_id}`).children('select').prop('disabled', 'disabled');

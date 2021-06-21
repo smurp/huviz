@@ -251,15 +251,16 @@ export class PickOrProvide {
       }
     }
     // TODO standardize on snake-case rather than camelCase
-    for (k of ['isUri', 'canDelete', 'ontologyUri', 'ontology_label']) {
+    for (k of ['isUri', 'canDelete', 'ontologyUri',
+               'ontology_label', 'skip_graph_search']) {
       if (opt_rec[k] != null) {
         const val = opt_rec[k];
-        opt.dataset[k] = val;  // $(opt).data(k, val);
+        opt.dataset[k] = val;
       }
     }
     opt.addEventListener('click', this.option_click_listener.bind(this));
     opt.classList.add('pick_or_provide_item')
-    return opt; //opt[0];
+    return opt;
   }
   setSelectedId(id) {
     this.selectedId = id;
