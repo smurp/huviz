@@ -180,4 +180,4 @@ app.use("/srcdocs",
   express.static("srcdocs", {index: 'index.html', redirect: true, extensions: ['html']}));
 const port = nopts.port || nopts.argv.remain[0] || process.env.PORT || 5000;
 console.log(`Starting server on localhost:${port} NODE_ENV:${process.env.NODE_ENV}`);
-app.listen(port, 'localhost');
+app.listen(port, '0.0.0.0');
