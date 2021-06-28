@@ -1,30 +1,41 @@
+# Use Auto DevOps pipeline
+# https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Auto-DevOps.gitlab-ci.yml
+include:
+  - template: Auto-DevOps.gitlab-ci.yml
+
 variables:
+  # GitLab CI configuration
   BROWSER_PERFORMANCE_DISABLED: 1
   CODE_QUALITY_DISABLED: 1
 #  CONTAINER_SCANNING_DISABLED: 1
-#  DEPENDENCY_SCANNING_DISABLED: 1
+  DEPENDENCY_SCANNING_DISABLED: 1
 #  LICENSE_MANAGEMENT_DISABLED: 1
   SAST_DISABLED: 1
   SECRET_DETECTION_DISABLED: 1
-  TEST_DISABLED: 1
   DAST_DISABLED: 1
   PERFORMANCE_DISABLED: 1
   POSTGRES_ENABLED: "false"
   STAGING_ENABLED: 1
+
+  # HuViz container variables
   K8S_SECRET_PORT: 5000
 
-include:
-  - template: Auto-DevOps.gitlab-ci.yml
+# Override test job
+test:
+  script:
+    - echo "placeholder for testing"
+  needs:
+    - build
 
-# override some of the deploy parameters
+# Template to override common deployment parameters
+.deployment: &deployment
+  environment:
+    url: http://huviz.$KUBE_INGRESS_BASE_DOMAIN
+
+# override some staging parameters
 staging:
-  stage: staging
-  environment:
-    name: staging
-    url: https://huviz.$KUBE_INGRESS_BASE_DOMAIN
+  <<: *deployment
 
+# override some production parameters
 production_manual:
-  stage: production
-  environment:
-    name: production
-    url: https://huviz.$KUBE_INGRESS_BASE_DOMAIN
+  <<: *deployment
