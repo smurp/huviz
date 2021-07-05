@@ -120,7 +120,7 @@
   }],
   "suites": [{
     "id": "f670e71e-8964-4123-a606-4f3022e54020",
-    "name": "Default Suite",
+    "name": "Operations in the commands tab",
     "persistSession": false,
     "parallel": false,
     "timeout": 300,
