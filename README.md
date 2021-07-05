@@ -17,10 +17,8 @@ other sites as a visualizer for their graph content.
 
 ## Deployments
 
-* [LINCS Production](https://huviz.lincsproject.ca/)
-* [Production](http://huviz.dev.nooron.com/)
-* [Beta](http://beta.huviz.dev.nooron.com/)
-* [Alpha](http://alpha.huviz.dev.nooron.com/)
+* [Production](https://huviz.lincsproject.ca/)
+* [Classic](https://huviz-classis.lincsproject.ca/)
 
 ## Papers and Presentations Mentioning HuViz
 * [Software Integration in the Digital Humanities](https://www.canarie.ca/wp-content/uploads/16-Brown-Ilovan.pdf)
@@ -50,7 +48,6 @@ The commands in HuViz can be thought of as moving nodes around among various set
 * Activated -- the nodes which are placed into the graph and which cause other nodes connected to them to become graphed.
                Dragging a node into the graph Activates it.
 * Discarded -- the nodes which have been placed in the disard bin and which can't be pulled into the graph by activated nodes.
-
 * Graphed -- the nodes which are in the graph, either by being activated or by being pulled into the graph
 * Hidden -- the nodes which have been made invisible to reduce clutter, but which can be pulled into the graph by activated nodes
 * Labelled -- the nodes which show their labels continuously, rather than just when hovered near
