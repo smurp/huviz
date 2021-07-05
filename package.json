@@ -65,7 +65,9 @@
     "PAUSED:watch:test": "onchange 'lib/huviz.js' -- npm test",
     "inspect": "node --inspect=9227 server.js",
     "start": "node server.js --git_commit_hash `git log --format=\"%h\" -n 1` --git_branch_name `git rev-parse --abbrev-ref HEAD`",
-    "test": "mocha --reporter spec",
+    "test": "npm-run-all --parallel test:*",
+    "test:unit": "mocha --reporter spec",
+    "test:user": "npx selenium-side-runner test/user_tests.side",
     "watchTest": "onchange -i -k server.js lib/huviz.js package.json test/* -- npm run test",
     "watchTestFSM": "onchange -i -k server.js lib/huviz.js package.json test/* -- npm run test -- --grep FiniteState",
     "DEPRECATED:buildSrcDocs": "npx docco -o srcdocs  server.coffee src/*.coffee | node bin/make_srcdocs_index.js > srcdocs/index.md && npx marked srcdocs/index.md > srcdocs/index.html"
