@@ -1,0 +1,131 @@
+{
+  "id": "21a7bdc7-6316-4568-ac31-9fc9e3221a8b",
+  "version": "2.0",
+  "name": "user_tests",
+  "url": "http://localhost:5000/",
+  "tests": [{
+    "id": "ba9e25c3-0d13-4218-9ea0-dfc330ef4d11",
+    "name": "Activate All THEN Deactive THEN disengage",
+    "commands": [{
+      "id": "aab568fe-75b6-430c-86c6-671c7973d831",
+      "comment": "",
+      "command": "open",
+      "target": "http://localhost:5000/#load+/data/foaf20140114.ttl+with+/data/owl_mini.ttl",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "b66b92fc-f42d-46eb-9b55-390c05288b7e",
+      "comment": "verify nextcommand shows neither verb nor object are engaged",
+      "command": "verifyText",
+      "target": "css=.nextcommand",
+      "targets": [
+        ["css=.nextcommand", "css:finder"],
+        ["xpath=//div[@id='gclui_h5l9knwa62']/div/div/div/div[3]/div[2]", "xpath:idRelative"],
+        ["xpath=//div[3]/div[2]", "xpath:position"]
+      ],
+      "value": "VERB SET/SELECTION"
+    }, {
+      "id": "86502bf8-f7e3-44e8-b1fa-600cbd2daaae",
+      "comment": "engage Activate verb by clicking it",
+      "command": "click",
+      "target": "id=verb-choose",
+      "targets": [
+        ["id=verb-choose", "id"],
+        ["css=#verb-choose", "css:finder"],
+        ["xpath=//div[@id='verb-choose']", "xpath:attributes"],
+        ["xpath=//div[@id='gclui_0h0xxn3oqq']/div/div[2]/div[2]/div/div/div/div", "xpath:idRelative"],
+        ["xpath=//div[2]/div[2]/div/div/div/div", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "f0799379-fd54-468b-9289-5891772626cf",
+      "comment": "complete the command \"Activate the All set\"",
+      "command": "click",
+      "target": "css=#all_set > .treepicker-label > .label",
+      "targets": [
+        ["css=#all_set > .treepicker-label > .label", "css:finder"],
+        ["xpath=//div[@id='all_set']/p/span", "xpath:idRelative"],
+        ["xpath=//div[2]/div/p/span", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "0d9e3534-e588-4cdf-b547-3ecb2ba63f1f",
+      "comment": "verify that everything is activated",
+      "command": "verifyText",
+      "target": "id=chosen_set",
+      "targets": [
+        ["id=chosen_set", "id"],
+        ["css=#chosen_set", "css:finder"],
+        ["xpath=//div[@id='chosen_set']", "xpath:attributes"],
+        ["xpath=//div[@id='all_set']/div/div", "xpath:idRelative"],
+        ["xpath=//div/div[5]/div[2]/div/div/div", "xpath:position"]
+      ],
+      "value": "Activated172"
+    }, {
+      "id": "1c5701d3-fd44-4464-90f0-9fe57eaf7cb0",
+      "comment": "verify that the engaged noun_phrase remains 'the All set'",
+      "command": "verifyText",
+      "target": "css=.noun_phrase",
+      "targets": [],
+      "value": "the All set"
+    }, {
+      "id": "73a3bd06-8f56-4282-b731-9e5918c148e1",
+      "comment": "complete the command \"Deactivate the All set\" by clicking the verb",
+      "command": "click",
+      "target": "id=verb-unchoose",
+      "targets": [
+        ["id=verb-choose", "id"],
+        ["css=#verb-choose", "css:finder"],
+        ["xpath=//div[@id='verb-choose']", "xpath:attributes"],
+        ["xpath=//div[@id='gclui_0h0xxn3oqq']/div/div[2]/div[2]/div/div/div/div", "xpath:idRelative"],
+        ["xpath=//div[2]/div[2]/div/div/div/div", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "b31aed90-bbfd-463e-bea8-8fcec6602118",
+      "comment": "verify that everything is deactivated",
+      "command": "verifyText",
+      "target": "id=chosen_set",
+      "targets": [
+        ["id=chosen_set", "id"],
+        ["css=#chosen_set", "css:finder"],
+        ["xpath=//div[@id='chosen_set']", "xpath:attributes"],
+        ["xpath=//div[@id='all_set']/div/div", "xpath:idRelative"],
+        ["xpath=//div/div[5]/div[2]/div/div/div", "xpath:position"]
+      ],
+      "value": "Activated0"
+    }, {
+      "id": "89126bd7-9d58-415b-add0-529908f4b5ad",
+      "comment": "disengage the All set by clicking it",
+      "command": "click",
+      "target": "css=#all_set > .treepicker-label > .label",
+      "targets": [
+        ["css=#all_set > .treepicker-label > .label", "css:finder"],
+        ["xpath=//div[@id='all_set']/p/span", "xpath:idRelative"],
+        ["xpath=//div[2]/div/p/span", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "85c2ab44-d7ec-412d-8b28-5c2818ace572",
+      "comment": "verify nextcommand shows neither verb nor object are engaged",
+      "command": "verifyText",
+      "target": "css=.nextcommand",
+      "targets": [
+        ["css=.nextcommand", "css:finder"],
+        ["xpath=//div[@id='gclui_h5l9knwa62']/div/div/div/div[3]/div[2]", "xpath:idRelative"],
+        ["xpath=//div[3]/div[2]", "xpath:position"]
+      ],
+      "value": "VERB SET/SELECTION"
+    }]
+  }],
+  "suites": [{
+    "id": "f670e71e-8964-4123-a606-4f3022e54020",
+    "name": "Default Suite",
+    "persistSession": false,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["ba9e25c3-0d13-4218-9ea0-dfc330ef4d11"]
+  }],
+  "urls": ["http://localhost:5000/"],
+  "plugins": []
+}
