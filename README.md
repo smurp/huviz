@@ -18,7 +18,7 @@ other sites as a visualizer for their graph content.
 ## Deployments
 
 * [Production](https://huviz.lincsproject.ca/)
-* [Classic](https://huviz-classis.lincsproject.ca/)
+* [Classic](https://huviz-classic.lincsproject.ca/) (in coffeescript, using D3v3)
 
 ## Papers and Presentations Mentioning HuViz
 * [Software Integration in the Digital Humanities](https://www.canarie.ca/wp-content/uploads/16-Brown-Ilovan.pdf)
