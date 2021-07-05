@@ -111,20 +111,36 @@ The Verbs are the operations which move nodes between the various sets, ie sets 
 ## Running the server during development
 
     npm run watch
+    # watches for changes
+    # then runs build:*
+    # which creates a new lib/huviz.js
+    # which triggers restarting the server
 
-## Running CLI tests
+## Running Tests "Continuously"
 
-THIS IS CURRENTLY DISABLED during the decaffeination process.
-
+    # in one window be running
     npm run watch
 
-    # bail on first error
-    BAIL=1 npm run watchTest
+    # in another window run one of
+    npm run test # which runs unit tests and user tests once each
+    npm run watchTest # runs both unit tests and user tests whenever code changes
+    npm run watchTest:user # runs just user tests continuously
+    npm run watchTest:unit # runs just unit tests continuously
+    # prefixing the above with BAIL=1 stops test execution on first failure
+    BAIL=1 npm run test
 
-uses [https://www.npmjs.com/package/npm-watch](https://www.npmjs.com/package/npm-watch) and [https://www.npmjs.com/package/mocha](https://www.npmjs.com/package/mocha)
+## To create new user tests
+
+Install [Selenium-IDE](https://www.selenium.dev/selenium-ide/) and edit the file [test/user_tests.side](test/user_tests.side).
+
+Watch [Selenium IDE Demo A tutorial for beginners](https://www.youtube.com/watch?v=ZG3VFDMaAlk) (15min) or
+[Selenium IDE Tutorial For Beginners](https://www.youtube.com/watch?v=m4KpTvEz3vg) for a thorough (100min) tutorial.
+
+## To create new unit tests
+
+Add HuViz module unit tests in [test](test) using mocha and chai to match the existing style.
 
 ## Developing `quaff-lod`
-
 
 Run the auto build process while you are editing `src/quaff-lod-worker.js`
 

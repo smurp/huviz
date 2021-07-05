@@ -58,18 +58,19 @@
   "scripts": {
     "build": "npm-run-all --parallel build:*",
     "build:diag": "arkit -d src -o docs/huviz_system_diagram.svg > /dev/null",
-    "build:js": "rollup  -c",
+    "build:js": "rollup  -c # builds lib/huviz.js",
     "watch": "npm-run-all --parallel watch:*",
     "watch:dev": "onchange -i -k server.js lib/huviz.js package.json rollup.config.js -- npm run inspect",
     "watch:js": "onchange --await-write-finish 2000 'src/*.js' package.json -- npm run build",
-    "PAUSED:watch:test": "onchange 'lib/huviz.js' -- npm test",
     "inspect": "node --inspect=9227 server.js",
     "start": "node server.js --git_commit_hash `git log --format=\"%h\" -n 1` --git_branch_name `git rev-parse --abbrev-ref HEAD`",
     "test": "npm-run-all --parallel test:*",
     "test:unit": "mocha --reporter spec",
-    "test:user": "npx selenium-side-runner test/user_tests.side",
+    "test:user": "npx selenium-side-runner -c \"browserName=chrome goog:chromeOptions.args=[--headless,--nogpu]\" test/user_tests.side",
     "watchTest": "onchange -i -k server.js lib/huviz.js package.json test/* -- npm run test",
-    "watchTestFSM": "onchange -i -k server.js lib/huviz.js package.json test/* -- npm run test -- --grep FiniteState",
+    "watchTest:user": "onchange -i -k server.js lib/huviz.js package.json test/* -- npm run test:user",
+    "watchTest:unit": "onchange -i -k server.js lib/huviz.js package.json test/* -- npm run test:unit",
+    "watchTestFSM": "onchange -i -k server.js lib/huviz.js package.json test/* -- npm run test:unit -- --grep FiniteState",
     "DEPRECATED:buildSrcDocs": "npx docco -o srcdocs  server.coffee src/*.coffee | node bin/make_srcdocs_index.js > srcdocs/index.md && npx marked srcdocs/index.md > srcdocs/index.html"
   }
 }
