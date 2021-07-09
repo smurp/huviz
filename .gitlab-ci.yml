@@ -23,7 +23,7 @@ variables:
 # Override test job
 test:
   script:
-    - npm run test
+    - npm run test:unit
   needs:
     - build
 
