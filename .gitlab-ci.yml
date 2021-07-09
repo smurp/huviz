@@ -23,7 +23,7 @@ variables:
 # Override test job
 test:
   script:
-    - echo "placeholder for testing"
+    - npm run test
   needs:
     - build
 

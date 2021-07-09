@@ -122,10 +122,13 @@ The Verbs are the operations which move nodes between the various sets, ie sets 
     npm run watch
 
     # in another window run one of
-    npm run test # which runs unit tests and user tests once each
     npm run watchTest # runs both unit tests and user tests whenever code changes
     npm run watchTest:user # runs just user tests continuously
     npm run watchTest:unit # runs just unit tests continuously
+
+## Run all tests once (not continuously)
+
+    npm run test # starts a server and runs both user tests and unit tests
     # prefixing the above with BAIL=1 stops test execution on first failure
     BAIL=1 npm run test
 
