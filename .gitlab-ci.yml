@@ -28,6 +28,14 @@ test:
   needs:
     - build
 
+# Only rebuild node_modules if package.json changes
+cache:
+  key:
+    files:
+      - package.json
+  paths:
+    - node_modules
+
 # Template to override common deployment parameters
 .deployment: &deployment
   environment:
