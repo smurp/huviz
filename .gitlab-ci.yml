@@ -22,10 +22,20 @@ variables:
 
 # Override test job
 test:
+  image: node:14
   script:
-    - echo "placeholder for testing"
+    - npm install
+    - npm run test:unit
   needs:
     - build
+
+# Only rebuild node_modules if package.json changes
+cache:
+  key:
+    files:
+      - package.json
+  paths:
+    - node_modules
 
 # Template to override common deployment parameters
 .deployment: &deployment

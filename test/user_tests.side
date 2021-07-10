@@ -4,28 +4,38 @@
   "name": "user_tests",
   "url": "http://localhost:5000/",
   "tests": [{
-    "id": "ba9e25c3-0d13-4218-9ea0-dfc330ef4d11",
-    "name": "Activate All THEN Deactive THEN disengage",
+    "id": "906e9127-36f1-43f2-bd87-f68950df2ca3",
+    "name": "Activate All THEN Deactivate All should do that",
     "commands": [{
-      "id": "aab568fe-75b6-430c-86c6-671c7973d831",
+      "id": "e39b5771-0785-46de-989a-dc7bf34e5bfd",
       "comment": "",
       "command": "open",
       "target": "http://localhost:5000/#load+/data/foaf20140114.ttl+with+/data/owl_mini.ttl",
       "targets": [],
       "value": ""
     }, {
-      "id": "b66b92fc-f42d-46eb-9b55-390c05288b7e",
+      "id": "bbff5b31-d203-46d2-b4ea-f18ca10f16b8",
+      "comment": "wait until the commandhistory has settled SEE ISSUE 460",
+      "command": "waitForText",
+      "target": "css=.commandhistory",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "ffcaa4a9-622a-4480-954c-de8737307829",
       "comment": "verify nextcommand shows neither verb nor object are engaged",
-      "command": "verifyText",
+      "command": "//verifyText",
       "target": "css=.nextcommand",
-      "targets": [
-        ["css=.nextcommand", "css:finder"],
-        ["xpath=//div[@id='gclui_h5l9knwa62']/div/div/div/div[3]/div[2]", "xpath:idRelative"],
-        ["xpath=//div[3]/div[2]", "xpath:position"]
-      ],
+      "targets": [],
       "value": "VERB SET/SELECTION"
     }, {
-      "id": "86502bf8-f7e3-44e8-b1fa-600cbd2daaae",
+      "id": "a576e7fe-355d-4fa7-b776-afa686badffd",
+      "comment": "wait for the verbs to appear",
+      "command": "//waitForElementPresent",
+      "target": "id=verb-choose",
+      "targets": [],
+      "value": "30000"
+    }, {
+      "id": "cd3a1e5e-ba5c-44d7-a7ed-31e1422065f4",
       "comment": "engage Activate verb by clicking it",
       "command": "click",
       "target": "id=verb-choose",
@@ -38,7 +48,7 @@
       ],
       "value": ""
     }, {
-      "id": "f0799379-fd54-468b-9289-5891772626cf",
+      "id": "40edcd7c-19ea-4772-9cfe-4aa4adaf68f2",
       "comment": "complete the command \"Activate the All set\"",
       "command": "click",
       "target": "css=#all_set > .treepicker-label > .label",
@@ -49,7 +59,7 @@
       ],
       "value": ""
     }, {
-      "id": "0d9e3534-e588-4cdf-b547-3ecb2ba63f1f",
+      "id": "5d8d301c-d35f-4739-8efc-6b39cfac31bb",
       "comment": "verify that everything is activated",
       "command": "verifyText",
       "target": "id=chosen_set",
@@ -62,14 +72,14 @@
       ],
       "value": "Activated172"
     }, {
-      "id": "1c5701d3-fd44-4464-90f0-9fe57eaf7cb0",
+      "id": "1294b4ea-a8aa-4fe3-94b0-4c67d409ea61",
       "comment": "verify that the engaged noun_phrase remains 'the All set'",
-      "command": "verifyText",
+      "command": "//verifyText",
       "target": "css=.noun_phrase",
       "targets": [],
       "value": "the All set"
     }, {
-      "id": "73a3bd06-8f56-4282-b731-9e5918c148e1",
+      "id": "8621ab00-1abc-487b-a244-54117cbb1635",
       "comment": "complete the command \"Deactivate the All set\" by clicking the verb",
       "command": "click",
       "target": "id=verb-unchoose",
@@ -82,20 +92,14 @@
       ],
       "value": ""
     }, {
-      "id": "b31aed90-bbfd-463e-bea8-8fcec6602118",
+      "id": "1c513c27-9437-4181-88ae-4efdc1924592",
       "comment": "verify that everything is deactivated",
-      "command": "verifyText",
+      "command": "//verifyText",
       "target": "id=chosen_set",
-      "targets": [
-        ["id=chosen_set", "id"],
-        ["css=#chosen_set", "css:finder"],
-        ["xpath=//div[@id='chosen_set']", "xpath:attributes"],
-        ["xpath=//div[@id='all_set']/div/div", "xpath:idRelative"],
-        ["xpath=//div/div[5]/div[2]/div/div/div", "xpath:position"]
-      ],
+      "targets": [],
       "value": "Activated0"
     }, {
-      "id": "89126bd7-9d58-415b-add0-529908f4b5ad",
+      "id": "8182659b-2d65-4f7f-b2d8-3f887c85ff94",
       "comment": "disengage the All set by clicking it",
       "command": "click",
       "target": "css=#all_set > .treepicker-label > .label",
@@ -106,25 +110,267 @@
       ],
       "value": ""
     }, {
-      "id": "85c2ab44-d7ec-412d-8b28-5c2818ace572",
+      "id": "fec92f70-4636-45f1-bb24-30ffb52f20aa",
       "comment": "verify nextcommand shows neither verb nor object are engaged",
+      "command": "//verifyText",
+      "target": "css=.nextcommand",
+      "targets": [],
+      "value": "VERB SET/SELECTION"
+    }, {
+      "id": "185c67fc-9258-4a1d-ad40-5a5a00ec8f5d",
+      "comment": "",
+      "command": "close",
+      "target": "",
+      "targets": [],
+      "value": ""
+    }]
+  }, {
+    "id": "53ce1e75-a2a0-461a-9dd0-a6ab8aad3341",
+    "name": "Activate All should make All Activated",
+    "commands": [{
+      "id": "bca40bb9-a3da-47b9-bdf2-2d352dfcd772",
+      "comment": "",
+      "command": "open",
+      "target": "http://localhost:5000/#load+/data/foaf20140114.ttl+with+/data/owl_mini.ttl",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "d6700b29-779a-4361-9ff0-c46a8bf48ba6",
+      "comment": "verify nextcommand shows neither verb nor object are engaged",
+      "command": "//verifyText",
+      "target": "css=.nextcommand",
+      "targets": [],
+      "value": "VERB SET/SELECTION"
+    }, {
+      "id": "e46b0894-1729-4e68-8c65-ad025bff6e7a",
+      "comment": "engage Activate verb by clicking it",
+      "command": "click",
+      "target": "id=verb-choose",
+      "targets": [
+        ["id=verb-choose", "id"],
+        ["css=#verb-choose", "css:finder"],
+        ["xpath=//div[@id='verb-choose']", "xpath:attributes"],
+        ["xpath=//div[@id='gclui_0h0xxn3oqq']/div/div[2]/div[2]/div/div/div/div", "xpath:idRelative"],
+        ["xpath=//div[2]/div[2]/div/div/div/div", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "b19f6fb7-c2f8-4016-b0f0-a11bf0a6f46f",
+      "comment": "complete the command \"Activate the All set\"",
+      "command": "click",
+      "target": "css=#all_set > .treepicker-label > .label",
+      "targets": [
+        ["css=#all_set > .treepicker-label > .label", "css:finder"],
+        ["xpath=//div[@id='all_set']/p/span", "xpath:idRelative"],
+        ["xpath=//div[2]/div/p/span", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "aab828f4-8d2d-4048-b7af-4d75d9c38514",
+      "comment": "verify that everything is activated",
+      "command": "verifyText",
+      "target": "id=chosen_set",
+      "targets": [
+        ["id=chosen_set", "id"],
+        ["css=#chosen_set", "css:finder"],
+        ["xpath=//div[@id='chosen_set']", "xpath:attributes"],
+        ["xpath=//div[@id='all_set']/div/div", "xpath:idRelative"],
+        ["xpath=//div/div[5]/div[2]/div/div/div", "xpath:position"]
+      ],
+      "value": "Activated172"
+    }, {
+      "id": "cdfe8396-cf94-4b93-a389-bc93a99b53ca",
+      "comment": "verify that the engaged noun_phrase remains 'the All set'",
+      "command": "//verifyText",
+      "target": "css=.noun_phrase",
+      "targets": [],
+      "value": "the All set"
+    }, {
+      "id": "f1e766ec-1898-4d67-bba4-a24484e92b95",
+      "comment": "complete the command \"Deactivate the All set\" by clicking the verb",
+      "command": "click",
+      "target": "id=verb-unchoose",
+      "targets": [
+        ["id=verb-choose", "id"],
+        ["css=#verb-choose", "css:finder"],
+        ["xpath=//div[@id='verb-choose']", "xpath:attributes"],
+        ["xpath=//div[@id='gclui_0h0xxn3oqq']/div/div[2]/div[2]/div/div/div/div", "xpath:idRelative"],
+        ["xpath=//div[2]/div[2]/div/div/div/div", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "4db8f31b-5f83-48d5-a12f-3eef93b22fe8",
+      "comment": "verify that everything is deactivated",
+      "command": "//verifyText",
+      "target": "id=chosen_set",
+      "targets": [],
+      "value": "Activated0"
+    }, {
+      "id": "ada9d648-14d7-4a06-948f-9447305d3053",
+      "comment": "disengage the All set by clicking it",
+      "command": "click",
+      "target": "css=#all_set > .treepicker-label > .label",
+      "targets": [
+        ["css=#all_set > .treepicker-label > .label", "css:finder"],
+        ["xpath=//div[@id='all_set']/p/span", "xpath:idRelative"],
+        ["xpath=//div[2]/div/p/span", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "5741caf2-8981-4ca2-8183-35de66567676",
+      "comment": "verify nextcommand shows neither verb nor object are engaged",
+      "command": "//verifyText",
+      "target": "css=.nextcommand",
+      "targets": [],
+      "value": "VERB SET/SELECTION"
+    }]
+  }, {
+    "id": "deabc909-0b5e-4f52-9a10-2e1ac37170e1",
+    "name": "Activate All should make All Activated (1)",
+    "commands": [{
+      "id": "1bea6f53-4047-4251-baeb-56e95d67a822",
+      "comment": "",
+      "command": "open",
+      "target": "http://localhost:5000/#load+/data/foaf20140114.ttl+with+/data/owl_mini.ttl",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "a5aa60b6-1ce6-423d-873c-13f3b670d978",
+      "comment": "verify nextcommand shows neither verb nor object are engaged",
+      "command": "//verifyText",
+      "target": "css=.nextcommand",
+      "targets": [],
+      "value": "VERB SET/SELECTION"
+    }, {
+      "id": "5653f5f4-f827-4aa6-800e-21b661a9420a",
+      "comment": "engage Activate verb by clicking it",
+      "command": "click",
+      "target": "id=verb-choose",
+      "targets": [
+        ["id=verb-choose", "id"],
+        ["css=#verb-choose", "css:finder"],
+        ["xpath=//div[@id='verb-choose']", "xpath:attributes"],
+        ["xpath=//div[@id='gclui_0h0xxn3oqq']/div/div[2]/div[2]/div/div/div/div", "xpath:idRelative"],
+        ["xpath=//div[2]/div[2]/div/div/div/div", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "346f64b1-fffe-4888-a5b8-b4512a716cc5",
+      "comment": "complete the command \"Activate the All set\"",
+      "command": "click",
+      "target": "css=#all_set > .treepicker-label > .label",
+      "targets": [
+        ["css=#all_set > .treepicker-label > .label", "css:finder"],
+        ["xpath=//div[@id='all_set']/p/span", "xpath:idRelative"],
+        ["xpath=//div[2]/div/p/span", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "ee465306-a90f-40fd-9528-cf37e0210100",
+      "comment": "verify that everything is activated",
+      "command": "verifyText",
+      "target": "id=chosen_set",
+      "targets": [
+        ["id=chosen_set", "id"],
+        ["css=#chosen_set", "css:finder"],
+        ["xpath=//div[@id='chosen_set']", "xpath:attributes"],
+        ["xpath=//div[@id='all_set']/div/div", "xpath:idRelative"],
+        ["xpath=//div/div[5]/div[2]/div/div/div", "xpath:position"]
+      ],
+      "value": "Activated172"
+    }, {
+      "id": "2420a987-eee8-46d7-8e2a-06c59ca64cbc",
+      "comment": "verify that the engaged noun_phrase remains 'the All set'",
+      "command": "//verifyText",
+      "target": "css=.noun_phrase",
+      "targets": [],
+      "value": "the All set"
+    }, {
+      "id": "2f96b741-b669-4ddc-b345-e17cf9317f34",
+      "comment": "complete the command \"Deactivate the All set\" by clicking the verb",
+      "command": "click",
+      "target": "id=verb-unchoose",
+      "targets": [
+        ["id=verb-choose", "id"],
+        ["css=#verb-choose", "css:finder"],
+        ["xpath=//div[@id='verb-choose']", "xpath:attributes"],
+        ["xpath=//div[@id='gclui_0h0xxn3oqq']/div/div[2]/div[2]/div/div/div/div", "xpath:idRelative"],
+        ["xpath=//div[2]/div[2]/div/div/div/div", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "46aa6f8c-d0d2-44bf-a6f3-5a0de3bfe4fd",
+      "comment": "verify that everything is deactivated",
+      "command": "//verifyText",
+      "target": "id=chosen_set",
+      "targets": [],
+      "value": "Activated0"
+    }, {
+      "id": "fcfa24ab-e859-4b91-8577-a181ca6a8069",
+      "comment": "disengage the All set by clicking it",
+      "command": "click",
+      "target": "css=#all_set > .treepicker-label > .label",
+      "targets": [
+        ["css=#all_set > .treepicker-label > .label", "css:finder"],
+        ["xpath=//div[@id='all_set']/p/span", "xpath:idRelative"],
+        ["xpath=//div[2]/div/p/span", "xpath:position"]
+      ],
+      "value": ""
+    }, {
+      "id": "c1602d6d-504d-46d5-a234-39ea2ab3dc3f",
+      "comment": "verify nextcommand shows neither verb nor object are engaged",
+      "command": "//verifyText",
+      "target": "css=.nextcommand",
+      "targets": [],
+      "value": "VERB SET/SELECTION"
+    }]
+  }, {
+    "id": "85ee9ae8-b19a-47e6-be0d-ac3132bd09ce",
+    "name": "Nothing should show empty verb and object phrases",
+    "commands": [{
+      "id": "be7b298e-1086-4691-9c81-fad496391ff5",
+      "comment": "",
+      "command": "open",
+      "target": "http://localhost:5000/#load+/data/foaf20140114.ttl+with+/data/owl_mini.ttl",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "79f6625a-2b77-4910-ace1-c7d5eb4f2987",
+      "comment": "wait until the commandhistory has settled SEE ISSUE 460",
+      "command": "waitForText",
+      "target": "css=.commandhistory",
+      "targets": [],
+      "value": ""
+    }, {
+      "id": "b108a9d9-c6b9-4f0a-9534-5c8308c27712",
+      "comment": "",
+      "command": "waitForText",
+      "target": "css=.nextcommand",
+      "targets": [],
+      "value": "VERB SET/SELECTION ."
+    }, {
+      "id": "c786e300-b661-4c08-a568-9951b0ffbd92",
+      "comment": "",
       "command": "verifyText",
       "target": "css=.nextcommand",
-      "targets": [
-        ["css=.nextcommand", "css:finder"],
-        ["xpath=//div[@id='gclui_h5l9knwa62']/div/div/div/div[3]/div[2]", "xpath:idRelative"],
-        ["xpath=//div[3]/div[2]", "xpath:position"]
-      ],
-      "value": "VERB SET/SELECTION"
+      "targets": [],
+      "value": "VERB SET/SELECTION ."
+    }, {
+      "id": "4ff66b5a-4fa7-48b9-a256-d350c01e6022",
+      "comment": "",
+      "command": "close",
+      "target": "",
+      "targets": [],
+      "value": ""
     }]
   }],
   "suites": [{
     "id": "f670e71e-8964-4123-a606-4f3022e54020",
-    "name": "Operations in the commands tab",
+    "name": "Engaging",
     "persistSession": false,
     "parallel": false,
     "timeout": 300,
-    "tests": ["ba9e25c3-0d13-4218-9ea0-dfc330ef4d11"]
+    "tests": ["85ee9ae8-b19a-47e6-be0d-ac3132bd09ce", "906e9127-36f1-43f2-bd87-f68950df2ca3"]
   }],
   "urls": ["http://localhost:5000/"],
   "plugins": []
