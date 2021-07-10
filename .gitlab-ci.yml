@@ -22,6 +22,7 @@ variables:
 
 # Override test job
 test:
+  image: node:16
   script:
     - npm run test:unit
   needs:
