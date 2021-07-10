@@ -24,6 +24,7 @@ variables:
 test:
   image: node:16
   script:
+    - npm install
     - npm run test:unit
   needs:
     - build
