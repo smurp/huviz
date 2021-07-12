@@ -12,8 +12,17 @@
   },
   "author": "Shawn Murphy <smurp@smurp.com> (http://smurp.com)",
   "contributors": [
-    "Wolf Maul",
+    "Alliyya Mo",
+    "Anna Costalonga <anna@heyclassic.com>",
+    "Illia Dorosh",
     "John Simpson <john.simpson@ualberta.ca>"
+    "Kim Martin",
+    "Kathleen McCulloch-Cop",
+    "Pieter Botha",
+    "Rashmeet Kaur",
+    "Samuel Aiudi-Murphy",
+    "Susan Brown",
+    "Wolf Maul"
   ],
   "type": "module",
   "main": "lib/huviz.js",
