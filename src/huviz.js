@@ -6378,7 +6378,8 @@ LIMIT ${node_limit}\
   }
 
   update_graph_radius() {
-    this.graph_region_radius = Math.floor(Math.min(this.width / 2, this.height / 2));
+    this.graph_region_radius = Math.floor(Math.min(this.width / 2,
+                                                   this.height / 2));
     this.graph_radius = this.graph_region_radius * this.shelf_radius;
   }
 
