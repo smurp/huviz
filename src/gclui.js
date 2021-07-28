@@ -1806,6 +1806,7 @@ of the classes indicated.`,
     // FIXME populate @the_sets from @huviz.selectable_sets
     var {style_of_set_picker} = this.huviz;
     var torque_the_sets = style_of_set_picker != 'classic';
+    var is_button_style = style_of_set_picker == 'buttons';
     //torque_the_sets = true;
     where = ((label != null) && this.control_label(label, where)) || this.comdiv;
     this.the_sets = { // TODO build this automatically from huviz.selectable_sets
@@ -1845,7 +1846,33 @@ of the classes indicated.`,
     this.populate_all_set_docs();
     this.make_sets_proposable();
     where.classed(`set_picker_box_parent ${style_of_set_picker}`,true);
+    if (is_button_style) {
+      this.scatter_set_buttons(where);
+    }
     return where;
+  }
+  scatter_set_buttons(where) {
+    var parentOfTemplate = where.node();
+    
+    parentOfTemplate.insertAdjacentHTML('beforeend',`
+<div class="setsAndVerbs">
+  <div class="sets">
+    <div class="pinned">
+HELLO WORLD
+    </div>
+    <div class="nameless">
+    </div>
+    <div class="pinned">
+    </div>
+  </div>
+</div>
+`);
+    var target = parentOfTemplate.querySelector('.nameless');
+    var theSetNodes = parentOfTemplate.querySelector('.container')
+    theSetNodes.forEach((aSetNode) => {
+      
+    });
+    console.log("BUTTON STYLE STUFF", {target, parentOfTemplate});
   }
   populate_all_set_docs() {
     for (let id in this.huviz.selectable_sets) {

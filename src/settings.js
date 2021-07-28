@@ -1072,7 +1072,7 @@ If zero before loading, then lookup is suppressed.`
         {
           label: "Classic"
           , value: "classic"
-          , selected: true
+
         }
         , {
           label: "Canted (alpha)"
@@ -1087,7 +1087,6 @@ If zero before loading, then lookup is suppressed.`
         , {
           label: "Horizontal (pre-alpha)"
           , value: "horiz-sets"
-          
         }
         , {
           label: "Tipped (alpha)"
@@ -1095,9 +1094,9 @@ If zero before loading, then lookup is suppressed.`
 
         }
         , {
-          label: "Torqued (alpha)"
-          , value: "torqued"
-
+          label: "Buttons (alpha)"
+          , value: "buttons"
+          , selected: true
         }
       ]
     }
