@@ -36,9 +36,14 @@ export class TreePicker {
   }
   constructor(elem, root, extra_classes, needs_expander, use_name_as_label, squash_case_during_sort, style_context_selector) {
     // The @style_context_selector is only really needed by colortreepicker
+    if(elem.node){
+      elem = elem.node();
+    }
+    //not circular -- ensuring treepicker.xfunction is bound to the right 'this' if called externally
     this.click_handler = this.click_handler.bind(this);
     this.handle_click = this.handle_click.bind(this);
     this.onChangeState = this.onChangeState.bind(this);
+
     this.elem = elem;
     this.needs_expander = needs_expander;
     this.use_name_as_label = use_name_as_label;
@@ -72,15 +77,15 @@ export class TreePicker {
     this.set_abstract('root'); // FIXME duplication?!?
   }
   get_my_id() {
-    return this.elem.attr("id");
+    return this.elem.getAttribute("id");
   }
+  //makes the treepicker unselectable and makes it available for styling through shield class
   shield() {
     if (!this._shield) {
-      d3.select(this.elem.node()).style('position','relative');
-      this._shield = d3.select(this.elem.node()).insert('div');
-      this._shield.classed('shield',true);
+      this.elem.setAttribute('position', 'relative')
+      this._shield = this.elem.insertAdjacentHTML(`<div class="shield"></div>`);
     }
-    const rect = d3.select(this.elem.node()).node().getBoundingClientRect();
+    const rect = this.elem.getBoundingClientRect();
     const styles = {
       display: 'block',
       width: `${rect.width}px`,
@@ -113,7 +118,7 @@ export class TreePicker {
   }
   get_container_elem_within_id(an_id) {
     // the div with class='container' holding class='contents' divs
-    const content_elem = this.id_to_elem[an_id].node();
+    const content_elem = this.id_to_elem[an_id];
     return content_elem.querySelector('.container');
   }
   resort_recursively(an_id) {
@@ -128,7 +133,7 @@ export class TreePicker {
     for (let child_id of kids_ids) {
       this.resort_recursively(child_id);
       const val = this.get_comparison_value(child_id, this.id_to_name[child_id]);
-      child_elem = this.id_to_elem[child_id].node();
+      child_elem = this.id_to_elem[child_id];
       this.update_label_for_node(child_id, child_elem);
       val_elem_pairs.push([val, child_elem]);
     }
@@ -165,21 +170,23 @@ export class TreePicker {
   }
   add_alphabetically(i_am_in, node_id, label) {
     const label_lower = label.toLowerCase();
-    const container = i_am_in.node();
+    const container = i_am_in;
     const this_term = this.get_comparison_value(node_id, label);
+    //D3: -- throwing type error that children are undefined, seems to be a d3 element
+    //need to trace i_am_in stuff to understand where it is being created (believe that's in gclui)
     for (let elem of container.children) {
       const other_term = this.get_comparison_value(elem.id, this.id_to_name[elem.id]);
       if (other_term > this_term) {
-        return this.add_to_elem_before(i_am_in, node_id, "#"+elem.id, label);
+        return this.add_to_elem_before(i_am_in, node_id, elem, label);
       }
     }
     // fall through and append if it comes before nothing
     return this.add_to_elem_before(i_am_in, node_id, undefined, label);
   }
+
   add_to_elem_before(i_am_in, node_id, before, label) {
-    return i_am_in.insert('div', before). // insert just appends if before is undef
-        attr('class','contents').
-        attr('id',node_id);
+    before.insertAdjacentHTML('beforebegin', `<div class="contents" id="${node_id}"></div>`);
+    return before.querySelector(`#${node_id}`);
   }
   show_tree(tree, i_am_in, listener, top) {
     // http://stackoverflow.com/questions/14511872
@@ -195,6 +202,7 @@ export class TreePicker {
       const contents_of_me = this.add_alphabetically(i_am_in, node_id, label);
       this.id_to_elem[node_id] = contents_of_me;
       const picker = this;
+      //D3: dependency to unravel (seems like insertAdjacentHTML of p beforeend )
       contents_of_me.on('click', this.click_handler);
       contents_of_me.append("p").attr("class", "treepicker-label").
         append('span').attr('class','label').text(label);
@@ -209,18 +217,16 @@ export class TreePicker {
       }
     }
   }
+  //D3: needs work for removing d3 dependency for d3.event.target
   click_handler() {
     const picker = this;
     let elem = d3.select(d3.event.target);
     d3.event.stopPropagation();
-    let {
-      id
-    } = elem.node();
+    let {id} = elem;
     while (!id) {
-      elem = d3.select(elem.node().parentElement);
-      ({
-        id
-      } = elem.node());
+      elem = elem.parentElement;
+      //reassigning id
+      {id} = elem;
     }
     picker.handle_click(id); //, send_leafward)
     // This is hacky but ColorTreePicker.click_handler() needs the id too
@@ -235,9 +241,11 @@ export class TreePicker {
     if (!elem) {
       throw new Error(`elem for '${id}' not found`);
     }
+    //D3: need to change to elem.setAttribute('class', 'x')
     const is_treepicker_collapsed = elem.classed('treepicker-collapse');
     const is_treepicker_showing = elem.classed('treepicker-showing');
     const is_treepicker_indirect_showing = elem.classed('treepicker-indirect-showing');
+
     // If the state is not 'showing' then make it so, otherwise 'unshowing'.
     // if it is not currently showing.
     let new_state = 'showing';
@@ -277,6 +285,7 @@ export class TreePicker {
       listener.call(this, id, new_state, elem, args); // now this==picker not the event
     }
   }
+  //D3 dependency
   get_or_create_container(contents) {
     const r = contents.select(".container");
     if (r.node() !== null) {
@@ -314,6 +323,7 @@ export class TreePicker {
     branch[new_id] = [name || new_id];
     this.id_to_name[new_id] = name;
     const parent = this.id_to_elem[parent_id] || this.elem;
+    //D3 dependency
     const container = d3.select(this.get_or_create_container(parent).node());
     if (this.needs_expander) {
       this.get_or_create_expander(parent,parent_id);
@@ -323,10 +333,12 @@ export class TreePicker {
   }
   get_or_create_expander(thing, id) {
     if ((thing != null) && thing) {
+      //D3 dependency
       const r = thing.select(".expander");
       if (r.node() !== null) {
         return r;
       }
+      //D3 dependency
       const exp = thing.select(".treepicker-label").
           append('span').
           classed("expander", true).
@@ -347,11 +359,12 @@ export class TreePicker {
       });
     }
   }
+
   collapse_by_id(id) {
     this.id_is_collapsed[id] = true;
     const elem = this.id_to_elem[id];
     elem.classed("treepicker-collapse", true);
-    const exp = elem.select(".expander");
+    const exp = elem.select(".expander"); //D3 dependency
     exp.text(this.expander_str);
     this.update_payload_by_id(id);
   }
@@ -359,7 +372,7 @@ export class TreePicker {
     this.id_is_collapsed[id] = false;
     const elem = this.id_to_elem[id];
     elem.classed("treepicker-collapse", false);
-    const exp = elem.select(".expander");
+    const exp = elem.select(".expander"); //D3 dependency
     exp.text(this.collapser_str);
     this.update_payload_by_id(id);
   }
@@ -373,12 +386,12 @@ export class TreePicker {
   }
   get_or_create_payload(thing) {
     if ((thing != null) && thing) {
-      const thing_id = thing.node().id;
-      const r = thing.select(`#${thing_id} > .treepicker-label > .payload`);
+      const thing_id = thing.node().id; //D3 dependency
+      const r = thing.select(`#${thing_id} > .treepicker-label > .payload`); //D3 dependency
       if (r.node() !== null) {
         return r;
       }
-      thing.select(".treepicker-label").append('span').classed("payload", true);
+      thing.select(".treepicker-label").append('span').classed("payload", true); //D3 dependency
     }
   }
   set_payload(id, value) {
@@ -399,7 +412,7 @@ export class TreePicker {
   set_title(id, title) {
     const elem = this.id_to_elem[id];
     if (elem != null) {
-      elem.attr("title", title);
+      elem.attr("title", title); //D3 dependency
     }
   }
   set_direct_state(id, state, old_state) {
@@ -413,10 +426,10 @@ export class TreePicker {
       return;
     }
     if (old_state != null) {
-      elem.classed(`treepicker-${old_state}`, false);
+      elem.classed(`treepicker-${old_state}`, false); //D3 dependency
     }
     if (state != null) {
-      elem.classed(`treepicker-${state}`, true);
+      elem.classed(`treepicker-${state}`, true); //D3 dependency
     }
   }
   set_indirect_state(id, state, old_state) {
@@ -434,10 +447,10 @@ export class TreePicker {
       return;
     }
     if (old_state != null) {
-      elem.classed(`treepicker-indirect-${old_state}`,false);
+      elem.classed(`treepicker-indirect-${old_state}`,false);//D3 dependency
     }
     if (state != null) {
-      elem.classed(`treepicker-indirect-${state}`,true);
+      elem.classed(`treepicker-indirect-${state}`,true);//D3 dependency
     }
   }
   set_both_states_by_id(id, direct_state, indirect_state, old_state, old_indirect_state) {
