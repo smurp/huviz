@@ -29,6 +29,24 @@ Possible Bug: it appears that <div class="container" id="classes"> has a redunda
 
 import {uniquer} from './uniquer.js'; // TODO convert to module
 
+/*
+  This method is intended to replace D3 constructions like:
+      const d3elem = thing.select(".treepicker-label")
+      const exp = d3elem.
+          append('span').
+          classed("expander", true).
+          text(this.collapser_str);
+   with
+       const domElem = thing.querySelector(".treepicker-label")
+       const exp = append_html_to(
+           `<span class="expander">${this.collapser_str}</span>`,
+           domElem);
+*/
+function append_html_to(html, elem) {
+  elem.insertAdjacentHTML('beforeend', html);
+  return elem.children[elem.children.length - 1]
+}
+
 export class TreePicker {
   static initClass() {
     this.prototype.collapser_str = "▼"; // 0x25bc
@@ -185,8 +203,12 @@ export class TreePicker {
   }
 
   add_to_elem_before(i_am_in, node_id, before, label) {
-    before.insertAdjacentHTML('beforebegin', `<div class="contents" id="${node_id}"></div>`);
-    return before.querySelector(`#${node_id}`);
+    before = before || i_am_in;
+    before.insertAdjacentHTML(
+      'beforebegin',
+      `<div class="contents" id="${node_id}"></div>`);
+    let find_node_in = i_am_in.parentNode; // look far enough out
+    return find_node_in.querySelector('#'+node_id);
   }
   show_tree(tree, i_am_in, listener, top) {
     // http://stackoverflow.com/questions/14511872
@@ -203,14 +225,15 @@ export class TreePicker {
       this.id_to_elem[node_id] = contents_of_me;
       const picker = this;
       //D3: dependency to unravel (seems like insertAdjacentHTML of p beforeend )
-      contents_of_me.on('click', this.click_handler);
-      contents_of_me.append("p").attr("class", "treepicker-label").
-        append('span').attr('class','label').text(label);
+      contents_of_me.addEventListener('click', this.click_handler);
+      contents_of_me.insertAdjacentHTML(
+        'afterend',
+        `<p class="treepicker-label"><span class="label">${label}</span></p>`);
       if (rest.length > 1) {
         const my_contents = this.get_or_create_container(contents_of_me);
         if (top && this.extra_classes) {
           for (let css_class of this.extra_classes) {
-            my_contents.classed(css_class, true);
+            my_contents.classList.add(css_class)
           }
         }
         this.show_tree(rest[1], my_contents, listener, false);
@@ -225,8 +248,7 @@ export class TreePicker {
     let {id} = elem;
     while (!id) {
       elem = elem.parentElement;
-      //reassigning id
-      {id} = elem;
+      id = elem.id;
     }
     picker.handle_click(id); //, send_leafward)
     // This is hacky but ColorTreePicker.click_handler() needs the id too
@@ -242,9 +264,10 @@ export class TreePicker {
       throw new Error(`elem for '${id}' not found`);
     }
     //D3: need to change to elem.setAttribute('class', 'x')
-    const is_treepicker_collapsed = elem.classed('treepicker-collapse');
-    const is_treepicker_showing = elem.classed('treepicker-showing');
-    const is_treepicker_indirect_showing = elem.classed('treepicker-indirect-showing');
+    const cl = elem.classList;
+    const is_treepicker_collapsed = cl.contains('treepicker-collapse');
+    const is_treepicker_showing = cl.contains('treepicker-showing');
+    const is_treepicker_indirect_showing = cl.contains('treepicker-indirect-showing');
 
     // If the state is not 'showing' then make it so, otherwise 'unshowing'.
     // if it is not currently showing.
@@ -287,11 +310,11 @@ export class TreePicker {
   }
   //D3 dependency
   get_or_create_container(contents) {
-    const r = contents.select(".container");
-    if (r.node() !== null) {
+    const r = contents.querySelector(".container");
+    if (r !== null) {
       return r;
     }
-    return contents.append('div').attr('class','container');
+    return append_html_to(`<div class="container"></div>`, contents);
   }
   get_top() {
     return this.ids_in_arrival_order[0] || this.id;
@@ -334,15 +357,22 @@ export class TreePicker {
   get_or_create_expander(thing, id) {
     if ((thing != null) && thing) {
       //D3 dependency
-      const r = thing.select(".expander");
-      if (r.node() !== null) {
+      const r = thing.querySelector(".expander");
+      if (r !== null) {
         return r;
       }
+
+      const domElem = thing.querySelector(".treepicker-label")
+      const exp = append_html_to(
+          `<span class="expander">${this.collapser_str}</span>`,
+          domElem);
+      /*
       //D3 dependency
       const exp = thing.select(".treepicker-label").
           append('span').
           classed("expander", true).
           text(this.collapser_str);
+      */
       this.id_is_collapsed[id] = false;
       const picker = this;
       return exp.on('click', () => { // TODO: make this function a method on the class
@@ -363,17 +393,17 @@ export class TreePicker {
   collapse_by_id(id) {
     this.id_is_collapsed[id] = true;
     const elem = this.id_to_elem[id];
-    elem.classed("treepicker-collapse", true);
-    const exp = elem.select(".expander"); //D3 dependency
-    exp.text(this.expander_str);
+    elem.classList.add("treepicker-collapse");
+    const exp = elem.querySelector(".expander");
+    exp.innerText = this.expander_str;
     this.update_payload_by_id(id);
   }
   expand_by_id(id) {
     this.id_is_collapsed[id] = false;
     const elem = this.id_to_elem[id];
-    elem.classed("treepicker-collapse", false);
-    const exp = elem.select(".expander"); //D3 dependency
-    exp.text(this.collapser_str);
+    elem.classList.remove("treepicker-collapse");
+    const exp = elem.querySelector(".expander");
+    exp.innerText = this.collapser_str;
     this.update_payload_by_id(id);
   }
   expand_all() {
@@ -386,12 +416,14 @@ export class TreePicker {
   }
   get_or_create_payload(thing) {
     if ((thing != null) && thing) {
-      const thing_id = thing.node().id; //D3 dependency
-      const r = thing.select(`#${thing_id} > .treepicker-label > .payload`); //D3 dependency
-      if (r.node() !== null) {
+      const thing_id = thing.id;
+      const r = thing.querySelector(`#${thing_id} > .treepicker-label > .payload`);
+      if (r !== null) {
         return r;
       }
-      thing.select(".treepicker-label").append('span').classed("payload", true); //D3 dependency
+      append_html_to(
+        `<span class="payload"></span>`,
+        thing.querySelector(".treepicker-label"));
     }
   }
   set_payload(id, value) {
@@ -412,7 +444,7 @@ export class TreePicker {
   set_title(id, title) {
     const elem = this.id_to_elem[id];
     if (elem != null) {
-      elem.attr("title", title); //D3 dependency
+      elem.setAttribute("title", title);
     }
   }
   set_direct_state(id, state, old_state) {
@@ -426,10 +458,10 @@ export class TreePicker {
       return;
     }
     if (old_state != null) {
-      elem.classed(`treepicker-${old_state}`, false); //D3 dependency
+      elem.classList.remove(`treepicker-${old_state}`);
     }
     if (state != null) {
-      elem.classed(`treepicker-${state}`, true); //D3 dependency
+      elem.classList.add(`treepicker-${state}`);
     }
   }
   set_indirect_state(id, state, old_state) {
@@ -447,10 +479,10 @@ export class TreePicker {
       return;
     }
     if (old_state != null) {
-      elem.classed(`treepicker-indirect-${old_state}`,false);//D3 dependency
+      elem.classList.remove(`treepicker-indirect-${old_state}`)
     }
     if (state != null) {
-      elem.classed(`treepicker-indirect-${state}`,true);//D3 dependency
+      elem.classList.add(`treepicker-indirect-${state}`)
     }
   }
   set_both_states_by_id(id, direct_state, indirect_state, old_state, old_indirect_state) {

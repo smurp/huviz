@@ -766,11 +766,17 @@ of the classes indicated.`,
     const where = (
       (label != null) &&
         this.control_label(label,parent,title)) || this.comdiv;
-    console.log("where",where.node().outerHTML)
-    where.classed('predicate_picker_box_parent',true)
+    where = where.node()
+    console.log("where",where.outerHTML)
+    where.classList.add('predicate_picker_box_parent')
+    where.insertAdjacentHTML('beforeend',`<div class="container" id="${this.predicates_id}"></div>`)
+    this.predicatebox = where.children[where.children.length - 1] // find the added div
+    /*
     this.predicatebox = where.append('div')
         .classed('container', true)
-        .attr('id', this.predicates_id);
+        .attr('id', this.predicates_id)
+        .node(); // construct using D3 then convert to DOM node
+    */
     //@predicatebox.attr('class','scrolling')
     this.predicates_ignored = [];
     this.predicate_picker = new ColoredTreePicker(
@@ -1838,7 +1844,7 @@ of the classes indicated.`,
     }
     this.set_picker_box = where.append('div')
         .classed('container',true)
-        .attr('id', 'sets');
+        .attr('id', 'sets').node();   // add the div using D3 but then send the DOM node
     this.set_picker = new TreePicker(
       this.set_picker_box, 'all', ['treepicker-vertical']);
     this.set_picker.click_listener = this.handle_on_set_picked;
