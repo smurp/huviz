@@ -22,6 +22,11 @@ import {ColoredTreePicker} from './coloredtreepicker.js';
 import {TreePicker} from './treepicker.js';
 import {QueryManager} from './querymanager.js';
 
+function append_html_to(html, elem) {
+  elem.insertAdjacentHTML('beforeend', html);
+  return elem.children[elem.children.length - 1]
+}
+
 export class CommandController {
   static initClass() {
       //,
@@ -803,7 +808,7 @@ of the classes indicated.`,
   }
   make_predicate_proposable(pred_lid) {
     const predicate_ctl = this.predicate_picker.id_to_elem[pred_lid];
-    predicate_ctl.on('mouseenter', () => {
+    predicate_ctl.addEventListener('mouseenter', () => {
       const every = !!this.predicate_picker.id_is_collapsed[pred_lid];
       const nextStateArgs = this.predicate_picker.get_next_state_args(pred_lid);
       if (nextStateArgs.new_state === 'showing') {
@@ -815,7 +820,7 @@ of the classes indicated.`,
       this.regarding_every = !!this.predicate_picker.id_is_collapsed[pred_lid];
       const ready = this.prepare_command(this.build_command());
     });
-    predicate_ctl.on('mouseleave', () => {
+    predicate_ctl.addEventListener('mouseleave', () => {
       this.proposed_verb = null;
       this.regarding = null;
       this.prepare_command(this.build_command());
@@ -893,7 +898,7 @@ of the classes indicated.`,
   }
   make_taxon_proposable(taxon_id) {
     const taxon_ctl = this.taxon_picker.id_to_elem[taxon_id];
-    taxon_ctl.on('mouseenter', evt => {
+    taxon_ctl.addEventListener('mouseenter', evt => {
       //evt.stopPropagation()
       // REVIEW consider @taxon_picker.get_next_state_args(taxon_id) like make_predicate_proposable()
       this.proposed_taxon = taxon_id;
@@ -909,7 +914,7 @@ of the classes indicated.`,
       //console.log(@proposed_verb, @proposed_taxon)
       const ready = this.prepare_command(this.build_command());
     });
-    taxon_ctl.on('mouseleave', evt => {
+    taxon_ctl.addEventListener('mouseleave', evt => {
       this.proposed_taxon = null;
       this.proposed_verb = null;
       const ready = this.prepare_command(this.build_command());
@@ -1876,7 +1881,7 @@ HELLO WORLD
     var target = parentOfTemplate.querySelector('.nameless');
     var theSetNodes = parentOfTemplate.querySelector('.container')
     theSetNodes.forEach((aSetNode) => {
-      
+      // move the set to a place in the template
     });
     console.log("BUTTON STYLE STUFF", {target, parentOfTemplate});
   }
