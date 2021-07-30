@@ -135,7 +135,7 @@ ${ctxSel}#${id}.treepicker-indirect-mixed.treepicker-collapse {
     if (verbose) {
       console.log("RECOLOR");
     }
-    const branch = this.elem.node().children[0];
+    const branch = this.elem.children[0];
     this.recolor_recurse_DOM(retval, recursor, branch, "");
     return retval;
   }

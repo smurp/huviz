@@ -349,7 +349,7 @@ export class TreePicker {
     this.id_to_name[new_id] = name;
     const parent = this.id_to_elem[parent_id] || this.elem;
     //D3 dependency
-    const container = d3.select(this.get_or_create_container(parent).node());
+    const container = this.get_or_create_container(parent);
     if (this.needs_expander) {
       this.get_or_create_expander(parent,parent_id);
     }
