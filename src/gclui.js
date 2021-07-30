@@ -763,7 +763,7 @@ of the classes indicated.`,
       "Faint color: no edges are shown -- click to show all\n" +
       "Stripey color: some edges shown -- click to show all\n" +
       "Hidden: no edges among the selected nodes";
-    const where = (
+    let where = (
       (label != null) &&
         this.control_label(label,parent,title)) || this.comdiv;
     where = where.node()
@@ -1891,11 +1891,11 @@ HELLO WORLD
   make_sets_proposable() {
     const make_listeners = (id, a_set) => { // fat arrow carries this to @
       const set_ctl = this.set_picker.id_to_elem[id];
-      set_ctl.on('mouseenter', () => {
+      set_ctl.addEventListener('mouseenter', () => {
         this.proposed_set = a_set;
         return this.update_command();
       });
-      return set_ctl.on('mouseleave', () => {
+      return set_ctl.addEventListener('mouseleave', () => {
         this.proposed_set = null;
         return this.update_command();
       });

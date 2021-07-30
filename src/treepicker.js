@@ -101,7 +101,9 @@ export class TreePicker {
   shield() {
     if (!this._shield) {
       this.elem.setAttribute('position', 'relative')
-      this._shield = this.elem.insertAdjacentHTML(`<div class="shield"></div>`);
+      this._shield = this.elem.insertAdjacentHTML(
+        'afterbegin',
+        `<div class="shield"></div>`);
     }
     const rect = this.elem.getBoundingClientRect();
     const styles = {
@@ -205,7 +207,7 @@ export class TreePicker {
   add_to_elem_before(i_am_in, node_id, before, label) {
     before = before || i_am_in;
     before.insertAdjacentHTML(
-      'beforebegin',
+      'afterbegin',
       `<div class="contents" id="${node_id}"></div>`);
     let find_node_in = i_am_in.parentNode; // look far enough out
     return find_node_in.querySelector('#'+node_id);
@@ -227,7 +229,7 @@ export class TreePicker {
       //D3: dependency to unravel (seems like insertAdjacentHTML of p beforeend )
       contents_of_me.addEventListener('click', this.click_handler);
       contents_of_me.insertAdjacentHTML(
-        'afterend',
+        'beforeend',
         `<p class="treepicker-label"><span class="label">${label}</span></p>`);
       if (rest.length > 1) {
         const my_contents = this.get_or_create_container(contents_of_me);
@@ -361,7 +363,6 @@ export class TreePicker {
       if (r !== null) {
         return r;
       }
-
       const domElem = thing.querySelector(".treepicker-label")
       const exp = append_html_to(
           `<span class="expander">${this.collapser_str}</span>`,
@@ -375,9 +376,9 @@ export class TreePicker {
       */
       this.id_is_collapsed[id] = false;
       const picker = this;
-      return exp.on('click', () => { // TODO: make this function a method on the class
-        d3.event.stopPropagation();
-        const id2 = exp.node().parentNode.parentNode.getAttribute("id");
+      return exp.addEventListener('click', () => { // TODO: make this function a method on the class
+        // d3.event.stopPropagation();
+        const id2 = exp.parentNode.parentNode.getAttribute("id");
         if (id2 !== id) {
           console.error(`expander.click() ${id} <> ${id2}`);
         }
@@ -417,13 +418,15 @@ export class TreePicker {
   get_or_create_payload(thing) {
     if ((thing != null) && thing) {
       const thing_id = thing.id;
-      const r = thing.querySelector(`#${thing_id} > .treepicker-label > .payload`);
-      if (r !== null) {
-        return r;
+      const payload = thing.querySelector(
+        `#${thing_id} > .treepicker-label > .payload`);
+      if (payload !== null) {
+        return payload;
       }
-      append_html_to(
+      let labelElem = thing.querySelector(".treepicker-label");
+      return append_html_to(
         `<span class="payload"></span>`,
-        thing.querySelector(".treepicker-label"));
+        labelElem);
     }
   }
   set_payload(id, value) {
@@ -435,7 +438,7 @@ export class TreePicker {
     const payload = this.get_or_create_payload(elem);
     if (payload != null) {
       if (value != null) {
-        payload.text(value);
+        payload.innerText = value;
       } else {
         payload.remove();
       }
