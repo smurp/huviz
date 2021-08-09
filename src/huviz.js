@@ -1291,6 +1291,8 @@ Here is how:
         this.run_verb_on_object('shelve', this.dragging);
         // @unselect(@dragging) # this might be confusing
       } else if (this.dragging.links_shown.length === 0) {
+        // A dragged node has been dropped which has no links shown,
+        // ie it is a candidate for 'choosing' ie activation.
         this.run_verb_on_object('choose', this.dragging);
       } else if (this.nodes_pinnable) {
         if (this.editui.is_state('connecting')
