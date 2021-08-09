@@ -381,7 +381,7 @@ export class GraphCommand {
     }
     this.huviz.clean_up_all_dirt_once();
     this.huviz.hide_state_msg();
-    this.huviz.d3simulation.restart();
+    this.huviz.restart();
     this.huviz.tick("Tick in graphcommandlanguage");
   }
   get_pretty_verbs() {
