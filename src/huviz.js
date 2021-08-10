@@ -10457,6 +10457,11 @@ WHERE {
     this.updateWindow();
   }
 
+  on_change_centeringForceStrength(new_val, old_val) {
+    this.change_setting_to_from('centeringForceStrength', new_val, old_val, true);
+    this.updateWindow();
+  }
+
   on_change_truncate_labels_to(new_val, old_val) {
     this.change_setting_to_from('truncate_labels_to', new_val, old_val, true);
     if (this.all_set) {
