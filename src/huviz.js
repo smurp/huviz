@@ -4588,7 +4588,7 @@ LIMIT 10\
       args = {
         namelessUri,
         //predicates: [OSMT_reg_name, OSMT_name]
-        serverUrl: "http://sparql.cwrc.ca/sparql"
+        serverUrl: "https://fuseki.lincsproject.ca/cwrc/sparql"
       };
       this.run_sparql_name_query(args);
       return;
