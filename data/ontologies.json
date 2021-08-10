@@ -1,7 +1,7 @@
 {
   "datasets": [
     {
-      "uri": "http://sparql.cwrc.ca/ontology/cwrc.ttl",
+      "uri": "https://sparql.cwrc.ca/ontologies/cwrc.ttl",
       "label": "CWRC Ontology"
     },
     {
