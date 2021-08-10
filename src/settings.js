@@ -185,10 +185,9 @@ export const DEFAULT_SETTINGS = [
   , {
     centeringForceStrength: {
       group: "Layout",
-      class: "alpha_feature",
       text: "Centering force strength",
       label: {
-        title: "centering"
+        title: "How tightly the graph is drawn towards the center"
       },
       input: {
         value: .02,
