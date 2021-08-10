@@ -1526,11 +1526,10 @@ Link details may not be accurate. Activate to load.</i>`; // """
       this.canvas.height = this.height;
     }
     let radius = this.graph_radius;
-    let centering_force_strength = 0.02; // TODO make this a setting
     this.d3simulation.force(
-      "x", d3.forceX(radius).strength(centering_force_strength));
+      "x", d3.forceX(radius).strength(this.centeringForceStrength));
     this.d3simulation.force(
-      "y", d3.forceY(radius).strength(centering_force_strength));
+      "y", d3.forceY(radius).strength(this.centeringForceStrength));
     if (this.d3forceCenter) {
       this.d3forceCenter = this.update_d3forceCenter();
     }
@@ -10480,6 +10479,11 @@ WHERE {
   on_change_collideStrength(new_val, old_val) {
     this.change_setting_to_from('collideStength', new_val, old_val, true);
     this.update_d3forceCollide();
+    this.updateWindow();
+  }
+
+  on_change_centeringForceStrength(new_val, old_val) {
+    this.change_setting_to_from('centeringForceStrength', new_val, old_val, true);
     this.updateWindow();
   }
 

@@ -183,6 +183,21 @@ export const DEFAULT_SETTINGS = [
     }
   }
   , {
+    centeringForceStrength: {
+      group: "Layout",
+      text: "Centering force strength",
+      label: {
+        title: "How tightly the graph is drawn towards the center"
+      },
+      input: {
+        value: .02,
+        min: 0,
+        max: 1,
+        step: 0.002,
+        type: "range"
+      }
+    }
+  }, {
     collideStrength: {
       group: "Layout",
       html_text: '<a href="https://github.com/d3/d3-force#collide_strength" target="extDocs">collide strength</a> ',
