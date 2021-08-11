@@ -42,7 +42,7 @@ import {uniquer} from './uniquer.js'; // TODO convert to module
            `<span class="expander">${this.collapser_str}</span>`,
            domElem);
 */
-function append_html_to(html, elem) {
+export function append_html_to(html, elem) {
   elem.insertAdjacentHTML('beforeend', html);
   return elem.children[elem.children.length - 1]
 }

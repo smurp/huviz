@@ -1,4 +1,4 @@
-import {TreePicker} from './treepicker.js'; // TODO convert to module
+import {TreePicker, append_html_to} from './treepicker.js'; // TODO convert to module
 import {hsl2rgb} from './hsl.js';
 
 /*
@@ -89,7 +89,7 @@ export class ColoredTreePicker extends TreePicker {
   }
   update_css() {
     if ((this.style_sheet == null)) {
-      this.style_sheet = this.elem.append("style");
+      this.style_sheet = append_html_to(`<style></style>`, this.elem);
     }
         // .attr("id", @get_my_style_id())
     let styles = `// ${this.get_my_id()}`;
@@ -117,12 +117,15 @@ ${ctxSel}#${id}.treepicker-indirect-mixed.treepicker-collapse {
 }\
 `;
     }
-    this.style_sheet.html(styles);
+    this.style_sheet.innHTML = styles;
     if (false) { // cross-check the stylesheets to ensure proper loading
-      if (this.style_sheet.html().length !== styles.length) {
-        console.error("style_sheet_length error:", this.style_sheet.html().length, "<>", styles.length);
+      let style_sheet_length = this.style_sheet.innerHTML.length;
+          if (style_sheet_length !== styles.length) {
+            console.error("style_sheet_length error:",
+                          style_sheet_length, "<>", styles.length);
       } else {
-        console.info("style_sheet_length good:",this.style_sheet.html().length, "==", styles.length);
+        console.info("style_sheet_length good:", style_sheet_length,
+                     "==", styles.length);
       }
     }
   }
