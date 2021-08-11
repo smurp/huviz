@@ -310,7 +310,7 @@ export class TreePicker {
       listener.call(this, id, new_state, elem, args); // now this==picker not the event
     }
   }
-  //D3 dependency
+
   get_or_create_container(contents) {
     const r = contents.querySelector(".container");
     if (r !== null) {
@@ -358,25 +358,20 @@ export class TreePicker {
   }
   get_or_create_expander(thing, id) {
     if ((thing != null) && thing) {
-      //D3 dependency
       const r = thing.querySelector(".expander");
       if (r !== null) {
         return r;
       }
-      const domElem = thing.querySelector(".treepicker-label")
+      this.id_is_collapsed[id] = false;
+      const domElem = thing.querySelector(".treepicker-label");
+      if(!domElem){
+        return;
+      }
       const exp = append_html_to(
           `<span class="expander">${this.collapser_str}</span>`,
           domElem);
-      /*
-      //D3 dependency
-      const exp = thing.select(".treepicker-label").
-          append('span').
-          classed("expander", true).
-          text(this.collapser_str);
-      */
-      this.id_is_collapsed[id] = false;
       const picker = this;
-      return exp.addEventListener('click', () => { // TODO: make this function a method on the class
+      exp.addEventListener('click', () => { // TODO: make this function a method on the class
         // d3.event.stopPropagation();
         const id2 = exp.parentNode.parentNode.getAttribute("id");
         if (id2 !== id) {
