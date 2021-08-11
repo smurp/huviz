@@ -152,7 +152,7 @@ export class TreePicker {
     const sort_by_first_item = (a, b) => a[0].localeCompare(b[0]);
     for (let child_id of kids_ids) {
       this.resort_recursively(child_id);
-      const val = this.get_comparison_value(child_id, this.id_to_name[child_id]);
+      const val = this.get_sortable_value(child_id, this.id_to_name[child_id]);
       child_elem = this.id_to_elem[child_id];
       this.update_label_for_node(child_id, child_elem);
       val_elem_pairs.push([val, child_elem]);
@@ -176,7 +176,7 @@ export class TreePicker {
       label_elem.textContent = this.id_to_name[node_id];
     }
   }
-  get_comparison_value(node_id, label) {
+  get_sortable_value(node_id, label) {
     let this_term;
     if (this.use_name_as_label) {
       this_term = (label || node_id);
@@ -188,28 +188,35 @@ export class TreePicker {
     }
     return this_term;
   }
-  add_alphabetically(i_am_in, node_id, label) {
-    const label_lower = label.toLowerCase();
-    const container = i_am_in;
-    const this_term = this.get_comparison_value(node_id, label);
-    //D3: -- throwing type error that children are undefined, seems to be a d3 element
-    //need to trace i_am_in stuff to understand where it is being created (believe that's in gclui)
-    for (let elem of container.children) {
-      const other_term = this.get_comparison_value(elem.id, this.id_to_name[elem.id]);
+  add_alphabetically(add_to_container, node_id, label) {
+    //const label_lower = label.toLowerCase();
+    //const container = i_am_in;
+    const this_term = this.get_sortable_value(node_id, label);
+    for (let other_elem of add_to_container.children) {
+      const other_term = this.get_sortable_value(other_elem.id, this.id_to_name[other_elem.id]);
       if (other_term > this_term) {
-        return this.add_to_elem_before(i_am_in, node_id, elem, label);
+        return this.add_to_elem_before(add_to_container, node_id, other_elem, label);
       }
     }
     // fall through and append if it comes before nothing
-    return this.add_to_elem_before(i_am_in, node_id, undefined, label);
+    return this.add_to_elem_before(add_to_container, node_id, undefined, label);
   }
 
-  add_to_elem_before(i_am_in, node_id, before, label) {
-    before = before || i_am_in;
-    before.insertAdjacentHTML(
-      'afterbegin',
+  add_to_elem_before(add_to_container, node_id, before, label) {
+    let elem, where;
+    if(before){
+      elem = before;
+      where = "beforebegin";
+    }
+    else{
+      elem = add_to_container;
+      where = "beforeend"
+    }
+    //before = before || add_to_container;
+    elem.insertAdjacentHTML(
+      where,
       `<div class="contents" id="${node_id}"></div>`);
-    let find_node_in = i_am_in.parentNode; // look far enough out
+    let find_node_in = add_to_container.parentNode; // look far enough out
     return find_node_in.querySelector('#'+node_id);
   }
   show_tree(tree, i_am_in, listener, top) {
@@ -243,10 +250,10 @@ export class TreePicker {
     }
   }
   //D3: needs work for removing d3 dependency for d3.event.target
-  click_handler() {
+  click_handler(evt) {
     const picker = this;
-    let elem = d3.select(d3.event.target);
-    d3.event.stopPropagation();
+    let elem = evt.target;
+    evt.stopPropagation();
     let {id} = elem;
     while (!id) {
       elem = elem.parentElement;

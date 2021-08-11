@@ -89,7 +89,7 @@ export class ColoredTreePicker extends TreePicker {
   }
   update_css() {
     if ((this.style_sheet == null)) {
-      this.style_sheet = append_html_to(`<style></style>`, this.elem);
+      this.style_sheet = append_html_to(`<style type="text/css"></style>`, this.elem);
     }
         // .attr("id", @get_my_style_id())
     let styles = `// ${this.get_my_id()}`;
@@ -117,7 +117,7 @@ ${ctxSel}#${id}.treepicker-indirect-mixed.treepicker-collapse {
 }\
 `;
     }
-    this.style_sheet.innHTML = styles;
+    this.style_sheet.innerHTML = styles;
     if (false) { // cross-check the stylesheets to ensure proper loading
       let style_sheet_length = this.style_sheet.innerHTML.length;
           if (style_sheet_length !== styles.length) {
@@ -204,8 +204,8 @@ ${ctxSel}#${id}.treepicker-indirect-mixed.treepicker-collapse {
     }
     console.debug("no colors found for id: " + id);
   }
-  click_handler() {
-    const id = super.click_handler();
+  click_handler(evt) {
+    const id = super.click_handler(evt);
     this.style_with_kid_color_summary_if_needed(id);
   }
   style_with_kid_color_summary_if_needed(id) {
@@ -222,7 +222,7 @@ ${ctxSel}#${id}.treepicker-indirect-mixed.treepicker-collapse {
   }
   expand_by_id(id) {
     if (this.should_be_colored_by_kid_summary(id)) {
-      this.id_to_elem[id].attr("style", ""); // clear style set by set_gradient_style
+      this.id_to_elem[id].removeAttribute("style"); // clear style set by set_gradient_style
     }
     super.expand_by_id(id);
   }
@@ -255,7 +255,7 @@ ${ctxSel}#${id}.treepicker-indirect-mixed.treepicker-collapse {
     const colors = kid_colors.join(', ');
     let style = "background-color: transparent;";
     style += ` background: linear-gradient(45deg, ${colors})`;
-    this.id_to_elem[id].attr("style", style);
+    this.id_to_elem[id].setAttribute("style", style);
   }
   set_payload(id, value) {
     super.set_payload(id, value);
@@ -265,4 +265,3 @@ ${ctxSel}#${id}.treepicker-indirect-mixed.treepicker-collapse {
   }
 }
 ColoredTreePicker.initClass();
-
