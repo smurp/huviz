@@ -47,26 +47,26 @@ export function append_html_to(html, elem) {
   return elem.children[elem.children.length - 1]
 }
 
-export class TreePicker {
+export class TreePicker extends HTMLElement {
   static initClass() {
     this.prototype.collapser_str = "▼"; // 0x25bc
     this.prototype.expander_str = "▶";
   }
-  constructor(elem, root, style_context_selector) {
-    // The @style_context_selector is only really needed by colortreepicker
-    if(elem.node){
-      elem = elem.node();
-    }
+  constructor() {
+    super();
+    var root = this.id;
     //not circular -- ensuring treepicker.xfunction is bound to the right 'this' if called externally
+
     this.click_handler = this.click_handler.bind(this);
     this.handle_click = this.handle_click.bind(this);
     this.onChangeState = this.onChangeState.bind(this);
 
-    this.elem = elem;
+    this.elem = this;
     this.needs_expander = true;
     this.use_name_as_label = true;
     this.squash_case_during_sort = true;
-    this.style_context_selector = style_context_selector;
+    // The @style_context_selector is only really needed by colortreepicker
+    this.style_context_selector = '';
     this.extra_classes = [];
     this.id_to_elem = {};
     this.id_to_elem['/'] = this.elem;

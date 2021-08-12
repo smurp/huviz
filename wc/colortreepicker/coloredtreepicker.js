@@ -139,7 +139,9 @@ ${ctxSel}#${id}.treepicker-indirect-mixed.treepicker-collapse {
       console.log("RECOLOR");
     }
     const branch = this.elem.children[0];
-    this.recolor_recurse_DOM(retval, recursor, branch, "");
+    if (branch) {
+      this.recolor_recurse_DOM(retval, recursor, branch, "");
+    }
     return retval;
   }
   recolor_recurse_DOM(retval, recursor, branch, indent) {

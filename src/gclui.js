@@ -205,7 +205,7 @@ of the classes indicated.`,
       this.hints = d3.select(this.container).append("div").attr("class","hints");
       $(".hints").append($(".hint_set").contents());
     }
-    this.style_context_selector = this.huviz.get_picker_style_context_selector();
+    //    this.style_context_selector = this.huviz.get_picker_style_context_selector();
     this.comdiv = d3.select(this.container).append("div"); // --- Add a container
     this.comdiv.classed('comdiv');
     if (!this.huviz.combine_command_history) {
@@ -778,9 +778,8 @@ of the classes indicated.`,
     */
     //@predicatebox.attr('class','scrolling')
     this.predicates_ignored = [];
-    this.predicate_picker = new ColoredTreePicker(
-      this.predicatebox, 'anything',
-      this.style_context_selector);
+    this.predicate_picker = append_html_to(`<color-tree-picker id="anything"></color-tree-picker>`, this.predicatebox);
+    //    new ColoredTreePicker( this.predicatebox); // root = 'anything'   //this.style_context_selector);
     this.predicate_hierarchy = {'anything':['anything']};
     // FIXME Why is show_tree being called four times per node?
     this.predicate_picker.click_listener = this.handle_on_predicate_clicked;
@@ -865,10 +864,8 @@ of the classes indicated.`,
         .attr('id', id);
     this.taxon_box.attr('style','vertical-align:top');
     // http://en.wikipedia.org/wiki/Taxon
-    this.taxon_picker = new ColoredTreePicker(
-      this.taxon_box, 'Thing',
-      // documenting meaning of positional params with single use variables
-      this.style_context_selector);
+    this.taxon_picker = append_html_to(`<color-tree-picker id="Thing"></color-tree-picker>`, this.taxon_box.node());
+    //this.taxon_picker = new ColoredTreePicker(this.taxon_box.node()); // 'Thing')
     this.taxon_picker.click_listener = this.handle_on_taxon_clicked;
     this.taxon_picker.hover_listener = this.on_taxon_hovered;
     this.taxon_picker.show_tree(this.hierarchy, this.taxon_box);
@@ -1835,9 +1832,9 @@ of the classes indicated.`,
     }
     this.set_picker_box = where.append('div')
         .classed('container',true)
-        .attr('id', 'sets').node();   // add the div using D3 but then send the DOM node
-    this.set_picker = new TreePicker(
-      this.set_picker_box, 'all', ['treepicker-vertical']);
+      .attr('id', 'sets').node();   // add the div using D3 but then send the DOM node
+    this.set_picker = append_html_to(`<tree-picker class="treepicker-vertical" id="all"></tree-picker>`, this.set_picker_box);
+    //this.set_picker = new TreePicker( this.set_picker_box); // root= 'all', ['treepicker-vertical']);
     this.set_picker.click_listener = this.handle_on_set_picked;
     this.set_picker.show_tree(this.the_sets, this.set_picker_box);
     this.populate_all_set_docs();
@@ -1850,7 +1847,6 @@ of the classes indicated.`,
   }
   scatter_set_buttons(where) {
     var parentOfTemplate = where.node();
-    
     parentOfTemplate.insertAdjacentHTML('beforeend',`
 <div class="setsAndVerbs">
   <div class="sets">
