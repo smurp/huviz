@@ -18,7 +18,7 @@ const getRandomId = function(prefix) {
 };
 
 import {GraphCommand} from './graphcommandlanguage.js';
-import {ColoredTreePicker, TreePicker, append_html_to} from './wc/colortreepicker';
+import {ColoredTreePicker, TreePicker, append_html_to} from '../wc/colortreepicker/index.js';
 import {QueryManager} from './querymanager.js';
 
 export class CommandController {
@@ -780,10 +780,6 @@ of the classes indicated.`,
     this.predicates_ignored = [];
     this.predicate_picker = new ColoredTreePicker(
       this.predicatebox, 'anything',
-      (extra_classes=[]),
-      (needs_expander=true),
-      (use_name_as_label=true),
-      (squash_case=true),
       this.style_context_selector);
     this.predicate_hierarchy = {'anything':['anything']};
     // FIXME Why is show_tree being called four times per node?
@@ -872,10 +868,6 @@ of the classes indicated.`,
     this.taxon_picker = new ColoredTreePicker(
       this.taxon_box, 'Thing',
       // documenting meaning of positional params with single use variables
-      (extra_classes=[]),
-      (needs_expander=true),
-      (use_name_as_label=true),
-      (squash_case=true),
       this.style_context_selector);
     this.taxon_picker.click_listener = this.handle_on_taxon_clicked;
     this.taxon_picker.hover_listener = this.on_taxon_hovered;

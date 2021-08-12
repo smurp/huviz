@@ -52,7 +52,7 @@ export class TreePicker {
     this.prototype.collapser_str = "▼"; // 0x25bc
     this.prototype.expander_str = "▶";
   }
-  constructor(elem, root, extra_classes, needs_expander, use_name_as_label, squash_case_during_sort, style_context_selector) {
+  constructor(elem, root, style_context_selector) {
     // The @style_context_selector is only really needed by colortreepicker
     if(elem.node){
       elem = elem.node();
@@ -63,19 +63,11 @@ export class TreePicker {
     this.onChangeState = this.onChangeState.bind(this);
 
     this.elem = elem;
-    this.needs_expander = needs_expander;
-    this.use_name_as_label = use_name_as_label;
-    this.squash_case_during_sort = squash_case_during_sort;
+    this.needs_expander = true;
+    this.use_name_as_label = true;
+    this.squash_case_during_sort = true;
     this.style_context_selector = style_context_selector;
-    if (extra_classes != null) {
-      this.extra_classes = extra_classes;
-    }
-    if ((this.use_name_as_label == null)) {
-      this.use_name_as_label = true;
-    }
-    if ((this.squash_case_during_sort == null)) {
-      this.squash_case_during_sort = true;
-    }
+    this.extra_classes = [];
     this.id_to_elem = {};
     this.id_to_elem['/'] = this.elem;
     this.ids_in_arrival_order = [root];
