@@ -18,8 +18,7 @@ const getRandomId = function(prefix) {
 };
 
 import {GraphCommand} from './graphcommandlanguage.js';
-import {ColoredTreePicker} from './coloredtreepicker.js';
-import {TreePicker, append_html_to} from './treepicker.js';
+import {ColoredTreePicker, TreePicker, append_html_to} from './wc/colortreepicker';
 import {QueryManager} from './querymanager.js';
 
 export class CommandController {
