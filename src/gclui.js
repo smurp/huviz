@@ -768,18 +768,14 @@ of the classes indicated.`,
     where = where.node()
     console.log("where",where.outerHTML)
     where.classList.add('predicate_picker_box_parent')
-    where.insertAdjacentHTML('beforeend',`<div class="container" id="${this.predicates_id}"></div>`)
-    this.predicatebox = where.children[where.children.length - 1] // find the added div
-    /*
-    this.predicatebox = where.append('div')
-        .classed('container', true)
-        .attr('id', this.predicates_id)
-        .node(); // construct using D3 then convert to DOM node
-    */
+    // this.predicatebox = where.insertAdjacentHTML('beforeend',`<div class="container" id="${this.predicates_id}"></div>`)
+    // this.predicatebox = where.children[where.children.length - 1] // find the added div
+
+    this.predicatebox = append_html_to(`<div class="container" id="${this.predicates_id}"></div>`, where);
+
     //@predicatebox.attr('class','scrolling')
     this.predicates_ignored = [];
-    this.predicate_picker = append_html_to(`<color-tree-picker id="anything"></color-tree-picker>`, this.predicatebox);
-    //    new ColoredTreePicker( this.predicatebox); // root = 'anything'   //this.style_context_selector);
+    this.predicate_picker = append_html_to(`<color-tree-picker root="anything"></color-tree-picker>`, this.predicatebox);
     this.predicate_hierarchy = {'anything':['anything']};
     // FIXME Why is show_tree being called four times per node?
     this.predicate_picker.click_listener = this.handle_on_predicate_clicked;
@@ -864,7 +860,7 @@ of the classes indicated.`,
         .attr('id', id);
     this.taxon_box.attr('style','vertical-align:top');
     // http://en.wikipedia.org/wiki/Taxon
-    this.taxon_picker = append_html_to(`<color-tree-picker id="Thing"></color-tree-picker>`, this.taxon_box.node());
+    this.taxon_picker = append_html_to(`<color-tree-picker root="Thing"></color-tree-picker>`, this.taxon_box.node());
     //this.taxon_picker = new ColoredTreePicker(this.taxon_box.node()); // 'Thing')
     this.taxon_picker.click_listener = this.handle_on_taxon_clicked;
     this.taxon_picker.hover_listener = this.on_taxon_hovered;
@@ -1833,7 +1829,7 @@ of the classes indicated.`,
     this.set_picker_box = where.append('div')
         .classed('container',true)
       .attr('id', 'sets').node();   // add the div using D3 but then send the DOM node
-    this.set_picker = append_html_to(`<tree-picker class="treepicker-vertical" id="all"></tree-picker>`, this.set_picker_box);
+    this.set_picker = append_html_to(`<tree-picker class="treepicker-vertical" root="all"></tree-picker>`, this.set_picker_box);
     //this.set_picker = new TreePicker( this.set_picker_box); // root= 'all', ['treepicker-vertical']);
     this.set_picker.click_listener = this.handle_on_set_picked;
     this.set_picker.show_tree(this.the_sets, this.set_picker_box);

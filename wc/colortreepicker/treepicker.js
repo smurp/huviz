@@ -54,7 +54,7 @@ export class TreePicker extends HTMLElement {
   }
   constructor() {
     super();
-    var root = this.id;
+
     //not circular -- ensuring treepicker.xfunction is bound to the right 'this' if called externally
 
     this.click_handler = this.click_handler.bind(this);
@@ -62,6 +62,7 @@ export class TreePicker extends HTMLElement {
     this.onChangeState = this.onChangeState.bind(this);
 
     this.elem = this;
+    var root = this.get_my_id();
     this.needs_expander = true;
     this.use_name_as_label = true;
     this.squash_case_during_sort = true;
@@ -87,7 +88,7 @@ export class TreePicker extends HTMLElement {
     this.set_abstract('root'); // FIXME duplication?!?
   }
   get_my_id() {
-    return this.elem.getAttribute("id");
+    return this.elem.getAttribute("root");
   }
   //makes the treepicker unselectable and makes it available for styling through shield class
   shield() {
@@ -181,8 +182,6 @@ export class TreePicker extends HTMLElement {
     return this_term;
   }
   add_alphabetically(add_to_container, node_id, label) {
-    //const label_lower = label.toLowerCase();
-    //const container = i_am_in;
     const this_term = this.get_sortable_value(node_id, label);
     for (let other_elem of add_to_container.children) {
       const other_term = this.get_sortable_value(other_elem.id, this.id_to_name[other_elem.id]);
