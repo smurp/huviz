@@ -240,7 +240,7 @@ describe("MultiString and SortedSet work together", function() {
     MultiString.set_langpath('en:ANY:NOLANG');
     shelved.resort();
     //console.log(shelved.name_call());
-    shelved.dump();
+    //shelved.dump();
   });
 
 });
