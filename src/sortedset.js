@@ -124,7 +124,7 @@ export function SortedSet() {
            ((a.id < b.id) && -1) || ((a.id > b.id) && 1 || 0);
   }
   array._verify_cmp = function(av, bv, retval) {
-    console.log('_verify_cmp() is commented out to be a noop');
+    //console.log('_verify_cmp() is commented out to be a noop');
       /*
     var dir = ['less than', 'equal to', 'greater than'][retval+1],
         right_or_wrong = 'wrongly',
