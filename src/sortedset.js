@@ -519,7 +519,9 @@ export var SortedSets_tests = function(verbose){
   dupe_names = SortedSet().sort_on('name');
 
   function expect(stmt,want){
-    var got = eval(stmt);
+    var got = (
+      new Function('return '+stmt) // dynamically create function instead of eval
+    )(); // IIFE
     if (verbose) console.log(stmt,"==>",got);
     if (got != want){
       throw stmt + " returned "+got+" expected "+want;

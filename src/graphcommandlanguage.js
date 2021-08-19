@@ -26,7 +26,9 @@ export class GCLTest {
       var got;
       console.log("exp",exp);
       try {
-        got = eval(exp[0]);
+        got = (
+          new Function('return '+exp[0]) // dynamically create function instead of eval
+        )(); // an IIFE
       } catch (e) {
         throw new Error("while eval('"+exp[0]+"') caught: "+e);
       }
