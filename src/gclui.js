@@ -766,7 +766,7 @@ of the classes indicated.`,
     const where = (
       (label != null) &&
         this.control_label(label,parent,title)) || this.comdiv;
-    console.log("where",where.node().outerHTML)
+    //console.log("where",where.node().outerHTML)
     where.classed('predicate_picker_box_parent',true)
     this.predicatebox = where.append('div')
         .classed('container', true)

@@ -48,7 +48,8 @@ export class QueryManager {
     this.preJQElem.css('color', 'white').addClass('result-empty');
   }
   displayError(e) {
-    console.warn(e);
+    var msg = "QueryManager default_terms: "+JSON.stringify(this._args.default_terms);
+    console.warn(msg,e);
     this.qryJQElem.append(`<div class="query-error">${e}</div>`);
   }
   fatalError(e) {
