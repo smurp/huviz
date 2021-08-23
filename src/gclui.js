@@ -1618,7 +1618,7 @@ of the classes indicated.`,
       isSingle ? 'singleton' : (
         isPair ? 'pair' : (
           isGroup ? 'group' : 'unknown')));
-    console.log(which, vset);
+    //console.log(which, vset);
     if (isSingle) {
       // Put all the singletons directly within ".verbs < .singletons"
       containerElem = verb_singletons;

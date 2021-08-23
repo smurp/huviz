@@ -82,7 +82,7 @@ export class QueryManager {
   }
   setXHR(xhr) {
     this.xhr = xhr;
-    console.warn('QueryManager',{xhr});
+    //console.warn('QueryManager',{xhr});
   }
   abortXHR() {
     this.xhr.abort();
