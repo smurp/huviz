@@ -5790,7 +5790,7 @@ SERVICE wikibase:label {
     if (url.startsWith('file:///') || (url.indexOf('/') === -1)) { // ie it is a local file
       this.get_resource_from_db(url, (err, rsrcRec) => {
         if (rsrcRec != null) {
-          the_parser(rsrcRec.data);
+          the_parser(rsrcRec.data, 'from datassetDB', callback);
           return; // REVIEW ensure that proper try catch is happening
         }
         this.blurt(err || `'${url} was not found in your DATASET menu.  Provide it and reload this page`);
@@ -7887,7 +7887,7 @@ LIMIT ${node_limit}\
   get_resource_from_db(rsrcUri, callback) {
     const trx = this.datasetDB.transaction('datasets', "readwrite");
     trx.oncomplete = (evt) => {
-      return console.log(`get_resource_from_db('${rsrcUri}') complete, either by success or error`);
+      console.log(`get_resource_from_db('${rsrcUri}') complete, either by success or error`);
     };
     trx.onerror = (err) => {
       console.log(err);
