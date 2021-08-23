@@ -439,14 +439,14 @@ export class DragAndDropLoader {
     this.form.on('drag dragstart dragend dragover dragenter dragleave drop', evt => {
       //console.clear()
       evt.preventDefault();
-      return evt.stopPropagation();
+      evt.stopPropagation();
     });
     this.form.on('dragover dragenter', () => {
       this.form.addClass('is-dragover');
-      return console.log("addClass('is-dragover')");
+      //console.log("addClass('is-dragover')");
     });
     this.form.on('dragleave dragend drop', () => {
-      return this.form.removeClass('is-dragover');
+      this.form.removeClass('is-dragover');
     });
     this.form.on('drop', e => {
       console.log(e);
@@ -460,7 +460,6 @@ export class DragAndDropLoader {
           this.form.find(".box__success").text('');
           this.picker.refresh();
           this.form.hide();
-          return;
         }
       }
       const droppedFiles = e.originalEvent.dataTransfer.files;
@@ -471,12 +470,11 @@ export class DragAndDropLoader {
           this.form.find(".box__success").text('');
           this.picker.refresh();
           this.form.hide();
-          return;
         }
       }
       // the drop operation failed to result in loaded data, so show 'drop here' msg
       this.form.find('.box__input').show();
-      return this.picker.refresh();
+      this.picker.refresh();
     });
   }
 }
