@@ -4814,7 +4814,7 @@ LIMIT 10\
     } else {
       // console.warn(data)
       const serverDesc = queryManager.args.serverUrl || "the server";
-      throw new Error(`no support for ${resp_content_type} just json or tsv for data coming from ${serverDesc}`);
+      throw new Error(`no support for ${resp_content_type} just json or tsv for data coming from ${serverDesc} responding with textStatus: ${textStatus}`);
     }
     switch (resp_type) {
       case 'json':
@@ -9743,8 +9743,8 @@ WHERE {
   initialize_d3_force_simulation() {
     this.d3simulation = d3.forceSimulation();
     //@force = @d3simulation.force('link')
-    console.info("must implement d3v4 linkDistance, charge, size and gravity");
-    console.warn('https://github.com/d3/d3/blob/master/CHANGES.md#forces-d3-force');
+    //console.info("must implement d3v4 linkDistance, charge, size and gravity");
+    //console.warn('https://github.com/d3/d3/blob/master/CHANGES.md#forces-d3-force');
     // https://github.com/d3/d3-force/blob/v1.2.1/README.md#_force
     this.d3simulation.nodes([]).on('tick',this.tick);
   }
