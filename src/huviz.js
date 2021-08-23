@@ -4118,8 +4118,10 @@ with Shelved, Discarded, Graphed and Hidden.`;
   }
 
   make_triple_ingestor(discoArgs) {
+    var me = this;
     return function(data, textStatus, request) {
-      return this.discovery_triple_ingestor_GreenTurtle(data, textStatus, request, discoArgs);
+      return me.discovery_triple_ingestor_GreenTurtle(
+        data, textStatus, request, discoArgs);
     };
   }
 
@@ -9580,7 +9582,7 @@ WHERE {
     this.tick = this.tick.bind(this);
     this.hide_state_msg = this.hide_state_msg.bind(this);
     this.discovery_triple_ingestor_N3 = this.discovery_triple_ingestor_N3.bind(this);
-    this.discovery_triple_ingestor_GreenTurtle = this.discovery_triple_ingestor_GreenTurtle.bind(this);
+    //this.discovery_triple_ingestor_GreenTurtle = this.discovery_triple_ingestor_GreenTurtle.bind(this);
     this.make_triple_ingestor = this.make_triple_ingestor.bind(this);
     this.discover_labels = this.discover_labels.bind(this);
     this.ingest_quads_from = this.ingest_quads_from.bind(this);
