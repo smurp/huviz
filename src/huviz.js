@@ -3917,7 +3917,7 @@ with Shelved, Discarded, Graphed and Hidden.`;
       this.d3simulation.force('link').links(this.links_set);
       this.d3simulation.alpha(0.3).restart();
     } else {
-      console.warn("@d3simulation is",this.d3simulation);
+      // console.warn("@d3simulation is",this.d3simulation);
     }
     if (!this.args.skip_log_tick) {
       console.log("Tick in @force.start() restart");
