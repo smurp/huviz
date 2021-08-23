@@ -172,6 +172,13 @@ const strip_surrounding_quotes = function(s) {
   return s.replace(/\"$/,'').replace(/^\"/,'');
 };
 
+function upgrade_to_https_if_needed(url) {
+  if (window.location.protocol == 'https:'){
+    return url.replace(/^http:/, "https:/");
+  }
+  return url;
+}
+
 const hpad = 10;
 const tau = Math.PI * 2;
 const distance = function(p1, p2) {
@@ -4572,6 +4579,7 @@ LIMIT 10\
       // but it looks like the .id of such nodes has been stripped of the _: 
       return;
     }
+    var secureNamelessUri = upgrade_to_https_if_needed(namelessUri);
     try {
       aUrl = new URL(namelessUri);
     } catch (e) {
@@ -4598,8 +4606,9 @@ LIMIT 10\
       // that the .skos.nt file is available. Unfortunately the only
       // RDF file which is offered via content negotiation is .rdf and
       // there is no parser for that in HuViz yet.  Besides, they are huge.
-      retval = this.ingest_quads_from(`${namelessUri}.skos.nt`,
-                                  this.discover_labels(namelessUri));
+      retval = this.ingest_quads_from(
+        `${secureNamelessUri}.skos.nt`,
+        this.discover_labels(namelessUri));
       // This cool method would via a proxy but fails in the browser because
       // full header access is blocked by XHR.
       // `@auto_discover_header(namelessUri, ['X-PrefLabel'], sendHeaders or [])`
@@ -4611,15 +4620,16 @@ LIMIT 10\
       if (try_even_though_CORS_should_block = false) {
         // This would work, but CORS blocks this.  Preserved in case sufficiently
         // robust accounts are set up so the HuViz server could serve as a proxy.
-        serverUrl = "http://vocab.getty.edu/download/nt";
+        serverUrl = upgrade_to_https_if_needed("http://vocab.getty.edu/download/nt");
         const downloadUrl = `${serverUrl}?uri=${encodeURIComponent(namelessUri)}`;
-        retval = this.ingest_quads_from(downloadUrl, this.discover_labels(namelessUri));
+        retval = this.ingest_quads_from(
+          downloadUrl, this.discover_labels(namelessUri));
         return;
       } else {
         // Alternative response datatypes are .json, .csv, .tsv and .xml
         args = {
           namelessUri,
-          serverUrl: "http://vocab.getty.edu/sparql.tsv"
+          serverUrl: upgrade_to_https_if_needed("http://vocab.getty.edu/sparql.tsv")
         };
         this.run_sparql_name_query(args);
         return;
@@ -5926,9 +5936,7 @@ SERVICE wikibase:label {
       ajax_settings.url = proxy_url + ajax_settings.url;
     }
     // rewrite serverUrl protocol to https if window.location is https
-    if (window.location.protocol == 'https:'){
-      serverUrl = serverUrl.replace(/^http:/, "https:/");
-    }
+    serverUrl = upgrade_to_https_if_needed(serverUrl);
     queryManager.setXHR($.ajax({
       timeout: timeout,
       method: method,
