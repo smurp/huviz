@@ -6,7 +6,7 @@ export var GreenerTurtle = function(){
   }
   var RDF_object = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#object';
   var build_indices = function(graph){
-    console.log('BUILD INDICES');
+    //console.log('BUILD INDICES');
     //console.log("SUBJ",graph.subjects);
     for (var subj_id in graph.subjects){
       var subj = graph.subjects[subj_id];
