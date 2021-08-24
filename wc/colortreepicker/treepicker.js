@@ -42,9 +42,14 @@ import {uniquer} from './uniquer.js'; // TODO convert to module
            `<span class="expander">${this.collapser_str}</span>`,
            domElem);
 */
-export function append_html_to(html, elem) {
-  elem.insertAdjacentHTML('beforeend', html);
-  return elem.children[elem.children.length - 1]
+export function append_html_to(html, elem, position="beforeend") {
+  elem.insertAdjacentHTML(position, html);
+  if(position == 'beforeend'){
+    return elem.children[elem.children.length - 1];
+  }
+  else if(position == 'afterbegin'){
+    return elem.children[0];
+  }
 }
 
 export class TreePicker extends HTMLElement {
@@ -93,22 +98,15 @@ export class TreePicker extends HTMLElement {
   shield() {
     if (!this._shield) {
       this.elem.setAttribute('position', 'relative')
-      this._shield = this.elem.insertAdjacentHTML(
-        'afterbegin',
-        `<div class="shield"></div>`);
+      this._shield = append_html_to(`<div class="shield"></div>`, this.elem, 'afterbegin');
     }
     const rect = this.elem.getBoundingClientRect();
-    const styles = {
-      display: 'block',
-      width: `${rect.width}px`,
-      height: `${rect.height}px`
-    };
-    this._shield.style(styles);
+    const styles = `display: block; width: ${rect.width}px; height: ${rect.height}px;`;
+    this._shield.setAttribute("style", styles);
     return this;
   }
   unshield() {
-    this._shield.style({
-      display: 'none'});
+    this._shield.setAttribute("style",'display: none')
     return this;
   }
   set_abstract(id) {
