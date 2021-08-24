@@ -69,8 +69,7 @@ export class TreePicker extends HTMLElement {
     // The @style_context_selector is only really needed by colortreepicker
     this.style_context_selector = '';
     this.extra_classes = [];
-    this.id_to_elem = {};
-    this.id_to_elem['/'] = this.elem;
+    this.id_to_elem = {'/': this.elem};
     this.ids_in_arrival_order = [root];
     this.id_is_abstract = {};
     this.id_is_collapsed = {};
@@ -317,7 +316,7 @@ export class TreePicker extends HTMLElement {
     return append_html_to(`<div class="container"></div>`, contents);
   }
   get_top() {
-    return this.ids_in_arrival_order[0] || this.id;
+    return this.ids_in_arrival_order[0];
   }
   set_name_for_id(name, id) {
     if (this.use_name_as_label) {

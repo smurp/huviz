@@ -834,6 +834,7 @@ of the classes indicated.`,
     this.prepare_command(cmd);
     this.huviz.run_command(this.command);
   }
+  //displays colours of edges when clicked
   recolor_edges(evt) {
     let count = 0;
     for (let node of this.huviz.all_set) {
@@ -854,23 +855,20 @@ of the classes indicated.`,
       "Stripey color: some nodes are selected -- click to select all\n";
     where = ((label != null)
              && this.control_label(label, where, title)) || this.comdiv;
-    this.taxon_box = where.append('div')
-        .classed('container', true)
-        .attr('id', id);
-    this.taxon_box.attr('style','vertical-align:top');
+    where = where.node();
+    this.taxon_box = append_html_to(`<div class="container" id="${id}" style="vertical-align:top"></div>`, where);
     // http://en.wikipedia.org/wiki/Taxon
-    this.taxon_picker = append_html_to(`<color-tree-picker root="Thing"></color-tree-picker>`, this.taxon_box.node());
+    this.taxon_picker = append_html_to(`<color-tree-picker root="Thing"></color-tree-picker>`, this.taxon_box);
     this.taxon_picker.click_listener = this.handle_on_taxon_clicked;
     this.taxon_picker.hover_listener = this.on_taxon_hovered;
     this.taxon_picker.show_tree(this.hierarchy, this.taxon_box);
-    where.classed("taxon_picker_box_parent", true);
+    where.classList.add("taxon_picker_box_parent")
     return where;
   }
   add_taxon(taxon_id, parent_lid, class_name, taxon) {
     this.taxon_picker.add(taxon_id, parent_lid, class_name,
                           this.handle_on_taxon_clicked);
     this.make_taxon_proposable(taxon_id);
-    this.taxon_picker.recolor_now();
     this.huviz.recolor_nodes();
   }
   make_taxon_proposable(taxon_id) {

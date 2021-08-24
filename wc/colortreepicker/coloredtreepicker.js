@@ -78,7 +78,7 @@ export class ColoredTreePicker extends TreePicker {
   }
   add(id,parent_id,name,listener) {
     super.add(id,parent_id,name,listener);
-    // FIXME @recolor_now() unless handled externally
+    this.recolor_now();
   }
   recolor_now() {
     this.id_to_colors = this.recolor();
