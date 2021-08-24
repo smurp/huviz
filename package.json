@@ -64,8 +64,8 @@
   },
   "scripts": {
     "build": "npm-run-all --parallel build:*",
-    "build:diag": "arkit -d src -o docs/huviz_system_diagram.svg > /dev/null",
-    "build:js": "rollup  -c # builds lib/huviz.dist.js",
+    "build:diag": "arkit -d src -o docs/huviz_system_diagram.svg ",
+    "build:js": "rollup  -c ",
     "watch": "npm-run-all --parallel watch:*",
     "watch:dev": "onchange -i -k server.js lib/huviz.dist.js package.json rollup.config.js -- npm run inspect",
     "watch:js": "onchange --await-write-finish 2000 'src/*.js' package.json -- npm run build",
@@ -73,6 +73,7 @@
     "inspect": "node --inspect=9227 server.js",
     "release:patch": "npm version patch -m 'bump patch level to %s'",
     "release:minor": "npm version minor -m 'bump minor version to %s'",
+    "prepare": "npm run build",
     "postversion": "git push && git push --tags",
     "start": "node server.js --git_commit_hash `git log --format=\"%h\" -n 1` --git_branch_name `git rev-parse --abbrev-ref HEAD`",
     "start:test-server": "npm run start > /dev/null",
