@@ -776,9 +776,9 @@ of the classes indicated.`,
     this.predicates_ignored = [];
     this.predicate_picker = append_html_to(`<color-tree-picker root="anything"></color-tree-picker>`, this.predicatebox);
     this.predicate_hierarchy = {"anything":["anything"]};
-    // FIXME Why is show_tree being called four times per node?
+    // FIXME Why is build_tree being called four times per node?
     this.predicate_picker.click_listener = this.handle_on_predicate_clicked;
-    this.predicate_picker.show_tree(this.predicate_hierarchy, this.predicatebox);
+    this.predicate_picker.build_tree(this.predicate_hierarchy);
     this.predicates_JQElem = $(this.predicates_id);
     this.predicates_JQElem.addClass("predicates ui-resizable").append("<br class='clear'>");
     this.predicates_JQElem.resizable({handles: 's'});
@@ -861,7 +861,7 @@ of the classes indicated.`,
     this.taxon_picker = append_html_to(`<color-tree-picker root="Thing"></color-tree-picker>`, this.taxon_box);
     this.taxon_picker.click_listener = this.handle_on_taxon_clicked;
     this.taxon_picker.hover_listener = this.on_taxon_hovered;
-    this.taxon_picker.show_tree(this.hierarchy, this.taxon_box);
+    this.taxon_picker.build_tree(this.hierarchy);
     where.classList.add("taxon_picker_box_parent")
     return where;
   }
@@ -1825,7 +1825,7 @@ of the classes indicated.`,
     this.set_picker_box = append_html_to(`<div class="container" id="sets"></div>`, where.node());
     this.set_picker = append_html_to(`<tree-picker class="treepicker-vertical" root="all"></tree-picker>`, this.set_picker_box);
     this.set_picker.click_listener = this.handle_on_set_picked;
-    this.set_picker.show_tree(this.the_sets, this.set_picker_box);
+    this.set_picker.build_tree(this.the_sets);
     this.populate_all_set_docs();
     this.make_sets_proposable();
     where.classed(`set_picker_box_parent ${style_of_set_picker}`,true);

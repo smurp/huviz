@@ -75,6 +75,7 @@ export class TreePicker extends HTMLElement {
     this.style_context_selector = '';
     this.extra_classes = [];
     this.id_to_elem = {'/': this.elem};
+    this.id_to_elem[root] = this.elem;
     this.ids_in_arrival_order = [root];
     this.id_is_abstract = {};
     this.id_is_collapsed = {};
@@ -87,9 +88,8 @@ export class TreePicker extends HTMLElement {
     this.id_to_payload_collapsed = {};
     this.id_to_payload_expanded = {};
     this.id_to_name = {};
-    this.set_abstract(root); // FIXME is this needed?
+    this.set_abstract(root);
     this.set_abstract('/');
-    this.set_abstract('root'); // FIXME duplication?!?
   }
   get_my_id() {
     return this.elem.getAttribute("root");
@@ -207,7 +207,7 @@ export class TreePicker extends HTMLElement {
     let find_node_in = add_to_container.parentNode; // look far enough out
     return find_node_in.querySelector('#'+node_id);
   }
-  show_tree(tree, i_am_in, listener, top) {
+  build_tree(tree, i_am_in = this.elem, listener, top) {
     // http://stackoverflow.com/questions/14511872
     top = (top == null) || top;
     for (let node_id in tree) {
@@ -233,7 +233,7 @@ export class TreePicker extends HTMLElement {
             my_contents.classList.add(css_class)
           }
         }
-        this.show_tree(rest[1], my_contents, listener, false);
+        this.build_tree(rest[1], my_contents, listener, false);
       }
     }
   }
@@ -325,7 +325,6 @@ export class TreePicker extends HTMLElement {
   }
   add(new_id, parent_id, name, listener) {
     this.ids_in_arrival_order.push(new_id);
-    parent_id = ((parent_id != null) && parent_id) || this.get_top();
     new_id = this.uri_to_js_id(new_id);
     this.id_is_collapsed[new_id] = false;
     parent_id = this.uri_to_js_id(parent_id);
@@ -336,19 +335,16 @@ export class TreePicker extends HTMLElement {
     if (new_id !== parent_id) {
       this.id_to_children[parent_id].push(new_id);
     }
-    //@id_to_state[true][new_id] = "empty" # default meaning "no instances"
-    //@id_to_state[false][new_id] = "empty" # default meaning "no instances"
     name = ((name != null) && name) || new_id;
     const branch = {};
     branch[new_id] = [name || new_id];
     this.id_to_name[new_id] = name;
-    const parent = this.id_to_elem[parent_id] || this.elem;
-    //D3 dependency
+    const parent = this.id_to_elem[parent_id];
     const container = this.get_or_create_container(parent);
     if (this.needs_expander) {
       this.get_or_create_expander(parent,parent_id);
     }
-    this.show_tree(branch, container, listener);
+    this.build_tree(branch, container, listener);
      // 0x25b6
   }
   get_or_create_expander(thing, id) {
