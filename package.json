@@ -25,7 +25,7 @@
     "Wolf Maul"
   ],
   "type": "module",
-  "main": "lib/huviz.js",
+  "main": "lib/huviz.dist.js",
   "dependencies": {
     "@fnando/sparkline": "^0.3.10",
     "async": "~0.2.9",
@@ -65,11 +65,11 @@
   "scripts": {
     "build": "npm-run-all --parallel build:*",
     "build:diag": "arkit -d src -o docs/huviz_system_diagram.svg > /dev/null",
-    "build:js": "rollup  -c # builds lib/huviz.js",
+    "build:js": "rollup  -c # builds lib/huviz.dist.js",
     "watch": "npm-run-all --parallel watch:*",
-    "watch:dev": "onchange -i -k server.js lib/huviz.js package.json rollup.config.js -- npm run inspect",
+    "watch:dev": "onchange -i -k server.js lib/huviz.dist.js package.json rollup.config.js -- npm run inspect",
     "watch:js": "onchange --await-write-finish 2000 'src/*.js' package.json -- npm run build",
-    "watch:unit": "onchange -i lib/huviz.js test/* package.json -- npm run test:unit",
+    "watch:unit": "onchange -i lib/huviz.dist.js test/* package.json -- npm run test:unit",
     "inspect": "node --inspect=9227 server.js",
     "release:patch": "npm version patch -m 'bump patch level to %s'",
     "release:minor": "npm version minor -m 'bump minor version to %s'",
@@ -80,10 +80,10 @@
     "test:all": "npm-run-all --parallel test:unit test:user",
     "test:unit": "mocha --reporter spec",
     "test:user": "npx selenium-side-runner -c \"browserName=chrome goog:chromeOptions.args=[--headless,--nogpu]\" test/user_tests.side",
-    "watchTest": "onchange -i -k server.js lib/huviz.js package.json test/* -- npm run test:all",
-    "watchTest:user": "onchange -i -k server.js lib/huviz.js package.json test/* -- npm run test:user",
-    "watchTest:unit": "onchange -i -k server.js lib/huviz.js package.json test/* -- npm run test:unit",
-    "watchTestFSM": "onchange -i -k server.js lib/huviz.js package.json test/* -- npm run test:unit -- --grep FiniteState",
+    "watchTest": "onchange -i -k server.js lib/huviz.dist.js package.json test/* -- npm run test:all",
+    "watchTest:user": "onchange -i -k server.js lib/huviz.dist.js package.json test/* -- npm run test:user",
+    "watchTest:unit": "onchange -i -k server.js lib/huviz.dist.js package.json test/* -- npm run test:unit",
+    "watchTestFSM": "onchange -i -k server.js lib/huviz.dist.js package.json test/* -- npm run test:unit -- --grep FiniteState",
     "DEPRECATED:buildSrcDocs": "npx docco -o srcdocs  server.coffee src/*.coffee | node bin/make_srcdocs_index.js > srcdocs/index.md && npx marked srcdocs/index.md > srcdocs/index.html"
   }
 }
