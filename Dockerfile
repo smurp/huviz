@@ -14,4 +14,5 @@ COPY . /app/
 
 # Expose port and start the app
 EXPOSE 5000
-RUN npm run watch
+RUN rollup -c
+CMD [ "node", "server.js" ]
