@@ -14,4 +14,4 @@ COPY . /app/
 
 # Expose port and start the app
 EXPOSE 5000
-CMD [ "node", "server.js" ]
+RUN npm run watch
