@@ -88,11 +88,7 @@ export class ColoredTreePicker extends TreePicker {
     return `${this.get_my_id()}_colors`;
   }
   update_css() {
-    if ((this.style_sheet == null)) {
-      this.style_sheet = append_html_to(`<style type="text/css"></style>`, this.elem);
-    }
-        // .attr("id", @get_my_style_id())
-    let styles = `// ${this.get_my_id()}`;
+    let styles = this.gen_stylesheet_header();
     let ctxSel = this.style_context_selector;
     if (ctxSel) {
       ctxSel += ' '; // put a space after ctxSel if it has content
@@ -138,7 +134,7 @@ ${ctxSel}#${id}.treepicker-indirect-mixed.treepicker-collapse {
     if (verbose) {
       console.log("RECOLOR");
     }
-    const branch = this.elem.children[0];
+    const branch = this.elem.children[1];
     if (branch) {
       this.recolor_recurse_DOM(retval, recursor, branch, "");
     }
@@ -255,8 +251,8 @@ ${ctxSel}#${id}.treepicker-indirect-mixed.treepicker-collapse {
   }
   set_gradient_style(id, kid_colors) {
     const colors = kid_colors.join(', ');
-    let style = "background-color: transparent;";
-    style += ` background: linear-gradient(45deg, ${colors})`;
+    let style = `background-color: transparent;`
+    style += `background: linear-gradient(45deg, ${colors}`;
     this.id_to_elem[id].setAttribute("style", style);
   }
   set_payload(id, value) {

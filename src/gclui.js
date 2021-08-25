@@ -1758,6 +1758,7 @@ of the classes indicated.`,
       if (id === "walk") {
          this.taxon_picker.shield();
          this.set_picker.shield();
+         this.predicate_picker.shield();
        }
       this.proposed_verb = null; // there should be no proposed_verb if we are clicking engaging one
       because = {
@@ -1768,6 +1769,7 @@ of the classes indicated.`,
       if (id === "walk") {
         this.taxon_picker.unshield();
         this.set_picker.unshield();
+        this.predicate_picker.unshield();
       }
       this.disengage_verb(id);
     }
@@ -1895,6 +1897,7 @@ HELLO WORLD
     const hasVerbs = !!this.engaged_verbs.length;
     if (new_state === 'showing') {
       this.taxon_picker.shield();
+      this.predicate_picker.shield();
       this.chosen_set = this.huviz[set_id];
       this.chosen_set_id = set_id;
       because = {
@@ -1909,6 +1912,7 @@ HELLO WORLD
       }
     } else if (new_state === 'unshowing') {
       this.taxon_picker.unshield();
+      this.predicate_picker.unshield();
       const XXXcmd = new GraphCommand(this.huviz, {
           verbs: ['unselect'],
           sets: [this.chosen_set.id]

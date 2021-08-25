@@ -90,23 +90,41 @@ export class TreePicker extends HTMLElement {
     this.id_to_name = {};
     this.set_abstract(root);
     this.set_abstract('/');
+    this.init_css();
   }
   get_my_id() {
     return this.elem.getAttribute("root");
   }
+  init_css(){
+    if ((this.style_sheet == null)) {
+      this.style_sheet = append_html_to(`<style type="text/css">${this.gen_stylesheet_header()}</style>`, this.elem);
+    }
+  }
+  gen_stylesheet_header(){
+    return`
+.shield .contents {
+  background-color: rgba(63,63,63,.5) !important;
+  background: rgba(63,63,63,.5) !important;
+}
+`;
+  }
   //makes the treepicker unselectable and makes it available for styling through shield class
   shield() {
-    if (!this._shield) {
-      this.elem.setAttribute('position', 'relative')
-      this._shield = append_html_to(`<div class="shield"></div>`, this.elem, 'afterbegin');
-    }
-    const rect = this.elem.getBoundingClientRect();
-    const styles = `display: block; width: ${rect.width}px; height: ${rect.height}px;`;
-    this._shield.setAttribute("style", styles);
+    // if (!this._shield) {
+    //   this.elem.setAttribute('position', 'relative')
+    //   this._shield = append_html_to(`<div class="shield"></div>`, this.elem, 'afterbegin');
+    // }
+    // const rect = this.elem.getBoundingClientRect();
+    // const styles = `display: block; width: ${rect.width}px; height: ${rect.height}px; left: ${rect.x}px; top:${rect.y}px; position: fixed; z-index: 100000;`;
+    // this._shield.setAttribute("style", styles);
+    this.elem.classList.add("shield");
+    this.is_shielded = true;
     return this;
   }
   unshield() {
-    this._shield.setAttribute("style",'display: none')
+    //this._shield.setAttribute("style",'display: none')
+    this.elem.classList.remove("shield");
+    this.is_shielded = false;
     return this;
   }
   set_abstract(id) {
@@ -239,6 +257,9 @@ export class TreePicker extends HTMLElement {
   }
   //D3: needs work for removing d3 dependency for d3.event.target
   click_handler(evt) {
+    if(this.is_shielded){
+      return;
+    }
     const picker = this;
     let elem = evt.target;
     evt.stopPropagation();

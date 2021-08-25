@@ -158,13 +158,7 @@
 .taxonomydiv {
   margin:0.1em;
 }
-.shield {
-  position: absolute;
-  top:0px;
-  left:0px;
-  background-color:rgba(63,63,63,.5);
-  z-index:5000;
-}
+
 
 .result-none, .result-error, .result-success, .result-default {
   display: inline-block;
@@ -202,10 +196,10 @@
   position: relative;
   cursor: default;
   padding-right: 1em;
-  /* AARRG!!!                                                  
-       z-index: -1                                             
-         This is needed so inset_shadow covers the commands    
-         BUT then the delete buttons no longer work;           
+  /* AARRG!!!
+       z-index: -1
+         This is needed so inset_shadow covers the commands
+         BUT then the delete buttons no longer work;
   */
 }
 .command.played {
