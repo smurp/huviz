@@ -18,8 +18,7 @@ const getRandomId = function(prefix) {
 };
 
 import {GraphCommand} from './graphcommandlanguage.js';
-import {ColoredTreePicker} from './coloredtreepicker.js';
-import {TreePicker} from './treepicker.js';
+import {ColoredTreePicker, TreePicker, append_html_to} from '../wc/colortreepicker/index.js';
 import {QueryManager} from './querymanager.js';
 
 export class CommandController {
@@ -206,7 +205,7 @@ of the classes indicated.`,
       this.hints = d3.select(this.container).append("div").attr("class","hints");
       $(".hints").append($(".hint_set").contents());
     }
-    this.style_context_selector = this.huviz.get_picker_style_context_selector();
+    //    this.style_context_selector = this.huviz.get_picker_style_context_selector();
     this.comdiv = d3.select(this.container).append("div"); // --- Add a container
     this.comdiv.classed('comdiv');
     if (!this.huviz.combine_command_history) {
@@ -763,27 +762,23 @@ of the classes indicated.`,
       "Faint color: no edges are shown -- click to show all\n" +
       "Stripey color: some edges shown -- click to show all\n" +
       "Hidden: no edges among the selected nodes";
-    const where = (
+    let where = (
       (label != null) &&
         this.control_label(label,parent,title)) || this.comdiv;
-    //console.log("where",where.node().outerHTML)
-    where.classed('predicate_picker_box_parent',true)
-    this.predicatebox = where.append('div')
-        .classed('container', true)
-        .attr('id', this.predicates_id);
+    where = where.node()
+    console.log("where",where.outerHTML)
+    where.classList.add('predicate_picker_box_parent')
+    // this.predicatebox = where.insertAdjacentHTML('beforeend',`<div class="container" id="${this.predicates_id}"></div>`)
+    // this.predicatebox = where.children[where.children.length - 1] // find the added div
+    this.predicatebox = append_html_to(`<div class="container" id="${this.predicates_id}"></div>`, where);
+
     //@predicatebox.attr('class','scrolling')
     this.predicates_ignored = [];
-    this.predicate_picker = new ColoredTreePicker(
-      this.predicatebox, 'anything',
-      (extra_classes=[]),
-      (needs_expander=true),
-      (use_name_as_label=true),
-      (squash_case=true),
-      this.style_context_selector);
-    this.predicate_hierarchy = {'anything':['anything']};
-    // FIXME Why is show_tree being called four times per node?
+    this.predicate_picker = append_html_to(`<color-tree-picker root="anything"></color-tree-picker>`, this.predicatebox);
+    this.predicate_hierarchy = {"anything":["anything"]};
+    // FIXME Why is build_tree being called four times per node?
     this.predicate_picker.click_listener = this.handle_on_predicate_clicked;
-    this.predicate_picker.show_tree(this.predicate_hierarchy, this.predicatebox);
+    this.predicate_picker.build_tree(this.predicate_hierarchy);
     this.predicates_JQElem = $(this.predicates_id);
     this.predicates_JQElem.addClass("predicates ui-resizable").append("<br class='clear'>");
     this.predicates_JQElem.resizable({handles: 's'});
@@ -797,7 +792,7 @@ of the classes indicated.`,
   }
   make_predicate_proposable(pred_lid) {
     const predicate_ctl = this.predicate_picker.id_to_elem[pred_lid];
-    predicate_ctl.on('mouseenter', () => {
+    predicate_ctl.addEventListener('mouseenter', () => {
       const every = !!this.predicate_picker.id_is_collapsed[pred_lid];
       const nextStateArgs = this.predicate_picker.get_next_state_args(pred_lid);
       if (nextStateArgs.new_state === 'showing') {
@@ -809,7 +804,7 @@ of the classes indicated.`,
       this.regarding_every = !!this.predicate_picker.id_is_collapsed[pred_lid];
       const ready = this.prepare_command(this.build_command());
     });
-    predicate_ctl.on('mouseleave', () => {
+    predicate_ctl.addEventListener('mouseleave', () => {
       this.proposed_verb = null;
       this.regarding = null;
       this.prepare_command(this.build_command());
@@ -839,6 +834,7 @@ of the classes indicated.`,
     this.prepare_command(cmd);
     this.huviz.run_command(this.command);
   }
+  //displays colours of edges when clicked
   recolor_edges(evt) {
     let count = 0;
     for (let node of this.huviz.all_set) {
@@ -859,35 +855,25 @@ of the classes indicated.`,
       "Stripey color: some nodes are selected -- click to select all\n";
     where = ((label != null)
              && this.control_label(label, where, title)) || this.comdiv;
-    this.taxon_box = where.append('div')
-        .classed('container', true)
-        .attr('id', id);
-    this.taxon_box.attr('style','vertical-align:top');
+    where = where.node();
+    this.taxon_box = append_html_to(`<div class="container" id="${id}" style="vertical-align:top"></div>`, where);
     // http://en.wikipedia.org/wiki/Taxon
-    this.taxon_picker = new ColoredTreePicker(
-      this.taxon_box, 'Thing',
-      // documenting meaning of positional params with single use variables
-      (extra_classes=[]),
-      (needs_expander=true),
-      (use_name_as_label=true),
-      (squash_case=true),
-      this.style_context_selector);
+    this.taxon_picker = append_html_to(`<color-tree-picker root="Thing"></color-tree-picker>`, this.taxon_box);
     this.taxon_picker.click_listener = this.handle_on_taxon_clicked;
     this.taxon_picker.hover_listener = this.on_taxon_hovered;
-    this.taxon_picker.show_tree(this.hierarchy, this.taxon_box);
-    where.classed("taxon_picker_box_parent", true);
+    this.taxon_picker.build_tree(this.hierarchy);
+    where.classList.add("taxon_picker_box_parent")
     return where;
   }
   add_taxon(taxon_id, parent_lid, class_name, taxon) {
     this.taxon_picker.add(taxon_id, parent_lid, class_name,
                           this.handle_on_taxon_clicked);
     this.make_taxon_proposable(taxon_id);
-    this.taxon_picker.recolor_now();
     this.huviz.recolor_nodes();
   }
   make_taxon_proposable(taxon_id) {
     const taxon_ctl = this.taxon_picker.id_to_elem[taxon_id];
-    taxon_ctl.on('mouseenter', evt => {
+    taxon_ctl.addEventListener('mouseenter', evt => {
       //evt.stopPropagation()
       // REVIEW consider @taxon_picker.get_next_state_args(taxon_id) like make_predicate_proposable()
       this.proposed_taxon = taxon_id;
@@ -903,7 +889,7 @@ of the classes indicated.`,
       //console.log(@proposed_verb, @proposed_taxon)
       const ready = this.prepare_command(this.build_command());
     });
-    taxon_ctl.on('mouseleave', evt => {
+    taxon_ctl.addEventListener('mouseleave', evt => {
       this.proposed_taxon = null;
       this.proposed_verb = null;
       const ready = this.prepare_command(this.build_command());
@@ -1772,6 +1758,7 @@ of the classes indicated.`,
       if (id === "walk") {
          this.taxon_picker.shield();
          this.set_picker.shield();
+         this.predicate_picker.shield();
        }
       this.proposed_verb = null; // there should be no proposed_verb if we are clicking engaging one
       because = {
@@ -1782,6 +1769,7 @@ of the classes indicated.`,
       if (id === "walk") {
         this.taxon_picker.unshield();
         this.set_picker.unshield();
+        this.predicate_picker.unshield();
       }
       this.disengage_verb(id);
     }
@@ -1836,13 +1824,10 @@ of the classes indicated.`,
       }
       this.the_sets.all_set.pop();
     }
-    this.set_picker_box = where.append('div')
-        .classed('container',true)
-        .attr('id', 'sets');
-    this.set_picker = new TreePicker(
-      this.set_picker_box, 'all', ['treepicker-vertical']);
+    this.set_picker_box = append_html_to(`<div class="container" id="sets"></div>`, where.node());
+    this.set_picker = append_html_to(`<tree-picker class="treepicker-vertical" root="all"></tree-picker>`, this.set_picker_box);
     this.set_picker.click_listener = this.handle_on_set_picked;
-    this.set_picker.show_tree(this.the_sets, this.set_picker_box);
+    this.set_picker.build_tree(this.the_sets);
     this.populate_all_set_docs();
     this.make_sets_proposable();
     where.classed(`set_picker_box_parent ${style_of_set_picker}`,true);
@@ -1853,7 +1838,6 @@ of the classes indicated.`,
   }
   scatter_set_buttons(where) {
     var parentOfTemplate = where.node();
-    
     parentOfTemplate.insertAdjacentHTML('beforeend',`
 <div class="setsAndVerbs">
   <div class="sets">
@@ -1870,7 +1854,7 @@ HELLO WORLD
     var target = parentOfTemplate.querySelector('.nameless');
     var theSetNodes = parentOfTemplate.querySelector('.container')
     theSetNodes.forEach((aSetNode) => {
-      
+      // move the set to a place in the template
     });
     console.log("BUTTON STYLE STUFF", {target, parentOfTemplate});
   }
@@ -1885,11 +1869,11 @@ HELLO WORLD
   make_sets_proposable() {
     const make_listeners = (id, a_set) => { // fat arrow carries this to @
       const set_ctl = this.set_picker.id_to_elem[id];
-      set_ctl.on('mouseenter', () => {
+      set_ctl.addEventListener('mouseenter', () => {
         this.proposed_set = a_set;
         return this.update_command();
       });
-      return set_ctl.on('mouseleave', () => {
+      return set_ctl.addEventListener('mouseleave', () => {
         this.proposed_set = null;
         return this.update_command();
       });
@@ -1913,6 +1897,7 @@ HELLO WORLD
     const hasVerbs = !!this.engaged_verbs.length;
     if (new_state === 'showing') {
       this.taxon_picker.shield();
+      this.predicate_picker.shield();
       this.chosen_set = this.huviz[set_id];
       this.chosen_set_id = set_id;
       because = {
@@ -1927,6 +1912,7 @@ HELLO WORLD
       }
     } else if (new_state === 'unshowing') {
       this.taxon_picker.unshield();
+      this.predicate_picker.unshield();
       const XXXcmd = new GraphCommand(this.huviz, {
           verbs: ['unselect'],
           sets: [this.chosen_set.id]
