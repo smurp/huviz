@@ -45,7 +45,7 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     //.this.transit('gotoDataset',{}); console.error('hard-coded transit("gotoDataset") to ease development')
                                                       
                                                       
-    this.transit('gotoSPARQL',{}); console.error('hard-coded transit("gotoSPARQL") to ease development');
+//    this.transit('gotoSPARQL',{}); console.error('hard-coded transit("gotoSPARQL") to ease development');
                                                       
                                                       
   }
