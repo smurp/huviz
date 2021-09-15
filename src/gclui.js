@@ -21,6 +21,16 @@ import {GraphCommand} from './graphcommandlanguage.js';
 import {ColoredTreePicker, TreePicker, append_html_to} from '../wc/colortreepicker/index.js';
 import {QueryManager} from './querymanager.js';
 
+let GCLUI_TEMPLATE = `
+<div class="comdiv" style="border:1px dashed black">
+  <div class="combined_command_history_parent">
+    <h1>TEMPLATE</h1>  
+    <div class="combined_command_history">
+    </div>
+  </div>
+</div> 
+`;
+
 export class CommandController {
   static initClass() {
       //,
@@ -208,14 +218,18 @@ of the classes indicated.`,
     //    this.style_context_selector = this.huviz.get_picker_style_context_selector();
     this.comdiv = d3.select(this.container).append("div"); // --- Add a container
     this.comdiv.classed('comdiv');
+    this.comdiv_elem = append_html_to(GCLUI_TEMPLATE, this.comdiv.node());
     if (!this.huviz.combine_command_history) {
       this.control_label("Current Command");
     }
     this.nextcommandbox_parent = this.comdiv.append('div');
+
     this.nextcommandbox_parent.classed("combined_command_history_parent", true);
     this.nextcommandbox = this.nextcommandbox_parent.append('div');
     this.nextcommandbox.classed('combined_command_history',    // set this class
                                 this.huviz.combine_command_history);  // if true
+
+    this.nextcommandbox_elem = this.comdiv_elem.querySelector('.combined_command_history');
     //this.nextcommandbox_parent.classed('inset_shadow',true);
     this.make_command_history();
     this.prepare_tabs_sparqlQueries();
