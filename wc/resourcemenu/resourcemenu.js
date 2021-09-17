@@ -18,6 +18,12 @@ var resMenFSMTTL= `
          st:onFirst    tr:gotoStart     st:onStart .
          st:onFirst    tr:gotoContinue  st:onContinue .
 
+         st:onStart    tr:gotoBrowse    st:onBrowse .
+         st:onStart    tr:gotoUpload    st:onUpload .
+         st:onStart    tr:gotoURL       st:onURL .
+         st:onStart    tr:gotoQuery     st:onQuery .
+         st:onStart    tr:esc           st:onFirst .
+
        `;
 
 export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
@@ -32,7 +38,7 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
           .appendChild(template.cloneNode(true));
     this.addIDClickListeners('main, button, [id]', this.clickListener.bind(this));
     this.transit('start',{});
-    //.this.transit('gotoDataset',{}); console.error('hard-coded transit("gotoDataset") to ease development')
+//    this.transit('gotoStart',{}); console.error('hard-coded transit("gotoStart") to ease development')
                                                       
                                                       
 //    this.transit('gotoSPARQL',{}); console.error('hard-coded transit("gotoSPARQL") to ease development');
