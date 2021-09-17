@@ -14,20 +14,10 @@ var resMenFSMTTL= `
          @prefix st: <https://example.com/state/> .
          @prefix tr: <https://example.com/transition/> .
 
-         st:           tr:start         st:onFront .
-         st:onFront    tr:gotoDataset   st:onDataset .
-         st:onFront    tr:gotoScript    st:onScript .
-         st:onFront    tr:gotoSPARQL    st:onSPARQL .
+         st:           tr:start         st:onFirst .
+         st:onFirst    tr:gotoStart     st:onStart .
+         st:onFirst    tr:gotoContinue  st:onContinue .
 
-         st:onFront    tr:esc           st:END .
-         st:onDataset  tr:esc           st:onFront .
-         st:onScript   tr:esc           st:onFront .
-         st:onSPARQL   tr:esc           st:onFront .
-         st:onSPARQLDetail  tr:esc      st:onSPARQL .
-
-         st:onSPARQL   tr:pick         st:onSPARQLDetail .
-         st:onHelp     tr:esc          st:onFront .
-         st:onCredits  tr:esc          st:onFront .
        `;
 
 export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
