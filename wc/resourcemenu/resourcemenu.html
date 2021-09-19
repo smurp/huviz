@@ -1,141 +1,138 @@
 <template id="resource-menu">
   <style>
     :root {
-        /* Why does putting custom properties here not work? */
+      /* Why does putting custom properties here not work? */
     }
     * {
-        --big-xy: clamp(50vh,500px,700px);
-        --lil-xy: calc(var(--big-xy) * .66);
-        --dif-xy: calc(var(--big-xy) - var(--lil-xy));
-        --hlf-dif-xy: calc(var(--dif-xy) / 2);
-        --hed-h: calc(var(--dif-xy) / 2.2);
-        --logo-xy: calc(var(--hed-h) * .80);
-        --logo-pad: calc((var(--hed-h) - var(--logo-xy)) / 2.2);
-        --fntsiz: calc(var(--lil-xy)/26);
-        font-size: var(--fntsiz);
+      --big-xy: clamp(50vh,500px,700px);
+      --lil-xy: calc(var(--big-xy) * .66);
+      --dif-xy: calc(var(--big-xy) - var(--lil-xy));
+      --hlf-dif-xy: calc(var(--dif-xy) / 2);
+      --hed-h: calc(var(--dif-xy) / 2.2);
+      --logo-xy: calc(var(--hed-h) * .80);
+      --logo-pad: calc((var(--hed-h) - var(--logo-xy)) / 2.2);
+      --fntsiz: calc(var(--lil-xy)/26);
+      font-size: var(--fntsiz);
     }
     #logo {
-        padding-top: var(--logo-pad);
-        width: var(--logo-xy);
-        height: var(--logo-xy);
-        left: 50%;
+      padding-top: var(--logo-pad);
+      width: var(--logo-xy);
+      height: var(--logo-xy);
+      left: 50%;
+    }
+    #esc {
+      position: absolute;
+      bottom: 2em;
+      left: 2em;
     }
     #esc::before {
-        content: 'x';
-        position: absolute;
-        top: 0em;
-        right: .5em;
-        cursor: pointer;
-        border: 0px;
-        font-size: large;
+      content: '⭠';
+      font-size: large;
+      cursor: pointer;
+      border: .8em;
     }
     .ring {
-        z-index: -1;
+      z-index: -1;
     }
     h1, h2, h3, h4, h5, h6 {
-        text-align: center;
+      text-align: center;
     }
     button {
-        border-radius: .5em;
+      border-radius: .5em;
     }
     bigbox {
-        /* center this bad boy */
-        position:absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
+      /* center this bad boy */
+      position:absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
 
-        /* https://developer.mozilla.org/en-US/docs/Web/CSS/background-image */
-        background-image: url(/images/node_ring.png);
-        background-size: cover;
-        background-clip: border-box;
+      /* https://developer.mozilla.org/en-US/docs/Web/CSS/background-image */
+      background-image: url(/images/node_ring.png);
+      background-size: cover;
+      background-clip: border-box;
 
-        width: var(--big-xy);
-        height: var(--big-xy);
-        /* border: 1px dashed green; */
+      width: var(--big-xy);
+      height: var(--big-xy);
+      /* border: 1px dashed green; */
     }
     .uptop {
-        position:absolute;
-        left:50%;
-        top:-10%;
-        transform: translate(30%,30%);
+      position:absolute;
+      left:50%;
+      top:-10%;
+      transform: translate(30%,30%);
     }
     header, footer, main {
-        /*  TEMP
-
-       */
-        /* border: 1px dotted grey; */
-        position: relative;
-        left: var(--hlf-dif-xy);
+      /* border: 1px dotted grey; */
+      position: relative;
+      left: var(--hlf-dif-xy);
     }
     header, footer {
-        z-index: 10;
-        height: var(--hed-h);
-        width: var(--lil-xy);
-        text-align: center;
-        text-valign: center;
+      z-index: 10;
+      height: var(--hed-h);
+      width: var(--lil-xy);
+      text-align: center;
+      text-valign: center;
     }
     main {
-        width: var(--lil-xy);
-        height: var(--lil-xy);
+      width: var(--lil-xy);
+      height: var(--lil-xy);
     }
     dl,dt, dd {
-        margin: 0;
-        padding: 0;
+      margin: 0;
+      padding: 0;
     }
     dl {
-        display: inline;
+      display: inline;
     }
     dl dt {
-        clear: left;
-        float: left;
-        width: var(--hed-h);;
+      clear: left;
+      float: left;
+      width: var(--hed-h);;
     }
     dt {
     }
     dt, dd {
-        margin: 1em;
+      margin: 1em;
     }
     dt > button {
-        border-radius: .7em;
-        background-color: white;
-        float: right;
+      border-radius: .7em;
+      background-color: white;
+      float: right;
     }
     p {
-        text-align: center;
-        font-size: 85%;
+      text-align: center;
+      font-size: 85%;
     }
-
     .content {
-        overflow: scroll;
+      overflow: scroll;
     }
-
     .onDataset, onOntology, onScript, onSPARQL, onCredit
     /* #datasetHere would be the preferred target but it does not work */
     {
-        overflow: scroll;
+      overflow: scroll;
     }
     .pick_or_provide_item {
-        text-decoration-line: underline;
-        cursor: pointer;
+      text-decoration-line: underline;
+      cursor: pointer;
     }
     .pick_or_provide_item::after {
-        content: "|";
-        padding-left: .3em;
-        padding-right: .3em;
-        text-decoration-line: none;
+      content: "|";
+      padding-left: .3em;
+      padding-right: .3em;
+      text-decoration-line: none;
     }
     .optgrp > h3 {
-        text-align: left;
-        margin-top: .3em;
-        margin-bottom: 0em;
-        padding-left: 0em;
+      text-align: left;
+      margin-top: .3em;
+      margin-bottom: 0em;
+      padding-left: 0em;
     }
     .optgrp > h3::after {
-        content: ":"
+      content: ":"
     }
     .onFront #esc {
-        display: none; /* close button not needed on front */
+      display: none; /* close button not needed on front */
     }
   </style>
   <bigbox>
@@ -165,7 +162,7 @@
       </main>
 
       <main class="onStart">
-        <i id="esc"></i>
+        <i id="esc">Back to Main Page</i>
         <h1>Start</h1>
         <dl>
           <dt><button id="gotoBrowse">Browse</button></dt>
@@ -180,13 +177,13 @@
       </main>
 
       <main class="onBrowse">
-        <i id="esc"></i>
+        <i id="esc">Back to Start Menu</i>
         <h1>Browse</h1>
         Beginner, etc
       </main>
 
       <main class="onUpload">
-        <i id="esc">back to start</i>
+        <i id="esc">Back to Start Menu</i>
         <dl>
           <dt><b>Dataset</b></dt>
           <dd>Uploaded.ttl</dd>
