@@ -24,6 +24,10 @@ var resMenFSMTTL= `
          st:onStart    tr:gotoQuery     st:onQuery .
          st:onStart    tr:esc           st:onFirst .
 
+         st:onBrowse   tr:esc           st:onStart .
+         st:onUpload   tr:esc           st:onStart .
+         st:onURL      tr:esc           st:onStart .
+         st:onQuery    tr:esc           st:onStart .
        `;
 
 export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
@@ -37,8 +41,9 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     const shadowRoot = this.attachShadow({mode: 'open'})
           .appendChild(template.cloneNode(true));
     this.addIDClickListeners('main, button, [id]', this.clickListener.bind(this));
-    this.transit('start',{});
-//    this.transit('gotoStart',{}); console.error('hard-coded transit("gotoStart") to ease development')
+    this.transit('start', {});
+//    this.transit('gotoStart',{ console.error('hard-coded transit("gotoStart") to ease development')});
+//    this.transit('gotoBrowse',{ console.error('hard-coded transit("gotoBrowse") to ease development')});
                                                       
                                                       
 //    this.transit('gotoSPARQL',{}); console.error('hard-coded transit("gotoSPARQL") to ease development');
