@@ -11,6 +11,7 @@ import {PickOrProvidePanel} from '../pickorprovide/pickorprovide.js';
 customElements.define('pick-or-provide', PickOrProvidePanel);
 
 var resMenFSMTTL= `
+         # this graph defines the connections in the state machine
          @prefix st: <https://example.com/state/> .
          @prefix tr: <https://example.com/transition/> .
 
@@ -30,6 +31,27 @@ var resMenFSMTTL= `
          st:onQuery    tr:esc           st:onStart .
        `;
 
+var XXXresMenFSMTTL= `
+         @prefix st: <https://example.com/state/> .
+         @prefix tr: <https://example.com/transition/> .
+
+         st:           tr:start         st:onFront .
+         st:onFront    tr:gotoDataset   st:onDataset .
+         st:onFront    tr:gotoScript    st:onScript .
+         st:onFront    tr:gotoSPARQL    st:onSPARQL .
+
+         st:onFront    tr:esc           st:END .
+         st:onDataset  tr:esc           st:onFront .
+         st:onScript   tr:esc           st:onFront .
+         st:onSPARQL   tr:esc           st:onFront .
+         st:onSPARQLDetail  tr:esc      st:onSPARQL .
+
+         st:onSPARQL   tr:pick         st:onSPARQLDetail .
+         st:onHelp     tr:esc          st:onFront .
+         st:onCredits  tr:esc          st:onFront .
+       `;
+
+
 export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
   constructor() {
     super();
@@ -43,19 +65,13 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     this.addIDClickListeners('main, button, [id]', this.clickListener.bind(this));
     this.transit('start', {});
 //    this.transit('gotoStart',{ console.error('hard-coded transit("gotoStart") to ease development')});
-//    this.transit('gotoBrowse',{ console.error('hard-coded transit("gotoBrowse") to ease development')});
-                                                      
-                                                      
-//    this.transit('gotoSPARQL',{}); console.error('hard-coded transit("gotoSPARQL") to ease development');
-                                                      
-                                                      
   }
   blurt(...stuff) {
     this.huviz.blurt(___stuff);
   }
   registerHuViz(huviz) {
     this.huviz = huviz;
-    this.registerPickOrProvide()
+    this.registerPickOrProvide();
     // convey the args from HuViz, motivated by args.preload
     var args = Object.assign({make_pickers: true}, huviz.args);
     args.dataset_loader__append_to_sel = this.querySelector('#datasetHere');
@@ -105,6 +121,7 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
   enter__END(evt, stateId) {
     this.parentNode.removeChild(this);
   }
+
   showMain(which) {
     this.shadowRoot.querySelectorAll('main').forEach((main) => {
       if (main.classList.contains(which)) {

@@ -7,7 +7,7 @@
       --big-xy: clamp(50vh,500px,700px);
       --lil-xy: calc(var(--big-xy) * .66);
       --dif-xy: calc(var(--big-xy) - var(--lil-xy));
-      --hlf-dif-xy: calc(var(--dif-xy) / 2);
+      --hlf-dif-xy: calc(var(--dif-xy) / 2); /* half the difference between big-xy and lil-xy */
       --hed-h: calc(var(--dif-xy) / 2.2);
       --logo-xy: calc(var(--hed-h) * .80);
       --logo-pad: calc((var(--hed-h) - var(--logo-xy)) / 2.2);
@@ -67,6 +67,8 @@
       position: relative;
       left: var(--hlf-dif-xy);
     }
+    header {
+    }
     header, footer {
       z-index: 10;
       height: var(--hed-h);
@@ -78,25 +80,23 @@
       width: var(--lil-xy);
       height: var(--lil-xy);
     }
-    dl,dt, dd {
+    dt, dd {
       margin: 0;
-      padding: 0;
+      padding: .3em 2em;
+      /* border-top: 1px solid red; */
     }
     dl {
-      display: inline;
+      display: grid;
+      grid-template: auto / 10em 1fr;
     }
-    dl dt {
-      clear: left;
-      float: left;
-      width: var(--hed-h);;
+    dd {
     }
     dt {
-    }
-    dt, dd {
-      margin: 1em;
+      width: var(--hed-h);;
     }
     dt > button {
-      border-radius: .7em;
+      border-radius: 1em;
+      padding: .3em;
       background-color: white;
       float: right;
     }
@@ -148,12 +148,8 @@
           relationships in linked datasets through interactive graphs.
         </p>
         <dl compact>
-          <!--
-            <dt><b>New Here?</b></dt>
-            <dd>Start exploring with a mini or Harry Potter dataset</dd>
-            -->
           <dt><b>New Here?</b></dt>
-          <dd>Explort with a mini or Harry Potter dataset</dd>
+          <dd>Explore with a mini or Harry Potter dataset</dd>
           <dt><button id="gotoStart">Start</button></dt>
           <dd>Pick a preloaded dataset, load your own file, or query an online knowledge base</dd>
           <dt><button id="gotoContinue">Continue</button></dt>
@@ -273,7 +269,7 @@
 
       <footer>
         <button style="display:none" class="big_go_button">LOAD</button>
-        <button>Tour</button>
+        <a href="https://www.figma.com/proto/yAdTfgiRCUcpF7jHWzKMwb/LINCS?node-id=989%3A2&scaling=min-zoom&page-id=901%3A2&starting-point-node-id=978%3A7&show-proto-sidebar=1"><button>Figma</button></a> <!-- Should be Tour -->
         <button>About</button>
         <button>Help</button>
         <button>Credit</button>
