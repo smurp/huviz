@@ -25,6 +25,10 @@ var resMenFSMTTL= `
          st:onStart    tr:gotoQuery     st:onQuery .
          st:onStart    tr:esc           st:onFirst .
 
+         st:onContinue tr:esc           st:onFirst .
+
+         st:onScriptDetail tr:esc       st:onContinue;
+
          st:onBrowse   tr:esc           st:onStart .
          st:onUpload   tr:esc           st:onStart .
          st:onURL      tr:esc           st:onStart .

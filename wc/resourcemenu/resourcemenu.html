@@ -82,14 +82,15 @@
     }
     dt, dd {
       margin: 0;
-      padding: .3em 2em;
+      /* padding: .3em 2em; */
       /* border-top: 1px solid red; */
     }
     dl {
       display: grid;
-      grid-template: auto / 10em 1fr;
+      grid-template: auto / 1fr 3fr;
     }
     dd {
+      padding: .5em;
     }
     dt {
       width: var(--hed-h);;
@@ -107,9 +108,8 @@
     .content {
       overflow: scroll;
     }
-    .onDataset, onOntology, onScript, onSPARQL, onCredit
-    /* #datasetHere would be the preferred target but it does not work */
-    {
+    /* .onDataset, onOntology, onScript, onSPARQL, onCredit */
+    main {
       overflow: scroll;
     }
     .pick_or_provide_item {
@@ -137,7 +137,7 @@
   </style>
   <div class="bigbox">
     <header>
-      <img id="logo" src="/images/HuVizLogoBlackRim.png"/>
+      <a href="/"><img id="logo" src="/images/HuVizLogoBlackRim.png"/></a>
     </header>
 
     <main class="onFirst">
@@ -165,7 +165,10 @@
         <dt><button id="gotoUpload">Upload</button></dt>
         <dd>Upload your own dataset or drag and drop anywhere on this page</dd>
         <dt><button id="gotoURL">URL</button></dt>
-        <dd><input type="text"/><i>ICON</i></dd>
+        <dd>
+          <input type="url" placeholder="Enter a URL or drag and drop on anywhere"/>
+          <i class="fas fa-sign-in-alt"></i>
+        </dd>
         <dt><button id="gotoQuery">Query</button></dt>
         <dd>Search an online knowledge base</dd>
       </dl>
@@ -174,7 +177,10 @@
     <main class="onBrowse">
       <i id="esc">Back to Start Menu</i>
       <h1>Browse</h1>
-      Beginner, etc
+      <p>Beginner, etc</p>
+      <div id="datasetHere"></div>
+      <div id="ontologyHere"></div>
+      <pick-or-provide></pick-or-provide>
     </main>
 
     <main class="onUpload">
@@ -188,6 +194,24 @@
       <button>LOAD</button>
     </main>
 
+    <main class="onContinue">
+      <i id="esc">Back to Start Menu</i>
+      <h1>Continue a Session</h1>
+      <p>Continue a previous session</p>
+      <div id="scriptHere"></div>
+    </main>
+
+    <main class="onScriptDetail">
+      <i id="esc">Back to Start Menu</i>
+      <h1>Continue a Session</h1>
+      <p>Continue a previous session</p>
+
+    </main>
+
+
+    <!--
+      These are for historical interest, to be removed once the redesign is complete
+      -->
     <main class="onFront">
       <i id="esc"></i>
       <h1>HuViz</h1>
@@ -211,8 +235,6 @@
       <p>Pick a dataset or ontology to visualize, or load your own</p>
       <div id="datasetHere"></div>
       <div id="ontologyHere"></div>
-      <pick-or-provide>
-      </pick-or-provide>
     </main>
 
     <main class="onScript" style="display:none">
