@@ -75,6 +75,7 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
   }
   registerHuViz(huviz) {
     this.huviz = huviz;
+    this.huviz.collapse_tabs();
     this.registerPickOrProvide();
     // convey the args from HuViz, motivated by args.preload
     var args = Object.assign({make_pickers: true}, huviz.args);
@@ -82,9 +83,7 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     args.ontology_loader__append_to_sel = this.querySelector('#ontologyHere');
     args.script_loader__append_to_sel = this.querySelector('#scriptHere');
     args.endpoint_loader__append_to_sel = this.querySelector('#endpointHere');
-
     this.init_resource_menus(args); // add {dataset,ontology,script,endpoint}_loader
-    this.huviz.collapse_tabs();
   }
   registerPickOrProvide() {
     var pop = this.querySelector('pick-or-provide');
