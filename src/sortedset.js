@@ -49,7 +49,13 @@
 
     "use strict";
 
- */
+*/
+
+function eval_ish(bod) {
+  var f = new Function('return '+bod);
+  return f();
+}
+
 export function SortedSet() {
   // if (arguments.callee) {arguments.callee.NUMBER_OF_COPIES += 1;}
   if (typeof window != 'undefined') {
@@ -145,7 +151,7 @@ export function SortedSet() {
                  '(retval < 0 && acase >= bcase)',
                  '(retval == 0 && acase != bcase)'];
     tests.forEach(function(test){
-      if (eval(test)) {
+      if (eval_ish(test)) {
         throw new Error("" +test + " SHOWS _cmp(" + sense + ") " + right_or_wrong +
                         " calling a(" + acase + ") " + dir +" b(" + bcase + ")");
       }
@@ -518,7 +524,7 @@ export var SortedSets_tests = function(verbose){
   dupe_names = SortedSet().sort_on('name');
 
   function expect(stmt,want){
-    var got = eval(stmt);
+    var got = eval_ish(stmt);
     if (verbose) console.log(stmt,"==>",got);
     if (got != want){
       throw stmt + " returned "+got+" expected "+want;

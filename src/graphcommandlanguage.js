@@ -9,6 +9,11 @@
 import {angliciser} from './angliciser.js';
 import {SortedSet} from './sortedset.js';
 
+function eval_ish(bod) {
+  var f = new Function('return '+bod);
+  return f();
+}
+
 export class GCLTest {
   constructor(runner, spec) {
     this.runner = runner;
@@ -26,7 +31,7 @@ export class GCLTest {
       var got;
       console.log("exp",exp);
       try {
-        got = eval(exp[0]);
+        got = eval_ish(exp[0]);
       } catch (e) {
         throw new Error("while eval('"+exp[0]+"') caught: "+e);
       }
