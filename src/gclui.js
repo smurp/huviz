@@ -21,11 +21,35 @@ import {GraphCommand} from './graphcommandlanguage.js';
 import {ColoredTreePicker, TreePicker, append_html_to} from '../wc/colortreepicker/index.js';
 import {QueryManager} from './querymanager.js';
 
+//Styling for dev of template -- insert back into template html when in progress
+//<div class="comdiv" style="border:1px dashed black">
+//<h1>TEMPLATE</h1>
 let GCLUI_TEMPLATE = `
-<div class="comdiv" style="border:1px dashed black">
+<div class="comdiv">
   <div class="combined_command_history_parent">
-    <h1>TEMPLATE</h1>
     <div class="combined_command_history AKA_nextcommandbox AKA_history">
+      <div class="control_label" style="display:inline">Command History</div>
+      <div class="scriptPlayerControls">
+        <button class="rewindScript" title="rewind to start" disabled=disabled>
+          <i class="fa fa-fast-backward"></i>
+        </button>
+        <button class="scriptStepBack" title="go back one step" disabled=disabled>
+          <i class="fa fa-play fa-flip-horizontal"></i>
+        </button>
+        <button class="scriptStepForward" title="play script step by step" disabled=disabled>
+          <i class="fa fa-play"></i>
+        </button>
+        <button class="scriptFastForward" title="play script continuously" disabled=disabled>
+          <i class="fa fa-fast-forward"></i>
+        </button>
+        <button class="scriptDownload" title="save script to local file" disabled=disabled>
+          <i class="fa fa-download"></i>
+        </button>
+        <button class="scriptSaveToMenu title="save script to menu" disabled=disabled>
+          <i class="fa fa-bars"></i>
+        </button>
+        <i class="grow_shrink_history fa fa-angle-double-down"></i>
+      </div>
       <div class="commandlist shrunk inset_shadow AKA_cmdlist AKA_nextcommand">
         <div class="commandhistory">
         </div>
@@ -40,34 +64,10 @@ let GCLUI_TEMPLATE = `
              <span class="suffix_phrase">
              </span>
           </code>
-
           <div class="cmd-spinner AKA_nextcommand_working"
                style="float:right; color:red; display:none;">
           </div>
         </div>
-        <div class="control_label" style="display:inline">Command History</div>
-        <div class="scriptPlayerControls">
-          <button class="rewindScript" title="rewind to start" disabled=disabled>
-            <i class="fa fa-fast-backward"></i>
-          </button>
-          <button class="scriptStepBack" title="go back one step" disabled=disabled>
-            <i class="fa fa-play fa-flip-horizontal"></i>
-          </button>
-          <button class="scriptStepForward" title="play script step by step" disabled=disabled>
-            <i class="fa fa-play"></i>
-          </button>
-          <button class="scriptFastForward" title="play script continuously" disabled=disabled>
-            <i class="fa fa-fast-forward"></i>
-          </button>
-          <button class="scriptDownload" title="save script to local file" disabled=disabled>
-            <i class="fa fa-download"></i>
-          </button>
-          <button class="scriptSaveToMenu title="save script to menu" disabled=disabled>
-            <i class="fa fa-bars"></i>
-          </button>
-          <i class="grow_shrink_history fa fa-angle-double-down"></i>
-        </div>
-
       </div>
     </div>
   </div>
@@ -1269,7 +1269,7 @@ of the classes indicated.`,
 
   build_submit() {
     //  IT LOOKS LIKE THIS CAN BE DELETED
-    return;       
+    return;
     this.doit_butt = this.nextcommand.append('span').append("input").
            attr("style","float:right;").
            attr("type","submit").
@@ -1284,19 +1284,19 @@ of the classes indicated.`,
     this.set_immediate_execution_mode(true);
   }
   enable_doit_button() {
-    return;  //  REMOVE THIS  
+    return;  //  REMOVE THIS
     this.doit_butt.attr('disabled',null);
   }
   disable_doit_button() {
-    return;  //  REMOVE THIS  
+    return;  //  REMOVE THIS
     this.doit_butt.attr('disabled','disabled');
   }
   hide_doit_button() {
-    return; // REMOVE THIS  
+    return; // REMOVE THIS
     $(this.doit_butt.node()).hide();
   }
   show_doit_button() {
-    return;  // REMOVE THIS  
+    return;  // REMOVE THIS
     $(this.doit_butt.node()).show();
   }
   set_immediate_execution_mode(which) {
