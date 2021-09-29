@@ -202,12 +202,12 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
           this.script_loader.val();
           this.update_resource_menu();
           console.groupEnd(); // closing group called "populate_menus_from_IndexedDB(why)"
-          return document.dispatchEvent( // TODO use 'huvis_controls' rather than document
+          document.dispatchEvent( // TODO use 'huvis_controls' rather than document
             new Event('dataset_ontology_loader_ready'));
         }
       };
     };
-          //alert "#{count} entries saved #{why}"
+    //alert "#{count} entries saved #{why}"
     if (this.dataset_loader != null) {
       datasetDB_objectStore.openCursor().onsuccess = make_onsuccess_handler(why);
     }

@@ -10,7 +10,7 @@ function show(elem) {
 
 export class PickOrProvide {
   static initClass() {
-    this.prototype.tmpl = `\
+    this.prototype.tmpl = `
     <form id="UID" class="pick_or_provide_form" method="post" action="" enctype="multipart/form-data">
       <!--
         <span class="pick_or_provide_label">REPLACE_WITH_LABEL</span>
@@ -20,8 +20,7 @@ export class PickOrProvide {
       <button type="button" class="delete_option">
         <i class="fas fa-trash" style="font-size: 1.2em;"></i>
       </button>
-    </form>\
-`;
+    </form>`;
     this.prototype.uri_file_loader_sel = '.uri_file_loader_form';
   }
 

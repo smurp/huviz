@@ -86,8 +86,10 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     this.init_resource_menus(args); // add {dataset,ontology,script,endpoint}_loader
   }
   registerPickOrProvide() {
-    var pop = this.querySelector('pick-or-provide');
-    pop.registerHuViz(this.huviz);
+    var pops = this.querySelectorAll('pick-or-provide');
+    for (const pop of pops) {
+      pop.registerHuViz(this);
+    }
   }
   querySelector(sel) {
     return this.shadowRoot.querySelector(sel);
@@ -151,10 +153,14 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
   }
 
   update_resource_menu(args) {
-    if (!((this.dataset_loader != null) &&
-          (this.ontology_loader != null) &&
-          (this.endpoint_loader != null) &&
-          (this.script_loader != null))) {
+    var {dataset_loader, ontology_loader, endpoint_loader, script_loader} = this;
+    var ready = (
+      (dataset_loader != null) &&
+      (ontology_loader != null) &&
+      (endpoint_loader != null) &&
+      (script_loader != null));
+    if (!ready) {
+      console.error({dataset_loader, ontology_loader, endpoint_loader, script_loader, args});
       console.log("still building loaders...");
       return;
     }
