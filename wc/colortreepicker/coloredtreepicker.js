@@ -1,4 +1,4 @@
-import {TreePicker} from './treepicker.js'; // TODO convert to module
+import {TreePicker, append_html_to} from './treepicker.js'; // TODO convert to module
 import {hsl2rgb} from './hsl.js';
 
 /*
@@ -78,7 +78,7 @@ export class ColoredTreePicker extends TreePicker {
   }
   add(id,parent_id,name,listener) {
     super.add(id,parent_id,name,listener);
-    // FIXME @recolor_now() unless handled externally
+    this.recolor_now();
   }
   recolor_now() {
     this.id_to_colors = this.recolor();
@@ -88,11 +88,7 @@ export class ColoredTreePicker extends TreePicker {
     return `${this.get_my_id()}_colors`;
   }
   update_css() {
-    if ((this.style_sheet == null)) {
-      this.style_sheet = this.elem.append("style");
-    }
-        // .attr("id", @get_my_style_id())
-    let styles = `// ${this.get_my_id()}`;
+    let styles = this.gen_stylesheet_header();
     let ctxSel = this.style_context_selector;
     if (ctxSel) {
       ctxSel += ' '; // put a space after ctxSel if it has content
@@ -117,12 +113,15 @@ ${ctxSel}#${id}.treepicker-indirect-mixed.treepicker-collapse {
 }\
 `;
     }
-    this.style_sheet.html(styles);
+    this.style_sheet.innerHTML = styles;
     if (false) { // cross-check the stylesheets to ensure proper loading
-      if (this.style_sheet.html().length !== styles.length) {
-        console.error("style_sheet_length error:", this.style_sheet.html().length, "<>", styles.length);
+      let style_sheet_length = this.style_sheet.innerHTML.length;
+          if (style_sheet_length !== styles.length) {
+            console.error("style_sheet_length error:",
+                          style_sheet_length, "<>", styles.length);
       } else {
-        console.info("style_sheet_length good:",this.style_sheet.html().length, "==", styles.length);
+        console.info("style_sheet_length good:", style_sheet_length,
+                     "==", styles.length);
       }
     }
   }
@@ -135,8 +134,10 @@ ${ctxSel}#${id}.treepicker-indirect-mixed.treepicker-collapse {
     if (verbose) {
       console.log("RECOLOR");
     }
-    const branch = this.elem.node().children[0];
-    this.recolor_recurse_DOM(retval, recursor, branch, "");
+    const branch = this.elem.children[1];
+    if (branch) {
+      this.recolor_recurse_DOM(retval, recursor, branch, "");
+    }
     return retval;
   }
   recolor_recurse_DOM(retval, recursor, branch, indent) {
@@ -201,8 +202,8 @@ ${ctxSel}#${id}.treepicker-indirect-mixed.treepicker-collapse {
     }
     console.debug("no colors found for id: " + id);
   }
-  click_handler() {
-    const id = super.click_handler();
+  click_handler(evt) {
+    const id = super.click_handler(evt);
     this.style_with_kid_color_summary_if_needed(id);
   }
   style_with_kid_color_summary_if_needed(id) {
@@ -219,7 +220,7 @@ ${ctxSel}#${id}.treepicker-indirect-mixed.treepicker-collapse {
   }
   expand_by_id(id) {
     if (this.should_be_colored_by_kid_summary(id)) {
-      this.id_to_elem[id].attr("style", ""); // clear style set by set_gradient_style
+      this.id_to_elem[id].removeAttribute("style"); // clear style set by set_gradient_style
     }
     super.expand_by_id(id);
   }
@@ -250,9 +251,9 @@ ${ctxSel}#${id}.treepicker-indirect-mixed.treepicker-collapse {
   }
   set_gradient_style(id, kid_colors) {
     const colors = kid_colors.join(', ');
-    let style = "background-color: transparent;";
-    style += ` background: linear-gradient(45deg, ${colors})`;
-    this.id_to_elem[id].attr("style", style);
+    let style = `background-color: transparent;`
+    style += `background: linear-gradient(45deg, ${colors}`;
+    this.id_to_elem[id].setAttribute("style", style);
   }
   set_payload(id, value) {
     super.set_payload(id, value);
@@ -262,4 +263,3 @@ ${ctxSel}#${id}.treepicker-indirect-mixed.treepicker-collapse {
   }
 }
 ColoredTreePicker.initClass();
-

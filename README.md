@@ -17,10 +17,8 @@ other sites as a visualizer for their graph content.
 
 ## Deployments
 
-* [LINCS Production](https://huviz.lincsproject.ca/)
-* [Production](http://huviz.dev.nooron.com/)
-* [Beta](http://beta.huviz.dev.nooron.com/)
-* [Alpha](http://alpha.huviz.dev.nooron.com/)
+* [Production](https://huviz.lincsproject.ca/)
+* [Classic](https://huviz-classic.lincsproject.ca/) (in coffeescript, using D3v3)
 
 ## Papers and Presentations Mentioning HuViz
 * [Software Integration in the Digital Humanities](https://www.canarie.ca/wp-content/uploads/16-Brown-Ilovan.pdf)
@@ -50,7 +48,6 @@ The commands in HuViz can be thought of as moving nodes around among various set
 * Activated -- the nodes which are placed into the graph and which cause other nodes connected to them to become graphed.
                Dragging a node into the graph Activates it.
 * Discarded -- the nodes which have been placed in the disard bin and which can't be pulled into the graph by activated nodes.
-
 * Graphed -- the nodes which are in the graph, either by being activated or by being pulled into the graph
 * Hidden -- the nodes which have been made invisible to reduce clutter, but which can be pulled into the graph by activated nodes
 * Labelled -- the nodes which show their labels continuously, rather than just when hovered near
@@ -111,20 +108,39 @@ The Verbs are the operations which move nodes between the various sets, ie sets 
 ## Running the server during development
 
     npm run watch
+    # watches for changes
+    # then runs build:*
+    # which creates a new lib/huviz.js
+    # which triggers restarting the server
 
-## Running CLI tests
+## Running Tests "Continuously"
 
-THIS IS CURRENTLY DISABLED during the decaffeination process.
-
+    # in one window be running
     npm run watch
 
-    # bail on first error
-    BAIL=1 npm run watchTest
+    # in another window run one of
+    npm run watchTest # runs both unit tests and user tests whenever code changes
+    npm run watchTest:user # runs just user tests continuously
+    npm run watchTest:unit # runs just unit tests continuously
 
-uses [https://www.npmjs.com/package/npm-watch](https://www.npmjs.com/package/npm-watch) and [https://www.npmjs.com/package/mocha](https://www.npmjs.com/package/mocha)
+## Run all tests once (not continuously)
+
+    npm run test # starts a server and runs both user tests and unit tests
+    # prefixing the above with BAIL=1 stops test execution on first failure
+    BAIL=1 npm run test
+
+## To create new user tests
+
+Install [Selenium-IDE](https://www.selenium.dev/selenium-ide/) and edit the file [test/user_tests.side](test/user_tests.side).
+
+Watch [Selenium IDE Demo A tutorial for beginners](https://www.youtube.com/watch?v=ZG3VFDMaAlk) (15min) or
+[Selenium IDE Tutorial For Beginners](https://www.youtube.com/watch?v=m4KpTvEz3vg) for a thorough (100min) tutorial.
+
+## To create new unit tests
+
+Add HuViz module unit tests in [test](test) using mocha and chai to match the existing style.
 
 ## Developing `quaff-lod`
-
 
 Run the auto build process while you are editing `src/quaff-lod-worker.js`
 

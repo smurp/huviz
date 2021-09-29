@@ -172,6 +172,13 @@ const strip_surrounding_quotes = function(s) {
   return s.replace(/\"$/,'').replace(/^\"/,'');
 };
 
+function upgrade_to_https_if_needed(url) {
+  if (window.location.protocol == 'https:'){
+    return url.replace(/^http:/, "https:/");
+  }
+  return url;
+}
+
 const hpad = 10;
 const tau = Math.PI * 2;
 const distance = function(p1, p2) {
@@ -760,7 +767,7 @@ Here is how:
       'viaf.org': "http://data.linkeddatafragments.org/viaf",
       //'getty.edu': "http://data.linkeddatafragments.org/lov"
       //'wikidata.org': "https://query.wikidata.org"
-      '*': "http://data.linkeddatafragments.org/lov"
+      '*': "https://data.linkeddatafragments.org/lov"
     };
 
     this.prototype.loading_notice_markdown = `\
@@ -869,8 +876,10 @@ Here is how:
       draw: 'DRAW',
       undraw: 'UNDRAW',
       connect: 'CONNECT',
+      matched: 'MATCHED',
       spawn: 'SPAWN',
       specialize: 'SPECIALIZE',
+      suppressed: 'SUPPRESSED',
       annotate: 'ANNOTATE',
       suppress: "SUPPRESS"
     };
@@ -1051,9 +1060,13 @@ Here is how:
     //     https://bl.ocks.org/HarryStevens/f636199a46fc4b210fbca3b1dc4ef372
     this.initialize_d3_force_simulation();
     this.update_fisheye();
-    this.initialize_svg();
+    if (this.use_svg) {
+      this.initialize_svg();
+    }
     this.container = d3.select(this.args.viscanvas_sel).node().parentNode;
-    this.init_settings_to_defaults().then(this.complete_construction).catch(this.catch_reject_init_settings);
+    this.init_settings_to_defaults().
+      then(this.complete_construction).
+      catch(this.catch_reject_init_settings);
   }
 
   how_heavy_are(n, label, cb) {
@@ -1462,6 +1475,8 @@ Here is how:
         this.run_verb_on_object('shelve', this.dragging);
         // @unselect(@dragging) # this might be confusing
       } else if (this.dragging.links_shown.length === 0) {
+        // A dragged node has been dropped which has no links shown,
+        // ie it is a candidate for 'choosing' ie activation.
         this.run_verb_on_object('choose', this.dragging);
       } else if (this.nodes_pinnable) {
         if (this.editui.is_state('connecting')
@@ -1694,6 +1709,11 @@ Link details may not be accurate. Activate to load.</i>`; // """
       this.canvas.width = this.width;
       this.canvas.height = this.height;
     }
+    let radius = this.graph_radius;
+    this.d3simulation.force(
+      "x", d3.forceX(radius).strength(this.centeringForceStrength));
+    this.d3simulation.force(
+      "y", d3.forceY(radius).strength(this.centeringForceStrength));
     if (this.d3forceCenter) {
       this.d3forceCenter = this.update_d3forceCenter();
     }
@@ -3561,7 +3581,20 @@ with Shelved, Discarded, Graphed and Hidden.`;
     elem.onmousemove = evt => this.mousemove_boxNG(evt, node);
     elem.onmouseout = evt => this.mouseout_boxNG(evt, node);
     elem.onmouseup = evt => this.mouseup_boxNG(evt, node);
+    elem.addEventListener('contextmenu', evt => this.contextmenu_boxNG(evt, node))
     return elem;
+  }
+
+  contextmenu_boxNG(evt, node) {
+    d3.event = evt;
+    evt.stopPropagation();
+    this.set_focused_node(node);
+    /*
+     * 'node' is probably already the focused_node, but this ensures it
+     * Notice that the focused_node might not be this node if the ball of
+     * some other node is closer to the current mouse position
+     */
+    this.mouseright();
   }
 
   mousemove_boxNG(evt, node) {
@@ -4060,8 +4093,6 @@ with Shelved, Discarded, Graphed and Hidden.`;
       this.d3simulation.nodes(this.graphed_set);
       this.d3simulation.force('link').links(this.links_set);
       this.d3simulation.alpha(0.3).restart();
-    //} else {
-    //  console.warn("@d3simulation is",this.d3simulation);
     }
     if (!this.args.skip_log_tick) {
       console.log("Tick in @force.start() restart");
@@ -4262,8 +4293,10 @@ with Shelved, Discarded, Graphed and Hidden.`;
   }
 
   make_triple_ingestor(discoArgs) {
+    var me = this;
     return function(data, textStatus, request) {
-      return this.discovery_triple_ingestor_GreenTurtle(data, textStatus, request, discoArgs);
+      return me.discovery_triple_ingestor_GreenTurtle(
+        data, textStatus, request, discoArgs);
     };
   }
 
@@ -4426,7 +4459,7 @@ with Shelved, Discarded, Graphed and Hidden.`;
     const idInt = parseInt(id);
     const username = this.discover_geonames_as;
     const k2p = this.discover_geoname_key_to_predicate_mapping;
-    const url = `http://api.geonames.org/hierarchyJSON?geonameId=${id}&username=${username}`;
+    const url = `https://www.geonames.org/hierarchyJSON?geonameId=${id}&username=${username}`;
     // console.log("discover_geoname_name_SEARCH", aUrl.toString())
     return {
       url,
@@ -4723,6 +4756,7 @@ LIMIT 10\
       // but it looks like the .id of such nodes has been stripped of the _: 
       return;
     }
+    var secureNamelessUri = upgrade_to_https_if_needed(namelessUri);
     try {
       aUrl = new URL(namelessUri);
     } catch (e) {
@@ -4738,7 +4772,7 @@ LIMIT 10\
       args = {
         namelessUri,
         //predicates: [OSMT_reg_name, OSMT_name]
-        serverUrl: "http://sparql.cwrc.ca/sparql"
+        serverUrl: "https://fuseki.lincsproject.ca/cwrc/sparql"
       };
       this.run_sparql_name_query(args);
       return;
@@ -4749,8 +4783,9 @@ LIMIT 10\
       // that the .skos.nt file is available. Unfortunately the only
       // RDF file which is offered via content negotiation is .rdf and
       // there is no parser for that in HuViz yet.  Besides, they are huge.
-      retval = this.ingest_quads_from(`${namelessUri}.skos.nt`,
-                                  this.discover_labels(namelessUri));
+      retval = this.ingest_quads_from(
+        `${secureNamelessUri}.skos.nt`,
+        this.discover_labels(namelessUri));
       // This cool method would via a proxy but fails in the browser because
       // full header access is blocked by XHR.
       // `@auto_discover_header(namelessUri, ['X-PrefLabel'], sendHeaders or [])`
@@ -4762,15 +4797,16 @@ LIMIT 10\
       if (try_even_though_CORS_should_block = false) {
         // This would work, but CORS blocks this.  Preserved in case sufficiently
         // robust accounts are set up so the HuViz server could serve as a proxy.
-        serverUrl = "http://vocab.getty.edu/download/nt";
+        serverUrl = upgrade_to_https_if_needed("http://vocab.getty.edu/download/nt");
         const downloadUrl = `${serverUrl}?uri=${encodeURIComponent(namelessUri)}`;
-        retval = this.ingest_quads_from(downloadUrl, this.discover_labels(namelessUri));
+        retval = this.ingest_quads_from(
+          downloadUrl, this.discover_labels(namelessUri));
         return;
       } else {
         // Alternative response datatypes are .json, .csv, .tsv and .xml
         args = {
           namelessUri,
-          serverUrl: "http://vocab.getty.edu/sparql.tsv"
+          serverUrl: upgrade_to_https_if_needed("http://vocab.getty.edu/sparql.tsv")
         };
         this.run_sparql_name_query(args);
         return;
@@ -4953,7 +4989,7 @@ LIMIT 10\
     } else {
       // console.warn(data)
       const serverDesc = queryManager.args.serverUrl || "the server";
-      throw new Error(`no support for ${resp_content_type} just json or tsv for data coming from ${serverDesc}`);
+      throw new Error(`no support for ${resp_content_type} just json or tsv for data coming from ${serverDesc} responding with textStatus: ${textStatus}`);
     }
     switch (resp_type) {
       case 'json':
@@ -5941,7 +5977,7 @@ SERVICE wikibase:label {
     if (url.startsWith('file:///') || (url.indexOf('/') === -1)) { // ie it is a local file
       this.get_resource_from_db(url, (err, rsrcRec) => {
         if (rsrcRec != null) {
-          the_parser(rsrcRec.data);
+          the_parser(rsrcRec.data, 'from datassetDB', callback);
           return; // REVIEW ensure that proper try catch is happening
         }
         this.blurt(err || `'${url} was not found in your DATASET menu.  Provide it and reload this page`);
@@ -5965,7 +6001,7 @@ SERVICE wikibase:label {
       error: (jqxhr, textStatus, errorThrown) => {
         console.log(url, errorThrown);
         if (!errorThrown) {
-          errorThrown = "Cross-Origin error";
+          errorThrown = "no error thrown";
         }
         msg = errorThrown + " while fetching dataset " + url;
         this.hide_state_msg();
@@ -5977,9 +6013,9 @@ SERVICE wikibase:label {
     });
   }
 
-  log_query_with_timeout(qry, timeout, fillColor, bgColor) {
+  log_query_with_timeout(qry, timeout) {
     const queryManager = this.log_query(qry);
-    queryManager.anim = this.animate_sparql_query(queryManager.preElem, timeout, fillColor, bgColor);
+    queryManager.anim = this.animate_sparql_query(queryManager.preElem, timeout);
     return queryManager;
   }
 
@@ -6010,11 +6046,24 @@ SERVICE wikibase:label {
   }
 
   initializeQueryManager(args) {
+    /*
+      Initializes a SPARQL query with a QueryManager.
+
+      @param {object} args Arguments to configure a managed SPARQL query.
+     */
     // Reference: https://www.w3.org/TR/sparql11-protocol/
-    if (args == null) { args = {}; }
-    if (args.success_handler == null) { args.success_handler = noop; }
-    if (args.error_callback == null) { args.error_callback = noop; }
-    if (args.timeout == null) { args.timeout = this.get_sparql_timeout_msec(); }
+    var default_args = {
+      use_proxy: false,
+      method: 'GET',
+      timeout: this.get_sparql_timeout_msec(),
+      success_handler: (data, textStatus, jqXHR) => {
+        console.warn('implement success_handler')
+      },
+      error_callback: (jqxhr, textStatus, errorThrown, queryManager) => {
+        console.warn('implement error_callback', errorThrown) ;
+      }
+    };
+    args = Object.assign(default_args, args || {});
 
     const queryManager = this.log_query_with_timeout(args.query, args.timeout);
     queryManager.args = args;
@@ -6063,6 +6112,8 @@ SERVICE wikibase:label {
       var proxy_url = window.location.origin + "/SPARQLPROXY/";
       ajax_settings.url = proxy_url + ajax_settings.url;
     }
+    // rewrite serverUrl protocol to https if window.location is https
+    serverUrl = upgrade_to_https_if_needed(serverUrl);
     queryManager.setXHR($.ajax({
       timeout: timeout,
       method: method,
@@ -6100,7 +6151,6 @@ SERVICE wikibase:label {
     const queryManager = this.initializeQueryManager(args);
     return queryManager;
   }
-
 
   add_nodes_from_SPARQL(json_data, subject, queryManager) {
     const data = '';
@@ -6364,7 +6414,8 @@ SERVICE wikibase:label {
   }
 
   update_graph_radius() {
-    this.graph_region_radius = Math.floor(Math.min(this.width / 2, this.height / 2));
+    this.graph_region_radius = Math.floor(Math.min(this.width / 2,
+                                                   this.height / 2));
     this.graph_radius = this.graph_region_radius * this.shelf_radius;
   }
 
@@ -7734,8 +7785,6 @@ SERVICE wikibase:label {
     }
   }
 
-  // https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB
-
   big_go_button_onclick() {
     if (this.using_sparql()) {
       return this.big_go_button_onclick_sparql();
@@ -7743,7 +7792,7 @@ SERVICE wikibase:label {
     this.visualize_dataset_using_ontology();
   }
 
-    big_go_button_onclick_sparql(event) {
+  big_go_button_onclick_sparql(event) {
     let endpoint_label_uri, graphUri;
     if (this.allGraphsChosen()) {
       let foundUri;
@@ -7907,7 +7956,6 @@ SERVICE wikibase:label {
   }
 
   update_graph_form(e) {
-    //console.log(e.currentTarget.value);
     this.endpoint_loader.endpoint_graph = e.currentTarget.value;
   }
 
@@ -7926,7 +7974,8 @@ SERVICE wikibase:label {
     // TODO: it would be good if one could pass an argument to disable the close button
     // TODO: display some stats about what is happening...
     // TODO: I do not think that this information should be provided through the make_doalog method
-    this.my_loading_notice_dialog = this.make_markdown_dialog(this.loading_notice_markdown, null, args);
+    this.my_loading_notice_dialog = this.make_markdown_dialog(
+      this.loading_notice_markdown, null, args);
   }
 
   turn_off_loading_notice_if_enabled() {
@@ -7947,7 +7996,7 @@ SERVICE wikibase:label {
 
   visualize_dataset_using_ontology_and_script(ignoreEvent, dataset, ontologies, scripts) {
     // preload scripts, if any, then visualize
-    /* 
+    /*
     if (scripts && scripts.length) {
       const script = scripts[0];
       if (scripts.length > 1) {
@@ -8135,7 +8184,9 @@ SERVICE wikibase:label {
   }
 
   get_data_ontology_display_id() {
-    if (this.data_ontology_display_id == null) { this.data_ontology_display_id = this.unique_id('datontdisp_'); }
+    if (this.data_ontology_display_id == null) {
+      this.data_ontology_display_id = this.unique_id('datontdisp_');
+    }
     return this.data_ontology_display_id;
   }
 
@@ -8316,22 +8367,6 @@ SERVICE wikibase:label {
     this.dataset_watermark_JQElem.text(dataset_str);
     this.ontology_watermark_JQElem.text(ontology_str);
   }
-
-
-                                                                                      
-                                                                                      
-                                                                                      
-                                                                                      
-                                                                                      
-                                                                                      
-                                                                                      
-                                                                                      
-                                                                                      
-                                                                                      
-                                                                                      
-                                                                                      
-
-
 
   // Called when the user selects an endpoint_labels autosuggestion
   endpoint_labels__autocompleteselect(event) {
@@ -9016,8 +9051,8 @@ WHERE {
   initialize_d3_force_simulation() {
     this.d3simulation = d3.forceSimulation();
     //@force = @d3simulation.force('link')
-    console.info("must implement d3v4 linkDistance, charge, size and gravity");
-    console.warn('https://github.com/d3/d3/blob/master/CHANGES.md#forces-d3-force');
+    //console.info("must implement d3v4 linkDistance, charge, size and gravity");
+    //console.warn('https://github.com/d3/d3/blob/master/CHANGES.md#forces-d3-force');
     // https://github.com/d3/d3-force/blob/v1.2.1/README.md#_force
     this.d3simulation.nodes([]).on('tick',this.tick);
   }
@@ -9766,6 +9801,11 @@ WHERE {
   on_change_collideStrength(new_val, old_val) {
     this.change_setting_to_from('collideStength', new_val, old_val, true);
     this.update_d3forceCollide();
+    this.updateWindow();
+  }
+
+  on_change_centeringForceStrength(new_val, old_val) {
+    this.change_setting_to_from('centeringForceStrength', new_val, old_val, true);
     this.updateWindow();
   }
 

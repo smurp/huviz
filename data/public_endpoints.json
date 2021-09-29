@@ -1,13 +1,14 @@
 {
   "datasets": [
     {
-      "uri": "http://aksw.org/sparql",
+      "uri": "https://aksw.org/sparql",
       "label": "Agile Knowledge Engineering and Semantic Web"
     },
     {
-      "uri": "http://dbpedia.org/sparql",
+      "uri": "https://dbpedia.org/sparql",
       "label": "DBpedia",
-      "ontology_label": "DBpedia Ontology"
+      "ontology_label": "DBpedia Ontology",
+      "skip_graph_search": true
     },
     {
       "uri": "http://data.open.ac.uk/query",
@@ -21,7 +22,8 @@
     },
     {
       "uri": "https://query.wikidata.org/sparql",
-      "label": "WikiData Query Service"
+      "label": "WikiData Query Service",
+      "skip_graph_search": true
     },
     {
       "uri": "http://ldf.fi/ww1lod/sparql",

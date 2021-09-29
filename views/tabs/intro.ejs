@@ -1,26 +1,25 @@
           <div id="contents_of_intro_tab">
-            <h1 class="git-branch-is-<%= nopts.git_branch_name %>">
+            <h1 class="git-<%= nopts.git_branch_name %>">
               HuViz
-              <% if (nopts.git_commit_hash) { %>
-                <sup class="git_commit_hash">
-                  <a target="huviz_version"
-                     href="https://github.com/smurp/huviz/commit/<%= nopts.git_commit_hash %>"><%= nopts.git_commit_hash %></a>
+              <sup class="semantic-version">
+                  <a target="_" href="https://gitlab.com/calincs/access/HuViz/"><%= process.env.npm_package_version%></a>
                 </sup>
-              <% } %>
             </h1>
             <h2>RDF Explorer</h2>
             <h6>(currently works best in Google Chrome)</h6>
-            <div class="huviz-versions">
-              <a href="http://huviz.dev.nooron.com"
-                 class="git-branch-is-master <% if (nopts.git_branch_name == 'master') {%>current-git-branch<% } %>">production</a>
-              <a href="http://beta.huviz.dev.nooron.com"
-                 class="git-branch-is-beta  <% if (nopts.git_branch_name == 'beta') { %>current-git-branch<% } %>">beta</a>
-              <a href="http://alpha.huviz.dev.nooron.com"
-                 class="git-branch-is-alpha  <% if (nopts.git_branch_name == 'alpha') { %>current-git-branch<% } %>">alpha</a>
-              <a href="/more">more</a>
+            <div class="huviz-versions" style="font-size:1.5em">
+              <a href="http://huviz.lincsproject.ca"
+                 class="git-branch-main <% if (nopts.git_branch_name == 'main') {%>current-git-branch<% } %>">main</a>
+              <a href="http://huviz-classic.lincsproject.ca"
+                 class="git-classic  <% if (nopts.git_branch_name == 'classic') { %>current-git-branch<% } %>">classic</a>
+              <% if (nopts.git_branch_name != 'main' && nopts.git_branch_name != 'classic') { %>
+                <a target="_"
+                     href="https://gitlab.com/calincs/access/HuViz/-/environments" class="current-git-branch">branch</a>
+              <% }%>
             </div>
-            <h4><a target="_" href="https://cwrc.ca/Documentation/HuViz/">Documentation</a></h4>
+            <h4 style="font-size: 1.3em"><a target="_" href="https://cwrc.ca/Documentation/HuViz/">Documentation</a></h4>
             <h4 style="zoom: 0.8"><a href="https://nooron.com/public/HuViz_DH2019.pdf">Emergent Serendipity with HuViz</a></h4>
+
             <p>
               The Humanities Visualizer (HuViz) interface allows for the
               exploration of semantic relationships and ontologies
@@ -31,7 +30,7 @@
               chose to explore one of the existing datasets available on the
               Command panel to explore the information and relationships
               encoded in the textbase
-              <a href="http://www.artsrn.ualberta.ca/orlando/">Orlando: Women's Writing in the British Isles from the Beginnings to the Present</a>.
+              <a target="_" href="http://www.artsrn.ualberta.ca/orlando/">Orlando: Women's Writing in the British Isles from the Beginnings to the Present</a>.
               For example, Huviz allows for the exploration in RDF triples that assert things like
             </p>
             <ul>
@@ -59,8 +58,7 @@
             </p>
             <div class="clear"></div>
             <div class="usage_attribution">
-              <a href="https://github.com/cwrc/HuViz">HuViz is Available on GitHub</a>
-              <!-- <p><a href="/srcdocs/">Source Docs</a></p> -->
+              <a target="_" href="https://gitlab.com/calincs/access/HuViz/-/environments">HuViz is Available on GitLab</a>
               <p>Datasets: <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC - Attribution-NonCommercial</a></p>
               <p>Screenshots of HuViz: <a href="https://creativecommons.org/licenses/by-nc/4.0/">CC - Attribution</a></p>
               <div class="clear"></div>

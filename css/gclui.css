@@ -1,3 +1,8 @@
+:root {
+  --engaged-button-bg-color: royalblue;
+  --engaged-button-txt-color: white;
+}
+
 .gclui {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -92,8 +97,8 @@
 }
 
 .singletons .verb {
-    /* line the singletons up in a row */
-    display: inline;
+  /* line the singletons up in a row */
+  display: inline;
 }
 
 /* New alternate verb styling ends here */
@@ -123,12 +128,12 @@
 }
 
 .engaged {
-  background-color: royalblue;
+  background-color: var(--engaged-button-bg-color);
+  color: var(--engaged-button-txt-color);
   border-top:1px solid #aaa;
   border-right:1px solid #eee;
   border-left:1px solid #aaa;
   border-bottom:1px solid #eee;
-  color: white;
 }
 .verb:hover {
   background-color: #ccc;
@@ -153,13 +158,7 @@
 .taxonomydiv {
   margin:0.1em;
 }
-.shield {
-  position: absolute;
-  top:0px;
-  left:0px;
-  background-color:rgba(63,63,63,.5);
-  z-index:5000;
-}
+
 
 .result-none, .result-error, .result-success, .result-default {
   display: inline-block;
@@ -171,7 +170,7 @@
 }
 
 .command.played {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .command.played .query-results{
@@ -197,15 +196,14 @@
   position: relative;
   cursor: default;
   padding-right: 1em;
-  /* AARRG!!!                                                  
-       z-index: -1                                             
-         This is needed so inset_shadow covers the commands    
-         BUT then the delete buttons no longer work;           
+  /* AARRG!!!
+       z-index: -1
+         This is needed so inset_shadow covers the commands
+         BUT then the delete buttons no longer work;
   */
 }
 .command.played {
   background-color: #fcf59b;  /* legal pad yellow */
-
 }
 .tabs-sparqlQueries .command.played {
   /*width: fit-content;*/
@@ -271,9 +269,9 @@
   color: white;
 }
 .commandhistory {
-    overflow-y: scroll;
-    resize: vertical;
-    min-height: 1.5em;
+  overflow-y: scroll;
+  resize: vertical;
+  min-height: 1.5em;
 }
 .commandhistory, .nextcommand {
   /* the box  styling */
@@ -300,7 +298,7 @@
   overflow:auto;
 }
 .treepicker-showing {
-    background-color: tan;
+  background-color: tan;
 }
 /* display: inline-block and white-space: nowrap */
 .treepicker-hidden {
@@ -363,7 +361,6 @@
   background: darkgray;
   cursor: inherit;
 }
-
 .taxon_picker_box_parent {
   float: left;
   width: 48%
@@ -381,17 +378,16 @@
   user-select: initial;
 }
 .nextcommand_prompt_ready {
-  color: #888;
+  background-color: lightgreen;
 }
 .nextcommand_prompt_unready {
-  color: grey;
+  background-color: lightpink;
   font-style: italic;
 }
 .nextcommand_prompt_proposed {
   color: red;
   font-style: bold;
 }
-
 .close_hint {
   background-color: red;
   color: white;
@@ -423,11 +419,9 @@
 .box__error {
   display: none;
 }
-
 .box__error {
   background-color: red;
 }
-
 .local_file_form.is-dragover {
   background-color: green;
 }
@@ -481,10 +475,10 @@
   border-right: 1px solid #aaa;
   border-left: 1px solid #eee;
   border-bottom: 1px solid #aaa;
-  background-color: #f5f5f5;
+  background-color: var(--engaged-button-bg-color);
+  color: var(--engaged-button-txt-color);
   padding: 3px 4px;
   border-radius: 3px;
-  color: #666;
 }
 .big_go_button:hover {
   background-color: #ddd;
@@ -494,7 +488,6 @@
   color:#ccc;
   background-color: inherit;
   border-color: #ddd;
-
 }
 .pick_or_provide_form button:enabled{
   color: #9c1111;
@@ -545,16 +538,16 @@ Here are a few resources with hints in this direction:
 
 /* style_of_set_picker = wrenched */
 .set_picker_box_parent.wrenched > .control_label::after{
-    content: "(wrenched)";
-    margin-left: 1em;
+  content: "(wrenched)";
+  margin-left: 1em;
 }
 .set_picker_box_parent.wrenched > #sets.container {
-    display: table;
-    height: 9.3em;
+  display: table;
+  height: 9.3em;
 }
 ..set_picker_box_parent.wrenched .contents {
-    padding: 50% 0;
-    /*   height: 0; */
+  padding: 50% 0;
+  /*   height: 0; */
 }
 .set_picker_box_parent.wrenched > #sets .treepicker-label {
   display: block;
@@ -568,12 +561,12 @@ Here are a few resources with hints in this direction:
 
 /* style_of_set_picker = tipped */
 .set_picker_box_parent.tipped > .control_label::after{
-    content: "(tipped)";
-    margin-left: 1em;
+  content: "(tipped)";
+  margin-left: 1em;
 }
 .set_picker_box_parent.tipped #sets.container {
-    display: inline-flex;
-    height: 9.3em;
+  display: inline-flex;
+  height: 9.3em;
 }
 .set_picker_box_parent.tipped > #sets .treepicker-label {
   transform-origin: top left;
@@ -588,18 +581,17 @@ Here are a few resources with hints in this direction:
   white-space: nowrap;
 }
 
-
 /* style_of_set_picker = canted */
 .set_picker_box_parent.canted > .control_label::after{
-    content: "(canted)";
-    margin-left: 1em;
+  content: "(canted)";
+  margin-left: 1em;
 }
 .set_picker_box_parent.canted #sets.container {
-    display: flex;
-    flex-wrap: nowrap;
-    justify-content: space-evenly;
-    flex-direction: row;
-    height: 9.3em;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-evenly;
+  flex-direction: row;
+  height: 9.3em;
 }
 .set_picker_box_parent.canted > #sets .treepicker-label {
   transform-origin: top left;
@@ -609,11 +601,10 @@ Here are a few resources with hints in this direction:
   border-radius: .2em;
 }
 
-
 /* style_of_set_picker = torqued */
 .set_picker_box_parent.torqued > .control_label::after{
-    content: "(torqued)";
-    margin-left: 1em;
+  content: "(torqued)";
+  margin-left: 1em;
 }
 .set_picker_box_parent.torqued > #sets.container {
   --move-sets-up: -8.5em;

@@ -1,6 +1,6 @@
 {
   "name": "huviz",
-  "version": "0.55.0",
+  "version": "0.59.0",
   "license": "GPL-3.0-or-later",
   "repository": {
     "type": "git",
@@ -12,13 +12,19 @@
   },
   "author": "Shawn Murphy <smurp@smurp.com> (http://smurp.com)",
   "contributors": [
-    "Wolf Maul",
-    "John Simpson <john.simpson@ualberta.ca>"
+    "Alliyya Mo",
+    "Anna Costalonga <anna@heyclassic.com>",
+    "Illia Dorosh",
+    "John Simpson <john.simpson@ualberta.ca>",
+    "Kim Martin",
+    "Kathleen McCulloch-Cop",
+    "Pieter Botha",
+    "Rashmeet Kaur",
+    "Samuel Aiudi-Murphy",
+    "Susan Brown",
+    "Wolf Maul"
   ],
   "type": "module",
-  "config": {
-    "jsInOrder": "src/angliciser.js src/greenerturtle.js src/indexeddbservice.js src/indexeddbstoragecontroller.js src/graphcommandlanguage.js src/querymanager.js src/uniquer.js src/treepicker.js src/fsm.js src/editui.js src/coloredtreepicker.js src/treectrl.js src/predicate.js src/taxon.js src/sortedset.js src/gclui.js src/hsv.js src/hsl.js src/edge.js src/node.js src/textcursor.js src/quadParser.js src/multistring.js src/oncerunner.js src/dndloader.js src/settingswidgets.js src/settings.js src/huviz.js"
-  },
   "main": "lib/huviz.js",
   "dependencies": {
     "@fnando/sparkline": "^0.3.10",
@@ -46,25 +52,39 @@
     "arkit": "^1.6.4",
     "browserify": "^16.2.3",
     "chai": "4.2.0",
+    "chromedriver": "^91.0.1",
     "docco": "^0.8.0",
     "documentation": "^13.1.0",
     "eslint": "^5.16.0",
     "mocha": "8.2.1",
     "npm-run-all": "^4.1.5",
-    "onchange": "^7.1.0"
+    "onchange": "^7.1.0",
+    "selenium-side-runner": "^3.17.0",
+    "selenium-webdriver": "^4.0.0-beta.4",
+    "start-server-and-test": "^1.12.6"
   },
   "scripts": {
     "build": "npm-run-all --parallel build:*",
     "build:diag": "arkit -d src -o docs/huviz_system_diagram.svg > /dev/null",
-    "build:js": "rollup  -i src/huviz.js --file lib/huviz.js --no-treeshake",
+    "build:js": "rollup  -c # builds lib/huviz.js",
     "watch": "npm-run-all --parallel watch:*",
-    "watch:dev": "onchange -i -k server.js .env lib/huviz.js package.json -- npm start",
-    "watch:js": "onchange -i --await-write-finish 2000 'src/*.js' 'wc/**/*' package.json -- npm run build",
-    "PAUSED:watch:test": "onchange 'lib/huviz.js' -- npm test",
+    "watch:dev": "onchange -i -k server.js lib/huviz.js package.json rollup.config.js -- npm run inspect",
+    "watch:js": "onchange --await-write-finish 2000 'wc/**/*' 'src/*.js' package.json -- npm run build",
+    "watch:unit": "onchange -i lib/huviz.js test/* package.json -- npm run test:unit",
+    "inspect": "node --inspect=9227 server.js",
+    "release:patch": "npm version patch -m 'bump patch level to %s'",
+    "release:minor": "npm version minor -m 'bump minor version to %s'",
+    "postversion": "git push && git push --tags",
     "start": "node server.js --git_commit_hash `git log --format=\"%h\" -n 1` --git_branch_name `git rev-parse --abbrev-ref HEAD`",
-    "test": "mocha --reporter spec",
-    "watchTest": "onchange -i -k server.js lib/huviz.js package.json test/* -- npm run test",
-    "watchTestFSM": "onchange -i -k server.js lib/huviz.js package.json test/* -- npm run test -- --grep FiniteState",
+    "start:test-server": "npm run start > /dev/null",
+    "test": "start-server-and-test start:test-server :5000 test:all",
+    "test:all": "npm-run-all --parallel test:unit test:user",
+    "test:unit": "mocha --reporter spec",
+    "test:user": "npx selenium-side-runner -c \"browserName=chrome goog:chromeOptions.args=[--headless,--nogpu]\" test/user_tests.side",
+    "watchTest": "onchange -i -k server.js lib/huviz.js package.json test/* -- npm run test:all",
+    "watchTest:user": "onchange -i -k server.js lib/huviz.js package.json test/* -- npm run test:user",
+    "watchTest:unit": "onchange -i -k server.js lib/huviz.js package.json test/* -- npm run test:unit",
+    "watchTestFSM": "onchange -i -k server.js lib/huviz.js package.json test/* -- npm run test:unit -- --grep FiniteState",
     "DEPRECATED:buildSrcDocs": "npx docco -o srcdocs  server.coffee src/*.coffee | node bin/make_srcdocs_index.js > srcdocs/index.md && npx marked srcdocs/index.md > srcdocs/index.html"
   }
 }

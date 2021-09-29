@@ -10,6 +10,7 @@ variables:
 #  CONTAINER_SCANNING_DISABLED: 1
   DEPENDENCY_SCANNING_DISABLED: 1
 #  LICENSE_MANAGEMENT_DISABLED: 1
+  DISABLE_LICENSE_SCANNING: 1
   SAST_DISABLED: 1
   SECRET_DETECTION_DISABLED: 1
   DAST_DISABLED: 1
@@ -22,11 +23,29 @@ variables:
 
 # Override test job
 test:
+<<<<<<< HEAD
   script:
     - echo "placeholder for testing"
   needs:
     - build
 
+=======
+  image: node:14
+  script:
+    - npm install
+    - npm run test:unit
+  needs:
+    - build
+
+# Only rebuild node_modules if package.json changes
+cache:
+  key:
+    files:
+      - package.json
+  paths:
+    - node_modules
+
+>>>>>>> main
 # Template to override common deployment parameters
 .deployment: &deployment
   environment:

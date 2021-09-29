@@ -1,0 +1,13 @@
+service:
+  externalPort: 5000
+  internalPort: 5000
+livenessProbe:
+  probeType: "exec"
+  command: ["sh", "-c", "echo"]
+  initialDelaySeconds: 5
+  timeoutSeconds: 5
+readinessProbe:
+  probeType: "exec"
+  command: ["sh", "-c", "echo"]
+  initialDelaySeconds: 5
+  timeoutSeconds: 5

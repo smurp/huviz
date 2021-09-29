@@ -209,13 +209,13 @@ rect {
   background-position:initial;
 }
 .ui-dialog .ui-button .ui-icon, .ui-dialog .ui-button .ui-icon:hover {
-    background-image:url('/close_box.png');
-    background-position:initial;
-    background-size: 0.8em;
-    border-style: none;
-    background-color:initial;
-    margin-top: -0.39em;
-    margin-left: -0.38em;
+  background-image:url('/close_box.png');
+  background-position:initial;
+  background-size: 0.8em;
+  border-style: none;
+  background-color:initial;
+  margin-top: -0.39em;
+  margin-left: -0.38em;
 }
 .ui-dialog button.ui-dialog-titlebar-close:hover {
   background: #fff none 50% 50% repeat-x;
@@ -268,13 +268,13 @@ div.message_wrapper {
   margin-inline-start: 2.3em;
 }
 .edge_circle{
-   background-color: #000;
-   display: block;
-   margin-right: 0.5em;
-   border-radius: 50%;
-   position: absolute;
-   height: 1em;
-   width: 1em;
+  background-color: #000;
+  display: block;
+  margin-right: 0.5em;
+  border-radius: 50%;
+  position: absolute;
+  height: 1em;
+  width: 1em;
 }
 .edge_arrow {
   position: absolute;
@@ -337,44 +337,44 @@ div.message_wrapper {
 }
 
 .boxNG {
-    border: .5px solid black;
-    border-radius: .4em;
-    display: none;
-    padding: .2em;
-    position: absolute;
-    text-align: center;
-    user-select: none;
-    background-color: rgb(255,255,255, .9);
-    box-shadow: 3px 3px 3px 0px #000000;
+  border: .5px solid black;
+  border-radius: .4em;
+  display: none;
+  padding: .2em;
+  position: absolute;
+  text-align: center;
+  user-select: none;
+  background-color: rgb(255,255,255, .9);
+  box-shadow: 3px 3px 3px 0px #000000;
 }
 
 .boxNGs .boxNG {
-    display: inline;
+  display: inline;
 }
 
 .boxNG.focusedNode {
-    background-color: #f2f2f2;
-    //text-decoration: line-through red;
+  background-color: #f2f2f2;
+  /* text-decoration: line-through red; */
 }
 
 .noBoxes .boxNG {
-    border: none;
-    margin-top: -0.8em;
-    margin-left: .3em;
+  border: none;
+  margin-top: -0.8em;
+  margin-left: .3em;
 }
 
 .urlToShare {
-    border: 0.5px solid black;
-    overflow-wrap: anywhere;
-    width: 90%;
-    margin-left: 1em;
+  border: 0.5px solid black;
+  overflow-wrap: anywhere;
+  width: 90%;
+  margin-left: 1em;
 }
 
 .shareableLinkDialog {
-    height: fit-content;
-    max-width: 20%;
+  height: fit-content;
+  max-width: 20%;
 }
 
 #sharableLinkText {
-    padding-left: 1em;
+  padding-left: 1em;
 }
