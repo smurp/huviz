@@ -4,6 +4,7 @@
 
 */
 
+import {colorlog} from '../../src/huviz.js';
 import {FSMMixin, FiniteStateMachine} from '../../src/fsm.js';
 import {DatasetDBMixin} from '../../src/datasetdb.js';
 import {PickOrProvidePanel} from '../pickorprovide/pickorprovide.js';
@@ -59,6 +60,7 @@ var XXXresMenFSMTTL= `
 export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
   constructor() {
     super();
+    window.theResourceMenu = this;
     this.parseMachineTTL(resMenFSMTTL);
     this._debug = true;
     const template = document
@@ -141,15 +143,66 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     switch (whichLoader) {
     case this.dataset_loader:
       this.set_ontology_from_dataset_if_possible();
+      //this.try_to_visualize_dataset_using_ontology_and_script();
       break;
     case this.endpoint_loader:
       this.transit('pick', evt);
       console.error("implement state change to sparqlDetails");
       break;
-
+    case this.ontology_loader:
+      console.warn('handleLoaderClickInResourceMenu a noop for ontology_loader')
+      break;
+    case this.script_loader:
+      console.warn('handleLoaderClickInResourceMenu a noop for script_loader')
+      //this.try_to_visualize_script();
+      this.get_resource_from_db(whichLoader.value, this.load_script_and_run.bind(this));
+      break;
     default:
       console.warn(whichLoader, "ignored by handleLoaderClickInResourceMenu()");
     }
+    console.log("value:",whichLoader.value);
+  }
+
+  load_script_and_run(err, rsrcRec) {
+    if (err != null) {
+      this.blurt(err, 'error');
+    }
+    this.load_script_from_db(err, rsrcRec);
+    this.auto_click_big_go_button_if_ready();
+  }
+
+  try_to_visualize_script(ignoreEvent, dataset, ontologies, scripts) {
+    // Either dataset and ontologies are passed in by HuViz.load_with() from a command
+    // or we are called with neither in which case get values from the SPARQL or SCRIPT loaders
+    var huviz = this.huviz;
+    let data, endpoint_label_uri;
+    colorlog('visualize_dataset_using_ontology_and_script()');
+    huviz.close_blurt_box();
+
+    // If we are loading from a SCRIPT
+    const alreadyCommands = huviz.gclui.future_cmdArgs.length > 0;
+    console.error('reimplement script loading for dataset and onto picking');
+    if (this.script_loader && this.script_loader.value && !alreadyCommands) {
+      const scriptUri = this.script_loader.value;
+      this.get_resource_from_db(scriptUri, this.load_script_from_db.bind(this));
+      return;
+    }
+
+    // Otherwise we are starting with a dataset and ontology
+    huviz.turn_on_loading_notice_if_enabled();
+    //const onto = (ontologies && //ontologies[0]) || this.ontology_loader;
+    const onto = ontologies[0]
+    data = dataset; //|| this.dataset_loader;
+    // at this point data and onto are both objects with a .value key, containing url or fname
+    if (!(onto.value && data.value)) {
+      console.debug(data, onto);
+      this.update_dataset_forms();
+      throw new Error("Now whoa-up pardner... both data and onto should have .value");
+    }
+    huviz.load_data_with_onto(data, onto, huviz.after_visualize_dataset_using_ontology);
+    huviz.update_browser_title(data);
+    huviz.update_caption(data.value, onto.value);
+    huviz.disable_dataset_ontology_loader(data, onto, endpoint);
   }
 
   update_resource_menu(args) {
@@ -223,15 +276,34 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     sumut.setSelectedElem(elem);
   }
 
-  set_dataset_with_uri(seek) {
-    this.set_SOMETHING_by_selector(this.dataset_loader, `[value='${seek}']`);
+  set_SOMETHING_to_value(sumut, val) {
+    sumut.val(val);
+    console.log("set_SOMETHING_to_value()", sumut.label, val)
+  }
+
+  set_dataset_with_uri(uri) {
+    //this.set_SOMETHING_by_selector(this.dataset_loader, `[value='${uri}']`);
+    this.set_SOMETHING_to_value(this.dataset_loader, uri);
   }
 
   set_ontology_with_label(seek) {
     this.set_SOMETHING_by_selector(this.ontology_loader, `[label='${seek}']`);
   }
 
-  set_ontology_with_uri(seek) {
-    this.set_SOMETHING_by_selector(this.ontology_loader, `[value='${seek}']`);
+  set_ontology_with_uri(uri) {
+    //this.set_SOMETHING_by_selector(this.ontology_loader, `[value='${uri}']`);
+    this.set_SOMETHING_to_value(this.ontology_loader, uri);
+  }
+
+  adjust_menus_from_load_cmd(cmd) { // move to resourcemenu
+    // Adjust the dataset and ontology loaders to match the cmd
+    if (cmd.ontologies && (cmd.ontologies.length > 0) && !this.ontology_loader.value) {
+      this.set_ontology_with_uri(cmd.ontologies[0]);
+      if (cmd.data_uri && !this.dataset_loader.value) {
+        this.set_dataset_with_uri(cmd.data_uri);
+        return true;
+      }
+    }
+    return false;
   }
 }

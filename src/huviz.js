@@ -143,7 +143,7 @@ customElements.define('resource-menu', ResourceMenu);
 
 MultiString.set_langpath('en:fr'); // TODO make this a setting
 
-const colorlog = function(msg, color, size) {
+export const colorlog = function(msg, color, size) {
   if (color == null) { color = "red"; }
   if (size == null) { size = "1.2em"; }
   return console.log(`%c${msg}`, `color:${color};font-size:${size};`);
@@ -972,8 +972,9 @@ Here is how:
     this.turn_off_loading_notice = this.turn_off_loading_notice.bind(this);
     this.visualize_dataset_using_ontology = this.visualize_dataset_using_ontology.bind(this);
     this.after_visualize_dataset_using_ontology = this.after_visualize_dataset_using_ontology.bind(this);
-    this.load_script_from_db = this.load_script_from_db.bind(this);
+
     /*
+    this.load_script_from_db = this.load_script_from_db.bind(this);
     this.update_endpoint_form = this.update_endpoint_form.bind(this);
     this.reset_endpoint_form = this.reset_endpoint_form.bind(this);
     this.disable_go_button = this.disable_go_button.bind(this);
@@ -7991,6 +7992,7 @@ SERVICE wikibase:label {
   }
 
   visualize_dataset_using_ontology(ignoreEvent, dataset, ontologies) {
+    colorlog('visualize_dataset_using_ontology_and_script()');
     this.visualize_dataset_using_ontology_and_script(ignoreEvent, dataset, ontologies);
   }
 
@@ -8013,7 +8015,7 @@ SERVICE wikibase:label {
     // or we are called with neither in which case get values from the SPARQL or SCRIPT loaders
 
     let data, endpoint_label_uri;
-    colorlog('visualize_dataset_using_ontology()');
+    colorlog('visualize_dataset_using_ontology_and_script()');
     this.close_blurt_box();
 
     // If we are loading from a SPARQL endpoint
@@ -8034,13 +8036,11 @@ SERVICE wikibase:label {
     // If we are loading from a SCRIPT
     const alreadyCommands = this.gclui.future_cmdArgs.length > 0;
     console.error('reimplement script loading for dataset and onto picking');
-    /*
     if (this.script_loader && this.script_loader.value && !alreadyCommands) {
       const scriptUri = this.script_loader.value;
       this.get_resource_from_db(scriptUri, this.load_script_from_db);
       return;
     }
-    */
 
     // Otherwise we are starting with a dataset and ontology
     this.turn_on_loading_notice_if_enabled();
@@ -8065,21 +8065,13 @@ SERVICE wikibase:label {
     }
   }
 
-  load_script_from_db(err, rsrcRec) {
-    if (err != null) {
-      this.blurt(err, 'error');
-    } else {
-      this.load_script_from_JSON(this.parse_script_file(rsrcRec.data, rsrcRec.uri));
-    }
-  }
-
   load_script_from_uri(scriptUri) {
     $.ajax({
       url: scriptUri,
       async: false,
       success: (data, textStatus) => {
-        var scriptJson = this.parse_script_file(data, scriptUri);
-        this.load_script_from_JSON(scriptJson);
+        var scriptPOJO = this.parse_script_to_POJO(data, scriptUri);
+        this.load_script_from_POJO(scriptPOJO);
       },
       error: (jqxhr, textStatus, errorThrown) => {
         this.show_state_msg(errorThrown + " while fetching script" + scriptUri);
@@ -10040,37 +10032,26 @@ WHERE {
     return script;
   }
 
-  adjust_menus_from_load_cmd(cmd) { // move to resourcemenu
-    // Adjust the dataset and ontology loaders to match the cmd
-    if (cmd.ontologies && (cmd.ontologies.length > 0) && !this.ontology_loader.value) {
-      this.resourcemenu.set_ontology_with_uri(cmd.ontologies[0]);
-      if (cmd.data_uri && !this.dataset_loader.value) {
-        this.resourcemenu.set_dataset_with_uri(cmd.data_uri);
-        return true;
-      }
-    }
-    return false;
-  }
-
-  load_script_from_JSON(json) {
-    //alert('load_script_from_JSON')
+  load_script_from_POJO(listOfCmds) {
+    console.log('load_script_from_POJO')
     let saul_goodman = false;
-    for (let cmdArgs of json) {
+    for (let cmdArgs of listOfCmds) { // a HuViz script is actually an ARRAY of POJOs
       if (cmdArgs.verbs.includes('load')) {
-        saul_goodman = this.adjust_menus_from_load_cmd(cmdArgs);
+        saul_goodman = this.resourceMenu.adjust_menus_from_load_cmd(cmdArgs);
       } else {
         this.gclui.push_cmdArgs_onto_future(cmdArgs);
       }
     }
   }
 
-  parse_script_file(data, fname) {
+  parse_script_to_POJO(data, fname) {
     // There are two file formats, both with the extension .txt
     //   1) * Commands as they appear in the Command History
-    //      * Followed by the comment on a line of its own
+    //      * Followed by the json_script_marker on a line
     //      * Followed by the .json version of the script, for trivial parsing
     //   2) Commands as they appear in the Command History
     // We should be able to stop emitting 1) when the parser for 2) is complete.
+    if (!data) throw new Error(`${fname} was not retrievable`);
     const lines = data.split('\n');
     while (lines.length) {
       const line = lines.shift();
@@ -10078,6 +10059,7 @@ WHERE {
         return JSON.parse(lines.join("\n"));
       }
     }
+    console.warn(`script ${fname} was empty`);
     return {};
   }
 

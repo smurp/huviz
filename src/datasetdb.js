@@ -8,6 +8,7 @@ import {
   DragAndDropLoader, DragAndDropLoaderOfScripts
 } from './dndloader.js';
 import {uniquer, unique_id} from './uniquer.js'; // TODO rename to make_dom_safe_id
+//import { openDB, deleteDB, wrap, unwrap } from 'idb';
 
 export let DatasetDBMixin = (superclass) => class extends superclass {
   init_datasetDB() {
@@ -66,9 +67,7 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
 
   ensure_dataset(rsrcRec, store_in_db) {
     // ensure the dataset is in the database and the correct
-    const {
-      uri
-    } = rsrcRec;
+    const { uri } = rsrcRec;
     if (rsrcRec.time == null) { rsrcRec.time = new Date().toString(); }
     if (rsrcRec.title == null) { rsrcRec.title = uri; }
     if (rsrcRec.isUri == null) { rsrcRec.isUri = !!uri.match(/^(http|ftp)/); }
@@ -134,7 +133,7 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
   get_resource_from_db(rsrcUri, callback) {
     const trx = this.datasetDB.transaction('datasets', "readwrite");
     trx.oncomplete = (evt) => {
-      return console.log(`get_resource_from_db('${rsrcUri}') complete, either by success or error`);
+      console.log(`get_resource_from_db('${rsrcUri}') complete, either by success or error`);
     };
     trx.onerror = (err) => {
       console.log(err);
@@ -191,11 +190,12 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
           if (rec.rsrcType === 'endpoint') {
             this.endpoint_loader.add_resource_option(rec);
           }
-          return cursor.continue();
+          cursor.continue();
         } else { // when there are no (or NO MORE) entries, ie FINALLY
-          //console.table(recs)
+          console.table(recs)
           // Reset the value of each loader to blank so
           // they show 'Pick or Provide...' not the last added entry.
+          console.log(this.dataset_loader.val);
           this.dataset_loader.val();
           this.ontology_loader.val();
           this.endpoint_loader.val();
@@ -729,6 +729,13 @@ LIMIT ${node_limit}\
     }
   }
 
+  load_script_from_db(err, rsrcRec) {
+    if (err != null) {
+      this.blurt(err, 'error');
+    } else {
+      this.huviz.load_script_from_POJO(this.huviz.parse_script_to_POJO(rsrcRec.data, rsrcRec.uri));
+    }
+  }
 
 }
 

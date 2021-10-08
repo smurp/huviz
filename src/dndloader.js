@@ -271,7 +271,7 @@ export class PickOrProvide {
     this.old_selectedElem = this.selectedElem;
     this.selectedElem = elem;
     let val = elem && elem.getAttribute('value');
-    console.log(`setSelectedElem ${this.label} to ${val}`);
+    console.log(`setSelectedElem ${this.label} to ${val} when this.constructor.name=${this?.constructor?.name}`);
     this.val(val);
   }
   option_click_listener(evt) {
@@ -368,7 +368,7 @@ export class PickOrProvide {
   }
 
   refresh() {
-    let cb = this.huviz.update_resource_menu.bind(this);
+    let cb = this.huviz.update_resource_menu.bind(this.containingElem);
     this.update_state(cb);
   }
 }

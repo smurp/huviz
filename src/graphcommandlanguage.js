@@ -544,6 +544,18 @@ export class GraphCommand {
     return spec;
   }
   parse(cmd_str) {
+    /*
+       Acceptable urls either look like:
+         load DATASET_URL with ONTOLOGY_URL
+       or
+         load DATASET_URL with ONTOLOGY_URL run SCRIPT_URL
+       or
+         run SCRIPT_URL
+       or
+         query QUERY_TERMS
+       or
+         UNTESTED_URL_TO_USE_AS_SUBJECT
+     */
     const parts = cmd_str.split(" ");
     const verb = parts[0];
     const cmd = {};
