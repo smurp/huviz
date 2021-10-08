@@ -278,7 +278,17 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
 
   set_SOMETHING_to_value(sumut, val) {
     sumut.val(val);
-    console.log("set_SOMETHING_to_value()", sumut.label, val)
+    console.log("set_SOMETHING_to_value()", sumut.label, val);
+  }
+
+  set_SOMETHING_by_label(sumut, label) {
+    let uri = sumut.uriByLabel[label];
+    if (uri) {
+      this.set_SOMETHING_to_value(sumut, uri);
+      console.log(`set_SOMETHING_by_label(${sumut.label}, ${uri}) for label "${label}"`);
+    } else  {
+      alert(`no uri found for ${sumut.label} with label "${label}"`);
+    }
   }
 
   set_dataset_with_uri(uri) {
@@ -286,8 +296,9 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     this.set_SOMETHING_to_value(this.dataset_loader, uri);
   }
 
-  set_ontology_with_label(seek) {
-    this.set_SOMETHING_by_selector(this.ontology_loader, `[label='${seek}']`);
+  set_ontology_with_label(label) {
+    //this.set_SOMETHING_by_selector(this.ontology_loader, `[label='${label}']`);
+    this.set_SOMETHING_by_label(this.ontology_loader, label);
   }
 
   set_ontology_with_uri(uri) {

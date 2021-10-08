@@ -49,6 +49,7 @@ export class PickOrProvide {
     this.pickable_uid = unique_id();
     this.your_own_uid = unique_id();
     this.find_or_append_form();
+    this.uriByLabel = {};
     const dndLoaderClass = this.opts.dndLoaderClass || DragAndDropLoader;
     this.drag_and_drop_loader = new dndLoaderClass(this.huviz, this.append_to, this);
     hide(this.drag_and_drop_loader.form);
@@ -259,6 +260,7 @@ export class PickOrProvide {
         opt.dataset[k] = val;
       }
     }
+    this.uriByLabel[opt_rec.label] = opt_rec.uri;
     opt.addEventListener('click', this.option_click_listener.bind(this));
     opt.classList.add('pick_or_provide_item')
     return opt;
