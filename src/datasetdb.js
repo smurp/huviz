@@ -8,7 +8,6 @@ import {
   DragAndDropLoader, DragAndDropLoaderOfScripts
 } from './dndloader.js';
 import {uniquer, unique_id} from './uniquer.js'; // TODO rename to make_dom_safe_id
-//import { openDB, deleteDB, wrap, unwrap } from 'idb';
 
 export let DatasetDBMixin = (superclass) => class extends superclass {
   init_datasetDB() {
@@ -131,7 +130,7 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
   }
 
   get_resource_from_db(rsrcUri, callback) {
-    const trx = this.datasetDB.transaction('datasets', "readwrite");
+    const trx = this.datasetDB.transaction('datasets', "readonly");
     trx.oncomplete = (evt) => {
       console.log(`get_resource_from_db('${rsrcUri}') complete, either by success or error`);
     };

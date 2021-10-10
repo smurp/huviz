@@ -275,7 +275,6 @@ export class PickOrProvide {
     this.val(val);
   }
   option_click_listener(evt) {
-    this.setSelectedElem(evt.target);
     this.containingElem.handleLoaderClickInResourceMenu(this, evt);
   }
 

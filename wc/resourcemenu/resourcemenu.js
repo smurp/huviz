@@ -140,9 +140,11 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
   }
 
   handleLoaderClickInResourceMenu(whichLoader, evt) {
+    let uri = evt.target.getAttribute('value');
     switch (whichLoader) {
     case this.dataset_loader:
-      this.set_ontology_from_dataset_if_possible();
+      whichLoader.setSelectedElem(evt.target);
+      //this.set_ontology_from_dataset_if_possible();
       //this.try_to_visualize_dataset_using_ontology_and_script();
       break;
     case this.endpoint_loader:
@@ -153,9 +155,7 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
       console.warn('handleLoaderClickInResourceMenu a noop for ontology_loader')
       break;
     case this.script_loader:
-      console.warn('handleLoaderClickInResourceMenu a noop for script_loader')
-      //this.try_to_visualize_script();
-      this.get_resource_from_db(whichLoader.value, this.load_script_and_run.bind(this));
+      this.get_resource_from_db(uri, this.load_script_and_run.bind(this));
       break;
     default:
       console.warn(whichLoader, "ignored by handleLoaderClickInResourceMenu()");
