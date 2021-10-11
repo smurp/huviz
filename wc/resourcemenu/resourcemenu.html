@@ -167,8 +167,23 @@
         relationships in linked datasets through interactive graphs.
       </p>
       <dl compact>
-        <dt class="danger"><b>New Here?</b></dt>
-        <dd class="danger">Explore with a mini or Harry Potter dataset</dd>
+        <dt><b>New Here?</b></dt>
+        <dd>
+          <!-- HuViz needs a reload() to follow hash links to start graphing -->
+          Explore with a
+          <button
+            onclick="location.assign(this.getAttribute('href'));location.reload();"
+            href="/#load+/data/cwrc-writer-citation.jsonld+with+/data/oa.ttl">
+            mini
+          </button>
+          or
+          <button
+            onclick="location.assign(this.getAttribute('href'));location.reload();"
+            href="/#load+https://raw.githubusercontent.com/alliyya/huviz_demo_data/master/Harry%20Potter/hp_rdf_data.ttl+with+https://raw.githubusercontent.com/alliyya/huviz_demo_data/master/Harry%20Potter/hp_wd_terms.ttl">
+            Harry Potter
+          </button>
+          dataset
+        </dd>
         <dt><button id="gotoStart">Start</button></dt>
         <dd>
           Pick a preloaded dataset, load your own file, or query
