@@ -35,6 +35,10 @@
     .ring {
       z-index: -1;
     }
+    .beBrave {
+      background-color: yellow;
+      font-size: small;
+    }
     h1, h2, h3, h4, h5, h6 {
       text-align: center;
     }
@@ -163,10 +167,13 @@
         relationships in linked datasets through interactive graphs.
       </p>
       <dl compact>
-        <dt><b>New Here?</b></dt>
-        <dd>Explore with a mini or Harry Potter dataset</dd>
+        <dt class="danger"><b>New Here?</b></dt>
+        <dd class="danger">Explore with a mini or Harry Potter dataset</dd>
         <dt><button id="gotoStart">Start</button></dt>
-        <dd>Pick a preloaded dataset, load your own file, or query an online knowledge base</dd>
+        <dd>
+          Pick a preloaded dataset, load your own file, or query
+          an online knowledge base
+        </dd>
         <dt><button id="gotoContinue">Continue</button></dt>
         <dd>Load an earlier HuViz session</dd>
       </dl>
@@ -178,15 +185,17 @@
       <dl>
         <dt><button id="gotoBrowse">Browse</button></dt>
         <dd>Pick a beginner or community contributed dataset</dd>
-        <dt><label for="datasetUpload"><button id="gotoUpload">Upload</button></label></dt>
-        <dd>Upload your own dataset or drag and drop anywhere on this page</dd>
-        <dt><button id="gotoURL">URL</button></dt>
-        <dd>
+        <dt class="danger">
+          <label for="datasetUpload"><button id="gotoUpload">Upload</button></label>
+        </dt>
+        <dd class="danger">Upload your own dataset or drag and drop anywhere on this page</dd>
+        <dt class="danger"><button id="gotoURL">URL</button></dt>
+        <dd class="danger">
           <input type="url" placeholder="Enter a URL or drag and drop on anywhere"/>
           <i class="fas fa-sign-in-alt"></i>
         </dd>
-        <dt><button id="gotoQuery">Query</button></dt>
-        <dd>Search an online knowledge base</dd>
+        <dt class="danger"><button id="gotoQuery">Query</button></dt>
+        <dd class="danger">Search an online knowledge base</dd>
       </dl>
     </main>
 
@@ -237,7 +246,6 @@
       <p>Continue a previous session</p>
 
     </main>
-
 
     <!--
       These are for historical interest, to be removed once the redesign is complete
@@ -317,10 +325,23 @@
     <footer>
       <button style="display:none" class="big_go_button">LOAD</button>
       <a href="https://www.figma.com/proto/yAdTfgiRCUcpF7jHWzKMwb/LINCS?node-id=989%3A2&scaling=min-zoom&page-id=901%3A2&starting-point-node-id=978%3A7&show-proto-sidebar=1"><button>Figma</button></a> <!-- Should be Tour -->
-      <button>About</button>
-      <button>Help</button>
-      <button>Credit</button>
+      <button class="danger">About</button>
+      <button class="danger">Help</button>
+      <button class="danger">Credit</button>
       <a  href="https://gitlab.com/calincs/access/HuViz"><button>GitLab</button></a>
+
+      <!-- beBrave start -->
+      <br>
+      <style class="bravery">
+         /* toggleBeingBrave() controls the definitions of
+            .beBraveBroken and .beBraveRough
+          */
+      </style>
+      <label class="beBrave" title="expose features under development in yellow">
+        Be Brave <input type=checkbox>
+      </label>
+      <!-- beBrave end -->
+
     </footer>
   </div>
 </template>
