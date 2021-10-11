@@ -137,11 +137,13 @@
     }
 
     /* The dataset Upload button and input[type=file] */
-    .onUpload label[for=fupload] {
+    .onUpload label[for=datasetUpload] {
       /* background-color: orange; */
     }
-    .onUpload #fupload::-webkit-file-upload-button,
-    .onUpload #fupload::file-selector-button {
+    .onUpload #datasetUpload::-webkit-file-upload-button,
+    .onUpload #datasetUpload::file-selector-button,
+    .onUpload #ontologyUpload::-webkit-file-upload-button,
+    .onUpload #ontologyUpload::file-selector-button {
       /*
         https://developer.mozilla.org/en-US/docs/Web/CSS/::file-selector-button
        */
@@ -176,7 +178,7 @@
       <dl>
         <dt><button id="gotoBrowse">Browse</button></dt>
         <dd>Pick a beginner or community contributed dataset</dd>
-        <dt><label for="fupload"><button id="gotoUpload">Upload</button></label></dt>
+        <dt><label for="datasetUpload"><button id="gotoUpload">Upload</button></label></dt>
         <dd>Upload your own dataset or drag and drop anywhere on this page</dd>
         <dt><button id="gotoURL">URL</button></dt>
         <dd>
@@ -203,14 +205,14 @@
       <dl>
         <dt><b>Dataset</b></dt>
         <dd>
-          <button><label for="fupload">change</label></button>
-          <input id="fupload" type="file" name="uploadDataset"
+          <button><label for="datasetUpload">change</label></button>
+          <input id="datasetUpload" type="file" name="uploadDataset"
                  accept=".trig, .ttl, .jsonld, .nt, .owl, .rdf">
         </dd>
         <dt><b>Ontology</b></dt>
         <dd>
-          <button><label for="fupload">change</label></button>
-          <input id="fupload" type="file" name="uploadOntology"
+          <button><label for="ontologyUpload">change</label></button>
+          <input id="ontologyUpload" type="file" name="uploadOntology"
                  accept=".trig, .ttl, .jsonld, .nt, .owl, .rdf">
         </dd>
       </dl>
