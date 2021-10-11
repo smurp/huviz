@@ -82,7 +82,8 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
        { console.error('hard-coded transit("gotoStart") to ease development')});
     */
   }
-  addSpecialHandlerForFileUpload {
+
+  addSpecialHandlerForFileUpload() {
     /*
       The onStart 'Upload' button is very tricksy!
       The click on the label[for="fupload"] is what triggers the 'Choose File'
@@ -99,11 +100,9 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
       Here is a different version of button/label combo with label on the outside:
         <dt><label for="fupload"><button id="gotoUpload">Upload</button></label></dt>
     */
-    this.querySelector(`onStart [for="fupload"]`).
-      addEventListener("click",
-                       (evt) => {
-                         this.showMain('onUpload');
-                       });
+    let onStartUploadLabel = this.querySelector(`.onStart label[for="fupload"]`);
+    onStartUploadLabel?.addEventListener("click", evt => this.showMain('onUpload'));
+    this.fileUploadInput = this.querySelector('#fupload');
   }
 
   blurt(...stuff) {
@@ -153,8 +152,8 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     })
   }
   enter__(evt, stateId) {
+    console.debug(`enter__(evt, '${stateId}') called because enter__${stateId}() does not exist`);
     if (stateId && stateId.length) { // ignore empty string
-      console.log(`enter__(evt, '${stateId}')`);
       this.showMain(stateId);
     } else {
       console.debug(`enter__() is a noop when stateId==${stateId}`);
@@ -163,15 +162,14 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
   enter__END(evt, stateId) {
     this.parentNode.removeChild(this);
   }
-
   enter__onUpload(evt, stateId) {
-    //alert('enter__onUpload');
-    //var uploadFileInput = this.querySelector('[name="uploadFile"]');
-    //    var uploadFileInput = this.querySelector('#fupload');
-    console.log(stateId, evt);
+    var fupload = this.fileUploadInput;
+    requestIdleCallback(() => fupload.click(evt));
+    this.showMain(stateId);
   }
 
   showMain(which) {
+    console.debug(`showMain('${which}')`);
     this.shadowRoot.querySelectorAll('main').forEach((main) => {
       if (main.classList.contains(which)) {
         main.style.display = 'block';

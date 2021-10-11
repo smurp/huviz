@@ -96,7 +96,7 @@
     dt {
       width: var(--hed-h);;
     }
-    dt > button {
+    dt button {
       border-radius: 1em;
       padding: .3em;
       background-color: white;
@@ -137,14 +137,14 @@
     }
 
     /* The dataset Upload button and input[type=file] */
-    label[for=fupload] {
-      background-color: orange;
+    .onUpload label[for=fupload] {
+      /* background-color: orange; */
     }
-    #fupload::-webkit-file-upload-button,
-    #fupload::file-selector-button {
-   /*
-     https://developer.mozilla.org/en-US/docs/Web/CSS/::file-selector-button
-     */
+    .onUpload #fupload::-webkit-file-upload-button,
+    .onUpload #fupload::file-selector-button {
+      /*
+        https://developer.mozilla.org/en-US/docs/Web/CSS/::file-selector-button
+       */
       opacity:0; /* hiding it this way preserves accessibility, unlike display:none */
       width:1em;
     }
@@ -176,8 +176,7 @@
       <dl>
         <dt><button id="gotoBrowse">Browse</button></dt>
         <dd>Pick a beginner or community contributed dataset</dd>
-        <dt><button id="gotoUpload"><label for="fupload">Upload</label></button></dt>
-
+        <dt><label for="fupload"><button id="gotoUpload">Upload</button></label></dt>
         <dd>Upload your own dataset or drag and drop anywhere on this page</dd>
         <dt><button id="gotoURL">URL</button></dt>
         <dd>
