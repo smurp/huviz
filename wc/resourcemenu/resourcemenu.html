@@ -203,11 +203,16 @@
       <dl>
         <dt><b>Dataset</b></dt>
         <dd>
-          <button><label for="fupload">Upload</label></button>
-          <input id="fupload" type="file" name="uploadFile">
+          <button><label for="fupload">change</label></button>
+          <input id="fupload" type="file" name="uploadDataset"
+                 accept=".trig, .ttl, .jsonld, .nt, .owl, .rdf">
         </dd>
         <dt><b>Ontology</b></dt>
-        <dd>Default Ontology / <button>change</button></dd>
+        <dd>
+          <button><label for="fupload">change</label></button>
+          <input id="fupload" type="file" name="uploadOntology"
+                 accept=".trig, .ttl, .jsonld, .nt, .owl, .rdf">
+        </dd>
       </dl>
       <button>LOAD</button>
     </main>
