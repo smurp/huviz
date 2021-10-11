@@ -135,6 +135,19 @@
     .onFront #esc {
       display: none; /* close button not needed on front */
     }
+
+    /* The dataset Upload button and input[type=file] */
+    label[for=fupload] {
+      background-color: orange;
+    }
+    #fupload::-webkit-file-upload-button,
+    #fupload::file-selector-button {
+   /*
+     https://developer.mozilla.org/en-US/docs/Web/CSS/::file-selector-button
+     */
+      opacity:0; /* hiding it this way preserves accessibility, unlike display:none */
+      width:1em;
+    }
   </style>
   <div class="bigbox">
     <header>
@@ -163,7 +176,8 @@
       <dl>
         <dt><button id="gotoBrowse">Browse</button></dt>
         <dd>Pick a beginner or community contributed dataset</dd>
-        <dt><button id="gotoUpload">Upload</button></dt>
+        <dt><button id="gotoUpload"><label for="fupload">Upload</label></button></dt>
+
         <dd>Upload your own dataset or drag and drop anywhere on this page</dd>
         <dt><button id="gotoURL">URL</button></dt>
         <dd>
@@ -189,7 +203,10 @@
       <i id="esc">Back to Start Menu</i>
       <dl>
         <dt><b>Dataset</b></dt>
-        <dd>Uploaded.ttl</dd>
+        <dd>
+          <button><label for="fupload">Upload</label></button>
+          <input id="fupload" type="file" name="uploadFile">
+        </dd>
         <dt><b>Ontology</b></dt>
         <dd>Default Ontology / <button>change</button></dd>
       </dl>

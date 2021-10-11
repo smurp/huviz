@@ -68,10 +68,44 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
           .content;
     const shadowRoot = this.attachShadow({mode: 'open'})
           .appendChild(template.cloneNode(true));
+    // Next, wire up all the buttons so they can perform their transitions
     this.addIDClickListeners('main, button, [id]', this.clickListener.bind(this));
+
+    this.addSpecialHandlerForFileUpload();
+
+    // perform 'start' transition to get things going
     this.transit('start', {});
-//    this.transit('gotoStart',{ console.error('hard-coded transit("gotoStart") to ease development')});
+
+    // During development it is sometimes handy to just jump to a particular screen:
+    /*
+      this.transit('gotoStart',
+       { console.error('hard-coded transit("gotoStart") to ease development')});
+    */
   }
+  addSpecialHandlerForFileUpload {
+    /*
+      The onStart 'Upload' button is very tricksy!
+      The click on the label[for="fupload"] is what triggers the 'Choose File'
+      experience provided by the browser.  We do it this way because it can't
+      be triggered programmatically, only by a user click event.
+      This additional 'click' listener for ensures that clicking on the label
+      has the same impact as having clicked on the Button it is contained by.
+
+      Current problem: if the click happens on the onStart.gotoUpload button
+      instead of the onStart[for="fupload"] label then there are two failures:
+      1. the 'Choose File' operation is not triggered (understandable)
+      2. the transition to onUpload is not triggered (confusing)
+
+      Here is a different version of button/label combo with label on the outside:
+        <dt><label for="fupload"><button id="gotoUpload">Upload</button></label></dt>
+    */
+    this.querySelector(`onStart [for="fupload"]`).
+      addEventListener("click",
+                       (evt) => {
+                         this.showMain('onUpload');
+                       });
+  }
+
   blurt(...stuff) {
     this.huviz.blurt(___stuff);
   }
@@ -120,6 +154,7 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
   }
   enter__(evt, stateId) {
     if (stateId && stateId.length) { // ignore empty string
+      console.log(`enter__(evt, '${stateId}')`);
       this.showMain(stateId);
     } else {
       console.debug(`enter__() is a noop when stateId==${stateId}`);
@@ -127,6 +162,13 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
   }
   enter__END(evt, stateId) {
     this.parentNode.removeChild(this);
+  }
+
+  enter__onUpload(evt, stateId) {
+    //alert('enter__onUpload');
+    //var uploadFileInput = this.querySelector('[name="uploadFile"]');
+    //    var uploadFileInput = this.querySelector('#fupload');
+    console.log(stateId, evt);
   }
 
   showMain(which) {
