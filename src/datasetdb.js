@@ -15,7 +15,7 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
       indexedDB
     } = window; // || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || null
     if (!indexedDB) {
-      console.log("indexedDB not available");
+      console.warn("indexedDB not available");
     }
     if (!this.datasetDB && indexedDB) {
       this.dbName = 'datasetDB';
@@ -89,10 +89,10 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
   add_resource_to_db(rsrcRec, callback) {
     const trx = this.datasetDB.transaction('datasets', "readwrite");
     trx.oncomplete = (e) => {
-      console.log(`${rsrcRec.uri} added!`);
+      console.debug(`${rsrcRec.uri} added!`);
     };
     trx.onerror = (e) => {
-      console.log(e);
+      console.debug(e);
       alert(`add_resource(${rsrcRec.uri}) error!!!`);
     };
     const store = trx.objectStore('datasets');
@@ -132,10 +132,10 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
   get_resource_from_db(rsrcUri, callback) {
     const trx = this.datasetDB.transaction('datasets', "readonly");
     trx.oncomplete = (evt) => {
-      console.log(`get_resource_from_db('${rsrcUri}') complete, either by success or error`);
+      console.debug(`get_resource_from_db('${rsrcUri}') complete, either by success or error`);
     };
     trx.onerror = (err) => {
-      console.log(err);
+      console.error(err);
       if (callback != null) {
         callback(err, null);
       } else {
@@ -194,7 +194,7 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
           console.table(recs)
           // Reset the value of each loader to blank so
           // they show 'Pick or Provide...' not the last added entry.
-          console.log(this.dataset_loader.val);
+          console.debug(this.dataset_loader.val);
           this.dataset_loader.val();
           this.ontology_loader.val();
           this.endpoint_loader.val();
@@ -229,7 +229,7 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
     //    }
     console.groupCollapsed("preload_datasets");
     // Adds preload options to datasetDB table
-    console.log(this.args.preload);
+    console.debug(this.args.preload);
     if (this.args.preload) {
       for (var preload_group_or_uri of this.args.preload) {
         if (typeof(preload_group_or_uri) === 'string') { // the URL of a preload_group JSON
@@ -255,12 +255,12 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
   }
 
   preload_endpoints() {
-    console.log(this.args.preload_endpoints);
+    console.debug(this.args.preload_endpoints);
     console.groupCollapsed("preload_endpoints");
     //###
     if (this.args.preload_endpoints) {
       for (var preload_group_or_uri of this.args.preload_endpoints) {
-        console.log(preload_group_or_uri);
+        console.debug(preload_group_or_uri);
         if (typeof(preload_group_or_uri) === 'string') { // the URL of a preload_group JSON
           //$.getJSON(preload_group_or_uri, null, @ensure_datasets_from_XHR)
           $.ajax({

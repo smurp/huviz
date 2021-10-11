@@ -224,7 +224,7 @@ export class PickOrProvide {
     let k;
     if (position == null) { position = 'beforeend'; }
     if ((opt_rec.label == null)) {
-      console.log("missing .label on", opt_rec);
+      console.warn("missing .label on", opt_rec);
     }
     if (this.pick_or_provide_select.querySelector(`div[title='${opt_rec.value}']`)) {
       //alert "add_option() #{opt_rec.value} collided"
@@ -237,7 +237,7 @@ export class PickOrProvide {
       let opt_group = this.pick_or_provide_select.querySelector(
         `div[title='${opt_group_label}']`);
       if (!opt_group) {
-        console.log(`adding '${opt_group_label}'`)
+        console.debug(`adding '${opt_group_label}'`)
         opt_group = this.add_group({label: opt_group_label}, 'beforeend');
       }
       opt_group.insertAdjacentElement('beforeend', opt);
@@ -271,7 +271,7 @@ export class PickOrProvide {
     this.old_selectedElem = this.selectedElem;
     this.selectedElem = elem;
     let val = elem && elem.getAttribute('value');
-    console.log(`setSelectedElem ${this.label} to ${val} when this.constructor.name=${this?.constructor?.name}`);
+    console.debug(`setSelectedElem ${this.label} to ${val} when this.constructor.name=${this?.constructor?.name}`);
     this.val(val);
   }
   option_click_listener(evt) {
