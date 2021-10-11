@@ -71,8 +71,6 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     // Next, wire up all the buttons so they can perform their transitions
     this.addIDClickListeners('main, button, [id]', this.clickListener.bind(this));
 
-    this.addSpecialHandlerForFileUpload();
-
     // perform 'start' transition to get things going
     this.transit('start', {});
 
@@ -83,28 +81,6 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     */
   }
 
-  addSpecialHandlerForFileUpload() {
-    /*
-      The onStart 'Upload' button is very tricksy!
-      The click on the label[for="datasetUpload"] is what triggers the 'Choose File'
-      experience provided by the browser.  We do it this way because it can't
-      be triggered programmatically, only by a user click event.
-      This additional 'click' listener for ensures that clicking on the label
-      has the same impact as having clicked on the Button it is contained by.
-
-      Current problem: if the click happens on the onStart.gotoUpload button
-      instead of the onStart[for="datasetUpload"] label then there are two failures:
-      1. the 'Choose File' operation is not triggered (understandable)
-      2. the transition to onUpload is not triggered (confusing)
-
-      Here is a different version of button/label combo with label on the outside:
-        <dt><label for="datasetUpload"><button id="gotoUpload">Upload</button></label></dt>
-    */
-    let onStartUploadLabel = this.querySelector(`.onStart label[for="datasetUpload"]`);
-    onStartUploadLabel?.addEventListener("click", evt => this.showMain('onUpload'));
-    this.datasetUpload = this.querySelector('#datasetUpload');
-    this.ontologyUpload = this.querySelector('#ontologyUpload');
-  }
 
   blurt(...stuff) {
     this.huviz.blurt(___stuff);
@@ -163,10 +139,29 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
   enter__END(evt, stateId) {
     this.parentNode.removeChild(this);
   }
-  enter__onUpload(evt, stateId) {
-    var {datasetUpload} = this;
-    requestIdleCallback(() => datasetUpload.click(evt));
-    this.showMain(stateId);
+  enter__onUpload(userGeneratedClickEvt, stateId) {
+    this.showMain(stateId); // display the onUpload UX
+    if (!this.datasetUpload) { // do this once, this method might be called again
+      this.datasetUpload = this.querySelector('#datasetUpload');
+      this.ontologyUpload = this.querySelector('#ontologyUpload');
+      this.visualizeUploadBtn = this.querySelector('#visualizeUpload');
+      var validate =  this._validate_onUpload.bind(this);
+      this.datasetUpload.addEventListener('change', validate);
+      this.ontologyUpload.addEventListener('change', validate);
+      validate();
+    }
+    // must use userGeneratedClickEvt, otherwise it will be rejected
+    this.datasetUpload?.click(userGeneratedClickEvt); // fake click 'Choose File'
+  }
+  _validate_onUpload() {
+    var value = this.datasetUpload.value;
+    var isValid = !!(value && value.length);
+    console.debug('_validate_onUpload()', {value, isValid});
+    if (isValid) {
+      this.visualizeUploadBtn.removeAttribute('disabled');
+    } else {
+      this.visualizeUploadBtn.setAttribute('disabled', 'disabled');
+    }
   }
 
   showMain(which) {
