@@ -23,13 +23,8 @@ variables:
 
 # Override test job
 test:
-<<<<<<< HEAD
-  script:
-    - echo "placeholder for testing"
   needs:
     - build
-
-=======
   image: node:14
   script:
     - npm install
@@ -45,7 +40,6 @@ cache:
   paths:
     - node_modules
 
->>>>>>> main
 # Template to override common deployment parameters
 .deployment: &deployment
   environment:
