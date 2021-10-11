@@ -31,9 +31,14 @@ var resMenFSMTTL= `
          st:onScriptDetail tr:esc       st:onContinue;
 
          st:onBrowse   tr:esc           st:onStart .
+
          st:onUpload   tr:esc           st:onStart .
+         st:onUpload   tr:vizUpload     st:onGo .
+
          st:onURL      tr:esc           st:onStart .
          st:onQuery    tr:esc           st:onStart .
+
+         st:onGo       tr:none          st:done;
        `;
 
 var XXXresMenFSMTTL= `
@@ -81,7 +86,6 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     */
   }
 
-
   blurt(...stuff) {
     this.huviz.blurt(___stuff);
   }
@@ -108,7 +112,7 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
   }
   clickListener(evt) {
     let targetId = evt.target.id;
-    //console.debug({evt, targetId});
+    console.debug('clickListener', {evt, targetId});
     if (targetId) {
       try {
         this.transit(targetId, evt);
@@ -139,12 +143,17 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
   enter__END(evt, stateId) {
     this.parentNode.removeChild(this);
   }
+
+  /*
+    onUpload Start
+  */
   enter__onUpload(userGeneratedClickEvt, stateId) {
     this.showMain(stateId); // display the onUpload UX
     if (!this.datasetUpload) { // do this once, this method might be called again
       this.datasetUpload = this.querySelector('#datasetUpload');
       this.ontologyUpload = this.querySelector('#ontologyUpload');
-      this.visualizeUploadBtn = this.querySelector('#visualizeUpload');
+      // vizUpload click handled because its id is the uri of a transition
+      this.visualizeUploadBtn = this.querySelector('#vizUpload');
       var validate =  this._validate_onUpload.bind(this);
       this.datasetUpload.addEventListener('change', validate);
       this.ontologyUpload.addEventListener('change', validate);
@@ -163,6 +172,18 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
       this.visualizeUploadBtn.setAttribute('disabled', 'disabled');
     }
   }
+  /*
+    onUpload end
+  */
+
+  /* onGo start */
+  enter__onGo(evt, stateId) {
+    this.showMain(stateId);
+    var ont = this.ontologyUpload.value;
+    var dat = this.datasetUpload.value;
+    console.warn(`now must vizualize ${dat} ${ont}`);
+  }
+  /* onGo end */
 
   showMain(which) {
     console.debug(`showMain('${which}')`);
