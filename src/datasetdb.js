@@ -22,7 +22,7 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
       this.dbVersion = 2;
       const request = indexedDB.open(this.dbName, this.dbVersion);
       request.onsuccess = (evt) => {
-        console.warn('onsuccess', this.constructor.name);
+        console.debug('onsuccess', this.constructor.name);
         this.datasetDB = request.result;
         this.datasetDB.onerror = err => {
           alert(`Database error: ${e.target.errorCode}`);
@@ -36,7 +36,7 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
         alert(`unable to init ${this.dbName}`);
       };
       request.onupgradeneeded = (event) => {
-        console.warn('onupgradeneeded', event);
+        console.debug('onupgradeneeded', event);
         const db = event.target.result;
         const objectStore = db.createObjectStore("datasets", {keyPath: 'uri'});
         objectStore.transaction.oncomplete = (evt) => {
@@ -191,7 +191,7 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
           }
           cursor.continue();
         } else { // when there are no (or NO MORE) entries, ie FINALLY
-          console.table(recs)
+          //console.table(recs)
           // Reset the value of each loader to blank so
           // they show 'Pick or Provide...' not the last added entry.
           console.debug(this.dataset_loader.val);

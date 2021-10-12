@@ -53,8 +53,8 @@ export class PickOrProvide {
     this.drag_and_drop_loader = new dndLoaderClass(this.huviz, this.append_to, this);
     hide(this.drag_and_drop_loader.form);
     this.add_group({label: "Your Own", id: this.your_own_uid}, 'beforeend');
-    console.warn(`SUPPRESSING 'Provide New ${this.label}'`)
-    console.warn("SUPPRESSING 'Pick or Provide'")
+    console.debug(`SUPPRESSING 'Provide New ${this.label}'`)
+    console.debug("SUPPRESSING 'Pick or Provide'")
     this.update_change_stamp();
   }
 

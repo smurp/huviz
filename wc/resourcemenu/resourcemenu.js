@@ -58,12 +58,11 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
           .content;
     const shadowRoot = this.attachShadow({mode: 'open'})
           .appendChild(template.cloneNode(true));
-    //this._shadowRoot = shadowRoot;
+
     // Next, wire up all the buttons so they can perform their transitions
     this.addIDClickListeners('main, button, [id]', this.clickListener.bind(this));
 
     this._toggleBeingBrave(); // Initialize the beBrave feature
-    this._move_intro_tab_over_here();
 
     // perform 'start' transition to get things going
     this.transit('start', {});
@@ -412,15 +411,8 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     }
   }
   _set_up_tabs() {
-    /*
-    let {tab_specs} = this.huviz.args;
-    console.warn({tab_specs});
-    console.warn(this.huviz.get_default_tab('credit'));
-
-    */
+    this._move_intro_tab_over_here();
     const creditContent = this.querySelector('.onCredit .content');
-    creditContent.insertAdjacentHTML('afterbegin',"<h1>BOO</h1>");
-    console.log(creditContent);
     this.huviz.withUriDo("/huviz/docs/credits.md", creditContent);
   }
 }

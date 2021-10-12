@@ -1,5 +1,5 @@
 window.toggle_suspend_updates = function(val) {
-  console.log("toggle_suspend_updates(#val)");
+  console.debug("toggle_suspend_updates(#val)");
   if ((window.suspend_updates == null) || !window.suspend_updates) {
     window.suspend_updates = true;
   } else {
@@ -573,7 +573,7 @@ of the classes indicated.`,
   }
   publish_script(script_rec, callback) {
     // script_rec keys: uri, opt_group, data
-    console.log("publish_script", script_rec);
+    console.debug("publish_script", script_rec);
     var formData = new FormData()
     var srcObj = [script_rec.data];
     srcObj.name = () => {return script_rec.fname_w_timestamp};
@@ -749,7 +749,7 @@ of the classes indicated.`,
       this.huviz.recolor_nodes();
     }
     if (this.predicate_picker != null) {
-      console.log("resorting of predicate_picker on hold until it does not delete 'anything'");
+      console.warn("resorting of predicate_picker on hold until it does not delete 'anything'");
     }
       //@predicate_picker?.resort_recursively()
     //@set_picker?.resort_recursively()
@@ -767,7 +767,7 @@ of the classes indicated.`,
       (label != null) &&
         this.control_label(label,parent,title)) || this.comdiv;
     where = where.node()
-    console.log("where",where.outerHTML)
+    console.debug("where",where.outerHTML)
     where.classList.add('predicate_picker_box_parent')
     // this.predicatebox = where.insertAdjacentHTML('beforeend',`<div class="container" id="${this.predicates_id}"></div>`)
     // this.predicatebox = where.children[where.children.length - 1] // find the added div
@@ -1353,7 +1353,7 @@ of the classes indicated.`,
           // HACK OFF
         });
       } else {
-        console.log("nothing to run");
+        console.warn("nothing to run");
       }
     }
   }
@@ -1526,7 +1526,7 @@ of the classes indicated.`,
     if (this.huviz.slow_it_down) {
       const start = Date.now();
       while (Date.now() < (start + (this.huviz.slow_it_down * 1000))) {
-        console.log(Math.round((Date.now() - start) / 1000));
+        console.debug(Math.round((Date.now() - start) / 1000));
       }
     }
     //alert("About to execute:\n  "+@command.str)
@@ -1857,7 +1857,7 @@ HELLO WORLD
     theSetNodes.forEach((aSetNode) => {
       // move the set to a place in the template
     });
-    console.log("BUTTON STYLE STUFF", {target, parentOfTemplate});
+    console.debug("BUTTON STYLE STUFF", {target, parentOfTemplate});
   }
   populate_all_set_docs() {
     for (let id in this.huviz.selectable_sets) {

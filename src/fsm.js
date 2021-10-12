@@ -86,7 +86,7 @@ export let FSMMixin = (superclass) => class extends superclass {
       }
     });
     if (firstStateId != defaultFirstStateId) {
-      console.warn(`${firstStateId} <> ${defaultFirstStateId}`);
+      console.debug(`${firstStateId} <> ${defaultFirstStateId}`);
     }
     //console.log(`ABOUT TO INIT STATE using set_state('${firstStateId}')`)
     var bogusEvent = {};
