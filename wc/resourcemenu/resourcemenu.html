@@ -1,4 +1,5 @@
 <template id="resource-menu">
+  <style src="/huviz/css/help.css"></style>
   <style>
     :root {
       /* Why does putting custom properties here not work? */
@@ -340,9 +341,9 @@
     <footer>
       <button style="display:none" class="big_go_button">LOAD</button>
       <a href="https://www.figma.com/proto/yAdTfgiRCUcpF7jHWzKMwb/LINCS?node-id=989%3A2&scaling=min-zoom&page-id=901%3A2&starting-point-node-id=978%3A7&show-proto-sidebar=1"><button>Figma</button></a> <!-- Should be Tour -->
-      <button class="danger">About</button>
-      <button class="danger">Help</button>
-      <button class="danger">Credit</button>
+      <button class="danger" id="gotoAbout">About</button>
+      <button class="danger" id="gotoHelp">Help</button>
+      <button class="danger" id="gotoCredit">Credit</button>
       <a  href="https://gitlab.com/calincs/access/HuViz"><button>GitLab</button></a>
 
       <!-- beBrave start -->

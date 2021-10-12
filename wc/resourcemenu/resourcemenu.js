@@ -40,6 +40,11 @@ var resMenFSMTTL= `
 
          st:onGo       tr:none          st:done .
          st:onGo       tr:esc           st:onStart .
+
+         # st:ANY        tr:gotoAbout     st:onAbout .
+         # st:ANY        tr:gotoCredit    st:onCredit .
+         # st:ANY        tr:gotoHelp      st:onHelp .
+
        `;
 
 export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
@@ -57,8 +62,8 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     // Next, wire up all the buttons so they can perform their transitions
     this.addIDClickListeners('main, button, [id]', this.clickListener.bind(this));
 
-
-    this.toggleBeingBrave(); // Initialize the beBrave feature
+    this._toggleBeingBrave(); // Initialize the beBrave feature
+    this._move_intro_tab_over_here();
 
     // perform 'start' transition to get things going
     this.transit('start', {});
@@ -67,39 +72,6 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
       this.transit('gotoStart',
        { console.error('hard-coded transit("gotoStart") to ease development')});
     */
-  }
-  toggleBeingBrave(evt) {
-    if (!evt) {
-      this._beBraveCheckbox = this.querySelector('.beBrave input');
-      if (!this._beBraveCheckbox) {
-        console.log('".beBrave input" not found in HTML so abandon initialization');
-        return;
-      } else {
-        this._beBraveCheckbox.onchange = this.toggleBeingBrave.bind(this);
-        /*
-        this.shadowRoot.insertAdjacentHTML('afterbegin',`
-        <style class="bravery"></style>
-       `);
-        */
-        this._braveryStyle = this.querySelector('.bravery');
-      }
-    }
-    let shouldBeBrave = !!this._beBraveCheckbox.checked;
-    if (shouldBeBrave) {
-      // .danger is normally display:none so beingBrave just makes it yellow
-      this._braveryStyle.innerHTML = `
-         .danger {
-            background-color:yellow;
-          }
-         `;
-    } else {
-      // remove bravery!
-      this._braveryStyle.innerHTML = `
-         .danger {
-            display: none;
-         }
-         `;
-    }
   }
   blurt(...stuff) {
     this.huviz.blurt(___stuff);
@@ -143,7 +115,7 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
       HTMLElement ids are states
     */
     this.shadowRoot.querySelectorAll(selector).forEach((item) => {
-      //console.debug("addEventListener", {item});
+      console.debug("addEventListener", {item});
       item.addEventListener('click', handler);
     })
   }
@@ -157,6 +129,22 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
   }
   enter__END(evt, stateId) {
     this.parentNode.removeChild(this);
+  }
+
+  /* These catch transitions which might appear anywhere
+     and hence are to cumbersome to have full state-transition-state
+     triples defined for them.  These functions have the form:
+       on__<transitionId>()
+     See fsm.transit for details.
+  */
+  on__gotoAbout(evt) {
+    this.showMain('onAbout');
+  }
+  on__gotoCredit(evt) {
+    this.showMain('onCredit');
+  }
+  on__gotoHelp(evt) {
+    this.showMain('onHelp');
   }
 
   /*
@@ -377,5 +365,49 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
       }
     }
     return false;
+  }
+
+  /* hacks and other code to eventually be retired */
+  _toggleBeingBrave(evt) {
+    if (!evt) {
+      this._beBraveCheckbox = this.querySelector('.beBrave input');
+      if (!this._beBraveCheckbox) {
+        console.log('".beBrave input" not found in HTML so abandon initialization');
+        return;
+      } else {
+        this._beBraveCheckbox.onchange = this._toggleBeingBrave.bind(this);
+        /*
+        this.shadowRoot.insertAdjacentHTML('afterbegin',`
+        <style class="bravery"></style>
+       `);
+        */
+        this._braveryStyle = this.querySelector('.bravery');
+      }
+    }
+    let shouldBeBrave = !!this._beBraveCheckbox.checked;
+    if (shouldBeBrave) {
+      // .danger is normally display:none so beingBrave just makes it yellow
+      this._braveryStyle.innerHTML = `
+         .danger {
+            background-color:yellow;
+          }
+         `;
+    } else {
+      // remove bravery!
+      this._braveryStyle.innerHTML = `
+         .danger {
+            display: none;
+         }
+         `;
+    }
+  }
+  _move_intro_tab_over_here() {
+    const introTab = document.querySelector('#contents_of_intro_tab');
+    if (introTab) {
+      const aboutContent = this.querySelector('.onAbout .content');
+      if (aboutContent) {
+        aboutContent.insertAdjacentElement('afterbegin', introTab);
+      }
+    }
   }
 }

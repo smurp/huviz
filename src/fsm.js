@@ -202,10 +202,12 @@ export let FSMMixin = (superclass) => class extends superclass {
     var currentStateObj = this._states[currentStateId];
     if (currentStateObj) {
       var targetStateId = currentStateObj[transId];
+      /*
       if (!targetStateId) {
         return this.throw_or_return_msg(
           `${currentStateId} has no transition with id ${transId}`);
       }
+      */
       // call exit__<currentStateId> if it exists
       var calledExit, calledWhen, calledOn, calledEnter;
       calledExit = this.exit_state(evt, currentStateId);
