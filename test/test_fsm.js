@@ -74,7 +74,8 @@ describe("FiniteStateMachine", function() {
   }
 
   class WhenFSM extends TrackerFSM {
-      when__inVid__mousedown  (evt) {evt.tour += " when"} // should dominate on__mousedown
+    // should dominate on__mousedown
+    when__inVid__mousedown  (evt) {evt.tour += " when"}
   }
 
 /*
@@ -132,7 +133,8 @@ describe("FiniteStateMachine", function() {
     fsm.transit('start');
     expect(fsm.get_state()).to.equal('noVid');
     fsm.transit('mouseover');
-    expect(fsm.transit('BOGUS')).to.equal("inVid has no transition with id BOGUS");
+    const exp = "TTLFSM had neither on__BOGUS exit__inVid or enter__";
+    expect(fsm.transit('BOGUS')).to.equal(exp);
   });
   it("passes events to state and transition handlers", () => {
     const fsm = new TrackerFSM();
