@@ -87,6 +87,7 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     args.script_loader__append_to_sel = this.querySelector('#scriptHere');
     args.endpoint_loader__append_to_sel = this.querySelector('#endpointHere');
     this.init_resource_menus(args); // add {dataset,ontology,script,endpoint}_loader
+    this._set_up_tabs();
   }
   registerPickOrProvide() {
     var pops = this.querySelectorAll('pick-or-provide');
@@ -409,5 +410,17 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
         aboutContent.insertAdjacentElement('afterbegin', introTab);
       }
     }
+  }
+  _set_up_tabs() {
+    /*
+    let {tab_specs} = this.huviz.args;
+    console.warn({tab_specs});
+    console.warn(this.huviz.get_default_tab('credit'));
+
+    */
+    const creditContent = this.querySelector('.onCredit .content');
+    creditContent.insertAdjacentHTML('afterbegin',"<h1>BOO</h1>");
+    console.log(creditContent);
+    this.huviz.withUriDo("/huviz/docs/credits.md", creditContent);
   }
 }

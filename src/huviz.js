@@ -8861,14 +8861,14 @@ WHERE {
     targetElem.appendChild(moveElem);
   }
 
-  withUriDo(url, sel, processor) {
+  withUriDo(url, selOrElem, processor) {
     const xhr = new XMLHttpRequest();
     xhr.open("GET", url, true);
     xhr.onload = (e) => {
       if (xhr.readyState === 4) {
         if (xhr.status === 200) {
           if (processor == null) { processor = (url.endsWith('.md') && marked) || ident; }
-          return this.renderIntoWith(xhr.responseText, sel, processor);
+          return this.renderIntoWith(xhr.responseText, selOrElem, processor);
         } else {
           return console.error(xhr.statusText);
         }
@@ -8878,8 +8878,13 @@ WHERE {
     xhr.send(null);
   }
 
-  renderIntoWith(data, sel, processor) {
-    const elem = document.querySelector(sel);
+  renderIntoWith(data, selOrElem='', processor) {
+    let elem;
+    if (typeof(selOrElem) === 'string') {
+      elem = document.querySelector(selOrElem);
+    } else {
+      elem = selOrElem;
+    }
     if (!elem) {
       return;
     }

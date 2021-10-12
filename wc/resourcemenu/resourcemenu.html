@@ -85,6 +85,7 @@
     main { /* aka the lilbox */
       width: var(--lil-xy);
       height: var(--lil-xy);
+      overflow: hidden;
     }
     dt, dd {
       margin: 0;
@@ -112,7 +113,7 @@
       font-size: 85%;
     }
     .content {
-      overflow: scroll;
+      overflow-y: scroll;
     }
     /* .onDataset, onOntology, onScript, onSPARQL, onCredit */
     main {
@@ -154,6 +155,42 @@
        */
       opacity:0; /* hiding it this way preserves accessibility, unlike display:none */
       width:1em;
+    }
+
+    .tabs-credit #logos img {
+      height: 64px;
+      padding: 5px;
+    }
+    .tabs-credit h1 {
+      display: block;
+      font-size: 1.3em;
+      padding-top: 0.1em;
+      padding-bottom: 0.2em;
+      padding-top: 0px;
+      padding-bottom: 0px;
+      font-weight: medium;
+    }
+    .tabs-credit h2,h3 {
+      text-align: left;
+      display: inline-block;
+      font-size: 1.05em;
+      margin-top: 0.3em;
+      padding-bottom: 0.1em;
+      margin-top: 0px;
+      margin-bottom: 0px;
+      font-weight: bold;
+    }
+    .tabs-credit ul {
+      padding: 0px;
+      margin: 0px;
+      margin-left: 1em;
+      margin-bottom: .8em;
+    }
+    .tabs-credit li {
+      margin: 5px;
+    }
+    .tabs-credit p {
+      text-align: left;
     }
   </style>
   <div class="bigbox">
@@ -313,7 +350,7 @@
     <main class="onCredit">
       <i id="esc"></i>
       <h2>Credits</h2>
-      <div class="content">
+      <div class="content tabs-credit">
       </div>
     </main>
 
@@ -343,7 +380,7 @@
       <a href="https://www.figma.com/proto/yAdTfgiRCUcpF7jHWzKMwb/LINCS?node-id=989%3A2&scaling=min-zoom&page-id=901%3A2&starting-point-node-id=978%3A7&show-proto-sidebar=1"><button>Figma</button></a> <!-- Should be Tour -->
       <button class="danger" id="gotoAbout">About</button>
       <button class="danger" id="gotoHelp">Help</button>
-      <button class="danger" id="gotoCredit">Credit</button>
+      <button id="gotoCredit">Credit</button>
       <a  href="https://gitlab.com/calincs/access/HuViz"><button>GitLab</button></a>
 
       <!-- beBrave start -->
