@@ -20,8 +20,7 @@ window.addEventListener('load',function(){
         "moveSelector": "#contents_of_intro_tab"
       },
       */
-      'commands','settings','history','credits',
-      'sparqlQueries'
+      'commands','settings','history','sparqlQueries'
     ],
     preload: [
       //'/data/genres.json'

@@ -617,22 +617,6 @@ a.git_commit_hash_watermark {
 }
 
 
-/* tabs-intro styling */
-
-.tabs-intro p {
-  margin-top: .2em;
-  text-indent: 1.2em;
-}
-.tabs-intro ul {
-  margin-top: .5em;
-  margin-bottom: .5em;
-  font-family: Courier;
-  font-size: 90%;
-}
-.tabs-intro ul {
-  list-style: none outside none;
-}
-
 /*------------------ Misc Styles -----------------*/
 
 /* Font size in endpoint autocomplete */

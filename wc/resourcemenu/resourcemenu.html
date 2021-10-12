@@ -192,6 +192,64 @@
     .tabs-credit p {
       text-align: left;
     }
+
+    /* tabs-intro styling */
+
+    .current-git-branch{
+      background-color: PaleGreen;
+    }
+    .current-git-branch:before {
+      content: '✔';
+      color: DarkGreen;
+    }
+    .tabs-intro {
+      font-size: 90%;
+    }
+    .tabs-intro p {
+      margin-top: .2em;
+      text-indent: 1.2em;
+    }
+    .tabs-intro ul {
+      margin-top: .5em;
+      margin-bottom: .5em;
+      font-family: Courier;
+      font-size: 90%;
+    }
+    .tabs-intro ul {
+      list-style: none outside none;
+    }
+    .tabs-intro h1 {
+      font-size: 36px;
+    }
+    .tabs-intro h2 {
+      font-size: 18px;
+    }
+    .tabs-intro h1, h2, h4, h6{
+      text-align: center;
+      margin-top: 0px;
+      margin-bottom: 0px;
+    }
+    .huviz-versions {
+      text-align: center;
+      font-size: 100%;
+    }
+    .tabs-intro h3 {
+      margin-bottom: 0px;
+    }
+    .tabs-intro ul {
+      padding-left: 16px;
+    }
+    .eg-subject {
+      color: red;
+    }
+    .eg-verb {
+      color: green;
+    }
+    .eg-object {
+      color: blue;
+    }
+
+    
   </style>
   <div class="bigbox">
     <header>
@@ -364,7 +422,7 @@
     <main class="onAbout">
       <i id="esc"></i>
       <h2>About</h2>
-      <div class="content">
+      <div class="content tabs-intro">
       </div>
     </main>
 
@@ -378,7 +436,7 @@
     <footer>
       <button style="display:none" class="big_go_button">LOAD</button>
       <a href="https://www.figma.com/proto/yAdTfgiRCUcpF7jHWzKMwb/LINCS?node-id=989%3A2&scaling=min-zoom&page-id=901%3A2&starting-point-node-id=978%3A7&show-proto-sidebar=1"><button>Figma</button></a> <!-- Should be Tour -->
-      <button class="danger" id="gotoAbout">About</button>
+      <button id="gotoAbout">About</button>
       <button class="danger" id="gotoHelp">Help</button>
       <button id="gotoCredit">Credit</button>
       <a  href="https://gitlab.com/calincs/access/HuViz"><button>GitLab</button></a>
