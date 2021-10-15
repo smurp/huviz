@@ -349,21 +349,23 @@
     <main class="onUpload">
       <i id="esc">Back to Start Menu</i>
       <h1>Choose file for upload</h1>
-      <dl>
-        <dt><b>Dataset</b></dt>
-        <dd>
-          <button><label for="datasetUpload">change</label></button>
-          <input id="datasetUpload" type="file" name="uploadDataset"
-                 accept=".trig, .ttl, .jsonld, .nt, .owl, .rdf">
-        </dd>
-        <dt><b>Ontology</b></dt>
-        <dd>
-          <button><label for="ontologyUpload">change</label></button>
-          <input id="ontologyUpload" type="file" name="uploadOntology"
-                 accept=".trig, .ttl, .jsonld, .nt, .owl, .rdf">
-        </dd>
-      </dl>
-      <button id="vizUpload" disabled=disabled>LOAD</button>
+      <div class="content">
+        <dl>
+          <dt><b>Dataset</b></dt>
+          <dd>
+            <button><label for="datasetUpload">change</label></button>
+            <input id="datasetUpload" type="file" name="uploadDataset"
+                   accept=".trig, .ttl, .jsonld, .nt, .owl, .rdf">
+          </dd>
+          <dt><b>Ontology</b></dt>
+          <dd>
+            <button><label for="ontologyUpload">change</label></button>
+            <input id="ontologyUpload" type="file" name="uploadOntology"
+                   accept=".trig, .ttl, .jsonld, .nt, .owl, .rdf">
+          </dd>
+        </dl>
+        <button id="vizUpload" disabled=disabled>LOAD</button>
+      </div>
     </main>
 
     <main class="onGo">
@@ -374,15 +376,18 @@
     <main class="onContinue">
       <i id="esc">Back to Start Menu</i>
       <h1>Continue a Session</h1>
-      <p>Continue a previous session</p>
-      <div id="scriptHere"></div>
+      <div class="content">
+        <p>Continue a previous session</p>
+        <div id="scriptHere"></div>
+      </div>
     </main>
 
     <main class="onScriptDetail">
       <i id="esc">Back to Start Menu</i>
       <h1>Continue a Session</h1>
-      <p>Continue a previous session</p>
-
+      <div class="content">
+        <p>Continue a previous session</p>
+      </div>
     </main>
 
     <!--
