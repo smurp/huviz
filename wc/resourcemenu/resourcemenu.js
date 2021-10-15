@@ -1,13 +1,17 @@
-/*
 
-  https://css-tricks.com/styling-web-components/
-
-*/
-
-import {colorlog} from '../../src/huviz.js';
 import {FSMMixin, FiniteStateMachine} from '../../src/fsm.js';
 import {DatasetDBMixin} from '../../src/datasetdb.js';
 import {PickOrProvidePanel} from '../pickorprovide/pickorprovide.js';
+
+// https://www.gitmemory.com/issue/FortAwesome/Font-Awesome/15316/517343443
+//   see _load_font_awesome() in this file
+import {
+  config, dom, library
+} from '../../node_modules/@fortawesome/fontawesome-svg-core/index.es.js'
+import { fas } from '../../node_modules/@fortawesome/free-solid-svg-icons/index.es.js';
+import { fab } from '../../node_modules/@fortawesome/free-brands-svg-icons/index.es.js';
+// https://fontawesome.com/v5.0/how-to-use/with-the-api/setup/configuration
+config.autoAddCss = false;
 
 customElements.define('pick-or-provide', PickOrProvidePanel);
 
@@ -51,20 +55,26 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
   constructor() {
     super();
     window.theResourceMenu = this;
+
+    /* prepare FiniteStateMachine */
     this.parseMachineTTL(resMenFSMTTL);
-    this._debug = true;
+    this._debug = true; // log FiniteStateMachine efforts
+
+    /* insert the template -- resourcemenu.html */
     const template = document
           .getElementById('resource-menu')
           .content;
     const shadowRoot = this.attachShadow({mode: 'open'})
           .appendChild(template.cloneNode(true));
+    this._load_font_awesome(); // depends on shadowRoot
 
-    // Next, wire up all the buttons so they can perform their transitions
+    /* wire up all the buttons so they can perform their transitions */
     this.addIDClickListeners('main, button, [id]', this.clickListener.bind(this));
 
-    this._toggleBeingBrave(); // Initialize the beBrave feature
+    /* Initialize the beBrave feature, which can be removed when out of beta */
+    this._toggleBeingBrave();
 
-    // perform 'start' transition to get things going
+    /* perform 'start' transition to get things going */
     this.transit('start', {});
     // During development it is sometimes handy to just jump to a particular screen:
     /*
@@ -236,7 +246,7 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     // or we are called with neither in which case get values from the SPARQL or SCRIPT loaders
     var huviz = this.huviz;
     let data, endpoint_label_uri;
-    colorlog('visualize_dataset_using_ontology_and_script()');
+    console.log('visualize_dataset_using_ontology_and_script()');
     huviz.close_blurt_box();
 
     // If we are loading from a SCRIPT
@@ -400,6 +410,15 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
          }
          `;
     }
+  }
+  _load_font_awesome() {
+    // https://www.gitmemory.com/issue/FortAwesome/Font-Awesome/15316/517343443
+    library.add( fas, fab );
+    dom.watch({
+      autoReplaceSvgRoot: this.shadowRoot,
+      observeMutationsRoot: this.shadowRoot
+    })
+    this.querySelector('.fontawesomeness').innerHTML = dom.css();
   }
   _move_intro_tab_over_here() {
     const introTab = document.querySelector('#contents_of_intro_tab');

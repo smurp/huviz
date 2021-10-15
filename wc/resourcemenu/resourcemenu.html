@@ -1,5 +1,5 @@
 <template id="resource-menu">
-  <style src="/huviz/css/help.css"></style>
+  <style class="fontawesomeness"></style>
   <style>
     :root {
       /* Why does putting custom properties here not work? */
@@ -45,6 +45,7 @@
     }
     button {
       border-radius: .5em;
+      justify-content: center !important;
     }
     .bigbox {
       /* center this bad boy */
@@ -82,6 +83,28 @@
       text-align: center;
       text-valign: center;
     }
+    footer {
+    }
+    .btn-bar {
+      display: flex;
+      flex-grow: 5;
+      justify-content: space-evenly;
+    }
+    footer button {
+      border: none;
+      align: center;
+      zoom: .7;
+      background-color: white;
+      radius: 0px;
+    }
+    footer button svg,
+    footer button input {
+      display: block !important;
+      zoom: 2;
+    }
+    .unimplemented {
+      background-color: darkgrey;
+    }
     main { /* aka the lilbox */
       width: var(--lil-xy);
       height: var(--lil-xy);
@@ -114,6 +137,7 @@
     }
     .content {
       overflow-y: scroll;
+      background-color: red;
     }
     /* .onDataset, onOntology, onScript, onSPARQL, onCredit */
     main {
@@ -248,12 +272,11 @@
     .eg-object {
       color: blue;
     }
-
-    
   </style>
   <div class="bigbox">
     <header>
       <a href="/"><img id="logo" src="/images/HuVizLogoBlackRim.png"/></a>
+      <a onclick="location.reload()"><i class="fas fa-home"></i></a>
     </header>
 
     <main class="onFirst">
@@ -313,15 +336,18 @@
     <main class="onBrowse">
       <i id="esc">Back to Start Menu</i>
       <h1>Browse</h1>
-      <p>Beginner, etc</p>
-      <div id="datasetHere"></div>
-      <div id="ontologyHere" style="display:none"></div>
-      <pick-or-provide></pick-or-provide>
-      <pick-or-provide></pick-or-provide>
+      <div class="content">
+        <p>Beginner, etc</p>
+        <div id="datasetHere"></div>
+        <div id="ontologyHere" style="display:none"></div>
+        <pick-or-provide></pick-or-provide>
+        <pick-or-provide></pick-or-provide>
+      </div>
     </main>
 
     <main class="onUpload">
       <i id="esc">Back to Start Menu</i>
+      <h1>Choose file for upload</h1>
       <dl>
         <dt><b>Dataset</b></dt>
         <dd>
@@ -433,26 +459,56 @@
       </div>
     </main>
 
+    <style class="bravery">
+      /* toggleBeingBrave() controls the definitions of
+         .beBraveBroken and .beBraveRough
+     */
+    </style>
+
     <footer>
-      <button style="display:none" class="big_go_button">LOAD</button>
-      <a href="https://www.figma.com/proto/yAdTfgiRCUcpF7jHWzKMwb/LINCS?node-id=989%3A2&scaling=min-zoom&page-id=901%3A2&starting-point-node-id=978%3A7&show-proto-sidebar=1"><button>Figma</button></a> <!-- Should be Tour -->
-      <button id="gotoAbout">About</button>
-      <button class="danger" id="gotoHelp">Help</button>
-      <button id="gotoCredit">Credit</button>
-      <a  href="https://gitlab.com/calincs/access/HuViz"><button>GitLab</button></a>
-
-      <!-- beBrave start -->
-      <br>
-      <style class="bravery">
-         /* toggleBeingBrave() controls the definitions of
-            .beBraveBroken and .beBraveRough
-          */
-      </style>
-      <label class="beBrave" title="expose features under development in yellow">
-        Be Brave <input type=checkbox>
-      </label>
-      <!-- beBrave end -->
-
+      <div class="btn-bar">
+        <button style="display:none" class="big_go_button">LOAD</button>
+        <button id="gotoTour" class="unimplemented">
+          <i class="fas fa-walking"></i>
+          Tour
+        </button>
+        <button id="gotoSettings" class="unimplemented">
+          <i class="fas fa-cog"></i>
+          Settings
+        </button>
+        <button id="gotoHelp" class="unimplemented">
+          <i class="fas fa-question-circle"></i>
+          Help
+        </button>
+        <button id="gotoAbout" class="unimplemented">
+          <i class="fas fa-book"></i>
+          About
+        </button>
+        <a target="_blank" href="https://gitlab.com/calincs/access/HuViz">
+          <button>
+            <i class="fab fa-gitlab"></i>
+            GitLab
+          </button>
+        </a>
+        <!-- beBrave start -->
+        <a class="danger" target="_blank"
+           href="https://www.figma.com/proto/yAdTfgiRCUcpF7jHWzKMwb/LINCS?node-id=989%3A2&scaling=min-zoom&page-id=901%3A2&starting-point-node-id=978%3A7&show-proto-sidebar=1"><button>
+            <i class="fab fa-figma"></i>
+            Figma
+          </button>
+        </a>
+        <button class="danger" id="gotoCredit">
+          <i class="fas fa-list"></i>
+          Credit
+        </button>
+        <!-- beBrave end -->
+      </div>
+      <button>
+        <label class="beBrave" title="expose features under development in yellow">
+          <input type=checkbox>
+          Be Brave
+        </label>
+      </button>
     </footer>
   </div>
 </template>

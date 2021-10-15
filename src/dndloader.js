@@ -18,7 +18,7 @@ export class PickOrProvide {
       <Xselect name="pick_or_provide"></Xselect>
       <div class="pick_or_provide"></div>
       <button type="button" class="delete_option">
-        <i class="fas fa-trash" style="font-size: 1.2em;"></i>
+        <i class="fas fa-trash" style="font-size: 1.2em;">⌫</i>
       </button>
     </form>`;
     this.prototype.uri_file_loader_sel = '.uri_file_loader_form';
