@@ -1,10 +1,10 @@
 
 import {uniquer, unique_id} from './uniquer.js'; // TODO rename to make_dom_safe_id
 
-function hide(elem) {
+export function hide(elem) {
   elem.style['display'] = 'none';
 }
-function show(elem) {
+export function show(elem) {
   elem.style['display'] = null;
 }
 
@@ -388,7 +388,7 @@ export class PickOrProvideScript extends PickOrProvide {
 // inspiration: https://css-tricks.com/drag-and-drop-file-uploading/
 export class DragAndDropLoader {
   static initClass() {
-    this.prototype.tmpl = `\
+    this.prototype.tmpl = `
 <form id="REPLACE_ID" class="local_file_form" method="post" action="" enctype="multipart/form-data">
   <div class="box__input">
     <input class="box__file" type="file" name="files[]"

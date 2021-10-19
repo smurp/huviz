@@ -1,7 +1,8 @@
 
-import {FSMMixin, FiniteStateMachine} from '../../src/fsm.js';
-import {DatasetDBMixin} from '../../src/datasetdb.js';
-import {PickOrProvidePanel} from '../pickorprovide/pickorprovide.js';
+import { FSMMixin, FiniteStateMachine } from '../../src/fsm.js';
+import { DatasetDBMixin } from '../../src/datasetdb.js';
+import { PickOrProvidePanel } from '../pickorprovide/pickorprovide.js';
+import { DropLoader } from './droploader.js';
 
 // https://www.gitmemory.com/issue/FortAwesome/Font-Awesome/15316/517343443
 //   see _load_font_awesome() in this file
@@ -14,6 +15,10 @@ import { fab } from '../../node_modules/@fortawesome/free-brands-svg-icons/index
 config.autoAddCss = false;
 
 customElements.define('pick-or-provide', PickOrProvidePanel);
+
+export const colorlog = function(msg, color='green', size='2em') {
+  return console.log(`%c${msg}`, `color:${color};font-size:${size};`);
+};
 
 var resMenFSMTTL= `
          # this graph defines the connections in the state machine
@@ -83,7 +88,7 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     */
   }
   blurt(...stuff) {
-    this.huviz.blurt(___stuff);
+    this.huviz.blurt(stuff);
   }
   registerHuViz(huviz) {
     this.huviz = huviz;
@@ -96,6 +101,10 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     args.script_loader__append_to_sel = this.querySelector('#scriptHere');
     args.endpoint_loader__append_to_sel = this.querySelector('#endpointHere');
     this.init_resource_menus(args); // add {dataset,ontology,script,endpoint}_loader
+    let dnd = new DropLoader(this, this.dataset_loader);
+    console.log({dnd});
+    window.theLoader = dnd;
+    this.drop_loader = dnd;
     this._set_up_tabs();
   }
   registerPickOrProvide() {
@@ -106,6 +115,9 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
   }
   querySelector(sel) {
     return this.shadowRoot.querySelector(sel);
+  }
+  querySelectorAll(sel) {
+    return this.shadowRoot.querySelectorAll(sel);
   }
   clickListener(evt) {
     let targetId = evt.target.id;
@@ -124,12 +136,17 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
       Button ids are transition ids.
       HTMLElement ids are states
     */
-    this.shadowRoot.querySelectorAll(selector).forEach((item) => {
+    this.querySelectorAll(selector).forEach((item) => {
       console.debug("addEventListener", {item});
       item.addEventListener('click', handler);
     })
   }
   enter__(evt, stateId) {
+    colorlog(`enter__ ${stateId}`);
+    if (evt.preventDefault) {
+      //evt.preventDefault();
+      //evt.stopPropagation();
+    }
     console.debug(`enter__(evt, '${stateId}') called because enter__${stateId}() does not exist`);
     if (stateId && stateId.length) { // ignore empty string
       this.showMain(stateId);
@@ -161,10 +178,12 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     onUpload Start
   */
   enter__onUpload(userGeneratedClickEvt, stateId) {
+    colorlog('enter__onUpload()');
     this.showMain(stateId); // display the onUpload UX
     if (!this.datasetUpload) { // do this once, this method might be called again
       this.datasetUpload = this.querySelector('#datasetUpload');
       this.ontologyUpload = this.querySelector('#ontologyUpload');
+      this.ontologyTitle = this.querySelector('#ontologyTitle');
       // vizUpload click handled because its id is the uri of a transition
       this.visualizeUploadBtn = this.querySelector('#vizUpload');
       var validate =  this._validate_onUpload.bind(this);
@@ -176,9 +195,16 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     this.datasetUpload?.click(userGeneratedClickEvt); // fake click 'Choose File'
   }
   _validate_onUpload() {
-    var value = this.datasetUpload.value;
-    var isValid = !!(value && value.length);
-    console.debug('_validate_onUpload()', {value, isValid});
+    const {form} = this.drop_loader;
+    var datasetUri = this.datasetUpload.value;
+    var datasetIsValid = !!(datasetUri && datasetUri.length);
+    var ontologyUri = this.ontologyUpload.value;
+    var hasCustomOnto = !!(ontologyUri && ontologyUri.length);
+    var isValid = datasetIsValid
+    console.debug('_validate_onUpload()', {
+      datasetUri, ontologyUri, isValid
+    });
+    form.classList.toggle('hasCustomOnto', hasCustomOnto);
     if (isValid) {
       this.visualizeUploadBtn.removeAttribute('disabled');
     } else {
@@ -200,7 +226,7 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
 
   showMain(which) {
     console.debug(`showMain('${which}')`);
-    this.shadowRoot.querySelectorAll('main').forEach((main) => {
+    this.querySelectorAll('main').forEach((main) => {
       if (main.classList.contains(which)) {
         main.style.display = 'block';
       } else {
