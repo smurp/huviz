@@ -732,7 +732,8 @@ LIMIT ${node_limit}\
     if (err != null) {
       this.blurt(err, 'error');
     } else {
-      this.huviz.load_script_from_POJO(this.huviz.parse_script_to_POJO(rsrcRec.data, rsrcRec.uri));
+      this.huviz.load_script_from_POJO(
+        this.huviz.parse_script_to_POJO(rsrcRec.data, rsrcRec.uri));
     }
   }
 
