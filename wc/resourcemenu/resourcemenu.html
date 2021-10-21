@@ -167,6 +167,29 @@
       display: none; /* close button not needed on front */
     }
 
+    /* onUpload */
+    form.hasCustomOnto #ontologyTitle,
+    form:not(.hasCustomOnto) #ontologyUpload {
+      /* swap visibility of these two on toggle(hasCustomOnto) */
+      display: none;
+    }
+    .onUpload input,
+    .onUpload .ontologyTitle {
+      display: inline;
+      width: 13em;
+    }
+    .onUpload label {
+    }
+    .onUpload dt,
+    .onGo dt {
+      font-weight: bold;
+    }
+    #defaultOntologyUri ,
+    #defaultOntologyName {
+      display: none;
+      width: 0em;
+      height: 0em;
+    }
     /* The dataset Upload button and input[type=file] */
     .onUpload label[for=datasetUpload] {
       /* background-color: orange; */
@@ -212,7 +235,6 @@
       left: var(--hlf-dif-xy);
       width: var(--lil-xy);
       height: var(--lil-xy);
-
       */
       outline: 2px dashed black;
       margin: 3px;
@@ -236,10 +258,10 @@
       color: lightblue;
     }
 
-    /* swap visibility of these two */
-    form.hasCustomOnto #ontologyTitle,
-    form:not(.hasCustomOnto) #ontologyUpload {
-      display: none;
+    /* onGo */
+    #loadingOntologyName,
+    #loadingDatasetName {
+      display: block;
     }
 
     /* onCredit */
@@ -432,21 +454,27 @@
       <h1>Choose file for upload</h1>
       <div class="content">
         <dl>
-          <dt><b>Dataset</b></dt>
+          <dt>Dataset</dt>
           <dd>
-            <button><label for="datasetUpload">change</label></button>
             <input id="datasetUpload" type="file" name="uploadDataset"
                    accept=".trig, .ttl, .jsonld, .nt, .owl, .rdf">
+            <button><label for="datasetUpload">change</label></button>
           </dd>
-          <dt><b>Ontology</b></dt>
+
+          <dt>Ontology</dt>
           <dd>
-            <button><label for="ontologyUpload">change</label></button>
             <input id="ontologyUpload" type="file" name="uploadOntology"
                    accept=".trig, .ttl, .jsonld, .nt, .owl, .rdf">
             <span id="ontologyTitle">Default Ontology</span>
+            <button><label for="ontologyUpload">change</label></button>
+            <input id="defaultOntologyUri" type="uri" value="/data/owl_mini.ttl"/>
+            <input id="defaultOntologyName" type="text" value="OWL Mini"/>
           </dd>
+
+          <dt></dt>
+          <dd><button id="vizUpload" disabled=disabled>LOAD</button></dd>
         </dl>
-        <button id="vizUpload" disabled=disabled>LOAD</button>
+
       </div>
     </main>
 
@@ -467,6 +495,23 @@
     <main class="onGo">
       <i id="esc">Back to Start Menu</i>
       <h1>about to visualize</h1>
+      <div class="content">
+        <dl>
+          <dt>Dataset</dt>
+          <dd>
+            <span id="loadingDatasetName"></span>
+            <span id="loadingDatasetUri"></span>
+          </dd>
+          <dt>Ontology</dt>
+          <dd>
+            <span id="loadingOntologyName"></span>
+            <span id="loadingOntologyUri"></span>
+          </dd>
+        </dl>
+        <div class="fa-3x">
+          <i class="fas fa-spinner fa-spin"></i>
+        </div>
+      </div>
     </main>
 
     <main class="onContinue">

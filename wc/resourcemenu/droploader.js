@@ -73,7 +73,7 @@ export class DropLoader {
     dnd_form.addEventListener('submit', this.stopProp.bind(this));
 
     // frEach == ForEachWord
-    frEach('unfocus drag dragstart dragend dragover dragenter dragleave drop',
+    frEach('unfocus drag dragstart dragend dragenter dragleave drop',
            e => dnd_form.addEventListener(e, this.stopProp.bind(this)));
 
     frEach('submits',

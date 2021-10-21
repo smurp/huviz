@@ -100,6 +100,8 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     args.ontology_loader__append_to_sel = this.querySelector('#ontologyHere');
     args.script_loader__append_to_sel = this.querySelector('#scriptHere');
     args.endpoint_loader__append_to_sel = this.querySelector('#endpointHere');
+    this.defaultOntologyUri = this.querySelector('#defaultOntologyUri');
+    this.defaultOntologyName = this.querySelector('#defaultOntologyName');
     this.init_resource_menus(args); // add {dataset,ontology,script,endpoint}_loader
     let dnd = new DropLoader(this, this.dataset_loader);
     console.log({dnd});
@@ -218,9 +220,15 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
   /* onGo start */
   enter__onGo(evt, stateId) {
     this.showMain(stateId);
-    var ont = this.ontologyUpload.value;
-    var dat = this.datasetUpload.value;
-    console.warn(`now must vizualize ${dat} ${ont}`);
+    var datUri = this.datasetUpload.value;
+    var datName = 'to be announced...';
+    var ontUri = this.ontologyUpload.value || this.defaultOntologyUri.value;
+    var ontName = this.defaultOntologyName.value;
+    console.warn(`now must vizualize`, {datUri, datName, ontUri, ontName});
+    this.querySelector('#loadingDatasetUri').innerHTML = datUri;
+    this.querySelector('#loadingDatasetName').innerHTML = datName;
+    this.querySelector('#loadingOntologyUri').innerHTML = ontUri;
+    this.querySelector('#loadingOntologyName').innerHTML = ontName;
   }
   /* onGo end */
 
