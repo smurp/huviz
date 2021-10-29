@@ -487,9 +487,16 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
     const selectId = this.endpoint_loader.select_id;
     this.sparql_graph_query_and_show(url, selectId);
     //console.log @dataset_loader
+    /*
+    console.warn('this.datset_loader.disabled = true; // UNTESTED REPLACEMENT FOR jQuery code');
+    this.dataset_loader.disabled = true;
+    this.ontology_loader.disabled = true;
+    this.script_loader.disabled = true;
+    */
     $(`#${this.dataset_loader.uniq_id}`).children('select').prop('disabled', 'disabled');
     $(`#${this.ontology_loader.uniq_id}`).children('select').prop('disabled', 'disabled');
     $(`#${this.script_loader.uniq_id}`).children('select').prop('disabled', 'disabled');
+
   }
 
   sparql_graph_query_and_show(url, datasetJSON, callback) {

@@ -388,6 +388,10 @@ const PRIMORDIAL_ONTOLOGY = {
   label: {} // MultiStrings as values
 };
 
+// TODO deduplicate wrt wc/resourcemenu/droploader.js
+const SUPPORTED_EXTENSION_REGEX = /.(jsonld|nq|nquads|nt|n3|trig|ttl|rdf|xml)$/;
+const SUPPORTED_EXTENSION_MSG = 'Only accepts jsonld|nq|nquads|nt|n3|trig|ttl|rdf|xml extensions.';
+
 const MANY_SPACES_REGEX = /\s{2,}/g;
 const UNDEFINED = undefined;
 const start_with_http = new RegExp("http", "ig");
@@ -5951,15 +5955,14 @@ SERVICE wikibase:label {
       the_parser = this.parseAndShowTTLData; // does not stream
     } else if (url.match(/.(nq|nt)/)) { // TODO Retire this in favor of parseAndShowFile
       the_parser = this.parseAndShowNQ;
-    } else if (url.match(/.(jsonld|nq|nquads|nt|n3|trig|ttl|rdf|xml)$/)) {
+    } else if (url.match(SUPPORTED_EXTENSION_REGEX)) {
       the_parser = this.parseAndShowFile;
     } else { //File not valid
       //abort with message
       // NOTE This only catches URLs that do not have a valid file name;
       // nothing about actual file format
       // TODO ext list should be data driven
-      msg = `Could not load ${url}. The data file format is not supported! ` +
-        "Only accepts jsonld|nq|nquads|nt|n3|trig|ttl|rdf|xml extensions.";
+      msg = `Could not load ${url}. ` + SUPPORTED_EXTENSION_MSG;
       this.hide_state_msg();
       this.blurt(msg, 'error');
       $('#'+this.get_data_ontology_display_id()).remove();
@@ -9969,7 +9972,7 @@ WHERE {
     // regardless the .value is a key into the datasetDB
     this.data_uri = data.value;
     this.set_ontology(onto.value);
-    this.onto_uri = onto.value;
+    this.onto_uri = onto.value; // only needed by update_caption()
     if (this.args.display_reset) {
       $("#reset_btn").show();
     } else {
@@ -10373,6 +10376,19 @@ export class OntologicallyGrounded extends Huviz {
   set_ontology(ontology_uri) {
     //@init_ontology()
     this.read_ontology(ontology_uri);
+  }
+
+  get_resource_from_db(url, callback) {
+    /*
+      Questions:
+      ----------
+      Ideally HuViz does not need to ask ResourceMenu for anything
+      Ideally, ResourceMenu should pass rsrc.data directly into HuViz? Right?
+      But what about C:\fakepath\ resource cached in the IndexedDb?
+      Should HuViz accept URLs with explicit mention of C:\fakepath\ ?
+      How should urls which are a bare filename (eg 'fromdisk.ttl') be treated?
+    */
+    this.resourceMenu.get_resource_from_db(url, callback);
   }
 
   read_ontology(url) {

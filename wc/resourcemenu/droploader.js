@@ -1,4 +1,8 @@
 
+// TODO deduplicate wrt src/huviz.js
+const SUPPORTED_EXTENSION_REGEX = /.(jsonld|nq|nquads|nt|n3|trig|ttl|rdf|xml)$/;
+const SUPPORTED_EXTENSION_MSG = 'Only accepts jsonld|nq|nquads|nt|n3|trig|ttl|rdf|xml extensions.';
+
 export function hide(elem) {
   elem.style['display'] = 'none';
 }
@@ -36,7 +40,7 @@ export class DropLoader {
     return true; // ie success
   }
 
-  load_file(firstFile) {
+  save_file(firstFile, callback) {
     this.resourceMenu.local_file_data = "empty";
     const filename = firstFile.name;
     //TODO Are these lines still needed?
@@ -45,16 +49,21 @@ export class DropLoader {
     const reader = new FileReader();
     reader.onload = evt => {
       try {
-        if (filename.match(/.(ttl|.nq)$/)) {
-          return this.picker.add_local_file({
+        if (filename.match(SUPPORTED_EXTENSION_REGEX)) {
+          console.debug(`${filename} is good, running add_local_file()`);
+          this.picker.add_local_file({
             uri: firstFile.name,
             opt_group: 'Your Own',
             data: evt.target.result
           });
+          if (callback) {
+            callback();
+          }
         } else {
-          this.resourceMenu.blurt(
-            `Unknown file format. Unable to parse '${filename}'. Only .ttl and .nq files supported.`,
-            'alert');
+          const msg = `Unknown file format. Unable to parse '${filename}'. `+
+                SUPPORTED_EXTENSION_MSG;
+          console.warn(msg);
+          this.resourceMenu.blurt(msg, 'alert');
           this.resourceMenu.reset_dataset_ontology_loader();
           this.querySelector('.delete_option').setAttribute('style','');
         }

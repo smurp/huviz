@@ -20,6 +20,14 @@ export const colorlog = function(msg, color='green', size='2em') {
   return console.log(`%c${msg}`, `color:${color};font-size:${size};`);
 };
 
+export const cleanse_fakepath = function(possible_fakepath) {
+  const c_fakepath = "C:\\fakepath\\";
+  if (possible_fakepath.startsWith(c_fakepath)) {
+    return possible_fakepath.replace(c_fakepath, '');
+  }
+  return possible_fakepath;
+}
+
 var resMenFSMTTL= `
          # this graph defines the connections in the state machine
          @prefix st: <https://example.com/state/> .
@@ -88,6 +96,7 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     */
   }
   blurt(...stuff) {
+    console.warn("BLURT",stuff);
     this.huviz.blurt(stuff);
   }
   registerHuViz(huviz) {
@@ -221,14 +230,29 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
   enter__onGo(evt, stateId) {
     this.showMain(stateId);
     var datUri = this.datasetUpload.value;
-    var datName = 'to be announced...';
+    datUri = cleanse_fakepath(datUri);  // remove leading C:\fakepath\ when file is local
+    var datName = datUri; // TODO make this editable
     var ontUri = this.ontologyUpload.value || this.defaultOntologyUri.value;
+    ontUri = cleanse_fakepath(ontUri);
     var ontName = this.defaultOntologyName.value;
-    console.warn(`now must vizualize`, {datUri, datName, ontUri, ontName});
     this.querySelector('#loadingDatasetUri').innerHTML = datUri;
     this.querySelector('#loadingDatasetName').innerHTML = datName;
     this.querySelector('#loadingOntologyUri').innerHTML = ontUri;
     this.querySelector('#loadingOntologyName').innerHTML = ontName;
+
+    const datRsrc = {value: datUri, label: datName || datUri};
+    const ontRsrc = {value: ontUri, label: ontName || ontUri};
+    const firstFile = this.datasetUpload.files[0];
+    if (firstFile) {
+      const makeCallback = (data, onto) => {
+        return () => {
+          this.launch_visualization_with({data, onto});
+        }
+      }
+      this.drop_loader.save_file(firstFile, makeCallback(datRsrc, ontRsrc));
+    } else {
+      console.error('no file was uploaded to datasetUpload', this.datasetUpload);
+    }
   }
   /* onGo end */
 
@@ -270,43 +294,10 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
   load_script_and_run(err, rsrcRec) {
     if (err != null) {
       this.blurt(err, 'error');
+    } else {
+      this.load_script_from_db(err, rsrcRec);
+      this.launch_visualization();
     }
-    this.load_script_from_db(err, rsrcRec);
-    this.auto_click_big_go_button_if_ready();
-  }
-
-  try_to_visualize_script(ignoreEvent, dataset, ontologies, scripts) {
-    // Either dataset and ontologies are passed in by HuViz.load_with() from a command
-    // or we are called with neither in which case get values from the SPARQL or SCRIPT loaders
-    var huviz = this.huviz;
-    let data, endpoint_label_uri;
-    console.log('visualize_dataset_using_ontology_and_script()');
-    huviz.close_blurt_box();
-
-    // If we are loading from a SCRIPT
-    const alreadyCommands = huviz.gclui.future_cmdArgs.length > 0;
-    console.error('reimplement script loading for dataset and onto picking');
-    if (this.script_loader && this.script_loader.value && !alreadyCommands) {
-      const scriptUri = this.script_loader.value;
-      this.get_resource_from_db(scriptUri, this.load_script_from_db.bind(this));
-      return;
-    }
-
-    // Otherwise we are starting with a dataset and ontology
-    huviz.turn_on_loading_notice_if_enabled();
-    //const onto = (ontologies && //ontologies[0]) || this.ontology_loader;
-    const onto = ontologies[0]
-    data = dataset; //|| this.dataset_loader;
-    // at this point data and onto are both objects with a .value key, containing url or fname
-    if (!(onto.value && data.value)) {
-      console.debug(data, onto);
-      this.update_dataset_forms();
-      throw new Error("Now whoa-up pardner... both data and onto should have .value");
-    }
-    huviz.load_data_with_onto(data, onto, huviz.after_visualize_dataset_using_ontology);
-    huviz.update_browser_title(data);
-    huviz.update_caption(data.value, onto.value);
-    huviz.disable_dataset_ontology_loader(data, onto, endpoint);
   }
 
   update_resource_menu(args) {
@@ -342,34 +333,53 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
       }
     }
     if (this.huviz) {
-      this.auto_click_big_go_button_if_ready();
+      this.launch_visualization();
     }
     this.ontology_loader.update_state();
   }
 
-  auto_click_big_go_button_if_ready() {
+  get_chosen_data() {
+    return {value: this.dataset_loader.value,  // uri
+            label: this.dataset_loader.label};
+  }
+  get_chosen_onto() {
+    return {value: this.ontology_loader.value,
+            label: this.ontology_loader.label};
+  }
+  get_chosen_script() {
+    return {value: this.script_loader.value,
+            label: this.script_loader.label};
+  }
+  get_chosen_endpoint() {
+    return {value: this.endpoint_loader.value,
+            label: this.endpoint_loader.label};
+  }
+  get_user_choices() {
+    var data = this.get_chosen_data();
+    var onto = this.get_chosen_onto();
+    var script = this.get_chosen_script();
+    var endpoint = this.get_chosen_endpoint();
+    return {data, onto, script, endpoint};
+  }
+
+  launch_visualization() {
     if (!this.huviz) {
-      console.warn(`auto_click_big_go_button_if_ready() before this.huviz`);
+      console.warn(`launch_visualization called before this.huviz is assigned`);
       return;
     }
-    if ((this.dataset_loader.value && this.ontology_loader.value)) {
-      let data = {value: this.dataset_loader.value,  // uri
-                  label: this.dataset_loader.label};
-      let ontos = [{value: this.ontology_loader.value,
-                    label: this.ontology_loader.label}];
-      let scripts = null;
-      if (this.script_loader.value) {
-        scripts = [{value: this.script_loader.value,
-                    label: this.script_loader.label}];
-      }
+    this.launch_visualization_with(this.get_user_choices());
+  }
+
+  launch_visualization_with(choices) {
+    const {data, onto, script, endpoint} = choices;
+    if (data.value && onto.value) {
       this.huviz.expand_tabs();
-      console.log({data, ontos, scripts});
       this.huviz.visualize_dataset_using_ontology_and_script(
         {}, // ignoreEvent
         data,
-        ontos,
-        scripts);
-    } else if (this.endpoint_loader.value) {
+        [onto],
+        [script]);
+    } else if (endpoint.value) {
       throw new Error('should implement visualize_dataset_using_endpoint');
       //this.huviz.visualize_dataset_using_
     }

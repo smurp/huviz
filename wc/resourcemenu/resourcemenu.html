@@ -409,12 +409,12 @@
           <dl>
             <dt><button id="gotoBrowse">Browse</button></dt>
             <dd>Pick a beginner or community contributed dataset</dd>
-            <dt class="danger">
+            <dt>
               <label for="datasetUpload">
                 <button id="gotoUpload">Upload</button>
               </label>
             </dt>
-            <dd class="danger">
+            <dd>
               Upload your own dataset or drag and drop anywhere on this page
             </dd>
             <dt class="danger">
@@ -461,8 +461,8 @@
             <button><label for="datasetUpload">change</label></button>
           </dd>
 
-          <dt>Ontology</dt>
-          <dd>
+          <dt class="danger">Ontology</dt>
+          <dd class="danger">
             <input id="ontologyUpload" type="file" name="uploadOntology"
                    accept=".trig, .ttl, .jsonld, .nt, .owl, .rdf">
             <span id="ontologyTitle">Default Ontology</span>
@@ -472,7 +472,8 @@
           </dd>
 
           <dt></dt>
-          <dd><button id="vizUpload" disabled=disabled>LOAD</button></dd>
+          <dd><button id="vizUpload" type="submit"
+                      disabled=disabled>LOAD</button></dd>
         </dl>
 
       </div>
@@ -652,7 +653,7 @@
       </div>
       <button>
         <label class="beBrave" title="expose features under development in yellow">
-          <input type=checkbox checked=checked>
+          <input type=checkbox XXXchecked=checked>
           Be Brave
         </label>
       </button>
