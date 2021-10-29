@@ -108,7 +108,7 @@
     main { /* aka the lilbox */
       width: var(--lil-xy);
       height: var(--lil-xy);
-      overflow: hidden;
+      /* overflow: hidden; */
     }
     dt, dd {
       margin: 0;
@@ -136,17 +136,15 @@
       font-size: 85%;
     }
     .content {
-      overflow-y: scroll;
+      /* overflow-y: scroll; */
       background-color: #f7f7f7;
       border-radius: 1em;
     }
     /* .onDataset, onOntology, onScript, onSPARQL, onCredit */
-    main {
-      overflow: scroll;
-    }
     .pick_or_provide_item {
       text-decoration-line: underline;
       cursor: pointer;
+      display: inline-block;
     }
     .pick_or_provide_item::after {
       content: "|";
