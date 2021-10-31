@@ -9,6 +9,10 @@
       "label": "CIDOC-CRM 5.0.1"
     },
     {
+      "uri": "https://sparql.cwrc.ca/ontologies/cwrc.ttl",
+      "label": "CWRC Ontology"
+    },
+    {
       "uri": "/data/foaf20140114.ttl",
       "label": "Friend of a Friend (FOAF)"
     },
