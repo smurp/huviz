@@ -24,7 +24,7 @@
     #esc {
       position: absolute;
       bottom: 2em;
-      left: 2em;
+      left: 0em;
       cursor: pointer;
     }
     #esc::before {
@@ -161,17 +161,15 @@
     .optgrp > h3::after {
       content: ":"
     }
-
     /* onBrowse */
     .delete_option {
       display: none;
       width: 0;
     }
-
+    /* onFront */
     .onFront #esc {
       display: none; /* close button not needed on front */
     }
-
     /* onUpload */
     form.hasCustomOnto #ontologyTitle,
     form:not(.hasCustomOnto) #ontologyUpload {
@@ -241,11 +239,15 @@
       width: var(--lil-xy);
       height: var(--lil-xy);
       outline: 2px dashed black;
-      */
       margin: 3px;
       outline-offset: -2px;
       border: 6px;
       padding: 8px;
+      margin: 3px;
+      outline-offset: -2px;
+      border: 6px;
+      padding: 8px;
+      */
     }
     .box__uri {
       width: 98%;
