@@ -13,6 +13,7 @@
       --logo-xy: calc(var(--hed-h) * .80); /* side length of header logo */
       --logo-pad: calc((var(--hed-h) - var(--logo-xy)) / 1); /* top padding of logo */
       --fntsiz: calc(var(--lil-xy)/26); /* base font-size */
+      --content-h: calc(var(--lil-xy) - 2 * --fntsiz);
       font-size: var(--fntsiz);
     }
     #logo {
@@ -23,7 +24,7 @@
     }
     #esc {
       position: absolute;
-      bottom: 2em;
+      bottom: 0.2em;
       left: 0em;
       cursor: pointer;
     }
@@ -49,7 +50,7 @@
     }
     .bigbox {
       /* center this bad boy */
-      position:absolute;
+      position: absolute;
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
@@ -58,7 +59,6 @@
       background-image: url(/images/node_ring.png);
       background-size: cover;
       background-clip: border-box;
-
       width: var(--big-xy);
       height: var(--big-xy);
       /* border: 1px dashed green; */
@@ -108,7 +108,7 @@
     main { /* aka the lilbox */
       width: var(--lil-xy);
       height: var(--lil-xy);
-      /* overflow: hidden; */
+      overflow: hidden;
     }
     dt, dd {
       margin: 0;
@@ -136,7 +136,8 @@
       font-size: 85%;
     }
     .content {
-      /* overflow-y: scroll; */
+      overflow-y: scroll;
+      height: var(--content-h);
       background-color: #f7f7f7;
       border-radius: 1em;
     }

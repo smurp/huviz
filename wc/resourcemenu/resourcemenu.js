@@ -327,8 +327,10 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
       const ontology_label = option.dataset['ontology_label']; //default set in group json file
       if (ontologyUri) { // let the uri (if present) dominate the label
         this.set_ontology_with_uri(ontologyUri);
-      } else {
+      } else if (ontology_label) { // or use the label if it is set
         this.set_ontology_with_label(ontology_label);
+      } else { // or default to 'OWL mini'
+        this.set_ontology_with_uri('/data/owl_mini.ttl');
       }
     }
     if (this.huviz) {
