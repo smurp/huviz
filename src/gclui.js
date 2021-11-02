@@ -1403,7 +1403,7 @@ of the classes indicated.`,
   }
   delete_script_command_by_idx(idx) {
     const elem_and_cmd = this.command_list.splice(idx, 1)[0]; // remove elem_and_cmd from command_list
-    const elem = elem_and_cmd.elem.node();
+    const elem = elem_and_cmd?.elem.node();
     if (!elem) {
       console.warn(`delete_script_command_by_idx(${idx}) failed to find elem in`,
                    elem_and_cmd);
