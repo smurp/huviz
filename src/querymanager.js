@@ -49,7 +49,7 @@ export class QueryManager {
   }
   displayError(e) {
     var msg = "QueryManager default_terms: "+JSON.stringify(this._args.default_terms);
-    console.warn(msg,e);
+    // console.warn(msg,e);
     this.qryJQElem.append(`<div class="query-error">${e}</div>`);
   }
   fatalError(e) {

@@ -2794,7 +2794,7 @@ with Shelved, Discarded, Graphed and Hidden.`;
     this.focused_node = node || null; // ensure null is the new value if no node
     if (this.focused_node) {
       // Do these thing when there is a newly focused node.
-      console.log(`focused_node = ` + node.lid);
+      //console.log(`focused_node = ` + node.lid);
       this.gclui.engage_transient_verb_if_needed("select"); // select is default verb
     } else {
       this.gclui.disengage_transient_verb_if_needed();
@@ -6133,9 +6133,9 @@ SERVICE wikibase:label {
       },
       error: (jqxhr, textStatus, errorThrown) => {
         if (!errorThrown) {
-          errorThrown = "no error message";
+          errorThrown = `textStatus = ${textStatus}`;
           var responseHeaders = jqxhr.getAllResponseHeaders();
-          console.log({textStatus, responseHeaders});
+          // console.log({textStatus, responseHeaders});
         }
         const msg = errorThrown + " while fetching " + serverUrl;
         $('#'+this.get_data_ontology_display_id()).remove();
