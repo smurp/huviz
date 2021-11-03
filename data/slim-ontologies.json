@@ -29,10 +29,6 @@
     {
       "uri": "/data/owl_mini.ttl",
       "label": "OWL Mini"
-    },
-    {
-      "uri": "/data/schema.org.ttl",
-      "label": "Schema.org (subset)"
     }
   ],
   "defaults": {
