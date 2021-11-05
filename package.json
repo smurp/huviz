@@ -46,7 +46,7 @@
     "morgan": "^1.9.1",
     "node-fetch": "^2.6.1",
     "nopt": "~3.0.0",
-    "quaff-lod": "smurp/quaff-lod",
+    "quaff-lod": "smurp/quaff-lod#f27d36c",
     "rollup": "^2.33.3",
     "stitch": "~0.3.3"
   },

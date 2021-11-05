@@ -29,7 +29,7 @@ window.addEventListener('load',function(){
       , "/data/contributed.json"
       , '/data/slim-ontologies.json'
       //, '/data/open_anno.json'
-      //, '/data/experiments.json'
+      , '/data/experiments.json'
       //, '/data/organizations.json'
       //, '/data/periodicals.json'
       //, '/data/publishing.json'
