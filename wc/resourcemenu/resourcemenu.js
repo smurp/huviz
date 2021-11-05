@@ -245,7 +245,7 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     if (firstFile) {
       const makeCallback = (data, onto) => {
         return () => {
-          this.launch_visualization_with({data, onto});
+          this.huviz.launch_visualization_with({data, onto});
         }
       }
       this.drop_loader.save_file(firstFile, makeCallback(datRsrc, ontRsrc));
@@ -368,22 +368,7 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
       console.warn(`launch_visualization called before this.huviz is assigned`);
       return;
     }
-    this.launch_visualization_with(this.get_user_choices());
-  }
-
-  launch_visualization_with(choices) {
-    const {data, onto, script, endpoint} = choices;
-    if (data.value && onto.value) {
-      this.huviz.expand_tabs();
-      this.huviz.visualize_dataset_using_ontology_and_script(
-        {}, // ignoreEvent
-        data,
-        [onto],
-        [script]);
-    } else if (endpoint.value) {
-      throw new Error('should implement visualize_dataset_using_endpoint');
-      //this.huviz.visualize_dataset_using_
-    }
+    this.huviz.launch_visualization_with(this.get_user_choices());
   }
 
   set_SOMETHING_by_selector(sumut, selector) {

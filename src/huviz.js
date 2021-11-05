@@ -1013,8 +1013,8 @@ Here is how:
     this.build_pfm_live_monitor = this.build_pfm_live_monitor.bind(this);
     this.pfm_count = this.pfm_count.bind(this);
     this.pfm_update = this.pfm_update.bind(this);
-    this.parseAndShowFile = this.parseAndShowFile.bind(this);
-    this.receive_quaff_lod = this.receive_quaff_lod.bind(this);
+    this.parseAndShowAnyUri = this.parseAndShowAnyUri.bind(this);
+    //this.receive_quaff_lod = this.receive_quaff_lod.bind(this);
     this.oldToUniqueTabSel = {};
     //if @show_performance_monitor is true
     //  @pfm_dashboard()
@@ -5734,8 +5734,7 @@ SERVICE wikibase:label {
   }
 
   parseAndShowTTLData(data, textStatus, callback) {
-    // modelled on parseAndShowNQStreamer
-    //console.log("parseAndShowTTLData",data)
+    colorlog('parseAndShowTTLData -- Ingests TTL from a data string with GreenTurtle TODO replace with parseAndShowAnyData', 'purple');
     const parse_start_time = new Date();
     const context = this.get_context();
     if ((typeof GreenerTurtle !== 'undefined'
@@ -5871,7 +5870,9 @@ SERVICE wikibase:label {
     return s.replace(/^\"/,"").replace(/\"$/,"");
   }
 
-  parseAndShowNQStreamer(uri, callback) {
+  parseAndShowNQUri(uri, callback) {
+    colorlog('parseAndShowNQUri ingests NQ/NT from a uri using parseQuad', 'purple');
+    throw new Error('parseAndShowNQUri is DEFUNCT in favor of parseAndShowAnyData');
     // turning a blob (data) into a stream
     //   http://stackoverflow.com/questions/4288759/asynchronous-for-cycle-in-javascript
     //   http://www.dustindiaz.com/async-method-queues/
@@ -5947,16 +5948,20 @@ SERVICE wikibase:label {
     console.log(data);
   }
 
-  fetchAndShow(url, callback) {
+  fetchAndShowUri(url, callback) {
+    throw new Error('fetchAndShowUri() is DEFUNCT see launch_visualization_with()');
     let msg;
     this.show_state_msg("fetching " + url);
-    let the_parser = this.parseAndShowNQ; //++++Why does the parser default to NQ?
+    let the_parser = this.parseAndShowNQUri;
+
     if (url.match(/.ttl/)) {
       the_parser = this.parseAndShowTTLData; // does not stream
-    } else if (url.match(/.(nq|nt)/)) { // TODO Retire this in favor of parseAndShowFile
-      the_parser = this.parseAndShowNQ;
-    } else if (url.match(SUPPORTED_EXTENSION_REGEX)) {
-      the_parser = this.parseAndShowFile;
+    } else if (url.match(/.(nq|nt)/)) { // TODO Retire this in favor of parseAndShowAnyUri
+      the_parser = this.parseAndShowNQUri;
+    } else
+
+    if (url.match(SUPPORTED_EXTENSION_REGEX)) {
+      the_parser = this.parseAndShowAnyUri;
     } else { //File not valid
       //abort with message
       // NOTE This only catches URLs that do not have a valid file name;
@@ -5971,8 +5976,8 @@ SERVICE wikibase:label {
       return;
     }
 
-    if (the_parser === this.parseAndShowFile) {
-      this.parseAndShowFile(url, callback);
+    if (the_parser === this.parseAndShowAnyUri) {
+      this.parseAndShowAnyUri(url, callback);
       return;
     }
 
@@ -5990,8 +5995,8 @@ SERVICE wikibase:label {
       return;
     }
 
-    if (the_parser === this.parseAndShowNQ) {
-      this.parseAndShowNQStreamer(url, callback);
+    if (the_parser === this.parseAndShowNQUri) {
+      this.parseAndShowNQUri(url, callback);
       return;
     }
 
@@ -6009,6 +6014,7 @@ SERVICE wikibase:label {
         }
         msg = errorThrown + " while fetching dataset " + url;
         this.hide_state_msg();
+        console.log("get_dataset_ontology_display_id remove()")
         $('#'+this.get_data_ontology_display_id()).remove();
         this.blurt(msg, 'error');  // trigger this by goofing up one of the URIs in cwrc_data.json
         this.reset_dataset_ontology_loader();
@@ -7994,31 +8000,119 @@ SERVICE wikibase:label {
     this.my_loading_notice_dialog.remove();
   }
 
+  launch_visualization_with(choices) {
+    const {data, onto, script, endpoint} = choices;
+    if (data.value && onto.value) {
+      this.expand_tabs();
+      this.visualize_resources(data, onto, script, endpoint);
+      this.disable_dataset_ontology_loader(data, onto);
+    } else if (endpoint.value) {
+      throw new Error('should implement visualize_dataset_using_endpoint');
+    }
+  }
+
+  async visualize_resources(dataRsrc, ontoRsrc, scriptRsrc) {
+    // TODO
+    //  * complete handling of scriptRsrc
+    //  * complete handling of endpointRsrc
+    if (Array.isArray(ontoRsrc)) {
+      throw new Error('expecting ontoRsrc to NOT be an Array');
+    }
+    colorlog('visualize_resources()', 'purple');
+    /*
+      This is meant to replace:
+        // load_data_with_onto()
+        // visualize_dataset_using_ontology_and_script()
+        // fetchAndShowUri()
+      by standardizing the calls to
+        parseAndShowAnyData(data, textStatus, callback)
+        parseAndShowAnyUri(uri, callback)
+        parseAndShowAnyStream(uri, callback)
+      which will be replacing
+        // parseAndShowTTLData(data, textStatus, callback)
+        // parseAndShowNQUri(uri, callback)
+    */
+
+    // turn on the loading notice dialog first
+    this.turn_on_loading_notice_if_enabled();
+    // create the callback to ingest_the_dataset, which will be run after ingest_the_onto
+    var ingest_the_dataset = () => {
+      this.ingest_rsrc_thenDo(dataRsrc, (data) => {
+        this.parseAndShowTTLData(data, "caller:ingest_the_dataset", this.after_visualize_dataset_using_ontology);
+        // TODO switch to the following once it is working
+        //this.parseAndShowAnyData(data, "caller:ingest_the_dataset", this.after_visualize_dataset_using_ontology);
+      });
+    };
+    this.ingest_rsrc_thenDo(ontoRsrc, (data) => {
+      this.parseTTLOntology(data, "caller:ingest_the_onto", ingest_the_dataset);
+    });
+    this.update_browser_title(dataRsrc);
+    this.update_caption(dataRsrc.value, dataRsrc.endpoint_graph);
+  }
+
+  async ingest_rsrc_thenDo(rsrc, thenDo) {
+    const URL_OR_PATH_REGEX = /^http|^ftp|^\//;
+    const uri = rsrc.value;
+    colorlog(`ingest_rsrc_thenDo('${uri}')`);
+
+    if (rsrc.data) { // if we've already got the data (from local file or indexeddb)
+      colorlog(`the ${uri} has data`, 'orange');
+      thenDo(rsrc.data);
+      return;
+    }
+
+    if (uri.match(URL_OR_PATH_REGEX)) { // If the uri is FULLY SPECIFIED or RELATIVE
+      colorlog(`fetching ${uri} from web`, 'orange');
+      let request = new Request(uri);
+      fetch(request, {method: 'GET'}).then((response) => {
+        console.log({uri, response});
+        if (!response.ok) {
+          throw new Error(`request HTTP error! stats: ${response.status}`);
+        }
+        return response.blob();
+      }).then(async (blob) => {
+        console.log({uri, blob});
+        var data = await blob.text();
+        console.log({uri, data});
+        thenDo(data);
+      }).catch(err => {
+        throw err;
+      });
+      return;
+    }
+
+    else { // If the uri looks like a FILENAME then it is to be found in the indexeddb
+      this.get_resource_from_db(uri, (err, foundRsrc) => { // try to find it
+        colorlog(`seeking ${uri} in IndexedDB`, 'orange');
+        if (foundRsrc == null) {  // if not found
+          throw new Error(err || `'${url}' was not found in your ONTOLOGY menu.  Provide it and reload page`);
+        }
+        const data = foundRsrc.data;
+        if (data) {
+          thenDo(data);
+        } else {
+          throw new Error(`'${uri}' record found in indexeddb but it had no .data stored`);
+        }
+        return;
+      });
+    }
+  }
+
   visualize_dataset_using_ontology(ignoreEvent, dataset, ontologies) {
-    colorlog('visualize_dataset_using_ontology_and_script()');
-    this.visualize_dataset_using_ontology_and_script(ignoreEvent, dataset, ontologies);
+    throw new Error('huviz visualize_dataset_using_ontology() is DEFUNCT');
+    //this.visualize_dataset_using_ontology_and_script(ignoreEvent, dataset, ontologies);
   }
 
   visualize_dataset_using_ontology_and_script(ignoreEvent, dataset, ontologies, scripts) {
-    // preload scripts, if any, then visualize
-    /*
-    if (scripts && scripts.length) {
-      const script = scripts[0];
-      if (scripts.length > 1) {
-        console.log("only loading the first script of", scripts)
-      }
-      this.script_loader = this.script_loader || {}; // THIS IS A HACK, see ResourceMen
-      this.script_loader.value = scripts[0];
-    }
-    this.visualize_dataset_using_ontology(ignoreEvent, dataset, ontologies);
-    */
-
+    throw new Error('visualize_dataset_using_ontology_and_script() is DEFUNCT');
+    // THE FOLLOWING IS LEFT IN PLACE TO HELP RESTORE ENDPOINT LOADING
+    // The handling of dataset, ontologies and scripts has been moved to visualize_resources()
 
     // Either dataset and ontologies are passed in by HuViz.load_with() from a command
     // or we are called with neither in which case get values from the SPARQL or SCRIPT loaders
 
     let data, endpoint_label_uri;
-    colorlog('visualize_dataset_using_ontology_and_script()');
+    colorlog('huviz visualize_dataset_using_ontology_and_script()');
     this.close_blurt_box();
 
     // If we are loading from a SPARQL endpoint
@@ -9981,7 +10075,7 @@ WHERE {
     }
     this.show_state_msg(this.data_uri);
     if (!this.G.subjects) {
-      this.fetchAndShow(this.data_uri, callback);
+      this.fetchAndShowUri(this.data_uri, callback);
     }
   }
 
@@ -10093,7 +10187,9 @@ WHERE {
   }
 
   load(data_uri, callback) {
-    if (!this.G.subjects) { this.fetchAndShow(data_uri, callback); }
+    if (!this.G.subjects) {
+      this.fetchAndShowUri(data_uri, callback);
+    }
     if (this.use_webgl) {
       this.init_webgl();
     }
@@ -10104,29 +10200,34 @@ WHERE {
     const basename = (uri) => { // the filename without the ext
       return uri.split('/').pop().split('.').shift();
     }
-    var dataset;
-    if (data_uri) {
-      dataset = {
-        label: basename(data_uri),
-        value: data_uri
-      };
+    if (!data_uri) {
+      throw new Error('load_with() requires data_uri');
     }
-    var ontology;
+    const data = {
+      label: basename(data_uri),
+      value: data_uri
+    };
+    var onto;
     if (ontology_uris) {
-      ontology = {
+      onto = {
         label: basename(ontology_uris[0]),
         value: ontology_uris[0]
       };
     }
+    var script;
     if (script_uris && script_uris.length > 0) {
       const origin = document.location.origin;
-      var script = script_uris[0];
-      if (script.startsWith('/')) {
-        script = origin + script;
+      var aScript = script_uris[0];
+      if (aScript.startsWith('/')) {
+        aScript = origin + aScript;
       }
-      this.load_script_from_uri(script);
+      this.load_script_from_uri(aScript);
+      script = {
+        value: aScript,
+        label: aScript
+      };
     }
-    this.visualize_dataset_using_ontology({}, dataset, [ontology]);
+    this.launch_visualization_with({data, onto, script});
   }
 
 
@@ -10287,7 +10388,9 @@ WHERE {
     }
   }
 
-  parseAndShowFile(uri, callback) {
+  parseAndShowAnyUri(uri, callback) {
+    colorlog('parseAndShowAnyUri -- Ingests any file format from an uri using N3 in a worker stream', 'purple');
+    console.warn('parseAndShowAnyUri is DEPRECATED in favor of parseAndShowAnyData');
     let aUri;
     try {
       aUri = new URL(uri);
@@ -10298,7 +10401,12 @@ WHERE {
       aUri = new URL(fullUri);
     }
     const worker = new Worker('/quaff-lod/quaff-lod-worker-bundle.js');
-    worker.addEventListener('message', this.receive_quaff_lod);
+    worker.addEventListener(
+      'message',
+      (event) => {
+        this.receive_quaff_lod(event.data);
+      }
+    );
     const trigger_callback = (event) => {
       switch (event.data.type) {
         case 'end':
@@ -10316,6 +10424,35 @@ WHERE {
     };
     worker.addEventListener('message', trigger_callback); // a second listener for error and end
     worker.postMessage({url: aUri.toString()});
+  }
+
+  parseAndShowAnyData(data, textStatus, callback) {
+    colorlog('parseAndShowAnyData -- Ingests any file format from an uri using N3 in a worker stream WIP', 'purple');
+    const worker = new Worker('/quaff-lod/quaff-lod-worker-bundle.js');
+    worker.addEventListener(
+      'message',
+      (event) => {
+        this.receive_quaff_lod(event.data);
+      }
+    );
+    const trigger_callback = (event) => {
+      switch (event.data.type) {
+        case 'end':
+          this.call_on_dataset_loaded();
+          if (callback != null) {
+            callback();
+          }
+          break;
+        case 'error':
+          this.blurt(event.data.data, "error");
+          break;
+        default:
+          console.log("trigger_callback(event) did not know what to do with event.data:", event.data);
+      }
+    };
+    worker.addEventListener('message', trigger_callback); // a second listener for error and end
+    //worker.postMessage({ext: 'jsonld', data: data});
+    //worker.postMessage({url: aUri.toString()});
   }
 
   convert_quaff_obj_to_GreenTurtle(raw) {
@@ -10342,8 +10479,8 @@ WHERE {
     return out;
   }
 
-  receive_quaff_lod(event) {
-    const {subject, predicate, object, graph} = event.data;
+  receive_quaff_lod(data) {
+    const {subject, predicate, object, graph} = data;
     if (!subject) {
       return;
     }
@@ -10414,11 +10551,12 @@ export class OntologicallyGrounded extends Huviz {
     });
   }
 
-  parseTTLOntology(data, textStatus) {
+  parseTTLOntology(data, textStatus, callback) {
     // detect (? rdfs:subClassOf ?) and (? ? owl:Class)
     // Analyze the ontology to enable proper structuring of the
     // predicate_picker and the taxon_picker.  Also to support
     // imputing 'type' (and hence Taxon) to nodes.
+    colorlog('parseTTLOntology', 'purple');
     const {
       ontology
     } = this;
@@ -10464,6 +10602,10 @@ export class OntologicallyGrounded extends Huviz {
             }
           }
         }
+      }
+      if (callback) {
+        console.log('running parseTTOOntology callback');
+        callback();
       }
     }
 
