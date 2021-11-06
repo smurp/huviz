@@ -281,7 +281,6 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
       }
     }
     console.groupEnd();
-    //###
   }
 
   ensure_datasets_from_XHR(preload_group) {
