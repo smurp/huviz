@@ -5951,6 +5951,8 @@ SERVICE wikibase:label {
 
   fetchAndShowUri(url, callback) {
     throw new Error('fetchAndShowUri() is DEFUNCT see launch_visualization_with()');
+                                            
+                                            
     let msg;
     this.show_state_msg("fetching " + url);
     let the_parser = this.parseAndShowNQUri;
@@ -5971,7 +5973,7 @@ SERVICE wikibase:label {
       msg = `Could not load ${url}. ` + SUPPORTED_EXTENSION_MSG;
       this.hide_state_msg();
       this.blurt(msg, 'error');
-      $('#'+this.get_data_ontology_display_id()).remove();
+      this.remove_datontdisp();
       this.reset_dataset_ontology_loader();
       return;
     }
@@ -6014,8 +6016,7 @@ SERVICE wikibase:label {
         }
         msg = errorThrown + " while fetching dataset " + url;
         this.hide_state_msg();
-        console.log("get_dataset_ontology_display_id remove()")
-        $('#'+this.get_data_ontology_display_id()).remove();
+        this.remove_datontdisp();
         this.blurt(msg, 'error');  // trigger this by goofing up one of the URIs in cwrc_data.json
         this.reset_dataset_ontology_loader();
         //TODO Reset titles on page
@@ -6144,7 +6145,6 @@ SERVICE wikibase:label {
           // console.log({textStatus, responseHeaders});
         }
         const msg = errorThrown + " while fetching " + serverUrl;
-        $('#'+this.get_data_ontology_display_id()).remove();
         queryManager.fatalError(msg);
         if (error_callback != null) {
           return error_callback(jqxhr, textStatus, errorThrown, queryManager);
@@ -8284,6 +8284,11 @@ SERVICE wikibase:label {
     return this.data_ontology_display_id;
   }
 
+  remove_datontdisp() {
+    console.log("get_dataset_ontology_display_id remove()")
+    $('#'+this.get_data_ontology_display_id()).remove();
+  }
+
   hide_pickers() {
     $(this.pickersSel).attr("style","display:none");
   }
@@ -8722,7 +8727,7 @@ WHERE {
     const make_error_callback = () => {
       return (jqxhr, textStatus, errorThrown) => {
         this.endpoint_label_search_failure();
-        $('#'+this.get_data_ontology_display_id()).remove();
+        this.remove_datontdisp();
         return this.stop_graphs_selector_spinner();
       };
     };
