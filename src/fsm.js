@@ -201,7 +201,6 @@ export let FSMMixin = (superclass) => class extends superclass {
     var currentStateId = this.get_state();
     var currentStateObj = this._states[currentStateId];
     if (currentStateObj) {
-      var targetStateId = currentStateObj[transId];
       /*
       if (!targetStateId) {
         return this.throw_or_return_msg(
@@ -217,8 +216,11 @@ export let FSMMixin = (superclass) => class extends superclass {
         // call on__<transId> if it exists
         calledOn = this.on_transition(evt, transId, false);
       }
-      // call exit__<targetStateId>
-      calledEnter = this.set_state(targetStateId, evt);
+      // call exit__<currentStateId> if there is a targetStateId
+      var targetStateId = currentStateObj[transId];
+      if (targetStateId) {
+        calledEnter = this.set_state(targetStateId, evt);
+      }
       var called = calledExit || calledWhen || calledOn || calledEnter;
       if (!called) {
         const msg = this.make_noop_msg(transId, currentStateId, targetStateId);

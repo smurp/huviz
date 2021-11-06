@@ -5973,7 +5973,6 @@ SERVICE wikibase:label {
       this.blurt(msg, 'error');
       $('#'+this.get_data_ontology_display_id()).remove();
       this.reset_dataset_ontology_loader();
-      //@init_resource_menus()
       return;
     }
 
@@ -8204,7 +8203,6 @@ SERVICE wikibase:label {
   init_gclc() {
     this.gclc = new GraphCommandLanguageCtrl(this);
     this.makeResourceMenuDialog()
-    //this.init_resource_menus();
     if ((this.gclui == null)) {
       // @oldToUniqueTabSel['huvis_controls'] ???
       const dom_node = d3.select(this.args.gclui_sel).node();
@@ -9325,6 +9323,15 @@ WHERE {
     this.collapseCtrlJQElem.show();
   }
 
+  toggle_tabs() {
+    var visibility =  this.tabsJQElem.prop('style').getPropertyValue('visibility');
+    if (visibility == 'visible') {
+      this.collapse_tabs();
+    } else {
+      this.expand_tabs();
+    }
+  }
+
   create_collapse_expand_handles() {
     const ctrl_handle_id = sel_to_id(this.args.ctrl_handle_sel);
     const html = `\
@@ -9354,6 +9361,7 @@ WHERE {
   goto_tab(tab_id) {
     const tab_idx = this.tab_id_to_idx[tab_id];
     if ((tab_idx == null)) {
+      console.log('tab_id_to_idx keys:', Object.keys(this.tab_id_to_idx));
       console.error(`goto_tab(${tab_id}) found no value in @tab_id_to_idx:`, this.tab_id_to_idx);
       return;
     }

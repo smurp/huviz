@@ -130,7 +130,15 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     return this.shadowRoot.querySelectorAll(sel);
   }
   clickListener(evt) {
-    let targetId = evt.target.id;
+    let target = evt.target;
+    let targetId = target.id;
+    // The svg and path elements injected by fontawesome  don't have ids but need to be ignored
+    if (!targetId && ['svg','path'].includes(target.nodeName)) {
+      console.debug("seeking new target because on id found on", target)
+      target = target.closest('main, button, [id]');
+      console.debug('closest target:', target);
+      targetId = target?.id;  // get the id if there is one
+    }
     console.debug('clickListener', {evt, targetId});
     if (targetId) {
       try {
@@ -182,6 +190,10 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
   }
   on__gotoHelp(evt) {
     this.showMain('onHelp');
+  }
+  on__gotoSettings(evt) {
+    this.huviz.toggle_tabs();
+    this.huviz.goto_tab('settings');
   }
 
   /*
