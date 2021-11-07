@@ -112,10 +112,19 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     this.defaultOntologyUri = this.querySelector('#defaultOntologyUri');
     this.defaultOntologyName = this.querySelector('#defaultOntologyName');
     this.init_resource_menus(args); // add {dataset,ontology,script,endpoint}_loader
+    this.mirror_loaders_to_huviz(); // then mirror them on this.huviz
     let dnd = new DropLoader(this, this.dataset_loader);
     window.theLoader = dnd;
     this.drop_loader = dnd;
     this._set_up_tabs();
+  }
+  mirror_loaders_to_huviz() {
+    // put properties on huviz to point to the loaders
+    const loaders = 'dataset ontology script endpoint'.split(' ');
+    for (let k of loaders) {
+      var loader_name = `${k}_loader`;
+      this.huviz[loader_name] = this[loader_name];
+    }
   }
   registerPickOrProvide() {
     var pops = this.querySelectorAll('pick-or-provide');
