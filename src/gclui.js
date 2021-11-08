@@ -415,7 +415,7 @@ of the classes indicated.`,
   }
   reset_command_history() {
     for (let record of this.command_list) {
-      record.elem.attr('class','command');
+      record.elem.classList.add('command');
     }
   }
   get_downloadscript_name(ext) {
@@ -617,7 +617,7 @@ of the classes indicated.`,
   }
   play_old_command_by_idx(idx) {
     const record = this.command_list[idx];
-    record.elem.attr('class', 'command played');
+    record.elem.classList.add('command', 'played');
     this.play_old_command(record.cmd);
   }
   play_old_command(cmd) {
@@ -1607,6 +1607,7 @@ of the classes indicated.`,
     } else if (isPair || isGroup) {
       // Put the pairs within their own ".alternates" within ".verbs < .pairs"
       const alternatesElem = verb_pairs.append('div').attr('class','alternates');
+      // are these D3 objects?
       containerElem = alternatesElem.append('div').attr('class', 'pair');
       const x_butt = alternatesElem.append('div').attr('class', 'x-button');
       x_butt.append('button').text('X');
