@@ -974,20 +974,6 @@ If zero before loading, then lookup is suppressed.`
     }
   }
   , {
-    combine_command_history: {
-      group: "Debugging",
-      class: "alpha_feature",
-      text: "Put history on command tab",
-      label: {
-	title: "Combine the history tab with the command tab"
-      },
-      input: {
-	type: "checkbox"
-	, checked: "checked"
-      }
-    }
-  }
-  , {
     debug_shelf_angles_and_flipping: {
       group: "Debugging",
       class: "alpha_feature",
