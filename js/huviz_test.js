@@ -1,4 +1,4 @@
-import * as huviz from '/huviz/huviz.js';
+import * as huviz from '/huviz/huviz.dist.js';
 
 var expect = chai.expect();
 /*

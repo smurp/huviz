@@ -110,7 +110,7 @@ The Verbs are the operations which move nodes between the various sets, ie sets 
     npm run watch
     # watches for changes
     # then runs build:*
-    # which creates a new lib/huviz.js
+    # which creates a new lib/huviz.dist.js
     # which triggers restarting the server
 
 ## Running Tests "Continuously"
