@@ -620,6 +620,12 @@ a.git_commit_hash_watermark {
 /*------------------ Misc Styles -----------------*/
 
 /* Font size in endpoint autocomplete */
+/*
+
+ A MORE PRECISE SELECTOR WOULD BE GOOD
+ THIS ONE COLLIDES WITH THE Commands TAB
+
 #ui-id-1 {
   font-size: 0.7em;
 }
+*/
