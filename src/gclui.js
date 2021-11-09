@@ -377,11 +377,6 @@ of the classes indicated.`,
 
     this.cmdlist_elem = this.nextcommandbox_elem.querySelector('.commandlist');
     this.add_grow_shrink_history();
-    /*
-    this.oldcommands = this.cmdlist.
-      append('div').
-      attr('class','commandhistory').
-    */
     // TODO settle on either camelCase or snake_case for the _elem (Elem) suffix
     this.commandhistoryElem = this.cmdlist_elem.querySelector('.commandhistory');
     this.commandhistoryElem.style['max-height'] = `${this.huviz.height-80}px`;
