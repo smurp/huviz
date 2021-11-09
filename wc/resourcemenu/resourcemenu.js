@@ -39,7 +39,7 @@ var resMenFSMTTL= `
 
          st:onStart    tr:gotoBrowse    st:onBrowse .
          st:onStart    tr:gotoUpload    st:onUpload .
-         st:onStart    tr:gotoURL       st:onURL .
+         st:onStart    tr:gotoURL       st:onGo .
          st:onStart    tr:gotoQuery     st:onQuery .
          st:onStart    tr:esc           st:onFirst .
 
@@ -244,18 +244,34 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
   }
   // onUpload end
 
+  // onStart Start
+  enter__onStart(evt, stateId) {
+    this.showMain(stateId); // display the onStart UX
+    if (!this.datasetUri) {
+      this.datasetUri = this.querySelector("[name='datasetUri']");
+      this.datasetUri.addEventListener('input', this.onchange_datasetUri.bind(this));
+      this.datasetUri.addEventListener('change', this.onchange_datasetUri.bind(this));
+      this.gotoURLButton = this.querySelector('#gotoURL');
+    }
+    colorlog('enter__onStart() ended');
+  }
+  onchange_datasetUri(evt) {
+    const hasValue = !!evt.target.value;
+    this.gotoURLButton.toggleAttribute('disabled', !hasValue);
+  }
+
   /* onGo start */
   enter__onGo(evt, stateId) {
     this.showMain(stateId);
-    var datUri = this.datasetUpload.value;
+    var datUri = this.datasetUpload?.value || this.datasetUri?.value;
     datUri = cleanse_fakepath(datUri);  // remove leading C:\fakepath\ when file is local
     var datName = datUri; // TODO make this editable
-    var ontUri = this.ontologyUpload.value;
+    var ontUri = this.ontologyUpload?.value;
     var ontName = ontUri;
     if (!ontUri) {
-      ontUri = this.defaultOntologyUri.value;
+      ontUri = this.defaultOntologyUri?.value;
       ontUri = cleanse_fakepath(ontUri);
-      ontName = this.defaultOntologyName.value || ontUri;
+      ontName = this.defaultOntologyName?.value || ontUri;
     } else {
       ontUri = cleanse_fakepath(ontUri);
       ontName = cleanse_fakepath(ontUri);
@@ -270,7 +286,7 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     const ontRsrc = {value: ontUri, label: ontName};
 
     var saveDataset = () => {
-      const firstFile = this.datasetUpload.files[0];
+      const firstFile = this.datasetUpload?.files[0];
       if (firstFile) {
         const makeCallback = (data, onto) => {
           return () => {
@@ -279,11 +295,12 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
         }
         this.drop_loader.save_file(firstFile, {opt_group:'Your Own', isOntology:false}, makeCallback(datRsrc, ontRsrc));
       } else {
-        console.error('no file was uploaded to datasetUpload', this.datasetUpload);
+        // an URL must have been provided instead
+        this.huviz.launch_visualization_with({data:datRsrc, onto:ontRsrc});
       }
     }
     // save ontology if there is one
-    const firstOntologyFile = this.ontologyUpload.files[0];
+    const firstOntologyFile = this.ontologyUpload?.files[0];
     if (firstOntologyFile) {
       // ensure that (if provided) the ontology has been saved to indexedDb
       this.drop_loader.save_file(firstOntologyFile, {opt_group:'Ontologies', isOntology:true}, saveDataset);
