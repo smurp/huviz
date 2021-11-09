@@ -40,7 +40,7 @@ export class DropLoader {
     return true; // ie success
   }
 
-  save_file(firstFile, callback) {
+  save_file(firstFile, groupDetails, callback) {
     this.resourceMenu.local_file_data = "empty";
     const filename = firstFile.name;
     //TODO Are these lines still needed?
@@ -53,7 +53,9 @@ export class DropLoader {
           console.debug(`${filename} is good, running add_local_file()`);
           this.picker.add_local_file({
             uri: firstFile.name,
-            opt_group: 'Your Own',
+            opt_group: groupDetails.opt_group,
+            isOntology: groupDetails.isOntology,
+            isUri: false,
             data: evt.target.result
           });
           if (callback) {

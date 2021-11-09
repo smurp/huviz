@@ -242,9 +242,7 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
       this.visualizeUploadBtn.setAttribute('disabled', 'disabled');
     }
   }
-  /*
-    onUpload end
-  */
+  // onUpload end
 
   /* onGo start */
   enter__onGo(evt, stateId) {
@@ -252,29 +250,49 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     var datUri = this.datasetUpload.value;
     datUri = cleanse_fakepath(datUri);  // remove leading C:\fakepath\ when file is local
     var datName = datUri; // TODO make this editable
-    var ontUri = this.ontologyUpload.value || this.defaultOntologyUri.value;
-    ontUri = cleanse_fakepath(ontUri);
-    var ontName = this.defaultOntologyName.value;
+    var ontUri = this.ontologyUpload.value;
+    var ontName = ontUri;
+    if (!ontUri) {
+      ontUri = this.defaultOntologyUri.value;
+      ontUri = cleanse_fakepath(ontUri);
+      ontName = this.defaultOntologyName.value || ontUri;
+    } else {
+      ontUri = cleanse_fakepath(ontUri);
+      ontName = cleanse_fakepath(ontUri);
+    }
+
     this.querySelector('#loadingDatasetUri').innerHTML = datUri;
     this.querySelector('#loadingDatasetName').innerHTML = datName;
     this.querySelector('#loadingOntologyUri').innerHTML = ontUri;
     this.querySelector('#loadingOntologyName').innerHTML = ontName;
 
-    const datRsrc = {value: datUri, label: datName || datUri};
-    const ontRsrc = {value: ontUri, label: ontName || ontUri};
-    const firstFile = this.datasetUpload.files[0];
-    if (firstFile) {
-      const makeCallback = (data, onto) => {
-        return () => {
-          this.huviz.launch_visualization_with({data, onto});
+    const datRsrc = {value: datUri, label: datName};
+    const ontRsrc = {value: ontUri, label: ontName};
+
+    var saveDataset = () => {
+      const firstFile = this.datasetUpload.files[0];
+      if (firstFile) {
+        const makeCallback = (data, onto) => {
+          return () => {
+            this.huviz.launch_visualization_with({data, onto});
+          }
         }
+        this.drop_loader.save_file(firstFile, {opt_group:'Your Own', isOntology:false}, makeCallback(datRsrc, ontRsrc));
+      } else {
+        console.error('no file was uploaded to datasetUpload', this.datasetUpload);
       }
-      this.drop_loader.save_file(firstFile, makeCallback(datRsrc, ontRsrc));
+    }
+    // save ontology if there is one
+    const firstOntologyFile = this.ontologyUpload.files[0];
+    if (firstOntologyFile) {
+      // ensure that (if provided) the ontology has been saved to indexedDb
+      this.drop_loader.save_file(firstOntologyFile, {opt_group:'Ontologies', isOntology:true}, saveDataset);
     } else {
-      console.error('no file was uploaded to datasetUpload', this.datasetUpload);
+      // no locally file upload was provided, so just proceed
+      saveDataset();
     }
   }
-  /* onGo end */
+  // onGo end
 
   showMain(which) {
     console.debug(`showMain('${which}')`);
