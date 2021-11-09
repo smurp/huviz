@@ -2,3 +2,5 @@
 ATTIC
 node_modules
 .DS_Store
+lib/huviz.dist.js
+lib/huviz.dist.js.map

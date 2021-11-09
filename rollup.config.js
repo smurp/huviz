@@ -1,6 +1,6 @@
 export default {
   output: {
-    file: 'lib/huviz.js',
+    file: 'lib/huviz.dist.js',
     format: 'esm',
     sourcemap: true
   },

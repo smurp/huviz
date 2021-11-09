@@ -14,4 +14,5 @@ COPY . /app/
 
 # Expose port and start the app
 EXPOSE 5000
+RUN npx rollup -c
 CMD [ "node", "server.js" ]

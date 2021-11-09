@@ -1,4 +1,4 @@
-import * as huviz from '/huviz/huviz.js';
+import * as huviz from '/huviz/huviz.dist.js';
 window.addEventListener('load',function(){
   new huviz.Orlando({
     huviz_top_sel: "#HUVIZ_TOP",
