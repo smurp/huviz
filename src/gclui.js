@@ -402,15 +402,15 @@ of the classes indicated.`,
   on_grow_shrink_click(evt) {
     const UP = 'fa-angle-double-up';
     const DN = 'fa-angle-double-down';
-    var growshrink_classList = this.grow_shrink.node().classList;
-    var cmdlist_classList = this.cmdlist.node().classList;
+    var growshrink_classList = this.grow_shrink.classList;
+    var cmdlist_classList = this.cmdlist_elem.classList;
     if (growshrink_classList.contains(UP)) {
       growshrink_classList.replace(UP, DN);
       cmdlist_classList.replace('grown', 'shrunk');
     } else {
       growshrink_classList.replace(DN, UP);
       cmdlist_classList.replace('shrunk', 'grown');
-      this.nextcommand.node().scrollIntoView();
+      this.nextcommand_elem.scrollIntoView();
     }
   }
   reset_command_history() {
