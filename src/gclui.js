@@ -415,7 +415,7 @@ of the classes indicated.`,
   }
   reset_command_history() {
     for (let record of this.command_list) {
-      record.elem.classList.add('command');
+      record.elem.classList.remove('played');
     }
   }
   get_downloadscript_name(ext) {
