@@ -456,9 +456,6 @@
 .pick_or_provide_form button:disabled{
   display: none;
 }
-.commandlist {
-  overflow: scroll;
-}
 .grown .commandhistory {
   height: clamp(2rem, 15vh, 8rem);
 }
