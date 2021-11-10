@@ -8000,6 +8000,13 @@ SERVICE wikibase:label {
     this.my_loading_notice_dialog.remove();
   }
 
+  replace_contents_of_loading_notice(html) {
+    const dialog = this.my_loading_notice_dialog;
+    const loading_notice = dialog.querySelector('.loadingNotice');
+    dialog.style="height:60%";
+    loading_notice.innerHTML = html;
+  }
+
   launch_visualization_with(choices) {
     const {data, onto, script, endpoint} = choices;
     if (data.value && onto.value) {
@@ -8046,7 +8053,12 @@ SERVICE wikibase:label {
       this.ingest_rsrc_thenDo(dataRsrc, (data) => {
         //this.parseAndShowTTLData(data, "caller:ingest_the_dataset", this.after_visualize_dataset_using_ontology);
         // TODO switch to the following once it is working
-        this.parseAndShowAnyData(data, dataRsrc, this.after_visualize_dataset_using_ontology);
+        try {
+          this.parseAndShowAnyData(data, dataRsrc, this.after_visualize_dataset_using_ontology);
+        } catch (err) {
+          console.log(err);
+          this.replace_contents_of_loading_notice(err.toString());
+        }
       });
     };
     this.ingest_rsrc_thenDo(ontoRsrc, (data) => {
@@ -10449,6 +10461,20 @@ WHERE {
   parseAndShowAnyData(data, rsrc, callback) {
     colorlog('parseAndShowAnyData -- Ingests any file format from an uri using N3 in a worker stream WIP', 'purple');
     const worker = new Worker('/quaff-lod/quaff-lod-worker-bundle.js');
+    worker.onerror = (event) => {
+      const esc = (str) => {
+        return  str.replace(/\</g, '&lt;').replace(/\>/g, '&gt;');
+      };
+      var {message} = event;
+      var html = '';
+      console.log(event);
+      message = message.replace('Uncaught Error: ','');
+      html += `<h2>${message}</h2><button><a href="/">Start Over</a></button>`;
+      if (message.includes(' line ')) {
+        html += `<pre style="overflow:scroll">${esc(data)}</pre>`
+      }
+      this.replace_contents_of_loading_notice(html);
+    };
     worker.addEventListener('message', (event) => {
       switch (event.data.type) {
       case 'end':
