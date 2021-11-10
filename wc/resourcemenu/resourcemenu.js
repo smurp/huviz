@@ -252,12 +252,16 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
       this.datasetUri.addEventListener('input', this.onchange_datasetUri.bind(this));
       this.datasetUri.addEventListener('change', this.onchange_datasetUri.bind(this));
       this.gotoURLButton = this.querySelector('#gotoURL');
+      //this.gotoURLButton2 = this.querySelector('#gotoURL2');
     }
     colorlog('enter__onStart() ended');
   }
   onchange_datasetUri(evt) {
-    const hasValue = !!evt.target.value;
-    this.gotoURLButton.toggleAttribute('disabled', !hasValue);
+    const noValue = !evt.target.value;
+    const badPattern = evt.target.validity.patternMismatch;
+    window.lookAtMe = evt.target;
+    this.gotoURLButton.toggleAttribute('disabled', noValue||badPattern);
+    //this.gotoURLButton2.toggleAttribute('disabled', noValue||badPattern);
   }
 
   /* onGo start */

@@ -212,7 +212,7 @@
       opacity:0; /* hiding it this way preserves accessibility, unlike display:none */
       width:1em;
     }
-
+    /* onStart */
     .box__uploading,
     .box__success,
     .box__error {
@@ -426,7 +426,7 @@
               Upload your own dataset or drag and drop anywhere on this page
             </dd>
             <dt>
-              <button onclick="return false;">URL</button>
+              <button id="gotoURL" disabled=disabled>URL</button>
             </dt>
             <dd class="dndloaderHere">
               <div class="box__input" style="display:none">
@@ -435,8 +435,14 @@
                   Drop URL or file here
                 </div>
               </div>
-              <input name="datasetUri" type="url" class="box__uri" placeholder="Or enter URL here" />
-              <button id="gotoURL" disabled=disabled><i class="fas fa-sign-in-alt"></i></button>
+              <input name="datasetUri"
+                     type="url"
+                     text="accepts extension jsonld|nt|nq|owl|rdf|ttl|trig|xml"
+                     pattern=".*(jsonld|nt|nq|owl|rdf|ttl|trig|xml)$"
+                     accept=".trig,.ttl,.jsonld,.nt,.owl,.rdf,.nq,.xml"
+                     class="box__uri"
+                     placeholder="Or enter URL here" />
+              <!--<button id="gotoURL2" disabled=disabled><i class="fas fa-sign-in-alt"></i></button>-->
               <div class="box__uploading" style="display:none">Uploading&hellip;</div>
               <div class="box__success" style="display:none">Done!</div>
               <div class="box__error" style="display:none">Error! <span></span>.</div>
@@ -457,7 +463,7 @@
           <dt>Dataset</dt>
           <dd>
             <input id="datasetUpload" type="file" name="uploadDataset"
-                   accept=".trig, .ttl, .jsonld, .nt, .owl, .rdf">
+                   accept=".trig, .ttl, .jsonld, .nt, .owl, .rdf, .nq, .xml">
             <button><label for="datasetUpload">change</label></button>
           </dd>
 
