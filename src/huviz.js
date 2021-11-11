@@ -6420,8 +6420,6 @@ LIMIT ${node_limit}\
     } else {
       this.cx = this.width / 2;
     }
-    this.my = this.cy * 2;
-    this.mx = this.cx * 2;
   }
 
   update_lariat_zone() {
