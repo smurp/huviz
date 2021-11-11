@@ -1534,14 +1534,12 @@ Link details may not be accurate. Activate to load.</i>`; // """
     }
     let radius = this.graph_radius;
     this.d3simulation.force(
-      "x", d3.forceX(radius).strength(this.centeringForceStrength));
+      "x", d3.forceX(this.cx).strength(this.centeringForceStrength));
     this.d3simulation.force(
-      "y", d3.forceY(radius).strength(this.centeringForceStrength));
+      "y", d3.forceY(this.cy).strength(this.centeringForceStrength));
     if (this.d3forceCenter) {
       this.d3forceCenter = this.update_d3forceCenter();
     }
-    //console.info("must implement d3v4 force.size");
-    //@force.size [@mx, @my]
     if (!this.args.skip_log_tick) {
       console.log("Tick in @force.size() updateWindow");
     }
@@ -2227,12 +2225,12 @@ with Shelved, Discarded, Graphed and Hidden.`;
 
   use_d3forceCenter(use = true) {
     // https://github.com/d3/d3-force#centering
-    var force = null;
+    var forceCallback = null;
     if (use) {
-      force = this.update_d3forceCenter();
+      forceCallback = this.update_d3forceCenter.bind(this);
     }
-    this.d3forceCenter = force;
-    this.d3simulation.force('center', force);
+    this.d3forceCenter = forceCallback;
+    this.d3simulation.force('center', forceCallback);
   }
 
   update_d3forceCenter() {
@@ -2753,7 +2751,7 @@ with Shelved, Discarded, Graphed and Hidden.`;
           && this.dragging
           && this.editui.subject_node;
     this.nodes.forEach((node, i) => {
-      return this.reposition_node_by_force(node, only_move_subject);
+      this.reposition_node_by_force(node, only_move_subject);
     });
   }
 
@@ -2782,7 +2780,11 @@ with Shelved, Discarded, Graphed and Hidden.`;
     });
 
     if (this.use_svg) {
-      link.attr("x1", d => d.source.fisheye.x).attr("y1", d => d.source.fisheye.y).attr("x2", d => d.target.fisheye.x).attr("y2", d => d.target.fisheye.y);
+      link.
+        attr("x1", d => d.source.fisheye.x).
+        attr("y1", d => d.source.fisheye.y).
+        attr("x2", d => d.target.fisheye.x).
+        attr("y2", d => d.target.fisheye.y);
     }
   }
   show_message_once(msg, alert_too) {
@@ -2843,8 +2845,8 @@ with Shelved, Discarded, Graphed and Hidden.`;
         line_width = line_width + (this.line_edge_weight * e.contexts.length);
         //@show_message_once("will draw line() n_n:#{n_n} e.id:#{e.id}")
         if ((e.source.fisheye.x === e.target.fisheye.x) && (e.source.fisheye.y === e.target.fisheye.y)) {
-          const x2 = this.width/2; // Find centre of draw area
-          const y2 = this.height/2;
+          const x2 = this.cx; // Find centre of draw area
+          const y2 = this.cy;
           //arw_angle = Math.atan((e.source.fisheye.y - y2)/(e.source.fisheye.x - x2)) # find angle between node center and draw area center
           let arw_angle = Math.atan((e.source.fisheye.y - y2)/(e.source.fisheye.x - x2));
           //console.log arw_angle
@@ -3704,6 +3706,7 @@ with Shelved, Discarded, Graphed and Hidden.`;
     this.draw_dropzones();
     this.fisheye.focus(this.last_mouse_pos);
     this.show_last_mouse_pos();
+    //this.draw_graph_center();
     if (this.should_position_by_packing()) {
       this.position_nodes_by_packing();
     } else {
@@ -3928,6 +3931,10 @@ with Shelved, Discarded, Graphed and Hidden.`;
     this.draw_circle(
       this.last_mouse_pos[0], this.last_mouse_pos[1],
       this.focus_radius, "yellow");
+  }
+
+  draw_graph_center() {
+    this.draw_circle(this.cx, this.cy, 3, "red");
   }
 
   remove_ghosts(e) {
