@@ -615,7 +615,8 @@ export class Huviz {
     this.prototype.node_radius = 3.2;
     this.prototype.mousedown_point = false;
     this.prototype.discard_center = [0,0];
-    this.prototype.lariat_center = [0,0];
+    this.prototype.cx = 0;
+    this.prototype.cy = 0;
     this.prototype.last_mouse_pos = [ 0, 0];
     this.prototype.renderStyles = themeStyles.light;
     this.prototype.display_shelf_clockwise = true;
@@ -1522,7 +1523,6 @@ Link details may not be accurate. Activate to load.</i>`; // """
     this.update_graph_radius();
     this.update_graph_center();
     this.update_discard_zone();
-    this.update_lariat_zone();
     if (this.svg) {
       this.svg.
         attr("width", this.width).
@@ -1830,7 +1830,7 @@ Link details may not be accurate. Activate to load.</i>`; // """
   draw_disconnect_dropzone() {
     this.ctx.save();
     this.ctx.lineWidth = this.graph_radius * 0.1;
-    this.draw_circle(this.lariat_center[0], this.lariat_center[1], this.graph_radius,
+    this.draw_circle(this.cx, this.cy, this.graph_radius,
                      this.renderStyles.shelfColor);
     this.ctx.restore();
   }
@@ -1852,7 +1852,7 @@ Link details may not be accurate. Activate to load.</i>`; // """
 
   in_disconnect_dropzone(node) {
     // is it within the RIM of the disconnect circle?
-    const dist = distance(node, this.lariat_center);
+    const dist = distance(node, [this.cx, this.cy]);
     return ((this.graph_radius * 0.9) < dist) && ((this.graph_radius * 1.1) > dist);
   }
 
@@ -2956,7 +2956,7 @@ with Shelved, Discarded, Graphed and Hidden.`;
   }
 
   draw_shelf() {
-    this.draw_nodes_in_set(this.shelved_set, this.graph_radius, this.lariat_center);
+    this.draw_nodes_in_set(this.shelved_set, this.graph_radius, this.get_center_pair());
   }
 
   draw_nodes() {
@@ -3207,7 +3207,7 @@ with Shelved, Discarded, Graphed and Hidden.`;
         if  (this.discarded_set.has(node)) {
           flip_point = this.discard_center[0];
         } else if (this.shelved_set.has(node)) {
-          flip_point = this.lariat_center[0];
+          flip_point = this.cx;
         }
 
         if (!this.graphed_set.has(node) && this.draw_lariat_labels_rotated) {
@@ -6422,8 +6422,8 @@ LIMIT ${node_limit}\
     }
   }
 
-  update_lariat_zone() {
-    this.lariat_center = [this.cx, this.cy];
+  get_center_pair() {
+    return [this.cx, this.cy];
   }
 
   update_discard_zone() {
@@ -9710,8 +9710,8 @@ WHERE {
     document.addEventListener('nextsubject', this.onnextsubject);
     //@init_snippet_box()  # FIXME not sure this does much useful anymore
     this.mousedown_point = false;
-    this.discard_point = [this.cx,this.cy]; // FIXME refactor so ctrl_handle handles this
-    this.lariat_center = [this.cx,this.cy]; //       and this....
+
+    this.discard_point = this.get_center_pair(); // FIXME refactor so ctrl_handle handles this
     this.node_radius_policy = node_radius_policies[default_node_radius_policy];
     this.currently_printed_snippets = {};
     //@fill = d3.scale.category20()
