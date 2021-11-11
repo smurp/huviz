@@ -619,7 +619,8 @@ export class Huviz {
     this.prototype.node_radius = 3.2;
     this.prototype.mousedown_point = false;
     this.prototype.discard_center = [0,0];
-    this.prototype.lariat_center = [0,0];
+    this.prototype.cx = 0;
+    this.prototype.cy = 0;
     this.prototype.last_mouse_pos = [ 0, 0];
     this.prototype.renderStyles = themeStyles.light;
     this.prototype.display_shelf_clockwise = true;
@@ -1704,7 +1705,6 @@ Link details may not be accurate. Activate to load.</i>`; // """
     this.update_graph_radius();
     this.update_graph_center();
     this.update_discard_zone();
-    this.update_lariat_zone();
     if (this.svg) {
       this.svg.
         attr("width", this.width).
@@ -1716,14 +1716,12 @@ Link details may not be accurate. Activate to load.</i>`; // """
     }
     let radius = this.graph_radius;
     this.d3simulation.force(
-      "x", d3.forceX(radius).strength(this.centeringForceStrength));
+      "x", d3.forceX(this.cx).strength(this.centeringForceStrength));
     this.d3simulation.force(
-      "y", d3.forceY(radius).strength(this.centeringForceStrength));
+      "y", d3.forceY(this.cy).strength(this.centeringForceStrength));
     if (this.d3forceCenter) {
       this.d3forceCenter = this.update_d3forceCenter();
     }
-    //console.info("must implement d3v4 force.size");
-    //@force.size [@mx, @my]
     if (!this.args.skip_log_tick) {
       console.log("Tick in @force.size() updateWindow");
     }
@@ -2012,7 +2010,7 @@ Link details may not be accurate. Activate to load.</i>`; // """
   draw_disconnect_dropzone() {
     this.ctx.save();
     this.ctx.lineWidth = this.graph_radius * 0.1;
-    this.draw_circle(this.lariat_center[0], this.lariat_center[1], this.graph_radius,
+    this.draw_circle(this.cx, this.cy, this.graph_radius,
                      this.renderStyles.shelfColor);
     this.ctx.restore();
   }
@@ -2034,7 +2032,7 @@ Link details may not be accurate. Activate to load.</i>`; // """
 
   in_disconnect_dropzone(node) {
     // is it within the RIM of the disconnect circle?
-    const dist = distance(node, this.lariat_center);
+    const dist = distance(node, [this.cx, this.cy]);
     return ((this.graph_radius * 0.9) < dist) && ((this.graph_radius * 1.1) > dist);
   }
 
@@ -2409,12 +2407,12 @@ with Shelved, Discarded, Graphed and Hidden.`;
 
   use_d3forceCenter(use = true) {
     // https://github.com/d3/d3-force#centering
-    var force = null;
+    var forceCallback = null;
     if (use) {
-      force = this.update_d3forceCenter();
+      forceCallback = this.update_d3forceCenter.bind(this);
     }
-    this.d3forceCenter = force;
-    this.d3simulation.force('center', force);
+    this.d3forceCenter = forceCallback;
+    this.d3simulation.force('center', forceCallback);
   }
 
   update_d3forceCenter() {
@@ -2935,7 +2933,7 @@ with Shelved, Discarded, Graphed and Hidden.`;
           && this.dragging
           && this.editui.subject_node;
     this.nodes.forEach((node, i) => {
-      return this.reposition_node_by_force(node, only_move_subject);
+      this.reposition_node_by_force(node, only_move_subject);
     });
   }
 
@@ -2964,7 +2962,11 @@ with Shelved, Discarded, Graphed and Hidden.`;
     });
 
     if (this.use_svg) {
-      link.attr("x1", d => d.source.fisheye.x).attr("y1", d => d.source.fisheye.y).attr("x2", d => d.target.fisheye.x).attr("y2", d => d.target.fisheye.y);
+      link.
+        attr("x1", d => d.source.fisheye.x).
+        attr("y1", d => d.source.fisheye.y).
+        attr("x2", d => d.target.fisheye.x).
+        attr("y2", d => d.target.fisheye.y);
     }
   }
   show_message_once(msg, alert_too) {
@@ -3025,8 +3027,8 @@ with Shelved, Discarded, Graphed and Hidden.`;
         line_width = line_width + (this.line_edge_weight * e.contexts.length);
         //@show_message_once("will draw line() n_n:#{n_n} e.id:#{e.id}")
         if ((e.source.fisheye.x === e.target.fisheye.x) && (e.source.fisheye.y === e.target.fisheye.y)) {
-          const x2 = this.width/2; // Find centre of draw area
-          const y2 = this.height/2;
+          const x2 = this.cx; // Find centre of draw area
+          const y2 = this.cy;
           //arw_angle = Math.atan((e.source.fisheye.y - y2)/(e.source.fisheye.x - x2)) # find angle between node center and draw area center
           let arw_angle = Math.atan((e.source.fisheye.y - y2)/(e.source.fisheye.x - x2));
           //console.log arw_angle
@@ -3138,7 +3140,7 @@ with Shelved, Discarded, Graphed and Hidden.`;
   }
 
   draw_shelf() {
-    this.draw_nodes_in_set(this.shelved_set, this.graph_radius, this.lariat_center);
+    this.draw_nodes_in_set(this.shelved_set, this.graph_radius, this.get_center_pair());
   }
 
   draw_nodes() {
@@ -3389,7 +3391,7 @@ with Shelved, Discarded, Graphed and Hidden.`;
         if  (this.discarded_set.has(node)) {
           flip_point = this.discard_center[0];
         } else if (this.shelved_set.has(node)) {
-          flip_point = this.lariat_center[0];
+          flip_point = this.cx;
         }
 
         if (!this.graphed_set.has(node) && this.draw_lariat_labels_rotated) {
@@ -3886,6 +3888,7 @@ with Shelved, Discarded, Graphed and Hidden.`;
     this.draw_dropzones();
     this.fisheye.focus(this.last_mouse_pos);
     this.show_last_mouse_pos();
+    //this.draw_graph_center();
     if (this.should_position_by_packing()) {
       this.position_nodes_by_packing();
     } else {
@@ -4108,6 +4111,10 @@ with Shelved, Discarded, Graphed and Hidden.`;
     this.draw_circle(
       this.last_mouse_pos[0], this.last_mouse_pos[1],
       this.focus_radius, "yellow");
+  }
+
+  draw_graph_center() {
+    this.draw_circle(this.cx, this.cy, 3, "red");
   }
 
   remove_ghosts(e) {
@@ -6436,12 +6443,10 @@ SERVICE wikibase:label {
     } else {
       this.cx = this.width / 2;
     }
-    this.my = this.cy * 2;
-    this.mx = this.cx * 2;
   }
 
-  update_lariat_zone() {
-    this.lariat_center = [this.cx, this.cy];
+  get_center_pair() {
+    return [this.cx, this.cy];
   }
 
   update_discard_zone() {

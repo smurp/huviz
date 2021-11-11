@@ -140,7 +140,7 @@ export const DEFAULT_SETTINGS = [
         title: "Link distance as proportion of the minimum window radius."
       },
       input: {
-        value: .1,
+        value: .18,
         min: .01,
         max: 1,
         step: 0.01,
@@ -190,7 +190,7 @@ export const DEFAULT_SETTINGS = [
         title: "How tightly the graph is drawn towards the center"
       },
       input: {
-        value: .02,
+        value: .06,
         min: 0,
         max: 1,
         step: 0.002,
