@@ -9311,7 +9311,7 @@ WHERE {
 
   //#### ------------------- fullscreen stuff ---------------- ########
   create_fullscreen_handle() {
-    const fs = "<div class=\"full_screen\" style=\"position:absolute;z-index:999\"><i class=\"fa fa-arrows-alt\"></i></div>";
+    const fs = "<div class=\"full_screen\" style=\"position:absolute;z-index:999\"><i class=\"fa fa-expand-arrows-alt\"></i></div>";
     this.topJQElem.prepend(fs);
     this.fullscreenJQElem = this.topJQElem.find(".full_screen");
     this.fullscreenJQElem.click(this.fullscreen);
