@@ -8012,6 +8012,20 @@ SERVICE wikibase:label {
     loading_notice.innerHTML = html;
   }
 
+  report_loading_error_with_restart(args) {
+    var {message, data, url} = args;
+    var html = '';
+    message = message.replace('Uncaught Error: ','');
+    html += `<h2>${message}</h2><button><a href="/">Start Over</a></button>`;
+    if (message.includes(' line ')) {
+      html += `<pre style="overflow:scroll">${esc(data)}</pre>`
+    }
+    if (url) {
+      html += `<div class="load_error_url">${url}</div>`;
+    }
+    this.replace_contents_of_loading_notice(html);
+  }
+
   launch_visualization_with(choices) {
     const {data, onto, script, endpoint} = choices;
     if (data.value && onto.value) {
@@ -8047,7 +8061,6 @@ SERVICE wikibase:label {
 
     // turn on the loading notice dialog first
     this.turn_on_loading_notice_if_enabled();
-
     const assignExtIfNeeded = (rsrc) => {
       rsrc.ext ??= rsrc.value.split('.').at(-1);
     }
@@ -8077,7 +8090,6 @@ SERVICE wikibase:label {
     const URL_OR_PATH_REGEX = /^http|^ftp|^\//;
     const uri = rsrc.value;
     colorlog(`ingest_rsrc_thenDo('${uri}')`);
-
     if (rsrc.data) { // if we've already got the data (from local file or indexeddb)
       colorlog(`the ${uri} has data`, 'orange');
       thenDo(rsrc.data);
@@ -8087,6 +8099,10 @@ SERVICE wikibase:label {
     if (uri.match(URL_OR_PATH_REGEX)) { // If the uri is FULLY SPECIFIED or RELATIVE
       colorlog(`fetching ${uri} from web`, 'orange');
       let request = new Request(uri);
+      /*
+        For readability, consider refactoring like:
+            https://www.codegrepper.com/search.php?answer_removed=1&q=handle%20error%20of%20fetch%20api%20through%20than%20catch
+      */
       fetch(request, {method: 'GET'}).then((response) => {
         console.log({uri, response});
         if (!response.ok) {
@@ -8099,6 +8115,8 @@ SERVICE wikibase:label {
         console.log({uri, data});
         thenDo(data);
       }).catch(err => {
+        var msg = err.toString();
+        this.report_loading_error_with_restart({message: msg, url: uri});
         throw err;
       });
       return;
@@ -8108,12 +8126,16 @@ SERVICE wikibase:label {
       this.get_resource_from_db(uri, (err, foundRsrc) => { // try to find it
         colorlog(`seeking ${uri} in IndexedDB`, 'orange');
         if (foundRsrc == null) {  // if not found
+          this.report_loading_error_with_restart(
+            {message: 'Not found in your ONTOLOGY menu. Provide it and reload page.', url: uri});
           throw new Error(err || `'${url}' was not found in your ONTOLOGY menu.  Provide it and reload page`);
         }
         const data = foundRsrc.data;
         if (data) {
           thenDo(data);
         } else {
+          this.report_loading_error_with_restart(
+            {message: 'Record found in indexeddb but it had no .data stored.', url: uri});
           throw new Error(`'${uri}' record found in indexeddb but it had no .data stored`);
         }
         return;
@@ -10471,14 +10493,8 @@ WHERE {
         return  str.replace(/\</g, '&lt;').replace(/\>/g, '&gt;');
       };
       var {message} = event;
-      var html = '';
       console.log(event);
-      message = message.replace('Uncaught Error: ','');
-      html += `<h2>${message}</h2><button><a href="/">Start Over</a></button>`;
-      if (message.includes(' line ')) {
-        html += `<pre style="overflow:scroll">${esc(data)}</pre>`
-      }
-      this.replace_contents_of_loading_notice(html);
+      this.report_loading_error_with_restart({message:message, data:data});
     };
     worker.addEventListener('message', (event) => {
       switch (event.data.type) {
