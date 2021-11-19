@@ -149,6 +149,10 @@ export const colorlog = function(msg, color, size) {
   return console.log(`%c${msg}`, `color:${color};font-size:${size};`);
 };
 
+const esc_html = function(str) {
+  return  str.replace(/\</g, '&lt;').replace(/\>/g, '&gt;');
+};
+
 const unpad_md = function(txt, pad) {
   // Purpose:
   //   Remove padding at the beginings of all lines in txt IFF all lines have padding
@@ -781,7 +785,6 @@ Here is how:
 <p>Please wait</p>
 <progress></progress>
 </div>
-
 `;
 
     // TODO make other than 'anything' optional
@@ -8022,7 +8025,7 @@ SERVICE wikibase:label {
     message = message.replace('Uncaught Error: ','');
     html += `<h2>${message}</h2><button><a href="/">Start Over</a></button>`;
     if (message.includes(' line ')) {
-      html += `<pre style="overflow:scroll">${esc(data)}</pre>`
+      html += `<pre style="overflow:scroll">${esc_html(data)}</pre>`
     }
     if (url) {
       html += `<div class="load_error_url">${url}</div>`;
@@ -10493,9 +10496,6 @@ WHERE {
     colorlog('parseAndShowAnyData -- Ingests any file format from an uri using N3 in a worker stream WIP', 'purple');
     const worker = new Worker('/quaff-lod/quaff-lod-worker-bundle.js');
     worker.onerror = (event) => {
-      const esc = (str) => {
-        return  str.replace(/\</g, '&lt;').replace(/\>/g, '&gt;');
-      };
       var {message} = event;
       console.log(event);
       this.report_loading_error_with_restart({message:message, data:data});
