@@ -775,9 +775,13 @@ Here is how:
       '*': "https://data.linkeddatafragments.org/lov"
     };
 
-    this.prototype.loading_notice_markdown = `\
+    this.prototype.loading_notice_markdown = `
 ## Loading....
-<div class="loadingNotice">Please wait</div>\
+<div class="loadingNotice">
+<p>Please wait</p>
+<progress></progress>
+</div>
+
 `;
 
     // TODO make other than 'anything' optional
