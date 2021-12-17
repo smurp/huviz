@@ -85,7 +85,15 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     this.addIDClickListeners('main, button, [id]', this.clickListener.bind(this));
 
     /* Initialize the beBrave feature, which can be removed when out of beta */
-    this._toggleBeingBrave();
+    //this._toggleBeingBrave();
+
+    // hide the beBrave class for now
+    this.querySelectorAll('.beBrave').
+      forEach(hero => hero.style.display = 'none');
+
+    // disable the unimplemented
+    this.querySelectorAll('.unimplemented').
+      forEach(unimpl => unimpl.setAttribute('disabled', true));
 
     /* perform 'start' transition to get things going */
     this.transit('start', {});
