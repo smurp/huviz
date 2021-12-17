@@ -10513,7 +10513,7 @@ WHERE {
         break;
       default: // ie no type
         if (event.data.subject) {
-          console.debug(event.data);
+          //console.debug(event.data);
           this.receive_quaff_lod(event.data);
         } else {
           console.log(
