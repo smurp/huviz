@@ -187,7 +187,7 @@ export let FSMMixin = (superclass) => class extends superclass {
       return msg;
     }
   }
-  transit(transId, evt) {
+  transit(transId, evt={}) {
     /*
       Call methods (if they exist) in the order:
       1) CALL exit__<currentStateId>()
@@ -220,6 +220,8 @@ export let FSMMixin = (superclass) => class extends superclass {
       var targetStateId = currentStateObj[transId];
       if (targetStateId) {
         calledEnter = this.set_state(targetStateId, evt);
+      } else {
+        console.warn(`there is no transition ${transId} from ${currentStateId}`);
       }
       var called = calledExit || calledWhen || calledOn || calledEnter;
       if (!called) {
@@ -234,6 +236,16 @@ export let FSMMixin = (superclass) => class extends superclass {
       this.throw_or_return_msg(
         `${this.constructor.name} has no state with id ${currentStateId}`);
     }
+  }
+  transitAll(transitPairs) {
+    transitPairs.forEach( ([transId, evt]) => {
+      this.transit(transId, evt);
+    });
+  }
+  transitIds(transitIds) {
+    transitIds.forEach( (transId) => {
+      this.transit(transId);
+    });
   }
 };
 
