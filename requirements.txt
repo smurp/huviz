@@ -1,7 +1,7 @@
 SPARQLWrapper==1.5.2
 beautifulsoup4==4.3.2
 html5lib==1.0b3
-ipython==1.1.0
+ipython==7.16.3
 isodate==0.4.9
 pyparsing==1.5.7
 rdflib==4.0.1
