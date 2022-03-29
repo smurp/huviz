@@ -74,7 +74,9 @@ export class QueryManager {
   setResultCount(count) {
     this.set_state('done');
     this.resultCount = count;
-    this.displayResults(`result count: ${this.resultCount}`);
+    var res = `result count: ${this.resultCount}`;
+    console.debug(res);
+    this.displayResults(res);
     if (count === 0) {
       this.setNoneColor();
     } else if (count > 0) {

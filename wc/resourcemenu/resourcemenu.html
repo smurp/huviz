@@ -572,17 +572,48 @@
       <div id="scriptHere"></div>
     </main>
 
-    <main class="onSPARQL" style="display:none">
-      <i id="esc"></i>
+    <main class="onQuery" style="display:none">
+      <i id="esc">Back to Start Menu</i>
       <h2>SPARQL</h2>
       <div id="endpointHere"></div>
+      <div style="display:inline-block;background:pink;border-radius:.5em;padding:.5em;border:1px black dashed">
+        <a href="/#query+https%3A%2F%2Flov.linkeddata.es%2Fdataset%2Flov%2Fsparql+from+http%3A%2F%2Fcomicmeta.org%2Fcbo%2F+seeking+http%3A%2F%2Fcomicmeta.org%2Fcbo%2FPanel+limit+200">comicmeta.org/Panel</a>
+      </div>
     </main>
 
-    <main class="onSPARQLDetail" style="display:none">
-      <i id="esc"></i>
-      <h2>SPARQL Detail</h2>
+    <main class="onQueryDetail" style="display:none">
+      <i id="esc">Back to SPARQL Endpoints</i>
+      <h2>Query Detail</h2>
       <p>Select a node limit and Search Starting Node</p>
-      <div id="sparqlDetailHere"></div>
+      <div id="sparqlDetailHere" class="content">
+        <div class="ui-widget" style="margin-top:5px;margin-left:10px;">
+          <label>Graphs: </label>
+          <select style="display:none" slot="graphSelector" size="7" id="sparqlGraphOptions">
+          </select>
+        </div>
+        <div id="sparqlGraphSpinner"
+             style="display:none;font-style:italic;">
+          <i class="fas fa-spinner fa-spin" style="margin: 10px 10px 0 50px;"></i>
+          Looking for graphs...
+        </div>
+        <div id="sparqlQryInput" class="ui-widget sparqlQryInput"
+             style="margin-top:5px;margin-left:10px;color:#999;">
+          <label for="endpoint_labels">Find: </label>
+          <input id="endpoint_labels">
+          <i class="fas fa-spinner fa-spin" style="visibility:hidden;margin-left: 5px;"></i>
+          <div>
+            <label for="endpoint_limit">Node Limit: </label>
+            <input id="endpoint_limit">
+          </div>
+          <div style="display:none">
+            <label for="spo_query">(s,p,o) query: </label><br/>
+            <textarea id="spo_query" value="" style="width:90%" rows="5"
+                      placeholder="spo_placeholder"></textarea>
+            <p><i>pick graph, then enter query producing one or more <code>s,p,o</code></i></p>
+          </div>
+          <button disabled=disabled id="gotoVisQuery">LOAD</button>
+        </div>
+      </div>
     </main>
 
     <main class="onCredit">
@@ -621,7 +652,6 @@
 
     <footer>
       <div class="btn-bar">
-        <button style="display:none" class="big_go_button">LOAD</button>
         <button id="gotoTour" class="unimplemented">
           <i class="fas fa-walking"></i>
           Tour

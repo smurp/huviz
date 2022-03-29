@@ -996,10 +996,10 @@ Here is how:
     /*
     this.build_sparql_form = this.build_sparql_form.bind(this);
     this.spo_query__update = this.spo_query__update.bind(this);
-    */
     this.endpoint_labels__autocompleteselect = this.endpoint_labels__autocompleteselect.bind(this);
     this.endpoint_labels__update = this.endpoint_labels__update.bind(this);
     this.endpoint_labels__focusout = this.endpoint_labels__focusout.bind(this);
+    */
     this.sparqlGraphSelector_onchange = this.sparqlGraphSelector_onchange.bind(this);
     this.animate_endpoint_label_typing = this.animate_endpoint_label_typing.bind(this);
     this.animate_endpoint_label_search = this.animate_endpoint_label_search.bind(this);
@@ -6086,6 +6086,7 @@ SERVICE wikibase:label {
       },
       error_callback: (jqxhr, textStatus, errorThrown, queryManager) => {
         console.warn('implement error_callback', errorThrown) ;
+        console.log({jqxhr, textStatus, errorThrown});
       }
     };
     args = Object.assign(default_args, args || {});
@@ -6139,33 +6140,34 @@ SERVICE wikibase:label {
     }
     // rewrite serverUrl protocol to https if window.location is https
     serverUrl = upgrade_to_https_if_needed(serverUrl);
-    queryManager.setXHR($.ajax({
+    var promise = $.ajax({
       timeout: timeout,
       method: method,
       url: ajax_settings.url,
-      headers: ajax_settings.headers,
-      success: (data, textStatus, jqXHR) => {
-        queryManager.cancelAnimation();
-        try {
-          success_handler(data, textStatus, jqXHR, queryManager);
-        } catch (e) {
-          queryManager.fatalError(e);
-        }
-      },
-      error: (jqxhr, textStatus, errorThrown) => {
-        if (!errorThrown) {
-          errorThrown = `textStatus = ${textStatus}`;
-          var responseHeaders = jqxhr.getAllResponseHeaders();
-          // console.log({textStatus, responseHeaders});
-        }
-        const msg = errorThrown + " while fetching " + serverUrl;
-        queryManager.fatalError(msg);
-        if (error_callback != null) {
-          return error_callback(jqxhr, textStatus, errorThrown, queryManager);
-        }
+      headers: ajax_settings.headers});
+    promise.done((data, textStatus, jqXHR) => {
+      console.log("run_managed_query_ajax().done()", {data, textStatus, jqXHR});
+      queryManager.cancelAnimation();
+      try {
+        success_handler(data, textStatus, jqXHR, queryManager);
+      } catch (e) {
+        queryManager.fatalError(e);
       }
-    }));
-
+    });
+    promise.fail( (jqxhr, textStatus, errorThrown) => {
+      console.log("run_managed_query_ajax().fail()",{jqxhr, textStatus, errorThrown});
+      if (!errorThrown) {
+        errorThrown = `textStatus = ${textStatus}`;
+        var responseHeaders = jqxhr.getAllResponseHeaders();
+        // console.log({textStatus, responseHeaders});
+      }
+      const msg = errorThrown + " while fetching " + serverUrl;
+      queryManager.fatalError(msg);
+      if (error_callback != null) {
+        return error_callback(jqxhr, textStatus, errorThrown, queryManager);
+      }
+    });
+    queryManager.setXHR(promise);
     return queryManager;
   }
 
@@ -7814,18 +7816,18 @@ SERVICE wikibase:label {
     this.visualize_dataset_using_ontology();
   }
 
-  big_go_button_onclick_sparql(event) {
+  XXX_big_go_button_onclick_sparql(event) {
     let endpoint_label_uri, graphUri;
     if (this.allGraphsChosen()) {
       let foundUri;
-      if (foundUri = this.endpoint_labels_JQElem.val()) {
+      if (foundUri = this.resourceMenu.endpoint_labels_JQElem.val()) {
         this.visualize_dataset_using_ontology();
         return;
       }
       colorlog("IGNORING. The LOAD button should not even be clickable right now");
       return;
     }
-    if (endpoint_label_uri = this.endpoint_labels_JQElem.val()) {
+    if (endpoint_label_uri = this.resourceMenu.endpoint_labels_JQElem.val()) {
       this.visualize_dataset_using_ontology();
       return;
     }
@@ -7843,7 +7845,7 @@ SERVICE wikibase:label {
     colorlog("IGNORING.  Neither graph nor endpoint_label is chosen.");
   }
 
-  displayTheChosenGraph(graphUri) {
+  XXX_displayTheChosenGraph(graphUri) {
     //alert("stub for displayTheChosenGraph('#{graphUri}')")
     let limit;
     const args = {
@@ -7854,14 +7856,14 @@ SERVICE wikibase:label {
       }
     };
     // respect the limit provided by the user
-    if (limit = this.endpoint_limit_JQElem.val()) {
+    if (limit = this.endpoint_limit) {
       args.limit = limit;
     }
     args.query = this.make_generic_query(args);
     this.run_generic_query(args);
   }
 
-  displayTheSpoQuery(spoQuery, graphUri) {
+  XXX_displayTheSpoQuery(spoQuery, graphUri) {
     let limit;
     const args = {
       success_handler: this.display_graph_success_handler,
@@ -7871,7 +7873,7 @@ SERVICE wikibase:label {
         g: graphUri
       }
     };
-    if (limit = this.endpoint_limit_JQElem.val()) {
+    if (limit = this.endpoint_limit) {
       args.limit = limit;
     }
     this.run_generic_query(args);
@@ -8044,10 +8046,19 @@ SERVICE wikibase:label {
     }
   }
 
-  async visualize_resources(dataRsrc, ontoRsrc, scriptRsrc) {
+  async visualize_resources(dataRsrc={}, ontoRsrc={}, scriptRsrc={}, endpointRsrc={}) {
     // TODO
     //  * complete handling of scriptRsrc
-    //  * complete handling of endpointRsrc
+    console.log({dataRsrc, ontoRsrc, scriptRsrc, endpointRsrc});
+    /*
+      See load_endpoint_data_and_show in src/datasetdb.js              
+      Steps:
+        * put {subject, endpoint_uri, endpoint_label} on endpointRsrc (with better names)      
+        * call (or rewrite?) load_endpoint_data_and_show with subject, etc
+      Notes:          
+        load_endpoint_data_and_show(endpoint_label_uri) made a call to add_nodes_from_SPARQL
+      disable_dataset_ontology_loader_AUTOMATICALLY()
+     */
     if (Array.isArray(ontoRsrc)) {
       throw new Error('expecting ontoRsrc to NOT be an Array');
     }
@@ -8065,32 +8076,109 @@ SERVICE wikibase:label {
         // parseAndShowTTLData(data, textStatus, callback)
         // parseAndShowNQUri(uri, callback)
     */
+    const keyCount = (rsrc={}) => {
+      return Object.keys(rsrc).length;
+    }
+    const hasKeys = (rsrc={}, min=1) => {
+      return keyCount(rsrc) >= min;
+    }
 
     // turn on the loading notice dialog first
     this.turn_on_loading_notice_if_enabled();
     const assignExtIfNeeded = (rsrc) => {
-      rsrc.ext ??= rsrc.value.split('.').at(-1);
+      if (rsrc.value != null) {
+        rsrc.ext ??= rsrc.value.split('.').at(-1);
+      }
     }
-    assignExtIfNeeded(dataRsrc);
-    assignExtIfNeeded(ontoRsrc);
-    // create the callback to ingest_the_dataset, which will be run after ingest_the_onto
-    var ingest_the_dataset = () => {
-      this.ingest_rsrc_thenDo(dataRsrc, (data) => {
-        //this.parseAndShowTTLData(data, "caller:ingest_the_dataset", this.after_visualize_dataset_using_ontology);
-        // TODO switch to the following once it is working
-        try {
-          this.parseAndShowAnyData(data, dataRsrc, this.after_visualize_dataset_using_ontology);
-        } catch (err) {
-          console.log(err);
-          this.replace_contents_of_loading_notice(err.toString());
+    if (hasKeys(dataRsrc)) {
+      assignExtIfNeeded(dataRsrc);
+      // create the callback to ingest_the_dataset, which will be run after ingest_the_onto
+      var ingest_the_dataset = () => {
+        this.ingest_rsrc_thenDo(dataRsrc, (data) => {
+          //this.parseAndShowTTLData(data, "caller:ingest_the_dataset", this.after_visualize_dataset_using_ontology);
+          // TODO switch to the following once it is working
+          try {
+            this.parseAndShowAnyData(data, dataRsrc, this.after_visualize_dataset_using_ontology);
+          } catch (err) {
+            console.log(err);
+            this.replace_contents_of_loading_notice(err.toString());
+          }
+        });
+      };
+      if (hasKeys(ontoRsrc)) {
+        assignExtIfNeeded(ontoRsrc);
+        this.ingest_rsrc_thenDo(ontoRsrc, (data) => {
+          this.parseTTLOntology(data, ontoRsrc, ingest_the_dataset);
+        });
+      }
+      this.update_browser_title(dataRsrc);
+      this.update_caption(dataRsrc.value, dataRsrc.endpoint_graph);
+    } else if (hasKeys(endpointRsrc)) {
+      this.update_browser_title(dataRsrc);
+      //this.update_caption(/* dataset_str, ontology_str */);
+      var callback = this.after_visualize_dataset_using_ontology;
+      this.load_endpoint_data_and_show(endpointRsrc, callback);
+    }
+  }
+
+  load_endpoint_data_and_show(endpointRsrc, callback) {
+    var {subject, limit, graph, endpoint: endpoint_url} = endpointRsrc;
+    limit = limit || 5;
+    console.log("endpointRsrc",JSON.stringify(endpointRsrc));
+    console.log({subject, limit, graph, endpoint_url});
+    // TODO: move this logic to resourcemenu.js
+    this.sparql_node_list = [];
+    this.pfm_count('sparql');
+    //if @p_display then @performance_dashboard('sparql_request')
+    this.endpoint_loader.outstanding_requests = 0;
+    let fromGraph = '';
+    if (graph && graph.uri && graph.uri.length) { // ensure a non-blank uri
+      fromGraph=` FROM <${graph.uri}> `;
+    }
+    // the bizarre sparse result structure is unpacked by add_nodes_from_SPARQL()
+    const qry = `\
+# load_endpoint_data_and_show('${subject}')
+SELECT * ${fromGraph}
+WHERE {
+{<${subject}> ?p ?o}
+ UNION
+ {{<${subject}> ?p ?o} .
+  {?o ?p2 ?o2}}
+ UNION
+ {{?s3 ?p3 <${subject}>} .
+   {?s3 ?p4 ?o4 }}
+}
+LIMIT ${limit}\
+`;
+    console.log('load_endpoint_data_and_show',{qry, graph});
+    const make_success_handler = () => {
+      return (data, textStatus, jqXHR, queryManager) => {
+        let json_data;
+        const data_type = typeof data;
+        if (data_type === 'string') {
+          json_data = JSON.parse(data);
+        } else { // "object"
+          json_data = data;
         }
-      });
+        /*
+        if (json_data.results && json_data.results.bindings) {
+          queryManager.setResultCount(json_data.results.bindings.length);
+        }
+        */
+        this.add_nodes_from_SPARQL(json_data, subject, queryManager);
+        const endpoint = this.endpoint_loader.value;
+        const vis_src_args = this.endpointRsrc_2_vis_src_args(endpointRsrc);
+        this.disable_dataset_ontology_loader(null, null, vis_src_args);
+        //this.replace_loader_display_for_endpoint(endpoint, this.endpoint_loader.endpoint_graph);
+        this.after_file_loaded('sparql', callback);
+      };
     };
-    this.ingest_rsrc_thenDo(ontoRsrc, (data) => {
-      this.parseTTLOntology(data, ontoRsrc, ingest_the_dataset);
-    });
-    this.update_browser_title(dataRsrc);
-    this.update_caption(dataRsrc.value, dataRsrc.endpoint_graph);
+    const args = {
+      query: qry,
+      serverUrl: endpoint_url,
+      success_handler: make_success_handler()
+    };
+    this.run_managed_query_ajax(args);
   }
 
   async ingest_rsrc_thenDo(rsrc, thenDo) {
@@ -8169,7 +8257,7 @@ SERVICE wikibase:label {
 
     // If we are loading from a SPARQL endpoint
     console.warn('figure out how to load sparql');
-    if (false && (endpoint_label_uri = this.endpoint_labels_JQElem.val())) {
+    if (false && (endpoint_label_uri = this.resourceMenu.endpoint_labels_JQElem.val())) {
       this.turn_on_loading_notice_if_enabled();
       data = dataset || this.endpoint_loader;
       this.load_endpoint_data_and_show(endpoint_label_uri,
@@ -8242,8 +8330,64 @@ SERVICE wikibase:label {
     */
   }
 
-  query_from_seeking_limits(query) {
-    this.resourceMenu.query_from_seeking_limits(query);
+  querySpec_2_vis_src_args(querySpec) { // might be unused
+    console.warn('querySpec_2_vis_src_args IS USED');
+    const {serverUrl, graphUrl, limit, subjectUrl} = querySpec;
+    console.log("query_from_seeking_limit(querySpec)", querySpec);
+    return {
+      // label: serverUrl, // querySpec has no label for the serverUrl
+      value: serverUrl,
+      limit: limit,
+      graph: {
+        value: graphUrl
+        //, label: graphUrl  // querySpec has no label for the graph
+      },
+      item: {
+        value: subjectUrl
+        //, label: subjectUrl // querySpec has no label for the item
+      }
+    };
+  }
+
+  endpointRsrc_2_vis_src_args(endpointRsrc) { // TODO finish this bugger
+    var {subject, limit, graph, endpoint} = endpointRsrc;
+    return {
+      value: endpoint,
+      label: endpoint, // TODO add label to endpointRsrc
+      limit: limit,
+      graph: {
+        value: graph.uri,
+        label: graph.label},
+      item: {
+        value: subject,
+        label: subject // endpointRsrc has no label for item
+      }
+    };
+  }
+
+  querySpec_2_endpointRsrc(querySpec) {
+    const {serverUrl, graphUrl, limit, subjectUrl} = querySpec;
+    return {
+      endpoint: serverUrl,
+      graph: {
+        uri: graphUrl,
+        label: graphUrl // querySpec has no label for the graph
+      },
+      limit: limit,
+      subject: subjectUrl};
+  }
+
+  query_from_seeking_limit(querySpec) {
+    var endpointRsrc = this.querySpec_2_endpointRsrc(querySpec);
+    /*
+    if (!this.endpoint_loader_is_quiet()) {
+      setTimeout((() => this.query_from_seeking_limit(querySpec)), 50);
+      //throw new Error("endpoint_loader not ready")
+      return;
+    }
+    */
+    this.load_endpoint_data_and_show(
+      endpointRsrc, () => {console.log('query_from_seeking_limit()')});
   }
 
   init_gclc() {
@@ -8269,34 +8413,9 @@ SERVICE wikibase:label {
     }
   }
 
-  disable_dataset_ontology_loader_AUTOMATICALLY() {
-    // TODO to be AUTOMATIC(!!) handle dataset, ontology and script too
-    // TODO this should add graph, item and limit only if needed
-    const endpoint = {
-      value: this.endpoint_loader.value,
-      label: this.endpoint_loader.value, // TODO get pretty label (or not?)
-      limit: this.endpoint_limit_JQElem.val(),
-      graph: {
-        value: this.sparqlGraphSelector_JQElem.val(),
-        label: this.sparqlGraphSelector_JQElem.val()
-      }, // TODO get pretty label (or not?)
-      item: {
-        value: this.endpoint_labels_JQElem.val(),
-        label: this.endpoint_labels_JQElem.val()
-      } // TODO get pretty label (or not?)
-    };
-    this.disable_dataset_ontology_loader(null, null, endpoint);
-  }
-
   disable_dataset_ontology_loader(data, onto, endpoint) {
     this.replace_loader_display(data, onto, endpoint);
     this.resourceMenu.style.display = 'none';
-    /*
-    this.disable_go_button();
-    this.dataset_loader.disable();
-    this.ontology_loader.disable();
-    this.big_go_button.hide();
-    */
   }
 
   get_reload_uri() {
@@ -8340,10 +8459,9 @@ SERVICE wikibase:label {
   }
 
   replace_loader_display(dataset, ontology, endpoint) {
-    this.generate_reload_uri(dataset, ontology, endpoint);
     this.hide_pickers();
     const vis_src_args = {
-      uri: this.get_reload_uri(),
+      uri: this.generate_reload_uri(dataset, ontology, endpoint),
       dataset,
       ontology,
       endpoint,
@@ -8358,28 +8476,34 @@ SERVICE wikibase:label {
     if (dataset && ontology) {
       add_reload_button = true;
       source_html = `
-        <p><span class="dt_label">Dataset:</span>  <a target="_blank" href="${dataset.value}">${dataset.label}</a></p>
-        <p><span class="dt_label">Ontology:</span> <a target="_blank" href="${ontology.value}">${ontology.label}</a></p>
+        <p>
+          <span class="dt_label">Dataset:</span>
+          <a target="_blank" href="${dataset.value}">${dataset.label}</a>
+        </p>
+        <p>
+          <span class="dt_label">Ontology:</span>
+          <a target="_blank" href="${ontology.value}">${ontology.label}</a>
+        </p>
       `;
     } else if (endpoint) {
       add_reload_button = true;
       source_html = `
         <p>
           <span class="dt_label">Endpoint:</span>
-          <a href="${endpoint.value}">${endpoint.label}</a>
+          <a target="_blank" href="${endpoint.value}">${endpoint.label}</a>
         </p>`;
       if (endpoint.graph) {
         source_html += `
           <p>
             <span class="dt_label">Graph:</span>
-            <a href="${endpoint.graph.value}">${endpoint.graph.label}</a>
+            <a target="_blank" href="${endpoint.graph.value}">${endpoint.graph.label}</a>
           </p>`;
       }
       if (endpoint.item) {
         source_html += `
           <p>
             <span class="dt_label">Item:</span>
-            <a href="${endpoint.item.value}">${endpoint.item.label}</a>
+            <a target="_blank" href="${endpoint.item.value}">${endpoint.item.label}</a>
           </p>`;
       }
       if (endpoint.limit) {
@@ -8513,28 +8637,6 @@ SERVICE wikibase:label {
     this.ontology_watermark_JQElem.text(ontology_str);
   }
 
-  // Called when the user selects an endpoint_labels autosuggestion
-  endpoint_labels__autocompleteselect(event) {
-    // Hopefully having this handler engaged will not interfere with the autocomplete.
-    this.enable_go_button();
-    return true;
-  }
-
-  endpoint_labels__update(event) {
-    // If the endpoint_labels field is left blank then permit LOAD of graph
-    if (!this.endpoint_labels_JQElem.val().length) {
-      this.enable_go_button();
-    }
-    return true;
-  }
-
-  endpoint_labels__focusout(event) {
-    // If endpoint_labels has content WITHOUT autocompleteselect then disable LOAD
-    if (!this.endpoint_labels_JQElem.val().length) {
-      this.enable_go_button();
-    }
-    return true;
-  }
 
   allGraphsChosen() {
     // REVIEW what about the case where there were no graphs?
@@ -8561,7 +8663,7 @@ SERVICE wikibase:label {
 
   animate_endpoint_label_typing() {
     // Called every time the user types a character to animate the countdown to sending a query
-    const elem = this.endpoint_labels_JQElem[0];
+    const elem = this.resourceMenu.endpoint_labels_JQElem[0];
     this.endpoint_label_typing_anim = this.animate_fill_graph(elem, 500, '#E7E7E7');
     // TODO receive a handle to the animation so it can be killed when the search begins
   }
@@ -8570,7 +8672,7 @@ SERVICE wikibase:label {
     // Called every time the search starts to show countdown until timeout
     this.start_graphs_selector_spinner();
     if (overMsec == null) { overMsec = this.get_sparql_timeout_msec(); }
-    const elem = this.endpoint_labels_JQElem[0];
+    const elem = this.resourceMenu.endpoint_labels_JQElem[0];
     this.endpoint_label_search_anim = this.animate_sparql_query(elem, overMsec, fc, bc);
     // TODO upon timeout, style box with a color to indicate failure
     // TODO upon success, style the box with a color to indicate success
@@ -8578,17 +8680,17 @@ SERVICE wikibase:label {
 
   endpoint_label_search_success() {
     this.kill_endpoint_label_search_anim();
-    this.endpoint_labels_JQElem.css('background', 'lightgreen');
+    this.resourceMenu.endpoint_labels_JQElem.css('background', 'lightgreen');
   }
 
   endpoint_label_search_none() {
     this.kill_endpoint_label_search_anim();
-    this.endpoint_labels_JQElem.css('background', 'lightgrey');
+    this.resourceMenu.endpoint_labels_JQElem.css('background', 'lightgrey');
   }
 
   endpoint_label_search_failure() {
     this.kill_endpoint_label_search_anim();
-    this.endpoint_labels_JQElem.css('background', 'pink');
+    this.resourceMenu.endpoint_labels_JQElem.css('background', 'pink');
   }
 
   kill_endpoint_label_search_anim() {
@@ -8642,13 +8744,17 @@ SERVICE wikibase:label {
   }
 
   start_graphs_selector_spinner() {
-    const spinner = this.endpoint_labels_JQElem.siblings('i');
+    const spinner = this.resourceMenu.endpoint_labels_JQElem.siblings('i');
     spinner.css('visibility','visible');
   }
 
   stop_graphs_selector_spinner() {
-    const spinner = this.endpoint_labels_JQElem.siblings('i');
+    const spinner = this.resourceMenu.endpoint_labels_JQElem.siblings('i');
     spinner.css('visibility','hidden'); //  happens regardless of result.length
+  }
+
+  disable_go_button() {
+    this.resourceMenu.disable_go_button();
   }
 
   euthanize_search_sparql_by_label() {
@@ -8663,7 +8769,7 @@ SERVICE wikibase:label {
 
   applyNodeLimit(qry) {
     // Apply LIMIT value from form if provided OR do nothing if query contains LIMIT
-    const nodeLimit = this.endpoint_limit_JQElem.val();
+    const nodeLimit = this.endpoint_limit;
     const alreadyLimited = (qry.toLowerCase()).match(/limit /);
     if (nodeLimit && !alreadyLimited) {
       return qry + ` LIMIT ${nodeLimit}`;
@@ -10107,6 +10213,7 @@ WHERE {
 
   after_file_loaded(uri, callback) {
     this.call_on_dataset_loaded(uri);
+    this.expand_tabs();
     if (callback) {
       callback();
     }
@@ -10120,7 +10227,7 @@ WHERE {
   }
 
   call_on_dataset_loaded(uri) {
-    this.gclui.on_dataset_loaded({uri});
+    this.gclui.on_dataset_loaded({uri}); // shows the contents of the Commands tab
   }
 
   XXX_load_file() {

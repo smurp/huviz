@@ -385,6 +385,15 @@ export class PickOrProvideScript extends PickOrProvide {
   }
 }
 
+export class PickOrProvideEndpoint extends PickOrProvide {
+  constructor() {
+    super(...arguments);
+  }
+  refresh() {
+    this.update_state(console.log);
+  }
+}
+
 // inspiration: https://css-tricks.com/drag-and-drop-file-uploading/
 export class DragAndDropLoader {
   static initClass() {

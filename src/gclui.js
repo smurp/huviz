@@ -625,7 +625,7 @@ of the classes indicated.`,
     window.addEventListener('changeTaxon', this.taxon_picker.onChangeState);
     window.addEventListener('changeEnglish', this.onChangeEnglish);
   }
-  on_dataset_loaded(evt) {
+  on_dataset_loaded(evt={}) {
     if ((evt.done == null)) {
       $(this.container).show();
       this.show_succession_of_hints();

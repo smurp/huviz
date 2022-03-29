@@ -37,7 +37,7 @@ var resMenFSMTTL= `
          st:onFirst    tr:gotoStart     st:onStart .
          st:onFirst    tr:gotoContinue  st:onContinue .
 
-         st:onStart    tr:gotoBrowse    st:onBrowse .
+         st:onStart    tr:gotoBrowse    st:onBrowse71 .
          st:onStart    tr:gotoUpload    st:onUpload .
          st:onStart    tr:gotoURL       st:onGo .
          st:onStart    tr:gotoQuery     st:onQuery .
@@ -45,7 +45,12 @@ var resMenFSMTTL= `
 
          st:onContinue tr:esc           st:onFirst .
 
-         st:onScriptDetail tr:esc       st:onContinue;
+         st:onScriptDetail tr:esc       st:onContinue .
+
+         st:onQuery        tr:gotoQueryDetail st:onQueryDetail .
+
+         st:onQueryDetail  tr:esc       st:onQuery .
+         st:onQueryDetail  tr:gotoVisQuery st:onVisQuery .
 
          st:onBrowse   tr:esc           st:onStart .
 
@@ -97,11 +102,9 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
 
     /* perform 'start' transition to get things going */
     this.transit('start', {});
-    // During development it is sometimes handy to just jump to a particular screen:
-    /*
-      this.transit('gotoStart',
-       { console.error('hard-coded transit("gotoStart") to ease development')});
-    */
+
+    /* During development it is sometimes handy to just jump to a particular screen: */
+    this.transitIds(['gotoStart', 'gotoQuery']);
   }
   blurt(...stuff) {
     console.warn("BLURT",stuff);
@@ -119,6 +122,7 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     args.endpoint_loader__append_to_sel = this.querySelector('#endpointHere');
     this.defaultOntologyUri = this.querySelector('#defaultOntologyUri');
     this.defaultOntologyName = this.querySelector('#defaultOntologyName');
+    console.log('registerHuViz', args);
     this.init_resource_menus(args); // add {dataset,ontology,script,endpoint}_loader
     this.mirror_loaders_to_huviz(); // then mirror them on this.huviz
     let dnd = new DropLoader(this, this.dataset_loader);
@@ -172,7 +176,7 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
       HTMLElement ids are states
     */
     this.querySelectorAll(selector).forEach((item) => {
-      console.debug("addEventListener", {item});
+      //console.debug("addEventListener", {item});
       item.addEventListener('click', handler);
     })
   }
@@ -323,6 +327,171 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
   }
   // onGo end
 
+  enter__onQueryDetail(evt, stateId) {
+    /*
+      This gets called when a user has selected an endpoint
+     */
+    this.showMain(stateId);
+    const skip_graph_search = false;
+    const {target} = evt;
+    const {huviz} = this;
+    const url = target.getAttribute('value');
+
+    const qry = `\
+# sparql_graph_query_and_show("${url}")
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?g ?label
+WHERE {
+GRAPH ?g { } .
+OPTIONAL {?g rdfs:label ?label}
+}
+ORDER BY ?g\
+`;
+
+    this.gotoVisQuery_elem = this.querySelector('#gotoVisQuery')
+    this.gotoVisQuery_elem.onclick = this.gotoVisQuery_onclick
+    this.disable_go_button();
+
+    const sparqlQueryInput = this.querySelector('#sparqlQryInput')
+    sparqlQueryInput.style.display = 'none'; // hide until needed
+
+    const endpoint_limit = this.endpoint_limit = this.querySelector('#endpoint_limit');
+    endpoint_limit.setAttribute('value', this.huviz.sparql_query_default_limit || 10);
+
+    const spinner = this.querySelector('#sparqlGraphSpinner')
+    spinner.style.display = 'block';
+    spinner.style.color = 'red';
+
+    const graphSelector = this.querySelector('#sparqlGraphOptions');
+    this.graphSelector = graphSelector;
+    graphSelector.innerHTML = ''; // empty it, in case we are returning
+    graphSelector.setAttribute('size', 7);
+    graphSelector.style.display = 'none';
+    //graphSelector.onchange = this.huviz.sparqlGraphSelector_onchange;
+    graphSelector.onchange = () => {
+      graphSelector.setAttribute('size', 1);
+      sparqlQueryInput.style.display = 'inherit';
+      console.log(`chose graphSelector.value:`, graphSelector.value);
+    };
+
+    const endpoint_labels_elem = this.querySelector('#endpoint_labels');
+    const endpoint_labels_JQElem = this.endpoint_labels_JQElem = $(endpoint_labels_elem);
+    endpoint_labels_elem.oninput = huviz.animate_endpoint_label_typing.bind(huviz);
+    endpoint_labels_JQElem.autocomplete({
+      minLength: 3,
+      delay: 500,
+      position: {collision: "flip"},
+      source: this.huviz.search_sparql_by_label
+    });
+    endpoint_labels_JQElem.on('autocompleteselect', this.endpoint_labels__autocompleteselect.bind(this));
+    endpoint_labels_JQElem.on('change', this.endpoint_labels__update.bind(this));
+    endpoint_labels_JQElem.focusout(this.endpoint_labels__focusout.bind(this));
+
+    const spo_query_JQElem = this.huviz.spo_query_JQElem = $('#spo_query_id');
+    spo_query_JQElem.on('update', this.spo_query__update);
+
+    const make_success_handler = () => {
+      return (data, textStatus, jqXHR, queryManager) => {
+        let json_data;
+        const json_check = typeof data;
+        if (json_check === 'string') {
+          json_data = JSON.parse(data);
+        } else {
+          json_data = data;
+        }
+
+        const results = json_data.results.bindings;
+        queryManager.setResultCount(results.length);
+
+        const graphsNotFound = jQuery.isEmptyObject(results[0]);
+        if (graphsNotFound) {
+          handle_graphsNotFound();
+          return;
+        }
+        let graph_options = `<option id='${this.huviz.unique_id()}' value=""> All Graphs </option>`;
+        for (let graph of results) {
+          var label;
+          if (graph.label != null) {
+            label = ` (${graph.label.value})`;
+          } else {
+            label = '';
+          }
+          graph_options = graph_options +
+            `<option id="${this.huviz.unique_id()}" value="${graph.g.value}">` +
+            `${graph.g.value}${label}</option>`;
+        }
+        graphSelector.innerHTML = graph_options;
+        graphSelector.style.display = 'inherit';
+        //graphSelector.setAttribute('size', 1);
+        //graphSelector.parent.style.display = 'block';
+        spinner.style.display = 'none';
+        this.reset_endpoint_form(true);
+        this.disable_go_button(); // disable until a graph or term is picked
+      };
+    };
+
+    const make_error_callback = () => {
+      return (jqXHR, textStatus, errorThrown) => {
+        graphSelector.style.display = 'none';
+        spinner.style.display = 'none';
+        //@reset_dataset_ontology_loader()
+        handle_graphsNotFound();
+        this.reset_endpoint_form(true);
+      };
+    };
+
+    const args = {
+      success_handler: make_success_handler(),
+      error_callback: make_error_callback()
+    };
+    args.query = qry;
+    args.serverUrl = url;
+    if (skip_graph_search) {
+      args.timeout = 1; //msec
+    }
+    this.sparql_graph_query_and_show_queryManager = this.huviz.run_managed_query_ajax(args);
+  }
+
+  on__gotoVisQuery(evt) {
+    this.gotoVisQuery_elem.innerHTML = 'LOADING...';
+    console.log("on__gotoVisQuery", ...arguments);
+    const subject = this.endpoint_labels_JQElem.val();
+    console.log(`śparqlGraphSelector`, this.graphSelector.value);
+    const graph = {
+      uri: this.graphSelector.value,
+      label: "GraphLabel"};
+    const endpoint = this.endpoint_loader.value;
+    const limit = this.endpoint_limit.value;
+    this.huviz.endpoint_limit = limit;
+    const endpointRsrc = {endpoint, graph, subject, limit};
+    console.log('on__gotoVisquery()', endpointRsrc);
+    this.huviz.visualize_resources({}, {}, {}, endpointRsrc);
+    //this.huviz.big_go_button_onclick_sparql(evt);
+  }
+
+  // Called when the user selects an endpoint_labels autosuggestion
+  endpoint_labels__autocompleteselect(event) {
+    // Hopefully having this handler engaged will not interfere with the autocomplete.
+    this.enable_go_button();
+    return true;
+  }
+
+  endpoint_labels__update(event) {
+    // If the endpoint_labels field is left blank then permit LOAD of graph
+    if (!this.endpoint_labels_JQElem.val().length) {
+      this.enable_go_button();
+    }
+    return true;
+  }
+
+  endpoint_labels__focusout(event) {
+    // If endpoint_labels has content WITHOUT autocompleteselect then disable LOAD
+    if (!this.endpoint_labels_JQElem.val().length) {
+      this.enable_go_button();
+    }
+    return true;
+  }
+
   showMain(which) {
     console.debug(`showMain('${which}')`);
     this.querySelectorAll('main').forEach((main) => {
@@ -343,8 +512,8 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
       //this.try_to_visualize_dataset_using_ontology_and_script();
       break;
     case this.endpoint_loader:
-      this.transit('pick', evt);
-      console.error("implement state change to sparqlDetails");
+      whichLoader.setSelectedElem(evt.target);
+      this.transit('gotoQueryDetail', evt);
       break;
     case this.ontology_loader:
       console.warn('handleLoaderClickInResourceMenu a noop for ontology_loader')

@@ -4,7 +4,7 @@
       class SubclassOfDatasetDB extends DatasetDB {}
  */
 import {
-  PickOrProvide, PickOrProvideScript, //PickOrProvide2Script,
+  PickOrProvide, PickOrProvideScript, PickOrProvideEndpoint, //PickOrProvide2Script,
   DragAndDropLoader, DragAndDropLoaderOfScripts
 } from './dndloader.js';
 import {uniquer, unique_id} from './uniquer.js'; // TODO rename to make_dom_safe_id
@@ -338,12 +338,15 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
     }
     if (!this.endpoint_loader && this.args.make_pickers) {
       let sel = this.args.endpoint_loader__append_to_sel;
-      this.endpoint_loader = new PickOrProvide(this, sel,
+      this.endpoint_loader = new PickOrProvideEndpoint(this, sel,
         'Sparql', 'EndpointPP', false, true,
         {rsrcType: 'endpoint'});
     }
-      //@endpoint_loader.outstanding_requests = 0
-    if (this.endpoint_loader && !this.big_go_button) {
+    //@endpoint_loader.outstanding_requests = 0
+    // if (this.endpoint_loader && !this.big_go_button) {
+     if (this.endpoint_loader && this.args.make_pickers) {
+      /*
+      alert('WOOT');
       this.build_sparql_form();
       //const endpoint_selector = `#${this.endpoint_loader.select_id}`;
       const endpoint_selector = `#sparqlDetailHere`;
@@ -353,8 +356,10 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
       if (content) {
         sparqlDetailElem.appendChild(content);
       }
+      */
       //$(endpoint_selector).change(this.update_endpoint_form);
     }
+    /*
     if (this.ontology_loader && !this.big_go_button) {
       this.big_go_button_id = unique_id('goButton_');
       this.big_go_button = $('button.big_go_button');
@@ -363,9 +368,10 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
       this.big_go_button.click(this.big_go_button_onclick);
       this.disable_go_button();
     }
+    */
     if (this.ontology_loader
         || this.dataset_loader
-        || (this.script_loader && !this.big_go_button)) {
+        || (this.script_loader && !this.gotoVisQuery_elem)) {
       const ontology_selector = `#${this.ontology_loader.select_id}`;
       $(ontology_selector).change(this.update_dataset_forms);
       const dataset_selector = `#${this.dataset_loader.select_id}`;
@@ -386,6 +392,7 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
   }
 
   build_sparql_form() {
+    console.log('build_sparql_form()');
     this.sparqlId = unique_id();
     const sparqlQryInput_id = `sparqlQryInput_${this.sparqlId}`;
     this.sparqlQryInput_selector = "#" + sparqlQryInput_id;
@@ -398,8 +405,9 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
            ?s ?p ?o .
          }`.replace(/         /g,'');
     const select_box = `\
-      <div class="ui-widget" style="display:none;margin-top:5px;margin-left:10px;">
-        <label>Graphs: </label>
+      <div class="ui-widget" style="margin-top:5px;margin-left:10px;">
+        <h3>from datasetdb.js</h3>
+        <label>Graphs: DOH </label>
         <select id="${sparqlGraphSelectorId}">
         </select>
       </div>
@@ -466,7 +474,7 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
   }
 
   update_go_button(disable) {
-    if ((disable == null)) {
+    if (disable == null) {
       if (this.script_loader.value) {
         disable = false;
       } else if (this.huviz.using_sparql()) {
@@ -479,7 +487,7 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
         const ds_on = `${ds_v} AND ${on_v}`;
       }
     }
-    this.big_go_button.prop('disabled', disable);
+    this.gotoVisQuery_elem.disabled = disable;
   }
 
   sparql_graph_query_and_show__trigger(url) {
@@ -492,6 +500,7 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
     this.ontology_loader.disabled = true;
     this.script_loader.disabled = true;
     */
+    alert('sparql_graph_query_and_show__trigger()');
     $(`#${this.dataset_loader.uniq_id}`).children('select').prop('disabled', 'disabled');
     $(`#${this.ontology_loader.uniq_id}`).children('select').prop('disabled', 'disabled');
     $(`#${this.script_loader.uniq_id}`).children('select').prop('disabled', 'disabled');
@@ -590,62 +599,6 @@ ORDER BY ?g\
   sparqlQryInput_show() {
     this.sparqlQryInput_JQElem.show();
     this.sparqlQryInput_JQElem.css({'color': 'inherit'} );
-  }
-
-  load_endpoint_data_and_show(subject, callback) {
-    this.sparql_node_list = [];
-    this.pfm_count('sparql');
-    //if @p_display then @performance_dashboard('sparql_request')
-    const node_limit = this.endpoint_limit_JQElem.val();
-    const url = this.endpoint_loader.value;
-    this.endpoint_loader.outstanding_requests = 0;
-    let fromGraph = '';
-    if (this.endpoint_loader.endpoint_graph) {
-      fromGraph=` FROM <${this.endpoint_loader.endpoint_graph}> `;
-    }
-    const qry = `\
-# load_endpoint_data_and_show('${subject}')
-SELECT * ${fromGraph}
-WHERE {
-{<${subject}> ?p ?o}
-UNION
-{{<${subject}> ?p ?o} .
- {?o ?p2 ?o2}}
-UNION
-{{?s3 ?p3 <${subject}>} .
- {?s3 ?p4 ?o4 }}
-}
-LIMIT ${node_limit}\
-`;
-
-    const make_success_handler = () => {
-      return (data, textStatus, jqXHR, queryManager) => {
-        let json_data;
-        const json_check = typeof data;
-        if (json_check === 'string') {
-          json_data = JSON.parse(data);
-        } else {
-          json_data = data;
-        }
-        queryManager.setResultCount(json_data.length);
-        this.add_nodes_from_SPARQL(json_data, subject, queryManager);
-        const endpoint = this.endpoint_loader.value;
-        this.dataset_loader.disable();
-        this.ontology_loader.disable();
-        this.replace_loader_display_for_endpoint(
-          endpoint, this.endpoint_loader.endpoint_graph);
-        this.disable_go_button();
-        this.big_go_button.hide();
-        return this.after_file_loaded('sparql', callback);
-      };
-    };
-
-    const args = {
-      query: qry,
-      serverUrl: url,
-      success_handler: make_success_handler()
-    };
-    this.run_managed_query_ajax(args);
   }
 
   endpoint_loader_is_quiet() {

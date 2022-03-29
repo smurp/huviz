@@ -1,8 +1,8 @@
 {
   "datasets": [
     {
-      "uri": "https://fuseki.lincsproject.ca/orlando/query",
-      "label": "LINCS Orlando SPARQL",
+      "uri": "https://fuseki.lincsproject.ca/cwrc/query",
+      "label": "LINCS CWRC SPARQL",
       "ontology_label": "CWRC Ontology",
       "method": "POST",
       "timeout": 20000
