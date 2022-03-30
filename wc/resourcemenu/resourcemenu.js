@@ -104,7 +104,7 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     this.transit('start', {});
 
     /* During development it is sometimes handy to just jump to a particular screen: */
-    this.transitIds(['gotoStart', 'gotoQuery']);
+    // this.transitIds(['gotoStart', 'gotoQuery']);
   }
   blurt(...stuff) {
     console.warn("BLURT",stuff);
