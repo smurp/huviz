@@ -8521,7 +8521,7 @@ LIMIT ${limit}\
         <button title="Reload this data"
            onclick="location.replace('${uri}');location.reload()"><i class="fas fa-redo"></i></button>
         <button title="Clear the graph and start over"
-           onclick="location.assign(location.origin)"><i class="fas fa-times"></i></button>
+           onclick="location.assign(location.origin)"><i class="fas fa-home"></i></button>
       </p>`;
     const visualization_source_display = `
       <div id="${this.get_data_ontology_display_id()}" class="data_ontology_display">
