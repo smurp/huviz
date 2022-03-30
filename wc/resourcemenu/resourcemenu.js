@@ -37,7 +37,7 @@ var resMenFSMTTL= `
          st:onFirst    tr:gotoStart     st:onStart .
          st:onFirst    tr:gotoContinue  st:onContinue .
 
-         st:onStart    tr:gotoBrowse    st:onBrowse71 .
+         st:onStart    tr:gotoBrowse    st:onBrowse .
          st:onStart    tr:gotoUpload    st:onUpload .
          st:onStart    tr:gotoURL       st:onGo .
          st:onStart    tr:gotoQuery     st:onQuery .
@@ -104,7 +104,7 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     this.transit('start', {});
 
     /* During development it is sometimes handy to just jump to a particular screen: */
-    // this.transitIds(['gotoStart', 'gotoQuery']);
+    //this.transitIds(['gotoStart', 'gotoQuery']);
   }
   blurt(...stuff) {
     console.warn("BLURT",stuff);
