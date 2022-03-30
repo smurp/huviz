@@ -151,7 +151,6 @@ app.use('/data', express.static(__dirname + '/data'));
 app.use('/scripts', express.static(path.join(__dirname, 'UPLOADS', 'scripts')));
 app.post("/scripts", publishScriptPOST);
 app.use('/js', express.static(__dirname + '/js'));
-app.use("/jsoutline", express.static(__dirname + "/node_modules/jsoutline/lib"));
 app.use('/huviz/vendor', express.static(__dirname + '/vendor'));
 app.use('/node_modules', express.static(__dirname + '/node_modules'));
 app.use('/huviz/async', express.static(__dirname + '/node_modules/async/lib/'));

@@ -40,7 +40,6 @@
     "express-fileupload": "^1.2.1",
     "jquery": ">=3.4.0",
     "jquery-simulate-ext": "1.3.0",
-    "jsoutline": "git://github.com/smurp/jsoutline.git",
     "ldf-client": "^2.0.5",
     "marked": "^0.6.2",
     "morgan": "^1.9.1",

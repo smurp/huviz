@@ -841,8 +841,6 @@ describe("HuViz Tests", function() {
 		"there should be no indirect-mixed predicates when nothing is graphed").
            to.equal(0);
 
-	 jsoutline.squelch = false;
-	 jsoutline.collapsed = false;
        });
 
     it("toggling a leaf predicate should leave the root predicate unmixed",
@@ -1524,8 +1522,6 @@ describe("HuViz Tests", function() {
 	 a_leaf_predicate_sel = "#hasWealthConnectionToSettlement";
 
 	 window.breakpoint = true;
-	 jsoutline.squelch = true;
-	 jsoutline.collapsed = false;
 	 // graph some leaf predicate
 	 $(a_leaf_predicate_sel).trigger("click");
 	 expect(HVZ.graphed_set.length,
@@ -1539,7 +1535,6 @@ describe("HuViz Tests", function() {
 		" should be indirect-mixed when it is picked").
 	   to.equal(num_parent);
 	 window.breakpoint = false;
-	 jsoutline.squelch = true;
        }));
 
     it("non-empty predicates should not have payload '0/0' after kid click",
