@@ -55,7 +55,7 @@
     "arkit": "^1.6.4",
     "browserify": "^16.2.3",
     "chai": "4.2.0",
-    "chromedriver": "^91.0.1",
+    "chromedriver": "^99.0.0",
     "docco": "^0.8.0",
     "documentation": "^13.1.0",
     "eslint": "^5.16.0",
