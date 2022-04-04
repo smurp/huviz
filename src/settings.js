@@ -948,9 +948,9 @@ If zero before loading, then lookup is suppressed.`
         title: "Number of seconds to run SPARQL queries before giving up."
       },
       input: {
-        value: 45,
+        value: 5,
         min: 1,
-        max: 90,
+        max: 60,
         step: 1,
         type: "range"
       }
