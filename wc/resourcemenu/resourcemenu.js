@@ -405,7 +405,7 @@ ORDER BY ?g\
 
         const graphsNotFound = jQuery.isEmptyObject(results[0]);
         if (graphsNotFound) {
-          handle_graphsNotFound();
+          this.handle_graphsNotFound();
           return;
         }
         let graph_options = `<option id='${this.huviz.unique_id()}' value=""> All Graphs </option>`;
@@ -435,7 +435,7 @@ ORDER BY ?g\
         graphSelector.style.display = 'none';
         spinner.style.display = 'none';
         //@reset_dataset_ontology_loader()
-        handle_graphsNotFound();
+        this.handle_graphsNotFound();
         this.reset_endpoint_form(true);
       };
     };
@@ -450,6 +450,10 @@ ORDER BY ?g\
       args.timeout = 1; //msec
     }
     this.sparql_graph_query_and_show_queryManager = this.huviz.run_managed_query_ajax(args);
+  }
+
+  handle_graphsNotFound() {
+    console.warn(`implement handle_graphsNotFound()`);
   }
 
   on__gotoVisQuery(evt) {
