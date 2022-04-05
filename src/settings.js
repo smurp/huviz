@@ -948,7 +948,7 @@ If zero before loading, then lookup is suppressed.`
         title: "Number of seconds to run SPARQL queries before giving up."
       },
       input: {
-        value: 5,
+        value: 45,
         min: 1,
         max: 60,
         step: 1,
@@ -969,6 +969,22 @@ If zero before loading, then lookup is suppressed.`
         min: 1,
         max: 100,
         step: 10,
+        type: "range"
+      }
+    }
+  }  , {
+    search_sparql_by_label_limit: {
+      group: "SPARQL",
+      class: "alpha_feature",
+      text: "Search by Label Limit",
+      label: {
+        title: "The limit on the number of autocomplete values"
+      },
+      input: {
+        value: 20,
+        min: 1,
+        max: 100,
+        step: 5,
         type: "range"
       }
     }

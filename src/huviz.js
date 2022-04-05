@@ -6151,6 +6151,7 @@ SERVICE wikibase:label {
       try {
         success_handler(data, textStatus, jqXHR, queryManager);
       } catch (e) {
+        console.debug(e);
         queryManager.fatalError(e);
       }
     });
@@ -6375,9 +6376,9 @@ SERVICE wikibase:label {
   }
 
   using_sparql() {
-    // force the return of a boolan with "not not"
-    return !!((this.endpoint_loader != null)
-              && this.endpoint_loader.value); // This is part of a sparql set
+    // confirm that and endpoint was specified, not just an empty object
+    const rsrc = this.currentRun.endpointRsrc || {};
+    return Object.keys(rsrc).length > 0;
   }
 
   outstanding_sparql_requests_are_capped() {
@@ -7949,9 +7950,16 @@ SERVICE wikibase:label {
     }
     // Deal with the situation where the datasetUri sought is served
     // by the server the user has chosen.
-    if (this.using_sparql() && (this.sparqlGraphSelector_JQElem.val() === datasetUri)) {
+    if (this.using_sparql()) { // && (this.sparqlGraphSelector_JQElem.val() === datasetUri)) {
+      const {currentRun} = this;
+      console.warn("consider AllGraphs check get_server_for_dataset()", {currentRun, datasetUri});
+      /*
+        ie if using_sparql and the datasetUri is the selected graph
+        ie All Graphs was chosen or no graphs were used
+        How does this relate to the old trick of using the endpoint url to represent All Graphs
+      */
       serverType = 'sparql';
-      serverUrl = this.endpoint_loader.value;
+      serverUrl = currentRun.endpointRsrc.endpoint;
     // Otherwise, consult built-in hard-coded mappings from datasets to
     // the servers they are available at.  First we look for matches
     // based on the domain sought.
@@ -8046,10 +8054,20 @@ SERVICE wikibase:label {
     }
   }
 
+  get currentRun() {
+    if (!this._currentRun) throw new Error('set currentRun() has not been called')
+    return this._currentRun;
+  }
+
+  set currentRun(currentRun){
+    this._currentRun = currentRun;
+  }
+
   async visualize_resources(dataRsrc={}, ontoRsrc={}, scriptRsrc={}, endpointRsrc={}) {
     // TODO
     //  * complete handling of scriptRsrc
-    console.log({dataRsrc, ontoRsrc, scriptRsrc, endpointRsrc});
+    this.currentRun = {dataRsrc, ontoRsrc, scriptRsrc, endpointRsrc};;
+    console.log(this.currentRun);
     /*
       See load_endpoint_data_and_show in src/datasetdb.js              
       Steps:
@@ -8333,7 +8351,7 @@ LIMIT ${limit}\
   querySpec_2_vis_src_args(querySpec) { // might be unused
     console.warn('querySpec_2_vis_src_args IS USED');
     const {serverUrl, graphUrl, limit, subjectUrl} = querySpec;
-    console.log("query_from_seeking_limit(querySpec)", querySpec);
+    console.debug("visualize_from_url(querySpec)", querySpec);
     return {
       // label: serverUrl, // querySpec has no label for the serverUrl
       value: serverUrl,
@@ -8377,17 +8395,11 @@ LIMIT ${limit}\
       subject: subjectUrl};
   }
 
-  query_from_seeking_limit(querySpec) {
+  visualize_from_url(querySpec) {
     var endpointRsrc = this.querySpec_2_endpointRsrc(querySpec);
-    /*
-    if (!this.endpoint_loader_is_quiet()) {
-      setTimeout((() => this.query_from_seeking_limit(querySpec)), 50);
-      //throw new Error("endpoint_loader not ready")
-      return;
-    }
-    */
+    this.currentRun = {endpointRsrc};
     this.load_endpoint_data_and_show(
-      endpointRsrc, () => {console.log('query_from_seeking_limit()')});
+      endpointRsrc, () => {console.log('visualize_from_url()')});
   }
 
   init_gclc() {
@@ -8641,6 +8653,7 @@ LIMIT ${limit}\
   allGraphsChosen() {
     // REVIEW what about the case where there were no graphs?
     try {
+      console.warn(`allGraphsChosen should have a new implementation`);
       return this.sparqlGraphSelector_JQElem.val() === this.endpoint_loader.value;
     } catch (error) {
       // REVIEW big handwave here! Assuming an error means something is missing
@@ -8826,6 +8839,7 @@ WHERE {
     FILTER contains(LCASE(?obj), "${sought}")
    }
 }
+LIMIT ${this.search_sparql_by_label_limit}
 `;
     qry = this.applyNodeLimit(qry);
     /*

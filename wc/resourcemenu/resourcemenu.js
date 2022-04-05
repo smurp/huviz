@@ -353,9 +353,11 @@ ORDER BY ?g\
     this.disable_go_button();
 
     const sparqlQueryInput = this.querySelector('#sparqlQryInput')
+    this.sparqlQryInput_JQElem = $(sparqlQueryInput);
     sparqlQueryInput.style.display = 'none'; // hide until needed
 
     const endpoint_limit = this.endpoint_limit = this.querySelector('#endpoint_limit');
+    this.endpoint_limit_JQElem = $(endpoint_limit);
     endpoint_limit.setAttribute('value', this.huviz.sparql_query_default_limit || 10);
 
     const spinner = this.querySelector('#sparqlGraphSpinner')
@@ -425,8 +427,9 @@ ORDER BY ?g\
         //graphSelector.setAttribute('size', 1);
         //graphSelector.parent.style.display = 'block';
         spinner.style.display = 'none';
-        this.reset_endpoint_form(true);
-        this.disable_go_button(); // disable until a graph or term is picked
+        console.log('should reset_endpoint_form be run?');
+        //this.reset_endpoint_form(true);
+        //this.disable_go_button(); // disable until a graph or term is picked
       };
     };
 

@@ -393,6 +393,7 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
 
   build_sparql_form() {
     console.log('build_sparql_form()');
+    throw new Error('build_sparql_form() should no longer be called');
     this.sparqlId = unique_id();
     const sparqlQryInput_id = `sparqlQryInput_${this.sparqlId}`;
     this.sparqlQryInput_selector = "#" + sparqlQryInput_id;
@@ -435,6 +436,7 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
       `;
     $(this.pickersSel).append(select_box);
     this.sparqlQryInput_JQElem = $(this.sparqlQryInput_selector);
+    console.log('about to endpoint_levels_JQElem');
     this.endpoint_labels_JQElem = $('#'+endpoint_labels_id);
     this.endpoint_limit_JQElem = $('#'+endpoint_limit_id);
     this.sparqlGraphSelector_JQElem = $('#'+sparqlGraphSelectorId);
@@ -607,10 +609,10 @@ ORDER BY ?g\
     return (this.endpoint_loader != null) && this.endpoint_loader.is_quiet(500);
   }
 
-  query_from_seeking_limit(querySpec) {
+  XXX_visualize_from_url(querySpec) {
     const {serverUrl, graphUrl, limit, subjectUrl} = querySpec;
     if (!this.endpoint_loader_is_quiet()) {
-      setTimeout((() => this.query_from_seeking_limit(querySpec)), 50);
+      setTimeout((() => this.visualize_from_url(querySpec)), 50);
       //throw new Error("endpoint_loader not ready")
       return;
     }

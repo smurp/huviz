@@ -336,7 +336,7 @@ export class GraphCommand {
       this.huviz.load_with(this.data_uri, this.with_ontologies, this.run_scripts);
       //console.warn("TODO implement the ability to run scripts from the URL");
     } else if (this.verbs[0] === 'query') {
-      this.huviz.query_from_seeking_limit(this.sparqlQuery);
+      this.huviz.visualize_from_url(this.sparqlQuery);
     } else {
       for (let meth of this.get_methods()) { // find methods for the verbs
         var callback;
