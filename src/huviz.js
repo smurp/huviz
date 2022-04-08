@@ -7969,7 +7969,11 @@ SERVICE wikibase:label {
     } else if (serverUrl = this.domain2sparqlEndpoint['*']) {
       serverType = 'sparql';
     } else {
-      throw new Error(`a server could not be found for ${datasetUri}`);
+
+    }
+    if (!serverUrl) {
+      console.warn(`a server could not be found for ${datasetUri}`);
+      return;
     }
     return {serverType, serverUrl};
   }
@@ -8108,7 +8112,7 @@ SERVICE wikibase:label {
         rsrc.ext ??= rsrc.value.split('.').at(-1);
       }
     }
-    if (hasKeys(dataRsrc)) {
+    if (hasKeys(dataRsrc)) { // a dataset is being visualized
       assignExtIfNeeded(dataRsrc);
       // create the callback to ingest_the_dataset, which will be run after ingest_the_onto
       var ingest_the_dataset = () => {
@@ -8124,6 +8128,8 @@ SERVICE wikibase:label {
         });
       };
       if (hasKeys(ontoRsrc)) {
+        // to visualize a dataset, first we load the ontology, to populate the pickers
+        // since this is demonstrably unnecessary for endpoints this could benefit from rework
         assignExtIfNeeded(ontoRsrc);
         this.ingest_rsrc_thenDo(ontoRsrc, (data) => {
           this.parseTTLOntology(data, ontoRsrc, ingest_the_dataset);
@@ -8131,7 +8137,7 @@ SERVICE wikibase:label {
       }
       this.update_browser_title(dataRsrc);
       this.update_caption(dataRsrc.value, dataRsrc.endpoint_graph);
-    } else if (hasKeys(endpointRsrc)) {
+    } else if (hasKeys(endpointRsrc)) { // an endpoint is being visualized
       this.update_browser_title(dataRsrc);
       //this.update_caption(/* dataset_str, ontology_str */);
       var callback = this.after_visualize_dataset_using_ontology;

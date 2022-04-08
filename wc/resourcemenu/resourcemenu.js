@@ -473,7 +473,6 @@ ORDER BY ?g\
     const endpointRsrc = {endpoint, graph, subject, limit};
     console.log('on__gotoVisquery()', endpointRsrc);
     this.huviz.visualize_resources({}, {}, {}, endpointRsrc);
-    //this.huviz.big_go_button_onclick_sparql(evt);
   }
 
   // Called when the user selects an endpoint_labels autosuggestion
