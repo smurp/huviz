@@ -22,6 +22,8 @@ import fileUpload from 'express-fileupload';
 import marked from 'marked';
 import morgan from 'morgan';
 import nopt from 'nopt'; // https://github.com/npm/nopt
+
+// put the package version in env for display in the About tab
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const npm_package = require("./package.json");
