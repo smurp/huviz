@@ -7,7 +7,7 @@
     "url": "http://github.com/smurp/huviz.git"
   },
   "engines": {
-    "node": ">=12.13.0",
+    "node": ">=14.15.0",
     "npm": ">=6.0.0"
   },
   "author": "Shawn Murphy <smurp@smurp.com> (http://smurp.com)",
