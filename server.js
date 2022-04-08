@@ -22,6 +22,10 @@ import fileUpload from 'express-fileupload';
 import marked from 'marked';
 import morgan from 'morgan';
 import nopt from 'nopt'; // https://github.com/npm/nopt
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+const npm_package = require("./package.json");
+process.env.npm_package_version = npm_package.version;
 
 // then local modules
 import {sparqlproxy} from './js/sparqlproxy.js';

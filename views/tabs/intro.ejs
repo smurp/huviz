@@ -2,7 +2,10 @@
             <h1 class="git-<%= nopts.git_branch_name %>">
               HuViz
               <sup class="semantic-version">
-                  <a target="_" href="https://gitlab.com/calincs/access/HuViz/"><%= process.env.npm_package_version%></a>
+                  <a target="_"
+                     href="https://gitlab.com/calincs/access/HuViz/-/tags/v<%= process.env.npm_package_version%>">
+                    <%= process.env.npm_package_version%>
+                  </a>
                 </sup>
             </h1>
             <h2>RDF Explorer</h2>
