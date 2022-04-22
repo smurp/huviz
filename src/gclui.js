@@ -1207,11 +1207,11 @@ of the classes indicated.`,
     this.likediv.text('matching:').classed("control_label", true);
     this.likediv.style('display','inline-block');
     this.likediv.style('white-space','nowrap');
-    this.like_input = this.likediv.append('input');
-    this.like_input.attr('class', 'like_input');
-    this.like_input.attr('placeholder','node Name');
+    this.matching_input = this.likediv.append('input');
+    this.matching_input.attr('class', 'matching_input');
+    this.matching_input.attr('placeholder','node Name');
     this.set_is_engaged_because_matching = false;
-    this.like_input.on('input', this.handle_matching_input);
+    this.matching_input.on('input', this.handle_matching_input);
     this.clear_matching_button = this.likediv.append('button').text('⌫');
     this.clear_matching_button.attr('type','button').classed('clear_matching', true);
     this.clear_matching_button.attr('disabled','disabled');
@@ -1220,7 +1220,7 @@ of the classes indicated.`,
   }
 
   handle_clear_matching(evt) {
-    this.like_input.property('value','');
+    this.matching_input.property('value','');
     this.handle_matching_input();
   }
 
@@ -1325,7 +1325,7 @@ of the classes indicated.`,
     this.huviz.matching_string();
   }
   get_matching_string() {
-    return this.like_input.node().value;
+    return this.matching_input.node().value;
   }
   push_command(cmd) {
     throw new Error('DEPRECATED');
@@ -1494,7 +1494,7 @@ of the classes indicated.`,
         }
       }
     }
-    const matching_str = (this.like_input.node().value || "").trim();
+    const matching_str = (this.matching_input.node().value || "").trim();
     if (matching_str) {
       args.like = matching_str;
     }

@@ -1331,8 +1331,8 @@ Here is how:
 
   matching_string(str) {
     // Ideally we'd trigger an actual 'input' event but that is not possible
-    //$(".like_input").val(str)
-    this.gclui.like_input.val(str);
+    //$(".matching_input").val(str)
+    this.gclui.matching_input.val(str);
     this.gclui.handle_matching_input();
     //debugger if @DEBUG and str is ""
     return this;
@@ -6490,7 +6490,7 @@ SERVICE wikibase:label {
   }
 
   update_searchterm() {
-    const text = this.gclui.like_input.text();
+    const text = this.gclui.matching_input.text();
     this.set_search_regex(text);
     this.restart();
   }
