@@ -675,8 +675,8 @@ describe("HuViz Tests", function() {
 	 $("#reset_btn").click();
 	 expect(HVZ.labelled_set.length,
 		"nothing should be labelled after reset").to.equal(0);
-	 expect(HVZ.gclui.liking_all_mode,
-		"should no longer be in liking_all_mode").to.equal(false);
+	 expect(HVZ.gclui.set_is_engaged_because_matching,
+		"should no longer be in set_is_engaged_because_matching").to.equal(false);
        });
 
     xit("emptying 'like' should restore whatever set was previously engaged",

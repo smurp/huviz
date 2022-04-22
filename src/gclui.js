@@ -237,7 +237,7 @@ of the classes indicated.`,
     this.on_taxon_clicked = this.on_taxon_clicked.bind(this);
     this.stop_working = this.stop_working.bind(this);
     this.handle_clear_like = this.handle_clear_like.bind(this);
-    this.handle_like_input = this.handle_like_input.bind(this);
+    this.handle_matching_input = this.handle_matching_input.bind(this);
     this.disengage_all_verbs = this.disengage_all_verbs.bind(this);
     this.push_future_onto_history = this.push_future_onto_history.bind(this);
     this.update_command = this.update_command.bind(this);
@@ -1111,7 +1111,7 @@ of the classes indicated.`,
   should_be_immediate_mode() {
     return !this.is_verb_phrase_empty() &&
       this.is_command_object_empty() &&
-      !this.liking_all_mode;
+      !this.set_is_engaged_because_matching;
   }
   is_command_object_empty() {
     return (this.huviz.selected_set.length === 0) && (this.chosen_set == null);
@@ -1210,41 +1210,47 @@ of the classes indicated.`,
     this.like_input = this.likediv.append('input');
     this.like_input.attr('class', 'like_input');
     this.like_input.attr('placeholder','node Name');
-    this.liking_all_mode = false; // rename to @liking_mode
-    this.like_input.on('input', this.handle_like_input);
-    this.clear_like_button = this.likediv.append('button').text('⌫');
-    this.clear_like_button.attr('type','button').classed('clear_like', true);
-    this.clear_like_button.attr('disabled','disabled');
-    this.clear_like_button.attr('title','clear the "matching" field');
-    this.clear_like_button.on('click', this.handle_clear_like);
+    this.set_is_engaged_because_matching = false;
+    this.like_input.on('input', this.handle_matching_input);
+    this.clear_matching_button = this.likediv.append('button').text('⌫');
+    this.clear_matching_button.attr('type','button').classed('clear_like', true);
+    this.clear_matching_button.attr('disabled','disabled');
+    this.clear_matching_button.attr('title','clear the "matching" field');
+    this.clear_matching_button.on('click', this.handle_clear_like);
   }
 
   handle_clear_like(evt) {
     this.like_input.property('value','');
-    this.handle_like_input();
+    this.handle_matching_input();
   }
 
-  handle_like_input(evt) {
+  handle_matching_input(evt) {
     let TODO;
     const like_value = this.get_like_string();
     const like_has_a_value = !!like_value;
     if (like_has_a_value) {
       this.huviz.set_search_regex(like_value); // cause labels on matching nodes to be displayed
-      this.clear_like_button.attr('disabled', null);
-      if (this.liking_all_mode) { //
+      this.clear_matching_button.attr('disabled', null);
+      if (this.set_is_engaged_because_matching) { // matching PREVIOUSLY had a value too
         TODO = "update the selection based on the like value";
         //@update_command(evt) # update the impact of the value in the like input
-      } else {
-        this.liking_all_mode = true;
+      } else { // matching NEWLY has a value, so set things up for that
+        this.set_is_engaged_because_matching = true;
         this.chosen_set_before_liking_all = this.chosen_set_id;
         this.set_immediate_execution_mode(this.is_verb_phrase_empty());
-        this.huviz.click_set("all"); // ie choose the 'All' set
+        // Matching works in conjuction with an engaged set.
+        if (false) {
+          // If a set is already engaged then match with it.
+        } else {
+          // If a set is not yet engaged then engage the all set
+          this.huviz.click_set("all"); // ie choose the 'All' set
+        }
       }
     } else { // like does not have a value
       this.huviz.set_search_regex(''); // clear the labelling of matching nodes
-      this.clear_like_button.attr('disabled','disabled');
-      if (this.liking_all_mode) { // but it DID
-        TODO = "restore the state before liking_all_mode " +
+      this.clear_matching_button.attr('disabled','disabled');
+      if (this.set_is_engaged_because_matching) { // the ALL set was engaged because matchbox received a value
+        TODO = "restore the state before set_is_engaged_because_matching " +
         "eg select a different set or disable all set selection";
         //alert(TODO+" was: #{@chosen_set_before_liking_all}")
         if (this.chosen_set_before_liking_all) {
@@ -1253,11 +1259,9 @@ of the classes indicated.`,
         } else {
           this.huviz.click_set('all'); // this should toggle OFF the selection of 'All'
         }
-        this.liking_all_mode = false;
+        this.set_is_engaged_because_matching = false;
         this.set_immediate_execution_mode(true);
         //@update_command(evt) # does this deal with that moment when it becomes blanked?
-      } else { // nothing has happened, so
-        TODO = "do nothing ????";
       }
     }
     this.update_command(evt);
@@ -1882,7 +1886,7 @@ HELLO WORLD
   }
   on_set_picked(set_id, new_state) {
     let cmd;
-    this.clear_set_picker(); // TODO consider in relation to liking_all_mode
+    this.clear_set_picker(); // TODO consider in relation to set_is_engaged_because_matching
     this.set_picker.set_direct_state(set_id, new_state);
     let because = {};
     const hasVerbs = !!this.engaged_verbs.length;

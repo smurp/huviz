@@ -1333,7 +1333,7 @@ Here is how:
     // Ideally we'd trigger an actual 'input' event but that is not possible
     //$(".like_input").val(str)
     this.gclui.like_input.val(str);
-    this.gclui.handle_like_input();
+    this.gclui.handle_matching_input();
     //debugger if @DEBUG and str is ""
     return this;
   }
