@@ -236,7 +236,7 @@ of the classes indicated.`,
     this.handle_on_taxon_clicked = this.handle_on_taxon_clicked.bind(this);
     this.on_taxon_clicked = this.on_taxon_clicked.bind(this);
     this.stop_working = this.stop_working.bind(this);
-    this.handle_clear_like = this.handle_clear_like.bind(this);
+    this.handle_clear_matching = this.handle_clear_matching.bind(this);
     this.handle_matching_input = this.handle_matching_input.bind(this);
     this.disengage_all_verbs = this.disengage_all_verbs.bind(this);
     this.push_future_onto_history = this.push_future_onto_history.bind(this);
@@ -284,7 +284,7 @@ of the classes indicated.`,
     this.depthdiv = this.comdiv.append('div');
     this.search_box_parent = this.comdiv.append('div').classed('search_box_parent', true);
     this.likediv = this.search_box_parent.append('div');
-    this.build_like();
+    this.build_matching();
     this.set_picker_box_parent = this.build_set_picker("Sets", this.comdiv);
         this.node_pickers = this.comdiv.append('div').attr("id","node_pickers");
     this.add_clear_both(this.comdiv);
@@ -704,7 +704,7 @@ of the classes indicated.`,
     this.engaged_taxons = []; // new SortedSet()
   }
   reset_editor() {
-    this.clear_like();
+    this.clear_matching();
     this.disengage_all_verbs();
     this.disengage_all_sets();
     this.clear_all_sets();
@@ -712,13 +712,13 @@ of the classes indicated.`,
     this.update_command();
   }
   disengage_command() {
-    this.clear_like();
+    this.clear_matching();
     this.disengage_all_verbs();
     this.disengage_all_sets();
     this.update_command();
   }
   disengage_all() {
-    this.clear_like();
+    this.clear_matching();
     this.disengage_all_sets();
     this.disengage_all_verbs();
     this.update_command();
@@ -1203,7 +1203,7 @@ of the classes indicated.`,
     this.depth_input.attr('value','1');
   }
 
-  build_like() {
+  build_matching() {
     this.likediv.text('matching:').classed("control_label", true);
     this.likediv.style('display','inline-block');
     this.likediv.style('white-space','nowrap');
@@ -1213,20 +1213,20 @@ of the classes indicated.`,
     this.set_is_engaged_because_matching = false;
     this.like_input.on('input', this.handle_matching_input);
     this.clear_matching_button = this.likediv.append('button').text('⌫');
-    this.clear_matching_button.attr('type','button').classed('clear_like', true);
+    this.clear_matching_button.attr('type','button').classed('clear_matching', true);
     this.clear_matching_button.attr('disabled','disabled');
     this.clear_matching_button.attr('title','clear the "matching" field');
-    this.clear_matching_button.on('click', this.handle_clear_like);
+    this.clear_matching_button.on('click', this.handle_clear_matching);
   }
 
-  handle_clear_like(evt) {
+  handle_clear_matching(evt) {
     this.like_input.property('value','');
     this.handle_matching_input();
   }
 
   handle_matching_input(evt) {
     let TODO;
-    const like_value = this.get_like_string();
+    const like_value = this.get_matching_string();
     const like_has_a_value = !!like_value;
     if (like_has_a_value) {
       this.huviz.set_search_regex(like_value); // cause labels on matching nodes to be displayed
@@ -1321,10 +1321,10 @@ of the classes indicated.`,
       this.taxon_picker.set_direct_state(nid, 'unshowing');
     }
   }
-  clear_like() {
+  clear_matching() {
     this.huviz.like_string();
   }
-  get_like_string() {
+  get_matching_string() {
     return this.like_input.node().value;
   }
   push_command(cmd) {
