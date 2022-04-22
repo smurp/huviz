@@ -282,8 +282,8 @@ of the classes indicated.`,
     //this.verbdiv = this.comdiv.append('div').attr('class','verbs');
     this.verbdiv = verbs_parent.append('div').attr('class','verbs');
     this.depthdiv = this.comdiv.append('div');
-    this.search_box_parent = this.comdiv.append('div').classed('search_box_parent', true);
-    this.matching_div = this.search_box_parent.append('div');
+    this.matching_box_parent = this.comdiv.append('div').classed('matching_box_parent', true);
+    this.matching_div = this.matching_box_parent.append('div');
     this.build_matching();
     this.set_picker_box_parent = this.build_set_picker("Sets", this.comdiv);
         this.node_pickers = this.comdiv.append('div').attr("id","node_pickers");

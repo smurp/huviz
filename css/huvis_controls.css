@@ -242,7 +242,7 @@
   font-size: .9em;
 }
 
-.search_box {
+.matching_box {
   height:1.3em;
   min-width:7em;
   background-color:lightgrey;
@@ -250,7 +250,7 @@
   border-width:1px;
   cursor: text;
 }
-.search_box:before {
+.matching_box:before {
   content: "Find: ";
   font-style: italic;
 }
