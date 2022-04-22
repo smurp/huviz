@@ -207,15 +207,15 @@ export class GraphCommand {
   get_nodes() {
     let node;
     const result_set = SortedSet().sort_on("id");
-    let like_regex = null;
+    let matching_regex = null;
     if (this.like) {
-      like_regex = new RegExp(this.like,"ig"); // ignore, greedy
+      matching_regex = new RegExp(this.like,"ig"); // ignore, greedy
     }
     if (this.subjects) {
       for (let node_spec of this.subjects) {
         node = this.get_node(node_spec);
         if (node) {
-          if ((like_regex == null) || node.name.match(like_regex)) {
+          if ((matching_regex == null) || node.name.match(matching_regex)) {
             result_set.add(node);
           }
         } else {
@@ -234,9 +234,9 @@ export class GraphCommand {
                          : undefined);
         if (the_set != null) {
           var n;
-          if (like_regex) {
+          if (matching_regex) {
             for (n of the_set) {
-              if (n.name.match(like_regex)) {
+              if (n.name.match(matching_regex)) {
                 result_set.add(n);
               }
             }
@@ -258,7 +258,7 @@ export class GraphCommand {
           a_set = set;
         }
         for (node of a_set) {
-          if ((like_regex == null) || node.name.match(like_regex)) {
+          if ((matching_regex == null) || node.name.match(matching_regex)) {
             result_set.add(node);
           }
         }

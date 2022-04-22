@@ -1226,10 +1226,10 @@ of the classes indicated.`,
 
   handle_matching_input(evt) {
     let TODO;
-    const like_value = this.get_matching_string();
-    const like_has_a_value = !!like_value;
-    if (like_has_a_value) {
-      this.huviz.set_search_regex(like_value); // cause labels on matching nodes to be displayed
+    const matching_value = this.get_matching_string();
+    const matching_has_a_value = !!matching_value;
+    if (matching_has_a_value) {
+      this.huviz.set_search_regex(matching_value); // cause labels on matching nodes to be displayed
       this.clear_matching_button.attr('disabled', null);
       if (this.set_is_engaged_because_matching) { // matching PREVIOUSLY had a value too
         TODO = "update the selection based on the like value";
