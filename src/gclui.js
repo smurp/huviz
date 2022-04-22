@@ -283,7 +283,7 @@ of the classes indicated.`,
     this.verbdiv = verbs_parent.append('div').attr('class','verbs');
     this.depthdiv = this.comdiv.append('div');
     this.search_box_parent = this.comdiv.append('div').classed('search_box_parent', true);
-    this.likediv = this.search_box_parent.append('div');
+    this.matching_div = this.search_box_parent.append('div');
     this.build_matching();
     this.set_picker_box_parent = this.build_set_picker("Sets", this.comdiv);
         this.node_pickers = this.comdiv.append('div').attr("id","node_pickers");
@@ -1204,15 +1204,15 @@ of the classes indicated.`,
   }
 
   build_matching() {
-    this.likediv.text('matching:').classed("control_label", true);
-    this.likediv.style('display','inline-block');
-    this.likediv.style('white-space','nowrap');
-    this.matching_input = this.likediv.append('input');
+    this.matching_div.text('matching:').classed("control_label", true);
+    this.matching_div.style('display','inline-block');
+    this.matching_div.style('white-space','nowrap');
+    this.matching_input = this.matching_div.append('input');
     this.matching_input.attr('class', 'matching_input');
     this.matching_input.attr('placeholder','node Name');
     this.set_is_engaged_because_matching = false;
     this.matching_input.on('input', this.handle_matching_input);
-    this.clear_matching_button = this.likediv.append('button').text('⌫');
+    this.clear_matching_button = this.matching_div.append('button').text('⌫');
     this.clear_matching_button.attr('type','button').classed('clear_matching', true);
     this.clear_matching_button.attr('disabled','disabled');
     this.clear_matching_button.attr('title','clear the "matching" field');
