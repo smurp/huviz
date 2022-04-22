@@ -1229,7 +1229,7 @@ of the classes indicated.`,
     const matching_value = this.get_matching_string();
     const matching_has_a_value = !!matching_value;
     if (matching_has_a_value) {
-      this.huviz.set_search_regex(matching_value); // cause labels on matching nodes to be displayed
+      this.huviz.set_matching_regex(matching_value); // cause labels on matching nodes to be displayed
       this.clear_matching_button.attr('disabled', null);
       if (this.set_is_engaged_because_matching) { // matching PREVIOUSLY had a value too
         TODO = "update the selection based on the like value";
@@ -1247,7 +1247,7 @@ of the classes indicated.`,
         }
       }
     } else { // like does not have a value
-      this.huviz.set_search_regex(''); // clear the labelling of matching nodes
+      this.huviz.set_matching_regex(''); // clear the labelling of matching nodes
       this.clear_matching_button.attr('disabled','disabled');
       if (this.set_is_engaged_because_matching) { // the ALL set was engaged because matchbox received a value
         TODO = "restore the state before set_is_engaged_because_matching " +

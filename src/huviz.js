@@ -73,7 +73,7 @@
 //  91) BUG: mocha async being misused re done(), so the passes count is wrong
 //  86) BUG: try_to_set_node_type: only permit subtypes to override supertypes
 //  46) TASK: impute node type based on predicates via ontology DONE???
-//  53) PERF: should_show_label should not have search_regex in inner loop
+//  53) PERF: should_show_label should not have matching_regex in inner loop
 //  65) BUG: hidden nodes are not fully ignored on the shelf so shelved nodes
 //           are not always the focused node
 //  68) TASK: optimize update_english
@@ -619,7 +619,7 @@ export class Huviz {
 
     this.prototype.G = {}; // required by green turtle, should be retired
     this.prototype.local_file_data = "";
-    this.prototype.search_regex = new RegExp("^$", "ig");
+    this.prototype.matching_regex = new RegExp("^$", "ig");
     this.prototype.node_radius = 3.2;
     this.prototype.mousedown_point = false;
     this.prototype.discard_center = [0,0];
@@ -6468,14 +6468,14 @@ SERVICE wikibase:label {
     ];
   }
 
-  set_search_regex(text) {
-    this.search_regex = new RegExp(text || "^$", "ig");
+  set_matching_regex(text) {
+    this.matching_regex = new RegExp(text || "^$", "ig");
     this.add_matching_nodes_to_matched_set();
   }
 
   add_matching_nodes_to_matched_set() {
     this.nodes.forEach((node, i) => {
-      if (node.name.match(this.search_regex)) {
+      if (node.name.match(this.matching_regex)) {
         if (!node.matched) {
           return this.matched_set.add(node);
         }
@@ -6491,7 +6491,7 @@ SERVICE wikibase:label {
 
   update_searchterm() {
     const text = this.gclui.matching_input.text();
-    this.set_search_regex(text);
+    this.set_matching_regex(text);
     this.restart();
   }
 
@@ -6892,18 +6892,18 @@ SERVICE wikibase:label {
     this.update_showing_links(node);
   }
 
-  hide_found_links() { // TODO use it or lose it
+  XXXhide_found_links() { // TODO use it or lose it
     this.nodes.forEach((node, i) => {
-      if (node.name.match(search_regex)) {
+      if (node.name.match(matching_regex)) {
         return this.hide_node_links(node);
       }
     });
     this.restart();
   }
 
-  discard_found_nodes() { // TODO use it or lose it
+  XXXdiscard_found_nodes() { // TODO use it or lose it
     this.nodes.forEach((node, i) => {
-      if (node.name.match(search_regex)) {
+      if (node.name.match(matching_regex)) {
         return this.discard(node);
       }
     });
@@ -9371,7 +9371,7 @@ LIMIT ${this.search_sparql_by_label_limit}
       .on("contextmenu", this.mouseright);
       //.on("mouseout", @mouseup) # FIXME what *should* happen on mouseout?
     this.restart();
-    this.set_search_regex("");
+    this.set_matching_regex("");
     window.addEventListener("resize", this.updateWindow);
     this.tabsJQElem.on("resize", this.updateWindow);
     $(this.viscanvas).bind("_splitpaneparentresize", this.updateWindow);
