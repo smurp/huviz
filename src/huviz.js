@@ -905,7 +905,7 @@ Here is how:
   }
 
   constructor(incoming_args) { // Huviz
-    this.like_string = this.like_string.bind(this);
+    this.matching_string = this.matching_string.bind(this);
     this.mousemove = this.mousemove.bind(this);
     this.mousedown = this.mousedown.bind(this);
     this.mouseup = this.mouseup.bind(this);
@@ -1329,7 +1329,7 @@ Here is how:
     return this;
   }
 
-  like_string(str) {
+  matching_string(str) {
     // Ideally we'd trigger an actual 'input' event but that is not possible
     //$(".like_input").val(str)
     this.gclui.like_input.val(str);

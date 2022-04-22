@@ -667,7 +667,7 @@ describe("HuViz Tests", function() {
     it("liking should select the set ALL",
        function() {
 	 HVZ.toggle_taxon("Thing", true);
-	 HVZ.like_string("william");
+	 HVZ.matching_string("william");
 	 expect(!HVZ.gclui.immediate_execution_mode,
 		"but not enter immediate execution mode");
 	 expect(HVZ.gclui.chosen_set_id,
@@ -685,7 +685,7 @@ describe("HuViz Tests", function() {
 	 prior_set_id = 'shelved_set';
 	 HVZ.click_set(prior_set_id);
          //halt(`${prior_set_id} should be engaged`);
-	 HVZ.like_string("william");
+	 HVZ.matching_string("william");
          //halt(`${prior_set_id} should be engaged and 'william' liked`);
 	 expect(HVZ.gclui.immediate_execution_mode,
 		`"___ ALL like 'william'" should be in immediate execution mode`).
@@ -693,7 +693,7 @@ describe("HuViz Tests", function() {
 	 expect(HVZ.gclui.chosen_set_id,
 		"set ALL should be chosen").to.equal('all_set');
          HVZ.DEBUG = true;
-	 HVZ.like_string("");
+	 HVZ.matching_string("");
 	 expect(HVZ.gclui.chosen_set_id,
 		`set ALL should be ${prior_set_id}`).
            to.equal(prior_set_id); // TODO change to all_set
@@ -704,18 +704,18 @@ describe("HuViz Tests", function() {
 	 HVZ.toggle_taxon("Thing", true);
 	 prior_set_id = 'all_set';
 	 HVZ.click_set(prior_set_id);
-         like_str = 'william';
-	 HVZ.like_string(like_str);
-         //halt(`${prior_set_id} should be engaged and '${like_str}' liked`);
+         matching_str = 'william';
+	 HVZ.matching_string(matching_str);
+         //halt(`${prior_set_id} should be engaged and '${matching_str}' liked`);
 	 expect(HVZ.gclui.chosen_set_id,
 		`set ALL should be ${prior_set_id}`).
            to.equal(prior_set_id);
 	 expect(HVZ.gclui.immediate_execution_mode,
-		`"___ ALL like '${like_str}'" should be in immediate execution mode`).
+		`"___ ALL like '${matching_str}'" should be in immediate execution mode`).
 	   to.equal(true);
 	 expect(HVZ.gclui.chosen_set_id,
 		"set ALL should be chosen").to.equal('all_set');
-	 HVZ.like_string("");
+	 HVZ.matching_string("");
 	 expect(HVZ.gclui.chosen_set_id,
 		`set ALL should be ${prior_set_id}`).
            to.equal(prior_set_id); // TODO change to all_set
@@ -732,7 +732,7 @@ describe("HuViz Tests", function() {
          expect(HVZ.selected_set.length, "none should be selected").to.equal(0);
 	 HVZ.toggle_taxon("Thing", true);
 	 HVZ.click_verb('label');
-	 HVZ.like_string("thames");
+	 HVZ.matching_string("thames");
          function immediate_execution_mode__OFF(){
            blurt(`awaiting immediate_execution_mode__OFF`);
            return HVZ.gclui.immediate_execution_mode == false;
@@ -748,7 +748,7 @@ describe("HuViz Tests", function() {
 		"set ALL should be chosen").to.equal('all_set');
 	 expect($(HVZ.gclui.doit_butt[0][0]).is(':hidden'),
 		"the GO button should be visiblee").to.equal(false);
-	 HVZ.like_string(""); // TODO ensure that gclui.reset() cleans up
+	 HVZ.matching_string(""); // TODO ensure that gclui.reset() cleans up
 	 expect($(HVZ.gclui.doit_butt[0][0]).is(':hidden'),
 		"the GO button should be hidden").to.equal(true);
          await wait_till_prop__equals__(HVZ.labelled_set, 'length', 0, 30, 1000);
@@ -762,11 +762,11 @@ describe("HuViz Tests", function() {
          expect(HVZ.labelled_set.length,
                 "expecting nothing to be labelled").to.equal(0);
          /*
-           If a verb is engaged and then a like_string provided then immediate execution mode
+           If a verb is engaged and then a matching_string provided then immediate execution mode
            should be turned OFF -- with the consequence that the GO button should appear.
            */
          HVZ.click_verb('label');
-         HVZ.like_string("thames");
+         HVZ.matching_string("thames");
 	 expect($(HVZ.gclui.doit_butt[0][0]).is(':hidden'),
 		"the GO button should be visible").to.equal(false);
 	 expect(!$(HVZ.gclui.doit_butt[0][0]).attr('disabled'),
@@ -793,7 +793,7 @@ describe("HuViz Tests", function() {
        mochaAsync(async () => {
 	 $("#reset_btn").click();
 	 HVZ.click_verb('label');
-	 HVZ.like_string("thames");
+	 HVZ.matching_string("thames");
 	 $("#doit_button").click();
 	 expect(HVZ.labelled_set.length,
 		"Thames should be labelled after doing 'LABEL ALL like 'thames'.").
@@ -807,7 +807,7 @@ describe("HuViz Tests", function() {
        mochaAsync(async () => {
 	 $("#reset_btn").click();
 	 HVZ.click_verb('label');
-	 HVZ.like_string("thames");
+	 HVZ.matching_string("thames");
 	 expect(HVZ.labelled_set.length,
 		"Thames should be labelled after \"LABEL ALL like 'thames'.\"").
 	   to.equal(0);
@@ -1627,25 +1627,25 @@ describe("HuViz Tests", function() {
 	 HVZ.toggle_taxon('Thing',false);
 	 expect(get_nextcommand_str()).to.equal("____ ____ .");
 	 HVZ.click_verb('label');
-	 HVZ.like_string("church").doit(); // ie "Anglican Church" and "Roman Catholic Church"
+	 HVZ.matching_string("church").doit(); // ie "Anglican Church" and "Roman Catholic Church"
 	 expect(get_nextcommand_str()).to.equal("Label All like 'church' .");
 	 HVZ.gclui.disengage_command();
 	 expect(get_nextcommand_str()).to.equal("____ ____ .");
 
 	 HVZ.click_verb('hide');
-	 HVZ.like_string("anglican").doit();
+	 HVZ.matching_string("anglican").doit();
 	 expect(get_nextcommand_str()).to.equal("Hide All like 'anglican' .");
 	 HVZ.gclui.disengage_command();
 	 expect(get_nextcommand_str()).to.equal("____ ____ .");
 
 	 HVZ.click_verb('discard');
-	 HVZ.like_string("roman catholic church").doit();
+	 HVZ.matching_string("roman catholic church").doit();
 	 expect(get_nextcommand_str()).to.equal("Discard All like 'roman catholic church' .");
 	 HVZ.gclui.disengage_command();
 	 expect(get_nextcommand_str()).to.equal("____ ____ .");
 
 	 HVZ.click_verb('undiscard');
-	 HVZ.like_string("church").doit();
+	 HVZ.matching_string("church").doit();
 	 expect(get_nextcommand_str()).to.equal("Retrieve All like 'church' .");
 	 HVZ.gclui.disengage_command();
 	 expect(get_nextcommand_str()).to.equal("____ ____ .");

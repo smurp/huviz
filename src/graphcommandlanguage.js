@@ -484,7 +484,7 @@ export class GraphCommand {
       this.noun_phrase = obj_phrase;
     }
     cmd_str += obj_phrase;
-    const like_str = (this.like || "").trim();
+    const matching_str = (this.like || "").trim();
     if (this.verbs) {
       for (let verb of this.verbs) {
         if (['draw', 'undraw'].indexOf(verb) > -1) {
@@ -504,8 +504,8 @@ export class GraphCommand {
       }
     }
     this.suffix_phrase = '';
-    if (like_str) {
-      this.suffix_phrase += " matching '"+like_str+"'";
+    if (matching_str) {
+      this.suffix_phrase += " matching '"+matching_str+"'";
     }
     if (regarding_phrase) {
       this.suffix_phrase += " regarding " + regarding_phrase +  ' .';

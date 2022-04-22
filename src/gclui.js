@@ -1322,7 +1322,7 @@ of the classes indicated.`,
     }
   }
   clear_matching() {
-    this.huviz.like_string();
+    this.huviz.matching_string();
   }
   get_matching_string() {
     return this.like_input.node().value;
@@ -1494,9 +1494,9 @@ of the classes indicated.`,
         }
       }
     }
-    const like_str = (this.like_input.node().value || "").trim();
-    if (like_str) {
-      args.like = like_str;
+    const matching_str = (this.like_input.node().value || "").trim();
+    if (matching_str) {
+      args.like = matching_str;
     }
     this.command = this.new_GraphCommand(args);
     return this.command;
