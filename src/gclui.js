@@ -1496,7 +1496,7 @@ of the classes indicated.`,
     }
     const matching_str = (this.matching_input.node().value || "").trim();
     if (matching_str) {
-      args.like = matching_str;
+      args.matching = matching_str;
     }
     this.command = this.new_GraphCommand(args);
     return this.command;

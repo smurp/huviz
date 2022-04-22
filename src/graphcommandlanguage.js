@@ -208,8 +208,8 @@ export class GraphCommand {
     let node;
     const result_set = SortedSet().sort_on("id");
     let matching_regex = null;
-    if (this.like) {
-      matching_regex = new RegExp(this.like,"ig"); // ignore, greedy
+    if (this.matching) {
+      matching_regex = new RegExp(this.matching,"ig"); // ignore, greedy
     }
     if (this.subjects) {
       for (let node_spec of this.subjects) {
@@ -484,7 +484,7 @@ export class GraphCommand {
       this.noun_phrase = obj_phrase;
     }
     cmd_str += obj_phrase;
-    const matching_str = (this.like || "").trim();
+    const matching_str = (this.matching || "").trim();
     if (this.verbs) {
       for (let verb of this.verbs) {
         if (['draw', 'undraw'].indexOf(verb) > -1) {
