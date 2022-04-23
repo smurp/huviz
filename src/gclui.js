@@ -1235,27 +1235,32 @@ of the classes indicated.`,
         TODO = "update the selection based on the matching value";
         //@update_command(evt) # update the impact of the value in the matching input
       } else { // matching NEWLY has a value, so set things up for that
-        this.set_is_engaged_because_matching = true;
-        this.chosen_set_before_liking_all = this.id_of_engaged_set;
+        this.engaged_set_before_matching_all = this.id_of_engaged_set;
         this.set_immediate_execution_mode(this.is_verb_phrase_empty());
         // Matching works in conjuction with an engaged set.
-        if (false) { // TODO Is there already an engaged set?
+        if (this.id_of_engaged_set) { // TODO Is there already an engaged set?
           // If a set is already engaged then match with it.
+          TODO = "find matches for ${matching_value} " +
+            "in the already engaged set ${this.id_of_engaged_set}";
         } else {
           // If a set is not yet engaged then engage the all set
+          this.set_is_engaged_because_matching = true;
           this.huviz.click_set("all"); // ie choose the 'All' set
+          TODO = "find matches for ${matching_value} " +
+            "in the automatically engaged set ${this.id_of_engaged_set}";
         }
       }
     } else { // matching does not have a value
       this.huviz.set_matching_regex(''); // clear the labelling of matching nodes
       this.clear_matching_button.attr('disabled','disabled');
-      if (this.set_is_engaged_because_matching) { // the ALL set was engaged because matchbox received a value
+      if (this.set_is_engaged_because_matching) {
+        // the set (ALL presumably) was engaged because matchbox received a value
         TODO = "restore the state before set_is_engaged_because_matching " +
         "eg select a different set or disable all set selection";
-        //alert(TODO+" was: #{@chosen_set_before_liking_all}")
-        if (this.chosen_set_before_liking_all) {
-          this.huviz.click_set(this.chosen_set_before_liking_all);
-          this.chosen_set_before_liking_all = undefined; // forget all about it
+        //alert(TODO+" was: #{@engaged_set_before_matching_all}")
+        if (this.engaged_set_before_matching_all) {
+          this.huviz.click_set(this.engaged_set_before_matching_all);
+          this.engaged_set_before_matching_all = undefined; // forget all about it
         } else {
           this.huviz.click_set('all'); // this should toggle OFF the selection of 'All'
         }
