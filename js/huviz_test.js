@@ -670,7 +670,7 @@ describe("HuViz Tests", function() {
 	 HVZ.matching_string("william");
 	 expect(!HVZ.gclui.immediate_execution_mode,
 		"but not enter immediate execution mode");
-	 expect(HVZ.gclui.chosen_set_id,
+	 expect(HVZ.gclui.id_of_engaged_set,
 		"set ALL should be chosen").to.equal('all_set');
 	 $("#reset_btn").click();
 	 expect(HVZ.labelled_set.length,
@@ -690,11 +690,11 @@ describe("HuViz Tests", function() {
 	 expect(HVZ.gclui.immediate_execution_mode,
 		`"___ ALL like 'william'" should be in immediate execution mode`).
 	   to.equal(true);
-	 expect(HVZ.gclui.chosen_set_id,
+	 expect(HVZ.gclui.id_of_engaged_set,
 		"set ALL should be chosen").to.equal('all_set');
          HVZ.DEBUG = true;
 	 HVZ.matching_string("");
-	 expect(HVZ.gclui.chosen_set_id,
+	 expect(HVZ.gclui.id_of_engaged_set,
 		`set ALL should be ${prior_set_id}`).
            to.equal(prior_set_id); // TODO change to all_set
       }));
@@ -707,16 +707,16 @@ describe("HuViz Tests", function() {
          matching_str = 'william';
 	 HVZ.matching_string(matching_str);
          //halt(`${prior_set_id} should be engaged and '${matching_str}' liked`);
-	 expect(HVZ.gclui.chosen_set_id,
+	 expect(HVZ.gclui.id_of_engaged_set,
 		`set ALL should be ${prior_set_id}`).
            to.equal(prior_set_id);
 	 expect(HVZ.gclui.immediate_execution_mode,
 		`"___ ALL like '${matching_str}'" should be in immediate execution mode`).
 	   to.equal(true);
-	 expect(HVZ.gclui.chosen_set_id,
+	 expect(HVZ.gclui.id_of_engaged_set,
 		"set ALL should be chosen").to.equal('all_set');
 	 HVZ.matching_string("");
-	 expect(HVZ.gclui.chosen_set_id,
+	 expect(HVZ.gclui.id_of_engaged_set,
 		`set ALL should be ${prior_set_id}`).
            to.equal(prior_set_id); // TODO change to all_set
          //halt('expecting "__ every Thing. " so FAIL NOW');
@@ -744,7 +744,7 @@ describe("HuViz Tests", function() {
 	 expect(HVZ.labelled_set.length,
 		"nothing should be labelled before the GO button is pressed").
 	   to.equal(0);
-	 expect(HVZ.gclui.chosen_set_id,
+	 expect(HVZ.gclui.id_of_engaged_set,
 		"set ALL should be chosen").to.equal('all_set');
 	 expect($(HVZ.gclui.doit_butt[0][0]).is(':hidden'),
 		"the GO button should be visiblee").to.equal(false);
@@ -1560,7 +1560,7 @@ describe("HuViz Tests", function() {
 	 expect(get_nextcommand_str()).to.equal("____ every Thing .");
 	 HVZ.toggle_taxon('Thing',false);
 	 expect(get_nextcommand_str()).to.equal("____ ____ .");
-	 expect(!HVZ.gclui.chosen_set_id,
+	 expect(!HVZ.gclui.id_of_engaged_set,
 		"expect no set to be chosen at outset").
 	   to.equal(true);
 	 expect(HVZ.gclui.is_verb_phrase_empty(),
@@ -1570,7 +1570,7 @@ describe("HuViz Tests", function() {
 	 expect(get_nextcommand_str()).
 	   to.equal("Label ____ .");
 	 expect(HVZ.gclui.engaged_verbs[0]).to.equal('label');
-	 expect(!HVZ.gclui.chosen_set_id,
+	 expect(!HVZ.gclui.id_of_engaged_set,
 		"expect set to be disengaged after immediate execution").
 	   to.equal(true);
        }));
@@ -1579,10 +1579,10 @@ describe("HuViz Tests", function() {
        mochaAsync(async () => {
 	 HVZ.toggle_taxon('Thing',false);
 	 expect(get_nextcommand_str()).to.equal("____ ____ .");
-	 expect(!HVZ.gclui.chosen_set_id,
+	 expect(!HVZ.gclui.id_of_engaged_set,
 		"expect no set to be chosen at outset").
 	   to.equal(true);
-	 expect(!HVZ.gclui.chosen_set_id,
+	 expect(!HVZ.gclui.id_of_engaged_set,
 		"expect no set to be chosen at outset").
 	   to.equal(true);
 	 expect(HVZ.gclui.is_verb_phrase_empty(),
@@ -1592,7 +1592,7 @@ describe("HuViz Tests", function() {
 	 expect(get_nextcommand_str()).
 	   to.equal("Label ____ .");
 	 expect(HVZ.gclui.engaged_verbs[0]).to.equal('label');
-	 expect(!HVZ.gclui.chosen_set_id,
+	 expect(!HVZ.gclui.id_of_engaged_set,
 		"expect set to be disengaged after immediate execution").
 	   to.equal(true);
        }));

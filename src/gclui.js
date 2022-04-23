@@ -1232,21 +1232,21 @@ of the classes indicated.`,
       this.huviz.set_matching_regex(matching_value); // cause labels on matching nodes to be displayed
       this.clear_matching_button.attr('disabled', null);
       if (this.set_is_engaged_because_matching) { // matching PREVIOUSLY had a value too
-        TODO = "update the selection based on the like value";
-        //@update_command(evt) # update the impact of the value in the like input
+        TODO = "update the selection based on the matching value";
+        //@update_command(evt) # update the impact of the value in the matching input
       } else { // matching NEWLY has a value, so set things up for that
         this.set_is_engaged_because_matching = true;
-        this.chosen_set_before_liking_all = this.chosen_set_id;
+        this.chosen_set_before_liking_all = this.id_of_engaged_set;
         this.set_immediate_execution_mode(this.is_verb_phrase_empty());
         // Matching works in conjuction with an engaged set.
-        if (false) {
+        if (false) { // TODO Is there already an engaged set?
           // If a set is already engaged then match with it.
         } else {
           // If a set is not yet engaged then engage the all set
           this.huviz.click_set("all"); // ie choose the 'All' set
         }
       }
-    } else { // like does not have a value
+    } else { // matching does not have a value
       this.huviz.set_matching_regex(''); // clear the labelling of matching nodes
       this.clear_matching_button.attr('disabled','disabled');
       if (this.set_is_engaged_because_matching) { // the ALL set was engaged because matchbox received a value
@@ -1477,7 +1477,7 @@ of the classes indicated.`,
     if (this.proposed_verb) {
       args.verbs.push(this.proposed_verb);
     }
-    if (this.chosen_set_id) {
+    if (this.id_of_engaged_set) {
       args.sets = [this.chosen_set];
     } else if (this.proposed_set) {
       args.sets = [this.proposed_set];
@@ -1894,7 +1894,7 @@ HELLO WORLD
       this.taxon_picker.shield();
       this.predicate_picker.shield();
       this.chosen_set = this.huviz[set_id];
-      this.chosen_set_id = set_id;
+      this.id_of_engaged_set = set_id;
       because = {
         set_added: set_id,
         cleanup: this.disengage_all_sets // the method to call to clear
@@ -1924,9 +1924,9 @@ HELLO WORLD
 
   disengage_all_sets() {
     // TODO harmonize disengage_all_sets() and clear_all_sets() or document difference
-    if (this.chosen_set_id) {
-      this.on_set_picked(this.chosen_set_id, "unshowing");
-      delete this.chosen_set_id;
+    if (this.id_of_engaged_set) {
+      this.on_set_picked(this.id_of_engaged_set, "unshowing");
+      delete this.id_of_engaged_set;
       delete this.chosen_set;
     }
   }
@@ -1958,9 +1958,9 @@ HELLO WORLD
     this.predicate_picker.set_payload(pred_lid, count);
   }
   clear_set_picker() {
-    if (this.chosen_set_id != null) {
-      this.set_picker.set_direct_state(this.chosen_set_id, 'unshowing');
-      delete this.chosen_set_id;
+    if (this.id_of_engaged_set != null) {
+      this.set_picker.set_direct_state(this.id_of_engaged_set, 'unshowing');
+      delete this.id_of_engaged_set;
     }
   }
 }
