@@ -1228,11 +1228,12 @@ of the classes indicated.`,
     let TODO;
     const matching_value = this.get_matching_string();
     const matching_has_a_value = !!matching_value;
+    const {id_of_engaged_set, engaged_set_before_matching_all} = this;
     if (matching_has_a_value) {
       this.huviz.set_matching_regex(matching_value); // cause labels on matching nodes to be displayed
       this.clear_matching_button.attr('disabled', null);
       if (this.set_is_engaged_because_matching) { // matching PREVIOUSLY had a value too
-        TODO = "update the selection based on the matching value";
+        TODO = `Update the selection based on the matching value '${this.id_of_engaged_set}'`;
         //@update_command(evt) # update the impact of the value in the matching input
       } else { // matching NEWLY has a value, so set things up for that
         this.engaged_set_before_matching_all = this.id_of_engaged_set;
@@ -1240,35 +1241,42 @@ of the classes indicated.`,
         // Matching works in conjuction with an engaged set.
         if (this.id_of_engaged_set) { // TODO Is there already an engaged set?
           // If a set is already engaged then match with it.
-          TODO = "find matches for ${matching_value} " +
-            "in the already engaged set ${this.id_of_engaged_set}";
+          TODO = `Find matches for "${matching_value}" `;
+          TODO += `in the already engaged set '${this.id_of_engaged_set}'`;
         } else {
           // If a set is not yet engaged then engage the all set
           this.set_is_engaged_because_matching = true;
           this.huviz.click_set("all"); // ie choose the 'All' set
-          TODO = "find matches for ${matching_value} " +
-            "in the automatically engaged set ${this.id_of_engaged_set}";
+          TODO = `find matches for "${matching_value}" ` +
+            `in the automatically engaged set '${this.id_of_engaged_set}'`;
         }
       }
     } else { // matching does not have a value
       this.huviz.set_matching_regex(''); // clear the labelling of matching nodes
       this.clear_matching_button.attr('disabled','disabled');
-      if (this.set_is_engaged_because_matching) {
-        // the set (ALL presumably) was engaged because matchbox received a value
-        TODO = "restore the state before set_is_engaged_because_matching " +
-        "eg select a different set or disable all set selection";
-        //alert(TODO+" was: #{@engaged_set_before_matching_all}")
-        if (this.engaged_set_before_matching_all) {
-          this.huviz.click_set(this.engaged_set_before_matching_all);
+      if (id_of_engaged_set) { // this.set_is_engaged_because_matching
+        // a set is engaged, either automatically or before a matching string
+        TODO = `Cleaning up now that matching value is empty`;
+        if (engaged_set_before_matching_all) {
+          // So that engaged_set_before_matching_all should end up engaged
+          if (engaged_set_before_matching_all == id_of_engaged_set) {
+            TODO = "leaving the set engaged because it was before there was a matching_value";
+          } else {
+            this.huviz.click_set(id_of_engaged_set); // disengage
+            this.huviz.click_set(engaged_set_before_matching_all); // re-engage
+          }
           this.engaged_set_before_matching_all = undefined; // forget all about it
-        } else {
-          this.huviz.click_set('all'); // this should toggle OFF the selection of 'All'
+        } else { // just cancel the engaged set
+          this.huviz.click_set(id_of_engaged_set); // toggle OFF the automatically engaged set
         }
         this.set_is_engaged_because_matching = false;
         this.set_immediate_execution_mode(true);
         //@update_command(evt) # does this deal with that moment when it becomes blanked?
+      } else {
+        TODO = 'Nothing to do when matching_value and id_of_engaged_set are both blank';
       }
     }
+    console.debug({TODO, matching_value, id_of_engaged_set, engaged_set_before_matching_all});
     this.update_command(evt);
   }
 
