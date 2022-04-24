@@ -1046,7 +1046,9 @@ Here is how:
 
     // FIXME Simplify this whole settings_sel and 'settings' thing
     //       The settings should just be built right on settings_JQElem
-    if (this.args.settings_sel == null) { this.args.settings_sel = this.oldToUniqueTabSel['settings']; }
+    if (this.args.settings_sel == null) {
+      this.args.settings_sel = this.oldToUniqueTabSel['settings'];
+    }
 
     this.create_blurtbox();
     this.ensure_divs();
