@@ -185,7 +185,22 @@ export function SortedSet() {
     }
     return array.length == 0; // should be zero now
   };
-  array.isState = function(state_property){
+  array.setBehaviour = function(behaviour, name) {
+    /*
+      TODO: make 'state' the default so setBehaviour does not need calling
+     */
+    switch (behaviour) {
+    case 'state':
+      array.state_property = name || 'state';
+      break;
+    case 'flag':
+      array.flag_property = name || array.id;
+      break;
+    default:
+      throw new Error(`usage: setBehaviour('state|flag'), [name]`);
+    }
+  };
+  array.isState = function(state_property){ // TODO refactor as setBehaviour(state|flag) property
     /*
      * Calling isState() on a SortedSet() prepares it so that
      * when add() is called then the SortedSet is registered on
@@ -194,10 +209,11 @@ export function SortedSet() {
      * be tested and altered.  This enforces mutually exlusive item
      * membership among the sets which all have isState() asserted.
      */
+    console.warn('isState deprecated in favor of setBehaviour');
     array.state_property = state_property || 'state';
     return array;
   };
-  array.isFlag = function(flag_property){
+  array.isFlag = function(flag_property){ // TODO refactor as setBehaviour(state|flag) property
     /*
      * Calling isFlag() on a SortedSet() prepares it so that
      * when add() is called then the SortedSet is registered on
@@ -208,6 +224,7 @@ export function SortedSet() {
      * is for many flags to be able to be set on each node, unlike
      * states, which are mutually exclusive.
      */
+    console.warn('isFlag deprecated in favor of setBehaviour');
     array.flag_property = flag_property || array.id; // array.state_name
     return array;
   };
@@ -325,7 +342,7 @@ export function SortedSet() {
     if (array.flag_property){
       return itm[array.flag_property] == array;
     }
-    alert("we should never get here");
+    throw new Error("a SortedSet must have isState() or isFlag() called on it");
   };
   array.remove = function(itm){
     /*
