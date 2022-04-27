@@ -21,8 +21,10 @@ variables:
   # HuViz container variables
   K8S_SECRET_PORT: 5000
 
+  KUBE_INGRESS_BASE_DOMAIN: dev.lincsproject.ca
   KUBE_CONTEXT: "calincs/gitlab-agents:dev-agent"
-  KUBE_NAMESPACE: "HuViz"
+  KUBE_NAMESPACE: "huviz"    
+
 
 # Override test job
 test:
@@ -52,13 +54,15 @@ cache:
 staging:
   <<: *deployment
   variables:
+    KUBE_INGRESS_BASE_DOMAIN: stage.lincsproject.ca
     KUBE_CONTEXT: "calincs/gitlab-agents:stage-agent"
-    KUBE_NAMESPACE: "HuViz"
+    KUBE_NAMESPACE: "huviz"
 
 # override some production parameters
 production_manual:
   <<: *deployment
   variables:
+    KUBE_INGRESS_BASE_DOMAIN: lincsproject.ca
     KUBE_CONTEXT: "calincs/gitlab-agents:prod-agent"
-    KUBE_NAMESPACE: "HuViz"
+    KUBE_NAMESPACE: "huviz"
 
