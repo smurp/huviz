@@ -4,27 +4,27 @@ include:
   - template: Auto-DevOps.gitlab-ci.yml
 
 variables:
-  # GitLab CI configuration
+  # Disable some tests
+#  CONTAINER_SCANNING_DISABLED: 1
+#  LICENSE_MANAGEMENT_DISABLED: 1
   BROWSER_PERFORMANCE_DISABLED: 1
   CODE_QUALITY_DISABLED: 1
-#  CONTAINER_SCANNING_DISABLED: 1
   DEPENDENCY_SCANNING_DISABLED: 1
-#  LICENSE_MANAGEMENT_DISABLED: 1
   DISABLE_LICENSE_SCANNING: 1
   SAST_DISABLED: 1
   SECRET_DETECTION_DISABLED: 1
   DAST_DISABLED: 1
   PERFORMANCE_DISABLED: 1
+
+  # GitLab CI configuration
   POSTGRES_ENABLED: "false"
   STAGING_ENABLED: 1
+  KUBE_INGRESS_BASE_DOMAIN: dev.lincsproject.ca
+  KUBE_CONTEXT: "calincs/gitlab-agents:dev-agent"
+  KUBE_NAMESPACE: $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
 
   # HuViz container variables
   K8S_SECRET_PORT: 5000
-
-  KUBE_INGRESS_BASE_DOMAIN: dev.lincsproject.ca
-  KUBE_CONTEXT: "calincs/gitlab-agents:dev-agent"
-  KUBE_NAMESPACE: "huviz"    
-
 
 # Override test job
 test:
@@ -56,7 +56,7 @@ staging:
   variables:
     KUBE_INGRESS_BASE_DOMAIN: stage.lincsproject.ca
     KUBE_CONTEXT: "calincs/gitlab-agents:stage-agent"
-    KUBE_NAMESPACE: "huviz"
+    KUBE_NAMESPACE: $CI_PROJECT_NAME-$CI_PROJECT_ID-staging
 
 # override some production parameters
 production_manual:
@@ -64,5 +64,4 @@ production_manual:
   variables:
     KUBE_INGRESS_BASE_DOMAIN: lincsproject.ca
     KUBE_CONTEXT: "calincs/gitlab-agents:prod-agent"
-    KUBE_NAMESPACE: "huviz"
-
+    KUBE_NAMESPACE: $CI_PROJECT_NAME-$CI_PROJECT_ID-production
