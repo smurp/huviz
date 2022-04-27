@@ -21,6 +21,9 @@ variables:
   # HuViz container variables
   K8S_SECRET_PORT: 5000
 
+  KUBE_CONTEXT: "calincs/gitlab-agents:dev-agent"
+  KUBE_NAMESPACE: "HuViz"
+
 # Override test job
 test:
   needs:
@@ -48,7 +51,14 @@ cache:
 # override some staging parameters
 staging:
   <<: *deployment
+  variables:
+    KUBE_CONTEXT: "calincs/gitlab-agents:stage-agent"
+    KUBE_NAMESPACE: "HuViz"
 
 # override some production parameters
 production_manual:
   <<: *deployment
+  variables:
+    KUBE_CONTEXT: "calincs/gitlab-agents:prod-agent"
+    KUBE_NAMESPACE: "HuViz"
+
