@@ -31,7 +31,7 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
     "@fortawesome/free-brands-svg-icons": "^5.15.4",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
-    "async": "~0.2.9",
+    "async": "~2.6.4",
     "components-jqueryui": "components/jqueryui",
     "d3": "~5.15.0",
     "dotenv": "^8.2.0",
