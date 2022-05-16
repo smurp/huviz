@@ -209,7 +209,7 @@ export function SortedSet() {
      * be tested and altered.  This enforces mutually exlusive item
      * membership among the sets which all have isState() asserted.
      */
-    console.warn('isState deprecated in favor of setBehaviour');
+    //console.warn(`isState deprecated in favor of setBehaviour stateProperty=${state_property}`);
     array.state_property = state_property || 'state';
     return array;
   };
@@ -224,7 +224,7 @@ export function SortedSet() {
      * is for many flags to be able to be set on each node, unlike
      * states, which are mutually exclusive.
      */
-    console.warn('isFlag deprecated in favor of setBehaviour');
+    //console.warn(`isFlag deprecated in favor of setBehaviour flag_property=${flag_property}`);
     array.flag_property = flag_property || array.id; // array.state_name
     return array;
   };
@@ -342,7 +342,8 @@ export function SortedSet() {
     if (array.flag_property){
       return itm[array.flag_property] == array;
     }
-    throw new Error("a SortedSet must have isState() or isFlag() called on it");
+    return array.includes(itm); // probably slower, try last
+    //throw new Error("a SortedSet must have isState() or isFlag() called on it");
   };
   array.remove = function(itm){
     /*

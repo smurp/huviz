@@ -1304,8 +1304,9 @@ Here is how:
   }
 
   click_set(id) {
-    if (id === 'nodes') {
-      alert("set 'nodes' is deprecated");
+    if (!id) {
+      throw new Error(`id must have value`);
+    } else if (id === 'nodes') {
       console.error("set 'nodes' is deprecated");
     } else {
       if (!id.endsWith('_set')) {
@@ -6470,20 +6471,29 @@ SERVICE wikibase:label {
     ];
   }
 
-  set_matching_regex(text) {
+  set_matching_regex(text='') {
+    console.debug(`set_matching_regex(${text})`);
     this.matching_regex = new RegExp(text || "^$", "ig");
-    this.add_matching_nodes_to_matched_set();
+    this.update_matched_set();
   }
 
-  add_matching_nodes_to_matched_set() {
+  update_matched_set() {
+    var engaged_set = this.gclui.engaged_set; // getter
+    if (!Array.isArray(engaged_set)) {
+      //if (engaged_set?.constructor.name != 'SortedSet') {
+      console.warn({engaged_set});
+      //throw new Error(`engaged_set should be a SortedSet`);
+    }
     this.nodes.forEach((node, i) => {
-      if (node.name.match(this.matching_regex)) {
+      var isMatching = node.name.match(this.matching_regex);
+      var isInSet = engaged_set && engaged_set.has(node);  // is node in the engaged set
+      if (isInSet && isMatching) {
         if (!node.matched) {
-          return this.matched_set.add(node);
+          this.matched_set.add(node);
         }
       } else {
         if (node.matched) {
-          return this.matched_set.remove(node);
+          this.matched_set.remove(node);
         }
       }
     });
@@ -9373,7 +9383,7 @@ LIMIT ${this.search_sparql_by_label_limit}
       .on("contextmenu", this.mouseright);
       //.on("mouseout", @mouseup) # FIXME what *should* happen on mouseout?
     this.restart();
-    this.set_matching_regex("");
+    //this.set_matching_regex("");
     window.addEventListener("resize", this.updateWindow);
     this.tabsJQElem.on("resize", this.updateWindow);
     $(this.viscanvas).bind("_splitpaneparentresize", this.updateWindow);

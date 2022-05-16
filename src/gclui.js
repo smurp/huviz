@@ -11,15 +11,20 @@ window.toggle_suspend_updates = function(val) {
   //console.warn "suspend_updates",window.suspend_updates
   return window.suspend_updates;
 };
-const getRandomId = function(prefix) {
+function getRandomId(prefix) {
   const max = 10000000000;
   prefix = prefix || 'id';
   return prefix + Math.floor(Math.random() * Math.floor(max));
 };
-
+function isString(thing) {
+  return (thing?.constructor?.name == 'String');
+}
 import {GraphCommand} from './graphcommandlanguage.js';
 import {ColoredTreePicker, TreePicker, append_html_to} from '../wc/colortreepicker/index.js';
 import {QueryManager} from './querymanager.js';
+import {SortedSet} from './sortedset.js';
+
+const THE_EMPTY_SORTED_SET = SortedSet().isState('empty').named('empty');;
 
 //Styling for dev of template -- insert back into template html when in progress
 //<div class="comdiv" style="border:1px dashed black">
@@ -1228,31 +1233,32 @@ of the classes indicated.`,
     let TODO;
     const matching_value = this.get_matching_string();
     const matching_has_a_value = !!matching_value;
-    const {id_of_engaged_set, engaged_set_before_matching_all} = this;
+    const {engaged_set, id_of_engaged_set, engaged_set_before_matching_all} = this;
+    var default_engaged_set = this.huviz.selected_set.length ? 'selected_set' : 'all_set';
+    //default_engaged_set = 'selected_set';
     if (matching_has_a_value) {
-      this.huviz.set_matching_regex(matching_value); // cause labels on matching nodes to be displayed
       this.clear_matching_button.attr('disabled', null);
       if (this.set_is_engaged_because_matching) { // matching PREVIOUSLY had a value too
         TODO = `Update the selection based on the matching value '${this.id_of_engaged_set}'`;
         //@update_command(evt) # update the impact of the value in the matching input
       } else { // matching NEWLY has a value, so set things up for that
-        this.engaged_set_before_matching_all = this.id_of_engaged_set;
+        this.engaged_set_before_matching_all = id_of_engaged_set;
         this.set_immediate_execution_mode(this.is_verb_phrase_empty());
         // Matching works in conjuction with an engaged set.
-        if (this.id_of_engaged_set) { // TODO Is there already an engaged set?
+        if (id_of_engaged_set) { // TODO Is there already an engaged set?
           // If a set is already engaged then match with it.
           TODO = `Find matches for "${matching_value}" `;
           TODO += `in the already engaged set '${this.id_of_engaged_set}'`;
         } else {
-          // If a set is not yet engaged then engage the all set
+          // If a set is not yet engaged then engage the appropriate set
           this.set_is_engaged_because_matching = true;
-          this.huviz.click_set("all"); // ie choose the 'All' set
+          this.huviz.click_set(default_engaged_set); // ie engage the appropriate set
           TODO = `find matches for "${matching_value}" ` +
             `in the automatically engaged set '${this.id_of_engaged_set}'`;
         }
       }
-    } else { // matching does not have a value
-      this.huviz.set_matching_regex(''); // clear the labelling of matching nodes
+
+    } else { // matching_value is empty
       this.clear_matching_button.attr('disabled','disabled');
       if (id_of_engaged_set) { // this.set_is_engaged_because_matching
         // a set is engaged, either automatically or before a matching string
@@ -1275,9 +1281,14 @@ of the classes indicated.`,
       } else {
         TODO = 'Nothing to do when matching_value and id_of_engaged_set are both blank';
       }
+      //this.huviz.set_matching_regex(''); // clear the labelling of matching nodes
     }
-    console.debug({TODO, matching_value, id_of_engaged_set, engaged_set_before_matching_all});
-    this.update_command(evt);
+    setTimeout(() => {
+      this.huviz.set_matching_regex(matching_value); // cause labels on matching nodes to be displayed
+      console.debug({TODO, matching_value, default_engaged_set,
+                     id_of_engaged_set, engaged_set_before_matching_all});
+      this.update_command(evt);
+    },100); // give the calls to click_set to propagate
   }
 
   build_submit() {
@@ -1833,7 +1844,8 @@ of the classes indicated.`,
       this.the_sets.all_set.pop();
     }
     this.set_picker_box = append_html_to(`<div class="container" id="sets"></div>`, where.node());
-    this.set_picker = append_html_to(`<tree-picker class="treepicker-vertical" root="all"></tree-picker>`, this.set_picker_box);
+    this.set_picker = append_html_to( // instantiate tree-picker WebComponent
+      `<tree-picker class="treepicker-vertical" root="all"></tree-picker>`, this.set_picker_box);
     this.set_picker.click_listener = this.handle_on_set_picked;
     this.set_picker.build_tree(this.the_sets);
     this.populate_all_set_docs();
@@ -1907,7 +1919,7 @@ HELLO WORLD
       this.taxon_picker.shield();
       this.predicate_picker.shield();
       this.chosen_set = this.huviz[set_id];
-      this.id_of_engaged_set = set_id;
+      this.engaged_set = this.chosen_set; // will set id_of_engaged_set
       because = {
         set_added: set_id,
         cleanup: this.disengage_all_sets // the method to call to clear
@@ -1942,6 +1954,35 @@ HELLO WORLD
       delete this.id_of_engaged_set;
       delete this.chosen_set;
     }
+  }
+  get engaged_set() {
+    if (!this.id_of_engaged_set) {
+      console.debug(`no engaged_set so returning THE_EMPTY_SORTED_SET`);
+      return THE_EMPTY_SORTED_SET;
+    }
+    return this.huviz[this.id_of_engaged_set];
+  }
+  set engaged_set(which) {
+    const ensure_ends_with_set = (id) => {
+      if (!id) {
+        throw new Error(`id must have value`);
+      } else if (id.endsWith('_set')) {
+        return id;
+      } else {
+        return `${id}_set`;
+      }
+    }
+    if (isString(which)) {
+      this.id_of_engaged_set = ensure_ends_with_set(which);
+    //} else if (which?.constructor?.name == 'SortedSet') {
+    } else if (Array.isArray(which)) {
+      this.id_of_engaged_set = ensure_ends_with_set(which.id);
+    } else if (which == undefined) {
+      delete this.id_of_engaged_set;
+    } else {
+      throw new Error(`which should be a SortedSet or its id not ${which}`);
+    }
+    console.log(`engaged_set('${this.id_of_engaged_set}')`);
   }
   clear_all_sets() {
     const skip_sets = ['shelved_set'];
