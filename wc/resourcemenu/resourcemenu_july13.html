@@ -41,21 +41,28 @@
       background-color: yellow;
       font-size: small;
     }
+    h1, h2, h3, h4, h5, h6 {
+      text-align: center;
+    }
+    button {
+      border-radius: .5em;
+      justify-content: center !important;
+    }
     .bigbox {
       /* center this bad boy */
       position: absolute;
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
-      width: 40vw;
-      height: 40vw;
-      border-radius: 50%;
-      display: flex;
-      flex-direction: column;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: flex-start;
 
+      /* https://developer.mozilla.org/en-US/docs/Web/CSS/background-image */
+      background-image: url(/images/node_ring.png);
+      background-size: cover;
+      background-clip: border-box;
+      width: var(--big-xy);
+      height: var(--big-xy);
+      border-radius: 50%;
+      /* border: 1px dashed green; */
     }
     .uptop {
       position:absolute;
@@ -64,6 +71,7 @@
       transform: translate(30%,30%);
     }
     header, footer, main {
+      /* border: 1px dotted grey; */
       position: relative;
       left: var(--hlf-dif-xy);
     }
@@ -301,37 +309,102 @@
     .tabs-credit p {
       text-align: left;
     }
+
+    /* tabs-intro styling */
+
+    .current-git-branch{
+      background-color: PaleGreen;
+    }
+    .current-git-branch:before {
+      content: '✔';
+      color: DarkGreen;
+    }
+    .tabs-intro {
+      font-size: 90%;
+    }
+    .tabs-intro p {
+      margin-top: .2em;
+      text-indent: 1.2em;
+    }
+    .tabs-intro ul {
+      margin-top: .5em;
+      margin-bottom: .5em;
+      font-family: Courier;
+      font-size: 90%;
+    }
+    .tabs-intro ul {
+      list-style: none outside none;
+    }
+    .tabs-intro h1 {
+      font-size: 36px;
+    }
+    .tabs-intro h2 {
+      font-size: 18px;
+    }
+    .tabs-intro h1, h2, h4, h6{
+      text-align: center;
+      margin-top: 0px;
+      margin-bottom: 0px;
+    }
+    .huviz-versions {
+      text-align: center;
+      font-size: 100%;
+    }
+    .tabs-intro h3 {
+      margin-bottom: 0px;
+    }
+    .tabs-intro ul {
+      padding-left: 16px;
+    }
+    .eg-subject {
+      color: red;
+    }
+    .eg-verb {
+      color: green;
+    }
+    .eg-object {
+      color: blue;
     }
   </style>
-  <div class="bigbox" style="border-style: dotted">
+  <div class="bigbox">
     <header>
+      <a href="/"><img id="logo" src="/images/HuVizLogoBlackRim.png"/></a>
       <a onclick="location.reload()"><i class="fas fa-home"></i></a>
     </header>
-    <!--div>
-      <h1>test</h1>
-      <primary-button text="Primary" ></primary-button>
-      <primary-button text="P Disabled" disabled="true"></primary-button>
 
-      <secondary-button text="Secondary"></secondary-button>
-      <secondary-button text="S Disabled" disabled="true"></secondary-button>
-
-      <action-button text="Action"></action-button>
-      <action-button text="A Disabled" disabled="true"></action-button>
-
-      <ul>
-        <pill-list-item text="pill 1"></pill-list-item>
-        <pill-list-item text="pill 2"></pill-list-item>
-        <pill-list-item text="pill 3"></pill-list-item>
-        <pill-list-item text="pill 4"></pill-list-item>
-        <pill-list-item text="pill 5"></pill-list-item>
-      </ul>
-    </div-->
-    <div style="padding: 5vw;">
-      <welcome-screen></welcome-screen>
-    </div>
-
-
-
+    <main class="onFirst">
+      <h1>HuViz</h1>
+      <p>
+        The Humanities Visualizer (HuViz) lets you explore the semantic
+        relationships in linked datasets through interactive graphs.
+      </p>
+      <dl compact>
+        <dt><b>New Here?</b></dt>
+        <dd>
+          <!-- HuViz needs a reload() to follow hash links to start graphing -->
+          Explore with a
+          <button
+            onclick="location.assign(this.getAttribute('href'));location.reload();"
+            href="/#load+/data/cwrc-writer-citation.jsonld+with+/data/oa.ttl">
+            mini
+          </button>
+          or
+          <button
+            onclick="location.assign(this.getAttribute('href'));location.reload();"
+            href="/#load+https://raw.githubusercontent.com/alliyya/huviz_demo_data/master/Harry%20Potter/hp_rdf_data.ttl+with+https://raw.githubusercontent.com/alliyya/huviz_demo_data/master/Harry%20Potter/hp_wd_terms.ttl">
+            Harry Potter
+          </button>
+          dataset
+        </dd>
+        <dt><button id="gotoStart">Start</button></dt>
+        <dd>
+          Pick a preloaded dataset, load your own file, or query
+          an online knowledge base
+        </dd>
+        <dt><button id="gotoContinue">Continue</button></dt>
+        <dd>Load an earlier HuViz session</dd>
+      </dl>
+    </main>
 
     <form class="local_file_form supports-dnd" XXXmethod="post" action=""
           enctype="multipart/form-data">

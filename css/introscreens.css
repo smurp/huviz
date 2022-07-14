@@ -1,0 +1,110 @@
+:root{
+  --prim-button-bg: #107386;
+  --prim-button-bg-hover: #135174;
+  --sec-button-bg: #ffffff;
+  --sec-button-bg-hover: #F1EDED;
+  --action-button-color: #0072b2;
+  --action-button-bg: #ffffff;
+  --action-button-bg-hover:#0072b2;
+  --font-white: #ffffff;
+  --font-black: #333333;
+  --btn-actions-blue: #0072b2;
+  --disabled-bg-color: #C4C4C4;
+  --disabled-font-color: #696868;
+  --font: 'Lato';
+}
+
+h1, h2, h3, h4, h5, h6{
+  text-align: center;
+  font: var(--font);
+  color: var(--font-black);
+}
+
+h1{
+  font-size: 24px;
+  font-weight: bold;
+}
+
+p{
+  font-size: 16px;
+  color: var(--font-black);
+}
+
+div.option-list{
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+div.option{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  flex-basis: 20%;
+}
+
+button{
+  width: 102px;
+  hieight: 41px;
+  border-radius: 12px;
+  text-align: center;
+  padding: 8px 16px;
+  font-family: var(--font);
+  font-size: 18px;
+}
+button.disabled{
+  pointer-events: none;
+}
+button .disabled.primary,
+button.disabled.secondary,
+button.disabled.action{
+  background: var(--disabled-bg-color);
+  color: var(--disabled-font-color);
+  border:none;
+}
+
+button.primary {
+  border: none;
+  background: var(--prim-button-bg);
+  color: var(--font-white);
+}
+button.primary:hover {
+  background: var(--prim-button-bg-hover);
+}
+
+button.secondary{
+  border: 1px solid #c4c4c4;
+  background: var(--sec-button-bg);
+  color: var(--font-black);
+}
+button.secondary:hover {
+  background: var(--sec-button-bg-hover);
+}
+
+button.action{
+  border: 2px solid var(--action-button-color);
+  padding: 6px 14px;
+  color: var(--action-button-color);
+  background: var(--action-button-bg);
+}
+button.action:hover{
+  background: var(--action-button-bg-hover);
+  color: var(--font-white);
+}
+
+li.pill{
+  padding: 4px 10px;
+  border: 1.5px solid #9fb1df;
+  border-radius: 20px;
+  color: #1d1d1d;
+  font-family: var(--font);
+  font-size: 16px;
+  justify-content: space-between;
+  display: inline;
+}
+li.pill:hover{
+  background: rgba(159, 177, 223, 0.3);
+}
