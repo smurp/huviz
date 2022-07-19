@@ -47,14 +47,14 @@
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
-      width: 40vw;
-      height: 40vw;
+      width: 45vw;
+      height: 45vw;
       border-radius: 50%;
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       flex-wrap: wrap;
       align-items: center;
-      justify-content: flex-start;
+      justify-content: center;
 
     }
     .uptop {
@@ -301,12 +301,18 @@
     .tabs-credit p {
       text-align: left;
     }
+    .displayscreen {
+      padding: 1.5vw 4vw;
+      display: flex;
+      flex-direction: row;
+      height: 100%;
+    }
     }
   </style>
   <div class="bigbox" style="border-style: dotted">
-    <header>
+    <!--header>
       <a onclick="location.reload()"><i class="fas fa-home"></i></a>
-    </header>
+    </header-->
     <!--div>
       <h1>test</h1>
       <primary-button text="Primary" ></primary-button>
@@ -326,9 +332,14 @@
         <pill-list-item text="pill 5"></pill-list-item>
       </ul>
     </div-->
-    <div style="padding: 5vw;">
+
+    <div class="displayscreen">
       <welcome-screen></welcome-screen>
     </div>
+
+    <!--div class="displayscreen">
+      <on-start></on-start>
+    </div-->
 
 
 
@@ -337,49 +348,7 @@
           enctype="multipart/form-data">
 
     <main class="onStart">
-      <i id="esc">Back to Main Page</i>
-      <h1>Start</h1>
-      <div class="content">
-        <!-- <i class="drop_indicator fas fa-tint"></i> -->
-          <dl>
-            <dt><button id="gotoBrowse">Browse</button></dt>
-            <dd>Pick a beginner or community contributed dataset</dd>
-            <dt>
-              <label for="datasetUpload">
-                <button id="gotoUpload">Upload</button>
-              </label>
-            </dt>
-            <dd>
-              Upload your own dataset or drag and drop anywhere on this page
-            </dd>
-            <dt>
-              <button id="gotoURL" disabled=disabled>URL</button>
-            </dt>
-            <dd class="dndloaderHere">
-              <div class="box__input" style="display:none">
-                <button class="box__upload_button" type="submit">Upload</button>
-                <div class="box__dragndrop" style="display:none">
-                  Drop URL or file here
-                </div>
-              </div>
-              <input name="datasetUri"
-                     type="url"
-                     text="accepts extension jsonld|nt|nq|owl|rdf|ttl|trig|xml"
-                     pattern=".*(jsonld|nt|nq|owl|rdf|ttl|trig|xml)$"
-                     accept=".trig,.ttl,.jsonld,.nt,.owl,.rdf,.nq,.xml"
-                     class="box__uri"
-                     placeholder="Or enter URL here" />
-              <!--<button id="gotoURL2" disabled=disabled><i class="fas fa-sign-in-alt"></i></button>-->
-              <div class="box__uploading" style="display:none">Uploading&hellip;</div>
-              <div class="box__success" style="display:none">Done!</div>
-              <div class="box__error" style="display:none">Error! <span></span>.</div>
-
-            </dd>
-            <dt class="danger"><button id="gotoQuery">Query</button></dt>
-            <dd class="danger">Search an online knowledge base</dd>
-          </dl>
-
-      </div>
+      <on-start></on-start>        
     </main>
 
     <main class="onUpload">

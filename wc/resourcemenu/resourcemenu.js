@@ -8,6 +8,7 @@ import {SecondaryButton} from './secondarybutton.js';
 import {ActionButton} from './actionbutton.js';
 import {PillListItem} from './pillLI.js';
 import {WelcomeScreen} from './welcomescreen.js';
+import {onStart} from './onstart.js';
 // https://www.gitmemory.com/issue/FortAwesome/Font-Awesome/15316/517343443
 //   see _load_font_awesome() in this file
 import {

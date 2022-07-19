@@ -30,25 +30,59 @@ p{
   color: var(--font-black);
 }
 
+div.innerscreen{
+  padding: 1.5vw 1vw;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: flex-start;
+  width: inherit;
+  height: 80%;
+  row-gap: 5%;
+}
+
+.screen-info > p, h1{
+  text-align:center;
+  padding: 0.4vw 4vw;
+}
+
+input.url-input, input::placeholder{
+  font-size: 16px;
+  padding: 0.3vw;
+  width: 100%;
+}
+
 div.option-list{
   display: flex;
   flex-direction: column;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: flex-start;
   justify-content: flex-start;
+  padding: 0vw 1.5vw;
+  width: inherit;
+  max-height: 100%;
+  row-gap: 10%;
 }
 
 div.option{
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
-  flex-basis: 20%;
+  width:100%;
+  column-gap: 5%;
+}
+
+div.option.input{
+  justify-content: space-between;
+  width: 100%;
+  flex-basis: 50%;
 }
 
 button{
-  width: 102px;
-  hieight: 41px;
+  min-width: 6.375em;
+  height: 2.563em;
   border-radius: 12px;
   text-align: center;
   padding: 8px 16px;
@@ -77,6 +111,7 @@ button.primary:hover {
 
 button.secondary{
   border: 1px solid #c4c4c4;
+  text-align
   background: var(--sec-button-bg);
   color: var(--font-black);
 }
