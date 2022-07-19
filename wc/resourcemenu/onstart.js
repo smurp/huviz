@@ -12,15 +12,15 @@ template.innerHTML = `
     </div>
     <div class="option-list" flex-basis="25%">
       <div class="option">
-        <primary-button id="gotoBrowse" text="Load"></primary-button>
+        <primary-button buttonid="gotoBrowse" text="Load"></primary-button>
         <p class="button-info">Load an exising or community contributed dataset</p>
       </div>
       <div class="option">
-        <primary-button id="gotoContinue" text="Upload"></primary-button>
+        <primary-button buttonid="gotoContinue" text="Upload"></primary-button>
         <p class="button-info">Upload your own dataset or drag and drop anywhere on the page</p>
       </div>
       <div class="option">
-        <primary-button id="gotoSearch" text="Search"></primary-button>
+        <primary-button buttonid="gotoSearch" text="Search"></primary-button>
         <p class="button-info">Search an online knowledge base</p>
       </div>
       <div class="option input">

@@ -1,24 +1,29 @@
 const template = document.createElement('template');
 template.innerHTML = `
   <link rel="stylesheet" href="/huviz/css/introscreens.css" type="text/css">
-  <button class="primary">
+  <button class="primary" id="buttonID">
   </button>
 `;
 
 class PrimaryButton extends HTMLElement{
   static get observedAttributes(){
-    return ['text', 'disabled'];
+    return ['text', 'disabled', 'buttonid'];
   }
   constructor(text){
     super();
     var buttonText = this.getAttribute('text');
+    var buttonID = this.getAttribute('buttonid');
 
     this.attachShadow({mode: 'open'});
     this.shadowRoot.appendChild(template.content.cloneNode(true));
+    
+    //put button text
     this.shadowRoot.querySelector("button").innerHTML = buttonText;
+    //set button ID
+    this.shadowRoot.querySelector("button").setAttribute('id', buttonID);
+    //if disabled is set, disable button
     if (this.getAttribute('disabled')){
       this.shadowRoot.querySelector("button").classList.add('disabled');
-      console.log(this.shadowRoot.querySelector("button").classList);
     }
   }
 }
