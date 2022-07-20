@@ -5,18 +5,18 @@ template.innerHTML = `
   </button>
 `;
 
-class SecondaryButton extends HTMLElement{
+export class SecondaryButton extends HTMLElement{
   static get observedAttributes(){
     return ['text', 'disabled', 'buttonid'];
   }
-  constructor(text){
+  constructor(){
     super();
     var buttonText = this.getAttribute('text');
     var buttonID = this.getAttribute('buttonid');
 
     this.attachShadow({mode: 'open'});
     this.shadowRoot.appendChild(template.content.cloneNode(true));
-    
+
     //put button text
     this.shadowRoot.querySelector("button").innerHTML = buttonText;
     //set button ID

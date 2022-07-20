@@ -25,11 +25,8 @@ template.innerHTML = `
   </div>
 `;
 
-class WelcomeScreen extends HTMLElement{
-  static get observedAttributes(){
-    return ['text'];
-  }
-  constructor(text){
+export class WelcomeScreen extends HTMLElement{
+  constructor(){
     super();
     this.attachShadow({mode: 'open'});
     this.shadowRoot.appendChild(template.content.cloneNode(true));

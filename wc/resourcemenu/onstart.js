@@ -1,5 +1,5 @@
 import {PrimaryButton} from './primarybutton.js';
-
+import {BackButton} from './backbutton.js';
 const template = document.createElement('template');
 template.innerHTML = `
   <link rel="stylesheet" href="/huviz/css/introscreens.css" type="text/css">
@@ -9,6 +9,7 @@ template.innerHTML = `
       <p>
         Pick a preloaded dataset, load your own file, or query an online knowledge base
       </p>
+      <back-button></back-button>
     </div>
     <div class="option-list" flex-basis="25%">
       <div class="option">
@@ -34,11 +35,8 @@ template.innerHTML = `
   </div>
 `;
 
-class OnStart extends HTMLElement{
-  static get observedAttributes(){
-    return ['text'];
-  }
-  constructor(text){
+export class OnStart extends HTMLElement{
+  constructor(){
     super();
     this.attachShadow({mode: 'open'});
     this.shadowRoot.appendChild(template.content.cloneNode(true));
