@@ -2,11 +2,6 @@ import { FSMMixin, FiniteStateMachine } from '../../src/fsm.js';
 import { DatasetDBMixin } from '../../src/datasetdb.js';
 import { PickOrProvidePanel } from '../pickorprovide/pickorprovide.js';
 import { DropLoader } from './droploader.js';
-import { TestComponents } from './testcomponents.js';
-import { OnFirst } from './onfirst.js';
-import { OnStart } from './onstart.js';
-import { OnLoad } from './onload.js';
-import { OnContinue } from './oncontinue.js';
 import { NavBar } from './navbar.js';
 // https://www.gitmemory.com/issue/FortAwesome/Font-Awesome/15316/517343443
 //   see _load_font_awesome() in this file
@@ -186,7 +181,6 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     */
     this.querySelectorAll(selector).forEach((item) => {
       //console.debug("addEventListener", {item});
-      console.log(item);
       item.addEventListener('click', handler);
     })
   }

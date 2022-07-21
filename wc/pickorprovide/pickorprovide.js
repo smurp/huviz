@@ -9,6 +9,14 @@ var stateMachineTTL = `
 
 `;
 
+const categoryHeaderTemplate = `
+<div class="category-header">
+  <h3 title="CategoryName"></h3>
+  <i class="fas fa-circle"></i>
+  <p>View All</p>
+</div>
+`;
+
 export class PickOrProvidePanel extends FSMMixin(HTMLElement) {
   constructor() {
     super();

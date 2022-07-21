@@ -1,4 +1,3 @@
-import { BackButton } from './backbutton.js';
 import { CategoryList } from './categorylist.js';
 const template = document.createElement('template');
 template.innerHTML = `

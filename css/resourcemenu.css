@@ -38,27 +38,7 @@
 .supports-dnd.is-dragover .content {
   background-color: red;
 }
-/* .onDataset, onOntology, onScript, onSPARQL, onCredit */
-.pick_or_provide_item {
-  text-decoration-line: underline;
-  cursor: pointer;
-  display: inline-block;
-}
-.pick_or_provide_item::after {
-  content: "|";
-  padding-left: .3em;
-  padding-right: .3em;
-  text-decoration-line: none;
-}
-.optgrp > h3 {
-  text-align: left;
-  margin-top: .3em;
-  margin-bottom: 0em;
-  padding-left: 0em;
-}
-.optgrp > h3::after {
-  content: ":"
-}
+
 /* onBrowse */
 .delete_option {
   display: none;

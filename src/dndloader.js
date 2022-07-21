@@ -214,8 +214,16 @@ export class PickOrProvide {
       throw new Error(`using jquery arg ${position}`);
     }
     var id = grp_rec.id || unique_id();
-    var optgrpstr = `<div class="optgrp" title="${grp_rec.label}"
-                          id="${id}"><h3>${grp_rec.label}</h3></div>`;
+    var optgrpstr = `
+    <div class="category" >
+      <div class="category-header">
+        <h3>${grp_rec.label}</h3>
+        <i class="fas fa-circle"></i>
+        <p class="view-all">View All</p>
+      </div>
+      <div class="pill-list" title="${grp_rec.label}" id="${id}">
+      </div>
+    </div>`;
     this.pick_or_provide_select.insertAdjacentHTML(position, optgrpstr);
     return this.querySelector(`#${id}`);
   }
@@ -230,7 +238,7 @@ export class PickOrProvide {
       //alert "add_option() #{opt_rec.value} collided"
       return;
     }
-    var opt = document.createElement('span');
+    var opt = document.createElement('div');
     opt.id = unique_id();
     const opt_group_label = opt_rec.opt_group;
     if (opt_group_label) {
@@ -238,7 +246,7 @@ export class PickOrProvide {
         `div[title='${opt_group_label}']`);
       if (!opt_group) {
         console.debug(`adding '${opt_group_label}'`)
-        opt_group = this.add_group({label: opt_group_label}, 'beforeend');
+        opt_group = this.add_group({label: opt_group_label});
       }
       opt_group.insertAdjacentElement('beforeend', opt);
     } else { // There is no opt_group_label, so this is a top level entry, ie a group, etc
@@ -246,10 +254,11 @@ export class PickOrProvide {
       dest.insertAdjacentElement(position, opt);
     }
     opt.innerText = opt_rec.label;
-    for (k of ['value', 'title', 'class', 'id', 'style', 'label']) {
+    for (k of ['value', 'title', 'id', 'style', 'label']) {
       if (opt_rec[k] != null) {
         opt.setAttribute(k, opt_rec[k]);  //$(opt).attr(k, opt_rec[k]);
       }
+      opt.classList.add('pick_or_provide_item');
     }
     // TODO standardize on snake-case rather than camelCase
     for (k of ['isUri', 'canDelete', 'ontologyUri',
