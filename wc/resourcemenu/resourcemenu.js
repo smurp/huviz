@@ -2,7 +2,12 @@ import { FSMMixin, FiniteStateMachine } from '../../src/fsm.js';
 import { DatasetDBMixin } from '../../src/datasetdb.js';
 import { PickOrProvidePanel } from '../pickorprovide/pickorprovide.js';
 import { DropLoader } from './droploader.js';
+import { TestComponents } from './testcomponents.js';
+import { OnFirst } from './onfirst.js';
+import { OnStart } from './onstart.js';
 import { OnLoad } from './onload.js';
+import { OnContinue } from './oncontinue.js';
+import { NavBar } from './navbar.js';
 // https://www.gitmemory.com/issue/FortAwesome/Font-Awesome/15316/517343443
 //   see _load_font_awesome() in this file
 import {
@@ -14,6 +19,8 @@ import { fab } from '../../node_modules/@fortawesome/free-brands-svg-icons/index
 config.autoAddCss = false;
 
 customElements.define('pick-or-provide', PickOrProvidePanel);
+
+const customScreensList = ['on-first', 'on-start', 'on-continue', 'on-load'];
 
 export const colorlog = function(msg, color='green', size='2em') {
   return console.log(`%c${msg}`, `color:${color};font-size:${size};`);
@@ -87,7 +94,6 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
 
     /* wire up all the buttons so they can perform their transitions */
     this.addIDClickListeners('main, button, [id]', this.clickListener.bind(this));
-
     /* Initialize the beBrave feature, which can be removed when out of beta */
     //this._toggleBeingBrave();
 
@@ -152,13 +158,17 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
   clickListener(evt) {
     let target = evt.target;
     let targetId = target.id;
+
+//removed this if statement on jul. 21 -- was interfering with back button implementation, and at this point in
+//redesign, the buttons that used this (footer, old escape, home) are not yet implemented or will not be
+//preserving in case of later need but am pretty sure this will eventually be deleted
     // The svg and path elements injected by fontawesome  don't have ids but need to be ignored
-    if (!targetId && ['svg','path'].includes(target.nodeName)) {
-      console.debug("seeking new target because on id found on", target)
-      target = target.closest('main, button, [id]');
-      console.debug('closest target:', target);
-      targetId = target?.id;  // get the id if there is one
-    }
+    // if (!targetId && ['svg','path'].includes(target.nodeName)) {
+    //   console.debug("seeking new target because on id found on", target)
+    //   target = target.closest('main, button, [id]');
+    //   console.debug('closest target:', target);
+    //   targetId = target?.id;  // get the id if there is one
+    // }
     console.debug('clickListener', {evt, targetId});
     if (targetId) {
       try {
@@ -176,6 +186,7 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     */
     this.querySelectorAll(selector).forEach((item) => {
       //console.debug("addEventListener", {item});
+      console.log(item);
       item.addEventListener('click', handler);
     })
   }
@@ -501,7 +512,7 @@ ORDER BY ?g\
     console.debug(`showMain('${which}')`);
     this.querySelectorAll('main').forEach((main) => {
       if (main.classList.contains(which)) {
-        main.style.display = 'block';
+        main.style.display = 'flex';
       } else {
         main.style.display = 'none';
       }

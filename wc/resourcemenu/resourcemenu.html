@@ -1,393 +1,119 @@
 <template id="resource-menu">
   <style class="fontawesomeness">/* see programmatic insertion of dom.css() */</style>
-  <style>
-    :root {
-      /* Why does putting custom properties here not work? */
-    }
-    * {
-      --big-xy: clamp(50vh,500px,700px); /* the side length of the bigbox ie the outer box */
-      --lil-xy: calc(var(--big-xy) * .66); /* the side length of the lilbox ie the inner box */
-      --dif-xy: calc(var(--big-xy) - var(--lil-xy)); /* the difference in side length of the bigbox and lilbox */
-      --hlf-dif-xy: calc(var(--dif-xy) / 2); /* half the difference between bigbox and lilbox side lengths */
-      --hed-h: calc(var(--dif-xy) / 2.2); /* height of header and footer */
-      --logo-xy: calc(var(--hed-h) * .80); /* side length of header logo */
-      --logo-pad: calc((var(--hed-h) - var(--logo-xy)) / 1); /* top padding of logo */
-      --fntsiz: calc(var(--lil-xy)/26); /* base font-size */
-      --content-h: calc(var(--lil-xy) - 2 * --fntsiz);
-      font-size: var(--fntsiz);
-    }
-    #logo {
-      padding-top: var(--logo-pad);
-      width: var(--logo-xy);
-      height: var(--logo-xy);
-      left: 50%;
-    }
-    #esc {
-      position: absolute;
-      bottom: 0.2em;
-      left: 0em;
-      cursor: pointer;
-    }
-    #esc::before {
-      content:' ←';
-      font-size: large;
-      cursor: pointer;
-      border: .8em;
-    }
-    .ring {
-      z-index: -1;
-    }
-    .beBrave {
-      background-color: yellow;
-      font-size: small;
-    }
-    .bigbox {
-      /* center this bad boy */
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      width: 45vw;
-      height: 45vw;
-      border-radius: 50%;
-      display: flex;
-      flex-direction: row;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: center;
-
-    }
-    .uptop {
-      position:absolute;
-      left:50%;
-      top:-10%;
-      transform: translate(30%,30%);
-    }
-    header, footer, main {
-      position: relative;
-      left: var(--hlf-dif-xy);
-    }
-    header {
-    }
-    header, footer {
-      z-index: 10;
-      height: var(--hed-h);
-      width: var(--lil-xy);
-      text-align: center;
-      text-valign: center;
-    }
-    footer {
-    }
-    .btn-bar {
-      display: flex;
-      flex-grow: 5;
-      justify-content: space-evenly;
-    }
-    footer button {
-      border: none;
-      align: center;
-      zoom: .7;
-      background-color: white;
-      radius: 0px;
-    }
-    footer button svg,
-    footer button input {
-      display: block !important;
-      zoom: 2;
-    }
-    .unimplemented {
-      background-color: darkgrey;
-    }
-    main { /* aka the lilbox */
-      width: var(--lil-xy);
-      height: var(--lil-xy);
-      overflow: auto;
-    }
-    dt, dd {
-      margin: 0;
-      /* padding: .3em 2em; */
-      /* border-top: 1px solid red; */
-    }
-    dl {
-      display: grid;
-      grid-template: auto / 1fr 3fr;
-    }
-    dd {
-      padding: .5em;
-    }
-    dt {
-      width: var(--hed-h);;
-    }
-    dt button {
-      border-radius: 1em;
-      padding: .3em;
-      background-color: white;
-      float: right;
-    }
-    p {
-      text-align: center;
-      font-size: 85%;
-    }
-    .content {
-      overflow-y: auto;
-      height: var(--content-h);
-      background-color: #f7f7f7;
-      border-radius: .3em;
-    }
-    .supports-dnd.is-dragover .content {
-      background-color: red;
-    }
-    /* .onDataset, onOntology, onScript, onSPARQL, onCredit */
-    .pick_or_provide_item {
-      text-decoration-line: underline;
-      cursor: pointer;
-      display: inline-block;
-    }
-    .pick_or_provide_item::after {
-      content: "|";
-      padding-left: .3em;
-      padding-right: .3em;
-      text-decoration-line: none;
-    }
-    .optgrp > h3 {
-      text-align: left;
-      margin-top: .3em;
-      margin-bottom: 0em;
-      padding-left: 0em;
-    }
-    .optgrp > h3::after {
-      content: ":"
-    }
-    /* onBrowse */
-    .delete_option {
-      display: none;
-      width: 0;
-    }
-    /* onFront */
-    .onFront #esc {
-      display: none; /* close button not needed on front */
-    }
-    /* onUpload */
-    form.hasCustomOnto #ontologyTitle,
-    form:not(.hasCustomOnto) #ontologyUpload {
-      /* swap visibility of these two on toggle(hasCustomOnto) */
-      display: none;
-    }
-    .onUpload input,
-    .onUpload .ontologyTitle {
-      display: inline;
-      width: 13em;
-    }
-    .onUpload label {
-    }
-    .onUpload dt,
-    .onGo dt {
-      font-weight: bold;
-    }
-    #defaultOntologyUri ,
-    #defaultOntologyName {
-      display: none;
-      width: 0em;
-      height: 0em;
-    }
-    /* The dataset Upload button and input[type=file] */
-    .onUpload label[for=datasetUpload] {
-      /* background-color: orange; */
-    }
-    .onUpload #datasetUpload::-webkit-file-upload-button,
-    .onUpload #datasetUpload::file-selector-button,
-    .onUpload #ontologyUpload::-webkit-file-upload-button,
-    .onUpload #ontologyUpload::file-selector-button {
-      /*
-        https://developer.mozilla.org/en-US/docs/Web/CSS/::file-selector-button
-       */
-      opacity:0; /* hiding it this way preserves accessibility, unlike display:none */
-      width:1em;
-    }
-    /* onStart */
-    .box__uploading,
-    .box__success,
-    .box__error {
-      display: none;
-    }
-    .box__error {
-      background-color: red;
-    }
-    .box__file {
-      width: 0.1px;
-      height: 0.1px;
-      opacity: 0;
-      overflow: hidden;
-      position: absolute;
-      z-index: -1;
-    }
-    .box__upload_button {
-      display: none;
-    }
-    .box__label {
-      display: none;
-    }
-    .supports-dnd {
-      /*
-      left: var(--hlf-dif-xy);
-      width: var(--lil-xy);
-      height: var(--lil-xy);
-      outline: 2px dashed black;
-      margin: 3px;
-      outline-offset: -2px;
-      border: 6px;
-      padding: 8px;
-      margin: 3px;
-      outline-offset: -2px;
-      border: 6px;
-      padding: 8px;
-      */
-    }
-    .box__uri {
-      width: 80%;
-    }
-    .box__uri:invalid {
-      color: red;
-    }
-    .box__uri:valid {
-      color: green;
-    }
-    .drop_indicator {
-      /* top: .2em; */
-      right: .5em;
-      position: absolute;
-      color: lightblue;
-    }
-
-    /* onGo */
-    #loadingOntologyName,
-    #loadingDatasetName {
-      display: block;
-    }
-
-    /* onCredit */
-    .tabs-credit #logos img {
-      height: 64px;
-      padding: 5px;
-    }
-    .tabs-credit h1 {
-      display: block;
-      font-size: 1.3em;
-      padding-top: 0.1em;
-      padding-bottom: 0.2em;
-      padding-top: 0px;
-      padding-bottom: 0px;
-      font-weight: medium;
-    }
-    .tabs-credit h2,h3 {
-      text-align: left;
-      display: inline-block;
-      font-size: 1.05em;
-      margin-top: 0.3em;
-      padding-bottom: 0.1em;
-      margin-top: 0px;
-      margin-bottom: 0px;
-      font-weight: bold;
-    }
-    .tabs-credit ul {
-      padding: 0px;
-      margin: 0px;
-      margin-left: 1em;
-      margin-bottom: .8em;
-    }
-    .tabs-credit li {
-      margin: 5px;
-    }
-    .tabs-credit p {
-      text-align: left;
-    }
-    .displayscreen {
-      padding: 1.5vw 4vw;
-      display: flex;
-      flex-direction: row;
-      height: 100%;
-    }
-    }
-  </style>
+  <link rel="stylesheet" href="/huviz/css/introscreens.css" type="text/css">
+  <link rel="stylesheet" href="/huviz/css/resourcemenu.css" type="text/css">
   <div class="bigbox" style="border-style: dotted">
     <!--header>
       <a onclick="location.reload()"><i class="fas fa-home"></i></a>
     </header-->
-    <!--div>
-      <h1>test</h1>
-      <primary-button text="Primary" ></primary-button>
-      <primary-button text="P Disabled" disabled="true"></primary-button>
 
-      <secondary-button text="Secondary"></secondary-button>
-      <secondary-button text="S Disabled" disabled="true"></secondary-button>
-
-      <action-button text="Action"></action-button>
-      <action-button text="A Disabled" disabled="true"></action-button>
-
-      <ul>
-        <pill-list-item text="pill 1"></pill-list-item>
-        <pill-list-item text="pill 2"></pill-list-item>
-        <pill-list-item text="pill 3"></pill-list-item>
-        <pill-list-item text="pill 4"></pill-list-item>
-        <pill-list-item text="pill 5"></pill-list-item>
-      </ul>
-    </div-->
-
-    <!--div class="displayscreen">
-      <welcome-screen></welcome-screen>
-    </div-->
-
-    <!--div class="displayscreen">
-      <on-start></on-start>
-    </div-->
-
-    <div class="displayscreen">
-      <on-load></on-load>
-    </div>
-
-
-
-
-    <form class="local_file_form supports-dnd" XXXmethod="post" action=""
-          enctype="multipart/form-data">
-
-    <main class="onStart">
-      <on-start></on-start>
-    </main>
-
-    <main class="onUpload">
-      <i id="esc">Back to Start Menu</i>
-      <h1>Choose file for upload</h1>
-      <div class="content">
-        <dl>
-          <dt>Dataset</dt>
-          <dd>
-            <input id="datasetUpload" type="file" name="uploadDataset"
-                   accept=".trig, .ttl, .jsonld, .nt, .owl, .rdf, .nq, .xml">
-            <button><label for="datasetUpload">change</label></button>
-          </dd>
-
-          <dt>Ontology</dt>
-          <dd>
-            <input id="ontologyUpload" type="file" name="uploadOntology"
-                   accept=".trig, .ttl, .jsonld, .nt, .owl, .rdf">
-            <span id="ontologyTitle">Default Ontology</span>
-            <button><label for="ontologyUpload">change</label></button>
-            <input id="defaultOntologyUri" type="uri" value="/data/owl_mini.ttl"/>
-            <input id="defaultOntologyName" type="text" value="OWL Mini"/>
-          </dd>
-
-          <dt></dt>
-          <dd><button id="vizUpload" type="submit"
-                      disabled=disabled>See It!</button></dd>
-        </dl>
-
+    <main class="onFirst">
+      <div class="displayscreen">
+        <div class="screen-info">
+          <h1>Welcome to HuViz</h1>
+          <p>
+            The Humanities Visualizer (HuViz) lets you explore the semantic
+            relationships in linked datasets through interactive graphs.
+          </p>
+        </div>
+        <div class="option-list">
+          <div class="option">
+            <button class="primary" id="gotoStart">Start</button>
+            <p class="button-info">Pick a preloaded dataset, load your own file, or query
+            an online knowledge base</p>
+          </div>
+          <div class="option">
+            <button class="primary" id="gotoContinue">Continue</button>
+            <p class="button-info">Load an earlier HuViz session</p>
+          </div>
+        </div>
       </div>
     </main>
 
+    <form class="local_file_form supports-dnd" XXXmethod="post" action="" enctype="multipart/form-data">
+
+      <main class="onStart">
+        <div class="displayscreen">
+          <div class="screen-info">
+            <h1>Start</h1>
+            <p>
+              Pick a preloaded dataset, load your own file, or query an online knowledge base
+            </p>
+            <button class="back" id="esc">
+              <i class="fas fa-chevron-left"></i>   Back
+            </button>
+          </div>
+          <div class="option-list" flex-basis="25%">
+            <div class="option">
+              <button class="primary" id="gotoBrowse">Load</button>
+              <p class="button-info">Load an exising or community contributed dataset</p>
+            </div>
+            <div class="option">
+              <button class="primary" id="gotoUpload">Upload</button>
+              <p class="button-info">Upload your own dataset or drag and drop anywhere on the page</p>
+            </div>
+            <div class="option">
+              <button class="primary" id="gotoSearch">Search</button>
+              <p class="button-info">Search an online knowledge base</p>
+            </div>
+            <div class="option input">
+              <input class="url-input" name="datasetUri" type="url" text="accepts extension jsonld|nt|nq|owl|rdf|ttl|trig|xml"
+                     pattern=".*(jsonld|nt|nq|owl|rdf|ttl|trig|xml)$"
+                     accept=".trig,.ttl,.jsonld,.nt,.owl,.rdf,.nq,.xml"
+                     class="box__uri"
+                     placeholder="Or enter URL here" ></input>
+              <button class="action">Load URL</button>
+            </div>
+          </div>
+        </div>
+      </main>
+      <main class="onUpload">
+        <i id="esc">Back to Start Menu</i>
+        <h1>Choose file for upload</h1>
+        <div class="content">
+          <dl>
+            <dt>Dataset</dt>
+            <dd>
+              <input id="datasetUpload" type="file" name="uploadDataset"
+                     accept=".trig, .ttl, .jsonld, .nt, .owl, .rdf, .nq, .xml">
+              <button><label for="datasetUpload">change</label></button>
+            </dd>
+
+            <dt>Ontology</dt>
+            <dd>
+              <input id="ontologyUpload" type="file" name="uploadOntology"
+                     accept=".trig, .ttl, .jsonld, .nt, .owl, .rdf">
+              <span id="ontologyTitle">Default Ontology</span>
+              <button><label for="ontologyUpload">change</label></button>
+              <input id="defaultOntologyUri" type="uri" value="/data/owl_mini.ttl"/>
+              <input id="defaultOntologyName" type="text" value="OWL Mini"/>
+            </dd>
+
+            <dt></dt>
+            <dd><button id="vizUpload" type="submit"
+                        disabled=disabled>See It!</button></dd>
+          </dl>
+
+        </div>
+      </main>
     </form>
 
     <main class="onBrowse">
+      <div class="displayscreen">
+        <div class="screen-info">
+          <h1>Load</h1>
+          <p>
+            Load an existing or community contributed dataset
+          </p>
+          <button class="back" id="esc">
+            <i class="fas fa-chevron-left"></i>   Back
+          </button>
+        </div>
+          <category-list></category-list>
+      </div>
+    </main>
+
+    <main class="oldBrowse">
       <i id="esc">Back to Start Menu</i>
       <h1>Browse</h1>
       <div class="content">
@@ -421,13 +147,17 @@
       </div>
     </main>
 
-    <main class="onContinue">
+    <main class="oldContinue">
       <i id="esc">Back to Start Menu</i>
       <h1>Continue a Session</h1>
       <div class="content">
         <p>Continue a previous session</p>
         <div id="scriptHere"></div>
       </div>
+    </main>
+
+    <main class="onContinue">
+      <on-continue></on-continue>
     </main>
 
     <main class="onScriptDetail">
@@ -544,55 +274,6 @@
       </div>
     </main>
 
-    <style class="bravery">
-      /* toggleBeingBrave() controls the definitions of
-         .beBraveBroken and .beBraveRough
-     */
-    </style>
 
-    <footer>
-      <div class="btn-bar">
-        <button id="gotoTour" class="unimplemented">
-          <i class="fas fa-walking"></i>
-          Tour
-        </button>
-        <button id="gotoSettings">
-          <i class="fas fa-cog"></i>
-          Settings
-        </button>
-        <button id="gotoHelp" class="unimplemented">
-          <i class="fas fa-question-circle"></i>
-          Help
-        </button>
-        <button id="gotoAbout" >
-          <i class="fas fa-book"></i>
-          About
-        </button>
-        <a target="_blank" href="https://gitlab.com/calincs/access/HuViz">
-          <button>
-            <i class="fab fa-gitlab"></i>
-            GitLab
-          </button>
-        </a>
-        <!-- beBrave start -->
-        <a style="display:none" class="danger" target="_blank"
-           href="https://www.figma.com/proto/yAdTfgiRCUcpF7jHWzKMwb/LINCS?node-id=989%3A2&scaling=min-zoom&page-id=901%3A2&starting-point-node-id=978%3A7&show-proto-sidebar=1"><button>
-            <i class="fab fa-figma"></i>
-            Figma
-          </button>
-        </a>
-        <button class="danger" id="gotoCredit">
-          <i class="fas fa-list"></i>
-          Credit
-        </button>
-        <!-- beBrave end -->
-      </div>
-      <button>
-        <label class="beBrave" title="expose features under development in yellow">
-          <input type=checkbox XXXchecked=checked>
-          Be Brave
-        </label>
-      </button>
-    </footer>
   </div>
 </template>

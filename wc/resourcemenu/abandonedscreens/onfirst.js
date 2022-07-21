@@ -1,5 +1,3 @@
-import {PrimaryButton} from './primarybutton.js';
-
 const template = document.createElement('template');
 template.innerHTML = `
   <link rel="stylesheet" href="/huviz/css/introscreens.css" type="text/css">
@@ -13,19 +11,19 @@ template.innerHTML = `
     </div>
     <div class="option-list">
       <div class="option">
-        <primary-button buttonid="gotoStart" text="Start"></primary-button>
+        <button class="primary" id="gotoStart">Start</button>
         <p class="button-info">Pick a preloaded dataset, load your own file, or query
         an online knowledge base</p>
       </div>
       <div class="option">
-        <primary-button buttonid="gotoContinue" text="Continue"></primary-button>
+        <button class="primary" id="gotoContinue">Continue</button>
         <p class="button-info">Load an earlier HuViz session</p>
       </div>
     </div>
   </div>
 `;
 
-export class WelcomeScreen extends HTMLElement{
+export class OnFirst extends HTMLElement{
   constructor(){
     super();
     this.attachShadow({mode: 'open'});
@@ -33,4 +31,4 @@ export class WelcomeScreen extends HTMLElement{
   }
 }
 
-window.customElements.define('welcome-screen', WelcomeScreen);
+window.customElements.define('on-first', OnFirst);

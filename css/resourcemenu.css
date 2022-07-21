@@ -1,0 +1,134 @@
+:root {
+  --big-xy: clamp(50vh,500px,700px); /* the side length of the bigbox ie the outer box */
+  --lil-xy: calc(var(--big-xy) * .66); /* the side length of the lilbox ie the inner box */
+  --dif-xy: calc(var(--big-xy) - var(--lil-xy)); /* the difference in side length of the bigbox and lilbox */
+  --hlf-dif-xy: calc(var(--dif-xy) / 2); /* half the difference between bigbox and lilbox side lengths */
+  --hed-h: calc(var(--dif-xy) / 2.2); /* height of header and footer */
+  --logo-xy: calc(var(--hed-h) * .80); /* side length of header logo */
+  --logo-pad: calc((var(--hed-h) - var(--logo-xy)) / 1); /* top padding of logo */
+  --fntsiz: calc(var(--lil-xy)/26); /* base font-size */
+  --content-h: calc(var(--lil-xy) - 2 * --fntsiz);
+  font-size: var(--fntsiz);
+}
+.ring {
+  z-index: -1;
+}
+.bigbox {
+  /* center this bad boy */
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 45vw;
+  height: 45vw;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+
+}
+.content {
+  overflow-y: auto;
+  height: var(--content-h);
+  background-color: #f7f7f7;
+  border-radius: .3em;
+}
+.supports-dnd.is-dragover .content {
+  background-color: red;
+}
+/* .onDataset, onOntology, onScript, onSPARQL, onCredit */
+.pick_or_provide_item {
+  text-decoration-line: underline;
+  cursor: pointer;
+  display: inline-block;
+}
+.pick_or_provide_item::after {
+  content: "|";
+  padding-left: .3em;
+  padding-right: .3em;
+  text-decoration-line: none;
+}
+.optgrp > h3 {
+  text-align: left;
+  margin-top: .3em;
+  margin-bottom: 0em;
+  padding-left: 0em;
+}
+.optgrp > h3::after {
+  content: ":"
+}
+/* onBrowse */
+.delete_option {
+  display: none;
+  width: 0;
+}
+/* onUpload */
+form.hasCustomOnto #ontologyTitle,
+form:not(.hasCustomOnto) #ontologyUpload {
+  /* swap visibility of these two on toggle(hasCustomOnto) */
+  display: none;
+}
+.onUpload input,
+.onUpload .ontologyTitle {
+  display: inline;
+  width: 13em;
+}
+.onUpload label {
+}
+#defaultOntologyUri ,
+#defaultOntologyName {
+  display: none;
+  width: 0em;
+  height: 0em;
+}
+/* The dataset Upload button and input[type=file] */
+.onUpload label[for=datasetUpload] {
+  /* background-color: orange; */
+}
+.onUpload #datasetUpload::-webkit-file-upload-button,
+.onUpload #datasetUpload::file-selector-button,
+.onUpload #ontologyUpload::-webkit-file-upload-button,
+.onUpload #ontologyUpload::file-selector-button {
+  /* https://developer.mozilla.org/en-US/docs/Web/CSS/::file-selector-button */
+  opacity:0; /* hiding it this way preserves accessibility, unlike display:none */
+  width:1em;
+}
+.supports-dnd {
+  /*
+  left: var(--hlf-dif-xy);
+  width: var(--lil-xy);
+  height: var(--lil-xy);
+  outline: 2px dashed black;
+  margin: 3px;
+  outline-offset: -2px;
+  border: 6px;
+  padding: 8px;
+  margin: 3px;
+  outline-offset: -2px;
+  border: 6px;
+  padding: 8px;
+  */
+}
+.box__uri {
+  width: 80%;
+}
+.box__uri:invalid {
+  color: red;
+}
+.box__uri:valid {
+  color: green;
+}
+.drop_indicator {
+  /* top: .2em; */
+  right: .5em;
+  position: absolute;
+  color: lightblue;
+}
+
+/* onGo */
+#loadingOntologyName,
+#loadingDatasetName {
+  display: block;
+}

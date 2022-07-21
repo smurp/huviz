@@ -1,4 +1,3 @@
-import {PrimaryButton} from './primarybutton.js';
 import {BackButton} from './backbutton.js';
 const template = document.createElement('template');
 template.innerHTML = `
@@ -13,15 +12,15 @@ template.innerHTML = `
     </div>
     <div class="option-list" flex-basis="25%">
       <div class="option">
-        <primary-button buttonid="gotoBrowse" text="Load"></primary-button>
+        <button class="primary" id="gotoBrowse">Load</button>
         <p class="button-info">Load an exising or community contributed dataset</p>
       </div>
       <div class="option">
-        <primary-button buttonid="gotoContinue" text="Upload"></primary-button>
+        <button class="primary" id="gotoUpload">Upload</button>
         <p class="button-info">Upload your own dataset or drag and drop anywhere on the page</p>
       </div>
       <div class="option">
-        <primary-button buttonid="gotoSearch" text="Search"></primary-button>
+        <button class="primary" id="gotoSearch">Search</button>
         <p class="button-info">Search an online knowledge base</p>
       </div>
       <div class="option input">
@@ -30,7 +29,7 @@ template.innerHTML = `
              accept=".trig,.ttl,.jsonld,.nt,.owl,.rdf,.nq,.xml"
              class="box__uri"
              placeholder="Or enter URL here" />
-      <action-button text="Load URL"></action-button>
+      <button class="action">Load URL</button>
     </div>
   </div>
 `;

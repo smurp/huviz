@@ -1,11 +1,11 @@
 :root{
-  --prim-button-bg: #107386;
-  --prim-button-bg-hover: #135174;
-  --sec-button-bg: #ffffff;
-  --sec-button-bg-hover: #F1EDED;
-  --action-button-color: #0072b2;
-  --action-button-bg: #ffffff;
-  --action-button-bg-hover:#0072b2;
+  --prim-btn-bg: #107386;
+  --prim-btn-bg-hover: #135174;
+  --sec-btn-bg: #ffffff;
+  --sec-btn-bg-hover: #F1EDED;
+  --action-btn-color: #0072b2;
+  --action-btn-bg: #ffffff;
+  --action-btn-bg-hover:#0072b2;
   --font-white: #ffffff;
   --font-black: #333333;
   --font-grey: #696868;
@@ -20,26 +20,64 @@ h1, h2, h3, h4, h5, h6{
   font: var(--font);
   color: var(--font-black);
 }
-
 h1{
   font-size: 24px;
   font-weight: bold;
 }
-
 p{
   font-size: 16px;
   color: var(--font-black);
 }
 
-div.innerscreen{
+div.navbar{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  column-gap: 5%;
+  width: 40vw;
+  height: 6vw;
+}
+.navbar-item>a{
+  font: var(--font);
+  font-size: 22px;
+  line-height: 1.8em;
+  color: var(--font-black);
+  text-decoration: none;
+}
+.navbar-item:hover>a{
+  color: var(--action-btn-color);
+  text-decoration: underline;
+}
+.logo>svg{
+  max-width: 8.8vw;
+  max-height: 5.3vw;
+}
+
+
+.supports-dnd{
+  height: 90%;
+}
+.supports-dnd.is-dragover .content {
+  background-color: red;
+  height: 100%;
+}
+
+main{
+  position: relative;
+  display: flex;
+  margin: 4vw;
+  height: 90%;
+}
+
+div.displayscreen{
   padding: 1.5vw 1vw;
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
   align-items: center;
   justify-content: flex-start;
-  width: inherit;
-  height: 80%;
   row-gap: 5%;
 }
 
@@ -47,9 +85,10 @@ div.screen-info{
   display: flex;
   flex-direction: column;
   height: fit-content;
+  width: 90%;
   margin: 0;
+  flex-basis: 20%;
 }
-
 div.screen-info>h1,
 div.screen-info>p{
   text-align:center;
@@ -57,23 +96,32 @@ div.screen-info>p{
   margin: 0;
 }
 
-.back{
+/*.back{
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
   font-size: 14px;
   color:var(--btn-actions-blue);
+}*/
+button.back{
+  min-width: fit-content;
+  max-width: fit-content;
+  height: auto;
+  border: none;
+  color: var(--btn-actions-blue);
+  font-size: 16px;
+  background: #ffffff;
+  padding: 8px;
 }
-div.back>svg{
-  width: 16px;
+button.back>p>svg{
+  width: auto;
   height: 16px;
+  vertical-align: text-bottom;
 }
-div.back>p{
-  color:var(--btn-actions-blue)
+button.back:hover{
+  text-decoration: underline;
 }
-
-
 
 div.option-list{
   display: flex;
@@ -82,8 +130,7 @@ div.option-list{
   align-items: flex-start;
   justify-content: flex-start;
   padding: 0vw 1.5vw;
-  width: inherit;
-  max-height: 100%;
+  flex-basis: 60%;
   row-gap: 10%;
 }
 
@@ -93,19 +140,19 @@ div.option{
   justify-content: flex-start;
   align-items: center;
   width:100%;
+  max-width: 100%;
   column-gap: 5%;
 }
-
 div.option.input{
   justify-content: space-between;
-  width: 100%;
-  flex-basis: 50%;
+  max-width: 100%;
 }
 
 input.url-input, input::placeholder{
   font-size: 16px;
   padding: 0.3vw;
-  width: 100%;
+  max-width: 100%;
+  min-width: 70%;
 }
 
 div.category-list{
@@ -115,11 +162,9 @@ div.category-list{
   align-items: flex-start;
   row-gap: 10%;
   max-height: 100%;
-  width: 100%;
   max-width: 100%;
   padding: 0vw 1.5vw;
 }
-
 div.category{
   display: flex;
   flex-direction: column;
@@ -134,11 +179,36 @@ div.category.preview{
   max-height: 75%;
   min-height: 0;
 }
-
 div.category.preview>div.pill-list{
   max-height: 100%;
   overflow: hidden;
   min-height: 0;
+}
+div.pill-list{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: center;
+  row-gap: 5%;
+  overflow: hidden;
+  max-height: 5vw;
+  min-width: 100%;
+  max-width: 100%;
+}
+div.pill{
+  padding: 0.3vw 0.775vw;
+  border: 0.116vw solid #9fb1df;
+  border-radius: 20px;
+  color: #1d1d1d;
+  font-family: var(--font);
+  font-size: 14px;
+  justify-content: space-between;
+  display: inline;
+  margin: 0.3vw;
+}
+div.pill:hover{
+  background: rgba(159, 177, 223, 0.3);
 }
 
 div.category-header{
@@ -149,25 +219,26 @@ div.category-header{
   height: fit-content;
   margin: 0.5vw;
 }
-
 div.category-header>h3{
   text-align: left;
   font-size: 16px;
   font-weight: bold;
   margin: 0;
 }
-
 div.category-header>p{
   text-align: left;
   font-size: 14px;
   color: var(--font-grey);
   margin: 0;
 }
-
 div.category-header>svg{
   width: 0.3vw;
   height: auto;
   padding: 0.5vw;
+  color: var(--font-grey);
+}
+p.view-all{
+  font-size: 12px;
   color: var(--font-grey);
 }
 
@@ -193,60 +264,30 @@ button.disabled.action{
 
 button.primary {
   border: none;
-  background: var(--prim-button-bg);
+  background: var(--prim-btn-bg);
   color: var(--font-white);
 }
 button.primary:hover {
-  background: var(--prim-button-bg-hover);
+  background: var(--prim-btn-bg-hover);
 }
 
 button.secondary{
   border: 0.078vw solid #c4c4c4;
   text-align
-  background: var(--sec-button-bg);
+  background: var(--sec-btn-bg);
   color: var(--font-black);
 }
 button.secondary:hover {
-  background: var(--sec-button-bg-hover);
+  background: var(--sec-btn-bg-hover);
 }
 
 button.action{
-  border: 0.155vw solid var(--action-button-color);
+  border: 0.155vw solid var(--action-btn-color);
   padding: 0.5vw 1vw;
-  color: var(--action-button-color);
-  background: var(--action-button-bg);
+  color: var(--action-btn-color);
+  background: var(--action-btn-bg);
 }
 button.action:hover{
-  background: var(--action-button-bg-hover);
+  background: var(--action-btn-bg-hover);
   color: var(--font-white);
-}
-
-p.view-all{
-  font-size: 12px;
-  color: var(--font-grey);
-}
-
-div.pill-list{
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  overflow: hidden;
-  max-height: 5vw;
-  justify-content: flex-start;
-  align-items: center;
-  row-gap: 5%;
-}
-div.pill{
-  padding: 0.3vw 0.775vw;
-  border: 0.116vw solid #9fb1df;
-  border-radius: 20px;
-  color: #1d1d1d;
-  font-family: var(--font);
-  font-size: 14px;
-  justify-content: space-between;
-  display: inline;
-  margin: 0.3vw;
-}
-div.pill:hover{
-  background: rgba(159, 177, 223, 0.3);
 }
