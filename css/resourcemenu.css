@@ -19,15 +19,22 @@
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 45vw;
-  height: 45vw;
+
+  width: 46vw;
+  height: 44vw;
   border-radius: 50%;
+
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
 
+  background-image: url(/images/introCircle.svg);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center;
+  background-size: contain;
 }
 .content {
   overflow-y: auto;
@@ -35,9 +42,7 @@
   background-color: #f7f7f7;
   border-radius: .3em;
 }
-.supports-dnd.is-dragover .content {
-  background-color: red;
-}
+
 
 /* onBrowse */
 .delete_option {
@@ -45,16 +50,12 @@
   width: 0;
 }
 /* onUpload */
-form.hasCustomOnto #ontologyTitle,
-form:not(.hasCustomOnto) #ontologyUpload {
-  /* swap visibility of these two on toggle(hasCustomOnto) */
-  display: none;
-}
-.onUpload input,
+
+/* .onUpload input,
 .onUpload .ontologyTitle {
   display: inline;
   width: 13em;
-}
+} */
 .onUpload label {
 }
 #defaultOntologyUri ,
@@ -65,32 +66,17 @@ form:not(.hasCustomOnto) #ontologyUpload {
 }
 /* The dataset Upload button and input[type=file] */
 .onUpload label[for=datasetUpload] {
-  /* background-color: orange; */
+  /* background-color: orange;  */
 }
-.onUpload #datasetUpload::-webkit-file-upload-button,
+
+/* .onUpload #datasetUpload::-webkit-file-upload-button,
 .onUpload #datasetUpload::file-selector-button,
 .onUpload #ontologyUpload::-webkit-file-upload-button,
 .onUpload #ontologyUpload::file-selector-button {
-  /* https://developer.mozilla.org/en-US/docs/Web/CSS/::file-selector-button */
-  opacity:0; /* hiding it this way preserves accessibility, unlike display:none */
+  https://developer.mozilla.org/en-US/docs/Web/CSS/::file-selector-button
+  opacity:0; hiding it this way preserves accessibility, unlike display:none
   width:1em;
-}
-.supports-dnd {
-  /*
-  left: var(--hlf-dif-xy);
-  width: var(--lil-xy);
-  height: var(--lil-xy);
-  outline: 2px dashed black;
-  margin: 3px;
-  outline-offset: -2px;
-  border: 6px;
-  padding: 8px;
-  margin: 3px;
-  outline-offset: -2px;
-  border: 6px;
-  padding: 8px;
-  */
-}
+} */
 .box__uri {
   width: 80%;
 }

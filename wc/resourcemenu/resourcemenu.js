@@ -239,7 +239,7 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
       validate();
     }
     // must use userGeneratedClickEvt, otherwise it will be rejected
-    this.datasetUpload?.click(userGeneratedClickEvt); // fake click 'Choose File'
+    //this.datasetUpload?.click(userGeneratedClickEvt); // fake click 'Choose File'
   }
   _validate_onUpload() {
     const {form} = this.drop_loader;
@@ -251,11 +251,13 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     console.debug('_validate_onUpload()', {
       datasetUri, ontologyUri, isValid
     });
-    form.classList.toggle('hasCustomOnto', hasCustomOnto);
+    console.log(form.classList.toggle('hasCustomOnto', hasCustomOnto));
     if (isValid) {
       this.visualizeUploadBtn.removeAttribute('disabled');
+      this.visualizeUploadBtn.classList.remove('disabled');
     } else {
       this.visualizeUploadBtn.setAttribute('disabled', 'disabled');
+      this.visualizeUploadBtn.classList.add('disabled');
     }
   }
   // onUpload end

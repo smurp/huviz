@@ -2,7 +2,7 @@
   <style class="fontawesomeness">/* see programmatic insertion of dom.css() */</style>
   <link rel="stylesheet" href="/huviz/css/introscreens.css" type="text/css">
   <link rel="stylesheet" href="/huviz/css/resourcemenu.css" type="text/css">
-  <div class="bigbox" style="border-style: dotted">
+  <div class="bigbox floating-circle">
     <!--header>
       <a onclick="location.reload()"><i class="fas fa-home"></i></a>
     </header-->
@@ -30,6 +30,12 @@
       </div>
     </main>
 
+    <!-- <main class="onFirst">
+      <div class="displayscreen">
+
+      </div>
+    </main> -->
+
     <form class="local_file_form supports-dnd" XXXmethod="post" action="" enctype="multipart/form-data">
 
       <main class="onStart">
@@ -39,9 +45,11 @@
             <p>
               Pick a preloaded dataset, load your own file, or query an online knowledge base
             </p>
-            <button class="back" id="esc">
-              <i class="fas fa-chevron-left"></i>   Back
-            </button>
+            <div class="action-button-bar">
+              <button class="back" id="esc">
+                <i class="fas fa-chevron-left"></i>   Back
+              </button>
+            </div>
           </div>
           <div class="option-list" flex-basis="25%">
             <div class="option">
@@ -56,44 +64,66 @@
               <button class="primary" id="gotoSearch">Search</button>
               <p class="button-info">Search an online knowledge base</p>
             </div>
+
             <div class="option input">
-              <input class="url-input" name="datasetUri" type="url" text="accepts extension jsonld|nt|nq|owl|rdf|ttl|trig|xml"
-                     pattern=".*(jsonld|nt|nq|owl|rdf|ttl|trig|xml)$"
-                     accept=".trig,.ttl,.jsonld,.nt,.owl,.rdf,.nq,.xml"
-                     class="box__uri"
-                     placeholder="Or enter URL here" ></input>
-              <button class="action">Load URL</button>
+              <div class="dndloaderHere">
+                <div class="box__input" style="display:none">
+                  <div class="box__dragndrop" style="display:none">
+                    Drop URL or file here
+                  </div>
+                </div>
+                <input class="url-input" name="datasetUri" type="url"
+                       text="accepts extension jsonld|nt|nq|owl|rdf|ttl|trig|xml"
+                       pattern=".*(jsonld|nt|nq|owl|rdf|ttl|trig|xml)$"
+                       accept=".trig,.ttl,.jsonld,.nt,.owl,.rdf,.nq,.xml"
+                       class="box__uri"
+                       placeholder="Or enter URL here" />
+                <!--<button id="gotoURL2" disabled=disabled><i class="fas fa-sign-in-alt"></i></button>-->
+                <button class="action box__upload_button" type="submit">Load URL</button>
+                <div class="box__uploading" style="display:none">Uploading&hellip;</div>
+                <div class="box__success" style="display:none">Done!</div>
+                <div class="box__error" style="display:none">Error! <span></span>.</div>
+              </div>
             </div>
-          </div>
         </div>
       </main>
-      <main class="onUpload">
-        <i id="esc">Back to Start Menu</i>
-        <h1>Choose file for upload</h1>
-        <div class="content">
-          <dl>
-            <dt>Dataset</dt>
-            <dd>
-              <input id="datasetUpload" type="file" name="uploadDataset"
-                     accept=".trig, .ttl, .jsonld, .nt, .owl, .rdf, .nq, .xml">
-              <button><label for="datasetUpload">change</label></button>
-            </dd>
 
-            <dt>Ontology</dt>
-            <dd>
-              <input id="ontologyUpload" type="file" name="uploadOntology"
+      <main class="onUpload">
+        <div class="displayscreen">
+          <div class="screen-info">
+            <h1>Upload</h1>
+            <p>Import a dataset to visualize</p>
+            <div class="action-button-bar">
+              <button class="back" id="esc">
+                <i class="fas fa-chevron-left"></i>   Back
+              </button>
+              <button class="action disabled" id="vizUpload" type="submit"
+                          disabled=disabled>Load</button>
+            </div>
+          </div>
+          <div class="file-upload">
+            <h3>Upload Dataset</h3>
+            <div class="file-input">
+              <div class="file-input-info">
+                <input id="datasetUpload" type="file" name="uploadDataset"
+                       accept=".trig, .ttl, .jsonld, .nt, .owl, .rdf">
+                <p>Supported file formats .ttl, .json, .owl</p>
+              </div>
+              <button class="secondary"><label for="datasetUpload">Choose File</label></button>
+            </div>
+            <h3>Upload Ontology</h3>
+            <div class="file-input">
+              <div class="file-input-info">
+                <input id="ontologyUpload" type="file" name="uploadOntology"
                      accept=".trig, .ttl, .jsonld, .nt, .owl, .rdf">
+                <p>Supported file formarts .ttl, .json, .owl</p>
+              </div>
               <span id="ontologyTitle">Default Ontology</span>
-              <button><label for="ontologyUpload">change</label></button>
               <input id="defaultOntologyUri" type="uri" value="/data/owl_mini.ttl"/>
               <input id="defaultOntologyName" type="text" value="OWL Mini"/>
-            </dd>
-
-            <dt></dt>
-            <dd><button id="vizUpload" type="submit"
-                        disabled=disabled>See It!</button></dd>
-          </dl>
-
+              <button class="secondary"><label for="ontologyUpload">Choose File</label></button>
+            </div>
+          </div>
         </div>
       </main>
     </form>
@@ -105,9 +135,11 @@
           <p>
             Load an existing or community contributed dataset
           </p>
-          <button class="back" id="esc">
-            <i class="fas fa-chevron-left"></i>   Back
-          </button>
+          <div class="action-button-bar">
+            <button class="back" id="esc">
+              <i class="fas fa-chevron-left"></i>   Back
+            </button>
+          </div>
         </div>
         <div class="category-list">
           <div id="datasetHere"></div>
@@ -266,7 +298,5 @@
       <div class="content">
       </div>
     </main>
-
-
   </div>
 </template>
