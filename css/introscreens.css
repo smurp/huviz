@@ -46,7 +46,10 @@ div.navbar{
   height: 6vw; */
   padding: 1vw;
 }
-.navbar-item>a{
+.navbar-item{
+  min-width: 5vw;
+}
+.navbar-item> a{
   font: var(--font);
   font-size: 22px;
   line-height: 1.8em;
