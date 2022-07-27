@@ -50,6 +50,7 @@ switch (process.env.NODE_ENV) {
   case 'development':
     cooked_argv.push("--faststart");
     cooked_argv.push("--git_commit_hash");
+    cooked_argv.push("--usecdn");
     cooked_argv.push("8e3849b");
     console.log(cooked_argv);
     break;
@@ -137,10 +138,12 @@ app.set("/views", __dirname + "/views");
 app.set("/views/tabs", path.join(__dirname, 'tabs', "views"));
 app.use('/huviz/css', express.static(__dirname + '/css'));
 app.use("/huviz", express.static(__dirname + '/lib'));
+/* On the way out to get around Error 128 during gitlab build
 app.use('/jquery-ui-css',
   express.static(__dirname + '/node_modules/components-jqueryui/themes/smoothness'));
 app.use('/jquery-ui',
   express.static(__dirname + '/node_modules/components-jqueryui'));
+*/
 app.use('/jquery', express.static(__dirname + '/node_modules/jquery/dist'));
 app.use('/jquery-simulate-ext__libs',
   express.static(__dirname + '/node_modules/jquery-simulate-ext/libs'));
