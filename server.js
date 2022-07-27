@@ -153,7 +153,7 @@ app.use('/d3', express.static(__dirname + '/node_modules/d3'));
 // Ideally we would do this....
 // `app.use('/quaff-lod', express.static(__dirname + '/node_modules/quaff-lod/'))`
 // but that fails while quaff-lod is being referenced as a symlink in package.json
-const quaff_module_path = process.env.QUAFF_PATH || path.join(__dirname,"node_modules","quaff-lod");
+const quaff_module_path = path.join(__dirname,"node_modules","quaff-lod");
 app.use('/quaff-lod/quaff-lod-worker-bundle.js',
     express.static(quaff_module_path + "/quaff-lod-worker-bundle.js"));
 app.use('/data', express.static(__dirname + '/data'));
