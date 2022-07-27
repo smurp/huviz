@@ -34,7 +34,6 @@ p{
   color: var(--font-dark);
 }
 
-
 div.navbar{
   display: flex;
   flex-direction: row;
@@ -42,8 +41,10 @@ div.navbar{
   justify-content: flex-start;
   align-items: flex-start;
   column-gap: 5%;
-  width: 40vw;
-  height: 6vw;
+  /*dimensions for when navbar is in top left*/
+  /* width: 40vw;
+  height: 6vw; */
+  padding: 1vw;
 }
 .navbar-item>a{
   font: var(--font);
@@ -53,10 +54,11 @@ div.navbar{
   text-decoration: none;
 }
 .navbar-item:hover>a{
-  color: var(--action-btn-color);
+  color: var(--action-blue);
   text-decoration: underline;
 }
 .logo>svg{
+  /* dimensions for when navbar is in top left*/
   max-width: 8.8vw;
   max-height: 5.3vw;
 }
@@ -64,6 +66,12 @@ div.navbar{
 
 .supports-dnd{
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-width: 100%;
+  max-width: 100%;
 }
 .supports-dnd.is-dragover main{
   background-color: var(--green);
@@ -72,8 +80,13 @@ div.navbar{
 main{
   position: relative;
   display: flex;
-  margin: 4vw;
-  height: 90%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0vw 3vw;
+  min-height: 90%;
+  max-height: 90%;
+  width: 80%;
 }
 
 div.displayscreen{
@@ -86,6 +99,8 @@ div.displayscreen{
   row-gap: 5%;
   min-width: 100%;
   max-width: 100%;
+  min-height: 90%;
+  max-height: 90%;
 }
 
 div.screen-info{

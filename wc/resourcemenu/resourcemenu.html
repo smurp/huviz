@@ -2,6 +2,27 @@
   <style class="fontawesomeness">/* see programmatic insertion of dom.css() */</style>
   <link rel="stylesheet" href="/huviz/css/introscreens.css" type="text/css">
   <link rel="stylesheet" href="/huviz/css/resourcemenu.css" type="text/css">
+  <!--puts navbar in upper left, which currently does not work-->
+  <!--div class="navbar">
+    <div class="logo">
+      <a href="https://huviz.lincsproject.ca/">
+      <img src="/images/HuVizLogo.svg"></img>
+      </a>
+    </div>
+    <!--div class="navbar-item">
+      <a>Docs</a>
+    </div>
+    <div class="navbar-item" id="gotoAbout">
+      <a>About</a>
+    </div>
+    <div class="navbar-item" id="gotoCredit">
+      <a>Credits</a>
+    </div>
+    <div class="navbar-item">
+      <a href="https://gitlab.com/calincs/access/huviz" target="_blank">Gitlab</a>
+    </div>
+  </div-->
+
   <div class="bigbox floating-circle">
     <!--header>
       <a onclick="location.reload()"><i class="fas fa-home"></i></a>
@@ -85,6 +106,7 @@
                 <div class="box__error" style="display:none">Error! <span></span>.</div>
               </div>
             </div>
+          </div>
         </div>
       </main>
 
@@ -298,5 +320,20 @@
       <div class="content">
       </div>
     </main>
+
+    <div class="navbar" style="justify-content: center; height: 3vw;">
+      <div class="navbar-item">
+        <a>Docs</a>
+      </div>
+      <div class="navbar-item" id="gotoAbout">
+        <a>About</a>
+      </div>
+      <div class="navbar-item" id="gotoCredit">
+        <a>Credits</a>
+      </div>
+      <div class="navbar-item">
+        <a href="https://gitlab.com/calincs/access/huviz" target="_blank">Gitlab</a>
+      </div>
+    </div>
   </div>
 </template>

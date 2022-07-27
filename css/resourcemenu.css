@@ -23,10 +23,11 @@
   width: 46vw;
   height: 44vw;
   border-radius: 50%;
+  padding: 5vw;
 
   display: flex;
   flex-direction: column;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: center;
 
