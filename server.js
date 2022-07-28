@@ -50,6 +50,7 @@ switch (process.env.NODE_ENV) {
   case 'development':
     cooked_argv.push("--faststart");
     cooked_argv.push("--git_commit_hash");
+    cooked_argv.push("--usecdn");
     cooked_argv.push("8e3849b");
     console.log(cooked_argv);
     break;
@@ -137,10 +138,12 @@ app.set("/views", __dirname + "/views");
 app.set("/views/tabs", path.join(__dirname, 'tabs', "views"));
 app.use('/huviz/css', express.static(__dirname + '/css'));
 app.use("/huviz", express.static(__dirname + '/lib'));
+/* On the way out to get around Error 128 during gitlab build
 app.use('/jquery-ui-css',
   express.static(__dirname + '/node_modules/components-jqueryui/themes/smoothness'));
 app.use('/jquery-ui',
   express.static(__dirname + '/node_modules/components-jqueryui'));
+*/
 app.use('/jquery', express.static(__dirname + '/node_modules/jquery/dist'));
 app.use('/jquery-simulate-ext__libs',
   express.static(__dirname + '/node_modules/jquery-simulate-ext/libs'));
@@ -150,7 +153,7 @@ app.use('/d3', express.static(__dirname + '/node_modules/d3'));
 // Ideally we would do this....
 // `app.use('/quaff-lod', express.static(__dirname + '/node_modules/quaff-lod/'))`
 // but that fails while quaff-lod is being referenced as a symlink in package.json
-const quaff_module_path = process.env.QUAFF_PATH || path.join(__dirname,"node_modules","quaff-lod");
+const quaff_module_path = path.join(__dirname,"node_modules","quaff-lod");
 app.use('/quaff-lod/quaff-lod-worker-bundle.js',
     express.static(quaff_module_path + "/quaff-lod-worker-bundle.js"));
 app.use('/data', express.static(__dirname + '/data'));
