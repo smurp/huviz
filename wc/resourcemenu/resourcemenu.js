@@ -64,6 +64,8 @@ var resMenFSMTTL= `
          st:onGo       tr:none          st:done .
          st:onGo       tr:esc           st:onStart .
 
+         st:onAbout    tr:esc           st:onFirst .
+
          # st:ANY        tr:gotoAbout     st:onAbout .
          # st:ANY        tr:gotoCredit    st:onCredit .
          # st:ANY        tr:gotoHelp      st:onHelp .

@@ -20,8 +20,8 @@
   top: 50%;
   transform: translate(-50%, -50%);
 
-  width: 46vw;
-  height: 44vw;
+  width: 40vw;
+  height: 38vw;
   border-radius: 50%;
   padding: 5vw 5vw 6vw;
 
@@ -40,7 +40,7 @@
 .content {
   overflow-y: auto;
   height: var(--content-h);
-  background-color: #f7f7f7;
+  background-color: #ffffff;
   border-radius: .3em;
 }
 

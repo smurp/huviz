@@ -294,30 +294,64 @@
     </main>
 
     <main class="onCredit">
-      <i id="esc"></i>
-      <h2>Credits</h2>
-      <div class="content tabs-credit">
-      </div>
-    </main>
-
-    <main class="onHelp">
-      <i id="esc"></i>
-      <h2>Help</h2>
-      <div class="content">
+      <div class="displayscreen">
+        <div class="screen-info">
+          <h1>Credits</h1>
+          <div class="action-button-bar">
+            <button class="back" id="esc">
+              <i class="fas fa-chevron-left"></i>   Back
+            </button>
+          </div>
+        </div>
+        <div class="content tabs-credits">
+          <!-- <div class="logos">
+            <a href="http://www.cwrc.ca"><img src="/huviz/docs/cwrc_logo.png" alt="CWRC Logo"></a>
+            <a href="http://orlando.cambridge.org"><img src="/huviz/docs/orlando_tree_logo.png" alt="Orlando Logo"></a>
+            <a href="http://nooron.com"><img src="/huviz/docs/nooron_logo.png" alt="Nooron Logo"></a>
+            <a href="http://www.sshrc-crsh.gc.ca"><img src="/huviz/docs/sshrc_logo_en2.png" alt="SSHRC Logo"></a>
+            <a href="https://www.canarie.ca"><img src="/huviz/docs/CANARIE_v2.png" alt="Canarie Logo"></a>
+          </div> -->
+        </div>
       </div>
     </main>
 
     <main class="onAbout">
-      <i id="esc"></i>
-      <h2>About</h2>
-      <div class="content tabs-intro">
-      </div>
-    </main>
+      <div class="displayscreen">
+        <div class="screen-info">
+          <h1>About</h1>
+          <div class="action-button-bar">
+            <button class="back" id="esc">
+              <i class="fas fa-chevron-left"></i>   Back
+            </button>
+          </div>
+        </div>
+        <div class="about-info">
+          <p>The Humanities Visualizer (HuViz) interface allows for the exploration
+            of semantic relationships and ontologies represented using the Resource
+            Description Framework (RDF).
+          </p>
+          <p>You can load your own ontology and/or dataset, or you can chose to explore
+            an existing dataset.
+          </p>
 
-    <main class="onTour">
-      <i id="esc"></i>
-      <h2>Tour</h2>
-      <div class="content">
+          <div class="triple-example">
+            <p>RDF triples can assert things like:</p>
+            <p><span class="ex-sub">Virginia Woolf</span>
+              <span class="ex-pred">hasGender</span>
+              <span class="ex-obj">woman</span></p>
+              <p><span class="ex-sub">Virginia Woolf</span>
+                <span class="ex-pred">inhabits</span>
+                <span class="ex-obj">London</span></p>
+          </div>
+          <p>In addition to datasets, HuViz is also able to display ontologies,
+            the formal definition of things and relationships. Supported extensions
+            are: .jsonld, .nq, .nquads, .nt, .n3, .trig, .ttl, .rdf and .xml
+          </p>
+          <p>HuViz is Available on GitLab<br>
+            Datasets: CC - Attribution-NonCommercial<br>
+            Screenshots of HuViz: CC - Attribution
+          </p>
+        </div>
       </div>
     </main>
 
@@ -334,6 +368,11 @@
       <div class="navbar-item">
         <a href="https://gitlab.com/calincs/access/huviz" target="_blank">Gitlab</a>
       </div>
+    </div>
+    <div class="logo">
+      <a href="https://huviz.lincsproject.ca/">
+      <img src="/images/HuVizLogo.svg"></img>
+      </a>
     </div>
   </div>
 </template>

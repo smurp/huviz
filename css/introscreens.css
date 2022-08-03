@@ -381,3 +381,56 @@ form:not(.hasCustomOnto) #ontologyUpload {
   /* swap visibility of these two on toggle(hasCustomOnto) */
   display: none;
 }
+
+
+.about-info{
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: 100%;
+}
+.about-info>p{
+  font-size: 16px;
+  margin: 0.5vw 0vw;
+}
+.about-info>div.triple-example{
+  text-align: center;
+}
+.about-info>div.triple-example>p>span{
+  font-family: 'Courier New';
+  font-weight: bold;
+}
+span.ex-sub{
+  color: red;
+}
+span.ex-obj{
+  color: blue;
+}
+
+div.tabs-credits>h2{
+  text-align: left;
+  margin: 0.5vw 1vw 0;
+  font-size: 16px;
+  font-weight: bold;
+}
+div.tabs-credits>h3{
+  text-align: left;
+  margin: 0.5vw 1vw 0;
+  font-size: 14px;
+  font-weight: normal;
+}
+div.tabs-credits>ul{
+  list-style-type: none;
+  margin: 0.5vw 1vw 0;
+  font-size: 14px;
+  margin: 0;
+}
+div.logos{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-evenly;
+}
+div.logos>a>img{
+  max-width: 3vw;
+}

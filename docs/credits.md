@@ -1,65 +1,72 @@
 
-# HuViz Research Team
+<div class="logos">
+[![CWRC Logo](/huviz/docs/cwrc_logo.png)](http://www.cwrc.ca)
+[![Orlando Logo](/huviz/docs/orlando_tree_logo.png)](http://orlando.cambridge.org)
+[![Nooron Logo](/huviz/docs/nooron_logo.png)](http://nooron.com)
+[![SSHRC Logo](/huviz/docs/sshrc_logo_en2.png)](http://www.sshrc-crsh.gc.ca)
+[![Canarie Logo](/huviz/docs/CANARIE_v2.png)](https://www.canarie.ca)
+</div>
 
-## Susan Brown
+## HuViz Research Team
+### Susan Brown
 * susan.brown@ualberta.ca
 * CWRC Project Lead: 2013-present
 
-## Joel Cummings
+### Joel Cummings
 * Technical Consultant: 2017-present
 * Ontology development
 
-## Shawn Murphy
+### Shawn Murphy
 * shawn@nooron.com
 * Software Developer
 * Development Lead
 
-## Stéfan Sinclair
+### Stéfan Sinclair
 * stefan.sinclair@mcgill.ca
 * Researcher; Interface Design and Development Advisor: 2013-2016
 
-## Jana Smith Elford
+### Jana Smith Elford
 * smithelf@ualberta.ca
 * Graduate Research Associate: Sept. 2015-present
 * Graduate Research Assistant: 2013-2015
 * User Testing; Interface Design and Development Consultant
 
-## Kathryn Holland
+### Kathryn Holland
 * hollandk5@macewan.ca
 * Senior Research Associate: Sept. 2013-Present
 * User Testing; Interface Design and Development Consultant
 
-## Mihaela Illovan
+### Mihaela Illovan
 * ilovan@ualberta.ca
 * Project Manager, Canadian Writing Research Collaboratory (CWRC): Feb 2014-Present
 * User Testing; Interface Design and Development Consultant
 
-## Kim Martin
+### Kim Martin
 * kmarti20@uoguelph.ca
 * Postdoctoral Fellow: 2015-Present
 * User Testing Lead; Interface Design and Development Consultant
 
-## Chelsea Miya
+### Chelsea Miya
 * cmiya@ualberta.ca
 * Graduate Research Assistant: 2014-Present
 * Documentation; User Testing; Interface Design and Development Consultant
 * HuViz Project Manager 2016-
 
-## Wolf Maul
+### Wolf Maul
 * wolf@nooron.com
 * Software Developer
 * UX Designer
 
-## John Simpson
+### John Simpson
 * john.simpson@ualberta.ca
 * Research Associate: 2014-2015
 * Postdoctoral Fellow: Sept 2012-Dec 2014
 * Interface Design and Development Consultant; HuViz Project Manager 2013-2015
 
-## Robert Warren
+### Robert Warren
 * Research Associate; Technical Consultant: 2015-2017
 
-# Funders
+## Funders
 
 * CANARIE: CWRC Extension (PI: Susan Brown)
 
@@ -73,24 +80,16 @@
 
 * SHARCNET: Dedicated Programming Resources Grant for OVis (PI: Mike Bauer)
 
-# Partners
+## Partners
 
-## The Canadian Writing Research Collaboratory
+### The Canadian Writing Research Collaboratory
 
 * http://www.cwrc.ca
 
-## The Orlando Project
+### The Orlando Project
 
 * http://orlando.cambridge.org
 
-## Nooron Collaboratory
+### Nooron Collaboratory
 
 * http://nooron.com
-
-<p id="logos">
-[![CWRC Logo](/huviz/docs/cwrc_logo.png)](http://www.cwrc.ca)
-[![Orlando Logo](/huviz/docs/orlando_tree_logo.png)](http://orlando.cambridge.org)
-[![Nooron Logo](/huviz/docs/nooron_logo.png)](http://nooron.com)
-[![SSHRC Logo](/huviz/docs/sshrc_logo_en2.png)](http://www.sshrc-crsh.gc.ca)
-[![Canarie Logo](/huviz/docs/CANARIE_v2.png)](https://www.canarie.ca)
-</p>
