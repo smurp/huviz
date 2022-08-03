@@ -155,18 +155,16 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
   clickListener(evt) {
     let target = evt.target;
     let targetId = target.id;
-
-//removed this if statement on jul. 21 -- was interfering with back button implementation, and at this point in
-//redesign, the buttons that used this (footer, old escape, home) are not yet implemented or will not be
-//preserving in case of later need but am pretty sure this will eventually be deleted
-    // The svg and path elements injected by fontawesome  don't have ids but need to be ignored
-    // if (!targetId && ['svg','path'].includes(target.nodeName)) {
-    //   console.debug("seeking new target because on id found on", target)
-    //   target = target.closest('main, button, [id]');
-    //   console.debug('closest target:', target);
-    //   targetId = target?.id;  // get the id if there is one
-    // }
+    console.log(target);
     console.debug('clickListener', {evt, targetId});
+
+    // //show dropdowns on click
+    if(target.id.includes('-dd')){
+      this.querySelector(`.${target.id}-content`).classList.toggle('show');
+    }
+    // if(target.id.includes('-dd')){
+    //   this.querySelector(`.${target.id}-content`).classList.toggle('show');
+    // }
     if (targetId) {
       try {
         this.transit(targetId, evt);
@@ -183,7 +181,9 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     */
     this.querySelectorAll(selector).forEach((item) => {
       //console.debug("addEventListener", {item});
-      item.addEventListener('click', handler);
+      if(!item.id.includes('-dd')){
+        item.addEventListener('click', handler);
+      }
     })
   }
   enter__(evt, stateId) {

@@ -51,11 +51,7 @@
       </div>
     </main>
 
-    <!-- <main class="onFirst">
-      <div class="displayscreen">
 
-      </div>
-    </main> -->
 
     <form class="local_file_form supports-dnd" XXXmethod="post" action="" enctype="multipart/form-data">
 
@@ -82,7 +78,7 @@
               <p class="button-info">Upload your own dataset or drag and drop anywhere on the page</p>
             </div>
             <div class="option">
-              <button class="primary" id="gotoSearch">Search</button>
+              <button class="primary" id="gotoQuery">Search</button>
               <p class="button-info">Search an online knowledge base</p>
             </div>
 
@@ -194,17 +190,26 @@
       </div>
     </main>
 
-    <main class="oldContinue">
-      <i id="esc">Back to Start Menu</i>
-      <h1>Continue a Session</h1>
-      <div class="content">
-        <p>Continue a previous session</p>
-        <div id="scriptHere"></div>
-      </div>
-    </main>
-
     <main class="onContinue">
-      <on-continue></on-continue>
+      <div class="display-screen">
+        <div class="displayscreen">
+          <div class="screen-info">
+            <h1>Continue</h1>
+            <p>
+              Continue a previous session
+            </p>
+            <div class="action-button-bar">
+              <button class="back" id="esc">
+                <i class="fas fa-chevron-left"></i>   Back
+              </button>
+            </div>
+          </div>
+          <div class="content">
+            <p>Continue a previous session</p>
+            <div id="scriptHere"></div>
+          </div>
+        </div>
+      </div>
     </main>
 
     <main class="onScriptDetail">
@@ -215,83 +220,195 @@
       </div>
     </main>
 
-    <!--
-      These are for historical interest, to be removed once the redesign is complete
-      -->
-    <main class="onFront">
-      <i id="esc"></i>
-      <h1>HuViz</h1>
-      <p>
-        The Humanities Visualizer (HuViz) lets you explore the semantic
-        relationships in linked datasets through interactive graphs.
-      </p>
-      <dl compact>
-        <dt><button id="gotoDataset">Dataset</button></dt>
-        <dd>Pick a preloaded dataset, or load your own file</dd>
-        <dt><button id="gotoScript">Script</button></dt>
-        <dd>Load a script from an earlier HuViz Session</dd>
-        <dt><button id="gotoSPARQL">SPARQL</button></dt>
-        <dd>Search a linked open datraset</dd>
-      </dl>
-    </main>
-
-    <main class="onDataset" style="display:none">
-      <i id="esc"></i>
-      <h2>Dataset</h2>
-      <p>Pick a dataset or ontology to visualize, or load your own</p>
-      <div id="datasetHere"></div>
-      <div id="ontologyHere"></div>
-    </main>
-
-    <main class="onScript" style="display:none">
-      <i id="esc"></i>
-      <h2>Scripts</h2>
-      <div id="scriptHere"></div>
-    </main>
-
-    <main class="onQuery" style="display:none">
-      <i id="esc">Back to Start Menu</i>
-      <h2>SPARQL</h2>
-      <div id="endpointHere"></div>
-      <div style="display:none;background:pink;border-radius:.5em;padding:.5em;border:1px black dashed">
-        <a href="/#query+https%3A%2F%2Flov.linkeddata.es%2Fdataset%2Flov%2Fsparql+from+http%3A%2F%2Fcomicmeta.org%2Fcbo%2F+seeking+http%3A%2F%2Fcomicmeta.org%2Fcbo%2FPanel+limit+200">comicmeta.org/Panel</a>
+    <main class="onQuery">
+      <div class="displayscreen">
+        <div class="screen-info">
+          <h1>Search</h1>
+          <p>
+            Select an online knowledge base to query
+          </p>
+          <div class="action-button-bar">
+            <button class="back" id="esc">
+              <i class="fas fa-chevron-left"></i>   Back
+            </button>
+          </div>
+        </div>
+        <div class="category-list">
+          <div id="endpointHere">
+          </div>
+        </div>
       </div>
     </main>
+
+    <!-- <main class="testQuery">
+      <div class="displayscreen">
+        <div class="screen-info">
+          <h1>Search</h1>
+          <p>
+            Select an online knowledge base to query
+          </p>
+          <div class="action-button-bar">
+            <button class="back" id="esc">
+              <i class="fas fa-chevron-left"></i>   Back
+            </button>
+          </div>
+        </div>
+        <div class="query-dropdowns">
+          <div class="dropdown">
+            <button id="endpoints-dd" class="dropbtn">
+              Endpoints
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="endpoints-dd-content dropdown-content">
+              <div id="endpointHere">
+                </div>
+            </div>
+          </div>
+          <div class="dropdown">
+            <button id="graphs-dd" class="dropbtn">
+              Graphs
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="graphs-dd-content dropdown-content">
+              <div id="sparqlDetailHere">
+                <select style="display:none" slot="graphSelector" size="7" id="sparqlGraphOptions">
+                </select>
+              </div>
+            </div>
+          </div>
+          <div id="sparqlQryInput" class="ui-widget sparqlQryInput">
+            <label for="endpoint_labels">Find: </label>
+            <input id="endpoint_labels">
+            <i class="fas fa-spinner fa-spin" style="visibility:hidden;margin-left: 5px;"></i>
+            <div>
+              <label for="endpoint_limit">Node Limit: </label>
+              <input id="endpoint_limit">
+            </div>
+            <div style="display:none">
+              <label for="spo_query">(s,p,o) query: </label><br/>
+              <textarea id="spo_query" value="" style="width:90%" rows="5"
+                        placeholder="spo_placeholder"></textarea>
+              <p><i>pick graph, then enter query producing one or more <code>s,p,o</code></i></p>
+            </div>
+            <button disabled=disabled id="gotoVisQuery">LOAD</button>
+          </div>
+        </div>
+      </div>
+    </main> -->
+
+    <!-- <main class="onQueryDropdowns">
+      <div class="displayscreen">
+        <div class="screen-info">
+          <h1>Search</h1>
+          <p>
+            Select an online knowledge base to query
+          </p>
+          <div class="action-button-bar">
+            <button class="back" id="esc">
+              <i class="fas fa-chevron-left"></i>   Back
+            </button>
+          </div>
+        </div>
+        <div class="query-dropdowns">
+          <div class="dropdown">
+            <button id="endpoints-dd" class="dropbtn">
+              Endpoints
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="endpoints-dd-content dropdown-content">
+              <div id="endpointHere"></div>
+            </div>
+          </div>
+          <div class="dropdown">
+            <button id="graphs-dd" class="dropbtn">
+              Graphs
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="graphs-dd-content dropdown-content">
+              <div>KB 1</div>
+              <div>KB 2</div>
+              <div>KB 3</div>
+              <div>KB 4</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main> -->
 
     <main class="onQueryDetail" style="display:none">
-      <i id="esc">Back to SPARQL Endpoints</i>
-      <h2>Query Detail</h2>
-      <p>Select a node limit and Search Starting Node</p>
-      <div id="sparqlDetailHere" class="content">
-        <div class="ui-widget" style="margin-top:5px;margin-left:10px;">
-          <label>Graphs: </label>
-          <select style="display:none" slot="graphSelector" size="7" id="sparqlGraphOptions">
-          </select>
-        </div>
-        <div id="sparqlGraphSpinner"
-             style="display:none;font-style:italic;">
-          <i class="fas fa-spinner fa-spin" style="margin: 10px 10px 0 50px;"></i>
-          Looking for graphs...
-        </div>
-        <div id="sparqlQryInput" class="ui-widget sparqlQryInput"
-             style="margin-top:5px;margin-left:10px;color:#999;">
-          <label for="endpoint_labels">Find: </label>
-          <input id="endpoint_labels">
-          <i class="fas fa-spinner fa-spin" style="visibility:hidden;margin-left: 5px;"></i>
-          <div>
-            <label for="endpoint_limit">Node Limit: </label>
-            <input id="endpoint_limit">
+      <div class="displayscreen">
+        <div class="screen-info">
+          <h1>Search</h1>
+          <p>
+            Select the knowledge graph, node limit, and starting node
+          </p>
+          <div class="action-button-bar">
+            <button class="back" id="esc">
+              <i class="fas fa-chevron-left"></i>   Back
+            </button>
           </div>
-          <div style="display:none">
-            <label for="spo_query">(s,p,o) query: </label><br/>
-            <textarea id="spo_query" value="" style="width:90%" rows="5"
-                      placeholder="spo_placeholder"></textarea>
-            <p><i>pick graph, then enter query producing one or more <code>s,p,o</code></i></p>
+        </div>
+        <div class="graph-select">
+          <div id="sparqlDetailHere">
+            <div class="ui-widget">
+              <select style="display:none" slot="graphSelector" id="sparqlGraphOptions" class="before-select">
+              </select>
+            </div>
+            <div id="sparqlGraphSpinner"
+                 style="display:none;font-style:italic;">
+              <i class="fas fa-spinner fa-spin"></i>
+              Looking for graphs...
+            </div>
+            <div id="sparqlQryInput" class="ui-widget sparqlQryInput">
+              <label for="endpoint_labels">Find: </label>
+              <input id="endpoint_labels">
+              <i class="fas fa-spinner fa-spin" style="visibility:hidden;margin-left: 5px;"></i>
+              <div>
+                <label for="endpoint_limit">Node Limit: </label>
+                <input id="endpoint_limit">
+              </div>
+              <div style="display:none">
+                <label for="spo_query">(s,p,o) query: </label><br/>
+                <textarea id="spo_query" value="" style="width:90%" rows="5"
+                          placeholder="spo_placeholder"></textarea>
+                <p><i>pick graph, then enter query producing one or more <code>s,p,o</code></i></p>
+              </div>
+              <button disabled=disabled id="gotoVisQuery">LOAD</button>
+            </div>
           </div>
-          <button disabled=disabled id="gotoVisQuery">LOAD</button>
+          <div id="sparqlDetailHere" class="content">
+            <div class="ui-widget">
+              <select style="display:none" slot="graphSelector" id="sparqlGraphOptions" class="after-select">
+              </select>
+            </div>
+            <div id="sparqlGraphSpinner"
+                 style="display:none;font-style:italic;">
+              <i class="fas fa-spinner fa-spin"></i>
+              Looking for graphs...
+            </div>
+            <div id="sparqlQryInput" class="ui-widget sparqlQryInput">
+              <label for="endpoint_labels">Find: </label>
+              <input id="endpoint_labels">
+              <i class="fas fa-spinner fa-spin" style="visibility:hidden;"></i>
+              <div>
+                <label for="endpoint_limit">Node Limit: </label>
+                <input id="endpoint_limit">
+              </div>
+              <div style="display:none">
+                <label for="spo_query">(s,p,o) query: </label><br/>
+                <textarea id="spo_query" value="" style="width:90%" rows="5"
+                          placeholder="spo_placeholder"></textarea>
+                <p><i>pick graph, then enter query producing one or more <code>s,p,o</code></i></p>
+              </div>
+              <button disabled=disabled id="gotoVisQuery">LOAD</button>
+            </div>
+          </div>
         </div>
       </div>
+
+
     </main>
+
 
     <main class="onCredit">
       <div class="displayscreen">
@@ -304,13 +421,6 @@
           </div>
         </div>
         <div class="content tabs-credits">
-          <!-- <div class="logos">
-            <a href="http://www.cwrc.ca"><img src="/huviz/docs/cwrc_logo.png" alt="CWRC Logo"></a>
-            <a href="http://orlando.cambridge.org"><img src="/huviz/docs/orlando_tree_logo.png" alt="Orlando Logo"></a>
-            <a href="http://nooron.com"><img src="/huviz/docs/nooron_logo.png" alt="Nooron Logo"></a>
-            <a href="http://www.sshrc-crsh.gc.ca"><img src="/huviz/docs/sshrc_logo_en2.png" alt="SSHRC Logo"></a>
-            <a href="https://www.canarie.ca"><img src="/huviz/docs/CANARIE_v2.png" alt="Canarie Logo"></a>
-          </div> -->
         </div>
       </div>
     </main>
@@ -375,4 +485,6 @@
       </a>
     </div>
   </div>
+
+
 </template>

@@ -306,7 +306,7 @@ div.pill-list{
   align-items: center;
   row-gap: 5%;
   overflow: hidden;
-  max-height: 5vw;
+  /*max-height: 5vw;*/
   min-width: 100%;
   max-width: 100%;
 }
@@ -382,6 +382,90 @@ form:not(.hasCustomOnto) #ontologyUpload {
   display: none;
 }
 
+div.query-dropdowns{
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  width: 100%;
+  height:100%;
+  row-gap: 10%;
+}
+div.dropdown{
+  width: 100%;
+}
+.dropdown>button.dropbtn{
+  background-color: var(--white);
+  border-radius: 0;
+  border:none;
+  border-bottom: 1px solid var(--grey);
+  font-size: 16px;
+  width: 100%;
+  padding: 1vw;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+.dropdown>button.dropbtn:hover{
+  color: var(--action-blue);
+}
+.dropdown>button.dropbtn>svg{
+  color: var(--action-blue);
+}
+.dropdown-content{
+  display: none;
+}
+.dropdown-content.show{
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  row-gap:5%;
+
+  position: absolute;
+  z-index: 1;
+
+  height: 65%;
+  max-height: 65%;
+  width: 100%;
+  max-width: 100%;
+  padding: 1vw;
+
+  overflow: auto;
+  background: var(--white);
+}
+
+.graph-select{
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  row-gap: 5%;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+}
+.ui-widget{
+  height: 100%;
+  width: 100%;
+}
+select{
+  border: none;
+  overflow: auto;
+}
+select.before-select{
+  width: 100%;
+  height: 100%;
+}
+select.after-select{
+  height: 30%;
+}
+select>option{
+  font-size: 16px;
+  padding: 0.2vw;
+}
 
 .about-info{
   display: flex;
