@@ -240,62 +240,6 @@
       </div>
     </main>
 
-    <!-- <main class="testQuery">
-      <div class="displayscreen">
-        <div class="screen-info">
-          <h1>Search</h1>
-          <p>
-            Select an online knowledge base to query
-          </p>
-          <div class="action-button-bar">
-            <button class="back" id="esc">
-              <i class="fas fa-chevron-left"></i>   Back
-            </button>
-          </div>
-        </div>
-        <div class="query-dropdowns">
-          <div class="dropdown">
-            <button id="endpoints-dd" class="dropbtn">
-              Endpoints
-              <i class="fas fa-chevron-down"></i>
-            </button>
-            <div class="endpoints-dd-content dropdown-content">
-              <div id="endpointHere">
-                </div>
-            </div>
-          </div>
-          <div class="dropdown">
-            <button id="graphs-dd" class="dropbtn">
-              Graphs
-              <i class="fas fa-chevron-down"></i>
-            </button>
-            <div class="graphs-dd-content dropdown-content">
-              <div id="sparqlDetailHere">
-                <select style="display:none" slot="graphSelector" size="7" id="sparqlGraphOptions">
-                </select>
-              </div>
-            </div>
-          </div>
-          <div id="sparqlQryInput" class="ui-widget sparqlQryInput">
-            <label for="endpoint_labels">Find: </label>
-            <input id="endpoint_labels">
-            <i class="fas fa-spinner fa-spin" style="visibility:hidden;margin-left: 5px;"></i>
-            <div>
-              <label for="endpoint_limit">Node Limit: </label>
-              <input id="endpoint_limit">
-            </div>
-            <div style="display:none">
-              <label for="spo_query">(s,p,o) query: </label><br/>
-              <textarea id="spo_query" value="" style="width:90%" rows="5"
-                        placeholder="spo_placeholder"></textarea>
-              <p><i>pick graph, then enter query producing one or more <code>s,p,o</code></i></p>
-            </div>
-            <button disabled=disabled id="gotoVisQuery">LOAD</button>
-          </div>
-        </div>
-      </div>
-    </main> -->
-
     <!-- <main class="onQueryDropdowns">
       <div class="displayscreen">
         <div class="screen-info">
@@ -346,61 +290,28 @@
             <button class="back" id="esc">
               <i class="fas fa-chevron-left"></i>   Back
             </button>
+            <button class="disabled" disabled=disabled id="gotoVisQuery">LOAD</button>
           </div>
         </div>
         <div class="graph-select">
-          <div id="sparqlDetailHere">
-            <div class="ui-widget">
+          <div id="sparqlDetailHere" class="sparqlDetail">
               <select style="display:none" slot="graphSelector" id="sparqlGraphOptions" class="before-select">
               </select>
-            </div>
             <div id="sparqlGraphSpinner"
                  style="display:none;font-style:italic;">
               <i class="fas fa-spinner fa-spin"></i>
               Looking for graphs...
             </div>
-            <div id="sparqlQryInput" class="ui-widget sparqlQryInput">
-              <label for="endpoint_labels">Find: </label>
-              <input id="endpoint_labels">
-              <i class="fas fa-spinner fa-spin" style="visibility:hidden;margin-left: 5px;"></i>
-              <div>
-                <label for="endpoint_limit">Node Limit: </label>
-                <input id="endpoint_limit">
+            <div id="sparqlQryInput" class="sparqlQryInput">
+              <div class="query-input">
+                <div>
+                  <input class="sparql-input" id="endpoint_labels" placeholder="Starting Node Name">
+                </div>
+                <i class="fas fa-spinner fa-spin" style="visibility:hidden;"></i>
+                <div>
+                  <input class="sparql-input" id="endpoint_limit" placeholder="Node Limit">
+                </div>
               </div>
-              <div style="display:none">
-                <label for="spo_query">(s,p,o) query: </label><br/>
-                <textarea id="spo_query" value="" style="width:90%" rows="5"
-                          placeholder="spo_placeholder"></textarea>
-                <p><i>pick graph, then enter query producing one or more <code>s,p,o</code></i></p>
-              </div>
-              <button disabled=disabled id="gotoVisQuery">LOAD</button>
-            </div>
-          </div>
-          <div id="sparqlDetailHere" class="content">
-            <div class="ui-widget">
-              <select style="display:none" slot="graphSelector" id="sparqlGraphOptions" class="after-select">
-              </select>
-            </div>
-            <div id="sparqlGraphSpinner"
-                 style="display:none;font-style:italic;">
-              <i class="fas fa-spinner fa-spin"></i>
-              Looking for graphs...
-            </div>
-            <div id="sparqlQryInput" class="ui-widget sparqlQryInput">
-              <label for="endpoint_labels">Find: </label>
-              <input id="endpoint_labels">
-              <i class="fas fa-spinner fa-spin" style="visibility:hidden;"></i>
-              <div>
-                <label for="endpoint_limit">Node Limit: </label>
-                <input id="endpoint_limit">
-              </div>
-              <div style="display:none">
-                <label for="spo_query">(s,p,o) query: </label><br/>
-                <textarea id="spo_query" value="" style="width:90%" rows="5"
-                          placeholder="spo_placeholder"></textarea>
-                <p><i>pick graph, then enter query producing one or more <code>s,p,o</code></i></p>
-              </div>
-              <button disabled=disabled id="gotoVisQuery">LOAD</button>
             </div>
           </div>
         </div>

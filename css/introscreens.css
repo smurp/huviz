@@ -454,10 +454,11 @@ div.dropdown{
 select{
   border: none;
   overflow: auto;
+  width: 100%;
 }
 select.before-select{
-  width: 100%;
-  height: 100%;
+  /* width: 100%;
+  height: 100%; */
 }
 select.after-select{
   height: 30%;
@@ -466,6 +467,58 @@ select>option{
   font-size: 16px;
   padding: 0.2vw;
 }
+.graph-select{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  row-gap: 5%;
+}
+.sparqlDetail> select{
+  overflow-x: clip;
+  border: 1px solid var(--grey);
+}
+.sparqlDetail{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  row-gap:10%;
+  width: 100%;
+  height: 50%;
+}
+.sparqlQryInput{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+div.query-input{
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  row-gap: 5%;
+  width: 100%
+}
+div.query-input>div{
+  width: 100%;
+}
+input.sparql-input{
+  border-radius: 5px;
+  border: 1px solid var(--light-grey);
+}
+
+input.sparql-input, input.sparql-input::placeholder{
+  font-size: 16px;
+  padding: 0.3vw;
+  max-width: 100%;
+  min-width: 70%;
+}
+
 
 .about-info{
   display: flex;

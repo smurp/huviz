@@ -155,7 +155,6 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
   clickListener(evt) {
     let target = evt.target;
     let targetId = target.id;
-    console.log(target);
     console.debug('clickListener', {evt, targetId});
 
     // //show dropdowns on click
