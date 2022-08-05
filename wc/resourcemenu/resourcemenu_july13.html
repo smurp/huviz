@@ -1,0 +1,698 @@
+<template id="resource-menu">
+  <style class="fontawesomeness">/* see programmatic insertion of dom.css() */</style>
+  <style>
+    :root {
+      /* Why does putting custom properties here not work? */
+    }
+    * {
+      --big-xy: clamp(50vh,500px,700px); /* the side length of the bigbox ie the outer box */
+      --lil-xy: calc(var(--big-xy) * .66); /* the side length of the lilbox ie the inner box */
+      --dif-xy: calc(var(--big-xy) - var(--lil-xy)); /* the difference in side length of the bigbox and lilbox */
+      --hlf-dif-xy: calc(var(--dif-xy) / 2); /* half the difference between bigbox and lilbox side lengths */
+      --hed-h: calc(var(--dif-xy) / 2.2); /* height of header and footer */
+      --logo-xy: calc(var(--hed-h) * .80); /* side length of header logo */
+      --logo-pad: calc((var(--hed-h) - var(--logo-xy)) / 1); /* top padding of logo */
+      --fntsiz: calc(var(--lil-xy)/26); /* base font-size */
+      --content-h: calc(var(--lil-xy) - 2 * --fntsiz);
+      font-size: var(--fntsiz);
+    }
+    #logo {
+      padding-top: var(--logo-pad);
+      width: var(--logo-xy);
+      height: var(--logo-xy);
+      left: 50%;
+    }
+    #esc {
+      position: absolute;
+      bottom: 0.2em;
+      left: 0em;
+      cursor: pointer;
+    }
+    #esc::before {
+      content:' ←';
+      font-size: large;
+      cursor: pointer;
+      border: .8em;
+    }
+    .ring {
+      z-index: -1;
+    }
+    .beBrave {
+      background-color: yellow;
+      font-size: small;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      text-align: center;
+    }
+    button {
+      border-radius: .5em;
+      justify-content: center !important;
+    }
+    .bigbox {
+      /* center this bad boy */
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+
+      /* https://developer.mozilla.org/en-US/docs/Web/CSS/background-image */
+      background-image: url(/images/node_ring.png);
+      background-size: cover;
+      background-clip: border-box;
+      width: var(--big-xy);
+      height: var(--big-xy);
+      border-radius: 50%;
+      /* border: 1px dashed green; */
+    }
+    .uptop {
+      position:absolute;
+      left:50%;
+      top:-10%;
+      transform: translate(30%,30%);
+    }
+    header, footer, main {
+      /* border: 1px dotted grey; */
+      position: relative;
+      left: var(--hlf-dif-xy);
+    }
+    header {
+    }
+    header, footer {
+      z-index: 10;
+      height: var(--hed-h);
+      width: var(--lil-xy);
+      text-align: center;
+      text-valign: center;
+    }
+    footer {
+    }
+    .btn-bar {
+      display: flex;
+      flex-grow: 5;
+      justify-content: space-evenly;
+    }
+    footer button {
+      border: none;
+      align: center;
+      zoom: .7;
+      background-color: white;
+      radius: 0px;
+    }
+    footer button svg,
+    footer button input {
+      display: block !important;
+      zoom: 2;
+    }
+    .unimplemented {
+      background-color: darkgrey;
+    }
+    main { /* aka the lilbox */
+      width: var(--lil-xy);
+      height: var(--lil-xy);
+      overflow: auto;
+    }
+    dt, dd {
+      margin: 0;
+      /* padding: .3em 2em; */
+      /* border-top: 1px solid red; */
+    }
+    dl {
+      display: grid;
+      grid-template: auto / 1fr 3fr;
+    }
+    dd {
+      padding: .5em;
+    }
+    dt {
+      width: var(--hed-h);;
+    }
+    dt button {
+      border-radius: 1em;
+      padding: .3em;
+      background-color: white;
+      float: right;
+    }
+    p {
+      text-align: center;
+      font-size: 85%;
+    }
+    .content {
+      overflow-y: auto;
+      height: var(--content-h);
+      background-color: #f7f7f7;
+      border-radius: .3em;
+    }
+    .supports-dnd.is-dragover .content {
+      background-color: red;
+    }
+    /* .onDataset, onOntology, onScript, onSPARQL, onCredit */
+    .pick_or_provide_item {
+      text-decoration-line: underline;
+      cursor: pointer;
+      display: inline-block;
+    }
+    .pick_or_provide_item::after {
+      content: "|";
+      padding-left: .3em;
+      padding-right: .3em;
+      text-decoration-line: none;
+    }
+    .optgrp > h3 {
+      text-align: left;
+      margin-top: .3em;
+      margin-bottom: 0em;
+      padding-left: 0em;
+    }
+    .optgrp > h3::after {
+      content: ":"
+    }
+    /* onBrowse */
+    .delete_option {
+      display: none;
+      width: 0;
+    }
+    /* onFront */
+    .onFront #esc {
+      display: none; /* close button not needed on front */
+    }
+    /* onUpload */
+    form.hasCustomOnto #ontologyTitle,
+    form:not(.hasCustomOnto) #ontologyUpload {
+      /* swap visibility of these two on toggle(hasCustomOnto) */
+      display: none;
+    }
+    .onUpload input,
+    .onUpload .ontologyTitle {
+      display: inline;
+      width: 13em;
+    }
+    .onUpload label {
+    }
+    .onUpload dt,
+    .onGo dt {
+      font-weight: bold;
+    }
+    #defaultOntologyUri ,
+    #defaultOntologyName {
+      display: none;
+      width: 0em;
+      height: 0em;
+    }
+    /* The dataset Upload button and input[type=file] */
+    .onUpload label[for=datasetUpload] {
+      /* background-color: orange; */
+    }
+    .onUpload #datasetUpload::-webkit-file-upload-button,
+    .onUpload #datasetUpload::file-selector-button,
+    .onUpload #ontologyUpload::-webkit-file-upload-button,
+    .onUpload #ontologyUpload::file-selector-button {
+      /*
+        https://developer.mozilla.org/en-US/docs/Web/CSS/::file-selector-button
+       */
+      opacity:0; /* hiding it this way preserves accessibility, unlike display:none */
+      width:1em;
+    }
+    /* onStart */
+    .box__uploading,
+    .box__success,
+    .box__error {
+      display: none;
+    }
+    .box__error {
+      background-color: red;
+    }
+    .box__file {
+      width: 0.1px;
+      height: 0.1px;
+      opacity: 0;
+      overflow: hidden;
+      position: absolute;
+      z-index: -1;
+    }
+    .box__upload_button {
+      display: none;
+    }
+    .box__label {
+      display: none;
+    }
+    .supports-dnd {
+      /*
+      left: var(--hlf-dif-xy);
+      width: var(--lil-xy);
+      height: var(--lil-xy);
+      outline: 2px dashed black;
+      margin: 3px;
+      outline-offset: -2px;
+      border: 6px;
+      padding: 8px;
+      margin: 3px;
+      outline-offset: -2px;
+      border: 6px;
+      padding: 8px;
+      */
+    }
+    .box__uri {
+      width: 80%;
+    }
+    .box__uri:invalid {
+      color: red;
+    }
+    .box__uri:valid {
+      color: green;
+    }
+    .drop_indicator {
+      /* top: .2em; */
+      right: .5em;
+      position: absolute;
+      color: lightblue;
+    }
+
+    /* onGo */
+    #loadingOntologyName,
+    #loadingDatasetName {
+      display: block;
+    }
+
+    /* onCredit */
+    .tabs-credit #logos img {
+      height: 64px;
+      padding: 5px;
+    }
+    .tabs-credit h1 {
+      display: block;
+      font-size: 1.3em;
+      padding-top: 0.1em;
+      padding-bottom: 0.2em;
+      padding-top: 0px;
+      padding-bottom: 0px;
+      font-weight: medium;
+    }
+    .tabs-credit h2,h3 {
+      text-align: left;
+      display: inline-block;
+      font-size: 1.05em;
+      margin-top: 0.3em;
+      padding-bottom: 0.1em;
+      margin-top: 0px;
+      margin-bottom: 0px;
+      font-weight: bold;
+    }
+    .tabs-credit ul {
+      padding: 0px;
+      margin: 0px;
+      margin-left: 1em;
+      margin-bottom: .8em;
+    }
+    .tabs-credit li {
+      margin: 5px;
+    }
+    .tabs-credit p {
+      text-align: left;
+    }
+
+    /* tabs-intro styling */
+
+    .current-git-branch{
+      background-color: PaleGreen;
+    }
+    .current-git-branch:before {
+      content: '✔';
+      color: DarkGreen;
+    }
+    .tabs-intro {
+      font-size: 90%;
+    }
+    .tabs-intro p {
+      margin-top: .2em;
+      text-indent: 1.2em;
+    }
+    .tabs-intro ul {
+      margin-top: .5em;
+      margin-bottom: .5em;
+      font-family: Courier;
+      font-size: 90%;
+    }
+    .tabs-intro ul {
+      list-style: none outside none;
+    }
+    .tabs-intro h1 {
+      font-size: 36px;
+    }
+    .tabs-intro h2 {
+      font-size: 18px;
+    }
+    .tabs-intro h1, h2, h4, h6{
+      text-align: center;
+      margin-top: 0px;
+      margin-bottom: 0px;
+    }
+    .huviz-versions {
+      text-align: center;
+      font-size: 100%;
+    }
+    .tabs-intro h3 {
+      margin-bottom: 0px;
+    }
+    .tabs-intro ul {
+      padding-left: 16px;
+    }
+    .eg-subject {
+      color: red;
+    }
+    .eg-verb {
+      color: green;
+    }
+    .eg-object {
+      color: blue;
+    }
+  </style>
+  <div class="bigbox">
+    <header>
+      <a href="/"><img id="logo" src="/images/HuVizLogoBlackRim.png"/></a>
+      <a onclick="location.reload()"><i class="fas fa-home"></i></a>
+    </header>
+
+    <main class="onFirst">
+      <h1>HuViz</h1>
+      <p>
+        The Humanities Visualizer (HuViz) lets you explore the semantic
+        relationships in linked datasets through interactive graphs.
+      </p>
+      <dl compact>
+        <dt><b>New Here?</b></dt>
+        <dd>
+          <!-- HuViz needs a reload() to follow hash links to start graphing -->
+          Explore with a
+          <button
+            onclick="location.assign(this.getAttribute('href'));location.reload();"
+            href="/#load+/data/cwrc-writer-citation.jsonld+with+/data/oa.ttl">
+            mini
+          </button>
+          or
+          <button
+            onclick="location.assign(this.getAttribute('href'));location.reload();"
+            href="/#load+https://raw.githubusercontent.com/alliyya/huviz_demo_data/master/Harry%20Potter/hp_rdf_data.ttl+with+https://raw.githubusercontent.com/alliyya/huviz_demo_data/master/Harry%20Potter/hp_wd_terms.ttl">
+            Harry Potter
+          </button>
+          dataset
+        </dd>
+        <dt><button id="gotoStart">Start</button></dt>
+        <dd>
+          Pick a preloaded dataset, load your own file, or query
+          an online knowledge base
+        </dd>
+        <dt><button id="gotoContinue">Continue</button></dt>
+        <dd>Load an earlier HuViz session</dd>
+      </dl>
+    </main>
+
+    <form class="local_file_form supports-dnd" XXXmethod="post" action=""
+          enctype="multipart/form-data">
+
+    <main class="onStart">
+      <i id="esc">Back to Main Page</i>
+      <h1>Start</h1>
+      <div class="content">
+        <!-- <i class="drop_indicator fas fa-tint"></i> -->
+          <dl>
+            <dt><button id="gotoBrowse">Browse</button></dt>
+            <dd>Pick a beginner or community contributed dataset</dd>
+            <dt>
+              <label for="datasetUpload">
+                <button id="gotoUpload">Upload</button>
+              </label>
+            </dt>
+            <dd>
+              Upload your own dataset or drag and drop anywhere on this page
+            </dd>
+            <dt>
+              <button id="gotoURL" disabled=disabled>URL</button>
+            </dt>
+            <dd class="dndloaderHere">
+              <div class="box__input" style="display:none">
+                <button class="box__upload_button" type="submit">Upload</button>
+                <div class="box__dragndrop" style="display:none">
+                  Drop URL or file here
+                </div>
+              </div>
+              <input name="datasetUri"
+                     type="url"
+                     text="accepts extension jsonld|nt|nq|owl|rdf|ttl|trig|xml"
+                     pattern=".*(jsonld|nt|nq|owl|rdf|ttl|trig|xml)$"
+                     accept=".trig,.ttl,.jsonld,.nt,.owl,.rdf,.nq,.xml"
+                     class="box__uri"
+                     placeholder="Or enter URL here" />
+              <!--<button id="gotoURL2" disabled=disabled><i class="fas fa-sign-in-alt"></i></button>-->
+              <div class="box__uploading" style="display:none">Uploading&hellip;</div>
+              <div class="box__success" style="display:none">Done!</div>
+              <div class="box__error" style="display:none">Error! <span></span>.</div>
+
+            </dd>
+            <dt class="danger"><button id="gotoQuery">Query</button></dt>
+            <dd class="danger">Search an online knowledge base</dd>
+          </dl>
+
+      </div>
+    </main>
+
+    <main class="onUpload">
+      <i id="esc">Back to Start Menu</i>
+      <h1>Choose file for upload</h1>
+      <div class="content">
+        <dl>
+          <dt>Dataset</dt>
+          <dd>
+            <input id="datasetUpload" type="file" name="uploadDataset"
+                   accept=".trig, .ttl, .jsonld, .nt, .owl, .rdf, .nq, .xml">
+            <button><label for="datasetUpload">change</label></button>
+          </dd>
+
+          <dt>Ontology</dt>
+          <dd>
+            <input id="ontologyUpload" type="file" name="uploadOntology"
+                   accept=".trig, .ttl, .jsonld, .nt, .owl, .rdf">
+            <span id="ontologyTitle">Default Ontology</span>
+            <button><label for="ontologyUpload">change</label></button>
+            <input id="defaultOntologyUri" type="uri" value="/data/owl_mini.ttl"/>
+            <input id="defaultOntologyName" type="text" value="OWL Mini"/>
+          </dd>
+
+          <dt></dt>
+          <dd><button id="vizUpload" type="submit"
+                      disabled=disabled>See It!</button></dd>
+        </dl>
+
+      </div>
+    </main>
+
+    </form>
+
+    <main class="onBrowse">
+      <i id="esc">Back to Start Menu</i>
+      <h1>Browse</h1>
+      <div class="content">
+        <p>Beginner, etc</p>
+        <div id="datasetHere"></div>
+        <div id="ontologyHere" style="display:none"></div>
+        <pick-or-provide></pick-or-provide>
+        <pick-or-provide></pick-or-provide>
+      </div>
+    </main>
+
+    <main class="onGo">
+      <i id="esc">Back to Start Menu</i>
+      <h1>about to visualize</h1>
+      <div class="content">
+        <dl>
+          <dt>Dataset</dt>
+          <dd>
+            <span id="loadingDatasetName"></span>
+            <span id="loadingDatasetUri"></span>
+          </dd>
+          <dt>Ontology</dt>
+          <dd>
+            <span id="loadingOntologyName"></span>
+            <span id="loadingOntologyUri"></span>
+          </dd>
+        </dl>
+        <div class="fa-3x">
+          <i class="fas fa-spinner fa-spin"></i>
+        </div>
+      </div>
+    </main>
+
+    <main class="onContinue">
+      <i id="esc">Back to Start Menu</i>
+      <h1>Continue a Session</h1>
+      <div class="content">
+        <p>Continue a previous session</p>
+        <div id="scriptHere"></div>
+      </div>
+    </main>
+
+    <main class="onScriptDetail">
+      <i id="esc">Back to Start Menu</i>
+      <h1>Continue a Session</h1>
+      <div class="content">
+        <p>Continue a previous session</p>
+      </div>
+    </main>
+
+    <!--
+      These are for historical interest, to be removed once the redesign is complete
+      -->
+    <main class="onFront">
+      <i id="esc"></i>
+      <h1>HuViz</h1>
+      <p>
+        The Humanities Visualizer (HuViz) lets you explore the semantic
+        relationships in linked datasets through interactive graphs.
+      </p>
+      <dl compact>
+        <dt><button id="gotoDataset">Dataset</button></dt>
+        <dd>Pick a preloaded dataset, or load your own file</dd>
+        <dt><button id="gotoScript">Script</button></dt>
+        <dd>Load a script from an earlier HuViz Session</dd>
+        <dt><button id="gotoSPARQL">SPARQL</button></dt>
+        <dd>Search a linked open datraset</dd>
+      </dl>
+    </main>
+
+    <main class="onDataset" style="display:none">
+      <i id="esc"></i>
+      <h2>Dataset</h2>
+      <p>Pick a dataset or ontology to visualize, or load your own</p>
+      <div id="datasetHere"></div>
+      <div id="ontologyHere"></div>
+    </main>
+
+    <main class="onScript" style="display:none">
+      <i id="esc"></i>
+      <h2>Scripts</h2>
+      <div id="scriptHere"></div>
+    </main>
+
+    <main class="onQuery" style="display:none">
+      <i id="esc">Back to Start Menu</i>
+      <h2>SPARQL</h2>
+      <div id="endpointHere"></div>
+      <div style="display:none;background:pink;border-radius:.5em;padding:.5em;border:1px black dashed">
+        <a href="/#query+https%3A%2F%2Flov.linkeddata.es%2Fdataset%2Flov%2Fsparql+from+http%3A%2F%2Fcomicmeta.org%2Fcbo%2F+seeking+http%3A%2F%2Fcomicmeta.org%2Fcbo%2FPanel+limit+200">comicmeta.org/Panel</a>
+      </div>
+    </main>
+
+    <main class="onQueryDetail" style="display:none">
+      <i id="esc">Back to SPARQL Endpoints</i>
+      <h2>Query Detail</h2>
+      <p>Select a node limit and Search Starting Node</p>
+      <div id="sparqlDetailHere" class="content">
+        <div class="ui-widget" style="margin-top:5px;margin-left:10px;">
+          <label>Graphs: </label>
+          <select style="display:none" slot="graphSelector" size="7" id="sparqlGraphOptions">
+          </select>
+        </div>
+        <div id="sparqlGraphSpinner"
+             style="display:none;font-style:italic;">
+          <i class="fas fa-spinner fa-spin" style="margin: 10px 10px 0 50px;"></i>
+          Looking for graphs...
+        </div>
+        <div id="sparqlQryInput" class="ui-widget sparqlQryInput"
+             style="margin-top:5px;margin-left:10px;color:#999;">
+          <label for="endpoint_labels">Find: </label>
+          <input id="endpoint_labels">
+          <i class="fas fa-spinner fa-spin" style="visibility:hidden;margin-left: 5px;"></i>
+          <div>
+            <label for="endpoint_limit">Node Limit: </label>
+            <input id="endpoint_limit">
+          </div>
+          <div style="display:none">
+            <label for="spo_query">(s,p,o) query: </label><br/>
+            <textarea id="spo_query" value="" style="width:90%" rows="5"
+                      placeholder="spo_placeholder"></textarea>
+            <p><i>pick graph, then enter query producing one or more <code>s,p,o</code></i></p>
+          </div>
+          <button disabled=disabled id="gotoVisQuery">LOAD</button>
+        </div>
+      </div>
+    </main>
+
+    <main class="onCredit">
+      <i id="esc"></i>
+      <h2>Credits</h2>
+      <div class="content tabs-credit">
+      </div>
+    </main>
+
+    <main class="onHelp">
+      <i id="esc"></i>
+      <h2>Help</h2>
+      <div class="content">
+      </div>
+    </main>
+
+    <main class="onAbout">
+      <i id="esc"></i>
+      <h2>About</h2>
+      <div class="content tabs-intro">
+      </div>
+    </main>
+
+    <main class="onTour">
+      <i id="esc"></i>
+      <h2>Tour</h2>
+      <div class="content">
+      </div>
+    </main>
+
+    <style class="bravery">
+      /* toggleBeingBrave() controls the definitions of
+         .beBraveBroken and .beBraveRough
+     */
+    </style>
+
+    <footer>
+      <div class="btn-bar">
+        <button id="gotoTour" class="unimplemented">
+          <i class="fas fa-walking"></i>
+          Tour
+        </button>
+        <button id="gotoSettings">
+          <i class="fas fa-cog"></i>
+          Settings
+        </button>
+        <button id="gotoHelp" class="unimplemented">
+          <i class="fas fa-question-circle"></i>
+          Help
+        </button>
+        <button id="gotoAbout" >
+          <i class="fas fa-book"></i>
+          About
+        </button>
+        <a target="_blank" href="https://gitlab.com/calincs/access/HuViz">
+          <button>
+            <i class="fab fa-gitlab"></i>
+            GitLab
+          </button>
+        </a>
+        <!-- beBrave start -->
+        <a style="display:none" class="danger" target="_blank"
+           href="https://www.figma.com/proto/yAdTfgiRCUcpF7jHWzKMwb/LINCS?node-id=989%3A2&scaling=min-zoom&page-id=901%3A2&starting-point-node-id=978%3A7&show-proto-sidebar=1"><button>
+            <i class="fab fa-figma"></i>
+            Figma
+          </button>
+        </a>
+        <button class="danger" id="gotoCredit">
+          <i class="fas fa-list"></i>
+          Credit
+        </button>
+        <!-- beBrave end -->
+      </div>
+      <button>
+        <label class="beBrave" title="expose features under development in yellow">
+          <input type=checkbox XXXchecked=checked>
+          Be Brave
+        </label>
+      </button>
+    </footer>
+  </div>
+</template>

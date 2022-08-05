@@ -489,6 +489,10 @@ export let DatasetDBMixin = (superclass) => class extends superclass {
         const ds_on = `${ds_v} AND ${on_v}`;
       }
     }
+    else if(!disable) {
+      this.gotoVisQuery_elem.classList.add('primary');
+      this.gotoVisQuery_elem.classList.remove('disabled');
+    }
     this.gotoVisQuery_elem.disabled = disable;
   }
 

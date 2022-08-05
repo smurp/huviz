@@ -1,9 +1,8 @@
-
 import { FSMMixin, FiniteStateMachine } from '../../src/fsm.js';
 import { DatasetDBMixin } from '../../src/datasetdb.js';
 import { PickOrProvidePanel } from '../pickorprovide/pickorprovide.js';
 import { DropLoader } from './droploader.js';
-
+import { NavBar } from './navbar.js';
 // https://www.gitmemory.com/issue/FortAwesome/Font-Awesome/15316/517343443
 //   see _load_font_awesome() in this file
 import {
@@ -15,6 +14,8 @@ import { fab } from '../../node_modules/@fortawesome/free-brands-svg-icons/index
 config.autoAddCss = false;
 
 customElements.define('pick-or-provide', PickOrProvidePanel);
+
+const customScreensList = ['on-first', 'on-start', 'on-continue', 'on-load'];
 
 export const colorlog = function(msg, color='green', size='2em') {
   return console.log(`%c${msg}`, `color:${color};font-size:${size};`);
@@ -63,8 +64,12 @@ var resMenFSMTTL= `
          st:onGo       tr:none          st:done .
          st:onGo       tr:esc           st:onStart .
 
-         # st:ANY        tr:gotoAbout     st:onAbout .
-         # st:ANY        tr:gotoCredit    st:onCredit .
+         st:onAbout    tr:esc           st:onFirst .
+
+         st:onFirst     tr:esc          st:onFirst .
+
+         st:ANY        tr:gotoAbout     st:onAbout .
+         st:ANY        tr:gotoCredit    st:onCredit .
          # st:ANY        tr:gotoHelp      st:onHelp .
 
        `;
@@ -88,7 +93,6 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
 
     /* wire up all the buttons so they can perform their transitions */
     this.addIDClickListeners('main, button, [id]', this.clickListener.bind(this));
-
     /* Initialize the beBrave feature, which can be removed when out of beta */
     //this._toggleBeingBrave();
 
@@ -153,14 +157,15 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
   clickListener(evt) {
     let target = evt.target;
     let targetId = target.id;
-    // The svg and path elements injected by fontawesome  don't have ids but need to be ignored
-    if (!targetId && ['svg','path'].includes(target.nodeName)) {
-      console.debug("seeking new target because on id found on", target)
-      target = target.closest('main, button, [id]');
-      console.debug('closest target:', target);
-      targetId = target?.id;  // get the id if there is one
-    }
     console.debug('clickListener', {evt, targetId});
+
+    // //show dropdowns on click
+    if(target.id.includes('-dd')){
+      this.querySelector(`.${target.id}-content`).classList.toggle('show');
+    }
+    // if(target.id.includes('-dd')){
+    //   this.querySelector(`.${target.id}-content`).classList.toggle('show');
+    // }
     if (targetId) {
       try {
         this.transit(targetId, evt);
@@ -177,7 +182,9 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     */
     this.querySelectorAll(selector).forEach((item) => {
       //console.debug("addEventListener", {item});
-      item.addEventListener('click', handler);
+      if(!item.id.includes('-dd')){
+        item.addEventListener('click', handler);
+      }
     })
   }
   enter__(evt, stateId) {
@@ -235,7 +242,7 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
       validate();
     }
     // must use userGeneratedClickEvt, otherwise it will be rejected
-    this.datasetUpload?.click(userGeneratedClickEvt); // fake click 'Choose File'
+    //this.datasetUpload?.click(userGeneratedClickEvt); // fake click 'Choose File'
   }
   _validate_onUpload() {
     const {form} = this.drop_loader;
@@ -247,11 +254,13 @@ export class ResourceMenu extends DatasetDBMixin(FSMMixin(HTMLElement)) {
     console.debug('_validate_onUpload()', {
       datasetUri, ontologyUri, isValid
     });
-    form.classList.toggle('hasCustomOnto', hasCustomOnto);
+    console.log(form.classList.toggle('hasCustomOnto', hasCustomOnto));
     if (isValid) {
       this.visualizeUploadBtn.removeAttribute('disabled');
+      this.visualizeUploadBtn.classList.remove('disabled');
     } else {
       this.visualizeUploadBtn.setAttribute('disabled', 'disabled');
+      this.visualizeUploadBtn.classList.add('disabled');
     }
   }
   // onUpload end
@@ -502,7 +511,7 @@ ORDER BY ?g\
     console.debug(`showMain('${which}')`);
     this.querySelectorAll('main').forEach((main) => {
       if (main.classList.contains(which)) {
-        main.style.display = 'block';
+        main.style.display = 'flex';
       } else {
         main.style.display = 'none';
       }

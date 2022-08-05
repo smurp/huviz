@@ -21,7 +21,7 @@ variables:
   STAGING_ENABLED: 1
   KUBE_INGRESS_BASE_DOMAIN: dev.lincsproject.ca
   KUBE_CONTEXT: "calincs/gitlab-agents:dev-agent"
-  KUBE_NAMESPACE: $CI_PROJECT_NAME-$CI_COMMIT_REF_SLUG
+  KUBE_NAMESPACE: $CI_PROJECT_NAME-$CI_ENVIRONMENT_SLUG
 
   # HuViz container variables
   K8S_SECRET_PORT: 5000

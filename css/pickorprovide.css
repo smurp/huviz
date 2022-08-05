@@ -1,0 +1,88 @@
+:root {
+    /* Why does putting custom properties here not work? */
+}
+* {
+    --big-xy: clamp(50vh,500px,1000px);
+    --lil-xy: calc(var(--big-xy) * .66);
+    --dif-xy: calc(var(--big-xy) - var(--lil-xy));
+    --hlf-dif-xy: calc(var(--dif-xy) / 2);
+    --hed-h: calc(var(--dif-xy) / 2.2);
+    --logo-xy: calc(var(--hed-h) * .80);
+    --logo-pad: calc((var(--hed-h) - var(--logo-xy)) / 2.2);
+    --fntsiz: calc(var(--lil-xy)/26);
+    font-size: var(--fntsiz);
+}
+button {
+    border-radius: .5em;
+}
+
+.local_file_form.is-dragover {
+background-color: green;
+}
+.local_file_form .box__file {
+width: 0.1px;
+height: 0.1px;
+opacity: 0;
+overflow: hidden;
+position: absolute;
+z-index: -1;
+}
+.local_file_form .box__upload_button {
+display: none;
+}
+.local_file_form .box__label {
+display: none;
+}
+.local_file_form.supports-dnd {
+/* outline: 2px dashed black; */
+margin: 3px;
+outline-offset: -2px;
+border: 6px;
+padding: 8px;
+}
+.local_file_form .box__uri {
+width: 98%;
+}
+.local_file_form .box__uri:invalid {
+color: red;
+}
+.local_file_form .box__uri:valid {
+color: green;
+}
+.pick_or_provide_form {
+margin-top: 1em;
+}
+.big_go_button {
+margin: 1.5em 0.5em;
+border-color: #999;
+border-radius: 5px;
+background-color: #eee;
+cursor: pointer;
+border-top: 1px solid #eee;
+border-right: 1px solid #aaa;
+border-left: 1px solid #eee;
+border-bottom: 1px solid #aaa;
+background-color: #f5f5f5;
+padding: 3px 4px;
+border-radius: 3px;
+color: #666;
+}
+.big_go_button:hover {
+background-color: #ddd;
+color:#000;
+}
+button.big_go_button:disabled{
+color:#ccc;
+background-color: inherit;
+border-color: #ddd;
+
+}
+.pick_or_provide_form button:enabled{
+color: #9c1111;
+border-color: #9c7070;
+background-color: #fdf2f2;
+border-radius: 5px;
+}
+.pick_or_provide_form button:disabled{
+display: none;
+}

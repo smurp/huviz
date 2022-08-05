@@ -1,0 +1,103 @@
+:root {
+  --big-xy: clamp(50vh,500px,700px); /* the side length of the bigbox ie the outer box */
+  --lil-xy: calc(var(--big-xy) * .66); /* the side length of the lilbox ie the inner box */
+  --dif-xy: calc(var(--big-xy) - var(--lil-xy)); /* the difference in side length of the bigbox and lilbox */
+  --hlf-dif-xy: calc(var(--dif-xy) / 2); /* half the difference between bigbox and lilbox side lengths */
+  --hed-h: calc(var(--dif-xy) / 2.2); /* height of header and footer */
+  --logo-xy: calc(var(--hed-h) * .80); /* side length of header logo */
+  --logo-pad: calc((var(--hed-h) - var(--logo-xy)) / 1); /* top padding of logo */
+  --fntsiz: calc(var(--lil-xy)/26); /* base font-size */
+  --content-h: calc(var(--lil-xy) - 2 * --fntsiz);
+  font-size: var(--fntsiz);
+}
+.ring {
+  z-index: -1;
+}
+.bigbox {
+  /* center this bad boy */
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 40vw;
+  height: 38vw;
+  border-radius: 50%;
+  padding: 5vw 5vw 6vw;
+
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+
+  background-image: url(/images/IntroCircle.svg);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center;
+  background-size: contain;
+}
+.content {
+  overflow-y: auto;
+  height: var(--content-h);
+  background-color: #ffffff;
+  border-radius: .3em;
+  height: 100%;
+  width: 100%;
+}
+
+
+/* onBrowse */
+.delete_option {
+  display: none;
+  width: 0;
+}
+/* onUpload */
+
+/* .onUpload input,
+.onUpload .ontologyTitle {
+  display: inline;
+  width: 13em;
+} */
+.onUpload label {
+}
+#defaultOntologyUri ,
+#defaultOntologyName {
+  display: none;
+  width: 0em;
+  height: 0em;
+}
+/* The dataset Upload button and input[type=file] */
+.onUpload label[for=datasetUpload] {
+  /* background-color: orange;  */
+}
+
+/* .onUpload #datasetUpload::-webkit-file-upload-button,
+.onUpload #datasetUpload::file-selector-button,
+.onUpload #ontologyUpload::-webkit-file-upload-button,
+.onUpload #ontologyUpload::file-selector-button {
+  https://developer.mozilla.org/en-US/docs/Web/CSS/::file-selector-button
+  opacity:0; hiding it this way preserves accessibility, unlike display:none
+  width:1em;
+} */
+.box__uri {
+  width: 80%;
+}
+.box__uri:invalid {
+  color: red;
+}
+.box__uri:valid {
+  color: green;
+}
+.drop_indicator {
+  /* top: .2em; */
+  right: .5em;
+  position: absolute;
+  color: lightblue;
+}
+
+/* onGo */
+#loadingOntologyName,
+#loadingDatasetName {
+  display: block;
+}
