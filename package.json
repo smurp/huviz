@@ -28,9 +28,9 @@
   "main": "lib/huviz.dist.js",
   "dependencies": {
     "@fnando/sparkline": "^0.3.10",
-    "@fortawesome/fontawesome-svg-core": "^1.2.36",
-    "@fortawesome/free-brands-svg-icons": "^5.15.4",
-    "@fortawesome/free-solid-svg-icons": "^5.15.4",
+    "@fortawesome/fontawesome-svg-core": "6.4.0",
+    "@fortawesome/free-brands-svg-icons": "6.4.0",
+    "@fortawesome/free-solid-svg-icons": "6.4.0",
     "async": "~0.2.9",
     "d3": "~5.15.0",
     "dotenv": "^8.2.0",

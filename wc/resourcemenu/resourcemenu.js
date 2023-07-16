@@ -6,12 +6,12 @@ import { NavBar } from './navbar.js';
 // https://www.gitmemory.com/issue/FortAwesome/Font-Awesome/15316/517343443
 //   see _load_font_awesome() in this file
 import {
-  config, dom, library
-} from '../../node_modules/@fortawesome/fontawesome-svg-core/index.es.js'
-import { fas } from '../../node_modules/@fortawesome/free-solid-svg-icons/index.es.js';
-import { fab } from '../../node_modules/@fortawesome/free-brands-svg-icons/index.es.js';
+  dom, library
+} from 'node_modules/@fortawesome/fontawesome-svg-core'
+import { fas } from '@fortawesome/free-solid-svg-icons';
+import { fab } from '@fortawesome/free-brands-svg-icons';
 // https://fontawesome.com/v5.0/how-to-use/with-the-api/setup/configuration
-config.autoAddCss = false;
+// config.autoAddCss = false;
 
 customElements.define('pick-or-provide', PickOrProvidePanel);
 
