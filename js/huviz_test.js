@@ -218,27 +218,6 @@ var getStyle = function(className) {
     }
 };
 
-/*
-var setup_jsoutline = function() {
-  console.group("jsoutline setup");
-  window.treepicker = require('treepicker');
-  window.coloredtreepicker = require('coloredtreepicker');
-  window.taxon = require('taxon');
-  window.gclui = require('gclui');
-  jsoutline.traceAll(huviz.Orlando, true, ["tick","draw_circle","calc_node_radius","should_show_label","show_the_edges","draw_edge_labels","should_show_label","draw_nodes_in_set","draw_discards","draw_edge_labels","should_show_label","draw_discards","find_focused_node_or_edge","adjust_cursor","blank_screen","update_snippet","clear_canvas","draw_dropzones","show_last_mouse_pos","auto_change_verb","show_node_links","get_charge","hide_state_msg","show_state_msg","draw_labels","draw_nodes","apply_fisheye","draw_shelf","position_nodes","draw_edges","recolor_node","uri_to_js_id", "default_graph_controls", "mousemove", "draw_edges_from", "draw_curved_line"]);
-  jsoutline.traceAll(treepicker.TreePicker, true, ["set_payload","get_or_create_payload","uri_to_js_id"]);
-  jsoutline.traceAll(coloredtreepicker.ColoredTreePicker,true, ["set_payload","get_or_create_payload"]);
-  jsoutline.traceAll(gclui.CommandController, true, ["auto_change_verb_if_warranted","is_immediate_mode","on_set_count_update"]);
-  jsoutline.traceAll(taxon.Taxon, true);
-  window.graphcommandlanguage = require('graphcommandlanguage')
-  jsoutline.traceAll(graphcommandlanguage.GraphCommand, true, []);
-  jsoutline.squelch = true;
-  jsoutline.collapsed = true;
-  console.groupEnd();
-};
-//setup_jsoutline();
-*/
-
 var get_nextcommand_str = function() {
   return $(".nextcommand_str").text();
 };
