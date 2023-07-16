@@ -1,8 +1,8 @@
 import {
   dom, library
-} from '../../node_modules/@fortawesome/fontawesome-svg-core'
-import { fas } from '../../node_modules/@fortawesome/free-solid-svg-icons/index.js';
-import { fab } from '../../node_modules/@fortawesome/free-brands-svg-icons/index.js';
+} from '@fortawesome/fontawesome-svg-core'
+import { fas } from '@fortawesome/free-solid-svg-icons';
+import { fab } from '@fortawesome/free-brands-svg-icons';
 
 const template = document.createElement('template');
 template.innerHTML = `
