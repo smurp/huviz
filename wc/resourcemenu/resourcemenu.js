@@ -7,7 +7,7 @@ import { NavBar } from './navbar.js';
 //   see _load_font_awesome() in this file
 import {
   dom, library
-} from 'node_modules/@fortawesome/fontawesome-svg-core'
+} from '@fortawesome/fontawesome-svg-core'
 import { fas } from '@fortawesome/free-solid-svg-icons';
 import { fab } from '@fortawesome/free-brands-svg-icons';
 // https://fontawesome.com/v5.0/how-to-use/with-the-api/setup/configuration
