@@ -8353,7 +8353,7 @@ LIMIT ${limit}\
   }
 
   makeResourceMenuDialog() {
-    let TOP = document.getElementById('HUVIZ_TOP');
+    let TOP = document.querySelector(this.args.huviz_top_sel);
     TOP.insertAdjacentHTML('beforeend','<resource-menu></resource-menu>');
     this.resourceMenu = TOP.querySelector('resource-menu');
     this.resourceMenu.registerHuViz(this);
