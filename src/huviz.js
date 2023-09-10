@@ -2643,14 +2643,15 @@ with Shelved, Discarded, Graphed and Hidden.`;
     var new_focused_edge = null;
     var new_focused_node = null;
     if (found) {
-      if (found.constructor.name == 'Node') {
+      if (found instanceof Node) {
         new_focused_node = found;
       } else {
         new_focused_edge = found;
         seeking = null; // we found an edge, not a node
       }
       if (this.draw_circle_around_focused) {
-        this.draw_circle(getXfromNodeOrEdge(found), getYfromNodeOrEdge(found), this.node_radius * 3, "red")
+        this.draw_circle(
+          getXfromNodeOrEdge(found), getYfromNodeOrEdge(found), this.node_radius * 3, "red")
       }
     }
     // if (!this.should_display_labels_as('boxNGs')) {
