@@ -146,7 +146,7 @@ MultiString.set_langpath('en:fr'); // TODO make this a setting
 export const colorlog = function(msg, color, size) {
   if (color == null) { color = "red"; }
   if (size == null) { size = "1.2em"; }
-  return console.log(`%c${msg}`, `color:${color};font-size:${size};`);
+  console.log(`%c${msg}`, `color:${color};font-size:${size};`);
 };
 
 const esc_html = function(str) {
@@ -1034,6 +1034,9 @@ Here is how:
     }
     this.tabsJQElem = $('#' + this.tabs_id);
     if (!this.args.show_tabs) {
+      this.collapse_tabs();
+    }
+    if (this.args.start_with_tabs_collapsed) {
       this.collapse_tabs();
     }
     this.replace_human_term_spans(this.tabs_id);
@@ -9304,6 +9307,8 @@ LIMIT ${this.search_sparql_by_label_limit}
       show_edit: false,
       show_tabs: true,
       skip_log_tick: true,
+      start_with_tabs_collapsed: false,
+      start_with_search_node: false,
       state_msg_box_sel: unique_id('#state_msg_box_'),
       status_sel: unique_id('#status_'),
       stay_square: false,
@@ -9394,9 +9399,9 @@ LIMIT ${this.search_sparql_by_label_limit}
   }
 
   maybe_start_with_search_node() {
-    if (this.start_with_search_node) {
+    if (this.args.start_with_search_node) {
       setTimeout(() => {
-        this.collapse_tabs;
+        this.collapse_tabs();
         this.change_setting_to_from('display_labels_as', 'boxNGs');
         this.change_setting_to_from('show_class_instance_edges', true);
         this.make_search_node();
