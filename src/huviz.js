@@ -8667,8 +8667,8 @@ LIMIT ${limit}\
   }
 
   update_caption(dataset_str, ontology_str) {
-    this.dataset_watermark_JQElem.text(dataset_str);
-    this.ontology_watermark_JQElem.text(ontology_str);
+    this.dataset_watermark_JQElem.text(dataset_str || '');
+    this.ontology_watermark_JQElem.text(ontology_str || '');
   }
 
 
