@@ -1,7 +1,7 @@
 huviz
 =====
 
-![Image](./graph_ex1.png?raw=true)
+![Image](./docs/graph_ex1.png?raw=true)
 
 # What is HuViz?
 
@@ -162,6 +162,10 @@ $ QUAFF_PATH=../quaff-lod/ npm run watch
 ### [Finite state machine](http://alpha.huviz.dev.nooron.com/#load+/data/Running_state_machine.ttl+with+/data/owl_mini.ttl)
 
 ![Demo of finite state machine diagram](./docs/running_graph.png?raw=true)
+
+
+### [Friend of a Friend (FOAF) Ontology](https://huviz.lincsproject.ca/#load+/data/foaf20140114.ttl+with+/data/owl_mini.ttl+run+/scripts/adde581b000953fe3c473ec2daf0a254.txt)
+![Image](./docs/foafsubset.png?raw=true)
 
 
 ### [Demo of CWRC subject-centric data](http://alpha.huviz.dev.nooron.com/#load+/data/VirginiaWoolfSubjectCentricDH2019.ttl+with+http://sparql.cwrc.ca/ontology/cwrc.ttl)
