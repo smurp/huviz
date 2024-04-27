@@ -17,6 +17,7 @@ other sites as a visualizer for their graph content.
 
 ## Deployments
 
+* [Latest](https://huviz.noosphere.org/)
 * [Production](https://huviz.lincsproject.ca/)
 * [Classic](https://huviz-classic.lincsproject.ca/) (in coffeescript, using D3v3)
 
@@ -39,7 +40,7 @@ other sites as a visualizer for their graph content.
 
 * [HuViz Overview](https://balsamiq.cloud/senbj2i/ppkgzk1)
 * [Tab Details](https://balsamiq.cloud/su7hynz/p1rmtj6/r8AA1)
-* [History Mockup](http://alpha.huviz.dev.nooron.com/more/historymockup)
+* [History Mockup](http://huviz.noosphere.org/more/historymockup)
 
 ## Sets
 
@@ -159,7 +160,7 @@ $ QUAFF_PATH=../quaff-lod/ npm run watch
 
 # Gallery
 
-### [Finite state machine](http://alpha.huviz.dev.nooron.com/#load+/data/Running_state_machine.ttl+with+/data/owl_mini.ttl)
+### [Finite state machine](http://huviz.noosphere.org/#load+/data/Running_state_machine.ttl+with+/data/owl_mini.ttl)
 
 ![Demo of finite state machine diagram](./docs/running_graph.png?raw=true)
 
@@ -168,7 +169,7 @@ $ QUAFF_PATH=../quaff-lod/ npm run watch
 ![Image](./docs/foafsubset.png?raw=true)
 
 
-### [Demo of CWRC subject-centric data](http://alpha.huviz.dev.nooron.com/#load+/data/VirginiaWoolfSubjectCentricDH2019.ttl+with+http://sparql.cwrc.ca/ontology/cwrc.ttl)
+### [Demo of CWRC subject-centric data](http://huviz.lincsproject.ca/#load+/data/VirginiaWoolfSubjectCentricDH2019.ttl+with+http://sparql.cwrc.ca/ontology/cwrc.ttl)
 
 ![Demo of moderately dense graph](./docs/huviz_vwoolf_cluster.png?raw=true)
 
