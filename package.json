@@ -27,6 +27,7 @@
   "type": "module",
   "main": "lib/huviz.dist.js",
   "dependencies": {
+    "components-jqueryui": "components/jqueryui",
     "@fnando/sparkline": "^0.3.10",
     "@fortawesome/fontawesome-svg-core": "6.4.0",
     "@fortawesome/free-brands-svg-icons": "6.4.0",
