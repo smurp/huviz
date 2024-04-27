@@ -27,12 +27,12 @@
   "type": "module",
   "main": "lib/huviz.dist.js",
   "dependencies": {
-    "components-jqueryui": "components/jqueryui",
     "@fnando/sparkline": "^0.3.10",
     "@fortawesome/fontawesome-svg-core": "6.4.0",
     "@fortawesome/free-brands-svg-icons": "6.4.0",
     "@fortawesome/free-solid-svg-icons": "6.4.0",
     "async": "~0.2.9",
+    "components-jqueryui": "components/jqueryui",
     "d3": "~5.15.0",
     "dotenv": "^8.2.0",
     "ejs": "2.6.1",
@@ -51,6 +51,7 @@
     "stitch": "~0.3.3"
   },
   "devDependencies": {
+    "@rollup/plugin-node-resolve": "^15.2.3",
     "arkit": "^1.6.4",
     "browserify": "^16.2.3",
     "chai": "4.2.0",
