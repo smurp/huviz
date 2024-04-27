@@ -155,7 +155,9 @@ button.back:hover{
   text-decoration: underline;
 }
 
-button{
+button.primary,
+button.secondary,
+button.action {
   min-width: 6.375em;
   height: 2.563em;
   border-radius: 12px;
