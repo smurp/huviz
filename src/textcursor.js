@@ -55,7 +55,7 @@ export class TextCursor {
     this.set_text(this.last_text);
   }
   set_cursor(cursor) {
-    $(this.elem).css("cursor", cursor);
+    this.elem.style.cursor = cursor;
   }
   make_img(text) {
     // TODO make a speech bubble sort of thing of low opacity but text of high
@@ -64,8 +64,11 @@ export class TextCursor {
     let i, line, voffset;
     const id = "temp_TextCursor_canvas";
     const sel = `#${id}`;
-    $('<canvas>', {id}).appendTo("body");
-    this.canvas = $(sel)[0];
+    let canvas = this.canvas = document.createElement('canvas');
+    canvas.id = id;
+    document.body.append(canvas);
+    //$('<canvas>', {id}).appendTo("body");
+    //this.canvas = $(sel)[0];
     this.canvas.width = this.width;
     this.canvas.height = this.height;
     this.ctx = this.canvas.getContext("2d");
@@ -99,7 +102,7 @@ export class TextCursor {
     }
     const url = this.canvas.toDataURL("image/png");
     const cursor = `url(${url}), help`;
-    $(this.canvas).remove();
+    this.canvas.remove();
     return url;
   }
   draw_bubble(x, y, w, h, pointer_height, radius) {

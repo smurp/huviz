@@ -10,7 +10,7 @@ template.innerHTML = `
   <link rel="stylesheet" href="/huviz/css/introscreens.css" type="text/css">
   <div class="navbar">
     <div class="logo">
-      <a href="https://huviz.lincsproject.ca/">
+      <a href="https://smurp.github.io/huviz/">
       <img src="/images/HuVizLogo.svg"></img>
       </a>
     </div>
