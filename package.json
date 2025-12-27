@@ -1,6 +1,6 @@
 {
   "name": "huviz",
-  "version": "0.72.2",
+  "version": "0.72.3",
   "license": "GPL-3.0-or-later",
   "repository": {
     "type": "git",
@@ -48,7 +48,8 @@
     "npm-run-all": "^4.1.5",
     "quaff-lod": "^1.1.1",
     "rollup": "~2.79.1",
-    "stitch": "~0.3.3"
+    "stitch": "~0.3.3",
+    "textcursor": "github:smurp/textcursor"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^15.2.3",

@@ -134,7 +134,7 @@ import {DEFAULT_SETTINGS} from './settings.js';
 import {SettingsWidget, UsernameWidget, GeoUserNameWidget} from './settingswidgets.js';
 import {SortedSet} from './sortedset.js';
 import {Taxon} from './taxon.js';
-import {TextCursor} from './textcursor.js';
+import {TextCursor} from 'textcursor';
 import {uniquer, unique_id} from './uniquer.js'; // TODO rename to make_dom_safe_id
 
 /* Set up the WebComponents */
